@@ -246,6 +246,32 @@ export declare namespace Cli {
     }
 
     /**
+     * Keyboard-hint contract projections.
+     */
+    export namespace Keyboard {
+      /** Keyboard-hint formatter library contract. */
+      export type Lib = t.CliFormatKeyboard.Lib;
+
+      /**
+       * Keyboard command formatting contract projections.
+       */
+      export namespace Command {
+        /** Keyboard command formatting options. */
+        export type Options = t.CliFormatKeyboard.Command.Options;
+      }
+
+      /**
+       * Keyboard-row formatting contract projections.
+       */
+      export namespace Row {
+        /** Keyboard-row formatting options. */
+        export type Options = t.CliFormatKeyboard.Row.Options;
+        /** Complete keyboard-row presentation candidate. */
+        export type Candidate = t.CliFormatKeyboard.Row.Candidate;
+      }
+    }
+
+    /**
      * Help-page contract projections.
      */
     export namespace Help {

@@ -424,14 +424,14 @@ describe('DevScreen runtime', () => {
       reporter.ready();
 
       const initial = stripAnsi(runtime.repaints.at(-1) ?? '');
-      expect(initial).to.include('open: o (in browser)');
-      expect(initial).to.include('quit: ctrl + c or q');
+      expect(initial).to.include('open: o (browser)');
+      expect(initial).to.include('quit: q');
 
-      terminal.resize({ width: 40, height: 24 }, false);
+      terminal.resize({ width: 25, height: 24 }, false);
       scheduler.flush();
-      const narrow = stripAnsi(runtime.repaints.at(-1) ?? '');
-      expect(narrow).to.not.include('open:');
-      expect(narrow).to.not.include('quit:');
+      const compact = stripAnsi(runtime.repaints.at(-1) ?? '');
+      expect(compact.split('\n').at(-1)).to.eql('open: o           quit: q');
+      expect(compact).to.not.include('(browser)');
 
       terminal.resize({ width: 80, height: 24 }, false);
       scheduler.flush();

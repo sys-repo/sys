@@ -175,18 +175,23 @@ const wrangle = {
   },
 
   keyboardFooter(width: number) {
-    const key = (text: string) => c.bold(c.white(text));
-    const open = `${c.dim(c.gray('open:'))} ${key('o')} ${c.dim(c.gray('(in browser)'))}`;
-    const quit = `${c.dim(c.gray('quit:'))} ${key('ctrl + c')} ${c.dim(c.gray('or'))} ${key('q')}`;
-    const controlsWidth = Cli.Fmt.Text.Width.measure(`${open}  ${quit}`);
-    if (controlsWidth > width) return [];
+    const quit = Cli.Fmt.Keyboard.command({ label: 'quit', keys: ['q'] });
+    const row = Cli.Fmt.Keyboard.row({
+      width,
+      candidates: [
+        {
+          left: Cli.Fmt.Keyboard.command({
+            label: 'open',
+            keys: ['o'],
+            context: 'browser',
+          }),
+          right: quit,
+        },
+        { left: Cli.Fmt.Keyboard.command({ label: 'open', keys: ['o'] }), right: quit },
+      ],
+    });
+    if (!row) return [];
 
-    const gap = ' '.repeat(
-      Math.max(2, width - Cli.Fmt.Text.Width.measure(open) - Cli.Fmt.Text.Width.measure(quit)),
-    );
-    return [
-      c.dim(c.gray(Cli.Fmt.hr({ width, weight: 'dashed' }))),
-      `${open}${gap}${quit}`,
-    ];
+    return [c.dim(c.gray(Cli.Fmt.hr({ width, weight: 'dashed' }))), row];
   },
 } as const;

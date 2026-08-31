@@ -623,7 +623,8 @@ describe('DevScreen', () => {
         });
       const wide = render(120, 40);
       const wideLines = stripAnsi(wide).split('\n');
-      const narrow = stripAnsi(render(40, 40));
+      const compactLines = stripAnsi(render(25, 40)).split('\n');
+      const omitted = stripAnsi(render(15, 40));
       const short = stripAnsi(render(120, 10));
       const output = DevOutputLog.create({ maxLines: 1 });
       output.push(processEvent('stdout', 'retained-under-pressure\n'));
@@ -642,11 +643,13 @@ describe('DevScreen', () => {
       );
       expect(wideLines.at(-2)).to.eql('┄'.repeat(120));
       expect(wide).to.include(c.dim(c.gray('open:')));
-      expect(wide).to.include(c.bold(c.white('ctrl + c')));
-      expect(wideLines.at(-1)).to.include('open: o (in browser)');
-      expect(wideLines.at(-1)).to.include('quit: ctrl + c or q');
-      expect(narrow).to.not.include('open:');
-      expect(narrow).to.not.include('quit:');
+      expect(wide).to.include(c.bold(c.white('q')));
+      expect(wideLines.at(-1)).to.include('open: o (browser)');
+      expect(wideLines.at(-1)).to.include('quit: q');
+      expect(compactLines.at(-1)).to.eql('open: o           quit: q');
+      expect(compactLines.at(-1)).to.not.include('(browser)');
+      expect(omitted).to.not.include('open:');
+      expect(omitted).to.not.include('quit:');
       expect(short).to.not.include('open:');
       expect(short).to.not.include('quit:');
       expect(pressured).to.include('retained-under-pressure');

@@ -56,8 +56,8 @@ describe('DistServeScreen', () => {
         authorityRow.indexOf('pinned'),
       )).to.eql('  ');
       expect(lines.at(-2)).to.include('┄');
-      expect(lines.at(-1)).to.include('open: o (in browser)');
-      expect(lines.at(-1)).to.include('quit: ctrl + c or q');
+      expect(lines.at(-1)).to.include('open: o (browser)');
+      expect(lines.at(-1)).to.include('quit: q');
     } finally {
       await teardown(fixture);
     }
@@ -174,16 +174,18 @@ describe('DistServeScreen', () => {
         schedule: schedule.schedule,
         keyboard: { enabled: true, print: true },
       });
-      expect(text(terminal.repaints[0] ?? '')).to.include('open: o (in browser)');
+      expect(text(terminal.repaints[0] ?? '')).to.include('open: o (browser)');
 
-      terminal.resize({ width: 36, height: 15 });
+      terminal.resize({ width: 25, height: 15 });
       expect(terminal.repaints).to.have.length(1);
       schedule.flush();
-      expect(text(terminal.repaints.at(-1) ?? '')).to.not.include('open:');
+      const compact = text(terminal.repaints.at(-1) ?? '');
+      expect(compact.split('\n').at(-1)).to.eql('open: o           quit: q');
+      expect(compact).to.not.include('(browser)');
 
       const final = { width: 120, height: 24 };
       terminal.resize({ width: 120, height: 24 });
-      terminal.resize({ width: 36, height: 15 });
+      terminal.resize({ width: 25, height: 15 });
       terminal.emit(final);
       final.width = 12;
 
@@ -192,7 +194,7 @@ describe('DistServeScreen', () => {
       schedule.flush();
       expect(terminal.repaints).to.have.length(3);
       expect(text(terminal.repaints.at(-1) ?? '').split('\n')[1]).to.eql('━'.repeat(120));
-      expect(text(terminal.repaints.at(-1) ?? '')).to.include('open: o (in browser)');
+      expect(text(terminal.repaints.at(-1) ?? '')).to.include('open: o (browser)');
       screen.dispose();
     } finally {
       await teardown(fixture);
@@ -631,7 +633,8 @@ describe('DistServeScreen', () => {
       expect(text(frame(79))).to.include(digestTail);
       expect(narrow).to.include(Cli.Fmt.omission());
       expect(narrow).to.include(c.bold(c.cyan('49152')));
-      expect(text(frame(24))).to.not.include('open:');
+      expect(text(frame(15))).to.not.include('open:');
+      expect(text(frame(15))).to.not.include('quit:');
       expect(text(frame(120, 12))).to.not.include('open:');
     } finally {
       await teardown(fixture);

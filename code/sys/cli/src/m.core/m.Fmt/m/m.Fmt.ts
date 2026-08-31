@@ -4,6 +4,7 @@ import { Text } from '../../m.Fmt.Text/mod.ts';
 import { Commit } from './m.Commit.ts';
 import { Header } from './m.Header.ts';
 import { Help } from './m.Help.ts';
+import { Keyboard } from './m.Keyboard.ts';
 import { Path } from './m.Path.ts';
 import { ServiceUrl } from './m.ServiceUrl.ts';
 import { Tree } from './m.Tree.ts';
@@ -17,6 +18,7 @@ export const Fmt: t.CliFormat.Lib = Object.freeze({
   Header,
   Commit,
   Help,
+  Keyboard,
   Text,
   Chapters,
   Tree,

@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { Fmt as BaseFmt } from '../../m.Fmt/mod.ts';
+import { Cli, Fmt as BaseFmt } from '../../mod.ts';
 import { Code, Fmt } from '../mod.ts';
 
 describe('Cli.Fmt.Code', () => {
@@ -11,6 +11,8 @@ describe('Cli.Fmt.Code', () => {
     expect(m.Code).to.equal(Code);
     expect(m.Fmt).to.equal(Fmt);
     expect(m.Fmt.hr).to.equal(BaseFmt.hr);
+    expect(m.Fmt.Keyboard).to.equal(BaseFmt.Keyboard);
+    expect(m.Fmt.Keyboard).to.equal(Cli.Fmt.Keyboard);
     expect(m.Fmt.Code).to.equal(Code);
     expect(m.Fmt.Code.highlight).to.equal(Code.highlight);
   });

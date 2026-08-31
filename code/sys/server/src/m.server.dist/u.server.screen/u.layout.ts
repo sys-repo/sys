@@ -233,16 +233,18 @@ const wrangle = {
   },
 
   keyboardRows(width: number) {
-    const key = (text: string) => c.bold(c.white(text));
-    const open = `${c.dim(c.gray('open:'))} ${key('o')} ${c.dim(c.gray('(in browser)'))}`;
-    const quit = `${c.dim(c.gray('quit:'))} ${key('ctrl + c')} ${c.dim(c.gray('or'))} ${key('q')}`;
-    const controlsWidth = Cli.Fmt.Text.Width.measure(`${open}  ${quit}`);
-    if (controlsWidth > width) return [];
-
-    const gap = ' '.repeat(
-      Math.max(2, width - Cli.Fmt.Text.Width.measure(open) - Cli.Fmt.Text.Width.measure(quit)),
-    );
-    return [`${open}${gap}${quit}`];
+    const quit = Cli.Fmt.Keyboard.command({ label: 'quit', keys: ['q'] });
+    const row = Cli.Fmt.Keyboard.row({
+      width,
+      candidates: [
+        {
+          left: Cli.Fmt.Keyboard.command({ label: 'open', keys: ['o'], context: 'browser' }),
+          right: quit,
+        },
+        { left: Cli.Fmt.Keyboard.command({ label: 'open', keys: ['o'] }), right: quit },
+      ],
+    });
+    return row ? [row] : [];
   },
 
   ageText(value: t.UnixTimestamp | undefined, renderedAt: t.UnixTimestamp) {
@@ -399,7 +401,7 @@ function clipColored(input: string, width: number, color: (text: string) => stri
   if (width <= 0) return '';
   if (Cli.Fmt.Text.Width.measure(input) <= width) return color(input);
   return Cli.Fmt.Text.ellipsize(input, width, {
-    render: ({ head, ellipsis, tail }) => {
+    render({ head, ellipsis, tail }) {
       return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
     },
   });

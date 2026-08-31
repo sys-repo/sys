@@ -5,6 +5,7 @@ import type {
   CliFormatCommit as CliFormatCommitFromT,
   CliFormatHeader as CliFormatHeaderFromT,
   CliFormatHelp as CliFormatHelpFromT,
+  CliFormatKeyboard as CliFormatKeyboardFromT,
   CliFormatText as CliFormatTextFromT,
 } from '@sys/cli/t';
 import type {
@@ -21,6 +22,7 @@ import { Fmt } from '../mod.ts';
 
 type Assert<T extends true> = t.Type.Assert<T>;
 type Equal<A, B> = t.Type.Equal<A, B>;
+type Exact4<A, B, C, D> = Equal<[A, A, A], [B, C, D]>;
 type Exact6<A, B, C, D, E, F> = Equal<[A, A, A, A, A], [B, C, D, E, F]>;
 
 type ExpectedCommitText = {
@@ -56,6 +58,23 @@ type ExpectedHeaderLib = {
   readonly rows: (options: ExpectedHeaderOptions) => readonly string[];
 };
 type ExpectedHyperlink = (label: string, href: URL) => string;
+type ExpectedKeyboardCommandOptions = {
+  label: string;
+  keys: [first: string, ...rest: string[]];
+  context?: string;
+};
+type ExpectedKeyboardCandidate = {
+  right: string;
+  left?: string;
+};
+type ExpectedKeyboardRowOptions = {
+  width: number;
+  candidates: ExpectedKeyboardCandidate[];
+};
+type ExpectedKeyboardLib = {
+  readonly command: (options: ExpectedKeyboardCommandOptions) => string;
+  readonly row: (options: ExpectedKeyboardRowOptions) => string | undefined;
+};
 
 type ExpectedTextWidthLib = {
   readonly measure: (input: string) => number;
@@ -124,6 +143,44 @@ type CanonicalFormatterProof = [
       CliFormatFromTypes.Hyperlink.Fn,
       CliFromT.Fmt.Hyperlink.Fn,
       CliFromTypes.Fmt.Hyperlink.Fn
+    >
+  >,
+
+  // Keyboard.
+  Assert<Equal<t.CliFormatKeyboard.Lib, ExpectedKeyboardLib>>,
+  Assert<Equal<t.CliFormatKeyboard.Command.Options, ExpectedKeyboardCommandOptions>>,
+  Assert<Equal<t.CliFormatKeyboard.Row.Options, ExpectedKeyboardRowOptions>>,
+  Assert<Equal<t.CliFormatKeyboard.Row.Candidate, ExpectedKeyboardCandidate>>,
+  Assert<
+    Exact4<
+      t.CliFormatKeyboard.Lib,
+      t.Cli.Fmt.Keyboard.Lib,
+      CliFormatKeyboardFromT.Lib,
+      CliFromT.Fmt.Keyboard.Lib
+    >
+  >,
+  Assert<
+    Exact4<
+      t.CliFormatKeyboard.Command.Options,
+      t.Cli.Fmt.Keyboard.Command.Options,
+      CliFormatKeyboardFromT.Command.Options,
+      CliFromT.Fmt.Keyboard.Command.Options
+    >
+  >,
+  Assert<
+    Exact4<
+      t.CliFormatKeyboard.Row.Options,
+      t.Cli.Fmt.Keyboard.Row.Options,
+      CliFormatKeyboardFromT.Row.Options,
+      CliFromT.Fmt.Keyboard.Row.Options
+    >
+  >,
+  Assert<
+    Exact4<
+      t.CliFormatKeyboard.Row.Candidate,
+      t.Cli.Fmt.Keyboard.Row.Candidate,
+      CliFormatKeyboardFromT.Row.Candidate,
+      CliFromT.Fmt.Keyboard.Row.Candidate
     >
   >,
 
@@ -532,6 +589,7 @@ describe('Cli.Fmt: canonical formatter type namespaces', () => {
     expectTypeOf(Fmt).toEqualTypeOf<CliFormatFromTypes.Lib>();
 
     expectTypeOf(Fmt.Header).toEqualTypeOf<t.CliFormatHeader.Lib>();
+    expectTypeOf(Fmt.Keyboard).toEqualTypeOf<t.CliFormatKeyboard.Lib>();
     expectTypeOf(Fmt.Help).toEqualTypeOf<t.CliFormatHelp.Lib>();
     expectTypeOf(Fmt.Commit).toEqualTypeOf<t.CliFormatCommit.Lib>();
     expectTypeOf(Fmt.Text).toEqualTypeOf<t.CliFormatText.Lib>();

@@ -4,6 +4,7 @@ import type { CliFormatChapters } from '../m.Fmt.Chapters/t.ts';
 import type { CliFormatCommit } from './t.commit.ts';
 import type { CliFormatHeader } from './t.header.ts';
 import type { CliFormatHelp } from './t.help.ts';
+import type { CliFormatKeyboard } from './t.keyboard.ts';
 import type { CliFormatText } from '../m.Fmt.Text/t.ts';
 
 /** Type re-exports. */
@@ -11,6 +12,7 @@ export type * from '../m.Fmt.Chapters/t.ts';
 export type * from './t.commit.ts';
 export type * from './t.header.ts';
 export type * from './t.help.ts';
+export type * from './t.keyboard.ts';
 export type * from '../m.Fmt.Text/t.ts';
 
 /**
@@ -40,6 +42,9 @@ export declare namespace CliFormat {
 
     /** Help page formatting. */
     readonly Help: CliFormatHelp.Lib;
+
+    /** Keyboard command and adaptive-row formatting. */
+    readonly Keyboard: CliFormatKeyboard.Lib;
 
     /** Format a formatter-inserted omission marker as dim gray structural context. Defaults to `…`. */
     readonly omission: (text?: string) => string;
