@@ -166,16 +166,22 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
     screen.dispose();
   });
 
-  it('fails closed before mutated collection or string presentation methods run', () => {
+  it('fails closed before mutated collection or string presentation methods run', async () => {
     const cases: readonly Readonly<{ target: object; key: PropertyKey; label: string }>[] = [
       { target: String.prototype, key: 'slice', label: 'String.slice' },
       { target: String.prototype, key: 'lastIndexOf', label: 'String.lastIndexOf' },
       { target: String.prototype, key: 'codePointAt', label: 'String.codePointAt' },
+      { target: String.prototype, key: 'repeat', label: 'String.repeat' },
       { target: stringIteratorPrototype, key: 'next', label: 'StringIterator.next' },
+      { target: Array.prototype, key: 'join', label: 'Array.join' },
+      { target: Array.prototype, key: 'push', label: 'Array.push' },
       { target: Array.prototype, key: 'some', label: 'Array.some' },
       { target: Array, key: 'isArray', label: 'Array.isArray' },
       { target: Set.prototype, key: Symbol.iterator, label: 'Set.iterator' },
+      { target: Number, key: 'isFinite', label: 'Number.isFinite' },
+      { target: Number, key: 'isNaN', label: 'Number.isNaN' },
       { target: Number, key: 'isSafeInteger', label: 'Number.isSafeInteger' },
+      { target: Math, key: 'floor', label: 'Math.floor' },
       { target: Math, key: 'abs', label: 'Math.abs' },
       { target: Intl.Segmenter.prototype, key: 'segment', label: 'Intl.Segmenter.segment' },
       { target: segmentIteratorPrototype, key: 'next', label: 'SegmentIterator.next' },
@@ -186,14 +192,14 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
       if (!descriptor) throw new Error(`Expected ${fixture.label} descriptor.`);
       const state = createBootState();
       const harness = createScreenHarness({ width: 100, height: 18 });
-      let failures = 0;
+      const published: unknown[] = [];
       const screen = StartGuiScreen.create({
         service: SERVICE,
         url: CAPABILITY.URL,
         state,
         keyboard: true,
-        onFailure() {
-          failures += 1;
+        onFailure(cause) {
+          published[published.length] = cause;
         },
       }, harness.deps);
       let ambientCalls = 0;
@@ -213,14 +219,25 @@ describe('@sys/driver-pi start:gui screen ownership', () => {
         state.set(Boot.startingAppHost);
       }
 
-      expect({ label: fixture.label, ambientCalls, failures, frames: harness.frames.length }).to
-        .eql({
-          label: fixture.label,
-          ambientCalls: 0,
-          failures: 1,
-          frames: 1,
-        });
+      const failure = await screen.failure.catch((cause) => cause);
+      expect({
+        label: fixture.label,
+        ambientCalls,
+        failures: published.length,
+        frames: harness.frames.length,
+        published: (published[0] as Error).message,
+        failure: (failure as Error).message,
+      }).to.eql({
+        label: fixture.label,
+        ambientCalls: 0,
+        failures: 1,
+        frames: 1,
+        published: 'start:gui screen presentation authority unavailable.',
+        failure: 'start:gui screen failed.',
+      });
       screen.dispose();
+      screen.dispose();
+      expect(harness.releases).to.eql(1);
     }
   });
 
@@ -397,8 +414,8 @@ function expectFrame(frame: string, viewport: ScreenSize, state: string) {
   for (const row of serviceRows) {
     expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width - 2);
   }
-  expect(footer.startsWith('← + ctrl')).to.eql(true);
-  expect(footer.endsWith('quit: ctrl + c or q')).to.eql(true);
+  expect(footer.startsWith('← ctrl')).to.eql(true);
+  expect(footer.endsWith('quit: q')).to.eql(true);
   expect(Cli.Fmt.Text.Width.measure(footer)).to.eql(width);
   expectFrameBounds(frame, viewport);
 }

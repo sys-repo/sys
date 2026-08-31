@@ -1,5 +1,5 @@
 keyboard-footer-hints.plan.md
-- [ ] feat(cli): format adaptive keyboard hint rows
+- [x] 0db1f49f6 feat(cli): format adaptive keyboard hint rows
 - [ ] fix(driver-pi): align compact keyboard footer hints
 
 ## Purpose

@@ -810,8 +810,8 @@ function expectFrame(frame: string, viewport: ScreenSize, state: string) {
   for (const row of serviceRows) {
     expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width - 2);
   }
-  expect(footer.startsWith('← + ctrl')).to.eql(true);
-  expect(footer.endsWith('quit: ctrl + c or q')).to.eql(true);
+  expect(footer.startsWith('← ctrl')).to.eql(true);
+  expect(footer.endsWith('quit: q')).to.eql(true);
   expect(Cli.Fmt.Text.Width.measure(footer)).to.eql(width);
   expectFrameBounds(frame, viewport);
 }

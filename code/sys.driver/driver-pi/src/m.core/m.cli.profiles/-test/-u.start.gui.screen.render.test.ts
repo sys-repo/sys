@@ -337,24 +337,25 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
 
     expect(frame(7)).to.contain('open');
     expect(frame(9)).to.not.contain('quit:');
-    expect(frame(10)).to.contain('quit: ctrl + c or q');
+    expect(frame(10)).to.contain('quit: q');
   });
 
-  it('omits packed keyboard controls when the complete footer cannot fit', () => {
-    const frame = (width: number) =>
+  it('omits complete keyboard rows at the exact navigable and stopping boundaries', () => {
+    const frame = (width: number, state: BootState = Boot.preparing) =>
       Cli.stripAnsi(StartGuiScreen.toString({
         service: SERVICE,
         url: CAPABILITY.URL,
-        state: Boot.preparing,
+        state,
         keyboard: true,
         openWarning: false,
-        viewport: { width, height: 10 },
+        viewport: { width, height: 100 },
       }));
 
-    expect(frame(28)).to.not.contain('← + ctrl');
-    expect(frame(28)).to.not.contain('quit:');
-    expect(frame(29)).to.contain('← + ctrl');
-    expect(frame(29)).to.contain('quit: ctrl + c or q');
+    expect(frame(14)).to.not.contain('← ctrl');
+    expect(frame(14)).to.not.contain('quit:');
+    expect(frame(15)).to.contain('← ctrl  quit: q');
+    expect(frame(6, Boot.stopping)).to.not.contain('quit:');
+    expect(frame(7, Boot.stopping).split('\n').at(-1)).to.eql('quit: q');
   });
 
   it('dims subordinate labels to match the Cell service grammar', () => {
@@ -409,12 +410,12 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     const footer = frame.split('\n').find((row) => Cli.stripAnsi(row).includes('quit:')) ?? '';
 
     expect(footer).to.contain(c.cyan('←'));
-    expect(footer).to.contain(c.gray('+ ctrl'));
-    expect(footer).to.contain(c.gray('quit: ctrl +'));
-    expect(footer).to.contain(c.white('c'));
+    expect(footer).to.contain(c.gray('ctrl'));
+    expect(footer).to.contain(c.dim(c.gray('quit:')));
+    expect(footer).to.contain(c.bold(c.white('q')));
     const text = Cli.stripAnsi(footer);
-    expect(text.startsWith('← + ctrl')).to.eql(true);
-    expect(text.endsWith('quit: ctrl + c or q')).to.eql(true);
+    expect(text.startsWith('← ctrl')).to.eql(true);
+    expect(text.endsWith('quit: q')).to.eql(true);
     expect(Cli.Fmt.Text.Width.measure(text)).to.eql(80);
   });
 
@@ -436,7 +437,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
         Boot.ready(APPLICATION.URL, DIST_DIGEST),
       ]
     ) {
-      expect(render(state)).to.contain('← + ctrl');
+      expect(render(state)).to.contain('← ctrl');
     }
     for (
       const state of [
@@ -445,8 +446,8 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
       ]
     ) {
       const frame = render(state);
-      expect(frame).not.to.contain('← + ctrl');
-      expect(frame).to.contain('quit: ctrl + c or q');
+      expect(frame).not.to.contain('← ctrl');
+      expect(frame).to.contain('quit: q');
     }
   });
 

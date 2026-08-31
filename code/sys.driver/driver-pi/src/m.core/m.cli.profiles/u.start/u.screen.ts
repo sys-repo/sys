@@ -774,24 +774,14 @@ function colorEvidence(value: string) {
 }
 
 function keyboardRows(width: number, backEnabled: boolean): readonly string[] {
-  const quit = `${c.gray('quit: ctrl +')} ${c.white('c')} ${c.gray('or')} ${c.white('q')}`;
-  const quitWidth = Cli.Fmt.Text.Width.measure(quit);
-  if (!backEnabled) {
-    if (quitWidth > width) return [];
-    const inset = StartGuiIntrinsic.stringRepeat(' ', numericMax(0, width - quitWidth));
-    return ['', c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), `${inset}${quit}`];
-  }
-
-  const back = `${c.cyan('←')} ${c.gray('+ ctrl')}`;
-  const backWidth = Cli.Fmt.Text.Width.measure(back);
-  const controlsWidth = backWidth + 2 + quitWidth;
-  if (controlsWidth > width) return [];
-
-  const gap = StartGuiIntrinsic.stringRepeat(
-    ' ',
-    numericMax(2, width - backWidth - quitWidth),
-  );
-  return ['', c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), `${back}${gap}${quit}`];
+  const quit = Cli.Fmt.Keyboard.command({ label: 'quit', keys: ['q'] });
+  const row = Cli.Fmt.Keyboard.row({
+    width,
+    candidates: backEnabled
+      ? [{ left: `${c.cyan('←')} ${c.gray('ctrl')}`, right: quit }]
+      : [{ right: quit }],
+  });
+  return row ? ['', c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), row] : [];
 }
 
 function fitRow(row: string, width: number) {
