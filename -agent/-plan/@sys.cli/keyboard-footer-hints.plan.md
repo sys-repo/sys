@@ -1,6 +1,6 @@
 keyboard-footer-hints.plan.md
 - [x] 0db1f49f6 feat(cli): format adaptive keyboard hint rows
-- [ ] fix(driver-pi): align compact keyboard footer hints
+- [x] d1253bd609 fix(driver-pi): align compact keyboard footer hints
 
 ## Purpose
 
@@ -10,6 +10,19 @@ Reduce the default hints to `q`, remove redundant copy, and retain useful contro
 widths without clipping or broad consumer churn.
 
 Planning, review, and readiness do not authorize implementation or Git mutation.
+
+## Completion evidence
+
+- `0db1f49f6` landed the shared formatter and the Driver Vite and Server migrations.
+- `d1253bd609` landed the isolated Driver Pi adoption and its focused render, resize, and ownership
+  proof.
+- Declared CLI, Driver Vite, Server, and Driver Pi tests and checks passed, including CLI dry
+  publication and Driver Pi profile, process-settlement, and full-package tests.
+- Focused proof covers exact full, compact, and omitted width boundaries, compact-to-wide resize,
+  ANSI and wide-Unicode measurement, frozen public identity, fail-closed presentation authority,
+  and unchanged `q`, `Ctrl+C`, and `Ctrl+Left` behavior.
+- Formatting, `git diff --check`, and the retired-footer residue scan passed. No dependency,
+  permission, task, generated-evidence, package-version, or browser-behavior change was required.
 
 ## Reviewed boundary
 
