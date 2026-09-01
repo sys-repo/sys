@@ -9,25 +9,25 @@ export async function resolveMissingStagingOutputs(args: {
   yaml: t.DeployTool.Config.EndpointYaml.Doc;
 }): Promise<readonly string[]> {
   const resolved = await resolveMappingsForStaging(args);
-  if (!resolved.ok) return [];
+  if (!resolved.ok) return Object.freeze([]);
 
-  const stagingRootRel = String(args.yaml.staging?.dir ?? '').trim() || '.';
+  const stagingRootRel = String(args.yaml.staging.dir);
   const stagingRootAbs = resolveStagingRoot({ cwd: args.cwd, stagingRootRel });
   const missing: string[] = [];
 
   for (const mapping of resolved.mappings) {
-    const stagingRel = String(mapping.dir.staging ?? '').trim() || '.';
+    const stagingRel = String(mapping.dir.staging);
     const stagingAbs = Path.resolve(stagingRootAbs, stagingRel);
     const dist = (await Pkg.Dist.load(stagingAbs)).dist;
     const hasDigest = Is.str(dist?.hash?.digest) && dist.hash.digest.trim().length > 0;
     if (!hasDigest) missing.push(formatMissingName(stagingRel));
   }
 
-  return missing;
+  return Object.freeze(missing);
 }
 
 function formatMissingName(input: string): string {
-  const value = String(input ?? '').trim() || '.';
-  if (value === '.') return '.';
-  return String(value).replace(/^\.\//, '');
+  const value = String(input ?? '');
+  if (!value || value === '.') return '.';
+  return value.replace(/^\.\//, '');
 }

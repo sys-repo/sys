@@ -1,4 +1,4 @@
-import { Fs, Is, Json, Obj, Testing, Yaml } from '../../-test.ts';
+import { Fs, Is, Json, Obj, Path, Testing, Yaml } from '../../-test.ts';
 import { Cell } from '../mod.ts';
 import { CellPaths } from '../u/paths.ts';
 
@@ -19,7 +19,7 @@ const EXPECTED = {
     refs: [],
     document: {
       source: { dir: '.' },
-      staging: { dir: './.tmp/staging', clear: true },
+      staging: { dir: './.tmp/staging' },
       mappings: [{
         mode: 'copy',
         dir: {
@@ -34,7 +34,12 @@ const EXPECTED = {
     task: 'sample:deploy',
     steps: ['deploy:stage'],
     allOk: true,
-    staged: true,
+    stage: {
+      returnedRoot: true,
+      frozenEvidence: true,
+      exactRoot: true,
+      files: ['dist.json', 'index.html', 'ui.components/index.html'],
+    },
   },
 } as const;
 
@@ -60,7 +65,27 @@ type Report = {
     readonly task: string;
     readonly steps: readonly string[];
     readonly allOk: boolean;
-    readonly staged: boolean;
+    readonly stage: {
+      readonly returnedRoot: boolean;
+      readonly frozenEvidence: boolean;
+      readonly exactRoot: boolean;
+      readonly files: readonly string[];
+    };
+  };
+};
+
+type StageResult = {
+  readonly ok: true;
+  readonly stagingRoot: string;
+  readonly verification: {
+    readonly integrity: string;
+    readonly dist: {
+      readonly hash: {
+        readonly digest: string;
+        readonly parts: Readonly<Record<string, string>>;
+      };
+    };
+    readonly assets: { readonly files: number };
   };
 };
 
@@ -89,21 +114,27 @@ export const DeploySampleProof = Object.freeze({
     const parsed = Yaml.toJS(ast);
 
     const fixture = await Testing.dir('cell.sample.deploy.stage');
-    await Fs.write(Fs.join(fixture.dir, CellPaths.descriptor), descriptor, { force: true });
-    await Fs.write(Fs.join(fixture.dir, configPath), config, { force: true });
-    await Fs.write(Fs.join(fixture.dir, task.from), adapter, { force: true });
+    const fixtureRoot = await Fs.realPath(fixture.dir);
+    await Fs.write(Fs.join(fixtureRoot, CellPaths.descriptor), descriptor, { force: true });
+    await Fs.write(Fs.join(fixtureRoot, configPath), config, { force: true });
+    await Fs.write(Fs.join(fixtureRoot, task.from), adapter, { force: true });
     await Fs.write(
-      Fs.join(fixture.dir, 'view/.pulled/ui.components/index.html'),
+      Fs.join(fixtureRoot, 'view/.pulled/ui.components/index.html'),
       '<!doctype html><html><body>ui</body></html>\n',
       { force: true },
     );
 
     const execution: string[] = [];
-    const result = await Cell.Task.run(await Cell.load(fixture.dir), 'sample:deploy', {
+    const result = await Cell.Task.run(await Cell.load(fixtureRoot), 'sample:deploy', {
       onEvent(event) {
         if (event.kind === 'task:step:start') execution.push(event.step.name);
       },
     });
+    const staged = stageResultOf(result.steps[0]?.result);
+    const stagingRoot = Fs.join(fixtureRoot, '.tmp/staging');
+    const files = await regularFiles(stagingRoot);
+    const declared = Object.keys(staged.verification.dist.hash.parts).toSorted();
+    const exactFiles = [...declared, 'dist.json'].toSorted();
 
     return {
       descriptor: {
@@ -127,7 +158,12 @@ export const DeploySampleProof = Object.freeze({
         task: result.task.name,
         steps: result.steps.map((step) => step.task.name),
         allOk: result.steps.every((step) => step.ok),
-        staged: await Fs.exists(Fs.join(fixture.dir, '.tmp/staging/ui.components/index.html')),
+        stage: {
+          returnedRoot: staged.stagingRoot === stagingRoot,
+          frozenEvidence: isFrozenStageEvidence(staged, declared.length),
+          exactRoot: Obj.eql(files, exactFiles),
+          files,
+        },
       },
     };
   },
@@ -140,6 +176,62 @@ export const DeploySampleProof = Object.freeze({
     }
   },
 });
+
+function stageResultOf(input: unknown): StageResult {
+  if (!Is.object(input)) throw invalidStageResult();
+  const result = input as Record<string, unknown>;
+  const verification = result.verification;
+  if (result.ok !== true || !Is.str(result.stagingRoot) || !Is.object(verification)) {
+    throw invalidStageResult();
+  }
+
+  const evidence = verification as Record<string, unknown>;
+  const dist = evidence.dist;
+  const assets = evidence.assets;
+  if (!Is.str(evidence.integrity) || !Is.object(dist) || !Is.object(assets)) {
+    throw invalidStageResult();
+  }
+
+  const hash = (dist as Record<string, unknown>).hash;
+  if (!Is.object(hash) || !Is.num((assets as Record<string, unknown>).files)) {
+    throw invalidStageResult();
+  }
+  const hashRecord = hash as Record<string, unknown>;
+  if (!Is.str(hashRecord.digest) || !Is.record(hashRecord.parts)) {
+    throw invalidStageResult();
+  }
+  if (!Object.values(hashRecord.parts).every((value) => Is.str(value))) {
+    throw invalidStageResult();
+  }
+  return input as StageResult;
+}
+
+function isFrozenStageEvidence(stage: StageResult, declaredFiles: number): boolean {
+  return (
+    Object.isFrozen(stage) &&
+    Object.isFrozen(stage.verification) &&
+    Object.isFrozen(stage.verification.dist) &&
+    Object.isFrozen(stage.verification.dist.hash.parts) &&
+    stage.verification.integrity !== stage.verification.dist.hash.digest &&
+    stage.verification.assets.files === declaredFiles
+  );
+}
+
+async function regularFiles(root: string): Promise<readonly string[]> {
+  const entries = await Fs.glob(root, { includeDirs: false }).find('**/*');
+  const files = entries.map((entry) => {
+    const relative = Path.relative(root, entry.path);
+    if (Path.Is.absolute(relative) || !Path.Is.within(root, entry.path)) {
+      throw new Error(`Cell Deploy sample file escaped its staging root: ${entry.path}`);
+    }
+    return Path.relativePosix(relative);
+  });
+  return files.toSorted();
+}
+
+function invalidStageResult(): Error {
+  return new Error('Cell Deploy sample task did not return strict staging evidence.');
+}
 
 async function readRequiredText(path: string): Promise<string> {
   const result = await Fs.readText(path);

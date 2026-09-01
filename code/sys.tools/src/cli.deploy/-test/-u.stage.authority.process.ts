@@ -34,12 +34,22 @@ async function run(mode: Mode, cwd: t.StringDir) {
       const stagingTildeError = await failureOf(
         cwd,
         'staging-tilde',
-        "staging.dir must be relative (or '.'): ~/output",
+        'staging.dir must be relative: ~/output',
+      );
+      const stagingUserTildeError = await failureOf(
+        cwd,
+        'staging-user-tilde',
+        'staging.dir must be relative: ~user/output',
       );
       const mappingStagingTildeError = await failureOf(
         cwd,
         'mapping-staging-tilde',
         "mappings[0].dir.staging must be relative (or '.'): ~/output",
+      );
+      const mappingStagingUserTildeError = await failureOf(
+        cwd,
+        'mapping-staging-user-tilde',
+        "mappings[0].dir.staging must be relative (or '.'): ~user/output",
       );
 
       return {
@@ -47,7 +57,9 @@ async function run(mode: Mode, cwd: t.StringDir) {
         literal: literal.ok && await Fs.exists(`${cwd}/.tmp/literal/index.html`),
         sourceTildeError,
         stagingTildeError,
+        stagingUserTildeError,
         mappingStagingTildeError,
+        mappingStagingUserTildeError,
       };
     }
     case 'home': {

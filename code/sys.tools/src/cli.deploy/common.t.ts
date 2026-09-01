@@ -4,7 +4,7 @@ import type { StringDir, StringPath, UnixTimestamp } from '@sys/types';
 export type * from '@sys/types';
 export type { ParsedArgs } from '@sys/std/t';
 export type { Cli } from '@sys/cli/t';
-export type { JsonFile } from '@sys/fs/t';
+export type { Fs, FsRooted, JsonFile, Pkg } from '@sys/fs/t';
 export type { R2 } from '@sys/driver-cloudflare/t';
 export type { Files } from '@sys/model/files/t';
 export type { Process } from '@sys/process/t';
@@ -39,7 +39,7 @@ export namespace ServeTool {
 /** Common result response from tool runs. */
 export type RunReturn = {
   /** Process exit code to invoke. True = exit(0). */
-  exit: number | boolean;
+  readonly exit: number | boolean;
 };
 
 /** Local deploy types. */

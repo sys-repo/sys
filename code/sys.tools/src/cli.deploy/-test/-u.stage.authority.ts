@@ -19,7 +19,7 @@ type ChildReport = Readonly<{
     readonly sys: Deno.PermissionState;
     readonly ffi: Deno.PermissionState;
   };
-  result: Record<string, string | boolean>;
+  result: Readonly<Record<string, string | boolean>>;
 }>;
 
 await withTmpDir(async (cwd) => {
@@ -45,8 +45,11 @@ await withTmpDir(async (cwd) => {
       plain: true,
       literal: true,
       sourceTildeError: 'HOME authority is required',
-      stagingTildeError: "staging.dir must be relative (or '.'): ~/output",
+      stagingTildeError: 'staging.dir must be relative: ~/output',
+      stagingUserTildeError: 'staging.dir must be relative: ~user/output',
       mappingStagingTildeError: "mappings[0].dir.staging must be relative (or '.'): ~/output",
+      mappingStagingUserTildeError:
+        "mappings[0].dir.staging must be relative (or '.'): ~user/output",
     },
   });
 
@@ -138,7 +141,7 @@ async function runChild(
     '--cached-only',
     '--no-prompt',
     `--allow-read=${cwd}`,
-    `--allow-write=${cwd}/.tmp`,
+    `--allow-write=${cwd}/.tmp,${cwd}/.sys.rooted`,
     ...envPermissions,
     '--deny-net',
     '--deny-run',
@@ -151,7 +154,7 @@ async function runChild(
   ];
   assertJsonEquals(args.filter((value) => value.startsWith('--allow-')), [
     `--allow-read=${cwd}`,
-    `--allow-write=${cwd}/.tmp`,
+    `--allow-write=${cwd}/.tmp,${cwd}/.sys.rooted`,
     ...envPermissions.filter((value) => value.startsWith('--allow-')),
   ]);
   if (mode === 'restricted') {
@@ -206,8 +209,16 @@ async function writeAuthorityFixtures(cwd: t.StringDir): Promise<void> {
   );
   await Fs.write(`${configs}/staging-tilde.yaml`, endpointYaml('.', 'input/site', '~/output'));
   await Fs.write(
+    `${configs}/staging-user-tilde.yaml`,
+    endpointYaml('.', 'input/site', '~user/output'),
+  );
+  await Fs.write(
     `${configs}/mapping-staging-tilde.yaml`,
     endpointYaml('.', 'input/site', './.tmp/mapping-tilde', '~/output'),
+  );
+  await Fs.write(
+    `${configs}/mapping-staging-user-tilde.yaml`,
+    endpointYaml('.', 'input/site', './.tmp/mapping-user-tilde', '~user/output'),
   );
 }
 
@@ -222,7 +233,6 @@ function endpointYaml(
       dir: '${sourceRoot}'
     staging:
       dir: '${stagingRoot}'
-      clear: true
     mappings:
       - mode: copy
         dir:

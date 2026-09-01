@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
 import { providerlessPrebuiltStageDoc } from '../../-test/u.fixture.ts';
 import { EndpointYamlSchema } from '../mod.ts';
 
@@ -14,6 +14,12 @@ describe('Schema: endpoint', () => {
 
   describe('validate', () => {
     describe('document', () => {
+      it('requires staging on the validated document type plane', () => {
+        // @ts-expect-error Validated endpoint documents require a staging root.
+        const invalid: t.DeployTool.Config.EndpointYaml.Doc = {};
+        expect(invalid).to.eql({});
+      });
+
       it('rejects empty object (staging.dir required)', () => {
         const res = EndpointYamlSchema.validate({});
         expect(res.ok).to.eql(false);
@@ -158,6 +164,42 @@ describe('Schema: endpoint', () => {
         expect(res.errors.length).to.be.greaterThan(0);
       });
 
+      it('rejects unsafe mapping destinations', () => {
+        for (
+          const staging of [
+            '../output',
+            '/tmp/output',
+            'C:/output',
+            'C:output',
+            'C:\\output',
+            '~/output',
+            '~user/output',
+            ' output',
+            'output ',
+            'output/',
+            'output//nested',
+            'output/.',
+            'output.',
+            'CON',
+            '.sys.rooted',
+            'bad:name',
+            'dist.json',
+            'DIST.JSON',
+            'nested/index.html',
+            'nested/INDEX.HTML',
+            '<other>',
+          ]
+        ) {
+          const res = EndpointYamlSchema.validate({
+            staging: { dir: './staging' },
+            mappings: [{ mode: 'copy', dir: { source: './src', staging } }],
+          });
+
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
+
       it('accepts mapping.mode "index"', () => {
         const res = EndpointYamlSchema.validate({
           staging: { dir: './staging' },
@@ -171,6 +213,18 @@ describe('Schema: endpoint', () => {
 
         expect(res.ok).to.eql(true);
         expect(res.errors).to.eql([]);
+      });
+
+      it('rejects unsafe staging-relative index sources', () => {
+        for (const source of ['../source', '/tmp/source', 'C:/source', 'C:source', 'source/']) {
+          const res = EndpointYamlSchema.validate({
+            staging: { dir: './staging' },
+            mappings: [{ mode: 'index', dir: { source, staging: './landing' } }],
+          });
+
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
       });
 
       it('rejects unknown keys inside mapping objects', () => {
@@ -261,6 +315,18 @@ describe('Schema: endpoint', () => {
         expect(res.ok).to.eql(true);
         expect(res.errors).to.eql([]);
       });
+
+      it('rejects empty and edge-whitespace source paths', () => {
+        for (const dir of ['', ' source', 'source ']) {
+          const res = EndpointYamlSchema.validate({
+            source: { dir },
+            staging: { dir: './staging' },
+            mappings: [],
+          });
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
     });
 
     describe('staging', () => {
@@ -272,6 +338,55 @@ describe('Schema: endpoint', () => {
 
         expect(res.ok).to.eql(true);
         expect(res.errors).to.eql([]);
+      });
+
+      it('allows finalizer-owned basenames as dedicated staging-root directory names', () => {
+        for (const dir of ['dist.json', 'INDEX.HTML']) {
+          const res = EndpointYamlSchema.validate({ staging: { dir }, mappings: [] });
+          expect(res.ok).to.eql(true);
+          expect(res.errors).to.eql([]);
+        }
+      });
+
+      it('rejects non-descendant staging roots', () => {
+        for (
+          const dir of [
+            '.',
+            './',
+            '..',
+            '../stage',
+            '/tmp/stage',
+            'C:/tmp/stage',
+            'C:tmp/stage',
+            'C:\\tmp\\stage',
+            '~',
+            '~/stage',
+            '~user/stage',
+            ' stage',
+            'stage ',
+            'stage/',
+            'stage//nested',
+            'stage/.',
+            'stage.',
+            'CON',
+            '.sys.rooted',
+            'bad:name',
+          ]
+        ) {
+          const res = EndpointYamlSchema.validate({ staging: { dir }, mappings: [] });
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
+
+      it('rejects retired staging.clear', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging', clear: true },
+          mappings: [],
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
       });
 
       it('accepts staging.html.buildReset', () => {

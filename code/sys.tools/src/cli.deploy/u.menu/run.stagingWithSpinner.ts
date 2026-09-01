@@ -1,4 +1,4 @@
-import { c, Cli, Err, Path, Pkg, Str, type t, Time } from '../common.ts';
+import { c, Cli, Err, Path, Str, type t, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
 import { type StagePlan, stagePlan } from '../u.stage.ts';
 
@@ -9,9 +9,8 @@ type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly e
  * Never throws unless you choose to rethrow based on ok:false.
  */
 export async function runStagingWithSpinner(
-  plan: Extract<StagePlan, { readonly kind: 'mappings' }>,
+  plan: Extract<StagePlan, { kind: 'mappings' }>,
 ): Promise<RunStagingResult> {
-  const { cwd } = plan;
   const { mappings } = plan.stage;
 
   const spin = Cli.spinner();
@@ -74,8 +73,7 @@ export async function runStagingWithSpinner(
         },
       });
       if (!staged.ok) throw (staged.error ?? new Error('Staging failed'));
-      const dist = (await Pkg.Dist.load(staged.stagingRoot)).dist;
-      const hash = String(dist?.hash?.digest ?? '').trim();
+      const hash = String(staged.verification.dist.hash.digest).trim();
       const suffix = hash ? Fmt.hashSuffix(hash) : '';
       const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;
       spin.succeed(Fmt.spinnerText(status));

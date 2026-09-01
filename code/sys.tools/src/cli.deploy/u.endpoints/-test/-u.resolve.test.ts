@@ -20,6 +20,11 @@ describe('Deploy endpoint path resolution', () => {
     expect(resolvePath('/repo', '~user/source', { expandTilde })).to.eql('/repo/~user/source');
   });
 
+  it('preserves exact path text instead of trimming to a sibling', () => {
+    expect(resolvePath('/repo', ' source')).to.eql('/repo/ source');
+    expect(resolvePath('/repo', 'source ')).to.eql('/repo/source ');
+  });
+
   it('delegates canonical tilde paths to Fs.Tilde-compatible expansion', () => {
     let calls = 0;
     const resolved = resolvePath('/repo', '~/source', {

@@ -139,6 +139,35 @@ describe('EndpointsFs', () => {
     });
   });
 
+  it('validateYaml: admits index sources produced later under staging', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('staged-index')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+      await Fs.ensureDir(`${tmp}/src/site`);
+      await Fs.write(`${tmp}/src/site/a.txt`, 'a');
+      await Fs.write(
+        yamlPath,
+        Str.dedent(`
+          staging:
+            dir: ./staging
+          mappings:
+            - mode: copy
+              dir:
+                source: ./src/site
+                staging: ./nested
+            - mode: index
+              dir:
+                source: ./nested
+                staging: ./landing
+        `),
+      );
+
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(true);
+      expect(await Fs.exists(`${tmp}/staging/nested`)).to.eql(false);
+    });
+  });
+
   it('validateYaml: resolves env refs in providerless string leaves before validation', async () => {
     await withTmpDir(async (tmp) => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-stage')}`;

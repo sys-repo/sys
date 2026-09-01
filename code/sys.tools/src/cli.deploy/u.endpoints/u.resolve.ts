@@ -7,7 +7,7 @@ type ResolvePathOptions = {
 const isHomePath = (input: string): boolean => input === '~' || input.startsWith('~/');
 
 const resolvePath = (baseAbs: string, p: string, options: ResolvePathOptions = {}): string => {
-  const raw = String(p ?? '').trim();
+  const raw = String(p ?? '');
   const s = expandHomePath(raw, options.expandTilde ?? Fs.Tilde.expand);
   if (Path.Is.absolute(s)) return s;
   return Path.resolve(baseAbs, s);
@@ -31,8 +31,8 @@ function expandHomePath(input: string, expand: (input: string) => string): strin
 
 const resolveBases = (cwd: t.StringDir, doc: t.DeployTool.Config.EndpointYaml.Doc) => {
   const cwdAbs = Path.resolve(cwd, '.');
-  const sourceRoot = String(doc.source?.dir ?? '').trim() || '.';
-  const stagingRoot = String(doc.staging?.dir ?? '').trim() || '.';
+  const sourceRoot = String(doc.source?.dir ?? '.');
+  const stagingRoot = String(doc.staging.dir);
   const sourceBaseAbs = resolvePath(cwdAbs, sourceRoot);
   const stagingBaseAbs = resolvePath(cwdAbs, stagingRoot);
   return { sourceRoot, stagingRoot, sourceBaseAbs, stagingBaseAbs };

@@ -32,6 +32,7 @@
     ".tmp",
     "-sample/.pi",
     "-sample/*/.tmp",
+    "-sample/*/.sys.rooted",
     "-sample/*/view/.pulled",
     "-spec.agent"
   ],

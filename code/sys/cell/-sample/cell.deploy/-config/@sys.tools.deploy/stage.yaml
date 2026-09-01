@@ -5,7 +5,6 @@ source:
 
 staging:
   dir: ./.tmp/staging
-  clear: true
 
 mappings:
   - mode: copy

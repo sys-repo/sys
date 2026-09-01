@@ -27,23 +27,32 @@ export async function resolveMappingsForStaging(args: {
     ? { ok: true as const, data: args.yaml }
     : await Fs.readYaml<t.DeployTool.Config.EndpointYaml.Doc>(String(yamlAbs));
 
-  if (!res.ok) return { ok: false, mappings: [] };
+  if (!res.ok || !res.data?.staging) return { ok: false, mappings: [] };
 
-  const raw = res.data?.mappings ?? [];
+  const raw = res.data.mappings ?? [];
   for (const mapping of raw) {
     if (mapping.shards !== undefined && !isValidShardConfig(mapping.shards)) {
       return { ok: false, mappings: [] };
     }
   }
 
-  const bases = resolveBases(cwd, res.data ?? {});
-  const resolved: t.DeployTool.Staging.Mapping[] = [];
+  const bases = resolveBases(cwd, res.data);
+  const standard: t.DeployTool.Staging.Mapping[] = [];
   for (const mapping of raw) {
-    const expanded = await expandShardMappings(mapping, bases);
-    resolved.push(...expanded);
+    if (mapping.mode === 'index') continue;
+    standard.push(...await expandShardMappings(mapping, bases));
   }
 
-  return { ok: true, mappings: resolved };
+  const producedStaging = standard.map((mapping) =>
+    resolvePath(bases.stagingBaseAbs, mapping.dir.staging)
+  );
+  const indexes: t.DeployTool.Staging.Mapping[] = [];
+  for (const mapping of raw) {
+    if (mapping.mode !== 'index') continue;
+    indexes.push(...await expandShardMappings(mapping, bases, producedStaging));
+  }
+
+  return { ok: true, mappings: [...standard, ...indexes] };
 }
 
 function isValidShardConfig(value: unknown): boolean {
@@ -55,10 +64,11 @@ function isValidShardConfig(value: unknown): boolean {
 
 async function expandShardMappings(
   mapping: t.DeployTool.Config.EndpointYaml.Mapping,
-  bases?: ReturnType<typeof resolveBases>,
+  bases: ReturnType<typeof resolveBases>,
+  producedStaging: readonly string[] = [],
 ): Promise<t.DeployTool.Staging.Mapping[]> {
-  const source = String(mapping.dir.source ?? '').trim();
-  const staging = String(mapping.dir.staging ?? '').trim();
+  const source = String(mapping.dir.source ?? '');
+  const staging = String(mapping.dir.staging ?? '');
   const total = mapping.shards?.total;
   const configuredRequireAll = mapping.shards?.requireAll;
   const expanded = expandShardTemplatePaths({
@@ -75,17 +85,22 @@ async function expandShardMappings(
     total,
     requireAll: configuredRequireAll,
   });
-
-  if (
-    !bases || !hasTemplate || requireAll || !Num.Is.safeInt(total) || total < 1
-  ) {
+  if (!hasTemplate || requireAll || !Num.Is.safeInt(total) || total < 1) {
     return expanded.map((dir) => ({ mode: mapping.mode, dir }));
   }
 
   const filtered: t.DeployTool.Staging.Mapping[] = [];
   for (const dir of expanded) {
-    const sourceAbs = resolvePath(bases.sourceBaseAbs, dir.source);
-    if (await Fs.exists(sourceAbs)) filtered.push({ mode: mapping.mode, dir });
+    const sourceBase = mapping.mode === 'index' ? bases.stagingBaseAbs : bases.sourceBaseAbs;
+    const sourceAbs = resolvePath(sourceBase, dir.source);
+    const available = mapping.mode === 'index'
+      ? producedStaging.some((output) => isGuaranteedStagingSource(sourceAbs, output))
+      : await Fs.exists(sourceAbs);
+    if (available) filtered.push({ mode: mapping.mode, dir });
   }
   return filtered;
+}
+
+function isGuaranteedStagingSource(source: string, producedOutput: string): boolean {
+  return Path.Is.within(source, producedOutput);
 }

@@ -6,12 +6,13 @@ import { Fs, type t, Yaml } from '../common.ts';
  */
 export async function withTmpDir<T>(
   fn: (dir: string) => Promise<T>,
-  options: { readonly prefix?: string } = {},
+  options: { prefix?: string } = {},
 ): Promise<T> {
   const { prefix = 'sys.tools.deploy.' } = options;
   const dir = await Fs.makeTempDir({ prefix });
+  const canonical = await Fs.realPath(dir.absolute);
   try {
-    return await fn(dir.absolute);
+    return await fn(canonical);
   } finally {
     await Fs.remove(dir.absolute);
   }
@@ -36,7 +37,7 @@ export async function captureInfo<T>(
 export function providerlessPrebuiltStageDoc(): t.DeployTool.Config.EndpointYaml.Doc {
   return {
     source: { dir: '.' },
-    staging: { dir: './.tmp/deploy/stage', clear: true },
+    staging: { dir: './.tmp/deploy/stage' },
     mappings: [
       {
         mode: 'copy',

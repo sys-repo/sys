@@ -6,8 +6,9 @@
 # Pi runtime state for sample launches is local and generated.
 -sample/.pi/
 
-# Pulled Cell view artifacts and local deploy outputs are managed outputs.
+# Pulled Cell view artifacts, local deploy outputs, and Rooted metadata are managed outputs.
 -sample/*/view/.pulled/
 -sample/*/.tmp/
+-sample/*/.sys.rooted/
 
 -sample/foo/

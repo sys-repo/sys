@@ -59,9 +59,9 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const mapping = (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ??
       (yaml?.mappings ?? [])[0];
 
-    const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
+    const stagingRootRel = yaml ? String(yaml.staging.dir) : './staging';
     const stagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel });
-    const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
+    const mappingStagingRel = String(mapping?.dir?.staging ?? '');
     const mappingStagingAbs = mappingStagingRel
       ? Path.resolve(stagingRootAbs, mappingStagingRel)
       : undefined;
@@ -85,7 +85,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     const stageSize = Is.num(stageSizeTotal) && digest ? Str.bytes(stageSizeTotal) : undefined;
     const hasStageMeta = !!(stageAge || stageSize);
     const hasStagedOutput = !!digest;
-    const servePort = Is.num(yaml?.staging?.serve?.port)
+    const servePort = Is.num(yaml?.staging.serve?.port)
       ? yaml.staging.serve.port
       : ServeDefaults.port;
     const pushUrl = provider?.kind === 'r2'

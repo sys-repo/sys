@@ -33,6 +33,7 @@ describe('Deploy: resolveMissingStagingOutputs', () => {
       });
 
       expect(missing).to.eql(['slc-data']);
+      expect(Object.isFrozen(missing)).to.eql(true);
     });
   });
 

@@ -77,7 +77,7 @@ export async function endpointTable(
     };
 
     const mappings = yaml?.mappings ?? [];
-    const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
+    const stagingRootRel = String(yaml?.staging?.dir ?? '.');
     const stagingRootAbs = Fs.join(cwd, stagingRootRel);
     const hashSuffix = (digest?: string) => {
       const value = String(digest ?? '').trim();

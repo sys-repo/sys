@@ -7,5 +7,7 @@ export * from './u.resolveMappingsForStaging.ts';
 export * from './u.resolveMissingStagingOutputs.ts';
 export * from './u.resolveStagingRoot.ts';
 export * from './u.staging.execute.ts';
+export * from './u.staging.prepare.ts';
 export * from './u.stagingConcurrency.ts';
 export * from './u.stageMappings.ts';
+export * from './u.verifyStagedDist.ts';

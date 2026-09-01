@@ -1,792 +1,1452 @@
 import { withTmpDir } from '../../-test/u.fixture.ts';
-import { describe, expect, Fs, it, type t } from '../../../-test.ts';
-import { Cli, Is, Json, Path, Pkg } from '../../common.ts';
-import { executeStaging } from '../u.staging.execute.ts';
+import {
+  Cli,
+  describe,
+  expect,
+  expectError,
+  Fs,
+  it,
+  Json,
+  Path,
+  Pkg,
+  Str,
+  type t,
+  Time,
+} from '../../../-test.ts';
+import { finalizeDistTree } from '../u.finalizeDistTree.ts';
+import { combineStagingLeases } from '../u.staging.buildLease.ts';
+import { captureDirectoryIdentity } from '../u.staging.identity.ts';
+import { settleStagingLease } from '../u.staging.lease.ts';
+import { stageMappings } from '../u.stageMappings.ts';
+import { DEPLOY_DIST_VERIFY_LIMITS, verifyStagedDist } from '../u.verifyStagedDist.ts';
 
-describe('Staging: executeStaging', () => {
-  const stageOptions = (tmp: t.StringDir) => {
-    return {
-      cwd: tmp,
-      stagingRoot: 'stage',
-      writeDistJson: true,
-      onWriteDistJson: async (args: { stagingRoot: string }) => {
-        await Pkg.Dist.compute({ dir: args.stagingRoot, save: true });
-      },
-    } as const;
-  };
+const copy = (source: string, staging: string): t.DeployTool.Staging.Mapping => ({
+  mode: 'copy',
+  dir: { source, staging },
+});
 
-  const assertDistJsonExists = async (stageDir: string) => {
-    const dist = await Fs.readJson(`${stageDir}/dist.json`);
-    expect(dist.ok).to.eql(true);
-    expect(dist.exists).to.eql(true);
-  };
-
-  it('copy: copies source dir into staging dir (relative to cwd)', async () => {
+describe('Staging: owned exact root Dist', () => {
+  it('resets the root, removes only temporary manifests, and returns strict evidence', async () => {
     await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/a.txt`, 'hello');
+      await Fs.ensureDir(`${tmp}/src/site/assets`);
+      await Fs.write(`${tmp}/src/site/app.js`, 'app');
+      await Fs.write(`${tmp}/src/site/assets/logo.svg`, '<svg/>');
+      await Fs.write(`${tmp}/src/site/assets/dist.json`, '{malformed');
+      await Fs.ensureDir(`${tmp}/src/docs`);
+      await Fs.write(`${tmp}/src/docs/readme.txt`, 'docs');
 
-      const dir = { source: 'src', staging: '.' };
+      await Fs.ensureDir(`${tmp}/stage/stale`);
+      await Fs.write(`${tmp}/stage/stale/old.txt`, 'stale');
+      await Fs.write(`${tmp}/outside.txt`, 'outside');
 
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+      const result = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src/site', 'site'), copy('src/docs', 'docs')],
+      });
 
-      const text = (await Fs.readText(`${tmp}/stage/a.txt`)).data!;
-      expect(text).to.eql('hello');
-      await assertDistJsonExists(`${tmp}/stage`);
+      expect(result.stagingRoot).to.eql(`${tmp}/stage`);
+      expect(Object.isFrozen(result)).to.eql(true);
+      expect(Object.isFrozen(result.verification)).to.eql(true);
+      expect(Object.isFrozen(result.verification.dist)).to.eql(true);
+      expect(Object.isFrozen(result.verification.dist.hash.parts)).to.eql(true);
+      expect(result.verification.integrity).to.not.eql(result.verification.dist.hash.digest);
+      expect(await Fs.exists(`${tmp}/stage/stale/old.txt`)).to.eql(false);
+      expect((await Fs.readText(`${tmp}/outside.txt`)).data).to.eql('outside');
+
+      const actual = await regularFiles(`${tmp}/stage`);
+      const declared = Object.keys(result.verification.dist.hash.parts).toSorted();
+      expect(actual).to.eql([...declared, 'dist.json'].toSorted());
+      expect(actual.filter((path) => path.endsWith('/dist.json'))).to.eql([]);
+
+      const rootIndex = (await Fs.readText(`${tmp}/stage/index.html`)).data ?? '';
+      const childIndex = (await Fs.readText(`${tmp}/stage/site/index.html`)).data ?? '';
+      expect(rootIndex).to.include('href="./site/index.html"');
+      expect(rootIndex).to.include('href="./dist.json"');
+      expect(childIndex).to.include('href="./assets/index.html"');
+      expect(childIndex.includes('href="./dist.json"')).to.eql(false);
     });
   });
 
-  it('copy: creates staging dir if missing', async () => {
+  it('rebuilds schedule-independent asset content and preserves custom index bytes', async () => {
     await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/a.txt`, 'x');
+      const custom = '<!doctype html><html><body>custom</body></html>\n';
+      await Fs.ensureDir(`${tmp}/src/custom`);
+      await Fs.write(`${tmp}/src/custom/index.html`, custom);
+      await Fs.write(`${tmp}/src/custom/a.txt`, 'a');
+      await Fs.ensureDir(`${tmp}/src/empty`);
+      await Fs.write(`${tmp}/src/empty/index.html`, '');
 
-      const dir = { source: 'src', staging: '.' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
+      const args = {
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src/custom', 'custom'), copy('src/empty', 'empty')],
+      };
+      const first = await stageMappings(args);
+      const firstRootIndex = (await Fs.readText(`${tmp}/stage/index.html`)).data;
 
-      const res = await Fs.readText(`${tmp}/stage/a.txt`);
-      expect(res.ok).to.eql(true);
-      expect(res.exists).to.eql(true);
-      expect(res.data).to.eql('x');
-      await assertDistJsonExists(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/stale.txt`, 'stale');
+      const second = await stageMappings(args);
+      const secondRootIndex = (await Fs.readText(`${tmp}/stage/index.html`)).data;
+
+      expect(first.verification.dist.hash.digest).to.eql(second.verification.dist.hash.digest);
+      expect(firstRootIndex).to.eql(secondRootIndex);
+      expect((await Fs.readText(`${tmp}/stage/custom/index.html`)).data).to.eql(custom);
+      expect((await Fs.readText(`${tmp}/stage/empty/index.html`)).data).to.eql('');
+      expect(await Fs.exists(`${tmp}/stage/stale.txt`)).to.eql(false);
     });
   });
 
-  it('copy: generates index.html inside mapping target when missing', async () => {
+  it('fails closed when a marker-owned index cannot be read and releases ownership', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/a.txt`, 'x');
+      await Fs.write(`${tmp}/src/index.html`, '<!-- @sys/tools: index -->\nstale');
+      let replaced = false;
 
-      const dir = { source: 'src', staging: 'dist/site' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
-
-      const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
-      expect(index.ok).to.eql(true);
-      expect(index.exists).to.eql(true);
-      expect(String(index.data ?? '')).to.include('<!-- @sys/tools: index -->');
-    });
-  });
-
-  it('copy: injects x-build-reset into staged index.html when enabled', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(
-        `${tmp}/src/index.html`,
-        '<!doctype html><html><head><title>x</title></head><body></body></html>',
+      await expectError(() =>
+        stageMappings({
+          cwd: tmp,
+          stagingRoot: 'stage',
+          mappings: [copy('src', '.')],
+          onProgress(event) {
+            if (replaced || event.kind !== 'mapping:done') return;
+            replaced = true;
+            Deno.removeSync(`${tmp}/stage/index.html`);
+            Deno.mkdirSync(`${tmp}/stage/index.html`);
+          },
+        })
       );
+      expect(await Fs.exists(`${tmp}/stage/dist.json`)).to.eql(false);
 
-      const dir = { source: 'src', staging: 'dist/site' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        buildResetHtml: true,
-        mappings: [{ mode: 'copy', dir }],
+      const retried = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src', '.')],
       });
-
-      const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
-      const html = String(index.data ?? '');
-      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
+      expect(retried.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
     });
   });
 
-  it('build+copy: runs build tasks then stages /dist output', async () => {
+  it('fails closed when a marker-owned index cannot be replaced and releases ownership', async () => {
     await withTmpDir(async (tmp) => {
-      const srcRoot = `${tmp}/src`;
-      await Fs.ensureDir(srcRoot);
-
-      const buildFile = [
-        `await Deno.mkdir("dist", { recursive: true });`,
-        `await Deno.writeTextFile("dist/a.txt", "built");`,
-        ``,
-      ].join('\n');
-
-      const denoJson = Json.stringify({
-        name: 'tmp-staging-build',
-        version: '0.0.0',
-        tasks: {
-          test: `deno eval "Deno.exit(0)"`,
-          build: `deno run -A ./-build.ts`,
-        },
-      });
-
-      await Fs.write(`${srcRoot}/-build.ts`, buildFile);
-      await Fs.write(`${srcRoot}/deno.json`, denoJson);
-
-      const dir = { source: 'src', staging: '.' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'build+copy', dir }] });
-
-      const res = await Fs.readText(`${tmp}/stage/a.txt`);
-      expect(res.ok).to.eql(true);
-      expect(res.exists).to.eql(true);
-      expect(res.data).to.eql('built');
-      await assertDistJsonExists(`${tmp}/stage`);
-    });
-  });
-
-  it('build+copy: generates index.html + dist.json inside mapping target', async () => {
-    await withTmpDir(async (tmp) => {
-      const srcRoot = `${tmp}/src`;
-      await Fs.ensureDir(srcRoot);
-
-      const buildFile = [
-        `await Deno.mkdir("dist", { recursive: true });`,
-        `await Deno.writeTextFile("dist/a.txt", "built");`,
-        ``,
-      ].join('\n');
-
-      const denoJson = Json.stringify({
-        name: 'tmp-staging-build',
-        version: '0.0.0',
-        tasks: {
-          test: `deno eval "Deno.exit(0)"`,
-          build: `deno run -A ./-build.ts`,
-        },
-      });
-
-      await Fs.write(`${srcRoot}/-build.ts`, buildFile);
-      await Fs.write(`${srcRoot}/deno.json`, denoJson);
-
-      const dir = { source: 'src', staging: 'dist/site' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'build+copy', dir }] });
-
-      const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
-      expect(index.ok).to.eql(true);
-      expect(index.exists).to.eql(true);
-      expect(String(index.data ?? '')).to.include('<!-- @sys/tools: index -->');
-
-      const dist = await Fs.readJson(`${tmp}/stage/dist/site/dist.json`);
-      expect(dist.ok).to.eql(true);
-      expect(dist.exists).to.eql(true);
-    });
-  });
-
-  it('build+copy: replaces existing x-build-reset in built index.html when enabled', async () => {
-    await withTmpDir(async (tmp) => {
-      const srcRoot = `${tmp}/src`;
-      await Fs.ensureDir(srcRoot);
-
-      const buildFile = [
-        `await Deno.mkdir("dist", { recursive: true });`,
-        `await Deno.writeTextFile("dist/index.html", '<!doctype html><html><head><meta name=\"x-build-reset\" content=\"stale-token\" /></head><body></body></html>');`,
-        ``,
-      ].join('\n');
-
-      const denoJson = Json.stringify({
-        name: 'tmp-staging-build',
-        version: '0.0.0',
-        tasks: {
-          test: `deno eval "Deno.exit(0)"`,
-          build: `deno run -A ./-build.ts`,
-        },
-      });
-
-      await Fs.write(`${srcRoot}/-build.ts`, buildFile);
-      await Fs.write(`${srcRoot}/deno.json`, denoJson);
-
-      const dir = { source: 'src', staging: 'dist/site' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        buildResetHtml: true,
-        mappings: [{ mode: 'build+copy', dir }],
-      });
-
-      const index = await Fs.readText(`${tmp}/stage/dist/site/index.html`);
-      const html = String(index.data ?? '');
-      expect(html.includes('stale-token')).to.eql(false);
-      expect((html.match(/name="x-build-reset"/g) ?? []).length).to.eql(1);
-      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
-      expect(html.indexOf('name="x-build-reset"')).to.be.lessThan(html.indexOf('<body>'));
-    });
-  });
-
-  it('index: generates index.html into staging target from staging root', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/stage/alpha`);
-      await Fs.write(`${tmp}/stage/alpha/a.txt`, 'x');
-
-      const dir = { source: '.', staging: 'dist/root' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
-
-      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
-      expect(index.ok).to.eql(true);
-      expect(index.exists).to.eql(true);
-      expect(String(index.data ?? '')).to.include('<!-- @sys/tools: index -->');
-
-      const dist = await Fs.readJson(`${tmp}/stage/dist/root/dist.json`);
-      expect(dist.ok).to.eql(true);
-      expect(dist.exists).to.eql(true);
-    });
-  });
-
-  it('index: injects x-build-reset into generated staged index.html when enabled', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/stage/alpha`);
-      await Fs.write(`${tmp}/stage/alpha/a.txt`, 'x');
-
-      const dir = { source: '.', staging: 'dist/root' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        buildResetHtml: true,
-        mappings: [{ mode: 'index', dir }],
-      });
-
-      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
-      const html = String(index.data ?? '');
-      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
-    });
-  });
-
-  it('root index: carries x-build-reset after finalizeDistTree when enabled', async () => {
-    await withTmpDir(async (tmp) => {
+      const sourceIndex = `${tmp}/src/index.html`;
       await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(
-        `${tmp}/src/index.html`,
-        '<!doctype html><html><head><title>x</title></head><body></body></html>',
-      );
+      await Fs.write(sourceIndex, '<!-- @sys/tools: index -->\nstale');
+      await Deno.chmod(sourceIndex, 0o444);
 
-      const dir = { source: 'src', staging: 'dist/site' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        buildResetHtml: true,
-        mappings: [{ mode: 'copy', dir }],
-      });
+      const args = {
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src', '.')],
+      };
+      await expectError(() => stageMappings(args));
+      expect(await Fs.exists(`${tmp}/stage/dist.json`)).to.eql(false);
 
-      const index = await Fs.readText(`${tmp}/stage/index.html`);
-      const html = String(index.data ?? '');
-      expect(/<meta name="x-build-reset" content="\d{8}-[a-z0-9]{5}" \/>/.test(html)).to.eql(true);
+      await Deno.chmod(sourceIndex, 0o644);
+      const retried = await stageMappings(args);
+      const html = (await Fs.readText(`${tmp}/stage/index.html`)).data ?? '';
+      expect(html.includes('stale')).to.eql(false);
+      expect(retried.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
     });
   });
 
-  it('index: includes hash labels and every staging directory', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/stage/shard.1`);
-      await Fs.write(`${tmp}/stage/shard.1/a.txt`, 'x');
-      await Pkg.Dist.compute({ dir: `${tmp}/stage/shard.1`, save: true });
-
-      await Fs.ensureDir(`${tmp}/stage/landing`);
-      await Fs.write(`${tmp}/stage/landing/index.html`, '<!doctype html>');
-
-      const dir = { source: '.', staging: 'dist/root' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
-
-      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
-      const html = String(index.data ?? '');
-      expect(html.includes('shard.1')).to.eql(true);
-      expect(html.includes('version')).to.eql(true);
-      expect(html.includes('href="../../landing/"')).to.eql(true);
-    });
-  });
-
-  it('index: sorts shard directories naturally', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/stage/shard.1`);
-      await Fs.ensureDir(`${tmp}/stage/shard.11`);
-      await Fs.ensureDir(`${tmp}/stage/shard.2`);
-
-      const dir = { source: '.', staging: 'dist/root' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
-
-      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
-      const html = String(index.data ?? '');
-      const a = html.indexOf('href="../../shard.1/"');
-      const b = html.indexOf('href="../../shard.2/"');
-      const c = html.indexOf('href="../../shard.11/"');
-      expect(a < b).to.eql(true);
-      expect(b < c).to.eql(true);
-    });
-  });
-
-  it('index: runs after copy and sees staged outputs', async () => {
+  it('builds exact index-mapping navigation without child manifest links', async () => {
     await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src/shard.1`);
-      await Fs.write(`${tmp}/src/shard.1/a.txt`, 'x');
+      await Fs.ensureDir(`${tmp}/src/shard.2`);
+      await Fs.write(`${tmp}/src/shard.1/a.txt`, 'a');
+      await Fs.write(`${tmp}/src/shard.2/b.txt`, 'b');
 
-      const mappings = [
-        { mode: 'copy' as const, dir: { source: 'src/shard.1', staging: 'shard.1' } },
-        { mode: 'index' as const, dir: { source: '.', staging: 'dist/root' } },
-      ];
+      const result = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [
+          copy('src/shard.1', 'shard.1'),
+          copy('src/shard.2', 'shard.2'),
+          { mode: 'index', dir: { source: '.', staging: 'landing' } },
+        ],
+      });
 
-      await executeStaging({ ...stageOptions(tmp), mappings });
+      const path = `${tmp}/stage/landing/index.html`;
+      const html = (await Fs.readText(path)).data ?? '';
+      expect(html).to.include('href="../shard.1/index.html"');
+      expect(html).to.include('href="../shard.2/index.html"');
+      expect(html.includes('href=".//index.html"')).to.eql(false);
+      expect(html).to.include('class="version"');
+      expect(html.includes('href="./dist.json"')).to.eql(false);
 
-      const index = await Fs.readText(`${tmp}/stage/dist/root/index.html`);
-      const html = String(index.data ?? '');
-      expect(html.includes('shard.1')).to.eql(true);
+      const hrefs = Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]!);
+      for (const href of hrefs) {
+        const target = Path.fromFileUrl(new URL(href, Path.toFileUrl(path)));
+        expect(await Fs.exists(target)).to.eql(true);
+      }
+      expect((await regularFiles(`${tmp}/stage`)).filter((item) => item.endsWith('/dist.json')))
+        .to.eql([]);
+      expect(result.verification.dist.hash.parts['landing/index.html']).to.not.eql(undefined);
     });
   });
 
-  it('index: keeps shard navigation local and relative', async () => {
+  it('keeps explicit index projections independent of mapping order', async () => {
     await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/stage/shard.1`);
-      await Fs.write(`${tmp}/stage/shard.1/a.txt`, 'x');
-      await Pkg.Dist.compute({ dir: `${tmp}/stage/shard.1`, save: true });
+      await Fs.ensureDir(`${tmp}/src/shard.1`);
+      await Fs.ensureDir(`${tmp}/src/shard.2`);
+      await Fs.write(`${tmp}/src/shard.1/a.txt`, 'a');
+      await Fs.write(`${tmp}/src/shard.2/b.txt`, 'b');
 
-      const dir = { source: '.', staging: 'dist/root' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'index', dir }] });
+      const standard = [copy('src/shard.1', 'shard.1'), copy('src/shard.2', 'shard.2')];
+      const landingA: t.DeployTool.Staging.Mapping = {
+        mode: 'index',
+        dir: { source: '.', staging: 'landing-a' },
+      };
+      const landingB: t.DeployTool.Staging.Mapping = {
+        mode: 'index',
+        dir: { source: '.', staging: 'landing-b' },
+      };
 
-      const indexPath = `${tmp}/stage/dist/root/index.html`;
-      const index = await Fs.readText(indexPath);
-      const html = String(index.data ?? '');
+      await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [...standard, landingA, landingB],
+      });
+      const firstA = (await Fs.readText(`${tmp}/stage/landing-a/index.html`)).data;
+      const firstB = (await Fs.readText(`${tmp}/stage/landing-b/index.html`)).data;
+
+      await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [...standard, landingB, landingA],
+      });
+      const secondA = (await Fs.readText(`${tmp}/stage/landing-a/index.html`)).data;
+      const secondB = (await Fs.readText(`${tmp}/stage/landing-b/index.html`)).data;
+
+      expect(firstA).to.eql(secondA);
+      expect(firstB).to.eql(secondB);
+      expect(firstA).to.include('href="../shard.1/index.html"');
+      expect(firstA).to.include('href="../shard.2/index.html"');
+      expect(firstA?.includes('landing-')).to.eql(false);
+      expect(firstB?.includes('landing-')).to.eql(false);
+    });
+  });
+
+  it('keeps a nested explicit index projection acyclic and mapping-order independent', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src/shard.1`);
+      await Fs.ensureDir(`${tmp}/src/shard.2`);
+      await Fs.write(`${tmp}/src/shard.1/a.txt`, 'a');
+      await Fs.write(`${tmp}/src/shard.2/b.txt`, 'b');
+
+      const standard = [copy('src/shard.1', 'shard.1'), copy('src/shard.2', 'shard.2')];
+      const nested: t.DeployTool.Staging.Mapping = {
+        mode: 'index',
+        dir: { source: '.', staging: 'indexes/root' },
+      };
+
+      await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [...standard, nested],
+      });
+      const firstNested = (await Fs.readText(`${tmp}/stage/indexes/root/index.html`)).data;
+      const firstParent = (await Fs.readText(`${tmp}/stage/indexes/index.html`)).data;
+
+      await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [nested, ...standard],
+      });
+      const secondNested = (await Fs.readText(`${tmp}/stage/indexes/root/index.html`)).data;
+      const secondParent = (await Fs.readText(`${tmp}/stage/indexes/index.html`)).data;
+
+      expect(firstNested).to.eql(secondNested);
+      expect(firstParent).to.eql(secondParent);
+      expect(firstNested).to.include('href="../../shard.1/index.html"');
+      expect(firstNested).to.include('href="../../shard.2/index.html"');
+      expect(firstNested?.includes('href="../index.html"')).to.eql(false);
+      expect(firstParent).to.include('href="./root/index.html"');
+    });
+  });
+
+  it('encodes generated navigation as exact URL paths with escaped labels', async () => {
+    await withTmpDir(async (tmp) => {
+      const destinations = ['release#1', '50%', 'space name', 'a&b', 'cafe', 'café'];
+      const mappings: t.DeployTool.Staging.Mapping[] = [];
+      for (const [index, destination] of destinations.entries()) {
+        await Fs.ensureDir(`${tmp}/src/${index}`);
+        await Fs.write(`${tmp}/src/${index}/file.txt`, destination);
+        mappings.push(copy(`src/${index}`, destination));
+      }
+
+      await stageMappings({ cwd: tmp, stagingRoot: 'stage', mappings });
+      const path = `${tmp}/stage/index.html`;
+      const html = (await Fs.readText(path)).data ?? '';
+      expect(html).to.include('href="./release%231/index.html"');
+      expect(html).to.include('href="./50%25/index.html"');
+      expect(html).to.include('href="./space%20name/index.html"');
+      expect(html).to.include('href="./a%26b/index.html"');
+      expect(html).to.include('a&amp;b</a>');
+      expect(html.indexOf('cafe</a>') < html.indexOf('café</a>')).to.eql(true);
+
       const hrefs = Array.from(html.matchAll(/href="([^"]+)"/g), (match) => match[1]!);
-
-      expect(hrefs).to.include('../../shard.1/dist.json');
-      expect(hrefs.every((href) => !href.startsWith('http'))).to.eql(true);
       for (const href of hrefs) {
-        const target = Path.fromFileUrl(new URL(href, Path.toFileUrl(indexPath)));
+        const target = Path.fromFileUrl(new URL(href, Path.toFileUrl(path)));
         expect(await Fs.exists(target)).to.eql(true);
       }
     });
   });
 
-  it('failure: test task → reports both output streams and skips build', async () => {
+  it('injects one build-reset token while preserving a custom index', async () => {
     await withTmpDir(async (tmp) => {
-      const srcRoot = `${tmp}/src`;
-      await Fs.ensureDir(srcRoot);
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(
+        `${tmp}/src/index.html`,
+        '<!doctype html><html><head><meta name="x-build-reset" content="stale" /></head><body></body></html>',
+      );
 
-      const denoJson = Json.stringify({
-        name: 'tmp-staging-fail',
-        version: '0.0.0',
-        tasks: {
-          test:
-            `deno eval "console.log('test stdout ' + 'x'.repeat(60_000) + ' test tail'); console.error('test stderr'); Deno.exit(7)"`,
-          build: `deno eval "console.log('build should not run')"`,
-        },
+      await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        buildResetHtml: true,
+        mappings: [copy('src', '.')],
       });
 
-      await Fs.write(`${srcRoot}/deno.json`, denoJson);
-
-      const events: Array<{ kind: string; index: number; label?: string }> = [];
-      const mappings = [{ mode: 'build+copy' as const, dir: { source: 'src', staging: '.' } }];
-
-      let error: unknown;
-      let writeCalled = false;
-
-      const opts = {
-        ...stageOptions(tmp),
-        onProgress(e: { kind: string; index: number; label?: string }) {
-          events.push({ kind: e.kind, index: e.index, label: e.label });
-        },
-        onWriteDistJson: async (args: { readonly stagingRoot: string }) => {
-          writeCalled = true;
-          await Pkg.Dist.compute({ dir: args.stagingRoot, save: true });
-        },
-      } as const;
-
-      try {
-        await executeStaging({ ...opts, mappings });
-      } catch (cause) {
-        error = cause;
-      }
-
-      const message = Cli.stripAnsi(Is.error(error) ? error.message : '');
-      expect(message).to.include(`Failed test task: ${srcRoot} (exit 7)`);
-      expect(message).to.include('command: deno -q task test');
-      expect(message).to.include('stdout:');
-      expect(message).to.include('test stdout');
-      expect(message).to.include('… output truncated …');
-      expect(message).to.include('test tail');
-      expect(message).to.include('stderr:');
-      expect(message).to.include('test stderr');
-      expect(message.includes('build should not run')).to.eql(false);
-      expect(events.filter((e) => e.kind === 'mapping:start').length).to.eql(1);
-      expect(events.filter((e) => e.kind === 'mapping:fail').length).to.eql(1);
-      expect(events.filter((e) => e.kind === 'mapping:done').length).to.eql(0);
-      expect(events.filter((e) => e.kind === 'mapping:step').map((e) => e.label)).to.eql(['test']);
-      expect(writeCalled).to.eql(false);
-
-      const dist = await Fs.readJson(`${tmp}/stage/dist.json`);
-      expect(dist.exists).to.eql(false);
+      const html = (await Fs.readText(`${tmp}/stage/index.html`)).data ?? '';
+      expect(html.includes('content="stale"')).to.eql(false);
+      expect((html.match(/name="x-build-reset"/g) ?? []).length).to.eql(1);
+      expect(/content="\d{8}-[a-z0-9]{5}"/.test(html)).to.eql(true);
     });
   });
 
-  it('failure: successful test → identifies the failing build task', async () => {
+  it('fails closed when build reset cannot replace a custom index', async () => {
     await withTmpDir(async (tmp) => {
-      const srcRoot = `${tmp}/src`;
-      await Fs.ensureDir(srcRoot);
+      const sourceIndex = `${tmp}/src/index.html`;
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(sourceIndex, '<!doctype html><html><body>custom</body></html>');
+      await Deno.chmod(sourceIndex, 0o444);
+
+      await expectError(() =>
+        stageMappings({
+          cwd: tmp,
+          stagingRoot: 'stage',
+          buildResetHtml: true,
+          mappings: [copy('src', '.')],
+        })
+      );
+      expect(await Fs.exists(`${tmp}/stage/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('adds build reset to an empty writable custom index', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/index.html`, '');
+
+      const staged = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        buildResetHtml: true,
+        mappings: [copy('src', '.')],
+      });
+
+      const html = (await Fs.readText(`${tmp}/stage/index.html`)).data ?? '';
+      expect((html.match(/name="x-build-reset"/g) ?? []).length).to.eql(1);
+      expect(/content="\d{8}-[a-z0-9]{5}"/.test(html)).to.eql(true);
+      expect(staged.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+    });
+  });
+
+  it('bounds and truncates verbose build output without losing the artifact', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/builder/dist`);
+      await Fs.write(`${tmp}/builder/dist/index.html`, '<html>built</html>');
       await Fs.write(
-        `${srcRoot}/deno.json`,
+        `${tmp}/builder/deno.json`,
         Json.stringify({
-          name: 'tmp-staging-build-fail',
-          version: '0.0.0',
           tasks: {
-            test: `deno eval "console.log('test passed')"`,
-            build: `deno eval "console.error('build stderr'); Deno.exit(9)"`,
+            test: `deno eval 'console.log("x".repeat(9 * 1024 * 1024))'`,
+            build: `deno eval ''`,
           },
         }),
       );
 
-      const events: Array<{ kind: string; label?: string }> = [];
+      const staged = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [{
+          mode: 'build+copy',
+          dir: { source: 'builder', staging: '.' },
+        }],
+      });
+      expect(staged.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+    });
+  });
+
+  it('cancels an in-flight build child and releases ownership', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/builder/dist`);
+      await Fs.write(`${tmp}/builder/dist/index.html`, '<html>built</html>');
+      const script = Str.dedent(`
+        await Deno.writeTextFile("child.pid", String(Deno.pid));
+        await new Promise((resolve) => setTimeout(resolve, 60_000));
+      `).replaceAll('\n', ' ');
+      await Fs.write(
+        `${tmp}/builder/deno.json`,
+        Json.stringify({
+          tasks: {
+            test: `deno eval --allow-write=. '${script}'`,
+            build: `deno eval ''`,
+          },
+        }),
+      );
+      const controller = new AbortController();
+      const pending = stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [{
+          mode: 'build+copy',
+          dir: { source: 'builder', staging: '.' },
+        }],
+        until: controller.signal,
+      });
+
+      const failed = expectError(() => pending, 'Cancelled test task');
+      const pidPath = `${tmp}/builder/child.pid`;
+      await waitFor(() => Fs.exists(pidPath));
+      const pid = Number((await Fs.readText(pidPath)).data);
+      controller.abort('test cancellation');
+      await failed;
+      await waitFor(() => Promise.resolve(!processExists(pid)));
+      expect(await Fs.exists(`${tmp}/stage/dist.json`)).to.eql(false);
+
+      const retried = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('builder/dist', '.')],
+      });
+      expect(retried.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+    });
+  });
+
+  it('rejects an unknown internal mapping mode before root mutation', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/sentinel.txt`, 'sentinel');
+
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [
+              {
+                mode: 'unknown',
+                dir: { source: 'src', staging: '.' },
+              } as unknown as t.DeployTool.Staging.Mapping,
+            ],
+          }),
+        'mapping[0] is invalid: unsupported mode: unknown',
+      );
+      expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+    });
+  });
+
+  it('rejects equal and ancestor mapping destinations before root mutation', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src/a`);
+      await Fs.ensureDir(`${tmp}/src/b`);
+      await Fs.write(`${tmp}/src/a/a.txt`, 'a');
+      await Fs.write(`${tmp}/src/b/b.txt`, 'b');
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/sentinel.txt`, 'sentinel');
+
+      for (
+        const mappings of [
+          [copy('src/a', 'site'), copy('src/b', './site')],
+          [copy('src/a', 'site'), copy('src/b', 'site/assets')],
+          [copy('src/a', '.'), copy('src/b', 'site')],
+        ]
+      ) {
+        await expectError(
+          () => stageMappings({ cwd: tmp, stagingRoot: 'stage', mappings }),
+          'mapping destinations overlap',
+        );
+        expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+      }
+    });
+  });
+
+  it('rejects portable destination aliases and unsafe staging forms before root mutation', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src/a`);
+      await Fs.ensureDir(`${tmp}/src/b`);
+      await Fs.write(`${tmp}/src/a/a.txt`, 'a');
+      await Fs.write(`${tmp}/src/b/b.txt`, 'b');
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/sentinel.txt`, 'sentinel');
+
+      for (
+        const mappings of [
+          [copy('src/a', 'Site'), copy('src/b', 'site')],
+          [copy('src/a', 'CAFÉ'), copy('src/b', 'cafe\u0301')],
+          [copy('src/a', 'Parent/a'), copy('src/b', 'parent/b')],
+          [copy('src/a', 'CAFÉ/a'), copy('src/b', 'cafe\u0301/b')],
+          [copy('src/a', 'dist.json')],
+          [copy('src/a', 'DIST.JSON')],
+          [copy('src/a', 'nested/index.html')],
+          [copy('src/a', 'nested/INDEX.HTML')],
+          [copy('src/a', '../output')],
+          [copy('src/a', '/tmp/output')],
+          [copy('src/a', 'C:/output')],
+          [copy('src/a', 'C:output')],
+          [copy('src/a', 'C:\\output')],
+          [copy('src/a', '~/output')],
+          [copy('src/a', '~user/output')],
+          [copy('src/a', ' output')],
+          [copy('src/a', 'output ')],
+          [copy('src/a', 'output/')],
+          [copy('src/a', 'output//nested')],
+          [copy('src/a', 'output/.')],
+          [copy('src/a', 'output.')],
+          [copy('src/a', 'CON')],
+          [copy('src/a', '.sys.rooted')],
+          [copy('src/a', 'bad:name')],
+        ]
+      ) {
+        await expectError(() => stageMappings({ cwd: tmp, stagingRoot: 'stage', mappings }));
+        expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+      }
+    });
+  });
+
+  it('rejects portable ancestor aliases before build or progress and allows exact shared parents', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/builder/dist`);
+      await Fs.write(`${tmp}/builder/dist/built.txt`, 'built');
+      await Fs.write(
+        `${tmp}/builder/deno.json`,
+        Json.stringify({
+          tasks: {
+            test:
+              `deno eval --allow-write="${tmp}" "await Deno.writeTextFile('${tmp}/build-ran.txt', 'ran')"`,
+            build: `deno eval ""`,
+          },
+        }),
+      );
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/source.txt`, 'source');
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/sentinel.txt`, 'sentinel');
+
+      const build = (staging: string): t.DeployTool.Staging.Mapping => ({
+        mode: 'build+copy',
+        dir: { source: 'builder', staging },
+      });
+      let progress = 0;
+      for (
+        const mappings of [
+          [build('Parent/a'), copy('src', 'parent/b')],
+          [build('CAFÉ/a'), copy('src', 'cafe\u0301/b')],
+        ]
+      ) {
+        await expectError(
+          () =>
+            stageMappings({
+              cwd: tmp,
+              stagingRoot: 'stage',
+              mappings,
+              onProgress: () => progress += 1,
+            }),
+          'destination ancestors have portable aliases',
+        );
+        expect(progress).to.eql(0);
+        expect(await Fs.exists(`${tmp}/build-ran.txt`)).to.eql(false);
+        expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+      }
+
+      await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [build('parent/a'), copy('src', 'parent/b')],
+      });
+      expect((await Fs.readText(`${tmp}/stage/parent/a/built.txt`)).data).to.eql('built');
+      expect((await Fs.readText(`${tmp}/stage/parent/b/source.txt`)).data).to.eql('source');
+      expect((await Fs.readText(`${tmp}/build-ran.txt`)).data).to.eql('ran');
+    });
+  });
+
+  it('rejects edge-whitespace root and source aliases before sibling mutation', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.ensureDir(`${tmp}/src `);
+      await Fs.write(`${tmp}/src/expected.txt`, 'expected');
+      await Fs.write(`${tmp}/src /authored.txt`, 'authored');
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.ensureDir(`${tmp}/stage `);
+      await Fs.write(`${tmp}/stage/sentinel.txt`, 'canonical');
+      await Fs.write(`${tmp}/stage /sentinel.txt`, 'authored');
+
+      await expectError(
+        () => stageMappings({ cwd: tmp, stagingRoot: 'stage ', mappings: [copy('src', '.')] }),
+        'leading or trailing whitespace is not allowed',
+      );
+      await expectError(
+        () => stageMappings({ cwd: tmp, stagingRoot: 'stage', mappings: [copy('src ', '.')] }),
+        'source path must not have leading or trailing whitespace',
+      );
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            sourceRoot: 'src ',
+            stagingRoot: 'stage',
+            mappings: [copy('.', '.')],
+          }),
+        'source root must not have leading or trailing whitespace',
+      );
+
+      expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('canonical');
+      expect((await Fs.readText(`${tmp}/stage /sentinel.txt`)).data).to.eql('authored');
+      expect((await Fs.readText(`${tmp}/src/expected.txt`)).data).to.eql('expected');
+      expect((await Fs.readText(`${tmp}/src /authored.txt`)).data).to.eql('authored');
+    });
+  });
+
+  it('rejects wrong-kind and overlapping mutable build sources before root mutation', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.write(`${tmp}/source.txt`, 'not-a-directory');
+      await Fs.ensureDir(`${tmp}/builder/dist`);
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/sentinel.txt`, 'sentinel');
+
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [copy('source.txt', '.')],
+          }),
+        'source could not be admitted as a canonical directory',
+      );
+      expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [
+              { mode: 'build+copy', dir: { source: 'builder', staging: 'site' } },
+              copy('builder/dist', 'assets'),
+            ],
+          }),
+        'source mutation footprints overlap',
+      );
+      expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+    });
+  });
+
+  it('rejects source/root overlap before reset or build execution', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/builder`);
+      await Fs.write(
+        `${tmp}/builder/deno.json`,
+        Json.stringify({
+          name: 'staging-overlap-build',
+          version: '0.0.0',
+          tasks: {
+            test:
+              `deno eval --allow-write="${tmp}" "await Deno.writeTextFile('${tmp}/ran.txt', 'ran')"`,
+            build: `deno eval "Deno.exit(0)"`,
+          },
+        }),
+      );
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/sentinel.txt`, 'sentinel');
+
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            sourceRoot: '.',
+            mappings: [copy('.', '.')],
+          }),
+        'source overlaps the owned staging root',
+      );
+      expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [
+              { mode: 'build+copy', dir: { source: 'builder', staging: 'site' } },
+              copy('src', 'site/assets'),
+            ],
+          }),
+        'mapping destinations overlap',
+      );
+      expect(await Fs.exists(`${tmp}/ran.txt`)).to.eql(false);
+      expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+    });
+  });
+
+  it('rejects a non-canonical cwd alias before root mutation', async () => {
+    await withTmpDir(async (tmp) => {
+      const real = `${tmp}/real/work`;
+      await Fs.ensureDir(`${real}/src`);
+      await Fs.write(`${real}/src/a.txt`, 'a');
+      await Fs.ensureDir(`${real}/stage`);
+      await Fs.write(`${real}/stage/sentinel.txt`, 'sentinel');
+      await Fs.ensureSymlink(`${tmp}/real`, `${tmp}/alias`);
+
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: `${tmp}/alias/work`,
+            stagingRoot: 'stage',
+            mappings: [copy('src', '.')],
+          }),
+        'working directory must be supplied by its canonical path',
+      );
+      expect((await Fs.readText(`${real}/stage/sentinel.txt`)).data).to.eql('sentinel');
+    });
+  });
+
+  it('refuses symlinked roots and unsafe old trees without deleting outside bytes', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+      await Fs.ensureDir(`${tmp}/outside`);
+      await Fs.write(`${tmp}/outside/keep.txt`, 'keep');
+      await Fs.ensureSymlink(`${tmp}/outside`, `${tmp}/stage`);
+
+      await expectError(() =>
+        stageMappings({ cwd: tmp, stagingRoot: 'stage', mappings: [copy('src', '.')] })
+      );
+      expect((await Fs.readText(`${tmp}/outside/keep.txt`)).data).to.eql('keep');
+
+      await Fs.remove(`${tmp}/stage`, { log: false });
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.ensureSymlink(`${tmp}/outside/keep.txt`, `${tmp}/stage/linked.txt`);
+      await expectError(() =>
+        stageMappings({ cwd: tmp, stagingRoot: 'stage', mappings: [copy('src', '.')] })
+      );
+      expect((await Fs.readText(`${tmp}/outside/keep.txt`)).data).to.eql('keep');
+
+      await Fs.remove(`${tmp}/stage`, { log: false });
+      await Fs.ensureSymlink(`${tmp}/outside`, `${tmp}/stage-parent`);
+      await expectError(() =>
+        stageMappings({
+          cwd: tmp,
+          stagingRoot: 'stage-parent/nested',
+          mappings: [copy('src', '.')],
+        })
+      );
+      expect(await Fs.exists(`${tmp}/outside/nested`)).to.eql(false);
+      expect((await Fs.readText(`${tmp}/outside/keep.txt`)).data).to.eql('keep');
+    });
+  });
+
+  it('rejects callback replacement of the admitted source identity', async () => {
+    await withTmpDir(async (tmp) => {
+      const source = `${tmp}/src`;
+      const displaced = `${tmp}/src.displaced`;
+      const outside = `${tmp}/outside`;
+      await Fs.ensureDir(source);
+      await Fs.ensureDir(outside);
+      await Fs.write(`${source}/expected.txt`, 'expected');
+      await Fs.write(`${outside}/foreign.txt`, 'foreign');
+
+      let replaced = false;
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [copy('src', 'site')],
+            onProgress(event) {
+              if (replaced || event.kind !== 'mapping:step' || event.label !== 'copy') return;
+              replaced = true;
+              Deno.renameSync(source, displaced);
+              Deno.symlinkSync(outside, source, { type: 'dir' });
+            },
+          }),
+        'mapping source identity changed',
+      );
+      expect(await Fs.exists(`${tmp}/stage/site/foreign.txt`)).to.eql(false);
+      expect((await Fs.readText(`${outside}/foreign.txt`)).data).to.eql('foreign');
+    });
+  });
+
+  it('rejects callback destination symlinks without changing outside bytes', async () => {
+    await withTmpDir(async (tmp) => {
+      const destination = `${tmp}/stage/site`;
+      const outside = `${tmp}/outside`;
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.ensureDir(outside);
+      await Fs.write(`${tmp}/src/incoming.txt`, 'incoming');
+      await Fs.write(`${outside}/sentinel.txt`, 'outside');
+
+      let replaced = false;
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [copy('src', 'site')],
+            onProgress(event) {
+              if (replaced || event.kind !== 'mapping:step' || event.label !== 'copy') return;
+              replaced = true;
+              Deno.removeSync(destination, { recursive: true });
+              Deno.symlinkSync(outside, destination, { type: 'dir' });
+            },
+          }),
+        'mapping destination identity changed',
+      );
+      expect((await Fs.readText(`${outside}/sentinel.txt`)).data).to.eql('outside');
+      expect(await Fs.exists(`${outside}/incoming.txt`)).to.eql(false);
+    });
+  });
+
+  it('rejects callback replacement of a plain destination directory', async () => {
+    await withTmpDir(async (tmp) => {
+      const destination = `${tmp}/stage/site`;
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+
+      let replaced = false;
+      await expectError(
+        () =>
+          stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [copy('src', 'site')],
+            onProgress(event) {
+              if (replaced || event.kind !== 'mapping:done') return;
+              replaced = true;
+              Deno.renameSync(destination, `${destination}.displaced`);
+              Deno.mkdirSync(destination);
+            },
+          }),
+        'mapping destination identity changed',
+      );
+      expect(await Fs.exists(`${tmp}/stage/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('retracts a source-copied root manifest when progress fails after copy', async () => {
+    await withTmpDir(async (tmp) => {
+      const source = `${tmp}/src`;
+      await Fs.ensureDir(source);
+      await Fs.write(`${source}/a.txt`, 'a');
+      const computed = await Pkg.Dist.compute({ dir: source, save: true });
+      if (computed.error) throw computed.error;
+
+      let verification: t.DeployTool.StageResult['verification'] | undefined;
+      await expectError(
+        async () => {
+          const result = await stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [copy('src', '.')],
+            onProgress(event) {
+              if (event.kind === 'mapping:done') {
+                throw new Error('presentation-failure-after-copy');
+              }
+            },
+          });
+          verification = result.verification;
+        },
+        'presentation-failure-after-copy',
+      );
+
+      expect(verification).to.eql(undefined);
+      expect(await Fs.exists(`${tmp}/stage/dist.json`)).to.eql(false);
+      const retried = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src', '.')],
+      });
+      expect(retried.verification.dist.hash.parts['a.txt']).to.not.eql(undefined);
+    });
+  });
+
+  it('fails non-waiting ownership contention without touching the root', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+      await Fs.ensureDir(`${tmp}/stage`);
+      await Fs.write(`${tmp}/stage/sentinel.txt`, 'sentinel');
+
+      const rooted = await Fs.Capability.Rooted.create({ root: tmp, create: false });
+      const admission = await rooted.admit([{ kind: 'directory', path: 'stage' }]);
+      const held = await rooted.acquireLease(admission.targets, { mode: 'exclusive' });
+      if (held.kind !== 'acquired') throw new Error('Expected staging lease fixture.');
+
+      try {
+        await expectError(
+          () => stageMappings({ cwd: tmp, stagingRoot: 'stage', mappings: [copy('src', '.')] }),
+          'already owned by another operation',
+        );
+        expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+
+        await expectError(
+          () =>
+            stageMappings({
+              cwd: tmp,
+              stagingRoot: 'stage/nested',
+              mappings: [copy('src', '.')],
+            }),
+          'already owned by another operation',
+        );
+        expect(await Fs.exists(`${tmp}/stage/nested`)).to.eql(false);
+        expect((await Fs.readText(`${tmp}/stage/sentinel.txt`)).data).to.eql('sentinel');
+      } finally {
+        await held.lease.release();
+      }
+
+      const retried = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src', '.')],
+      });
+      expect(retried.verification.assets.files > 0).to.eql(true);
+    });
+  });
+
+  it('detects replacement of the owned staging root during a build', async () => {
+    await withTmpDir(async (tmp) => {
+      const source = `${tmp}/builder`;
+      await Fs.ensureDir(source);
+      await Fs.write(
+        `${source}/-build.ts`,
+        [
+          `await Deno.rename('../stage', '../displaced-stage');`,
+          `await Deno.mkdir('../stage');`,
+          `await Deno.mkdir('dist', { recursive: true });`,
+          `await Deno.writeTextFile('dist/a.txt', 'a');`,
+        ].join('\n'),
+      );
+      await Fs.write(
+        `${source}/deno.json`,
+        Json.stringify({
+          name: 'staging-root-replacement',
+          version: '0.0.0',
+          tasks: {
+            test: `deno eval "Deno.exit(0)"`,
+            build: `deno run -A ./-build.ts`,
+          },
+        }),
+      );
+
+      await expectError(() =>
+        stageMappings({
+          cwd: tmp,
+          stagingRoot: 'stage',
+          mappings: [{ mode: 'build+copy', dir: { source: 'builder', staging: '.' } }],
+        })
+      );
+      expect(await Fs.exists(`${tmp}/stage/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('releases ownership after build failure and cancellation', async () => {
+    await withTmpDir(async (tmp) => {
+      const source = `${tmp}/builder`;
+      await Fs.ensureDir(source);
+      await Fs.write(
+        `${source}/deno.json`,
+        Json.stringify({
+          name: 'staging-build-failure',
+          version: '0.0.0',
+          tasks: {
+            test: `deno eval "console.error('test failed'); Deno.exit(7)"`,
+            build: `deno eval "Deno.exit(0)"`,
+          },
+        }),
+      );
+
       let error: unknown;
       try {
-        await executeStaging({
-          ...stageOptions(tmp),
-          mappings: [{ mode: 'build+copy', dir: { source: 'src', staging: '.' } }],
-          onProgress(e) {
-            events.push({ kind: e.kind, label: e.kind === 'mapping:step' ? e.label : undefined });
-          },
+        await stageMappings({
+          cwd: tmp,
+          stagingRoot: 'stage',
+          mappings: [{ mode: 'build+copy', dir: { source: 'builder', staging: '.' } }],
         });
       } catch (cause) {
         error = cause;
       }
+      expect(Cli.stripAnsi(error instanceof Error ? error.message : '')).to.include(
+        `Failed test task: ${source} (exit 7)`,
+      );
 
-      const message = Cli.stripAnsi(Is.error(error) ? error.message : '');
-      expect(message).to.include(`Failed build task: ${srcRoot} (exit 9)`);
-      expect(message).to.include('command: deno -q task build');
-      expect(message).to.include('stderr:');
-      expect(message).to.include('build stderr');
-      expect(events.filter((e) => e.kind === 'mapping:step').map((e) => e.label)).to.eql([
-        'test',
-        'build',
-      ]);
-    });
-  });
-
-  it('copy: overwrite=false preserves existing files (skips); directories merge; merges from prior', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src1/assets`);
-      await Fs.ensureDir(`${tmp}/src2/assets`);
-
-      await Fs.write(`${tmp}/src1/a.txt`, 'first');
-      await Fs.write(`${tmp}/src2/a.txt`, 'second');
-
-      await Fs.write(`${tmp}/src1/assets/one.txt`, 'one');
-      await Fs.write(`${tmp}/src2/assets/two.txt`, 'two');
-
-      await Fs.write(`${tmp}/src1/assets/shared.txt`, 'shared-1');
-      await Fs.write(`${tmp}/src2/assets/shared.txt`, 'shared-2');
-
-      const mappings = [
-        { mode: 'copy' as const, dir: { source: 'src1', staging: '.' } },
-        { mode: 'copy' as const, dir: { source: 'src2', staging: '.' } },
-      ];
-
-      await executeStaging({ mappings, ...stageOptions(tmp) });
-
-      const a = await Fs.readText(`${tmp}/stage/a.txt`);
-      expect(a.ok).to.eql(true);
-      expect(a.exists).to.eql(true);
-      expect(a.data).to.eql('first');
-
-      const one = await Fs.readText(`${tmp}/stage/assets/one.txt`);
-      expect(one.ok).to.eql(true);
-      expect(one.exists).to.eql(true);
-      expect(one.data).to.eql('one');
-
-      const two = await Fs.readText(`${tmp}/stage/assets/two.txt`);
-      expect(two.ok).to.eql(true);
-      expect(two.exists).to.eql(true);
-      expect(two.data).to.eql('two');
-
-      const shared = await Fs.readText(`${tmp}/stage/assets/shared.txt`);
-      expect(shared.ok).to.eql(true);
-      expect(shared.exists).to.eql(true);
-      expect(shared.data).to.eql('shared-1');
-
-      await assertDistJsonExists(`${tmp}/stage`);
-    });
-  });
-
-  it('copy: overwrite=true overwrites existing files (last write wins); directories merge', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src1/assets`);
-      await Fs.ensureDir(`${tmp}/src2/assets`);
-
-      await Fs.write(`${tmp}/src1/a.txt`, 'first');
-      await Fs.write(`${tmp}/src2/a.txt`, 'second');
-
-      await Fs.write(`${tmp}/src1/assets/one.txt`, 'one');
-      await Fs.write(`${tmp}/src2/assets/two.txt`, 'two');
-
-      await Fs.write(`${tmp}/src1/assets/shared.txt`, 'shared-1');
-      await Fs.write(`${tmp}/src2/assets/shared.txt`, 'shared-2');
-
-      const mappings = [
-        { mode: 'copy' as const, dir: { source: 'src1', staging: '.' } },
-        { mode: 'copy' as const, dir: { source: 'src2', staging: '.' } },
-      ];
-
-      await executeStaging({ ...stageOptions(tmp), mappings, overwrite: true });
-
-      const a = await Fs.readText(`${tmp}/stage/a.txt`);
-      expect(a.ok).to.eql(true);
-      expect(a.exists).to.eql(true);
-      expect(a.data).to.eql('second');
-
-      const one = await Fs.readText(`${tmp}/stage/assets/one.txt`);
-      expect(one.ok).to.eql(true);
-      expect(one.exists).to.eql(true);
-      expect(one.data).to.eql('one');
-
-      const two = await Fs.readText(`${tmp}/stage/assets/two.txt`);
-      expect(two.ok).to.eql(true);
-      expect(two.exists).to.eql(true);
-      expect(two.data).to.eql('two');
-
-      const shared = await Fs.readText(`${tmp}/stage/assets/shared.txt`);
-      expect(shared.ok).to.eql(true);
-      expect(shared.exists).to.eql(true);
-      expect(shared.data).to.eql('shared-2');
-
-      await assertDistJsonExists(`${tmp}/stage`);
-    });
-  });
-
-  it('cleanStagingRoot: clears staging root before mapping', async () => {
-    await withTmpDir(async (tmp) => {
       await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/new.txt`, 'new');
-
-      await Fs.ensureDir(`${tmp}/stage/dist/my-output`);
-      await Fs.ensureDir(`${tmp}/stage/dist/keep`);
-      await Fs.ensureDir(`${tmp}/stage/other`);
-
-      await Fs.write(`${tmp}/stage/dist/my-output/old.txt`, 'old');
-      await Fs.write(`${tmp}/stage/dist/keep/keep.txt`, 'keep');
-      await Fs.write(`${tmp}/stage/other/other.txt`, 'other');
-
-      const dir = { source: 'src', staging: 'dist/my-output' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        cleanStagingRoot: true,
-        mappings: [{ mode: 'copy', dir }],
-      });
-
-      const old = await Fs.readText(`${tmp}/stage/dist/my-output/old.txt`);
-      expect(old.exists).to.eql(false);
-
-      const fresh = await Fs.readText(`${tmp}/stage/dist/my-output/new.txt`);
-      expect(fresh.data).to.eql('new');
-
-      const keep = await Fs.readText(`${tmp}/stage/dist/keep/keep.txt`);
-      expect(keep.exists).to.eql(false);
-
-      const other = await Fs.readText(`${tmp}/stage/other/other.txt`);
-      expect(other.exists).to.eql(false);
-    });
-  });
-
-  it('cleanStagingRoot: staging "." cleans root without touching outside files', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/new.txt`, 'new');
-
-      await Fs.ensureDir(`${tmp}/stage/sub`);
-      await Fs.write(`${tmp}/stage/keep.txt`, 'keep');
-      await Fs.write(`${tmp}/stage/sub/keep.txt`, 'keep-sub');
-      await Fs.write(`${tmp}/outside.txt`, 'outside');
-
-      const dir = { source: 'src', staging: '.' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        cleanStagingRoot: true,
-        mappings: [{ mode: 'copy', dir }],
-      });
-
-      const keep = await Fs.readText(`${tmp}/stage/keep.txt`);
-      expect(keep.exists).to.eql(false);
-
-      const keepSub = await Fs.readText(`${tmp}/stage/sub/keep.txt`);
-      expect(keepSub.exists).to.eql(false);
-
-      const fresh = await Fs.readText(`${tmp}/stage/new.txt`);
-      expect(fresh.data).to.eql('new');
-
-      const outside = await Fs.readText(`${tmp}/outside.txt`);
-      expect(outside.data).to.eql('outside');
-    });
-  });
-
-  it('shared target: overwrite=false preserves first mapping on collisions', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src1`);
-      await Fs.ensureDir(`${tmp}/src2`);
-
-      await Fs.write(`${tmp}/src1/a.txt`, 'first');
-      await Fs.write(`${tmp}/src2/a.txt`, 'second');
-      await Fs.write(`${tmp}/src2/b.txt`, 'second-b');
-
-      await Fs.ensureDir(`${tmp}/stage/dist/my-output`);
-      await Fs.write(`${tmp}/stage/dist/my-output/old.txt`, 'old');
-
-      const mappings = [
-        { mode: 'copy' as const, dir: { source: 'src1', staging: 'dist/my-output' } },
-        { mode: 'copy' as const, dir: { source: 'src2', staging: 'dist/my-output' } },
-      ];
-
-      await executeStaging({ ...stageOptions(tmp), mappings });
-
-      const a = await Fs.readText(`${tmp}/stage/dist/my-output/a.txt`);
-      expect(a.data).to.eql('first');
-
-      const b = await Fs.readText(`${tmp}/stage/dist/my-output/b.txt`);
-      expect(b.data).to.eql('second-b');
-
-      const old = await Fs.readText(`${tmp}/stage/dist/my-output/old.txt`);
-      expect(old.data).to.eql('old');
-    });
-  });
-
-  it('cleanStagingRoot: regenerates root index.html when targets are cleaned', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/new.txt`, 'new');
-
-      await Fs.ensureDir(`${tmp}/stage`);
-      await Fs.write(`${tmp}/stage/index.html`, '<!-- @sys/tools: index -->\n');
-
-      const dir = { source: 'src', staging: 'dist/my-output' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        cleanStagingRoot: true,
-        mappings: [{ mode: 'copy', dir }],
-      });
-
-      const index = await Fs.readText(`${tmp}/stage/index.html`);
-      expect(index.data).to.not.eql('<!-- @sys/tools: index -->\n');
-    });
-  });
-
-  it('cleanStagingRoot: false preserves existing staging root by default', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/new.txt`, 'new');
-
-      await Fs.ensureDir(`${tmp}/stage/dist/my-output`);
-      await Fs.ensureDir(`${tmp}/stage/keep`);
-      await Fs.write(`${tmp}/stage/keep/keep.txt`, 'keep');
-      await Fs.write(`${tmp}/stage/dist/my-output/old.txt`, 'old');
-
-      const dir = { source: 'src', staging: 'dist/my-output' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
-
-      const keep = await Fs.readText(`${tmp}/stage/keep/keep.txt`);
-      expect(keep.data).to.eql('keep');
-
-      const old = await Fs.readText(`${tmp}/stage/dist/my-output/old.txt`);
-      expect(old.data).to.eql('old');
-    });
-  });
-
-  it('root index: refreshes staging index even without cleanStagingRoot', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/new.txt`, 'new');
-
-      await Fs.ensureDir(`${tmp}/stage`);
-      const before = '<!-- @sys/tools: index -->\n<!-- stale -->\n';
-      await Fs.write(`${tmp}/stage/index.html`, before);
-
-      const dir = { source: 'src', staging: 'dist/my-output' };
-      await executeStaging({
-        ...stageOptions(tmp),
-        cleanStagingRoot: false,
-        mappings: [{ mode: 'copy', dir }],
-      });
-
-      const index = await Fs.readText(`${tmp}/stage/index.html`);
-      expect(index.data).to.not.eql(before);
-      await assertDistJsonExists(`${tmp}/stage`);
-    });
-  });
-
-  it('index.html: does not overwrite non-template index.html', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src`);
-      await Fs.write(`${tmp}/src/new.txt`, 'new');
-
-      await Fs.ensureDir(`${tmp}/stage`);
-      await Fs.write(`${tmp}/stage/index.html`, '<!doctype html><title>real</title>');
-
-      const dir = { source: 'src', staging: 'dist/my-output' };
-      await executeStaging({ ...stageOptions(tmp), mappings: [{ mode: 'copy', dir }] });
-
-      const index = await Fs.readText(`${tmp}/stage/index.html`);
-      expect(index.data).to.eql('<!doctype html><title>real</title>');
-    });
-  });
-
-  it('sourceRoot/stagingRoot "." resolves to their bases', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src-base`);
-      await Fs.write(`${tmp}/src-base/a.txt`, 'base');
-
-      const events: t.DeployTool.Staging.ProgressEvent[] = [];
-
-      await executeStaging({
-        ...stageOptions(tmp),
-        sourceRoot: 'src-base',
-        mappings: [{ mode: 'copy', dir: { source: '.', staging: '.' } }],
-        onProgress(e) {
-          if (e.kind === 'mapping:start') events.push(e);
-        },
-      });
-
-      expect(events.length).to.eql(1);
-      expect(events[0].source).to.eql(Path.resolve(tmp, 'src-base'));
-      expect(events[0].staging).to.eql(Path.resolve(tmp, 'stage'));
-      expect((await Fs.readText(`${tmp}/stage/a.txt`)).data).to.eql('base');
-    });
-  });
-
-  it('absolute mapping paths bypass sourceRoot base', async () => {
-    await withTmpDir(async (tmp) => {
-      await Fs.ensureDir(`${tmp}/src-base`);
-
-      const absoluteSource: t.StringDir = `${tmp}/absolute-source`;
-      await Fs.ensureDir(absoluteSource);
-      await Fs.write(`${absoluteSource}/abs.txt`, 'absolute');
-
-      const events: t.DeployTool.Staging.ProgressEvent[] = [];
-
-      await executeStaging({
-        ...stageOptions(tmp),
-        sourceRoot: 'src-base',
-        mappings: [{ mode: 'copy', dir: { source: absoluteSource, staging: '.' } }],
-        onProgress(e) {
-          if (e.kind === 'mapping:start') events.push(e);
-        },
-      });
-
-      expect(events.length).to.eql(1);
-      expect(events[0].source).to.eql(absoluteSource);
-      expect(events[0].staging).to.eql(Path.resolve(tmp, 'stage'));
-      expect((await Fs.readText(`${tmp}/stage/abs.txt`)).data).to.eql('absolute');
-    });
-  });
-
-  it('tilde base paths expand before rebasing', async () => {
-    await withTmpDir(async (tmp) => {
-      const home = tmp;
-      const tildeDir: t.StringDir = `${tmp}/tilde-root`;
-      await Fs.ensureDir(tildeDir);
-      const relative = Path.relative(home, tildeDir);
-      await Fs.write(`${tildeDir}/tilde.txt`, 'home');
-
-      const oldHome = Deno.env.get('HOME');
-      Deno.env.set('HOME', home);
-
-      const events: t.DeployTool.Staging.ProgressEvent[] = [];
-
-      try {
-        await executeStaging({
-          ...stageOptions(tmp),
-          sourceRoot: `~/${relative}`,
-          mappings: [{ mode: 'copy', dir: { source: '.', staging: '.' } }],
-          onProgress(e) {
-            if (e.kind === 'mapping:start') events.push(e);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+      const controller = new AbortController();
+      await expectError(() =>
+        stageMappings({
+          cwd: tmp,
+          stagingRoot: 'stage',
+          until: controller.signal,
+          mappings: [copy('src', '.')],
+          onProgress(event) {
+            if (event.kind === 'mapping:start') controller.abort('test-cancel');
           },
-        });
-      } finally {
-        if (oldHome === undefined) {
-          Deno.env.delete('HOME');
-        } else {
-          Deno.env.set('HOME', oldHome);
-        }
+        })
+      );
+
+      const retried = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src', '.')],
+      });
+      expect(retried.verification.dist.hash.parts['a.txt']).to.not.eql(undefined);
+    });
+  });
+
+  it('keeps disjoint standard mappings concurrently bounded', async () => {
+    await withTmpDir(async (tmp) => {
+      const mappings: t.DeployTool.Staging.Mapping[] = [];
+      for (let index = 0; index < 6; index += 1) {
+        await Fs.ensureDir(`${tmp}/src/${index}`);
+        await Fs.write(`${tmp}/src/${index}/file.txt`, String(index));
+        mappings.push(copy(`src/${index}`, `out/${index}`));
       }
 
-      expect(events.length).to.eql(1);
-      expect(events[0].source).to.eql(tildeDir);
-      expect((await Fs.readText(`${tmp}/stage/tilde.txt`)).data).to.eql('home');
+      let active = 0;
+      let peak = 0;
+      await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings,
+        onProgress(event) {
+          if (event.kind === 'mapping:start') {
+            active += 1;
+            peak = Math.max(peak, active);
+          }
+          if (event.kind === 'mapping:done' || event.kind === 'mapping:fail') active -= 1;
+        },
+      });
 
-      await Fs.remove(tildeDir);
+      expect(peak > 1).to.eql(true);
+      expect(peak <= 4).to.eql(true);
+      expect(active).to.eql(0);
     });
   });
+
+  it('preserves nullish progress failures and releases ownership', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+
+      let didThrow = false;
+      let caught: unknown = 'not-thrown';
+      try {
+        await stageMappings({
+          cwd: tmp,
+          stagingRoot: 'stage',
+          mappings: [copy('src', '.')],
+          onProgress(event) {
+            if (event.kind === 'mapping:start') throw undefined;
+          },
+        });
+      } catch (error) {
+        didThrow = true;
+        caught = error;
+      }
+      expect(didThrow).to.eql(true);
+      expect(caught).to.eql(undefined);
+
+      const retried = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src', '.')],
+      });
+      expect(retried.verification.dist.hash.parts['a.txt']).to.not.eql(undefined);
+    });
+  });
+
+  it('preserves operation and release failures after leased rollback', async () => {
+    const operation = new Error('operation-failure');
+    const release = new Error('release-failure');
+    const order: string[] = [];
+    let caught: unknown;
+
+    try {
+      await settleStagingLease(
+        {
+          release() {
+            order.push('release');
+            return Promise.reject(release);
+          },
+        },
+        () => Promise.reject(operation),
+        {
+          errorLabel: 'test rollback',
+          onError() {
+            order.push('rollback');
+            return Promise.resolve();
+          },
+        },
+      );
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(order).to.eql(['rollback', 'release']);
+    expect(caught).to.be.instanceOf(AggregateError);
+    const aggregate = caught as AggregateError;
+    expect(aggregate.cause).to.equal(operation);
+    expect(aggregate.errors[0]).to.equal(operation);
+    expect(aggregate.errors[1]).to.equal(release);
+  });
+
+  it('releases nested staging ownership before outer build-source ownership', async () => {
+    const stagingFailure = new Error('staging-release-failure');
+    const buildFailure = new Error('build-release-failure');
+    const order: string[] = [];
+    const lease = combineStagingLeases(
+      {
+        release() {
+          order.push('staging');
+          return Promise.reject(stagingFailure);
+        },
+      },
+      {
+        release() {
+          order.push('build');
+          return Promise.reject(buildFailure);
+        },
+      },
+    );
+
+    let caught: unknown;
+    try {
+      await lease.release();
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(order).to.eql(['staging', 'build']);
+    expect(caught).to.be.instanceOf(AggregateError);
+    const aggregate = caught as AggregateError;
+    expect(aggregate.cause).to.equal(stagingFailure);
+    expect(aggregate.errors).to.eql([stagingFailure, buildFailure]);
+  });
+
+  it('does not run failed-generation rollback after a successful body release failure', async () => {
+    const release = new Error('release-failure');
+    let rolledBack = false;
+    let caught: unknown;
+
+    try {
+      await settleStagingLease(
+        { release: () => Promise.reject(release) },
+        () => Promise.resolve('verified-generation'),
+        {
+          errorLabel: 'test rollback',
+          onError() {
+            rolledBack = true;
+            return Promise.resolve();
+          },
+        },
+      );
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).to.equal(release);
+    expect(rolledBack).to.eql(false);
+  });
+
+  it('keeps queued ownership blocked until failed-generation rollback settles', async () => {
+    await withTmpDir(async (tmp) => {
+      const owner = await Fs.Capability.Rooted.create({ root: tmp, create: false });
+      const ownerAdmission = await owner.admit([{ kind: 'directory', path: 'stage' }]);
+      const held = await owner.acquireLease(ownerAdmission.targets, { mode: 'exclusive' });
+      if (held.kind !== 'acquired') throw new Error('Expected owner lease fixture.');
+
+      const queuedOwner = await Fs.Capability.Rooted.create({ root: tmp, create: false });
+      const queuedAdmission = await queuedOwner.admit([{ kind: 'directory', path: 'stage' }]);
+      let queuedAcquired = false;
+      const queued = queuedOwner.acquireLease(queuedAdmission.targets, {
+        mode: 'exclusive',
+        wait: true,
+      }).then((result) => {
+        queuedAcquired = result.kind === 'acquired';
+        return result;
+      });
+
+      let signalRollbackStarted!: () => void;
+      const rollbackStarted = new Promise<void>((resolve) => signalRollbackStarted = resolve);
+      let finishRollback!: () => void;
+      const rollbackGate = new Promise<void>((resolve) => finishRollback = resolve);
+      const operation = new Error('failed-generation');
+      const settlement = settleStagingLease(
+        held.lease,
+        () => Promise.reject(operation),
+        {
+          errorLabel: 'test rollback',
+          async onError() {
+            signalRollbackStarted();
+            await rollbackGate;
+          },
+        },
+      );
+
+      await rollbackStarted;
+      const probeOwner = await Fs.Capability.Rooted.create({ root: tmp, create: false });
+      const probeAdmission = await probeOwner.admit([{ kind: 'directory', path: 'stage' }]);
+      const probe = await probeOwner.acquireLease(probeAdmission.targets, {
+        mode: 'exclusive',
+        wait: false,
+      });
+      const probeKind = probe.kind;
+      const queuedBeforeRollback = queuedAcquired;
+      if (probe.kind === 'acquired') await probe.lease.release();
+
+      finishRollback();
+      let caught: unknown;
+      try {
+        await settlement;
+      } catch (error) {
+        caught = error;
+      }
+      const acquired = await queued;
+      if (acquired.kind === 'acquired') await acquired.lease.release();
+
+      expect(probeKind).to.eql('busy');
+      expect(queuedBeforeRollback).to.eql(false);
+      expect(caught).to.equal(operation);
+      expect(acquired.kind).to.eql('acquired');
+    });
+  });
+
+  it('fails closed on temporary child-manifest mutation', async () => {
+    await withTmpDir(async (tmp) => {
+      const root = `${tmp}/stage`;
+      const child = `${root}/nested`;
+      await Fs.ensureDir(child);
+      await Fs.write(`${child}/a.txt`, 'a');
+      const rootIdentity = await captureDirectoryIdentity({ path: root, label: 'test root' });
+
+      await expectError(
+        () =>
+          finalizeDistTree({
+            dir: root,
+            rootIdentity,
+            hooks: {
+              afterManifest(dir) {
+                if (dir === child) {
+                  Deno.writeTextFileSync(`${child}/dist.json`, '{"tampered":true}\n');
+                }
+              },
+            },
+          }),
+        'finalization failed and temporary-manifest cleanup also failed',
+      );
+      expect(await Fs.exists(`${root}/dist.json`)).to.eql(false);
+      expect(await Fs.exists(`${child}/dist.json`)).to.eql(true);
+    });
+  });
+
+  it('cancels cooperatively during a multi-file manifest hash', async () => {
+    await withTmpDir(async (tmp) => {
+      const root = `${tmp}/stage`;
+      const child = `${root}/nested`;
+      await Fs.ensureDir(child);
+      const bytes = new Uint8Array(1024 * 1024);
+      for (let index = 0; index < 8; index += 1) {
+        bytes[0] = index;
+        await Fs.write(`${child}/${index}.bin`, bytes);
+      }
+      const rootIdentity = await captureDirectoryIdentity({ path: root, label: 'test root' });
+      const controller = new AbortController();
+      let progress = 0;
+
+      await expectError(
+        () =>
+          finalizeDistTree({
+            dir: root,
+            rootIdentity,
+            signal: controller.signal,
+            hooks: {
+              onHashProgress(event) {
+                progress = event.current;
+                if (event.current === 4) controller.abort('compute cancellation');
+              },
+            },
+          }),
+        'Deploy staging operation was cancelled',
+      );
+      expect(progress).to.eql(4);
+      expect(await Fs.exists(`${root}/dist.json`)).to.eql(false);
+      expect(await Fs.exists(`${child}/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('cancels finalization and removes already-created child manifests', async () => {
+    await withTmpDir(async (tmp) => {
+      const root = `${tmp}/stage`;
+      const child = `${root}/nested`;
+      await Fs.ensureDir(child);
+      await Fs.write(`${child}/a.txt`, 'a');
+      const rootIdentity = await captureDirectoryIdentity({ path: root, label: 'test root' });
+      const controller = new AbortController();
+
+      await expectError(
+        () =>
+          finalizeDistTree({
+            dir: root,
+            rootIdentity,
+            signal: controller.signal,
+            hooks: {
+              afterManifest(dir) {
+                if (dir === child) controller.abort('test cancellation');
+              },
+            },
+          }),
+        'Deploy staging operation was cancelled',
+      );
+      expect(await Fs.exists(`${root}/dist.json`)).to.eql(false);
+      expect(await Fs.exists(`${child}/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('cancels after root finalization without leaving manifest authority', async () => {
+    await withTmpDir(async (tmp) => {
+      const root = `${tmp}/stage`;
+      await Fs.ensureDir(root);
+      await Fs.write(`${root}/a.txt`, 'a');
+      const rootIdentity = await captureDirectoryIdentity({ path: root, label: 'test root' });
+      const controller = new AbortController();
+
+      await expectError(
+        () =>
+          finalizeDistTree({
+            dir: root,
+            rootIdentity,
+            signal: controller.signal,
+            hooks: {
+              afterManifest(dir) {
+                if (dir === root) controller.abort('test cancellation');
+              },
+            },
+          }),
+        'Deploy staging operation was cancelled',
+      );
+      expect(await Fs.exists(`${root}/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('returns no evidence and retracts root authority when strict verification fails', async () => {
+    await withTmpDir(async (tmp) => {
+      const source = `${tmp}/src`;
+      await Fs.ensureDir(source);
+      const sourceFiles = DEPLOY_DIST_VERIFY_LIMITS.entries - 1;
+      const batchSize = 64;
+      for (let start = 0; start < sourceFiles; start += batchSize) {
+        const writes: Promise<unknown>[] = [];
+        const end = Math.min(sourceFiles, start + batchSize);
+        for (let index = start; index < end; index++) {
+          const name = String(index).padStart(4, '0');
+          writes.push(Fs.write(`${source}/${name}.txt`, ''));
+        }
+        await Promise.all(writes);
+      }
+
+      let verification: t.DeployTool.StageResult['verification'] | undefined;
+      await expectError(
+        async () => {
+          const result = await stageMappings({
+            cwd: tmp,
+            stagingRoot: 'stage',
+            mappings: [copy('src', '.')],
+          });
+          verification = result.verification;
+        },
+        'Deploy staging verification failed: limit-exceeded',
+      );
+
+      expect(verification).to.eql(undefined);
+      expect(await Fs.exists(`${tmp}/stage/index.html`)).to.eql(true);
+      expect(await Fs.exists(`${tmp}/stage/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('fails closed when verified bytes change or gain an undeclared entry', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src`);
+      await Fs.write(`${tmp}/src/a.txt`, 'a');
+      const staged = await stageMappings({
+        cwd: tmp,
+        stagingRoot: 'stage',
+        mappings: [copy('src', '.')],
+      });
+
+      await Fs.write(`${tmp}/stage/a.txt`, 'changed');
+      await expectError(
+        () => verifyStagedDist(staged.stagingRoot),
+        'Deploy staging verification failed: content-mismatch',
+      );
+
+      await Fs.write(`${tmp}/stage/a.txt`, 'a');
+      await Fs.write(`${tmp}/stage/extra.txt`, 'extra');
+      await expectError(
+        () => verifyStagedDist(staged.stagingRoot),
+        'Deploy staging verification failed: unexpected-entry',
+      );
+    });
+  });
+
+  it('freezes the finite verification policy on both contract planes', () => {
+    const compileOnlyMutation = () => {
+      // @ts-expect-error The shared verification policy is immutable output state.
+      DEPLOY_DIST_VERIFY_LIMITS.entries = 1;
+    };
+    expect(compileOnlyMutation).to.be.instanceOf(Function);
+
+    expect(DEPLOY_DIST_VERIFY_LIMITS).to.eql({
+      manifestBytes: 16 * 1024 * 1024,
+      entries: 8_193,
+      fileBytes: 128 * 1024 * 1024,
+      totalBytes: 1024 * 1024 * 1024,
+    });
+    expect(Object.isFrozen(DEPLOY_DIST_VERIFY_LIMITS)).to.eql(true);
+  });
 });
+
+async function regularFiles(root: string): Promise<readonly string[]> {
+  const entries = await Fs.glob(root, { includeDirs: false }).find('**/*');
+  const files = entries.map((entry) => {
+    const relative = Path.relative(root, entry.path);
+    if (Path.Is.absolute(relative) || !Path.Is.within(root, entry.path)) {
+      throw new Error(`Deploy staging test file escaped its root: ${entry.path}`);
+    }
+    return Path.relativePosix(relative);
+  });
+  return Object.freeze(files.toSorted());
+}
+
+async function waitFor(predicate: () => Promise<boolean>, attempts = 500): Promise<void> {
+  for (let index = 0; index < attempts; index++) {
+    if (await predicate()) return;
+    await Time.delay(10);
+  }
+  throw new Error('Timed out waiting for the staging test condition.');
+}
+
+function processExists(pid: number): boolean {
+  try {
+    Deno.kill(pid, 0);
+    return true;
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) return false;
+    throw error;
+  }
+}

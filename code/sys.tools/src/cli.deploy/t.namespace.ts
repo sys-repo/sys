@@ -11,7 +11,7 @@ export namespace DeployTool {
 
   /** Command names. */
   export type Command = 'back' | 'exit';
-  export type MenuOption = { name: string; value: Command };
+  export type MenuOption = { readonly name: string; readonly value: Command };
 
   /** Command line arguments (argv). */
   export type CliAction = 'stage' | 'push' | 'stage+push';
@@ -23,7 +23,7 @@ export namespace DeployTool {
     force?: boolean;
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
-    interactive: boolean;
+    readonly interactive: boolean;
   };
 
   /** Public deploy helper API. */
@@ -37,6 +37,8 @@ export namespace DeployTool {
   /** Inputs accepted by `Deploy.stage`. */
   export type StageArgs = {
     cwd?: t.StringDir;
+    /** Cancel staging and settle any owned build child before releasing authority. */
+    until?: t.UntilInput;
   } & t.Tools.ConfigRefArgs;
 
   /** Inputs accepted by `Deploy.push`. */
@@ -51,7 +53,9 @@ export namespace DeployTool {
     readonly ok: true;
     readonly config: t.StringPath;
     readonly cwd: t.StringDir;
-    readonly stagingRoot: t.StringDir;
+    readonly stagingRoot: t.StringAbsoluteDir;
+    /** Immutable evidence for the exact root Dist completed by this operation. */
+    readonly verification: t.Pkg.Dist.Local.Verify.Evidence;
   };
 
   /** Successful publication result. */
@@ -80,7 +84,7 @@ export namespace DeployTool {
       readonly ok: false;
       readonly config: t.StringPath;
       readonly cwd: t.StringDir;
-      readonly stagingRoot?: t.StringDir;
+      readonly stagingRoot?: t.StringAbsoluteDir;
       readonly error?: unknown;
     };
   }
@@ -113,14 +117,14 @@ export namespace DeployTool {
   export namespace Config {
     export type File = t.JsonFile.Instance<Doc>;
     export type Doc = t.JsonFile.Doc & {
-      name: string;
+      readonly name: string;
       /**
        * Thin index:
        * - recency metadata for ordering
        * - stable endpoint name
        * - relative YAML file path (authority lives in YAML)
        */
-      endpoints?: readonly EndpointRef[];
+      readonly endpoints?: readonly EndpointRef[];
     };
 
     /**
@@ -129,9 +133,9 @@ export namespace DeployTool {
      */
     export type EndpointRef = t.Tools.Recency & {
       /** Stable, unique endpoint name (menu key). */
-      name: string;
+      readonly name: string;
       /** Relative path to the YAML file (from the CLI cwd). */
-      file: t.StringPath;
+      readonly file: t.StringPath;
     };
 
     /**
@@ -147,11 +151,15 @@ export namespace DeployTool {
       export type SourceMode = 'copy' | 'build+copy' | 'index';
 
       /**
-       * Maps an input directory into the generated endpoint staging dir.
-       * (Source may be absolute or relative; resolution rules are handled by runtime.)
+       * Maps one directory into the generated endpoint staging dir.
+       * Copy/build sources resolve from `source.dir`; index sources resolve from `staging.dir`
+       * after standard mappings complete.
        */
       export type Mapping = {
-        dir: { source: t.StringDir; staging: '.' | t.StringPath };
+        dir: {
+          source: t.StringDir;
+          staging: '.' | t.StringPath;
+        };
         mode: SourceMode;
         /**
          * Optional shard expansion for template paths.
@@ -170,10 +178,8 @@ export namespace DeployTool {
        * All mapping `dir.staging` paths are resolved relative to this directory.
        */
       export type Staging = {
-        /** Root directory for staging (relative to deploy cwd). */
+        /** Dedicated operation-owned root directory relative to deploy cwd. */
         dir: t.StringPath;
-        /** When true, clears staging targets before running mappings. */
-        clear?: boolean;
         /** Optional local serve configuration for staged endpoint sanity checks. */
         serve?: {
           /** Port used by the local staged static server. */
@@ -188,7 +194,8 @@ export namespace DeployTool {
 
       /**
        * Endpoint source root.
-       * Mapping `dir.source` values are resolved relative to this directory.
+       * Copy/build `dir.source` values are resolved relative to this directory; index sources are
+       * staging-root relative.
        */
       export type Source = {
         /** Root directory for sources (relative to deploy cwd). */
@@ -202,11 +209,11 @@ export namespace DeployTool {
         /** Source root for this endpoint. */
         source?: Source;
 
-        /** Staging root for this endpoint. */
-        staging?: Staging;
+        /** Required dedicated staging root for this endpoint. */
+        staging: Staging;
 
         /** Directory mappings assembled into this endpoint. */
-        mappings?: readonly Mapping[];
+        mappings?: Mapping[];
       };
     }
 
@@ -277,14 +284,22 @@ export namespace DeployTool {
   }
 
   export namespace Staging {
+    /** Stable canonical identity captured for one staging directory. */
+    export type DirectoryIdentity = {
+      readonly path: t.StringAbsoluteDir;
+      readonly device: number;
+      readonly inode: number;
+    };
+
     /**
      * Source → staging directory mapping.
-     * - `source` is an absolute or cwd-relative directory
-     * - `staging` is a relative path under the staging root
+     * Copy/build sources resolve from the configured source root; index sources resolve from the
+     * staging root. Destinations are authored staging-root relative. Preflight resolves and admits
+     * every path before execution.
      */
     export type Dir = {
-      readonly source: t.StringDir;
-      readonly staging: t.StringRelativeDir;
+      source: t.StringDir;
+      staging: t.StringRelativeDir;
     };
 
     /**
@@ -293,9 +308,9 @@ export namespace DeployTool {
      * - `build+copy`: build source, then copy build output into staging
      */
     export type Mapping =
-      | { readonly mode: 'copy'; readonly dir: Dir }
-      | { readonly mode: 'build+copy'; readonly dir: Dir }
-      | { readonly mode: 'index'; readonly dir: Dir };
+      | { mode: 'copy'; dir: Dir }
+      | { mode: 'build+copy'; dir: Dir }
+      | { mode: 'index'; dir: Dir };
 
     /** Build progress. */
     export type ProgressKind = 'mapping:start' | 'mapping:step' | 'mapping:done' | 'mapping:fail';

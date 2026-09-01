@@ -1,156 +1,36 @@
 import { withTmpDir } from '../../-test/u.fixture.ts';
-import { describe, expect, Fs, it } from '../../../-test.ts';
+import { describe, expect, expectError, Fs, it } from '../../../-test.ts';
 import { copyInto } from '../u.copyInto.ts';
+import { captureDirectoryIdentity } from '../u.staging.identity.ts';
+import { createStagingManifestLedger } from '../u.staging.manifest.ts';
 
 describe('Staging: copyInto', () => {
-  it('merges directories into an existing dst (merges from prior)', async () => {
+  it('copies one directory tree into a fresh destination', async () => {
     await withTmpDir(async (tmp) => {
-      const src1 = `${tmp}/src1`;
+      const src = `${tmp}/src`;
       const dst = `${tmp}/dst`;
+      await Fs.ensureDir(`${src}/assets`);
+      await Fs.write(`${src}/a.txt`, 'a');
+      await Fs.write(`${src}/assets/app.js`, 'app');
 
-      // dst pre-exists with prior content
-      await Fs.ensureDir(`${dst}/assets`);
-      await Fs.write(`${dst}/prior.txt`, 'prior');
-      await Fs.write(`${dst}/assets/prior-asset.txt`, 'prior-asset');
+      await copyDirectory(src, dst);
 
-      // src introduces new files/dirs
-      await Fs.ensureDir(`${src1}/assets`);
-      await Fs.write(`${src1}/new.txt`, 'new');
-      await Fs.write(`${src1}/assets/new-asset.txt`, 'new-asset');
-
-      await copyInto({ src: src1, dst, overwrite: false });
-
-      const prior = await Fs.readText(`${dst}/prior.txt`);
-      expect(prior.ok).to.eql(true);
-      expect(prior.exists).to.eql(true);
-      expect(prior.data).to.eql('prior');
-
-      const priorAsset = await Fs.readText(`${dst}/assets/prior-asset.txt`);
-      expect(priorAsset.ok).to.eql(true);
-      expect(priorAsset.exists).to.eql(true);
-      expect(priorAsset.data).to.eql('prior-asset');
-
-      const fresh = await Fs.readText(`${dst}/new.txt`);
-      expect(fresh.ok).to.eql(true);
-      expect(fresh.exists).to.eql(true);
-      expect(fresh.data).to.eql('new');
-
-      const freshAsset = await Fs.readText(`${dst}/assets/new-asset.txt`);
-      expect(freshAsset.ok).to.eql(true);
-      expect(freshAsset.exists).to.eql(true);
-      expect(freshAsset.data).to.eql('new-asset');
+      expect((await Fs.readText(`${dst}/a.txt`)).data).to.eql('a');
+      expect((await Fs.readText(`${dst}/assets/app.js`)).data).to.eql('app');
     });
   });
 
-  it('overwrite=false preserves existing files (skips collisions); directories merge', async () => {
+  it('fails rather than choosing collision order', async () => {
     await withTmpDir(async (tmp) => {
-      const src1 = `${tmp}/src1`;
-      const src2 = `${tmp}/src2`;
+      const src = `${tmp}/src`;
       const dst = `${tmp}/dst`;
+      await Fs.ensureDir(src);
+      await Fs.ensureDir(dst);
+      await Fs.write(`${src}/a.txt`, 'incoming');
+      await Fs.write(`${dst}/a.txt`, 'existing');
 
-      await Fs.ensureDir(`${src1}/assets`);
-      await Fs.ensureDir(`${src2}/assets`);
-
-      await Fs.write(`${src1}/a.txt`, 'first');
-      await Fs.write(`${src2}/a.txt`, 'second');
-
-      await Fs.write(`${src1}/assets/one.txt`, 'one');
-      await Fs.write(`${src2}/assets/two.txt`, 'two');
-
-      await Fs.write(`${src1}/assets/shared.txt`, 'shared-1');
-      await Fs.write(`${src2}/assets/shared.txt`, 'shared-2');
-
-      await copyInto({ src: src1, dst, overwrite: false });
-      await copyInto({ src: src2, dst, overwrite: false });
-
-      const a = await Fs.readText(`${dst}/a.txt`);
-      expect(a.ok).to.eql(true);
-      expect(a.exists).to.eql(true);
-      expect(a.data).to.eql('first'); // collision skipped
-
-      const one = await Fs.readText(`${dst}/assets/one.txt`);
-      expect(one.ok).to.eql(true);
-      expect(one.exists).to.eql(true);
-      expect(one.data).to.eql('one');
-
-      const two = await Fs.readText(`${dst}/assets/two.txt`);
-      expect(two.ok).to.eql(true);
-      expect(two.exists).to.eql(true);
-      expect(two.data).to.eql('two');
-
-      const shared = await Fs.readText(`${dst}/assets/shared.txt`);
-      expect(shared.ok).to.eql(true);
-      expect(shared.exists).to.eql(true);
-      expect(shared.data).to.eql('shared-1'); // collision skipped
-    });
-  });
-
-  it('overwrite=true overwrites existing files (last write wins); directories merge', async () => {
-    await withTmpDir(async (tmp) => {
-      const src1 = `${tmp}/src1`;
-      const src2 = `${tmp}/src2`;
-      const dst = `${tmp}/dst`;
-
-      await Fs.ensureDir(`${src1}/assets`);
-      await Fs.ensureDir(`${src2}/assets`);
-
-      await Fs.write(`${src1}/a.txt`, 'first');
-      await Fs.write(`${src2}/a.txt`, 'second');
-
-      await Fs.write(`${src1}/assets/one.txt`, 'one');
-      await Fs.write(`${src2}/assets/two.txt`, 'two');
-
-      await Fs.write(`${src1}/assets/shared.txt`, 'shared-1');
-      await Fs.write(`${src2}/assets/shared.txt`, 'shared-2');
-
-      await copyInto({ src: src1, dst, overwrite: true });
-      await copyInto({ src: src2, dst, overwrite: true });
-
-      const a = await Fs.readText(`${dst}/a.txt`);
-      expect(a.ok).to.eql(true);
-      expect(a.exists).to.eql(true);
-      expect(a.data).to.eql('second'); // overwritten
-
-      const one = await Fs.readText(`${dst}/assets/one.txt`);
-      expect(one.ok).to.eql(true);
-      expect(one.exists).to.eql(true);
-      expect(one.data).to.eql('one');
-
-      const two = await Fs.readText(`${dst}/assets/two.txt`);
-      expect(two.ok).to.eql(true);
-      expect(two.exists).to.eql(true);
-      expect(two.data).to.eql('two');
-
-      const shared = await Fs.readText(`${dst}/assets/shared.txt`);
-      expect(shared.ok).to.eql(true);
-      expect(shared.exists).to.eql(true);
-      expect(shared.data).to.eql('shared-2'); // last write wins
-    });
-  });
-
-  it('copies a single file into an existing dst dir; respects overwrite', async () => {
-    await withTmpDir(async (tmp) => {
-      const srcFile = `${tmp}/src.txt`;
-      const dstDir = `${tmp}/dst`;
-      const dstFile = `${dstDir}/src.txt`;
-
-      await Fs.ensureDir(dstDir);
-      await Fs.write(dstFile, 'existing');
-      await Fs.write(srcFile, 'incoming');
-
-      // overwrite=false → preserve existing
-      await copyInto({ src: srcFile, dst: dstFile, overwrite: false });
-      const kept = await Fs.readText(dstFile);
-      expect(kept.ok).to.eql(true);
-      expect(kept.exists).to.eql(true);
-      expect(kept.data).to.eql('existing');
-
-      // overwrite=true → replace
-      await copyInto({ src: srcFile, dst: dstFile, overwrite: true });
-      const replaced = await Fs.readText(dstFile);
-      expect(replaced.ok).to.eql(true);
-      expect(replaced.exists).to.eql(true);
-      expect(replaced.data).to.eql('incoming');
+      await expectError(() => copyDirectory(src, dst));
+      expect((await Fs.readText(`${dst}/a.txt`)).data).to.eql('existing');
     });
   });
 
@@ -162,13 +42,91 @@ describe('Staging: copyInto', () => {
       await Fs.write(`${src}/.DS_Store`, 'ignored');
       await Fs.write(`${src}/keep.txt`, 'keep');
 
-      await copyInto({ src, dst, overwrite: false });
+      await copyDirectory(src, dst);
 
-      const ds = await Fs.readText(`${dst}/.DS_Store`);
-      expect(ds.exists).to.eql(false);
+      expect(await Fs.exists(`${dst}/.DS_Store`)).to.eql(false);
+      expect((await Fs.readText(`${dst}/keep.txt`)).data).to.eql('keep');
+    });
+  });
 
-      const kept = await Fs.readText(`${dst}/keep.txt`);
-      expect(kept.data).to.eql('keep');
+  it('rejects portable aliases of the reserved Dist manifest name', async () => {
+    await withTmpDir(async (tmp) => {
+      const src = `${tmp}/src`;
+      const dst = `${tmp}/dst`;
+      await Fs.ensureDir(src);
+      await Fs.write(`${src}/DIST.JSON`, '{}');
+
+      await expectError(
+        () => copyDirectory(src, dst),
+        'Deploy staging source contains an unsupported entry',
+      );
+      expect(await Fs.exists(`${dst}/DIST.JSON`)).to.eql(false);
+      expect(await Fs.exists(`${dst}/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('rejects portable aliases of the generated index name', async () => {
+    await withTmpDir(async (tmp) => {
+      const src = `${tmp}/src`;
+      const dst = `${tmp}/dst`;
+      await Fs.ensureDir(src);
+      await Fs.write(`${src}/INDEX.HTML`, '<html></html>');
+
+      await expectError(
+        () => copyDirectory(src, dst),
+        'Deploy staging source contains an unsupported entry',
+      );
+      expect(await Fs.exists(`${dst}/INDEX.HTML`)).to.eql(false);
+      expect(await Fs.exists(`${dst}/index.html`)).to.eql(false);
+    });
+  });
+
+  it('rejects a directory occupying the reserved Dist manifest path', async () => {
+    await withTmpDir(async (tmp) => {
+      const src = `${tmp}/src`;
+      const dst = `${tmp}/dst`;
+      await Fs.ensureDir(`${src}/dist.json`);
+
+      await expectError(
+        () => copyDirectory(src, dst),
+        'Deploy staging source contains an unsupported entry',
+      );
+      expect(await Fs.exists(`${dst}/dist.json`)).to.eql(false);
+    });
+  });
+
+  it('rejects symbolic and special source entries', async () => {
+    await withTmpDir(async (tmp) => {
+      const src = `${tmp}/src`;
+      const outside = `${tmp}/outside.txt`;
+      await Fs.ensureDir(src);
+      await Fs.write(outside, 'outside');
+      await Fs.ensureSymlink(outside, `${src}/linked.txt`);
+
+      await expectError(
+        () => copyDirectory(src, `${tmp}/dst`),
+        'Deploy staging source contains an unsupported entry',
+      );
+      expect((await Fs.readText(outside)).data).to.eql('outside');
     });
   });
 });
+
+async function copyDirectory(src: string, dst: string): Promise<void> {
+  await Fs.ensureDir(dst);
+  const sourceIdentity = await captureDirectoryIdentity({
+    path: src,
+    label: 'Test source',
+  });
+  const destinationIdentity = await captureDirectoryIdentity({
+    path: dst,
+    label: 'Test destination',
+  });
+  await copyInto({
+    src,
+    dst,
+    sourceIdentity,
+    destinationIdentity,
+    manifestLedger: createStagingManifestLedger(),
+  });
+}

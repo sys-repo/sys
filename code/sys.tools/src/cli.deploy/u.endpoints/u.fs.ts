@@ -3,7 +3,7 @@ import { YamlConfig } from '@sys/yaml/cli';
 import { resolveEndpointEnvRefs } from './u.env.ts';
 import { EndpointYamlErrorCode, validateEndpointYamlAst } from './u.validate.ts';
 import { ensureInitialYaml, initialYaml } from './u.yaml.ts';
-import { isHomePath, resolveBases, resolvePath } from './u.resolve.ts';
+import { resolveBases, resolvePath } from './u.resolve.ts';
 import { expandShardTemplatePaths, shouldRequireAllShards } from '../u.shardTemplate.ts';
 
 const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
@@ -65,42 +65,20 @@ export const EndpointsFs = {
 
     const errors: t.Yaml.Error[] = [];
     const mappings = mappingChecksOf(checked.doc);
-    const stagingRaw = String(checked.doc.staging?.dir ?? '').trim();
-    validateStagingPath(stagingRaw || './staging', 'staging.dir', errors);
-
-    for (const entry of mappings) {
-      const sourceRaw = String(entry.mapping?.dir?.source ?? '').trim();
-      if (!sourceRaw) {
-        errors.push(
-          Yaml.Error.synthetic({
-            message: `${entry.label}.dir.source is required.`,
-            code: EndpointYamlErrorCode,
-            pos: [0, 0],
-          }),
-        );
-      }
-
-      const mappingStaging = String(entry.mapping?.dir?.staging ?? '').trim();
-      validateStagingPath(mappingStaging, `${entry.label}.dir.staging`, errors);
-    }
-
-    if (errors.length) {
-      return { ok: false, errors: Schema.Error.fromYaml(errors) };
-    }
 
     let bases: ReturnType<typeof resolveBases>;
     try {
       bases = resolveBases(cwd, checked.doc);
     } catch (error) {
       errors.push(
-        pathResolutionError('source.dir', String(checked.doc.source?.dir ?? '.').trim(), error),
+        pathResolutionError('source.dir', String(checked.doc.source?.dir ?? '.'), error),
       );
       return { ok: false, errors: Schema.Error.fromYaml(errors) };
     }
 
     for (const entry of mappings) {
-      const sourceRaw = String(entry.mapping?.dir?.source ?? '').trim();
-      const mappingStaging = String(entry.mapping?.dir?.staging ?? '').trim();
+      const sourceRaw = String(entry.mapping?.dir?.source ?? '');
+      const mappingStaging = String(entry.mapping?.dir?.staging ?? '');
       const shards = entry.mapping.shards;
       const expanded = expandShardTemplatePaths({
         source: sourceRaw,
@@ -114,6 +92,23 @@ export const EndpointsFs = {
         total: shards?.total,
         requireAll: shards?.requireAll,
       });
+
+      if (entry.mapping.mode === 'index') {
+        for (const expandedPath of expanded) {
+          try {
+            const sourceAbs = resolvePath(bases.stagingBaseAbs, expandedPath.source);
+            if (!Path.Is.within(bases.stagingBaseAbs, sourceAbs)) {
+              throw new Error('index source escapes the staging root');
+            }
+          } catch (error) {
+            errors.push(
+              pathResolutionError(`${entry.label}.dir.source`, expandedPath.source, error),
+            );
+            break;
+          }
+        }
+        continue;
+      }
 
       let found = 0;
       let resolutionFailed = false;
@@ -168,28 +163,6 @@ export const EndpointsFs = {
     return checked;
   },
 } as const;
-
-function validateStagingPath(input: string, label: string, errors: t.Yaml.Error[]): void {
-  if (isHomePath(input) || Path.Is.absolute(input)) {
-    errors.push(
-      Yaml.Error.synthetic({
-        message: `${label} must be relative (or '.'): ${input}`,
-        code: EndpointYamlErrorCode,
-        pos: [0, 0],
-      }),
-    );
-  }
-
-  if (input.includes('..')) {
-    errors.push(
-      Yaml.Error.synthetic({
-        message: `${label} must not contain '..': ${input}`,
-        code: EndpointYamlErrorCode,
-        pos: [0, 0],
-      }),
-    );
-  }
-}
 
 function pathResolutionError(label: string, input: string, error: unknown): t.Yaml.Error {
   const detail = Err.summary(error, { cause: true, stack: false });

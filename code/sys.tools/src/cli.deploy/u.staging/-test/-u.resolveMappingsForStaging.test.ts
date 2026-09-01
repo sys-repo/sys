@@ -179,4 +179,98 @@ describe('Deploy: resolveMappingsForStaging', () => {
       expect(res.mappings[1]?.dir.source).to.eql('./video/partition-2');
     });
   });
+
+  it('filters sparse index shards against standard staging outputs', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src/site-0`);
+      await Fs.ensureDir(`${tmp}/src/site-2`);
+
+      const res = await resolveMappingsForStaging({
+        cwd: tmp,
+        yamlPath: './noop.yaml',
+        yaml: {
+          source: { dir: './src' },
+          staging: { dir: './staging' },
+          mappings: [
+            {
+              mode: 'copy',
+              shards: { total: 3 },
+              dir: { source: './site-<shard>', staging: './nested/<shard>' },
+            },
+            {
+              mode: 'index',
+              shards: { total: 3 },
+              dir: { source: './nested/<shard>', staging: './landing/<shard>' },
+            },
+          ],
+        },
+      });
+
+      expect(res.ok).to.eql(true);
+      expect(res.mappings.map((mapping) => mapping.mode)).to.eql([
+        'copy',
+        'copy',
+        'index',
+        'index',
+      ]);
+      expect(res.mappings.map((mapping) => mapping.dir.source)).to.eql([
+        './site-0',
+        './site-2',
+        './nested/0',
+        './nested/2',
+      ]);
+    });
+  });
+
+  it('retains only sparse index sources guaranteed by produced directory roots', async () => {
+    await withTmpDir(async (tmp) => {
+      await Fs.ensureDir(`${tmp}/src/site-0`);
+
+      const resolve = (
+        produced: string,
+        indexSource: string,
+        requireAll = false,
+      ) =>
+        resolveMappingsForStaging({
+          cwd: tmp,
+          yamlPath: './noop.yaml',
+          yaml: {
+            source: { dir: './src' },
+            staging: { dir: './staging' },
+            mappings: [
+              {
+                mode: 'copy',
+                shards: { total: 1 },
+                dir: { source: './site-<shard>', staging: produced },
+              },
+              {
+                mode: 'index',
+                shards: { total: 1, requireAll },
+                dir: { source: indexSource, staging: './landing/<shard>' },
+              },
+            ],
+          },
+        });
+
+      const exact = await resolve('./nested/<shard>', './nested/<shard>');
+      const ancestor = await resolve('./nested/<shard>/leaf', './nested/<shard>');
+      const missingDescendant = await resolve(
+        './nested/<shard>',
+        './nested/<shard>/missing',
+      );
+      const requiredDescendant = await resolve(
+        './nested/<shard>',
+        './nested/<shard>/missing',
+        true,
+      );
+
+      expect(exact.mappings.map((mapping) => mapping.mode)).to.eql(['copy', 'index']);
+      expect(ancestor.mappings.map((mapping) => mapping.mode)).to.eql(['copy', 'index']);
+      expect(missingDescendant.mappings.map((mapping) => mapping.mode)).to.eql(['copy']);
+      expect(requiredDescendant.mappings.map((mapping) => mapping.mode)).to.eql([
+        'copy',
+        'index',
+      ]);
+    });
+  });
 });

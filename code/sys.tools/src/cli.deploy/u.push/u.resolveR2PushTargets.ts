@@ -15,7 +15,7 @@ export async function resolveR2PushTargets(
 
   const bases = resolveBases(args.cwd, args.yaml);
   const sourceDir: t.StringDir = bases.sourceBaseAbs;
-  const stagingRootRel = String(args.yaml.staging?.dir ?? '').trim() || '.';
+  const stagingRootRel = String(args.yaml.staging.dir);
   const stagingDir = resolveStagingRoot({ cwd: args.cwd, stagingRootRel });
 
   if (!(await Fs.exists(stagingDir))) {

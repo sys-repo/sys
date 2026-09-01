@@ -5,18 +5,26 @@ import {
   resolveMappingsForStaging,
   stageMappings,
   type StageMappingsArgs,
+  type StageMappingsResult,
 } from './u.staging/mod.ts';
 
 type StagePlanBase = {
   readonly cwd: t.StringDir;
   readonly config: t.StringPath;
-  readonly yaml: t.DeployTool.Config.EndpointYaml.Doc;
-  readonly stagingRoot: t.StringDir;
+  readonly stagingRoot: t.StringAbsoluteDir;
 };
+
+type StagePlanStage =
+  & Readonly<
+    Omit<StageMappingsArgs, 'mappings' | 'onProgress' | 'until'>
+  >
+  & {
+    readonly mappings: readonly t.DeployTool.Staging.Mapping[];
+  };
 
 export type StagePlan = StagePlanBase & {
   readonly kind: 'mappings';
-  readonly stage: StageMappingsArgs;
+  readonly stage: StagePlanStage;
 };
 
 export type StagePlanLoadResult =
@@ -25,7 +33,7 @@ export type StagePlanLoadResult =
     readonly ok: false;
     readonly cwd: t.StringDir;
     readonly config: t.StringPath;
-    readonly stagingRoot?: t.StringDir;
+    readonly stagingRoot?: t.StringAbsoluteDir;
     readonly error: unknown;
   };
 
@@ -33,7 +41,8 @@ export type StagePlanLoadResult =
 export async function stage(args: t.DeployTool.StageArgs): Promise<t.DeployTool.StageResult> {
   const cwd = args.cwd ?? Fs.cwd('terminal');
   const config = ConfigRef.resolve(cwd, args, 'Deploy.stage');
-  const result = await stageEndpoint({ cwd, config });
+  const until = args.until;
+  const result = await stageEndpoint({ cwd, config, until });
 
   if (!result.ok) throw stageError(config, result.error);
   return result;
@@ -54,7 +63,7 @@ export async function loadStagePlan(args: {
 
   const yaml = check.doc;
   const bases = resolveBases(cwd, yaml);
-  const stagingRoot: t.StringDir = bases.stagingBaseAbs;
+  const stagingRoot: t.StringAbsoluteDir = bases.stagingBaseAbs;
 
   const resolved = await resolveMappingsForStaging({
     cwd,
@@ -68,37 +77,45 @@ export async function loadStagePlan(args: {
     return { ok: false, cwd, config, stagingRoot, error };
   }
 
-  return {
-    ok: true,
-    plan: {
-      kind: 'mappings',
-      cwd,
-      config,
-      yaml,
-      stagingRoot,
-      stage: {
-        cwd,
-        mappings: resolved.mappings,
-        sourceRoot: bases.sourceRoot,
-        stagingRoot: bases.stagingRoot,
-        clear: yaml.staging?.clear === true,
-        buildResetHtml: yaml.staging?.html?.buildReset === true,
-      },
-    },
-  };
+  const mappings = snapshotMappings(resolved.mappings);
+  const stage = Object.freeze({
+    cwd,
+    mappings,
+    sourceRoot: bases.sourceRoot,
+    stagingRoot: bases.stagingRoot,
+    buildResetHtml: yaml.staging.html?.buildReset === true,
+  });
+  const plan: StagePlan = Object.freeze({
+    kind: 'mappings',
+    cwd,
+    config,
+    stagingRoot,
+    stage,
+  });
+  return Object.freeze({ ok: true, plan });
 }
 
 /** Stage a loaded endpoint plan without presentation side-effects. */
 export async function stagePlan(
   plan: StagePlan,
-  options: { onProgress?: StageMappingsArgs['onProgress'] } = {},
+  options: {
+    onProgress?: StageMappingsArgs['onProgress'];
+    until?: t.UntilInput;
+  } = {},
 ): Promise<t.DeployTool.StageOperation.Result> {
   try {
-    const stage = options.onProgress
-      ? { ...plan.stage, onProgress: options.onProgress }
-      : plan.stage;
+    const input = plan.stage;
+    const stage: StageMappingsArgs = {
+      cwd: input.cwd,
+      mappings: [...snapshotMappings(input.mappings)],
+      stagingRoot: input.stagingRoot,
+      ...(input.sourceRoot === undefined ? {} : { sourceRoot: input.sourceRoot }),
+      ...(input.buildResetHtml === undefined ? {} : { buildResetHtml: input.buildResetHtml }),
+      ...(options.onProgress === undefined ? {} : { onProgress: options.onProgress }),
+      ...(options.until === undefined ? {} : { until: options.until }),
+    };
     const staged = await stageMappings(stage);
-    return stageOk(plan, staged.stagingRoot);
+    return stageOk(plan, staged);
   } catch (error) {
     return stageFailed(plan, error);
   }
@@ -108,17 +125,24 @@ export async function stagePlan(
 export async function stageEndpoint(args: {
   cwd: t.StringDir;
   config: t.StringPath;
+  until?: t.UntilInput;
 }): Promise<t.DeployTool.StageOperation.Result> {
   const loaded = await loadStagePlan(args);
   if (!loaded.ok) return loaded;
-  return await stagePlan(loaded.plan);
+  return await stagePlan(loaded.plan, { until: args.until });
 }
 
 function stageOk(
   plan: Pick<StagePlanBase, 'cwd' | 'config'>,
-  stagingRoot: t.StringDir,
+  staged: StageMappingsResult,
 ): t.DeployTool.StageResult {
-  return { ok: true, cwd: plan.cwd, config: plan.config, stagingRoot };
+  return Object.freeze({
+    ok: true,
+    cwd: plan.cwd,
+    config: plan.config,
+    stagingRoot: staged.stagingRoot,
+    verification: staged.verification,
+  });
 }
 
 function stageFailed(
@@ -155,6 +179,28 @@ function displayConfigPath(cwd: t.StringDir, config: t.StringPath): t.StringPath
   const rel = Path.relative(cwd, config);
   if (!String(rel).trim() || String(rel).startsWith('..')) return config;
   return `./${Str.trimLeadingDotSlash(rel)}`;
+}
+
+function snapshotMappings(
+  mappings: readonly t.DeployTool.Staging.Mapping[],
+): readonly t.DeployTool.Staging.Mapping[] {
+  return Object.freeze(
+    mappings.map((mapping, index): t.DeployTool.Staging.Mapping => {
+      const mode = mapping?.mode;
+      if (mode !== 'copy' && mode !== 'build+copy' && mode !== 'index') {
+        throw new Error(
+          `Deploy staging mapping[${index}] is invalid: unsupported mode: ${String(mode)}.`,
+        );
+      }
+      return Object.freeze({
+        mode,
+        dir: Object.freeze({
+          source: String(mapping.dir?.source ?? ''),
+          staging: String(mapping.dir?.staging ?? '') as t.StringRelativeDir,
+        }),
+      });
+    }),
+  );
 }
 
 function errorMessagesOf(check: t.DeployTool.Endpoint.Fs.YamlCheck): string {

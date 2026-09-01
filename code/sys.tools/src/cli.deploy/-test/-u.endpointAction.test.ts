@@ -4,7 +4,7 @@ import { captureInfo, providerlessPrebuiltStageYaml, withTmpDir } from './u.fixt
 
 describe('@sys/tools/deploy endpoint actions', () => {
   describe('stage', () => {
-    it('stages providerless prebuilt artifact with source root and clear', async () => {
+    it('stages providerless prebuilt artifact with deterministic root reset', async () => {
       await withTmpDir(async (cwd) => {
         const yamlPath = `${cwd}/-config/@sys.tools.deploy/stage.yaml`;
         await writePulledComponents(cwd, { includeSw: true });
@@ -52,7 +52,6 @@ describe('@sys/tools/deploy endpoint actions', () => {
               dir: .
             staging:
               dir: \${env:SAMPLE_DEPLOY_STAGE}
-              clear: true
             mappings:
               - mode: copy
                 dir:
@@ -153,7 +152,7 @@ describe('@sys/tools/deploy endpoint actions', () => {
 
 async function writePulledComponents(
   cwd: string,
-  opts: { readonly includeSw?: boolean } = {},
+  opts: { includeSw?: boolean } = {},
 ): Promise<void> {
   await Fs.ensureDir(`${cwd}/view/.pulled/ui.components/assets`);
   await Fs.write(

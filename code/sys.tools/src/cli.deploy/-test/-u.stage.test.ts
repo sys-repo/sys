@@ -1,5 +1,6 @@
 import { describe, expect, expectError, Fs, it, Path } from '../../-test.ts';
 import { Deploy } from '../mod.ts';
+import { loadStagePlan } from '../u.stage.ts';
 import { captureInfo, providerlessPrebuiltStageYaml, withTmpDir } from './u.fixture.ts';
 
 describe('@sys/tools/deploy programmatic stage', () => {
@@ -20,6 +21,9 @@ describe('@sys/tools/deploy programmatic stage', () => {
       expect(result.cwd).to.eql(cwd);
       expect(result.config).to.eql(config);
       expect(result.stagingRoot).to.eql(stagingRoot);
+      expect(result.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+      expect(Object.isFrozen(result)).to.eql(true);
+      assertDeepFrozen(result.verification);
 
       const html = await Fs.readText(`${stagingRoot}/index.html`);
       expect(html.ok).to.eql(true);
@@ -66,6 +70,19 @@ describe('@sys/tools/deploy programmatic stage', () => {
     });
   });
 
+  it('loads a deeply frozen plan snapshot', async () => {
+    await withTmpDir(async (cwd) => {
+      const { config } = await writePrebuiltStageEndpoint(cwd);
+      const loaded = await loadStagePlan({ cwd, config });
+
+      expect(loaded.ok).to.eql(true);
+      if (!loaded.ok) throw loaded.error;
+      expect(loaded.plan.stage.mappings.length).to.eql(1);
+      expect(loaded.plan.stage.mappings[0].mode).to.eql('copy');
+      assertDeepFrozen(loaded);
+    });
+  });
+
   it('rejects conflicting config refs', async () => {
     await withTmpDir(async (cwd) => {
       await expectError(
@@ -101,4 +118,11 @@ async function writePrebuiltStageEndpoint(cwd: string) {
   await Fs.write(config, providerlessPrebuiltStageYaml());
 
   return { config, stagingRoot };
+}
+
+function assertDeepFrozen(value: unknown, seen = new Set<object>()): void {
+  if (value === null || typeof value !== 'object' || seen.has(value)) return;
+  seen.add(value);
+  expect(Object.isFrozen(value)).to.eql(true);
+  for (const child of Object.values(value)) assertDeepFrozen(child, seen);
 }

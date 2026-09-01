@@ -1,29 +1,49 @@
-import { type t, Pkg, Path } from '../common.ts';
+import type { t } from '../common.ts';
 import { copyInto } from './u.copyInto.ts';
-import { ensureIndexHtml } from './u.generateHtml.ts';
+import { throwIfStagingCancelled } from './u.staging.cancel.ts';
+import { assertDirectoryIdentity } from './u.staging.identity.ts';
+import type { ExecutableStagingDir } from './u.staging.prepare.ts';
+import type { StagingManifestLedger } from './u.staging.manifest.ts';
 
-/**
- * Copy a source directory into the staging area.
- */
+/** Copy one resolved source directory into its retained disjoint staging destination. */
 export async function execCopy(
-  cwd: t.StringDir,
-  dir: t.DeployTool.Staging.Dir,
+  dir: ExecutableStagingDir,
+  context: {
+    sourceIdentity: t.DeployTool.Staging.DirectoryIdentity;
+    destinationIdentity: t.DeployTool.Staging.DirectoryIdentity;
+    manifestLedger: StagingManifestLedger;
+    signal?: AbortSignal;
+  },
   report?: (e: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => void,
-  options: { readonly overwrite?: boolean; readonly buildResetToken?: string } = {},
 ): Promise<void> {
-  const { overwrite = false, buildResetToken } = options;
-
-  const sourceRaw = String(dir.source ?? '');
-  const stagingRaw = String(dir.staging ?? '');
-
-  const src = Path.Is.absolute(sourceRaw) ? sourceRaw : Path.resolve(cwd, sourceRaw);
-  const dst = Path.Is.absolute(stagingRaw) ? stagingRaw : Path.resolve(cwd, stagingRaw);
-
   report?.({ kind: 'mapping:step', label: 'copy' });
-  await copyInto({ src, dst, overwrite });
+  await assertIdentities(context);
+  await copyInto({
+    src: dir.source,
+    dst: dir.staging,
+    sourceIdentity: context.sourceIdentity,
+    destinationIdentity: context.destinationIdentity,
+    manifestLedger: context.manifestLedger,
+    signal: context.signal,
+  });
+  await assertIdentities(context);
+}
 
-  await ensureIndexHtml(dst, { buildResetToken });
-
-  report?.({ kind: 'mapping:step', label: 'dist.json' });
-  await Pkg.Dist.compute({ dir: dst, save: true });
+async function assertIdentities(context: {
+  sourceIdentity: t.DeployTool.Staging.DirectoryIdentity;
+  destinationIdentity: t.DeployTool.Staging.DirectoryIdentity;
+  manifestLedger: StagingManifestLedger;
+  signal?: AbortSignal;
+}): Promise<void> {
+  throwIfStagingCancelled(context.signal);
+  await assertDirectoryIdentity(
+    context.sourceIdentity,
+    'Deploy staging mapping source',
+    context.signal,
+  );
+  await assertDirectoryIdentity(
+    context.destinationIdentity,
+    'Deploy staging mapping destination',
+    context.signal,
+  );
 }

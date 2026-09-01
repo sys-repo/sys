@@ -18,7 +18,6 @@ export function initialYaml(): string {
 
       staging:
         dir: ./staging
-        # clear: false
 
       mappings: []
       # mappings:
@@ -38,7 +37,7 @@ export function initialYaml(): string {
 /**
  * Convenience helper that ensures the initial YAML is present at the given path.
  */
-export async function ensureInitialYaml(path: t.StringPath) {
+export async function ensureInitialYaml(path: t.StringPath): Promise<void> {
   await Fs.ensureDir(Fs.dirname(path));
   if (await Fs.exists(path)) return;
   await Fs.write(path, initialYaml(), { force: false });

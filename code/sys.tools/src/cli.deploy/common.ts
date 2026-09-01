@@ -16,6 +16,7 @@ import { Open, Process } from '@sys/process';
 import { Schema } from '@sys/schema';
 import { Arr } from '@sys/std/arr';
 import { Await } from '@sys/std/async';
+import { Dispose } from '@sys/std/dispose';
 import { Err } from '@sys/std/error';
 import { Is } from '@sys/std/is';
 import { Json } from '@sys/std/json';
@@ -36,6 +37,7 @@ export {
   c,
   Cli,
   Color,
+  Dispose,
   Err,
   Files,
   Fs,
@@ -76,7 +78,7 @@ export const Fmt = {
     return ['deno run -A jsr:@sys/tools', ...parts].join(' ').trim();
   },
 
-  async header(toolname: string, opts: { readonly exitHint?: boolean } = {}) {
+  header(toolname: string, opts: { exitHint?: boolean } = {}) {
     const { exitHint = true } = opts;
     let identity = c.gray(`${c.green(toolname)} v${pkg.version}`);
     if (exitHint) identity += c.gray(c.dim(` (Ctrl-C to exit)`));
@@ -113,7 +115,7 @@ export const Fmt = {
     };
   },
 
-  async help(toolname: string, input: HelpInput = {}) {
+  help(toolname: string, input: HelpInput = {}) {
     return Cli.Fmt.Help.build(Fmt.helpInput(toolname, input));
   },
 
@@ -121,7 +123,7 @@ export const Fmt = {
     return c.italic(c.gray(text));
   },
 
-  back(opts: { readonly indent?: string; readonly label?: string } = {}) {
+  back(opts: { indent?: string; label?: string } = {}) {
     const { indent = '', label = 'back' } = opts;
     return `${indent}${c.cyan('←')} ${c.gray(c.dim(label))}`;
   },

@@ -33,9 +33,162 @@ describe('Endpoints: validateEndpointYamlText', () => {
 
     if (res.ok) {
       expect(res.doc.provider).to.eql(undefined);
-      expect(res.doc.staging?.clear).to.eql(true);
+      expect(res.doc.staging?.dir).to.eql('./.tmp/deploy/stage');
       expect(res.doc.mappings?.[0]?.mode).to.eql('copy');
     }
+  });
+
+  it('non-descendant staging.dir → ok:false', () => {
+    for (
+      const dir of [
+        '.',
+        '../stage',
+        '/tmp/stage',
+        'C:/tmp/stage',
+        'C:tmp/stage',
+        'C:\\tmp\\stage',
+        '~',
+        '~/stage',
+        '~user/stage',
+        ' stage',
+        'stage ',
+        'stage/',
+        'stage//nested',
+        'stage/.',
+        'stage.',
+        'CON',
+        '.sys.rooted',
+        'bad:name',
+      ]
+    ) {
+      const res = validateEndpointYamlText(
+        Str.dedent(`
+          staging:
+            dir: '${dir}'
+          mappings: []
+        `),
+      );
+      expect(res.ok).to.eql(false);
+    }
+  });
+
+  it('unsafe mapping destination → ok:false', () => {
+    for (
+      const staging of [
+        '../output',
+        '/tmp/output',
+        'C:/output',
+        'C:output',
+        'C:\\output',
+        '~/output',
+        '~user/output',
+        ' output',
+        'output ',
+        'output/',
+        'output//nested',
+        'output/.',
+        'output.',
+        'CON',
+        '.sys.rooted',
+        'bad:name',
+        'dist.json',
+        'DIST.JSON',
+        'nested/index.html',
+        'nested/INDEX.HTML',
+        '<other>',
+      ]
+    ) {
+      const res = validateEndpointYamlText(
+        Str.dedent(`
+          staging:
+            dir: ./staging
+          mappings:
+            - mode: copy
+              dir:
+                source: ./src
+                staging: '${staging}'
+        `),
+      );
+      expect(res.ok).to.eql(false);
+    }
+  });
+
+  it('unsafe staging-relative index sources → ok:false', () => {
+    for (
+      const source of [
+        '../source',
+        '/tmp/source',
+        'C:/source',
+        'C:source',
+        'C:\\source',
+        '~/source',
+        '~user/source',
+        ' source',
+        'source ',
+        'source/',
+        'source//nested',
+        'source/.',
+        'CON',
+        '.sys.rooted',
+      ]
+    ) {
+      const res = validateEndpointYamlText(
+        Str.dedent(`
+          staging:
+            dir: ./staging
+          mappings:
+            - mode: index
+              dir:
+                source: '${source}'
+                staging: ./landing
+        `),
+      );
+      expect(res.ok).to.eql(false);
+    }
+  });
+
+  it('edge-whitespace source paths → ok:false', () => {
+    for (const source of [' source', 'source ']) {
+      const res = validateEndpointYamlText(
+        Str.dedent(`
+          source:
+            dir: '${source}'
+          staging:
+            dir: ./staging
+          mappings:
+            - mode: copy
+              dir:
+                source: '${source}'
+                staging: .
+        `),
+      );
+      expect(res.ok).to.eql(false);
+    }
+  });
+
+  it('allows finalizer-owned basenames as dedicated staging-root directory names', () => {
+    for (const dir of ['dist.json', 'INDEX.HTML']) {
+      const res = validateEndpointYamlText(
+        Str.dedent(`
+          staging:
+            dir: '${dir}'
+          mappings: []
+        `),
+      );
+      expect(res.ok).to.eql(true);
+    }
+  });
+
+  it('staging.clear → ok:false', () => {
+    const res = validateEndpointYamlText(
+      Str.dedent(`
+        staging:
+          dir: ./staging
+          clear: true
+        mappings: []
+      `),
+    );
+    expect(res.ok).to.eql(false);
   });
 
   it('empty YAML → ok:false', () => {

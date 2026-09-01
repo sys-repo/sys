@@ -55,8 +55,6 @@ async function runPushAction(args: {
     checkOk: freshCheck.ok,
     yaml: freshYaml,
   });
-  const freshStagingRootRel = String(freshYaml?.staging?.dir ?? '').trim() || '.';
-
   if (!freshCapability.show) {
     printPushUnavailable(freshCapability.reason, freshCapability.hint);
     return { ok: false, push: { ok: false } };
@@ -64,6 +62,7 @@ async function runPushAction(args: {
 
   if (!freshYaml) return { ok: false, push: { ok: false } };
 
+  const freshStagingRootRel = String(freshYaml.staging.dir);
   const freshProvider = freshCapability.provider;
   const targets = freshCapability.targets;
   if (!targets.length) {
@@ -91,7 +90,7 @@ async function runPushAction(args: {
         ((freshYaml.mappings ?? []).find((m) => m.mode === 'build+copy') ??
           (freshYaml.mappings ?? [])[0])?.dir
           ?.staging ?? '',
-      ).trim();
+      );
       const b = Str.builder()
         .line(c.red('Push failed'))
         .line(c.gray(c.dim(`provider: ${String(freshProvider.kind)}`)))
@@ -179,9 +178,9 @@ async function runServeAction(args: {
   const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
   if (!freshYaml) return { ok: false };
 
-  const freshStagingRootRel = String(freshYaml.staging?.dir ?? '').trim() || '.';
+  const freshStagingRootRel = String(freshYaml.staging.dir);
   const freshStagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel: freshStagingRootRel });
-  const servePort = Is.num(freshYaml.staging?.serve?.port)
+  const servePort = Is.num(freshYaml.staging.serve?.port)
     ? freshYaml.staging.serve.port
     : undefined;
   const freshDist = (await Pkg.Dist.load(freshStagingRootAbs)).dist;
@@ -220,9 +219,9 @@ async function loadEndpointDist(
 ): Promise<t.DistPkg | undefined> {
   const mapping = (yaml.mappings ?? []).find((m) => m.mode === 'build+copy') ??
     (yaml.mappings ?? [])[0];
-  const stagingRootRel = String(yaml.staging?.dir ?? '').trim() || '.';
+  const stagingRootRel = String(yaml.staging.dir);
   const stagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel });
-  const mappingStagingRel = String(mapping?.dir?.staging ?? '').trim();
+  const mappingStagingRel = String(mapping?.dir?.staging ?? '');
   const mappingStagingAbs = mappingStagingRel
     ? Path.resolve(stagingRootAbs, mappingStagingRel)
     : undefined;

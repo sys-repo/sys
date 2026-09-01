@@ -1,178 +1,121 @@
-import { Fs, Is, Path, type t } from '../common.ts';
-import { createBuildResetToken } from './u.buildReset.ts';
+import { Dispose, Is, type t } from '../common.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
 import { execIndex } from './u.execIndex.ts';
-import { ensureIndexHtml } from './u.generateHtml.ts';
-import { resolvePath } from '../u.endpoints/u.resolve.ts';
+import { throwIfStagingCancelled } from './u.staging.cancel.ts';
+import {
+  assertDirectoryIdentity,
+  captureDirectoryIdentity,
+  ensureStagingDirectory,
+} from './u.staging.identity.ts';
+import type { StagingManifestLedger } from './u.staging.manifest.ts';
+import type { ExecutableStagingDir, PreparedStagingMapping } from './u.staging.prepare.ts';
 
 export type StagingProgressEvent = t.DeployTool.Staging.ProgressEvent;
 
 type Args = {
-  cwd: t.StringDir;
-  mappings: t.Ary<t.DeployTool.Staging.Mapping>;
+  mappings: readonly PreparedStagingMapping[];
+  stagingIdentity: t.DeployTool.Staging.DirectoryIdentity;
+  manifestLedger: StagingManifestLedger;
   concurrency?: number;
   onProgress?: (e: StagingProgressEvent) => void;
-  sourceRoot?: string;
-
-  /**
-   * Optional single staging root dir for deterministic lifecycle operations.
-   * - cleanStagingRoot: delete + recreate the staging root before running any mappings.
-   * - writeDistJson: callback invoked after successful completion.
-   */
-  stagingRoot?: t.StringRelativeDir;
-  cleanStagingRoot?: boolean;
-  writeDistJson?: boolean;
-  onWriteDistJson?: (e: {
-    stagingRoot: t.StringAbsoluteDir;
-    buildResetToken?: string;
-  }) => Promise<void>;
-  buildResetHtml?: boolean;
-
-  /**
-   * When true, allow mappings to overwrite existing staging files.
-   *
-   * Semantics:
-   * - Directories are always merged (never replaced).
-   * - Files:
-   *   - overwrite=false (default): existing files are preserved (skipped).
-   *   - overwrite=true: last write wins.
-   */
-  overwrite?: boolean;
+  signal?: AbortSignal;
 };
 
+type ExecutableMapping = PreparedStagingMapping & {
+  readonly sourceIdentity: t.DeployTool.Staging.DirectoryIdentity;
+};
+
+/** Execute one already-resolved, disjoint mapping plan. Root lifecycle belongs to `stageMappings`. */
 export async function executeStaging(options: Args): Promise<void> {
-  const { cwd, mappings, overwrite = false } = options;
-  const total = mappings.length;
-
-  const sourceBaseAbs = resolvePath(cwd, options.sourceRoot ?? '.');
-  const stagingBaseAbs = resolvePath(cwd, options.stagingRoot ?? '.');
-  const buildResetToken = options.buildResetHtml ? createBuildResetToken() : undefined;
-
-  if (options.cleanStagingRoot) {
-    if (!options.stagingRoot) {
-      throw new Error('executeStaging: cleanStagingRoot requires options.stagingRoot');
-    }
-    const rootAbs = stagingBaseAbs;
-    const cwdAbs = Path.resolve(cwd, '.');
-
-    if (rootAbs === cwdAbs) {
-      throw new Error("executeStaging: refusing to clean staging root '.' (would delete cwd)");
-    }
-
-    await Fs.remove(rootAbs, { log: false });
-    await Fs.ensureDir(rootAbs);
-  }
-
+  throwIfStagingCancelled(options.signal);
+  const total = options.mappings.length;
   const concurrencyRaw = options.concurrency;
   const concurrency =
     Is.num(concurrencyRaw) && Number.isFinite(concurrencyRaw) && concurrencyRaw > 0
       ? Math.floor(concurrencyRaw)
       : 1;
-
-  const emit = (e: StagingProgressEvent) => options.onProgress?.(e);
-
-  const standard = mappings.filter((m) => m.mode !== 'index');
-  const indexes = mappings.filter((m) => m.mode === 'index');
+  const emit = (event: StagingProgressEvent) => options.onProgress?.(event);
+  const standard: ExecutableMapping[] = [];
+  const indexes: Extract<PreparedStagingMapping, { mode: 'index' }>[] = [];
+  for (const mapping of options.mappings) {
+    if (mapping.mode === 'index') indexes.push(mapping);
+    else standard.push(mapping);
+  }
 
   await runPhase({
-    cwd,
     mappings: standard,
-    overwrite,
     concurrency,
-    sourceBaseAbs,
-    stagingBaseAbs,
     emit,
     total,
     indexOffset: 0,
-    buildResetToken,
+    stagingIdentity: options.stagingIdentity,
+    manifestLedger: options.manifestLedger,
+    signal: options.signal,
   });
 
+  const executableIndexes: ExecutableMapping[] = [];
+  for (const mapping of indexes) {
+    throwIfStagingCancelled(options.signal);
+    const sourceIdentity = await captureDirectoryIdentity({
+      path: mapping.source,
+      label: 'Deploy staging index source',
+      signal: options.signal,
+    });
+    executableIndexes.push(Object.freeze({ ...mapping, sourceIdentity }));
+  }
+
   await runPhase({
-    cwd,
-    mappings: indexes,
-    overwrite,
+    mappings: executableIndexes,
     concurrency: 1,
-    sourceBaseAbs,
-    stagingBaseAbs,
     emit,
     total,
     indexOffset: standard.length,
-    buildResetToken,
+    stagingIdentity: options.stagingIdentity,
+    manifestLedger: options.manifestLedger,
+    signal: options.signal,
   });
-
-  const rootAbs = stagingBaseAbs;
-  // Always refresh the root index after successful staging (safe: only overwrites if marker present).
-  await ensureIndexHtml(rootAbs, { force: true, buildResetToken });
-
-  if (options.writeDistJson) {
-    if (!options.stagingRoot) {
-      throw new Error('executeStaging: writeDistJson requires options.stagingRoot');
-    }
-
-    const write = options.onWriteDistJson;
-    if (!write) throw new Error('executeStaging: writeDistJson requires options.onWriteDistJson');
-    await write({ stagingRoot: rootAbs, buildResetToken });
-  }
 }
 
 async function runPhase(args: {
-  cwd: t.StringDir;
-  mappings: t.Ary<t.DeployTool.Staging.Mapping>;
-  overwrite: boolean;
+  mappings: readonly ExecutableMapping[];
   concurrency: number;
-  sourceBaseAbs: t.StringDir;
-  stagingBaseAbs: t.StringDir;
   emit: (e: StagingProgressEvent) => void;
   total: number;
   indexOffset: number;
-  buildResetToken?: string;
+  stagingIdentity: t.DeployTool.Staging.DirectoryIdentity;
+  manifestLedger: StagingManifestLedger;
+  signal?: AbortSignal;
 }): Promise<void> {
-  const {
-    cwd,
-    mappings,
-    overwrite,
-    concurrency,
-    sourceBaseAbs,
-    stagingBaseAbs,
-    emit,
-    total,
-    indexOffset,
-    buildResetToken,
-  } = args;
-  const phaseTotal = mappings.length;
+  const phaseTotal = args.mappings.length;
   if (phaseTotal === 0) return;
 
+  const life = Dispose.abortable(args.signal);
   let next = 0;
-  let firstErr: unknown;
+  let failed = false;
+  let hasFirstError = false;
+  let firstError: unknown;
 
   const runOne = async (): Promise<void> => {
     while (true) {
-      if (firstErr) return;
+      if (failed) return;
+      throwIfStagingCancelled(life.signal);
 
       const localIndex = next;
       next += 1;
-
       if (localIndex >= phaseTotal) return;
 
-      const m = mappings[localIndex]!;
-      const index = indexOffset + localIndex;
-      const staging = resolvePath(stagingBaseAbs, m.dir.staging);
-      const source = m.mode === 'index'
-        ? resolvePath(stagingBaseAbs, m.dir.source)
-        : resolvePath(sourceBaseAbs, m.dir.source);
-      const dir: t.DeployTool.Staging.Dir = m.mode === 'index'
-        ? { ...m.dir, staging }
-        : { ...m.dir, source, staging };
-
-      emit({ kind: 'mapping:start', index, total, mode: m.mode, source, staging });
+      const mapping = args.mappings[localIndex]!;
+      const index = args.indexOffset + localIndex;
+      const { mode, source, staging, sourceIdentity } = mapping;
+      const dir: ExecutableStagingDir = { source, staging };
 
       const reportStep = (step: t.DeployTool.Staging.ProgressReport<'mapping:step'>) => {
-        emit({
+        args.emit({
           kind: 'mapping:step',
           index,
-          total,
-          mode: m.mode,
+          total: args.total,
+          mode,
           source,
           staging,
           label: step.label,
@@ -180,40 +123,97 @@ async function runPhase(args: {
       };
 
       try {
-        switch (m.mode) {
-          case 'copy': {
-            await execCopy(cwd, dir, reportStep, { overwrite, buildResetToken });
+        args.emit({ kind: 'mapping:start', index, total: args.total, mode, source, staging });
+        throwIfStagingCancelled(life.signal);
+        await assertDirectoryIdentity(
+          args.stagingIdentity,
+          'Deploy staging root',
+          life.signal,
+        );
+        await assertDirectoryIdentity(
+          sourceIdentity,
+          mode === 'index' ? 'Deploy staging index source' : 'Deploy staging mapping source',
+          life.signal,
+        );
+        const destinationIdentity = await ensureStagingDirectory({
+          root: args.stagingIdentity,
+          path: staging,
+          label: 'Deploy staging mapping destination',
+          signal: life.signal,
+        });
+        const context = {
+          sourceIdentity,
+          destinationIdentity,
+          manifestLedger: args.manifestLedger,
+          signal: life.signal,
+        };
+
+        switch (mode) {
+          case 'copy':
+            await execCopy(dir, context, reportStep);
             break;
-          }
-          case 'build+copy': {
-            await execBuildCopy(cwd, dir, reportStep, buildResetToken);
+          case 'build+copy':
+            await execBuildCopy(dir, context, reportStep);
             break;
-          }
-          case 'index': {
-            await execIndex(
-              cwd,
-              { ...dir, source: m.dir.source },
-              reportStep,
-              stagingBaseAbs,
-              buildResetToken,
-            );
+          case 'index':
+            await execIndex(dir, context, reportStep);
             break;
-          }
+          default:
+            throw new Error(`Deploy staging mapping mode is unsupported: ${String(mode)}`);
         }
 
-        emit({ kind: 'mapping:done', index, total, mode: m.mode, source, staging });
+        args.emit({ kind: 'mapping:done', index, total: args.total, mode, source, staging });
+        await assertDirectoryIdentity(
+          args.stagingIdentity,
+          'Deploy staging root',
+          life.signal,
+        );
+        await assertDirectoryIdentity(
+          sourceIdentity,
+          mode === 'index' ? 'Deploy staging index source' : 'Deploy staging mapping source',
+          life.signal,
+        );
+        await assertDirectoryIdentity(
+          destinationIdentity,
+          'Deploy staging mapping destination',
+          life.signal,
+        );
       } catch (error) {
-        firstErr = error;
-        emit({ kind: 'mapping:fail', index, total, mode: m.mode, source, staging, error });
+        failed = true;
+        if (!hasFirstError) {
+          hasFirstError = true;
+          firstError = error;
+        }
+        life.dispose(error);
+        try {
+          args.emit({
+            kind: 'mapping:fail',
+            index,
+            total: args.total,
+            mode,
+            source,
+            staging,
+            error,
+          });
+        } catch {
+          // Progress reporting cannot release root ownership before active workers settle.
+        }
         return;
       }
     }
   };
 
-  const n = Math.min(concurrency, Math.max(1, phaseTotal));
-  const workers: Promise<void>[] = [];
-  for (let i = 0; i < n; i++) workers.push(runOne());
-  await Promise.all(workers);
-
-  if (firstErr) throw firstErr;
+  try {
+    const workers = Array.from(
+      { length: Math.min(args.concurrency, Math.max(1, phaseTotal)) },
+      () => runOne(),
+    );
+    const settled = await Promise.allSettled(workers);
+    if (hasFirstError) throw firstError;
+    for (const result of settled) {
+      if (result.status === 'rejected') throw result.reason;
+    }
+  } finally {
+    life.dispose('deploy-staging-phase-complete');
+  }
 }
