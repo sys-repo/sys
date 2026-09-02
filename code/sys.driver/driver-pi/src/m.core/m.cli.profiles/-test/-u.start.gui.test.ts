@@ -2536,7 +2536,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
           return Promise.resolve(fakeGeneration());
         },
         bindKeyboard(input) {
-          disposition = input.onKey?.(keypress('left', { ctrlKey: true }));
+          disposition = input.onKey?.(keypress('left', {
+            altKey: false,
+            ctrlKey: true,
+            metaKey: false,
+            shiftKey: false,
+          }));
           return {
             finished: keyboardFinished.promise,
             dispose: keyboardFinished.resolve,
@@ -2671,8 +2676,14 @@ describe(`@sys/driver-pi/cli/Profiles/u.start.gui`, () => {
         openCalls: 1,
         redrawCalls: 2,
       });
-      const firstBack = await onKey(keypress('left', { ctrlKey: true }));
-      const secondBack = await onKey(keypress('left', { ctrlKey: true }));
+      const back = keypress('left', {
+        altKey: false,
+        ctrlKey: true,
+        metaKey: false,
+        shiftKey: false,
+      });
+      const firstBack = await onKey(back);
+      const secondBack = await onKey(back);
       await onQuit();
       const completion = await run;
 

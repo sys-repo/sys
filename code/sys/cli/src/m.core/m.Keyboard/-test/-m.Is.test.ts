@@ -23,6 +23,27 @@ const redrawIncomplete = [
   { key: 'r', ctrlKey: false, altKey: false, shiftKey: false },
   { key: 'r', ctrlKey: false, altKey: false, metaKey: false },
 ];
+const backExact = {
+  key: 'left',
+  ctrlKey: true,
+  altKey: false,
+  metaKey: false,
+  shiftKey: false,
+} as const;
+const backRejected = [
+  { ...backExact, key: 'right' },
+  { ...backExact, ctrlKey: false },
+  { ...backExact, altKey: true },
+  { ...backExact, metaKey: true },
+  { ...backExact, shiftKey: true },
+];
+const backIncomplete = [
+  { ctrlKey: true, altKey: false, metaKey: false, shiftKey: false },
+  { key: 'left', altKey: false, metaKey: false, shiftKey: false },
+  { key: 'left', ctrlKey: true, metaKey: false, shiftKey: false },
+  { key: 'left', ctrlKey: true, altKey: false, shiftKey: false },
+  { key: 'left', ctrlKey: true, altKey: false, metaKey: false },
+];
 
 describe('Cli.Keyboard.Is', () => {
   it('recognizes canonical quit controls', () => {
@@ -39,6 +60,15 @@ describe('Cli.Keyboard.Is', () => {
 
   it('rejects every missing key or modifier field for redraw', () => {
     for (const event of redrawIncomplete) expect(Cli.Keyboard.Is.redraw(event)).to.eql(false);
+  });
+
+  it('admits only exact Ctrl+Arrow Left for back navigation', () => {
+    expect(Cli.Keyboard.Is.back(backExact)).to.eql(true);
+    for (const event of backRejected) expect(Cli.Keyboard.Is.back(event)).to.eql(false);
+  });
+
+  it('rejects every missing key or modifier field for back navigation', () => {
+    for (const event of backIncomplete) expect(Cli.Keyboard.Is.back(event)).to.eql(false);
   });
 
   it('recognizes native terminal-unavailability errors', () => {

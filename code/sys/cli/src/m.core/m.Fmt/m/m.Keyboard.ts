@@ -32,11 +32,18 @@ type AdmittedCandidate = Readonly<{
 /**
  * Shared keyboard-command and keyboard-row presentation.
  */
-export const Keyboard: t.CliFormatKeyboard.Lib = Object.freeze({ command, row });
+export const Keyboard: t.CliFormatKeyboard.Lib = Object.freeze({ back, command, row });
 
 /**
  * Helpers:
  */
+function back(): string {
+  assertTextPresentationAuthority();
+  const result = `${c.cyan('←')} ${c.gray('ctrl')}`;
+  assertOutputCodeUnits(result.length);
+  return result;
+}
+
 function command(options: t.CliFormatKeyboard.Command.Options): string {
   assertTextPresentationAuthority();
   const admitted = admitCommand(options);

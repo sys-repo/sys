@@ -30,7 +30,7 @@ describe('CLI: core / m.Cli', () => {
     expect(Object.isFrozen(Cli.Keyboard)).to.eql(true);
     expect(Object.keys(Cli.Keyboard)).to.eql(['keypress', 'Is', 'bind', 'shutdown']);
     expect(Object.isFrozen(Cli.Keyboard.Is)).to.eql(true);
-    expect(Object.keys(Cli.Keyboard.Is)).to.eql(['quit', 'redraw', 'unavailableError']);
+    expect(Object.keys(Cli.Keyboard.Is)).to.eql(['quit', 'back', 'redraw', 'unavailableError']);
   });
 
   it('Cli.stripAnsi', () => {

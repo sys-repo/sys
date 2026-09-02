@@ -18,6 +18,14 @@ const candidates = [
 ];
 
 describe('Cli.Fmt.Keyboard', () => {
+  describe('.back', () => {
+    it('renders the canonical nested-screen back token', () => {
+      const back = Fmt.Keyboard.back();
+      expect(back).to.eql(`${c.cyan('←')} ${c.gray('ctrl')}`);
+      expect(Cli.stripAnsi(back)).to.eql('← ctrl');
+    });
+  });
+
   describe('.command', () => {
     it('renders the keyboard command grammar with authored key order and optional context', () => {
       const single = Fmt.Keyboard.command({ label: 'quit', keys: ['q'] });

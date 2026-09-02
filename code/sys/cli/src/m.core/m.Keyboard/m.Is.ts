@@ -10,6 +10,11 @@ export const Is: t.CliKeyboard.Is.Lib = Object.freeze({
     return key === 'q' || (key === 'c' && event.ctrlKey === true);
   },
 
+  back(event: t.CliKeyboard.Is.BackInput): boolean {
+    return event.key === 'left' && event.ctrlKey === true && event.altKey === false &&
+      event.metaKey === false && event.shiftKey === false;
+  },
+
   redraw(event: t.CliKeyboard.Is.RedrawInput): boolean {
     return event.key === 'r' && event.ctrlKey === false && event.altKey === false &&
       event.metaKey === false && event.shiftKey === false;

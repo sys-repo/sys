@@ -72,6 +72,7 @@ type ExpectedKeyboardRowOptions = {
   candidates: ExpectedKeyboardCandidate[];
 };
 type ExpectedKeyboardLib = {
+  readonly back: () => string;
   readonly command: (options: ExpectedKeyboardCommandOptions) => string;
   readonly row: (options: ExpectedKeyboardRowOptions) => string | undefined;
 };

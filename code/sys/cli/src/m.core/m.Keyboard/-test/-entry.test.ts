@@ -18,6 +18,7 @@ describe('@sys/cli/keyboard public entrypoint', () => {
 
     expect(PublicKeyboard.keypress).to.equal(InternalKeyboard.keypress);
     expect(PublicKeyboard.Is).to.equal(InternalKeyboard.Is);
+    expect(PublicKeyboard.Is.back).to.equal(InternalKeyboard.Is.back);
     expect(PublicKeyboard.bind).to.equal(InternalKeyboard.bind);
     expect(PublicKeyboard.shutdown).to.equal(InternalKeyboard.shutdown);
 

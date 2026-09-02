@@ -6,6 +6,8 @@ export declare namespace CliFormatKeyboard {
    * Formats keyboard commands and terminal-width rows.
    */
   export type Lib = {
+    /** Format the canonical Ctrl+Arrow Left nested-screen back token. */
+    readonly back: () => string;
     /** Format one authored command label, ordered keys, and optional context. */
     readonly command: (options: Command.Options) => string;
     /** Select and align the first complete candidate that fits an explicit terminal width. */

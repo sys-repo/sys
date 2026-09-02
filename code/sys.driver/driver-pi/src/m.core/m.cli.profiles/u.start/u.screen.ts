@@ -784,9 +784,7 @@ function keyboardRows(width: number, backEnabled: boolean): readonly string[] {
   const quit = Cli.Fmt.Keyboard.command({ label: 'quit', keys: ['q'] });
   const row = Cli.Fmt.Keyboard.row({
     width,
-    candidates: backEnabled
-      ? [{ left: `${c.cyan('←')} ${c.gray('ctrl')}`, right: quit }]
-      : [{ right: quit }],
+    candidates: backEnabled ? [{ left: Cli.Fmt.Keyboard.back(), right: quit }] : [{ right: quit }],
   });
   return row ? [c.gray(Cli.Fmt.hr({ width, weight: 'dashed' })), row] : [];
 }

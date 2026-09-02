@@ -162,6 +162,8 @@ export declare namespace Cli {
       export type Lib = t.CliKeyboard.Is.Lib;
       /** Minimal keypress shape required by the canonical quit predicate. */
       export type QuitInput = t.CliKeyboard.Is.QuitInput;
+      /** Partial keypress input accepted by the canonical back predicate. */
+      export type BackInput = t.CliKeyboard.Is.BackInput;
       /** Partial keypress input accepted by the canonical redraw predicate. */
       export type RedrawInput = t.CliKeyboard.Is.RedrawInput;
     }

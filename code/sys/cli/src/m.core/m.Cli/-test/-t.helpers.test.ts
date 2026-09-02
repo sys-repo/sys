@@ -29,6 +29,9 @@ type ExpectedQuitInput = Pick<BoundKeypressEvent, 'key' | 'ctrlKey'>;
 type ExpectedRedrawInput = Partial<
   Pick<BoundKeypressEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey'>
 >;
+type ExpectedBackInput = Partial<
+  Pick<BoundKeypressEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey'>
+>;
 type ExpectedMenuResultKind = 'exit' | 'back' | 'stay';
 type ExpectedMenuResult =
   | { readonly kind: ExpectedMenuResultKind }
@@ -63,6 +66,11 @@ type CanonicalHelperProof = [
   Assert<Equal<t.CliKeyboard.Is.RedrawInput, t.Cli.Keyboard.Is.RedrawInput>>,
   Assert<Equal<t.CliKeyboard.Is.RedrawInput, CliKeyboardFromT.Is.RedrawInput>>,
   Assert<Equal<t.CliKeyboard.Is.RedrawInput, CliKeyboardFromTypes.Is.RedrawInput>>,
+  Assert<Equal<t.CliKeyboard.Is.BackInput, ExpectedBackInput>>,
+  Assert<BoundKeypressEvent extends t.CliKeyboard.Is.BackInput ? true : false>,
+  Assert<Equal<t.CliKeyboard.Is.BackInput, t.Cli.Keyboard.Is.BackInput>>,
+  Assert<Equal<t.CliKeyboard.Is.BackInput, CliKeyboardFromT.Is.BackInput>>,
+  Assert<Equal<t.CliKeyboard.Is.BackInput, CliKeyboardFromTypes.Is.BackInput>>,
   Assert<Equal<t.CliKeyboard.Bind.Options, t.Cli.Keyboard.Bind.Options>>,
   Assert<Equal<t.CliKeyboard.Bind.Options, CliKeyboardFromT.Bind.Options>>,
   Assert<Equal<t.CliKeyboard.Bind.Options, CliKeyboardFromTypes.Bind.Options>>,

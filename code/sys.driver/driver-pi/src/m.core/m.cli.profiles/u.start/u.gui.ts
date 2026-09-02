@@ -49,8 +49,6 @@ import {
 
 export type { StartGuiDependencies } from './u.deps.ts';
 
-type KeyboardEvent = Parameters<NonNullable<Parameters<typeof Cli.Keyboard.bind>[0]['onKey']>>[0];
-
 type BootResult =
   | Readonly<{ kind: 'ready' }>
   | Readonly<{ kind: 'failed' }>
@@ -245,7 +243,7 @@ async function startPrepared(input: PreparedStartGui): Promise<StartGuiCompletio
           exit: false,
           onKey: (event) => {
             if (Cli.Keyboard.Is.redraw(event)) redrawScreen();
-            if (isBackKey(event) && allowsBack(state.current)) {
+            if (Cli.Keyboard.Is.back(event) && allowsBack(state.current)) {
               requestTrustedStop('back');
               return 'stop';
             }
@@ -1013,9 +1011,4 @@ function disposeLife(life: t.Abortable, reason: string): void {
   } catch {
     // Startup failure still owns its package-controlled terminal error.
   }
-}
-
-function isBackKey(event: KeyboardEvent): boolean {
-  return event.key === 'left' && event.ctrlKey && !event.altKey && !event.metaKey &&
-    !event.shiftKey;
 }

@@ -40,6 +40,9 @@ export declare namespace CliKeyboard {
       /** True for canonical terminal quit keys. */
       quit(event: QuitInput): boolean;
 
+      /** True only for exact Ctrl+Arrow Left nested-screen back navigation. */
+      back(event: BackInput): boolean;
+
       /** True only for lowercase `r` with every modifier explicitly false. */
       redraw(event: RedrawInput): boolean;
 
@@ -49,6 +52,11 @@ export declare namespace CliKeyboard {
 
     /** Minimal keypress shape required by the canonical quit predicate. */
     export type QuitInput = Pick<CliffyKeyPressEvent, 'key' | 'ctrlKey'>;
+
+    /** Partial keypress input; missing fields are rejected by the back predicate. */
+    export type BackInput = Partial<
+      Pick<CliffyKeyPressEvent, 'key' | 'ctrlKey' | 'altKey' | 'metaKey' | 'shiftKey'>
+    >;
 
     /** Partial keypress input; missing fields are rejected by the redraw predicate. */
     export type RedrawInput = Partial<
