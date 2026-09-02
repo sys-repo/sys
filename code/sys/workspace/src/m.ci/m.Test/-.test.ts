@@ -1,5 +1,7 @@
-import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
+import { Yaml } from '@sys/yaml';
+import { describe, Err, expect, expectError, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
+import { CI_DENO_VERSION } from '../u.deno.ts';
 
 describe('WorkspaceCi.Test.Linux', () => {
   it('builds matrix YAML from ordered module paths', async () => {
@@ -18,6 +20,32 @@ describe('WorkspaceCi.Test.Linux', () => {
     });
 
     const yaml = await WorkspaceCi.Test.Linux.text({ paths: [a, b] });
+    const parsed = Yaml.parse<WorkflowDoc>(yaml);
+    expect(parsed.error).to.eql(undefined);
+    const doc = parsed.data;
+    if (!doc) throw Err.std('Expected parsed Linux workflow');
+
+    const graph = doc.jobs.graph;
+    const deno = doc.jobs.deno;
+    expect(graph['runs-on']).to.eql('ubuntu-latest');
+    expect(graph.permissions).to.eql({ contents: 'read' });
+    expect(graph.environment).to.eql(undefined);
+    expect(graph.env).to.eql(undefined);
+    expect(graph.strategy).to.eql(undefined);
+    expect(graph.steps.map((step) => step.name ?? step.uses)).to.eql([
+      'actions/checkout@v5',
+      'Install ESM Runtime: Deno 2.x',
+      'Install Dependencies',
+      'Verify workspace graph',
+    ]);
+    expect(graph.steps[1]?.with).to.eql({ 'deno-version': CI_DENO_VERSION });
+    expect(graph.steps[2]?.run).to.eql('deno task install');
+    expect(graph.steps[3]?.run).to.eql('deno task check:graph');
+    expect(deno.needs).to.eql('graph');
+    expect(deno.steps.some((step) => step.run === 'deno task check:graph')).to.eql(false);
+    expect(
+      [...graph.steps, ...deno.steps].filter((step) => step.run === 'deno task check:graph').length,
+    ).to.eql(1);
 
     const incl = (value: string) => yaml.includes(value);
 
@@ -208,3 +236,27 @@ describe('WorkspaceCi.Test.Linux', () => {
     expect(written.yaml.includes(buildDir)).to.be.false;
   });
 });
+
+type WorkflowStep = {
+  readonly name?: string;
+  readonly uses?: string;
+  readonly with?: Readonly<Record<string, string>>;
+  readonly run?: string;
+};
+
+type WorkflowJob = {
+  readonly 'runs-on': string;
+  readonly permissions: Readonly<Record<string, string>>;
+  readonly environment?: unknown;
+  readonly env?: unknown;
+  readonly strategy?: unknown;
+  readonly needs?: string;
+  readonly steps: readonly WorkflowStep[];
+};
+
+type WorkflowDoc = {
+  readonly jobs: {
+    readonly graph: WorkflowJob;
+    readonly deno: WorkflowJob;
+  };
+};

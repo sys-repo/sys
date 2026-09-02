@@ -9,6 +9,7 @@ type WorkflowArgs = {
   readonly permissions: t.WorkspaceCi.WorkflowEntries;
   readonly on?: t.WorkspaceCi.WorkflowOn;
   readonly env?: t.WorkspaceCi.WorkflowEntries;
+  readonly beforeDenoJob?: string;
   readonly jobConfig?: string;
   readonly verifyCleanCheckout?: boolean;
   readonly body: string;
@@ -20,6 +21,9 @@ export function workflowTemplate(args: WorkflowArgs) {
   const envEntries = args.env ? Object.entries(args.env) : [];
   const env = envEntries.length
     ? `    env:\n${wrangle.map(Object.fromEntries(envEntries), 6)}\n`
+    : '';
+  const beforeDenoJob = args.beforeDenoJob
+    ? `${wrangle.indent(args.beforeDenoJob.trim(), 2)}\n`
     : '';
   const jobConfig = args.jobConfig ? `${args.jobConfig}\n` : '';
   const verifyCheckout = args.verifyCleanCheckout
@@ -87,6 +91,7 @@ export function workflowTemplate(args: WorkflowArgs) {
     __ON__
 
     jobs:
+      __BEFORE_DENO_JOB__
       deno:
         runs-on: ubuntu-latest
         permissions:
@@ -100,6 +105,7 @@ export function workflowTemplate(args: WorkflowArgs) {
   `,
   )
     .replace(/^\s*__ON__$/m, on)
+    .replace(/^\s*__BEFORE_DENO_JOB__\n/m, beforeDenoJob)
     .replace(/^\s*__PERMISSIONS__$/m, permissions)
     .replace(/^\s*__ENV__$/m, env.trimEnd())
     .replace(/^\s*__JOB_CONFIG__$/m, jobConfig.trimEnd())

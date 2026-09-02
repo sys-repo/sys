@@ -1,4 +1,20 @@
-export const TEST_JOB_CONFIG_TEMPLATE = `    name: \${{ matrix.name }}
+export const TEST_GRAPH_JOB_TEMPLATE = `graph:
+  runs-on: ubuntu-latest
+  permissions:
+    contents: read
+  steps:
+    - uses: actions/checkout@v5
+    - name: 'Install ESM Runtime: Deno 2.x'
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: __DENO_VERSION__
+    - name: Install Dependencies
+      run: deno task install
+    - name: Verify workspace graph
+      run: deno task check:graph`;
+
+export const TEST_JOB_CONFIG_TEMPLATE = `    needs: graph
+    name: \${{ matrix.name }}
     strategy:
       fail-fast: false
       matrix:
@@ -28,9 +44,6 @@ export const TEST_BODY_TEMPLATE = `      - name: 'Configure Browser Runtime: Chr
           done
           echo "::error::Chrome/Chromium runtime not found"
           exit 1
-
-      - name: Verify workspace graph
-        run: deno task check:graph
 
       - name: test module → "\${{ matrix.name }}"
         run: |

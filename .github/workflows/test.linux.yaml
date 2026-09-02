@@ -8,11 +8,26 @@ on:
       - .github/workflows/jsr.yaml
 
 jobs:
+  graph:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+      - name: 'Install ESM Runtime: Deno 2.x'
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.9.5
+      - name: Install Dependencies
+        run: deno task install
+      - name: Verify workspace graph
+        run: deno task check:graph
   deno:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     environment: dev
+    needs: graph
     name: ${{ matrix.name }}
     strategy:
       fail-fast: false
@@ -174,9 +189,6 @@ jobs:
           done
           echo "::error::Chrome/Chromium runtime not found"
           exit 1
-
-      - name: Verify workspace graph
-        run: deno task check:graph
 
       - name: test module → "${{ matrix.name }}"
         run: |
