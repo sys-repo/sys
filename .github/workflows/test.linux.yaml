@@ -17,7 +17,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.5
+          deno-version: v2.9.6
       - name: Install Dependencies
         run: deno task install
       - name: Verify workspace graph
@@ -146,7 +146,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.5
+          deno-version: v2.9.6
       - name: Install Dependencies
         run: |
           max_attempts=3
