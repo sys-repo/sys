@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1787987245501,
+    "createdAt": 1788388955922,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-75cf0bc3e2e0fb9c1cb009e0f6bfbaed1fc8d1fb73f09ac4ae79f7d7e1d5f565",
+      "/graph": "sha256-cfd892e2eac9761c375ade9f88d7e22343083ded0bbabc3aa687b4141b3d1fb5",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.153/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.153/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1787987245507
+    "modifiedAt": 1788388955928
   },
   "graph": {
     "orderedPaths": [
@@ -23,6 +23,7 @@
       "code/sys.dev",
       "code/sys/crdt",
       "code/sys/std",
+      "code/sys/archive",
       "code/sys/color",
       "code/sys.ui/ui-css",
       "code/sys/event",
@@ -1164,6 +1165,10 @@
       },
       {
         "from": "code/sys/std",
+        "to": "code/sys/archive"
+      },
+      {
+        "from": "code/sys/std",
         "to": "code/sys/cell"
       },
       {
@@ -1457,6 +1462,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys.ui/ui-state"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys/archive"
       },
       {
         "from": "code/sys/types",
