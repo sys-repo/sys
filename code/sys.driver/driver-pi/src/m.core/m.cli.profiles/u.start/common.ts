@@ -12,6 +12,7 @@ const NativeSet = Set;
 const NativeUint8Array = Uint8Array;
 const NativeWeakMap = WeakMap;
 const NativeWeakSet = WeakSet;
+const defineProperty = Object.defineProperty;
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
 const getPrototypeOf = Object.getPrototypeOf;
 const objectPrototype = Object.prototype;
@@ -48,6 +49,9 @@ const weakSetHasDescriptor = snapshotDataDescriptor(weakSetPrototype, 'has');
 export const StartGuiIntrinsic = freeze({
   createError(message: string): Error {
     return new NativeError(message);
+  },
+  defineProperty(input: object, key: PropertyKey, descriptor: PropertyDescriptor): void {
+    apply(defineProperty, Object, [input, key, descriptor]);
   },
   freeze<const T>(input: T): Readonly<T> {
     return apply(freeze, Object, [input]) as Readonly<T>;

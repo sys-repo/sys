@@ -8,7 +8,7 @@ import {
   type AdmittedGeneration,
   type AdmittedMaterialization,
 } from '../u.identity.ts';
-import type { Supervisor, TerminalEvent, WorkAdmission } from '../u.lifecycle.ts';
+import type { Supervisor, TerminalEvent, WorkAdmission } from '../u.lifecycle/mod.ts';
 import { materializationError } from '../u.materialize.ts';
 import {
   isPromiseTransportReady,

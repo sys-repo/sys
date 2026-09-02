@@ -3,7 +3,7 @@ import { StartGuiIntrinsic, type t } from '../common.ts';
 import type { AuthoritySnapshot } from '../u.authority.ts';
 import type { Started, StartGuiDependencies } from '../u.deps.ts';
 import { captureFailure, type FailureOperation } from '../u.failure.ts';
-import type { Supervisor, WorkAdmission } from '../u.lifecycle.ts';
+import type { Supervisor, WorkAdmission } from '../u.lifecycle/mod.ts';
 import { materialize, prepareReleaseOwner } from '../u.materialize.ts';
 import { LIMITS } from '../u.limits.ts';
 import { Boot, type BootState, type BootStateOwner } from '../u.state.ts';

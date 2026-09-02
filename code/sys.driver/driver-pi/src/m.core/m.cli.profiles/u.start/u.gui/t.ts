@@ -2,7 +2,7 @@ import type { t } from '../common.ts';
 
 import type { AuthoritySnapshot } from '../u.authority.ts';
 import type { StartGuiDependencies } from '../u.deps.ts';
-import type { StopSource } from '../u.lifecycle.ts';
+import type { StopSource } from '../u.lifecycle/mod.ts';
 import type { BootStateOwner, BootStateSource } from '../u.state.ts';
 import type { StartGuiEvidence, StartGuiRecoveryPolicy } from '../../u/u.start.gui.service.ts';
 

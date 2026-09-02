@@ -16,7 +16,7 @@ import {
   type StatusOwner,
   type Supervisor,
   type TerminalEvent,
-} from '../u.lifecycle.ts';
+} from '../u.lifecycle/mod.ts';
 import {
   createPromiseDeferred,
   isPromiseTransportReady,
