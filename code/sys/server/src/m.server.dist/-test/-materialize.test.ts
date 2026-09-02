@@ -107,10 +107,10 @@ describe('Dist.materialize', () => {
         const manifest = Fs.join(promoted.dir, 'dist.json');
         await Deno.chmod(manifest, 0o600);
         const rooted = await Fs.Capability.Rooted.create({ root: fixture.storeDir });
-        const admitted = await rooted.admit([
+        const admitted = await rooted.Target.admit([
           { kind: 'directory', path: fixture.integrity },
         ]);
-        expect(await rooted.inspectSeal(admitted.targets[0])).to.eql({ kind: 'unsealed' });
+        expect(await rooted.Tree.inspectSeal(admitted.targets[0])).to.eql({ kind: 'unsealed' });
 
         const requests = fixture.calls.length;
         let credentials = 0;
@@ -124,7 +124,7 @@ describe('Dist.materialize', () => {
         if (existing.kind !== 'existing') return;
         expect(existing.seal).to.eql({ kind: 'applied', changed: true });
         expect(existing.verification.integrity).to.eql(fixture.integrity);
-        expect(await rooted.inspectSeal(admitted.targets[0])).to.eql({ kind: 'sealed' });
+        expect(await rooted.Tree.inspectSeal(admitted.targets[0])).to.eql({ kind: 'sealed' });
         expect(credentials).to.eql(0);
         expect(fixture.calls.length).to.eql(requests);
       } finally {
@@ -174,10 +174,13 @@ describe('Dist.materialize', () => {
             (rooted) =>
               Object.freeze({
                 ...rooted,
-                promoteStage: async (stage: t.FsRooted.Stage) => {
-                  await rooted.discardStage(stage);
-                  throw cause;
-                },
+                Stage: Object.freeze({
+                  ...rooted.Stage,
+                  promote: async (stage: t.FsRooted.Stage) => {
+                    await rooted.Stage.discard(stage);
+                    throw cause;
+                  },
+                }),
               }),
             [cause],
           );
@@ -205,12 +208,18 @@ describe('Dist.materialize', () => {
         const replacement = rootedWith((rooted) =>
           Object.freeze({
             ...rooted,
-            promoteStage: (
-              stage: t.FsRooted.Stage,
-              target: t.FsRooted.Target<'directory'>,
-              options?: t.FsRooted.PromotionOptions,
-            ) => rooted.promoteStage(stage, target, { ...options, seal: false }),
-            sealTree: () => Promise.resolve(Object.freeze({ kind: 'unsupported' })),
+            Stage: Object.freeze({
+              ...rooted.Stage,
+              promote: (
+                stage: t.FsRooted.Stage,
+                target: t.FsRooted.Target<'directory'>,
+                options?: t.FsRooted.PromotionOptions,
+              ) => rooted.Stage.promote(stage, target, { ...options, seal: false }),
+            }),
+            Tree: Object.freeze({
+              ...rooted.Tree,
+              seal: () => Promise.resolve(Object.freeze({ kind: 'unsupported' })),
+            }),
           })
         );
         const result = await materializeWith(
@@ -244,7 +253,10 @@ describe('Dist.materialize', () => {
         const replacement = rootedWith((rooted) =>
           Object.freeze({
             ...rooted,
-            sealTree: () => Promise.resolve(Object.freeze({ kind: 'unsupported' })),
+            Tree: Object.freeze({
+              ...rooted.Tree,
+              seal: () => Promise.resolve(Object.freeze({ kind: 'unsupported' })),
+            }),
           })
         );
         const result = await materializeWith(
@@ -304,11 +316,14 @@ describe('Dist.materialize', () => {
         const replacement = rootedWith((rooted) =>
           Object.freeze({
             ...rooted,
-            inspectSeal: () => Promise.resolve(Object.freeze({ kind: 'unsupported' })),
-            sealTree: (...args: Parameters<t.FsRooted.Instance['sealTree']>) => {
-              sealCalls += 1;
-              return rooted.sealTree(...args);
-            },
+            Tree: Object.freeze({
+              ...rooted.Tree,
+              inspectSeal: () => Promise.resolve(Object.freeze({ kind: 'unsupported' })),
+              seal: (...args: Parameters<t.FsRooted.Instance['Tree']['seal']>) => {
+                sealCalls += 1;
+                return rooted.Tree.seal(...args);
+              },
+            }),
           })
         );
         const result = await materializeWith(
@@ -343,7 +358,10 @@ describe('Dist.materialize', () => {
           (rooted) =>
             Object.freeze({
               ...rooted,
-              sealTree: () => Promise.reject(cause),
+              Tree: Object.freeze({
+                ...rooted.Tree,
+                seal: () => Promise.reject(cause),
+              }),
             }),
           [cause],
         );
@@ -372,12 +390,15 @@ describe('Dist.materialize', () => {
         const replacement = rootedWith((rooted) =>
           Object.freeze({
             ...rooted,
-            promoteStage: async (...args: Parameters<t.FsRooted.Instance['promoteStage']>) => {
-              const result = await rooted.promoteStage(...args);
-              if (result.kind !== 'published') return result;
-              lowerSeal = { kind: 'applied', changed: result.seal?.changed ?? true };
-              return { ...result, seal: lowerSeal };
-            },
+            Stage: Object.freeze({
+              ...rooted.Stage,
+              promote: async (...args: Parameters<t.FsRooted.Instance['Stage']['promote']>) => {
+                const result = await rooted.Stage.promote(...args);
+                if (result.kind !== 'published') return result;
+                lowerSeal = { kind: 'applied', changed: result.seal?.changed ?? true };
+                return { ...result, seal: lowerSeal };
+              },
+            }),
           })
         );
         const result = await materializeWith(
@@ -408,12 +429,15 @@ describe('Dist.materialize', () => {
         const replacement = rootedWith((rooted) =>
           Object.freeze({
             ...rooted,
-            sealTree: async (...args: Parameters<t.FsRooted.Instance['sealTree']>) => {
-              const result = await rooted.sealTree(...args);
-              await Deno.chmod(manifest, 0o600);
-              await Deno.writeTextFile(manifest, '{}');
-              return result;
-            },
+            Tree: Object.freeze({
+              ...rooted.Tree,
+              seal: async (...args: Parameters<t.FsRooted.Instance['Tree']['seal']>) => {
+                const result = await rooted.Tree.seal(...args);
+                await Deno.chmod(manifest, 0o600);
+                await Deno.writeTextFile(manifest, '{}');
+                return result;
+              },
+            }),
           })
         );
         const result = await materializeWith(
@@ -448,12 +472,15 @@ describe('Dist.materialize', () => {
         const replacement = rootedWith((rooted) =>
           Object.freeze({
             ...rooted,
-            sealTree: async (...args: Parameters<t.FsRooted.Instance['sealTree']>) => {
-              const result = await rooted.sealTree(...args);
-              sealed.resolve();
-              await proceed.promise;
-              return result;
-            },
+            Tree: Object.freeze({
+              ...rooted.Tree,
+              seal: async (...args: Parameters<t.FsRooted.Instance['Tree']['seal']>) => {
+                const result = await rooted.Tree.seal(...args);
+                sealed.resolve();
+                await proceed.promise;
+                return result;
+              },
+            }),
           })
         );
         pending = materializeWith(
@@ -463,10 +490,10 @@ describe('Dist.materialize', () => {
         await sealed.promise;
 
         const contender = await Fs.Capability.Rooted.create({ root: fixture.storeDir });
-        const admitted = await contender.admit([
+        const admitted = await contender.Target.admit([
           { kind: 'directory', path: fixture.integrity },
         ]);
-        const blocked = await contender.acquireLease(admitted.targets, { mode: 'exclusive' });
+        const blocked = await contender.Lease.acquire(admitted.targets, { mode: 'exclusive' });
         if (blocked.kind === 'acquired') await blocked.lease.release();
         expect(blocked.kind).to.eql('busy');
 
@@ -493,10 +520,10 @@ describe('Dist.materialize', () => {
 
         const parent = Fs.dirname(fixture.storeDir) as t.StringDir;
         const rooted = await Fs.Capability.Rooted.create({ root: parent });
-        const admitted = await rooted.admit([
+        const admitted = await rooted.Target.admit([
           { kind: 'directory', path: Fs.basename(fixture.storeDir) },
         ]);
-        const acquired = await rooted.acquireLease(admitted.targets, { mode: 'exclusive' });
+        const acquired = await rooted.Lease.acquire(admitted.targets, { mode: 'exclusive' });
         expect(acquired.kind).to.eql('acquired');
         if (acquired.kind !== 'acquired') return;
         blocker = acquired.lease;
@@ -526,15 +553,15 @@ describe('Dist.materialize', () => {
         if (result.kind !== 'promoted') return;
 
         const rooted = await Fs.Capability.Rooted.create({ root: fixture.storeDir });
-        const admitted = await rooted.admit([
+        const admitted = await rooted.Target.admit([
           { kind: 'directory', path: fixture.integrity },
         ]);
         const target = admitted.targets[0];
-        const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+        const acquired = await rooted.Lease.acquire([target], { mode: 'exclusive' });
         expect(acquired.kind).to.eql('acquired');
         if (acquired.kind !== 'acquired') return;
         try {
-          expect(await rooted.removeTree(target, { lease: acquired.lease })).to.eql({
+          expect(await rooted.Tree.remove(target, { lease: acquired.lease })).to.eql({
             kind: 'removed',
           });
         } finally {
@@ -852,18 +879,21 @@ describe('Dist.materialize', () => {
           (rooted) =>
             Object.freeze({
               ...rooted,
-              promoteStage: async (
-                stage: t.FsRooted.Stage,
-                target: t.FsRooted.Target<'directory'>,
-                options?: t.FsRooted.PromotionOptions,
-              ) => {
-                const result = await rooted.promoteStage(stage, target, {
-                  ...options,
-                  seal: false,
-                });
-                if (result.kind !== 'published') throw new Error('Expected visible publication.');
-                throw cause;
-              },
+              Stage: Object.freeze({
+                ...rooted.Stage,
+                promote: async (
+                  stage: t.FsRooted.Stage,
+                  target: t.FsRooted.Target<'directory'>,
+                  options?: t.FsRooted.PromotionOptions,
+                ) => {
+                  const result = await rooted.Stage.promote(stage, target, {
+                    ...options,
+                    seal: false,
+                  });
+                  if (result.kind !== 'published') throw new Error('Expected visible publication.');
+                  throw cause;
+                },
+              }),
             }),
           [cause],
         );
@@ -894,14 +924,17 @@ describe('Dist.materialize', () => {
         const replacement = rootedWith((rooted) =>
           Object.freeze({
             ...rooted,
-            promoteStage: async (...args: Parameters<t.FsRooted.Instance['promoteStage']>) => {
-              const result = await rooted.promoteStage(...args);
-              if (result.kind === 'published') {
-                published.resolve();
-                await proceed.promise;
-              }
-              return result;
-            },
+            Stage: Object.freeze({
+              ...rooted.Stage,
+              promote: async (...args: Parameters<t.FsRooted.Instance['Stage']['promote']>) => {
+                const result = await rooted.Stage.promote(...args);
+                if (result.kind === 'published') {
+                  published.resolve();
+                  await proceed.promise;
+                }
+                return result;
+              },
+            }),
           })
         );
         pending = materializeWith(
@@ -911,10 +944,10 @@ describe('Dist.materialize', () => {
         await published.promise;
 
         const contender = await Fs.Capability.Rooted.create({ root: fixture.storeDir });
-        const admitted = await contender.admit([
+        const admitted = await contender.Target.admit([
           { kind: 'directory', path: fixture.integrity },
         ]);
-        const blocked = await contender.acquireLease(admitted.targets, { mode: 'exclusive' });
+        const blocked = await contender.Lease.acquire(admitted.targets, { mode: 'exclusive' });
         if (blocked.kind === 'acquired') await blocked.lease.release();
         expect(blocked.kind).to.eql('busy');
 
@@ -939,16 +972,17 @@ describe('Dist.materialize', () => {
         Is: owner.Is,
         create: async (options) => {
           const rooted = await owner.create(options);
-          const discardStage: t.FsRooted.Instance['discardStage'] = () => {
+          const discard: t.FsRooted.Instance['Stage']['discard'] = () => {
             return Promise.reject(rootedFailure(false));
           };
-          const promoteStage: t.FsRooted.Instance['promoteStage'] = async (...args) => {
-            const result = await rooted.promoteStage(...args);
+          const promote: t.FsRooted.Instance['Stage']['promote'] = async (...args) => {
+            const result = await rooted.Stage.promote(...args);
             return result.kind === 'published'
               ? Object.freeze({ ...result, cleanupError })
               : result;
           };
-          return Object.freeze({ ...rooted, discardStage, promoteStage });
+          const Stage = Object.freeze({ ...rooted.Stage, discard, promote });
+          return Object.freeze({ ...rooted, Stage });
         },
       });
 

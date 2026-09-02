@@ -884,8 +884,8 @@ describe('Staging: owned exact root Dist', () => {
       await Fs.write(`${tmp}/stage/sentinel.txt`, 'sentinel');
 
       const rooted = await Fs.Capability.Rooted.create({ root: tmp, create: false });
-      const admission = await rooted.admit([{ kind: 'directory', path: 'stage' }]);
-      const held = await rooted.acquireLease(admission.targets, { mode: 'exclusive' });
+      const admission = await rooted.Target.admit([{ kind: 'directory', path: 'stage' }]);
+      const held = await rooted.Lease.acquire(admission.targets, { mode: 'exclusive' });
       if (held.kind !== 'acquired') throw new Error('Expected staging lease fixture.');
 
       try {
@@ -1167,14 +1167,16 @@ describe('Staging: owned exact root Dist', () => {
   it('keeps queued ownership blocked until failed-generation rollback settles', async () => {
     await withTmpDir(async (tmp) => {
       const owner = await Fs.Capability.Rooted.create({ root: tmp, create: false });
-      const ownerAdmission = await owner.admit([{ kind: 'directory', path: 'stage' }]);
-      const held = await owner.acquireLease(ownerAdmission.targets, { mode: 'exclusive' });
+      const ownerAdmission = await owner.Target.admit([{ kind: 'directory', path: 'stage' }]);
+      const held = await owner.Lease.acquire(ownerAdmission.targets, { mode: 'exclusive' });
       if (held.kind !== 'acquired') throw new Error('Expected owner lease fixture.');
 
       const queuedOwner = await Fs.Capability.Rooted.create({ root: tmp, create: false });
-      const queuedAdmission = await queuedOwner.admit([{ kind: 'directory', path: 'stage' }]);
+      const queuedAdmission = await queuedOwner.Target.admit([
+        { kind: 'directory', path: 'stage' },
+      ]);
       let queuedAcquired = false;
-      const queued = queuedOwner.acquireLease(queuedAdmission.targets, {
+      const queued = queuedOwner.Lease.acquire(queuedAdmission.targets, {
         mode: 'exclusive',
         wait: true,
       }).then((result) => {
@@ -1201,8 +1203,10 @@ describe('Staging: owned exact root Dist', () => {
 
       await rollbackStarted;
       const probeOwner = await Fs.Capability.Rooted.create({ root: tmp, create: false });
-      const probeAdmission = await probeOwner.admit([{ kind: 'directory', path: 'stage' }]);
-      const probe = await probeOwner.acquireLease(probeAdmission.targets, {
+      const probeAdmission = await probeOwner.Target.admit([
+        { kind: 'directory', path: 'stage' },
+      ]);
+      const probe = await probeOwner.Lease.acquire(probeAdmission.targets, {
         mode: 'exclusive',
         wait: false,
       });

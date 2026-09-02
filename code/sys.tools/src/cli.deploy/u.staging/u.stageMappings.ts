@@ -97,12 +97,12 @@ async function stageMappingsWithSignal(
     addTarget(Path.relativePosix(relativeHost));
   }
 
-  const admission = await rooted.admit(targetInputs, operationOptions(signal));
+  const admission = await rooted.Target.admit(targetInputs, operationOptions(signal));
   const target = admission.targets[0]!;
   const buildLease = await acquireStagingBuildLease({ mappings: prepared.mappings, signal });
   let acquired: t.FsRooted.LeaseResult;
   try {
-    acquired = await rooted.acquireLease(admission.targets, {
+    acquired = await rooted.Lease.acquire(admission.targets, {
       mode: 'exclusive',
       wait: false,
       ...operationOptions(signal),
@@ -126,7 +126,7 @@ async function stageMappingsWithSignal(
     combineStagingLeases(acquired.lease, buildLease),
     async () => {
       await assertPreparedSourceIdentities(prepared.mappings, signal);
-      await rooted.removeTree(target, { lease: acquired.lease, ...operationOptions(signal) });
+      await rooted.Tree.remove(target, { lease: acquired.lease, ...operationOptions(signal) });
       const stagingIdentity = await ensureStagingDirectory({
         root: cwdIdentity,
         path: prepared.stagingRoot,
@@ -155,7 +155,7 @@ async function stageMappingsWithSignal(
       });
 
       await assertRootIdentity(identity, signal);
-      await rooted.inspectSeal(target, { lease: acquired.lease, ...operationOptions(signal) });
+      await rooted.Tree.inspectSeal(target, { lease: acquired.lease, ...operationOptions(signal) });
       await finalizeDistTree({
         dir: identity.path,
         rootIdentity: stagingIdentity,
@@ -168,7 +168,7 @@ async function stageMappingsWithSignal(
         signal,
       });
       await assertRootIdentity(identity, signal);
-      await rooted.inspectSeal(target, { lease: acquired.lease, ...operationOptions(signal) });
+      await rooted.Tree.inspectSeal(target, { lease: acquired.lease, ...operationOptions(signal) });
 
       const verification = await verifyStagedDist(identity.path, signal);
       await assertRootIdentity(identity, signal);
@@ -206,7 +206,7 @@ async function assertRootIdentity(
   signal: AbortSignal,
 ): Promise<void> {
   throwIfStagingCancelled(signal);
-  await rooted.admit(
+  await rooted.Target.admit(
     [{ kind: 'file', path: 'dist.json' }],
     operationOptions(signal),
   );

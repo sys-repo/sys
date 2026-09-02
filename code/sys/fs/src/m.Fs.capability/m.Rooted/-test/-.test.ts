@@ -32,22 +32,71 @@ describe('Fs.Capability.Rooted: public surface', () => {
     const fixture = await setup();
     try {
       const rooted = await Rooted.create({ root: fixture.root });
-      expect(Object.keys(rooted).sort()).to.eql([
-        'acquireLease',
-        'admit',
-        'createStage',
-        'discardStage',
-        'inspectSeal',
-        'path',
-        'promoteStage',
-        'publishFile',
-        'removeTree',
-        'removeTreeBatch',
-        'sealTree',
-      ]);
+      const surfaces: readonly (readonly [object, readonly string[]])[] = [
+        [rooted, ['path', 'Target', 'Lease', 'Tree', 'File', 'Stage']],
+        [rooted.Target, ['admit']],
+        [rooted.Lease, ['acquire']],
+        [rooted.Tree, ['inspectSeal', 'seal', 'remove', 'removeBatch']],
+        [rooted.File, ['publish']],
+        [rooted.Stage, ['create', 'discard', 'promote']],
+      ];
+      for (const [surface, keys] of surfaces) {
+        expect(Object.keys(surface)).to.eql(keys);
+        expect(Object.isFrozen(surface)).to.eql(true);
+        for (const key of keys) {
+          const descriptor = Object.getOwnPropertyDescriptor(surface, key);
+          expect(descriptor !== undefined && 'value' in descriptor).to.eql(true);
+        }
+      }
       expect(rooted.path).to.eql(await Deno.realPath(fixture.root));
       expect((await Deno.lstat(rooted.path)).isDirectory).to.eql(true);
       expectTypeOf(rooted).toEqualTypeOf<t.FsRooted.Instance>();
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  it('keeps operation references receiver-independent and stages recursively shaped', async () => {
+    const fixture = await setup();
+    try {
+      const rooted = await Rooted.create({ root: fixture.root });
+      const admit = rooted.Target.admit;
+      const acquire = rooted.Lease.acquire;
+      const { inspectSeal, seal, remove, removeBatch } = rooted.Tree;
+      const publish = rooted.File.publish;
+      const { create, discard, promote } = rooted.Stage;
+
+      const admission = await admit([
+        { kind: 'directory', path: 'generation' },
+        { kind: 'file', path: 'root.txt' },
+      ]);
+      const directory = admission.targets[0] as t.FsRooted.Target<'directory'>;
+      const file = admission.targets[1] as t.FsRooted.Target<'file'>;
+      expect(await publish(file, new TextEncoder().encode('root'))).to.eql({
+        kind: 'published',
+        bytes: 4,
+      });
+
+      const stage = await create();
+      expect(Object.keys(stage.files)).to.eql(['path', 'Target', 'Lease', 'Tree', 'File', 'Stage']);
+      expect(Object.isFrozen(stage.files)).to.eql(true);
+      expect(Object.isFrozen(stage.files.Target)).to.eql(true);
+      expect(Object.isFrozen(stage.files.Lease)).to.eql(true);
+      expect(Object.isFrozen(stage.files.Tree)).to.eql(true);
+      expect(Object.isFrozen(stage.files.File)).to.eql(true);
+      expect(Object.isFrozen(stage.files.Stage)).to.eql(true);
+      expect(await inspectSeal(stage)).to.eql({ kind: 'unsealed' });
+      expect(await seal(stage)).to.eql({ kind: 'applied', changed: true });
+      expect((await promote(stage, directory)).kind).to.eql('published');
+
+      const ownership = await acquire([directory], { mode: 'exclusive' });
+      if (ownership.kind !== 'acquired') throw new Error('Expected acquired Rooted lease.');
+      expect(await remove(directory, { lease: ownership.lease })).to.eql({ kind: 'removed' });
+      await ownership.lease.release();
+      expect(await removeBatch([])).to.eql({ kind: 'settled', results: [] });
+
+      const abandoned = await create();
+      await discard(abandoned);
     } finally {
       await teardown(fixture);
     }
@@ -83,10 +132,10 @@ describe('Fs.Capability.Rooted: public surface', () => {
     const fixture = await setup();
     try {
       const rooted = await Rooted.create({ root: fixture.root });
-      const files = await rooted.admit([{ kind: 'file', path: 'file.txt' }]);
+      const files = await rooted.Target.admit([{ kind: 'file', path: 'file.txt' }]);
       expectTypeOf(files.targets[0]).toEqualTypeOf<t.FsRooted.Target<'file'>>();
 
-      const mixed = await rooted.admit([
+      const mixed = await rooted.Target.admit([
         { kind: 'file', path: 'asset.js' },
         { kind: 'directory', path: 'generation' },
       ]);

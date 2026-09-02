@@ -1,3 +1,5 @@
+import { Is as ServerIs } from '@sys/std/is/server';
+
 import { Arr, Fetch, Is, Num, Obj, type t, validateResponsePolicy } from '../common.ts';
 import { failureRecord, RESOURCE_FAILURE, type ResourceFailure } from './u.failure.ts';
 import { type ResourceSnapshot, snapshotResources } from './u.snapshot.ts';
@@ -25,20 +27,38 @@ export type RejectedStart = {
 };
 
 export type Preparation = PreparedStart | RejectedStart;
+type RootedMethod = (...args: never[]) => unknown;
+
+const apply = Reflect.apply;
+const freeze = Object.freeze;
+const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+const getPrototypeOf = Object.getPrototypeOf;
+const isFrozen = Object.isFrozen;
+const objectPrototype = Object.prototype;
+const ownKeys = Reflect.ownKeys;
 
 const MAX_TRANSFER_CHUNK_BYTES = 4_294_967_295;
-const START_KEYS = ['resources', 'rooted', 'policy', 'credentials', 'until'] as const;
-const POLICY_KEYS = [
-  'response',
-  'maxResources',
-  'concurrency',
-  'maxAttempts',
-  'retryDelay',
-  'maxRetryElapsed',
-  'maxTotalBytes',
-  'totalTimeout',
-] as const;
-const CREDENTIAL_KEYS = ['accessToken', 'headers'] as const;
+const KEYS = {
+  START: ['resources', 'rooted', 'policy', 'credentials', 'until'],
+  POLICY: [
+    'response',
+    'maxResources',
+    'concurrency',
+    'maxAttempts',
+    'retryDelay',
+    'maxRetryElapsed',
+    'maxTotalBytes',
+    'totalTimeout',
+  ],
+  CREDENTIAL: ['accessToken', 'headers'],
+  ROOTED: ['path', 'Target', 'Lease', 'Tree', 'File', 'Stage'],
+  ROOTED_TARGET: ['admit'],
+  ROOTED_LEASE: ['acquire'],
+  ROOTED_TREE: ['inspectSeal', 'seal', 'remove', 'removeBatch'],
+  ROOTED_FILE: ['publish'],
+  ROOTED_STAGE: ['create', 'discard', 'promote'],
+} as const;
+const DATA_UNAVAILABLE = freeze({ ok: false as const });
 
 /** Snapshot and validate every operation authority before asynchronous work begins. */
 export function prepareStart(input: unknown): Preparation {
@@ -117,7 +137,7 @@ function snapshotStartInput(input: unknown): {
 } | undefined {
   try {
     if (!Is.record(input)) return;
-    if (Obj.keys(input).some((key) => !START_KEYS.includes(key as typeof START_KEYS[number]))) {
+    if (Obj.keys(input).some((key) => !KEYS.START.includes(key as typeof KEYS.START[number]))) {
       return;
     }
     if (
@@ -144,8 +164,8 @@ function snapshotStartInput(input: unknown): {
 function snapshotPolicy(input: unknown): PolicySnapshot | undefined {
   try {
     if (!Is.record(input)) return;
-    if (!POLICY_KEYS.every((key) => Obj.hasOwn(input, key))) return;
-    if (Obj.keys(input).some((key) => !POLICY_KEYS.includes(key as typeof POLICY_KEYS[number]))) {
+    if (!KEYS.POLICY.every((key) => Obj.hasOwn(input, key))) return;
+    if (Obj.keys(input).some((key) => !KEYS.POLICY.includes(key as typeof KEYS.POLICY[number]))) {
       return;
     }
 
@@ -205,7 +225,7 @@ function snapshotCredentials(input: unknown):
     if (!Is.record(input)) return { ok: false };
     if (
       Obj.keys(input).some((key) =>
-        !CREDENTIAL_KEYS.includes(key as typeof CREDENTIAL_KEYS[number])
+        !KEYS.CREDENTIAL.includes(key as typeof KEYS.CREDENTIAL[number])
       )
     ) {
       return { ok: false };
@@ -245,46 +265,168 @@ function resourceCount(input: unknown): number {
 }
 
 function snapshotRooted(input: unknown): t.FsRooted.Instance | undefined {
+  if (!hasExactFrozenDataShape(input, KEYS.ROOTED)) return;
+
+  const path = ownData(input, 'path');
+  const target = ownData(input, 'Target');
+  const lease = ownData(input, 'Lease');
+  const tree = ownData(input, 'Tree');
+  const file = ownData(input, 'File');
+  const stage = ownData(input, 'Stage');
+  if (
+    !path.ok || !Is.str(path.value) ||
+    !target.ok || !hasExactFrozenDataShape(target.value, KEYS.ROOTED_TARGET) ||
+    !lease.ok || !hasExactFrozenDataShape(lease.value, KEYS.ROOTED_LEASE) ||
+    !tree.ok || !hasExactFrozenDataShape(tree.value, KEYS.ROOTED_TREE) ||
+    !file.ok || !hasExactFrozenDataShape(file.value, KEYS.ROOTED_FILE) ||
+    !stage.ok || !hasExactFrozenDataShape(stage.value, KEYS.ROOTED_STAGE)
+  ) return;
+
+  const admit = ownMethod<t.FsRooted.Instance['Target']['admit']>(target.value, 'admit');
+  const acquire = ownMethod<t.FsRooted.Instance['Lease']['acquire']>(lease.value, 'acquire');
+  const inspectSeal = ownMethod<t.FsRooted.Instance['Tree']['inspectSeal']>(
+    tree.value,
+    'inspectSeal',
+  );
+  const seal = ownMethod<t.FsRooted.Instance['Tree']['seal']>(tree.value, 'seal');
+  const remove = ownMethod<t.FsRooted.Instance['Tree']['remove']>(tree.value, 'remove');
+  const removeBatch = ownMethod<t.FsRooted.Instance['Tree']['removeBatch']>(
+    tree.value,
+    'removeBatch',
+  );
+  const publish = ownMethod<t.FsRooted.Instance['File']['publish']>(file.value, 'publish');
+  const create = ownMethod<t.FsRooted.Instance['Stage']['create']>(stage.value, 'create');
+  const discard = ownMethod<t.FsRooted.Instance['Stage']['discard']>(stage.value, 'discard');
+  const promote = ownMethod<t.FsRooted.Instance['Stage']['promote']>(stage.value, 'promote');
+  if (
+    !admit || !acquire || !inspectSeal || !seal || !remove || !removeBatch || !publish || !create ||
+    !discard || !promote
+  ) return;
+
+  const Target: t.FsRooted.Instance['Target'] = freeze({
+    admit<K extends t.FsRooted.TargetKind>(
+      targets: readonly t.FsRooted.TargetInput<K>[],
+      options?: t.FsRooted.OperationOptions,
+    ): Promise<t.FsRooted.Admission<K>> {
+      return apply(admit, undefined, [targets, options]);
+    },
+  });
+  const Lease: t.FsRooted.Instance['Lease'] = freeze({
+    acquire(
+      targets: readonly t.FsRooted.Target<'directory'>[],
+      options: t.FsRooted.LeaseOptions,
+    ): Promise<t.FsRooted.LeaseResult> {
+      return apply(acquire, undefined, [targets, options]);
+    },
+  });
+  const Tree: t.FsRooted.Instance['Tree'] = freeze({
+    inspectSeal(
+      ownedTree: t.FsRooted.OwnedTree,
+      options?: t.FsRooted.OwnedTreeOptions,
+    ): Promise<t.FsRooted.SealInspection> {
+      return apply(inspectSeal, undefined, [ownedTree, options]);
+    },
+    seal(
+      ownedTree: t.FsRooted.OwnedTree,
+      options?: t.FsRooted.OwnedTreeOptions,
+    ): Promise<t.FsRooted.SealResult> {
+      return apply(seal, undefined, [ownedTree, options]);
+    },
+    remove(
+      target: t.FsRooted.Target<'directory'>,
+      options: t.FsRooted.RemoveTreeOptions,
+    ): Promise<t.FsRooted.RemoveTreeResult> {
+      return apply(remove, undefined, [target, options]);
+    },
+    removeBatch(
+      targets: readonly t.StringPath[],
+      options?: t.FsRooted.OperationOptions,
+    ): Promise<t.FsRooted.RemoveTreeBatchResult> {
+      return apply(removeBatch, undefined, [targets, options]);
+    },
+  });
+  const File: t.FsRooted.Instance['File'] = freeze({
+    publish(
+      target: t.FsRooted.Target<'file'>,
+      bytes: Uint8Array,
+      options?: t.FsRooted.OperationOptions,
+    ): Promise<t.FsRooted.FileResult> {
+      return apply(publish, undefined, [target, bytes, options]);
+    },
+  });
+  const Stage: t.FsRooted.Instance['Stage'] = freeze({
+    create(options?: t.FsRooted.OperationOptions): Promise<t.FsRooted.Stage> {
+      return apply(create, undefined, [options]);
+    },
+    discard(
+      value: t.FsRooted.Stage,
+      options?: t.FsRooted.OperationOptions,
+    ): Promise<void> {
+      return apply(discard, undefined, [value, options]);
+    },
+    promote(
+      value: t.FsRooted.Stage,
+      target: t.FsRooted.Target<'directory'>,
+      options?: t.FsRooted.PromotionOptions,
+    ): Promise<t.FsRooted.PromotionResult> {
+      return apply(promote, undefined, [value, target, options]);
+    },
+  });
+  return freeze({
+    path: path.value as t.StringAbsoluteDir,
+    Target,
+    Lease,
+    Tree,
+    File,
+    Stage,
+  });
+}
+
+function ownData(
+  input: object,
+  key: PropertyKey,
+): Readonly<{ ok: true; value: unknown }> | Readonly<{ ok: false }> {
   try {
-    if (!Is.record(input)) return;
-    const path = input.path;
-    const admit = input.admit;
-    const acquireLease = input.acquireLease;
-    const inspectSeal = input.inspectSeal;
-    const sealTree = input.sealTree;
-    const removeTree = input.removeTree;
-    const publishFile = input.publishFile;
-    const createStage = input.createStage;
-    const discardStage = input.discardStage;
-    const promoteStage = input.promoteStage;
-    if (!Is.str(path)) return;
-    if (
-      !Is.func(admit) ||
-      !Is.func(acquireLease) ||
-      !Is.func(inspectSeal) ||
-      !Is.func(sealTree) ||
-      !Is.func(removeTree) ||
-      !Is.func(publishFile) ||
-      !Is.func(createStage) ||
-      !Is.func(discardStage) ||
-      !Is.func(promoteStage)
-    ) {
-      return;
-    }
-    return Object.freeze({
-      path,
-      admit,
-      acquireLease,
-      inspectSeal,
-      sealTree,
-      removeTree,
-      publishFile,
-      createStage,
-      discardStage,
-      promoteStage,
-    }) as t.FsRooted.Instance;
+    const descriptor = getOwnPropertyDescriptor(input, key);
+    return descriptor && descriptor.enumerable && 'value' in descriptor
+      ? freeze({ ok: true as const, value: descriptor.value })
+      : DATA_UNAVAILABLE;
   } catch {
-    return;
+    return DATA_UNAVAILABLE;
+  }
+}
+
+function ownMethod<T extends RootedMethod>(input: object, key: PropertyKey): T | undefined {
+  const property = ownData(input, key);
+  if (
+    !property.ok || !Is.func(property.value) || ServerIs.Native.proxy(property.value)
+  ) return;
+  return property.value as T;
+}
+
+function hasExactFrozenDataShape(
+  input: unknown,
+  expected: readonly PropertyKey[],
+): input is object {
+  if (!Is.object(input) || ServerIs.Native.proxy(input)) return false;
+  try {
+    if (getPrototypeOf(input) !== objectPrototype || !isFrozen(input)) return false;
+    const actual = ownKeys(input);
+    if (actual.length !== expected.length) return false;
+    for (let index = 0; index < expected.length; index += 1) {
+      const key = expected[index];
+      let found = false;
+      for (let candidate = 0; candidate < actual.length; candidate += 1) {
+        if (actual[candidate] === key) {
+          found = true;
+          break;
+        }
+      }
+      if (!found || !ownData(input, key).ok) return false;
+    }
+    return true;
+  } catch {
+    return false;
   }
 }
 

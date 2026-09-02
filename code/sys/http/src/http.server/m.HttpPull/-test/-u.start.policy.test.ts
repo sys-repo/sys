@@ -101,10 +101,15 @@ describe('HttpPull.start bounded operation policy', () => {
       const owner = await rooted();
       const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
-        admit: async (targets, options) => {
-          admissions++;
-          return await owner.admit(targets, options);
-        },
+        Target: Object.freeze(
+          {
+            ...owner.Target,
+            admit: async (targets, options) => {
+              admissions++;
+              return await owner.Target.admit(targets, options);
+            },
+          } satisfies t.FsRooted.Instance['Target'],
+        ),
       });
       const base = resourcePolicy(resources);
       const invalid = [
@@ -146,10 +151,15 @@ describe('HttpPull.start bounded operation policy', () => {
     const owner = await rooted();
     const destination: t.FsRooted.Instance = Object.freeze({
       ...owner,
-      admit: async (targets, options) => {
-        admissions++;
-        return await owner.admit(targets, options);
-      },
+      Target: Object.freeze(
+        {
+          ...owner.Target,
+          admit: async (targets, options) => {
+            admissions++;
+            return await owner.Target.admit(targets, options);
+          },
+        } satisfies t.FsRooted.Instance['Target'],
+      ),
     });
     const injected = Http.Fetch.make({ policy: resourcePolicy(resources).response });
     const input = {
@@ -214,10 +224,15 @@ describe('HttpPull.start bounded operation policy', () => {
     }) as t.HttpPull.Resource;
     const destination: t.FsRooted.Instance = Object.freeze({
       ...owner,
-      admit: async (targets, options) => {
-        admissions++;
-        return await owner.admit(targets, options);
-      },
+      Target: Object.freeze(
+        {
+          ...owner.Target,
+          admit: async (targets, options) => {
+            admissions++;
+            return await owner.Target.admit(targets, options);
+          },
+        } satisfies t.FsRooted.Instance['Target'],
+      ),
     });
     const resources = [resourceValue];
     const policy = resourcePolicy([], { maxResources: 0 });
@@ -502,10 +517,15 @@ describe('HttpPull.start bounded operation policy', () => {
       const owner = await rooted();
       const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
-        admit: async (targets, options) => {
-          admissions++;
-          return await owner.admit(targets, options);
-        },
+        Target: Object.freeze(
+          {
+            ...owner.Target,
+            admit: async (targets, options) => {
+              admissions++;
+              return await owner.Target.admit(targets, options);
+            },
+          } satisfies t.FsRooted.Instance['Target'],
+        ),
       });
 
       const result = await start(resources, destination, resourcePolicy(resources), {
@@ -539,10 +559,15 @@ describe('HttpPull.start bounded operation policy', () => {
       const owner = await rooted();
       const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
-        admit: async (targets, options) => {
-          admissions++;
-          return await owner.admit(targets, options);
-        },
+        Target: Object.freeze(
+          {
+            ...owner.Target,
+            admit: async (targets, options) => {
+              admissions++;
+              return await owner.Target.admit(targets, options);
+            },
+          } satisfies t.FsRooted.Instance['Target'],
+        ),
       });
       const accessToken = (() => Promise.resolve('private-token')) as unknown as NonNullable<
         t.HttpFetch.CreateOptions['accessToken']

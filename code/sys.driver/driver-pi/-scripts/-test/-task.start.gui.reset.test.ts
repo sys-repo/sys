@@ -138,10 +138,10 @@ describe('driver-pi/scripts/task.start.gui.reset', () => {
     try {
       await createSealedStore(workspace, CURRENT.target, 'busy');
       const rooted = await Fs.Capability.Rooted.create({ root, create: false });
-      const target = (await rooted.admit([
+      const target = (await rooted.Target.admit([
         { kind: 'directory', path: CURRENT.target },
       ])).targets[0];
-      const acquired = await rooted.acquireLease([target], { mode: 'shared' });
+      const acquired = await rooted.Lease.acquire([target], { mode: 'shared' });
       if (acquired.kind !== 'acquired') throw new Error('Expected reset fixture lease.');
 
       try {
@@ -405,8 +405,8 @@ async function createSealedStore(
   await writeText(Fs.join(target, 'dist.json'), '{}');
 
   const rooted = await Fs.Capability.Rooted.create({ root, create: false });
-  const admission = await rooted.admit([{ kind: 'directory', path: targetPath }]);
-  const sealed = await rooted.sealTree(admission.targets[0]);
+  const admission = await rooted.Target.admit([{ kind: 'directory', path: targetPath }]);
+  const sealed = await rooted.Tree.seal(admission.targets[0]);
   expect(sealed.kind).to.eql('applied');
 }
 

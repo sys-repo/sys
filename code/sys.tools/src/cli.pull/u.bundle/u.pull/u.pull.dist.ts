@@ -108,7 +108,7 @@ async function projectGeneration(
   let target: t.FsRooted.Target<'directory'>;
   try {
     rooted = await Fs.Capability.Rooted.create({ root: baseDir, until: signal });
-    const admitted = await rooted.admit(
+    const admitted = await rooted.Target.admit(
       [{ kind: 'directory', path: project.dir }],
       { until: signal },
     );
@@ -120,7 +120,7 @@ async function projectGeneration(
 
   let stage: t.FsRooted.Stage;
   try {
-    stage = await rooted.createStage({ until: signal });
+    stage = await rooted.Stage.create({ until: signal });
   } catch (error) {
     return projectionFailure(
       dir,
@@ -143,7 +143,7 @@ async function projectGeneration(
 
   let acquired: t.FsRooted.LeaseResult;
   try {
-    acquired = await rooted.acquireLease([target], {
+    acquired = await rooted.Lease.acquire([target], {
       mode: 'exclusive',
       wait: true,
       until: signal,
@@ -175,7 +175,7 @@ async function projectGeneration(
     if (signal.aborted) {
       outcome = cancelledProjection(dir, project.mode);
     } else {
-      const promoted = await rooted.promoteStage(stage, target, {
+      const promoted = await rooted.Stage.promote(stage, target, {
         lease: acquired.lease,
         until: signal,
       });
@@ -237,14 +237,14 @@ async function populateProjectionStage(
   signal: AbortSignal,
 ): Promise<void> {
   const paths = ['dist.json', ...Object.keys(generation.verification.dist.hash.parts)];
-  const admitted = await stage.files.admit(
+  const admitted = await stage.files.Target.admit(
     paths.map((path) => ({ kind: 'file' as const, path })),
     { until: signal },
   );
   for (const target of admitted.targets) {
     if (signal.aborted) throw new Error('Dist projection cancelled.');
     const bytes = await Deno.readFile(Fs.join(generation.dir, target.path), { signal });
-    await stage.files.publishFile(target, bytes, { until: signal });
+    await stage.files.File.publish(target, bytes, { until: signal });
   }
 }
 
@@ -253,7 +253,7 @@ async function discardProjectionStage(
   stage: t.FsRooted.Stage,
 ): Promise<unknown | undefined> {
   try {
-    await rooted.discardStage(stage);
+    await rooted.Stage.discard(stage);
     return undefined;
   } catch (error) {
     return error;

@@ -63,7 +63,7 @@ export async function materializeWith(
   let dir: t.StringAbsoluteDir;
   try {
     rooted = await dependencies.rooted.create({ root: args.storeDir, until: args.until });
-    const admitted = await rooted.admit(
+    const admitted = await rooted.Target.admit(
       [{ kind: 'directory', path: args.integrity }],
       { until: args.until },
     );
@@ -99,13 +99,13 @@ export async function materializeWith(
 
   let stage: Stage;
   try {
-    stage = await rooted.createStage({ until: args.until });
+    stage = await rooted.Stage.create({ until: args.until });
   } catch (cause) {
     return failed('staging', causeReason(cause));
   }
 
   try {
-    const targets = await stage.files.admit(
+    const targets = await stage.files.Target.admit(
       [
         { kind: 'file', path: 'dist.json' },
         ...manifest.value.resources.map((resource) => ({
@@ -119,7 +119,7 @@ export async function materializeWith(
       const cleanup = await discardStage(rooted, stage);
       return failed('staging', 'limit-exceeded', cleanup);
     }
-    await stage.files.publishFile(targets.targets[0], fetched.value.bytes, {
+    await stage.files.File.publish(targets.targets[0], fetched.value.bytes, {
       until: args.until,
     });
   } catch (cause) {
@@ -297,7 +297,7 @@ async function promoteVerifiedStage(
   try {
     let promoted: t.FsRooted.PromotionResult;
     try {
-      promoted = await rooted.promoteStage(stage, generation, {
+      promoted = await rooted.Stage.promote(stage, generation, {
         seal: true,
         lease: acquisition.lease,
         ...(args.until === undefined ? {} : { until: args.until }),
@@ -393,7 +393,7 @@ async function acquireGenerationLease(
   dependencies: MaterializeDependencies,
 ): Promise<LeaseAcquisition> {
   try {
-    const acquired = await rooted.acquireLease([generation], {
+    const acquired = await rooted.Lease.acquire([generation], {
       mode: 'exclusive',
       wait: true,
       ...(args.until === undefined ? {} : { until: args.until }),
@@ -597,7 +597,7 @@ async function finalEvidence(
 
 async function discardStage(rooted: Rooted, stage: Stage): Promise<t.Dist.Cleanup> {
   try {
-    await rooted.discardStage(stage);
+    await rooted.Stage.discard(stage);
     return 'complete';
   } catch {
     return 'pending';

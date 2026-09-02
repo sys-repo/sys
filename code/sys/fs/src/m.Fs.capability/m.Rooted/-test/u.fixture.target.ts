@@ -5,7 +5,7 @@ export async function directoryTarget(
   rooted: t.FsRooted.Instance,
   path: string,
 ): Promise<t.FsRooted.Target<'directory'>> {
-  const admission = await rooted.admit([{ kind: 'directory', path }]);
+  const admission = await rooted.Target.admit([{ kind: 'directory', path }]);
   return admission.targets[0];
 }
 
@@ -15,7 +15,7 @@ export async function acquiredLease(
   target: t.FsRooted.Target<'directory'>,
   mode: t.FsRooted.LeaseMode,
 ): Promise<t.FsRooted.Lease> {
-  const result = await rooted.acquireLease([target], { mode });
+  const result = await rooted.Lease.acquire([target], { mode });
   expect(result.kind).to.eql('acquired');
   if (result.kind !== 'acquired') throw new Error('Expected acquired Rooted lease.');
   return result.lease;

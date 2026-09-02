@@ -6,10 +6,10 @@ if (!root || paths.length < 2) {
 }
 
 const rooted = await Fs.Capability.Rooted.create({ root });
-const admission = await rooted.admit(
+const admission = await rooted.Target.admit(
   paths.map((path) => ({ kind: 'directory' as const, path })),
 );
-const acquired = await rooted.acquireLease(admission.targets, { mode: 'shared' });
+const acquired = await rooted.Lease.acquire(admission.targets, { mode: 'shared' });
 if (acquired.kind !== 'acquired') throw new Error(`Batch holder failed: ${acquired.kind}`);
 
 await Deno.stdout.write(new TextEncoder().encode('acquired\n'));

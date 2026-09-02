@@ -32,14 +32,14 @@ export async function acquireStagingBuildLease(args: {
         throw new Error(`Deploy staging build-source parent is not canonical: ${group.parent}`);
       }
 
-      const admission = await rooted.admit(
+      const admission = await rooted.Target.admit(
         group.sources.map((source) => ({
           kind: 'directory' as const,
           path: Path.basename(source),
         })),
         { until: args.signal },
       );
-      const acquired = await rooted.acquireLease(admission.targets, {
+      const acquired = await rooted.Lease.acquire(admission.targets, {
         mode: 'exclusive',
         wait: false,
         until: args.signal,

@@ -20,7 +20,7 @@ async function fileTarget(
   rooted: t.FsRooted.Instance,
   path: string,
 ): Promise<t.FsRooted.Target<'file'>> {
-  const admission = await rooted.admit([{ kind: 'file', path }]);
+  const admission = await rooted.Target.admit([{ kind: 'file', path }]);
   return admission.targets[0];
 }
 
@@ -38,7 +38,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await fileTarget(rooted, 'docs/readme.md');
-      const result = await rooted.publishFile(target, bytes('hello\n'));
+      const result = await rooted.File.publish(target, bytes('hello\n'));
 
       expect(result).to.eql({ kind: 'published', bytes: 6 });
       expect(await Deno.readTextFile(Fs.join(fixture.root, target.path))).to.eql('hello\n');
@@ -57,7 +57,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
     try {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
       const target = await fileTarget(rooted, 'empty.bin');
-      expect(await rooted.publishFile(target, new Uint8Array())).to.eql({
+      expect(await rooted.File.publish(target, new Uint8Array())).to.eql({
         kind: 'published',
         bytes: 0,
       });
@@ -74,7 +74,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const target = await fileTarget(rooted, 'immutable.txt');
       await Deno.writeTextFile(Fs.join(fixture.root, target.path), 'winner');
 
-      await expectFailure(() => rooted.publishFile(target, bytes('loser')), 'occupied');
+      await expectFailure(() => rooted.File.publish(target, bytes('loser')), 'occupied');
       expect(await Deno.readTextFile(Fs.join(fixture.root, target.path))).to.eql('winner');
     } finally {
       await teardown(fixture);
@@ -88,7 +88,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const b = await Fs.Capability.Rooted.create({ root: fixture.root });
       const target = await fileTarget(a, 'foreign.txt');
 
-      await expectFailure(() => b.publishFile(target, bytes('no')), 'foreign-handle');
+      await expectFailure(() => b.File.publish(target, bytes('no')), 'foreign-handle');
       expect(await Fs.exists(Fs.join(fixture.root, 'foreign.txt'))).to.eql(false);
     } finally {
       await teardown(fixture);
@@ -101,8 +101,8 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
       const target = await fileTarget(rooted, 'race.txt');
       const settled = await Promise.allSettled([
-        rooted.publishFile(target, bytes('alpha')),
-        rooted.publishFile(target, bytes('bravo')),
+        rooted.File.publish(target, bytes('alpha')),
+        rooted.File.publish(target, bytes('bravo')),
       ]);
 
       expect(settled.filter((result) => result.status === 'fulfilled').length).to.eql(1);
@@ -127,7 +127,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       await Deno.mkdir(fixture.outside, { recursive: true });
       await Deno.symlink(fixture.outside, Fs.join(fixture.root, 'parent'));
       await expectFailure(
-        () => rooted.publishFile(parentTarget, bytes('no')),
+        () => rooted.File.publish(parentTarget, bytes('no')),
         'unsafe-filesystem',
       );
 
@@ -136,7 +136,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       await Deno.writeTextFile(outsideFile, 'outside');
       await Deno.symlink(outsideFile, Fs.join(fixture.root, 'final.txt'));
       await expectFailure(
-        () => rooted.publishFile(finalTarget, bytes('no')),
+        () => rooted.File.publish(finalTarget, bytes('no')),
         'unsafe-filesystem',
       );
       expect(await Deno.readTextFile(outsideFile)).to.eql('outside');
@@ -154,7 +154,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       controller.abort('stop');
 
       await expectFailure(
-        () => rooted.publishFile(target, bytes('no'), { until: controller.signal }),
+        () => rooted.File.publish(target, bytes('no'), { until: controller.signal }),
         'cancelled',
       );
       expect(await Fs.exists(Fs.join(fixture.root, target.path))).to.eql(false);
@@ -187,7 +187,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await fileTarget(rooted, 'snapshot.txt');
 
-      await rooted.publishFile(target, source);
+      await rooted.File.publish(target, source);
       expect(await Deno.readTextFile(Fs.join(fixture.root, target.path))).to.eql('stable');
       expect(new TextDecoder().decode(source)).to.eql('xxxxxx');
     } finally {
@@ -209,7 +209,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       });
       const short = await createRooted({ root: fixture.root }, shortIo);
       const shortTarget = await fileTarget(short, 'short.txt');
-      expect(await short.publishFile(shortTarget, bytes('complete'))).to.eql({
+      expect(await short.File.publish(shortTarget, bytes('complete'))).to.eql({
         kind: 'published',
         bytes: 8,
       });
@@ -224,7 +224,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       });
       const stalled = await createRooted({ root: fixture.root }, stalledIo);
       const stalledTarget = await fileTarget(stalled, 'stalled.txt');
-      await expectFailure(() => stalled.publishFile(stalledTarget, bytes('no')), 'io-failure');
+      await expectFailure(() => stalled.File.publish(stalledTarget, bytes('no')), 'io-failure');
       expect(await Fs.exists(Fs.join(fixture.root, 'stalled.txt'))).to.eql(false);
     } finally {
       await teardown(fixture);
@@ -259,7 +259,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const target = await fileTarget(rooted, 'untrusted-temp.txt');
 
       await expectFailure(
-        () => rooted.publishFile(target, bytes('no')),
+        () => rooted.File.publish(target, bytes('no')),
         'unsupported',
       );
       expect(links).to.eql(0);
@@ -294,7 +294,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const target = await fileTarget(rooted, 'identity-loss.txt');
 
       await expectFailure(
-        () => rooted.publishFile(target, bytes('owned')),
+        () => rooted.File.publish(target, bytes('owned')),
         'ownership-lost',
       );
       expect(await Deno.readTextFile(temp)).to.eql('foreign');
@@ -316,7 +316,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       });
       const syncRooted = await createRooted({ root: fixture.root }, syncIo);
       const syncTarget = await fileTarget(syncRooted, 'sync.txt');
-      await expectFailure(() => syncRooted.publishFile(syncTarget, bytes('no')), 'io-failure');
+      await expectFailure(() => syncRooted.File.publish(syncTarget, bytes('no')), 'io-failure');
       expect(await Fs.exists(Fs.join(fixture.root, 'sync.txt'))).to.eql(false);
 
       const linkIo = withIo({
@@ -324,7 +324,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       });
       const linkRooted = await createRooted({ root: fixture.root }, linkIo);
       const linkTarget = await fileTarget(linkRooted, 'link.txt');
-      await expectFailure(() => linkRooted.publishFile(linkTarget, bytes('no')), 'unsupported');
+      await expectFailure(() => linkRooted.File.publish(linkTarget, bytes('no')), 'unsupported');
       expect(await Fs.exists(Fs.join(fixture.root, 'link.txt'))).to.eql(false);
     } finally {
       await teardown(fixture);
@@ -349,7 +349,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const target = await fileTarget(rooted, 'identity.txt');
 
       await expectFailure(
-        () => rooted.publishFile(target, bytes('committed')),
+        () => rooted.File.publish(target, bytes('committed')),
         'unsafe-filesystem',
         true,
       );
@@ -372,7 +372,8 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const cancelled = await createRooted({ root: fixture.root }, cancelIo);
       const cancelTarget = await fileTarget(cancelled, 'after-link.txt');
       await expectFailure(
-        () => cancelled.publishFile(cancelTarget, bytes('committed'), { until: controller.signal }),
+        () =>
+          cancelled.File.publish(cancelTarget, bytes('committed'), { until: controller.signal }),
         'cancelled',
         true,
       );
@@ -387,7 +388,7 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const cleanup = await createRooted({ root: fixture.root }, cleanupIo);
       const cleanupTarget = await fileTarget(cleanup, 'cleanup.txt');
       await expectFailure(
-        () => cleanup.publishFile(cleanupTarget, bytes('committed')),
+        () => cleanup.File.publish(cleanupTarget, bytes('committed')),
         'io-failure',
         true,
       );

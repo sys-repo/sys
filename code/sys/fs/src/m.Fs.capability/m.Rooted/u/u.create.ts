@@ -53,179 +53,216 @@ export async function createRooted(
     const api: t.FsRooted.Instance = Object.freeze({
       path: root.path,
 
-      admit<K extends t.FsRooted.TargetKind>(
-        input: readonly t.FsRooted.TargetInput<K>[],
-        operationOptions?: t.FsRooted.OperationOptions,
-      ) {
-        return runOperation('admit', operationOptions, async (operationSignal) => {
-          const normalized = normalizeTargets(input);
-          const handles: t.FsRooted.Target<K>[] = [];
-          const observedIdentities = new Map<string, t.StringRelativePath>();
+      Target: Object.freeze({
+        admit<K extends t.FsRooted.TargetKind>(
+          input: readonly t.FsRooted.TargetInput<K>[],
+          operationOptions?: t.FsRooted.OperationOptions,
+        ) {
+          return runOperation('admit', operationOptions, async (operationSignal) => {
+            const normalized = normalizeTargets(input);
+            const handles: t.FsRooted.Target<K>[] = [];
+            const observedIdentities = new Map<string, t.StringRelativePath>();
 
-          for (const item of normalized) {
-            const target: TargetState<K> = Object.freeze({
-              ...item,
-              absolute: StdPath.join(root.path, item.path) as t.StringAbsolutePath,
-            });
-            const info = await observeTarget(
-              io,
-              root,
-              target,
-              'admit',
-              operationSignal,
-              false,
-            );
-            if (info) {
-              const identity = identityRequired(info, 'admit');
-              const key = `${identity.dev}:${identity.ino}`;
-              if (observedIdentities.has(key)) throw failure('admit', 'target-collision');
-              observedIdentities.set(key, target.path);
+            for (const item of normalized) {
+              const target: TargetState<K> = Object.freeze({
+                ...item,
+                absolute: StdPath.join(root.path, item.path) as t.StringAbsolutePath,
+              });
+              const info = await observeTarget(
+                io,
+                root,
+                target,
+                'admit',
+                operationSignal,
+                false,
+              );
+              if (info) {
+                const identity = identityRequired(info, 'admit');
+                const key = `${identity.dev}:${identity.ino}`;
+                if (observedIdentities.has(key)) throw failure('admit', 'target-collision');
+                observedIdentities.set(key, target.path);
+              }
+              const handle = Object.freeze({
+                kind: target.kind,
+                path: target.path,
+              }) as t.FsRooted.Target<K>;
+              targets.set(handle, target);
+              handles.push(handle);
             }
-            const handle = Object.freeze({
-              kind: target.kind,
-              path: target.path,
-            }) as t.FsRooted.Target<K>;
-            targets.set(handle, target);
-            handles.push(handle);
-          }
 
-          checkCancelled('admit', operationSignal);
-          return Object.freeze({
-            targets: Object.freeze(handles),
-          }) as t.FsRooted.Admission<K>;
-        });
-      },
+            checkCancelled('admit', operationSignal);
+            return Object.freeze({
+              targets: Object.freeze(handles),
+            }) as t.FsRooted.Admission<K>;
+          });
+        },
+      }),
 
-      async acquireLease(handles, options) {
-        const input = leaseInput(
-          handles,
-          options,
-          (handle) => targetState(targets, handle, 'directory', 'acquire-lease'),
-        );
-        return await runOperation(
-          'acquire-lease',
-          { until: input.until },
-          (operationSignal) => {
-            return acquireTargetLease(
-              io,
-              root,
-              input,
-              operationSignal,
-              leases,
-              leaseRegistry,
-            );
-          },
-        );
-      },
-
-      async inspectSeal(tree, options) {
-        const input = ownedTreeInput(options, 'inspect-seal');
-        return await runOperation('inspect-seal', input, (operationSignal) => {
-          return inspectOwnedSeal(
-            io,
-            root,
-            targets,
-            stages,
-            leases,
-            leaseRegistry,
-            tree,
-            input,
-            operationSignal,
+      Lease: Object.freeze({
+        async acquire(
+          handles: readonly t.FsRooted.Target<'directory'>[],
+          options: t.FsRooted.LeaseOptions,
+        ) {
+          const input = leaseInput(
+            handles,
+            options,
+            (handle) => targetState(targets, handle, 'directory', 'acquire-lease'),
           );
-        });
-      },
-
-      async sealTree(tree, options) {
-        const input = ownedTreeInput(options, 'seal-tree');
-        return await runOperation('seal-tree', input, (operationSignal) => {
-          return sealOwnedTree(
-            io,
-            root,
-            targets,
-            stages,
-            leases,
-            leaseRegistry,
-            tree,
-            input,
-            operationSignal,
+          return await runOperation(
+            'acquire-lease',
+            { until: input.until },
+            (operationSignal) => {
+              return acquireTargetLease(
+                io,
+                root,
+                input,
+                operationSignal,
+                leases,
+                leaseRegistry,
+              );
+            },
           );
-        });
-      },
+        },
+      }),
 
-      async removeTree(handle, options) {
-        const input = removeTreeInput(options);
-        return await runOperation(
-          'remove-tree',
-          { until: input.until },
-          (operationSignal) => {
-            return removeOwnedTree(
+      Tree: Object.freeze({
+        async inspectSeal(
+          tree: t.FsRooted.OwnedTree,
+          options?: t.FsRooted.OwnedTreeOptions,
+        ) {
+          const input = ownedTreeInput(options, 'inspect-seal');
+          return await runOperation('inspect-seal', input, (operationSignal) => {
+            return inspectOwnedSeal(
               io,
               root,
               targets,
+              stages,
               leases,
-              handle,
+              leaseRegistry,
+              tree,
               input,
               operationSignal,
             );
-          },
-        );
-      },
+          });
+        },
 
-      async removeTreeBatch(handles, options) {
-        const input = removeTreeBatchInput(handles, options);
-        return await removeOwnedTreeBatch(api, input);
-      },
+        async seal(
+          tree: t.FsRooted.OwnedTree,
+          options?: t.FsRooted.OwnedTreeOptions,
+        ) {
+          const input = ownedTreeInput(options, 'seal-tree');
+          return await runOperation('seal-tree', input, (operationSignal) => {
+            return sealOwnedTree(
+              io,
+              root,
+              targets,
+              stages,
+              leases,
+              leaseRegistry,
+              tree,
+              input,
+              operationSignal,
+            );
+          });
+        },
 
-      publishFile(handle, bytes, operationOptions) {
-        return runOperation('publish-file', operationOptions, (operationSignal) => {
-          const target = targetState(targets, handle, 'file', 'publish-file');
-          return publishFile(io, root, target, bytes, operationSignal);
-        });
-      },
-
-      createStage(operationOptions) {
-        return runOperation('create-stage', operationOptions, (operationSignal) => {
-          return createStage(
-            io,
-            root,
-            operationSignal,
-            (stageRoot) => createRooted({ root: stageRoot, until: operationSignal }, io),
-            stages,
+        async remove(
+          handle: t.FsRooted.Target<'directory'>,
+          options: t.FsRooted.RemoveTreeOptions,
+        ) {
+          const input = removeTreeInput(options);
+          return await runOperation(
+            'remove-tree',
+            { until: input.until },
+            (operationSignal) => {
+              return removeOwnedTree(
+                io,
+                root,
+                targets,
+                leases,
+                handle,
+                input,
+                operationSignal,
+              );
+            },
           );
-        });
-      },
+        },
 
-      discardStage(stage, operationOptions) {
-        return runOperation('discard-stage', operationOptions, async () => {
+        async removeBatch(
+          handles: readonly t.StringPath[],
+          options?: t.FsRooted.OperationOptions,
+        ) {
+          const input = removeTreeBatchInput(handles, options);
+          return await removeOwnedTreeBatch({
+            admit: api.Target.admit,
+            acquire: api.Lease.acquire,
+            remove: api.Tree.remove,
+          }, input);
+        },
+      }),
+
+      File: Object.freeze({
+        publish(
+          handle: t.FsRooted.Target<'file'>,
+          bytes: Uint8Array,
+          operationOptions?: t.FsRooted.OperationOptions,
+        ) {
+          return runOperation('publish-file', operationOptions, (operationSignal) => {
+            const target = targetState(targets, handle, 'file', 'publish-file');
+            return publishFile(io, root, target, bytes, operationSignal);
+          });
+        },
+      }),
+
+      Stage: Object.freeze({
+        create(operationOptions?: t.FsRooted.OperationOptions) {
+          return runOperation('create-stage', operationOptions, (operationSignal) => {
+            return createStage(
+              io,
+              root,
+              operationSignal,
+              (stageRoot) => createRooted({ root: stageRoot, until: operationSignal }, io),
+              stages,
+            );
+          });
+        },
+
+        discard(stage: t.FsRooted.Stage, operationOptions?: t.FsRooted.OperationOptions) {
+          return runOperation('discard-stage', operationOptions, async () => {
+            try {
+              await discardStage(io, stages, stage);
+            } catch (cause) {
+              if (isFailure(cause)) throw cause;
+              throw ioFailure('discard-stage', cause);
+            }
+          });
+        },
+
+        async promote(
+          stage: t.FsRooted.Stage,
+          handle: t.FsRooted.Target<'directory'>,
+          options?: t.FsRooted.PromotionOptions,
+        ) {
+          const input = promotionInput(options);
+          const life = Rx.abortable(input.until);
           try {
-            await discardStage(io, stages, stage);
-          } catch (cause) {
-            if (isFailure(cause)) throw cause;
-            throw ioFailure('discard-stage', cause);
+            const target = targetState(targets, handle, 'directory', 'promote-stage');
+            return await promoteStage(
+              io,
+              root,
+              stages,
+              leases,
+              leaseRegistry,
+              stage,
+              target,
+              life.signal,
+              input,
+            );
+          } finally {
+            life.dispose();
           }
-        });
-      },
-
-      async promoteStage(stage, handle, options) {
-        const input = promotionInput(options);
-        const life = Rx.abortable(input.until);
-        try {
-          const target = targetState(targets, handle, 'directory', 'promote-stage');
-          return await promoteStage(
-            io,
-            root,
-            stages,
-            leases,
-            leaseRegistry,
-            stage,
-            target,
-            life.signal,
-            input,
-          );
-        } finally {
-          life.dispose();
-        }
-      },
+        },
+      }),
     });
 
     return api;

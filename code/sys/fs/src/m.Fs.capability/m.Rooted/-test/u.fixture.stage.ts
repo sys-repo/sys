@@ -7,16 +7,16 @@ export async function writeStageManifest(
   stage: t.FsRooted.Stage,
   value: string,
 ): Promise<void> {
-  const admission = await stage.files.admit([{ kind: 'file', path: 'dist.json' }]);
-  await stage.files.publishFile(admission.targets[0], bytes(value));
+  const admission = await stage.files.Target.admit([{ kind: 'file', path: 'dist.json' }]);
+  await stage.files.File.publish(admission.targets[0], bytes(value));
 }
 
 /** Publish the nested Dist-shaped fixture used by owned-tree tests. */
 export async function writeStageDist(stage: t.FsRooted.Stage): Promise<void> {
-  const files = await stage.files.admit([
+  const files = await stage.files.Target.admit([
     { kind: 'file', path: 'dist.json' },
     { kind: 'file', path: 'pkg/main.js' },
   ]);
-  await stage.files.publishFile(files.targets[0], bytes('manifest'));
-  await stage.files.publishFile(files.targets[1], bytes('export default 123;'));
+  await stage.files.File.publish(files.targets[0], bytes('manifest'));
+  await stage.files.File.publish(files.targets[1], bytes('export default 123;'));
 }

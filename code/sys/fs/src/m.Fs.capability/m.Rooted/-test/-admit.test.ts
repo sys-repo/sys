@@ -17,7 +17,7 @@ describe('Fs.Capability.Rooted admission', () => {
     const fixture = await setup();
     try {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
-      const admission = await rooted.admit([
+      const admission = await rooted.Target.admit([
         { kind: 'file', path: './docs//readme.md' },
         { kind: 'directory', path: 'generations/sha256-a' },
       ]);
@@ -48,7 +48,7 @@ describe('Fs.Capability.Rooted admission', () => {
 
       await expectFailure(
         () =>
-          rooted.admit([{ kind: 'file', path: 'final.txt' }], {
+          rooted.Target.admit([{ kind: 'file', path: 'final.txt' }], {
             until: controller.signal,
           }),
         'cancelled',
@@ -81,7 +81,7 @@ describe('Fs.Capability.Rooted admission', () => {
       ];
 
       for (const path of invalid) {
-        await expectFailure(() => rooted.admit([{ kind: 'file', path }]), 'invalid-target');
+        await expectFailure(() => rooted.Target.admit([{ kind: 'file', path }]), 'invalid-target');
       }
     } finally {
       await teardown(fixture);
@@ -99,7 +99,7 @@ describe('Fs.Capability.Rooted admission', () => {
         '.sys.rooted-private',
       ];
       for (const path of reserved) {
-        await expectFailure(() => rooted.admit([{ kind: 'file', path }]), 'invalid-target');
+        await expectFailure(() => rooted.Target.admit([{ kind: 'file', path }]), 'invalid-target');
       }
     } finally {
       await teardown(fixture);
@@ -133,7 +133,7 @@ describe('Fs.Capability.Rooted admission', () => {
 
       await expectFailure(
         () =>
-          rooted.admit([
+          rooted.Target.admit([
             { kind: 'file', path: './docs/a.txt' },
             { kind: 'file', path: 'docs//a.txt' },
           ]),
@@ -141,14 +141,14 @@ describe('Fs.Capability.Rooted admission', () => {
       );
       await expectFailure(
         () =>
-          rooted.admit([
+          rooted.Target.admit([
             { kind: 'file', path: 'pkg' },
             { kind: 'file', path: 'pkg/entry.js' },
           ]),
         'target-collision',
       );
 
-      const allowed = await rooted.admit([
+      const allowed = await rooted.Target.admit([
         { kind: 'directory', path: 'pkg' },
         { kind: 'file', path: 'pkg/entry.js' },
       ]);
@@ -168,7 +168,7 @@ describe('Fs.Capability.Rooted admission', () => {
 
       await expectFailure(
         () =>
-          rooted.admit([
+          rooted.Target.admit([
             { kind: 'file', path: 'canonical.txt' },
             { kind: 'file', path: 'hardlink.txt' },
           ]),
@@ -193,7 +193,7 @@ describe('Fs.Capability.Rooted admission', () => {
         if (sameIdentity) {
           await expectFailure(
             () =>
-              rooted.admit([
+              rooted.Target.admit([
                 { kind: 'file', path: alias[0] },
                 { kind: 'file', path: alias[1] },
               ]),
@@ -215,7 +215,7 @@ describe('Fs.Capability.Rooted admission', () => {
       await Deno.mkdir(fixture.root);
 
       await expectFailure(
-        () => rooted.admit([{ kind: 'file', path: 'file.txt' }]),
+        () => rooted.Target.admit([{ kind: 'file', path: 'file.txt' }]),
         'unsafe-filesystem',
       );
     } finally {
@@ -236,7 +236,7 @@ describe('Fs.Capability.Rooted admission', () => {
       const dirLink = Fs.join(fixture.root, 'linked-dir');
       await Deno.symlink(fixture.outside, dirLink);
       await expectFailure(
-        () => rooted.admit([{ kind: 'file', path: 'linked-dir/secret.txt' }]),
+        () => rooted.Target.admit([{ kind: 'file', path: 'linked-dir/secret.txt' }]),
         'unsafe-filesystem',
       );
 
@@ -244,7 +244,7 @@ describe('Fs.Capability.Rooted admission', () => {
       await Deno.writeTextFile(outsideFile, 'secret');
       await Deno.symlink(outsideFile, Fs.join(fixture.root, 'linked-file'));
       await expectFailure(
-        () => rooted.admit([{ kind: 'file', path: 'linked-file' }]),
+        () => rooted.Target.admit([{ kind: 'file', path: 'linked-file' }]),
         'unsafe-filesystem',
       );
     } finally {

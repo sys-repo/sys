@@ -7,9 +7,9 @@ if (!root || !path || !(mode === 'shared' || mode === 'exclusive')) {
 }
 
 const rooted = await Fs.Capability.Rooted.create({ root });
-const admission = await rooted.admit([{ kind: 'directory', path }]);
+const admission = await rooted.Target.admit([{ kind: 'directory', path }]);
 const target = admission.targets[0] as t.FsRooted.Target<'directory'>;
-const result = await rooted.acquireLease([target], { mode });
+const result = await rooted.Lease.acquire([target], { mode });
 if (result.kind !== 'acquired') throw new Error(`Lease child failed: ${result.kind}`);
 
 await Deno.stdout.write(new TextEncoder().encode('acquired\n'));

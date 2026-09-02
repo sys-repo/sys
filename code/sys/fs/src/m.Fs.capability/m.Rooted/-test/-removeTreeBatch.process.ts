@@ -85,19 +85,19 @@ describe('Fs.Capability.Rooted.removeTreeBatch process ownership', () => {
       const owner = await Fs.Capability.Rooted.create({ root: fixture.root });
       for (const path of stable) {
         const target = await directoryTarget(owner, path);
-        expect(await owner.sealTree(target)).to.eql({ kind: 'applied', changed: true });
+        expect(await owner.Tree.seal(target)).to.eql({ kind: 'applied', changed: true });
       }
 
       holder = await startHolder(fixture.root, stable);
       const callerOrder = [stable[1], stable[0]];
-      const busy = await owner.removeTreeBatch(callerOrder);
+      const busy = await owner.Tree.removeBatch(callerOrder);
       expect(busy).to.eql({ kind: 'busy', index: 1, path: stable[0] });
       expect(await Fs.exists(first)).to.eql(true);
       expect(await Fs.exists(second)).to.eql(true);
 
       await releaseHolder(holder);
       holder = undefined;
-      expect(await owner.removeTreeBatch(callerOrder)).to.eql({
+      expect(await owner.Tree.removeBatch(callerOrder)).to.eql({
         kind: 'settled',
         results: [
           { index: 0, path: stable[1], kind: 'removed' },

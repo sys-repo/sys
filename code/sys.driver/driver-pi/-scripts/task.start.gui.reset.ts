@@ -50,14 +50,14 @@ export async function resetGuiReleaseStores(
 
   let targets: readonly t.FsRooted.Target<'directory'>[];
   try {
-    targets = (await rooted.admit(TARGET_INPUTS)).targets;
+    targets = (await rooted.Target.admit(TARGET_INPUTS)).targets;
   } catch (cause) {
     throw resetFailure(`while admitting ${displayPaths().join(', ')}`, cause);
   }
 
   let acquired: t.FsRooted.LeaseResult;
   try {
-    acquired = await rooted.acquireLease(targets, { mode: 'exclusive', wait: false });
+    acquired = await rooted.Lease.acquire(targets, { mode: 'exclusive', wait: false });
   } catch (cause) {
     throw resetFailure('while acquiring release-store ownership', cause);
   }
@@ -76,7 +76,7 @@ export async function resetGuiReleaseStores(
   for (let index = 0; index < targets.length; index++) {
     const target = GUI_RELEASE_STORE_TARGETS[index];
     try {
-      const result = await rooted.removeTree(targets[index], { lease: acquired.lease });
+      const result = await rooted.Tree.remove(targets[index], { lease: acquired.lease });
       results.push(Object.freeze({ path: displayPath(target), kind: result.kind }));
     } catch (cause) {
       primaryFailure = resetFailure(

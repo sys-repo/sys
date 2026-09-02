@@ -13,12 +13,12 @@ if (
 const root = Fs.join(workspaceRoot, '.pi/@sys/dist');
 const rooted = await Fs.Capability.Rooted.create({ root, create: false });
 const targetInput: t.StringPath = targetPath;
-const admission = await rooted.admit([{
+const admission = await rooted.Target.admit([{
   kind: 'directory',
   path: targetInput,
 }]);
 const target = admission.targets[0];
-const acquired = await rooted.acquireLease([target], { mode: 'shared', wait: false });
+const acquired = await rooted.Lease.acquire([target], { mode: 'shared', wait: false });
 if (acquired.kind !== 'acquired') {
   throw new Error(`Reset lease holder failed: ${acquired.kind}.`);
 }

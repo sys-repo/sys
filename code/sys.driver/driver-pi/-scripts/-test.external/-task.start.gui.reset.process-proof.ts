@@ -60,12 +60,12 @@ describe('driver-pi/scripts/task.start.gui.reset process ownership', () => {
       await Deno.writeTextFile(Fs.join(legacy, 'mixed/nested/value.txt'), 'contended-legacy');
       await Deno.writeTextFile(Fs.join(legacy, 'dist.json'), '{"store":"legacy"}');
       const rooted = await Fs.Capability.Rooted.create({ root, create: false });
-      const admission = await rooted.admit([
+      const admission = await rooted.Target.admit([
         { kind: 'directory', path: CURRENT.target },
         { kind: 'directory', path: LEGACY.target },
       ]);
       for (const target of admission.targets) {
-        expect((await rooted.sealTree(target)).kind).to.eql('applied');
+        expect((await rooted.Tree.seal(target)).kind).to.eql('applied');
       }
 
       const initial = await storeSnapshots(workspace);

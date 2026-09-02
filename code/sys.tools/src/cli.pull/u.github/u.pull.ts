@@ -336,7 +336,7 @@ async function prepareTarget(
 
   try {
     const parentRooted = await prepareParentRooted(parent, operation.signal);
-    const directory = await parentRooted.admit(
+    const directory = await parentRooted.Target.admit(
       [{ kind: 'directory', path: name }],
       { until: operation.signal },
     );
@@ -347,13 +347,13 @@ async function prepareTarget(
     if (mode === 'replace' && exists) await Fs.remove(into, { log: false });
     if (operation.signal.aborted) return cancelledFailure(operation);
 
-    const stage = await parentRooted.createStage({ until: operation.signal });
-    const promotion = await parentRooted.promoteStage(stage, target, {
+    const stage = await parentRooted.Stage.create({ until: operation.signal });
+    const promotion = await parentRooted.Stage.promote(stage, target, {
       until: operation.signal,
     });
     if (promotion.cleanupError) {
       try {
-        await parentRooted.discardStage(stage);
+        await parentRooted.Stage.discard(stage);
       } catch {
         // Preserve the original promotion failure after one safe cleanup retry.
       }
@@ -362,7 +362,7 @@ async function prepareTarget(
     if (promotion.kind === 'occupied') return occupiedFailure(operation);
 
     const rooted = await Fs.Capability.Rooted.create({ root: into, until: operation.signal });
-    const admitted = await rooted.admit(
+    const admitted = await rooted.Target.admit(
       entries.map((entry) => ({ kind: 'file' as const, path: entry.target })),
       { until: operation.signal },
     );
@@ -371,7 +371,7 @@ async function prepareTarget(
       ok: true,
       data: Object.freeze({
         async publish(index, bytes) {
-          await rooted.publishFile(targets[index]!, bytes, { until: operation.signal });
+          await rooted.File.publish(targets[index]!, bytes, { until: operation.signal });
         },
       }),
     };

@@ -32,13 +32,13 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
     try {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       expect(Fs.dirname(Fs.dirname(stage.path))).to.eql(
         Fs.join(rooted.path, '.sys.rooted', 'stages'),
       );
       await fill(stage, 'manifest');
 
-      expect(await rooted.promoteStage(stage, target)).to.eql({ kind: 'published' });
+      expect(await rooted.Stage.promote(stage, target)).to.eql({ kind: 'published' });
       expect(await Deno.readTextFile(Fs.join(fixture.root, target.path, 'dist.json'))).to.eql(
         'manifest',
       );
@@ -48,7 +48,7 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
       for await (const entry of Deno.readDir(lockDir)) locks.push(entry);
       expect(locks.length).to.eql(1);
       expect(locks[0].isFile).to.eql(true);
-      await rooted.discardStage(stage);
+      await rooted.Stage.discard(stage);
     } finally {
       await teardown(fixture);
     }
@@ -63,9 +63,9 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
       await Deno.mkdir(destination, { recursive: true });
       await Deno.writeTextFile(Fs.join(destination, 'winner.txt'), 'winner');
 
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'loser');
-      expect(await rooted.promoteStage(stage, target)).to.eql({ kind: 'occupied' });
+      expect(await rooted.Stage.promote(stage, target)).to.eql({ kind: 'occupied' });
       expect(await Deno.readTextFile(Fs.join(destination, 'winner.txt'))).to.eql('winner');
       expect(await Fs.exists(Fs.join(destination, 'dist.json'))).to.eql(false);
       expect(await Fs.exists(stage.path)).to.eql(false);
@@ -82,9 +82,9 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
       const destination = Fs.join(fixture.root, target.path);
       await Deno.mkdir(destination, { recursive: true });
 
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'loser');
-      expect(await rooted.promoteStage(stage, target)).to.eql({ kind: 'occupied' });
+      expect(await rooted.Stage.promote(stage, target)).to.eql({ kind: 'occupied' });
       expect(await Fs.exists(destination)).to.eql(true);
       expect(await Fs.exists(Fs.join(destination, 'dist.json'))).to.eql(false);
       expect(await Fs.exists(stage.path)).to.eql(false);
@@ -110,10 +110,10 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'loser');
 
-      const result = await rooted.promoteStage(stage, target);
+      const result = await rooted.Stage.promote(stage, target);
       expect(result.kind).to.eql('occupied');
       expect(result.cleanupError?.kind).to.eql('io-failure');
       expect(result.cleanupError?.committed).to.eql(false);
@@ -131,13 +131,13 @@ describe('Fs.Capability.Rooted stages: publication settlement', () => {
       const b = await Fs.Capability.Rooted.create({ root: fixture.root });
       const targetA = await directoryTarget(a, 'sha256-generation');
       const targetB = await directoryTarget(b, 'sha256-generation');
-      const stageA = await a.createStage();
-      const stageB = await b.createStage();
+      const stageA = await a.Stage.create();
+      const stageB = await b.Stage.create();
       await Promise.all([fill(stageA, 'alpha'), fill(stageB, 'bravo')]);
 
       const results = await Promise.all([
-        a.promoteStage(stageA, targetA),
-        b.promoteStage(stageB, targetB),
+        a.Stage.promote(stageA, targetA),
+        b.Stage.promote(stageB, targetB),
       ]);
       expect(results.map((result) => result.kind).sort()).to.eql(['occupied', 'published']);
       expect(['alpha', 'bravo']).to.include(
@@ -157,16 +157,16 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
     try {
       const a = await Fs.Capability.Rooted.create({ root: fixture.root });
       const b = await Fs.Capability.Rooted.create({ root: fixture.root });
-      const stage = await a.createStage();
+      const stage = await a.Stage.create();
       await Deno.mkdir(fixture.outside, { recursive: true });
       await Deno.writeTextFile(Fs.join(fixture.outside, 'keep.txt'), 'keep');
 
-      await expectFailure(() => b.discardStage(stage), 'foreign-handle');
+      await expectFailure(() => b.Stage.discard(stage), 'foreign-handle');
       expect(await Fs.exists(stage.path)).to.eql(true);
-      await a.discardStage(stage);
+      await a.Stage.discard(stage);
       expect(await Fs.exists(stage.path)).to.eql(false);
       expect(await Deno.readTextFile(Fs.join(fixture.outside, 'keep.txt'))).to.eql('keep');
-      await a.discardStage(stage);
+      await a.Stage.discard(stage);
     } finally {
       await teardown(fixture);
     }
@@ -186,7 +186,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
       const rooted = await createRooted({ root: fixture.root }, io);
 
       await expectFailure(
-        () => rooted.createStage({ until: controller.signal }),
+        () => rooted.Stage.create({ until: controller.signal }),
         'cancelled',
       );
       const stages = Fs.join(fixture.root, '.sys.rooted', 'stages');
@@ -217,7 +217,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
       });
       const rooted = await createRooted({ root: fixture.root }, io);
 
-      await expectFailure(() => rooted.createStage(), 'unsupported');
+      await expectFailure(() => rooted.Stage.create(), 'unsupported');
       expect(removals).to.eql(0);
       expect(await Fs.exists(container)).to.eql(true);
     } finally {
@@ -245,7 +245,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
       });
       const rooted = await createRooted({ root: fixture.root }, io);
 
-      await expectFailure(() => rooted.createStage(), 'unsupported');
+      await expectFailure(() => rooted.Stage.create(), 'unsupported');
       expect(removals).to.eql(0);
       expect(await Fs.exists(container)).to.eql(true);
     } finally {
@@ -275,7 +275,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
       });
       const rooted = await createRooted({ root: fixture.root }, io);
 
-      await expectFailure(() => rooted.createStage(), 'unsupported');
+      await expectFailure(() => rooted.Stage.create(), 'unsupported');
       expect(removals).to.eql(1);
       expect(await Fs.exists(container)).to.eql(false);
     } finally {
@@ -288,13 +288,13 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
     try {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'manifest');
       const controller = new AbortController();
       controller.abort('stop');
 
       await expectFailure(
-        () => rooted.promoteStage(stage, target, { until: controller.signal }),
+        () => rooted.Stage.promote(stage, target, { until: controller.signal }),
         'cancelled',
       );
       expect(await Fs.exists(stage.path)).to.eql(false);
@@ -308,11 +308,11 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
     const fixture = await setup();
     try {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       const marker = Fs.join(Fs.dirname(stage.path), 'owner');
       await Deno.writeTextFile(marker, 'foreign');
 
-      await expectFailure(() => rooted.discardStage(stage), 'ownership-lost');
+      await expectFailure(() => rooted.Stage.discard(stage), 'ownership-lost');
       expect(await Fs.exists(stage.path)).to.eql(true);
     } finally {
       await teardown(fixture);
@@ -336,7 +336,7 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
       });
       const rooted = await createRooted({ root: fixture.root }, io);
 
-      const failure = await expectFailure(() => rooted.createStage(), 'io-failure');
+      const failure = await expectFailure(() => rooted.Stage.create(), 'io-failure');
       expect((failure.cause as Error).message).to.eql('cleanup');
     } finally {
       await teardown(fixture);
@@ -361,18 +361,18 @@ describe('Fs.Capability.Rooted stages: cooperative lock boundary', () => {
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'manifest');
 
-      await expectFailure(() => rooted.promoteStage(stage, target), 'unsafe-filesystem');
+      await expectFailure(() => rooted.Stage.promote(stage, target), 'unsafe-filesystem');
       expect(await Fs.exists(stage.path)).to.eql(false);
       expect(await Fs.exists(Fs.join(fixture.root, target.path))).to.eql(false);
 
       const retry = await Fs.Capability.Rooted.create({ root: fixture.root });
       const retryTarget = await directoryTarget(retry, 'sha256-generation');
-      const retryStage = await retry.createStage();
+      const retryStage = await retry.Stage.create();
       await fill(retryStage, 'retry');
-      expect(await retry.promoteStage(retryStage, retryTarget)).to.eql({ kind: 'published' });
+      expect(await retry.Stage.promote(retryStage, retryTarget)).to.eql({ kind: 'published' });
     } finally {
       await teardown(fixture);
     }
@@ -401,10 +401,10 @@ describe('Fs.Capability.Rooted stages: cooperative lock boundary', () => {
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'untrusted-lock-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'manifest');
 
-      await expectFailure(() => rooted.promoteStage(stage, target), 'unsupported');
+      await expectFailure(() => rooted.Stage.promote(stage, target), 'unsupported');
       expect(renames).to.eql(0);
       expect(await Fs.exists(stage.path)).to.eql(false);
       expect(await Fs.exists(Fs.join(fixture.root, target.path))).to.eql(false);
@@ -430,11 +430,11 @@ describe('Fs.Capability.Rooted stages: cooperative lock boundary', () => {
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'manifest');
 
       await expectFailure(
-        () => rooted.promoteStage(stage, target, { until: controller.signal }),
+        () => rooted.Stage.promote(stage, target, { until: controller.signal }),
         'cancelled',
       );
       expect(await Fs.exists(stage.path)).to.eql(false);
@@ -457,10 +457,10 @@ describe('Fs.Capability.Rooted stages: cooperative lock boundary', () => {
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'manifest');
 
-      await expectFailure(() => rooted.promoteStage(stage, target), 'io-failure');
+      await expectFailure(() => rooted.Stage.promote(stage, target), 'io-failure');
       expect(await Fs.exists(stage.path)).to.eql(false);
       expect(await Fs.exists(Fs.join(fixture.root, target.path))).to.eql(false);
     } finally {
@@ -482,10 +482,10 @@ describe('Fs.Capability.Rooted stages: cooperative lock boundary', () => {
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'manifest');
 
-      await expectFailure(() => rooted.promoteStage(stage, target), 'unsupported');
+      await expectFailure(() => rooted.Stage.promote(stage, target), 'unsupported');
       expect(await Fs.exists(stage.path)).to.eql(false);
       expect(await Fs.exists(Fs.join(fixture.root, target.path))).to.eql(false);
     } finally {
@@ -515,16 +515,16 @@ describe('Fs.Capability.Rooted stages: post-publication truth and recovery', () 
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       const container = Fs.dirname(stage.path);
       await fill(stage, 'manifest');
 
-      const result = await rooted.promoteStage(stage, target);
+      const result = await rooted.Stage.promote(stage, target);
       expect(result.kind).to.eql('published');
       expect(result.cleanupError?.kind).to.eql('io-failure');
       expect(result.cleanupError?.committed).to.eql(true);
       expect(await Fs.exists(container)).to.eql(true);
-      await rooted.discardStage(stage);
+      await rooted.Stage.discard(stage);
       expect(await Fs.exists(container)).to.eql(false);
     } finally {
       await teardown(fixture);
@@ -555,17 +555,17 @@ describe('Fs.Capability.Rooted stages: post-publication truth and recovery', () 
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       container = Fs.dirname(stage.path);
       marker = Fs.join(container, 'owner');
       await fill(stage, 'manifest');
 
-      const result = await rooted.promoteStage(stage, target);
+      const result = await rooted.Stage.promote(stage, target);
       expect(result.kind).to.eql('published');
       expect(result.cleanupError?.kind).to.eql('io-failure');
       expect(await Fs.exists(marker)).to.eql(false);
       expect(await Fs.exists(container)).to.eql(true);
-      await rooted.discardStage(stage);
+      await rooted.Stage.discard(stage);
       expect(await Fs.exists(container)).to.eql(false);
     } finally {
       await teardown(fixture);
@@ -584,15 +584,15 @@ describe('Fs.Capability.Rooted stages: post-publication truth and recovery', () 
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       marker = Fs.join(Fs.dirname(stage.path), 'owner');
       await fill(stage, 'manifest');
 
-      const result = await rooted.promoteStage(stage, target);
+      const result = await rooted.Stage.promote(stage, target);
       expect(result.kind).to.eql('published');
       expect(result.cleanupError?.kind).to.eql('ownership-lost');
       expect(result.cleanupError?.committed).to.eql(true);
-      await expectFailure(() => rooted.discardStage(stage), 'ownership-lost', true);
+      await expectFailure(() => rooted.Stage.discard(stage), 'ownership-lost', true);
     } finally {
       await teardown(fixture);
     }
@@ -614,17 +614,17 @@ describe('Fs.Capability.Rooted stages: post-publication truth and recovery', () 
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'untrusted-published-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'manifest');
 
-      const result = await rooted.promoteStage(stage, target);
+      const result = await rooted.Stage.promote(stage, target);
       expect(result.kind).to.eql('published');
       expect(result.cleanupError?.kind).to.eql('unsafe-filesystem');
       expect(result.cleanupError?.committed).to.eql(true);
       expect(await Deno.readTextFile(Fs.join(fixture.root, target.path, 'dist.json'))).to.eql(
         'manifest',
       );
-      await rooted.discardStage(stage);
+      await rooted.Stage.discard(stage);
     } finally {
       await teardown(fixture);
     }
@@ -642,10 +642,10 @@ describe('Fs.Capability.Rooted stages: post-publication truth and recovery', () 
       });
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await directoryTarget(rooted, 'sha256-generation');
-      const stage = await rooted.createStage();
+      const stage = await rooted.Stage.create();
       await fill(stage, 'manifest');
 
-      const result = await rooted.promoteStage(stage, target, { until: controller.signal });
+      const result = await rooted.Stage.promote(stage, target, { until: controller.signal });
       expect(result.kind).to.eql('published');
       expect(result.cleanupError?.kind).to.eql('cancelled');
       expect(result.cleanupError?.committed).to.eql(true);

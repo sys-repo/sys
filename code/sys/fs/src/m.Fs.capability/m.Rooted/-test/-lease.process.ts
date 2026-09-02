@@ -66,7 +66,7 @@ async function stopChild(child: LeaseChild): Promise<Deno.CommandStatus> {
 
 async function contender(root: t.StringAbsoluteDir) {
   const rooted = await Fs.Capability.Rooted.create({ root });
-  const admission = await rooted.admit([{ kind: 'directory', path: 'generation' }]);
+  const admission = await rooted.Target.admit([{ kind: 'directory', path: 'generation' }]);
   return { rooted, target: admission.targets[0] };
 }
 
@@ -78,7 +78,7 @@ describe('Fs.Capability.Rooted lifecycle lease processes', () => {
     try {
       holder = await startChild(fixture.root, 'exclusive');
       const { rooted, target } = await contender(fixture.root);
-      expect(await rooted.acquireLease([target], { mode: 'exclusive' })).to.eql({
+      expect(await rooted.Lease.acquire([target], { mode: 'exclusive' })).to.eql({
         kind: 'busy',
         target,
       });
@@ -88,7 +88,7 @@ describe('Fs.Capability.Rooted lifecycle lease processes', () => {
       expect(exited.success).to.eql(false);
 
       const lease = requireAcquired(
-        await rooted.acquireLease([target], { mode: 'exclusive' }),
+        await rooted.Lease.acquire([target], { mode: 'exclusive' }),
       );
       await lease.release();
     } finally {
@@ -107,17 +107,17 @@ describe('Fs.Capability.Rooted lifecycle lease processes', () => {
       second = await startChild(fixture.root, 'shared');
       const { rooted, target } = await contender(fixture.root);
       const local = requireAcquired(
-        await rooted.acquireLease([target], { mode: 'shared' }),
+        await rooted.Lease.acquire([target], { mode: 'shared' }),
       );
       await local.release();
 
-      expect(await rooted.acquireLease([target], { mode: 'exclusive' })).to.eql({
+      expect(await rooted.Lease.acquire([target], { mode: 'exclusive' })).to.eql({
         kind: 'busy',
         target,
       });
       expect((await stopChild(first)).success).to.eql(false);
       first = undefined;
-      expect(await rooted.acquireLease([target], { mode: 'exclusive' })).to.eql({
+      expect(await rooted.Lease.acquire([target], { mode: 'exclusive' })).to.eql({
         kind: 'busy',
         target,
       });
@@ -125,7 +125,7 @@ describe('Fs.Capability.Rooted lifecycle lease processes', () => {
       second = undefined;
 
       const exclusive = requireAcquired(
-        await rooted.acquireLease([target], { mode: 'exclusive' }),
+        await rooted.Lease.acquire([target], { mode: 'exclusive' }),
       );
       await exclusive.release();
     } finally {

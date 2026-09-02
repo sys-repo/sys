@@ -10,6 +10,7 @@ import {
 } from '../../../-test.ts';
 import { Hash } from '../../common.ts';
 import { HttpPull } from '../mod.ts';
+import { prepareStart } from '../u.resource/u.input.ts';
 import {
   cleanupRoots,
   localhost,
@@ -155,18 +156,16 @@ describe('HttpPull checksum-pinned resources', () => {
       const source = localhost(server.url.join('content.txt'));
       const resources = [resource(source, 'admitted/content.txt', 'content')];
       const owner = await rooted();
-      const admit: t.FsRooted.Instance['admit'] = async (targets, options) => {
-        const result = await owner.admit(targets, options);
+      const admit: t.FsRooted.Instance['Target']['admit'] = async (targets, options) => {
+        const result = await owner.Target.admit(targets, options);
         admitted = true;
         return result;
       };
       const stale = Object.freeze({
         path: owner.path,
-        admit,
-        publishFile: owner.publishFile,
-        createStage: owner.createStage,
-        discardStage: owner.discardStage,
-        promoteStage: owner.promoteStage,
+        Target: Object.freeze({ admit }),
+        File: owner.File,
+        Stage: owner.Stage,
       }) as unknown as t.FsRooted.Instance;
 
       const rejected = await start(resources, stale).done;
@@ -177,7 +176,7 @@ describe('HttpPull checksum-pinned resources', () => {
 
       const lifecycleOnly = Object.freeze({
         ...stale,
-        acquireLease: owner.acquireLease,
+        Lease: owner.Lease,
       }) as unknown as t.FsRooted.Instance;
       const sealedTreeStale = await start(resources, lifecycleOnly).done;
       expect(sealedTreeStale.ok).to.eql(false);
@@ -187,9 +186,7 @@ describe('HttpPull checksum-pinned resources', () => {
 
       const destination: t.FsRooted.Instance = Object.freeze({
         ...lifecycleOnly,
-        inspectSeal: owner.inspectSeal,
-        sealTree: owner.sealTree,
-        removeTree: owner.removeTree,
+        Tree: owner.Tree,
       });
       const result = await start(resources, destination).done;
 
@@ -199,6 +196,155 @@ describe('HttpPull checksum-pinned resources', () => {
     } finally {
       await server.dispose();
     }
+  });
+
+  it('rejects inexact or observable Rooted authority without invoking caller behavior', async () => {
+    const owner = await rooted();
+    const policy = resourcePolicy([], { maxResources: 0 });
+    let accessorReads = 0;
+    let proxyTraps = 0;
+    let methodCalls = 0;
+
+    const accessorOwner = {
+      Target: owner.Target,
+      Lease: owner.Lease,
+      Tree: owner.Tree,
+      File: owner.File,
+      Stage: owner.Stage,
+    };
+    Object.defineProperty(accessorOwner, 'path', {
+      enumerable: true,
+      get() {
+        accessorReads += 1;
+        return owner.path;
+      },
+    });
+    Object.freeze(accessorOwner);
+
+    const accessorTarget = {};
+    Object.defineProperty(accessorTarget, 'admit', {
+      enumerable: true,
+      get() {
+        accessorReads += 1;
+        return owner.Target.admit;
+      },
+    });
+    Object.freeze(accessorTarget);
+
+    const proxyHandler: ProxyHandler<object> = {
+      get(target, key, receiver) {
+        proxyTraps += 1;
+        return Reflect.get(target, key, receiver);
+      },
+      getOwnPropertyDescriptor(target, key) {
+        proxyTraps += 1;
+        return Reflect.getOwnPropertyDescriptor(target, key);
+      },
+      getPrototypeOf(target) {
+        proxyTraps += 1;
+        return Reflect.getPrototypeOf(target);
+      },
+      isExtensible(target) {
+        proxyTraps += 1;
+        return Reflect.isExtensible(target);
+      },
+      ownKeys(target) {
+        proxyTraps += 1;
+        return Reflect.ownKeys(target);
+      },
+    };
+    const proxiedOwner = new Proxy(owner, proxyHandler);
+    const proxiedTarget = new Proxy(owner.Target, proxyHandler);
+    const proxiedAdmit = new Proxy(owner.Target.admit, {
+      apply(target, receiver, args) {
+        methodCalls += 1;
+        return Reflect.apply(target, receiver, args);
+      },
+    });
+
+    const inherited = Object.assign(
+      Object.create({ admit: owner.Target.admit }),
+      owner,
+    );
+    Object.freeze(inherited);
+
+    const candidates: readonly unknown[] = [
+      Object.freeze({ ...owner, admit: owner.Target.admit }),
+      Object.freeze({
+        ...owner,
+        Target: Object.freeze({ ...owner.Target, acquireLease: owner.Lease.acquire }),
+      }),
+      accessorOwner,
+      Object.freeze({ ...owner, Target: accessorTarget }),
+      proxiedOwner,
+      Object.freeze({ ...owner, Target: proxiedTarget }),
+      Object.freeze({ ...owner, Target: Object.freeze({ admit: proxiedAdmit }) }),
+      inherited,
+    ];
+
+    for (const candidate of candidates) {
+      const preparation = prepareStart({ resources: [], rooted: candidate, policy });
+      expect(preparation.ok).to.eql(false);
+      if (!preparation.ok) expect(preparation.failure.kind).to.eql('invalid-input');
+    }
+    expect(accessorReads).to.eql(0);
+    expect(proxyTraps).to.eql(0);
+    expect(methodCalls).to.eql(0);
+  });
+
+  it('snapshots Rooted methods as frozen receiver-independent authority', async () => {
+    const owner = await rooted();
+    const receivers: unknown[] = [];
+    const admit: t.FsRooted.Instance['Target']['admit'] = function <
+      K extends t.FsRooted.TargetKind,
+    >(
+      this: unknown,
+      targets: readonly t.FsRooted.TargetInput<K>[],
+      options?: t.FsRooted.OperationOptions,
+    ) {
+      receivers.push(this);
+      return owner.Target.admit(targets, options);
+    };
+    const publish: t.FsRooted.Instance['File']['publish'] = function (
+      this: unknown,
+      target,
+      bytes,
+      options,
+    ) {
+      receivers.push(this);
+      return owner.File.publish(target, bytes, options);
+    };
+    const destination: t.FsRooted.Instance = Object.freeze({
+      ...owner,
+      Target: Object.freeze({ admit }),
+      File: Object.freeze({ publish }),
+    });
+    const preparation = prepareStart({
+      resources: [],
+      rooted: destination,
+      policy: resourcePolicy([], { maxResources: 0 }),
+    });
+    if (!preparation.ok) throw new Error('Expected complete Rooted authority.');
+
+    expect(Object.keys(preparation.rooted)).to.eql([
+      'path',
+      'Target',
+      'Lease',
+      'Tree',
+      'File',
+      'Stage',
+    ]);
+    expect(Object.isFrozen(preparation.rooted)).to.eql(true);
+    expect(Object.isFrozen(preparation.rooted.Target)).to.eql(true);
+    expect(Object.isFrozen(preparation.rooted.File)).to.eql(true);
+
+    const admission = await preparation.rooted.Target.admit([
+      { kind: 'file', path: 'receiver-independent.txt' },
+    ]);
+    expect(
+      await preparation.rooted.File.publish(admission.targets[0], encoder.encode('stable')),
+    ).to.eql({ kind: 'published', bytes: 6 });
+    expect(receivers).to.eql([undefined, undefined]);
   });
 
   it('fails closed on hostile batch and resource getters without admission or network work', async () => {
@@ -220,10 +366,15 @@ describe('HttpPull checksum-pinned resources', () => {
       const owner = await rooted();
       const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
-        admit: async (targets, options) => {
-          admissions++;
-          return await owner.admit(targets, options);
-        },
+        Target: Object.freeze(
+          {
+            ...owner.Target,
+            admit: async (targets, options) => {
+              admissions++;
+              return await owner.Target.admit(targets, options);
+            },
+          } satisfies t.FsRooted.Instance['Target'],
+        ),
       });
 
       const resourceResult = await start([hostile], destination, resourcePolicy(authority)).done;
@@ -299,10 +450,15 @@ describe('HttpPull checksum-pinned resources', () => {
       const owner = await rooted();
       const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
-        admit: async (targets, options) => {
-          admissions++;
-          return await owner.admit(targets, options);
-        },
+        Target: Object.freeze(
+          {
+            ...owner.Target,
+            admit: async (targets, options) => {
+              admissions++;
+              return await owner.Target.admit(targets, options);
+            },
+          } satisfies t.FsRooted.Instance['Target'],
+        ),
       });
       const unknown = {
         ...authority[0],
@@ -386,8 +542,11 @@ describe('HttpPull checksum-pinned resources', () => {
 
       const failing: t.FsRooted.Instance = Object.freeze({
         ...owner,
-        publishFile: () =>
-          Promise.reject(rootedFailure('publish-file', 'io-failure', 'FILESYSTEM-SECRET')),
+        File: Object.freeze({
+          ...owner.File,
+          publish: () =>
+            Promise.reject(rootedFailure('publish-file', 'io-failure', 'FILESYSTEM-SECRET')),
+        }),
       });
       const second = [resource(source, 'second.txt', 'challenger')];
       const failed = await start(second, failing).done;

@@ -126,8 +126,12 @@ async function run(scenario: Scenario, cleanup: CleanupEvent[]): Promise<void> {
 function rootedFixture(target: DirectoryTarget, lease: FsRooted.Lease): FsRooted.Instance {
   return Object.freeze({
     path: `${ROOT}/.pi/@sys/dist`,
-    admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
-    acquireLease: () => Promise.resolve(Object.freeze({ kind: 'acquired', lease })),
+    Target: Object.freeze({
+      admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
+    }),
+    Lease: Object.freeze({
+      acquire: () => Promise.resolve(Object.freeze({ kind: 'acquired', lease })),
+    }),
   }) as unknown as FsRooted.Instance;
 }
 

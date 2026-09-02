@@ -184,7 +184,7 @@ export async function transferResource(
     }
 
     try {
-      const publication = await authority.rooted.publishFile(resource.target.handle, bytes, {
+      const publication = await authority.rooted.File.publish(resource.target.handle, bytes, {
         until: authority.signal,
       });
       if (publication.kind !== 'published' || publication.bytes !== bytes.byteLength) {

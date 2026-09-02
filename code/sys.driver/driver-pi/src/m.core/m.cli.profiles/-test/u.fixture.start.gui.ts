@@ -241,17 +241,17 @@ export async function removeDistStore(storeDir: t.StringDir): Promise<void> {
 
   const parent = Fs.dirname(storeDir) as t.StringDir;
   const rooted = await Fs.Capability.Rooted.create({ root: parent });
-  const admitted = await rooted.admit([
+  const admitted = await rooted.Target.admit([
     { path: Fs.basename(storeDir), kind: 'directory' },
   ]);
   const target = admitted.targets[0];
-  const acquired = await rooted.acquireLease([target], {
+  const acquired = await rooted.Lease.acquire([target], {
     mode: 'exclusive',
     wait: true,
   });
   if (acquired.kind !== 'acquired') throw new Error('Dist test store is busy.');
   try {
-    await rooted.removeTree(target, { lease: acquired.lease });
+    await rooted.Tree.remove(target, { lease: acquired.lease });
   } finally {
     await acquired.lease.release();
   }

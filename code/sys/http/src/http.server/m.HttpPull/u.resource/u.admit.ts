@@ -11,7 +11,7 @@ export type PreparedResource = ResourceSnapshot & {
   readonly target: {
     readonly input: t.StringRelativePath;
     readonly path: t.StringRelativePath;
-    readonly handle: Parameters<t.FsRooted.Instance['publishFile']>[0];
+    readonly handle: Parameters<t.FsRooted.Instance['File']['publish']>[0];
   };
 };
 
@@ -30,7 +30,7 @@ export async function admitResources(
   signal: AbortSignal,
 ): Promise<AdmissionResult> {
   try {
-    const admission = await rooted.admit(
+    const admission = await rooted.Target.admit(
       resources.map((resource) => ({ kind: 'file' as const, path: resource.target.input })),
       { until: signal },
     );

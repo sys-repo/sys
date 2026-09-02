@@ -143,14 +143,14 @@ export async function setupDistFixture(root: string): Promise<DistFixture> {
 async function removeDistStore(root: string, storeDir: string): Promise<void> {
   if (!(await Fs.exists(storeDir))) return;
   const rooted = await Fs.Capability.Rooted.create({ root });
-  const admitted = await rooted.admit([
+  const admitted = await rooted.Target.admit([
     { kind: 'directory', path: Fs.basename(storeDir) },
   ]);
   const target = admitted.targets[0];
-  const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+  const acquired = await rooted.Lease.acquire([target], { mode: 'exclusive' });
   if (acquired.kind !== 'acquired') throw new Error('Dist test store is busy.');
   try {
-    await rooted.removeTree(target, { lease: acquired.lease });
+    await rooted.Tree.remove(target, { lease: acquired.lease });
   } finally {
     await acquired.lease.release();
   }

@@ -55,10 +55,15 @@ describe('HttpPull.start cancellation and terminal ownership', () => {
       const owner = await rooted();
       const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
-        admit: async (targets, options) => {
-          admissions++;
-          return await owner.admit(targets, options);
-        },
+        Target: Object.freeze(
+          {
+            ...owner.Target,
+            admit: async (targets, options) => {
+              admissions++;
+              return await owner.Target.admit(targets, options);
+            },
+          } satisfies t.FsRooted.Instance['Target'],
+        ),
       });
       const until = new AbortController();
       until.abort('PRE-ABORT-SECRET');
@@ -269,11 +274,14 @@ describe('HttpPull.start cancellation and terminal ownership', () => {
       const owner = await rooted();
       const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
-        publishFile: async () => {
-          enteredResolve();
-          await released;
-          throw rootedFailure('publish-file', 'io-failure', 'COMMITTED-SECRET', true);
-        },
+        File: Object.freeze({
+          ...owner.File,
+          publish: async () => {
+            enteredResolve();
+            await released;
+            throw rootedFailure('publish-file', 'io-failure', 'COMMITTED-SECRET', true);
+          },
+        }),
       });
       const operation = start(resources, destination);
 

@@ -21,12 +21,12 @@ export async function sealTarget(
     ...(until === undefined ? {} : { until }),
   };
   try {
-    const inspection = await rooted.inspectSeal(generation, options);
+    const inspection = await rooted.Tree.inspectSeal(generation, options);
     if (inspection.kind === 'unsupported') {
       return Object.freeze({ ok: false, reason: 'unsupported' });
     }
 
-    const result = await rooted.sealTree(generation, options);
+    const result = await rooted.Tree.seal(generation, options);
     if (result.kind === 'unsupported') {
       return Object.freeze({ ok: false, reason: 'unsupported' });
     }

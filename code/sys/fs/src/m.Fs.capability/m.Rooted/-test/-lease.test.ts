@@ -19,7 +19,7 @@ async function directoryTargets(
   rooted: t.FsRooted.Instance,
   ...paths: readonly string[]
 ): Promise<readonly t.FsRooted.Target<'directory'>[]> {
-  const admission = await rooted.admit(paths.map((path) => ({ kind: 'directory', path })));
+  const admission = await rooted.Target.admit(paths.map((path) => ({ kind: 'directory', path })));
   return admission.targets;
 }
 
@@ -32,8 +32,8 @@ function acquired(
 }
 
 async function fill(stage: t.FsRooted.Stage, value: string): Promise<void> {
-  const admission = await stage.files.admit([{ kind: 'file', path: 'dist.json' }]);
-  await stage.files.publishFile(admission.targets[0], new TextEncoder().encode(value));
+  const admission = await stage.files.Target.admit([{ kind: 'file', path: 'dist.json' }]);
+  await stage.files.File.publish(admission.targets[0], new TextEncoder().encode(value));
 }
 
 describe('Fs.Capability.Rooted lifecycle leases', () => {
@@ -44,7 +44,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const [target] = await directoryTargets(rooted, 'generation');
       const targets = [target];
       const options: { mode: t.FsRooted.LeaseMode } = { mode: 'shared' };
-      const pending = rooted.acquireLease(targets, options);
+      const pending = rooted.Lease.acquire(targets, options);
       targets.length = 0;
       options.mode = 'exclusive';
       const result = await pending;
@@ -76,7 +76,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       expect((await Deno.readFile(lockPath)).byteLength).to.eql(0);
 
       const reacquired = await acquired(
-        await rooted.acquireLease([target], { mode: 'exclusive' }),
+        await rooted.Lease.acquire([target], { mode: 'exclusive' }),
       );
       await reacquired.release();
       const retained = await Deno.lstat(lockPath);
@@ -100,31 +100,31 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const [contenderTarget] = await directoryTargets(contender, 'generation');
 
       const firstLease = await acquired(
-        await first.acquireLease([firstTarget], { mode: 'shared' }),
+        await first.Lease.acquire([firstTarget], { mode: 'shared' }),
       );
       const secondLease = await acquired(
-        await second.acquireLease([secondTarget], { mode: 'shared' }),
+        await second.Lease.acquire([secondTarget], { mode: 'shared' }),
       );
 
-      const exclusiveBusy = await contender.acquireLease([contenderTarget], {
+      const exclusiveBusy = await contender.Lease.acquire([contenderTarget], {
         mode: 'exclusive',
       });
       expect(exclusiveBusy).to.eql({ kind: 'busy', target: contenderTarget });
       await firstLease.release();
-      expect(await contender.acquireLease([contenderTarget], { mode: 'exclusive' })).to.eql({
+      expect(await contender.Lease.acquire([contenderTarget], { mode: 'exclusive' })).to.eql({
         kind: 'busy',
         target: contenderTarget,
       });
       await secondLease.release();
 
       const exclusive = await acquired(
-        await contender.acquireLease([contenderTarget], { mode: 'exclusive' }),
+        await contender.Lease.acquire([contenderTarget], { mode: 'exclusive' }),
       );
-      expect(await first.acquireLease([firstTarget], { mode: 'shared' })).to.eql({
+      expect(await first.Lease.acquire([firstTarget], { mode: 'shared' })).to.eql({
         kind: 'busy',
         target: firstTarget,
       });
-      expect(await second.acquireLease([secondTarget], { mode: 'exclusive' })).to.eql({
+      expect(await second.Lease.acquire([secondTarget], { mode: 'exclusive' })).to.eql({
         kind: 'busy',
         target: secondTarget,
       });
@@ -152,11 +152,11 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const [heldTarget] = await directoryTargets(holder, 'generation');
       const [contenderTarget] = await directoryTargets(contender, 'generation');
       const held = await acquired(
-        await holder.acquireLease([heldTarget], { mode: 'exclusive' }),
+        await holder.Lease.acquire([heldTarget], { mode: 'exclusive' }),
       );
 
       let settled = false;
-      const pending = contender.acquireLease([contenderTarget], {
+      const pending = contender.Lease.acquire([contenderTarget], {
         mode: 'exclusive',
         wait: true,
       }).finally(() => (settled = true));
@@ -180,14 +180,14 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const [heldTarget] = await directoryTargets(holder, 'generation');
       const [contenderTarget] = await directoryTargets(contender, 'generation');
       const held = await acquired(
-        await holder.acquireLease([heldTarget], { mode: 'exclusive' }),
+        await holder.Lease.acquire([heldTarget], { mode: 'exclusive' }),
       );
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort('cancel-waiting-lease'), 20);
       try {
         await expectFailure(
           () =>
-            contender.acquireLease([contenderTarget], {
+            contender.Lease.acquire([contenderTarget], {
               mode: 'exclusive',
               wait: true,
               until: controller.signal,
@@ -200,7 +200,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       }
 
       const retry = await acquired(
-        await contender.acquireLease([contenderTarget], { mode: 'exclusive' }),
+        await contender.Lease.acquire([contenderTarget], { mode: 'exclusive' }),
       );
       await retry.release();
     } finally {
@@ -223,22 +223,22 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const [heldTarget] = await directoryTargets(holder, 'generation');
       const [writeTarget] = await directoryTargets(writer, 'generation');
       const lease = await acquired(
-        await holder.acquireLease([heldTarget], { mode: 'shared' }),
+        await holder.Lease.acquire([heldTarget], { mode: 'shared' }),
       );
-      const blockedStage = await writer.createStage();
+      const blockedStage = await writer.Stage.create();
       await fill(blockedStage, 'blocked');
 
       await expectFailure(
-        () => writer.promoteStage(blockedStage, writeTarget, { until: controller.signal }),
+        () => writer.Stage.promote(blockedStage, writeTarget, { until: controller.signal }),
         'cancelled',
       );
       expect(await Fs.exists(blockedStage.path)).to.eql(false);
       expect(await Fs.exists(Fs.join(fixture.root, writeTarget.path))).to.eql(false);
 
       await lease.release();
-      const publishedStage = await writer.createStage();
+      const publishedStage = await writer.Stage.create();
       await fill(publishedStage, 'published');
-      expect(await writer.promoteStage(publishedStage, writeTarget)).to.eql({
+      expect(await writer.Stage.promote(publishedStage, writeTarget)).to.eql({
         kind: 'published',
       });
     } finally {
@@ -260,12 +260,12 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const [zulu, alpha] = await directoryTargets(rooted, 'zulu', 'alpha');
 
       const first = await acquired(
-        await rooted.acquireLease([zulu, alpha], { mode: 'shared' }),
+        await rooted.Lease.acquire([zulu, alpha], { mode: 'shared' }),
       );
       await first.release();
       const firstOrder = opened.splice(0);
       const second = await acquired(
-        await rooted.acquireLease([alpha, zulu], { mode: 'shared' }),
+        await rooted.Lease.acquire([alpha, zulu], { mode: 'shared' }),
       );
       await second.release();
       expect(opened).to.eql(firstOrder);
@@ -281,16 +281,16 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const blockerRoot = await Fs.Capability.Rooted.create({ root: fixture.root });
       const [blocked] = await directoryTargets(blockerRoot, ordered[1].path);
       const blocker = await acquired(
-        await blockerRoot.acquireLease([blocked], { mode: 'exclusive' }),
+        await blockerRoot.Lease.acquire([blocked], { mode: 'exclusive' }),
       );
 
-      const busy = await rooted.acquireLease([ordered[1], ordered[0]], { mode: 'exclusive' });
+      const busy = await rooted.Lease.acquire([ordered[1], ordered[0]], { mode: 'exclusive' });
       expect(busy).to.eql({ kind: 'busy', target: ordered[1] });
 
       const probeRoot = await Fs.Capability.Rooted.create({ root: fixture.root });
       const [probeTarget] = await directoryTargets(probeRoot, ordered[0].path);
       const probe = await acquired(
-        await probeRoot.acquireLease([probeTarget], { mode: 'exclusive' }),
+        await probeRoot.Lease.acquire([probeTarget], { mode: 'exclusive' }),
       );
       await probe.release();
       await blocker.release();
@@ -323,20 +323,20 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const preCancelled = new AbortController();
       preCancelled.abort('before-acquisition');
       await expectFailure(
-        () => rooted.acquireLease(targets, { mode: 'shared', until: preCancelled.signal }),
+        () => rooted.Lease.acquire(targets, { mode: 'shared', until: preCancelled.signal }),
         'cancelled',
       );
       expect(await Fs.exists(Fs.join(fixture.root, '.sys.rooted'))).to.eql(false);
 
       await expectFailure(
-        () => rooted.acquireLease(targets, { mode: 'exclusive', until: controller.signal }),
+        () => rooted.Lease.acquire(targets, { mode: 'exclusive', until: controller.signal }),
         'cancelled',
       );
 
       const retryRoot = await Fs.Capability.Rooted.create({ root: fixture.root });
       const retryTargets = await directoryTargets(retryRoot, 'alpha', 'bravo');
       const retry = await acquired(
-        await retryRoot.acquireLease(retryTargets, { mode: 'exclusive' }),
+        await retryRoot.Lease.acquire(retryTargets, { mode: 'exclusive' }),
       );
       await retry.release();
     } finally {
@@ -365,7 +365,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const [target] = await directoryTargets(rooted, 'generation');
 
       await expectFailure(
-        () => rooted.acquireLease([target], { mode: 'shared' }),
+        () => rooted.Lease.acquire([target], { mode: 'shared' }),
         'unsupported',
       );
       expect(closes).to.eql(1);
@@ -386,14 +386,14 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       await Deno.symlink(fixture.outside, targetPath);
 
       await expectFailure(
-        () => rooted.acquireLease([target], { mode: 'exclusive' }),
+        () => rooted.Lease.acquire([target], { mode: 'exclusive' }),
         'unsafe-filesystem',
       );
 
       await Deno.remove(targetPath);
       await Deno.mkdir(targetPath);
       const retry = await acquired(
-        await rooted.acquireLease([target], { mode: 'exclusive' }),
+        await rooted.Lease.acquire([target], { mode: 'exclusive' }),
       );
       await retry.release();
     } finally {
@@ -408,13 +408,13 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       await Deno.mkdir(Fs.join(fixture.root, 'generation'));
       const [target] = await directoryTargets(owner, 'generation');
       const lease = await acquired(
-        await owner.acquireLease([target], { mode: 'exclusive' }),
+        await owner.Lease.acquire([target], { mode: 'exclusive' }),
       );
 
       await Deno.remove(Fs.join(fixture.root, target.path), { recursive: true });
       const contender = await Fs.Capability.Rooted.create({ root: fixture.root });
       const [contenderTarget] = await directoryTargets(contender, 'generation');
-      expect(await contender.acquireLease([contenderTarget], { mode: 'exclusive' })).to.eql({
+      expect(await contender.Lease.acquire([contenderTarget], { mode: 'exclusive' })).to.eql({
         kind: 'busy',
         target: contenderTarget,
       });
@@ -422,7 +422,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
 
       await lease.release();
       const replacement = await acquired(
-        await contender.acquireLease([contenderTarget], { mode: 'exclusive' }),
+        await contender.Lease.acquire([contenderTarget], { mode: 'exclusive' }),
       );
       await replacement.release();
     } finally {
@@ -445,7 +445,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const rooted = await createRooted({ root: fixture.root }, io);
       const [target] = await directoryTargets(rooted, 'generation');
       const lease = await acquired(
-        await rooted.acquireLease([target], { mode: 'exclusive' }),
+        await rooted.Lease.acquire([target], { mode: 'exclusive' }),
       );
 
       await expectFailure(() => lease.release(), 'ownership-lost');
@@ -453,7 +453,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const retryRoot = await Fs.Capability.Rooted.create({ root: fixture.root });
       const [retryTarget] = await directoryTargets(retryRoot, 'generation');
       const retry = await acquired(
-        await retryRoot.acquireLease([retryTarget], { mode: 'exclusive' }),
+        await retryRoot.Lease.acquire([retryTarget], { mode: 'exclusive' }),
       );
       await retry.release();
     } finally {
@@ -490,7 +490,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const rooted = await createRooted({ root: fixture.root }, io);
       const targets = await directoryTargets(rooted, 'alpha', 'bravo');
       const lease = await acquired(
-        await rooted.acquireLease(targets, { mode: 'exclusive' }),
+        await rooted.Lease.acquire(targets, { mode: 'exclusive' }),
       );
 
       await expectFailure(() => lease.release(), 'io-failure');
@@ -500,7 +500,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const retryRoot = await Fs.Capability.Rooted.create({ root: fixture.root });
       const retryTargets = await directoryTargets(retryRoot, 'alpha', 'bravo');
       const retry = await acquired(
-        await retryRoot.acquireLease(retryTargets, { mode: 'exclusive' }),
+        await retryRoot.Lease.acquire(retryTargets, { mode: 'exclusive' }),
       );
       await retry.release();
     } finally {
@@ -516,26 +516,26 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       const [target] = await directoryTargets(rooted, 'generation');
       const [foreignTarget] = await directoryTargets(foreign, 'foreign');
       const [composed, decomposed] = await directoryTargets(rooted, 'CAFÉ', 'cafe\u0301');
-      const file = (await rooted.admit([{ kind: 'file', path: 'file.txt' }])).targets[0];
+      const file = (await rooted.Target.admit([{ kind: 'file', path: 'file.txt' }])).targets[0];
 
       await expectFailure(
-        () => rooted.acquireLease([], { mode: 'shared' }),
+        () => rooted.Lease.acquire([], { mode: 'shared' }),
         'invalid-lease',
       );
       await expectFailure(
-        () => rooted.acquireLease([target, target], { mode: 'shared' }),
+        () => rooted.Lease.acquire([target, target], { mode: 'shared' }),
         'target-collision',
       );
       await expectFailure(
-        () => rooted.acquireLease([composed, decomposed], { mode: 'shared' }),
+        () => rooted.Lease.acquire([composed, decomposed], { mode: 'shared' }),
         'target-collision',
       );
-      const foreignPending = rooted.acquireLease([foreignTarget], { mode: 'shared' });
+      const foreignPending = rooted.Lease.acquire([foreignTarget], { mode: 'shared' });
       const foreignFailure = await expectFailure(() => foreignPending, 'foreign-handle');
       expect(foreignFailure.operation).to.eql('acquire-lease');
       await expectFailure(
         () =>
-          rooted.acquireLease(
+          rooted.Lease.acquire(
             [file as unknown as t.FsRooted.Target<'directory'>],
             { mode: 'shared' },
           ),
@@ -543,12 +543,12 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       );
       await expectFailure(
         () =>
-          rooted.acquireLease([target], {
+          rooted.Lease.acquire([target], {
             mode: 'invalid' as t.FsRooted.LeaseMode,
           }),
         'invalid-lease',
       );
-      const invalidUntil = rooted.acquireLease([target], {
+      const invalidUntil = rooted.Lease.acquire([target], {
         mode: 'shared',
         until: 'invalid' as unknown as t.UntilInput,
       });
@@ -556,7 +556,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       expect(untilFailure.operation).to.eql('acquire-lease');
       await expectFailure(
         () =>
-          rooted.acquireLease([target], {
+          rooted.Lease.acquire([target], {
             mode: 'shared',
             wait: 'yes' as unknown as boolean,
           }),
@@ -564,7 +564,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       );
       await expectFailure(
         () =>
-          rooted.acquireLease(
+          rooted.Lease.acquire(
             [target],
             { mode: 'shared', extra: true } as t.FsRooted.LeaseOptions,
           ),
@@ -575,7 +575,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
         get: () => 'shared',
       }) as t.FsRooted.LeaseOptions;
       await expectFailure(
-        () => rooted.acquireLease([target], accessor),
+        () => rooted.Lease.acquire([target], accessor),
         'invalid-lease',
       );
       const hostile = new Proxy([target], {
@@ -585,7 +585,7 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
         },
       });
       const hostileFailure = await expectFailure(
-        () => rooted.acquireLease(hostile, { mode: 'shared' }),
+        () => rooted.Lease.acquire(hostile, { mode: 'shared' }),
         'invalid-lease',
       );
       expect(String(hostileFailure.cause).includes('LEASE-INPUT-SECRET')).to.eql(false);

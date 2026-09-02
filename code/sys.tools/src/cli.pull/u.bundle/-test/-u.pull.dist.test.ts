@@ -52,10 +52,10 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
       const baseDir = await Fs.realPath(root.absolute) as t.StringDir;
       const projectDir = Fs.join(baseDir, 'view/app');
       const owner = await Fs.Capability.Rooted.create({ root: baseDir });
-      const admitted = await owner.admit([
+      const admitted = await owner.Target.admit([
         { kind: 'directory', path: 'view/app' },
       ]);
-      const acquired = await owner.acquireLease(admitted.targets, { mode: 'exclusive' });
+      const acquired = await owner.Lease.acquire(admitted.targets, { mode: 'exclusive' });
       if (acquired.kind !== 'acquired') throw new Error('Expected projection race lease.');
       let pending:
         | ReturnType<typeof pullDistBundle>

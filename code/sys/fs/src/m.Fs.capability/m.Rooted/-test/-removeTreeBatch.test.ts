@@ -41,13 +41,13 @@ function requireSettled(
 
 function batchOwner(rooted: t.FsRooted.Instance): BatchOwner {
   return {
-    admit: rooted.admit,
-    acquireLease: rooted.acquireLease,
-    removeTree: rooted.removeTree,
+    admit: rooted.Target.admit,
+    acquire: rooted.Lease.acquire,
+    remove: rooted.Tree.remove,
   };
 }
 
-describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
+describe('Fs.Capability.Rooted.Tree.removeBatch input and settlements', () => {
   it('snapshots path and lifecycle arrays before I/O and rejects hostile containers', async () => {
     const fixture = await setup();
     try {
@@ -105,7 +105,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
       const lifecycle = new Rx.Observable<t.DisposeEvent>(() => {
         lifecycleSubscriptions += 1;
       });
-      const empty = requireSettled(await rooted.removeTreeBatch([], { until: lifecycle }));
+      const empty = requireSettled(await rooted.Tree.removeBatch([], { until: lifecycle }));
       expect(empty).to.eql({ kind: 'settled', results: [] });
       expect(Object.isFrozen(empty)).to.eql(true);
       expect(Object.isFrozen(empty.results)).to.eql(true);
@@ -131,7 +131,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
       });
       const revoked = Proxy.revocable(['revoked'], {});
       revoked.revoke();
-      const remove = rooted.removeTreeBatch as unknown as (
+      const remove = rooted.Tree.removeBatch as unknown as (
         targets: unknown,
         options?: unknown,
       ) => Promise<t.FsRooted.RemoveTreeBatchResult>;
@@ -220,7 +220,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
       expect(trapCalls).to.eql(0);
 
       const cancelled = requireFailed(
-        await rooted.removeTreeBatch(['target'], {
+        await rooted.Tree.removeBatch(['target'], {
           until: Rx.of({ reason: 'synchronous-lifecycle' }),
         }),
       );
@@ -246,11 +246,11 @@ describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
           ownerCalls += 1;
           return Promise.reject(new Error('Unexpected admission.'));
         },
-        acquireLease() {
+        acquire() {
           ownerCalls += 1;
           return Promise.reject(new Error('Unexpected acquisition.'));
         },
-        removeTree() {
+        remove() {
           ownerCalls += 1;
           return Promise.reject(new Error('Unexpected removal.'));
         },
@@ -330,7 +330,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
     const fixture = await setup();
     try {
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
-      const result = requireFailed(await rooted.removeTreeBatch(['valid', '']));
+      const result = requireFailed(await rooted.Tree.removeBatch(['valid', '']));
 
       expect(result.completed).to.eql([]);
       expect(result.current).to.eql(undefined);
@@ -358,12 +358,12 @@ describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
       const sibling = await writeTree(fixture.root, 'sibling');
       const rooted = await Fs.Capability.Rooted.create({ root: fixture.root });
       const target = await directoryTarget(rooted, 'current');
-      expect(await rooted.sealTree(target)).to.eql({ kind: 'applied', changed: true });
+      expect(await rooted.Tree.seal(target)).to.eql({ kind: 'applied', changed: true });
 
       const paths = ['./current//', 'missing'];
       const until: t.UntilInput[] = [];
       const options: { until?: t.UntilInput } = { until };
-      const pending = rooted.removeTreeBatch(paths, options);
+      const pending = rooted.Tree.removeBatch(paths, options);
       paths[0] = 'sibling';
       paths.push('later');
       until.push(AbortSignal.abort('late-array-mutation'));
@@ -389,7 +389,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
   });
 });
 
-describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () => {
+describe('Fs.Capability.Rooted.Tree.removeBatch ownership and failure truth', () => {
   it('latches a hot lifecycle event between admission and acquisition', async () => {
     const fixture = await setup();
     try {
@@ -408,9 +408,9 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
           stop.next({ reason: 'between-admission-and-acquisition' });
           return result;
         },
-        async acquireLease(targets, options) {
+        async acquire(targets, options) {
           acquisitions += 1;
-          return await base.acquireLease(targets, options);
+          return await base.acquire(targets, options);
         },
       };
 
@@ -459,14 +459,14 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
       let removals = 0;
       const owner: BatchOwner = {
         ...base,
-        async acquireLease(targets, options) {
-          const result = await base.acquireLease(targets, options);
+        async acquire(targets, options) {
+          const result = await base.acquire(targets, options);
           stop.next({ reason: 'between-acquisition-and-removal' });
           return result;
         },
-        async removeTree(target, options) {
+        async remove(target, options) {
           removals += 1;
-          return await base.removeTree(target, options);
+          return await base.remove(target, options);
         },
       };
 
@@ -501,8 +501,8 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
       let removals = 0;
       const owner: BatchOwner = {
         ...base,
-        async removeTree(target, options) {
-          const result = await base.removeTree(target, options);
+        async remove(target, options) {
+          const result = await base.remove(target, options);
           removals += 1;
           if (removals === 1) stop.next({ reason: 'between-removals' });
           return result;
@@ -552,7 +552,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
       );
 
       const result = requireFailed(
-        await rooted.removeTreeBatch(['alpha', 'bravo'], { until: stop }),
+        await rooted.Tree.removeBatch(['alpha', 'bravo'], { until: stop }),
       );
       expect(result.completed).to.eql([]);
       expect(result.current).to.eql({ index: 0, path: 'alpha' });
@@ -597,7 +597,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
       const held = await acquiredLease(holder, heldTarget, 'shared');
       const callerOrder = [stableSecond, stableFirst];
 
-      const result = await batchRooted.removeTreeBatch(callerOrder);
+      const result = await batchRooted.Tree.removeBatch(callerOrder);
       expect(result).to.eql({ kind: 'busy', index: 0, path: stableSecond });
       expect(opened).to.eql([toLockName(stableFirst), toLockName(stableSecond)]);
 
@@ -646,7 +646,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
       const held = await acquiredLease(holder, heldTarget, 'shared');
       const callerOrder = [stableSecond, stableFirst];
 
-      const result = requireFailed(await rooted.removeTreeBatch(callerOrder));
+      const result = requireFailed(await rooted.Tree.removeBatch(callerOrder));
       expect(result.completed).to.eql([]);
       expect(result.current).to.eql(undefined);
       expect(result.unattempted).to.eql([
@@ -695,7 +695,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
       );
 
       const result = requireFailed(
-        await rooted.removeTreeBatch(['alpha', 'bravo', 'charlie'], {
+        await rooted.Tree.removeBatch(['alpha', 'bravo', 'charlie'], {
           until: controller.signal,
         }),
       );
@@ -735,7 +735,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
       );
 
       const result = requireFailed(
-        await rooted.removeTreeBatch(['alpha', 'bravo', 'charlie']),
+        await rooted.Tree.removeBatch(['alpha', 'bravo', 'charlie']),
       );
       expect(result.completed).to.eql([{ index: 0, path: 'alpha', kind: 'removed' }]);
       expect(result.current).to.eql({ index: 1, path: 'bravo' });
@@ -779,7 +779,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
         }),
       );
 
-      const result = requireSettled(await rooted.removeTreeBatch(['alpha', 'bravo']));
+      const result = requireSettled(await rooted.Tree.removeBatch(['alpha', 'bravo']));
       expect(result.results).to.eql([
         { index: 0, path: 'alpha', kind: 'removed' },
         { index: 1, path: 'bravo', kind: 'removed' },
@@ -823,7 +823,7 @@ describe('Fs.Capability.Rooted.removeTreeBatch ownership and failure truth', () 
         }),
       );
 
-      const result = requireFailed(await rooted.removeTreeBatch(['alpha']));
+      const result = requireFailed(await rooted.Tree.removeBatch(['alpha']));
       expect(result.completed).to.eql([]);
       expect(result.current).to.eql({ index: 0, path: 'alpha' });
       expect(result.unattempted).to.eql([]);

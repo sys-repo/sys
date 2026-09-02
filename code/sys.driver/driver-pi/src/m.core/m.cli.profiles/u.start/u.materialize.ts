@@ -23,11 +23,15 @@ type ReleaseOwner = Readonly<{
 
 type RootedOwner = Readonly<{
   path: t.StringAbsoluteDir;
-  admit(
-    targets: readonly t.FsRooted.TargetInput<'directory'>[],
-    options?: t.FsRooted.OperationOptions,
-  ): Promise<t.FsRooted.Admission<'directory'>>;
-  acquireLease: t.FsRooted.Instance['acquireLease'];
+  Target: Readonly<{
+    admit(
+      targets: readonly t.FsRooted.TargetInput<'directory'>[],
+      options?: t.FsRooted.OperationOptions,
+    ): Promise<t.FsRooted.Admission<'directory'>>;
+  }>;
+  Lease: Readonly<{
+    acquire: t.FsRooted.Instance['Lease']['acquire'];
+  }>;
 }>;
 
 type LeaseAcquisition =
@@ -122,7 +126,7 @@ export async function prepareReleaseOwner(input: {
 
     assertActive(input.until);
     const admitting = observeOperation(() =>
-      rooted.admit(RELEASE_OWNER_TARGETS, { until: input.until })
+      rooted.Target.admit(RELEASE_OWNER_TARGETS, { until: input.until })
     );
     if (admitting.kind === 'unobservable') throw storageFailure('pending');
     if (admitting.kind === 'failed') throw storageFailure('not-needed');
@@ -135,7 +139,7 @@ export async function prepareReleaseOwner(input: {
     const storeDir = apply(joinPath, undefined, [rooted.path, target.path]) as t.StringDir;
     const acquiring = observeOperation(
       () =>
-        rooted.acquireLease([target], {
+        rooted.Lease.acquire([target], {
           mode: 'shared',
           until: input.until,
         }),
@@ -293,29 +297,42 @@ function snapshotRootedOwner(
 ): RootedOwner | undefined {
   if (!isFrozenDirectObject(input)) return;
   const path = ownData(input, 'path');
-  const admit = ownData(input, 'admit');
-  const acquireLease = ownData(input, 'acquireLease');
+  const target = ownData(input, 'Target');
+  const lease = ownData(input, 'Lease');
   if (
-    !path.ok || path.value !== expectedRoot || !admit.ok || !Is.func(admit.value) ||
-    Is.Native.proxy(admit.value) || !acquireLease.ok || !Is.func(acquireLease.value) ||
-    Is.Native.proxy(acquireLease.value)
+    !path.ok || path.value !== expectedRoot || !target.ok ||
+    !isFrozenDirectObject(target.value) || !lease.ok || !isFrozenDirectObject(lease.value)
+  ) return;
+  const admit = ownData(target.value, 'admit');
+  const acquire = ownData(lease.value, 'acquire');
+  if (
+    !admit.ok || !Is.func(admit.value) || Is.Native.proxy(admit.value) ||
+    !acquire.ok || !Is.func(acquire.value) || Is.Native.proxy(acquire.value)
   ) return;
 
   const admitMethod = admit.value;
-  const acquireLeaseMethod = acquireLease.value;
-  return freeze({
-    path: path.value as t.StringAbsoluteDir,
-    admit(targets, options) {
+  const acquireMethod = acquire.value;
+  const Target = freeze({
+    admit(
+      targets: readonly t.FsRooted.TargetInput<'directory'>[],
+      options?: t.FsRooted.OperationOptions,
+    ) {
       return apply(admitMethod, undefined, [targets, options]) as Promise<
         t.FsRooted.Admission<'directory'>
       >;
     },
-    acquireLease(targets, options) {
-      return apply(acquireLeaseMethod, undefined, [targets, options]) as Promise<
+  });
+  const Lease = freeze({
+    acquire(
+      targets: readonly t.FsRooted.Target[],
+      options: t.FsRooted.LeaseOptions,
+    ) {
+      return apply(acquireMethod, undefined, [targets, options]) as Promise<
         t.FsRooted.LeaseResult
       >;
     },
   });
+  return freeze({ path: path.value as t.StringAbsoluteDir, Target, Lease });
 }
 
 function snapshotAdmittedTarget(input: unknown): t.FsRooted.Target<'directory'> | undefined {
