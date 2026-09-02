@@ -9,6 +9,7 @@ const OPERATIONS: readonly t.FsRooted.Operation[] = [
   'inspect-seal',
   'seal-tree',
   'remove-tree',
+  'remove-tree-batch',
   'publish-file',
   'create-stage',
   'discard-stage',

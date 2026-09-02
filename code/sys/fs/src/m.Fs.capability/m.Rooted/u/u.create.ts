@@ -17,6 +17,7 @@ import {
   removeTreeInput,
   sealOwnedTree,
 } from './u.owner.ts';
+import { removeTreeBatch as removeOwnedTreeBatch, removeTreeBatchInput } from './u.remove.batch.ts';
 import { createRootState, identityRequired, observeTarget, type TargetState } from './u.path.ts';
 import {
   createStage,
@@ -168,6 +169,11 @@ export async function createRooted(
             );
           },
         );
+      },
+
+      async removeTreeBatch(handles, options) {
+        const input = removeTreeBatchInput(handles, options);
+        return await removeOwnedTreeBatch(api, input);
       },
 
       publishFile(handle, bytes, operationOptions) {

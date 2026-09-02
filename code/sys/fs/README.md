@@ -115,6 +115,11 @@ Targets are always acquired in stable lock-identity order, regardless of caller 
 two cooperating callers from deadlocking merely because they listed the same targets differently.
 The `until` option can cancel acquisition. It never releases a lease that has already been returned.
 
+`removeTreeBatch()` composes admission, one non-waiting exclusive lease batch, caller-order removal,
+and complete lease release. A `busy` result changes no target and maps the contended stable-order
+lock back to its caller index. Failed results preserve completed, current, and unattempted targets,
+mutation truth, and any independent release failure.
+
 `release()` waits for operations currently borrowing the lease, then attempts to unlock every
 target. `await using` disposal follows the same path. If the process exits, the operating system
 releases its locks.
@@ -160,6 +165,14 @@ and remove it. Sealing therefore resists ordinary writes; it is not a retention 
 cooperating cleanup from removing a directory that is still in use. Releasing the lease while
 removal is running waits for that operation before unlocking. A missing target returns `absent`.
 
+`removeTreeBatch()` accepts directory paths directly and snapshots the complete array before I/O. It
+also snapshots nested lifecycle arrays and keeps one cancellation latch across admission,
+acquisition, every removal, and mandatory release. Caller mutation after invocation cannot change
+that authority, and an empty batch creates neither Rooted metadata nor a lifecycle subscription. The
+method returns ordered `removed` or `absent` results after every target completes. If work stops,
+its `failed` result identifies only observed progress and never probes afterward to invent an
+outcome for the current or remaining paths.
+
 On POSIX hosts, Rooted refuses removal unless the parent's mode grants write and traversal in at
 least one permission class. The operating system still applies the process identity and its other
 rules. A sealed parent therefore fails with `permission-denied` without weakening or deleting the
@@ -182,6 +195,7 @@ Expected conditions settle explicitly:
 | Condition                                     | Settlement                                   |
 | --------------------------------------------- | -------------------------------------------- |
 | A non-waiting lease is contended              | `acquireLease()` returns `busy`              |
+| Batch removal finds a contended target        | `removeTreeBatch()` returns `busy`           |
 | A directory target already exists             | `promoteStage()` returns `occupied`          |
 | A removal target is already absent            | `removeTree()` returns `absent`              |
 | The host cannot prove identity or mode safety | Seal operations may return `unsupported`     |

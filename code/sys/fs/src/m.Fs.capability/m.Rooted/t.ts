@@ -99,6 +99,19 @@ export declare namespace FsRooted {
     ) => Promise<RemoveTreeResult>;
 
     /**
+     * Remove a snapshotted directory batch under one non-waiting exclusive lease.
+     *
+     * Paths and lifecycle containers are captured before I/O, and one cancellation latch spans the
+     * complete transaction. Contention changes no target. Removal results retain caller order,
+     * while acquisition uses stable lock order. Failures preserve completed, current, unattempted,
+     * and independent lease release truth without reconstructing filesystem state.
+     */
+    readonly removeTreeBatch: (
+      targets: readonly t.StringPath[],
+      options?: OperationOptions,
+    ) => Promise<RemoveTreeBatchResult>;
+
+    /**
      * Copy and sync `bytes`, then publish the complete file only if the target is absent.
      *
      * Readers see either no target or the complete file. A successful return does not
@@ -227,6 +240,50 @@ export declare namespace FsRooted {
     | { readonly kind: 'removed' }
     | { readonly kind: 'absent' };
 
+  /** Caller-indexed admitted directory target used by batch removal settlements. */
+  export type RemoveTreeBatchTarget = {
+    readonly index: number;
+    readonly path: t.StringRelativePath;
+  };
+
+  /** Caller-indexed snapshotted path not attempted by a batch removal. */
+  export type RemoveTreeBatchUnattempted = {
+    readonly index: number;
+    readonly path: t.StringPath;
+  };
+
+  /** Ordered observed result for one completed batch target. */
+  export type RemoveTreeBatchItem = RemoveTreeBatchTarget & RemoveTreeResult;
+
+  /** Every batch target completed; lease-release failure remains orthogonal. */
+  export type RemoveTreeBatchSettled = {
+    readonly kind: 'settled';
+    readonly results: readonly RemoveTreeBatchItem[];
+    readonly releaseError?: Failure;
+  };
+
+  /** No batch target changed because one non-waiting exclusive lock was contended. */
+  export type RemoveTreeBatchBusy = RemoveTreeBatchTarget & {
+    readonly kind: 'busy';
+  };
+
+  /** Batch removal stopped with exact progress and independent lease-release truth. */
+  export type RemoveTreeBatchFailed = {
+    readonly kind: 'failed';
+    readonly completed: readonly RemoveTreeBatchItem[];
+    readonly current?: RemoveTreeBatchTarget;
+    readonly unattempted: readonly RemoveTreeBatchUnattempted[];
+    readonly failure: Failure;
+    readonly releaseError?: Failure;
+    readonly changed: boolean;
+  };
+
+  /** Complete settlement for one operation-owned batch removal transaction. */
+  export type RemoveTreeBatchResult =
+    | RemoveTreeBatchSettled
+    | RemoveTreeBatchBusy
+    | RemoveTreeBatchFailed;
+
   /** Result of publishing a new complete file. */
   export type FileResult = {
     readonly kind: 'published';
@@ -276,6 +333,7 @@ export declare namespace FsRooted {
     | 'inspect-seal'
     | 'seal-tree'
     | 'remove-tree'
+    | 'remove-tree-batch'
     | 'publish-file'
     | 'create-stage'
     | 'discard-stage'

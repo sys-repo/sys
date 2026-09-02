@@ -42,6 +42,7 @@ describe('Fs.Capability.Rooted: public surface', () => {
         'promoteStage',
         'publishFile',
         'removeTree',
+        'removeTreeBatch',
         'sealTree',
       ]);
       expect(rooted.path).to.eql(await Deno.realPath(fixture.root));

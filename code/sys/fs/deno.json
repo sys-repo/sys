@@ -6,7 +6,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "test": "deno task test:unit && deno task test:process",
     "test:unit": "deno test -P=test",
-    "test:process": "deno test -P=test-process --trace-leaks ./src/m.Fs.capability/m.Rooted/-test/-lease.process.ts ./src/m.Pkg.Dist/-test/-local.permission.process.ts",
+    "test:process": "deno test -P=test-process --trace-leaks ./src/-test.process.ts",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmp": "deno run -P=clean ./-scripts/task.tmp.ts"
