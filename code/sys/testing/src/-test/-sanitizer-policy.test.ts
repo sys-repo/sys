@@ -75,7 +75,7 @@ Deno.test('Testing permission lanes → separate unit, preparation, and Chrome a
   });
 
   expect(testing.tasks?.['test:browser:preflight']).to.eql(
-    'deno run --no-prompt -P=test-browser-preflight -- ./scripts/task.browser.preflight.ts',
+    'deno run --no-prompt -P=test-browser-preflight ./scripts/task.browser.preflight.ts',
   );
   expect(testing.tasks?.['test:browser:unit']).to.eql(
     'TMPDIR=./.tmp/browser-proof deno test --no-prompt --deny-run ' +
@@ -85,13 +85,13 @@ Deno.test('Testing permission lanes → separate unit, preparation, and Chrome a
   );
   expect(testing.tasks?.['test:browser:prepare']).to.eql(
     'TMPDIR=./.tmp/browser-proof deno run --no-prompt ' +
-      '-P=test-browser-prepare -- ./scripts/task.browser.prepare.ts',
+      '-P=test-browser-prepare ./scripts/task.browser.prepare.ts',
   );
   expect(testing.tasks?.['test:browser:admit']).to.eql(
-    'deno run --no-prompt -P=test-browser-admit -- ./scripts/task.browser.admit.ts',
+    'deno run --no-prompt -P=test-browser-admit ./scripts/task.browser.admit.ts',
   );
   expect(testing.tasks?.['test:browser:postflight']).to.eql(
-    'deno run --no-prompt -P=test-browser-postflight -- ./scripts/task.browser.postflight.ts',
+    'deno run --no-prompt -P=test-browser-postflight ./scripts/task.browser.postflight.ts',
   );
   expect(testing.tasks?.['test:browser']).to.eql(
     'deno task test:browser:preflight && deno task test:browser:unit && ' +
