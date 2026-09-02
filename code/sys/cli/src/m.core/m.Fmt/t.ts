@@ -25,6 +25,12 @@ export declare namespace CliFormat {
    * Aggregates the base CLI formatting libraries and functions.
    */
   export type Lib = {
+    /**
+     * Whether the shared synchronous formatter substrate still matches its trusted
+     * module-initialization baseline. This does not authenticate a realm poisoned before import.
+     */
+    readonly isReady: () => boolean;
+
     /** Horizontal rule display formatting. */
     hr: Hr.Fn;
 

@@ -103,6 +103,7 @@ type ExpectedTextLib = {
 
 type CanonicalFormatterProof = [
   // Preserved leaf semantics.
+  Assert<Equal<t.CliFormat.Lib['isReady'], () => boolean>>,
   Assert<Equal<t.CliFormatHelp.Pair, readonly [left: string, right: string]>>,
   Assert<Equal<t.CliFormatHelp.Tone, 'default' | 'muted'>>,
   Assert<Equal<t.CliFormatCommit.Text, ExpectedCommitText>>,

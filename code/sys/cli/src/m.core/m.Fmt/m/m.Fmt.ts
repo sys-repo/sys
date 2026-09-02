@@ -8,6 +8,7 @@ import { Keyboard } from './m.Keyboard.ts';
 import { Path } from './m.Path.ts';
 import { ServiceUrl } from './m.ServiceUrl.ts';
 import { Tree } from './m.Tree.ts';
+import { isPresentationAuthorityReady as isReady } from '../u/u.authority.ts';
 import { hr } from '../u/u.hr.ts';
 import { hyperlink } from '../u/u.hyperlink.ts';
 import { omission } from '../u/u.omission.ts';
@@ -15,6 +16,7 @@ import { spinnerRaw, spinnerText } from '../u/u.spinner.ts';
 
 /** Shared command-line formatting helper library. */
 export const Fmt: t.CliFormat.Lib = Object.freeze({
+  isReady,
   Header,
   Commit,
   Help,
