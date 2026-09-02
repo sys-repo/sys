@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { c, Cli, Fs, type t } from '../common.ts';
-import { StartGuiScreen } from '../u.start/u.screen.ts';
+import { StartGuiScreen } from '../u.start/u.screen/mod.ts';
 import { Boot, type BootState, createBootState } from '../u.start/u.state.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 import { DIST_DIGEST, GENERATION_DIR, GENERATION_HREF } from './u.fixture.start.gui.ts';

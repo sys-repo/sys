@@ -12,10 +12,11 @@ const objectPrototype = Object.prototype;
 const ownKeys = Reflect.ownKeys;
 const INVALID_UNTIL = Symbol('invalid-until');
 
-export type BatchOwner = Pick<
-  t.FsRooted.Instance,
-  'admit' | 'acquireLease' | 'removeTree'
->;
+export type BatchOwner = {
+  readonly admit: t.FsRooted.Instance['Target']['admit'];
+  readonly acquire: t.FsRooted.Instance['Lease']['acquire'];
+  readonly remove: t.FsRooted.Instance['Tree']['remove'];
+};
 
 export type RemoveTreeBatchInput = {
   readonly targets: readonly t.StringPath[];
@@ -82,7 +83,7 @@ async function runBatch(
 
   let acquired: t.FsRooted.LeaseResult;
   try {
-    acquired = await owner.acquireLease(
+    acquired = await owner.acquire(
       targets,
       freeze({ mode: 'exclusive', wait: false, until: signal }),
     );
@@ -125,7 +126,7 @@ async function runBatch(
     for (const [index, target] of targets.entries()) {
       try {
         checkCancelled('remove-tree', signal);
-        const result = await owner.removeTree(
+        const result = await owner.remove(
           target,
           freeze({ lease: acquired.lease, until: signal }),
         );

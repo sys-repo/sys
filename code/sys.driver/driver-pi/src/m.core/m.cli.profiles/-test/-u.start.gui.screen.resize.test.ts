@@ -1,6 +1,6 @@
 import { describe, expect, it, WebFixture } from '../../../-test.ts';
 import { Cli, type t } from '../common.ts';
-import { observeResizeWith, StartGuiScreen } from '../u.start/u.screen.ts';
+import { observeResizeWith, StartGuiScreen } from '../u.start/u.screen/mod.ts';
 import { createBootState } from '../u.start/u.state.ts';
 import { CAPABILITY, createScreenHarness, SERVICE } from './u.fixture.start.gui.screen.ts';
 

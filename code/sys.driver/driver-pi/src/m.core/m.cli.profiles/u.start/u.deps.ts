@@ -3,7 +3,7 @@ import {
   StartGuiScreen,
   type StartGuiScreenInput,
   type StartGuiScreenInstance,
-} from './u.screen.ts';
+} from './u.screen/mod.ts';
 
 /** Owner seams for focused GUI-start runtime tests. */
 export type StartGuiDependencies = {

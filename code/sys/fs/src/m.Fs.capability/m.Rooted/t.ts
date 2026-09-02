@@ -54,94 +54,109 @@ export declare namespace FsRooted {
     /** Canonical absolute root directory. */
     readonly path: t.StringAbsoluteDir;
 
-    /** Validate all target paths together and return handles accepted only by this instance. */
-    readonly admit: <K extends TargetKind>(
-      targets: readonly TargetInput<K>[],
-      options?: OperationOptions,
-    ) => Promise<Admission<K>>;
+    /** Target admission operations. */
+    readonly Target: {
+      /** Validate all target paths together and return handles accepted only by this instance. */
+      readonly admit: <K extends TargetKind>(
+        targets: readonly TargetInput<K>[],
+        options?: OperationOptions,
+      ) => Promise<Admission<K>>;
+    };
 
-    /**
-     * Acquire one shared or exclusive OS-backed lease over admitted directory targets.
-     *
-     * Targets are acquired in stable lock-identity order regardless of caller order. By default,
-     * contention returns `busy` without retaining a partial lease; `wait: true` waits until all
-     * targets are acquired or cancellation/failure settles the operation. Unsupported locking and
-     * other host failures reject with a typed Rooted failure after every partial lock is released.
-     */
-    readonly acquireLease: (
-      targets: readonly Target<'directory'>[],
-      options: LeaseOptions,
-    ) => Promise<LeaseResult>;
+    /** Lease ownership operations. */
+    readonly Lease: {
+      /**
+       * Acquire one shared or exclusive OS-backed lease over admitted directory targets.
+       *
+       * Targets are acquired in stable lock-identity order regardless of caller order. By default,
+       * contention returns `busy` without retaining a partial lease; `wait: true` waits until all
+       * targets are acquired or cancellation/failure settles the operation. Unsupported locking and
+       * other host failures reject with a typed Rooted failure after every partial lock is released.
+       */
+      readonly acquire: (
+        targets: readonly Target<'directory'>[],
+        options: LeaseOptions,
+      ) => Promise<LeaseResult>;
+    };
 
-    /** Inspect one complete tree, acquiring shared ownership or reusing a compatible lease. */
-    readonly inspectSeal: (
-      tree: OwnedTree,
-      options?: OwnedTreeOptions,
-    ) => Promise<SealInspection>;
+    /** Owned-tree operations. */
+    readonly Tree: {
+      /** Inspect one complete tree, acquiring shared ownership or reusing a compatible lease. */
+      readonly inspectSeal: (
+        tree: OwnedTree,
+        options?: OwnedTreeOptions,
+      ) => Promise<SealInspection>;
 
-    /** Seal one complete tree, acquiring exclusive ownership or reusing an exclusive lease. */
-    readonly sealTree: (
-      tree: OwnedTree,
-      options?: OwnedTreeOptions,
-    ) => Promise<SealResult>;
+      /** Seal one complete tree, acquiring exclusive ownership or reusing an exclusive lease. */
+      readonly seal: (
+        tree: OwnedTree,
+        options?: OwnedTreeOptions,
+      ) => Promise<SealResult>;
 
-    /**
-     * Remove an admitted directory target covered by an active exclusive lease.
-     *
-     * Missing targets return `absent`. Release waits for an in-flight removal before unlocking.
-     * A failure after permission restoration or entry removal reports `committed: true`; callers
-     * may reconcile the cause and retry with the same still-active lease. Success reports observed
-     * absence, not persistence across sudden power loss.
-     */
-    readonly removeTree: (
-      target: Target<'directory'>,
-      options: RemoveTreeOptions,
-    ) => Promise<RemoveTreeResult>;
+      /**
+       * Remove an admitted directory target covered by an active exclusive lease.
+       *
+       * Missing targets return `absent`. Release waits for an in-flight removal before unlocking.
+       * A failure after permission restoration or entry removal reports `committed: true`; callers
+       * may reconcile the cause and retry with the same still-active lease. Success reports observed
+       * absence, not persistence across sudden power loss.
+       */
+      readonly remove: (
+        target: Target<'directory'>,
+        options: RemoveTreeOptions,
+      ) => Promise<RemoveTreeResult>;
 
-    /**
-     * Remove a snapshotted directory batch under one non-waiting exclusive lease.
-     *
-     * Paths and lifecycle containers are captured before I/O, and one cancellation latch spans the
-     * complete transaction. Contention changes no target. Removal results retain caller order,
-     * while acquisition uses stable lock order. Failures preserve completed, current, unattempted,
-     * and independent lease release truth without reconstructing filesystem state.
-     */
-    readonly removeTreeBatch: (
-      targets: readonly t.StringPath[],
-      options?: OperationOptions,
-    ) => Promise<RemoveTreeBatchResult>;
+      /**
+       * Remove a snapshotted directory batch under one non-waiting exclusive lease.
+       *
+       * Paths and lifecycle containers are captured before I/O, and one cancellation latch spans the
+       * complete transaction. Contention changes no target. Removal results retain caller order,
+       * while acquisition uses stable lock order. Failures preserve completed, current, unattempted,
+       * and independent lease release truth without reconstructing filesystem state.
+       */
+      readonly removeBatch: (
+        targets: readonly t.StringPath[],
+        options?: OperationOptions,
+      ) => Promise<RemoveTreeBatchResult>;
+    };
 
-    /**
-     * Copy and sync `bytes`, then publish the complete file only if the target is absent.
-     *
-     * Readers see either no target or the complete file. A successful return does not
-     * guarantee that the new directory entry survives sudden power loss. A failed operation
-     * may leave a private temporary artifact when safe cleanup cannot be completed.
-     */
-    readonly publishFile: (
-      target: Target<'file'>,
-      bytes: Uint8Array,
-      options?: OperationOptions,
-    ) => Promise<FileResult>;
+    /** File publication operations. */
+    readonly File: {
+      /**
+       * Copy and sync `bytes`, then publish the complete file only if the target is absent.
+       *
+       * Readers see either no target or the complete file. A successful return does not
+       * guarantee that the new directory entry survives sudden power loss. A failed operation
+       * may leave a private temporary artifact when safe cleanup cannot be completed.
+       */
+      readonly publish: (
+        target: Target<'file'>,
+        bytes: Uint8Array,
+        options?: OperationOptions,
+      ) => Promise<FileResult>;
+    };
 
-    /** Create an owned staging directory beneath the root. */
-    readonly createStage: (options?: OperationOptions) => Promise<Stage>;
+    /** Stage lifecycle operations. */
+    readonly Stage: {
+      /** Create an owned staging directory beneath the root. */
+      readonly create: (options?: OperationOptions) => Promise<Stage>;
 
-    /** Remove an active stage or retry cleanup after a previous promotion attempt. */
-    readonly discardStage: (stage: Stage, options?: OperationOptions) => Promise<void>;
+      /** Remove an active stage or retry cleanup after a previous promotion attempt. */
+      readonly discard: (stage: Stage, options?: OperationOptions) => Promise<void>;
 
-    /**
-     * Publish an owned stage at an absent directory target.
-     *
-     * A target found to exist is left untouched. Races are coordinated only with writers
-     * that use the same Rooted locking protocol. A successful return does not guarantee that
-     * the renamed directory entry survives sudden power loss.
-     */
-    readonly promoteStage: (
-      stage: Stage,
-      target: Target<'directory'>,
-      options?: PromotionOptions,
-    ) => Promise<PromotionResult>;
+      /**
+       * Publish an owned stage at an absent directory target.
+       *
+       * A target found to exist is left untouched. Races are coordinated only with writers
+       * that use the same Rooted locking protocol. A successful return does not guarantee that
+       * the renamed directory entry survives sudden power loss.
+       */
+      readonly promote: (
+        stage: Stage,
+        target: Target<'directory'>,
+        options?: PromotionOptions,
+      ) => Promise<PromotionResult>;
+    };
   };
 
   /** Supported target kinds. */

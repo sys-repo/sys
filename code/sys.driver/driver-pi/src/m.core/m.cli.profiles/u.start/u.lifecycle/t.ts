@@ -9,7 +9,7 @@ import type {
   ApplicationOwner,
 } from '../u.identity.ts';
 import type { ReleaseLease } from '../u.materialize.ts';
-import type { StartGuiScreenInstance } from '../u.screen.ts';
+import type { StartGuiScreenInstance } from '../u.screen/mod.ts';
 
 export type PresentationEvidence = Readonly<{
   kind: 'browser-open-failed';
