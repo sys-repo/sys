@@ -369,6 +369,29 @@ describe('Pkg.Dist', () => {
       }
     });
 
+    it('trustChildDist: preserves sibling files that share a child directory prefix', async () => {
+      const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist.sibling-prefix/');
+      await Fs.remove(root);
+      await Fs.ensureDir(root);
+
+      try {
+        const childDir = Fs.join(root, 'editor');
+        await Fs.ensureDir(childDir);
+        await Fs.write(Fs.join(childDir, 'worker.js'), 'worker');
+        await Fs.write(Fs.join(root, 'editor.js'), 'editor');
+
+        const child = await Pkg.Dist.compute({ dir: childDir, save: true });
+        const parent = await Pkg.Dist.compute({ dir: root, trustChildDist: true });
+
+        expect(parent.dist.hash.parts['editor/worker.js']).to.eql(
+          child.dist.hash.parts['worker.js'],
+        );
+        expect(parent.dist.hash.parts['editor.js']).to.not.eql(undefined);
+      } finally {
+        await Fs.remove(root);
+      }
+    });
+
     it('trustChildDist: parent hash is idempotent across repeated save runs (excluding child dist metadata/signature)', async () => {
       const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist.idempotent/');
       await Fs.remove(root);

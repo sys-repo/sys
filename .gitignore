@@ -14,6 +14,7 @@
 dist
 dist.*
 node_modules
+.sys.rooted/
 
 # Local root runtime/config:
 /-config/

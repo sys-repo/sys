@@ -26,9 +26,7 @@ export async function hashes(
   const mergedFilter = (value: string) => {
     if (!includeHashPart(value)) return false;
     if (policy && isIgnored(value, path, policy)) return false;
-    if (childAbs.some((root) => value === root || value.startsWith(Path.join(root, '')))) {
-      return false;
-    }
+    if (childAbs.some((root) => Path.Is.within(root, value))) return false;
     return filter ? filter(value) : true;
   };
   const res = await DirHash.compute(path, { filter: mergedFilter, onProgress: onHashProgress });
