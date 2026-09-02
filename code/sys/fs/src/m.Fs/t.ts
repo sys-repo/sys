@@ -98,36 +98,6 @@ export namespace Fs {
   }
 
   /**
-   * Rooted publication, sealing, lifecycle, and removal contracts used across packages.
-   */
-  export namespace Rooted {
-    export type Instance = t.FsRooted.Instance;
-    export type Lease = t.FsRooted.Lease;
-    export type LeaseMode = t.FsRooted.LeaseMode;
-    export type LeaseOptions = t.FsRooted.LeaseOptions;
-    export type LeaseResult = t.FsRooted.LeaseResult;
-    export type OwnedTree = t.FsRooted.OwnedTree;
-    export type OwnedTreeOptions = t.FsRooted.OwnedTreeOptions;
-    export type SealInspection = t.FsRooted.SealInspection;
-    export type SealApplied = t.FsRooted.SealApplied;
-    export type SealResult = t.FsRooted.SealResult;
-    export type RemoveTreeOptions = t.FsRooted.RemoveTreeOptions;
-    export type RemoveTreeResult = t.FsRooted.RemoveTreeResult;
-    export type RemoveTreeBatchTarget = t.FsRooted.RemoveTreeBatchTarget;
-    export type RemoveTreeBatchUnattempted = t.FsRooted.RemoveTreeBatchUnattempted;
-    export type RemoveTreeBatchItem = t.FsRooted.RemoveTreeBatchItem;
-    export type RemoveTreeBatchSettled = t.FsRooted.RemoveTreeBatchSettled;
-    export type RemoveTreeBatchBusy = t.FsRooted.RemoveTreeBatchBusy;
-    export type RemoveTreeBatchFailed = t.FsRooted.RemoveTreeBatchFailed;
-    export type RemoveTreeBatchResult = t.FsRooted.RemoveTreeBatchResult;
-    export type PromotionOptions = t.FsRooted.PromotionOptions;
-    export type PromotionResult = t.FsRooted.PromotionResult;
-    export type Failure = t.FsRooted.Failure;
-    export type Operation = t.FsRooted.Operation;
-    export type FailureKind = t.FsRooted.FailureKind;
-  }
-
-  /**
    * Filesystem path helper contracts.
    */
   export namespace Path {

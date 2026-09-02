@@ -56,7 +56,6 @@ describe('Fs.Capability.Rooted lifecycle leases', () => {
       expect(lease.mode).to.eql('shared');
       expect(lease.targets).to.eql([target]);
       expectTypeOf(lease).toEqualTypeOf<t.FsRooted.Lease>();
-      expectTypeOf(lease).toEqualTypeOf<t.Fs.Rooted.Lease>();
 
       const release = lease.release();
       expect(lease.release()).to.equal(release);

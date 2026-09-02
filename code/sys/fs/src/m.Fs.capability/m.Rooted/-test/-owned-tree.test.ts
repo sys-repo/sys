@@ -35,7 +35,6 @@ describe('Fs.Capability.Rooted owned trees: sealing evidence and publication', (
       expect(applied).to.eql({ kind: 'applied', changed: true });
       expect(Object.isFrozen(applied)).to.eql(true);
       expectTypeOf(applied).toEqualTypeOf<t.FsRooted.SealResult>();
-      expectTypeOf(applied).toEqualTypeOf<t.Fs.Rooted.SealResult>();
       expect(await rooted.inspectSeal(target)).to.eql({ kind: 'sealed' });
       expect((await mode(path)) & 0o222).to.eql(0);
       expect((await mode(Fs.join(path, 'pkg'))) & 0o222).to.eql(0);
@@ -588,7 +587,6 @@ describe('Fs.Capability.Rooted owned trees: confined removal', () => {
       expect(removed).to.eql({ kind: 'removed' });
       expect(Object.isFrozen(removed)).to.eql(true);
       expectTypeOf(removed).toEqualTypeOf<t.FsRooted.RemoveTreeResult>();
-      expectTypeOf(removed).toEqualTypeOf<t.Fs.Rooted.RemoveTreeResult>();
       expect(await rooted.removeTree(target, { lease })).to.eql({ kind: 'absent' });
       expect(chmods.every((path) => path.startsWith(`${targetPath}/`) || path === targetPath)).to
         .eql(

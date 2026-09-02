@@ -55,7 +55,7 @@ export declare namespace HttpPull {
   /** Input to `HttpPull.start`. */
   export type StartOptions = {
     readonly resources: readonly Resource[];
-    readonly rooted: t.Fs.Rooted.Instance;
+    readonly rooted: t.FsRooted.Instance;
     readonly policy: ResourcePolicy;
     readonly credentials?: ResourceCredentials;
     readonly until?: t.UntilInput;
@@ -76,8 +76,8 @@ export declare namespace HttpPull {
 
   /** Stable Rooted failure evidence. */
   export type RootedFailureEvidence = {
-    readonly operation: t.Fs.Rooted.Operation;
-    readonly kind: t.Fs.Rooted.FailureKind;
+    readonly operation: t.FsRooted.Operation;
+    readonly kind: t.FsRooted.FailureKind;
     readonly committed: boolean;
   };
 

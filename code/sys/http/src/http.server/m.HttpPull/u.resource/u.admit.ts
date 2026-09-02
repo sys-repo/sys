@@ -11,7 +11,7 @@ export type PreparedResource = ResourceSnapshot & {
   readonly target: {
     readonly input: t.StringRelativePath;
     readonly path: t.StringRelativePath;
-    readonly handle: Parameters<t.Fs.Rooted.Instance['publishFile']>[0];
+    readonly handle: Parameters<t.FsRooted.Instance['publishFile']>[0];
   };
 };
 
@@ -26,7 +26,7 @@ export type AdmissionResult =
 /** Admit every target together before transport or publication begins. */
 export async function admitResources(
   resources: readonly ResourceSnapshot[],
-  rooted: t.Fs.Rooted.Instance,
+  rooted: t.FsRooted.Instance,
   signal: AbortSignal,
 ): Promise<AdmissionResult> {
   try {

@@ -13,7 +13,7 @@ import { admitManifest } from './u.manifest.ts';
 import { sealTarget, snapshotAppliedSeal } from './u.seal.ts';
 
 type Stage = t.FsRooted.Stage;
-type Rooted = t.Fs.Rooted.Instance;
+type Rooted = t.FsRooted.Instance;
 type Lease = t.FsRooted.Lease;
 type Verification = t.FsPkg.Dist.Pinned.Verify.Result;
 

@@ -11,7 +11,7 @@ import {
 
 function start(
   resources: readonly t.HttpPull.Resource[],
-  owner: t.Fs.Rooted.Instance,
+  owner: t.FsRooted.Instance,
   policy: t.HttpPull.ResourcePolicy = resourcePolicy(resources),
   until?: t.UntilInput,
 ): t.HttpPull.ResourceOperation.Instance {
@@ -53,7 +53,7 @@ describe('HttpPull.start cancellation and terminal ownership', () => {
       const source = localhost(server.url.join('pre-aborted.txt'));
       const resources = [resource(source, 'pre-aborted.txt', 'content')];
       const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
         admit: async (targets, options) => {
           admissions++;
@@ -267,7 +267,7 @@ describe('HttpPull.start cancellation and terminal ownership', () => {
       const source = localhost(server.url.join('committed.txt'));
       const resources = [resource(source, 'committed.txt', 'content')];
       const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
         publishFile: async () => {
           enteredResolve();

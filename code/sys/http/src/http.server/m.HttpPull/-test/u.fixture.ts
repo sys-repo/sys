@@ -42,7 +42,7 @@ export function resource(
   };
 }
 
-export async function rooted(prefix = 'http-pull-rooted-'): Promise<t.Fs.Rooted.Instance> {
+export async function rooted(prefix = 'http-pull-rooted-'): Promise<t.FsRooted.Instance> {
   const dir = await Fs.makeTempDir({ prefix });
   const root = await Fs.realPath(dir.absolute);
   roots.add(root);
@@ -62,12 +62,12 @@ export function localhost(input: t.StringUrl): t.StringUrl {
 }
 
 export function rootedFailure(
-  operation: t.Fs.Rooted.Operation,
-  kind: t.Fs.Rooted.FailureKind,
+  operation: t.FsRooted.Operation,
+  kind: t.FsRooted.FailureKind,
   message: string,
   committed = false,
-): t.Fs.Rooted.Failure {
-  const error = new Error(message) as t.Fs.Rooted.Failure;
+): t.FsRooted.Failure {
+  const error = new Error(message) as t.FsRooted.Failure;
   Object.defineProperties(error, {
     name: { value: 'FsRootedError' },
     operation: { value: operation },

@@ -23,7 +23,7 @@ const encoder = new TextEncoder();
 
 function start(
   resources: readonly t.HttpPull.Resource[],
-  owner: t.Fs.Rooted.Instance,
+  owner: t.FsRooted.Instance,
   policy: t.HttpPull.ResourcePolicy = resourcePolicy(resources),
   input: Pick<t.HttpPull.StartOptions, 'credentials' | 'until'> = {},
 ): t.HttpPull.ResourceOperation.Instance {
@@ -155,7 +155,7 @@ describe('HttpPull checksum-pinned resources', () => {
       const source = localhost(server.url.join('content.txt'));
       const resources = [resource(source, 'admitted/content.txt', 'content')];
       const owner = await rooted();
-      const admit: t.Fs.Rooted.Instance['admit'] = async (targets, options) => {
+      const admit: t.FsRooted.Instance['admit'] = async (targets, options) => {
         const result = await owner.admit(targets, options);
         admitted = true;
         return result;
@@ -167,7 +167,7 @@ describe('HttpPull checksum-pinned resources', () => {
         createStage: owner.createStage,
         discardStage: owner.discardStage,
         promoteStage: owner.promoteStage,
-      }) as unknown as t.Fs.Rooted.Instance;
+      }) as unknown as t.FsRooted.Instance;
 
       const rejected = await start(resources, stale).done;
       expect(rejected.ok).to.eql(false);
@@ -178,14 +178,14 @@ describe('HttpPull checksum-pinned resources', () => {
       const lifecycleOnly = Object.freeze({
         ...stale,
         acquireLease: owner.acquireLease,
-      }) as unknown as t.Fs.Rooted.Instance;
+      }) as unknown as t.FsRooted.Instance;
       const sealedTreeStale = await start(resources, lifecycleOnly).done;
       expect(sealedTreeStale.ok).to.eql(false);
       expect(sealedTreeStale.terminal?.kind).to.eql('invalid-input');
       expect(admitted).to.eql(false);
       expect(requestBeforeAdmission).to.eql(false);
 
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const destination: t.FsRooted.Instance = Object.freeze({
         ...lifecycleOnly,
         inspectSeal: owner.inspectSeal,
         sealTree: owner.sealTree,
@@ -218,7 +218,7 @@ describe('HttpPull checksum-pinned resources', () => {
         },
       }) as t.HttpPull.Resource;
       const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
         admit: async (targets, options) => {
           admissions++;
@@ -297,7 +297,7 @@ describe('HttpPull checksum-pinned resources', () => {
       const source = localhost(server.url.join('content.txt'));
       const authority = [resource(source, 'authority.txt', 'content')];
       const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
         admit: async (targets, options) => {
           admissions++;
@@ -384,7 +384,7 @@ describe('HttpPull checksum-pinned resources', () => {
         data: 'winner',
       });
 
-      const failing: t.Fs.Rooted.Instance = Object.freeze({
+      const failing: t.FsRooted.Instance = Object.freeze({
         ...owner,
         publishFile: () =>
           Promise.reject(rootedFailure('publish-file', 'io-failure', 'FILESYSTEM-SECRET')),

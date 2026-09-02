@@ -142,7 +142,7 @@ export function failureRecord(
 
 /** Reduce Rooted failures to stable non-sensitive evidence. */
 export function filesystemEvidence(
-  failure: t.Fs.Rooted.Failure,
+  failure: t.FsRooted.Failure,
 ): t.HttpPull.RootedFailureEvidence {
   return Object.freeze({
     operation: failure.operation,

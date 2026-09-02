@@ -17,7 +17,7 @@ import { cleanupRoots, localhost, resource, resourcePolicy, rooted } from './u.f
 
 function start(
   resources: readonly t.HttpPull.Resource[],
-  owner: t.Fs.Rooted.Instance,
+  owner: t.FsRooted.Instance,
   policy: t.HttpPull.ResourcePolicy = resourcePolicy(resources),
   input: Pick<t.HttpPull.StartOptions, 'credentials' | 'until'> = {},
 ): t.HttpPull.ResourceOperation.Instance {
@@ -99,7 +99,7 @@ describe('HttpPull.start bounded operation policy', () => {
       const source = localhost(server.url.join('content.txt'));
       const resources = [resource(source, 'content.txt', 'content')];
       const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
         admit: async (targets, options) => {
           admissions++;
@@ -144,7 +144,7 @@ describe('HttpPull.start bounded operation policy', () => {
     let admissions = 0;
     const resources = [resource('https://example.test/file', 'file', 'content')];
     const owner = await rooted();
-    const destination: t.Fs.Rooted.Instance = Object.freeze({
+    const destination: t.FsRooted.Instance = Object.freeze({
       ...owner,
       admit: async (targets, options) => {
         admissions++;
@@ -212,7 +212,7 @@ describe('HttpPull.start bounded operation policy', () => {
         return 'https://example.test/content';
       },
     }) as t.HttpPull.Resource;
-    const destination: t.Fs.Rooted.Instance = Object.freeze({
+    const destination: t.FsRooted.Instance = Object.freeze({
       ...owner,
       admit: async (targets, options) => {
         admissions++;
@@ -500,7 +500,7 @@ describe('HttpPull.start bounded operation policy', () => {
       const source = localhost(server.url.join('credential.txt'));
       const resources = [resource(source, 'credential.txt', 'content')];
       const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
         admit: async (targets, options) => {
           admissions++;
@@ -537,7 +537,7 @@ describe('HttpPull.start bounded operation policy', () => {
       const source = localhost(server.url.join('async-credential.txt'));
       const resources = [resource(source, 'async-credential.txt', 'content')];
       const owner = await rooted();
-      const destination: t.Fs.Rooted.Instance = Object.freeze({
+      const destination: t.FsRooted.Instance = Object.freeze({
         ...owner,
         admit: async (targets, options) => {
           admissions++;

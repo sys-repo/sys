@@ -202,7 +202,7 @@ async function assertPreparedSourceIdentities(
 }
 
 async function assertRootIdentity(
-  rooted: t.Fs.Rooted.Instance,
+  rooted: t.FsRooted.Instance,
   signal: AbortSignal,
 ): Promise<void> {
   throwIfStagingCancelled(signal);

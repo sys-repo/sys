@@ -1,7 +1,7 @@
 import { Is, type t } from './common.ts';
 import { causeReason } from './u.failure.ts';
 
-type Rooted = t.Fs.Rooted.Instance;
+type Rooted = t.FsRooted.Instance;
 type Generation = t.FsRooted.Target<'directory'>;
 
 export type SealTargetResult =

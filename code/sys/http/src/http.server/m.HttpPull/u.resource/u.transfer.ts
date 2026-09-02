@@ -23,7 +23,7 @@ export type ResourceState = {
 type TransferAuthority = {
   readonly client: t.HttpFetch.Instance;
   readonly policy: PolicySnapshot;
-  readonly rooted: t.Fs.Rooted.Instance;
+  readonly rooted: t.FsRooted.Instance;
   readonly signal: AbortSignal;
   readonly resourceCount: number;
   readonly stopped: () => ResourceFailure | undefined;

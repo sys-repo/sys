@@ -378,7 +378,6 @@ describe('Fs.Capability.Rooted.removeTreeBatch input and settlements', () => {
         ],
       });
       expectTypeOf(result).toEqualTypeOf<t.FsRooted.RemoveTreeBatchSettled>();
-      expectTypeOf(result).toEqualTypeOf<t.Fs.Rooted.RemoveTreeBatchSettled>();
       expect(Object.isFrozen(result.results)).to.eql(true);
       expect(result.results.every(Object.isFrozen)).to.eql(true);
       expect(await Fs.exists(targetPath)).to.eql(false);

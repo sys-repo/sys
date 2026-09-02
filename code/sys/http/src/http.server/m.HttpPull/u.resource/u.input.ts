@@ -9,7 +9,7 @@ export type PolicySnapshot = t.HttpPull.ResourcePolicy & {
 export type PreparedStart = {
   readonly ok: true;
   readonly resources: readonly ResourceSnapshot[];
-  readonly rooted: t.Fs.Rooted.Instance;
+  readonly rooted: t.FsRooted.Instance;
   readonly policy: PolicySnapshot;
   readonly headers?: t.HttpFetch.Mutate.Headers;
   readonly until?: t.UntilInput;
@@ -244,7 +244,7 @@ function resourceCount(input: unknown): number {
   }
 }
 
-function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
+function snapshotRooted(input: unknown): t.FsRooted.Instance | undefined {
   try {
     if (!Is.record(input)) return;
     const path = input.path;
@@ -282,7 +282,7 @@ function snapshotRooted(input: unknown): t.Fs.Rooted.Instance | undefined {
       createStage,
       discardStage,
       promoteStage,
-    }) as t.Fs.Rooted.Instance;
+    }) as t.FsRooted.Instance;
   } catch {
     return;
   }
