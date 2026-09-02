@@ -8,6 +8,8 @@ export declare namespace PiSandboxFsExtension {
   export type Lib = {
     /** Resolve effective sandbox filesystem tool policy from profile policy and runtime roots. */
     resolvePolicy(input: ResolvePolicyInput): Policy;
+    /** Resolve the registered tool names enabled by a sandbox filesystem policy. */
+    toolNames(policy: Policy): readonly string[];
     /** Convert enabled sandbox filesystem tool policy to Pi prompt args. */
     toPromptArgs(policy: Policy): readonly string[];
     /** Materialize the generated Pi extension for the resolved policy. */

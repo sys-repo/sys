@@ -141,6 +141,7 @@ function withoutProvenanceSafety(prompt: string) {
 
 function isPromptSurfaceArg(arg: string) {
   if (!Is.string(arg)) return false;
+  if (arg === '-e') return true;
   const flag = arg.split('=')[0] ?? '';
   if (!flag.startsWith('--')) return false;
 

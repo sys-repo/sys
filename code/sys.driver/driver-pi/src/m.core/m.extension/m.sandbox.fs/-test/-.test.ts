@@ -58,6 +58,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
     const m = await import('../mod.ts');
     expect(m.SandboxFs).to.equal(SandboxFs);
     expect(SandboxFs.resolvePolicy).to.equal(m.SandboxFs.resolvePolicy);
+    expect(SandboxFs.toolNames).to.equal(m.SandboxFs.toolNames);
     expect(SandboxFs.toPromptArgs).to.equal(m.SandboxFs.toPromptArgs);
     expect(SandboxFs.write).to.equal(m.SandboxFs.write);
   });
@@ -106,6 +107,19 @@ describe(`Pi: sandbox filesystem extension`, () => {
     expect(policy.remove).to.eql({ enabled: true, recursive: true });
     expect(policy.move).to.eql({ enabled: true });
     expect(policy.copy).to.eql({ enabled: true });
+  });
+
+  it('toolNames → reports only enabled registered filesystem tools', () => {
+    const names = SandboxFs.toolNames({
+      readRoots: [],
+      writeRoots: [],
+      protectedRoots: [],
+      remove: { enabled: true, recursive: false },
+      move: { enabled: false },
+      copy: { enabled: true },
+    });
+
+    expect(names).to.eql(['remove', 'copy']);
   });
 
   it('toPromptArgs → appends truthful contracts only for enabled tools', () => {

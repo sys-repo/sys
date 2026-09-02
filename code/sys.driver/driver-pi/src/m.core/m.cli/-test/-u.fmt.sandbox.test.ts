@@ -8,16 +8,17 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
 };
 
 describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
-  it('table → renders the shared scoped identity band with bright capabilities and dim provenance', () => {
+  it('table → renders resolved tools with bright detail and dim provenance', () => {
     const width = 80;
+    const tools = ['read', 'write', 'bash'];
     const raw = PiSandboxFmt.table({
       permissions: 'scoped',
       cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-    }, { width });
+    }, { width, tools });
     const rawLines = lines(raw);
     const text = Cli.stripAnsi(raw);
 
-    expect(rawLines.slice(0, 2)).to.eql(PiSandboxFmt.header('scoped', width - 1));
+    expect(rawLines.slice(0, 2)).to.eql(PiSandboxFmt.header('scoped', width - 1, tools));
     expect(rawLines[0]).to.contain(c.bold(c.cyan('sys:pi')));
     expect(rawLines[0]).to.contain(c.dim(c.cyan(':sandbox')));
     expect(rawLines[0]).to.contain(c.cyan('read, write, bash'));
@@ -28,14 +29,53 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(rawLines.at(-1)).to.eql(
       c.dim(Cli.Fmt.hr({ width: width - 1, color: 'gray', weight: 'dashed' })),
     );
-    expectHeader(lines(text)[0], 'sys:pi:sandbox', width - 1);
+    expectHeader(lines(text)[0], 'sys:pi:sandbox', width - 1, tools);
   });
 
-  it('table → drops capabilities before version at exact width boundaries', () => {
+  it('table → renders caller-resolved tools without unavailable defaults', () => {
+    const raw = PiSandboxFmt.table({
+      permissions: 'scoped',
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+    }, { width: 80, tools: ['read', 'bash'] });
+    const header = lines(Cli.stripAnsi(raw))[0] ?? '';
+
+    expect(header).to.contain(`read, bash · ${pkg.version}`);
+    expect(header).not.to.contain('write');
+  });
+
+  it('table → distinguishes an empty tool set from an unresolved selection', () => {
+    const input = {
+      permissions: 'scoped' as const,
+      cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
+    };
+    const unresolved = lines(Cli.stripAnsi(PiSandboxFmt.table(input, { width: 80 })))[0] ?? '';
+    const empty = lines(Cli.stripAnsi(PiSandboxFmt.table(input, { width: 80, tools: [] })))[0] ??
+      '';
+
+    expect(unresolved).to.contain(pkg.version);
+    expect(unresolved).not.to.contain('tools:');
+    expect(empty).to.contain(`tools:none · ${pkg.version}`);
+    expect(empty).not.to.eql(unresolved);
+
+    const full = `sys:pi:sandbox tools:none · ${pkg.version}`;
+    const fullWidth = Cli.Fmt.Text.Width.measure(full);
+    const exact =
+      lines(Cli.stripAnsi(PiSandboxFmt.header('scoped', fullWidth, []).join('\n')))[0] ??
+        '';
+    const narrow = lines(
+      Cli.stripAnsi(PiSandboxFmt.header('scoped', fullWidth - 1, []).join('\n')),
+    )[0] ?? '';
+    expect(exact).to.eql(full);
+    expect(narrow).not.to.contain('tools:');
+    expect(narrow).not.to.contain(' · ');
+  });
+
+  it('table → drops tool detail before version at exact width boundaries', () => {
     const title = 'sys:pi:sandbox';
-    const capabilities = 'read, write, bash';
+    const tools = ['read', 'write', 'bash'];
+    const toolDetail = tools.join(', ');
     const separator = ' · ';
-    const full = `${title} ${capabilities}${separator}${pkg.version}`;
+    const full = `${title} ${toolDetail}${separator}${pkg.version}`;
     const withVersion = `${title} ${pkg.version}`;
     const measure = Cli.Fmt.Text.Width.measure;
     const fullWidth = measure(full);
@@ -43,7 +83,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
       const raw = PiSandboxFmt.table({
         permissions: 'scoped',
         cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-      }, { width: renderWidth + 1 });
+      }, { width: renderWidth + 1, tools });
       return lines(Cli.stripAnsi(raw))[0];
     };
 
@@ -278,7 +318,8 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
         detail: ['/tmp/pi-cli-test/out'],
       },
     };
-    const raw = PiSandboxFmt.table(input, { width: 80 });
+    const tools = ['read', 'write', 'bash'];
+    const raw = PiSandboxFmt.table(input, { width: 80, tools });
     const text = Cli.stripAnsi(raw);
 
     expect(text).to.match(
@@ -288,7 +329,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(text).to.match(/read\s+all/);
     expect(text).to.match(/write\s+all/);
     expect(text).not.to.contain('write:cwd');
-    expect(lines(raw).slice(0, 2)).to.eql(PiSandboxFmt.header('allow-all', 79));
+    expect(lines(raw).slice(0, 2)).to.eql(PiSandboxFmt.header('allow-all', 79, tools));
     expect(lines(raw)[0]).to.contain(c.bold(c.yellow('sys:pi')));
     expect(lines(raw)[0]).to.contain(c.dim(c.yellow(':no-sandbox')));
     expect(lines(raw)[0]).to.contain(c.yellow('read, write, bash'));
@@ -297,7 +338,7 @@ describe(`@sys/driver-pi/cli/u.fmt.sandbox`, () => {
     expect(lines(raw).at(-1)).to.eql(
       c.dim(Cli.Fmt.hr({ width: 79, color: 'gray', weight: 'dashed' })),
     );
-    expectHeader(lines(text)[0], 'sys:pi:no-sandbox', 79);
+    expectHeader(lines(text)[0], 'sys:pi:no-sandbox', 79, tools);
   });
 
   it('table → keeps zero and single-item previews free of bogus overflow suffixes', () => {
@@ -376,10 +417,11 @@ function expectHeaderFrame(text: string, width: number) {
   expect(output.at(-1)).to.eql('┄'.repeat(width));
 }
 
-function expectHeader(line: string, title: string, width: number) {
+function expectHeader(line: string, title: string, width: number, tools?: string[]) {
   expect(Cli.Fmt.Text.Width.measure(line)).to.eql(width);
   expect(line.startsWith(title)).to.eql(true);
-  expect(line.endsWith(`read, write, bash · ${pkg.version}`)).to.eql(true);
+  const detail = tools?.length === 0 ? 'tools:none' : tools?.join(', ');
+  expect(line.endsWith(detail ? `${detail} · ${pkg.version}` : pkg.version)).to.eql(true);
 }
 
 function expectTargetRowsToFit(text: string, width: number, labels: readonly string[]) {

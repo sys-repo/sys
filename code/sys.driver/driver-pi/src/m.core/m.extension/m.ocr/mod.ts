@@ -5,7 +5,7 @@
 import type { t } from './common.ts';
 import { dependencies, installCommand } from './u/u.deps.ts';
 import { resolveExtensionPolicy } from './u/u.extension.policy.ts';
-import { policy } from './u/u.policy.ts';
+import { policy, toolNames } from './u/u.policy.ts';
 import { toPromptArgs } from './u/u.prompt.ts';
 import { write } from './u/u.write.ts';
 
@@ -16,4 +16,5 @@ export const Ocr: t.PiOcrExtension.Lib = {
   resolveExtensionPolicy,
   write,
   toPromptArgs,
+  toolNames,
 };

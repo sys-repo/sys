@@ -134,6 +134,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
       '--context-files',
       '--skill=custom',
       '--extension=custom.ts',
+      '-e',
     ];
 
     for (const arg of cases) {

@@ -16,6 +16,11 @@ describe(`Pi: OCR extension / Resolve.policy`, () => {
     });
   });
 
+  it('reports the registered OCR tool only when PDF OCR is enabled', () => {
+    expect(Ocr.toolNames(Ocr.Resolve.policy())).to.eql([]);
+    expect(Ocr.toolNames(Ocr.Resolve.policy({ pdf: { enabled: true } }))).to.eql(['ocr_pdf']);
+  });
+
   it('accepts profile-authored PDF OCR bounds', () => {
     expect(
       Ocr.Resolve.policy({

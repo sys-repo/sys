@@ -144,7 +144,10 @@ export async function mainWith(
       sandbox: resolved.sandbox,
       gitRootExplicit,
     });
-  const sheet = PiSandboxFmt.table({ ...resolved.sandbox, report }, { gitRootExplicit });
+  const sheet = PiSandboxFmt.table({ ...resolved.sandbox, report }, {
+    gitRootExplicit,
+    tools: resolved.tools,
+  });
   if (parsed.profile) console.info(sheet);
   else deps.repaint(sheet);
 

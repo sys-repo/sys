@@ -5,6 +5,7 @@ import { Profiles as ProfilesOwner } from '../mod.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
 import { PiSandboxReport } from '../../m.cli/u.report.sandbox.ts';
 import { withInherit } from '../../m.cli/u.inherit.ts';
+import { PI_AGENT_IMPORT_BASE } from '../../m.cli/u.resolve.pkg.ts';
 
 const Process = { ...ProcessOwner };
 const Profiles = {
@@ -72,6 +73,72 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       Process.inherit = prev;
       console.info = prevInfo;
       Object.defineProperty(PiSandboxReport, 'write', { value: prevReportWrite });
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('renders only an explicit Pi tool allowlist in the launch sandbox header', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    const calls: string[] = [];
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.write(config, 'sandbox: {}\n');
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+      Process.inherit = async () => ({ code: 0, success: true, signal: null });
+
+      const res = await Profiles.main({
+        cwd,
+        argv: ['--profile', config, '--', '--tools', 'read,bash'],
+      });
+      const sheet = calls.map(Cli.stripAnsi).find((value) => value.startsWith('sys:pi:sandbox'));
+      const header = sheet?.split('\n')[0] ?? '';
+
+      expect(res.kind).to.eql('run');
+      expect(header).to.contain('read, bash');
+      expect(header).not.to.contain('write');
+      expect(header).not.to.contain('remove');
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('omits tool detail for an explicit unsupported Pi package', async () => {
+    const prev = Process.inherit;
+    const prevInfo = console.info;
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.main.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    const pkg = `${PI_AGENT_IMPORT_BASE}@0.83.0` as t.StringModuleSpecifier;
+    const calls: string[] = [];
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.git'));
+      await Fs.write(config, 'sandbox: {}\n');
+      console.info = (value?: unknown) => calls.push(String(value ?? ''));
+      Process.inherit = async (input) => {
+        expect(input.args).to.include(pkg);
+        return { code: 0, success: true, signal: null };
+      };
+
+      const res = await Profiles.main({
+        cwd,
+        pkg,
+        argv: ['--profile', config, '--', '--tools', 'powershell'],
+      });
+      const sheet = calls.map(Cli.stripAnsi).find((value) => value.startsWith('sys:pi:sandbox'));
+      const header = sheet?.split('\n')[0] ?? '';
+
+      expect(res.kind).to.eql('run');
+      expect(header).not.to.contain('powershell');
+      expect(header).not.to.contain('tools:none');
+    } finally {
+      Process.inherit = prev;
+      console.info = prevInfo;
       await Fs.remove(cwd);
     }
   });

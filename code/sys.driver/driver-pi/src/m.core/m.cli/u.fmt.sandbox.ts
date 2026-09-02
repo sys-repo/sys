@@ -4,6 +4,8 @@ import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
 type PiSandboxTableOptions = {
   readonly width?: number;
   readonly gitRootExplicit?: boolean;
+  /** Exact callable tool names resolved for this launch. */
+  readonly tools?: readonly string[];
   /** Terminal-output override for deterministic rendering tests. */
   readonly terminal?: boolean;
 };
@@ -42,7 +44,6 @@ const PREVIEW_PROFILES: readonly (readonly [number, number])[] = [
 const PATH_DIR_PREFIX_WIDTH = 4;
 const WRITE_GIT_MARKER = ' (--git-root)';
 const WRITE_ROOT_MARKER = ' (root)';
-const CAPABILITY_OPS = 'read, write, bash';
 
 const PI_SANDBOX_TITLE = {
   base: 'sys:pi',
@@ -66,6 +67,7 @@ export const PiSandboxFmt = {
   header(
     permissions: t.PiCli.PermissionMode,
     renderWidth = sandboxRenderWidth(),
+    tools?: readonly string[],
   ): readonly string[] {
     const tone = permissions === 'allow-all' ? 'yellow' : 'cyan';
     const identity = PiSandboxFmt.title(permissions);
@@ -76,7 +78,7 @@ export const PiSandboxFmt = {
       width: renderWidth,
       tone,
       title,
-      detail: CAPABILITY_OPS,
+      detail: tools?.length === 0 ? 'tools:none' : tools?.join(', '),
     });
   },
 
@@ -115,7 +117,11 @@ export const PiSandboxFmt = {
       }
     }
 
-    const [title = '', headerHr = ''] = PiSandboxFmt.header(input.permissions, renderWidth);
+    const [title = '', headerHr = ''] = PiSandboxFmt.header(
+      input.permissions,
+      renderWidth,
+      opts.tools,
+    );
     const bodyHr = c.dim(
       Cli.Fmt.hr({ width: renderWidth, color: 'gray', weight: 'dashed' }),
     );

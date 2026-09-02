@@ -1,4 +1,5 @@
 import { Fs, type t } from '../common.ts';
+import { resolvePkg } from '../../m.cli/u.resolve.pkg.ts';
 import { resolveSandboxSummary } from '../../m.cli/u.resolve.sandbox.ts';
 import { resolveTempArtifactRoots } from '../../m.cli/u.runtime.ts';
 import { Ocr } from '../../m.extension/m.ocr/mod.ts';
@@ -14,6 +15,11 @@ import {
 } from './u.prompt.ts';
 import { preflightOcrStartup } from './u.ocr.preflight.ts';
 import { RuntimeMetadata } from './u.runtime.metadata.ts';
+import {
+  PI_BUILTIN_TOOL_NAMES,
+  PI_TOOL_SELECTION_IMPORT,
+  resolveActiveToolNames,
+} from './u.resolve.tools.ts';
 
 export type ResolvedProfileRun = {
   readonly cwd: t.PiCli.Cwd;
@@ -22,8 +28,9 @@ export type ResolvedProfileRun = {
   readonly write: readonly t.StringPath[];
   readonly env: Record<string, string>;
   readonly allowAll?: boolean;
-  readonly pkg?: t.StringModuleSpecifier;
+  readonly pkg: t.StringModuleSpecifier;
   readonly sandbox: t.PiCli.SandboxSummary;
+  readonly tools?: readonly string[];
 };
 
 export type ResolveRunOptions = {
@@ -50,21 +57,22 @@ export async function resolveRun(
   const checked = await ProfilesFs.validateYaml(activeProfile);
   if (!checked.ok) throw new Error(`Could not load profile config: ${Fs.trimCwd(activeProfile)}`);
 
+  const pkg = await resolvePkg({ cwd: root, pkg: input.pkg });
   const profile = checked.doc;
   const prompt = profile.prompt;
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;
   const env = { ...(capability?.env ?? {}), ...(input.env ?? {}) };
-  const ocrPreflight = !runOcrPreflight
-    ? { enabled: false as const }
-    : await preflightOcrStartup({
+  const ocrPreflight = runOcrPreflight
+    ? await preflightOcrStartup({
       pdf: profile.tools?.ocr?.pdf,
       env,
       setup: {
         installDeps: input.ocr?.installDeps === true,
         interactive: input.ocr?.interactive === true,
       },
-    });
+    })
+    : { enabled: false as const };
   const contextResolution = await ProfileContext.resolve({
     cwd,
     append: context?.append,
@@ -107,6 +115,19 @@ export async function resolveRun(
       }),
     })
     : undefined;
+  const ocrTools = ocrPreflight.enabled && ocrExtension ? Ocr.toolNames(ocrPreflight.policy) : [];
+  const tools = pkg === PI_TOOL_SELECTION_IMPORT
+    ? resolveActiveToolNames({
+      args: [...(input.args ?? [])],
+      source: {
+        builtin: [...PI_BUILTIN_TOOL_NAMES],
+        extension: [
+          ...(extension ? SandboxFs.toolNames(sandboxFsPolicy) : []),
+          ...ocrTools,
+        ],
+      },
+    })
+    : undefined;
   const sandbox = await resolveSandboxSummary({
     cwd,
     read,
@@ -137,8 +158,9 @@ export async function resolveRun(
     write,
     env,
     allowAll: input.allowAll,
-    pkg: input.pkg,
+    pkg,
     sandbox,
+    ...(tools ? { tools } : {}),
   };
 }
 

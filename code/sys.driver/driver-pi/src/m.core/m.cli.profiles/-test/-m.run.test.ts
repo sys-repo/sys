@@ -7,6 +7,7 @@ import { DEFAULT_SYSTEM_PROMPT, PROVENANCE_SAFETY_PROMPT } from '../u/u.prompt.t
 import { resolveRun } from '../u/u.resolve.run.ts';
 import { withInherit } from '../../m.cli/u.inherit.ts';
 import { withInvoke } from '../../m.cli/u.invoke.ts';
+import { PI_AGENT_IMPORT_BASE } from '../../m.cli/u.resolve.pkg.ts';
 
 const Process = { ...ProcessOwner };
 const Profiles = {
@@ -96,6 +97,29 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
       expect(res.success).to.eql(true);
     } finally {
       Process.inherit = prev;
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('resolveRun → binds tool truth to the package selected by workspace deps', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.m.run.test.' }))
+      .absolute as t.StringDir;
+    const config = `${cwd}/profiles.yaml` as t.StringPath;
+    const pkg = `${PI_AGENT_IMPORT_BASE}@0.83.0` as t.StringModuleSpecifier;
+    try {
+      await Fs.ensureDir(`${cwd}/.git`);
+      await Fs.write(config, 'sandbox: {}\n');
+      await Fs.write(`${cwd}/deps.yaml`, `deno.json:\n  - import: ${pkg}\n`);
+
+      const resolved = await resolveRun({
+        cwd: { invoked: cwd, git: cwd },
+        config,
+        args: ['--tools', 'powershell'],
+      }, { extensions: false, ocrPreflight: false });
+
+      expect(resolved.pkg).to.eql(pkg);
+      expect(resolved.tools).to.eql(undefined);
+    } finally {
       await Fs.remove(cwd);
     }
   });

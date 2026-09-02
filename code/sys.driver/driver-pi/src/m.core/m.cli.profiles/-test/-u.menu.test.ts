@@ -1,5 +1,5 @@
 import { describe, expect, it, withSelectPrompt } from '../../../-test.ts';
-import { Cli as CliOwner, Fs, Is, Obj, pkg, type t } from '../common.ts';
+import { Cli as CliOwner, Fs, Is, Obj, type t } from '../common.ts';
 import { menuWith } from '../u/u.menu.ts';
 import { MenuState } from '../u/u.menu.state.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
@@ -746,7 +746,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(rootHeader).to.eql(expectedProfileHeader('allow-all'));
       expect(rootHeader).to.contain('sys:pi:no-sandbox --allow-all');
-      expect(rootHeader).to.contain(`read, write, bash · ${pkg.version}`);
+      expect(rootHeader).not.to.contain('read');
       expect(printed).to.match(/permissions\s+allow-all/);
       expect(printed).not.to.match(/\nread\s+/);
       expect(printed).not.to.match(/\nwrite\s+/);

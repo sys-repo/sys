@@ -32,6 +32,15 @@ export function resolvePolicy(
   };
 }
 
+/** Resolve the registered tool names enabled by this policy. */
+export function toolNames(policy: t.PiSandboxFsExtension.Policy): readonly string[] {
+  const names: string[] = [];
+  if (policy.remove.enabled) names.push('remove');
+  if (policy.move.enabled) names.push('move');
+  if (policy.copy.enabled) names.push('copy');
+  return names;
+}
+
 /**
  * Helpers:
  */

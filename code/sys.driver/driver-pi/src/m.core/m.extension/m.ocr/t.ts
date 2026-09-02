@@ -16,6 +16,8 @@ export declare namespace PiOcrExtension {
     write(input: WriteInput): Promise<WriteResult>;
     /** Convert enabled optical character recognition (OCR) policy to Pi prompt args. */
     toPromptArgs(policy: Policy.Resolved): readonly string[];
+    /** Resolve the registered tool names enabled by an optical character recognition policy. */
+    toolNames(policy: Policy.Resolved): readonly string[];
   };
 
   /** Optical character recognition (OCR) resolver namespace. */

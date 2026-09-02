@@ -53,6 +53,11 @@ export function policy(
   };
 }
 
+/** Resolve the registered tool names enabled by this policy. */
+export function toolNames(policy: t.PiOcrExtension.Policy.Resolved): readonly string[] {
+  return policy.pdf.enabled ? ['ocr_pdf'] : [];
+}
+
 /**
  * Helpers:
  */
