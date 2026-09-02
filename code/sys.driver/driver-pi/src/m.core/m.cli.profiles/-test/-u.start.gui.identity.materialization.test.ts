@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
-import { admitMaterialization, type AdmittedMaterialization } from '../u.start/u.identity.ts';
+import { admitMaterialization, type AdmittedMaterialization } from '../u.start/u.identity/mod.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 
 const EXPECTED = START_GUI_SERVICE.source.integrity;

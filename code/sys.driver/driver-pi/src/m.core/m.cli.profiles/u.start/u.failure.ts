@@ -1,6 +1,6 @@
 import { DistServer, StartGuiIntrinsic, type t } from './common.ts';
 import { isConfigurationError } from './u.authority.ts';
-import { isIdentityError } from './u.identity.ts';
+import { isIdentityError } from './u.identity/mod.ts';
 import { createOwnedError, markOwnedError, ownedError } from './u.error.ts';
 import { isMaterializationError } from './u.materialize.ts';
 import {

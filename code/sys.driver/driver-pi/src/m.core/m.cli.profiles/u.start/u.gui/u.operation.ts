@@ -7,7 +7,7 @@ import {
   admitMaterialization,
   type AdmittedGeneration,
   type AdmittedMaterialization,
-} from '../u.identity.ts';
+} from '../u.identity/mod.ts';
 import type { Supervisor, TerminalEvent, WorkAdmission } from '../u.lifecycle/mod.ts';
 import { materializationError } from '../u.materialize.ts';
 import {

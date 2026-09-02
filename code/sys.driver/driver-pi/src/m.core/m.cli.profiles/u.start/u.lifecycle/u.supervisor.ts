@@ -8,7 +8,11 @@ import {
   failedBootState,
   listenerFailure,
 } from '../u.failure.ts';
-import { type ApplicationOwner, refuseIdentity, snapshotApplicationOwner } from '../u.identity.ts';
+import {
+  type ApplicationOwner,
+  refuseIdentity,
+  snapshotApplicationOwner,
+} from '../u.identity/mod.ts';
 import type { ReleaseLease } from '../u.materialize.ts';
 import {
   createPromiseDeferred,

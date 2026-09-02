@@ -10,7 +10,7 @@ import {
 import { type Cli, Fs, Json, type t } from '../common.ts';
 import { snapshotAuthorityEvidence } from '../u.start/u.authority.ts';
 import { VERIFIED_LOOPBACK_BROWSER_POLICY } from '../u.start/u.browser.ts';
-import { snapshotApplicationOwner, snapshotEvidence } from '../u.start/u.identity.ts';
+import { snapshotApplicationOwner, snapshotEvidence } from '../u.start/u.identity/mod.ts';
 import { snapshotStatusOwner } from '../u.start/u.lifecycle/mod.ts';
 import { AUTHORITY_LIMITS } from '../u.start/u.limits.ts';
 import { resolveIntegrity, resolveManifestSource } from '../u.start/u.source.ts';

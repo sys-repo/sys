@@ -2,7 +2,7 @@ import { describe, expect, it, WebFixture } from '../../../-test.ts';
 import { Rx, type t } from '../common.ts';
 import { createOwnedError } from '../u.start/u.error.ts';
 import { failedBootState } from '../u.start/u.failure.ts';
-import { snapshotApplicationOwner } from '../u.start/u.identity.ts';
+import { snapshotApplicationOwner } from '../u.start/u.identity/mod.ts';
 import { createSupervisor, finalError, snapshotStatusOwner } from '../u.start/u.lifecycle/mod.ts';
 import { isPromiseTransportReady, observePromiseTransport } from '../u.start/u.promise.ts';
 import { Boot, createBootState } from '../u.start/u.state.ts';

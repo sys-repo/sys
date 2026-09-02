@@ -1,6 +1,6 @@
 import { StartGuiIntrinsic } from '../common.ts';
 
-import type { ApplicationOwner } from '../u.identity.ts';
+import type { ApplicationOwner } from '../u.identity/mod.ts';
 import type { ReleaseLease } from '../u.materialize.ts';
 import { createOwnedError } from '../u.error.ts';
 import {

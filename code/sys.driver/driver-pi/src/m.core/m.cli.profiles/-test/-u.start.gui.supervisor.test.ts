@@ -10,7 +10,7 @@ import { Fs, Json, type t } from '../common.ts';
 import { PiFs } from '../../u.fs.ts';
 import { isCliSettledFailure } from '../u/u.start.gui.settlement.ts';
 import { start, type StartGuiDependencies, type StartGuiInput } from '../u.start/u.gui/mod.ts';
-import { snapshotApplicationOwner } from '../u.start/u.identity.ts';
+import { snapshotApplicationOwner } from '../u.start/u.identity/mod.ts';
 import { prepareReleaseOwner } from '../u.start/u.materialize.ts';
 import type { BootState, BootStateSource } from '../u.start/u.state.ts';
 import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
@@ -113,11 +113,11 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
 
       const parent = Fs.join(root, '.pi/@sys/dist') as t.StringDir;
       const rooted = await Fs.Capability.Rooted.create({ root: parent });
-      const admitted = await rooted.admit([
+      const admitted = await rooted.Target.admit([
         { path: '@sys.driver-pi', kind: 'directory' },
       ]);
       const target = admitted.targets[0];
-      expect(await rooted.acquireLease([target], { mode: 'exclusive' })).to.include({
+      expect(await rooted.Lease.acquire([target], { mode: 'exclusive' })).to.include({
         kind: 'busy',
       });
 
@@ -125,7 +125,7 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       await run;
       run = undefined;
 
-      const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+      const acquired = await rooted.Lease.acquire([target], { mode: 'exclusive' });
       expect(acquired.kind).to.eql('acquired');
       if (acquired.kind === 'acquired') exclusive = acquired.lease;
     } finally {
@@ -175,16 +175,16 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
 
       const parent = Fs.join(root, '.pi/@sys/dist') as t.StringDir;
       const rooted = await Fs.Capability.Rooted.create({ root: parent });
-      const admitted = await rooted.admit([
+      const admitted = await rooted.Target.admit([
         { path: '@sys.driver-pi', kind: 'directory' },
       ]);
       const target = admitted.targets[0];
-      expect(await rooted.acquireLease([target], { mode: 'exclusive' })).to.include({
+      expect(await rooted.Lease.acquire([target], { mode: 'exclusive' })).to.include({
         kind: 'busy',
       });
 
       listenerFinished.resolve();
-      const acquired = await rooted.acquireLease([target], {
+      const acquired = await rooted.Lease.acquire([target], {
         mode: 'exclusive',
         wait: true,
       });
@@ -773,11 +773,15 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
       get path(): t.StringAbsoluteDir {
         throw new Error('path failed before acquisition');
       },
-      admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
-      acquireLease: () => {
-        acquireCalls += 1;
-        return Promise.resolve(Object.freeze({ kind: 'busy' as const }));
-      },
+      Target: Object.freeze({
+        admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
+      }),
+      Lease: Object.freeze({
+        acquire: () => {
+          acquireCalls += 1;
+          return Promise.resolve(Object.freeze({ kind: 'busy' as const }));
+        },
+      }),
     } as unknown as FsRooted.Instance;
 
     const error = await rejectionOf(() =>
@@ -847,18 +851,27 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
             mutatePiFs();
             const rooted = await harness.deps.createRooted(options);
             return Object.freeze({
-              path: rooted.path,
-              admit: async (...args: Parameters<typeof rooted.admit>) => {
-                admitted.push(args[0][0]?.path ?? 'missing');
-                mutatePiFs();
-                return await rooted.admit(...args);
-              },
-              acquireLease: (...args: Parameters<typeof rooted.acquireLease>) => {
-                leased.push(args[0][0]?.path ?? 'missing');
-                mutatePiFs();
-                return rooted.acquireLease(...args);
-              },
-            }) as FsRooted.Instance;
+              ...rooted,
+              Target: Object.freeze({
+                ...rooted.Target,
+                admit: async <K extends FsRooted.TargetKind>(
+                  targets: readonly FsRooted.TargetInput<K>[],
+                  options?: FsRooted.OperationOptions,
+                ) => {
+                  admitted.push(targets[0]?.path ?? 'missing');
+                  mutatePiFs();
+                  return await rooted.Target.admit(targets, options);
+                },
+              }),
+              Lease: Object.freeze({
+                ...rooted.Lease,
+                acquire: (...args: Parameters<typeof rooted.Lease.acquire>) => {
+                  leased.push(args[0][0]?.path ?? 'missing');
+                  mutatePiFs();
+                  return rooted.Lease.acquire(...args);
+                },
+              }),
+            });
           },
           materialize: (input) => {
             stores.push(input.storeDir);
@@ -968,8 +981,12 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
         : Object.freeze({ kind: 'acquired' as const, lease });
       const rooted = Object.freeze({
         path: OWNER_ROOT,
-        admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
-        acquireLease: () => Promise.resolve(result as FsRooted.LeaseResult),
+        Target: Object.freeze({
+          admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
+        }),
+        Lease: Object.freeze({
+          acquire: () => Promise.resolve(result as FsRooted.LeaseResult),
+        }),
       }) as unknown as FsRooted.Instance;
 
       const error = await rejectionOf(() =>
@@ -1050,8 +1067,10 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     });
     const rooted = Object.freeze({
       path: OWNER_ROOT,
-      admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
-      acquireLease: () => transport,
+      Target: Object.freeze({
+        admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
+      }),
+      Lease: Object.freeze({ acquire: () => transport }),
     }) as unknown as FsRooted.Instance;
 
     const error = await rejectionOf(() =>
@@ -1102,54 +1121,56 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
               createRooted: async (options) => {
                 const rooted = await Fs.Capability.Rooted.create(options);
                 return Object.freeze({
-                  path: rooted.path,
-                  admit: (...args: Parameters<typeof rooted.admit>) => rooted.admit(...args),
-                  acquireLease: async (...args: Parameters<typeof rooted.acquireLease>) => {
-                    const result = await rooted.acquireLease(...args);
-                    if (result.kind !== 'acquired') throw new Error('Expected shared lease.');
-                    shared = result.lease;
+                  ...rooted,
+                  Lease: Object.freeze({
+                    ...rooted.Lease,
+                    acquire: async (...args: Parameters<typeof rooted.Lease.acquire>) => {
+                      const result = await rooted.Lease.acquire(...args);
+                      if (result.kind !== 'acquired') throw new Error('Expected shared lease.');
+                      shared = result.lease;
 
-                    if (variant === 'accessor') {
-                      const malformed = {};
-                      Object.defineProperty(malformed, 'kind', {
-                        enumerable: true,
-                        get() {
-                          accessorReads += 1;
-                          void shared;
-                          return 'acquired';
-                        },
-                      });
-                      return malformed as FsRooted.LeaseResult;
-                    }
-                    if (variant === 'proxy') {
-                      return new Proxy({ kind: 'acquired', lease: shared }, {
-                        get(target, key, receiver) {
-                          if (key === 'then') {
-                            transportThenReads += 1;
-                            return undefined;
-                          }
-                          proxyTraps += 1;
-                          return Reflect.get(target, key, receiver);
-                        },
-                        getOwnPropertyDescriptor(target, key) {
-                          proxyTraps += 1;
-                          return Reflect.getOwnPropertyDescriptor(target, key);
-                        },
-                        ownKeys(target) {
-                          proxyTraps += 1;
-                          return Reflect.ownKeys(target);
-                        },
-                      }) as FsRooted.LeaseResult;
-                    }
+                      if (variant === 'accessor') {
+                        const malformed = {};
+                        Object.defineProperty(malformed, 'kind', {
+                          enumerable: true,
+                          get() {
+                            accessorReads += 1;
+                            void shared;
+                            return 'acquired';
+                          },
+                        });
+                        return malformed as FsRooted.LeaseResult;
+                      }
+                      if (variant === 'proxy') {
+                        return new Proxy({ kind: 'acquired', lease: shared }, {
+                          get(target, key, receiver) {
+                            if (key === 'then') {
+                              transportThenReads += 1;
+                              return undefined;
+                            }
+                            proxyTraps += 1;
+                            return Reflect.get(target, key, receiver);
+                          },
+                          getOwnPropertyDescriptor(target, key) {
+                            proxyTraps += 1;
+                            return Reflect.getOwnPropertyDescriptor(target, key);
+                          },
+                          ownKeys(target) {
+                            proxyTraps += 1;
+                            return Reflect.ownKeys(target);
+                          },
+                        }) as FsRooted.LeaseResult;
+                      }
 
-                    const mutable = {
-                      kind: 'acquired' as 'acquired' | 'busy',
-                      lease: shared,
-                    };
-                    queueMicrotask(() => void (mutable.kind = 'busy'));
-                    return mutable as unknown as FsRooted.LeaseResult;
-                  },
-                }) as FsRooted.Instance;
+                      const mutable = {
+                        kind: 'acquired' as 'acquired' | 'busy',
+                        lease: shared,
+                      };
+                      queueMicrotask(() => void (mutable.kind = 'busy'));
+                      return mutable as unknown as FsRooted.LeaseResult;
+                    },
+                  }),
+                });
               },
             },
           })
@@ -1169,15 +1190,15 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
 
         const parent = Fs.join(root, '.pi/@sys/dist') as t.StringDir;
         const contender = await Fs.Capability.Rooted.create({ root: parent });
-        const admitted = await contender.admit([
+        const admitted = await contender.Target.admit([
           { path: '@sys.driver-pi', kind: 'directory' },
         ]);
-        expect(await contender.acquireLease(admitted.targets, { mode: 'exclusive' })).to.include({
+        expect(await contender.Lease.acquire(admitted.targets, { mode: 'exclusive' })).to.include({
           kind: 'busy',
         });
 
         await shared.release();
-        const acquired = await contender.acquireLease(admitted.targets, { mode: 'exclusive' });
+        const acquired = await contender.Lease.acquire(admitted.targets, { mode: 'exclusive' });
         expect(acquired.kind).to.eql('acquired');
         if (acquired.kind === 'acquired') exclusive = acquired.lease;
       } finally {
@@ -1209,11 +1230,15 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
     }) as FsRooted.Lease;
     const rooted = Object.freeze({
       path: OWNER_ROOT,
-      admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
-      acquireLease: () => {
-        stop.abort('cancel after acquisition');
-        return Promise.resolve(Object.freeze({ kind: 'acquired' as const, lease }));
-      },
+      Target: Object.freeze({
+        admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
+      }),
+      Lease: Object.freeze({
+        acquire: () => {
+          stop.abort('cancel after acquisition');
+          return Promise.resolve(Object.freeze({ kind: 'acquired' as const, lease }));
+        },
+      }),
     }) as unknown as FsRooted.Instance;
 
     const error = await rejectionOf(() =>
@@ -1595,14 +1620,16 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
           createRooted: async (options) => {
             const rooted = await Fs.Capability.Rooted.create(options);
             return Object.freeze({
-              path: rooted.path,
-              admit: (...args: Parameters<typeof rooted.admit>) => rooted.admit(...args),
-              acquireLease: async (...args: Parameters<typeof rooted.acquireLease>) => {
-                const result = await rooted.acquireLease(...args);
-                if (result.kind === 'acquired') shared = result.lease;
-                return result;
-              },
-            }) as FsRooted.Instance;
+              ...rooted,
+              Lease: Object.freeze({
+                ...rooted.Lease,
+                acquire: async (...args: Parameters<typeof rooted.Lease.acquire>) => {
+                  const result = await rooted.Lease.acquire(...args);
+                  if (result.kind === 'acquired') shared = result.lease;
+                  return result;
+                },
+              }),
+            });
           },
           materialize: () => {
             entered.resolve();
@@ -1630,16 +1657,16 @@ describe('@sys/driver-pi start:gui boot supervisor', () => {
 
       const parent = Fs.join(root, '.pi/@sys/dist') as t.StringDir;
       const rooted = await Fs.Capability.Rooted.create({ root: parent });
-      const admitted = await rooted.admit([
+      const admitted = await rooted.Target.admit([
         { path: '@sys.driver-pi', kind: 'directory' },
       ]);
       const target = admitted.targets[0];
-      expect(await rooted.acquireLease([target], { mode: 'exclusive' })).to.include({
+      expect(await rooted.Lease.acquire([target], { mode: 'exclusive' })).to.include({
         kind: 'busy',
       });
 
       await shared.release();
-      const acquired = await rooted.acquireLease([target], { mode: 'exclusive' });
+      const acquired = await rooted.Lease.acquire([target], { mode: 'exclusive' });
       expect(acquired.kind).to.eql('acquired');
       if (acquired.kind === 'acquired') exclusive = acquired.lease;
     } finally {
@@ -3872,18 +3899,22 @@ function createHarness(options: HarnessOptions = {}) {
       emit('rooted.create');
       return Promise.resolve(Object.freeze({
         path: OWNER_ROOT,
-        admit: () => {
-          emit('rooted.admit');
-          return Promise.resolve(Object.freeze({ targets: Object.freeze([target]) }));
-        },
-        acquireLease: (
-          _targets: readonly FsRooted.Target<'directory'>[],
-          input: FsRooted.LeaseOptions,
-        ) => {
-          emit('lease.acquire');
-          leaseMode = input.mode;
-          return Promise.resolve(Object.freeze({ kind: 'acquired', lease }));
-        },
+        Target: Object.freeze({
+          admit: () => {
+            emit('rooted.admit');
+            return Promise.resolve(Object.freeze({ targets: Object.freeze([target]) }));
+          },
+        }),
+        Lease: Object.freeze({
+          acquire: (
+            _targets: readonly FsRooted.Target<'directory'>[],
+            input: FsRooted.LeaseOptions,
+          ) => {
+            emit('lease.acquire');
+            leaseMode = input.mode;
+            return Promise.resolve(Object.freeze({ kind: 'acquired', lease }));
+          },
+        }),
       } as unknown as FsRooted.Instance));
     },
     materialize: () => {

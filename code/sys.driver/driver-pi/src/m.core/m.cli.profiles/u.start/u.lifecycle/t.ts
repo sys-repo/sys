@@ -7,7 +7,7 @@ import type {
   AdmittedMaterialization,
   ApplicationIdentityExpectation,
   ApplicationOwner,
-} from '../u.identity.ts';
+} from '../u.identity/mod.ts';
 import type { ReleaseLease } from '../u.materialize.ts';
 import type { StartGuiScreenInstance } from '../u.screen/mod.ts';
 

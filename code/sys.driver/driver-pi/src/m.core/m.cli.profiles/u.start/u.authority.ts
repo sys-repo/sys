@@ -5,7 +5,7 @@ import {
   refuseIdentity,
   snapshotEvidence,
   snapshotExpectedPkg,
-} from './u.identity.ts';
+} from './u.identity/mod.ts';
 import { createOwnedError, ownedError } from './u.error.ts';
 import { type ManifestSource, resolveIntegrity, resolveManifestSource } from './u.source.ts';
 
