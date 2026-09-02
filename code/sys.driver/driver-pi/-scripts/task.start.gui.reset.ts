@@ -1,3 +1,5 @@
+import { Is as ServerIs } from '@sys/std/is/server';
+
 import { c, Cli, Fs, Is, type t } from './common.ts';
 
 const STORE_ROOT_SEGMENTS = Object.freeze(['.pi', '@sys', 'dist'] as const);
@@ -20,9 +22,14 @@ type StoreRootSelection =
   | Readonly<{ kind: 'present'; path: t.StringAbsoluteDir }>
   | Readonly<{ kind: 'absent' }>;
 
-const TARGET_INPUTS = Object.freeze(
-  GUI_RELEASE_STORE_TARGETS.map((path) => Object.freeze({ kind: 'directory' as const, path })),
-);
+const KEYS = Object.freeze({
+  BUSY: Object.freeze(['kind', 'index', 'path'] as const),
+  FAILED: Object.freeze(['kind', 'completed', 'unattempted', 'failure', 'changed'] as const),
+  FAILURE: Object.freeze(['name', 'operation', 'kind', 'committed'] as const),
+  ITEM: Object.freeze(['index', 'path', 'kind'] as const),
+  SETTLED: Object.freeze(['kind', 'results'] as const),
+  TARGET: Object.freeze(['index', 'path'] as const),
+});
 const WORKSPACE_ROOT: t.StringAbsoluteDir = Fs.resolve(
   import.meta.dirname ?? '.',
   '../../../..',
@@ -48,66 +55,63 @@ export async function resetGuiReleaseStores(
     );
   }
 
-  let targets: readonly t.FsRooted.Target<'directory'>[];
+  let settlement: unknown;
   try {
-    targets = (await rooted.Target.admit(TARGET_INPUTS)).targets;
+    settlement = await rooted.Tree.removeBatch(GUI_RELEASE_STORE_TARGETS);
   } catch (cause) {
-    throw resetFailure(`while admitting ${displayPaths().join(', ')}`, cause);
+    throw resetFailure(`while removing ${displayPaths().join(', ')}`, cause);
+  }
+  return projectGuiReleaseStoreReset(settlement);
+}
+
+/** Admit and project one complete FS-owned reset transaction. */
+export function projectGuiReleaseStoreReset(input: unknown): readonly GuiReleaseStoreReset[] {
+  const settlement = admitBatchSettlement(input);
+  if (!settlement) throw invalidBatchSettlement(input);
+
+  if (settlement.kind === 'busy') {
+    throw busyResetFailure(displayPath(GUI_RELEASE_STORE_TARGETS[settlement.index]));
   }
 
-  let acquired: t.FsRooted.LeaseResult;
-  try {
-    acquired = await rooted.Lease.acquire(targets, { mode: 'exclusive', wait: false });
-  } catch (cause) {
-    throw resetFailure('while acquiring release-store ownership', cause);
-  }
-  if (acquired.kind === 'busy') {
-    const target = GUI_RELEASE_STORE_TARGETS.find((value) => value === acquired.target.path);
-    if (!target) {
-      throw new Error(
-        `GUI Dist reset refused ${GUI_RELEASE_STORE_ROOT}: Rooted reported contention outside the admitted GUI stores.`,
-      );
-    }
-    throw busyResetFailure(displayPath(target));
-  }
+  if (settlement.kind === 'failed') {
+    const primary = resetFailure(
+      batchFailureScope(settlement),
+      settlement.failure,
+      settlement.changed,
+      settlement,
+    );
+    if (!settlement.releaseError) throw primary;
 
-  const results: GuiReleaseStoreReset[] = [];
-  let primaryFailure: unknown;
-  for (let index = 0; index < targets.length; index++) {
-    const target = GUI_RELEASE_STORE_TARGETS[index];
-    try {
-      const result = await rooted.Tree.remove(targets[index], { lease: acquired.lease });
-      results.push(Object.freeze({ path: displayPath(target), kind: result.kind }));
-    } catch (cause) {
-      primaryFailure = resetFailure(
-        `for ${displayPath(target)}`,
-        cause,
-        results.some((result) => result.kind === 'removed'),
-      );
-      break;
-    }
-  }
-
-  let releaseFailure: unknown;
-  try {
-    await acquired.lease.release();
-  } catch (cause) {
-    releaseFailure = resetFailure(
+    const release = resetFailure(
       'while releasing release-store ownership',
-      cause,
-      results.some((result) => result.kind === 'removed'),
+      settlement.releaseError,
+      settlement.changed,
+      settlement,
+    );
+    throw new AggregateError(
+      [primary, release],
+      'GUI Dist reset and ownership release both failed; inspect the store before retrying.',
+      { cause: settlement },
     );
   }
 
-  if (primaryFailure && releaseFailure) {
-    throw new AggregateError(
-      [primaryFailure, releaseFailure],
-      'GUI Dist reset and ownership release both failed; inspect the store before retrying.',
+  const results = Object.freeze(
+    settlement.results.map((result) =>
+      Object.freeze({
+        path: displayPath(GUI_RELEASE_STORE_TARGETS[result.index]),
+        kind: result.kind,
+      })
+    ),
+  );
+  if (settlement.releaseError) {
+    throw resetFailure(
+      'while releasing release-store ownership',
+      settlement.releaseError,
+      results.some((result) => result.kind === 'removed'),
+      settlement,
     );
   }
-  if (primaryFailure) throw primaryFailure;
-  if (releaseFailure) throw releaseFailure;
-  return Object.freeze(results);
+  return results;
 }
 
 export function printGuiReleaseStoreReset(
@@ -239,6 +243,185 @@ function displayPath(target: GuiReleaseStoreTarget): GuiReleaseStoreReset['path'
   return `${GUI_RELEASE_STORE_ROOT}/${target}`;
 }
 
+function admitBatchSettlement(input: unknown): t.FsRooted.RemoveTreeBatchResult | undefined {
+  if (!isFrozenData(input, ['kind'], false)) return;
+  const result = input as Record<string, unknown>;
+  switch (result.kind) {
+    case 'settled':
+      return admitSettled(result);
+    case 'busy':
+      return admitBusy(result);
+    case 'failed':
+      return admitFailed(result);
+    default:
+      return;
+  }
+}
+
+function admitSettled(
+  input: Record<string, unknown>,
+): t.FsRooted.RemoveTreeBatchSettled | undefined {
+  const hasReleaseError = Object.hasOwn(input, 'releaseError');
+  if (!isFrozenData(input, hasReleaseError ? [...KEYS.SETTLED, 'releaseError'] : KEYS.SETTLED)) {
+    return;
+  }
+  const results = input.results;
+  if (!isFrozenArray(results) || results.length !== GUI_RELEASE_STORE_TARGETS.length) return;
+  for (let index = 0; index < results.length; index++) {
+    if (!isBatchItem(results[index], index)) return;
+  }
+  if (
+    hasReleaseError &&
+    (!isRootedFailure(input.releaseError) || input.releaseError.operation !== 'release-lease')
+  ) return;
+  return input as unknown as t.FsRooted.RemoveTreeBatchSettled;
+}
+
+function admitBusy(input: Record<string, unknown>): t.FsRooted.RemoveTreeBatchBusy | undefined {
+  if (!isFrozenData(input, KEYS.BUSY) || !isTargetIndex(input.index)) return;
+  if (input.path !== GUI_RELEASE_STORE_TARGETS[input.index]) return;
+  return input as unknown as t.FsRooted.RemoveTreeBatchBusy;
+}
+
+function admitFailed(input: Record<string, unknown>): t.FsRooted.RemoveTreeBatchFailed | undefined {
+  const hasCurrent = Object.hasOwn(input, 'current');
+  const hasReleaseError = Object.hasOwn(input, 'releaseError');
+  const keys = [
+    ...KEYS.FAILED,
+    ...(hasCurrent ? ['current'] : []),
+    ...(hasReleaseError ? ['releaseError'] : []),
+  ];
+  if (!isFrozenData(input, keys) || !Is.bool(input.changed)) return;
+
+  const failure = input.failure;
+  if (!isRootedFailure(failure)) return;
+  if (
+    hasReleaseError &&
+    (!isRootedFailure(input.releaseError) || input.releaseError.operation !== 'release-lease')
+  ) return;
+
+  const completed = input.completed;
+  if (!isFrozenArray(completed) || completed.length > GUI_RELEASE_STORE_TARGETS.length) return;
+  for (let index = 0; index < completed.length; index++) {
+    if (!isBatchItem(completed[index], index)) return;
+  }
+
+  const current = hasCurrent && isBatchTarget(input.current, completed.length)
+    ? input.current
+    : undefined;
+  if ((hasCurrent && !current) || (!hasCurrent && completed.length !== 0)) return;
+  if (current) {
+    if (failure.operation !== 'remove-tree') return;
+  } else if (
+    failure.operation !== 'admit' && failure.operation !== 'acquire-lease' &&
+    failure.operation !== 'remove-tree-batch'
+  ) return;
+
+  const unattempted = input.unattempted;
+  const unattemptedStart = current ? current.index + 1 : 0;
+  if (
+    !isFrozenArray(unattempted) ||
+    unattempted.length !== GUI_RELEASE_STORE_TARGETS.length - unattemptedStart
+  ) return;
+  for (let index = 0; index < unattempted.length; index++) {
+    if (!isBatchTarget(unattempted[index], unattemptedStart + index)) return;
+  }
+
+  const changed =
+    completed.some((item) => (item as t.FsRooted.RemoveTreeBatchItem).kind === 'removed') ||
+    failure.committed;
+  if (input.changed !== changed) return;
+  return input as unknown as t.FsRooted.RemoveTreeBatchFailed;
+}
+
+function isBatchItem(input: unknown, index: number): input is t.FsRooted.RemoveTreeBatchItem {
+  if (!isFrozenData(input, KEYS.ITEM)) return false;
+  const item = input as Record<string, unknown>;
+  return item.index === index && item.path === GUI_RELEASE_STORE_TARGETS[index] &&
+    (item.kind === 'removed' || item.kind === 'absent');
+}
+
+function isBatchTarget(input: unknown, index: number): input is t.FsRooted.RemoveTreeBatchTarget {
+  if (!isTargetIndex(index) || !isFrozenData(input, KEYS.TARGET)) return false;
+  const target = input as Record<string, unknown>;
+  return target.index === index && target.path === GUI_RELEASE_STORE_TARGETS[index];
+}
+
+function isFrozenData(
+  input: unknown,
+  keys: readonly string[],
+  exact = true,
+): input is Record<string, unknown> {
+  if (
+    !Is.object(input) || ServerIs.Native.proxy(input) ||
+    Object.getPrototypeOf(input) !== Object.prototype || !Object.isFrozen(input)
+  ) return false;
+
+  const actual = Reflect.ownKeys(input);
+  if (exact && actual.length !== keys.length) return false;
+  for (const key of keys) {
+    const property = Object.getOwnPropertyDescriptor(input, key);
+    if (!property || !('value' in property) || property.enumerable !== true) return false;
+  }
+  return !exact || actual.every((key) => Is.string(key) && keys.includes(key));
+}
+
+function isFrozenArray(input: unknown): input is readonly unknown[] {
+  if (
+    ServerIs.Native.proxy(input) || !Is.array(input) ||
+    Object.getPrototypeOf(input) !== Array.prototype || !Object.isFrozen(input)
+  ) return false;
+  if (Reflect.ownKeys(input).length !== input.length + 1) return false;
+  for (let index = 0; index < input.length; index++) {
+    const property = Object.getOwnPropertyDescriptor(input, String(index));
+    if (!property || !('value' in property) || property.enumerable !== true) return false;
+  }
+  return true;
+}
+
+function isTargetIndex(input: unknown): input is 0 | 1 {
+  return Is.number(input) && (input === 0 || input === 1);
+}
+
+function isRootedFailure(input: unknown): input is t.FsRooted.Failure {
+  if (ServerIs.Native.proxy(input) || !ServerIs.Native.error(input)) return false;
+  for (const key of Reflect.ownKeys(input)) {
+    if (!Is.string(key)) return false;
+    if (KEYS.FAILURE.some((expected) => expected === key)) continue;
+    const property = Object.getOwnPropertyDescriptor(input, key);
+    if (!property || property.enumerable) return false;
+  }
+  for (const key of KEYS.FAILURE) {
+    const property = Object.getOwnPropertyDescriptor(input, key);
+    if (
+      !property || !('value' in property) || property.enumerable !== true ||
+      property.writable !== false || property.configurable !== false
+    ) return false;
+  }
+  return Rooted.Is.failure(input);
+}
+
+function batchFailureScope(result: t.FsRooted.RemoveTreeBatchFailed): string {
+  if (result.current) {
+    return `for ${displayPath(GUI_RELEASE_STORE_TARGETS[result.current.index])}`;
+  }
+  switch (result.failure.operation) {
+    case 'admit':
+      return `while admitting ${displayPaths().join(', ')}`;
+    case 'acquire-lease':
+      return 'while acquiring release-store ownership';
+    default:
+      return `while removing ${displayPaths().join(', ')}`;
+  }
+}
+
+function invalidBatchSettlement(cause: unknown): Error {
+  return new Error(
+    `GUI Dist reset refused ${GUI_RELEASE_STORE_ROOT}: Rooted returned an invalid batch removal settlement.`,
+    { cause },
+  );
+}
+
 function busyResetFailure(path: GuiReleaseStoreReset['path']): Error {
   const error = new Error(
     `GUI Dist reset refused ${path}: another owner holds this store; finish or stop that owning operation, then retry.`,
@@ -251,15 +434,22 @@ function busyResetPath(cause: unknown): GuiReleaseStoreReset['path'] | undefined
   return Is.object(cause) ? BUSY_RESET_FAILURES.get(cause) : undefined;
 }
 
-function resetFailure(scope: string, cause: unknown, priorCommitted = false): Error {
+function resetFailure(
+  scope: string,
+  cause: unknown,
+  priorCommitted = false,
+  evidence: unknown = cause,
+): Error {
   if (Rooted.Is.failure(cause)) {
     const recovery = cause.committed || priorCommitted
       ? 'filesystem state may have changed; inspect the store before retrying'
       : 'no owned removal committed; correct the filesystem state and retry';
     return new Error(
       `GUI Dist reset refused ${scope}: ${cause.operation}/${cause.kind}; ${recovery}.`,
-      { cause },
+      { cause: evidence },
     );
   }
-  return new Error(`GUI Dist reset failed ${scope}; inspect the cause and retry.`, { cause });
+  return new Error(`GUI Dist reset failed ${scope}; inspect the cause and retry.`, {
+    cause: evidence,
+  });
 }

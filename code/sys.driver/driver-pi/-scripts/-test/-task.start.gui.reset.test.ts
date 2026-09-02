@@ -1,11 +1,12 @@
 import { describe, expect, it } from '../../src/-test.ts';
 import { default as deno } from '../../deno.json' with { type: 'json' };
-import { Cli, Err, Fs, type t } from '../common.ts';
+import { Cli, Err, Fs, Is, type t } from '../common.ts';
 import {
   GUI_RELEASE_STORE_ROOT,
   GUI_RELEASE_STORE_TARGETS,
   main,
   printGuiReleaseStoreReset,
+  projectGuiReleaseStoreReset,
   resetGuiReleaseStores,
 } from '../task.start.gui.reset.ts';
 
@@ -59,6 +60,262 @@ describe('driver-pi/scripts/task.start.gui.reset', () => {
       env: true,
       run: ['deno'],
     });
+  });
+
+  it('admits and maps one complete FS batch settlement', () => {
+    const settlement = batchSettled([
+      batchItem(0, 'removed'),
+      batchItem(1, 'absent'),
+    ]);
+
+    const results = projectGuiReleaseStoreReset(settlement);
+    expect(results).to.eql([
+      { path: CURRENT.path, kind: 'removed' },
+      { path: LEGACY.path, kind: 'absent' },
+    ]);
+    expect(Object.isFrozen(results)).to.eql(true);
+    expect(results.every(Object.isFrozen)).to.eql(true);
+  });
+
+  it('authenticates exact batch contention before rendering package busy', () => {
+    const busy = Object.freeze({ kind: 'busy', index: 1, path: LEGACY.target });
+    expect(() => projectGuiReleaseStoreReset(busy)).to.throw(
+      `GUI Dist reset refused ${LEGACY.path}: another owner holds this store`,
+    );
+
+    const swapped = Object.freeze({ kind: 'busy', index: 0, path: LEGACY.target });
+    expect(() => projectGuiReleaseStoreReset(swapped)).to.throw(
+      'Rooted returned an invalid batch removal settlement',
+    );
+
+    const extra = Object.freeze({ ...busy, outside: CURRENT.target });
+    expect(() => projectGuiReleaseStoreReset(extra)).to.throw(
+      'Rooted returned an invalid batch removal settlement',
+    );
+
+    let reads = 0;
+    const accessor = { index: 1, path: LEGACY.target };
+    Object.defineProperty(accessor, 'kind', {
+      enumerable: true,
+      get() {
+        reads++;
+        return 'busy';
+      },
+    });
+    Object.freeze(accessor);
+    expect(() => projectGuiReleaseStoreReset(accessor)).to.throw(
+      'Rooted returned an invalid batch removal settlement',
+    );
+    expect(reads).to.eql(0);
+
+    let traps = 0;
+    const proxy = new Proxy(busy, {
+      get() {
+        traps++;
+        throw new Error('get trap');
+      },
+      ownKeys() {
+        traps++;
+        throw new Error('ownKeys trap');
+      },
+    });
+    expect(() => projectGuiReleaseStoreReset(proxy)).to.throw(
+      'Rooted returned an invalid batch removal settlement',
+    );
+    expect(traps).to.eql(0);
+  });
+
+  it('preserves batch progress and independent release failure truth', () => {
+    const primary = rootedFailure('remove-tree', 'io-failure', true);
+    const release = rootedFailure('release-lease', 'io-failure', false);
+    const settlement = Object.freeze({
+      kind: 'failed',
+      completed: Object.freeze([batchItem(0, 'removed')]),
+      current: Object.freeze({ index: 1, path: LEGACY.target }),
+      unattempted: Object.freeze([]),
+      failure: primary,
+      releaseError: release,
+      changed: true,
+    });
+
+    const error = thrownBy(() => projectGuiReleaseStoreReset(settlement));
+    expect(error.name).to.eql('AggregateError');
+    expect(error.message).to.eql(
+      'GUI Dist reset and ownership release both failed; inspect the store before retrying.',
+    );
+    expect(error.cause).to.equal(settlement);
+    const failures = (error as AggregateError).errors as Error[];
+    expect(failures.length).to.eql(2);
+    expect(failures[0].message).to.contain(`${LEGACY.path}: remove-tree/io-failure`);
+    expect(failures[1].message).to.contain(
+      'while releasing release-store ownership: release-lease/io-failure',
+    );
+    expect(failures[0].cause).to.equal(settlement);
+    expect(failures[1].cause).to.equal(settlement);
+
+    const falseChanged = Object.freeze({ ...settlement, changed: false });
+    expect(() => projectGuiReleaseStoreReset(falseChanged)).to.throw(
+      'Rooted returned an invalid batch removal settlement',
+    );
+  });
+
+  it('retains completed results when clean removal has a release failure', () => {
+    const release = rootedFailure('release-lease', 'io-failure', false);
+    const settlement = batchSettled(
+      [batchItem(0, 'removed'), batchItem(1, 'absent')],
+      release,
+    );
+
+    const error = thrownBy(() => projectGuiReleaseStoreReset(settlement));
+    expect(error.message).to.contain(
+      'while releasing release-store ownership: release-lease/io-failure',
+    );
+    expect(error.message).to.contain('filesystem state may have changed');
+    expect(error.cause).to.equal(settlement);
+  });
+
+  it('rejects forged Rooted failures without invoking failure properties', () => {
+    const plain = Object.freeze({
+      name: 'FsRootedError',
+      operation: 'admit',
+      kind: 'io-failure',
+      committed: false,
+    });
+    const mutable = rootedFailure('admit', 'io-failure', false, { mutable: true });
+
+    let reads = 0;
+    const accessor = new Error('accessor failure') as t.FsRooted.Failure;
+    Object.defineProperties(accessor, {
+      name: { value: 'FsRootedError', enumerable: true },
+      operation: {
+        enumerable: true,
+        get() {
+          reads++;
+          return 'admit';
+        },
+      },
+      kind: { value: 'io-failure', enumerable: true },
+      committed: { value: false, enumerable: true },
+    });
+
+    const extra = rootedFailure('admit', 'io-failure', false);
+    Object.defineProperty(extra, 'outside', {
+      enumerable: true,
+      get() {
+        reads++;
+        return true;
+      },
+    });
+
+    const symbol = rootedFailure('admit', 'io-failure', false);
+    Object.defineProperty(symbol, Symbol('outside'), { value: true });
+
+    let traps = 0;
+    const proxy = new Proxy(rootedFailure('admit', 'io-failure', false), {
+      get() {
+        traps++;
+        throw new Error('get trap');
+      },
+      ownKeys() {
+        traps++;
+        throw new Error('ownKeys trap');
+      },
+    });
+
+    for (const failure of [plain, mutable, accessor, extra, symbol, proxy]) {
+      const settlement = batchFailedSettlement({ failure, changed: false });
+      const error = thrownBy(() => projectGuiReleaseStoreReset(settlement));
+      expect(error.message).to.contain('Rooted returned an invalid batch removal settlement');
+      expect(error.message).not.to.contain('another owner holds this store');
+    }
+    expect(reads).to.eql(0);
+    expect(traps).to.eql(0);
+  });
+
+  it('binds canonical Rooted failures to their exact batch phases', () => {
+    const invalid = [
+      batchFailedSettlement({
+        failure: rootedFailure('remove-tree', 'io-failure', false),
+        changed: false,
+      }),
+      batchFailedSettlement({
+        current: 0,
+        failure: rootedFailure('admit', 'io-failure', false),
+        changed: false,
+      }),
+      batchSettled(
+        [batchItem(0, 'removed'), batchItem(1, 'absent')],
+        rootedFailure('remove-tree', 'io-failure', false),
+      ),
+      batchFailedSettlement({
+        failure: rootedFailure('admit', 'io-failure', false),
+        releaseError: rootedFailure('acquire-lease', 'io-failure', false),
+        changed: false,
+      }),
+    ];
+
+    for (const settlement of invalid) {
+      const error = thrownBy(() => projectGuiReleaseStoreReset(settlement));
+      expect(error.message).to.contain('Rooted returned an invalid batch removal settlement');
+      expect(error.message).not.to.contain('another owner holds this store');
+    }
+  });
+
+  it('admits canonical Rooted failures across every removal phase', () => {
+    const cases = [
+      Object.freeze({
+        settlement: batchFailedSettlement({
+          failure: rootedFailure('admit', 'invalid-target', false),
+          changed: false,
+        }),
+        message: `while admitting ${CURRENT.path}, ${LEGACY.path}`,
+      }),
+      Object.freeze({
+        settlement: batchFailedSettlement({
+          failure: rootedFailure('acquire-lease', 'io-failure', false),
+          changed: false,
+        }),
+        message: 'while acquiring release-store ownership',
+      }),
+      Object.freeze({
+        settlement: batchFailedSettlement({
+          failure: rootedFailure('remove-tree-batch', 'cancelled', false),
+          changed: false,
+        }),
+        message: `while removing ${CURRENT.path}, ${LEGACY.path}`,
+      }),
+      Object.freeze({
+        settlement: batchFailedSettlement({
+          current: 0,
+          failure: rootedFailure('remove-tree', 'io-failure', false),
+          changed: false,
+        }),
+        message: `for ${CURRENT.path}`,
+      }),
+      Object.freeze({
+        settlement: batchFailedSettlement({
+          completed: [batchItem(0, 'absent')],
+          current: 1,
+          failure: rootedFailure('remove-tree', 'io-failure', false),
+          changed: false,
+        }),
+        message: `for ${LEGACY.path}`,
+      }),
+      Object.freeze({
+        settlement: batchFailedSettlement({
+          current: 0,
+          failure: rootedFailure('remove-tree', 'io-failure', true),
+          changed: true,
+        }),
+        message: 'filesystem state may have changed',
+      }),
+    ];
+
+    for (const { settlement, message } of cases) {
+      const error = thrownBy(() => projectGuiReleaseStoreReset(settlement));
+      expect(error.message).to.contain(message);
+      expect(error.message).not.to.contain('invalid batch removal settlement');
+    }
   });
 
   it('removes sealed current and legacy stores without changing neighboring state', async () => {
@@ -373,6 +630,78 @@ describe('driver-pi/scripts/task.start.gui.reset', () => {
     }
   });
 });
+
+function batchItem(
+  index: 0 | 1,
+  kind: t.FsRooted.RemoveTreeResult['kind'],
+): t.FsRooted.RemoveTreeBatchItem {
+  return Object.freeze({ index, path: EXPECTED_TARGETS[index], kind });
+}
+
+function batchSettled(
+  results: readonly t.FsRooted.RemoveTreeBatchItem[],
+  releaseError?: t.FsRooted.Failure,
+): t.FsRooted.RemoveTreeBatchSettled {
+  return Object.freeze({
+    kind: 'settled',
+    results: Object.freeze(results),
+    ...(releaseError ? { releaseError } : {}),
+  });
+}
+
+function rootedFailure(
+  operation: t.FsRooted.Operation,
+  kind: t.FsRooted.FailureKind,
+  committed: boolean,
+  options: Readonly<{ mutable?: boolean }> = {},
+): t.FsRooted.Failure {
+  const mutable = options.mutable ?? false;
+  const error = new Error('Rooted failure fixture') as t.FsRooted.Failure;
+  Object.defineProperties(error, {
+    name: { value: 'FsRootedError', enumerable: true, writable: mutable, configurable: mutable },
+    operation: { value: operation, enumerable: true, writable: mutable, configurable: mutable },
+    kind: { value: kind, enumerable: true, writable: mutable, configurable: mutable },
+    committed: { value: committed, enumerable: true, writable: mutable, configurable: mutable },
+  });
+  return error;
+}
+
+function batchFailedSettlement(options: {
+  readonly completed?: readonly t.FsRooted.RemoveTreeBatchItem[];
+  readonly current?: 0 | 1;
+  readonly failure: unknown;
+  readonly releaseError?: unknown;
+  readonly changed: boolean;
+}): unknown {
+  const completed = Object.freeze([...(options.completed ?? [])]);
+  const unattemptedStart = options.current === undefined ? 0 : options.current + 1;
+  const unattempted = Object.freeze(
+    EXPECTED_TARGETS.slice(unattemptedStart).map((path, offset) =>
+      Object.freeze({ index: unattemptedStart + offset, path })
+    ),
+  );
+  return Object.freeze({
+    kind: 'failed',
+    completed,
+    ...(options.current === undefined ? {} : {
+      current: Object.freeze({ index: options.current, path: EXPECTED_TARGETS[options.current] }),
+    }),
+    unattempted,
+    failure: options.failure,
+    ...(options.releaseError === undefined ? {} : { releaseError: options.releaseError }),
+    changed: options.changed,
+  });
+}
+
+function thrownBy(operation: () => unknown): Error {
+  try {
+    operation();
+  } catch (cause) {
+    if (Is.error(cause)) return cause;
+    throw new Error('Reset projection threw a non-Error value.', { cause });
+  }
+  throw new Error('Expected reset projection failure.');
+}
 
 function printedReset(results: Parameters<typeof printGuiReleaseStoreReset>[0]): string {
   const printed: string[] = [];
