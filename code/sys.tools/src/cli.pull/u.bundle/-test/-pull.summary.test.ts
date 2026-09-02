@@ -15,7 +15,7 @@ describe('cli.pull summary formatting', () => {
     const res = Fmt.pullError([
       'GitHub repository/path/ref not accessible.',
       'source: github:repo',
-      'repo: sys-repo/sys.canon',
+      'repo: sample/repository',
       'The remote source did not produce a materializable bundle.',
     ].join('\n'));
 
@@ -23,7 +23,7 @@ describe('cli.pull summary formatting', () => {
     expect(text).to.include('Pull Failed');
     expect(text).to.include('GitHub repository/path/ref not accessible.');
     expect(text).to.match(/source\s+github:repo/);
-    expect(text).to.match(/repo\s+sys-repo\/sys\.canon/);
+    expect(text).to.match(/repo\s+sample\/repository/);
   });
 
   it('formats github:release results without Dist metadata', () => {
@@ -104,7 +104,7 @@ describe('cli.pull summary formatting', () => {
     const integrity = `sha256-${'a'.repeat(64)}` as t.StringHash;
     const bundle: t.PullTool.ConfigYaml.DistBundle = {
       kind: 'dist',
-      manifest: 'https://fs.db.team/dist.json',
+      manifest: 'https://files.example/dist.json',
       integrity,
       store: './.dist-store',
       project: { dir: 'dev', mode: 'replace' },
@@ -134,7 +134,7 @@ describe('cli.pull summary formatting', () => {
     };
 
     const text = Cli.stripAnsi(Fmt.pullSummary({ bundle, data }));
-    expect(text).to.match(/source\s+fs\.db\.team\/dist\.json/);
+    expect(text).to.match(/source\s+files\.example\/dist\.json/);
     expect(text).to.match(/generation\s+existing/);
     expect(text).to.match(/files\s+1/);
     expect(text).to.match(/sealed\s+\/tmp\/\.dist-store\/generation/);

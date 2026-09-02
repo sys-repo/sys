@@ -15,10 +15,10 @@ const INTEGRITY = `sha256-${'a'.repeat(64)}` as t.StringHash;
 describe('cli.pull/u.bundle → menu labels', () => {
   it('renders bundle mutable targets as rooted relative paths', () => {
     const bundles: t.PullTool.ConfigYaml.Bundle[] = [
-      distBundle('https://fs.db.team/dist.json', 'dev'),
+      distBundle('https://files.example/dist.json', 'dev'),
       {
         kind: 'github:repo',
-        repo: 'sys-repo/sys.canon',
+        repo: 'sample/repository',
         local: { dir: 'canon' as t.StringRelativeDir, mode: 'create' },
         limits: LIMITS,
       },
@@ -36,19 +36,19 @@ describe('cli.pull/u.bundle → menu labels', () => {
   it('uses the sealed store target when no projection is configured', () => {
     const bundle: t.PullTool.ConfigYaml.DistBundle = {
       kind: 'dist',
-      manifest: 'https://fs.db.team/dist.json',
+      manifest: 'https://files.example/dist.json',
       integrity: INTEGRITY,
       store: './.dist-store',
     };
 
     const name = Cli.stripAnsi(formatBundleOptionName(bundle, 0, [bundle]));
-    expect(name).to.contain('./.dist-store ← fs.db.team/dist.json');
+    expect(name).to.contain('./.dist-store ← files.example/dist.json');
   });
 
   it('keeps target alignment width rooted to the displayed ./ label', () => {
     const bundles: t.PullTool.ConfigYaml.Bundle[] = [
-      distBundle('https://fs.db.team/dist.json', 'dev'),
-      distBundle('https://slc.db.team/dist.json', './slc.db.team'),
+      distBundle('https://files.example/dist.json', 'dev'),
+      distBundle('https://sample.example/dist.json', './sample.site'),
     ];
 
     const width = formatBundleOptionLocalDirWidth(bundles);
@@ -56,22 +56,22 @@ describe('cli.pull/u.bundle → menu labels', () => {
       return Cli.stripAnsi(formatBundleOptionName(bundle, index, all, width));
     });
 
-    expect(width).to.eql('./slc.db.team'.length);
-    expect(names[0]).to.contain('./dev         ← fs.db.team/dist.json');
-    expect(names[1]).to.contain('./slc.db.team ← slc.db.team/dist.json');
-    expect(names[1]).to.not.contain('././slc.db.team');
+    expect(width).to.eql('./sample.site'.length);
+    expect(names[0]).to.contain('./dev         ← files.example/dist.json');
+    expect(names[1]).to.contain('./sample.site ← sample.example/dist.json');
+    expect(names[1]).to.not.contain('././sample.site');
   });
 
   it('does not trim target whitespace while rendering the rooted label', () => {
     const bundles: t.PullTool.ConfigYaml.Bundle[] = [
-      distBundle('https://fs.db.team/dist.json', 'dev '),
+      distBundle('https://files.example/dist.json', 'dev '),
     ];
 
     const width = formatBundleOptionLocalDirWidth(bundles);
     const name = Cli.stripAnsi(formatBundleOptionName(bundles[0], 0, bundles, width));
 
     expect(width).to.eql('./dev '.length);
-    expect(name).to.contain('./dev  ← fs.db.team/dist.json');
+    expect(name).to.contain('./dev  ← files.example/dist.json');
   });
 });
 
