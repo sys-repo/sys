@@ -9,7 +9,7 @@ import {
 import { Fs, Json, type t } from '../common.ts';
 import { PiFs } from '../../u.fs.ts';
 import { isCliSettledFailure } from '../u/u.start.gui.settlement.ts';
-import { start, type StartGuiDependencies, type StartGuiInput } from '../u.start/u.gui.ts';
+import { start, type StartGuiDependencies, type StartGuiInput } from '../u.start/u.gui/mod.ts';
 import { snapshotApplicationOwner } from '../u.start/u.identity.ts';
 import { prepareReleaseOwner } from '../u.start/u.materialize.ts';
 import type { BootState, BootStateSource } from '../u.start/u.state.ts';

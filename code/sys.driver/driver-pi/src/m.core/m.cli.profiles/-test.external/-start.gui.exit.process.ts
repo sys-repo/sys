@@ -1,7 +1,7 @@
 import { expect, type FsRooted, type t } from '../../../-test.ts';
 import { TaskCli } from '../../../../-scripts/task.cli.u.ts';
 import { Cli } from '../common.ts';
-import { start, type StartGuiDependencies } from '../u.start/u.gui.ts';
+import { start, type StartGuiDependencies } from '../u.start/u.gui/mod.ts';
 import type { BootState } from '../u.start/u.state.ts';
 import {
   asProfileRoot,

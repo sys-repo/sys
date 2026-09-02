@@ -7,11 +7,15 @@ export { Is } from '@sys/std/is/server';
 
 const apply = Reflect.apply;
 const freeze = Object.freeze;
+const NativeError = Error;
 const NativeSet = Set;
 const NativeUint8Array = Uint8Array;
 const NativeWeakMap = WeakMap;
 const NativeWeakSet = WeakSet;
 const getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+const getPrototypeOf = Object.getPrototypeOf;
+const objectPrototype = Object.prototype;
+const ownKeys = Reflect.ownKeys;
 const arrayIncludes = Array.prototype.includes;
 const arrayJoin = Array.prototype.join;
 const arrayPush = Array.prototype.push;
@@ -34,8 +38,35 @@ const weakSetAdd = weakSetPrototype.add;
 const weakSetHas = weakSetPrototype.has;
 const weakSetHasDescriptor = snapshotDataDescriptor(weakSetPrototype, 'has');
 
-/** Captured collection and string authority used after caller-controlled callbacks may run. */
+/**
+ * Captured host intrinsics for hostile-runtime hardening.
+ *
+ * Caller-controlled values and callbacks can mutate ambient constructors, reflection helpers, and
+ * prototypes after startup begins. Every operation below dispatches through module-load references
+ * so later ambient replacement cannot redirect validation, ownership, or cleanup authority.
+ */
 export const StartGuiIntrinsic = freeze({
+  createError(message: string): Error {
+    return new NativeError(message);
+  },
+  freeze<const T>(input: T): Readonly<T> {
+    return apply(freeze, Object, [input]) as Readonly<T>;
+  },
+  hasObjectPrototype(input: object): boolean {
+    return apply(getPrototypeOf, Object, [input]) === objectPrototype;
+  },
+  invoke<Args extends unknown[], Result>(
+    operation: (...args: Args) => Result,
+    args: Args,
+  ): Result {
+    return apply(operation, undefined, args) as Result;
+  },
+  ownKeys(input: object): (string | symbol)[] {
+    return apply(ownKeys, Reflect, [input]) as (string | symbol)[];
+  },
+  ownPropertyDescriptor(input: object, key: PropertyKey): PropertyDescriptor | undefined {
+    return apply(getOwnPropertyDescriptor, Object, [input, key]) as PropertyDescriptor | undefined;
+  },
   arrayAppend<T>(target: T[], source: readonly T[]): void {
     for (let index = 0; index < source.length; index += 1) {
       apply(arrayPush, target, [source[index]]);

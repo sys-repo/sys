@@ -3,7 +3,7 @@ import { describe, DistServer, expect, Fs, FsDist, it, Json, Open, Str } from '.
 import { default as deno } from '../../../deno.json' with { type: 'json' };
 import { EsmAssert } from '../../../src/-test.ts';
 import { pkg } from '../../../src/pkg.ts';
-import { start } from '../../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
+import { start } from '../../../src/m.core/m.cli.profiles/u.start/u.gui/mod.ts';
 import {
   bootstrapStatusFixture,
   deferred,

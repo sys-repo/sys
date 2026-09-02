@@ -25,7 +25,7 @@ type MainDependencies = {
 const DEFAULT_DEPENDENCIES: MainDependencies = Object.freeze({
   repaint: Cli.Screen.repaint,
   async startGui(input) {
-    const { start } = await import('./u.start/u.gui.ts');
+    const { start } = await import('./u.start/u.gui/mod.ts');
     return await start(input);
   },
 });

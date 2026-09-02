@@ -19,7 +19,7 @@ import {
   start as startRuntime,
   type StartGuiDependencies,
   type StartGuiInput,
-} from '../u.start/u.gui.ts';
+} from '../u.start/u.gui/mod.ts';
 import { startGuiCompletionKind } from '../u/u.start.gui.settlement.ts';
 import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
 import {

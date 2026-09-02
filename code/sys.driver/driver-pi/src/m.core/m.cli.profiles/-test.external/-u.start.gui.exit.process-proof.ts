@@ -36,7 +36,7 @@ describe('driver-pi start:gui process exit settlement', () => {
       expect(capturedText).to.not.contain('start:gui materialization failed:');
       expect(capturedText).to.not.contain('u.error.ts');
       expect(capturedText).to.not.contain('u.materialize.ts');
-      expect(capturedText).to.not.contain('u.gui.ts');
+      expect(capturedText).to.not.contain('u.gui/');
     });
   }
 

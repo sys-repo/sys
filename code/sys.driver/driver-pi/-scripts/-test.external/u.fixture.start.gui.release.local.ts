@@ -2,7 +2,7 @@ import { Time } from '@sys/std/time';
 
 import { DistServer, Fs, FsDist, type t } from '../common.ts';
 import { BootstrapStatus } from '../../src/-test.ts';
-import { start } from '../../src/m.core/m.cli.profiles/u.start/u.gui.ts';
+import { start } from '../../src/m.core/m.cli.profiles/u.start/u.gui/mod.ts';
 import type { BootState } from '../../src/m.core/m.cli.profiles/u.start/u.state.ts';
 import { LIMITS } from '../../src/m.core/m.cli.profiles/u.start/u.limits.ts';
 import { removeDistStore } from '../../src/m.core/m.cli.profiles/-test/u.fixture.start.gui.ts';
