@@ -1,18 +1,30 @@
-import { c, Cli, Fs, Is, Num, Open, Path, Pkg, Str, type t, Time } from '../common.ts';
-import { D as ServeDefaults } from '../../cli.serve/common.ts';
+import { c, Cli, Fs, Is, Num, Open, Str, type t, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { runEndpointAction } from '../u.endpointAction.ts';
 import { Fmt } from '../u.fmt.ts';
+import { DEPLOY_PREVIEW_PORT, verifyDeployPreview } from '../u.preview.ts';
+import { resolveStagingRoot } from '../u.staging/mod.ts';
 
 import { ValidName } from './is.ts';
 import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
 import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
-import { resolveStagingRoot } from '../u.staging/mod.ts';
 
-type Pick = { readonly kind: 'back' } | { readonly kind: 'deleted'; readonly key: string };
+type EndpointMenuArgs = { cwd: t.StringDir; key: string };
+type EndpointMenuResult =
+  | { readonly kind: 'back' }
+  | { readonly kind: 'deleted'; readonly key: string };
+
+/** Internal endpoint-menu dependency seam. */
+export type EndpointMenuDependencies = {
+  promptAction: typeof promptEndpointAction;
+};
+
 const STAGE_JUST_NOW_MSEC = 1000;
+const DEFAULT_DEPENDENCIES: EndpointMenuDependencies = Object.freeze({
+  promptAction: promptEndpointAction,
+});
 
 /**
  * Interactive menu for configuring a single deploy endpoint.
@@ -24,13 +36,20 @@ const STAGE_JUST_NOW_MSEC = 1000;
  * - rename (file)
  * - delete (file)
  */
-export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Promise<Pick> {
+export function endpointMenu(args: EndpointMenuArgs): Promise<EndpointMenuResult> {
+  return endpointMenuWith(args, DEFAULT_DEPENDENCIES);
+}
+
+/** Internal endpoint-menu owner with an explicit action-prompt effect. */
+export async function endpointMenuWith(
+  args: EndpointMenuArgs,
+  deps: EndpointMenuDependencies,
+): Promise<EndpointMenuResult> {
   const { cwd } = args;
   let key = args.key;
 
   const dim = (s: string) => c.gray(c.dim(s));
 
-  let ranOk = false;
   let pushedOk = false;
   let pushElapsed: string | undefined;
   let pushBytes: number | undefined;
@@ -56,49 +75,43 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     });
 
     const provider = yaml?.provider;
-    const mapping = (yaml?.mappings ?? []).find((m) => m.mode === 'build+copy') ??
-      (yaml?.mappings ?? [])[0];
-
-    const stagingRootRel = yaml ? String(yaml.staging.dir) : './staging';
-    const stagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel });
-    const mappingStagingRel = String(mapping?.dir?.staging ?? '');
-    const mappingStagingAbs = mappingStagingRel
-      ? Path.resolve(stagingRootAbs, mappingStagingRel)
+    const preview = yaml
+      ? await verifyDeployPreview(resolveStagingRoot({
+        cwd,
+        stagingRootRel: String(yaml.staging.dir),
+      }))
       : undefined;
-    const rootDist = (await Pkg.Dist.load(stagingRootAbs)).dist;
-    const mappingDist = mappingStagingAbs
-      ? (await Pkg.Dist.load(mappingStagingAbs)).dist
-      : undefined;
-    const dist = rootDist?.hash?.digest
-      ? rootDist
-      : mappingDist?.hash?.digest
-      ? mappingDist
-      : (rootDist ?? mappingDist);
-    const digest = dist?.hash?.digest;
+    const verification = preview?.kind === 'verified' ? preview.evidence : undefined;
+    const digest = verification?.dist.hash.digest;
     const hashSuffix = digest ? String(digest).slice(-5) : undefined;
     const hashPrefix = formatHashPrefix(hashSuffix);
-    const buildTime = dist?.build?.time;
+    const buildTime = verification?.dist.build.time;
     const stageAge = Is.num(buildTime) && digest
       ? formatStageAge(Time.elapsed(buildTime).msec)
       : undefined;
-    const stageSizeTotal = dist?.build?.size?.total;
-    const stageSize = Is.num(stageSizeTotal) && digest ? Str.bytes(stageSizeTotal) : undefined;
-    const hasStageMeta = !!(stageAge || stageSize);
-    const hasStagedOutput = !!digest;
-    const servePort = Is.num(yaml?.staging.serve?.port)
+    const stageSize = verification ? Str.bytes(verification.assets.totalBytes) : undefined;
+    const hasStageMeta = verification !== undefined;
+    const previewPort = Is.num(yaml?.staging.serve?.port)
       ? yaml.staging.serve.port
-      : ServeDefaults.port;
+      : DEPLOY_PREVIEW_PORT;
     const pushUrl = provider?.kind === 'r2'
       ? String(provider.readOrigin ?? '').trim() || undefined
       : undefined;
 
     const showPush = capability.show;
-    const showStagePush = check.ok && !!provider && provider.kind !== 'noop';
+    const showStagePush = check.ok && provider !== undefined && provider.kind !== 'noop';
 
-    const table = await Fmt.endpointTable(cwd, { name: key, file: yamlRel }, { yaml });
+    const table = await Fmt.endpointTable(cwd, { name: key, file: yamlRel }, {
+      yaml,
+      verification,
+    });
     if (demarkNextRender) console.info(c.gray(Cli.Fmt.hr()));
     demarkNextRender = false;
-    console.info(renderEndpointScreen({ table: table.text, check }));
+    console.info(renderEndpointScreen({
+      table: table.text,
+      check,
+      previewReason: preview?.kind === 'unavailable' ? preview.reason : undefined,
+    }));
 
     const mappings = table.yaml?.mappings ?? [];
     if (mappings.length === 0) {
@@ -112,13 +125,12 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       console.info(String(s));
     }
 
-    const picked = await promptEndpointAction({
+    const picked = await deps.promptAction({
       checkOk: check.ok,
-      ranOk,
       showPush,
       showStagePush,
-      showServe: hasStagedOutput,
-      servePort,
+      showPreview: verification !== undefined,
+      previewPort,
       pushedOk,
       pushElapsed,
       pushBytes,
@@ -155,15 +167,13 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
     }
 
     if (picked === 'stage') {
-      const res = await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'stage' });
-      ranOk = res.stageOk === true;
+      await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'stage' });
       demarkNextRender = true;
       continue;
     }
 
     if (picked === 'stage-push') {
       const res = await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'stage-push' });
-      ranOk = res.stageOk === true;
       if (res.push?.ok) {
         pushedOk = true;
         pushElapsed = res.push.elapsed;
@@ -173,8 +183,8 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       continue;
     }
 
-    if (picked === 'serve') {
-      await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'serve' });
+    if (picked === 'preview') {
+      await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'preview' });
       demarkNextRender = true;
       continue;
     }
@@ -215,7 +225,6 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
       await Fs.move(yamlAbs, nextAbs);
 
       key = nextName;
-      ranOk = false;
       pushedOk = false;
       pushElapsed = undefined;
       pushBytes = undefined;
@@ -240,6 +249,7 @@ export async function endpointMenu(args: { cwd: t.StringDir; key: string }): Pro
   }
 }
 
+/** Helpers: */
 function formatStageAge(msec: number): string {
   if (!Num.Is.finite(msec) || msec < 0) return '';
   if (msec < STAGE_JUST_NOW_MSEC) return 'just now';

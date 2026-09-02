@@ -14,7 +14,7 @@ const staging = Schema.Type.Object(
     dir: Schema.Type.String({ minLength: 1, pattern: stagingRootPattern }),
     serve: Schema.Type.Optional(
       Schema.Type.Object(
-        { port: Schema.Type.Optional(Schema.Type.Number({ minimum: 1, maximum: 65535 })) },
+        { port: Schema.Type.Optional(Schema.Type.Integer({ minimum: 1, maximum: 65535 })) },
         { additionalProperties: false },
       ),
     ),
@@ -72,6 +72,9 @@ const mapping = Schema.Type.Union([
 
 const mappings = Schema.Type.Array(mapping, { minItems: 0 });
 
+/**
+ * Strict reusable schema parts for Deploy endpoint YAML.
+ */
 export const EndpointSchemaParts = {
   source,
   staging,

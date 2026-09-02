@@ -11,7 +11,7 @@ describe('@sys/tools/deploy u.args', () => {
     const res = parseArgs([
       '--non-interactive',
       '--config',
-      './-config/@sys.tools.deploy/slc.yaml',
+      './-config/@sys.tools.deploy/sample.yaml',
       '--action',
       'stage+push',
       '--force',
@@ -19,7 +19,7 @@ describe('@sys/tools/deploy u.args', () => {
 
     expect(res['non-interactive']).to.eql(true);
     expect(res.interactive).to.eql(false);
-    expect(res.config).to.eql('./-config/@sys.tools.deploy/slc.yaml');
+    expect(res.config).to.eql('./-config/@sys.tools.deploy/sample.yaml');
     expect(res.action).to.eql('stage+push');
     expect(res.force).to.eql(true);
   });

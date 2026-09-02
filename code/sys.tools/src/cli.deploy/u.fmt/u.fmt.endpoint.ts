@@ -1,11 +1,23 @@
-import { c, Cli, Fmt, Fs, Is, Pkg, Str, type t } from '../common.ts';
+import { c, Cli, Fmt, Fs, Is, Obj, Pkg, Str, type t } from '../common.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
+type EndpointTableOptions = {
+  yaml?: t.EndpointYamlFile;
+  verification?: t.Pkg.Dist.Local.Verify.Evidence;
+};
+type EndpointTableResult = {
+  readonly text: string;
+  readonly yaml: t.EndpointYamlFile | undefined;
+};
+
+/**
+ * Format one Deploy endpoint and its verified staging metadata.
+ */
 export async function endpointTable(
   cwd: t.StringDir,
   ref: t.DeployTool.Config.EndpointRef,
-  options: { yaml?: t.EndpointYamlFile } = {},
-) {
+  options: EndpointTableOptions = {},
+): Promise<EndpointTableResult> {
   const table = Cli.table();
 
   const childText = (label: string, isLast = false) => ` ${Fmt.Tree.branch(isLast)} ${label}`;
@@ -61,66 +73,49 @@ export async function endpointTable(
 
   const body: Array<[string, string]> = [[c.gray('endpoint'), c.cyan(name)]];
 
-  rows.forEach((row, index) => {
+  for (const [index, row] of rows.entries()) {
     const isLast = index === rows.length - 1;
     body.push([child(row.label, isLast), row.value]);
-  });
+  }
 
   table.body(body);
 
   let mappingsBlock = '';
 
   try {
-    const tail = (p: string) => {
-      const parts = Str.splitPathSegments(String(p ?? ''));
-      return parts.length ? parts[parts.length - 1]! : String(p ?? '');
+    const tail = (path: string) => {
+      return Str.splitPathSegments(String(path ?? '')).at(-1) ?? String(path ?? '');
     };
 
     const mappings = yaml?.mappings ?? [];
-    const stagingRootRel = String(yaml?.staging?.dir ?? '.');
-    const stagingRootAbs = Fs.join(cwd, stagingRootRel);
-    const hashSuffix = (digest?: string) => {
-      const value = String(digest ?? '').trim();
-      if (!value) return '';
-      return Fmt.hashSuffix(value);
-    };
 
     if (mappings.length) {
       const mt = Cli.table();
 
+      type Destination = { readonly path: string; readonly coverage: string };
       type Group = {
         readonly mode: string;
         readonly srcNames: readonly string[];
-        readonly dsts: readonly {
-          readonly path: string;
-          readonly hash: string;
-          readonly sizeLabel: string;
-        }[];
+        readonly dsts: readonly Destination[];
       };
+      type MutableGroup = { srcNames: string[]; dsts: Destination[] };
 
       const groups: Group[] = [];
-      const byMode = new Map<
-        string,
-        { srcNames: string[]; dsts: Array<{ path: string; hash: string; sizeLabel: string }> }
-      >();
+      const byMode = new Map<string, MutableGroup>();
 
       for (const m of mappings) {
         const mode = String(m.mode ?? '');
         const src = tail(String(m.dir.source ?? ''));
         const dstRaw = String(m.dir.staging ?? '');
-        const targetAbs = Fs.join(stagingRootAbs, dstRaw || '.');
-        const dist = (await Pkg.Dist.load(targetAbs)).dist;
-        const hash = hashSuffix(dist?.hash?.digest);
-        const size = dist?.build?.size?.total;
-        const sizeLabel = Is.num(size) && size > 0 ? c.dim(c.gray(` | ${Str.bytes(size)}`)) : '';
-        const dst = { path: dstRaw, hash, sizeLabel };
+        const coverage = mappingCoverage(options.verification, dstRaw);
+        const dst = { path: dstRaw, coverage };
 
         const hit = byMode.get(mode);
         if (hit) {
           hit.srcNames.push(src);
           hit.dsts.push(dst);
         } else {
-          const next = { srcNames: [src], dsts: [dst] };
+          const next: MutableGroup = { srcNames: [src], dsts: [dst] };
           byMode.set(mode, next);
           groups.push({ mode, ...next });
         }
@@ -139,9 +134,9 @@ export async function endpointTable(
         const maxDstPathLen = g.dsts.reduce((acc, d) => Math.max(acc, d.path.length), 0);
         const dstLines = g.dsts.map((d) => {
           const path = c.white(d.path);
-          if (!d.hash) return `${path}${d.sizeLabel}`;
+          if (!d.coverage) return path;
           const pad = ' '.repeat(Math.max(1, maxDstPathLen - d.path.length + 1));
-          return `${path}${pad}${d.hash}${d.sizeLabel}`;
+          return `${path}${pad}${c.dim(c.gray(d.coverage))}`;
         });
         return [...srcLines, c.cyan('↓'), ...dstLines].join('\n');
       };
@@ -177,4 +172,32 @@ export async function endpointTable(
       return yaml;
     },
   };
+}
+
+/** Format one sanitized preview-authority refusal. */
+export function previewUnavailable(reason: t.DeployPreview.FailureReason): string {
+  return String(
+    Str.builder()
+      .line(c.yellow('Preview unavailable'))
+      .line(c.gray(c.dim(`reason: ${reason}`))),
+  );
+}
+
+/** Helpers: */
+function mappingCoverage(
+  evidence: t.Pkg.Dist.Local.Verify.Evidence | undefined,
+  destination: string,
+): string {
+  if (!evidence) return '';
+  const relative = destination === '.' ? '' : Str.trimLeadingDotSlash(destination);
+  const prefix = relative ? `${relative}/` : '';
+  const parts = Obj.entries(evidence.dist.hash.parts).filter(([path]) =>
+    !prefix || String(path).startsWith(prefix)
+  );
+  const totalBytes = parts.reduce((total, [, part]) => {
+    const size = Pkg.Dist.Part.parse(part)?.size;
+    return total + (Is.num(size) ? size : 0);
+  }, 0);
+  const files = `${parts.length} ${Str.plural(parts.length, 'file')}`;
+  return `${files} | ${Str.bytes(totalBytes)}`;
 }

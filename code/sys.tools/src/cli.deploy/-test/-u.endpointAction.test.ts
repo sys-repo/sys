@@ -76,13 +76,13 @@ describe('@sys/tools/deploy endpoint actions', () => {
 
     it('copies configured mappings into the staging root', async () => {
       await withTmpDir(async (cwd) => {
-        const yamlPath = `${cwd}/-config/@sys.tools.deploy/slc.yaml`;
-        await writeSimpleSite(cwd, 'slc');
+        const yamlPath = `${cwd}/-config/@sys.tools.deploy/sample.yaml`;
+        await writeSimpleSite(cwd, 'sample');
         await Fs.write(yamlPath, simpleCopyYaml());
 
         const res = await runEndpointAction({
           cwd,
-          key: 'slc',
+          key: 'sample',
           yamlPath,
           action: 'stage',
         });
@@ -91,6 +91,31 @@ describe('@sys/tools/deploy endpoint actions', () => {
         expect(res.stageOk).to.eql(true);
         expect(await Fs.exists(`${cwd}/stage/index.html`)).to.eql(true);
         expect(await Fs.exists(`${cwd}/stage/dist.json`)).to.eql(true);
+      });
+    });
+  });
+
+  describe('preview', () => {
+    it('reports a sanitized verification reason without generic static fallback', async () => {
+      await withTmpDir(async (cwd) => {
+        const yamlPath = `${cwd}/-config/@sys.tools.deploy/sample.yaml`;
+        await writeSimpleSite(cwd, 'sample');
+        await Fs.write(yamlPath, simpleCopyYaml());
+
+        const { value: res, output } = await captureInfo(() =>
+          runEndpointAction({
+            cwd,
+            key: 'sample',
+            yamlPath,
+            action: 'preview',
+          })
+        );
+
+        expect(res.ok).to.eql(false);
+        const text = Cli.stripAnsi(output);
+        expect(text).to.include('Preview unavailable');
+        expect(text).to.include('reason: missing');
+        expect(text).to.not.include('Run stage first');
       });
     });
   });
@@ -130,13 +155,13 @@ describe('@sys/tools/deploy endpoint actions', () => {
   describe('stage-push', () => {
     it('preserves stage success when push is unavailable', async () => {
       await withTmpDir(async (cwd) => {
-        const yamlPath = `${cwd}/-config/@sys.tools.deploy/slc.yaml`;
-        await writeSimpleSite(cwd, 'slc');
+        const yamlPath = `${cwd}/-config/@sys.tools.deploy/sample.yaml`;
+        await writeSimpleSite(cwd, 'sample');
         await Fs.write(yamlPath, noopCopyYaml());
 
         const res = await runEndpointAction({
           cwd,
-          key: 'slc',
+          key: 'sample',
           yamlPath,
           action: 'stage-push',
         });
@@ -150,6 +175,7 @@ describe('@sys/tools/deploy endpoint actions', () => {
   });
 });
 
+/** Helpers: */
 async function writePulledComponents(
   cwd: string,
   opts: { includeSw?: boolean } = {},

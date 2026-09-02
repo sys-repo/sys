@@ -1,21 +1,26 @@
-import { startServing } from '../cli.serve/m.server/mod.ts';
-import { c, Cli, Is, Path, Pkg, Str, type t, Time } from './common.ts';
+import { c, Cli, Is, Path, Str, type t, Time } from './common.ts';
 import { EndpointsFs } from './u.endpoints/mod.ts';
+import { Fmt } from './u.fmt.ts';
+import { runDeployPreviewSession } from './u.preview.ts';
 import { loadStagePlan } from './u.stage.ts';
+import { resolveStagingRoot } from './u.staging/mod.ts';
 
 import { runPushWithSpinner } from './u.menu/run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './u.menu/run.stagingWithSpinner.ts';
 import { pushCapabilityOf } from './u.menu/u/u.pushCapability.ts';
 import { PushPublishStats } from './u.push/u.publishStats.ts';
 import { PushPruneStats } from './u.push/u.pruneStats.ts';
-import { resolveMissingStagingOutputs, resolveStagingRoot } from './u.staging/mod.ts';
 
+/**
+ * Run one resolved Deploy endpoint action.
+ */
 export async function runEndpointAction(args: {
   cwd: t.StringDir;
   key: string;
   yamlPath: t.StringPath;
   action: t.DeployTool.Endpoint.RunAction;
   force?: boolean;
+  until?: t.UntilInput;
 }): Promise<t.DeployTool.Endpoint.RunResult> {
   switch (args.action) {
     case 'stage':
@@ -34,11 +39,12 @@ export async function runEndpointAction(args: {
         error: pushed.error,
       };
     }
-    case 'serve':
-      return await runServeAction(args);
+    case 'preview':
+      return await runPreviewAction(args);
   }
 }
 
+/** Helpers: */
 async function runPushAction(args: {
   cwd: t.StringDir;
   yamlPath: t.StringPath;
@@ -72,9 +78,6 @@ async function runPushAction(args: {
     console.info(String(b));
     return { ok: false, push: { ok: false } };
   }
-
-  const dist = await loadEndpointDist(cwd, freshYaml);
-  const hashSuffix = String(dist?.hash?.digest ?? '').trim().slice(-5) || undefined;
 
   const pushStarted = Time.now.timestamp;
   let okCount = 0;
@@ -115,6 +118,8 @@ async function runPushAction(args: {
   const bytes = bytesTotal || undefined;
   const publish = PushPublishStats.merge(publishStats);
   const publishSummary = PushPublishStats.summary(publish);
+  const reportDigest = publish?.files.find((file) => file.path === 'dist.json')?.digest;
+  const hashSuffix = String(reportDigest ?? '').trim().slice(-5) || undefined;
   const prune = PushPruneStats.merge(pruneStats);
   const pruneSummary = PushPruneStats.summary(prune);
   const table = Cli.table();
@@ -168,71 +173,39 @@ async function runStageAction(args: {
   return { ok: res.ok, stageOk: res.ok, error: res.ok ? undefined : res.error };
 }
 
-async function runServeAction(args: {
+async function runPreviewAction(args: {
   cwd: t.StringDir;
   key: string;
   yamlPath: t.StringPath;
+  until?: t.UntilInput;
 }): Promise<t.DeployTool.Endpoint.RunResult> {
   const { cwd, key, yamlPath } = args;
   const freshCheck = await EndpointsFs.validateYaml(yamlPath, { cwd });
   const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
   if (!freshYaml) return { ok: false };
 
-  const freshStagingRootRel = String(freshYaml.staging.dir);
-  const freshStagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel: freshStagingRootRel });
-  const servePort = Is.num(freshYaml.staging.serve?.port)
-    ? freshYaml.staging.serve.port
-    : undefined;
-  const freshDist = (await Pkg.Dist.load(freshStagingRootAbs)).dist;
-  if (!freshDist?.hash?.digest) {
-    const missing = await resolveMissingStagingOutputs({
-      cwd,
-      yamlPath: displayYamlPath(cwd, yamlPath),
-      yaml: freshYaml,
-    });
-    const suffix = missing.length ? `: ${missing.join(', ')}` : '';
-    const b = Str.builder()
-      .line(c.yellow('Serve unavailable'))
-      .line(c.gray(c.dim(`reason: no-staging-output${suffix}`)))
-      .line(c.gray('Run stage first, then serve.'));
-    console.info(String(b));
+  const stagingRoot = resolveStagingRoot({
+    cwd,
+    stagingRootRel: String(freshYaml.staging.dir),
+  });
+  const result = await runDeployPreviewSession({
+    cwd,
+    dir: stagingRoot,
+    name: key,
+    port: freshYaml.staging.serve?.port,
+    until: args.until,
+  });
+  if (!result.ok) {
+    console.info(Fmt.previewUnavailable(result.reason));
     return { ok: false };
   }
-
-  const location: t.ServeTool.LocationYaml.Location = {
-    name: key,
-    dir: freshStagingRootAbs,
-  };
-  await startServing(cwd, location, { host: 'local', port: servePort });
   return { ok: true };
 }
 
 function displayYamlPath(cwd: t.StringDir, yamlPath: t.StringPath): t.StringPath {
-  const rel = Path.relative(cwd, yamlPath);
-  if (!String(rel).trim() || String(rel).startsWith('..')) return yamlPath;
-  return `./${Str.trimLeadingDotSlash(rel)}`;
-}
-
-async function loadEndpointDist(
-  cwd: t.StringDir,
-  yaml: t.DeployTool.Config.EndpointYaml.Doc,
-): Promise<t.DistPkg | undefined> {
-  const mapping = (yaml.mappings ?? []).find((m) => m.mode === 'build+copy') ??
-    (yaml.mappings ?? [])[0];
-  const stagingRootRel = String(yaml.staging.dir);
-  const stagingRootAbs = resolveStagingRoot({ cwd, stagingRootRel });
-  const mappingStagingRel = String(mapping?.dir?.staging ?? '');
-  const mappingStagingAbs = mappingStagingRel
-    ? Path.resolve(stagingRootAbs, mappingStagingRel)
-    : undefined;
-  const rootDist = (await Pkg.Dist.load(stagingRootAbs)).dist;
-  const mappingDist = mappingStagingAbs ? (await Pkg.Dist.load(mappingStagingAbs)).dist : undefined;
-
-  return rootDist?.hash?.digest
-    ? rootDist
-    : mappingDist?.hash?.digest
-    ? mappingDist
-    : (rootDist ?? mappingDist);
+  const relative = String(Path.relative(cwd, yamlPath));
+  if (!relative.trim() || relative.startsWith('..')) return yamlPath;
+  return `./${Str.trimLeadingDotSlash(relative)}`;
 }
 
 function printPushUnavailable(reason: string, hint?: string) {

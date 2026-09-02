@@ -9,6 +9,7 @@ export type { R2 } from '@sys/driver-cloudflare/t';
 export type { Files } from '@sys/model/files/t';
 export type { Process } from '@sys/process/t';
 export type { Schema } from '@sys/schema/t';
+export type { DistServer } from '@sys/server/t';
 export type { Yaml, YamlConfig } from '@sys/yaml/t';
 
 /** Minimal root-tool vocabulary used by deploy. */
@@ -25,17 +26,6 @@ export namespace Tools {
   };
 }
 
-/** Minimal serve vocabulary used by deploy's local staging preview action. */
-export namespace ServeTool {
-  export namespace LocationYaml {
-    export type Location = {
-      readonly name: string;
-      readonly dir: StringDir;
-      readonly info?: Record<string, string>;
-    };
-  }
-}
-
 /** Common result response from tool runs. */
 export type RunReturn = {
   /** Process exit code to invoke. True = exit(0). */
@@ -43,6 +33,7 @@ export type RunReturn = {
 };
 
 /** Local deploy types. */
+export type { DeployPreview } from './t.preview.ts';
 export type * from './t.namespace.ts';
 export type * from './u.fmt/t.ts';
 export type * from './u.providers/t.ts';

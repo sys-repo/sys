@@ -409,6 +409,18 @@ describe('Schema: endpoint', () => {
         expect(res.errors).to.eql([]);
       });
 
+      it('rejects non-integer and out-of-range staging.serve.port', () => {
+        for (const port of [0, 4040.5, 65536]) {
+          const res = EndpointYamlSchema.validate({
+            staging: { dir: './staging', serve: { port } },
+            mappings: [],
+          });
+
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
+
       it('rejects unknown keys inside staging', () => {
         const res = EndpointYamlSchema.validate({
           staging: { dir: 'staging-1', extra: true },

@@ -1,12 +1,17 @@
 import { c, Fmt as Base, Fs, type t } from '../common.ts';
-import { endpointTable } from './u.fmt.endpoint.ts';
+import { endpointTable, previewUnavailable } from './u.fmt.endpoint.ts';
 import { endpointValidation } from './u.fmt.validation.ts';
 
+/**
+ * Deploy presentation helpers.
+ */
 export const Fmt = {
   ...Base,
   endpointValidation,
   endpointTable,
+  previewUnavailable,
 
+  /** Render Deploy command help. */
   async help(cwd: t.StringDir) {
     const cmd = Base.invoke('deploy');
     return await Base.help(cmd, {

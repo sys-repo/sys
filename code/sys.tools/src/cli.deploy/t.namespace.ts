@@ -4,6 +4,16 @@ import type { t } from './common.ts';
  * Tools for deploying files to a publishing endpoint (CDN).
  */
 export namespace DeployTool {
+  /**
+   * Public Deploy helper API.
+   */
+  export type Lib = {
+    /** Stage endpoint files from owner YAML. */
+    stage(args: StageArgs): Promise<StageResult>;
+    /** Push an already-staged endpoint from owner YAML. */
+    push(args: PushArgs): Promise<PushResult>;
+  };
+
   export const ID = 'deploy' as const;
   export const NAME = 'system/deploy:tools' as const;
   export type Id = typeof ID;
@@ -24,14 +34,6 @@ export namespace DeployTool {
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
     readonly interactive: boolean;
-  };
-
-  /** Public deploy helper API. */
-  export type Lib = {
-    /** Stage endpoint files from owner YAML. */
-    stage(args: StageArgs): Promise<StageResult>;
-    /** Push an already-staged endpoint from owner YAML. */
-    push(args: PushArgs): Promise<PushResult>;
   };
 
   /** Inputs accepted by `Deploy.stage`. */
@@ -114,6 +116,9 @@ export namespace DeployTool {
     };
   }
 
+  /**
+   * Deploy endpoint configuration contracts.
+   */
   export namespace Config {
     export type File = t.JsonFile.Instance<Doc>;
     export type Doc = t.JsonFile.Doc & {
@@ -143,6 +148,21 @@ export namespace DeployTool {
      * (We keep these types here so callers can share the same vocabulary.)
      */
     export namespace EndpointYaml {
+      /** Authoritative endpoint YAML document. */
+      export type Doc = {
+        /** Optional provider adapter config. */
+        provider?: Provider.All;
+
+        /** Source root for this endpoint. */
+        source?: Source;
+
+        /** Required dedicated staging root for this endpoint. */
+        staging: Staging;
+
+        /** Directory mappings assembled into this endpoint. */
+        mappings?: Mapping[];
+      };
+
       /**
        * Canonical per-mapping behavior.
        * - 'build+copy' → build first, then copy output
@@ -180,9 +200,9 @@ export namespace DeployTool {
       export type Staging = {
         /** Dedicated operation-owned root directory relative to deploy cwd. */
         dir: t.StringPath;
-        /** Optional local serve configuration for staged endpoint sanity checks. */
+        /** Optional local preview configuration for the verified staged endpoint. */
         serve?: {
-          /** Port used by the local staged static server. */
+          /** Exact port used by the verified local Dist preview. */
           port?: number;
         };
         /** Optional HTML staging policies. */
@@ -200,20 +220,6 @@ export namespace DeployTool {
       export type Source = {
         /** Root directory for sources (relative to deploy cwd). */
         dir: t.StringPath;
-      };
-
-      export type Doc = {
-        /** Optional provider adapter config. */
-        provider?: Provider.All;
-
-        /** Source root for this endpoint. */
-        source?: Source;
-
-        /** Required dedicated staging root for this endpoint. */
-        staging: Staging;
-
-        /** Directory mappings assembled into this endpoint. */
-        mappings?: Mapping[];
       };
     }
 
@@ -237,36 +243,14 @@ export namespace DeployTool {
     }
   }
 
+  /**
+   * Deploy endpoint execution contracts.
+   */
   export namespace Endpoint {
-    /**
-     * Filesystem conventions for endpoint YAML storage.
-     * - Root dir is relative to the CLI cwd.
-     * - Each endpoint is one YAML file named "<name>.yaml".
-     */
-    export namespace Fs {
-      export type DirName = `-config/${string}.deploy`;
-      export type Ext = '.yaml';
-      export type YamlCheck =
-        | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
-        | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
-    }
+    /** Endpoint actions backed by production execution. */
+    export type RunAction = Extract<Menu.Action, 'stage' | 'push' | 'stage-push' | 'preview'>;
 
-    export namespace Menu {
-      export type Action =
-        | 'stage'
-        | 'push'
-        | 'stage-push'
-        | 'serve'
-        | 'edit'
-        | 'reload'
-        | 'fix'
-        | 'rename'
-        | 'delete'
-        | 'back';
-      export type Option = { readonly name: string; readonly value: Action };
-    }
-
-    export type RunAction = Extract<Menu.Action, 'stage' | 'push' | 'stage-push' | 'serve'>;
+    /** Result of one endpoint action. */
     export type RunResult = {
       readonly ok: boolean;
       readonly stageOk?: boolean;
@@ -281,8 +265,42 @@ export namespace DeployTool {
       };
       readonly error?: unknown;
     };
+
+    /**
+     * Filesystem conventions for endpoint YAML storage.
+     * - Root dir is relative to the CLI cwd.
+     * - Each endpoint is one YAML file named "<name>.yaml".
+     */
+    export namespace Fs {
+      export type DirName = `-config/${string}.deploy`;
+      export type Ext = '.yaml';
+      export type YamlCheck =
+        | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
+        | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+    }
+
+    /**
+     * Interactive endpoint menu contracts.
+     */
+    export namespace Menu {
+      export type Action =
+        | 'stage'
+        | 'push'
+        | 'stage-push'
+        | 'preview'
+        | 'edit'
+        | 'reload'
+        | 'fix'
+        | 'rename'
+        | 'delete'
+        | 'back';
+      export type Option = { readonly name: string; readonly value: Action };
+    }
   }
 
+  /**
+   * Deterministic staging contracts.
+   */
   export namespace Staging {
     /** Stable canonical identity captured for one staging directory. */
     export type DirectoryIdentity = {
