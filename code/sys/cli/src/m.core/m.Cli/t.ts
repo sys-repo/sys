@@ -118,6 +118,18 @@ export declare namespace Cli {
     export type Lib = t.CliInput.Lib;
 
     /**
+     * Lifecycle-owned single-selection prompt projections.
+     */
+    export namespace Select {
+      /** Options supported by a lifecycle-owned single-selection prompt. */
+      export type StartOptions<TValue> = t.CliInput.Select.StartOptions<TValue>;
+      /** Terminal settlement of a lifecycle-owned single-selection prompt. */
+      export type Outcome<TValue> = t.CliInput.Select.Outcome<TValue>;
+      /** Running lifecycle-owned single-selection prompt authority. */
+      export type Started<TValue> = t.CliInput.Select.Started<TValue>;
+    }
+
+    /**
      * Menu interaction result types.
      */
     export namespace Menu {

@@ -45,6 +45,7 @@ export declare namespace CliInput {
     /** Choose exactly one option from a set. */
     readonly Select: {
       readonly prompt: Select.Prompt;
+      readonly start: Select.Start;
     };
 
     /** Choose zero or more options from a set. */
@@ -70,6 +71,24 @@ export declare namespace CliInput {
     export type Prompt = <TValue>(
       options: Options<TValue>,
     ) => ReturnType<typeof ext.CliffySelect.prompt<TValue>>;
+
+    /** Options supported by a lifecycle-owned prompt. Input and callback ownership stay internal. */
+    export type StartOptions<TValue> = Omit<Options<TValue>, 'reader' | 'validate' | 'transform'>;
+
+    /** Terminal settlement of one lifecycle-owned prompt. */
+    export type Outcome<TValue> =
+      | { readonly kind: 'selected'; readonly value: TValue }
+      | { readonly kind: 'cancelled' };
+
+    /** Running prompt authority whose disposal settles all prompt-owned work. */
+    export type Started<TValue> = {
+      readonly finished: Promise<Outcome<TValue>>;
+      dispose(reason?: unknown): Promise<void>;
+      [Symbol.asyncDispose](): Promise<void>;
+    };
+
+    /** Start one lifecycle-owned single-selection prompt. */
+    export type Start = <TValue>(options: StartOptions<TValue>) => Started<TValue>;
   }
 
   /**

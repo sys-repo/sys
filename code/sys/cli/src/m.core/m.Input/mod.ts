@@ -1,7 +1,11 @@
 import { c, type t } from '../common.ts';
 import { Prompt } from '../m.Prompt/mod.ts';
 import { promptSelect } from './u.select.ts';
+import { startSelect } from './u.select.start.ts';
 
+/**
+ * Stable, opinionated helpers for requesting human input.
+ */
 export const Input: t.CliInput.Lib = Object.freeze({
   Text: Object.freeze<t.CliInput.Lib['Text']>({
     prompt: Prompt.Input.prompt.bind(Prompt.Input),
@@ -21,7 +25,7 @@ export const Input: t.CliInput.Lib = Object.freeze({
   MultiText: Object.freeze<t.CliInput.Lib['MultiText']>({
     prompt: Prompt.List.prompt.bind(Prompt.List),
   }),
-  Select: Object.freeze<t.CliInput.Lib['Select']>({ prompt: promptSelect }),
+  Select: Object.freeze<t.CliInput.Lib['Select']>({ prompt: promptSelect, start: startSelect }),
   Checkbox: Object.freeze<t.CliInput.Lib['Checkbox']>({
     prompt(args) {
       return Prompt.Checkbox.prompt({

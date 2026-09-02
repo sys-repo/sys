@@ -2,23 +2,23 @@ import { Is, type t } from '../common.ts';
 import { Prompt } from '../m.Prompt/mod.ts';
 import { selectPromptDependency } from './u.select.scope.ts';
 
-type NormalizedSelectOptions<TValue> = Omit<t.CliInput.Select.Options<TValue>, 'message'> & {
-  message: string;
-};
+type SelectOptions<T> = Omit<t.CliInput.Select.Options<T>, 'message'>;
+type PromptResult<T> = ReturnType<typeof InputSelect.prompt<T>>;
 
-type SelectPrompt<TValue> = (
-  options: NormalizedSelectOptions<TValue>,
-) => ReturnType<typeof InputSelect.prompt<TValue>>;
+/** Package-internal normalized options passed to Cliffy's Select implementation. */
+export type NormalizedSelectOptions<T> = SelectOptions<T> & { message: string };
+
+type SelectPrompt<T> = (options: NormalizedSelectOptions<T>) => PromptResult<T>;
+type InjectedPrompt<T> = (options: t.CliInput.Select.Options<T>) => PromptResult<T>;
 
 /** Prompts for one value, omitting title chrome by default. */
 export function promptSelect<TValue>(
   options: t.CliInput.Select.Options<TValue>,
-): ReturnType<typeof InputSelect.prompt<TValue>> {
+): PromptResult<TValue> {
   const dependency = selectPromptDependency();
   if (dependency) {
-    return dependency(options as t.CliInput.Select.Options<unknown>) as ReturnType<
-      typeof InputSelect.prompt<TValue>
-    >;
+    const prompt = dependency as InjectedPrompt<TValue>;
+    return prompt(options);
   }
   return promptSelectWith((input) => InputSelect.prompt<TValue>(input), options);
 }
@@ -27,11 +27,21 @@ export function promptSelect<TValue>(
 export function promptSelectWith<TValue>(
   prompt: SelectPrompt<TValue>,
   options: t.CliInput.Select.Options<TValue>,
-): ReturnType<typeof InputSelect.prompt<TValue>> {
-  const message = options.message ?? '';
-  const prefix = Is.string(options.prefix) ? options.prefix : message === '' ? '' : undefined;
-  return prompt({ ...options, message, prefix });
+): PromptResult<TValue> {
+  return prompt(normalizeSelectOptions(options));
 }
+
+/** Package-internal normalization shared by immediate and lifecycle-owned Select prompts. */
+export function normalizeSelectOptions<TValue>(
+  options: t.CliInput.Select.Options<TValue>,
+): NormalizedSelectOptions<TValue> {
+  const message = options.message ?? '';
+  let prefix = Is.string(options.prefix) ? options.prefix : undefined;
+  if (prefix === undefined && message === '') prefix = '';
+  return { ...options, message, prefix };
+}
+
+/** Helpers: */
 
 /**
  * Adapts Cliffy's Select renderer for titleless prompts.
@@ -40,11 +50,11 @@ export function promptSelectWith<TValue>(
  * framework's protected `message()` seam to suppress that row without rewriting the
  * renderer or filtering terminal output.
  *
- * Defaults and search retain their rows. The adapter stays private; `Cli.Prompt.Select`
- * remains raw Cliffy access.
+ * Defaults and search retain their rows. The adapter stays package-internal;
+ * `Cli.Prompt.Select` remains raw Cliffy access.
  */
-class InputSelect<TValue> extends Prompt.Select<TValue> {
-  protected override message() {
+export class InputSelect<TValue> extends Prompt.Select<TValue> {
+  protected override message(): string {
     const isTitleless = this.settings.message === '' && this.settings.prefix === '';
     const hasVisibleDefault = typeof this.settings.default !== 'undefined' &&
       this.settings.hideDefault !== true;
