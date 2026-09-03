@@ -13,9 +13,12 @@ type MetadataSuffix = {
   fallback(maxWidth: number): string;
 };
 
+type MetadataValueStyle = (value: string) => string;
+
 type MetadataRowArgs = MetadataPrefixArgs & {
   value: string;
   valueUrl?: URL;
+  valueStyle?: MetadataValueStyle;
   width: number;
   suffix?: MetadataSuffix;
 };
@@ -40,6 +43,7 @@ export const DistServeScreenLayout = {
     const capacity = Math.max(0, viewport.height - wrangle.dimension(args.cursorRows));
     const sequenceWidth = 1;
     const metadataColumn = wrangle.metadataColumn(viewport.width, sequenceWidth);
+    const metadataWidth = Math.max(0, viewport.width - LOG.rowGutter);
     const indent = wrangle.indent(metadataColumn);
     const headerRows = wrangle.applicationHeader(args.identity, viewport.width);
     const header = headerRows.slice(0, capacity);
@@ -47,7 +51,7 @@ export const DistServeScreenLayout = {
 
     let available = capacity - header.length;
     const metadata = [
-      wrangle.serviceUrl(args.origin, metadataColumn, viewport.width),
+      wrangle.serviceUrl(args.origin, metadataColumn, metadataWidth),
       `${indent}${c.green('↑')}`,
       wrangle.distRow(
         args.dir,
@@ -55,9 +59,9 @@ export const DistServeScreenLayout = {
         args.manifestHref,
         args.renderedAt,
         metadataColumn,
-        viewport.width,
+        metadataWidth,
       ),
-      wrangle.authorityRow(args.authority, metadataColumn, viewport.width),
+      wrangle.authorityRow(args.authority, metadataColumn, metadataWidth),
     ];
     const leadingGap = available >= metadata.length + 4 ? [''] : [];
     if (leadingGap.length > 0) available -= leadingGap.length;
@@ -163,6 +167,7 @@ const wrangle = {
       label: 'static',
       value: directory.label,
       valueUrl: directory.directoryUrl,
+      valueStyle: c.gray,
       width,
       indent: column,
       labelWidth: 9,
@@ -222,7 +227,7 @@ const wrangle = {
       width,
       indent: column,
       labelWidth: 9,
-      styledLabel: c.white('authority'),
+      styledLabel: c.gray('authority'),
     });
   },
 
@@ -304,9 +309,10 @@ const wrangle = {
  * Utilities:
  */
 function metadataRow(args: MetadataRowArgs) {
-  const { value, valueUrl, width, suffix } = args;
+  const { value, valueUrl, valueStyle, width, suffix } = args;
   const prefix = metadataPrefix(args);
-  const base = `${prefix}${formatMetadataValue(value, valueUrl)}`;
+  const baseValue = styleMetadataValue(value, valueStyle);
+  const base = `${prefix}${formatMetadataValue(baseValue, valueUrl)}`;
   const baseSuffixWidth = Math.max(0, width - Cli.Fmt.Text.Width.measure(`${base} `));
   const digest = suffix?.digest(baseSuffixWidth);
   if (digest && Cli.Fmt.Text.Width.measure(`${base} ${digest}`) <= width) {
@@ -318,7 +324,9 @@ function metadataRow(args: MetadataRowArgs) {
     width - Cli.Fmt.Text.Width.measure(`${prefix}… `),
   );
   const compactDigest = suffix?.compact(compactSuffixWidth);
-  if (compactDigest) return compactMetadataRow(prefix, value, valueUrl, compactDigest, width);
+  if (compactDigest) {
+    return compactMetadataRow(prefix, value, valueUrl, valueStyle, compactDigest, width);
+  }
 
   const fallback = suffix?.fallback(baseSuffixWidth);
   if (fallback && Cli.Fmt.Text.Width.measure(`${base} ${fallback}`) <= width) {
@@ -326,7 +334,9 @@ function metadataRow(args: MetadataRowArgs) {
   }
 
   const compactFallback = suffix?.fallback(compactSuffixWidth);
-  if (compactFallback) return compactMetadataRow(prefix, value, valueUrl, compactFallback, width);
+  if (compactFallback) {
+    return compactMetadataRow(prefix, value, valueUrl, valueStyle, compactFallback, width);
+  }
   if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
   const valueWidth = Cli.Fmt.Text.Width.fit({
@@ -334,7 +344,7 @@ function metadataRow(args: MetadataRowArgs) {
     reserve: Cli.Fmt.Text.Width.measure(prefix),
     terminal: false,
   });
-  const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+  const clipped = formatMetadataValue(clipValue(value, valueWidth, valueStyle), valueUrl);
   return clipLine(`${prefix}${clipped}`.trimEnd(), width);
 }
 
@@ -342,6 +352,7 @@ function compactMetadataRow(
   prefix: string,
   value: string,
   valueUrl: URL | undefined,
+  valueStyle: MetadataValueStyle | undefined,
   suffix: string,
   width: number,
 ) {
@@ -350,12 +361,16 @@ function compactMetadataRow(
     reserve: Cli.Fmt.Text.Width.measure(`${prefix} ${suffix}`),
     terminal: false,
   });
-  const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+  const clipped = formatMetadataValue(clipValue(value, valueWidth, valueStyle), valueUrl);
   return `${prefix}${clipped} ${suffix}`;
 }
 
 function formatMetadataValue(value: string, url: URL | undefined) {
   return value && url ? Cli.Fmt.hyperlink(value, url) : value;
+}
+
+function styleMetadataValue(value: string, style: MetadataValueStyle | undefined) {
+  return style ? style(value) : value;
 }
 
 function metadataPrefix(args: MetadataPrefixArgs) {
@@ -386,12 +401,16 @@ function clipLine(input: string, width: number) {
   });
 }
 
-function clipValue(input: string, width: number) {
+function clipValue(input: string, width: number, style?: MetadataValueStyle) {
   if (width <= 0) return '';
   const plain = Cli.stripAnsi(input);
-  if (Cli.Fmt.Text.Width.measure(plain) <= width) return input;
+  if (Cli.Fmt.Text.Width.measure(plain) <= width) return styleMetadataValue(input, style);
   return Cli.Fmt.Text.ellipsize(plain, width, {
-    render: ({ head, ellipsis, tail }) => `${head}${Cli.Fmt.omission(ellipsis)}${tail}`,
+    render: ({ head, ellipsis, tail }) => {
+      return `${styleMetadataValue(head, style)}${Cli.Fmt.omission(ellipsis)}${
+        styleMetadataValue(tail, style)
+      }`;
+    },
   });
 }
 

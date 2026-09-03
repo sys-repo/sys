@@ -15,7 +15,7 @@ describe('DistServeScreen', () => {
     expect(Object.isFrozen(DistServeScreen)).to.eql(true);
   });
 
-  it('bottom-docks compact keyboard controls below a separate divider', async () => {
+  it('renders pinned metadata hierarchy and bottom-docks compact keyboard controls', async () => {
     const fixture = await setup();
     try {
       const dist = fixture.cloneDist();
@@ -41,15 +41,33 @@ describe('DistServeScreen', () => {
       expect(output).to.include('./dist/');
       expect(raw).to.include(c.green('static'));
       expect(raw).to.not.include(c.white('static'));
+      expect(raw).to.include(c.gray('./dist/'));
+      expect(raw).to.not.include(c.dim(c.gray('./dist/')));
       expect(output).to.include(text(HashFmt.digest(dist.hash.digest)));
       expect(output).to.not.include(dist.hash.digest);
       expect(output).to.include(`pinned ${fixture.integrity}`);
-      expect(raw).to.include(c.white('authority'));
+      expect(raw).to.include(c.gray('authority'));
+      expect(raw).to.not.include(c.white('authority'));
       expect(raw).to.not.include(c.gray(`pinned ${fixture.integrity}`));
       expect(output).to.include('serving pinned Dist on HTTP server…');
       const lines = output.split('\n');
+      const serviceRow = lines.find((line) => line.includes('http://localhost')) ?? '';
+      const arrowRow = lines.find((line) => line.trim() === '↑') ?? '';
       const staticRow = lines.find((line) => line.includes('static')) ?? '';
       const authorityRow = lines.find((line) => line.includes('authority')) ?? '';
+      const outputRow = lines.find((line) => line.includes('serving pinned Dist')) ?? '';
+      const outputColumn = outputRow.indexOf('serving');
+      expect(outputColumn > 0).to.eql(true);
+      for (
+        const [row, marker] of [
+          [serviceRow, 'http://localhost'],
+          [arrowRow, '↑'],
+          [staticRow, 'static'],
+          [authorityRow, 'authority'],
+        ] as const
+      ) {
+        expect(row.indexOf(marker)).to.eql(outputColumn);
+      }
       expect(staticRow.indexOf('./dist/')).to.eql(authorityRow.indexOf('pinned'));
       expect(authorityRow.slice(
         authorityRow.indexOf('authority') + 'authority'.length,
@@ -137,8 +155,10 @@ describe('DistServeScreen', () => {
       const outputRow = rows.find((line) => text(line).includes('serving locally verified Dist'));
       const outputPayload = text(outputRow ?? '').replace(logRow, '');
 
-      expect(authorityRow).to.include(c.white('authority'));
+      expect(authorityRow).to.include(c.gray('authority'));
+      expect(authorityRow).to.not.include(c.white('authority'));
       expect(authorityRow).to.include(c.dim(c.gray('·')));
+      expect(authorityRow).to.not.include(c.gray('local'));
       expect(authorityRow).to.include(awareness);
       expect(outputPayload).to.not.eql('');
       expect(outputRow).to.include(c.gray('1'));
@@ -496,7 +516,7 @@ describe('DistServeScreen', () => {
       const dist = fixture.cloneDist();
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const staticHref = new URL('./', manifestHref);
-      const staticLink = Cli.Fmt.hyperlink('./dist/', staticHref);
+      const staticLink = Cli.Fmt.hyperlink(c.gray('./dist/'), staticHref);
       const outputRow = (width: number) => {
         const output = DistServeScreen.toString({
           identity: dist.pkg,
@@ -513,9 +533,9 @@ describe('DistServeScreen', () => {
         return output.split('\n').find((line) => text(line).includes('dist')) ?? '';
       };
       const suffix = `#${dist.hash.digest.slice(-5)}`;
-      const full = outputRow(60);
-      const algorithm = outputRow(44);
-      const short = outputRow(37);
+      const full = outputRow(61);
+      const algorithm = outputRow(45);
+      const short = outputRow(38);
 
       expect(text(full)).to.include(`dist/ ← digest:sha256:${suffix}`);
       expect(full).to.include(staticLink);
@@ -532,7 +552,7 @@ describe('DistServeScreen', () => {
       expect(short).to.include(
         Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 6 }), manifestHref),
       );
-      expect(text(outputRow(31))).to.not.include('←');
+      expect(text(outputRow(32))).to.not.include('←');
     } finally {
       await teardown(fixture);
     }
@@ -544,7 +564,7 @@ describe('DistServeScreen', () => {
       const dist = fixture.cloneDist();
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const staticHref = new URL('./', manifestHref);
-      const staticLink = Cli.Fmt.hyperlink('./dist/', staticHref);
+      const staticLink = Cli.Fmt.hyperlink(c.gray('./dist/'), staticHref);
       const digest = HashFmt.digest(dist.hash.digest);
       const digestLink = Cli.Fmt.hyperlink(digest, manifestHref);
       const frame = DistServeScreen.toString({
@@ -583,6 +603,7 @@ describe('DistServeScreen', () => {
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const staticHref = new URL('./', manifestHref);
       const renderedAt = (dist.build.time + 17 * 60 * 60 * 1000) as t.UnixTimestamp;
+      const rightGutter = 1;
       const digestLabels: string[] = [];
       let maxDigestWidth = Cli.Fmt.Text.Width.measure(HashFmt.digest(hash));
       while (maxDigestWidth > 0) {
@@ -626,14 +647,18 @@ describe('DistServeScreen', () => {
       const digest = hyperlinkLabel(constrained, manifestHref);
       const compactDigest = digestLabels.at(-1) ?? '';
 
+      const directoryText = text(directory ?? '');
+      const [pathHead = '', pathTail = ''] = directoryText.split('…');
       expect(text(constrained)).to.include(`← ${compactDigest} · 17h`);
       expect(directory).to.not.eql(undefined);
       expect(digest).to.not.eql(undefined);
-      expect(text(directory ?? '').startsWith('/workspace/')).to.eql(true);
-      expect(text(directory ?? '').endsWith('server-screen/')).to.eql(true);
-      expect(text(directory ?? '')).to.include('…');
+      expect(directoryText.startsWith('/workspace/')).to.eql(true);
+      expect(directoryText.endsWith('server-screen/')).to.eql(true);
+      expect(directoryText).to.include('…');
+      expect(directory).to.include(c.gray(pathHead));
+      expect(directory).to.include(c.gray(pathTail));
       expect(staticHref.href).to.not.eql(manifestHref.href);
-      expect(Cli.Fmt.Text.Width.measure(constrained)).to.be.at.most(constrainedWidth);
+      expect(Cli.Fmt.Text.Width.measure(constrained)).to.eql(constrainedWidth - rightGutter);
 
       const transitions: number[] = [];
       for (let width = 140; width >= 24; width--) {
@@ -643,7 +668,7 @@ describe('DistServeScreen', () => {
         const rank = digestRank(text(linkedDigest ?? ''));
 
         if (transitions.at(-1) !== rank) transitions.push(rank);
-        expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width);
+        expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width - rightGutter);
         expect(text(row)).to.include('17h');
         expect(linkedDirectory).to.not.eql(undefined);
       }
@@ -666,7 +691,7 @@ describe('DistServeScreen', () => {
             pathWidth: Cli.Fmt.Text.Width.measure(linkedDirectory ?? ''),
           };
 
-          expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width);
+          expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width - rightGutter);
           expect(linkedDirectory).to.not.eql(undefined);
           if (previous) {
             expect(current.digestRank).to.be.at.least(previous.digestRank);
@@ -687,12 +712,12 @@ describe('DistServeScreen', () => {
       expect(text(noAge)).to.include(`← ${compactDigest}`);
       expect(text(noAge)).to.not.include('17h');
       expect(hyperlinkLabel(noAge, manifestHref)).to.not.eql(undefined);
-      expect(Cli.Fmt.Text.Width.measure(noHash)).to.be.at.most(40);
-      expect(Cli.Fmt.Text.Width.measure(noAge)).to.be.at.most(40);
+      expect(Cli.Fmt.Text.Width.measure(noHash)).to.be.at.most(40 - rightGutter);
+      expect(Cli.Fmt.Text.Width.measure(noAge)).to.be.at.most(40 - rightGutter);
 
-      expect(text(rowAt(21, dir))).to.not.include('17h');
-      expect(text(rowAt(21, dir))).to.not.include('←');
-      expect(Cli.Fmt.Text.Width.measure(rowAt(21, dir))).to.be.at.most(21);
+      expect(text(rowAt(22, dir))).to.not.include('17h');
+      expect(text(rowAt(22, dir))).to.not.include('←');
+      expect(Cli.Fmt.Text.Width.measure(rowAt(22, dir))).to.be.at.most(22 - rightGutter);
     } finally {
       await teardown(fixture);
     }
