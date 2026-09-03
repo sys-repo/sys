@@ -75,7 +75,7 @@ deno.json:
   - import: npm:hash-it@7.0.3
   - import: npm:hono@4.13.5
     subpaths: [ cors, types ]
-  - import: npm:ignore@7.0.7
+  - import: npm:ignore@7.0.8
   - import: npm:ora@9.4.1
   - import: npm:@earendil-works/pi-coding-agent@0.84.4
   - import: npm:@standard-schema/spec@1.1.0
@@ -89,7 +89,7 @@ deno.json:
   - import: npm:strip-ansi@7.2.0
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.2.1
-  - import: npm:@stripe/stripe-js@9.14.0
+  - import: npm:@stripe/stripe-js@9.15.0
   - import: npm:ws@8.21.3
   - import: npm:@types/ws@8.18.1
   - import: npm:csstype@3.2.3

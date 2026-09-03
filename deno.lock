@@ -54,7 +54,7 @@
     "npm:@preact/signals-react@3.12.0": "3.12.0_react@19.2.8",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
     "npm:@standard-schema/spec@1.1.0": "1.1.0",
-    "npm:@stripe/stripe-js@9.14.0": "9.14.0",
+    "npm:@stripe/stripe-js@9.15.0": "9.15.0",
     "npm:@svgdotjs/svg.js@3.2.8": "3.2.8",
     "npm:@testing-library/react@16.3.3": "16.3.3_@testing-library+dom@10.4.1_@types+react@19.2.18_@types+react-dom@19.2.5_react@19.2.8_react-dom@19.2.8",
     "npm:@types/mdast@4.0.4": "4.0.4",
@@ -76,7 +76,7 @@
     "npm:hast-util-sanitize@5.0.2": "5.0.2",
     "npm:hast-util-to-html@9.0.5": "9.0.5",
     "npm:hono@4.13.5": "4.13.5",
-    "npm:ignore@7.0.7": "7.0.7",
+    "npm:ignore@7.0.8": "7.0.8",
     "npm:magic-string@1.2.3": "1.2.3",
     "npm:mdast-util-from-markdown@2.0.3": "2.0.3",
     "npm:mdast-util-frontmatter@2.0.1": "2.0.1",
@@ -1315,8 +1315,8 @@
     "@standard-schema/spec@1.1.0": {
       "integrity": "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="
     },
-    "@stripe/stripe-js@9.14.0": {
-      "integrity": "sha512-eCeVT2ee5YWyzz+m/cGwuatcPobe0MxzUGJtat8vUuZo4vNg1bzhoImKaTG2uB1ytIO03MrYAP4d6PTiGl+IZQ=="
+    "@stripe/stripe-js@9.15.0": {
+      "integrity": "sha512-0ySfsYH9XzfEspNS6MXMU2cjGsxNXWDQT9JxS43nOAatj6jDEP0fLBm2BanfblzU/GL/kDjFFcKmGInHmrASeg=="
     },
     "@svgdotjs/svg.js@3.2.8": {
       "integrity": "sha512-NUdbI/7FDdqGpzKmqr09IQoy9MUcrAC/3bC8gLgXi6OfJuyri450zMLvJekFUhuq3iN5gpdPjoSoStNl9Eijfg=="
@@ -1882,8 +1882,8 @@
     "ignore@7.0.5": {
       "integrity": "sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg=="
     },
-    "ignore@7.0.7": {
-      "integrity": "sha512-dML0wP6oak21rsNYCJpJB6O1BJIEwNpGrTw0URPfAk4hm0e3pRfCtzkfB6olBcXcVlU2rouCyz7lCyRB0OMVCA=="
+    "ignore@7.0.8": {
+      "integrity": "sha512-YYNsSlXBjMk92SKnkwvB5LOVSa6OznlFUGcsvrFgNJbJCd0M1XKeFVRc8ZByeCqz32FivYNHJVooLmdqrmvp/Q=="
     },
     "is-docker@3.0.0": {
       "integrity": "sha512-eljcgEDlEns/7AXFosB5K/2nCM4P7FQPkGc/DWLy5rmFEWvZayGrik1d9/QIY5nJ4f9YsVvBkA6kJpHn9rISdQ==",
@@ -3333,7 +3333,7 @@
       "npm:@preact/signals-react@3.12.0",
       "npm:@sinclair/typebox-codegen@0.11.1",
       "npm:@standard-schema/spec@1.1.0",
-      "npm:@stripe/stripe-js@9.14.0",
+      "npm:@stripe/stripe-js@9.15.0",
       "npm:@svgdotjs/svg.js@3.2.8",
       "npm:@types/mdast@4.0.4",
       "npm:@types/unist@3.0.3",
@@ -3352,7 +3352,7 @@
       "npm:hast-util-sanitize@5.0.2",
       "npm:hast-util-to-html@9.0.5",
       "npm:hono@4.13.5",
-      "npm:ignore@7.0.7",
+      "npm:ignore@7.0.8",
       "npm:magic-string@1.2.3",
       "npm:mdast-util-from-markdown@2.0.3",
       "npm:mdast-util-frontmatter@2.0.1",
