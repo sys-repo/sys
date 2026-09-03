@@ -4,9 +4,10 @@
 permission model; it does not abstract other runtimes.
 
 Choose the narrowest surface that owns the guarantee you need. Use `Fs` and `Path` for ordinary file
-and path work, `Pkg.Dist` for distribution verification and checksum-matched reads, and `Rooted` to
-publish complete targets without replacement while coordinating their use, sealing, and removal
-beneath one canonical root.
+and path work, `Fs.Snapshot` for bounded single-file reads with explicit stability evidence,
+`Pkg.Dist` for distribution verification and checksum-matched reads, and `Rooted` to publish
+complete targets without replacement while coordinating their use, sealing, and removal beneath one
+canonical root.
 
 ## Primary imports
 
@@ -20,6 +21,33 @@ beneath one canonical root.
 | `@sys/fs/pkg`        | `Pkg.Dist` package metadata and integrity  |
 | `@sys/fs/watch`      | `Watch` for directory changes              |
 | `@sys/fs/t`          | Public types                               |
+
+## Stable file snapshots
+
+`Fs.Snapshot.file()` reads one absolute file selected strictly beneath an absolute root. The caller
+must supply finite `maxBytes` and `timeout` limits. The operation snapshots its options and nested
+cancellation-array containers, rejects symbolic links in the observed root-to-file chain, opens the
+selected path once, and reads through that one handle in chunks no larger than 64 KiB. Structural
+lifecycle leaves use canonical `UntilInput` behavior, so validation and subscription may invoke
+their public getters or subscription code. The operation reads at most one byte beyond `maxBytes` to
+prove the source exceeds the cap; that byte is never retained in the result.
+
+A successful result is frozen and contains a normalized absolute `path`, `byteLength`, `evidence`,
+and a mutable `Uint8Array` with exact, fresh backing storage. The caller owns those bytes. Evidence
+is `device-inode` only when every final-file observation supplied matching non-negative safe-integer
+device and inode values. Otherwise it is `metadata-only`. Size and available modification/change
+timestamps must also remain stable across pre-open path, post-open path, and handle observations.
+
+This is a bounded cooperative-filesystem check, not a provenance or containment proof. Deno does not
+provide directory-handle-relative `openat`; another actor can replace an already observed ancestor
+before the selected file is opened. A successful snapshot therefore does not prove uninterrupted
+ancestry identity, detect every same-metadata in-place mutation, authenticate the file's origin, or
+promise stability after return. Use an external sandbox or excluded mutation when those properties
+are required.
+
+Rejected operations throw frozen `FsSnapshotError` values. Test them with
+`Fs.Snapshot.Is.failure(error)` and inspect their stable `kind`; messages do not include paths or
+host-cause text, and failures do not expose raw host error objects.
 
 ## Distribution integrity
 

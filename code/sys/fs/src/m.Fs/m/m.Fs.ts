@@ -19,6 +19,7 @@ import { findAncestor, walk, walkUp } from '../u/u.walk.ts';
 import { write, writeJson } from '../u/u.write.ts';
 import { Fmt } from './m.Fmt.ts';
 import { Is } from './m.Is.ts';
+import { Snapshot } from './m.Snapshot.ts';
 import { Size } from './m.Size.ts';
 import { Tilde } from './m.Tilde.ts';
 
@@ -49,6 +50,9 @@ export const Fs: t.Fs.Lib = Object.freeze({
   },
   get Capability() {
     return FsCapability;
+  },
+  get Snapshot() {
+    return Snapshot;
   },
 
   stat,

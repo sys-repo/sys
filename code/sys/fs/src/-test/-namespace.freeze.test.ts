@@ -16,6 +16,8 @@ describe('fs namespace freeze contract', () => {
       Fs.Fmt,
       Fs.Tilde,
       Fs.Capability,
+      Fs.Snapshot,
+      Fs.Snapshot.Is,
       Path,
       Dir,
       Dir.Hash,

@@ -1,7 +1,10 @@
+export { Schedule } from '@sys/std/async';
 export { Arr } from '@sys/std/arr';
+export { Dispose } from '@sys/std/dispose';
 export { Time } from '@sys/std/time';
 export { Delete } from '@sys/std/delete';
 export { Is, isRecord } from '@sys/std/is';
+export { Is as ServerIs } from '@sys/std/is/server';
 export { Json } from '@sys/std/json';
 export { JsrUrl } from '@sys/std/url';
 export { Num } from '@sys/std/num';
