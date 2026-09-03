@@ -1,16 +1,15 @@
-import { Is, Obj } from './common.ts';
-
-export type InputRecord = {
-  readonly [key: string]: unknown;
-};
+import { Is, Obj, type t } from './common.ts';
 
 /** Snapshot only own data fields from one exact input record. */
 export function snapshotRecord(
   input: unknown,
   allowed: readonly string[],
   required: readonly string[],
-): InputRecord | undefined {
-  if (!Is.plainObject(input)) return;
+): t.DistServerInput.Record | undefined {
+  if (!Is.object(input) || Is.Native.proxy(input)) return;
+  const prototype = Object.getPrototypeOf(input);
+  if (prototype !== Object.prototype && prototype !== null) return;
+
   const keys = Reflect.ownKeys(input);
   if (keys.some((key) => !Is.str(key) || !allowed.includes(key))) return;
   if (required.some((key) => !Obj.hasOwn(input, key))) return;
@@ -27,9 +26,9 @@ export function snapshotRecord(
 
 /** Select an already-admitted field subset without revisiting caller-owned input. */
 export function selectFields(
-  source: InputRecord,
+  source: t.DistServerInput.Record,
   keys: readonly string[],
-): InputRecord {
+): t.DistServerInput.Record {
   const output: Record<string, unknown> = {};
   for (const key of keys) {
     if (Obj.hasOwn(source, key)) output[key] = source[key];

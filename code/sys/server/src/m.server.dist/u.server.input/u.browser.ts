@@ -1,23 +1,24 @@
 import { Is, Num, Obj, type t } from './common.ts';
 import { snapshotRecord } from './u.record.ts';
 
-const POLICY_KEYS = ['kind', 'dedicatedWorkers', 'serviceWorker'] as const;
-const SOURCE_KEYS = ['kind', 'path', 'worker'] as const;
-const SERVICE_WORKER_KEYS = ['kind', 'path'] as const;
+const KEYS = {
+  POLICY: ['kind', 'dedicatedWorkers', 'serviceWorker'],
+  SOURCE: ['kind', 'path', 'worker'],
+  SERVICE_WORKER: ['kind', 'path'],
+  REQUIRED: ['kind'],
+} as const;
 
 /** Sentinel returned when an explicitly supplied browser policy is malformed. */
 export const INVALID_BROWSER_POLICY = Symbol('invalid-browser-policy');
-
-export type BrowserPolicySnapshot = t.DistServer.BrowserPolicy.Input;
 
 /** Snapshot one closed browser-policy input without invoking caller accessors. */
 export function snapshotBrowserPolicy(
   input: unknown,
   maxSources: number,
-): BrowserPolicySnapshot | typeof INVALID_BROWSER_POLICY | undefined {
+): t.DistServer.BrowserPolicy.Input | typeof INVALID_BROWSER_POLICY | undefined {
   if (input === undefined) return;
 
-  const source = snapshotRecord(input, POLICY_KEYS, POLICY_KEYS);
+  const source = snapshotRecord(input, KEYS.POLICY, KEYS.POLICY);
   if (!source || source.kind !== 'verified-loopback') return INVALID_BROWSER_POLICY;
 
   const dedicatedWorkers = snapshotDedicatedWorkers(source.dedicatedWorkers, maxSources);
@@ -35,6 +36,7 @@ function snapshotDedicatedWorkers(
   input: unknown,
   maxSources: number,
 ): readonly t.DistServer.BrowserPolicy.DedicatedWorker.Source[] | undefined {
+  if (Is.Native.proxy(input)) return;
   if (!Is.array(input) || Object.getPrototypeOf(input) !== Array.prototype) return;
   if (!Num.Is.safeInt(maxSources) || maxSources < 0) return;
 
@@ -71,7 +73,7 @@ function snapshotDedicatedWorkers(
 function snapshotDedicatedWorkerSource(
   input: unknown,
 ): t.DistServer.BrowserPolicy.DedicatedWorker.Source | undefined {
-  const source = snapshotRecord(input, SOURCE_KEYS, ['kind']);
+  const source = snapshotRecord(input, KEYS.SOURCE, KEYS.REQUIRED);
   if (!source) return;
   if (source.kind === 'blob') {
     if (!canonicalAssetPath(source.worker) || Reflect.ownKeys(source).length !== 2) return;
@@ -85,7 +87,7 @@ function snapshotDedicatedWorkerSource(
 function snapshotServiceWorker(
   input: unknown,
 ): t.DistServer.BrowserPolicy.ServiceWorker.Admission | undefined {
-  const source = snapshotRecord(input, SERVICE_WORKER_KEYS, ['kind']);
+  const source = snapshotRecord(input, KEYS.SERVICE_WORKER, KEYS.REQUIRED);
   if (!source) return;
   if (source.kind === 'deny') {
     if (Reflect.ownKeys(source).length !== 1) return;

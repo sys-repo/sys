@@ -1,5 +1,4 @@
 import type { t } from './common.ts';
-import type { BrowserPolicySnapshot } from '../u.server.input/u.browser.ts';
 import { assetPathname } from './u.asset.ts';
 
 export { acceptsFetchSite } from '../../u.server.request.ts';
@@ -8,7 +7,7 @@ export { acceptsFetchSite } from '../../u.server.request.ts';
 export function acceptsWorkerDestination(
   request: Request,
   path: t.Files.String.Path | undefined,
-  policy: BrowserPolicySnapshot,
+  policy: t.DistServer.BrowserPolicy.Input,
   directWorkerAssets: readonly t.Files.String.Path[],
 ): boolean {
   const value = request.headers.get('sec-fetch-dest');

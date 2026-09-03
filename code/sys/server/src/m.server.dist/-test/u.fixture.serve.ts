@@ -1,18 +1,20 @@
 import { Schedule, type t } from '../../-test.ts';
 import type { Fixture } from '../../-test/u.fixture.dist.ts';
 import { verified } from '../../-test/u.fixture.dist.ts';
-import { DEFAULT_DEPENDENCIES, serveLocalWith } from '../u.server.start/mod.ts';
+import type { DistServeScreen as TDistServeScreen } from '../u.server.screen/t.ts';
+import { D, serveLocalWith } from '../u.server.start/mod.ts';
 
-type StartHttpInput = NonNullable<Parameters<typeof DEFAULT_DEPENDENCIES.startHttp>[1]>;
+type StartHttpInput = t.HttpServer.Start.Options;
 
-export type CapturedStartInput =
-  & Pick<
-    StartHttpInput,
-    'keyboard' | 'silent' | 'strictPort' | 'pkg' | 'hash' | 'info'
-  >
-  & {
-    readonly hasPkgSubpath?: boolean;
-  };
+export type CapturedStartInput = {
+  readonly keyboard?: StartHttpInput['keyboard'];
+  readonly silent?: StartHttpInput['silent'];
+  readonly strictPort?: StartHttpInput['strictPort'];
+  readonly pkg?: StartHttpInput['pkg'];
+  readonly hash?: StartHttpInput['hash'];
+  readonly info?: StartHttpInput['info'];
+  readonly hasPkgSubpath?: boolean;
+};
 
 export type StartedController = {
   readonly release: () => void;
@@ -21,8 +23,15 @@ export type StartedController = {
   readonly server: t.DistServer.Started;
 };
 
-type ServeEffects = NonNullable<Parameters<typeof serveLocalWith>[2]>;
-type KeypressEvent = Parameters<NonNullable<t.Cli.Keyboard.Bind.Options['onKey']>>[0];
+type ServeEffects = {
+  bindKeyboard: t.Cli.Keyboard.Lib['bind'];
+  createScreen: (args: TDistServeScreen.CreateArgs) => TDistServeScreen.Reporter;
+  isInteractive: () => boolean;
+  open: (origin: t.StringUrl) => void | Promise<void>;
+  now: () => t.UnixTimestamp;
+};
+type OnKey = NonNullable<t.Cli.Keyboard.Bind.Options['onKey']>;
+type KeypressEvent = Parameters<OnKey>[0];
 
 type StartedOptions = {
   closeFailure?: unknown;
@@ -66,7 +75,27 @@ export function runInteractiveServe(
       silent: false,
     },
     {
-      ...DEFAULT_DEPENDENCIES,
+      ...D.DEPS,
+      verifyLocal: () => Promise.resolve(verified(fixture)),
+      startHttp: () => started.server,
+    },
+    effects,
+  );
+}
+
+export function runNestedServe(
+  fixture: Fixture,
+  started: StartedController,
+  effects: ServeEffects,
+) {
+  return serveLocalWith(
+    {
+      dir: fixture.source as t.StringDir,
+      limits: fixture.policy.verification,
+      navigation: 'nested',
+    },
+    {
+      ...D.DEPS,
       verifyLocal: () => Promise.resolve(verified(fixture)),
       startHttp: () => started.server,
     },

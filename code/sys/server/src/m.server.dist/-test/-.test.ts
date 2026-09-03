@@ -19,6 +19,26 @@ describe('@sys/server/dist', () => {
     expect(Object.isFrozen(DistServer.Local)).to.eql(true);
     expectTypeOf(Dist).toEqualTypeOf<t.Dist.Lib>();
     expectTypeOf(DistServer).toEqualTypeOf<t.DistServer.Lib>();
+
+    const servePinned = (args: t.DistServer.Serve.Args) => DistServer.serve(args);
+    const servePinnedNested = (args: t.DistServer.Serve.NestedArgs) => DistServer.serve(args);
+    const serveLocal = (args: t.DistServer.Local.ServeArgs) => DistServer.Local.serve(args);
+    const serveLocalNested = (args: t.DistServer.Local.Serve.NestedArgs) => {
+      return DistServer.Local.serve(args);
+    };
+    expectTypeOf(servePinned).toEqualTypeOf<
+      (args: t.DistServer.Serve.Args) => Promise<void>
+    >();
+    expectTypeOf(servePinnedNested).toEqualTypeOf<
+      (args: t.DistServer.Serve.NestedArgs) => Promise<t.DistServer.Serve.Result>
+    >();
+    expectTypeOf(serveLocal).toEqualTypeOf<
+      (args: t.DistServer.Local.ServeArgs) => Promise<void>
+    >();
+    expectTypeOf(serveLocalNested).toEqualTypeOf<
+      (args: t.DistServer.Local.Serve.NestedArgs) => Promise<t.DistServer.Serve.Result>
+    >();
+
     expectTypeOf({ kind: 'applied', changed: false } as t.Dist.Existing['seal'])
       .toEqualTypeOf<t.FsRooted.SealApplied>();
     expectTypeOf({ kind: 'applied', changed: false } as t.Dist.Promoted['seal'])

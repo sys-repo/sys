@@ -2,6 +2,12 @@ import type { FsRooted, Pkg as FsPkg } from '@sys/fs/t';
 import type { HttpFetch, HttpPull, HttpServer } from '@sys/http/t';
 import type { t } from './common.ts';
 
+type NestedServeArgs<T> = Omit<T, 'silent' | 'keyboard'> & {
+  navigation: 'nested';
+  silent?: never;
+  keyboard?: never;
+};
+
 /**
  * Contracts for checksum-pinned Dist materialization, sealing, and final-directory evidence.
  */
@@ -197,7 +203,7 @@ export declare namespace DistServer {
     /** Start one checksum-pinned Dist host and return its lifecycle. */
     readonly start: (args: Start.Args) => Promise<Started>;
     /** Blocking terminal-owned serve with pinned authority semantics. */
-    readonly serve: (args: Serve.Args) => Promise<void>;
+    readonly serve: Serve.Operation;
     /** Explicit locally verified, unpinned authority family. */
     readonly Local: Local.Lib;
     readonly Error: Error.Lib;
@@ -246,11 +252,25 @@ export declare namespace DistServer {
    * Terminal-owned serving contracts for checksum-pinned authority.
    */
   export namespace Serve {
+    /** Pinned terminal-serving operation with default and nested-navigation overloads. */
+    export type Operation = {
+      /** Serve as a nested screen and settle only after complete presentation cleanup. */
+      (args: NestedArgs): Promise<Result>;
+      /** Preserve the default blocking serve contract. */
+      (args: Args): Promise<void>;
+    };
+
     /** Pinned start authority plus an optional package-application subpath. */
     export type Args = Start.Args & {
       /** Raw package subpath rendered only after verified package resolution. */
       pkgSubpath?: string;
     };
+
+    /** Pinned authority for one terminal-owned nested serve generation. */
+    export type NestedArgs = NestedServeArgs<Args>;
+
+    /** Finite nested-screen completion after listener and presentation cleanup. */
+    export type Result = { readonly kind: 'back' } | { readonly kind: 'closed' };
   }
 
   /**
@@ -261,7 +281,7 @@ export declare namespace DistServer {
       /** Start one complete local Dist transport, including its exact verified manifest bytes. */
       readonly start: (args: Args) => Promise<Started>;
       /** Blocking terminal-owned serve for one complete locally verified Dist transport. */
-      readonly serve: (args: ServeArgs) => Promise<void>;
+      readonly serve: Serve.Operation;
     };
 
     /**
@@ -296,6 +316,22 @@ export declare namespace DistServer {
       /** Raw package subpath rendered only after verified package resolution. */
       pkgSubpath?: string;
     };
+
+    /**
+     * Locally verified nested-serving contracts.
+     */
+    export namespace Serve {
+      /** Local terminal-serving operation with default and nested-navigation overloads. */
+      export type Operation = {
+        /** Serve as a nested screen and settle only after complete presentation cleanup. */
+        (args: NestedArgs): Promise<DistServer.Serve.Result>;
+        /** Preserve the default blocking serve contract. */
+        (args: ServeArgs): Promise<void>;
+      };
+
+      /** Local authority for one terminal-owned nested serve generation. */
+      export type NestedArgs = NestedServeArgs<ServeArgs>;
+    }
   }
 
   /**

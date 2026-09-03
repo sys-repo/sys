@@ -1,5 +1,5 @@
 import { Cli, Num, type t, Time } from './common.ts';
-import { type DistServeScreenFrameArgs, DistServeScreenLayout } from './u.layout.ts';
+import { DistServeScreenLayout } from './u.layout.ts';
 
 type FailureChannel = {
   readonly promise: Promise<never>;
@@ -7,37 +7,6 @@ type FailureChannel = {
 };
 
 type ResizeSubscription = { unsubscribe(): void };
-type Schedule = (run: () => void) => t.Cancellable;
-
-type Terminal = {
-  readonly cursorRows: number;
-  size(): t.Cli.Screen.Size;
-  events(until?: t.UntilInput): t.Cli.Screen.Events;
-  repaint(frame: string): void;
-};
-
-export type DistServeScreenReporter = {
-  readonly failure: Promise<never>;
-  /** Synchronously remeasure the terminal and repaint from retained startup inputs. */
-  readonly redraw: () => void;
-  readonly dispose: () => void;
-};
-
-export type DistServeScreenCreateArgs =
-  & Pick<
-    DistServeScreenFrameArgs,
-    'origin' | 'dir' | 'manifestHref' | 'authority' | 'evidence' | 'renderedAt'
-  >
-  & {
-    readonly identity?: DistServeScreenFrameArgs['identity'];
-    readonly keyboard?: {
-      readonly enabled: boolean;
-      readonly print: boolean;
-    };
-    readonly until?: t.UntilInput;
-    readonly terminal?: Partial<Terminal>;
-    readonly schedule?: Schedule;
-  };
 
 const RESIZE_REPAINT_DELAY = 50 as t.Msecs;
 
@@ -46,7 +15,7 @@ const DISPOSED_REPORTER = Object.freeze(
     failure: new Promise<never>(() => {}),
     redraw() {},
     dispose() {},
-  } satisfies DistServeScreenReporter,
+  } satisfies t.DistServeScreen.Reporter,
 );
 
 const DEFAULT_TERMINAL = Object.freeze(
@@ -55,12 +24,12 @@ const DEFAULT_TERMINAL = Object.freeze(
     size: () => Cli.Screen.size(),
     events: (until?: t.UntilInput) => Cli.Screen.events(until),
     repaint: (frame: string) => Cli.Screen.repaint(frame),
-  } satisfies Terminal,
+  } satisfies t.DistServeScreen.Terminal,
 );
 
 /** Effectful owner of one responsive Dist serve-screen lifecycle. */
 export const DistServeScreenRuntime = {
-  create(args: DistServeScreenCreateArgs): DistServeScreenReporter {
+  create(args: t.DistServeScreen.CreateArgs): t.DistServeScreen.Reporter {
     const terminal = { ...DEFAULT_TERMINAL, ...args.terminal };
     const schedule = args.schedule ??
       ((run: () => void) => Time.delay(RESIZE_REPAINT_DELAY, run));
@@ -92,10 +61,7 @@ export const DistServeScreenRuntime = {
           renderedAt: args.renderedAt,
           viewport,
           cursorRows: terminal.cursorRows,
-          keyboard: {
-            enabled: args.keyboard?.enabled ?? false,
-            print: args.keyboard?.print ?? false,
-          },
+          keyboard: frameKeyboard(args.keyboard),
         }),
       );
     };
@@ -224,6 +190,16 @@ export const DistServeScreenRuntime = {
     return { failure: failed.promise, redraw, dispose: release };
   },
 } as const;
+
+function frameKeyboard(
+  input: t.DistServeScreen.Keyboard | undefined,
+): t.DistServeScreen.Keyboard {
+  const keyboard = {
+    enabled: input?.enabled ?? false,
+    print: input?.print ?? false,
+  };
+  return input?.navigation ? { ...keyboard, navigation: input.navigation } : keyboard;
+}
 
 function failureChannel(): FailureChannel {
   let reject: (cause: unknown) => void = () => {};

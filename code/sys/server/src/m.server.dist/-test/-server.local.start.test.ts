@@ -2,11 +2,7 @@ import { Hash } from '@sys/crypto/hash';
 import { describe, expect, Fs, it, Json, type t, WebFixture } from '../../-test.ts';
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { DistServer } from '../mod.ts';
-import {
-  DEFAULT_DEPENDENCIES,
-  type StartDependencies,
-  startLocalWith,
-} from '../u.server.start/mod.ts';
+import { D, type StartDependencies, startLocalWith } from '../u.server.start/mod.ts';
 
 const HASH = `sha256-${'0'.repeat(64)}` as t.StringHash;
 
@@ -32,14 +28,14 @@ describe('DistServer.Local.start', () => {
             silent: true,
           },
           {
-            ...DEFAULT_DEPENDENCIES,
+            ...D.DEPS,
             readPart(args) {
               pinnedReads += 1;
-              return DEFAULT_DEPENDENCIES.readPart(args);
+              return D.DEPS.readPart(args);
             },
             readLocalPart(args) {
               localReads += 1;
-              return DEFAULT_DEPENDENCIES.readLocalPart(args);
+              return D.DEPS.readLocalPart(args);
             },
           },
         );
@@ -136,7 +132,7 @@ describe('DistServer.Local.start', () => {
       let localVerifies = 0;
       let starts = 0;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify() {
           pinnedVerifies += 1;
           return Promise.resolve({ kind: 'missing' });
@@ -160,6 +156,26 @@ describe('DistServer.Local.start', () => {
           return '/tmp/ambient';
         },
       });
+      const tagged = validLocalInput();
+      Object.defineProperty(tagged, Symbol.toStringTag, {
+        get() {
+          getterReads += 1;
+          return 'Object';
+        },
+      });
+
+      let proxyTraps = 0;
+      const trap = () => {
+        proxyTraps += 1;
+        throw new Error('input Proxy trap invoked');
+      };
+      const trapped = new Proxy(validLocalInput(), {
+        get: trap,
+        getOwnPropertyDescriptor: trap,
+        getPrototypeOf: trap,
+        ownKeys: trap,
+      });
+      const transparent = new Proxy(validLocalInput(), {});
 
       const inherited = Object.create({ dir: '/tmp/ambient' });
       Object.assign(inherited, validLocalInput());
@@ -174,6 +190,9 @@ describe('DistServer.Local.start', () => {
           'invalid-input',
         ],
         [accessor, 'invalid-input'],
+        [tagged, 'invalid-input'],
+        [trapped, 'invalid-input'],
+        [transparent, 'invalid-input'],
         [inherited, 'invalid-input'],
         [{ ...validLocalInput(), hostname: '0.0.0.0' }, 'invalid-hostname'],
       ];
@@ -182,11 +201,12 @@ describe('DistServer.Local.start', () => {
         const error = await catchStart(() => startLocalWith(input, deps));
         expect(error?.reason).to.eql(reason);
       }
-      expect({ pinnedVerifies, localVerifies, starts, getterReads }).to.eql({
+      expect({ pinnedVerifies, localVerifies, starts, getterReads, proxyTraps }).to.eql({
         pinnedVerifies: 0,
         localVerifies: 0,
         starts: 0,
         getterReads: 0,
+        proxyTraps: 0,
       });
 
       const refused = await catchStart(() => startLocalWith(validLocalInput(), deps));
@@ -201,7 +221,7 @@ describe('DistServer.Local.start', () => {
     it('snapshots local authority before the scheduler boundary', async () => {
       let observed: t.FsPkg.Dist.Local.Verify.Args | undefined;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verifyLocal(args) {
           observed = args;
           return Promise.resolve({ kind: 'missing' });
@@ -242,14 +262,14 @@ describe('DistServer.Local.start', () => {
             silent: true,
           },
           {
-            ...DEFAULT_DEPENDENCIES,
+            ...D.DEPS,
             verifyLocal(args) {
               verifiedDir = args.dir;
-              return DEFAULT_DEPENDENCIES.verifyLocal(args);
+              return D.DEPS.verifyLocal(args);
             },
             readLocalPart(args) {
               readDirs.push(args.dir);
-              return DEFAULT_DEPENDENCIES.readLocalPart(args);
+              return D.DEPS.readLocalPart(args);
             },
           },
         );

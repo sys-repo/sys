@@ -1,8 +1,10 @@
 import { describe, expect, Files, it, type t } from '../../-test.ts';
-import { setup as setupDist, teardown } from '../../-test/u.fixture.dist.ts';
+import { setup as setupDist, teardown, verified } from '../../-test/u.fixture.dist.ts';
 import { Dist, DistServer } from '../mod.ts';
 import {
-  DEFAULT_DEPENDENCIES,
+  D,
+  serveLocalWith,
+  serveWith,
   type StartDependencies,
   startLocalWith,
   startWith,
@@ -42,7 +44,7 @@ describe('DistServer browser policy', () => {
   it('rejects malformed policy authority before verification without invoking accessors', async () => {
     let verifies = 0;
     const deps: StartDependencies = {
-      ...DEFAULT_DEPENDENCIES,
+      ...D.DEPS,
       verify() {
         verifies++;
         return Promise.resolve({ kind: 'missing' });
@@ -100,6 +102,122 @@ describe('DistServer browser policy', () => {
     expect({ verifies, getterReads }).to.eql({ verifies: 0, getterReads: 0 });
   });
 
+  it('rejects worker-array Proxies across pinned and local start and serve before effects', async () => {
+    const fixture = await setup();
+    let traps = 0;
+    let verifies = 0;
+    let listenerStarts = 0;
+    let presentation = 0;
+    const forward = {
+      get(target: unknown[], key: PropertyKey, receiver: unknown) {
+        traps += 1;
+        return Reflect.get(target, key, receiver);
+      },
+      getOwnPropertyDescriptor(target: unknown[], key: PropertyKey) {
+        traps += 1;
+        return Reflect.getOwnPropertyDescriptor(target, key);
+      },
+      getPrototypeOf(target: unknown[]) {
+        traps += 1;
+        return Reflect.getPrototypeOf(target);
+      },
+      ownKeys(target: unknown[]) {
+        traps += 1;
+        return Reflect.ownKeys(target);
+      },
+    } satisfies ProxyHandler<unknown[]>;
+    const trap = () => {
+      traps += 1;
+      throw new Error('worker-array Proxy trap invoked');
+    };
+    const revoked = Proxy.revocable([...WORKERS], {});
+    revoked.revoke();
+    const workers: unknown[] = [
+      new Proxy([...WORKERS], {}),
+      new Proxy([...WORKERS], forward),
+      new Proxy([...WORKERS], {
+        get: trap,
+        getOwnPropertyDescriptor: trap,
+        getPrototypeOf: trap,
+        ownKeys: trap,
+      }),
+      revoked.proxy,
+    ];
+    const deps: StartDependencies = {
+      ...D.DEPS,
+      verify: () => {
+        verifies += 1;
+        return Promise.resolve(verified(fixture));
+      },
+      verifyLocal: () => {
+        verifies += 1;
+        return Promise.resolve(verified(fixture));
+      },
+      startHttp: () => {
+        listenerStarts += 1;
+        throw new Error('listener must not start');
+      },
+    };
+    const unexpected = () => {
+      presentation += 1;
+      throw new Error('presentation must not start');
+    };
+    const effects = {
+      bindKeyboard: unexpected,
+      createScreen: unexpected,
+      isInteractive: () => {
+        presentation += 1;
+        return true;
+      },
+      open: unexpected,
+      now: unexpected,
+    };
+
+    try {
+      for (const dedicatedWorkers of workers) {
+        const browserPolicy = { ...POLICY, dedicatedWorkers };
+        const pinned = { ...validInput(), browserPolicy };
+        const local = {
+          dir: fixture.source as t.StringDir,
+          limits: fixture.policy.verification,
+          browserPolicy,
+        };
+        const outcomes = await Promise.all([
+          catchStart(() => startWith(pinned, deps)),
+          catchStart(() => startLocalWith(local, deps)),
+          catchStart(() =>
+            serveWith(
+              { ...pinned, navigation: 'nested' } as unknown as t.DistServer.Serve.NestedArgs,
+              deps,
+              effects,
+            )
+          ),
+          catchStart(() =>
+            serveLocalWith(
+              { ...local, navigation: 'nested' } as unknown as t.DistServer.Local.Serve.NestedArgs,
+              deps,
+              effects,
+            )
+          ),
+        ]);
+        expect(outcomes.map((error) => error?.reason)).to.eql([
+          'invalid-input',
+          'invalid-input',
+          'invalid-input',
+          'invalid-input',
+        ]);
+      }
+      expect({ traps, verifies, listenerStarts, presentation }).to.eql({
+        traps: 0,
+        verifies: 0,
+        listenerStarts: 0,
+        presentation: 0,
+      });
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('refuses undeclared policy assets after verification and before listener startup', async () => {
     const fixture = await setup();
     try {
@@ -109,11 +227,11 @@ describe('DistServer browser policy', () => {
 
       let listeners = 0;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
         startHttp(...args) {
           listeners++;
-          return DEFAULT_DEPENDENCIES.startHttp(...args);
+          return D.DEPS.startHttp(...args);
         },
       };
       const cases: t.DistServer.BrowserPolicy.Input[] = [
@@ -169,7 +287,7 @@ describe('DistServer browser policy', () => {
       const wait = new Promise<void>((resolve) => (release = resolve));
       const verifying = new Promise<void>((resolve) => (observed = resolve));
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify: async () => {
           observed();
           await wait;
@@ -297,7 +415,7 @@ describe('DistServer browser policy', () => {
 
       let lookups = 0;
       let reads = 0;
-      const realBacking = DEFAULT_DEPENDENCIES.fromDist({
+      const realBacking = D.DEPS.fromDist({
         dist: materialized.verification.dist,
         policy: Files.Policy.readonly('**'),
       });
@@ -312,12 +430,12 @@ describe('DistServer browser policy', () => {
         },
       } as ReturnType<StartDependencies['fromDist']>;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
         fromDist: () => backing,
         readPart(args) {
           reads++;
-          return DEFAULT_DEPENDENCIES.readPart(args);
+          return D.DEPS.readPart(args);
         },
       };
       server = await startWith({
@@ -473,7 +591,7 @@ describe('DistServer browser policy', () => {
       if (materialized.kind !== 'promoted') return;
 
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verifyLocal: () =>
           Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
       };
@@ -495,7 +613,7 @@ describe('DistServer browser policy', () => {
         browserPolicy: ZERO_WORKERS,
         silent: true,
       }, {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
       });
       expect(ipv6.origin).to.eql(`http://[::1]:${ipv6.port}`);
@@ -520,11 +638,11 @@ describe('DistServer browser policy', () => {
 
       let throwServe = false;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
         serveBytes: async (input) => {
           if (throwServe) throw new Error('private response failure');
-          const response = await DEFAULT_DEPENDENCIES.serveBytes(input);
+          const response = await D.DEPS.serveBytes(input);
           const headers = new Headers(response.headers);
           headers.set('access-control-allow-origin', '*');
           headers.append('set-cookie', 'ambient=1');
@@ -586,7 +704,7 @@ describe('DistServer browser policy', () => {
         browserPolicy: ZERO_WORKERS,
         silent: true,
       }, {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
         readPart: () => Promise.resolve({ kind: failure }),
       });

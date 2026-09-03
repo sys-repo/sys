@@ -1,18 +1,77 @@
-import { describe, expect, Files, Fs, it, Json, type t, Time, WebFixture } from '../../-test.ts';
+import {
+  describe,
+  Dispose,
+  expect,
+  Files,
+  Fs,
+  it,
+  Json,
+  Rx,
+  type t,
+  Time,
+  WebFixture,
+} from '../../-test.ts';
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist, DistServer } from '../mod.ts';
 import { acceptedAuthorities } from '../../u.server.request.ts';
-import { DEFAULT_DEPENDENCIES, type StartDependencies, startWith } from '../u.server.start/mod.ts';
+import * as StartInput from '../u.server.input/u.start.ts';
+import { D, type StartDependencies, startWith } from '../u.server.start/mod.ts';
 import { createStartTurnAuthorityFixture } from './u.fixture.start.turn-authority.ts';
 
 const HASH = `sha256-${'0'.repeat(64)}` as t.StringHash;
 
 describe('DistServer.start', () => {
   describe('authority', () => {
-    it('rejects unknown, inherited, accessor, and nested-extra input before verification', async () => {
+    it('freezes the canonical key registry against admission-policy mutation', () => {
+      const nodes = [
+        StartInput.KEYS,
+        StartInput.KEYS.PINNED,
+        StartInput.KEYS.LOCAL,
+        StartInput.KEYS.REQUIRED,
+        StartInput.KEYS.REQUIRED.PINNED,
+        StartInput.KEYS.REQUIRED.LOCAL,
+        StartInput.KEYS.LIMITS,
+        StartInput.KEYS.KEYBOARD,
+      ];
+      const input = { ...validInput(), unexpected: true };
+      const nullPrototype = Object.assign(Object.create(null), validInput());
+
+      expect(nodes.every(Object.isFrozen)).to.eql(true);
+      expect(StartInput.snapshotStartInput(nullPrototype).ok).to.eql(true);
+      expect(StartInput.snapshotStartInput(input).ok).to.eql(false);
+      expect(() => {
+        (StartInput.KEYS.PINNED as unknown as string[]).push('unexpected');
+      }).to.throw(TypeError);
+      expect(StartInput.snapshotStartInput(input).ok).to.eql(false);
+    });
+
+    it('snapshots lifecycle arrays while retaining valid leaf identities', () => {
+      using life = Dispose.lifecycle();
+      const observable = life.dispose$;
+      const subject = Rx.subject<unknown>();
+      const signal = new AbortController().signal;
+      const nested: t.UntilInput[] = [observable, subject, signal];
+      const source: t.UntilInput[] = [life, undefined, nested];
+
+      const result = StartInput.snapshotStartInput({ ...validInput(), until: source });
+      if (!result.ok || !Array.isArray(result.value.until)) {
+        throw new Error('Expected admitted lifecycle array snapshot.');
+      }
+      const snapshot = result.value.until;
+      const nestedSnapshot = snapshot[2];
+      if (!Array.isArray(nestedSnapshot)) throw new Error('Expected nested lifecycle array.');
+
+      expect(snapshot).to.not.equal(source);
+      expect(nestedSnapshot).to.not.equal(nested);
+      expect([snapshot, nestedSnapshot].every(Object.isFrozen)).to.eql(true);
+      expect(snapshot[0]).to.equal(life);
+      expect(nestedSnapshot).to.eql([observable, subject, signal]);
+    });
+
+    it('rejects malformed, unknown, inherited, accessor, and Proxy input before verification', async () => {
       let verifies = 0;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify() {
           verifies++;
           return Promise.resolve({ kind: 'missing' });
@@ -28,6 +87,35 @@ describe('DistServer.start', () => {
           return 'ambient';
         },
       });
+      const tagged = validInput();
+      Object.defineProperty(tagged, Symbol.toStringTag, {
+        get() {
+          getterReads++;
+          return 'Object';
+        },
+      });
+
+      let proxyTraps = 0;
+      const trap = () => {
+        proxyTraps++;
+        throw new Error('input Proxy trap invoked');
+      };
+      const trapped = new Proxy(validInput(), {
+        get: trap,
+        getOwnPropertyDescriptor: trap,
+        getPrototypeOf: trap,
+        ownKeys: trap,
+      });
+      const transparent = new Proxy(validInput(), {});
+      const nestedProxy = {
+        ...validInput(),
+        limits: new Proxy(validInput().limits, {
+          get: trap,
+          getOwnPropertyDescriptor: trap,
+          getPrototypeOf: trap,
+          ownKeys: trap,
+        }),
+      };
 
       const inherited = Object.create({ dir: '/tmp/ambient' });
       Object.assign(inherited, validInput());
@@ -35,11 +123,16 @@ describe('DistServer.start', () => {
 
       const cases: unknown[] = [
         { ...validInput(), pkgSubpath: 'ui' },
+        { ...validInput(), dir: '/tmp/\0poison' as t.StringDir },
         { ...validInput(), unexpected: true },
         { ...validInput(), limits: { ...validInput().limits, unexpected: true } },
         { ...validInput(), keyboard: 'nope' },
         { ...validInput(), keyboard: { print: 'nope' } },
         accessor,
+        tagged,
+        trapped,
+        transparent,
+        nestedProxy,
         inherited,
       ];
 
@@ -48,7 +141,7 @@ describe('DistServer.start', () => {
         expect(error?.reason).to.eql('invalid-input');
       }
       expect(verifies).to.eql(0);
-      expect(getterReads).to.eql(0);
+      expect({ getterReads, proxyTraps }).to.eql({ getterReads: 0, proxyTraps: 0 });
     });
 
     it('admits and forwards explicit disabled keyboard authority', async () => {
@@ -61,11 +154,11 @@ describe('DistServer.start', () => {
 
         const observed: unknown[] = [];
         const deps: StartDependencies = {
-          ...DEFAULT_DEPENDENCIES,
+          ...D.DEPS,
           verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
           startHttp(app, options) {
             observed.push(options?.keyboard);
-            return DEFAULT_DEPENDENCIES.startHttp(app, options);
+            return D.DEPS.startHttp(app, options);
           },
         };
         server = await startWith({
@@ -86,7 +179,7 @@ describe('DistServer.start', () => {
     it('rejects every non-loopback or bracketed bind before verification', async () => {
       let verifies = 0;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify() {
           verifies++;
           return Promise.resolve({ kind: 'missing' });
@@ -105,7 +198,7 @@ describe('DistServer.start', () => {
     it('snapshots complete nested authority before the scheduler boundary', async () => {
       let observed: t.FsPkg.Dist.Pinned.Verify.Args | undefined;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify(args) {
           observed = args;
           return Promise.resolve({ kind: 'missing' });
@@ -149,14 +242,14 @@ describe('DistServer.start', () => {
             silent: true,
           },
           {
-            ...DEFAULT_DEPENDENCIES,
+            ...D.DEPS,
             verify(args) {
               verifiedDir = args.dir;
-              return DEFAULT_DEPENDENCIES.verify(args);
+              return D.DEPS.verify(args);
             },
             readPart(args) {
               readDirs.push(args.dir);
-              return DEFAULT_DEPENDENCIES.readPart(args);
+              return D.DEPS.readPart(args);
             },
           },
         );
@@ -187,7 +280,7 @@ describe('DistServer.start', () => {
       controller.abort({ private: 'operator reason' });
       let verifies = 0;
       const deps: StartDependencies = {
-        ...DEFAULT_DEPENDENCIES,
+        ...D.DEPS,
         verify() {
           verifies++;
           return Promise.resolve({ kind: 'missing' });
@@ -212,14 +305,14 @@ describe('DistServer.start', () => {
 
         let starts = 0;
         const deps: StartDependencies = {
-          ...DEFAULT_DEPENDENCIES,
+          ...D.DEPS,
           verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
           fromDist() {
             throw new Error(`private adapter path: ${materialized.dir}`);
           },
           startHttp(...args) {
             starts++;
-            return DEFAULT_DEPENDENCIES.startHttp(...args);
+            return D.DEPS.startHttp(...args);
           },
         };
         const error = await catchStart(() => {
@@ -262,7 +355,7 @@ describe('DistServer.start', () => {
             integrity: materialized.integrity,
             limits: fixture.policy.verification,
           }, {
-            ...DEFAULT_DEPENDENCIES,
+            ...D.DEPS,
             verify: () =>
               Promise.resolve({
                 kind: 'verified',
@@ -301,14 +394,14 @@ describe('DistServer.start', () => {
             integrity: materialized.integrity,
             limits: fixture.policy.verification,
           }, {
-            ...DEFAULT_DEPENDENCIES,
+            ...D.DEPS,
             verify: () =>
               Promise.resolve({
                 kind: 'verified',
                 evidence: materialized.verification,
               }),
             startHttp(...args) {
-              return turns.bind(DEFAULT_DEPENDENCIES.startHttp(...args));
+              return turns.bind(D.DEPS.startHttp(...args));
             },
           });
         } catch (cause) {
@@ -360,7 +453,7 @@ describe('DistServer.start', () => {
         const evidence = Object.freeze({ ...materialized.verification, dist });
         const reads: t.FsPkg.Dist.Pinned.ReadPart.Args[] = [];
         const zeroDeps: StartDependencies = {
-          ...DEFAULT_DEPENDENCIES,
+          ...D.DEPS,
           verify: () => Promise.resolve({ kind: 'verified', evidence }),
           readPart(args) {
             reads.push(args);
@@ -387,7 +480,7 @@ describe('DistServer.start', () => {
         server = undefined;
 
         let malformedReads = 0;
-        const validBacking = DEFAULT_DEPENDENCIES.fromDist({
+        const validBacking = D.DEPS.fromDist({
           dist: evidence.dist,
           policy: Files.Policy.readonly('**'),
         });
@@ -403,7 +496,7 @@ describe('DistServer.start', () => {
           },
         } as ReturnType<StartDependencies['fromDist']>;
         const malformedDeps: StartDependencies = {
-          ...DEFAULT_DEPENDENCIES,
+          ...D.DEPS,
           verify: () => Promise.resolve({ kind: 'verified', evidence }),
           fromDist: () => malformedBacking,
           readPart() {
@@ -447,7 +540,7 @@ describe('DistServer.start', () => {
           },
         } as unknown as t.FilesStatic.Readonly;
         const deps: StartDependencies = {
-          ...DEFAULT_DEPENDENCIES,
+          ...D.DEPS,
           verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
           fromDist: () => backing,
           readPart() {
@@ -514,7 +607,7 @@ describe('DistServer.start', () => {
 
         let failure: t.FsPkg.Dist.Pinned.ReadPart.FailureKind = 'symlink';
         const deps: StartDependencies = {
-          ...DEFAULT_DEPENDENCIES,
+          ...D.DEPS,
           verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
           readPart: () => Promise.resolve({ kind: failure }),
         };
@@ -560,7 +653,7 @@ describe('DistServer.start', () => {
         let observed = () => {};
         const called = new Promise<void>((resolve) => (observed = resolve));
         const deps: StartDependencies = {
-          ...DEFAULT_DEPENDENCIES,
+          ...D.DEPS,
           verify: () => Promise.resolve({ kind: 'verified', evidence: materialized.verification }),
           readPart(args) {
             expect(args.until).to.eql(server?.signal);

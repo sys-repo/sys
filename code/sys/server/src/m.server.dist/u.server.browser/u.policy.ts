@@ -1,5 +1,4 @@
 import { MediaType, Obj, type t } from './common.ts';
-import type { BrowserPolicySnapshot } from '../u.server.input/u.browser.ts';
 import { assetUrl } from './u.asset.ts';
 
 export type BrowserRuntime = {
@@ -10,7 +9,7 @@ export type BrowserRuntime = {
 
 /** Admit only policy assets declared by the exact verified Dist. */
 export function admitsVerifiedBrowserPolicy(
-  policy: BrowserPolicySnapshot,
+  policy: t.DistServer.BrowserPolicy.Input,
   evidence: t.FsPkg.Dist.Verify.Evidence,
 ): boolean {
   const parts = evidence.dist.hash.parts;
@@ -25,7 +24,7 @@ export function admitsVerifiedBrowserPolicy(
 
 /** Build settled runtime policy and immutable applied-policy evidence. */
 export function createBrowserRuntime(
-  policy: BrowserPolicySnapshot,
+  policy: t.DistServer.BrowserPolicy.Input,
   origin: t.StringUrl,
   host: string,
 ): BrowserRuntime {
@@ -60,7 +59,7 @@ export function provisionalBrowserHeaders(): t.DistServer.BrowserPolicy.Headers 
 }
 
 function browserHeaders(
-  policy: BrowserPolicySnapshot,
+  policy: t.DistServer.BrowserPolicy.Input,
   origin: t.StringUrl,
 ): t.DistServer.BrowserPolicy.Headers {
   const workerSources: string[] = [];

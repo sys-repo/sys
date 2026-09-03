@@ -1,20 +1,23 @@
 import { c, Cli, HashFmt, Num, type t, Time } from './common.ts';
 
-export type DistServeScreenFrameArgs = {
-  readonly identity: t.Cli.Fmt.Header.PackageIdentity | undefined;
-  readonly origin: t.StringUrl;
-  readonly dir: t.StringDir;
-  /** Local manifest recording the displayed Dist digest. */
-  readonly manifestHref?: URL;
-  readonly authority: t.DistServer.Started['authority'];
-  readonly evidence: t.FsPkg.Dist.Verify.Evidence;
-  readonly renderedAt: t.UnixTimestamp;
-  readonly viewport: t.Cli.Screen.Size;
-  readonly cursorRows: number;
-  readonly keyboard: {
-    readonly enabled: boolean;
-    readonly print: boolean;
-  };
+type MetadataPrefixArgs = {
+  label: string;
+  indent?: number;
+  labelWidth?: number;
+  styledLabel?: string;
+};
+
+type MetadataRowArgs = MetadataPrefixArgs & {
+  value: string;
+  valueUrl?: URL;
+  width: number;
+  suffix?: (maxWidth: number) => string;
+};
+
+type OutputLine = {
+  sequence: number;
+  source: 'stdout' | 'stderr' | 'out';
+  text: string;
 };
 
 const LOG = {
@@ -26,7 +29,7 @@ const LOG = {
 
 /** Pure Dist serve-screen frame layout. */
 export const DistServeScreenLayout = {
-  toString(args: DistServeScreenFrameArgs) {
+  toString(args: t.DistServeScreen.FrameArgs) {
     const viewport = wrangle.viewport(args.viewport);
     const capacity = Math.max(0, viewport.height - wrangle.dimension(args.cursorRows));
     const sequenceWidth = 1;
@@ -69,7 +72,7 @@ export const DistServeScreenLayout = {
     );
     const status = ['', divider, output];
     const keyboard = args.keyboard.enabled && args.keyboard.print
-      ? wrangle.keyboardRows(viewport.width)
+      ? wrangle.keyboardRows(viewport.width, args.keyboard.navigation)
       : [];
     const footer = keyboard.length === 0
       ? []
@@ -208,15 +211,7 @@ const wrangle = {
       : 'serving locally verified Dist (UNPINNED) on HTTP server…';
   },
 
-  outputRow(
-    line: {
-      readonly sequence: number;
-      readonly source: 'stdout' | 'stderr' | 'out';
-      readonly text: string;
-    },
-    width: number,
-    sequenceWidth: number,
-  ) {
+  outputRow(line: OutputLine, width: number, sequenceWidth: number) {
     const rowWidth = Math.max(0, Math.floor(width) - LOG.rowGutter);
     const source = line.source === 'stderr' ? c.yellow('err') : c.gray('out');
     const gap = wrangle.indent(LOG.columnGap);
@@ -232,17 +227,31 @@ const wrangle = {
     return clipLine(`${prefix}${text}`, rowWidth);
   },
 
-  keyboardRows(width: number) {
+  keyboardRows(width: number, navigation: t.DistServeScreen.Navigation | undefined) {
     const quit = Cli.Fmt.Keyboard.command({ label: 'quit', keys: ['q'] });
+    const openBrowser = Cli.Fmt.Keyboard.command({
+      label: 'open',
+      keys: ['o'],
+      context: 'browser',
+    });
+    const open = Cli.Fmt.Keyboard.command({ label: 'open', keys: ['o'] });
+
+    if (navigation === 'nested') {
+      const back = Cli.Fmt.Keyboard.back();
+      const row = Cli.Fmt.Keyboard.row({
+        width,
+        candidates: [
+          { left: `${back}  ${openBrowser}`, right: quit },
+          { left: `${back}  ${open}`, right: quit },
+          { left: back, right: quit },
+        ],
+      });
+      return row ? [row] : [];
+    }
+
     const row = Cli.Fmt.Keyboard.row({
       width,
-      candidates: [
-        {
-          left: Cli.Fmt.Keyboard.command({ label: 'open', keys: ['o'], context: 'browser' }),
-          right: quit,
-        },
-        { left: Cli.Fmt.Keyboard.command({ label: 'open', keys: ['o'] }), right: quit },
-      ],
+      candidates: [{ left: openBrowser, right: quit }, { left: open, right: quit }],
     });
     return row ? [row] : [];
   },
@@ -273,17 +282,6 @@ const wrangle = {
 /**
  * Utilities:
  */
-type MetadataRowArgs = {
-  label: string;
-  value: string;
-  valueUrl?: URL;
-  width: number;
-  indent?: number;
-  labelWidth?: number;
-  styledLabel?: string;
-  suffix?: (maxWidth: number) => string;
-};
-
 function metadataRow(args: MetadataRowArgs) {
   const { value, valueUrl, width, suffix: resolveSuffix } = args;
   const prefix = metadataPrefix(args);
@@ -320,9 +318,7 @@ function formatMetadataValue(value: string, url: URL | undefined) {
   return value && url ? Cli.Fmt.hyperlink(value, url) : value;
 }
 
-function metadataPrefix(
-  args: Pick<MetadataRowArgs, 'label' | 'indent' | 'labelWidth' | 'styledLabel'>,
-) {
+function metadataPrefix(args: MetadataPrefixArgs) {
   const {
     label,
     indent = 0,

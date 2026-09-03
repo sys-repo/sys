@@ -37,15 +37,20 @@ export type StartRunOptions = {
 };
 
 /**
- * Production dependencies for verified Dist startup.
+ * Default authorities for verified Dist startup.
  */
-export const DEFAULT_DEPENDENCIES: StartDependencies = Object.freeze({
-  verify: FsDistPinned.verify,
-  verifyLocal: FsDistLocal.verify,
-  readPart: FsDistPinned.readPart,
-  readLocalPart: FsDistLocal.readPart,
-  fromDist: FilesStatic.fromDist,
-  createApp: createHttpApp,
-  startHttp,
-  serveBytes: serveFileBytes,
+export const DEFAULTS = Object.freeze({
+  DEPS: Object.freeze({
+    verify: FsDistPinned.verify,
+    verifyLocal: FsDistLocal.verify,
+    readPart: FsDistPinned.readPart,
+    readLocalPart: FsDistLocal.readPart,
+    fromDist: FilesStatic.fromDist,
+    createApp: createHttpApp,
+    startHttp,
+    serveBytes: serveFileBytes,
+  }) satisfies StartDependencies,
 });
+
+/** Short local alias for module defaults. */
+export const D = DEFAULTS;

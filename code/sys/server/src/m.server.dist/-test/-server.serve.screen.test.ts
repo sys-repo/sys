@@ -63,6 +63,29 @@ describe('DistServeScreen', () => {
     }
   });
 
+  it('prioritizes nested back and quit controls before the optional open hint', async () => {
+    const fixture = await setup();
+    try {
+      const wide = text(nestedFrame(fixture, 120)).split('\n').at(-1) ?? '';
+      expect(wide).to.include('← ctrl');
+      expect(wide).to.include('open: o (browser)');
+      expect(wide).to.include('quit: q');
+
+      const compact = text(nestedFrame(fixture, 24)).split('\n').at(-1) ?? '';
+      expect(compact).to.include('← ctrl');
+      expect(compact).to.include('open: o');
+      expect(compact).to.include('quit: q');
+      expect(compact).to.not.include('(browser)');
+
+      const constrained = text(nestedFrame(fixture, 23)).split('\n').at(-1) ?? '';
+      expect(constrained).to.include('← ctrl');
+      expect(constrained).to.include('quit: q');
+      expect(constrained).to.not.include('open:');
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('renders compound package identity through the canonical header formatter', async () => {
     const fixture = await setup();
     try {
@@ -641,6 +664,21 @@ describe('DistServeScreen', () => {
     }
   });
 });
+
+function nestedFrame(fixture: Fixture, width: number) {
+  const dist = fixture.cloneDist();
+  return DistServeScreen.toString({
+    identity: dist.pkg,
+    origin: 'http://127.0.0.1:49152/' as t.StringUrl,
+    dir: fixture.source as t.StringDir,
+    authority: { kind: 'pinned', integrity: fixture.integrity },
+    evidence: evidence(fixture),
+    renderedAt: dist.build.time,
+    viewport: { width, height: 30 },
+    cursorRows: 1,
+    keyboard: { enabled: true, print: true, navigation: 'nested' },
+  });
+}
 
 function localFrame(fixture: Fixture) {
   const dist = fixture.cloneDist();
