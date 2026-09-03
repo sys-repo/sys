@@ -1,9 +1,10 @@
+import { DistServer } from '@sys/server/dist/server';
 import { c, Cli, Is, Path, Str, type t, Time } from './common.ts';
 import { EndpointsFs } from './u.endpoints/mod.ts';
 import { Fmt } from './u.fmt.ts';
-import { runDeployPreviewSession } from './u.preview.ts';
 import { loadStagePlan } from './u.stage.ts';
 import { resolveStagingRoot } from './u.staging/mod.ts';
+import { DIST_VERIFY_LIMITS } from './u.staging/u.verifyStagedDist.ts';
 
 import { runPushWithSpinner } from './u.menu/run.pushWithSpinner.ts';
 import { runStagingWithSpinner } from './u.menu/run.stagingWithSpinner.ts';
@@ -11,17 +12,42 @@ import { pushCapabilityOf } from './u.menu/u/u.pushCapability.ts';
 import { PushPublishStats } from './u.push/u.publishStats.ts';
 import { PushPruneStats } from './u.push/u.pruneStats.ts';
 
-/**
- * Run one resolved Deploy endpoint action.
- */
-export async function runEndpointAction(args: {
+type EndpointActionArgs = {
   cwd: t.StringDir;
   key: string;
   yamlPath: t.StringPath;
   action: t.DeployTool.Endpoint.RunAction;
   force?: boolean;
   until?: t.UntilInput;
-}): Promise<t.DeployTool.Endpoint.RunResult> {
+};
+
+type EndpointActionDependencies = {
+  serveLocal: (
+    args: t.DistServer.Local.Serve.NestedArgs,
+  ) => Promise<t.DistServer.Serve.Result>;
+};
+
+/** Default strict loopback port for verified Deploy previews. */
+export const DEPLOY_PREVIEW_PORT: t.PortNumber = 4040;
+
+const DEFAULT_DEPENDENCIES: EndpointActionDependencies = Object.freeze({
+  serveLocal: DistServer.Local.serve,
+});
+
+/**
+ * Run one resolved Deploy endpoint action.
+ */
+export function runEndpointAction(
+  args: EndpointActionArgs,
+): Promise<t.DeployTool.Endpoint.RunResult> {
+  return runEndpointActionWith(args, DEFAULT_DEPENDENCIES);
+}
+
+/** Internal deterministic endpoint-action runner with explicit preview serving. */
+export async function runEndpointActionWith(
+  args: EndpointActionArgs,
+  deps: EndpointActionDependencies,
+): Promise<t.DeployTool.Endpoint.RunResult> {
   switch (args.action) {
     case 'stage':
       return await runStageAction(args);
@@ -40,7 +66,7 @@ export async function runEndpointAction(args: {
       };
     }
     case 'preview':
-      return await runPreviewAction(args);
+      return await runPreviewAction(args, deps);
   }
 }
 
@@ -173,12 +199,15 @@ async function runStageAction(args: {
   return { ok: res.ok, stageOk: res.ok, error: res.ok ? undefined : res.error };
 }
 
-async function runPreviewAction(args: {
-  cwd: t.StringDir;
-  key: string;
-  yamlPath: t.StringPath;
-  until?: t.UntilInput;
-}): Promise<t.DeployTool.Endpoint.RunResult> {
+async function runPreviewAction(
+  args: {
+    cwd: t.StringDir;
+    key: string;
+    yamlPath: t.StringPath;
+    until?: t.UntilInput;
+  },
+  deps: EndpointActionDependencies,
+): Promise<t.DeployTool.Endpoint.RunResult> {
   const { cwd, key, yamlPath } = args;
   const freshCheck = await EndpointsFs.validateYaml(yamlPath, { cwd });
   const freshYaml = freshCheck.ok ? freshCheck.doc : undefined;
@@ -188,18 +217,22 @@ async function runPreviewAction(args: {
     cwd,
     stagingRootRel: String(freshYaml.staging.dir),
   });
-  const result = await runDeployPreviewSession({
-    cwd,
-    dir: stagingRoot,
-    name: key,
-    port: freshYaml.staging.serve?.port,
-    until: args.until,
-  });
-  if (!result.ok) {
-    console.info(Fmt.previewUnavailable(result.reason));
+
+  try {
+    const preview = await deps.serveLocal({
+      dir: stagingRoot,
+      limits: DIST_VERIFY_LIMITS,
+      navigation: 'nested',
+      port: freshYaml.staging.serve?.port ?? DEPLOY_PREVIEW_PORT,
+      name: key,
+      until: args.until,
+    });
+    return { ok: true, preview };
+  } catch (error) {
+    const reason = DistServer.Error.is(error) ? error.reason : 'startup-failure';
+    console.info(Fmt.previewUnavailable(reason));
     return { ok: false };
   }
-  return { ok: true };
 }
 
 function displayYamlPath(cwd: t.StringDir, yamlPath: t.StringPath): t.StringPath {

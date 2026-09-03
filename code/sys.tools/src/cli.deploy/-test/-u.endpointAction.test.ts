@@ -1,5 +1,11 @@
 import { Cli, describe, expect, Fs, it, Pkg, Str } from '../../-test.ts';
-import { runEndpointAction } from '../u.endpointAction.ts';
+import type { t } from '../common.ts';
+import {
+  DEPLOY_PREVIEW_PORT,
+  runEndpointAction,
+  runEndpointActionWith,
+} from '../u.endpointAction.ts';
+import { DIST_VERIFY_LIMITS } from '../u.staging/u.verifyStagedDist.ts';
 import { captureInfo, providerlessPrebuiltStageYaml, withTmpDir } from './u.fixture.ts';
 
 describe('@sys/tools/deploy endpoint actions', () => {
@@ -96,11 +102,78 @@ describe('@sys/tools/deploy endpoint actions', () => {
   });
 
   describe('preview', () => {
+    it('delegates only nested serving policy and preserves finite navigation', async () => {
+      await withTmpDir(async (cwd) => {
+        const yamlPath = `${cwd}/-config/@sys.tools.deploy/sample.yaml`;
+        const until = new AbortController().signal;
+        await Fs.write(
+          yamlPath,
+          Str.dedent(`
+            staging:
+              dir: ./stage
+              serve:
+                port: 4319
+            mappings: []
+          `).trimStart(),
+        );
+
+        const calls: t.DistServer.Local.Serve.NestedArgs[] = [];
+        const res = await runEndpointActionWith(
+          { cwd, key: 'sample', yamlPath, action: 'preview', until },
+          {
+            serveLocal(input) {
+              calls.push(input);
+              return Promise.resolve({ kind: 'back' });
+            },
+          },
+        );
+
+        expect(res).to.eql({ ok: true, preview: { kind: 'back' } });
+        expect(calls).to.eql([{
+          dir: `${cwd}/stage`,
+          limits: DIST_VERIFY_LIMITS,
+          navigation: 'nested',
+          port: 4319,
+          name: 'sample',
+          until,
+        }]);
+      });
+    });
+
+    it('uses the Deploy preview port default and preserves closed navigation', async () => {
+      await withTmpDir(async (cwd) => {
+        const yamlPath = `${cwd}/-config/@sys.tools.deploy/sample.yaml`;
+        await Fs.write(
+          yamlPath,
+          Str.dedent(`
+            staging:
+              dir: ./stage
+            mappings: []
+          `).trimStart(),
+        );
+
+        let port: t.PortNumber | undefined;
+        const res = await runEndpointActionWith(
+          { cwd, key: 'sample', yamlPath, action: 'preview' },
+          {
+            serveLocal(input) {
+              port = input.port;
+              return Promise.resolve({ kind: 'closed' });
+            },
+          },
+        );
+
+        expect(port).to.eql(DEPLOY_PREVIEW_PORT);
+        expect(res).to.eql({ ok: true, preview: { kind: 'closed' } });
+      });
+    });
+
     it('reports a sanitized verification reason without generic static fallback', async () => {
       await withTmpDir(async (cwd) => {
         const yamlPath = `${cwd}/-config/@sys.tools.deploy/sample.yaml`;
         await writeSimpleSite(cwd, 'sample');
         await Fs.write(yamlPath, simpleCopyYaml());
+        await Fs.ensureDir(`${cwd}/stage`);
 
         const { value: res, output } = await captureInfo(() =>
           runEndpointAction({
@@ -114,7 +187,7 @@ describe('@sys/tools/deploy endpoint actions', () => {
         expect(res.ok).to.eql(false);
         const text = Cli.stripAnsi(output);
         expect(text).to.include('Preview unavailable');
-        expect(text).to.include('reason: missing');
+        expect(text).to.include('reason: startup-failure');
         expect(text).to.not.include('Run stage first');
       });
     });

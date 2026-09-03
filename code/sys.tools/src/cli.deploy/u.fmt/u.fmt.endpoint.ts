@@ -175,7 +175,7 @@ export async function endpointTable(
 }
 
 /** Format one sanitized preview-authority refusal. */
-export function previewUnavailable(reason: t.DeployPreview.FailureReason): string {
+export function previewUnavailable(reason: t.DistServer.StartFailureReason): string {
   return String(
     Str.builder()
       .line(c.yellow('Preview unavailable'))

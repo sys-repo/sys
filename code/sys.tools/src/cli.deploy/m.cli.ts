@@ -38,6 +38,7 @@ async function runInteractive(cwd: t.StringDir): Promise<t.RunReturn> {
 
     const res = await endpointMenu({ cwd, key: picked.key });
     if (res.kind === 'back') continue;
+    if (res.kind === 'closed') return done(0);
   }
 }
 

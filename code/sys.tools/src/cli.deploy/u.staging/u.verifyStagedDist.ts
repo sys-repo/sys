@@ -1,7 +1,7 @@
 import { Pkg, type t } from '../common.ts';
 
 /** One finite Deploy policy shared by staging and verified local preview. */
-export const DEPLOY_DIST_VERIFY_LIMITS = Object.freeze(
+export const DIST_VERIFY_LIMITS = Object.freeze(
   {
     manifestBytes: 16 * 1024 * 1024,
     entries: 8_193,
@@ -17,7 +17,7 @@ export async function verifyStagedDist(
 ): Promise<t.Pkg.Dist.Local.Verify.Evidence> {
   const result = await Pkg.Dist.Local.verify({
     dir,
-    limits: DEPLOY_DIST_VERIFY_LIMITS,
+    limits: DIST_VERIFY_LIMITS,
     ...(until === undefined ? {} : { until }),
   });
   if (result.kind === 'verified') return result.evidence;

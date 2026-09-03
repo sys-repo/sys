@@ -1,8 +1,6 @@
 import { Fs, Path, Pkg, type t } from '../common.ts';
-import { DEPLOY_DIST_VERIFY_LIMITS } from '../u.staging/u.verifyStagedDist.ts';
+import { DIST_VERIFY_LIMITS } from '../u.staging/u.verifyStagedDist.ts';
 import { withTmpDir } from './u.fixture.ts';
-
-type PreviewAction = t.DeployPreview.Action;
 
 type PreviewDistFixture = {
   readonly cwd: t.StringDir;
@@ -25,80 +23,11 @@ export async function withPreviewDist(
 
     const verified = await Pkg.Dist.Local.verify({
       dir: root,
-      limits: DEPLOY_DIST_VERIFY_LIMITS,
+      limits: DIST_VERIFY_LIMITS,
     });
     if (verified.kind !== 'verified') {
       throw new Error(`Preview fixture verification failed: ${verified.kind}`);
     }
     await fn(Object.freeze({ cwd, root, evidence: verified.evidence }));
-  });
-}
-
-/** Create a pending prompt whose first disposal settles as cancellation. */
-export function createPendingPreviewPromptStarted(
-  dispose: (reason?: unknown) => void | Promise<void> = () => undefined,
-): t.DeployPreview.PromptStarted {
-  const completion = Promise.withResolvers<t.DeployPreview.PromptOutcome>();
-  let disposal: Promise<void> | undefined;
-  return Object.freeze({
-    finished: completion.promise,
-    dispose(reason?: unknown) {
-      return disposal ??= (async () => {
-        await dispose(reason);
-        completion.resolve(Object.freeze({ kind: 'cancelled' }));
-        await completion.promise;
-      })();
-    },
-  });
-}
-
-/** Create an owned preview prompt that settles with one selected action. */
-export function createPreviewPromptStarted(
-  action: PreviewAction | PromiseLike<PreviewAction>,
-  dispose: (reason?: unknown) => void | Promise<void> = () => undefined,
-): t.DeployPreview.PromptStarted {
-  const finished: Promise<t.DeployPreview.PromptOutcome> = Promise.resolve(action).then((value) =>
-    Object.freeze({ kind: 'selected', value })
-  );
-  return Object.freeze({
-    finished,
-    async dispose(reason?: unknown) {
-      await dispose(reason);
-      await finished;
-    },
-  });
-}
-
-/** Create the minimum running preview authority required by the session owner. */
-export function createPreviewStarted(
-  evidence: t.Pkg.Dist.Local.Verify.Evidence,
-  origin: t.StringUrl,
-  close: (reason?: unknown) => void | Promise<void>,
-  lifecycle: {
-    readonly controller?: AbortController;
-    readonly finished?: Promise<void>;
-  } = {},
-): t.DeployPreview.Started {
-  const controller = lifecycle.controller ?? new AbortController();
-  const completion = Promise.withResolvers<void>();
-  const ownsCompletion = lifecycle.finished === undefined;
-  const finished = lifecycle.finished ?? completion.promise;
-
-  return Object.freeze({
-    origin,
-    verification: evidence,
-    signal: controller.signal,
-    finished,
-    async close(reason?: unknown) {
-      if (!controller.signal.aborted) controller.abort(reason);
-      try {
-        await close(reason);
-        if (ownsCompletion) completion.resolve();
-        await finished;
-      } catch (cause) {
-        if (ownsCompletion) completion.reject(cause);
-        throw cause;
-      }
-    },
   });
 }

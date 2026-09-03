@@ -253,6 +253,8 @@ export namespace DeployTool {
     /** Result of one endpoint action. */
     export type RunResult = {
       readonly ok: boolean;
+      /** Finite nested-preview navigation after Server-owned cleanup. */
+      readonly preview?: t.DistServer.Serve.Result;
       readonly stageOk?: boolean;
       readonly push?: {
         readonly ok: boolean;

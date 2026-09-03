@@ -33,7 +33,6 @@ export type RunReturn = {
 };
 
 /** Local deploy types. */
-export type { DeployPreview } from './t.preview.ts';
 export type * from './t.namespace.ts';
 export type * from './u.fmt/t.ts';
 export type * from './u.providers/t.ts';

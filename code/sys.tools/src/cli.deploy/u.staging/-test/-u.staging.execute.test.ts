@@ -18,7 +18,7 @@ import { combineStagingLeases } from '../u.staging.buildLease.ts';
 import { captureDirectoryIdentity } from '../u.staging.identity.ts';
 import { settleStagingLease } from '../u.staging.lease.ts';
 import { stageMappings } from '../u.stageMappings.ts';
-import { DEPLOY_DIST_VERIFY_LIMITS, verifyStagedDist } from '../u.verifyStagedDist.ts';
+import { DIST_VERIFY_LIMITS, verifyStagedDist } from '../u.verifyStagedDist.ts';
 
 const copy = (source: string, staging: string): t.DeployTool.Staging.Mapping => ({
   mode: 'copy',
@@ -1352,7 +1352,7 @@ describe('Staging: owned exact root Dist', () => {
     await withTmpDir(async (tmp) => {
       const source = `${tmp}/src`;
       await Fs.ensureDir(source);
-      const sourceFiles = DEPLOY_DIST_VERIFY_LIMITS.entries - 1;
+      const sourceFiles = DIST_VERIFY_LIMITS.entries - 1;
       const batchSize = 64;
       for (let start = 0; start < sourceFiles; start += batchSize) {
         const writes: Promise<unknown>[] = [];
@@ -1411,17 +1411,17 @@ describe('Staging: owned exact root Dist', () => {
   it('freezes the finite verification policy on both contract planes', () => {
     const compileOnlyMutation = () => {
       // @ts-expect-error The shared verification policy is immutable output state.
-      DEPLOY_DIST_VERIFY_LIMITS.entries = 1;
+      DIST_VERIFY_LIMITS.entries = 1;
     };
     expect(compileOnlyMutation).to.be.instanceOf(Function);
 
-    expect(DEPLOY_DIST_VERIFY_LIMITS).to.eql({
+    expect(DIST_VERIFY_LIMITS).to.eql({
       manifestBytes: 16 * 1024 * 1024,
       entries: 8_193,
       fileBytes: 128 * 1024 * 1024,
       totalBytes: 1024 * 1024 * 1024,
     });
-    expect(Object.isFrozen(DEPLOY_DIST_VERIFY_LIMITS)).to.eql(true);
+    expect(Object.isFrozen(DIST_VERIFY_LIMITS)).to.eql(true);
   });
 });
 

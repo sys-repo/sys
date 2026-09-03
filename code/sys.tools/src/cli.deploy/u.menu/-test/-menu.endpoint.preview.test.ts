@@ -37,6 +37,9 @@ describe('Deploy: endpoint menu / preview authority', () => {
               }
               return 'back';
             },
+            runAction() {
+              return Promise.resolve({ ok: false });
+            },
           },
         )
       );
@@ -61,6 +64,67 @@ describe('Deploy: endpoint menu / preview authority', () => {
       const output = Cli.stripAnsi(captured.output);
       expect(output.split('Preview unavailable').length - 1).to.eql(1);
       expect(output.split('reason: content-mismatch').length - 1).to.eql(1);
+    });
+  });
+
+  it('re-enters the same endpoint only after nested-preview back cleanup settles', async () => {
+    await withPreviewDist(async ({ cwd }) => {
+      const yamlPath = `${cwd}/-config/@sys.tools.deploy/sample.yaml`;
+      await Fs.ensureDir(Fs.dirname(yamlPath));
+      await Fs.write(yamlPath, ENDPOINT_YAML);
+
+      const cleanupEntered = Promise.withResolvers<void>();
+      const releaseCleanup = Promise.withResolvers<void>();
+      const events: string[] = [];
+      let prompts = 0;
+      const pending = endpointMenuWith(
+        { cwd, key: 'sample' },
+        {
+          promptAction() {
+            prompts += 1;
+            events.push(`prompt:${prompts}`);
+            return Promise.resolve(prompts === 1 ? 'preview' : 'back');
+          },
+          async runAction(input) {
+            events.push(`serve:${input.action}`);
+            cleanupEntered.resolve();
+            await releaseCleanup.promise;
+            events.push('serve:clean');
+            return { ok: true, preview: { kind: 'back' } };
+          },
+        },
+      );
+
+      await cleanupEntered.promise;
+      expect(prompts).to.eql(1);
+      releaseCleanup.resolve();
+      expect(await pending).to.eql({ kind: 'back' });
+      expect(events).to.eql(['prompt:1', 'serve:preview', 'serve:clean', 'prompt:2']);
+    });
+  });
+
+  it('exits the endpoint menu when nested serving closes', async () => {
+    await withPreviewDist(async ({ cwd }) => {
+      const yamlPath = `${cwd}/-config/@sys.tools.deploy/sample.yaml`;
+      await Fs.ensureDir(Fs.dirname(yamlPath));
+      await Fs.write(yamlPath, ENDPOINT_YAML);
+
+      let prompts = 0;
+      const result = await endpointMenuWith(
+        { cwd, key: 'sample' },
+        {
+          promptAction() {
+            prompts += 1;
+            return Promise.resolve('preview' as const);
+          },
+          runAction() {
+            return Promise.resolve({ ok: true, preview: { kind: 'closed' as const } });
+          },
+        },
+      );
+
+      expect(result).to.eql({ kind: 'closed' });
+      expect(prompts).to.eql(1);
     });
   });
 });

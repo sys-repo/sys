@@ -1,29 +1,32 @@
 import { c, Cli, Fs, Is, Num, Open, Str, type t, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
-import { runEndpointAction } from '../u.endpointAction.ts';
+import { DEPLOY_PREVIEW_PORT, runEndpointAction } from '../u.endpointAction.ts';
 import { Fmt } from '../u.fmt.ts';
-import { DEPLOY_PREVIEW_PORT, verifyDeployPreview } from '../u.preview.ts';
 import { resolveStagingRoot } from '../u.staging/mod.ts';
 
 import { ValidName } from './is.ts';
 import { formatHashPrefix } from './u/u.formatHashPrefix.ts';
 import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
+import { previewStatus } from './u/u.previewStatus.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
 
 type EndpointMenuArgs = { cwd: t.StringDir; key: string };
 type EndpointMenuResult =
   | { readonly kind: 'back' }
+  | { readonly kind: 'closed' }
   | { readonly kind: 'deleted'; readonly key: string };
 
 /** Internal endpoint-menu dependency seam. */
 export type EndpointMenuDependencies = {
   promptAction: typeof promptEndpointAction;
+  runAction: typeof runEndpointAction;
 };
 
 const STAGE_JUST_NOW_MSEC = 1000;
 const DEFAULT_DEPENDENCIES: EndpointMenuDependencies = Object.freeze({
   promptAction: promptEndpointAction,
+  runAction: runEndpointAction,
 });
 
 /**
@@ -76,7 +79,7 @@ export async function endpointMenuWith(
 
     const provider = yaml?.provider;
     const preview = yaml
-      ? await verifyDeployPreview(resolveStagingRoot({
+      ? await previewStatus(resolveStagingRoot({
         cwd,
         stagingRootRel: String(yaml.staging.dir),
       }))
@@ -184,7 +187,8 @@ export async function endpointMenuWith(
     }
 
     if (picked === 'preview') {
-      await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'preview' });
+      const res = await deps.runAction({ cwd, key, yamlPath: yamlAbs, action: 'preview' });
+      if (res.preview?.kind === 'closed') return { kind: 'closed' };
       demarkNextRender = true;
       continue;
     }
