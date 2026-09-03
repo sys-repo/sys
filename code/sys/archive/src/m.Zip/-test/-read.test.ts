@@ -439,6 +439,32 @@ describe('@sys/archive/zip: read-only API', () => {
           operation.operation,
         );
         expect(traps).to.eql(0);
+
+        let leafGetters = 0;
+        let unsubscribed = false;
+        const getterLeaf = {} as Record<string, unknown>;
+        Object.defineProperty(getterLeaf, 'subscribe', {
+          enumerable: true,
+          get() {
+            leafGetters++;
+            return (next: (value: unknown) => void) => {
+              next(undefined);
+              return {
+                closed: false,
+                unsubscribe() {
+                  unsubscribed = true;
+                },
+              };
+            };
+          },
+        });
+        await rejected(
+          operation.run(getterLeaf as t.UntilInput, 10_000),
+          'cancelled',
+          operation.operation,
+        );
+        expect(leafGetters).to.be.greaterThan(0);
+        expect(unsubscribed).to.eql(true);
       }
     });
 

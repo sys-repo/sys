@@ -7,6 +7,7 @@ const NativeUint8Array = Uint8Array;
 const NativeObject = Object;
 const ownKeys = Reflect.ownKeys;
 const getPrototypeOf = NativeObject.getPrototypeOf;
+const getOwnPropertyDescriptor = NativeObject.getOwnPropertyDescriptor;
 const getOwnPropertyDescriptors = NativeObject.getOwnPropertyDescriptors;
 const typedArrayPrototype = getPrototypeOf(NativeUint8Array.prototype);
 const getTypedArrayBuffer = NativeObject.getOwnPropertyDescriptor(typedArrayPrototype, 'buffer')!
@@ -243,29 +244,45 @@ function snapshotUntil(
   input: unknown,
   seen: WeakSet<object>,
   budget: UntilBudget,
-  depth: number,
+  arrayDepth: number,
 ): t.UntilInput {
   if (!Is.object(input) || Is.Native.proxy(input)) throw invalidOptions();
-  budget.nodes++;
-  if (budget.nodes > MAX_UNTIL_NODES || depth > MAX_UNTIL_DEPTH) throw invalidOptions();
+  consumeUntilNode(budget);
   if (!Is.array(input)) {
-    if (!Is.untilInput(input)) throw invalidOptions();
+    if (hasProxyPrototype(input) || !Is.untilInput(input)) throw invalidOptions();
     return input as t.UntilInput;
   }
 
-  if (getPrototypeOf(input) !== NativeArray.prototype || seen.has(input)) throw invalidOptions();
+  if (
+    arrayDepth >= MAX_UNTIL_DEPTH ||
+    getPrototypeOf(input) !== NativeArray.prototype ||
+    seen.has(input)
+  ) {
+    throw invalidOptions();
+  }
   seen.add(input);
+
+  const lengthDescriptor = getOwnPropertyDescriptor(input, 'length');
+  if (!lengthDescriptor || !('value' in lengthDescriptor)) throw invalidOptions();
+  const length = lengthDescriptor.value;
+  if (
+    !Num.Is.safeInt(length) ||
+    length < 0 ||
+    length > MAX_UNTIL_NODES - budget.nodes
+  ) {
+    throw invalidOptions();
+  }
+
   const descriptors = getOwnPropertyDescriptors(input);
-  const length = input.length;
   const keys = ownKeys(input);
-  if (!Num.Is.safeInt(length) || length < 0 || keys.length !== length + 1) throw invalidOptions();
+  if (keys.length !== length + 1) throw invalidOptions();
   const snapshot: t.UntilInput[] = [];
   for (let index = 0; index < length; index++) {
     const descriptor = descriptors[String(index)];
     if (!descriptor || !('value' in descriptor) || descriptor.enumerable !== true) {
       throw invalidOptions();
     }
-    snapshot.push(snapshotUntilValue(descriptor.value, seen, budget, depth + 1));
+    snapshot.push(snapshotUntilValue(descriptor.value, seen, budget, arrayDepth + 1));
   }
   if (keys.some((key) => key !== 'length' && !/^\d+$/u.test(String(key)))) throw invalidOptions();
   return Object.freeze(snapshot) as t.UntilInput;
@@ -275,10 +292,27 @@ function snapshotUntilValue(
   input: unknown,
   seen: WeakSet<object>,
   budget: UntilBudget,
-  depth: number,
+  arrayDepth: number,
 ): t.UntilInput {
-  if (input === undefined) return undefined;
-  return snapshotUntil(input, seen, budget, depth);
+  if (input === undefined) {
+    consumeUntilNode(budget);
+    return undefined;
+  }
+  return snapshotUntil(input, seen, budget, arrayDepth);
+}
+
+function consumeUntilNode(budget: UntilBudget): void {
+  budget.nodes++;
+  if (budget.nodes > MAX_UNTIL_NODES) throw invalidOptions();
+}
+
+function hasProxyPrototype(input: object): boolean {
+  let current = getPrototypeOf(input);
+  while (current) {
+    if (Is.Native.proxy(current)) return true;
+    current = getPrototypeOf(current);
+  }
+  return false;
 }
 
 function exactRecord(
