@@ -1,3 +1,4 @@
+import { Env, Process } from './common.ts';
 import { describe, expect, Fs, Is, it, Json, Obj } from '../../-test.ts';
 
 const PACKAGE_DIR = Fs.Path.fromFileUrl(new URL('../../../', import.meta.url));
@@ -5,7 +6,12 @@ const WORKSPACE_LOCK = Fs.Path.resolve(PACKAGE_DIR, '../../../deno.lock');
 const PUBLIC_ENTRY = '@sys/server/dist/server';
 const ENTRY_URL = new URL('../../-exports/-dist.server.ts', import.meta.url);
 const HTTP_CLIENT_URL = new URL('../../../http/src/http.client/mod.ts', ENTRY_URL);
-const decoder = new TextDecoder();
+const GRAPH_CAPTURE = Object.freeze({
+  executionTimeout: 60_000,
+  maxStdoutBytes: 16 * 1024 * 1024,
+  maxStderrBytes: 256 * 1024,
+  terminationGrace: 1_000,
+});
 
 type InfoGraph = Readonly<Record<string, unknown>>;
 type InfoRecord = Readonly<Record<string, unknown>>;
@@ -43,7 +49,7 @@ const MISSING = Symbol('missing');
 describe('@sys/server/dist/server resolved module graph', () => {
   it('keeps hosting statically free of acquisition, materialization, and publication graphs', async () => {
     const graph = await infoGraph(PUBLIC_ENTRY);
-    const closure = staticClosure(graph);
+    const closure = await staticClosure(graph);
 
     expect(graph.roots).to.eql([ENTRY_URL.href]);
     expectSome(closure.modules, [
@@ -62,7 +68,7 @@ describe('@sys/server/dist/server resolved module graph', () => {
     expectNone(closure.identities, FORBIDDEN);
   });
 
-  it('rejects forbidden redirect source → terminal identities and equivalent file spellings', () => {
+  it('rejects forbidden redirect source → terminal identities and equivalent file spellings', async () => {
     const root = 'file:///graph/root.ts';
     const safe = 'file:///graph/safe.ts';
     const forbidden = 'file:///graph/code/sys/http/src/http.client/mod.ts';
@@ -70,7 +76,7 @@ describe('@sys/server/dist/server resolved module graph', () => {
     const encodedSeparator = HTTP_CLIENT_URL.href.replace('/http.client/', '/%2Fhttp.client/');
     const equivalent = [forbidden, encoded, encodedSeparator];
     const alternateCase = HTTP_CLIENT_URL.href.replace('/http.client/', '/HTTP.CLIENT/');
-    if (sameExistingFile(HTTP_CLIENT_URL.href, alternateCase)) equivalent.push(alternateCase);
+    if (await sameExistingFile(HTTP_CLIENT_URL.href, alternateCase)) equivalent.push(alternateCase);
 
     const graph = (source: string, terminal: string): InfoGraph => ({
       version: 1,
@@ -87,15 +93,15 @@ describe('@sys/server/dist/server resolved module graph', () => {
 
     for (const identity of equivalent) {
       for (const [source, terminal] of [[safe, identity], [identity, safe]] as const) {
-        expect(() => expectNone(staticClosure(graph(source, terminal)).identities, FORBIDDEN)).to
-          .throw(
-            /Static graph includes forbidden modules/,
-          );
+        await expectStaticClosureFailure(
+          graph(source, terminal),
+          /Static graph includes forbidden modules/,
+        );
       }
     }
   });
 
-  it('classifies authored package, relative, bare, and encoded dynamic identities', () => {
+  it('classifies authored package, relative, bare, and encoded dynamic identities', async () => {
     const root = 'file:///graph/code/sys/server/src/root.ts';
     const safe = 'file:///graph/safe.ts';
     const encoded = HTTP_CLIENT_URL.href.replace('/http.client/', '/%2fhttp.client/');
@@ -115,9 +121,7 @@ describe('@sys/server/dist/server resolved module graph', () => {
 
     for (const requested of ['@sys/http/client', '../../http/src/http.client/mod.ts']) {
       const input = graph({ specifier: requested, code: { specifier: safe } });
-      expect(() => expectNone(staticClosure(input).identities, FORBIDDEN)).to.throw(
-        /Static graph includes forbidden modules/,
-      );
+      await expectStaticClosureFailure(input, /Static graph includes forbidden modules/);
     }
 
     for (
@@ -131,9 +135,7 @@ describe('@sys/server/dist/server resolved module graph', () => {
       ]
     ) {
       const forbiddenPackage = graph({ specifier: requested, code: { specifier: safe } });
-      expect(() => expectNone(staticClosure(forbiddenPackage).identities, FORBIDDEN)).to.throw(
-        new RegExp(`"${requested}"`),
-      );
+      await expectStaticClosureFailure(forbiddenPackage, new RegExp(`"${requested}"`));
     }
 
     for (
@@ -145,7 +147,7 @@ describe('@sys/server/dist/server resolved module graph', () => {
       ]
     ) {
       const input = graph({ specifier: requested, code: { specifier: safe } });
-      expectNone(staticClosure(input).identities, FORBIDDEN);
+      expectNone((await staticClosure(input)).identities, FORBIDDEN);
     }
 
     const bareRoot = 'file:///graph/code/sys/http/src/root.ts';
@@ -154,18 +156,16 @@ describe('@sys/server/dist/server resolved module graph', () => {
       [],
       bareRoot,
     );
-    expectNone(staticClosure(bare).identities, FORBIDDEN);
+    expectNone((await staticClosure(bare)).identities, FORBIDDEN);
 
     const dynamic = graph(
       { specifier: encoded, code: { specifier: encoded }, isDynamic: true },
       [{ specifier: encoded }],
     );
-    expect(() => expectNone(staticClosure(dynamic).identities, FORBIDDEN)).to.throw(
-      /Static graph includes forbidden modules/,
-    );
+    await expectStaticClosureFailure(dynamic, /Static graph includes forbidden modules/);
   });
 
-  it('fails closed on malformed graph and reachable edge metadata', () => {
+  it('fails closed on malformed graph and reachable edge metadata', async () => {
     const root = 'file:///graph/root.ts';
     const safe = 'file:///graph/safe.ts';
     const graph = (
@@ -178,35 +178,34 @@ describe('@sys/server/dist/server resolved module graph', () => {
       modules: [{ specifier: root, dependencies: [dependency] }, ...modules],
     });
 
-    expect(() => staticClosure(graph({ specifier: './safe.ts', code: { specifier: safe } }, [], 2)))
-      .to.throw(/version/);
-    expect(() => staticClosure(graph({ code: { specifier: safe } }))).to.throw(
-      /dependency specifier/,
+    await expectStaticClosureFailure(
+      graph({ specifier: './safe.ts', code: { specifier: safe } }, [], 2),
+      /version/,
     );
-    expect(() => staticClosure(graph({ specifier: './safe.ts', code: {} }))).to.throw(
-      /code specifier/,
+    await expectStaticClosureFailure(graph({ code: { specifier: safe } }), /dependency specifier/);
+    await expectStaticClosureFailure(graph({ specifier: './safe.ts', code: {} }), /code specifier/);
+    await expectStaticClosureFailure(
+      graph({
+        specifier: './safe.ts',
+        code: { specifier: 'file://bad host/graph/code/sys/http/src/%68ttp.client/mod.ts' },
+      }),
+      /invalid resolved identity/,
     );
-    expect(() =>
-      staticClosure(
-        graph({
-          specifier: './safe.ts',
-          code: { specifier: 'file://bad host/graph/code/sys/http/src/%68ttp.client/mod.ts' },
-        }),
-      )
-    ).to.throw(/invalid resolved identity/);
-    expect(() => staticClosure(graph({ specifier: './safe.ts' }))).to.throw(/code or type/);
-    expect(() => staticClosure(graph({ specifier: './safe.ts', type: {} }))).to.throw(
+    await expectStaticClosureFailure(graph({ specifier: './safe.ts' }), /code or type/);
+    await expectStaticClosureFailure(
+      graph({ specifier: './safe.ts', type: {} }),
       /type specifier/,
     );
 
     for (const isDynamic of ['false', 0, null]) {
-      expect(() =>
-        staticClosure(graph({ specifier: './safe.ts', isDynamic, code: { specifier: safe } }))
-      ).to.throw(/isDynamic/);
+      await expectStaticClosureFailure(
+        graph({ specifier: './safe.ts', isDynamic, code: { specifier: safe } }),
+        /isDynamic/,
+      );
     }
   });
 
-  it('admits valid type-only and bounded dynamic edges without traversing dynamic descendants', () => {
+  it('admits valid type-only and bounded dynamic edges without traversing dynamic descendants', async () => {
     const root = 'file:///graph/root.ts';
     const dynamic = 'file:///graph/dynamic.ts';
     const forbidden = 'file:///graph/code/sys/http/src/http.client/mod.ts';
@@ -220,7 +219,7 @@ describe('@sys/server/dist/server resolved module graph', () => {
         },
       ],
     };
-    expect(staticClosure(typeOnly).modules).to.eql([root]);
+    expect((await staticClosure(typeOnly)).modules).to.eql([root]);
 
     const dynamicGraph: InfoGraph = {
       version: 1,
@@ -241,12 +240,12 @@ describe('@sys/server/dist/server resolved module graph', () => {
         { specifier: forbidden },
       ],
     };
-    const closure = staticClosure(dynamicGraph);
+    const closure = await staticClosure(dynamicGraph);
     expect(closure.modules).to.eql([root]);
     expectNone(closure.identities, FORBIDDEN);
   });
 
-  it('rejects missing and errored dynamic terminals', () => {
+  it('rejects missing and errored dynamic terminals', async () => {
     const root = 'file:///graph/root.ts';
     const dynamic = 'file:///graph/dynamic.ts';
     const graph = (modules: readonly unknown[]): InfoGraph => ({
@@ -265,16 +264,18 @@ describe('@sys/server/dist/server resolved module graph', () => {
       ],
     });
 
-    expect(() => staticClosure(graph([]))).to.throw(/missing a module/);
-    expect(() => staticClosure(graph([{ specifier: dynamic, error: 'failed' }]))).to.throw(
+    await expectStaticClosureFailure(graph([]), /missing a module/);
+    await expectStaticClosureFailure(
+      graph([{ specifier: dynamic, error: 'failed' }]),
       /contains an error/,
     );
   });
 });
 
 async function infoGraph(root: string): Promise<InfoGraph> {
-  const denoDir = Deno.env.get('DENO_DIR');
-  const output = await new Deno.Command(Deno.execPath(), {
+  const env = await Env.load({ cwd: PACKAGE_DIR });
+  const denoDir = env.get('DENO_DIR');
+  const output = await Process.capture({
     args: [
       'info',
       '--json',
@@ -288,15 +289,16 @@ async function infoGraph(root: string): Promise<InfoGraph> {
     ],
     cwd: PACKAGE_DIR,
     clearEnv: true,
-    env: denoDir ? { DENO_DIR: denoDir } : {},
-    stdin: 'null',
-    stdout: 'piped',
-    stderr: 'piped',
-  }).output();
-  if (!output.success) {
-    throw new Error(`Failed to resolve module graph: ${decoder.decode(output.stderr)}`);
+    env: { FORCE_COLOR: '0', ...(denoDir ? { DENO_DIR: denoDir } : {}) },
+    ...GRAPH_CAPTURE,
+  });
+  if (output.outcome !== 'exited' || !output.success) {
+    const detail = output.text.stderr.trim() || '(no stderr)';
+    throw new Error(`Failed to resolve module graph (${output.outcome}): ${detail}`);
   }
-  const parsed = Json.parse<unknown>(decoder.decode(output.stdout));
+  if (output.stdoutTruncated) throw new Error('Resolved module graph exceeded its capture bound.');
+
+  const parsed = Json.parse<unknown>(output.text.stdout);
   if (!Is.record(parsed)) throw new Error('Resolved module graph output is not an object.');
   return parsed;
 }
@@ -312,7 +314,7 @@ type RuntimeEdge = {
   readonly isDynamic: boolean;
 };
 
-function staticClosure(input: InfoGraph): StaticClosure {
+async function staticClosure(input: InfoGraph): Promise<StaticClosure> {
   const version = requiredOwn(input, 'version', 'graph version');
   if (version !== 1) throw new Error('Resolved module graph version must equal 1.');
 
@@ -347,7 +349,7 @@ function staticClosure(input: InfoGraph): StaticClosure {
   while (pending.length > 0) {
     const source = pending.pop();
     if (!source) continue;
-    const terminal = resolveRedirect(source, redirects, identities);
+    const terminal = await resolveRedirect(source, redirects, identities);
     if (traversed.has(terminal)) continue;
     const module = admitModule(modules, terminal);
     traversed.add(terminal);
@@ -360,8 +362,8 @@ function staticClosure(input: InfoGraph): StaticClosure {
       const edge = runtimeEdge(value, terminal);
       if (!edge) continue;
 
-      addAuthoredIdentity(identities, edge.requested, terminal);
-      const dependencyTerminal = resolveRedirect(edge.target, redirects, identities);
+      await addAuthoredIdentity(identities, edge.requested, terminal);
+      const dependencyTerminal = await resolveRedirect(edge.target, redirects, identities);
       if (edge.isDynamic) {
         admitModule(modules, dependencyTerminal);
       } else if (!traversed.has(dependencyTerminal)) {
@@ -457,11 +459,11 @@ function ownData(input: InfoRecord, field: string): unknown | typeof MISSING {
   return Obj.hasOwn(input, field) ? input[field] : MISSING;
 }
 
-function resolveRedirect(
+async function resolveRedirect(
   source: string,
   redirects: ReadonlyMap<string, string>,
   identities: Set<string>,
-): string {
+): Promise<string> {
   const seen = new Set<string>();
   let current = source;
 
@@ -470,7 +472,7 @@ function resolveRedirect(
       throw new Error(`Resolved module graph contains a redirect cycle: ${current}`);
     }
     seen.add(current);
-    addResolvedIdentity(identities, current);
+    await addResolvedIdentity(identities, current);
 
     const next = redirects.get(current);
     if (next === undefined) return current;
@@ -478,16 +480,16 @@ function resolveRedirect(
   }
 }
 
-function addResolvedIdentity(identities: Set<string>, identity: string): void {
+async function addResolvedIdentity(identities: Set<string>, identity: string): Promise<void> {
   identities.add(identity);
-  addUrlComparison(identities, resolvedUrl(identity, 'resolved identity'));
+  await addUrlComparison(identities, resolvedUrl(identity, 'resolved identity'));
 }
 
-function addAuthoredIdentity(
+async function addAuthoredIdentity(
   identities: Set<string>,
   identity: string,
   referrer: string,
-): void {
+): Promise<void> {
   identities.add(identity);
 
   if (isRelativeIdentity(identity)) {
@@ -499,12 +501,12 @@ function addAuthoredIdentity(
         cause,
       });
     }
-    addUrlComparison(identities, url);
+    await addUrlComparison(identities, url);
     return;
   }
 
   if (URL.canParse(identity)) {
-    addUrlComparison(identities, new URL(identity));
+    await addUrlComparison(identities, new URL(identity));
     return;
   }
   if (identity.includes(':')) {
@@ -527,7 +529,7 @@ function resolvedUrl(identity: string, context: string): URL {
   }
 }
 
-function addUrlComparison(identities: Set<string>, url: URL): void {
+async function addUrlComparison(identities: Set<string>, url: URL): Promise<void> {
   identities.add(url.href);
   if (url.protocol !== 'file:') return;
 
@@ -542,8 +544,10 @@ function addUrlComparison(identities: Set<string>, url: URL): void {
   identities.add(comparisonPath(path));
 
   try {
-    identities.add(comparisonPath(Deno.realPathSync(path)));
+    identities.add(comparisonPath(await Fs.realPath(path)));
   } catch (cause: unknown) {
+    // `Fs.realPath` preserves the host absence class; synthetic graph paths may be absent, while
+    // every other canonicalization failure must fail the proof.
     if (!(cause instanceof Deno.errors.NotFound)) {
       throw new Error(`Resolved module graph cannot canonicalize file identity: ${url.href}`, {
         cause,
@@ -557,19 +561,32 @@ function comparisonPath(input: string): string {
   return `/${Fs.Path.relativePosix(normalized)}`;
 }
 
-function sameExistingFile(left: string, right: string): boolean {
+async function sameExistingFile(left: string, right: string): Promise<boolean> {
   try {
     const leftPath = comparisonPath(
-      Deno.realPathSync(Fs.Path.fromFileUrl(resolvedUrl(left, 'file fixture'))),
+      await Fs.realPath(Fs.Path.fromFileUrl(resolvedUrl(left, 'file fixture'))),
     );
     const rightPath = comparisonPath(
-      Deno.realPathSync(Fs.Path.fromFileUrl(resolvedUrl(right, 'file fixture'))),
+      await Fs.realPath(Fs.Path.fromFileUrl(resolvedUrl(right, 'file fixture'))),
     );
     return leftPath === rightPath;
   } catch (cause: unknown) {
+    // Case-equivalence probing is optional only when one spelling is absent.
     if (cause instanceof Deno.errors.NotFound) return false;
     throw cause;
   }
+}
+
+async function expectStaticClosureFailure(input: InfoGraph, expected: RegExp): Promise<void> {
+  try {
+    const closure = await staticClosure(input);
+    expectNone(closure.identities, FORBIDDEN);
+  } catch (cause) {
+    if (!Is.error(cause)) throw new Error('Static graph failed with a non-Error cause.');
+    expect(cause.message).to.match(expected);
+    return;
+  }
+  throw new Error(`Expected static graph failure matching ${expected}.`);
 }
 
 function expectSome(actual: readonly string[], expected: readonly string[]): void {

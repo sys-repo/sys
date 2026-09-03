@@ -37,6 +37,8 @@ describe('DistServer.Local root-only process authority', () => {
       '--allow-env=FORCE_COLOR,TERM,TERM_PROGRAM',
     ]);
 
+    // `Process.spawn` intentionally owns null stdin. This proof must keep the child host alive until
+    // its HTTP assertions finish, so `Deno.Command` is the exact bidirectional process seam.
     const child = new Deno.Command(Deno.execPath(), {
       args,
       cwd: Fs.cwd(),
@@ -162,6 +164,7 @@ async function stopChild(
   try {
     child.kill('SIGKILL');
   } catch (cause) {
+    // Host termination races expose only native error classes on this direct process seam.
     if (cause instanceof Deno.errors.NotFound) return await status;
     if (!(cause instanceof TypeError && cause.message === 'Child process has already terminated')) {
       throw cause;
@@ -171,6 +174,7 @@ async function stopChild(
 }
 
 function assertPortReleased(port: t.PortNumber): void {
+  // Binding the exact released address is the capability under proof; process inspection is weaker.
   const listener = Deno.listen({ hostname: HOSTNAME, port });
   listener.close();
 }

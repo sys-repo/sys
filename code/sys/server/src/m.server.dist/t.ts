@@ -21,6 +21,8 @@ export declare namespace Dist {
      * directory.
      */
     readonly materialize: Materialize;
+    /** Open and own one checksum-pinned generation under caller-selected store authority. */
+    readonly Generation: Generation.Lib;
   };
 
   /**
@@ -192,6 +194,148 @@ export declare namespace Dist {
 
   /** Sanitized failed settlement with diagnostics reserved to the exact mismatch variant. */
   export type Failed = ManifestChecksumFailed | FailedWithoutManifestChecksum;
+
+  /**
+   * Outer ownership contracts for one checksum-pinned Dist generation.
+   */
+  export namespace Generation {
+    /** Generation-session API. */
+    export type Lib = {
+      /** Open one verified generation and retain shared ownership of its store target. */
+      readonly open: Open.Method;
+    };
+
+    /**
+     * Generation opening contracts.
+     */
+    export namespace Open {
+      /** Open one verified generation under retained shared package-store ownership. */
+      export type Method = (args: Args) => Promise<Result>;
+
+      /** Complete caller authority for one generation open. */
+      export type Args = {
+        /** Caller-selected package-store authority. */
+        store: Store.Input;
+        /** Absolute HTTP(S) location of the `dist.json` to authenticate. */
+        manifestUrl: t.StringUrl;
+        /** Caller-supplied canonical SHA-256 pin for the exact `dist.json` response bytes. */
+        integrity: t.StringHash;
+        /** Explicit network and verification policy. */
+        policy: Policy;
+        /** Optional caller-selected credentials. */
+        credentials?: Credentials;
+        /** Optional cancellation/lifecycle input observed only while opening. */
+        until?: t.UntilInput;
+      };
+
+      /** Complete bounded settlement from opening one generation. */
+      export type Result = Success | Failure.Result;
+
+      /** Successfully materialized generation with retained outer ownership. */
+      export type Success = {
+        readonly kind: 'opened';
+        /** Complete admitted materialization settlement for the verified generation. */
+        readonly generation: Existing | Promoted;
+        /** Shared outer ownership retained independently of opening cancellation. */
+        readonly owner: Owner;
+      };
+    }
+
+    /**
+     * Generation failure contracts.
+     */
+    export namespace Failure {
+      /** Complete bounded failed-open settlement. */
+      export type Result =
+        | Input
+        | StoreNotAcquired
+        | StoreOwned
+        | MaterializationOrchestration
+        | Materialization;
+
+      /** Stable generation-open phase. */
+      export type Phase = 'input' | 'store' | 'materialization';
+
+      /** Stable bounded reason for a Generation-owned failure. */
+      export type Reason =
+        | 'invalid-input'
+        | 'cancelled'
+        | 'busy'
+        | 'filesystem-failure'
+        | 'execution-failure';
+
+      /** Whether outer ownership is absent, observably released, or conservatively retained. */
+      export type Ownership = 'not-acquired' | 'released' | 'pending';
+
+      /** Failure retaining the exact admitted lower materialization settlement. */
+      export type Materialization = {
+        readonly kind: 'failed';
+        readonly phase: 'materialization';
+        readonly generation: Dist.Failed;
+        readonly reason?: undefined;
+        readonly ownership: 'released' | 'pending';
+      };
+
+      type Base = {
+        readonly kind: 'failed';
+        readonly generation?: undefined;
+      };
+
+      type Input = Base & {
+        readonly phase: 'input';
+        readonly reason: 'invalid-input' | 'cancelled' | 'execution-failure';
+        readonly ownership: 'not-acquired';
+      };
+
+      type StoreNotAcquired = Base & {
+        readonly phase: 'store';
+        readonly reason: 'cancelled' | 'busy' | 'filesystem-failure' | 'execution-failure';
+        readonly ownership: 'not-acquired';
+      };
+
+      type StoreOwned = Base & {
+        readonly phase: 'store';
+        readonly reason: 'cancelled' | 'execution-failure';
+        readonly ownership: 'released' | 'pending';
+      };
+
+      type MaterializationOrchestration = Base & {
+        readonly phase: 'materialization';
+        readonly reason: 'cancelled' | 'execution-failure';
+        readonly ownership: 'released' | 'pending';
+      };
+    }
+
+    /**
+     * Caller-selected and admitted package-store paths.
+     */
+    export namespace Store {
+      /** Store authority supplied by the caller. */
+      export type Input = {
+        /** Directory whose complete ancestry Server prepares before Rooted binds it. */
+        root: t.StringDir;
+        /** Root-relative package-store target held for the owner lifetime. */
+        target: t.StringPath;
+      };
+
+      /** Frozen canonical store authority retained by a successful owner. */
+      export type Admitted = {
+        readonly root: t.StringAbsoluteDir;
+        readonly target: t.StringRelativePath;
+        readonly dir: t.StringAbsoluteDir;
+      };
+    }
+
+    /** Async-disposable owner of one admitted package-store target. */
+    export type Owner = globalThis.AsyncDisposable & {
+      readonly store: Store.Admitted;
+      /** Return the one terminal release operation; failed release remains retained. */
+      readonly release: () => Promise<void>;
+      /** Return the same terminal release operation as `release()`. */
+      readonly [Symbol.asyncDispose]: () => Promise<void>;
+      readonly [Symbol.dispose]?: never;
+    };
+  }
 }
 
 /**

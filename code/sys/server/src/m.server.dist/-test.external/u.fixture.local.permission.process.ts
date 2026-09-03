@@ -1,14 +1,18 @@
 import { DistServer } from '@sys/server/dist/server';
-import { Json, Path, type t } from '../common.ts';
+import { Args, Fs, Process } from './common.ts';
+import { Json, type t } from '../common.ts';
 
-const [dir] = Deno.args;
-if (!dir) throw new Error('Expected one exact local Dist root.');
+// Host argv and stdin form this fixture's process protocol; `@sys/process` deliberately exposes
+// neither as borrowed host capabilities.
+const argv = Args.parse(Deno.args, { stopEarly: true })._;
+if (argv.length !== 1) throw new Error('Expected one exact local Dist root.');
 
-const root = Path.resolve(dir);
+const root = Fs.resolve(argv[0]);
 let ancestorDenied = false;
 try {
-  await Deno.lstat(Path.dirname(root));
+  await Fs.lstat(Fs.dirname(root));
 } catch (cause) {
+  // The exact host permission error is the evidence under test, not application error handling.
   if (!(cause instanceof Deno.errors.NotCapable)) {
     throw new Error('Unexpected ancestor-read failure.', { cause });
   }
@@ -33,13 +37,13 @@ const server = await DistServer.Local.start({
 });
 
 try {
-  console.info(`LOCAL_DIST_PROOF ${
+  Process.stdout.write(`LOCAL_DIST_PROOF ${
     Json.stringify({
       origin: server.origin,
       port: server.port,
       ancestorDenied,
     }, 0)
-  }`);
+  }\n`);
   await Deno.stdin.readable.pipeTo(new WritableStream());
 } finally {
   await server.close('proof.complete');

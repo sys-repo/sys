@@ -4,12 +4,14 @@
 endpoints for `@sys/cell` composition.
 
 Callers own content, artifact selection, command grammar, authorization, and trusted state. The
-package owns the network, verification, and lifecycle boundaries declared by each primitive.
+package owns the transport, storage coordination, verification, and lifecycle boundaries declared by
+each primitive.
 
 ## Choose a surface
 
 - **`BootstrapStatus`** — show finite caller-owned status, then redirect once.
-- **`Dist.materialize()`** — acquire one caller-selected manifest under an exact SHA-256 pin.
+- **`Dist.materialize()`** — settle one caller-selected Dist under an exact SHA-256 manifest pin.
+- **`Dist.Generation.open()`** — hold one pinned generation under a shared store lease.
 - **`DistServer.start()`** — host one externally pinned, continuously verified Dist.
 - **`DistServer.Local.start()`** — host one locally observed build, including its exact verified
   manifest, without claiming external authenticity.
@@ -145,6 +147,75 @@ published generation is never described as rolled back because later settlement 
 Materialization does not select a mutable current version, enforce replay policy, activate files, or
 provide rollback. A seal is point-in-time mode evidence—not a sandbox, ACL guarantee,
 hostile-process boundary, retention lock, or durability claim.
+
+## Own a pinned generation
+
+`Dist.Generation.open()` turns one pinned materialization into an owned session:
+
+```text
+prepare the store root and its ancestry
+  → canonicalize the prepared root
+  → bind that exact root (`create: false`)
+  → admit the root-relative store target
+  → acquire a shared lease without waiting
+  → materialize beneath that target
+```
+
+Materialization never starts without the outer lease.
+
+```ts
+import { Dist } from 'jsr:@sys/server/dist';
+
+const result = await Dist.Generation.open({
+  store: { root: '/srv/example/dist', target: '@sample.app' },
+  manifestUrl: 'https://releases.example/sample/dist.json',
+  integrity: 'sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  policy,
+});
+
+if (result.kind === 'failed') {
+  console.error(result.phase, result.generation?.reason ?? result.reason, result.ownership);
+} else {
+  await using owner = result.owner;
+  console.info(result.generation.dir, owner.store);
+  // Apply caller-owned package policy and start the host before leaving this scope.
+}
+```
+
+On success, `generation` preserves the complete `existing` or `promoted` materialization result. The
+frozen owner holds the shared lease; `owner.store` records the canonical root, normalized target,
+and canonical store directory. Every call to `release()` returns one shared terminal operation. An
+observable `undefined` completion proves release. Rejection, a non-void settlement, or an opaque
+transport yields a sanitized rejection and leaves the owner strongly retained for the process
+lifetime; Server does not invoke the lower release again.
+
+Package-internal filesystem, Rooted, and materialization dependencies are trusted non-Proxy
+callables with exact undecorated native Promise transports; Rooted's all-or-none acquisition-failure
+semantics are part of that trust. Generation validates each transport before awaiting it and never
+assimilates an arbitrary thenable or decorated Promise. Retention does not claim to handle an
+autonomous rejection from a decorated Promise, or hidden work by an arbitrary replacement callable,
+that violates this private contract. Returned settlement evidence remains hostile and is admitted
+independently.
+
+A failed result keeps materialization and ownership truth separate:
+
+- `generation`, when present, is the complete `Dist.Failed` returned by materialization. It appears
+  only with phase `materialization` and has no duplicate Generation reason.
+- Without `generation`, `reason` is `invalid-input`, `cancelled`, `busy`, `filesystem-failure`, or
+  `execution-failure`.
+- `ownership` is `not-acquired`, `released`, or `pending`. A pre-acquisition failure is
+  `not-acquired`; every post-acquisition failure is `released` or `pending`.
+
+`pending` never proves absence of ownership: Server conservatively retains the lower authority for
+the process lifetime when release was not proved. `Dist.Cleanup` remains separate; it describes
+private materialization stages, not the outer lease.
+
+`until` can stop only the opening work. A complete admitted `Dist.Failed` remains the exact lower
+settlement when cancellation becomes observable in the same turn; generic cancellation projection
+applies only to a successful lower settlement before opening commits it. Once committed under the
+lease, cancellation cannot revoke the returned owner. Generation opening does not check package
+identity, choose a workspace or release target, start a listener, or apply browser policy. Those
+remain caller concerns.
 
 ## Host a verified Dist
 
