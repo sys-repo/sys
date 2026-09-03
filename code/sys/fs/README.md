@@ -24,29 +24,55 @@ canonical root.
 
 ## Stable file snapshots
 
-`Fs.Snapshot.file()` reads one absolute file selected strictly beneath an absolute root. The caller
-must supply finite `maxBytes` and `timeout` limits. The operation snapshots its options and nested
-cancellation-array containers, rejects symbolic links in the observed root-to-file chain, opens the
-selected path once, and reads through that one handle in chunks no larger than 64 KiB. Structural
-lifecycle leaves use canonical `UntilInput` behavior, so validation and subscription may invoke
-their public getters or subscription code. The operation reads at most one byte beyond `maxBytes` to
-prove the source exceeds the cap; that byte is never retained in the result.
+A stable file snapshot pairs bounded, caller-owned bytes with evidence of the source's observed
+stability; use it when an ordinary read offers no explicit evidence about concurrent replacement or
+mutation; this gives integrity checks a precise input while leaving containment and provenance to
+systems that can provide them.
 
-A successful result is frozen and contains a normalized absolute `path`, `byteLength`, `evidence`,
-and a mutable `Uint8Array` with exact, fresh backing storage. The caller owns those bytes. Evidence
-is `device-inode` only when every final-file observation supplied matching non-negative safe-integer
-device and inode values. Otherwise it is `metadata-only`. Size and available modification/change
-timestamps must also remain stable across pre-open path, post-open path, and handle observations.
+`Fs.Snapshot.file()` answers one narrow question: did this bounded read finish without a change the
+host could reveal? It reads one absolute file selected strictly beneath an absolute root.
+The caller must set finite `maxBytes` and `timeout` limits and may supply `until` for cancellation.
+Symbolic links anywhere in the observed root-to-file chain are rejected.
 
-This is a bounded cooperative-filesystem check, not a provenance or containment proof. Deno does not
-provide directory-handle-relative `openat`; another actor can replace an already observed ancestor
-before the selected file is opened. A successful snapshot therefore does not prove uninterrupted
-ancestry identity, detect every same-metadata in-place mutation, authenticate the file's origin, or
-promise stability after return. Use an external sandbox or excluded mutation when those properties
-are required.
+### Reading the result
+
+A successful snapshot is a frozen record. Read it as evidence about one completed operation, not as
+authority over the path.
+
+| Field        | Meaning                                                                   |
+| ------------ | ------------------------------------------------------------------------- |
+| `path`       | Normalized absolute path that was read                                    |
+| `byteLength` | Exact length of the returned bytes                                        |
+| `bytes`      | Mutable `Uint8Array` with fresh, exact backing storage owned by the caller |
+| `evidence`   | Strength of final-file identity evidence available from the host          |
+
+`device-inode` means every final-file observation supplied the same non-negative safe-integer device
+and inode, alongside stable size and available modification/change timestamps. `metadata-only`
+means complete identity evidence was unavailable, not that checking was skipped. Both values
+describe a successful observation; the caller decides whether that evidence is sufficient.
+
+### What it does not prove
+
+This is a cooperative-filesystem check, not a provenance or containment proof. Deno does not provide
+directory-handle-relative `openat`, so another actor can replace an already observed ancestor before
+the selected file is opened. A successful snapshot therefore does not prove uninterrupted ancestry
+identity, detect every same-metadata in-place mutation, authenticate the file's origin, or promise
+stability after return. These are separate guarantees: use an external sandbox or excluded mutation
+for stronger location stability, and independent evidence for intended content or origin.
+
+### Operational contract
+
+Options and nested cancellation arrays are copied before filesystem work, so later container
+mutation cannot redirect the operation. Lifecycle leaves remain live cancellation sources and follow
+canonical `UntilInput` behavior; validating or subscribing to them may invoke public getters or
+subscription code.
+
+The selected path is opened once and read through that handle in chunks no larger than 64 KiB. To
+distinguish an exact-cap file from an oversized source, the operation may read one byte beyond
+`maxBytes`; that byte is never retained.
 
 Rejected operations throw frozen `FsSnapshotError` values. Test them with
-`Fs.Snapshot.Is.failure(error)` and inspect their stable `kind`; messages do not include paths or
+`Fs.Snapshot.Is.failure(error)` and inspect their stable `kind`. Messages contain neither paths nor
 host-cause text, and failures do not expose raw host error objects.
 
 ## Distribution integrity
