@@ -38,6 +38,28 @@ describe('@sys/archive/zip: Rooted path compatibility', () => {
     }
   });
 
+  it('opens exact owned bytes returned directly by Fs.Snapshot.file', async () => {
+    const root = await Deno.makeTempDir({ prefix: 'sys-archive-zip-snapshot-' });
+    const path = Fs.join(root, 'archive.zip');
+    try {
+      const source = zip([{ name: 'payload.txt', data: new TextEncoder().encode('snapshot') }]);
+      await Deno.writeFile(path, source.bytes);
+      const snapshot = await Fs.Snapshot.file({
+        root,
+        path,
+        maxBytes: source.bytes.byteLength,
+        timeout: 10_000,
+      });
+      const archive = await Zip.open(snapshot.bytes, { limits: LIMITS, timeout: 10_000 });
+
+      expect(snapshot.bytes.buffer.byteLength).to.eql(snapshot.byteLength);
+      expect(archive.inspect().entries.map((entry) => entry.path)).to.eql(['payload.txt']);
+      await archive.test({ timeout: 10_000 });
+    } finally {
+      await Deno.remove(root, { recursive: true });
+    }
+  });
+
   it('never admits a mutation-corpus path that Rooted rejects', async () => {
     const root = await Deno.makeTempDir({ prefix: 'sys-archive-zip-mutations-' });
     try {
