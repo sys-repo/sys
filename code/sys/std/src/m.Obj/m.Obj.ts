@@ -7,6 +7,7 @@ import { deep as equals } from '../m.Eql/m.Eql.ts';
 import { isEmptyRecord, isObject, isRecord } from './common.ts';
 import { asGetter } from './u.asGetter.ts';
 import { clone } from './u.clone.ts';
+import { deepFreeze } from './u.deepFreeze.ts';
 import { extend } from './u.extend.ts';
 import { entries } from './u.entries.ts';
 import { hash } from './u.hash.ts';
@@ -28,6 +29,7 @@ export const Obj: t.Obj.Lib = Object.freeze({
   entries,
   sortKeys,
   clone,
+  deepFreeze,
   extend,
   hash,
   eql: equals,

@@ -19,6 +19,69 @@ describe('Obj: types', () => {
     expectTypeOf(Obj.Lens.Is).toEqualTypeOf<t.Obj.Lens.Is.Lib>();
   });
 
+  it('exposes the exact deep-freeze signature and readonly projection', () => {
+    type DeepFreeze = <const T extends t.JsonLikeU>(input: T) => t.DeepReadonly<T>;
+    type Mutable = { label: string; items: Array<{ count: number }> };
+    type ReadonlyInput = {
+      readonly label: string;
+      readonly items: readonly { readonly count: number }[];
+    };
+
+    expectTypeOf(Obj.deepFreeze).toEqualTypeOf<DeepFreeze>();
+    expectTypeOf(Obj.deepFreeze).toEqualTypeOf<t.Obj.Lib['deepFreeze']>();
+
+    const literal = Obj.deepFreeze({
+      kind: 'example',
+      nested: { enabled: true },
+      tuple: [1, { label: 'item' }],
+    });
+    expectTypeOf(literal).toEqualTypeOf<{
+      readonly kind: 'example';
+      readonly nested: { readonly enabled: true };
+      readonly tuple: readonly [1, { readonly label: 'item' }];
+    }>();
+
+    const freezeMutable = (input: Mutable) => Obj.deepFreeze(input);
+    const freezeReadonly = (input: ReadonlyInput) => Obj.deepFreeze(input);
+    const freezeJsonLike = (input: t.JsonLikeU) => Obj.deepFreeze(input);
+    const freezeDistPkg = (input: t.DistPkg) => Obj.deepFreeze(input);
+
+    expectTypeOf(valueOfType<ReturnType<typeof freezeMutable>>()).toEqualTypeOf<
+      t.DeepReadonly<Mutable>
+    >();
+    expectTypeOf(valueOfType<ReturnType<typeof freezeReadonly>>()).toEqualTypeOf<
+      t.DeepReadonly<ReadonlyInput>
+    >();
+    expectTypeOf(valueOfType<ReturnType<typeof freezeJsonLike>>()).toEqualTypeOf<
+      t.DeepReadonly<t.JsonLikeU>
+    >();
+    expectTypeOf(valueOfType<ReturnType<typeof freezeDistPkg>>()).toEqualTypeOf<
+      t.DeepReadonly<t.DistPkg>
+    >();
+
+    if (false) {
+      // @ts-expect-error The returned root field is readonly.
+      literal.kind = 'changed';
+      // @ts-expect-error The returned tuple is readonly.
+      literal.tuple.push(2);
+
+      // @ts-expect-error Date is outside the plain-data input vocabulary.
+      Obj.deepFreeze(new Date());
+      // @ts-expect-error Map is outside the plain-data input vocabulary.
+      Obj.deepFreeze(new Map());
+      // @ts-expect-error Set is outside the plain-data input vocabulary.
+      Obj.deepFreeze(new Set());
+      // @ts-expect-error Functions are outside the plain-data input vocabulary.
+      Obj.deepFreeze(() => undefined);
+      // @ts-expect-error Bigints are outside the plain-data input vocabulary.
+      Obj.deepFreeze(1n);
+      // @ts-expect-error Symbols are outside the plain-data input vocabulary.
+      Obj.deepFreeze(Symbol('value'));
+      // @ts-expect-error Typed arrays are outside the plain-data input vocabulary.
+      Obj.deepFreeze(new Uint8Array(1));
+    }
+  });
+
   it('exposes the nested Lens namespace', () => {
     type RW = t.Obj.Lens.Ref<S, number>;
     type RO = t.Obj.Lens.ReadonlyRef<S, number>;
