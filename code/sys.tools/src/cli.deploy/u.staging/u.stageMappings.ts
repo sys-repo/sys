@@ -2,18 +2,18 @@ import { Dispose, Fs, Path, pkg, type t } from '../common.ts';
 import { shouldExclude } from '../u.exclude.ts';
 import { createBuildResetToken } from './u.buildReset.ts';
 import { finalizeDistTree } from './u.finalizeDistTree.ts';
-import { executeStaging } from './u.staging.execute.ts';
-import { acquireStagingBuildLease, combineStagingLeases } from './u.staging.buildLease.ts';
-import { throwIfStagingCancelled } from './u.staging.cancel.ts';
+import { acquireStagingBuildLease, combineStagingLeases } from './u.buildLease.ts';
+import { throwIfStagingCancelled } from './u.cancel.ts';
+import { stagingConcurrencyDefault } from './u.concurrency.ts';
+import { executeStaging } from './u.execute.ts';
 import {
   assertDirectoryIdentity,
   captureDirectoryIdentity,
   ensureStagingDirectory,
-} from './u.staging.identity.ts';
-import { settleStagingLease } from './u.staging.lease.ts';
-import { createStagingManifestLedger, retractStagingManifests } from './u.staging.manifest.ts';
-import { type PreparedStagingMapping, prepareStagingPlan } from './u.staging.prepare.ts';
-import { stagingConcurrencyDefault } from './u.stagingConcurrency.ts';
+} from './u.identity.ts';
+import { settleStagingLease } from './u.lease.ts';
+import { createStagingManifestLedger, retractStagingManifests } from './u.manifest.ts';
+import { type PreparedStagingMapping, prepareStagingPlan } from './u.prepare.ts';
 import { verifyStagedDist } from './u.verifyStagedDist.ts';
 
 export type StageMappingsArgs = {

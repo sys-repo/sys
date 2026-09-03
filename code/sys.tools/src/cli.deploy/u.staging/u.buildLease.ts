@@ -1,5 +1,5 @@
 import { Fs, Path, Str, type t } from '../common.ts';
-import type { PreparedStagingMapping } from './u.staging.prepare.ts';
+import type { PreparedStagingMapping } from './u.prepare.ts';
 
 export type StagingBuildLease = Pick<t.FsRooted.Lease, 'release'>;
 

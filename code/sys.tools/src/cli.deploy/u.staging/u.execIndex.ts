@@ -1,7 +1,7 @@
 import { Path, type t } from '../common.ts';
-import { throwIfStagingCancelled } from './u.staging.cancel.ts';
-import { assertDirectoryIdentity } from './u.staging.identity.ts';
-import type { ExecutableStagingDir } from './u.staging.prepare.ts';
+import { throwIfStagingCancelled } from './u.cancel.ts';
+import { assertDirectoryIdentity } from './u.identity.ts';
+import type { ExecutableStagingDir } from './u.prepare.ts';
 
 type ExecutionContext = {
   sourceIdentity: t.DeployTool.Staging.DirectoryIdentity;

@@ -1,9 +1,9 @@
 import { Fs, Is, Process, Str, type t } from '../common.ts';
 import { copyInto } from './u.copyInto.ts';
-import { throwIfStagingCancelled } from './u.staging.cancel.ts';
-import { assertDirectoryIdentity, captureDirectoryIdentity } from './u.staging.identity.ts';
-import type { StagingManifestLedger } from './u.staging.manifest.ts';
-import type { ExecutableStagingDir } from './u.staging.prepare.ts';
+import { throwIfStagingCancelled } from './u.cancel.ts';
+import { assertDirectoryIdentity, captureDirectoryIdentity } from './u.identity.ts';
+import type { StagingManifestLedger } from './u.manifest.ts';
+import type { ExecutableStagingDir } from './u.prepare.ts';
 
 type Task = 'test' | 'build';
 

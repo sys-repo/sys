@@ -1,5 +1,5 @@
 import { Fs, Hash, Str, type t } from '../common.ts';
-import { assertDirectoryIdentity } from './u.staging.identity.ts';
+import { assertDirectoryIdentity } from './u.identity.ts';
 
 /** One exact manifest written or copied during the active staging generation. */
 export type StagingManifestRecord = Readonly<{

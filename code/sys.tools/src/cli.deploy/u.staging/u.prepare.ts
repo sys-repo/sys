@@ -2,8 +2,8 @@ import { Fs, Path, type t } from '../common.ts';
 import { stagingPathIssue } from '../u.endpoints/u.pathPolicy.ts';
 import { resolvePath } from '../u.endpoints/u.resolve.ts';
 import { resolveStagingRoot } from './u.resolveStagingRoot.ts';
-import { throwIfStagingCancelled } from './u.staging.cancel.ts';
-import { captureDirectoryIdentity } from './u.staging.identity.ts';
+import { throwIfStagingCancelled } from './u.cancel.ts';
+import { captureDirectoryIdentity } from './u.identity.ts';
 
 export type ExecutableStagingDir = {
   readonly source: t.StringAbsoluteDir;

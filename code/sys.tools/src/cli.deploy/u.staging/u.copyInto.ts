@@ -1,14 +1,14 @@
 import { Fs, Path, type t } from '../common.ts';
 import { shouldExclude } from '../u.exclude.ts';
 import { reservedGeneratedNameOf } from '../u.endpoints/u.pathPolicy.ts';
-import { throwIfStagingCancelled } from './u.staging.cancel.ts';
-import { assertDirectoryIdentity, ensureStagingDirectory } from './u.staging.identity.ts';
+import { throwIfStagingCancelled } from './u.cancel.ts';
+import { assertDirectoryIdentity, ensureStagingDirectory } from './u.identity.ts';
 import {
   retainStagingManifest,
   stagingManifestIntegrity,
   type StagingManifestLedger,
   validateStagingManifest,
-} from './u.staging.manifest.ts';
+} from './u.manifest.ts';
 
 /**
  * Copy one admitted source directory into one retained, disjoint staging destination.

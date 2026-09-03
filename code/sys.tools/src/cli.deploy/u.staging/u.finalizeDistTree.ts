@@ -1,7 +1,7 @@
 import { Fs, Hash, Json, Path, Pkg, Str, type t } from '../common.ts';
 import { ensureIndexHtml } from './u.generateHtml.ts';
-import { throwIfStagingCancelled } from './u.staging.cancel.ts';
-import { assertDirectoryIdentity, captureDirectoryIdentity } from './u.staging.identity.ts';
+import { throwIfStagingCancelled } from './u.cancel.ts';
+import { assertDirectoryIdentity, captureDirectoryIdentity } from './u.identity.ts';
 import {
   createStagingManifestLedger,
   removeStagingManifest,
@@ -10,8 +10,8 @@ import {
   type StagingManifestLedger,
   type StagingManifestRecord,
   validateStagingManifest,
-} from './u.staging.manifest.ts';
-import type { PreparedStagingMapping } from './u.staging.prepare.ts';
+} from './u.manifest.ts';
+import type { PreparedStagingMapping } from './u.prepare.ts';
 
 type FinalizationHooks = {
   afterManifest?: (dir: t.StringAbsoluteDir) => void;

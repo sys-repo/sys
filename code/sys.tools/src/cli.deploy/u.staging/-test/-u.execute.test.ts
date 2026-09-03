@@ -13,10 +13,10 @@ import {
   type t,
   Time,
 } from '../../../-test.ts';
+import { combineStagingLeases } from '../u.buildLease.ts';
 import { finalizeDistTree } from '../u.finalizeDistTree.ts';
-import { combineStagingLeases } from '../u.staging.buildLease.ts';
-import { captureDirectoryIdentity } from '../u.staging.identity.ts';
-import { settleStagingLease } from '../u.staging.lease.ts';
+import { captureDirectoryIdentity } from '../u.identity.ts';
+import { settleStagingLease } from '../u.lease.ts';
 import { stageMappings } from '../u.stageMappings.ts';
 import { DIST_VERIFY_LIMITS, verifyStagedDist } from '../u.verifyStagedDist.ts';
 

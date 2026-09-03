@@ -1,8 +1,8 @@
 import { withTmpDir } from '../../-test/u.fixture.ts';
 import { describe, expect, expectError, Fs, it } from '../../../-test.ts';
 import { copyInto } from '../u.copyInto.ts';
-import { captureDirectoryIdentity } from '../u.staging.identity.ts';
-import { createStagingManifestLedger } from '../u.staging.manifest.ts';
+import { captureDirectoryIdentity } from '../u.identity.ts';
+import { createStagingManifestLedger } from '../u.manifest.ts';
 
 describe('Staging: copyInto', () => {
   it('copies one directory tree into a fresh destination', async () => {

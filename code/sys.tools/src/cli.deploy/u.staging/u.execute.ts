@@ -2,14 +2,14 @@ import { Dispose, Is, type t } from '../common.ts';
 import { execBuildCopy } from './u.execBuildCopy.ts';
 import { execCopy } from './u.execCopy.ts';
 import { execIndex } from './u.execIndex.ts';
-import { throwIfStagingCancelled } from './u.staging.cancel.ts';
+import { throwIfStagingCancelled } from './u.cancel.ts';
 import {
   assertDirectoryIdentity,
   captureDirectoryIdentity,
   ensureStagingDirectory,
-} from './u.staging.identity.ts';
-import type { StagingManifestLedger } from './u.staging.manifest.ts';
-import type { ExecutableStagingDir, PreparedStagingMapping } from './u.staging.prepare.ts';
+} from './u.identity.ts';
+import type { StagingManifestLedger } from './u.manifest.ts';
+import type { ExecutableStagingDir, PreparedStagingMapping } from './u.prepare.ts';
 
 export type StagingProgressEvent = t.DeployTool.Staging.ProgressEvent;
 

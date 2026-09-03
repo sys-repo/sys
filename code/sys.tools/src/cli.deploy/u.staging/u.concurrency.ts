@@ -15,8 +15,9 @@ export const stagingConcurrencyDefault = (args: {
   if (total <= 1) return Math.max(1, total);
 
   const ceilingRaw: number = args.ceiling ?? 4;
-  const ceiling: number =
-    Number.isFinite(ceilingRaw) && ceilingRaw > 0 ? Math.floor(ceilingRaw) : 4;
+  const ceiling: number = Number.isFinite(ceilingRaw) && ceilingRaw > 0
+    ? Math.floor(ceilingRaw)
+    : 4;
 
   const cpuRaw: number = args.cpuCount ?? ceiling;
   const cpu: number = Number.isFinite(cpuRaw) && cpuRaw > 0 ? Math.floor(cpuRaw) : ceiling;
