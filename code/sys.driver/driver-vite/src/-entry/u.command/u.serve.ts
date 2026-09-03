@@ -3,7 +3,9 @@ import { DistServer } from '@sys/server/dist/server';
 import { resolvePkgSubpath } from './u.pkgSubpath.ts';
 
 type ServeDependencies = {
-  Local: Pick<t.DistServer.Local.Lib, 'serve'>;
+  Local: {
+    readonly serve: (args: t.DistServer.Local.ServeArgs) => Promise<void>;
+  };
 };
 
 const PREVIEW_LIMITS = Object.freeze(
