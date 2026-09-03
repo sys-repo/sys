@@ -1,6 +1,8 @@
+export { Schedule } from '@sys/std/async';
 export { Arr } from '@sys/std/arr';
+export { Dispose } from '@sys/std/dispose';
 export { Err } from '@sys/std/error';
-export { Is } from '@sys/std/is';
+export { Is } from '@sys/std/is/server';
 export { Num } from '@sys/std/num';
 export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
