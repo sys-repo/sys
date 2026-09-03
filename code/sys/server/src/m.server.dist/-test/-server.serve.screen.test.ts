@@ -575,44 +575,124 @@ describe('DistServeScreen', () => {
     }
   });
 
-  it('retains both targets while a long static directory clips across digest collapse', async () => {
+  it('preserves Dist path context through monotonic suffix and column transitions', async () => {
     const fixture = await setup();
     try {
       const dist = fixture.cloneDist();
-      const dir = `./dist/${'nested/'.repeat(20)}` as t.StringDir;
+      const hash = dist.hash.digest;
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const staticHref = new URL('./', manifestHref);
-      const variants = new Set<'algorithm' | 'full' | 'short'>();
-
-      for (let width = 24; width <= 68; width++) {
+      const renderedAt = (dist.build.time + 17 * 60 * 60 * 1000) as t.UnixTimestamp;
+      const digestLabels: string[] = [];
+      let maxDigestWidth = Cli.Fmt.Text.Width.measure(HashFmt.digest(hash));
+      while (maxDigestWidth > 0) {
+        const digest = HashFmt.digest(hash, { maxWidth: maxDigestWidth });
+        if (!digest) break;
+        digestLabels.push(text(digest));
+        maxDigestWidth = Cli.Fmt.Text.Width.measure(digest) - 1;
+      }
+      const digestRank = (label: string) => {
+        const index = digestLabels.indexOf(label);
+        return index < 0 ? 0 : digestLabels.length - index;
+      };
+      const rowAt = (
+        width: number,
+        dir: t.StringDir,
+        metadata: 'complete' | 'no-age' | 'no-hash' = 'complete',
+      ) => {
+        const proof = evidence(fixture);
+        const metadataDist = proof.dist as Partial<t.DeepMutable<typeof proof.dist>>;
+        if (metadata === 'no-hash') delete metadataDist.hash;
+        if (metadata === 'no-age') delete metadataDist.build;
         const output = DistServeScreen.toString({
           identity: dist.pkg,
           origin: 'http://127.0.0.1:49152/' as t.StringUrl,
           dir,
           manifestHref,
           authority: { kind: 'local-unpinned', integrity: fixture.integrity },
-          evidence: evidence(fixture),
-          renderedAt: dist.build.time,
+          evidence: proof,
+          renderedAt,
           viewport: { width, height: 30 },
           cursorRows: 1,
           keyboard: { enabled: false, print: true },
         });
-        const row = output.split('\n').find((line) => text(line).includes('static')) ?? '';
-        const digest = hyperlinkLabel(row, manifestHref);
-        if (!digest) continue;
+        return output.split('\n').find((line) => text(line).includes('static')) ?? '';
+      };
 
-        const directory = hyperlinkLabel(row, staticHref);
-        expect(directory).to.not.eql(undefined);
-        expect(text(directory ?? '')).to.include('…');
+      const dir = '/workspace/packages/sys-tools/src/cli-serve/server-screen/' as t.StringDir;
+      const constrainedWidth = 60;
+      const constrained = rowAt(constrainedWidth, dir);
+      const directory = hyperlinkLabel(constrained, staticHref);
+      const digest = hyperlinkLabel(constrained, manifestHref);
+      const compactDigest = digestLabels.at(-1) ?? '';
+
+      expect(text(constrained)).to.include(`← ${compactDigest} · 17h`);
+      expect(directory).to.not.eql(undefined);
+      expect(digest).to.not.eql(undefined);
+      expect(text(directory ?? '').startsWith('/workspace/')).to.eql(true);
+      expect(text(directory ?? '').endsWith('server-screen/')).to.eql(true);
+      expect(text(directory ?? '')).to.include('…');
+      expect(staticHref.href).to.not.eql(manifestHref.href);
+      expect(Cli.Fmt.Text.Width.measure(constrained)).to.be.at.most(constrainedWidth);
+
+      const transitions: number[] = [];
+      for (let width = 140; width >= 24; width--) {
+        const row = rowAt(width, dir);
+        const linkedDirectory = hyperlinkLabel(row, staticHref);
+        const linkedDigest = hyperlinkLabel(row, manifestHref);
+        const rank = digestRank(text(linkedDigest ?? ''));
+
+        if (transitions.at(-1) !== rank) transitions.push(rank);
         expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width);
+        expect(text(row)).to.include('17h');
+        expect(linkedDirectory).to.not.eql(undefined);
+      }
+      expect(transitions).to.eql([3, 2, 1, 0]);
 
-        const label = text(digest);
-        if (label.startsWith('digest:')) variants.add('full');
-        else if (label.startsWith('sha256:')) variants.add('algorithm');
-        else if (label.startsWith('#')) variants.add('short');
+      const handoffDirs = [33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43].map((length) =>
+        'x'.repeat(length) as t.StringDir
+      );
+      handoffDirs.push(
+        `/workspace/${'界面/'.repeat(14)}🧪/é/tail/` as t.StringDir,
+      );
+      for (const handoffDir of handoffDirs) {
+        let previous: { digestRank: number; pathWidth: number } | undefined;
+        for (let width = 79; width <= 85; width++) {
+          const row = rowAt(width, handoffDir);
+          const linkedDirectory = hyperlinkLabel(row, staticHref);
+          const linkedDigest = hyperlinkLabel(row, manifestHref);
+          const current = {
+            digestRank: digestRank(text(linkedDigest ?? '')),
+            pathWidth: Cli.Fmt.Text.Width.measure(linkedDirectory ?? ''),
+          };
+
+          expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width);
+          expect(linkedDirectory).to.not.eql(undefined);
+          if (previous) {
+            expect(current.digestRank).to.be.at.least(previous.digestRank);
+            if (current.digestRank === previous.digestRank) {
+              expect(current.pathWidth).to.be.at.least(previous.pathWidth);
+            }
+          }
+          previous = current;
+        }
       }
 
-      expect([...variants].sort()).to.eql(['algorithm', 'full', 'short']);
+      const unicodeDir = `/workspace/界面/🧪/é/${'segment/'.repeat(8)}` as t.StringDir;
+      const noHash = rowAt(40, unicodeDir, 'no-hash');
+      const noAge = rowAt(40, unicodeDir, 'no-age');
+      expect(text(noHash)).to.include('17h');
+      expect(text(noHash)).to.not.include('←');
+      expect(hyperlinkLabel(noHash, manifestHref)).to.eql(undefined);
+      expect(text(noAge)).to.include(`← ${compactDigest}`);
+      expect(text(noAge)).to.not.include('17h');
+      expect(hyperlinkLabel(noAge, manifestHref)).to.not.eql(undefined);
+      expect(Cli.Fmt.Text.Width.measure(noHash)).to.be.at.most(40);
+      expect(Cli.Fmt.Text.Width.measure(noAge)).to.be.at.most(40);
+
+      expect(text(rowAt(21, dir))).to.not.include('17h');
+      expect(text(rowAt(21, dir))).to.not.include('←');
+      expect(Cli.Fmt.Text.Width.measure(rowAt(21, dir))).to.be.at.most(21);
     } finally {
       await teardown(fixture);
     }

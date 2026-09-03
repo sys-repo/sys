@@ -397,6 +397,51 @@ describe('@sys/archive/zip: read-only API', () => {
       expect(workFailure.operation).to.eql('test');
     });
 
+    it('enforces exact cancellation fan-in bounds for open and test', async () => {
+      const archive = await Zip.open(zip().bytes, options());
+      const operations = [
+        {
+          operation: 'open',
+          run: (until: t.UntilInput, timeout: number) =>
+            Zip.open(zip().bytes, { ...options(), until, timeout }),
+        },
+        {
+          operation: 'test',
+          run: (until: t.UntilInput, timeout: number) => archive.test({ until, timeout }),
+        },
+      ] as const;
+
+      for (const operation of operations) {
+        const exactNodes = Array.from({ length: 255 }, () => undefined);
+        await rejected(operation.run(exactNodes, 0), 'timeout', operation.operation);
+        const excessNodes = Array.from({ length: 256 }, () => undefined);
+        await rejected(operation.run(excessNodes, 0), 'invalid-options', operation.operation);
+
+        let exactDepth: t.UntilInput = undefined;
+        for (let index = 0; index < 32; index++) exactDepth = [exactDepth];
+        await rejected(operation.run(exactDepth, 0), 'timeout', operation.operation);
+        let excessDepth: t.UntilInput = undefined;
+        for (let index = 0; index < 33; index++) excessDepth = [excessDepth];
+        await rejected(operation.run(excessDepth, 0), 'invalid-options', operation.operation);
+
+        let traps = 0;
+        const proxyPrototypeUntil = Object.create(
+          new Proxy({}, {
+            get() {
+              traps++;
+              throw new Error('trap');
+            },
+          }),
+        ) as t.UntilInput;
+        await rejected(
+          operation.run(proxyPrototypeUntil, 0),
+          'invalid-options',
+          operation.operation,
+        );
+        expect(traps).to.eql(0);
+      }
+    });
+
     it('settles pre-terminal lifecycles and disposes subscriptions', async () => {
       const controller = new AbortController();
       controller.abort('stop');

@@ -7,11 +7,17 @@ type MetadataPrefixArgs = {
   styledLabel?: string;
 };
 
+type MetadataSuffix = {
+  digest(maxWidth: number): string;
+  compact(maxWidth: number): string;
+  fallback(maxWidth: number): string;
+};
+
 type MetadataRowArgs = MetadataPrefixArgs & {
   value: string;
   valueUrl?: URL;
   width: number;
-  suffix?: (maxWidth: number) => string;
+  suffix?: MetadataSuffix;
 };
 
 type OutputLine = {
@@ -130,9 +136,10 @@ const wrangle = {
   },
 
   metadataColumn(width: number, sequenceWidth: number) {
-    return width <= LOG.compactMetadataMaxWidth
-      ? wrangle.sourceColumn(sequenceWidth)
-      : wrangle.contentColumn(sequenceWidth);
+    const source = wrangle.sourceColumn(sequenceWidth);
+    const content = wrangle.contentColumn(sequenceWidth);
+    const transition = Math.max(0, wrangle.dimension(width) - LOG.compactMetadataMaxWidth);
+    return Math.min(content, source + transition);
   },
 
   serviceUrl(href: t.StringUrl, column: number, width: number) {
@@ -174,16 +181,30 @@ const wrangle = {
     hash: t.StringHash | undefined,
     manifestHref: URL | undefined,
     age: string | undefined,
-  ) {
+  ): MetadataSuffix {
     const elapsed = age ? c.dim(c.gray(`· ${age}`)) : '';
     const arrow = c.green('←');
-    const reserve = Cli.Fmt.Text.Width.measure(`${arrow}${elapsed ? `  ${elapsed}` : ' '}`);
-    return (maxWidth: number) => {
-      if (!hash) return elapsed;
-      const digest = HashFmt.digest(hash, { maxWidth: Math.max(0, maxWidth - reserve) });
-      if (!digest) return elapsed;
+    const digests: string[] = [];
+    let maxDigestWidth = Cli.Fmt.Text.Width.measure(HashFmt.digest(hash));
+
+    while (hash && maxDigestWidth > 0) {
+      const digest = HashFmt.digest(hash, { maxWidth: maxDigestWidth });
+      if (!digest) break;
       const linked = manifestHref ? Cli.Fmt.hyperlink(digest, manifestHref) : digest;
-      return `${arrow} ${linked}${elapsed ? ` ${elapsed}` : ''}`;
+      digests.push(`${arrow} ${linked}${elapsed ? ` ${elapsed}` : ''}`);
+      maxDigestWidth = Cli.Fmt.Text.Width.measure(digest) - 1;
+    }
+
+    const fit = (candidates: readonly string[], maxWidth: number) => {
+      const width = wrangle.dimension(maxWidth);
+      return candidates.find((candidate) => Cli.Fmt.Text.Width.measure(candidate) <= width) ?? '';
+    };
+    const fallback = (maxWidth: number) => fit(elapsed ? [elapsed] : [], maxWidth);
+
+    return {
+      digest: (maxWidth) => fit(digests, maxWidth),
+      compact: (maxWidth) => fit(digests.length > 0 ? [digests.at(-1) ?? ''] : [], maxWidth),
+      fallback,
     };
   },
 
@@ -283,27 +304,30 @@ const wrangle = {
  * Utilities:
  */
 function metadataRow(args: MetadataRowArgs) {
-  const { value, valueUrl, width, suffix: resolveSuffix } = args;
+  const { value, valueUrl, width, suffix } = args;
   const prefix = metadataPrefix(args);
   const base = `${prefix}${formatMetadataValue(value, valueUrl)}`;
-  const suffix = resolveSuffix?.(Math.max(0, width - Cli.Fmt.Text.Width.measure(`${base} `)));
-  if (suffix && Cli.Fmt.Text.Width.measure(`${base} ${suffix}`) <= width) {
-    return `${base} ${suffix}`;
+  const baseSuffixWidth = Math.max(0, width - Cli.Fmt.Text.Width.measure(`${base} `));
+  const digest = suffix?.digest(baseSuffixWidth);
+  if (digest && Cli.Fmt.Text.Width.measure(`${base} ${digest}`) <= width) {
+    return `${base} ${digest}`;
   }
-  if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
-  const compactSuffix = resolveSuffix?.(
-    Math.max(0, width - Cli.Fmt.Text.Width.measure(`${prefix}… `)),
+  const compactSuffixWidth = Math.max(
+    0,
+    width - Cli.Fmt.Text.Width.measure(`${prefix}… `),
   );
-  if (compactSuffix && Cli.Fmt.Text.Width.measure(`${prefix}… ${compactSuffix}`) <= width) {
-    const valueWidth = Cli.Fmt.Text.Width.fit({
-      width,
-      reserve: Cli.Fmt.Text.Width.measure(`${prefix} ${compactSuffix}`),
-      terminal: false,
-    });
-    const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
-    return `${prefix}${clipped} ${compactSuffix}`;
+  const compactDigest = suffix?.compact(compactSuffixWidth);
+  if (compactDigest) return compactMetadataRow(prefix, value, valueUrl, compactDigest, width);
+
+  const fallback = suffix?.fallback(baseSuffixWidth);
+  if (fallback && Cli.Fmt.Text.Width.measure(`${base} ${fallback}`) <= width) {
+    return `${base} ${fallback}`;
   }
+
+  const compactFallback = suffix?.fallback(compactSuffixWidth);
+  if (compactFallback) return compactMetadataRow(prefix, value, valueUrl, compactFallback, width);
+  if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
   const valueWidth = Cli.Fmt.Text.Width.fit({
     width,
@@ -312,6 +336,22 @@ function metadataRow(args: MetadataRowArgs) {
   });
   const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
   return clipLine(`${prefix}${clipped}`.trimEnd(), width);
+}
+
+function compactMetadataRow(
+  prefix: string,
+  value: string,
+  valueUrl: URL | undefined,
+  suffix: string,
+  width: number,
+) {
+  const valueWidth = Cli.Fmt.Text.Width.fit({
+    width,
+    reserve: Cli.Fmt.Text.Width.measure(`${prefix} ${suffix}`),
+    terminal: false,
+  });
+  const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+  return `${prefix}${clipped} ${suffix}`;
 }
 
 function formatMetadataValue(value: string, url: URL | undefined) {
