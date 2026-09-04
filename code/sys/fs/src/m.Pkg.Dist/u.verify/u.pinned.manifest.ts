@@ -147,7 +147,7 @@ export async function admitManifest(
 
   parts.sort((a, b) => compare(a.path, b.path));
   return Object.freeze({
-    dist: freezeJsonTree(dist),
+    dist: Obj.deepFreeze(dist),
     parts: Object.freeze(parts),
   });
 }
@@ -225,29 +225,4 @@ function hashOnly(input: unknown): input is t.StringHash {
 
 function nonEmpty(input: unknown): input is string {
   return Is.str(input) && input.length > 0;
-}
-
-/** Freeze the admitted plain object/array graph produced by `Json.parse`. */
-function freezeJsonTree<T>(input: T): t.DeepReadonly<T> {
-  if (!Is.object(input)) return input as t.DeepReadonly<T>;
-
-  const pending: object[] = [input];
-  const seen = new Set<object>();
-  while (pending.length > 0) {
-    const current = pending.pop()!;
-    if (seen.has(current)) continue;
-    seen.add(current);
-
-    const values = Is.array(current)
-      ? current
-      : Is.plainObject(current)
-      ? Object.values(current)
-      : undefined;
-    if (!values) throw failure('malformed');
-    for (const value of values) {
-      if (Is.object(value)) pending.push(value);
-    }
-    Object.freeze(current);
-  }
-  return input as t.DeepReadonly<T>;
 }
