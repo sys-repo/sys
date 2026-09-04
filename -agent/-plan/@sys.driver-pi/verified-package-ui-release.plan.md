@@ -5,8 +5,8 @@ verified-package-ui-release.plan.md
 - [x] 23b18c40d refactor(driver-pi): consume leased owned-tree batch removal in GUI reset
 - [x] b627146ef feat(server): expose owned pinned Dist generation sessions
 - [x] 038e8cd7e Commit: refactor(driver-pi): adopt Server-owned Dist generations
-- [ ] plan(snapshot): direct-gui-release-composition.plan.md
-- [ ] [direct-gui-release-composition.plan.md](direct-gui-release-composition.plan.md)
+- [x] f710d3aa0 plan(snapshot): direct-gui-release-composition.plan.md
+- [x] 35d8b54a6 [direct-gui-release-composition.plan.md](direct-gui-release-composition.plan.md)
 
 ## Purpose
 
@@ -16,10 +16,9 @@ minimal call-site shape. The Driver Pi migration is a behavior-preserving bridge
 Server-owned Generation authority and removes the superseded local release-owner substrate.
 
 The final referenced child,
-[direct-gui-release-composition.plan.md](direct-gui-release-composition.plan.md), owns the fresh
-endpoint assessment and direct-composition correction. It begins from landed public contracts and
-does not inherit this plan's local orchestration, proof matrix, or preservation choices as design
-requirements.
+[direct-gui-release-composition.plan.md](direct-gui-release-composition.plan.md), completed the fresh
+endpoint assessment and direct-composition correction from landed public contracts without treating
+this plan's local orchestration, proof matrix, or preservation choices as design requirements.
 
 The ownership-foundation flow is:
 
@@ -68,8 +67,8 @@ independently usable through the final capability-noun shape:
 - the Driver Pi bridge directly composes the selected package owners after deleting its reusable
   lifecycle framework, without claiming that the remaining local orchestration is minimal.
 
-The ownership bridge retains the following Driver Pi responsibilities. The referenced child must
-reassess which are durable product policy and which are inherited coordination:
+The ownership bridge retained the following Driver Pi responsibilities for the referenced child's
+first-principles assessment of durable product policy versus inherited coordination:
 
 - immutable package expectation and both generation-time and host-time package checks;
 - `.pi/@sys/dist`, current and legacy package target names, and exact ancestry-selection policy;
@@ -77,8 +76,8 @@ reassess which are durable product policy and which are inherited coordination:
 - generated evidence module format, comments, output path, direct write seam, and commit suggestion;
 - service name, verified-loopback browser policy, recovery text, failure categories, terminal state,
   menu behavior, and operator tasks; and
-- the bridge's existing application/status/keyboard/screen sequencing, pending first-principles
-  disposition by the referenced direct-composition plan.
+- the bridge's existing application/status/keyboard/screen sequencing, whose disposition is recorded
+  in the completed direct-composition plan.
 
 The TypeScript evidence renderer remains Driver Pi-owned. Its output is a package build/evidence
 format, not Server generation lifecycle.
@@ -101,9 +100,10 @@ It freezes:
 
 Adjacent package-policy leaves retain materialization limits and verified-loopback browser policy.
 The bridge directly invokes the Generation and hosting packages and removes the prior reusable
-release lifecycle framework. Separate physical files remain where presentation warrants them. The
-surviving session still carries supervisor-shaped local coordination and is not accepted as the
-final thin endpoint; that endpoint and its module budget belong only to the referenced child plan.
+release lifecycle framework. Separate physical files remain where presentation warrants them. At
+that bridge baseline, the surviving session still carried supervisor-shaped local coordination and
+was not accepted as the final thin endpoint; the completed referenced child owns that endpoint and
+its module budget.
 
 ## FS-owned batch removal
 
@@ -651,11 +651,11 @@ operation registries, retention registries, Promise transport admission, and cle
 removed as named reusable mechanisms rather than renamed. Package-internal seams are trusted typed
 package contracts.
 
-The bridge nevertheless retains a first-terminal gate, direct owner references, explicit cleanup
-sequencing, and bounded final-error handling. Those responsibilities preserve behavior across the
-ownership migration; they are not evidence of a minimal endpoint and are the explicit assessment
-target of the referenced child plan. Generation release remains terminal; the bridge invokes it once
-and schedules no retry sweep.
+The bridge nevertheless retained a first-terminal gate, direct owner references, explicit cleanup
+sequencing, and bounded final-error handling. Those responsibilities preserved behavior across the
+ownership migration; they were not evidence of a minimal endpoint and became the explicit assessment
+target of the referenced child plan. Generation release remained terminal; the bridge invoked it
+once and scheduled no retry sweep.
 
 Failed-open projection remains bounded:
 
@@ -717,9 +717,9 @@ The refactor preserves:
   `Profiles.main`; and
 - package-authenticated completion and settled-failure identity.
 
-These are bridge preservation requirements, not automatic constraints on the referenced child plan.
-That plan must classify each behavior from first principles and explicitly retain, move, or retire
-it while preserving security and authority boundaries.
+These were bridge preservation requirements, not automatic constraints on the referenced child
+plan. That plan classified each behavior from first principles and explicitly retained, moved, or
+retired it while preserving security and authority boundaries.
 
 ## Commit slices
 
@@ -767,16 +767,23 @@ final one-to-three-module composition endpoint.
 Reachable commit `038e8cd7e` contains the complete 53-path Driver Pi ownership bridge. Its literal
 subject is `Commit: refactor(driver-pi): adopt Server-owned Dist generations`; the opening arc
 records that reachable subject exactly. The commit excludes both plan artifacts and leaves generated
-release evidence unchanged. Its surviving session-local terminal gate remains an explicit input to
-the child assessment, not proof of the final endpoint.
+release evidence unchanged. Its surviving session-local terminal gate was an explicit input to the
+child assessment, not proof of the final endpoint.
 
 ### `plan(snapshot): direct-gui-release-composition.plan.md`
 
-After the ownership bridge lands, snapshot the fresh child plan as a plan-only handoff. Preserve its
-hard module budget, DMIND entry assessment, explicit shadow-lifecycle exclusions, and fresh blind
-pre-implementation and post-implementation review sequence without importing the foundation plan's
-implementation detail. The following filename reference remains unchecked until that child plan
-itself completes.
+Reachable commit `f710d3aa0` snapshotted the fresh child plan as a plan-only handoff after the
+ownership bridge landed. It preserved the hard module budget, DMIND entry assessment, explicit
+shadow-lifecycle exclusions, and fresh blind pre-implementation and post-implementation review
+sequence without importing the foundation plan's implementation detail. The following filename
+reference remained unchecked until that child plan completed.
+
+### Child completion and retirement
+
+The child completed in reachable final snapshot `35d8b54a6` and was removed by reachable retirement
+commit `a548000c4`. The checked reference is its durable recovery anchor. Its completed assessment,
+implementation, proof, and review establish the direct-composition endpoint required by this plan
+without resolving or passing the governing release-owner gate.
 
 ## Proof ownership
 
@@ -953,7 +960,7 @@ This plan does not:
 - bind published Driver Pi evidence.
 
 The governing plan now holds this plan as an explicit prerequisite before its release-owner gate.
-After this plan and its referenced child complete, control returns to that parent gate. Provider and
+With this plan and its referenced child complete, control returns to that parent gate. Provider and
 migration decisions remain separate from this ownership and composition correction.
 
 ## Ownership-foundation stop and replan conditions
@@ -1022,7 +1029,7 @@ This plan completes only when:
 - public package checks and dry-publication proofs pass; and
 - frozen local evidence and browser behavior remain intact.
 
-Landing the ownership bridge permits the fresh child assessment; it does not complete this plan or
-bless the bridge as the endpoint. Full closure permits the parent prerequisite reference to be
+Landing the ownership bridge permitted the fresh child assessment; it did not complete this plan or
+bless the bridge as the endpoint. This plan's closure permits the parent prerequisite reference to be
 checked but does not resolve, select, or pass the parent's release-owner gate. Planning, readiness,
 review, and completion never authorize Git mutation or publication.
