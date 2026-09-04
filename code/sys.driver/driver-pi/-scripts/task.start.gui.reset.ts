@@ -1,6 +1,6 @@
 import { Is as ServerIs } from '@sys/std/is/server';
 
-import { c, Cli, Fs, Is, type t } from './common.ts';
+import { c, Cli, Fs, Is, Obj, type t } from './common.ts';
 
 const STORE_ROOT_SEGMENTS = Object.freeze(['.pi', '@sys', 'dist'] as const);
 
@@ -22,13 +22,13 @@ type StoreRootSelection =
   | Readonly<{ kind: 'present'; path: t.StringAbsoluteDir }>
   | Readonly<{ kind: 'absent' }>;
 
-const KEYS = Object.freeze({
-  BUSY: Object.freeze(['kind', 'index', 'path'] as const),
-  FAILED: Object.freeze(['kind', 'completed', 'unattempted', 'failure', 'changed'] as const),
-  FAILURE: Object.freeze(['name', 'operation', 'kind', 'committed'] as const),
-  ITEM: Object.freeze(['index', 'path', 'kind'] as const),
-  SETTLED: Object.freeze(['kind', 'results'] as const),
-  TARGET: Object.freeze(['index', 'path'] as const),
+const KEYS = Obj.deepFreeze({
+  BUSY: ['kind', 'index', 'path'],
+  FAILED: ['kind', 'completed', 'unattempted', 'failure', 'changed'],
+  FAILURE: ['name', 'operation', 'kind', 'committed'],
+  ITEM: ['index', 'path', 'kind'],
+  SETTLED: ['kind', 'results'],
+  TARGET: ['index', 'path'],
 });
 const WORKSPACE_ROOT: t.StringAbsoluteDir = Fs.resolve(
   import.meta.dirname ?? '.',
@@ -95,13 +95,11 @@ export function projectGuiReleaseStoreReset(input: unknown): readonly GuiRelease
     );
   }
 
-  const results = Object.freeze(
-    settlement.results.map((result) =>
-      Object.freeze({
-        path: displayPath(GUI_RELEASE_STORE_TARGETS[result.index]),
-        kind: result.kind,
-      })
-    ),
+  const results = Obj.deepFreeze(
+    settlement.results.map((result) => ({
+      path: displayPath(GUI_RELEASE_STORE_TARGETS[result.index]),
+      kind: result.kind,
+    })),
   );
   if (settlement.releaseError) {
     throw resetFailure(
@@ -228,10 +226,11 @@ async function assertCanonicalSegment(path: t.StringAbsoluteDir): Promise<void> 
 }
 
 function absentSettlements(): readonly GuiReleaseStoreReset[] {
-  return Object.freeze(
-    GUI_RELEASE_STORE_TARGETS.map((target) =>
-      Object.freeze({ path: displayPath(target), kind: 'absent' as const })
-    ),
+  return Obj.deepFreeze(
+    GUI_RELEASE_STORE_TARGETS.map((target) => ({
+      path: displayPath(target),
+      kind: 'absent' as const,
+    })),
   );
 }
 

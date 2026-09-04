@@ -29,6 +29,14 @@ const BASE_PATHS: t.PreviewBuildPaths = vitePaths(PACKAGE_ROOT);
 const PREVIEW_WORKER_ENTRY = new URL('../-entry.worker.ts', import.meta.url).pathname;
 
 describe('driver-pi/scripts/task.start.gui.preview', () => {
+  it('deeply freezes Vite paths at the owner boundary', () => {
+    const paths = vitePaths(PACKAGE_ROOT, FIRST_DIR);
+
+    expect(paths.app.outDir).to.eql(FIRST_DIR);
+    expect(Object.isFrozen(paths)).to.eql(true);
+    expect(Object.isFrozen(paths.app)).to.eql(true);
+  });
+
   it('derives attributable filesystem-safe temp prefixes from the package name', () => {
     const owner = Str.replaceAll(pkg.name, '/', '-').after;
     expect(PREVIEW_TEMP_PREFIX).to.eql(`${owner}.start-gui-preview.`);

@@ -10,5 +10,6 @@ export { DistServer } from '@sys/server/dist';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';
+export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Browser, describe, expect, it, Testing } from '@sys/testing/server';

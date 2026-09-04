@@ -93,6 +93,10 @@ describe('driver-pi/scripts/task.start.gui.reset', () => {
       'Rooted returned an invalid batch removal settlement',
     );
 
+    const unfrozen = { kind: 'busy', index: 1, path: LEGACY.target };
+    const projectUnfrozen = () => projectGuiReleaseStoreReset(unfrozen);
+    expect(projectUnfrozen).to.throw('Rooted returned an invalid batch removal settlement');
+
     let reads = 0;
     const accessor = { index: 1, path: LEGACY.target };
     Object.defineProperty(accessor, 'kind', {
@@ -362,6 +366,8 @@ describe('driver-pi/scripts/task.start.gui.reset', () => {
         { path: CURRENT.path, kind: 'absent' },
         { path: LEGACY.path, kind: 'absent' },
       ]);
+      expect(Object.isFrozen(results)).to.eql(true);
+      expect(results.every(Object.isFrozen)).to.eql(true);
 
       const text = printedReset(results);
       expect(text).to.contain('Dist Reset (GUI)');
