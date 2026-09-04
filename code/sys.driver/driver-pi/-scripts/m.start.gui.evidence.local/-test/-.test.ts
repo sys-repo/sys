@@ -18,12 +18,12 @@ const render = (expectedPkg: unknown) =>
   });
 
 describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
-  it('binds one frozen generated tuple as the service source', () => {
+  it('binds one frozen generated candidate without coupling its version to current source', () => {
     expect(START_GUI_SERVICE.source).to.equal(START_GUI_RELEASE_EVIDENCE);
     expect(START_GUI_RELEASE_EVIDENCE.manifestUrl).to.eql(
       'http://localhost:8080/dist.json',
     );
-    expect(START_GUI_RELEASE_EVIDENCE.expectedPkg).to.eql(pkg);
+    expect(START_GUI_RELEASE_EVIDENCE.expectedPkg.name).to.eql(pkg.name);
     expect(Object.isFrozen(START_GUI_RELEASE_EVIDENCE)).to.eql(true);
     expect(Object.isFrozen(START_GUI_RELEASE_EVIDENCE.expectedPkg)).to.eql(true);
   });

@@ -41,7 +41,9 @@ const RELEASE_STORE_POLICY = Object.freeze({
  * Canonical launcher-owned identity and materialization evidence for the local GUI service.
  *
  * The complete URL, manifest-integrity pin, and package identity come from the generated
- * launcher-evidence leaf for one independently selected and verified Dist. They are neither runtime
+ * launcher-evidence leaf for one independently selected and verified Dist. The selected Dist may
+ * predate the current source package version; its own frozen identity remains authoritative until a
+ * later candidate is deliberately built, verified, and bound. These values are neither runtime
  * configuration nor TOFU ("trust on first use").
  */
 export const START_GUI_SERVICE = Object.freeze({
