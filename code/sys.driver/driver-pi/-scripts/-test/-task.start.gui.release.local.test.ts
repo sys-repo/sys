@@ -4,7 +4,7 @@ import { Is } from '../m.start.gui.evidence.local/common.ts';
 
 const SHELL_CHAIN_MARKERS = ['&&', '||', ';', '|', '>', '<', '&', '`', '$(', '\n'] as const;
 const PROTECTED_WRITE_DENIAL =
-  '--deny-write=./dist,./.pi,../../../.pi,./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
+  '--deny-write=./dist,./.pi,../../../.pi,./src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts';
 const PROTECTED_NET_DENIAL = '--deny-net=0.0.0.0,127.0.0.1:8080';
 
 describe('driver-pi/scripts/task.start.gui.release.local', () => {
@@ -17,16 +17,16 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
     // Exact equality is intentional here: every added capability changes the security contract.
     expect(permissions['evidence-local']).to.eql({
       read: ['./dist'],
-      write: ['./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts'],
+      write: ['./src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts'],
     });
     expect(permissions['test-evidence-process']).to.eql({
       read: [
         './.tmp',
-        './src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
+        './src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts',
       ],
       write: [
         './.tmp',
-        './src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
+        './src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts',
       ],
       env: ['DENO_DIR', 'SystemRoot'],
       run: ['deno'],

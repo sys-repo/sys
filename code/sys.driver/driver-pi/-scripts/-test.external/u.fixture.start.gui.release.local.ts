@@ -1,11 +1,11 @@
 import { Dist } from '@sys/server/dist';
 import { DistServer, Fs, FsDist, type t, Time } from '../common.ts';
 import { BootstrapStatus } from '../../src/-test.ts';
-import { startWith } from '../../src/m.core/m.cli.profiles/u.start/u.gui/mod.ts';
-import type { Start } from '../../src/m.core/m.cli.profiles/u.start/u.gui/t.ts';
-import { StartGuiPresentation } from '../../src/m.core/m.cli.profiles/u.start/u.gui/u.presentation.ts';
-import { removeDistStore } from '../../src/m.core/m.cli.profiles/-test/u.fixture.start.gui.ts';
-import { START_GUI_SERVICE } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import { startWith } from '../../src/m.cli/m.profiles/u.start/u.gui/mod.ts';
+import type { Start } from '../../src/m.cli/m.profiles/u.start/u.gui/t.ts';
+import { StartGuiPresentation } from '../../src/m.cli/m.profiles/u.start/u.gui/u.presentation.ts';
+import { removeDistStore } from '../../src/m.cli/m.profiles/-test/u.fixture.start.gui.ts';
+import { START_GUI_SERVICE } from '../../src/m.cli/m.profiles/u/u.start.gui.service.ts';
 
 type Candidate = Readonly<{
   dir: t.StringAbsoluteDir;

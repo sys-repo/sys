@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../src/-test.ts';
-import { PI_AGENT_IMPORT_BASE } from '../../src/m.core/m.cli/u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT_BASE } from '../../src/m.cli/u/u.resolve.pkg.ts';
 import { type DenoDepsLib, pinPiAgentImport, resolvePiAgentImport } from '../-prep.u.ts';
 
 const NEXT_VERSION = '9.8.7';
@@ -78,7 +78,7 @@ describe('driver-pi/scripts/-prep', () => {
 
   it('pinPiAgentImport throws when the base seam is missing', () => {
     expect(() => pinPiAgentImport(resolverSource().replace(BASE_LINE, ''), NEXT_SPEC)).to.throw(
-      'Could not locate PI_AGENT_IMPORT_BASE in m.core/m.cli/u.resolve.pkg.ts',
+      'Could not locate PI_AGENT_IMPORT_BASE in m.cli/u/u.resolve.pkg.ts',
     );
   });
 
@@ -89,13 +89,13 @@ describe('driver-pi/scripts/-prep', () => {
         NEXT_SPEC,
       )
     ).to.throw(
-      'Could not locate PI_AGENT_IMPORT_VERSION in m.core/m.cli/u.resolve.pkg.ts',
+      'Could not locate PI_AGENT_IMPORT_VERSION in m.cli/u/u.resolve.pkg.ts',
     );
   });
 
   it('pinPiAgentImport throws when the import expression is missing', () => {
     expect(() => pinPiAgentImport(resolverSource().replace(IMPORT_LINE, ''), NEXT_SPEC)).to.throw(
-      'Could not locate PI_AGENT_IMPORT expression in m.core/m.cli/u.resolve.pkg.ts',
+      'Could not locate PI_AGENT_IMPORT expression in m.cli/u/u.resolve.pkg.ts',
     );
   });
 });

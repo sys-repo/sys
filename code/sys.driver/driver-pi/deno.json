@@ -6,22 +6,22 @@
     "test": "deno task test:unit && deno task test:reset:process && deno task test:profiles:process && deno task test:preview:real",
     "test:unit": "deno test -P=test ./src ./-scripts",
     "test:reset:process": "deno test --frozen --cached-only --no-prompt -P=test-reset-process --trace-leaks ./-scripts/-test.external/-task.start.gui.reset.process-proof.ts",
-    "test:profiles": "deno test -P=test ./src/m.core/m.cli.profiles/-test && deno task test:profiles:process",
-    "test:profiles:process": "deno test -P=test-process --trace-leaks ./src/m.core/m.cli.profiles/-test.external/-u.start.gui.exit.process-proof.ts",
+    "test:profiles": "deno test -P=test ./src/m.cli/m.profiles/-test && deno task test:profiles:process",
+    "test:profiles:process": "deno test -P=test-process --trace-leaks ./src/m.cli/m.profiles/-test.external/-u.start.gui.exit.process-proof.ts",
     "test:preview": "deno test -P=test --trace-leaks ./-scripts/m.start.gui.preview.build/-test/-.test.ts",
     "test:preview:real": "deno test -P=preview-test --no-prompt --deny-write=../../.. --trace-leaks ./-scripts/-test.external/-task.start.gui.preview.real.ts",
     "test:serve:process": "FORCE_COLOR=0 deno run --no-prompt -P=serve-process ./-scripts/-test.external/-task.serve.process-proof.ts",
     "test:browser": "deno task build && FORCE_COLOR=0 deno test -P=test-browser --trace-leaks ./-scripts/-test.browser.ts",
     "test:release:local": "deno task test:release:local:evidence:process && deno task test:release:local:runtime && deno task test:release:local:browser:frozen",
     "test:release:local:evidence:process": "deno run --frozen --cached-only --no-prompt -P=test-evidence-process ./-scripts/-test.external/-task.start.gui.evidence.local.process-proof.ts",
-    "test:release:local:runtime": "TMPDIR=./.tmp FORCE_COLOR=0 deno test --frozen --cached-only --no-prompt -P=release-local-test --deny-write=./dist,./.pi,../../../.pi,./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts --deny-env=DENO_DIR --deny-net=0.0.0.0,127.0.0.1:8080 --deny-run --trace-leaks ./-scripts/-test.external/-task.start.gui.release.local.ts",
+    "test:release:local:runtime": "TMPDIR=./.tmp FORCE_COLOR=0 deno test --frozen --cached-only --no-prompt -P=release-local-test --deny-write=./dist,./.pi,../../../.pi,./src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts --deny-env=DENO_DIR --deny-net=0.0.0.0,127.0.0.1:8080 --deny-run --trace-leaks ./-scripts/-test.external/-task.start.gui.release.local.ts",
     "test:release:local:browser:admit": "deno run --frozen --cached-only --no-prompt -P=test-browser-admit ./-scripts/-test.browser.admit.ts",
-    "test:release:local:browser:frozen": "deno task test:release:local:browser:admit && env -u CHROME_BIN TMPDIR=./.tmp FORCE_COLOR=0 SYS_DRIVER_PI_RELEASE_EVIDENCE=1 deno test --frozen --cached-only --no-prompt -P=test-browser-frozen --allow-run=\"$CHROME_BIN\" --deny-write=./dist,./.pi,../../../.pi,./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts --deny-env=DENO_DIR --deny-net=0.0.0.0,127.0.0.1:8080 --trace-leaks ./-scripts/-test.browser.ts -- --chrome-executable=\"$CHROME_BIN\"",
+    "test:release:local:browser:frozen": "deno task test:release:local:browser:admit && env -u CHROME_BIN TMPDIR=./.tmp FORCE_COLOR=0 SYS_DRIVER_PI_RELEASE_EVIDENCE=1 deno test --frozen --cached-only --no-prompt -P=test-browser-frozen --allow-run=\"$CHROME_BIN\" --deny-write=./dist,./.pi,../../../.pi,./src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts --deny-env=DENO_DIR --deny-net=0.0.0.0,127.0.0.1:8080 --trace-leaks ./-scripts/-test.browser.ts -- --chrome-executable=\"$CHROME_BIN\"",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
-    "cli:raw": "deno run -P=cli ./src/m.core/m.cli.raw/mod.ts",
+    "cli:raw": "deno run -P=cli ./src/m.cli/m.raw/mod.ts",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "dev": "deno run -P=dev ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "deno run -P=dev ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
@@ -39,8 +39,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
-    "./cli": "./src/m.core/m.cli/mod.ts",
-    "./cli/raw": "./src/m.core/m.cli.raw/mod.ts"
+    "./cli": "./src/m.cli/mod.ts",
+    "./cli/raw": "./src/m.cli/m.raw/mod.ts"
   },
   "exclude": [
     ".tmp",
@@ -188,17 +188,17 @@
         "./dist"
       ],
       "write": [
-        "./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts"
+        "./src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts"
       ]
     },
     "test-evidence-process": {
       "read": [
         "./.tmp",
-        "./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts"
+        "./src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts"
       ],
       "write": [
         "./.tmp",
-        "./src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts"
+        "./src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts"
       ],
       "env": [
         "DENO_DIR",
@@ -286,4 +286,3 @@
     }
   }
 }
-

@@ -1,5 +1,5 @@
 import { Arr, Fs, type t } from '../common.ts';
-import { runtimeRoot } from '../../../m.cli/u.runtime.ts';
+import { runtimeRoot } from '../../../../m.cli/u/u.runtime.ts';
 
 const PROTECTED_SEGMENTS = [
   ['.git'],

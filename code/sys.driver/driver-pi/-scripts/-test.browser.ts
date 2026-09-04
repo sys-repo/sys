@@ -15,7 +15,7 @@ import {
   Testing,
 } from './common.ts';
 import { pkg } from '../src/pkg.ts';
-import { START_GUI_SERVICE } from '../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import { START_GUI_SERVICE } from '../src/m.cli/m.profiles/u/u.start.gui.service.ts';
 
 type Build = {
   readonly dir: t.StringDir;
@@ -33,7 +33,7 @@ const DIST_DIR: t.StringDir = Fs.join(CWD, 'dist');
 const DIST_MANIFEST = Fs.join(DIST_DIR, 'dist.json');
 const TEST_TMP_DIR: t.StringAbsoluteDir = Fs.join(CWD, '.tmp');
 const WORKSPACE_ROOT = Fs.resolve(CWD, '../../..');
-const EVIDENCE_RELATIVE_PATH = 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
+const EVIDENCE_RELATIVE_PATH = 'src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts';
 const EVIDENCE_PATH = Fs.join(CWD, EVIDENCE_RELATIVE_PATH);
 const PROTECTED_WRITES = [
   DIST_DIR,

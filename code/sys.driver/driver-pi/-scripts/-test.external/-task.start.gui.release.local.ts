@@ -1,6 +1,6 @@
 import { describe, expect, Fs, Is, it, type t } from '../common.ts';
-import type { Start } from '../../src/m.core/m.cli.profiles/u.start/u.gui/t.ts';
-import { START_GUI_SERVICE } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import type { Start } from '../../src/m.cli/m.profiles/u.start/u.gui/t.ts';
+import { START_GUI_SERVICE } from '../../src/m.cli/m.profiles/u/u.start.gui.service.ts';
 import {
   cleanupRoot,
   DIST_DIR,
@@ -21,7 +21,7 @@ type ReleaseSession = Awaited<ReturnType<typeof runSession>>;
 const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..');
 const WORKSPACE_ROOT = Fs.resolve(PACKAGE_ROOT, '../../..');
 const TEST_TMP_ROOT = Fs.join(PACKAGE_ROOT, '.tmp');
-const EVIDENCE_RELATIVE_PATH = 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
+const EVIDENCE_RELATIVE_PATH = 'src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts';
 const EVIDENCE_PATH = Fs.join(PACKAGE_ROOT, EVIDENCE_RELATIVE_PATH);
 const PROTECTED_WRITES = [
   DIST_DIR,

@@ -1,5 +1,5 @@
 import { describe, EsmAssert, expect, it, type t } from '../../src/-test.ts';
-import { exitCode } from '../../src/m.core/m.cli/mod.ts';
+import { exitCode } from '../../src/m.cli/mod.ts';
 
 const ENTRY = new URL('../task.cli.ts', import.meta.url).pathname;
 
@@ -9,8 +9,8 @@ describe('driver-pi/scripts/task.cli outcome projection', () => {
       entry: ENTRY,
       forbiddenImports: ['@sys/server'],
       forbiddenPathIncludes: [
-        '/m.cli.profiles/u.start/',
-        '\\m.cli.profiles\\u.start\\',
+        '/m.cli/m.profiles/u.start/',
+        '\\m.cli\\m.profiles\\u.start\\',
       ],
     });
   });

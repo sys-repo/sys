@@ -3,13 +3,13 @@ import { describe, DistServer, expect, Fs, FsDist, Is, it, Json, Open, Str } fro
 import { default as deno } from '../../../deno.json' with { type: 'json' };
 import { EsmAssert } from '../../../src/-test.ts';
 import { pkg } from '../../../src/pkg.ts';
-import { startDevelopmentWith } from '../../../src/m.core/m.cli.profiles/u.start/u.gui/mod.ts';
-import type { Start } from '../../../src/m.core/m.cli.profiles/u.start/u.gui/t.ts';
-import { StartGuiPresentation } from '../../../src/m.core/m.cli.profiles/u.start/u.gui/u.presentation.ts';
+import { startDevelopmentWith } from '../../../src/m.cli/m.profiles/u.start/u.gui/mod.ts';
+import type { Start } from '../../../src/m.cli/m.profiles/u.start/u.gui/t.ts';
+import { StartGuiPresentation } from '../../../src/m.cli/m.profiles/u.start/u.gui/u.presentation.ts';
 import {
   bootstrapStatusFixture,
   deferred,
-} from '../../../src/m.core/m.cli.profiles/-test/u.fixture.start.gui.ts';
+} from '../../../src/m.cli/m.profiles/-test/u.fixture.start.gui.ts';
 import type { t } from '../common.ts';
 import { resolvePreviewDenoDir } from '../u.deno.ts';
 import {
@@ -147,8 +147,8 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       entry: PREVIEW_WORKER_ENTRY,
       forbiddenImports: ['@sys/driver-vite'],
       forbiddenPathIncludes: [
-        '/m.cli.profiles/u/u.menu.ts',
-        '\\m.cli.profiles\\u\\u.menu.ts',
+        '/m.cli/m.profiles/u/u.menu.ts',
+        '\\m.cli\\m.profiles\\u\\u.menu.ts',
       ],
     });
   });

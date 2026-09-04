@@ -1,6 +1,6 @@
 import { Fs } from '@sys/fs';
 import { Is } from '@sys/std/is';
-import { PI_AGENT_IMPORT_BASE } from '../src/m.core/m.cli/u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT_BASE } from '../src/m.cli/u/u.resolve.pkg.ts';
 
 export type PrepPaths = {
   rootDepsYaml: string;
@@ -22,7 +22,7 @@ export const PATH = {
   fromRoot(root: string): PrepPaths {
     return {
       rootDepsYaml: Fs.join(root, 'deps.yaml'),
-      resolvePkgFile: Fs.join(root, 'code/sys.driver/driver-pi/src/m.core/m.cli/u.resolve.pkg.ts'),
+      resolvePkgFile: Fs.join(root, 'code/sys.driver/driver-pi/src/m.cli/u/u.resolve.pkg.ts'),
     };
   },
 } as const;
@@ -47,7 +47,7 @@ export function pinPiAgentImport(source: string, specifier: string): string {
 
   if (!PI_AGENT_IMPORT_VERSION_PATTERN.test(source)) {
     throw new Error(
-      'Could not locate PI_AGENT_IMPORT_VERSION in m.core/m.cli/u.resolve.pkg.ts',
+      'Could not locate PI_AGENT_IMPORT_VERSION in m.cli/u/u.resolve.pkg.ts',
     );
   }
 
@@ -60,13 +60,13 @@ export function pinPiAgentImport(source: string, specifier: string): string {
 function assertCurrentPiAgentImportShape(source: string) {
   if (!source.includes(PI_AGENT_IMPORT_BASE_LINE)) {
     throw new Error(
-      'Could not locate PI_AGENT_IMPORT_BASE in m.core/m.cli/u.resolve.pkg.ts',
+      'Could not locate PI_AGENT_IMPORT_BASE in m.cli/u/u.resolve.pkg.ts',
     );
   }
 
   if (!source.includes(PI_AGENT_IMPORT_EXPRESSION)) {
     throw new Error(
-      'Could not locate PI_AGENT_IMPORT expression in m.core/m.cli/u.resolve.pkg.ts',
+      'Could not locate PI_AGENT_IMPORT expression in m.cli/u/u.resolve.pkg.ts',
     );
   }
 }

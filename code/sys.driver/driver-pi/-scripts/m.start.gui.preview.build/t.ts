@@ -1,6 +1,6 @@
 import type { Vite as DriverVite, ViteConfig as DriverViteConfig } from '@sys/driver-vite/t';
 import type { t } from '../../src/common.ts';
-import type { Start } from '../../src/m.core/m.cli.profiles/u.start/u.gui/t.ts';
+import type { Start } from '../../src/m.cli/m.profiles/u.start/u.gui/t.ts';
 
 export type { Start };
 

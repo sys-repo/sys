@@ -1,5 +1,5 @@
 import { pkg } from '../../src/pkg.ts';
-import { START_GUI_SERVICE } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import { START_GUI_SERVICE } from '../../src/m.cli/m.profiles/u/u.start.gui.service.ts';
 import { c, Fmt, Fs, FsDist, Is, Json, Pkg, Str, type t, Table } from './common.ts';
 
 /**
@@ -40,7 +40,7 @@ export const EVIDENCE = Object.freeze({
   packageName: pkg.name,
   kind: 'LOCAL GUI (rehearsal)',
   state: 'bound',
-  outputPath: 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
+  outputPath: 'src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts',
   commitMessage: 'chore(driver-pi): bind rebuilt local GUI evidence',
 });
 

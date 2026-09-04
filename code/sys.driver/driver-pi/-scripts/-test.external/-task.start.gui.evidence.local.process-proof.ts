@@ -1,11 +1,11 @@
 import { Fs, Is, Json, stripAnsi, type t } from '../m.start.gui.evidence.local/common.ts';
 import { EVIDENCE, renderEvidenceBoundOutput } from '../m.start.gui.evidence.local/mod.ts';
-import { START_GUI_RELEASE_EVIDENCE } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
+import { START_GUI_RELEASE_EVIDENCE } from '../../src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts';
 
 const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..') as t.StringAbsoluteDir;
 const EVIDENCE_PATH = Fs.join(
   PACKAGE_ROOT,
-  'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
+  'src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts',
 );
 const TEST_TMP_ROOT = Fs.join(PACKAGE_ROOT, '.tmp');
 const GENERATOR_ARGS = ['task', 'bind:gui:evidence:local'] as const;

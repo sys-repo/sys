@@ -1,12 +1,12 @@
 import { describe, Err, expect, it } from '../../common.ts';
 import { pkg } from '../../../src/pkg.ts';
-import { START_GUI_RELEASE_EVIDENCE } from '../../../src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
-import { START_GUI_SERVICE } from '../../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import { START_GUI_RELEASE_EVIDENCE } from '../../../src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts';
+import { START_GUI_SERVICE } from '../../../src/m.cli/m.profiles/u/u.start.gui.service.ts';
 import { c, Fmt, Pkg, stripAnsi } from '../common.ts';
 import { EVIDENCE, renderEvidence, renderEvidenceBoundOutput, writeEvidenceWith } from '../mod.ts';
 
 const EVIDENCE_LEAF = new URL(
-  '../../../src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts',
+  '../../../src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts',
   import.meta.url,
 );
 

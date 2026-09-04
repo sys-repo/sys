@@ -1,5 +1,5 @@
 import { pkg } from '../../src/pkg.ts';
-import { startDevelopment as startGui } from '../../src/m.core/m.cli.profiles/u.start/u.gui/mod.ts';
+import { startDevelopment as startGui } from '../../src/m.cli/m.profiles/u.start/u.gui/mod.ts';
 import { Fs, Json, Process, Str, type t } from './common.ts';
 import { resolvePreviewDenoDir } from './u.deno.ts';
 import { vitePaths } from '../u.vite.paths.ts';

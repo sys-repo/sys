@@ -1,6 +1,6 @@
 import { describe, DistServer, expect, Fs, Hash, Is, it, Process, Str } from '../common.ts';
 
-import { START_GUI_SERVICE } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
+import { START_GUI_SERVICE } from '../../src/m.cli/m.profiles/u/u.start.gui.service.ts';
 import type { t } from '../m.start.gui.preview.build/common.ts';
 import {
   allocatePreviewGeneration,
