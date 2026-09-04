@@ -1,6 +1,8 @@
 omakase - お任せ
 
 
+
+
 verified-package-ui-release.plan.md
 - [x] 9159b6770 feat(fs): expose leased owned-tree batch removal
 - [x] f122a2bef refactor(fs): remove Rooted type alias facade
@@ -8,7 +10,7 @@ verified-package-ui-release.plan.md
 - [x] 23b18c40d refactor(driver-pi): consume leased owned-tree batch removal in GUI reset
 - [x] b627146ef feat(server): expose owned pinned Dist generation sessions
 - [x] 038e8cd7e Commit: refactor(driver-pi): adopt Server-owned Dist generations
-- [ ] plan(snapshot): direct-gui-release-composition.plan.md
+- [x] f710d3aa0 plan(snapshot): direct-gui-release-composition.plan.md
 - [ ] [direct-gui-release-composition.plan.md](direct-gui-release-composition.plan.md)
 
 direct-gui-release-composition.plan.md
