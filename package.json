@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@deno/vite-plugin": "2.0.3",
-    "@oxc-project/runtime": "0.147.0",
+    "@oxc-project/runtime": "0.148.0",
     "@vitejs/plugin-react": "6.1.1",
     "magic-string": "1.2.3",
     "prettier": "3.9.6",
