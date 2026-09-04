@@ -1,15 +1,15 @@
 import { describe, expect, it, withSelectPrompt } from '../../../-test.ts';
-import { Cli as CliOwner, Fs, Obj, Str, type t } from '../common.ts';
+import { Cli as CliOwner, Fs, Is, Obj, Str, type t } from '../common.ts';
 import { Process as ProcessOwner } from '../../m.cli/common.ts';
 import { mainWith as mainWithOwner } from '../m.main.ts';
 import { Profiles as ProfilesOwner } from '../mod.ts';
-import {
-  markCliSettledFailure,
-  type StartGuiCompletion,
-  startGuiCompletion,
-} from '../u/u.start.gui.settlement.ts';
-import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
 import { withInherit } from '../../m.cli/u.inherit.ts';
+
+type MainWithDeps = NonNullable<Parameters<typeof mainWithOwner>[1]>;
+type SelectPromptInput = {
+  readonly message?: string;
+  readonly options?: readonly { readonly value: unknown }[];
+};
 
 const Cli = {
   ...CliOwner,
@@ -32,16 +32,10 @@ const Profiles = {
       })
     ),
 };
-type MainWithDeps = NonNullable<Parameters<typeof mainWithOwner>[1]>;
 const mainWith = (
   input: Parameters<typeof mainWithOwner>[0],
   deps: Pick<MainWithDeps, 'startGui'>,
 ) => withEffects(() => mainWithOwner(input, { ...deps, repaint: Cli.Screen.repaint }));
-
-type SelectPromptInput = {
-  readonly message?: string;
-  readonly options?: readonly { readonly value: unknown }[];
-};
 
 function mainWithPrompt(
   input: Parameters<typeof mainWithOwner>[0],
@@ -74,7 +68,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       Process.inherit = () =>
         Promise.reject(new Error('Process.inherit should not run during sandbox preview.'));
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: SelectPromptInput) => {
+        value(input: SelectPromptInput) {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
             prompts.push({ kind: 'profiles', hasMessage: Obj.hasOwn(input, 'message') });
             topLevelCount += 1;
@@ -137,7 +131,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
         return Promise.resolve({ code: 0, success: true, signal: null });
       };
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: SelectPromptInput) => {
+        value(input: SelectPromptInput) {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);
@@ -196,7 +190,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       screen.repaint = (frame) => frames.push(frame);
       Process.inherit = () => Promise.resolve({ code: 0, success: true, signal: null });
       Object.defineProperty(Cli.Input.Select, 'prompt', {
-        value: (input: SelectPromptInput) => {
+        value(input: SelectPromptInput) {
           if ((input.options ?? []).some((item) => item.value === 'exit')) {
             topLevelCount += 1;
             if (topLevelCount === 1) return Promise.resolve(config);
@@ -252,14 +246,15 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     Process.inherit = () => Promise.resolve({ code: 0, success: true, signal: null });
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: SelectPromptInput) => {
+      value(input: SelectPromptInput) {
         if ((input.options ?? []).some((item) => item.value === 'exit')) {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
         if (
-          selectedAction == null && (input.options ?? []).some((item) => item.value === 'start:gui')
+          Is.nil(selectedAction) &&
+          (input.options ?? []).some((item) => item.value === 'start:gui')
         ) {
           selectedAction = 'action';
           return Promise.resolve('start:gui');
@@ -277,13 +272,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     });
 
     try {
-      let err: Error | undefined;
-      try {
-        await Profiles.main({ cwd, argv: ['--', '--help'], tty: { stdin: true, stdout: true } });
-      } catch (error) {
-        err = error instanceof Error ? error : new Error(String(error));
-      }
-      expect(err?.message).to.eql(
+      const error = await rejectionOf(() =>
+        Profiles.main({ cwd, argv: ['--', '--help'], tty: { stdin: true, stdout: true } })
+      );
+      expect(error.message).to.eql(
         'start:gui cannot accept Pi passthrough args. Select start:tui for passthrough mode.',
       );
     } finally {
@@ -307,10 +299,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     let topLevelCount = 0;
     let selectedAction: string | undefined;
     let startGuiCalls = 0;
-    let startGuiInput: {
-      cwd: t.PiCli.Cwd;
-      source: StartGuiEvidence;
-    } | undefined;
+    let startGuiInput: { cwd: t.PiCli.Cwd; until?: AbortSignal } | undefined;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));
@@ -322,14 +311,15 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       Promise.reject(new Error('Process.inherit should not run during start:gui'));
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: SelectPromptInput) => {
+      value(input: SelectPromptInput) {
         if ((input.options ?? []).some((item) => item.value === 'exit')) {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
           return Promise.resolve('exit');
         }
         if (
-          selectedAction == null && (input.options ?? []).some((item) => item.value === 'start:gui')
+          Is.nil(selectedAction) &&
+          (input.options ?? []).some((item) => item.value === 'start:gui')
         ) {
           selectedAction = 'action';
           return Promise.resolve('start:gui');
@@ -350,10 +340,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       const res = await mainWith(
         { cwd, tty: { stdin: true, stdout: true } },
         {
-          startGui: (input) => {
+          startGui(input) {
             startGuiCalls += 1;
             startGuiInput = input;
-            return Promise.resolve(startGuiCompletion('quit'));
+            return Promise.resolve('quit');
           },
         },
       );
@@ -362,7 +352,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       expect(startGuiCalls).to.eql(1);
       expect(startGuiInput?.cwd.git).to.eql(cwd);
       expect(startGuiInput?.cwd.invoked).to.eql(cwd);
-      expect(startGuiInput?.source).to.equal(START_GUI_SERVICE.source);
+      expect(Obj.hasOwn(startGuiInput, 'source')).to.eql(false);
+      expect(res.kind === 'gui' ? res.outcome : undefined).to.eql('quit');
       expect(frames).to.have.length(1);
       expect(Cli.stripAnsi(frames[0] ?? '')).to.not.contain('start:gui');
     } finally {
@@ -407,7 +398,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
                   `),
                 );
               }
-              return startGuiCompletion('back');
+              return 'back';
             } finally {
               sessions.push(`stop:${session}`);
               activeSessions -= 1;
@@ -448,63 +439,82 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     });
   });
 
-  it('never reopens the action menu for forged completions or rejected GUI runs', async () => {
-    const ordinary = new Error('ordinary start:gui rejection');
-    const settled = new Error('settled start:gui rejection');
-    markCliSettledFailure(settled);
-    const cases = [
-      {
-        label: 'forged completion',
-        startGui: () => Promise.resolve(Object.freeze({ kind: 'back' }) as StartGuiCompletion),
-        message: 'start:gui completion invalid.',
-      },
-      { label: 'ordinary rejection', startGui: () => Promise.reject(ordinary), error: ordinary },
-      { label: 'settled rejection', startGui: () => Promise.reject(settled), error: settled },
-    ] as const;
-
-    for (const testCase of cases) {
+  it('carries every non-back GUI outcome without reopening the action menu', async () => {
+    const outcomes = ['quit', 'external-cancellation', 'failed'] as const;
+    for (const outcome of outcomes) {
       await withGuiMenuRoot(
-        `driver-pi.profiles.m.main.${testCase.label.replace(' ', '-')}.test.`,
+        `driver-pi.profiles.m.main.${outcome}.test.`,
         async ({ cwd, config }) => {
           let actionPrompts = 0;
-          let observed: unknown;
-          try {
-            await mainWithPrompt(
-              { cwd, tty: { stdin: true, stdout: true } },
-              { repaint() {}, startGui: testCase.startGui },
-              (input) => {
-                if ((input.options ?? []).some((item) => item.value === 'exit')) {
-                  return Promise.resolve(config);
-                }
-                if ((input.options ?? []).some((item) => item.value === 'back')) {
-                  actionPrompts += 1;
-                  if (actionPrompts > 1) throw new Error('Unexpected second action prompt.');
-                  return Promise.resolve('start:gui');
-                }
-                throw new Error(`Unexpected prompt: ${input.message}`);
-              },
-              () => Promise.reject(new Error('Process.inherit must not run.')),
-            );
-          } catch (cause) {
-            observed = cause;
-          }
+          const result = await mainWithPrompt(
+            { cwd, tty: { stdin: true, stdout: true } },
+            { repaint() {}, startGui: () => Promise.resolve(outcome) },
+            (input) => {
+              if ((input.options ?? []).some((item) => item.value === 'exit')) {
+                return Promise.resolve(config);
+              }
+              if ((input.options ?? []).some((item) => item.value === 'back')) {
+                actionPrompts += 1;
+                if (actionPrompts > 1) throw new Error('Unexpected second action prompt.');
+                return Promise.resolve('start:gui');
+              }
+              throw new Error(`Unexpected prompt: ${input.message}`);
+            },
+            () => Promise.reject(new Error('Process.inherit must not run.')),
+          );
 
-          expect(actionPrompts, testCase.label).to.eql(1);
-          if ('error' in testCase) expect(observed, testCase.label).to.equal(testCase.error);
-          else expect((observed as Error)?.message, testCase.label).to.eql(testCase.message);
+          expect(actionPrompts, outcome).to.eql(1);
+          expect(result.kind, outcome).to.eql('gui');
+          expect(result.kind === 'gui' ? result.outcome : undefined, outcome).to.eql(outcome);
         },
       );
     }
   });
+
+  it('propagates an unexpected GUI rejection without reopening the action menu', async () => {
+    const failure = new Error('unexpected start:gui rejection');
+    await withGuiMenuRoot('driver-pi.profiles.m.main.rejection.test.', async ({ cwd, config }) => {
+      let actionPrompts = 0;
+      const observed = await rejectionOf(() =>
+        mainWithPrompt(
+          { cwd, tty: { stdin: true, stdout: true } },
+          { repaint() {}, startGui: () => Promise.reject(failure) },
+          (input) => {
+            if ((input.options ?? []).some((item) => item.value === 'exit')) {
+              return Promise.resolve(config);
+            }
+            if ((input.options ?? []).some((item) => item.value === 'back')) {
+              actionPrompts += 1;
+              return Promise.resolve('start:gui');
+            }
+            throw new Error(`Unexpected prompt: ${input.message}`);
+          },
+          () => Promise.reject(new Error('Process.inherit must not run.')),
+        )
+      );
+
+      expect(actionPrompts).to.eql(1);
+      expect(observed).to.equal(failure);
+    });
+  });
 });
+
+async function rejectionOf(operation: () => Promise<unknown>): Promise<Error> {
+  try {
+    await operation();
+  } catch (cause) {
+    return Is.error(cause) ? cause : new Error(String(cause));
+  }
+  throw new Error('Expected rejection.');
+}
 
 async function withGuiMenuRoot<T>(
   prefix: string,
   run: (fixture: { cwd: t.StringDir; config: t.StringPath }) => Promise<T>,
 ): Promise<T> {
   const previousInfo = console.info;
-  const cwd = (await Fs.makeTempDir({ prefix })).absolute as t.StringDir;
-  const config = `${cwd}/-config/@sys.driver-pi/canon.yaml` as t.StringPath;
+  const cwd: t.StringDir = (await Fs.makeTempDir({ prefix })).absolute;
+  const config: t.StringPath = `${cwd}/-config/@sys.driver-pi/canon.yaml`;
   try {
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));

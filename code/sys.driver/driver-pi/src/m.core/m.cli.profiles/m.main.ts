@@ -10,16 +10,14 @@ import { menu, reopenProfileMenu } from './u/u.menu.ts';
 import { ProfileConfig } from './u/u.profile.ts';
 import { resolveRun } from './u/u.resolve.run.ts';
 import { ProfileStartup } from './u/u.startup.ts';
-import { type StartGuiCompletion, startGuiCompletionKind } from './u/u.start.gui.settlement.ts';
-import { START_GUI_SERVICE, type StartGuiEvidence } from './u/u.start.gui.service.ts';
+import type { Start } from './u.start/u.gui/t.ts';
 
 type MainDependencies = {
   readonly repaint: typeof Cli.Screen.repaint;
   readonly startGui: (input: {
     cwd: t.PiCli.Cwd;
-    source: StartGuiEvidence;
     until?: AbortSignal;
-  }) => Promise<StartGuiCompletion>;
+  }) => Promise<Start.Gui.Outcome>;
 };
 
 const DEFAULT_DEPENDENCIES: MainDependencies = Object.freeze({
@@ -30,6 +28,9 @@ const DEFAULT_DEPENDENCIES: MainDependencies = Object.freeze({
   },
 });
 
+/**
+ * Resolve startup state, then launch the selected profile mode.
+ */
 export const main: t.PiCliProfiles.Lib['main'] = (input = {}) => mainWith(input);
 
 /** Internal profile launcher with explicit GUI and repaint dependencies. */
@@ -101,14 +102,13 @@ export async function mainWith(
     );
     picked = { kind: 'selected', mode: 'gui', config: profilePath };
 
-    const completion = await deps.startGui({ cwd, source: START_GUI_SERVICE.source });
-    const completionKind = startGuiCompletionKind(completion);
-    if (completionKind === undefined) throw new Error('start:gui completion invalid.');
-    if (completionKind !== 'back') {
+    const outcome = await deps.startGui({ cwd });
+    if (outcome !== 'back') {
       return {
         kind: 'gui',
         input,
         parsed,
+        outcome,
       };
     }
 

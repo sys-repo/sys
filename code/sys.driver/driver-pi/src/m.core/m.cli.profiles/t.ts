@@ -113,12 +113,6 @@ export declare namespace PiCliProfiles {
   /** Interactive profile start action. */
   export type StartAction = `start:${StartMode}`;
 
-  /** Complete launcher-owned source pair for the verified local GUI runtime. */
-  export type StartGuiSource = {
-    manifestUrl: t.StringUrl;
-    integrity: t.StringHash;
-  };
-
   /** Menu-state persistence document for interactive launch preference. */
   export type MenuState = MenuState.Document;
 
@@ -164,7 +158,7 @@ export declare namespace PiCliProfiles {
     readonly output: t.Process.InheritOutput;
   };
 
-  /** Successful GUI launch result. */
+  /** Settled GUI launch result. */
   export type Gui = {
     /** Discriminator for a launched local profile GUI flow. */
     readonly kind: 'gui';
@@ -172,7 +166,17 @@ export declare namespace PiCliProfiles {
     readonly input: Input;
     /** Parsed profile launcher args used for the launch selection. */
     readonly parsed: ParsedArgs;
+    /** Non-back session outcome returned to embedded and executable boundaries. */
+    readonly outcome: Gui.Outcome;
   };
+
+  /**
+   * GUI settlement contracts.
+   */
+  export namespace Gui {
+    /** GUI outcomes that leave the profile menu. */
+    export type Outcome = 'quit' | 'external-cancellation' | 'failed';
+  }
 
   /** User exited the profile menu without launching. */
   export type Exit = {

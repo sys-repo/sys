@@ -10,24 +10,36 @@ import {
   it,
   Json,
   serveFileBytes,
+  Str,
   type t,
   Testing,
 } from './common.ts';
 import { pkg } from '../src/pkg.ts';
-import { VERIFIED_LOOPBACK_BROWSER_POLICY } from '../src/m.core/m.cli.profiles/u.start/u.browser.ts';
-import { LIMITS } from '../src/m.core/m.cli.profiles/u.start/u.limits.ts';
 import { START_GUI_SERVICE } from '../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
 
+type Build = {
+  readonly dir: t.StringDir;
+  readonly integrity: t.StringHash;
+  readonly dist: t.DeepReadonly<t.DistPkg>;
+};
+type CandidateSnapshot = Readonly<{
+  build: Build;
+  manifest: Uint8Array;
+  assets: ReadonlyMap<string, Uint8Array>;
+}>;
+
 const CWD = Fs.Path.fromFileUrl(new URL('../', import.meta.url));
-const DIST_DIR = Fs.join(CWD, 'dist') as t.StringDir;
+const DIST_DIR: t.StringDir = Fs.join(CWD, 'dist');
 const DIST_MANIFEST = Fs.join(DIST_DIR, 'dist.json');
-const TEST_TMP_DIR = Fs.join(CWD, '.tmp') as t.StringAbsoluteDir;
+const TEST_TMP_DIR: t.StringAbsoluteDir = Fs.join(CWD, '.tmp');
 const WORKSPACE_ROOT = Fs.resolve(CWD, '../../..');
+const EVIDENCE_RELATIVE_PATH = 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
+const EVIDENCE_PATH = Fs.join(CWD, EVIDENCE_RELATIVE_PATH);
 const PROTECTED_WRITES = [
   DIST_DIR,
   Fs.join(CWD, '.pi'),
   Fs.join(WORKSPACE_ROOT, '.pi'),
-  Fs.join(CWD, 'src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts'),
+  EVIDENCE_PATH,
 ] as const;
 const ASSERT_RELEASE_EVIDENCE = Deno.env.get('SYS_DRIVER_PI_RELEASE_EVIDENCE') === '1';
 const EXECUTABLE_ARG = '--chrome-executable=';
@@ -35,7 +47,7 @@ const BROWSER_EXECUTABLE = await browserExecutable();
 const OWNED_CACHE = `${pkg.name}:asset-files`;
 const UNRELATED_CACHE = `${pkg.name}-neighbor:asset-files`;
 
-const LEGACY_CLAIMING_WORKER = `
+const LEGACY_CLAIMING_WORKER = Str.dedent(`
   self.addEventListener('install', (event) => event.waitUntil(self.skipWaiting()));
   self.addEventListener('activate', (event) => {
     event.waitUntil(Promise.all([
@@ -44,9 +56,10 @@ const LEGACY_CLAIMING_WORKER = `
       self.clients.claim(),
     ]));
   });
-`;
+`);
 
-const LEGACY_REGISTER_PAGE = `<!doctype html>
+const LEGACY_REGISTER_PAGE = Str.dedent(`
+  <!doctype html>
   <title>Driver Pi legacy claiming worker</title>
   <link rel="icon" href="data:," />
   <script type="module">
@@ -56,7 +69,8 @@ const LEGACY_REGISTER_PAGE = `<!doctype html>
       updateViaCache: 'none',
     });
     await navigator.serviceWorker.ready;
-  </script>`;
+  </script>
+`);
 
 describe('Driver Pi verified-loopback Service Worker policy', () => {
   if (ASSERT_RELEASE_EVIDENCE) {
@@ -85,22 +99,20 @@ describe('Driver Pi verified-loopback Service Worker policy', () => {
       }
       expect(await permissionState({ name: 'env', variable: 'DENO_DIR' })).to.eql('denied');
       expect(await permissionState({ name: 'net', host: '0.0.0.0' })).to.eql('denied');
-      expect(
-        await permissionState({ name: 'net', host: '127.0.0.1:8080' }),
-      ).to.eql('denied');
+      const sourcePort = await permissionState({ name: 'net', host: '127.0.0.1:8080' });
+      expect(sourcePort).to.eql('denied');
     });
   }
 
   it('rejects development and launcher markers in arbitrary emitted bytes', () => {
     const encoder = new TextEncoder();
-    for (
-      const marker of [
-        '@sys/ui-dev',
-        'DevHarness',
-        START_GUI_SERVICE.source.manifestUrl,
-        START_GUI_SERVICE.source.integrity,
-      ]
-    ) {
+    const markers = [
+      '@sys/ui-dev',
+      'DevHarness',
+      START_GUI_SERVICE.source.manifestUrl,
+      START_GUI_SERVICE.source.integrity,
+    ];
+    for (const marker of markers) {
       const assets = new Map([['fixture.bin', encoder.encode(`prefix:${marker}:suffix`)]]);
       expect(() => proveProductionGraph(assets)).to.throw(marker);
     }
@@ -118,17 +130,6 @@ describe('Driver Pi verified-loopback Service Worker policy', () => {
     });
   });
 });
-
-type Build = {
-  readonly dir: t.StringDir;
-  readonly integrity: t.StringHash;
-  readonly dist: t.DeepReadonly<t.DistPkg>;
-};
-type CandidateSnapshot = Readonly<{
-  build: Build;
-  manifest: Uint8Array;
-  assets: ReadonlyMap<string, Uint8Array>;
-}>;
 
 function proveProductionGraph(assets: ReadonlyMap<string, Uint8Array>) {
   const encoder = new TextEncoder();
@@ -164,6 +165,7 @@ function proveProductionGraph(assets: ReadonlyMap<string, Uint8Array>) {
 }
 
 function includesBytes(source: Uint8Array, marker: Uint8Array): boolean {
+  // Bytewise matching requires positional lookahead into the candidate asset.
   search: for (let index = 0; index <= source.length - marker.length; index += 1) {
     for (let offset = 0; offset < marker.length; offset += 1) {
       if (source[index + offset] !== marker[offset]) continue search;
@@ -181,10 +183,10 @@ async function proveFreshVerifiedLoopback(
   const started = await DistServer.start({
     dir: build.dir,
     integrity: build.integrity,
-    limits: LIMITS,
+    limits: START_GUI_SERVICE.limits,
     hostname: '127.0.0.1',
     port: 0,
-    browserPolicy: VERIFIED_LOOPBACK_BROWSER_POLICY,
+    browserPolicy: START_GUI_SERVICE.browserPolicy,
     silent: true,
   });
 
@@ -255,8 +257,8 @@ async function proveClaimingWorkerMigration(assets: ReadonlyMap<string, Uint8Arr
 
   try {
     const origin = new URL(server.url.raw).origin;
-    const scope = `${origin}/` as t.StringUrl;
-    const scriptURL = `${origin}/sw.js` as t.StringUrl;
+    const scope: t.StringUrl = `${origin}/`;
+    const scriptURL: t.StringUrl = `${origin}/sw.js`;
     const result = await Browser.ServiceWorker.scenario({
       executablePath: BROWSER_EXECUTABLE,
       steps: [
@@ -288,8 +290,8 @@ async function proveClaimingWorkerMigration(assets: ReadonlyMap<string, Uint8Arr
       requested: true,
     });
     expect(result.attestation).to.eql('controlled-run-only');
-    expect(workerRequests >= 2).to.eql(true);
-    expect(pageRequests >= 2).to.eql(true);
+    expect(workerRequests).to.be.greaterThan(1);
+    expect(pageRequests).to.be.greaterThan(1);
   } finally {
     await server.dispose();
   }
@@ -303,36 +305,31 @@ async function withCandidatePreserved(
   const expectedAssets = new Map<string, Uint8Array>();
   for (const [path, bytes] of before.assets) expectedAssets.set(path, bytes.slice());
 
-  let operationFailed = false;
-  let operationFailure: unknown;
-  try {
-    await operation(before);
-  } catch (cause) {
-    operationFailed = true;
-    operationFailure = cause;
-  }
-
-  let preservationFailed = false;
-  let preservationFailure: unknown;
-  try {
+  const operationResult = await settle(() => operation(before));
+  const preservationResult = await settle(async () => {
     const after = await candidateSnapshot();
     expect(after.manifest).to.eql(expectedManifest);
     expect(after.assets.size).to.eql(expectedAssets.size);
     for (const [path, bytes] of expectedAssets) expect(after.assets.get(path)).to.eql(bytes);
-  } catch (cause) {
-    preservationFailed = true;
-    preservationFailure = cause;
-  }
+  });
 
-  if (operationFailed && preservationFailed) {
+  if (operationResult.status === 'rejected' && preservationResult.status === 'rejected') {
     throw new SuppressedError(
-      operationFailure,
-      preservationFailure,
+      operationResult.reason,
+      preservationResult.reason,
       'Driver Pi browser proof failed and the frozen candidate also changed.',
     );
   }
-  if (operationFailed) throw operationFailure;
-  if (preservationFailed) throw preservationFailure;
+  if (operationResult.status === 'rejected') throw operationResult.reason;
+  if (preservationResult.status === 'rejected') throw preservationResult.reason;
+}
+
+async function settle<T>(operation: () => Promise<T>): Promise<PromiseSettledResult<T>> {
+  try {
+    return { status: 'fulfilled', value: await operation() };
+  } catch (reason) {
+    return { status: 'rejected', reason };
+  }
 }
 
 async function candidateSnapshot(): Promise<CandidateSnapshot> {
@@ -351,14 +348,19 @@ async function loadBuild(): Promise<Build> {
   }
 
   const integrity = Hash.sha256(manifest.data);
-  const verified = await FsDist.Pinned.verify({ dir: DIST_DIR, integrity, limits: LIMITS });
+  const verified = await FsDist.Pinned.verify({
+    dir: DIST_DIR,
+    integrity,
+    limits: START_GUI_SERVICE.limits,
+  });
   if (verified.kind !== 'verified') {
     throw Err.std(`Driver Pi browser build verification failed: ${verified.kind}`);
   }
-  expect(verified.evidence.dist.pkg).to.eql(pkg);
+  expect(verified.evidence.dist.pkg).to.eql(
+    ASSERT_RELEASE_EVIDENCE ? START_GUI_SERVICE.source.expectedPkg : pkg,
+  );
   if (ASSERT_RELEASE_EVIDENCE) {
     expect(integrity).to.eql(START_GUI_SERVICE.source.integrity);
-    expect(verified.evidence.dist.pkg).to.eql(START_GUI_SERVICE.source.expectedPkg);
   }
   return {
     dir: DIST_DIR,

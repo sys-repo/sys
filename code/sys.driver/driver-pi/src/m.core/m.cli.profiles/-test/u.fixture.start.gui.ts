@@ -1,7 +1,6 @@
-import { Fs, Is, type t, Url } from '../common.ts';
+import { Fs, Is, type t } from '../common.ts';
+import type { Start } from '../u.start/u.gui/t.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
-
-export type Started = t.DistServer.Started;
 export const DIST_DIGEST = `sha256-${'d'.repeat(59)}84346` as t.StringHash;
 export const GENERATION_DIR = '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir;
 export const GENERATION_HREF = Fs.Path.toFileUrl(GENERATION_DIR).href as t.StringUrl;
@@ -96,9 +95,31 @@ function generationStoreFixture(
 
 function generationOwnerFixture(
   store: t.Dist.Generation.Store.Admitted,
-  release: () => Promise<void>,
+  releaseOwner: () => Promise<void>,
 ): t.Dist.Generation.Owner {
-  return Object.freeze({ store, release, [Symbol.asyncDispose]: release });
+  let terminal: Promise<void> | undefined;
+  const release = (): Promise<void> => {
+    if (terminal) return terminal;
+    const completion = deferred();
+    terminal = completion.promise;
+    void settle(completion);
+    return terminal;
+  };
+  const owner: t.Dist.Generation.Owner = Object.freeze({
+    store,
+    release,
+    [Symbol.asyncDispose]: release,
+  });
+  return owner;
+
+  async function settle(completion: ReturnType<typeof deferred>): Promise<void> {
+    try {
+      await releaseOwner();
+      completion.resolve();
+    } catch (cause) {
+      completion.reject(cause);
+    }
+  }
 }
 
 export function deferred(): PromiseWithResolvers<void> {
@@ -109,6 +130,8 @@ export type BootstrapStatusFixtureOptions = {
   url?: t.StringUrl;
   finished?: Promise<void>;
   close?: (reason?: unknown) => void | Promise<void>;
+  /** Distinct public close rejection after an owned lifecycle failure. */
+  closeFailure?: unknown;
 };
 
 /** Create one truthful, memoized BootstrapStatus lifecycle double. */
@@ -167,81 +190,41 @@ export function bootstrapStatusFixture(
       failure ??= cause;
     }
 
-    if (failed) completion.reject(failure);
+    if (failed) completion.reject(options.closeFailure ?? failure);
     else completion.resolve();
   }
 }
 
-export function appliedBrowserPolicyFixture(
-  origin: t.StringUrl,
-): t.DistServer.BrowserPolicy.Applied {
-  const parsed = Url.parse(origin);
-  if (!parsed.ok) throw new Error('Invalid application-origin fixture.');
-  const worker = `${origin}/sw.js`;
-  const contentSecurityPolicy = [
-    "default-src 'none'",
-    "base-uri 'none'",
-    `child-src ${worker}`,
-    "connect-src 'self'",
-    "font-src 'self'",
-    "form-action 'none'",
-    "frame-ancestors 'none'",
-    "frame-src 'none'",
-    "img-src 'self' data:",
-    "manifest-src 'self'",
-    "media-src 'self'",
-    "object-src 'none'",
-    "script-src 'self'",
-    "style-src 'self' 'unsafe-inline'",
-    `worker-src ${worker}`,
-  ].join('; ');
-  return Object.freeze({
-    kind: 'verified-loopback',
-    origin,
-    host: parsed.toURL().host,
-    dedicatedWorkers: Object.freeze([]),
-    serviceWorker: Object.freeze({ kind: 'tombstone', path: 'sw.js' }),
-    fetchMetadata: Object.freeze({ crossSite: 'deny', missing: 'allow' }),
-    headers: Object.freeze({
-      cacheControl: 'no-store',
-      contentSecurityPolicy,
-      crossOriginOpenerPolicy: 'same-origin',
-      crossOriginResourcePolicy: 'same-origin',
-      referrerPolicy: 'no-referrer',
-      xContentTypeOptions: 'nosniff',
-      xFrameOptions: 'DENY',
-    }),
-  });
-}
-
 export function startedFixture(input: {
-  close?: (reason: unknown) => Promise<void>;
+  close?: (reason?: unknown) => Promise<void>;
   finished?: Promise<void>;
   pkg?: Readonly<t.Pkg>;
   integrity?: t.StringHash;
   digest?: t.StringHash;
-} = {}): Started {
+} = {}): Start.Gui.Application.Owner {
   const generation = fakeGeneration(input.pkg, {
     integrity: input.integrity,
     digest: input.digest,
   });
   const origin = 'http://127.0.0.1:1234' as t.StringUrl;
   const completion = deferred();
-  const close = async (reason: unknown) => {
-    await input.close?.(reason);
-    if (!input.finished) completion.resolve();
+  let closeOperation: Promise<void> | undefined;
+  const close = (reason?: unknown): Promise<void> => {
+    if (closeOperation) return closeOperation;
+    closeOperation = settle(reason);
+    return closeOperation;
   };
   return Object.freeze({
-    addr: Object.freeze({ transport: 'tcp', hostname: '127.0.0.1', port: 1234 }),
-    hostname: '127.0.0.1',
-    port: 1234,
     origin,
     close,
     finished: input.finished ?? completion.promise,
-    authority: Object.freeze({ kind: 'pinned', integrity: generation.integrity }),
     verification: generation.verification,
-    browserPolicy: appliedBrowserPolicyFixture(origin),
-  }) as Started;
+  });
+
+  async function settle(reason?: unknown): Promise<void> {
+    await input.close?.(reason);
+    if (!input.finished) completion.resolve();
+  }
 }
 
 export async function rejectionOf(action: () => Promise<unknown>): Promise<Error> {

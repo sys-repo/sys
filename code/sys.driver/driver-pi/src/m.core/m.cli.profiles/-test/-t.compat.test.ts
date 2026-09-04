@@ -1,15 +1,16 @@
-import { describe, expectTypeOf, it, type t } from '../../../-test.ts';
+import { describe, expectTypeOf, it } from '../../../-test.ts';
 import type { Keyboard as CommonKeyboard } from '../../../common/t.ts';
 import type { PiCliProfiles } from '@sys/driver-pi/t';
 import type { Keyboard } from '@sys/ui-dom/t';
 
+type GuiOutcome = PiCliProfiles.Gui['outcome'];
+type ExpectedGuiOutcome = 'quit' | 'external-cancellation' | 'failed';
+
 describe('@sys/driver-pi profile type compatibility', () => {
-  it('retains the public start:gui source pair through the package type entry', () => {
-    const source = {} as PiCliProfiles.StartGuiSource;
-    expectTypeOf<PiCliProfiles.StartGuiSource>(source).toEqualTypeOf<{
-      manifestUrl: t.StringUrl;
-      integrity: t.StringHash;
-    }>();
+  it('carries ordinary non-back GUI outcomes through the package type entry', () => {
+    const outcome: GuiOutcome = 'quit';
+    expectTypeOf<GuiOutcome>(outcome).toEqualTypeOf<ExpectedGuiOutcome>();
+    expectTypeOf<PiCliProfiles.Gui.Outcome>(outcome).toEqualTypeOf<GuiOutcome>();
   });
 
   it('retains the established common Keyboard type spine', () => {

@@ -12,4 +12,5 @@ export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';
 export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
+export { Time } from '@sys/std/time';
 export { Browser, describe, expect, it, Testing } from '@sys/testing/server';

@@ -1,28 +1,7 @@
-import { c, Cli, HashFmt, type t } from '../common.ts';
+import { c, Cli, Fs, HashFmt, Is, type t } from '../common.ts';
 
-import { START_GUI_SERVICE, type StartGuiRecoveryPolicy } from '../../u/u.start.gui.service.ts';
-import type { BootSafeEvidence, BootState } from '../u.state.ts';
-import { stableNativeUrl } from '../u.url.ts';
-import { capturedRootLink, captureManifestUrl, captureServiceUrl, numericMax } from './u.input.ts';
-import type { CapturedRootLink, StartGuiScreenRenderInput } from './t.ts';
-
-type ServiceValue =
-  | { readonly kind: 'title' | 'warning'; readonly text: string }
-  | { readonly kind: 'checksum'; readonly text: t.StringHash }
-  | { readonly kind: 'evidence'; readonly items: readonly string[] }
-  | {
-    readonly kind: 'manifest';
-    readonly hash: t.StringHash;
-    readonly directoryHref?: t.StringUrl;
-    readonly href?: t.StringUrl;
-  }
-  | { readonly kind: 'capability'; readonly text: t.StringUrl }
-  | { readonly kind: 'path'; readonly root: CapturedRootLink }
-  | { readonly kind: 'state'; readonly state: BootState }
-  | { readonly kind: 'url'; readonly text: t.StringUrl };
-
-type SingleLineServiceValue = Exclude<ServiceValue, { readonly kind: 'evidence' }>;
-type ServiceFact = readonly [label: string, value: ServiceValue];
+import { START_GUI_SERVICE } from '../../u/u.start.gui.service.ts';
+import type { Start } from '../u.gui/t.ts';
 
 const SERVICE_LEFT_INSET = 2;
 const SERVICE_RIGHT_GUTTER = 2;
@@ -30,12 +9,14 @@ const SERVICE_GAP = '   ';
 const CAPABILITY_HINT = '(capability)';
 const DIST_PATH = 'dist/';
 
-/** Render the complete service-fact region for one admitted screen state. */
+/**
+ * Render the complete service-fact region for one admitted screen state.
+ */
 export function renderServiceRows(
-  input: StartGuiScreenRenderInput,
+  input: Start.Gui.Presentation.RenderInput,
   frameWidth: number,
 ): readonly string[] {
-  const width = numericMax(0, frameWidth - SERVICE_LEFT_INSET - SERVICE_RIGHT_GUTTER);
+  const width = Math.max(0, frameWidth - SERVICE_LEFT_INSET - SERVICE_RIGHT_GUTTER);
   const labelWidth = Cli.Fmt.Text.Width.measure(' evidence');
   const rows: string[] = [];
 
@@ -48,14 +29,41 @@ export function renderServiceRows(
   return rows;
 }
 
-/** Fit one terminal row without retaining partial ANSI styling. */
-export function fitTerminalRow(row: string, width: number) {
+/**
+ * Fit one terminal row without retaining partial ANSI styling.
+ */
+export function fitTerminalRow(row: string, width: number): string {
   if (Cli.Fmt.Text.Width.measure(row) <= width) return row;
   return ellipsize(row, width);
 }
 
-function serviceFacts(input: StartGuiScreenRenderInput): readonly ServiceFact[] {
-  const facts: ServiceFact[] = [];
+/**
+ * Capture one development root and its file-link authority.
+ */
+export function captureRootLink(input: unknown): Start.Gui.Presentation.RootLink | undefined {
+  if (!Is.string(input) || input.trim() !== input || !Fs.Path.Is.absolute(input)) return;
+  // Code-point admission needs a cursor so surrogate pairs are consumed exactly once.
+  for (let index = 0; index < input.length; index += 1) {
+    const code = input.codePointAt(index);
+    if (code === undefined || code <= 0x1f || (code >= 0x7f && code <= 0x9f)) return;
+    if (code > 0xffff) index += 1;
+  }
+  try {
+    const url = Fs.Path.toFileUrl(input);
+    if (url.search || url.hash || Fs.Path.fromFileUrl(url) !== input) return;
+    return Object.freeze({ text: input, href: url.href });
+  } catch {
+    return;
+  }
+}
+
+/**
+ * Helpers:
+ */
+function serviceFacts(
+  input: Start.Gui.Presentation.RenderInput,
+): readonly Start.Gui.Presentation.Service.Fact[] {
+  const facts: Start.Gui.Presentation.Service.Fact[] = [];
   pushFact(facts, 'service', { kind: 'title', text: input.service });
   pushFact(facts, 'state', { kind: 'state', state: input.state });
 
@@ -68,8 +76,7 @@ function serviceFacts(input: StartGuiScreenRenderInput): readonly ServiceFact[] 
     });
   }
 
-  const root = capturedRootLink(input.root);
-  if (root) pushFact(facts, 'root', { kind: 'path', root });
+  if (input.root) pushFact(facts, 'root', { kind: 'path', root: input.root });
 
   if (input.state.kind === 'failed') {
     pushFact(facts, 'evidence', {
@@ -99,7 +106,11 @@ function serviceFacts(input: StartGuiScreenRenderInput): readonly ServiceFact[] 
   return facts;
 }
 
-function pushFact(facts: ServiceFact[], label: string, value: ServiceValue): void {
+function pushFact(
+  facts: Start.Gui.Presentation.Service.Fact[],
+  label: string,
+  value: Start.Gui.Presentation.Service.Value,
+): void {
   facts.push([label, value]);
 }
 
@@ -110,7 +121,7 @@ function insetServiceRow(row: string, width: number) {
 
 function serviceRow(
   label: string,
-  value: ServiceValue,
+  value: Start.Gui.Presentation.Service.Value,
   width: number,
   labelWidth: number,
 ): readonly string[] {
@@ -135,12 +146,18 @@ function fieldLabelColor(text: string) {
   return c.dim(c.gray(text));
 }
 
-function serviceValueRows(value: ServiceValue, width: number): readonly string[] {
+function serviceValueRows(
+  value: Start.Gui.Presentation.Service.Value,
+  width: number,
+): readonly string[] {
   if (value.kind === 'evidence') return evidenceRows(value.items, width);
   return [serviceValue(value, width)];
 }
 
-function serviceValue(value: SingleLineServiceValue, width: number) {
+function serviceValue(
+  value: Start.Gui.Presentation.Service.SingleLineValue,
+  width: number,
+) {
   if (value.kind === 'path') {
     if (width <= 0) return '';
     const display = Cli.Fmt.Path.tty(value.root.text, {
@@ -149,7 +166,7 @@ function serviceValue(value: SingleLineServiceValue, width: number) {
       terminal: true,
       width,
     });
-    return Cli.Fmt.hyperlink(display, value.root.url);
+    return Cli.Fmt.hyperlink(display, new URL(value.root.href));
   }
   if (value.kind === 'url' || value.kind === 'capability') {
     const part = captureServiceUrl(value.text);
@@ -181,7 +198,7 @@ function serviceValue(value: SingleLineServiceValue, width: number) {
       : directory;
     const digest = HashFmt.digest(value.hash, {
       arrow: true,
-      maxWidth: numericMax(0, width - reserve),
+      maxWidth: Math.max(0, width - reserve),
       url: manifestUrl,
     });
     return digest ? `${linkedDirectory} ${digest}` : linkedDirectory;
@@ -205,7 +222,7 @@ function fitServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part, width: number, origin: s
 
   const suffixWidth = Cli.Fmt.Text.Width.fit({ width, reserve: originWidth, terminal: false });
   const suffix = Cli.Fmt.Text.ellipsize(part.suffix, suffixWidth, {
-    render: ({ head, ellipsis, tail }) => {
+    render({ head, ellipsis, tail }) {
       return `${c.gray(head)}${Cli.Fmt.omission(ellipsis)}${c.gray(tail)}`;
     },
   });
@@ -218,11 +235,11 @@ function formatServiceOrigin(part: t.Cli.Fmt.ServiceUrl.Part): string {
   return `${c.cyan(prefix)}${c.bold(c.cyan(part.port))}`;
 }
 
-function stateColor(state: BootState): (text: string) => string {
+function stateColor(state: Start.Gui.Presentation.State): (text: string) => string {
   return state.kind === 'failed' ? c.yellow : c.gray;
 }
 
-function stateText(state: BootState): string {
+function stateText(state: Start.Gui.Presentation.State): string {
   switch (state.kind) {
     case 'preparing':
       return 'preparing';
@@ -238,8 +255,8 @@ function stateText(state: BootState): string {
 }
 
 function failureGuidance(
-  state: Extract<BootState, { readonly kind: 'failed' }>,
-  recovery?: StartGuiRecoveryPolicy,
+  state: Extract<Start.Gui.Presentation.State, { readonly kind: 'failed' }>,
+  recovery?: Start.Gui.Recovery.Policy,
 ): string | undefined {
   const canRecoverManifest = recovery === START_GUI_SERVICE.recovery &&
     manifestChecksumOf(state.safeEvidence) !== undefined;
@@ -253,7 +270,7 @@ function failureGuidance(
 }
 
 function manifestChecksumOf(
-  evidence: BootSafeEvidence,
+  evidence: Start.Gui.Failure.Evidence,
 ): t.Dist.ManifestChecksumMismatch | undefined {
   if (
     evidence.kind !== 'materialization' || evidence.stage !== 'manifest-fetch' ||
@@ -262,7 +279,7 @@ function manifestChecksumOf(
   return evidence.manifestChecksum;
 }
 
-function evidenceItems(evidence: BootSafeEvidence): readonly string[] {
+function evidenceItems(evidence: Start.Gui.Failure.Evidence): readonly string[] {
   switch (evidence.kind) {
     case 'configuration':
       return [`configuration/${evidence.reason}`];
@@ -304,7 +321,7 @@ function fitValue(value: string, width: number, color: (text: string) => string)
   if (width <= 0) return '';
   if (Cli.Fmt.Text.Width.measure(value) <= width) return color(value);
   return Cli.Fmt.Text.ellipsize(value, width, {
-    render: ({ head, ellipsis, tail }) => {
+    render({ head, ellipsis, tail }) {
       return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
     },
   });
@@ -318,4 +335,40 @@ function ellipsize(value: string, width: number) {
   return Cli.Fmt.Text.ellipsize(Cli.stripAnsi(value), width, {
     render: ({ head, ellipsis, tail }) => `${head}${Cli.Fmt.omission(ellipsis)}${tail}`,
   });
+}
+
+function captureManifestUrl(input: unknown): t.StringUrl | undefined {
+  if (!Is.string(input)) return;
+  const url = stableNativeUrl(input);
+  if (
+    !url || (url.protocol !== 'http:' && url.protocol !== 'https:') || url.username ||
+    url.password || url.search || url.hash
+  ) return;
+  return url.href;
+}
+
+function captureServiceUrl(input: t.StringUrl): t.Cli.Fmt.ServiceUrl.Part | undefined {
+  const url = stableNativeUrl(input);
+  if (!url) return;
+  const hostname = Cli.Fmt.ServiceUrl.displayHostname(url.hostname);
+  const host = url.port ? `${hostname}:${url.port}` : hostname;
+  const origin = `${url.protocol}//${host}`;
+  const suffix = `${url.pathname}${url.search}${url.hash}` || '/';
+  return Object.freeze({
+    ok: true,
+    href: url.href,
+    origin,
+    suffix,
+    display: `${origin}${suffix}`,
+    ...(url.port ? { port: url.port } : {}),
+    highlightOrigin: true,
+  });
+}
+
+function stableNativeUrl(input: string): URL | undefined {
+  try {
+    return new URL(input);
+  } catch {
+    return;
+  }
 }

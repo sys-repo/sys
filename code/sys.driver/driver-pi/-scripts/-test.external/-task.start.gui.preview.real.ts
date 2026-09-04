@@ -1,6 +1,6 @@
-import { describe, DistServer, expect, Fs, Hash, it, Process, Str } from '../common.ts';
+import { describe, DistServer, expect, Fs, Hash, Is, it, Process, Str } from '../common.ts';
 
-import { LIMITS } from '../../src/m.core/m.cli.profiles/u.start/u.limits.ts';
+import { START_GUI_SERVICE } from '../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
 import type { t } from '../m.start.gui.preview.build/common.ts';
 import {
   allocatePreviewGeneration,
@@ -11,7 +11,18 @@ import {
 } from '../m.start.gui.preview.build/u.runtime.ts';
 import { vitePaths } from '../u.vite.paths.ts';
 
-const SHARED_DIST = Fs.join(PACKAGE_ROOT, 'dist') as t.StringAbsoluteDir;
+type DevelopmentSource = t.PreviewDevelopmentSource;
+type DirectoryEntry =
+  | { readonly path: string; readonly kind: 'directory' }
+  | { readonly path: string; readonly kind: 'file'; readonly integrity: t.StringHash };
+type DirectorySnapshot =
+  | { readonly kind: 'absent' }
+  | { readonly kind: 'present'; readonly entries: readonly DirectoryEntry[] };
+type FileSnapshot =
+  | { readonly exists: false }
+  | { readonly exists: true; readonly integrity: t.StringHash };
+
+const SHARED_DIST: t.StringAbsoluteDir = Fs.join(PACKAGE_ROOT, 'dist');
 const AMBIENT_ENV_SENTINEL = 'SYS_DRIVER_PI_PREVIEW_AMBIENT_SENTINEL';
 
 describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => {
@@ -90,25 +101,24 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
       paths,
       allocate: allocatePreviewGeneration,
       build: buildPreviewGeneration,
-      GUI: {
-        async start(input) {
-          const source = developmentSource(input.source);
-          firstSource = source;
-          let server: t.DistServer.Started | undefined;
-          try {
-            firstManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
-            expect(firstManifest).to.eql({ exists: true, integrity: source.integrity });
-            server = await startHost(source);
-            firstOrigin = server.origin;
-            firstReady.resolve();
-            await releaseFirst.promise;
-          } catch (cause) {
-            firstReady.reject(cause);
-            throw cause;
-          } finally {
-            await server?.close('preview-real.first-complete');
-          }
-        },
+      async startGui(input) {
+        const source = developmentSource(input.source);
+        firstSource = source;
+        let server: t.DistServer.Started | undefined;
+        try {
+          firstManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
+          expect(firstManifest).to.eql({ exists: true, integrity: source.integrity });
+          server = await startHost(source);
+          firstOrigin = server.origin;
+          firstReady.resolve();
+          await releaseFirst.promise;
+        } catch (cause) {
+          firstReady.reject(cause);
+          throw cause;
+        } finally {
+          await server?.close('preview-real.first-complete');
+        }
+        return 'quit';
       },
     });
     void firstRun.then(
@@ -116,9 +126,8 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
       firstReady.reject,
     );
 
-    let primary: unknown;
-    let failed = false;
-    let firstObserved = false;
+    let proofFailure: unknown;
+    let proofFailed = false;
     try {
       await firstReady.promise;
       const first = developmentSource(firstSource);
@@ -132,21 +141,20 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
         paths,
         allocate: allocatePreviewGeneration,
         build: buildPreviewGeneration,
-        GUI: {
-          async start(input) {
-            const source = developmentSource(input.source);
-            secondSource = source;
-            secondManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
-            expect(secondManifest).to.eql({ exists: true, integrity: source.integrity });
-            const server = await startHost(source);
-            try {
-              const response = await fetchText(server.origin);
-              expect(response.status).to.eql(200);
-              secondBody = response.body;
-            } finally {
-              await server.close('preview-real.second-complete');
-            }
-          },
+        async startGui(input) {
+          const source = developmentSource(input.source);
+          secondSource = source;
+          secondManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
+          expect(secondManifest).to.eql({ exists: true, integrity: source.integrity });
+          const server = await startHost(source);
+          try {
+            const response = await fetchText(server.origin);
+            expect(response.status).to.eql(200);
+            secondBody = response.body;
+          } finally {
+            await server.close('preview-real.second-complete');
+          }
+          return 'quit';
         },
       });
 
@@ -162,43 +170,37 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
       expect(await Fs.exists(second.dir)).to.eql(false);
 
       releaseFirst.resolve();
-      try {
-        await firstRun;
-      } finally {
-        firstObserved = true;
-      }
+      await firstRun;
       expect(await Fs.exists(first.dir)).to.eql(false);
       expect(await directorySnapshot(SHARED_DIST)).to.eql(sharedBefore);
     } catch (cause) {
-      failed = true;
-      primary = cause;
+      proofFailed = true;
+      proofFailure = cause;
     } finally {
       releaseFirst.resolve();
-      if (!firstObserved) {
-        try {
-          await firstRun;
-        } catch (cause) {
-          if (failed && primary !== cause) {
-            primary = new AggregateError(
-              [primary, cause],
-              'Real preview proof and first-session cleanup failed.',
-            );
-          } else if (!failed) {
-            failed = true;
-            primary = cause;
-          }
+      try {
+        await firstRun;
+      } catch (cause) {
+        if (proofFailed && proofFailure !== cause) {
+          proofFailure = new AggregateError(
+            [proofFailure, cause],
+            'Real preview proof and first-session cleanup failed.',
+          );
+        } else if (!proofFailed) {
+          proofFailed = true;
+          proofFailure = cause;
         }
       }
       if (previousSentinel === undefined) Deno.env.delete(AMBIENT_ENV_SENTINEL);
       else Deno.env.set(AMBIENT_ENV_SENTINEL, previousSentinel);
     }
-    if (failed) throw primary;
+    if (proofFailed) throw proofFailure;
   });
 
   it('distinguishes absent and present trees and rejects unsupported entries', async () => {
     const temporary = await Fs.makeTempDir({ prefix: 'driver-pi.preview.snapshot.' });
-    const root = temporary.absolute as t.StringAbsoluteDir;
-    const tree = Fs.join(root, 'tree') as t.StringAbsoluteDir;
+    const root: t.StringAbsoluteDir = temporary.absolute;
+    const tree: t.StringAbsoluteDir = Fs.join(root, 'tree');
     const nested = Fs.join(tree, 'nested');
     const file = Fs.join(nested, 'value.txt');
 
@@ -224,7 +226,7 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
       expect(linked.message).to.eql('Unsupported shared Dist entry: link');
       await Fs.remove(link);
 
-      const unsupported = Fs.join(root, 'not-a-directory') as t.StringAbsoluteDir;
+      const unsupported: t.StringAbsoluteDir = Fs.join(root, 'not-a-directory');
       await Fs.write(unsupported, 'file');
       const wrongRoot = await snapshotRejection(unsupported);
       expect(wrongRoot.message).to.eql(`Unsupported shared Dist root: ${unsupported}`);
@@ -233,8 +235,6 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
     }
   });
 });
-
-type DevelopmentSource = t.PreviewDevelopmentSource;
 
 function developmentSource(input: DevelopmentSource | undefined): DevelopmentSource {
   if (input?.kind !== 'development') throw new Error('Expected development preview evidence.');
@@ -246,7 +246,7 @@ async function startHost(source: DevelopmentSource) {
     return await DistServer.start({
       dir: source.dir,
       integrity: source.integrity,
-      limits: LIMITS,
+      limits: START_GUI_SERVICE.limits,
       hostname: '127.0.0.1',
       port: 0,
       silent: true,
@@ -258,17 +258,6 @@ async function startHost(source: DevelopmentSource) {
     throw cause;
   }
 }
-
-type DirectoryEntry =
-  | { readonly path: string; readonly kind: 'directory' }
-  | { readonly path: string; readonly kind: 'file'; readonly integrity: t.StringHash };
-type DirectorySnapshot =
-  | { readonly kind: 'absent' }
-  | { readonly kind: 'present'; readonly entries: readonly DirectoryEntry[] };
-
-type FileSnapshot =
-  | { readonly exists: false }
-  | { readonly exists: true; readonly integrity: t.StringHash };
 
 /** Exact shared-tree observation preserves absence and rejects links or special entries. */
 async function directorySnapshot(dir: t.StringAbsoluteDir): Promise<DirectorySnapshot> {
@@ -311,7 +300,7 @@ async function snapshotRejection(dir: t.StringAbsoluteDir): Promise<Error> {
   try {
     await directorySnapshot(dir);
   } catch (cause) {
-    return cause instanceof Error ? cause : new Error(String(cause));
+    return Is.error(cause) ? cause : new Error(String(cause));
   }
   throw new Error('Expected directory snapshot rejection.');
 }

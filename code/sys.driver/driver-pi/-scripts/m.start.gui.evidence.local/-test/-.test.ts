@@ -1,4 +1,4 @@
-import { describe, Err, expect, it, type t } from '../../common.ts';
+import { describe, Err, expect, it } from '../../common.ts';
 import { pkg } from '../../../src/pkg.ts';
 import { START_GUI_RELEASE_EVIDENCE } from '../../../src/m.core/m.cli.profiles/u/u.start.gui.service.evidence.ts';
 import { START_GUI_SERVICE } from '../../../src/m.core/m.cli.profiles/u/u.start.gui.service.ts';
@@ -14,7 +14,7 @@ const render = (expectedPkg: unknown) =>
   renderEvidence({
     manifestUrl: START_GUI_RELEASE_EVIDENCE.manifestUrl,
     integrity: START_GUI_RELEASE_EVIDENCE.integrity,
-    expectedPkg: expectedPkg as t.Pkg,
+    expectedPkg,
   });
 
 describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
@@ -124,13 +124,13 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
     expect(() =>
       renderEvidence({
         ...START_GUI_RELEASE_EVIDENCE,
-        manifestUrl: 'http://localhost:8080/dist.json?mutable' as t.StringUrl,
+        manifestUrl: 'http://localhost:8080/dist.json?mutable',
       })
     ).to.throw('Driver Pi local GUI evidence manifest URL is invalid.');
     expect(() =>
       renderEvidence({
         ...START_GUI_RELEASE_EVIDENCE,
-        integrity: `${START_GUI_RELEASE_EVIDENCE.integrity}:size=1` as t.StringHash,
+        integrity: `${START_GUI_RELEASE_EVIDENCE.integrity}:size=1`,
       })
     ).to.throw('Driver Pi local GUI evidence integrity is invalid.');
   });

@@ -1,846 +1,988 @@
-import { describe, expect, it } from '../../../-test.ts';
-import { Fs, Is, type t } from '../common.ts';
-import { DistServer } from '../u.start/common.ts';
-import { VERIFIED_LOOPBACK_BROWSER_POLICY } from '../u.start/u.browser.ts';
-import { start, type StartGuiDependencies } from '../u.start/u.gui/mod.ts';
-import type { BootState } from '../u.start/u.state.ts';
-import { isCliSettledFailure, startGuiCompletionKind } from '../u/u.start.gui.settlement.ts';
-import { START_GUI_SERVICE, type StartGuiEvidence } from '../u/u.start.gui.service.ts';
+import { describe, expect, Is, it, type t } from '../../../-test.ts';
+import { Cli } from '../common.ts';
+import { startDevelopmentWith, startWith } from '../u.start/u.gui/mod.ts';
+import type { Start } from '../u.start/u.gui/t.ts';
+import { StartGuiPresentation } from '../u.start/u.gui/u.presentation.ts';
+import { generationOpenArgs, START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 import {
   asProfileRoot,
   bootstrapStatusFixture,
   deferred,
   failedGenerationFixture,
   fakeGeneration,
+  GENERATION_DIR,
   openedGenerationFixture,
   rejectionOf,
   startedFixture,
 } from './u.fixture.start.gui.ts';
 
-const ROOT = '/tmp/driver-pi-start-gui-test' as t.StringDir;
-const STATUS_URL = 'http://127.0.0.1:45000/0123456789abcdefghijklmnopqrstuvwxyzabcd' as t.StringUrl;
-const APP_ORIGIN = 'http://127.0.0.1:1234' as t.StringUrl;
+const ROOT: t.StringDir = '/tmp/driver-pi-gui-session';
+const CWD = asProfileRoot(ROOT);
+const DEVELOPMENT: Start.Gui.Development.Evidence = Object.freeze({
+  kind: 'development',
+  dir: GENERATION_DIR,
+  integrity: START_GUI_SERVICE.source.integrity,
+  expectedPkg: START_GUI_SERVICE.source.expectedPkg,
+});
 
-describe('@sys/driver-pi start:gui package composition', () => {
-  it('applies release policy, presents readiness, and closes app, Generation, then status', async () => {
+type Controls = Readonly<{
+  back(): void;
+  quit(): void;
+  dismiss(): void;
+}>;
+
+type KeyPress = Parameters<NonNullable<t.Cli.Keyboard.Bind.Options['onKey']>>[0];
+
+const REDRAW: KeyPress = Object.assign(new Event('keydown'), {
+  key: 'r',
+  ctrlKey: false,
+  altKey: false,
+  metaKey: false,
+  shiftKey: false,
+  repeat: false,
+});
+
+type HarnessOptions = Readonly<{
+  status?: t.BootstrapStatus.Started;
+  startStatus?: Start.Gui.Dependencies['startStatus'];
+  openGeneration?: Start.Gui.Dependencies['openGeneration'];
+  startApplication?: Start.Gui.Dependencies['startApplication'];
+  isHostError?: Start.Gui.Dependencies['isHostError'];
+  application?: Start.Gui.Application.Owner;
+  presentation?: Start.Gui.Dependencies['presentation'];
+  presentationClose?: () => Promise<void>;
+  statusFinished?: Promise<void>;
+  statusClose?: (reason?: unknown) => void | Promise<void>;
+  statusCloseFailure?: unknown;
+  generationRelease?: () => Promise<void>;
+  autoReady?: 'back' | 'quit' | false;
+  autoFailure?: boolean;
+  openBrowser?: Start.Gui.Dependencies['openBrowser'];
+}>;
+
+type Harness = Readonly<{
+  deps: Start.Gui.Dependencies;
+  controls: Controls;
+  events: string[];
+  failures: Start.Gui.Failure[];
+  generationArgs: t.Dist.Generation.Open.Args[];
+  applicationArgs: t.DistServer.Start.Args[];
+  ready: PromiseWithResolvers<void>;
+  failed: PromiseWithResolvers<void>;
+  applicationStarted: PromiseWithResolvers<void>;
+  applicationClosed: PromiseWithResolvers<void>;
+  generationReleased: PromiseWithResolvers<void>;
+  statusClosed: PromiseWithResolvers<void>;
+}>;
+
+type ProductionPresentationOptions = Readonly<{
+  screenReleaseFailure?: Error;
+}>;
+
+describe('@sys/driver-pi start:gui direct composition', () => {
+  it('returns one terminal Generation release operation through both owner methods', async () => {
+    let releases = 0;
+    const opened = openedGenerationFixture(
+      { store: { root: ROOT, target: START_GUI_SERVICE.store.target } },
+      fakeGeneration(),
+      () => {
+        releases += 1;
+        return Promise.resolve();
+      },
+    );
+
+    const release = opened.owner.release();
+    const disposal = opened.owner[Symbol.asyncDispose]();
+
+    expect(disposal).to.equal(release);
+    expect(releases).to.eql(1);
+    await release;
+    expect(opened.owner.release()).to.equal(release);
+    expect(releases).to.eql(1);
+  });
+
+  it('runs canonical release policy and settles package owners in dependency order', async () => {
     const harness = createHarness();
-    const run = start({ cwd: asProfileRoot(ROOT), deps: harness.deps });
+    const result = await startWith({ cwd: CWD }, harness.deps);
 
-    await harness.ready.promise;
-    expect(harness.opened).to.eql([STATUS_URL]);
-    expect(harness.states.map((state) => state.kind)).to.eql([
-      'preparing',
-      'starting-app-host',
-      'ready',
-    ]);
-    expect(harness.states.at(-1)).to.eql({
-      kind: 'ready',
-      origin: APP_ORIGIN,
-      digest: harness.digest,
-      directoryHref: Fs.Path.toFileUrl(
-        Fs.join(
-          ROOT,
-          '.pi/@sys/dist/@sys.driver-pi',
-          START_GUI_SERVICE.source.integrity,
-        ),
-      ).href,
-    });
-    expect(harness.generationArgs?.store).to.eql({
-      root: Fs.join(ROOT, '.pi/@sys/dist'),
-      target: '@sys.driver-pi',
-    });
-    expect(harness.generationArgs?.manifestUrl).to.eql(START_GUI_SERVICE.source.manifestUrl);
-    expect(harness.generationArgs?.integrity).to.eql(START_GUI_SERVICE.source.integrity);
-    expect(harness.generationArgs?.policy.manifest.sourceOrigins).to.eql([
-      'http://localhost:8080',
-    ]);
-    expect(harness.startArgs).to.include({
-      dir: Fs.join(
-        ROOT,
-        '.pi/@sys/dist/@sys.driver-pi',
-        START_GUI_SERVICE.source.integrity,
-      ),
-      integrity: START_GUI_SERVICE.source.integrity,
-      hostname: '127.0.0.1',
-      port: 0,
-      silent: true,
-    });
-    expect(harness.startArgs?.browserPolicy).to.equal(VERIFIED_LOOPBACK_BROWSER_POLICY);
-    expect(harness.startArgs?.until).to.equal(harness.generationArgs?.until);
-    expect(harness.screen?.manifestUrl).to.eql(START_GUI_SERVICE.source.manifestUrl);
-    expect(harness.screen?.recovery).to.equal(START_GUI_SERVICE.recovery);
-
-    harness.quit();
-    const completion = await run;
-
-    expect(startGuiCompletionKind(completion)).to.eql('quit');
-    expect(harness.states.map((state) => state.kind)).to.eql([
-      'preparing',
-      'starting-app-host',
-      'ready',
-      'stopping',
-    ]);
-    expect(harness.events).to.eql([
-      'screen.dispose',
-      'keyboard.dispose',
+    expect(result).to.eql('quit');
+    expect(harness.generationArgs).to.have.length(1);
+    const until = harness.generationArgs[0].until;
+    if (!Is.abortSignal(until)) throw new Error('Expected Generation cancellation authority.');
+    const expected = generationOpenArgs(
+      ROOT,
+      Object.freeze({
+        kind: 'release',
+        source: Object.freeze({
+          href: START_GUI_SERVICE.source.manifestUrl,
+          origin: new URL(START_GUI_SERVICE.source.manifestUrl).origin,
+        }),
+        integrity: START_GUI_SERVICE.source.integrity,
+        expectedPkg: START_GUI_SERVICE.source.expectedPkg,
+      }),
+      until,
+    );
+    expect(harness.generationArgs[0]).to.eql(expected);
+    expect(harness.applicationArgs).to.have.length(1);
+    expect(harness.applicationArgs[0].limits).to.equal(START_GUI_SERVICE.limits);
+    expect(harness.applicationArgs[0].browserPolicy).to.equal(START_GUI_SERVICE.browserPolicy);
+    expect(harness.events.indexOf('browser.open')).to.be.lessThan(
+      harness.events.indexOf('generation.open'),
+    );
+    expect(cleanupEvents(harness.events)).to.eql([
+      'presentation.shutdown',
       'application.close',
       'generation.release',
       'status.close',
     ]);
-    expect((harness.startArgs?.until as AbortSignal).reason).to.eql(
-      'start:gui.trusted-control',
-    );
   });
 
-  it('defers Generation release until an application with failed close settles', async () => {
-    const harness = createHarness();
-    const applicationFinished = deferred();
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        start: (input) => {
-          harness.recordStart(input);
-          return Promise.resolve(startedFixture({
-            finished: applicationFinished.promise,
-            close: () => {
-              harness.recordEvent('application.close');
-              return Promise.reject(new Error('application close failed'));
-            },
-          }));
-        },
-      },
-    });
-    const rejected = rejectionOf(() => run);
+  it('uses the separate locally verified preview path without release acquisition', async () => {
+    const harness = createHarness({ autoReady: 'back' });
+    const result = await startDevelopmentWith({ cwd: CWD, source: DEVELOPMENT }, harness.deps);
 
-    await harness.ready.promise;
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui cleanup failed.');
-    expect((error as Error & { cleanup?: unknown }).cleanup).to.eql({
-      kind: 'cleanup-failed',
-      issues: [
-        { resource: 'application-listener', state: 'failed' },
-        { resource: 'release', state: 'unresolved' },
-      ],
-    });
-    expect(harness.events).to.eql([
-      'screen.dispose',
-      'keyboard.dispose',
+    expect(result).to.eql('back');
+    expect(harness.generationArgs).to.have.length(0);
+    expect(harness.applicationArgs).to.have.length(1);
+    expect(harness.applicationArgs[0].integrity).to.eql(DEVELOPMENT.integrity);
+    expect(harness.applicationArgs[0].dir).to.eql(GENERATION_DIR);
+    expect(cleanupEvents(harness.events)).to.eql([
+      'presentation.shutdown',
       'application.close',
       'status.close',
     ]);
+  });
 
-    applicationFinished.resolve();
+  it('refuses a mismatched Generation before hosting and foregrounds bounded failure', async () => {
+    let hostCalls = 0;
+    const mismatch = fakeGeneration(Object.freeze({ name: '@other/gui', version: '1.0.0' }));
+    const harness = createHarness({
+      openGeneration: (input) =>
+        Promise.resolve(openedGenerationFixture(input, mismatch, () => {
+          harness.events.push('generation.release');
+          harness.generationReleased.resolve();
+          return Promise.resolve();
+        })),
+      startApplication() {
+        hostCalls += 1;
+        return Promise.resolve(startedFixture());
+      },
+    });
+
+    const result = await startWith({ cwd: CWD }, harness.deps);
+    expect(result).to.eql('failed');
+    expect(hostCalls).to.eql(0);
+    expect(harness.failures[0]?.category).to.eql('artifact-refused');
+    expect(cleanupEvents(harness.events)).to.eql([
+      'generation.release',
+      'presentation.shutdown',
+      'status.close',
+    ]);
+  });
+
+  it('closes a refused hosted package before waiting for failure dismissal', async () => {
+    const closeCalled = deferred();
+    const mismatched = startedFixture({
+      pkg: Object.freeze({ name: '@other/gui', version: '1.0.0' }),
+      close() {
+        closeCalled.resolve();
+        return Promise.resolve();
+      },
+    });
+    const harness = createHarness({ application: mismatched, autoFailure: false });
+    const run = startWith({ cwd: CWD }, harness.deps);
+
+    await harness.failed.promise;
+    await closeCalled.promise;
+    expect(harness.events).to.contain('application.close');
+    expect(harness.events).not.to.contain('status.close');
+    harness.controls.dismiss();
+
+    expect(await run).to.eql('failed');
+    expect(harness.failures[0]?.category).to.eql('artifact-refused');
+    expect(cleanupEvents(harness.events)).to.eql([
+      'application.close',
+      'generation.release',
+      'presentation.shutdown',
+      'status.close',
+    ]);
+  });
+
+  it('does not publish readiness after the returned application already terminated', async () => {
+    const harness = createHarness({ application: startedFixture({ finished: Promise.resolve() }) });
+
+    expect(await startWith({ cwd: CWD }, harness.deps)).to.eql('failed');
+    expect(harness.events).not.to.contain('presentation.ready');
+    expect(harness.failures[0]?.evidence).to.eql({
+      kind: 'local',
+      operation: 'application-listener',
+    });
+    expect(cleanupEvents(harness.events)).to.eql([
+      'application.close',
+      'generation.release',
+      'presentation.shutdown',
+      'status.close',
+    ]);
+  });
+
+  it('requests presentation shutdown before aborting and draining Generation opening', async () => {
+    const started = deferred();
+    const harness = createHarness({
+      autoReady: false,
+      openGeneration(input) {
+        started.resolve();
+        return new Promise((resolve) => {
+          if (!Is.abortSignal(input.until)) {
+            throw new Error('Expected Generation cancellation authority.');
+          }
+          input.until.addEventListener('abort', () => {
+            harness.events.push('generation.abort');
+            resolve(Object.freeze({
+              kind: 'failed',
+              phase: 'input',
+              reason: 'cancelled',
+              ownership: 'not-acquired',
+            }));
+          }, { once: true });
+        });
+      },
+    });
+    const run = startWith({ cwd: CWD }, harness.deps);
+
+    await started.promise;
+    harness.controls.back();
+    expect(await run).to.eql('back');
+    expect(cleanupEvents(harness.events)).to.eql([
+      'presentation.shutdown',
+      'generation.abort',
+      'status.close',
+    ]);
+  });
+
+  it('retains Generation while a cancelled host startup drains', async () => {
+    const hostStarted = deferred();
+    const cancelled: t.DistServer.StartError = Object.freeze({
+      name: 'DistServer.StartError',
+      message: 'cancelled',
+      reason: 'cancelled',
+    });
+    const harness = createHarness({
+      autoReady: false,
+      isHostError: (cause): cause is t.DistServer.StartError => cause === cancelled,
+      startApplication(input) {
+        hostStarted.resolve();
+        return new Promise((_, reject) => {
+          if (!Is.abortSignal(input.until)) {
+            throw new Error('Expected application cancellation authority.');
+          }
+          input.until.addEventListener('abort', () => {
+            harness.events.push('application-start.abort');
+            reject(cancelled);
+          }, { once: true });
+        });
+      },
+    });
+    const run = startWith({ cwd: CWD }, harness.deps);
+
+    await hostStarted.promise;
+    harness.controls.quit();
+    expect(await run).to.eql('quit');
+    expect(cleanupEvents(harness.events)).to.eql([
+      'presentation.shutdown',
+      'application-start.abort',
+      'generation.release',
+      'status.close',
+    ]);
+  });
+
+  it('drains late BootstrapStatus startup after external cancellation', async () => {
+    const statusOperation = Promise.withResolvers<t.BootstrapStatus.Started>();
+    const abort = new AbortController();
+    const harness = createHarness({ startStatus: () => statusOperation.promise });
+    let settled = false;
+    const run = startWith({ cwd: CWD, until: abort.signal }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
+
+    abort.abort();
     await Promise.resolve();
-    expect(harness.events).to.eql([
-      'screen.dispose',
-      'keyboard.dispose',
+    expect(settled).to.eql(false);
+    expect(harness.events).not.to.contain('status.close');
+    statusOperation.resolve(createStatus(harness));
+
+    expect(await run).to.eql('external-cancellation');
+    expect(cleanupEvents(harness.events)).to.eql(['status.close']);
+  });
+
+  it('lets application termination release Generation while close remains pending', async () => {
+    const close = deferred();
+    const finished = deferred();
+    const application = startedFixture({
+      finished: finished.promise,
+      close() {
+        return close.promise;
+      },
+    });
+    const harness = createHarness({ application });
+    let settled = false;
+    const run = startWith({ cwd: CWD }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
+
+    await harness.applicationClosed.promise;
+    finished.resolve();
+    await harness.generationReleased.promise;
+    expect(settled).to.eql(false);
+    expect(harness.events).not.to.contain('status.close');
+    close.resolve();
+
+    expect(await run).to.eql('quit');
+    expect(cleanupEvents(harness.events)).to.eql([
+      'presentation.shutdown',
       'application.close',
-      'status.close',
       'generation.release',
+      'status.close',
     ]);
   });
 
-  it('hosts development evidence directly without opening a release Generation', async () => {
-    const integrity = `sha256-${'b'.repeat(64)}` as t.StringHash;
-    const source: StartGuiEvidence = Object.freeze({
-      kind: 'development',
-      dir: '/tmp/driver-pi-development-dist' as t.StringAbsoluteDir,
-      integrity,
-      expectedPkg: START_GUI_SERVICE.source.expectedPkg,
+  it('keeps status open while presentation shutdown remains pending', async () => {
+    const presentationClose = deferred();
+    const harness = createHarness({ presentationClose: () => presentationClose.promise });
+    let settled = false;
+    const run = startWith({ cwd: CWD }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
+
+    await harness.generationReleased.promise;
+    expect(settled).to.eql(false);
+    expect(harness.events).not.to.contain('status.close');
+    presentationClose.resolve();
+
+    expect(await run).to.eql('quit');
+    expect(harness.events.at(-1)).to.eql('status.close');
+  });
+
+  it('settles production keyboard loss through application, Generation, and status owners', async () => {
+    const presentation = productionPresentationFixture();
+    const keyboardFailure = new Error('keyboard listener failed');
+    const harness = createHarness({
+      autoReady: false,
+      presentation: presentation.presentation,
     });
-    const harness = createHarness();
-    let generationCalls = 0;
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      source,
-      deps: {
-        ...harness.deps,
-        openGeneration: (input) => {
-          generationCalls += 1;
-          return Promise.resolve(openedGenerationFixture(input));
-        },
-        start: (input) => {
-          harness.recordStart(input);
-          return Promise.resolve(startedFixture({ integrity }));
-        },
+    const run = startWith({ cwd: CWD }, harness.deps);
+
+    await harness.applicationStarted.promise;
+    presentation.rejectKeyboard(keyboardFailure);
+    const error = await rejectionOf(() => run);
+
+    expect(error).to.be.instanceOf(SuppressedError);
+    if (!(error instanceof SuppressedError)) throw error;
+    if (!Is.error(error.error)) throw new Error('Expected presentation-loss error.');
+    if (!Is.error(error.error.cause)) throw new Error('Expected keyboard-listener error.');
+    expect(error.error.cause.cause).to.equal(keyboardFailure);
+    expect(error.suppressed).to.equal(keyboardFailure);
+    expect(presentation.events).to.eql(['keyboard.shutdown', 'keyboard.dispose']);
+    expect(cleanupEvents(harness.events)).to.eql([
+      'application.close',
+      'generation.release',
+      'status.close',
+    ]);
+  });
+
+  it('retains status while production presentation shutdown remains pending after loss', async () => {
+    const presentation = productionPresentationFixture();
+    const keyboardFailure = new Error('keyboard shutdown failed');
+    const harness = createHarness({
+      autoReady: false,
+      presentation: presentation.presentation,
+    });
+    let settled = false;
+    const run = startWith({ cwd: CWD }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
+
+    await harness.applicationStarted.promise;
+    presentation.loseThroughPaint();
+    await harness.generationReleased.promise;
+    expect(settled).to.eql(false);
+    expect(harness.events).not.to.contain('status.close');
+    expect(presentation.events).to.eql(['keyboard.shutdown', 'keyboard.dispose']);
+
+    presentation.rejectKeyboard(keyboardFailure);
+    const error = await rejectionOf(() => run);
+
+    expect(error).to.be.instanceOf(SuppressedError);
+    if (!(error instanceof SuppressedError)) throw error;
+    if (!Is.error(error.error)) throw new Error('Expected presentation-loss error.');
+    expect(error.error.cause).to.equal(presentation.paintFailure);
+    expect(error.suppressed).to.equal(keyboardFailure);
+    expect(harness.events.at(-1)).to.eql('status.close');
+  });
+
+  it('preserves transition and screen-release failure through owner settlement', async () => {
+    const screenReleaseFailure = new Error('resize unsubscribe failed');
+    const presentation = productionPresentationFixture({ screenReleaseFailure });
+    const application = startedFixture();
+    const harness = createHarness({
+      autoReady: false,
+      presentation: presentation.presentation,
+      startApplication() {
+        presentation.failNextPaint();
+        return Promise.resolve(application);
       },
     });
+    const run = startWith({ cwd: CWD }, harness.deps);
 
-    await harness.ready.promise;
-    harness.quit();
-    await run;
+    await harness.applicationClosed.promise;
+    await harness.generationReleased.promise;
+    expect(harness.events).not.to.contain('status.close');
+    presentation.resolveKeyboard();
+    const error = await rejectionOf(() => run);
 
-    expect(generationCalls).to.eql(0);
-    expect(harness.startArgs).to.include({ dir: source.dir, integrity });
-    expect(harness.screen?.root).to.eql(source.dir);
-    expect(harness.screen?.manifestUrl).to.eql(undefined);
-    expect(harness.events).not.to.include('generation.release');
+    expect(error).to.be.instanceOf(SuppressedError);
+    if (!(error instanceof SuppressedError)) throw error;
+    if (!Is.error(error.error)) throw new Error('Expected primary presentation error.');
+    expect(error.error.cause).to.equal(presentation.paintFailure);
+    expect(error.suppressed).to.equal(screenReleaseFailure);
+    expect(presentation.events).to.eql(['keyboard.shutdown', 'keyboard.dispose']);
+    expect(cleanupEvents(harness.events)).to.eql([
+      'application.close',
+      'generation.release',
+      'status.close',
+    ]);
+    expect(harness.events.at(-1)).to.eql('status.close');
   });
 
-  it('refuses a mismatched Generation package before application startup', async () => {
-    const harness = createHarness();
-    let applicationStarts = 0;
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        openGeneration: (input) =>
-          Promise.resolve(openedGenerationFixture(
-            input,
-            fakeGeneration(Object.freeze({
-              name: '@other/driver-pi',
-              version: START_GUI_SERVICE.source.expectedPkg.version,
-            })),
-            harness.releaseGeneration,
-          )),
-        start: (input) => {
-          applicationStarts += 1;
-          return harness.deps.start(input);
-        },
-      },
-    });
-    const rejected = rejectionOf(() => run);
-
-    await harness.failed.promise;
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui refused GUI Dist package identity.');
-    expect((error as Error & { identity?: unknown }).identity).to.eql({
-      kind: 'refused',
-      manifestUrl: START_GUI_SERVICE.source.manifestUrl,
-      integrity: START_GUI_SERVICE.source.integrity,
-    });
-    expect(applicationStarts).to.eql(0);
-    expect(harness.events).to.include('generation.release');
-  });
-
-  it('refuses a mismatched package from the freshly verified application', async () => {
-    const harness = createHarness();
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        start: (input) => {
-          harness.recordStart(input);
-          return Promise.resolve(startedFixture({
-            pkg: Object.freeze({
-              name: '@other/driver-pi',
-              version: START_GUI_SERVICE.source.expectedPkg.version,
-            }),
-            close: () => {
-              harness.recordEvent('application.close');
-              return Promise.resolve();
-            },
-          }));
-        },
-      },
-    });
-    const rejected = rejectionOf(() => run);
-
-    await harness.failed.promise;
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui refused GUI Dist package identity.');
-    expect((error as Error & { identity?: unknown }).identity).to.eql({
-      kind: 'refused',
-      manifestUrl: START_GUI_SERVICE.source.manifestUrl,
-      integrity: START_GUI_SERVICE.source.integrity,
-    });
-    expect(harness.events).to.include('application.close');
-    expect(harness.events).to.include('generation.release');
-    expect(harness.events.indexOf('application.close')).to.be.lessThan(
-      harness.events.indexOf('generation.release'),
-    );
-  });
-
-  it('does not start the application after starting-state presentation fails', async () => {
-    const harness = createHarness();
-    let applicationStarts = 0;
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        createScreen: (input) => {
-          harness.recordScreen(input);
-          const release = input.state.subscribe((state) => {
-            if (state.kind === 'starting-app-host') {
-              input.onFailure(new Error('starting-state presentation failed'));
-            }
-          });
-          return {
-            kind: 'acquired',
-            failure: new Promise<never>(() => undefined),
-            redraw() {},
-            warnOpen() {},
-            dispose() {
-              release();
-              harness.recordEvent('screen.dispose');
-            },
-          };
-        },
-        start: (input) => {
-          applicationStarts += 1;
-          return harness.deps.start(input);
-        },
-      },
-    });
-    const rejected = rejectionOf(() => run);
-
-    await harness.failed.promise;
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui screen failed.');
-    expect(applicationStarts).to.eql(0);
-    expect(harness.states.some((state) => state.kind === 'ready')).to.eql(false);
-    expect(harness.events).to.include('generation.release');
-  });
-
-  it('does not publish ready from an application whose listener is already settled', async () => {
-    const harness = createHarness();
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        start: (input) => {
-          harness.recordStart(input);
-          return Promise.resolve(startedFixture({
-            finished: Promise.resolve(),
-            close: () => {
-              harness.recordEvent('application.close');
-              return Promise.resolve();
-            },
-          }));
-        },
-      },
-    });
-    const rejected = rejectionOf(() => run);
-
-    await harness.failed.promise;
-    expect(harness.states.some((state) => state.kind === 'ready')).to.eql(false);
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui application listener stopped.');
-    expect(harness.events).to.include('application.close');
-    expect(harness.events).to.include('generation.release');
-  });
-
-  it('keeps an earlier queued status failure ahead of a later same-turn quit', async () => {
-    const harness = createHarness();
-    const run = start({ cwd: asProfileRoot(ROOT), deps: harness.deps });
-    const rejected = rejectionOf(() => run);
-
-    await harness.ready.promise;
-    harness.finishStatus();
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui bootstrap listener stopped.');
-    expect(isCliSettledFailure(error)).to.eql(true);
-  });
-
-  it('keeps an earlier queued application failure ahead of a later same-turn quit', async () => {
-    const harness = createHarness();
-    const run = start({ cwd: asProfileRoot(ROOT), deps: harness.deps });
-    const rejected = rejectionOf(() => run);
-
-    await harness.ready.promise;
-    harness.finishApplication();
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui application listener stopped.');
-    expect(isCliSettledFailure(error)).to.eql(true);
-  });
-
-  it('keeps an earlier quit ahead of later same-turn owner settlements', async () => {
-    const harness = createHarness();
-    const run = start({ cwd: asProfileRoot(ROOT), deps: harness.deps });
-
-    await harness.ready.promise;
-    harness.quit();
-    harness.finishStatus();
-    harness.finishApplication();
-    const completion = await run;
-
-    expect(startGuiCompletionKind(completion)).to.eql('quit');
-    expect(harness.states.some((state) => state.kind === 'failed')).to.eql(false);
-  });
-
-  it('keeps an earlier Generation rejection ahead of a later same-turn quit', async () => {
-    const harness = createHarness();
+  it('preserves an event-driven loss across a deferred Generation race', async () => {
     const opening = Promise.withResolvers<t.Dist.Generation.Open.Result>();
-    const entered = deferred();
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        openGeneration: () => {
-          entered.resolve();
-          return opening.promise;
-        },
-      },
-    });
-    const rejected = rejectionOf(() => run);
-
-    await entered.promise;
-    opening.reject(new Error('Generation opening failed before quit'));
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui release-owner failed.');
-    expect(isCliSettledFailure(error)).to.eql(true);
-    expect(harness.events).not.to.include('generation.release');
-  });
-
-  it('keeps an earlier host-start rejection ahead of a later same-turn quit', async () => {
-    const harness = createHarness();
-    const starting = Promise.withResolvers<t.DistServer.Started>();
-    const entered = deferred();
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        start: (input) => {
-          harness.recordStart(input);
-          entered.resolve();
-          return starting.promise;
-        },
-      },
-    });
-    const rejected = rejectionOf(() => run);
-
-    await entered.promise;
-    starting.reject(new Error('application host failed before quit'));
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui application-host failed.');
-    expect(isCliSettledFailure(error)).to.eql(true);
-    expect(harness.events.filter((event) => event === 'generation.release').length).to.eql(1);
-  });
-
-  it('keeps an earlier Generation package refusal ahead of a later same-turn quit', async () => {
-    const harness = createHarness();
-    const opening = Promise.withResolvers<t.Dist.Generation.Open.Result>();
-    const entered = deferred();
-    let result: t.Dist.Generation.Open.Success | undefined;
+    const generationEntered = deferred();
+    const screenReleaseFailure = new Error('deferred resize unsubscribe failed');
+    const presentation = productionPresentationFixture({ screenReleaseFailure });
+    let generationInput: t.Dist.Generation.Open.Args | undefined;
     let applicationStarts = 0;
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        openGeneration: (input) => {
-          result = openedGenerationFixture(
-            input,
-            fakeGeneration(Object.freeze({
-              name: '@other/driver-pi',
-              version: START_GUI_SERVICE.source.expectedPkg.version,
-            })),
-            harness.releaseGeneration,
-          );
-          entered.resolve();
-          return opening.promise;
-        },
-        start: (input) => {
-          applicationStarts += 1;
-          return harness.deps.start(input);
-        },
+    const harness = createHarness({
+      autoReady: false,
+      presentation: presentation.presentation,
+      openGeneration(input) {
+        generationInput = input;
+        generationEntered.resolve();
+        return opening.promise;
+      },
+      startApplication() {
+        applicationStarts += 1;
+        return Promise.resolve(startedFixture());
       },
     });
-    const rejected = rejectionOf(() => run);
+    const run = startWith({ cwd: CWD }, harness.deps);
 
-    await entered.promise;
-    if (!result) throw new Error('Expected Generation-open result.');
-    opening.resolve(result);
-    harness.quit();
-    const error = await rejected;
+    await generationEntered.promise;
+    if (!generationInput) throw new Error('Expected Generation opening input.');
+    opening.resolve(openedGenerationFixture(generationInput, fakeGeneration(), () => {
+      harness.events.push('generation.release');
+      harness.generationReleased.resolve();
+      return Promise.resolve();
+    }));
+    const lost = rejectionOf(() => presentation.lost);
+    presentation.loseThroughPaint();
 
-    expect(error.message).to.eql('start:gui refused GUI Dist package identity.');
-    expect(isCliSettledFailure(error)).to.eql(true);
+    await harness.generationReleased.promise;
     expect(applicationStarts).to.eql(0);
-    expect(harness.events.filter((event) => event === 'generation.release').length).to.eql(1);
+    expect(harness.events).not.to.contain('status.close');
+    presentation.resolveKeyboard();
+    const [error, lostError] = await Promise.all([rejectionOf(() => run), lost]);
+
+    expect(error).to.equal(lostError);
+    expect(error).to.be.instanceOf(SuppressedError);
+    if (!(error instanceof SuppressedError)) throw error;
+    if (!Is.error(error.error)) throw new Error('Expected primary presentation error.');
+    expect(error.error.cause).to.equal(presentation.paintFailure);
+    expect(error.suppressed).to.equal(screenReleaseFailure);
+    expect(presentation.events).to.eql(['keyboard.shutdown', 'keyboard.dispose']);
+    expect(cleanupEvents(harness.events)).to.eql(['generation.release', 'status.close']);
+    expect(harness.events.at(-1)).to.eql('status.close');
   });
 
-  it('presents package-owned materialization failure without starting the host', async () => {
-    const harness = createHarness();
-    let applicationStarts = 0;
-    const generation = Object.freeze({
+  it('keeps status open through pending Generation release and close settlement', async () => {
+    const release = deferred();
+    const statusClose = deferred();
+    const harness = createHarness({
+      generationRelease: () => release.promise,
+      statusClose: () => statusClose.promise,
+    });
+    let settled = false;
+    const run = startWith({ cwd: CWD }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
+
+    await harness.generationReleased.promise;
+    await Promise.resolve();
+    expect(settled).to.eql(false);
+    expect(harness.events).not.to.contain('status.close');
+    release.resolve();
+
+    await harness.statusClosed.promise;
+    await Promise.resolve();
+    expect(settled).to.eql(false);
+    statusClose.resolve();
+
+    expect(await run).to.eql('quit');
+  });
+
+  it('continues to status cleanup after Generation release rejects', async () => {
+    const failure = new Error('release failed');
+    const harness = createHarness({ generationRelease: () => Promise.reject(failure) });
+    const error = await rejectionOf(() => startWith({ cwd: CWD }, harness.deps));
+
+    expect(error).to.equal(failure);
+    expect(harness.events.at(-1)).to.eql('status.close');
+  });
+
+  it('releases Generation after rejected application termination, then rejects', async () => {
+    const failure = new Error('listener failed');
+    const finished = deferred();
+    const harness = createHarness({
+      application: startedFixture({ finished: finished.promise }),
+      autoReady: false,
+    });
+    const run = startWith({ cwd: CWD }, harness.deps);
+
+    await harness.ready.promise;
+    finished.reject(failure);
+    await harness.failed.promise;
+    harness.controls.dismiss();
+    const error = await rejectionOf(() => run);
+
+    expect(error).to.equal(failure);
+    expect(cleanupEvents(harness.events)).to.eql([
+      'application.close',
+      'generation.release',
+      'presentation.shutdown',
+      'status.close',
+    ]);
+  });
+
+  it('rejects an unexpected Generation exception after closing acquired presentation', async () => {
+    const failure = new Error('unexpected generation exception');
+    const harness = createHarness({
+      openGeneration: () => Promise.reject(failure),
+      autoFailure: false,
+    });
+    const error = await rejectionOf(() => startWith({ cwd: CWD }, harness.deps));
+
+    expect(error).to.equal(failure);
+    expect(harness.failures).to.eql([]);
+    expect(cleanupEvents(harness.events)).to.eql([
+      'presentation.shutdown',
+      'status.close',
+    ]);
+  });
+
+  it('preserves failed late status startup after external cancellation', async () => {
+    const statusOperation = Promise.withResolvers<t.BootstrapStatus.Started>();
+    const abort = new AbortController();
+    const failure = new Error('late status startup failed');
+    const harness = createHarness({ startStatus: () => statusOperation.promise });
+    let settled = false;
+    const run = startWith({ cwd: CWD, until: abort.signal }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
+
+    abort.abort();
+    await Promise.resolve();
+    expect(settled).to.eql(false);
+    statusOperation.reject(failure);
+
+    expect(await rejectionOf(() => run)).to.equal(failure);
+    expect(cleanupEvents(harness.events)).to.eql([]);
+  });
+
+  it('waits for termination after application-close rejection, then closes status', async () => {
+    const closeFailure = new Error('application close failed');
+    const finished = deferred();
+    const application = startedFixture({
+      finished: finished.promise,
+      close: () => Promise.reject(closeFailure),
+    });
+    const harness = createHarness({ application });
+    let settled = false;
+    const run = startWith({ cwd: CWD }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
+
+    await harness.applicationClosed.promise;
+    await Promise.resolve();
+    expect(settled).to.eql(false);
+    expect(harness.events).not.to.contain('generation.release');
+    expect(harness.events).not.to.contain('status.close');
+    finished.resolve();
+
+    expect(await rejectionOf(() => run)).to.equal(closeFailure);
+    expect(cleanupEvents(harness.events)).to.eql([
+      'presentation.shutdown',
+      'application.close',
+      'generation.release',
+      'status.close',
+    ]);
+  });
+
+  it('prefers an exact late status rejection over its derived close rejection', async () => {
+    const finished = deferred();
+    const finishedFailure = new Error('status finished failed');
+    const closeFailure = new Error('status close derived failure');
+    const harness = createHarness({
+      statusFinished: finished.promise,
+      statusCloseFailure: closeFailure,
+    });
+    let settled = false;
+    const run = startWith({ cwd: CWD }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
+
+    await harness.statusClosed.promise;
+    expect(settled).to.eql(false);
+    expect(harness.events.at(-1)).to.eql('status.close');
+    finished.reject(finishedFailure);
+
+    expect(await rejectionOf(() => run)).to.equal(finishedFailure);
+    expect(cleanupEvents(harness.events)).to.eql([
+      'presentation.shutdown',
+      'application.close',
+      'generation.release',
+      'status.close',
+    ]);
+  });
+
+  it('retains an exact status rejection while product failure remains foregrounded', async () => {
+    const finished = deferred();
+    const finishedFailure = new Error('foreground status finished failed');
+    const closeFailure = new Error('foreground status close derived failure');
+    const materialization: t.Dist.Failed = Object.freeze({
       kind: 'failed',
       stage: 'manifest-fetch',
       reason: 'resource-failure',
-      cleanup: 'pending',
-    }) as t.Dist.Failed;
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        openGeneration: () => Promise.resolve(failedGenerationFixture(generation, 'pending')),
-        start: (input) => {
-          applicationStarts += 1;
-          return harness.deps.start(input);
-        },
-      },
+      cleanup: 'not-needed',
     });
-    const rejected = rejectionOf(() => run);
+    const harness = createHarness({
+      statusFinished: finished.promise,
+      statusCloseFailure: closeFailure,
+      openGeneration: () => Promise.resolve(failedGenerationFixture(materialization)),
+      autoFailure: false,
+    });
+    let settled = false;
+    const run = startWith({ cwd: CWD }, harness.deps);
+    void run.then(() => (settled = true), () => (settled = true));
 
     await harness.failed.promise;
-    expect(harness.states.at(-1)).to.include({ kind: 'failed', category: 'source-unavailable' });
-    harness.quit();
-    const error = await rejected;
+    finished.reject(finishedFailure);
+    await Promise.resolve();
+    expect(settled).to.eql(false);
+    expect(harness.events).not.to.contain('status.close');
+    harness.controls.dismiss();
 
-    expect(error.message).to.eql(
-      'start:gui materialization failed: manifest-fetch/resource-failure',
-    );
-    expect((error as Error & { materialization?: unknown }).materialization).to.eql({
+    expect(await rejectionOf(() => run)).to.equal(finishedFailure);
+    expect(harness.events.at(-1)).to.eql('status.close');
+  });
+
+  it('suppresses an exact late status rejection under an existing primary failure', async () => {
+    const finished = deferred();
+    const releaseFailure = new Error('generation release failed');
+    const finishedFailure = new Error('status finished failed');
+    const closeFailure = new Error('status close derived failure');
+    const harness = createHarness({
+      statusFinished: finished.promise,
+      statusCloseFailure: closeFailure,
+      generationRelease: () => Promise.reject(releaseFailure),
+    });
+    const run = startWith({ cwd: CWD }, harness.deps);
+
+    await harness.statusClosed.promise;
+    expect(harness.events.at(-1)).to.eql('status.close');
+    finished.reject(finishedFailure);
+    const error = await rejectionOf(() => run);
+
+    expect(error).to.be.instanceOf(SuppressedError);
+    expect((error as SuppressedError).error).to.equal(releaseFailure);
+    expect((error as SuppressedError).suppressed).to.equal(finishedFailure);
+    expect(cleanupEvents(harness.events).at(-1)).to.eql('status.close');
+  });
+
+  it('preserves Generation release as primary when status close also rejects', async () => {
+    const releaseFailure = new Error('generation release failed');
+    const statusFailure = new Error('status close failed');
+    const harness = createHarness({
+      generationRelease: () => Promise.reject(releaseFailure),
+      statusClose: () => Promise.reject(statusFailure),
+    });
+    const error = await rejectionOf(() => startWith({ cwd: CWD }, harness.deps));
+
+    expect(error).to.be.instanceOf(SuppressedError);
+    expect((error as SuppressedError).error).to.equal(releaseFailure);
+    expect((error as SuppressedError).suppressed).to.equal(statusFailure);
+    expect(harness.events.at(-1)).to.eql('status.close');
+  });
+
+  it('keeps browser invocation failure nonfatal and the admitted URL visible', async () => {
+    const harness = createHarness({
+      openBrowser() {
+        throw new Error('no browser');
+      },
+    });
+    expect(await startWith({ cwd: CWD }, harness.deps)).to.eql('quit');
+    expect(harness.events).to.contain('presentation.warn-open');
+  });
+
+  it('returns a presented materialization failure as an ordinary failed outcome', async () => {
+    const materialization: t.Dist.Failed = Object.freeze({
+      kind: 'failed',
       stage: 'manifest-fetch',
       reason: 'resource-failure',
-      cleanup: 'pending',
+      cleanup: 'not-needed',
     });
-    expect((error as Error & { cleanup?: unknown }).cleanup).to.eql(undefined);
-    expect(applicationStarts).to.eql(0);
-    expect(harness.events).not.to.include('generation.release');
-  });
-
-  it('passes one cancellation signal through lower package boundaries', async () => {
-    const harness = createHarness();
-    const stop = new AbortController();
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      until: stop.signal,
-      deps: harness.deps,
+    const harness = createHarness({
+      openGeneration: () => Promise.resolve(failedGenerationFixture(materialization)),
     });
 
-    await harness.ready.promise;
-    stop.abort(new Error('caller-owned cancellation reason'));
-    const completion = await run;
-
-    expect(startGuiCompletionKind(completion)).to.eql('external-cancellation');
-    expect(harness.generationArgs?.until).to.equal(harness.startArgs?.until);
-    expect((harness.generationArgs?.until as AbortSignal).aborted).to.eql(true);
-    expect((harness.generationArgs?.until as AbortSignal).reason).to.eql(
-      'start:gui.external-cancellation',
-    );
-    expect(harness.events).to.eql([
-      'screen.dispose',
-      'keyboard.dispose',
-      'application.close',
-      'generation.release',
-      'status.close',
-    ]);
-  });
-
-  it('releases a Generation that commits after trusted cancellation while opening is pending', async () => {
-    const harness = createHarness();
-    const opening = Promise.withResolvers<t.Dist.Generation.Open.Result>();
-    const called = deferred();
-    let openingArgs: t.Dist.Generation.Open.Args | undefined;
-    let signal: AbortSignal | undefined;
-    let applicationStarts = 0;
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        openGeneration: (input) => {
-          if (!Is.abortSignal(input.until)) {
-            throw new Error('Expected one AbortSignal for Generation opening.');
-          }
-          openingArgs = input;
-          signal = input.until;
-          called.resolve();
-          return opening.promise;
-        },
-        start: (input) => {
-          applicationStarts += 1;
-          return harness.deps.start(input);
-        },
-      },
-    });
-
-    await called.promise;
-    harness.quit();
-    expect(signal?.aborted).to.eql(true);
-    expect(await pending(run)).to.eql(true);
-    if (!openingArgs) throw new Error('Expected Generation opening arguments.');
-    opening.resolve(
-      openedGenerationFixture(openingArgs, fakeGeneration(), harness.releaseGeneration),
-    );
-    const completion = await run;
-
-    expect(startGuiCompletionKind(completion)).to.eql('quit');
-    expect(applicationStarts).to.eql(0);
-    expect(harness.events).to.include('generation.release');
-  });
-
-  it('settles a presented frozen host failure even when cleanup adds final evidence', async () => {
-    const harness = createHarness();
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        startStatus: () =>
-          Promise.resolve(bootstrapStatusFixture({
-            close: () => Promise.reject(new Error('status cleanup failed')),
-          })),
-        start: (input) => DistServer.start({ ...input, hostname: 'example.com' }),
-      },
-    });
-    const rejected = rejectionOf(() => run);
-
-    await harness.failed.promise;
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('DistServer.start: hostname must be loopback.');
-    expect(isCliSettledFailure(error)).to.eql(true);
-    expect((error as Error & { cleanup?: unknown }).cleanup).to.eql({
-      kind: 'cleanup-failed',
-      issues: [{ resource: 'status-listener', state: 'failed' }],
-    });
-  });
-
-  it('warns when the browser cannot open while boot and cleanup still succeed', async () => {
-    const harness = createHarness();
-    let warnings = 0;
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        open: () => {
-          throw new Error('browser unavailable');
-        },
-        createScreen: (input) => {
-          harness.recordScreen(input);
-          return {
-            kind: 'acquired',
-            failure: new Promise<never>(() => undefined),
-            redraw() {},
-            warnOpen() {
-              warnings += 1;
-            },
-            dispose() {
-              harness.recordEvent('screen.dispose');
-            },
-          };
-        },
-      },
-    });
-    await harness.ready.promise;
-    harness.quit();
-    const completion = await run;
-
-    expect(warnings).to.eql(1);
-    expect(startGuiCompletionKind(completion)).to.eql('quit');
-    expect(harness.events).to.include('application.close');
-    expect(harness.events).to.include('generation.release');
-  });
-
-  it('warns for an opaque browser opener result without assimilating thenables', async () => {
-    const harness = createHarness();
-    let thenReads = 0;
-    let warnings = 0;
-    const opaque = Object.defineProperty({}, 'then', {
-      get() {
-        thenReads += 1;
-        throw new Error('opaque then accessor must not be read');
-      },
-    });
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        open: () => opaque,
-        createScreen: (input) => {
-          harness.recordScreen(input);
-          return {
-            kind: 'acquired',
-            failure: new Promise<never>(() => undefined),
-            redraw() {},
-            warnOpen() {
-              warnings += 1;
-            },
-            dispose() {
-              harness.recordEvent('screen.dispose');
-            },
-          };
-        },
-      },
-    });
-
-    await harness.ready.promise;
-    harness.quit();
-    const completion = await run;
-
-    expect(thenReads).to.eql(0);
-    expect(warnings).to.eql(1);
-    expect(startGuiCompletionKind(completion)).to.eql('quit');
-  });
-
-  it('keeps a presented runtime failure visible until trusted keyboard dismissal', async () => {
-    const harness = createHarness();
-    const screenFailure = Promise.withResolvers<never>();
-    const run = start({
-      cwd: asProfileRoot(ROOT),
-      deps: {
-        ...harness.deps,
-        createScreen: (input) => {
-          harness.recordScreen(input);
-          return {
-            kind: 'acquired',
-            failure: screenFailure.promise,
-            redraw() {},
-            warnOpen() {},
-            dispose() {
-              harness.recordEvent('screen.dispose');
-            },
-          };
-        },
-      },
-    });
-    const rejected = rejectionOf(() => run);
-
-    await harness.ready.promise;
-    screenFailure.reject(new Error('untrusted screen failure'));
-    await harness.failed.promise;
-    expect(await pending(rejected)).to.eql(true);
-    harness.quit();
-    const error = await rejected;
-
-    expect(error.message).to.eql('start:gui screen failed.');
-    expect(harness.events).to.include('application.close');
-    expect(harness.events).to.include('generation.release');
+    expect(await startWith({ cwd: CWD }, harness.deps)).to.eql('failed');
+    expect(harness.failures[0]).to.include({ category: 'source-unavailable' });
   });
 });
 
-function createHarness() {
-  const states: BootState[] = [];
-  const events: string[] = [];
-  const opened: t.StringUrl[] = [];
-  const ready = deferred();
-  const failed = deferred();
+function productionPresentationFixture(options: ProductionPresentationOptions = {}) {
   const keyboardFinished = deferred();
-  const statusFinished = deferred();
-  const applicationFinished = deferred();
-  let quit: (() => void | Promise<void>) | undefined;
-  let generationArgs: t.Dist.Generation.Open.Args | undefined;
-  let startArgs: t.DistServer.Start.Args | undefined;
-  let screen: Parameters<StartGuiDependencies['createScreen']>[0] | undefined;
-  const digest = fakeGeneration().verification.dist.hash.digest;
+  const paintFailure = new Error('presentation repaint failed');
+  const events: string[] = [];
+  let keyboard: t.Cli.Keyboard.Bind.Options | undefined;
+  let owner: Start.Gui.Presentation.Owner | undefined;
+  let failPaint = false;
 
-  const recordEvent = (event: string): void => {
-    events.push(event);
-  };
-  const releaseGeneration = (): Promise<void> => {
-    recordEvent('generation.release');
-    return Promise.resolve();
-  };
-  const recordStart = (input: t.DistServer.Start.Args) => {
-    startArgs = input;
-  };
-  const recordScreen = (input: Parameters<StartGuiDependencies['createScreen']>[0]) => {
-    screen = input;
-    const record = (state: BootState) => {
-      states.push(state);
-      if (state.kind === 'ready') ready.resolve();
-      if (state.kind === 'failed') failed.resolve();
-    };
-    record(input.state.current);
-    input.state.subscribe(record);
-  };
-
-  const deps: StartGuiDependencies = {
-    startStatus: () =>
-      Promise.resolve(bootstrapStatusFixture({
-        url: STATUS_URL,
-        finished: statusFinished.promise,
-        close: () => {
-          recordEvent('status.close');
-          statusFinished.resolve();
-        },
-      })),
-    bindKeyboard(input) {
-      quit = input.onQuit;
+  const deps: Start.Gui.Presentation.Dependencies = Object.freeze({
+    isInteractive: () => true,
+    size: () => Object.freeze({ width: 100, height: 18 }),
+    events() {
       return {
+        resize$: {
+          subscribe() {
+            return {
+              unsubscribe() {
+                if (options.screenReleaseFailure) throw options.screenReleaseFailure;
+              },
+            };
+          },
+        },
+        dispose() {},
+      };
+    },
+    repaint() {
+      if (failPaint) throw paintFailure;
+    },
+    bindKeyboard(input) {
+      keyboard = input;
+      let disposed = false;
+      return Object.freeze({
         finished: keyboardFinished.promise,
         dispose() {
-          recordEvent('keyboard.dispose');
-          keyboardFinished.resolve();
+          if (disposed) return;
+          disposed = true;
+          events.push('keyboard.dispose');
         },
-      };
+      });
     },
-    createScreen(input) {
-      recordScreen(input);
-      return {
-        kind: 'acquired',
-        failure: new Promise<never>(() => undefined),
-        redraw() {},
-        warnOpen() {},
-        dispose() {
-          recordEvent('screen.dispose');
+    shutdownKeyboard(handle) {
+      events.push('keyboard.shutdown');
+      return Cli.Keyboard.shutdown(handle);
+    },
+  });
+  const presentation: Start.Gui.Presentation.Lib = Object.freeze({
+    ...StartGuiPresentation,
+    prepare(input) {
+      const prepared = StartGuiPresentation.prepare(input, deps);
+      return Object.freeze({
+        status: prepared.status,
+        async acquire(url: t.StringUrl) {
+          owner = await prepared.acquire(url);
+          return owner;
         },
-      };
+      });
     },
-    openGeneration(input) {
-      generationArgs = input;
-      return Promise.resolve(openedGenerationFixture(input, fakeGeneration(), releaseGeneration));
+  });
+
+  return Object.freeze({
+    presentation,
+    events,
+    paintFailure,
+    rejectKeyboard(cause: Error) {
+      keyboardFinished.reject(cause);
     },
-    start(input) {
-      recordStart(input);
-      return Promise.resolve(startedFixture({
-        finished: applicationFinished.promise,
-        close: () => {
-          recordEvent('application.close');
-          applicationFinished.resolve();
-          return Promise.resolve();
-        },
-      }));
+    resolveKeyboard() {
+      keyboardFinished.resolve();
     },
-    open(_cwd, url) {
-      opened.push(url);
+    failNextPaint() {
+      failPaint = true;
     },
+    get lost() {
+      if (!owner) throw new Error('Expected presentation ownership.');
+      return owner.lost;
+    },
+    loseThroughPaint() {
+      if (!keyboard?.onKey) throw new Error('Expected keyboard presentation ownership.');
+      failPaint = true;
+      try {
+        keyboard.onKey(REDRAW);
+      } finally {
+        failPaint = false;
+      }
+    },
+  });
+}
+
+function createHarness(options: HarnessOptions = {}): Harness {
+  const events: string[] = [];
+  const failures: Start.Gui.Failure[] = [];
+  const generationArgs: t.Dist.Generation.Open.Args[] = [];
+  const applicationArgs: t.DistServer.Start.Args[] = [];
+  const ready = deferred();
+  const failed = deferred();
+  const applicationStarted = deferred();
+  const applicationClosed = deferred();
+  const generationReleased = deferred();
+  const statusClosed = deferred();
+  const lost = Promise.withResolvers<never>();
+  let input: Start.Gui.Presentation.Input | undefined;
+  let state: Start.Gui.Presentation.State = Object.freeze({ kind: 'preparing' });
+
+  const controls: Controls = Object.freeze({
+    back: () => input?.onBack(),
+    quit: () => input?.onQuit(),
+    dismiss: () => input?.onDismiss(),
+  });
+
+  const owner: Start.Gui.Presentation.Owner = Object.freeze({
+    lost: lost.promise,
+    get current() {
+      return state;
+    },
+    starting() {
+      state = Object.freeze({ kind: 'starting-app-host' });
+      events.push('presentation.starting');
+    },
+    ready(value) {
+      state = Object.freeze({ kind: 'ready', ...value });
+      events.push('presentation.ready');
+      ready.resolve();
+      const action = options.autoReady === undefined ? 'quit' : options.autoReady;
+      if (action) queueMicrotask(() => controls[action]());
+    },
+    failed(value) {
+      state = Object.freeze({
+        kind: 'failed',
+        category: value.category,
+        safeEvidence: value.evidence,
+      });
+      failures.push(value);
+      events.push('presentation.failed');
+      failed.resolve();
+      if (options.autoFailure !== false) queueMicrotask(() => controls.dismiss());
+    },
+    warnOpen() {
+      events.push('presentation.warn-open');
+    },
+    redraw() {},
+    shutdown() {
+      events.push('presentation.shutdown');
+      state = Object.freeze({ kind: 'stopping' });
+      return options.presentationClose?.() ?? Promise.resolve();
+    },
+  });
+
+  const defaultPresentation: Start.Gui.Dependencies['presentation'] = Object.freeze({
+    ...StartGuiPresentation,
+    prepare(next: Start.Gui.Presentation.Input) {
+      input = next;
+      return Object.freeze({
+        status: Object.freeze({
+          pages: Object.freeze([]),
+          resolve: () => Object.freeze({ kind: 'page', key: 'preparing' }),
+        }),
+        acquire: () => Promise.resolve(owner),
+      });
+    },
+  });
+
+  const status = options.status ?? bootstrapStatusFixture({
+    finished: options.statusFinished,
+    close(reason) {
+      events.push('status.close');
+      statusClosed.resolve();
+      return options.statusClose?.(reason);
+    },
+    closeFailure: options.statusCloseFailure,
+  });
+  const application = options.application ?? startedFixture();
+  const wrapApplication = (
+    started: Start.Gui.Application.Owner,
+  ): Start.Gui.Application.Owner =>
+    Object.freeze({
+      ...started,
+      close(reason?: unknown) {
+        events.push('application.close');
+        applicationClosed.resolve();
+        return started.close(reason);
+      },
+    });
+  const startApplication: Start.Gui.Dependencies['startApplication'] = async (args) => {
+    const started = options.startApplication
+      ? await options.startApplication(args)
+      : await Promise.resolve(application);
+    if (!options.startApplication) {
+      applicationArgs.push(args);
+      events.push('application.start');
+    }
+    applicationStarted.resolve();
+    return wrapApplication(started);
   };
+  const deps: Start.Gui.Dependencies = Object.freeze({
+    runtimeRoot: () => ROOT,
+    startStatus: options.startStatus ?? (() => Promise.resolve(status)),
+    openGeneration: options.openGeneration ?? ((args) => {
+      generationArgs.push(args);
+      events.push('generation.open');
+      return Promise.resolve(openedGenerationFixture(args, fakeGeneration(), async () => {
+        events.push('generation.release');
+        generationReleased.resolve();
+        await options.generationRelease?.();
+      }));
+    }),
+    startApplication,
+    isHostError: options.isHostError ?? ((_): _ is t.DistServer.StartError => false),
+    openBrowser: options.openBrowser ?? (() => events.push('browser.open')),
+    presentation: options.presentation ?? defaultPresentation,
+  });
 
   return {
     deps,
-    states,
+    controls,
     events,
-    opened,
+    failures,
+    generationArgs,
+    applicationArgs,
     ready,
     failed,
-    finishStatus() {
-      statusFinished.resolve();
-    },
-    finishApplication() {
-      applicationFinished.resolve();
-    },
-    digest,
-    releaseGeneration,
-    recordEvent,
-    recordStart,
-    recordScreen,
-    get generationArgs() {
-      return generationArgs;
-    },
-    get startArgs() {
-      return startArgs;
-    },
-    get screen() {
-      return screen;
-    },
-    quit() {
-      if (!quit) throw new Error('Expected keyboard quit callback.');
-      void quit();
-    },
+    applicationStarted,
+    applicationClosed,
+    generationReleased,
+    statusClosed,
   };
 }
 
-async function pending(input: Promise<unknown>): Promise<boolean> {
-  const marker = Symbol('pending');
-  return (await Promise.race([input, Promise.resolve(marker)])) === marker;
+function createStatus(harness: Pick<Harness, 'events' | 'statusClosed'>) {
+  return bootstrapStatusFixture({
+    close() {
+      harness.events.push('status.close');
+      harness.statusClosed.resolve();
+    },
+  });
+}
+
+function cleanupEvents(events: readonly string[]): readonly string[] {
+  const selected = new Set([
+    'presentation.shutdown',
+    'application.close',
+    'application-start.abort',
+    'generation.abort',
+    'generation.release',
+    'status.close',
+  ]);
+  return events.filter((event) => selected.has(event));
 }

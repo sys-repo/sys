@@ -12,6 +12,7 @@ export type * as t from './types.ts';
  * CLI entry-point:
  */
 if (import.meta.main) {
-  const { main } = await import('./m.core/m.cli/mod.ts');
-  await main({ argv: Deno.args });
+  const { exitCode, main } = await import('./m.core/m.cli/mod.ts');
+  const code = exitCode(await main({ argv: Deno.args }));
+  if (code !== 0) Deno.exitCode = code;
 }
