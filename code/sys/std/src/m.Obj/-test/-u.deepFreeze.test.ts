@@ -6,6 +6,24 @@ import { Obj } from '../mod.ts';
 const EXPECTED_ERROR_MESSAGE =
   'Obj.deepFreeze expected primitive leaves in a data-property graph of plain objects and arrays.';
 
+type IntrinsicCaptureResult = Readonly<{
+  descriptorsRestored: boolean;
+  poisonCalls: number;
+  validSameIdentity: boolean;
+  validRootFrozen: boolean;
+  validNestedFrozen: boolean;
+  validArrayFrozen: boolean;
+  validArrayItemFrozen: boolean;
+  invalidNativeTypeError: boolean;
+  invalidMessage: string | undefined;
+  getterCalls: number;
+  invalidRootFrozen: boolean;
+  invalidChildFrozen: boolean;
+}>;
+type IntrinsicCaptureReply =
+  | { ok: true; value: IntrinsicCaptureResult }
+  | { ok: false; error: string };
+
 const freezeRuntime = (input: unknown): unknown =>
   Reflect.apply(Obj.deepFreeze, undefined, [input]);
 
@@ -40,6 +58,23 @@ describe('Obj.deepFreeze', () => {
     for (const [label, value] of values) {
       expect(Object.is(Obj.deepFreeze(value), value), label).to.eql(true);
     }
+  });
+
+  it('retains module-captured authority after ambient intrinsic replacement', async () => {
+    expect(await runIntrinsicCaptureFixture()).to.eql({
+      descriptorsRestored: true,
+      poisonCalls: 0,
+      validSameIdentity: true,
+      validRootFrozen: true,
+      validNestedFrozen: true,
+      validArrayFrozen: true,
+      validArrayItemFrozen: true,
+      invalidNativeTypeError: true,
+      invalidMessage: EXPECTED_ERROR_MESSAGE,
+      getterCalls: 0,
+      invalidRootFrozen: false,
+      invalidChildFrozen: false,
+    });
   });
 
   it('admits cross-realm base arrays but rejects cross-realm plain objects', () => {
@@ -367,3 +402,33 @@ describe('Obj.deepFreeze', () => {
     }
   });
 });
+
+async function runIntrinsicCaptureFixture(): Promise<IntrinsicCaptureResult> {
+  const url = new URL('./u.fixture.deepFreeze.capture.worker.ts', import.meta.url);
+  const worker = new Worker(url, { type: 'module' });
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await new Promise<IntrinsicCaptureResult>((resolve, reject) => {
+      timer = setTimeout(
+        () => reject(new Error('Obj.deepFreeze intrinsic-capture fixture timed out.')),
+        5_000,
+      );
+      worker.onerror = (event) => {
+        event.preventDefault();
+        reject(new Error(`Obj.deepFreeze intrinsic-capture fixture failed: ${event.message}`));
+      };
+      worker.onmessage = (event: MessageEvent<IntrinsicCaptureReply>) => {
+        const reply = event.data;
+        if (reply.ok) resolve(reply.value);
+        else reject(new Error(reply.error));
+      };
+      worker.postMessage(undefined);
+    });
+  } finally {
+    if (timer !== undefined) clearTimeout(timer);
+    worker.onerror = null;
+    worker.onmessage = null;
+    worker.terminate();
+  }
+}

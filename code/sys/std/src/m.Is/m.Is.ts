@@ -15,6 +15,7 @@ import { urlLike, urlString } from './u.url.ts';
 import { websocket } from './u.websocket.ts';
 import { browser } from './u.browser.ts';
 
+const arrayIsArray = Array.isArray;
 const typedArrayTag = Object.getOwnPropertyDescriptor(
   Object.getPrototypeOf(Uint8Array.prototype),
   Symbol.toStringTag,
@@ -143,7 +144,7 @@ export const Is: t.Is.Lib = Object.freeze({
   },
 
   array<T>(input?: any): input is T[] {
-    return Array.isArray(input);
+    return arrayIsArray(input);
   },
 
   json(input?: any): input is t.Json {

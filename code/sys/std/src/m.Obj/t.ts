@@ -16,9 +16,7 @@ export type ObjExtend<T extends object, U extends object> = T & U;
  * Object utilities and subordinate object-domain type surfaces.
  */
 export declare namespace Obj {
-  /**
-   * Tools for working with objects.
-   */
+  /** Tools for working with objects. */
   export type Lib = {
     /** Tools for working with objects via abstract path arrays. */
     readonly Path: t.Obj.Path.Lib;
@@ -27,7 +25,7 @@ export declare namespace Obj {
 
     /**
      * Deeply freeze a trusted, caller-owned graph of primitive leaves, ordinary base arrays, and
-     * realm-local plain objects, returning the same root with a deeply readonly type.
+     * realm-local plain objects, returning the same root with a deeply `readonly` type.
      *
      * The complete graph is validated before mutable nodes are frozen. Cycles, shared references,
      * cross-realm base arrays, null-prototype objects, and non-enumerable string-keyed data
@@ -35,8 +33,10 @@ export declare namespace Obj {
      * symbol leaves, and non-plain objects are rejected.
      *
      * This operation does not clone. A pre-existing mutable alias retains its mutable static type
-     * even though the aliased runtime graph becomes frozen. Proxies, deliberately forged prototype
-     * chains, and compromised realms are outside this primitive's trust boundary.
+     * even though the aliased runtime graph becomes frozen. Runtime authority is captured when the
+     * module evaluates, so later ambient replacement cannot redirect the operation. Proxies,
+     * deliberately forged prototype chains, and realms compromised before module evaluation are
+     * outside this primitive's trust boundary.
      *
      * @throws {TypeError} When the reachable graph is outside the supported plain-data contract.
      */

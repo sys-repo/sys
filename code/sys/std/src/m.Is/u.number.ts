@@ -1,5 +1,7 @@
+const isNaN = Number.isNaN;
+
 export function number(input?: any): input is number {
-  return typeof input === 'number' && !Number.isNaN(input);
+  return typeof input === 'number' && !isNaN(input);
 }
 
 /**
@@ -17,7 +19,7 @@ export function numeric(input?: any) {
     const trimmed = input.trim();
     if (trimmed === '') return false; // Empty string, not a number.
     const num = Number(trimmed);
-    return !Number.isNaN(num) && Number.isFinite(num);
+    return !isNaN(num) && Number.isFinite(num);
   }
 
   return false;
