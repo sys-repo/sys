@@ -1,7 +1,7 @@
-import { StartGuiIntrinsic, type t } from './common.ts';
+import type { t } from './common.ts';
 import { createOwnedError } from './u.error.ts';
 
-/** Browser-safe failure categories owned by the Driver Pi boot supervisor. */
+/** Browser-safe failure categories projected by Driver Pi's boot screen. */
 export type BootFailureCategory =
   | 'configuration-invalid'
   | 'source-unavailable'
@@ -97,10 +97,8 @@ export type BootStateSource = {
   subscribe(listener: (state: BootState) => void): () => void;
 };
 
-/** State owner retained by the supervisor. */
+/** Mutable side of Driver Pi's boot-screen state. */
 export type BootStateOwner = BootStateSource & {
-  /** Observe synchronous state-observer invocation failure. */
-  onObserverFailure(listener: () => void): () => void;
   set(state: BootState): void;
 };
 
@@ -156,18 +154,7 @@ export function createBootState(): BootStateOwner {
   let dispatching = false;
   let publicationIndex = 0;
   const publications: BootState[] = [];
-  const listeners = StartGuiIntrinsic.createSet<(state: BootState) => void>();
-  const failureListeners = StartGuiIntrinsic.createSet<() => void>();
-  const failObserver = () => {
-    const snapshot = StartGuiIntrinsic.setSnapshot(failureListeners);
-    for (let index = 0; index < snapshot.length; index += 1) {
-      try {
-        snapshot[index]();
-      } catch {
-        // A package-owned failure observer cannot escape state transition ownership.
-      }
-    }
-  };
+  const listeners = new Set<(state: BootState) => void>();
   const publish = () => {
     if (dispatching) return;
     dispatching = true;
@@ -175,12 +162,12 @@ export function createBootState(): BootStateOwner {
       while (publicationIndex < publications.length) {
         const next = publications[publicationIndex++];
         current = next;
-        const snapshot = StartGuiIntrinsic.setSnapshot(listeners);
+        const snapshot = [...listeners];
         for (let index = 0; index < snapshot.length; index += 1) {
           try {
             snapshot[index](next);
           } catch {
-            failObserver();
+            // A presentation observer cannot break state publication.
           }
         }
       }
@@ -195,22 +182,13 @@ export function createBootState(): BootStateOwner {
     get current() {
       return current;
     },
-    onObserverFailure(listener) {
-      StartGuiIntrinsic.setAdd(failureListeners, listener);
-      let subscribed = true;
-      return () => {
-        if (!subscribed) return;
-        subscribed = false;
-        StartGuiIntrinsic.setDelete(failureListeners, listener);
-      };
-    },
     subscribe(listener) {
-      StartGuiIntrinsic.setAdd(listeners, listener);
+      listeners.add(listener);
       let subscribed = true;
       return () => {
         if (!subscribed) return;
         subscribed = false;
-        StartGuiIntrinsic.setDelete(listeners, listener);
+        listeners.delete(listener);
       };
     },
     set(next) {
@@ -218,7 +196,7 @@ export function createBootState(): BootStateOwner {
       if (!allowsTransition(previous.kind, next.kind)) {
         throw createOwnedError('Invalid start:gui boot-state transition.');
       }
-      StartGuiIntrinsic.arrayPush(publications, next);
+      publications.push(next);
       publish();
     },
   });

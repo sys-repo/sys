@@ -1,12 +1,12 @@
-import { Fs, Is, StartGuiIntrinsic, type t } from './common.ts';
+import { Fs, Is, type t } from './common.ts';
 import {
-  type EvidenceSnapshot,
   type IdentityDiagnostics,
+  isBoundedIdentity,
   refuseIdentity,
-  snapshotEvidence,
   snapshotExpectedPkg,
 } from './u.identity/mod.ts';
 import { createOwnedError, ownedError } from './u.error.ts';
+import { AUTHORITY_LIMITS } from './u.limits.ts';
 import { type ManifestSource, resolveIntegrity, resolveManifestSource } from './u.source.ts';
 
 type ReleaseAuthority = Readonly<{
@@ -30,52 +30,45 @@ export type AuthoritySnapshot =
   | Readonly<{ kind: 'invalid'; error: Error }>;
 
 type ConfigurationReason = 'manifest-url' | 'integrity' | 'development-directory';
-
 type ConfigurationError = Error & { readonly configuration: ConfigurationReason };
-const CONFIGURATION_ERRORS = StartGuiIntrinsic.createWeakSet<object>();
-const apply = Reflect.apply;
-const defineProperty = Object.defineProperty;
-const freeze = Object.freeze;
-const isAbsolutePath = Fs.Path.Is.absolute;
+const CONFIGURATION_ERRORS = new WeakSet<object>();
 
-/**
- * Validate, canonicalize, and copy caller authority synchronously.
- * Publication remains deferred until bootstrap exists, but no raw caller text crosses that boundary.
- */
+/** Validate and synchronously copy one loose GUI source into immutable Driver-owned policy. */
 export function snapshotAuthorityEvidence(input: unknown): AuthoritySnapshot {
-  const evidence = snapshotEvidence(input);
   try {
-    if (!evidence.kind || !evidence.authorityReadable) refuseIdentity();
-    return evidence.kind === 'release' ? settleRelease(evidence) : settleDevelopment(evidence);
+    if (!Is.object(input)) refuseIdentity();
+    const source = input as Record<string, unknown>;
+    if (source.kind === 'release') return settleRelease(source);
+    if (source.kind === 'development') return settleDevelopment(source);
+    refuseIdentity();
   } catch (cause) {
-    return freeze({
+    return Object.freeze({
       kind: 'invalid',
       error: ownedError(cause, 'Invalid start:gui authority.'),
     });
   }
 }
 
-/** Determine whether a failure is one of the package-owned configuration errors. */
+/** Determine whether a failure is one of Driver Pi's configuration errors. */
 export function isConfigurationError(input: unknown): input is ConfigurationError {
-  return Is.object(input) && StartGuiIntrinsic.weakSetHas(CONFIGURATION_ERRORS, input);
+  return Is.object(input) && CONFIGURATION_ERRORS.has(input);
 }
 
-function settleRelease(evidence: EvidenceSnapshot): AuthoritySnapshot {
+function settleRelease(input: Record<string, unknown>): AuthoritySnapshot {
   let source: ManifestSource;
   try {
-    source = resolveManifestSource(evidence.manifestUrl);
+    source = resolveManifestSource(input.manifestUrl);
   } catch {
     throw configurationError('manifest-url');
   }
-
-  const integrity = settleIntegrity(evidence.integrity);
-  const diagnostics = freeze({ manifestUrl: source.href, integrity });
-  const expectedPkg = snapshotExpectedPkg(evidence, diagnostics);
-  return freeze({
+  const integrity = settleIntegrity(input.integrity);
+  const diagnostics = Object.freeze({ manifestUrl: source.href, integrity });
+  const expectedPkg = snapshotExpectedPkg(input.expectedPkg, diagnostics);
+  return Object.freeze({
     kind: 'valid',
-    authority: freeze({
+    authority: Object.freeze({
       kind: 'release',
-      source: freeze({ ...source }),
+      source,
       integrity,
       expectedPkg,
       diagnostics,
@@ -83,20 +76,20 @@ function settleRelease(evidence: EvidenceSnapshot): AuthoritySnapshot {
   });
 }
 
-function settleDevelopment(evidence: EvidenceSnapshot): AuthoritySnapshot {
+function settleDevelopment(input: Record<string, unknown>): AuthoritySnapshot {
+  const dir = input.dir;
   if (
-    !Is.string(evidence.dir) || StartGuiIntrinsic.stringIncludes(evidence.dir, '\0') ||
-    !apply(isAbsolutePath, undefined, [evidence.dir])
+    !isBoundedIdentity(dir, AUTHORITY_LIMITS.developmentDir) || !Fs.Path.Is.absolute(dir)
   ) {
     throw configurationError('development-directory');
   }
-  const integrity = settleIntegrity(evidence.integrity);
-  const expectedPkg = snapshotExpectedPkg(evidence);
-  return freeze({
+  const integrity = settleIntegrity(input.integrity);
+  const expectedPkg = snapshotExpectedPkg(input.expectedPkg);
+  return Object.freeze({
     kind: 'valid',
-    authority: freeze({
+    authority: Object.freeze({
       kind: 'development',
-      dir: evidence.dir,
+      dir: dir as t.StringAbsoluteDir,
       integrity,
       expectedPkg,
     }),
@@ -118,11 +111,11 @@ function configurationError(reason: ConfigurationReason): ConfigurationError {
     ? 'Invalid start:gui manifest integrity.'
     : 'Invalid start:gui development directory.';
   const error = createOwnedError(message) as ConfigurationError;
-  defineProperty(error, 'configuration', {
+  Object.defineProperty(error, 'configuration', {
     configurable: false,
     enumerable: true,
     value: reason,
   });
-  StartGuiIntrinsic.weakSetAdd(CONFIGURATION_ERRORS, error);
+  CONFIGURATION_ERRORS.add(error);
   return error;
 }

@@ -1,4 +1,4 @@
-import { expect, type FsRooted, type t } from '../../../-test.ts';
+import { expect, type t } from '../../../-test.ts';
 import { TaskCli } from '../../../../-scripts/task.cli.u.ts';
 import { Cli } from '../common.ts';
 import { start, type StartGuiDependencies } from '../u.start/u.gui/mod.ts';
@@ -7,14 +7,15 @@ import {
   asProfileRoot,
   bootstrapStatusFixture,
   deferred,
+  failedGenerationFixture,
   fakeGeneration,
+  openedGenerationFixture,
   startedFixture,
 } from '../-test/u.fixture.start.gui.ts';
 
 type Scenario = 'source-q' | 'source-ctrl-c' | 'repair-q' | 'ready-q' | 'unowned';
 type GuiScenario = Exclude<Scenario, 'unowned'>;
-type DirectoryTarget = FsRooted.Target<'directory'>;
-type CleanupEvent = 'app.close' | 'lease.release' | 'status.close';
+type CleanupEvent = 'app.close' | 'generation.release' | 'status.close';
 
 const ROOT = '/tmp/driver-pi.exit-process' as t.StringDir;
 const SOURCE_UNAVAILABLE: t.Dist.MaterializeResult = Object.freeze({
@@ -32,8 +33,8 @@ const REPAIR_REQUIRED: t.Dist.MaterializeResult = Object.freeze({
 });
 const Q_EVENT = { key: 'q', ctrlKey: false } as const;
 const CTRL_C_EVENT = { key: 'c', ctrlKey: true } as const;
-const FAILED_CLEANUP = ['lease.release', 'status.close'] as const;
-const READY_CLEANUP = ['app.close', ...FAILED_CLEANUP] as const;
+const FAILED_CLEANUP = ['status.close'] as const;
+const READY_CLEANUP = ['app.close', 'generation.release', 'status.close'] as const;
 
 const scenario = parseScenario(Deno.args[0]);
 const cleanup: CleanupEvent[] = [];
@@ -45,22 +46,6 @@ async function run(scenario: Scenario, cleanup: CleanupEvent[]): Promise<void> {
   if (scenario === 'unowned') throw new Error('unowned programmer failure');
 
   const keyboardDone = deferred();
-  const target = Object.freeze({
-    kind: 'directory' as const,
-    path: '@sys.driver-pi' as t.StringRelativePath,
-  }) as DirectoryTarget;
-  const lease = Object.freeze({
-    mode: 'shared' as const,
-    targets: Object.freeze([target]),
-    release: () => {
-      cleanup.push('lease.release');
-      return Promise.resolve();
-    },
-    [Symbol.asyncDispose]() {
-      return this.release();
-    },
-  }) as FsRooted.Lease;
-  const rooted = rootedFixture(target, lease);
   const materialization = materializationOf(scenario);
   const status = bootstrapStatusFixture({
     close() {
@@ -84,9 +69,15 @@ async function run(scenario: Scenario, cleanup: CleanupEvent[]): Promise<void> {
   };
 
   const deps: StartGuiDependencies = {
-    ensureDir: () => Promise.resolve(),
-    createRooted: () => Promise.resolve(rooted),
-    materialize: () => Promise.resolve(materialization),
+    openGeneration: (input) =>
+      Promise.resolve(
+        materialization.kind === 'failed'
+          ? failedGenerationFixture(materialization)
+          : openedGenerationFixture(input, materialization, () => {
+            cleanup.push('generation.release');
+            return Promise.resolve();
+          }),
+      ),
     startStatus: () => Promise.resolve(status),
     start: () => Promise.resolve(application),
     open: () => undefined,
@@ -121,18 +112,6 @@ async function run(scenario: Scenario, cleanup: CleanupEvent[]): Promise<void> {
 
   const completion = await start({ cwd: asProfileRoot(ROOT), deps });
   expect(completion).to.eql({ kind: 'quit' });
-}
-
-function rootedFixture(target: DirectoryTarget, lease: FsRooted.Lease): FsRooted.Instance {
-  return Object.freeze({
-    path: `${ROOT}/.pi/@sys/dist`,
-    Target: Object.freeze({
-      admit: () => Promise.resolve(Object.freeze({ targets: Object.freeze([target]) })),
-    }),
-    Lease: Object.freeze({
-      acquire: () => Promise.resolve(Object.freeze({ kind: 'acquired', lease })),
-    }),
-  }) as unknown as FsRooted.Instance;
 }
 
 function quitEventOf(scenario: GuiScenario): t.Cli.Keyboard.Is.QuitInput {

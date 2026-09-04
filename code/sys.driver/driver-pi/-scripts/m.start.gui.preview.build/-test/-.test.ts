@@ -126,7 +126,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     });
   });
 
-  it('builds once into its owned directory and passes only that generation to the GUI supervisor', async () => {
+  it('builds once into its owned directory and passes only that generation to the GUI session', async () => {
     const builds: t.PreviewBuildInput[] = [];
     const starts: t.PreviewStartInput[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
@@ -323,7 +323,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
 
   it('hosts the exact local build directly and refuses post-start mutation without store work', async () => {
     const fixture = await previewDistFixture();
-    let materializeCalls = 0;
+    let generationOpenCalls = 0;
     const applicationStarts: Pick<t.DistServer.Start.Args, 'dir' | 'integrity'>[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
     let servedStatus = 0;
@@ -340,8 +340,8 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         GUI: {
           start: startGuiFixture({
             root: fixture.root,
-            onMaterialize: () => {
-              materializeCalls += 1;
+            onOpenGeneration: () => {
+              generationOpenCalls += 1;
             },
             onStart: (input) => {
               applicationStarts.push({ dir: input.dir, integrity: input.integrity });
@@ -363,8 +363,8 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         },
       });
 
-      expect({ materializeCalls, applicationStarts }).to.eql({
-        materializeCalls: 0,
+      expect({ generationOpenCalls, applicationStarts }).to.eql({
+        generationOpenCalls: 0,
         applicationStarts: [{ dir: fixture.dir, integrity: fixture.integrity }],
       });
       expect({ servedStatus, body }).to.eql({ servedStatus: 200, body: INDEX_BODY });
@@ -380,7 +380,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
   it('refuses wrong build pins and pre-start output mutation without release acquisition', async () => {
     const wrongPinFixture = await previewDistFixture();
     const changedOutputFixture = await previewDistFixture();
-    let materializeCalls = 0;
+    let generationOpenCalls = 0;
     const applicationStarts: Pick<t.DistServer.Start.Args, 'dir' | 'integrity'>[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
     const invoke = (fixture: PreviewDistFixture, integrity: t.StringHash) =>
@@ -391,8 +391,8 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         GUI: {
           start: startGuiFixture({
             root: fixture.root,
-            onMaterialize: () => {
-              materializeCalls += 1;
+            onOpenGeneration: () => {
+              generationOpenCalls += 1;
             },
             onStart: (input) => {
               applicationStarts.push({ dir: input.dir, integrity: input.integrity });
@@ -418,8 +418,8 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         'DistServer.start: pinned generation verification failed.',
       );
 
-      expect({ materializeCalls, applicationStarts }).to.eql({
-        materializeCalls: 0,
+      expect({ generationOpenCalls, applicationStarts }).to.eql({
+        generationOpenCalls: 0,
         applicationStarts: [
           { dir: wrongPinFixture.dir, integrity: FIRST_PIN },
           { dir: changedOutputFixture.dir, integrity: changedOutputFixture.integrity },
@@ -512,7 +512,7 @@ function generation(
 
 type StartGuiFixtureOptions = {
   readonly root: t.StringAbsoluteDir;
-  readonly onMaterialize: () => void;
+  readonly onOpenGeneration: () => void;
   readonly onStart: (input: t.DistServer.Start.Args) => void;
   readonly onReady: (origin: t.StringUrl) => Promise<void>;
 };
@@ -531,9 +531,9 @@ function startGuiFixture(options: StartGuiFixtureOptions): t.PreviewGuiStart {
       cwd: Object.freeze({ root: options.root, git: options.root, invoked: options.root }),
       until: stop.signal,
       deps: {
-        materialize() {
-          options.onMaterialize();
-          throw new Error('Development preview must not materialize release evidence.');
+        openGeneration() {
+          options.onOpenGeneration();
+          throw new Error('Development preview must not open release evidence.');
         },
         start(input) {
           options.onStart(input);

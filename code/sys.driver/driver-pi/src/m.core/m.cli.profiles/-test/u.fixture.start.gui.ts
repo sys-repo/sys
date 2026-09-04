@@ -1,9 +1,7 @@
-import { FsPkg } from '../../../-test.ts';
-import { Fs, type t, Url } from '../common.ts';
+import { Fs, Is, type t, Url } from '../common.ts';
 import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
 
 export type Started = t.DistServer.Started;
-export type Keyboard = t.Cli.Keyboard.Bind.Handle;
 export const DIST_DIGEST = `sha256-${'d'.repeat(59)}84346` as t.StringHash;
 export const GENERATION_DIR = '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir;
 export const GENERATION_HREF = Fs.Path.toFileUrl(GENERATION_DIR).href as t.StringUrl;
@@ -23,29 +21,14 @@ export function fakeGeneration(
     digest?: t.StringHash;
     manifestUrl?: t.StringUrl;
     cleanup?: t.Dist.Cleanup;
+    dir?: t.StringAbsoluteDir;
   }> = {},
 ): t.Dist.Existing {
-  return fakeGenerationWithPkgEvidence({
-    pkg: Object.freeze({ name: pkg.name, version: pkg.version }),
-    ...source,
-  });
-}
-
-export function fakeGenerationWithPkgEvidence(
-  input: Readonly<{
-    pkg: unknown;
-    omitPkg?: boolean;
-    integrity?: t.StringHash;
-    digest?: t.StringHash;
-    manifestUrl?: t.StringUrl;
-    cleanup?: t.Dist.Cleanup;
-  }>,
-): t.Dist.Existing {
-  const integrity = input.integrity ?? START_GUI_SERVICE.source.integrity;
-  const manifestUrl = input.manifestUrl ?? START_GUI_SERVICE.source.manifestUrl;
+  const integrity = source.integrity ?? START_GUI_SERVICE.source.integrity;
+  const manifestUrl = source.manifestUrl ?? START_GUI_SERVICE.source.manifestUrl;
   const dist = Object.freeze({
     type: 'https://jsr.io/@sample/driver-pi-gui',
-    ...(input.omitPkg ? {} : { pkg: input.pkg }),
+    pkg: Object.freeze({ name: pkg.name, version: pkg.version }),
     build: Object.freeze({
       time: 0,
       size: Object.freeze({ total: 0, pkg: 0 }),
@@ -53,7 +36,7 @@ export function fakeGenerationWithPkgEvidence(
       runtime: '<runtime-uri>',
       hash: Object.freeze({ policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' }),
     }),
-    hash: Object.freeze({ digest: input.digest ?? DIST_DIGEST, parts: Object.freeze({}) }),
+    hash: Object.freeze({ digest: source.digest ?? DIST_DIGEST, parts: Object.freeze({}) }),
   });
   const verification = Object.freeze({
     integrity,
@@ -64,27 +47,62 @@ export function fakeGenerationWithPkgEvidence(
 
   return Object.freeze({
     kind: 'existing',
-    dir: GENERATION_DIR,
+    dir: source.dir ?? GENERATION_DIR,
     integrity,
     verification,
     source: Object.freeze({ configuredUrl: manifestUrl }),
     seal: Object.freeze({ kind: 'applied', changed: false }),
-    cleanup: input.cleanup ?? 'not-needed',
+    cleanup: source.cleanup ?? 'not-needed',
   }) as t.Dist.Existing;
 }
 
-export function deferred(): {
-  readonly promise: Promise<void>;
-  readonly resolve: () => void;
-  readonly reject: (cause?: unknown) => void;
-} {
-  let resolve!: () => void;
-  let reject!: (cause?: unknown) => void;
-  const promise = new Promise<void>((done, fail) => {
-    resolve = done;
-    reject = fail;
+/** Create an exact frozen successful Generation-open settlement at the requested store. */
+export function openedGenerationFixture(
+  input: Pick<t.Dist.Generation.Open.Args, 'store'>,
+  generation: t.Dist.Existing | t.Dist.Promoted = fakeGeneration(),
+  release: () => Promise<void> = async () => {},
+): t.Dist.Generation.Open.Success {
+  const store = generationStoreFixture(input.store);
+  const admittedGeneration = Object.freeze({
+    ...generation,
+    dir: Fs.join(store.dir, generation.integrity) as t.StringAbsoluteDir,
+  }) as t.Dist.Existing | t.Dist.Promoted;
+  const owner = generationOwnerFixture(store, release);
+  return Object.freeze({ kind: 'opened', generation: admittedGeneration, owner });
+}
+
+/** Wrap one exact materialization failure as a released Generation-open settlement. */
+export function failedGenerationFixture(
+  generation: t.Dist.Failed,
+  ownership: 'released' | 'pending' = 'released',
+): t.Dist.Generation.Failure.Materialization {
+  return Object.freeze({
+    kind: 'failed',
+    phase: 'materialization',
+    generation,
+    ownership,
   });
-  return { promise, resolve, reject };
+}
+
+function generationStoreFixture(
+  input: t.Dist.Generation.Store.Input,
+): t.Dist.Generation.Store.Admitted {
+  return Object.freeze({
+    root: input.root as t.StringAbsoluteDir,
+    target: input.target as t.StringRelativePath,
+    dir: Fs.join(input.root, input.target) as t.StringAbsoluteDir,
+  });
+}
+
+function generationOwnerFixture(
+  store: t.Dist.Generation.Store.Admitted,
+  release: () => Promise<void>,
+): t.Dist.Generation.Owner {
+  return Object.freeze({ store, release, [Symbol.asyncDispose]: release });
+}
+
+export function deferred(): PromiseWithResolvers<void> {
+  return Promise.withResolvers<void>();
 }
 
 export type BootstrapStatusFixtureOptions = {
@@ -213,8 +231,8 @@ export function startedFixture(input: {
     await input.close?.(reason);
     if (!input.finished) completion.resolve();
   };
-  return {
-    addr: { transport: 'tcp', hostname: '127.0.0.1', port: 1234 },
+  return Object.freeze({
+    addr: Object.freeze({ transport: 'tcp', hostname: '127.0.0.1', port: 1234 }),
     hostname: '127.0.0.1',
     port: 1234,
     origin,
@@ -223,19 +241,19 @@ export function startedFixture(input: {
     authority: Object.freeze({ kind: 'pinned', integrity: generation.integrity }),
     verification: generation.verification,
     browserPolicy: appliedBrowserPolicyFixture(origin),
-  } as Started;
+  }) as Started;
 }
 
 export async function rejectionOf(action: () => Promise<unknown>): Promise<Error> {
   try {
     await action();
   } catch (cause) {
-    return cause instanceof Error ? cause : new Error(String(cause));
+    return Is.error(cause) ? cause : new Error(String(cause));
   }
   throw new Error('Expected rejection.');
 }
 
-/** Remove a test Dist store through its lower owned-tree lifecycle authority. */
+/** Remove a released test Dist store through lower owned-tree cleanup authority. */
 export async function removeDistStore(storeDir: t.StringDir): Promise<void> {
   if (!(await Fs.exists(storeDir))) return;
 
@@ -255,63 +273,4 @@ export async function removeDistStore(storeDir: t.StringDir): Promise<void> {
   } finally {
     await acquired.lease.release();
   }
-}
-
-export async function loopbackDistFixture() {
-  const source = (await Fs.makeTempDir({ prefix: 'driver-pi.start-gui.source.' }))
-    .absolute as t.StringDir;
-  await Fs.write(Fs.join(source, 'index.html'), '<h1>verified driver-pi fixture</h1>');
-  await Fs.write(Fs.join(source, 'assets/app.js'), 'console.info("verified");');
-  await Fs.write(
-    Fs.join(source, 'sw.js'),
-    `self.addEventListener('install', (event) => event.waitUntil(self.skipWaiting()));`,
-  );
-  const expectedPkg = Object.freeze({
-    name: '@sample/driver-pi-gui' as t.StringPkgName,
-    version: '1.0.0' as t.StringSemver,
-  });
-  const computed = await FsPkg.Dist.compute({
-    dir: source,
-    pkg: expectedPkg,
-    builder: { name: '@sample/builder', version: '1.0.0' },
-    save: true,
-  });
-  const assets = new Map<string, Uint8Array>();
-  for (const path of Object.keys(computed.dist.hash.parts)) {
-    assets.set(`/${path}`, await Deno.readFile(Fs.join(source, path)));
-  }
-  const manifest = await Deno.readFile(Fs.join(source, 'dist.json'));
-  const server = Deno.serve({ hostname: '127.0.0.1', port: 0, onListen() {} }, (request) => {
-    const parsed = Url.parse(request.url);
-    const path = parsed.ok ? parsed.toURL().pathname : '';
-    if (path === '/dist.json') return new Response(manifest);
-    const asset = assets.get(path);
-    return asset ? new Response(asset.buffer as ArrayBuffer) : new Response(null, { status: 404 });
-  });
-  const address = server.addr as Deno.NetAddr;
-  const origin = `http://127.0.0.1:${address.port}` as t.StringUrl;
-
-  return {
-    integrity: computed.manifest.integrity,
-    manifestUrl: `${origin}/dist.json` as t.StringUrl,
-    expectedPkg,
-    origin,
-    async dispose() {
-      const failures: unknown[] = [];
-      try {
-        await server.shutdown();
-      } catch (cause) {
-        failures.push(cause);
-      }
-      try {
-        await Fs.remove(source);
-      } catch (cause) {
-        failures.push(cause);
-      }
-      if (failures.length === 1) throw failures[0];
-      if (failures.length > 1) {
-        throw new AggregateError(failures, 'Driver Pi source fixture cleanup failed.');
-      }
-    },
-  };
 }

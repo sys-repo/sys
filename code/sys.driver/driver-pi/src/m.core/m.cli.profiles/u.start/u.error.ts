@@ -1,16 +1,15 @@
-import { Is, StartGuiIntrinsic } from './common.ts';
+import { Is } from './common.ts';
 
-const OWNED_ERRORS = StartGuiIntrinsic.createWeakSet<object>();
-const NativeError = Error;
+const OWNED_ERRORS = new WeakSet<object>();
 
 /** Create one native Error authenticated as package-owned evidence. */
 export function createOwnedError(message: string): Error {
-  return markOwnedError(new NativeError(message));
+  return markOwnedError(new Error(message));
 }
 
-/** Authenticate an error only after a private package or lower-owner classifier accepted it. */
+/** Authenticate an error only after a package or lower-owner classifier accepted it. */
 export function markOwnedError<T extends Error>(error: T): T {
-  StartGuiIntrinsic.weakSetAdd(OWNED_ERRORS, error);
+  OWNED_ERRORS.add(error);
   return error;
 }
 
@@ -20,5 +19,5 @@ export function ownedError(input: unknown, fallback: string): Error {
 }
 
 function isOwnedError(input: unknown): input is Error {
-  return Is.object(input) && StartGuiIntrinsic.weakSetHas(OWNED_ERRORS, input);
+  return Is.object(input) && OWNED_ERRORS.has(input);
 }

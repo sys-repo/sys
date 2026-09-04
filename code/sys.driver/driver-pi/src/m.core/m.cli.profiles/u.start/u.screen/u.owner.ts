@@ -1,11 +1,10 @@
-import { Cli, StartGuiIntrinsic } from '../common.ts';
+import { Cli } from '../common.ts';
 
 import { START_GUI_SERVICE } from '../../u/u.start.gui.service.ts';
 import { createOwnedError, ownedError } from '../u.error.ts';
-import { createPromiseDeferred, observePromiseTransport, pendingPromise } from '../u.promise.ts';
 import { captureManifestUrl, captureRootLink, normalizeSize } from './u.input.ts';
 import { renderScreen } from './u.render.ts';
-import { observeResizeWith, takePartialResizeFailure, throwCleanupFailures } from './u.resize.ts';
+import { observeResizeWith, throwCleanupFailures } from './u.resize.ts';
 import type {
   ScreenSize,
   StartGuiScreenDependencies,
@@ -40,18 +39,15 @@ export const StartGuiScreen = {
     if (!deps.isInteractive()) {
       return freeze({
         kind: 'unavailable',
-        failure: pendingPromise<never>(),
+        failure: new Promise<never>(() => undefined),
         redraw() {},
         warnOpen() {},
         dispose() {},
       });
     }
 
-    const failure = createPromiseDeferred<never>();
-    observePromiseTransport<never, void>(failure.promise, {
-      fulfilled() {},
-      rejected() {},
-    });
+    const failure = Promise.withResolvers<never>();
+    void failure.promise.catch(() => undefined);
     let active = true;
     let acquired = false;
     let observed = false;
@@ -71,7 +67,7 @@ export const StartGuiScreen = {
           releaseState();
           releaseState = undefined;
         } catch (cause) {
-          StartGuiIntrinsic.arrayPush(failures, cause);
+          failures.push(cause);
         }
       }
       if (releaseResize) {
@@ -79,7 +75,7 @@ export const StartGuiScreen = {
           releaseResize();
           releaseResize = undefined;
         } catch (cause) {
-          StartGuiIntrinsic.arrayPush(failures, cause);
+          failures.push(cause);
         }
       }
       throwCleanupFailures(failures);
@@ -121,35 +117,19 @@ export const StartGuiScreen = {
           fail(cause);
         }
       });
-      try {
-        releaseResize = deps.observeResize((size) => {
-          if (!active) return;
-          try {
-            viewport = normalizeSize(size);
-            observed = true;
-            resizeRevision += 1;
-            if (!acquired || redrawing) return;
-            repaint();
-          } catch (cause) {
-            fail(cause);
-          }
-        });
-        if (!active) {
-          try {
-            release();
-          } catch {
-            // Retryable cleanup authority remains on the returned screen handle.
-          }
-          throw createOwnedError('start:gui screen failed.');
+      releaseResize = deps.observeResize((size) => {
+        if (!active) return;
+        try {
+          viewport = normalizeSize(size);
+          observed = true;
+          resizeRevision += 1;
+          if (!acquired || redrawing) return;
+          repaint();
+        } catch (cause) {
+          fail(cause);
         }
-      } catch (cause) {
-        const partial = takePartialResizeFailure(cause);
-        if (partial) {
-          releaseResize = partial.release;
-          throw cause;
-        }
-        throw cause;
-      }
+      });
+      if (!active) throw createOwnedError('start:gui screen failed.');
       if (!observed) {
         const measured = deps.size();
         if (!active) throw createOwnedError('start:gui screen failed.');

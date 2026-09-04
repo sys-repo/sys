@@ -1,198 +1,116 @@
-import { StartGuiIntrinsic, type t } from '../common.ts';
+import { Fs, Schedule, type t } from '../common.ts';
 
 import type { AuthoritySnapshot } from '../u.authority.ts';
-import type { Started, StartGuiDependencies } from '../u.deps.ts';
-import { captureFailure, type FailureOperation } from '../u.failure.ts';
-import type { Supervisor, WorkAdmission } from '../u.lifecycle/mod.ts';
-import { materialize, prepareReleaseOwner } from '../u.materialize.ts';
+import type { StartGuiDependencies } from '../u.deps.ts';
+import { type FailureOperation, generationOpenError } from '../u.failure.ts';
+import { admitApplicationPkg, admitGenerationPkg } from '../u.identity/mod.ts';
 import { LIMITS } from '../u.limits.ts';
-import { Boot, type BootState, type BootStateOwner } from '../u.state.ts';
+import { materializePolicy } from '../u.source.ts';
+import { Boot, type BootStateOwner } from '../u.state.ts';
 import { captureFileHref } from '../u.url.ts';
 import { VERIFIED_LOOPBACK_BROWSER_POLICY } from '../u.browser.ts';
-import type { BootResult, Observed } from './t.ts';
-import {
-  assertPromiseTransportReady,
-  awaitPromise,
-  beginAdmission,
-  beginCheckpoint,
-  bootResultOf,
-  observeMaterialization,
-  observeOperation,
-  READY_RESULT,
-  resultAfterObservedFailure,
-} from './u.operation.ts';
+import { START_GUI_SERVICE } from '../../u/u.start.gui.service.ts';
 
-const AUTHORITY_OPERATION: FailureOperation = 'authority';
-const RELEASE_OWNER_OPERATION: FailureOperation = 'release-owner';
-const APPLICATION_HOST_OPERATION: FailureOperation = 'application-host';
+export type BootResources = {
+  generation?: t.Dist.Generation.Owner;
+  application?: t.DistServer.Started;
+};
+
+type FailurePublisher = (cause: unknown, operation: FailureOperation) => void;
 
 type BootInput = Readonly<{
   root: t.StringDir;
   authorityEvidence: AuthoritySnapshot;
   state: BootStateOwner;
-  supervisor: Supervisor;
+  signal: AbortSignal;
   deps: StartGuiDependencies;
+  resources: BootResources;
+  onApplication: (owner: t.DistServer.Started) => void;
+  publishFailure: FailurePublisher;
+  publishObservedFailure: FailurePublisher;
 }>;
 
 type Authority = Extract<AuthoritySnapshot, { kind: 'valid' }>['authority'];
 type ReleaseAuthority = Extract<Authority, { kind: 'release' }>;
-type ReleaseOwner = Awaited<ReturnType<typeof prepareReleaseOwner>>;
-type ReleaseOwnerObservation = Promise<Observed<ReleaseOwner>>;
-type MaterializationObservation = ReturnType<typeof observeMaterialization>;
-type ApplicationOwner = ReturnType<Supervisor['setApplication']>;
-type ApplicationObservation = Promise<Observed<ApplicationOwner>>;
+type Application = ReturnType<typeof admitApplicationPkg>;
 
-export async function runBoot(input: BootInput): Promise<BootResult> {
-  assertPromiseTransportReady();
-  let operation = AUTHORITY_OPERATION;
+/** Acquire and verify the application resources selected by Driver Pi policy. */
+export async function runBoot(input: BootInput): Promise<void> {
+  let operation: FailureOperation = 'authority';
   try {
-    const authorityAdmission = await beginAuthorityAdmission(input);
-    if (authorityAdmission.kind === 'blocked') return bootResultOf(authorityAdmission.event);
+    if (input.authorityEvidence.kind === 'invalid') throw input.authorityEvidence.error;
+    const authority = input.authorityEvidence.authority;
 
-    const authorityResult = authorityAdmission.value;
-    if (authorityResult.kind === 'invalid') throw authorityResult.error;
-    const authority = authorityResult.authority;
+    operation = 'release-owner';
+    const dir = authority.kind === 'release' ? await openRelease(input, authority) : authority.dir;
+    if (!dir) return;
+    assertActive(input.signal);
 
-    let dir: t.StringAbsoluteDir;
-    if (authority.kind === 'release') {
-      operation = RELEASE_OWNER_OPERATION;
-      const ownerAdmission = await beginReleaseOwnerAdmission(input);
-      if (ownerAdmission.kind === 'blocked') return bootResultOf(ownerAdmission.event);
+    input.state.set(Boot.startingAppHost);
+    await Schedule.micro();
+    assertActive(input.signal);
 
-      const ownerResult = await awaitPromise(ownerAdmission.value);
-      if (ownerResult.kind === 'failed') return resultAfterObservedFailure(input.supervisor);
-      const owner = ownerResult.value;
+    operation = 'application-host';
+    const application = await startApplication(input, authority, dir);
+    if (!application) return;
 
-      const materializationAdmission = await beginMaterializationAdmission(
-        input,
-        authority,
-        owner,
-      );
-      if (materializationAdmission.kind === 'blocked') {
-        return bootResultOf(materializationAdmission.event);
-      }
-
-      const materialization = await awaitPromise(materializationAdmission.value);
-      if (materialization.kind === 'failed') return resultAfterObservedFailure(input.supervisor);
-      dir = materialization.value.dir;
-    } else {
-      dir = authority.dir;
-    }
-    const directoryHref = captureFileHref(dir);
-
-    operation = APPLICATION_HOST_OPERATION;
-    const startingAdmission = await beginStateAdmission(input, Boot.startingAppHost);
-    if (startingAdmission.kind === 'blocked') return bootResultOf(startingAdmission.event);
-
-    const applicationAdmission = await beginApplicationAdmission(input, authority, dir);
-    if (applicationAdmission.kind === 'blocked') {
-      return bootResultOf(applicationAdmission.event);
-    }
-
-    const application = await awaitPromise(applicationAdmission.value);
-    if (application.kind === 'failed') return resultAfterObservedFailure(input.supervisor);
-
-    const readyState = Boot.ready(
-      application.value.origin,
-      application.value.digest,
-      directoryHref,
-    );
-    const readyAdmission = await beginStateAdmission(input, readyState);
-    if (readyAdmission.kind === 'blocked') return bootResultOf(readyAdmission.event);
-
-    await beginCheckpoint(input.supervisor);
-    const afterReady = input.supervisor.currentBlocker;
-    return afterReady ? bootResultOf(afterReady) : READY_RESULT;
+    await Schedule.micro();
+    assertActive(input.signal);
+    input.state.set(Boot.ready(application.origin, application.digest, captureFileHref(dir)));
   } catch (cause) {
-    const failure = captureFailure(cause, operation);
-    input.supervisor.publishFailure(failure.error, failure.state);
-    return resultAfterObservedFailure(input.supervisor);
+    input.publishFailure(cause, operation);
   }
 }
 
-function beginAuthorityAdmission(input: BootInput): Promise<WorkAdmission<AuthoritySnapshot>> {
-  const readEvidence = () => input.authorityEvidence;
-  return beginAdmission(input.supervisor, readEvidence);
-}
-
-function beginReleaseOwnerAdmission(
-  input: BootInput,
-): Promise<WorkAdmission<ReleaseOwnerObservation>> {
-  const prepareOwner = () => observeReleaseOwner(input);
-  return beginAdmission(input.supervisor, prepareOwner);
-}
-
-function observeReleaseOwner(input: BootInput): ReleaseOwnerObservation {
-  const { deps, root, supervisor } = input;
-  const invoke = () => prepareReleaseOwner({ root, deps, until: supervisor.signal });
-  const admit = (owner: ReleaseOwner) => {
-    supervisor.setLease(owner.lease);
-    return owner;
-  };
-  return observeOperation({
-    invoke,
-    operation: RELEASE_OWNER_OPERATION,
-    supervisor,
-    admit,
-  });
-}
-
-function beginMaterializationAdmission(
+async function openRelease(
   input: BootInput,
   authority: ReleaseAuthority,
-  owner: ReleaseOwner,
-): Promise<WorkAdmission<MaterializationObservation>> {
-  const materializeRelease = () => observeReleaseMaterialization(input, authority, owner);
-  return beginAdmission(input.supervisor, materializeRelease);
-}
-
-function observeReleaseMaterialization(
-  input: BootInput,
-  authority: ReleaseAuthority,
-  owner: ReleaseOwner,
-): MaterializationObservation {
-  const invoke = () =>
-    materialize({
-      owner,
-      source: authority.source,
+): Promise<t.StringAbsoluteDir | undefined> {
+  let task: Promise<t.Dist.Generation.Open.Result>;
+  try {
+    task = input.deps.openGeneration(Object.freeze({
+      store: releaseStore(input.root),
+      manifestUrl: authority.source.href,
       integrity: authority.integrity,
-      deps: input.deps,
-      until: input.supervisor.signal,
+      policy: materializePolicy(authority.source),
+      until: input.signal,
+    }));
+  } catch (cause) {
+    input.publishFailure(cause, 'release-owner');
+    return;
+  }
+
+  let opening: t.Dist.Generation.Open.Result;
+  try {
+    opening = await task;
+  } catch (cause) {
+    input.publishObservedFailure(cause, 'release-owner');
+    return;
+  }
+
+  try {
+    if (opening.kind === 'failed') throw generationOpenError(opening);
+
+    // Driver Pi owns the returned Generation before applying its package policy.
+    input.resources.generation = opening.owner;
+    return admitGenerationPkg({
+      expected: authority.expectedPkg,
+      generation: opening.generation,
+      diagnostics: authority.diagnostics,
     });
-  return observeMaterialization({
-    invoke,
-    expected: authority.expectedPkg,
-    diagnostics: authority.diagnostics,
-    supervisor: input.supervisor,
-    operation: RELEASE_OWNER_OPERATION,
-  });
+  } catch (cause) {
+    input.publishObservedFailure(cause, 'release-owner');
+  }
 }
 
-function beginStateAdmission(
-  input: BootInput,
-  state: BootState,
-): Promise<WorkAdmission<void>> {
-  const publishState = () => input.state.set(state);
-  return beginAdmission(input.supervisor, publishState);
-}
-
-function beginApplicationAdmission(
+async function startApplication(
   input: BootInput,
   authority: Authority,
   dir: t.StringAbsoluteDir,
-): Promise<WorkAdmission<ApplicationObservation>> {
-  const startApplication = () => observeApplication(input, authority, dir);
-  return beginAdmission(input.supervisor, startApplication);
-}
-
-function observeApplication(
-  input: BootInput,
-  authority: Authority,
-  dir: t.StringAbsoluteDir,
-): ApplicationObservation {
-  const { deps, supervisor } = input;
-  const invoke = () =>
-    deps.start({
+): Promise<Application | undefined> {
+  let task: Promise<t.DistServer.Started>;
+  try {
+    task = input.deps.start({
       dir,
       integrity: authority.integrity,
       limits: LIMITS,
@@ -200,22 +118,39 @@ function observeApplication(
       port: 0,
       browserPolicy: VERIFIED_LOOPBACK_BROWSER_POLICY,
       silent: true,
-      until: supervisor.signal,
+      until: input.signal,
     });
-  const admit = (started: Started) =>
-    supervisor.setApplication(
-      started,
-      StartGuiIntrinsic.freeze({
-        integrity: authority.integrity,
-        expectedPkg: authority.expectedPkg,
-        ...(authority.kind === 'release' ? { diagnostics: authority.diagnostics } : {}),
-      }),
-    );
-  return observeOperation({
-    invoke,
-    operation: APPLICATION_HOST_OPERATION,
-    supervisor,
-    admit,
-    unobservableResource: 'application-host',
+  } catch (cause) {
+    input.publishFailure(cause, 'application-host');
+    return;
+  }
+
+  let started: t.DistServer.Started;
+  try {
+    started = await task;
+  } catch (cause) {
+    input.publishObservedFailure(cause, 'application-host');
+    return;
+  }
+
+  try {
+    input.onApplication(started);
+    return admitApplicationPkg(started, {
+      expectedPkg: authority.expectedPkg,
+      ...(authority.kind === 'release' ? { diagnostics: authority.diagnostics } : {}),
+    });
+  } catch (cause) {
+    input.publishObservedFailure(cause, 'application-host');
+  }
+}
+
+function releaseStore(root: t.StringDir): t.Dist.Generation.Store.Input {
+  return Object.freeze({
+    root: Fs.join(root, START_GUI_SERVICE.store.root) as t.StringAbsoluteDir,
+    target: START_GUI_SERVICE.store.target,
   });
+}
+
+function assertActive(signal: AbortSignal): void {
+  if (signal.aborted) throw new Error('start:gui startup cancelled.');
 }

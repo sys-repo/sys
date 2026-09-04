@@ -46,10 +46,6 @@ export type CapturedRootLink = Readonly<{
 
 export type RootLinkInput = t.StringAbsoluteDir | CapturedRootLink;
 
-export type PartialResizeFailure = Readonly<{
-  release: () => void;
-}>;
-
 export type StartGuiScreenRenderInput = {
   readonly service: string;
   readonly url: t.StringUrl;

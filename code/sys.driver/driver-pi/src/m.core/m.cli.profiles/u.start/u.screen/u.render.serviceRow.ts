@@ -1,4 +1,4 @@
-import { c, Cli, HashFmt, StartGuiIntrinsic, type t } from '../common.ts';
+import { c, Cli, HashFmt, type t } from '../common.ts';
 
 import { START_GUI_SERVICE, type StartGuiRecoveryPolicy } from '../../u/u.start.gui.service.ts';
 import type { BootSafeEvidence, BootState } from '../u.state.ts';
@@ -40,11 +40,10 @@ export function renderServiceRows(
   const rows: string[] = [];
 
   for (const [label, value] of serviceFacts(input)) {
-    const rendered = StartGuiIntrinsic.arrayMap(
-      serviceRow(label, value, width, labelWidth),
-      (row) => insetServiceRow(row, width),
+    const rendered = serviceRow(label, value, width, labelWidth).map((row) =>
+      insetServiceRow(row, width)
     );
-    StartGuiIntrinsic.arrayAppend(rows, rendered);
+    rows.push(...rendered);
   }
   return rows;
 }
@@ -101,12 +100,12 @@ function serviceFacts(input: StartGuiScreenRenderInput): readonly ServiceFact[] 
 }
 
 function pushFact(facts: ServiceFact[], label: string, value: ServiceValue): void {
-  StartGuiIntrinsic.arrayPush(facts, [label, value]);
+  facts.push([label, value]);
 }
 
 function insetServiceRow(row: string, width: number) {
   if (width === 0) return '';
-  return `${StartGuiIntrinsic.stringRepeat(' ', SERVICE_LEFT_INSET)}${fitTerminalRow(row, width)}`;
+  return `${' '.repeat(SERVICE_LEFT_INSET)}${fitTerminalRow(row, width)}`;
 }
 
 function serviceRow(
@@ -126,10 +125,10 @@ function serviceRow(
   const labelText = label === 'service' ? label : ` ${label}`;
   const coloredLabel = label === 'service' ? c.green(labelText) : fieldLabelColor(labelText);
   const renderedLabel = Cli.Fmt.Text.Width.padEnd(coloredLabel, labelWidth);
-  const continuation = StartGuiIntrinsic.stringRepeat(' ', reserve);
-  return StartGuiIntrinsic.arrayMap(valueRows, (row, index) => {
-    return index === 0 ? `${renderedLabel}${SERVICE_GAP}${row}` : `${continuation}${row}`;
-  });
+  const continuation = ' '.repeat(reserve);
+  return valueRows.map((row, index) =>
+    index === 0 ? `${renderedLabel}${SERVICE_GAP}${row}` : `${continuation}${row}`
+  );
 }
 
 function fieldLabelColor(text: string) {
@@ -215,11 +214,7 @@ function fitServiceUrl(part: t.Cli.Fmt.ServiceUrl.Part, width: number, origin: s
 
 function formatServiceOrigin(part: t.Cli.Fmt.ServiceUrl.Part): string {
   if (!part.port) return c.cyan(part.origin);
-  const prefix = StartGuiIntrinsic.stringSlice(
-    part.origin,
-    0,
-    part.origin.length - part.port.length,
-  );
+  const prefix = part.origin.slice(0, part.origin.length - part.port.length);
   return `${c.cyan(prefix)}${c.bold(c.cyan(part.port))}`;
 }
 
@@ -275,9 +270,7 @@ function evidenceItems(evidence: BootSafeEvidence): readonly string[] {
       return ['package identity refused'];
     case 'materialization': {
       const items = [evidence.stage, evidence.reason, `cleanup:${evidence.cleanup}`];
-      if (evidence.publication) {
-        StartGuiIntrinsic.arrayPush(items, `publication:${evidence.publication}`);
-      }
+      if (evidence.publication) items.push(`publication:${evidence.publication}`);
       return items;
     }
     case 'application-host':
@@ -297,13 +290,13 @@ function evidenceRows(items: readonly string[], width: number): readonly string[
   for (const item of items) {
     const candidate = current ? `${current}${separator}${item}` : item;
     if (current && Cli.Fmt.Text.Width.measure(candidate) > width) {
-      StartGuiIntrinsic.arrayPush(rows, colorEvidence(current));
+      rows.push(colorEvidence(current));
       current = item;
     } else {
       current = candidate;
     }
   }
-  if (current) StartGuiIntrinsic.arrayPush(rows, colorEvidence(current));
+  if (current) rows.push(colorEvidence(current));
   return rows.length > 0 ? rows : [''];
 }
 
@@ -318,23 +311,7 @@ function fitValue(value: string, width: number, color: (text: string) => string)
 }
 
 function colorEvidence(value: string) {
-  const output: string[] = [];
-  let remaining = value;
-  while (true) {
-    // Captured positional scanning keeps presentation independent of mutable string methods.
-    const separatorIndex = StartGuiIntrinsic.stringIndexOf(remaining, '·');
-    if (separatorIndex < 0) {
-      StartGuiIntrinsic.arrayPush(output, c.gray(remaining));
-      break;
-    }
-    StartGuiIntrinsic.arrayPush(
-      output,
-      c.gray(StartGuiIntrinsic.stringSlice(remaining, 0, separatorIndex)),
-    );
-    StartGuiIntrinsic.arrayPush(output, c.gray('·'));
-    remaining = StartGuiIntrinsic.stringSlice(remaining, separatorIndex + 1);
-  }
-  return StartGuiIntrinsic.arrayJoin(output, '');
+  return c.gray(value);
 }
 
 function ellipsize(value: string, width: number) {

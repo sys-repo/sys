@@ -10,12 +10,8 @@ export function allowsBack(state: BootState): boolean {
   return state.kind === 'preparing' || state.kind === 'starting-app-host' || state.kind === 'ready';
 }
 
-const apply = Reflect.apply;
 const freeze = Object.freeze;
-const NativeWeakSet = WeakSet;
-const failures = new NativeWeakSet<object>();
-const weakSetAdd = NativeWeakSet.prototype.add;
-const weakSetHas = NativeWeakSet.prototype.has;
+const failures = new WeakSet<object>();
 const BACK_COMPLETION: StartGuiCompletion = freeze({ kind: 'back' });
 const QUIT_COMPLETION: StartGuiCompletion = freeze({ kind: 'quit' });
 const EXTERNAL_COMPLETION: StartGuiCompletion = freeze({ kind: 'external-cancellation' });
@@ -42,12 +38,12 @@ export function startGuiCompletionKind(input: unknown): StartGuiCompletionKind |
 
 /** Mark one final failure after trusted foreground release and owned cleanup have settled. */
 export function markCliSettledFailure(error: Error): void {
-  apply(weakSetAdd, failures, [error]);
+  failures.add(error);
 }
 
 /** Identify only a package-authenticated failure settled for the user-facing task boundary. */
 export function isCliSettledFailure(input: unknown): input is Error {
-  return Is.object(input) && apply(weakSetHas, failures, [input]) === true;
+  return Is.object(input) && failures.has(input);
 }
 
 /** Convert only a fully presented and settled GUI failure into a deliberate CLI exit status. */

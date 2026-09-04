@@ -1,4 +1,4 @@
-import { BootstrapStatus, pkg, StartGuiIntrinsic, Str, type t } from './common.ts';
+import { BootstrapStatus, pkg, Str, type t } from './common.ts';
 import type { BootStateSource } from './u.state.ts';
 
 export type BootstrapPageKey =
@@ -115,10 +115,7 @@ export function startBootstrap(
 ): Promise<t.BootstrapStatus.Started> {
   return start({
     pages: freeze(
-      StartGuiIntrinsic.arrayMap(
-        BOOTSTRAP_PAGES,
-        (page) => freeze({ key: page.key, bytes: StartGuiIntrinsic.uint8ArraySlice(page.bytes) }),
-      ),
+      BOOTSTRAP_PAGES.map((page) => freeze({ key: page.key, bytes: page.bytes.slice() })),
     ),
     resolve: () => projectBootstrap(state),
   });

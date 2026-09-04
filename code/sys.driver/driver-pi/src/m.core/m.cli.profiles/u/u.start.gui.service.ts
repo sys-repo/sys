@@ -1,4 +1,5 @@
 import type { t } from '../common.ts';
+import { PiFs } from '../../u.fs.ts';
 import { START_GUI_RELEASE_EVIDENCE } from './u.start.gui.service.evidence.ts';
 
 /** Closed internal launcher authority for one GUI Dist session. */
@@ -31,6 +32,10 @@ const LOCAL_RECOVERY_POLICY: StartGuiRecoveryPolicy = Object.freeze({
   manifestChecksumMismatch:
     'Intended local build? In Driver Pi run deno task bind:dev, then relaunch.',
 });
+const RELEASE_STORE_POLICY = Object.freeze({
+  root: '.pi/@sys/dist' as t.StringRelativePath,
+  target: PiFs.root as t.StringRelativePath,
+});
 
 /**
  * Canonical launcher-owned identity and materialization evidence for the local GUI service.
@@ -42,9 +47,14 @@ const LOCAL_RECOVERY_POLICY: StartGuiRecoveryPolicy = Object.freeze({
 export const START_GUI_SERVICE = Object.freeze({
   name: 'sys.ui:pi',
   source: START_GUI_RELEASE_EVIDENCE,
+  store: RELEASE_STORE_POLICY,
   recovery: LOCAL_RECOVERY_POLICY,
 }) satisfies Readonly<{
   name: string;
   source: StartGuiEvidence;
+  store: Readonly<{
+    root: t.StringRelativePath;
+    target: t.StringRelativePath;
+  }>;
   recovery: StartGuiRecoveryPolicy;
 }>;

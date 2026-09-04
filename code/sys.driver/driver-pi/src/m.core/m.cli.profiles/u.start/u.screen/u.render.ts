@@ -1,4 +1,4 @@
-import { c, Cli, pkg, StartGuiIntrinsic } from '../common.ts';
+import { c, Cli, pkg } from '../common.ts';
 
 import { allowsBack } from '../../u/u.start.gui.settlement.ts';
 import { normalizeSize, numericMax } from './u.input.ts';
@@ -12,19 +12,17 @@ export function renderScreen(input: StartGuiScreenRenderInput): string {
   const viewport = normalizeSize(input.viewport);
   if (viewport.width === 0 || viewport.height === 0) return '';
 
-  const flow: string[] = [];
-  StartGuiIntrinsic.arrayAppend(
-    flow,
-    Cli.Fmt.Header.rows({ pkg, width: viewport.width, tone: 'green' }),
-  );
-  StartGuiIntrinsic.arrayPush(flow, '');
-  StartGuiIntrinsic.arrayAppend(flow, renderServiceRows(input, viewport.width));
+  const flow = [
+    ...Cli.Fmt.Header.rows({ pkg, width: viewport.width, tone: 'green' }),
+    '',
+    ...renderServiceRows(input, viewport.width),
+  ];
 
   const capacity = numericMax(0, viewport.height - FRAME_CURSOR_ROWS);
   const footer = input.keyboard ? keyboardRows(viewport.width, allowsBack(input.state)) : [];
   const visible = Cli.Screen.Dock.bottom({ capacity, flow, footer });
-  const fitted = StartGuiIntrinsic.arrayMap(visible, (row) => fitTerminalRow(row, viewport.width));
-  return StartGuiIntrinsic.stringTrimEnd(StartGuiIntrinsic.arrayJoin(fitted, '\n'));
+  const fitted = visible.map((row) => fitTerminalRow(row, viewport.width));
+  return fitted.join('\n').trimEnd();
 }
 
 function keyboardRows(width: number, backEnabled: boolean): readonly string[] {

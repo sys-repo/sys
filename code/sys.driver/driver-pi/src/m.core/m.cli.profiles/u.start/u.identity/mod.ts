@@ -1,20 +1,14 @@
 export type {
-  AdmittedApplicationOwner,
-  AdmittedGeneration,
-  AdmittedGenerationSettlement,
-  AdmittedMaterialization,
+  AdmittedApplication,
   ApplicationIdentityExpectation,
-  ApplicationOwner,
-  ApplicationOwnerSnapshot,
-  EvidenceSnapshot,
   IdentityDiagnostics,
   IdentityError,
 } from './t.ts';
-export { snapshotApplicationOwner } from './u.application.ts';
-export { admitGenerationPkg, admitMaterialization } from './u.materialization.ts';
+export { admitApplicationPkg } from './u.application.ts';
 export {
+  admitGenerationPkg,
+  isBoundedIdentity,
   isIdentityError,
   refuseIdentity,
-  snapshotEvidence,
   snapshotExpectedPkg,
 } from './u.source.ts';

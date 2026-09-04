@@ -1,4 +1,4 @@
-import { BootstrapStatus, Cli, Dist, DistServer, Fs, Open, type t } from './common.ts';
+import { BootstrapStatus, Cli, Dist, DistServer, Open, type t } from './common.ts';
 import {
   StartGuiScreen,
   type StartGuiScreenInput,
@@ -7,11 +7,9 @@ import {
 
 /** Owner seams for focused GUI-start runtime tests. */
 export type StartGuiDependencies = {
-  readonly materialize: t.Dist.Materialize;
-  readonly start: (args: t.DistServer.Start.Args) => Promise<Started>;
+  readonly openGeneration: t.Dist.Generation.Open.Method;
+  readonly start: (args: t.DistServer.Start.Args) => Promise<t.DistServer.Started>;
   readonly startStatus: typeof BootstrapStatus.start;
-  readonly ensureDir: typeof Fs.ensureDir;
-  readonly createRooted: typeof Fs.Capability.Rooted.create;
   /** Synchronous opener seam; unexpected runtime results are admitted by the caller. */
   readonly open: (...args: Parameters<t.OpenLib['invokeDetached']>) => unknown;
   readonly bindKeyboard: t.Cli.Keyboard.Lib['bind'];
@@ -19,15 +17,10 @@ export type StartGuiDependencies = {
 };
 
 export const DEFAULT_DEPENDENCIES: StartGuiDependencies = Object.freeze({
-  materialize: Dist.materialize,
+  openGeneration: Dist.Generation.open,
   start: DistServer.start,
   startStatus: BootstrapStatus.start,
-  ensureDir: Fs.ensureDir,
-  createRooted: Fs.Capability.Rooted.create,
   open: Open.invokeDetached,
   bindKeyboard: Cli.Keyboard.bind,
   createScreen: StartGuiScreen.create,
 });
-
-export type Started = t.DistServer.Started;
-export type FailedMaterialization = t.Dist.Failed;

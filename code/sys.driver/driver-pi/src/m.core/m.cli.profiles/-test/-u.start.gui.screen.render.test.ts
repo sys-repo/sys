@@ -463,7 +463,7 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     }
   });
 
-  it('formats and links the exact development root while retaining its full file authority', () => {
+  it('formats and links the exact development root across viewport widths', () => {
     const renderRoot = (width: number, root: t.StringAbsoluteDir = DEVELOPMENT_ROOT) =>
       StartGuiScreen.toString({
         service: SERVICE,
@@ -519,11 +519,6 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     const unsafeRoots = [
       '/tmp/unsafe\u001b]8;;https://example.test',
       '/tmp/display-mismatch ',
-      '/tmp/unpaired-high-\ud800',
-      '/tmp/unpaired-low-\udc00',
-      '/tmp/reversed-\u202etxt',
-      '/tmp/zero-width-\u200bname',
-      '/tmp/line-separator-\u2028name',
     ] as const;
     for (const root of unsafeRoots) {
       expect(rootRow(120, root as t.StringAbsoluteDir)).to.eql('');

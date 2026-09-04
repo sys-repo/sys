@@ -1,8 +1,8 @@
-import { DistServer, StartGuiIntrinsic, type t } from './common.ts';
+import { DistServer, Is, type t } from './common.ts';
 import { isConfigurationError } from './u.authority.ts';
 import { isIdentityError } from './u.identity/mod.ts';
 import { createOwnedError, markOwnedError, ownedError } from './u.error.ts';
-import { isMaterializationError } from './u.materialize.ts';
+import { isMaterializationError, materializationError } from './u.failure.materialization.ts';
 import {
   Boot,
   type BootSafeEvidence,
@@ -21,11 +21,9 @@ export type CapturedFailure = Readonly<{
   state: FailedBootState;
 }>;
 
-const apply = Reflect.apply;
-const distServerErrorIs = DistServer.Error.is;
-const freeze = Object.freeze;
+const GENERATION_CANCELLATIONS = new WeakSet<object>();
 
-/** Capture an arbitrary rejection without invoking caller-controlled object behavior. */
+/** Capture an arbitrary rejection as bounded terminal evidence. */
 export function captureFailure(
   cause: unknown,
   operation: FailureOperation,
@@ -34,7 +32,7 @@ export function captureFailure(
   const error = isAuthenticatedFailure(cause)
     ? markOwnedError(cause)
     : ownedError(cause, `start:gui ${operation} failed.`);
-  return freeze({ error, state });
+  return Object.freeze({ error, state });
 }
 
 /** Map one trusted-side failure to browser-safe category and terminal-safe evidence. */
@@ -45,75 +43,74 @@ export function failedBootState(
   if (isConfigurationError(cause)) {
     return Boot.failed(
       'configuration-invalid',
-      freeze({ kind: 'configuration', reason: cause.configuration }),
+      Object.freeze({ kind: 'configuration', reason: cause.configuration }),
     );
   }
-
   if (isIdentityError(cause)) {
-    const identity = cause.identity;
     return Boot.failed(
       operation === 'authority' ? 'configuration-invalid' : 'artifact-refused',
-      freeze({
+      Object.freeze({
         kind: 'identity',
-        ...(identity ? { diagnostics: freeze({ ...identity }) } : {}),
+        ...(cause.identity ? { diagnostics: Object.freeze({ ...cause.identity }) } : {}),
       }),
     );
   }
-
+  if (isGenerationCancellation(cause)) return cancelledBootState();
   if (isMaterializationError(cause)) {
-    const safeEvidence: MaterializationEvidence = freeze({
+    const evidence: MaterializationEvidence = Object.freeze({
       kind: 'materialization',
       ...cause.materialization,
     });
-    return Boot.failed(materializationCategory(safeEvidence), safeEvidence);
+    return Boot.failed(materializationCategory(evidence), evidence);
   }
-
-  if (isDistServerError(cause)) {
-    const evidence = freeze({
+  if (DistServer.Error.is(cause)) {
+    const evidence = Object.freeze({
       kind: 'application-host' as const,
       reason: cause.reason,
     });
     return Boot.failed(hostCategory(cause.reason), evidence);
   }
+  return Boot.failed('local-failure', Object.freeze({ kind: 'local', operation }));
+}
 
-  return Boot.failed(
-    'local-failure',
-    freeze({ kind: 'local', operation }),
-  );
+/** Convert one failed Generation opening into Driver Pi's finite failure vocabulary. */
+export function generationOpenError(input: t.Dist.Generation.Failure.Result): Error {
+  if (input.generation) return materializationError(input.generation);
+  if (input.reason !== 'cancelled') return createOwnedError('start:gui release-owner failed.');
+  const error = createOwnedError('start:gui generation opening cancelled.');
+  GENERATION_CANCELLATIONS.add(error);
+  return error;
 }
 
 /** Create one fixed local listener failure without retaining a lower cause. */
 export function listenerFailure(
   resource: 'application-listener' | 'status-listener',
-): Readonly<{ error: Error; state: FailedBootState }> {
+): CapturedFailure {
   const message = resource === 'application-listener'
     ? 'start:gui application listener stopped.'
     : 'start:gui bootstrap listener stopped.';
-  return freeze({
+  return Object.freeze({
     error: createOwnedError(message),
     state: Boot.failed(
       'local-failure',
-      freeze({ kind: 'local', operation: resource }),
+      Object.freeze({ kind: 'local', operation: resource }),
     ),
   });
 }
 
 /** Create the finite cancelled state used when trusted cancellation wins startup. */
 export function cancelledBootState(): FailedBootState {
-  return Boot.failed(
-    'cancelled',
-    freeze({ kind: 'cancellation' }),
-  );
+  return Boot.failed('cancelled', Object.freeze({ kind: 'cancellation' }));
 }
 
 function isAuthenticatedFailure(input: unknown): input is Error {
   return isConfigurationError(input) || isIdentityError(input) ||
-    isMaterializationError(input) || isDistServerError(input);
+    isGenerationCancellation(input) || isMaterializationError(input) ||
+    DistServer.Error.is(input);
 }
 
-function isDistServerError(input: unknown): input is t.DistServer.StartError {
-  return StartGuiIntrinsic.weakSetPrototypeReady() &&
-    apply(distServerErrorIs, undefined, [input]) === true;
+function isGenerationCancellation(input: unknown): input is Error {
+  return Is.object(input) && GENERATION_CANCELLATIONS.has(input);
 }
 
 function materializationCategory(
@@ -130,15 +127,11 @@ function materializationCategory(
     (evidence.stage === 'manifest-fetch' || evidence.stage === 'resource-pull') &&
     (evidence.reason === 'source-denied' || evidence.reason === 'timeout' ||
       evidence.reason === 'resource-failure')
-  ) {
-    return 'source-unavailable';
-  }
+  ) return 'source-unavailable';
   if (
     evidence.reason === 'filesystem-failure' || evidence.reason === 'unsupported' ||
     evidence.reason === 'execution-failure'
-  ) {
-    return 'local-failure';
-  }
+  ) return 'local-failure';
   return 'artifact-refused';
 }
 
@@ -150,8 +143,6 @@ function hostCategory(reason: t.DistServer.StartFailureReason): FailedBootState[
   if (
     reason === 'io-failure' || reason === 'unsupported' || reason === 'address-in-use' ||
     reason === 'startup-failure'
-  ) {
-    return 'local-failure';
-  }
+  ) return 'local-failure';
   return 'artifact-refused';
 }
