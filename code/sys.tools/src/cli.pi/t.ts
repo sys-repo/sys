@@ -18,6 +18,6 @@ export namespace PiTool {
  * Pi agent profile launcher.
  */
 export type PiToolsLib = {
-  /** Delegate to `@sys/driver-agent/pi/cli Profiles` with passthrough argv/cwd semantics. */
+  /** Delegate to the profile-driven `@sys/driver-pi/cli` surface with passthrough argv/cwd semantics. */
   cli(cwd?: t.StringDir, argv?: string[]): Promise<void>;
 };

@@ -1,4 +1,4 @@
-import type { SheetProps as BaseSheetProps } from '@sys/ui-react-components/t';
+import type { SheetProps as BaseSheetProps } from '@sys/ui-components/t';
 import type { t } from './common.ts';
 
 /**

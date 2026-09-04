@@ -1,6 +1,6 @@
 import { c, type t } from './common.ts';
 
-export const Fmt: t.WorkspacePkg.Fmt.Lib = {
+export const Fmt: t.WorkspacePkg.Fmt.Lib = Object.freeze({
   summary(result: t.WorkspacePkg.SyncResult) {
     const summary = [
       `${result.written} written`,
@@ -12,4 +12,4 @@ export const Fmt: t.WorkspacePkg.Fmt.Lib = {
     const fmtSummary = isNoop ? c.dim(summary) : c.white(summary);
     return `${label} ${fmtSummary}`;
   },
-};
+});

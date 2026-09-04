@@ -1,21 +1,28 @@
 {
   "name": "@sys/http",
-  "version": "0.0.263",
+  "version": "0.0.329",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "test": "deno test -P=test",
-    "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'",
-    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+    "test": "deno task test:unit && deno task test:file-bytes:entry",
+    "test:unit": "deno test -P=test",
+    "test:file-bytes:entry": "deno run --no-prompt -P=file-bytes-entry ./src/http.server/m.FileBytes/-test.external/-entry.process-proof.ts",
+    "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'"
   },
   "exports": {
     ".": "./src/-exports/-http.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./client": "./src/-exports/-http.client.ts",
+    "./cmd": "./src/http.cmd/mod.ts",
     "./server": "./src/-exports/-http.server.ts",
+    "./server/file-bytes": "./src/http.server/m.FileBytes/mod.ts",
+    "./server/host": "./src/-exports/-http.server.host.ts",
+    "./server/lifecycle": "./src/-exports/-http.server.lifecycle.ts",
+    "./server/proxy": "./src/http.server/m.HttpProxy/mod.ts",
+    "./server/static": "./src/http.server/m.HttpStatic/mod.ts",
     "./serve": "./src/-serve/mod.ts"
   },
   "permissions": {
@@ -33,7 +40,8 @@
     "serve": {
       "read": true,
       "net": true
-    }
+    },
+    "file-bytes-entry": {}
   }
 }
 

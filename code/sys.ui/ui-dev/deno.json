@@ -1,0 +1,58 @@
+{
+  "name": "@sys/ui-dev",
+  "version": "0.0.363",
+  "license": "MIT",
+  "tasks": {
+    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/ui.react.devharness/index.html --port=1236",
+    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/ui.react.devharness/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
+    "test": "deno test -P=test",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "info": "deno run -P=dev   ./-scripts/task.main.ts --cmd=info",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./react/devharness": "./src/ui.react.devharness/mod.ts",
+    "./react/devharness/t": "./src/ui.react.devharness/types.ts",
+    "./react/devharness/hooks": "./src/ui.react.devharness/hooks.ts",
+    "./react/devharness/spec": "./src/ui.react.devharness/spec.ts",
+    "./react/devharness/-test/entry-specs": "./src/ui.react.devharness/-test/entry-specs.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    }
+  }
+}
+

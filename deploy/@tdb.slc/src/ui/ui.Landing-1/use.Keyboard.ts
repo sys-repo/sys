@@ -3,7 +3,7 @@ import { Keyboard, Rx } from './common.ts';
 
 export function useKeyboard() {
   useEffect(() => {
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     const keyboard = Keyboard.until(life.dispose$);
 
     keyboard.on('Enter', () => {

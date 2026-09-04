@@ -1,0 +1,6 @@
+# Static view-folder service.
+
+name: ui:static:views
+dir: ./view
+hostname: 127.0.0.1
+port: 4040

@@ -5,7 +5,7 @@ type O = Record<string, unknown>;
 /**
  * Helpers for deleting values and fields.
  */
-export const Delete: t.DeleteLib = {
+export const Delete: t.Delete.Lib = Object.freeze({
   /**
    * Deletes undefined keys from an object (clone).
    */
@@ -50,4 +50,4 @@ export const Delete: t.DeleteLib = {
     }
     return clone as T;
   },
-};
+});

@@ -1,6 +1,6 @@
 {
   "name": "@sys/crypto",
-  "version": "0.0.267",
+  "version": "0.0.319",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -14,7 +14,7 @@
     "./types": "./src/types.ts",
     "./fmt": "./src/m.Fmt/mod.ts",
     "./hash": "./src/m.Hash/mod.ts",
-    "./sign": "./src/mod.sign.ts",
+    "./sign": "./src/m.Sign/mod.ts",
     "./sign/ed25519": "./src/m.Sign.Ed25519/mod.ts"
   },
   "permissions": {

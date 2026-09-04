@@ -1,0 +1,84 @@
+import { Color, css, Is, Obj, type t } from './common.ts';
+
+export type SwitchTrackProps = {
+  track: Partial<t.Switch.Theme.Track>;
+  switch: {
+    isLoaded: boolean;
+    isEnabled: boolean;
+    value: boolean;
+    theme: t.Switch.Theme.Root;
+    width: number;
+    height: number;
+    transitionSpeed: number;
+  };
+};
+
+export const SwitchTrack: React.FC<SwitchTrackProps> = (props) => {
+  const parent = props.switch;
+  const { isEnabled, isLoaded, value: on } = parent;
+  const track = toTrack(parent.theme, props.track, parent);
+  const x = track.widthOffset;
+  const y = track.heightOffset;
+
+  const themeColor = wrangle.color(
+    isEnabled ? (on ? track.color.on : track.color.off) : track.color.disabled,
+  );
+  const borderWidth = on ? track.borderWidth.on : track.borderWidth.off;
+  const backgroundColor = borderWidth ? undefined : themeColor;
+
+  const speed = `${parent.transitionSpeed}ms`;
+  const transition = `border-color ${speed}, background-color ${speed}`;
+
+  const styles = {
+    base: css({
+      Absolute: [y, x, y, x],
+      cursor: isEnabled ? 'pointer' : undefined,
+      display: 'block',
+      boxSizing: 'border-box',
+      borderRadius: track.borderRadius,
+      borderWidth,
+      borderStyle: borderWidth ? 'solid' : undefined,
+      borderColor: themeColor,
+      backgroundColor,
+      transition: isLoaded ? transition : undefined,
+      overflow: 'hidden',
+    }),
+  };
+  return <span className={styles.base.class} aria-hidden="true" />;
+};
+
+/**
+ * Helpers:
+ */
+function toTrack(
+  theme: t.Switch.Theme.Root,
+  track: Partial<t.Switch.Theme.Track>,
+  parent: { width: number; height: number },
+): t.Switch.Theme.Track {
+  const offset = {
+    width: track.widthOffset ?? 0,
+    height: track.heightOffset ?? 0,
+  };
+
+  const defaultTrack: t.Switch.Theme.Track = {
+    widthOffset: offset.width,
+    heightOffset: offset.height,
+    color: theme.trackColor,
+    borderRadius: parent.height / 2,
+    borderWidth: { on: undefined, off: undefined }, // NB: undefined === fill background
+  };
+
+  const res: t.Switch.Theme.Track = {
+    ...defaultTrack,
+    ...track,
+    color: { ...defaultTrack.color, ...(track.color ?? {}) },
+    borderWidth: { ...defaultTrack.borderWidth, ...(track.borderWidth ?? {}) },
+  };
+  return Obj.clone(res);
+}
+
+const wrangle = {
+  color(value: string | number) {
+    return Is.str(value) ? value : Color.toGrayAlpha(value);
+  },
+} as const;

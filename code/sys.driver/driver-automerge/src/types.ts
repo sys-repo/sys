@@ -1,8 +1,8 @@
 /**
  * @module types
  */
+/** Automerge core type namespace. */
 export type * as A from '@automerge/automerge';
-export type { Crdt, CrdtView } from './t.namespace.ts';
 
 export type * from './-exports/-fs/t.ts';
 export type * from './-exports/-web.ui/t.ts';

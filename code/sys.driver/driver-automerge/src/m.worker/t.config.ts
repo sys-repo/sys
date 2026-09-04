@@ -4,16 +4,18 @@ import type { t } from './common.ts';
  * Configuration passed over the wire to the worker for repo initialization.
  */
 export type CrdtWorkerConfig = CrdtWorkerConfigWeb | CrdtWorkerConfigFs;
+/** Browser worker configuration using optional storage and sync endpoints. */
 export type CrdtWorkerConfigWeb = {
   kind: 'web';
-  storage?: t.CrdtWebStorageArg;
-  network?: (t.CrdtWebsocketNetworkArg | t.Falsy)[];
+  storage?: t.CrdtWeb.Storage.Arg;
+  network?: (t.Crdt.Network.WebsocketArg | t.Falsy)[];
   silent?: boolean;
 };
+/** Filesystem worker configuration with optional storage, sync, and command publishing. */
 export type CrdtWorkerConfigFs = {
   kind: 'fs';
   storage?: t.StringDir;
-  network?: (t.CrdtWebsocketNetworkArg | t.Falsy)[];
+  network?: (t.Crdt.Network.WebsocketArg | t.Falsy)[];
   publish?: CrdtWorkerFsPublishConfig;
   silent?: boolean;
 };

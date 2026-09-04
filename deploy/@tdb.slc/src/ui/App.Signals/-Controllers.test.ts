@@ -21,7 +21,7 @@ describe('AppSignals.Controllers', () => {
 
   describe('background', () => {
     it('adjusts backbround blur when stack changes', () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const state = AppSignals.create();
       const p = state.props;
       expect(p.background.video.blur.value).to.eql(0);

@@ -1,9 +1,7 @@
-import { type t, SlugClient } from './common.ts';
+import { SlugClient, type t } from './common.ts';
 import { findHash, refsFromTree, selectOrFirst } from './u.refs.ts';
 
-type O = {
-  readonly layout: t.SlugDataClient.Layout;
-};
+type O = t.SlugLoadOptions;
 
 export async function loadTreeContent(
   baseUrl: t.StringUrl,

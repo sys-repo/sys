@@ -2,4 +2,4 @@
  * @module
  * Deterministic string-in/string-out text update primitives.
  */
-export { Update } from './m.Update.ts';
+export { TextUpdate } from './m.TextUpdate.ts';

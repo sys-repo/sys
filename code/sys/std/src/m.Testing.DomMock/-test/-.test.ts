@@ -1,16 +1,14 @@
-import { describe, expect, it } from '../../-test.ts';
+import type { DomMock as DomMockContract } from '@sys/std/t';
+import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import { DomMock } from '../mod.ts';
 
-describe(
-  'Mock (DOM)',
+describe('Mock (DOM)', () => {
+  it('API', async () => {
+    const m = await import('@sys/std/testing/server/dom');
 
-  /** NOTE: leaked timers left around by the "happy-dom" module. */
-  { sanitizeOps: false, sanitizeResources: false },
-
-  () => {
-    it('API', async () => {
-      const m = await import('@sys/std/testing/server');
-      expect(m.DomMock).to.equal(DomMock);
-    });
-  },
-);
+    expect(m.DomMock).to.equal(DomMock);
+    expectTypeOf(m.DomMock).toEqualTypeOf<DomMockContract.Lib>();
+    expect(m.DomMock.Mouse).to.equal(DomMock.Mouse);
+    expect(Object.isFrozen(m.DomMock)).to.eql(true);
+  });
+});

@@ -1,9 +1,12 @@
 {
   "name": "@sys/process",
-  "version": "0.0.269",
+  "version": "0.0.318",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=test",
+    "test": "deno task test:unit && deno task test:process && deno task test:retention",
+    "test:unit": "deno test -P=test",
+    "test:process": "deno test --no-prompt -P=test-process --trace-leaks ./src/m.process/u.proc/-test/-u.spawn.authority.process.ts",
+    "test:retention": "deno test --no-prompt --v8-flags=--expose-gc -P=test-retention --trace-leaks ./src/m.process/u.proc/-test/-u.spawn.retention.process.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
@@ -26,7 +29,15 @@
       "env": true,
       "net": true,
       "run": true
-    }
+    },
+    "test-process": {
+      "read": true,
+      "env": true,
+      "run": [
+        "deno"
+      ]
+    },
+    "test-retention": {}
   }
 }
 

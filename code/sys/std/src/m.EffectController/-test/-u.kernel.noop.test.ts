@@ -20,8 +20,8 @@ function createPublishingRef(initial: State) {
       state = draft;
       $.next({ after: state });
     },
-    events(dispose$: t.UntilInput) {
-      const life = Rx.lifecycle(dispose$);
+    events(until: t.UntilInput) {
+      const life = Rx.lifecycle(until);
       life.dispose$.subscribe(() => $.complete());
       return { $ };
     },

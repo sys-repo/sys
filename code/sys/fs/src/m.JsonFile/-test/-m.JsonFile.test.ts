@@ -6,7 +6,7 @@ describe('JsonFile', () => {
   const root = '.tmp/test/m.JsonFile';
   beforeAll(async () => void (await Fs.remove(root)));
 
-  type D = t.JsonFileDoc & { msg?: string; count: number };
+  type D = t.JsonFile.Doc & { msg?: string; count: number };
 
   it('API', async () => {
     const m = await import('@sys/fs/file');
@@ -14,7 +14,7 @@ describe('JsonFile', () => {
   });
 
   describe('JsonFile.default()', () => {
-    type Doc = t.JsonFileDoc & { msg?: string; count: number };
+    type Doc = t.JsonFile.Doc & { msg?: string; count: number };
 
     it('no-arg default returns fresh base doc', () => {
       const a = JsonFile.default();
@@ -94,8 +94,8 @@ describe('JsonFile', () => {
     });
 
     it('extend fields including .meta', async () => {
-      type T = t.JsonFileDoc & {
-        '.meta': t.JsonFileDoc['.meta'] & { tmp: number };
+      type T = t.JsonFile.Doc & {
+        '.meta': t.JsonFile.Doc['.meta'] & { tmp: number };
         foo: string;
       };
 
@@ -113,7 +113,7 @@ describe('JsonFile', () => {
     });
 
     it('reads from jsonc file', async () => {
-      type T = t.JsonFileDoc & { msg?: string };
+      type T = t.JsonFile.Doc & { msg?: string };
       const dir = Fs.join(root, slug());
       const path = Fs.join(dir, 'foo.jsonc');
 
@@ -132,7 +132,7 @@ describe('JsonFile', () => {
     });
 
     it('normalizes missing .meta on an initial seed', async () => {
-      type T = t.JsonFileDoc & { count: number };
+      type T = t.JsonFile.Doc & { count: number };
       const path = Fs.join(root, slug(), 'missing-meta.seed.json');
       const before = Time.now.timestamp;
 
@@ -144,7 +144,7 @@ describe('JsonFile', () => {
     });
 
     it('normalizes missing .meta on an existing file', async () => {
-      type T = t.JsonFileDoc & { count: number };
+      type T = t.JsonFile.Doc & { count: number };
       const dir = Fs.join(root, slug());
       const path = Fs.join(dir, 'missing-meta.existing.json');
       const before = Time.now.timestamp;

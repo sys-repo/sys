@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, MonacoFake, Rx, Schedule, Time } from '../../../-test.ts';
+import { describe, expect, it, MonacoFake, Rx, Schedule, type t } from '../../../-test.ts';
 import { Bus } from '../common.ts';
 import { EditorFolding } from '../mod.ts';
 import { parentLinesFromOffsets } from '../u.bind.impl.u.ts';
@@ -29,9 +29,9 @@ describe('Monaco.Folding', () => {
       });
 
       it('dispose: via dispose$', () => {
-        const life = Rx.disposable();
+        const life = Rx.lifecycle();
         const editor = MonacoFake.editor('');
-        const ob = EditorFolding.observe({ editor }, life);
+        const ob = EditorFolding.observe({ editor }, life.dispose$);
         expect(ob.disposed).to.eql(false);
         life.dispose();
         expect(ob.disposed).to.eql(true);
@@ -46,7 +46,7 @@ describe('Monaco.Folding', () => {
         const bus$ = Bus.make();
         const ob = EditorFolding.observe({ editor, bus$ });
 
-        const fired: t.EventCrdtFolding[] = [];
+        const fired: t.EditorEvent.Crdt.Folding[] = [];
         const sub = ob.$.subscribe((e) => fired.push(e));
 
         const fold: t.Monaco.I.IRange = {
@@ -229,11 +229,10 @@ describe('Monaco.Folding', () => {
 
       const editor = MonacoFake.editor(text);
       const model = editor.getModel()!;
-      const endOffset =
-        model.getOffsetAt({
-          lineNumber: 2,
-          column: model.getLineMaxColumn(2),
-        }) - 1;
+      const endOffset = model.getOffsetAt({
+        lineNumber: 2,
+        column: model.getLineMaxColumn(2),
+      }) - 1;
 
       expect(range.end).to.eql(endOffset);
     });

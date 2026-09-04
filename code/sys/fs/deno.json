@@ -1,10 +1,12 @@
 {
   "name": "@sys/fs",
-  "version": "0.0.290",
+  "version": "0.0.348",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
-    "test": "deno test -P=test",
+    "test": "deno task test:unit && deno task test:process",
+    "test:unit": "deno test -P=test",
+    "test:process": "deno test -P=test-process --trace-leaks ./src/-test.process.ts",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmp": "deno run -P=clean ./-scripts/task.tmp.ts"
@@ -20,6 +22,7 @@
     "./filemap": "./src/m.FileMap/mod.ts",
     "./path": "./src/m.Path/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
+    "./pkg/dist/verify": "./src/-exports/-pkg.dist.verify.ts",
     "./watch": "./src/m.Watch/mod.ts"
   },
   "permissions": {
@@ -32,6 +35,18 @@
       "read": true,
       "write": true,
       "env": true
+    },
+    "test-process": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": [
+        "deno"
+      ]
+    },
+    "test-process-child": {
+      "read": true,
+      "write": true
     }
   }
 }

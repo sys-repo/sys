@@ -10,8 +10,14 @@ export declare namespace WorkspaceGraphCli {
   export type InfoArgs = {
     /** Working directory for the CLI call. */
     readonly cwd: t.StringDir;
-    /** Root entry module path. */
-    readonly root: t.StringPath;
+    /** Root entry module path or package specifier. */
+    readonly root: t.StringPath | t.StringModuleSpecifier;
+    /** Reload source cache while collecting resolver facts. */
+    readonly reload?: boolean;
+    /** Disable automatic config discovery for this resolver probe. */
+    readonly noConfig?: boolean;
+    /** Disable automatic lockfile discovery for this resolver probe. */
+    readonly noLock?: boolean;
   };
 
   /** Prepared `deno info --json` invocation. */
@@ -25,11 +31,14 @@ export declare namespace WorkspaceGraphCli {
   export type InfoJson = {
     readonly roots?: readonly string[];
     readonly modules?: readonly InfoModule[];
+    readonly redirects?: Record<string, string>;
+    readonly packages?: Record<string, string>;
   };
 
   /** Raw module shape from `deno info --json`. */
   export type InfoModule = {
     readonly specifier?: string;
+    readonly error?: string;
     readonly dependencies?: readonly InfoDependency[];
   };
 

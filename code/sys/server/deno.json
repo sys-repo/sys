@@ -1,0 +1,61 @@
+{
+  "name": "@sys/server",
+  "version": "0.0.53",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno task test:unit && deno task test:dist:process",
+    "test:unit": "deno test -P=test",
+    "test:dist:process": "deno test -P=test --trace-leaks ./src/m.server.dist/-test.process.ts",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/* ./-sample/files.ws/* ./-sample/files.http.cmd/* ./-sample/files.http.static/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "prep": "deno task help:bundle",
+    "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
+    "sample": "deno run -P=sample ./-scripts/task.sample.ts",
+    "sample:files:ws": "deno run -P=sample-files-tty ./-sample/files.ws/-start.ts",
+    "sample:files:http:cmd": "deno run -P=sample-files-tty --allow-write ./-sample/files.http.cmd/-start.ts",
+    "sample:files:http:static": "deno run -P=sample-files-tty ./-sample/files.http.static/-start.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./bootstrap/status": "./src/m.server.bootstrap-status/mod.ts",
+    "./dist": "./src/m.server.dist/mod.ts",
+    "./dist/server": "./src/-exports/-dist.server.ts",
+    "./dist/service": "./src/m.server.dist.service/mod.ts",
+    "./files": "./src/m.server.files/mod.ts",
+    "./files/service": "./src/m.server.files.service/mod.ts",
+    "./files/t": "./src/m.server.files/t.ts",
+    "./websocket": "./src/m.server.websocket/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "sample": {
+      "read": true,
+      "env": true,
+      "run": true
+    },
+    "sample-files-tty": {
+      "read": true,
+      "env": true,
+      "net": true,
+      "run": [
+        "sh"
+      ]
+    }
+  }
+}
+

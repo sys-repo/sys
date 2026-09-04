@@ -1,0 +1,83 @@
+id: websocket
+title: WebSocketServer
+summary: |
+  Use `WebSocketServer` from `@sys/server/websocket` to serve typed
+  `@sys/event/cmd` handlers over Deno WebSockets.
+
+sections:
+  - label: Rule
+    items: |
+      Import the runtime value from `@sys/server/websocket`.
+      The public value is `WebSocketServer`.
+      The caller-owned entrypoint is `WebSocketServer.create(...)`.
+      The hosted startup convenience is `WebSocketServer.start(...)`.
+      Keep `src/m.server.websocket/mod.ts` export-only.
+      Keep the Deno seam visible and truthful.
+      The Deno seam is `Deno.serve` and `Deno.upgradeWebSocket`.
+      The primitive owns WebSocket upgrade and command transport binding.
+      The primitive owns lifecycle cleanup.
+      `create(...)` is silent and has no process-signal or keyboard side effects.
+      `start(...)` owns hosted startup policy and direct startup reporting.
+      `start(...)` owns optional process lifecycle and keyboard quit controls.
+      It does not own app routing, sessions, auth, Files grammar, UI, or a client SDK.
+
+  - label: Speech acts
+    items: |
+      create a caller-owned WebSocketServer
+      start a hosted WebSocketServer
+      serve typed commands at <path>
+      choose hostname, port, and path for a WebSocket command endpoint
+      bind hosted service lifetime to process signals
+      enable hosted keyboard quit controls
+      suppress direct startup reporting with silent
+      accept only matching WebSocket upgrade requests
+      return a custom rejection Response before upgrade
+      inspect the accepted raw WebSocket
+      publish local origin and WebSocket URL facts
+      verify the public runtime import @sys/server/websocket
+
+  - label: Construction
+    items: |
+      Call `WebSocketServer.create({ cmd, ...options })` for caller-owned lifecycle.
+      Call `WebSocketServer.start({ cmd, ...options })` for hosted direct startup.
+      Required option: `cmd.handlers`.
+      Optional network options: `hostname`, `port`, and `path`.
+      Optional admission option: `accept(request)`.
+      Optional raw escape hatch: `onSocket(context)`.
+      Optional service metadata: `status`.
+      Optional lifecycle boundary: `until`.
+      Start-only hosted options: `lifecycle`, `silent`, and `keyboard`.
+      Defaults belong in the websocket module defaults, not in consumers.
+
+  - label: Hosted startup
+    items: |
+      `WebSocketServer.start(...)` returns the same handle shape as `create(...)`.
+      `lifecycle` defaults to `manual`.
+      `lifecycle: 'process'` binds `SIGINT` and `SIGTERM` best-effort.
+      Process listeners are removed when the server finishes.
+      `silent: true` suppresses direct startup reporting for owners that render status elsewhere.
+      `keyboard: true` enables terminal quit controls when a terminal is available.
+      Keyboard controls belong to hosted startup, not `create(...)`.
+      Direct startup output is rendered from `server.status()`.
+      Static startup output omits volatile snapshot facts like `connections`.
+
+  - label: Admission
+    items: |
+      Non-WebSocket requests are rejected before upgrade.
+      Path mismatches are rejected before upgrade.
+      `accept` may return `false` to reject.
+      `accept` may return a `Response` to return it directly.
+      `accept` runs before `Deno.upgradeWebSocket`.
+      `accept` should not consume request bodies.
+
+  - label: Verify
+    items:
+      - |-
+        Assert the public import:
+        `const m = await import('@sys/server/websocket')`.
+      - |-
+        Assert identity:
+        `expect(m.WebSocketServer).to.equal(WebSocketServer)`.
+      - Prove a real WebSocket connection reaches typed command handlers.
+      - Prove non-upgrade, path mismatch, and custom rejection behavior.
+      - Do not verify by importing private `u.*` files from consumers.

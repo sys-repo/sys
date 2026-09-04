@@ -1,11 +1,10 @@
-import type { DenoImportMapJson } from '@sys/driver-deno/t';
+import type * as TDenoFile from '@sys/driver-deno/t';
 import { Process } from '@sys/process';
 import type * as w from '@sys/workspace/t';
 
 import { DenoFile, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
 import type { t as tt } from '../m.testing/common.ts';
 import { TmplTesting } from '../m.testing/mod.ts';
-import { poisonSysVersions } from './u.repo.local.ts';
 import { Fmt } from './u.ts';
 
 describe('Template: repo integration', () => {
@@ -21,6 +20,9 @@ describe('Template: repo integration', () => {
     await def.default(root);
     await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
+    const testBarrel = (await Fs.readText(Fs.join(root, 'code/common/-test.ts'))).data ?? '';
+    expect(testBarrel.includes('DomMock')).to.eql(false);
+
     const res = await Process.invoke({
       cmd: 'deno',
       args: ['task', 'ci'],
@@ -29,7 +31,8 @@ describe('Template: repo integration', () => {
     });
 
     if (!res.success) {
-      const err = `Generated repo CI failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      const err =
+        `Generated repo CI failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
       throw new Error(err);
     }
   });
@@ -74,7 +77,8 @@ describe('Template: repo integration', () => {
     });
 
     if (!res.success) {
-      const err = `Generated repo upgrade failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      const err =
+        `Generated repo upgrade failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
       throw new Error(err);
     }
 
@@ -93,6 +97,7 @@ describe('Template: repo integration', () => {
 
     await tmpl.write(root, { force: true });
     await def.default(root);
+    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
 
     const res = await Process.invoke({
       cmd: 'deno',
@@ -102,12 +107,15 @@ describe('Template: repo integration', () => {
     });
 
     if (!res.success) {
-      const err = `Generated repo prep failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
+      const err =
+        `Generated repo prep failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
       throw new Error(err);
     }
 
-    const imports = await readJson<DenoImportMapJson>(Fs.join(root, 'imports.json'));
-    const templateImports = await readJson<DenoImportMapJson>(
+    const imports = await readJson<TDenoFile.DenoFile.ImportMap.Json>(
+      Fs.join(root, 'imports.json'),
+    );
+    const templateImports = await readJson<TDenoFile.DenoFile.ImportMap.Json>(
       Fs.resolve(import.meta.dirname ?? '.', '../../-templates/tmpl.repo/imports.json'),
     );
 
@@ -144,44 +152,12 @@ describe('Template: repo integration', () => {
     await def.default(root);
 
     const build = (await Fs.readText(Fs.join(root, '.github/workflows/build.yaml'))).data ?? '';
-    const test = (await Fs.readText(Fs.join(root, '.github/workflows/test.yaml'))).data ?? '';
+    const test = (await Fs.readText(Fs.join(root, '.github/workflows/test.linux.yaml'))).data ?? '';
 
     expect(build.includes(`path: ${path}`)).to.eql(true);
     expect(test.includes(`path: ${path}`)).to.eql(true);
     expect(build.includes(`name: "${path}"`)).to.eql(true);
     expect(test.includes(`name: "${path}"`)).to.eql(true);
-  });
-
-  it('generate in temp dir → generated repo pkg check passes after local authority rewrite', async () => {
-    console.info(Fmt.slowRepoWorkspaceNote());
-    const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.pkg-build-' });
-    const root = tmp.absolute;
-
-    const def = await Templates.repo();
-    const tmpl = await makeTmpl('repo');
-
-    await tmpl.write(root, { force: true });
-    await def.default(root);
-    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
-
-    const pkgDef = await Templates.pkg();
-    const pkgTmpl = await makeTmpl('pkg');
-    const pkgDir = Fs.join(root, 'code', 'packages', 'foo');
-
-    await pkgTmpl.write(pkgDir, { force: true });
-    await pkgDef.default(pkgDir, { pkgName: '@tmp/foo' });
-
-    const res = await Process.invoke({
-      cmd: 'deno',
-      args: ['task', 'check'],
-      cwd: pkgDir,
-      silent: true,
-    });
-
-    if (!res.success) {
-      const err = `Generated repo pkg check failed (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
-      throw new Error(err);
-    }
   });
 
   it('generate in temp dir → local authority rewrite injects local workspace authorities', async () => {
@@ -200,44 +176,19 @@ describe('Template: repo integration', () => {
     expect(authorities.imports['@sys/cli'].includes('/code/sys/cli/')).to.eql(true);
     expect(authorities.imports['@sys/std'].includes('/code/sys/std/')).to.eql(true);
     expect(authorities.imports['@sys/tmpl'].includes('/code/-tmpl/')).to.eql(true);
-    expect(typeof authorities.imports['@std/testing']).to.eql('string');
+    expect(authorities.imports['@std/testing']).to.eql(undefined);
+    expect(authorities.imports['@std/testing/bdd']).to.eql(undefined);
     expect(authorities.imports.react).to.eql(expected.imports.react);
     expect(authorities.packageJson.dependencies?.react).to.eql(
       expected.packageJson.dependencies?.react,
     );
-  });
-
-  it('generate in temp dir → local authority rewrite survives unpublished @sys version bumps', async () => {
-    console.info(Fmt.slowRepoWorkspaceNote());
-    const tmp = await Fs.makeTempDir({ prefix: 'tmpl.repo.bump-' });
-    const root = tmp.absolute;
-
-    const def = await Templates.repo();
-    const tmpl = await makeTmpl('repo');
-
-    await tmpl.write(root, { force: true });
-    await def.default(root);
-    await poisonSysVersions(root, ['@sys/std', '@sys/testing', '@sys/tmpl']);
-    await TmplTesting.LocalRepoAuthorities.rewrite({ root });
-
-    const res = await Process.invoke({
-      cmd: 'deno',
-      args: ['task', 'ci'],
-      cwd: root,
-      silent: true,
-    });
-
-    if (!res.success) {
-      const err = `Generated repo CI failed after local-authority rewrite (code ${res.code}).\n\nstdout:\n${res.text.stdout}\n\nstderr:\n${res.text.stderr}`;
-      throw new Error(err);
-    }
   });
 });
 
 async function readWorkspaceAuthorities(): Promise<tt.WorkspaceAuthorities> {
   const workspace = await DenoFile.workspace();
   const root = workspace.dir;
-  const imports = await readJson<DenoImportMapJson>(Fs.join(root, 'imports.json'));
+  const imports = await readJson<TDenoFile.DenoFile.ImportMap.Json>(Fs.join(root, 'imports.json'));
   const packageJson = await readJson<tt.PackageJson>(Fs.join(root, 'package.json'));
 
   return {

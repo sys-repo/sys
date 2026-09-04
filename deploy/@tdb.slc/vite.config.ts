@@ -1,7 +1,6 @@
-import { Vite } from 'jsr:@sys/driver-vite';
-import { defineConfig } from 'npm:vite';
+import { Vite } from '@sys/driver-vite';
 
-export default defineConfig(() => {
+export default Vite.Config.define(() => {
   const entry = './src/index.html';
   const sw = 'src/-test/-sw.ts';
   const paths = Vite.Config.paths({ app: { entry, sw } });
@@ -13,7 +12,7 @@ export default defineConfig(() => {
       e.chunk('react.dom', 'react-dom');
       e.chunk('sys', ['@sys/std']);
       e.chunk('css', ['@sys/ui-css']);
-      e.chunk('devharness', ['@sys/ui-react-devharness']);
+      e.chunk('devharness', ['@sys/ui-dev/react/devharness']);
       e.chunk('yaml', ['yaml']);
       e.chunk('motion', ['motion']);
       e.chunk('icons', ['react-icons']);

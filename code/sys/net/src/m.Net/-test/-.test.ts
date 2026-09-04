@@ -54,6 +54,11 @@ describe('Net', () => {
       expect(url).to.eql('http://[::1]:8080');
     });
 
+    it('IPv6 bracketed loopback [::1] → preserves brackets, http', () => {
+      const url = Net.toUrl(A('[::1]', 8080));
+      expect(url).to.eql('http://[::1]:8080');
+    });
+
     it('IPv6 public → brackets, https', () => {
       const url = Net.toUrl(A('2001:db8::1', 8080));
       expect(url).to.eql('https://[2001:db8::1]:8080');

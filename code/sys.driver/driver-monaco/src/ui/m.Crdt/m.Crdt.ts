@@ -7,7 +7,7 @@ import { useCrdtBinding as useBinding } from './use.CrdtBinding.ts';
  * Tools for binding between a Monaco editor and
  * an immutable CRDT document interface.
  */
-export const EditorCrdt: t.EditorCrdtLib = {
+export const EditorCrdt: t.EditorCrdt.Lib = {
   Link,
   bind,
   useBinding,

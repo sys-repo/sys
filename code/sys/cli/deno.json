@@ -1,19 +1,24 @@
 {
   "name": "@sys/cli",
-  "version": "0.0.267",
+  "version": "0.0.316",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts",
-    "test": "deno test -P=test"
+    "test": "deno test -P=test && deno task test:keyboard:entry",
+    "test:keyboard:entry": "deno run --no-prompt --deny-read --deny-write --deny-net --deny-env --deny-sys --deny-run --deny-ffi ./src/m.core/m.Keyboard/-test.external/-entry.process-proof.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
-    "./fmt": "./src/m.core/m.Fmt/mod.ts"
+    "./keyboard": "./src/m.core/m.Keyboard/mod.ts",
+    "./fmt": "./src/m.core/m.Fmt/mod.ts",
+    "./fmt/code": "./src/m.core/m.Fmt.Code/mod.ts",
+    "./shell": "./src/m.shell/mod.ts",
+    "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
     "clean": {

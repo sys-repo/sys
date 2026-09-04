@@ -1,4 +1,5 @@
-import { type t, Process, isMissingBinaryError } from './common.ts';
+import { isMissingBinaryError, type t } from './common.ts';
+import { invoke } from '../u.invoke.ts';
 
 export const statusPorcelainV2Z: t.GitStatusPorcelainV2ZFn = async (opts = {}) => {
   const git = opts.bin?.git ?? 'git';
@@ -12,7 +13,7 @@ export const statusPorcelainV2Z: t.GitStatusPorcelainV2ZFn = async (opts = {}) =
 
   let res: t.Process.Output;
   try {
-    res = await Process.invoke({
+    res = await invoke({
       cmd: git,
       args,
       cwd: opts.cwd,

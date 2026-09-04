@@ -1,10 +1,9 @@
-import { type t, c, Cli, Fs, Path, Pkg, Str } from '../common.ts';
+import { c, Cli, Str, type t } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
+import { discoverOpenTargets, type OpenTargetEntry } from './u.openTargets.discover.ts';
 
-type Entry = {
+type Entry = OpenTargetEntry & {
   readonly name: string;
-  readonly path: string;
-  readonly fileCount: number;
 };
 
 export type YamlLocation = t.ServeTool.LocationYaml.Location;
@@ -41,79 +40,16 @@ export const OpenTargets = {
   },
 
   async discover(dir: t.StringDir): Promise<readonly Entry[]> {
-    const entries = await Fs.glob(dir, { includeDirs: true }).find('**/*');
-    const fileRels = entries
-      .filter((entry) => entry.isFile)
-      .map((entry) => Path.relative(dir, entry.path).replaceAll('\\', '/'));
-    const fileRelSet = new Set(fileRels);
-    const countsByDir = countFilesByDir(fileRels);
-    const all: Entry[] = [
-      { name: `${c.dim('root')}   /`, path: '', fileCount: countsByDir.get('') ?? 0 },
-    ];
-
-    for (const entry of entries) {
-      if (!entry.isDirectory) continue;
-      const rel = Path.relative(dir, entry.path).replaceAll('\\', '/');
-      if (!rel || rel === '.') continue;
-
-      const hasIndex = fileRelSet.has(`${rel}/index.html`);
-      const hasDist = fileRelSet.has(`${rel}/dist.json`);
-      if (!hasIndex || !hasDist) continue;
-
-      const loaded = await Pkg.Dist.load(entry.path);
-      if (!Pkg.Is.dist(loaded.dist)) continue;
-
-      const hx = loaded.dist.hash.digest;
-      const label = `${Fmt.hashSuffix(hx)} ${rel}`;
-      const fileCount = countsByDir.get(rel) ?? 0;
-      all.push({ name: label, path: rel, fileCount });
-    }
-
-    const [root, ...rest] = all;
-    return [root, ...filterTopmost(rest)];
+    const entries = await discoverOpenTargets(dir);
+    return entries.map(formatEntry);
   },
 } as const;
-
-function countFilesByDir(relFilePaths: readonly string[]): Map<string, number> {
-  const counts = new Map<string, number>();
-
-  for (const relFilePath of relFilePaths) {
-    let cursor = Path.dirname(relFilePath).replaceAll('\\', '/');
-    while (true) {
-      const key = cursor === '.' ? '' : cursor;
-      counts.set(key, (counts.get(key) ?? 0) + 1);
-      if (key === '') break;
-      cursor = Path.dirname(key).replaceAll('\\', '/');
-    }
-  }
-
-  return counts;
-}
 
 /**
  * Helpers:
  */
-function filterTopmost(entries: Entry[]): Entry[] {
-  const compare = Str.Compare.natural();
-  const ordered = [...entries].sort((a, b) => {
-    const d = pathDepth(a.path) - pathDepth(b.path);
-    return d !== 0 ? d : compare(a.path, b.path);
-  });
-
-  const keep: Entry[] = [];
-  for (const entry of ordered) {
-    const covered = keep.some((picked) => isAncestorPath(picked.path, entry.path));
-    if (!covered) keep.push(entry);
-  }
-
-  return keep;
-}
-
-function isAncestorPath(parent: string, child: string): boolean {
-  if (!parent || parent === child) return false;
-  return child.startsWith(`${parent}/`);
-}
-
-function pathDepth(path: string): number {
-  return Str.trimSlashes(path).split('/').filter(Boolean).length;
+function formatEntry(entry: OpenTargetEntry): Entry {
+  if (!entry.path) return { ...entry, name: `${c.dim('root')}   /` };
+  const label = entry.hash ? `${Fmt.hashSuffix(entry.hash)} ${entry.path}` : entry.path;
+  return { ...entry, name: label };
 }

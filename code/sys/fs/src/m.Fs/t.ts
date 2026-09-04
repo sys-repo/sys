@@ -4,9 +4,9 @@ import type * as StdPath from '@std/path';
 import type { WalkEntry } from '@std/fs';
 import type { t } from './common.ts';
 
-export type * from './t.Dir.ts';
-export type * from './t.File.ts';
-export type * from './t.Fmt.ts';
+export type * from './t/t.Dir.ts';
+export type * from './t/t.File.ts';
+export type * from './t/t.Fmt.ts';
 export type { WalkEntry };
 
 type Methods = StdMethods & DenoMethods & NamespaceMembers & GlobMethods;
@@ -15,9 +15,16 @@ type Methods = StdMethods & DenoMethods & NamespaceMembers & GlobMethods;
  * Tools for working with the file-system.
  */
 export namespace Fs {
+  /** Full filesystem, path, file, and watch helper API. */
   export type Lib = Methods & {
     /** Retrieve information about the given path. */
     readonly stat: GetStat;
+
+    /** Retrieve information about the given path without following a final symlink. */
+    readonly lstat: GetStat;
+
+    /** Rename a file or directory without copy/delete fallback semantics. */
+    readonly rename: Rename;
 
     /** Writes a string or binary file ensuring it's parent directory exists. */
     readonly write: WriteFile;
@@ -56,7 +63,7 @@ export namespace Fs {
     readonly findAncestor: FindAncestor;
 
     /** Start a file-system watcher. */
-    readonly watch: t.FsWatchLib['start'];
+    readonly watch: t.Watch.Lib['start'];
 
     /**
      * Current working directory.
@@ -68,7 +75,7 @@ export namespace Fs {
     cwd(kind?: 'process' | 'terminal'): t.StringDir;
 
     /** Removes the CWD (current-working-directory) from the given path if it exists. */
-    trimCwd: t.FsPathLib['trimCwd'];
+    trimCwd: t.FsPath.Lib['trimCwd'];
 
     /** Generator function that produces `FsFile` data-structures. */
     toFile: t.FsFileFactory;
@@ -80,13 +87,103 @@ export namespace Fs {
     makeTempDir: MakeTempDir;
   };
 
-  /** Re-exposed capability sub-surface (owned by `m.Fs.capability`). */
+  /**
+   * Filesystem capability adapter contracts.
+   */
   export namespace Capability {
+    /** Adapter API for building portable filesystem capabilities. */
     export type Lib = t.FsCapability.Lib;
+    /** Portable filesystem capability instance. */
     export type Instance = t.FsCapability.Instance;
   }
 
-  /** Filesystem path helper types. */
+  /**
+   * Bounded stable snapshot contracts.
+   */
+  export namespace Snapshot {
+    /** Runtime file-snapshot library. */
+    export type Lib = {
+      /** Owner-authenticated snapshot predicates. */
+      readonly Is: Is.Lib;
+
+      /** Read one bounded stable snapshot through one file handle. */
+      readonly file: File.Method;
+    };
+
+    /**
+     * File snapshot contracts.
+     */
+    export namespace File {
+      /** Read one bounded stable snapshot through one file handle. */
+      export type Method = (options: Options) => Promise<Result>;
+
+      /** Mutable caller options snapshotted before filesystem work. */
+      export type Options = {
+        root: t.StringAbsoluteDir;
+        path: t.StringAbsolutePath;
+        maxBytes: t.NumberBytes;
+        until?: t.UntilInput;
+        timeout: t.Msecs;
+      };
+
+      /** Frozen result containing exclusively owned file bytes. */
+      export type Result = {
+        readonly path: t.StringAbsolutePath;
+        readonly byteLength: t.NumberBytes;
+        readonly evidence: Evidence.Kind;
+        readonly bytes: Uint8Array;
+      };
+    }
+
+    /**
+     * Snapshot evidence contracts.
+     */
+    export namespace Evidence {
+      /** Strength of final-file identity evidence available from the host. */
+      export type Kind = 'device-inode' | 'metadata-only';
+    }
+
+    /**
+     * Snapshot failure contracts.
+     */
+    export namespace Failure {
+      /** Frozen owner-authenticated snapshot failure. */
+      export type Error = globalThis.Error & {
+        readonly name: 'FsSnapshotError';
+        readonly operation: 'file';
+        readonly kind: Kind;
+      };
+
+      /** Stable file-snapshot failure classification. */
+      export type Kind =
+        | 'invalid-options'
+        | 'invalid-root'
+        | 'invalid-path'
+        | 'cancelled'
+        | 'timeout'
+        | 'missing'
+        | 'source-limit'
+        | 'unsafe-filesystem'
+        | 'source-changed'
+        | 'permission-denied'
+        | 'io-failure';
+    }
+
+    /**
+     * Snapshot predicate contracts.
+     */
+    export namespace Is {
+      /** Snapshot predicate library. */
+      export type Lib = {
+        /** Determine whether an input is an owner-authenticated snapshot failure. */
+        failure(input: unknown): input is Failure.Error;
+      };
+    }
+  }
+
+  /**
+   * Filesystem path helper contracts.
+   */
   export namespace Path {
     /** Filters on an absolute path. */
     export type Filter = (path: t.StringAbsolutePath) => boolean;
@@ -95,7 +192,7 @@ export namespace Fs {
   /**
    * Filesystem/Path type verification flags.
    */
-  export type IsLib = t.PathLib['Is'] & {
+  export type IsLib = t.Path.Lib['Is'] & {
     /** Determine if the given path points to a directory. */
     dir(path: t.StringPath | URL): Promise<boolean>;
 
@@ -110,6 +207,7 @@ export namespace Fs {
    * Retrieve information about the given path.
    */
   export type GetStat = (path: t.StringPath | URL) => Promise<FileInfo | undefined>;
+  /** Native Deno file metadata returned by stat operations. */
   export type FileInfo = Deno.FileInfo;
 
   /**
@@ -125,7 +223,14 @@ export namespace Fs {
   export type CopyDir = t.Fs.Copy;
 
   /** Copy an individual file. */
-  export type CopyFile = t.Fs.Copy;
+  export type CopyFile = (
+    from: t.StringPath,
+    to: t.StringPath,
+    options?: t.Fs.CopyFileOptions | t.FsCopyFilter,
+  ) => Promise<t.Fs.CopyResult>;
+
+  /** Rename a file or directory without copy/delete fallback semantics. */
+  export type Rename = (from: t.StringPath, to: t.StringPath) => Promise<void>;
 
   /** Options passed to a file-system copy operation. */
   export type CopyOptions = {
@@ -139,16 +244,31 @@ export namespace Fs {
     filter?: t.FsCopyFilter;
   };
 
+  /** Options passed to a single-file copy operation. */
+  export type CopyFileOptions = t.Fs.CopyOptions & {
+    /** Ensure the target parent directory exists before copying (default: true). */
+    ensureParent?: boolean;
+  };
+
   /** Response from the `Fs.copy` method. */
-  export type CopyResult = { error?: t.StdError };
+  export type CopyResult = {
+    /** Copy failure details when the operation did not complete cleanly. */
+    error?: t.StdError;
+  };
 
   /**
    * Delete a file or directory (and its contents).
    */
-  export type Remove = (
-    path: string,
-    options?: { dryRun?: boolean; log?: boolean },
-  ) => Promise<boolean>;
+  export type Remove = (path: t.StringPath, options?: RemoveOptions) => Promise<boolean>;
+  /** Options that control filesystem removal behavior. */
+  export type RemoveOptions = {
+    /** Print the intended removal without mutating the file-system (default: false). */
+    dryRun?: boolean;
+    /** Write removal metadata to the console (default: false). */
+    log?: boolean;
+    /** Recursively remove directories and their contents (default: true). */
+    recursive?: boolean;
+  };
 
   /** Options passed to `Fs.resolve`. */
   export type ResolveOptions = {
@@ -173,9 +293,9 @@ export namespace Fs {
 
   /** Options passed to the `Fs.write` method. */
   export type WriteFileOptions = {
-    /** Overwrite existing directory files (default: false). */
+    /** Overwrite existing files (default: true). */
     force?: boolean;
-    /** Flag indicating if errors should be thrown (default: false). */
+    /** Reject write failures instead of returning them (default: false). */
     throw?: boolean;
   };
 
@@ -218,11 +338,17 @@ export namespace Fs {
 
   /** A response from a file read operation. */
   export type ReadResult<T> = {
+    /** True when the file was read and parsed successfully. */
     readonly ok: boolean;
+    /** Whether the target path existed when read was attempted. */
     readonly exists: boolean;
+    /** Absolute resolved path that was read. */
     readonly path: string;
+    /** Parsed file data when the read succeeds. */
     readonly data?: T;
+    /** Standard error when read, decode, or parse fails. */
     readonly error?: t.StdError;
+    /** Machine-readable failure category. */
     readonly errorReason?: 'NotFound' | 'ParseError' | 'DecodingError' | 'Unknown';
   };
 
@@ -230,11 +356,17 @@ export namespace Fs {
    * Recursively walk up a directory tree (visitor pattern).
    */
   export type WalkUp = (startAt: t.StringPath, onVisit: WalkUpCallback) => Promise<void>;
+  /** Visitor invoked for each ancestor while walking upward. */
   export type WalkUpCallback = (e: WalkUpCallbackArgs) => WalkUpCallbackResult;
+  /** Result returned by a walk-up visitor. */
   export type WalkUpCallbackResult = Promise<t.IgnoredResult> | t.IgnoredResult;
+  /** Arguments supplied to a walk-up visitor. */
   export type WalkUpCallbackArgs = {
+    /** Current ancestor directory being visited. */
     readonly dir: t.StringDir;
+    /** List files directly under the current directory. */
     files(): Promise<WalkFile[]>;
+    /** Stop walking after the current visitor returns. */
     stop(): void;
   };
 
@@ -245,6 +377,7 @@ export namespace Fs {
     start: t.StringPath,
     onVisit: FindAncestorCallback<T>,
   ) => Promise<T | undefined>;
+  /** Visitor that returns the first matching ancestor result. */
   export type FindAncestorCallback<T> = (
     e: t.Fs.WalkUpCallbackArgs,
   ) => Promise<T | undefined> | T | undefined;
@@ -253,9 +386,13 @@ export namespace Fs {
    * Details about a walked file.
    */
   export type WalkFile = {
+    /** Absolute path to the walked entry. */
     path: t.StringPath;
+    /** Parent directory of the walked entry. */
     dir: t.StringDir;
+    /** Basename of the walked entry. */
     name: string;
+    /** Whether the walked entry is a symlink. */
     isSymlink: boolean;
   };
 
@@ -273,9 +410,18 @@ export namespace Fs {
    * Represents the byte-size of all files within a directory.
    */
   export type DirSize = {
+    /** Whether the measured directory exists. */
     readonly exists: boolean;
+    /** Directory path that was measured. */
     readonly path: t.StringDir;
-    readonly total: { files: number; bytes: number };
+    /** Aggregated file count and byte size. */
+    readonly total: {
+      /** Number of files included in the total. */
+      files: number;
+      /** Total byte size across included files. */
+      bytes: number;
+    };
+    /** Format the byte total as a display string. */
     toString(options?: t.FormatBytesOptions): string;
   };
 
@@ -283,9 +429,13 @@ export namespace Fs {
    * Create a new temporary directory and return it as an FsDir handle.
    */
   export type MakeTempDir = (options?: t.Fs.MakeTempDirOptions) => Promise<t.FsDir>;
+  /** Options passed to temporary directory creation. */
   export type MakeTempDirOptions = {
+    /** Parent directory for the temporary directory. */
     readonly dir?: t.StringDir;
+    /** Prefix for the generated directory name. */
     readonly prefix?: string;
+    /** Suffix for the generated directory name. */
     readonly suffix?: string;
   };
 
@@ -311,10 +461,14 @@ export namespace Fs {
  * Sub-namespace properties.
  */
 type NamespaceMembers = {
+  /** Filesystem capability APIs. */
   readonly Capability: t.Fs.Capability.Lib;
 
+  /** Bounded stable file snapshots. */
+  readonly Snapshot: t.Fs.Snapshot.Lib;
+
   /** Helpers for working with resource paths. */
-  readonly Path: t.FsPathLib;
+  readonly Path: t.FsPath.Lib;
 
   /** File-system/path type verification flags. */
   readonly Is: t.Fs.IsLib;
@@ -323,7 +477,7 @@ type NamespaceMembers = {
   readonly Size: t.Fs.SizeLib;
 
   /** Helpers for watching file-system changes. */
-  readonly Watch: t.FsWatchLib;
+  readonly Watch: t.Watch.Lib;
 
   /** Formatting helpers (pretty console output). */
   readonly Fmt: t.FsFmtLib;
@@ -333,11 +487,11 @@ type NamespaceMembers = {
 };
 
 type GlobMethods = {
-  /** List the file-paths within a directory (simple glob). */
-  readonly ls: t.GlobPathList;
+  /** List file paths within a directory using glob matching. */
+  readonly ls: t.Glob.PathList;
 
   /** Factory for a glob helper. */
-  readonly glob: t.GlobFactory;
+  readonly glob: t.Glob.Factory;
 };
 
 /**
@@ -345,7 +499,7 @@ type GlobMethods = {
  */
 type StdMethods = {
   /** Joins a sequence of paths, then normalizes the resulting path. */
-  readonly join: t.PathLib['join'];
+  readonly join: t.Path.Lib['join'];
 
   /** Resolves path segments into a path. */
   readonly resolve: t.Fs.Resolve;

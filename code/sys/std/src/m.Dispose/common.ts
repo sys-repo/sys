@@ -1,4 +1,4 @@
-export { Subject, filter, take } from '../m.Rx/u.Rx.libs.ts';
+export { filter, Observable, Subject, take } from '../m.Rx/u.Rx.libs.ts';
 
 export * from '../common.ts';
 

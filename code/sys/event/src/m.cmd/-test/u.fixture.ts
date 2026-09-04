@@ -1,57 +1,74 @@
-import { type t, Is } from '../common.ts';
+import { expect, type t } from '../../-test.ts';
 
 /**
- * Test utilities for wrapping WebSocket → MessagePort → CmdEndpoint.
+ * General Cmd test helpers.
  */
 export const Fixture = {
   /**
-   * Wrap a WebSocket in a MessagePort-like interface.
+   * Wrap a MessagePort and count explicit close calls.
    */
-  portFromWebSocket(ws: WebSocket): t.CmdMessagePort {
-    const listeners = new Set<(event: { data: unknown }) => void>();
-
-    ws.onmessage = (ev) => {
-      let data: unknown = ev.data;
-      try {
-        data = JSON.parse(String(ev.data));
-      } catch {
-        // if it's already an object, just pass it through
-      }
-      for (const fn of listeners) fn({ data });
-    };
+  trackEndpoint(port: MessagePort) {
+    let closed = 0;
 
     return {
       postMessage(data: unknown) {
-        ws.send(JSON.stringify(data));
+        port.postMessage(data);
       },
-      addEventListener(_type, handler) {
-        listeners.add(handler);
+      addEventListener(type: 'message', handler: (event: MessageEvent) => void) {
+        port.addEventListener(type, handler);
+      },
+      removeEventListener(type: 'message', handler: (event: MessageEvent) => void) {
+        port.removeEventListener(type, handler);
       },
       start() {
-        // no-op, here for MessagePort compatibility
+        port.start();
       },
       close() {
-        ws.close();
+        closed += 1;
+        port.close();
       },
-    };
+      closed: () => closed,
+    } satisfies t.Cmd.Endpoint & { readonly closed: () => number };
   },
 
   /**
-   * Wait for WebSocket to be open.
+   * Resolve after `tick` has been called `target` times.
    */
-  waitForOpen(ws: WebSocket): Promise<void> {
-    return new Promise((resolve, reject) => {
-      ws.onopen = () => resolve();
-      ws.onerror = (err) => reject(err);
+  waitForCount(target: number) {
+    let count = 0;
+    let complete: () => void = () => {};
+    const done = new Promise<void>((resolve) => {
+      complete = resolve;
     });
-  },
-} as const;
 
-/**
- * Helpers:
- */
-const wrangle = {
-  port(input: t.CmdMessagePort | WebSocket): t.CmdMessagePort {
-    return Is.websocket(input) ? Fixture.portFromWebSocket(input) : (input as t.CmdMessagePort);
+    return {
+      done,
+      tick() {
+        count += 1;
+        if (count === target) complete();
+      },
+    } as const;
+  },
+
+  /**
+   * Resolve and remove a named pending resolver.
+   */
+  resolvePending<K, V>(pending: Map<K, (value: V) => void>, key: K, value: V) {
+    const resolve = pending.get(key);
+    if (!resolve) throw new Error(`Missing pending resolver for ${String(key)}.`);
+
+    pending.delete(key);
+    resolve(value);
+  },
+
+  /**
+   * Assert and return a typed Cmd error instance.
+   */
+  expectCmdError(input: unknown, kind: t.Cmd.Error.Kind) {
+    expect(input).to.be.instanceOf(Error);
+
+    const err = input as t.Cmd.Error.Instance;
+    expect(err.name).to.eql(kind);
+    return err;
   },
 } as const;

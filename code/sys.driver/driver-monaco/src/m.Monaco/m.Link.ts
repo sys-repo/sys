@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-export const Link: t.EditorLinkLib = {
+export const Link: t.MonacoDriver.Link.Lib = {
   toLinkBounds({ model, range }) {
     const uri = model.uri;
     const start = { lineNumber: range.startLineNumber, column: range.startColumn };
@@ -46,7 +46,7 @@ export const Link: t.EditorLinkLib = {
     return pos;
   },
 
-  reveal(editor, bounds: t.EditorLinkBounds) {
+  reveal(editor, bounds: t.MonacoDriver.Link.Bounds) {
     const model = editor.getModel?.();
     if (!model) return;
     if (model.uri.toString(true) !== bounds.model.uri.toString(true)) return;

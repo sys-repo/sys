@@ -1,10 +1,10 @@
 {
   "name": "@sys/dev",
-  "version": "0.0.196",
+  "version": "0.0.233",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev    ./-scripts/task.vite.ts --cmd=dev   --in=./src/index.html",
-    "test": "deno test -P=test",
+    "test": "deno test -P=test --permit-no-files",
     "build": "deno run -P=dev  ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev  ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
@@ -14,19 +14,10 @@
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
     "snap": "deno run -A ./-scripts/task.snapshot.ts"
   },
-  "compilerOptions": {
-    "types": [
-      "./src/catalog.edu/t.global.d.ts"
-    ]
-  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
-    "./catalog.edu": "./src/catalog.edu/mod.ts",
-    "./catalog.edu/slug": "./src/catalog.edu/m.slug/mod.ts",
-    "./catalog.edu/slug.traits": "./src/catalog.edu/m.slug.traits/mod.ts",
-    "./catalog.edu/t": "./src/catalog.edu/types.ts"
+    "./types": "./src/types.ts"
   },
   "permissions": {
     "clean": {

@@ -1,5 +1,5 @@
-import { Button } from '@sys/ui-react-components/button';
-import { TreeView } from '@sys/ui-react-components/tree-view';
+import { Button } from '@sys/ui-components/react/button';
+import { TreeView } from '@sys/ui-components/react/tree-view';
 import React from 'react';
 import { Color, Cropmarks, css, Icons, type t } from '../common.ts';
 

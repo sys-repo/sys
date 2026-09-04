@@ -2,9 +2,9 @@
  * @module
  * Helpers for working with regular-expressions.
  */
-import type { RegexLib } from './t.ts';
+import { type t } from './common.ts';
 
-export const Regex: RegexLib = {
+export const Regex: t.Regex.Lib = Object.freeze({
   /**
    * Escapes special characters in a string to be used in a regular expression.
    * @param input The string to escape.
@@ -13,4 +13,4 @@ export const Regex: RegexLib = {
   escape(input) {
     return input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   },
-};
+});

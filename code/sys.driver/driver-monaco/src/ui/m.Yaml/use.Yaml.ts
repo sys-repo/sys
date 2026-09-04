@@ -1,22 +1,22 @@
 import React from 'react';
 import {
-  type t,
   Bus,
   Delete,
   Immutable,
   Lease,
   Obj,
   Rx,
-  Yaml,
   singleton,
   slug,
+  type t,
   useBus,
+  Yaml,
 } from './common.ts';
 import { Path } from './m.Path.ts';
 import { useYamlErrorMarkers } from './use.YamlErrorMarkers.ts';
 
 /** Singleton registry for editor cursor observers (per editorId). */
-type Registry = { refCount: number; producer: t.EditorYamlCursorPathObserver };
+type Registry = { refCount: number; producer: t.EditorYaml.Path.Observer };
 const registry = new Map<string, Registry>();
 
 /** Module-level lease for editor instances (latest-wins per editorId). */
@@ -26,7 +26,7 @@ const useEditorLease = Lease.makeUseLease(editorLease);
 /**
  * Yaml sync/parsing hook.
  */
-export const useYaml: t.UseEditorYaml = (args) => {
+export const useYaml: t.EditorYaml.Hook.Use = (args) => {
   const { monaco, editor, doc, path, debounce } = args;
   const editorId = editor?.getId() ?? '';
 
@@ -42,7 +42,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
    */
   const [rev, setRev] = React.useState(0);
   const [parser, setParser] = React.useState<t.YamlSyncParser>();
-  const [cursor, setCursor] = React.useState<t.EditorCursor>();
+  const [cursor, setCursor] = React.useState<t.MonacoDriver.Cursor>();
 
   /** YAML parsing diagnostics: */
   useYamlErrorMarkers({
@@ -77,7 +77,11 @@ export const useYaml: t.UseEditorYaml = (args) => {
 
     const emit = () => {
       if (editorId === '') return;
-      const e = { kind: 'editor:yaml', ...parser.current, editorId } satisfies t.EventYaml;
+      const e = {
+        kind: 'editor:yaml',
+        ...parser.current,
+        editorId,
+      } satisfies t.EditorEvent.Yaml.Data;
       Bus.emit(bus$, 'micro', e);
     };
 
@@ -124,7 +128,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
    * Effect: revision counter (increments on yaml or cursor events).
    */
   React.useEffect(() => {
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
     const $ = bus$.pipe(Rx.takeUntil(life.dispose$));
 
     const sub = $.pipe(
@@ -144,7 +148,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
   /**
    * API:
    */
-  const api: t.EditorYamlHook = {
+  const api: t.EditorYaml.Hook.Result = {
     get ok() {
       return api.current?.data.ok ?? true;
     },
@@ -155,7 +159,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
         rev,
         cursor,
         data: parser.current,
-      } satisfies t.EditorYamlHook['current'];
+      } satisfies t.EditorYaml.Hook.Result['current'];
     },
   };
 
@@ -166,7 +170,7 @@ export const useYaml: t.UseEditorYaml = (args) => {
  * Helpers:
  */
 const wrangle = {
-  docDeps(input: t.UseEditorYamlArgs['doc']) {
+  docDeps(input: t.EditorYaml.Hook.Args['doc']) {
     if (!input) return [];
     if (Immutable.Is.immutableRef(input)) return [input.instance];
     return [input.source?.instance, input.target?.instance];

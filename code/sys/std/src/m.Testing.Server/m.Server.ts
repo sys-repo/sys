@@ -7,7 +7,7 @@ type H = { method: M; handler: Deno.ServeHandler };
 /**
  * HTTP test server
  */
-export const TestServer = {
+export const TestServer = Object.freeze({
   /**
    * Create and start a new HTTP test server.
    */
@@ -57,7 +57,7 @@ export const TestServer = {
 
     return api;
   },
-};
+});
 
 const wrangle = {
   handlerError(errors: unknown[]) {

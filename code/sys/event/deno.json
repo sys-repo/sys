@@ -1,6 +1,6 @@
 {
   "name": "@sys/event",
-  "version": "0.0.139",
+  "version": "0.0.179",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -13,7 +13,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./bus": "./src/-exports/-bus.ts",
-    "./cmd": "./src/-exports/-cmd.ts"
+    "./cmd": "./src/-exports/-cmd.ts",
+    "./cmd/testing": "./src/m.cmd/testing/mod.ts"
   },
   "permissions": {
     "clean": {

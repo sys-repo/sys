@@ -1,7 +1,7 @@
-import { type t, Str } from './common.ts';
+import { Str, type t } from './common.ts';
 
-export const sanitize: t.ObjPathLib['sanitize'] = (text, opts) => {
-  const fixes: t.ObjPathFix[] = [];
+export const sanitize: t.Obj.Path.Lib['sanitize'] = (text, opts) => {
+  const fixes: t.Obj.Path.Fix[] = [];
   const codecKind = resolveCodecKind(opts?.codec);
 
   let out = String(text);
@@ -45,7 +45,9 @@ export const sanitize: t.ObjPathLib['sanitize'] = (text, opts) => {
 /**
  * Helpers:
  */
-function resolveCodecKind(codec?: t.ObjPathCodecKind | t.ObjPathCodec): t.ObjPathCodecKind {
+function resolveCodecKind(
+  codec?: t.Obj.Path.Codec.Kind | t.Obj.Path.Codec.Definition,
+): t.Obj.Path.Codec.Kind {
   if (!codec) return 'pointer';
-  return typeof codec === 'string' ? codec : ((codec.kind as t.ObjPathCodecKind) ?? 'pointer');
+  return typeof codec === 'string' ? codec : ((codec.kind as t.Obj.Path.Codec.Kind) ?? 'pointer');
 }

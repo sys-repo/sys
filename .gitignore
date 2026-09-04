@@ -14,12 +14,10 @@
 dist
 dist.*
 node_modules
+.sys.rooted/
 
-# Deployment config from https://docs.orbiter.host/cli
-orbiter.json
-
-# @sys/tools:
--config
+# Local root runtime/config:
+/-config/
 
 # Codex (local agent state):
 .claude/

@@ -14,10 +14,14 @@ export type Cancellable = {
 export type CanDispose = { dispose(): unknown };
 
 /**
- * An object that provides a standard destructor pattern.
+ * Canonical synchronous disposal authority.
+ *
+ * `.dispose(reason)` may carry an application reason; `[Symbol.dispose]()` carries none. Structural
+ * implementers must delegate both entrypoints to one cleanup operation and must not expose callable
+ * asynchronous disposal authority.
  */
-export type Disposable = {
-  readonly dispose$: t.DisposeObservable;
+export type Disposable = globalThis.Disposable & {
+  readonly [Symbol.asyncDispose]?: never;
   dispose(reason?: unknown): void;
 };
 
@@ -26,55 +30,68 @@ export type Disposable = {
  */
 export type DisposableLike = { dispose(reason?: unknown): void };
 
-/** An observable that fires when resource is disposed. */
+/** Observable carrying a canonical synchronous owner's disposal event. */
 export type DisposeObservable = t.Observable<DisposeEvent>;
 
-/** Event fired through the `dispose$` observable. */
+/**
+ * Synchronous disposal observation carrying an optional reason.
+ *
+ * Owners from `@sys/std/dispose` emit an own `reason` property whose value is `undefined` when no
+ * reason was supplied; the structural type also permits external producers to omit that property.
+ */
 export type DisposeEvent = { readonly reason?: unknown };
 
 /**
- * Input accepted by functions that create or manage disposable resources.
+ * Lifetime signal observed by factories that create disposable work.
  *
- * The value defines "what to dispose when this fires".
- * For ergonomics, `undefined` is accepted as a no-op placeholder
- * (allowing omitted parameters), but it does *not* represent
- * an actual termination signal.
+ * An input identifies when the new owner should stop. Passing it does not transfer ownership and
+ * does not authorize the consumer to invoke disposal on the input:
  *
- * Examples:
- * - `Disposable` — invokes `.dispose()` when triggered.
- * - `UntilObservable` — completes when the observable emits.
- * - `DisposeInput[]` — recursive collection of either.
+ * - a `LifecycleView` contributes its `dispose$` signal and already-terminal state;
+ * - an `UntilObservable` contributes its emissions;
+ * - an `AbortSignal` contributes its abort event and reason; and
+ * - nested arrays combine those signals recursively.
+ *
+ * `undefined` is accepted as an ergonomic no-op placeholder, not as a termination signal. A full
+ * synchronous `Lifecycle` structurally satisfies `LifecycleView`. Stateless disposable owners and
+ * direct asynchronous lifecycle objects are not observable lifetime inputs; callers may pass an
+ * explicit compatible `dispose$` stream instead.
  */
-export type DisposeInput = t.UntilObservable | t.Disposable | undefined | DisposeInput[];
-/**
- * Alias for [DisposeInput].
- * Used at API boundaries where an optional "until" parameter is accepted.
- */
+export type DisposeInput =
+  | t.UntilObservable
+  | t.LifecycleView
+  | AbortSignal
+  | undefined
+  | DisposeInput[];
+
+/** Optional lifetime signal accepted at public `until` boundaries. */
 export type UntilInput = DisposeInput;
-/**
- * The *actual* "until" value — a termination signal.
- *
- * Represents a concrete resource or stream that, when fired or disposed,
- * should cancel or finalize an operation. Unlike [DisposeInput],
- * this excludes `undefined`, ensuring a definite signal source.
- */
-export type Until = t.UntilObservable | t.Disposable | Until[];
+
+/** Definite lifetime signal, excluding the `undefined` placeholder accepted by `UntilInput`. */
+export type Until = t.UntilObservable | t.LifecycleView | AbortSignal | Until[];
 
 /**
- * An object that provides a standard asynchronous destructor pattern.
+ * Canonical asynchronous disposal authority.
+ *
+ * `.dispose(reason)` and `[Symbol.asyncDispose]()` must enter one cleanup operation and expose its
+ * completion promise. Structural implementers must not expose callable synchronous disposal
+ * authority.
  */
-export type DisposableAsync = {
-  readonly dispose$: t.Observable<DisposeAsyncEvent>;
+export type DisposableAsync = globalThis.AsyncDisposable & {
+  readonly [Symbol.dispose]?: never;
   dispose(reason?: unknown): Promise<void>;
 };
 
-/**
- * The event object fired through the `dispose$` field.
- */
+/** Asynchronous disposal stage emitted as an ordinary `dispose$` value. */
 export type DisposeAsyncEvent = { type: 'dispose'; payload: DisposeAsyncEventArgs };
 
 /**
- * Events arguments for the DisposeAsyncEvent.
+ * Asynchronous disposal telemetry.
+ *
+ * `is.ok` is false only for an `error` stage; `is.done` is true for the terminal `complete` and
+ * `error` stages. A terminal error contains normalized `DisposeError` telemetry, while the disposal
+ * promise retains the original rejection value. Owners from `@sys/std/dispose` omit optional
+ * `reason` and `error` fields when their values are undefined.
  */
 export type DisposeAsyncEventArgs = {
   is: { ok: boolean; done: boolean };
@@ -83,45 +100,57 @@ export type DisposeAsyncEventArgs = {
   error?: DisposeError;
 };
 
-/**
- * The lifecycle stages of an asynchronous dispose pattern.
- */
+/** Stage of one asynchronous disposal operation. */
 export type DisposeAsyncStage = 'start' | 'complete' | 'error';
 
-/**
- * An simple object representation of an error that may have occured while disposing.
- */
+/** Normalized telemetry for an asynchronous cleanup failure. */
 export type DisposeError = { name: 'DisposeError'; message: string; cause?: t.StdError };
 
-/**
- * A disposable object that exposes a state (is disposed) property.
- */
-export type Lifecycle = Disposable & { readonly disposed: boolean };
-export type LifecycleAsync = DisposableAsync & { readonly disposed: boolean };
+/** Synchronous disposal authority with observable terminal state. */
+export type Lifecycle = Disposable & {
+  readonly dispose$: t.DisposeObservable;
+  readonly disposed: boolean;
+};
+
+/** Asynchronous disposal authority with observable terminal state. */
+export type LifecycleAsync = DisposableAsync & {
+  readonly dispose$: t.Observable<DisposeAsyncEvent>;
+  readonly disposed: boolean;
+};
 
 /**
- * Read-only lifecycle projection.
- * Provides disposal state and signal without disposal authority.
+ * A started lifecycle handle that exposes observed completion.
+ *
+ * This complements `UntilInput`: `until` is an input that asks work to stop;
+ * `finished` is an output that resolves when the work has stopped.
  */
-export type LifecycleView = Pick<t.Lifecycle, 'disposed' | 'dispose$'>;
+export type WaitableHandle = { readonly finished: PromiseLike<unknown> };
+
+/**
+ * Observation-and-state contract for a synchronous lifecycle.
+ *
+ * A full lifecycle satisfies this contract structurally; narrowing to it does not remove runtime
+ * disposal authority.
+ */
+export type LifecycleView = Pick<Lifecycle, 'disposed' | 'dispose$'>;
 
 /** Minimal contract for disposable objects (subset of Lifecycle). */
 export type LifeLike = { readonly disposed: boolean };
 
-/**
- * Utility Type: remove fields from composite Dispose object.
- */
-export type OmitDisposable<T extends Disposable | DisposableAsync | object> = Omit<
-  T,
-  'dispose' | 'dispose$'
->;
+type DisposalAuthorityKey = 'dispose' | typeof Symbol.dispose | typeof Symbol.asyncDispose;
 
 /**
- * Utility Type: remove fields from composite Lifecycle object.
+ * Shape without direct or native disposal authority.
+ *
+ * Observable lifecycle state and unrelated fields are preserved, matching the runtime
+ * `Dispose.omitDispose` projection in `@sys/std/dispose`.
  */
-export type OmitLifecycle<T extends Lifecycle | LifecycleAsync | object> = Omit<
+export type OmitDisposable<T extends object> = Omit<T, DisposalAuthorityKey>;
+
+/** Construction shape without direct or native disposal authority, `dispose$`, or `disposed`. */
+export type OmitLifecycle<T extends object> = Omit<
   T,
-  'dispose' | 'dispose$' | 'disposed'
+  DisposalAuthorityKey | 'dispose$' | 'disposed'
 >;
 
 /**

@@ -2,8 +2,11 @@
  * @module
  * Runtime environment setup and initializers.
  */
+/** Options for the `env` runtime initializer. */
 export type EnvOptions = {
+  /** Initialize VSCode terminal environment support. */
   vscode?: boolean;
+  /** Suppress initializer output. */
   silent?: boolean;
 };
 

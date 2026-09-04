@@ -1,6 +1,6 @@
-import { type t, Semver } from './common.ts';
+import { Semver, type t } from './common.ts';
 
-export const wrangle = {
+export const wrangle = Object.freeze({
   excluded(policy: t.EsmPolicy.Def, entry: t.EsmDeps.Entry) {
     const excludes = policy.exclude ?? [];
     const name = entry.module.name;
@@ -39,4 +39,4 @@ export const wrangle = {
     const bv = Semver.parse(b).version;
     return av.major === bv.major && av.minor === bv.minor;
   },
-} as const;
+});

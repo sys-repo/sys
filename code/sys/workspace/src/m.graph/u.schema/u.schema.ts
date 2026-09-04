@@ -41,15 +41,20 @@ const DenoInfoDependencySchema = Schema.Type.Object(
 const DenoInfoModuleSchema = Schema.Type.Object(
   {
     specifier: Schema.Type.Optional(Schema.Type.String()),
+    error: Schema.Type.Optional(Schema.Type.String()),
     dependencies: Schema.Type.Optional(Schema.Type.Array(DenoInfoDependencySchema)),
   },
   { additionalProperties: true },
 );
 
+const DenoInfoStringRecordSchema = Schema.Type.Record(Schema.Type.String(), Schema.Type.String());
+
 const DenoInfoJsonSchema = Schema.Type.Object(
   {
     roots: Schema.Type.Optional(Schema.Type.Array(Schema.Type.String())),
     modules: Schema.Type.Optional(Schema.Type.Array(DenoInfoModuleSchema)),
+    redirects: Schema.Type.Optional(DenoInfoStringRecordSchema),
+    packages: Schema.Type.Optional(DenoInfoStringRecordSchema),
   },
   { additionalProperties: true },
 );

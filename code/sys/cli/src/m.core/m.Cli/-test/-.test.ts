@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Args, Path } from '../../common.ts';
 import { Input } from '../../m.Input/mod.ts';
-import { c, Cli, Fmt, Keyboard, Prompt, Spinner, Table } from '../../mod.ts';
+import { c, Cli, Fmt, Is, Keyboard, Prompt, Spinner, Table } from '../../mod.ts';
 import { copyToClipboard } from '../../u/mod.ts';
 
 describe('CLI: core / m.Cli', () => {
@@ -13,6 +13,7 @@ describe('CLI: core / m.Cli', () => {
     expect(Cli.Args).to.equal(Args);
 
     expect(Cli.Fmt).to.equal(Fmt);
+    expect(Cli.Is).to.equal(Is);
     expect(Cli.Keyboard).to.equal(Keyboard);
     expect(Cli.Spinner).to.equal(Spinner);
     expect(Cli.Table).to.equal(Table);
@@ -23,6 +24,13 @@ describe('CLI: core / m.Cli', () => {
     expect(Cli.args).to.equal(Args.parse);
     expect(Cli.keypress).to.equal(Keyboard.keypress);
     expect(Cli.copyToClipboard).to.equal(copyToClipboard);
+  });
+
+  it('Cli.Keyboard', () => {
+    expect(Object.isFrozen(Cli.Keyboard)).to.eql(true);
+    expect(Object.keys(Cli.Keyboard)).to.eql(['keypress', 'Is', 'bind', 'shutdown']);
+    expect(Object.isFrozen(Cli.Keyboard.Is)).to.eql(true);
+    expect(Object.keys(Cli.Keyboard.Is)).to.eql(['quit', 'back', 'redraw', 'unavailableError']);
   });
 
   it('Cli.stripAnsi', () => {

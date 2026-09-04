@@ -1,3 +1,7 @@
+/**
+ * @module
+ * Timecode playback schema type surface.
+ */
 import type { t } from './common.ts';
 
 /**

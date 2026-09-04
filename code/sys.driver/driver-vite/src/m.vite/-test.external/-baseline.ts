@@ -1,9 +1,9 @@
 import { describe, expect, it, SAMPLE, Testing } from '../../-test.ts';
 
-import { buildSample } from './u.fixture.build.ts';
+import { assertBuildOk, buildSample } from './u.fixture.build.ts';
 import { devSample } from './u.fixture.dev.ts';
 
-describe('Vite published external smoke (baseline build)', { sanitizeOps: false, sanitizeResources: false }, () => {
+describe('Vite published external smoke (baseline build)', () => {
   it('published driver-vite resolves @sys imports from dedicated fixture', async () => {
     await Testing.retry(2, async () => {
       const { build, files } = await buildSample({
@@ -11,7 +11,7 @@ describe('Vite published external smoke (baseline build)', { sanitizeOps: false,
         sampleDir: SAMPLE.Dirs.samplePublishedBaseline,
       });
 
-      expect(build.ok).to.eql(true);
+      assertBuildOk(build, 'Published baseline build failed');
       expect(files.html).to.include('<title>Sample-Bridge</title>');
       expect(files.js.some((file) => file.text.includes('sample-bridge'))).to.eql(true);
       expect(files.js.some((file) => file.text.includes('sample-bridge-http'))).to.eql(true);

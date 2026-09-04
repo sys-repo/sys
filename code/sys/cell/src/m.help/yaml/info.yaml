@@ -1,0 +1,18 @@
+summary: |
+  Report the Cell descriptor facts declared by the target folder.
+  Info is read-only: it loads the Cell descriptor and prints its optional name, declared services,
+  and tasks without importing endpoints, probing ports, scanning data, or changing files.
+
+usage:
+  - deno run -ER jsr:@sys/cell info [dir]
+  - deno run -ER jsr:@sys/cell info [dir] --help
+
+options:
+  - name: -h, --help
+    text: show info help
+
+reads:
+  - loads `-config/@sys.cell/cell.yaml` through the normal Cell descriptor loader
+  - reports optional descriptor name, schema version, services[], and tasks[] declarations only
+  - does not import service/task endpoints or read owner config files
+  - does not scan `data/`, probe live services, or mutate the Cell

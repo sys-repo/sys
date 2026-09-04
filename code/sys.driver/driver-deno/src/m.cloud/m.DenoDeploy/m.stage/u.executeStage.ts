@@ -1,5 +1,5 @@
 import { FILE, renderStageEntrypoints } from './-tmpl/mod.ts';
-import { type t, DenoFile, Fs, Time, Workspace } from './common.ts';
+import { DenoFile, Fs, type t, Time, Workspace } from './common.ts';
 import { buildStageTarget } from './u.buildStageTarget.ts';
 import { closureFromGraph } from './u.closureFromGraph.ts';
 import { ensureStageDriverDenoImport } from './u.ensureStageDriverDenoImport.ts';
@@ -9,7 +9,7 @@ import { resolveStageTarget } from './u.resolveStageTarget.ts';
 import { rewriteStageWorkspace } from './u.rewriteStageWorkspace.ts';
 
 type StageContext = {
-  readonly workspace: t.DenoWorkspace;
+  readonly workspace: t.DenoFile.Workspace.Info;
   readonly target: { readonly absolute: t.StringDir; readonly relative: t.StringRelativeDir };
   readonly root: t.StringDir;
 };

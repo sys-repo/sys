@@ -1,5 +1,6 @@
 export { Arr } from '@sys/std/arr';
 export { Delete } from '@sys/std/delete';
+export { Dispose } from '@sys/std/dispose';
 export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';
@@ -19,7 +20,7 @@ export { Hash } from '@sys/crypto/hash';
 export { Cmd } from '@sys/event/cmd';
 export { FileMap, Fs, Path, Pkg } from '@sys/fs';
 export { JsonFile } from '@sys/fs/file';
-export { Http } from '@sys/http/client';
+export { Fetch, Http } from '@sys/http/client';
 export { Graph } from '@sys/immutable/graph';
 export { Jsr } from '@sys/registry/jsr';
 export { Net } from '@sys/net';

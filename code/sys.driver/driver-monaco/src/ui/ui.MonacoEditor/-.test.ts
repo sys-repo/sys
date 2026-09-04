@@ -1,17 +1,17 @@
 import {
   act,
-  Is,
   afterEach,
   beforeEach,
   describe,
-  expect,
-  it,
-  renderHook,
   DomMock,
+  expect,
+  Is,
+  it,
   MonacoFake,
+  renderHook,
   settle,
 } from '../../-test.ts';
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 import { useMonacoEditorModule } from './use.MonacoEditorModule.ts';
 import { toKeyDownEvent } from './u.keyboard.ts';
 
@@ -46,7 +46,7 @@ describe('MonacoEditor', () => {
   describe('hook: useMonacoEditorModule', () => {
     it('throws on non-browser environment', async () => {
       const restoreGlobals = local.snapshotGlobals();
-      DomMock.unpolyfill();
+      await DomMock.unpolyfill();
       await local.drainDomTails();
 
       // Simulate server/test env (no DOM):
@@ -78,7 +78,8 @@ describe('MonacoEditor', () => {
       const monaco = MonacoFake.monaco({ cast: true });
       const editor = MonacoFake.editor('');
 
-      let event: Parameters<t.Monaco.Editor['onKeyDown']>[0] extends (e: infer E) => unknown ? E : never;
+      let event: Parameters<t.Monaco.Editor['onKeyDown']>[0] extends (e: infer E) => unknown ? E
+        : never;
       editor.onKeyDown((e) => {
         event = e;
       });

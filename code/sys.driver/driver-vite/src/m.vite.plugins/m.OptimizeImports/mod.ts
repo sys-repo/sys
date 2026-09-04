@@ -16,4 +16,4 @@
  * - unknown imports are left unchanged
  * - this plugin is a performance adapter, not an import-policy authority
  */
-export { OptimizeImportsPlugin } from './mod.OptimizeImportsPlugin.ts';
+export { OptimizeImportsPlugin } from './m.OptimizeImportsPlugin.ts';

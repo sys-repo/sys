@@ -1,4 +1,4 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { CmdIs } from '../m.Is.ts';
 
 describe('Cmd.Is', () => {
@@ -6,42 +6,29 @@ describe('Cmd.Is', () => {
     it('matches a valid command envelope', () => {
       const msg = {
         kind: 'cmd',
-        id: '123',
+        id: 'req-123',
         name: 'worker/ping',
+        ns: 'worker',
         payload: { foo: 1 },
       };
 
       expect(CmdIs.request(msg)).to.eql(true);
     });
 
-    it('rejects non-record values', () => {
+    it('rejects invalid command envelopes', () => {
       expect(CmdIs.request(null)).to.eql(false);
       expect(CmdIs.request(undefined)).to.eql(false);
       expect(CmdIs.request(123)).to.eql(false);
       expect(CmdIs.request('cmd')).to.eql(false);
       expect(CmdIs.request([])).to.eql(false);
-    });
-
-    it('rejects wrong kind', () => {
-      const msg = {
-        kind: 'cmd:result',
-        id: '123',
-        name: 'worker/ping',
-      };
-
-      expect(CmdIs.request(msg)).to.eql(false);
-    });
-
-    it('rejects missing or invalid id/name', () => {
-      const noId = { kind: 'cmd', name: 'foo' };
-      const noName = { kind: 'cmd', id: '123' };
-      const badId = { kind: 'cmd', id: 123, name: 'foo' };
-      const badName = { kind: 'cmd', id: '123', name: 42 };
-
-      expect(CmdIs.request(noId)).to.eql(false);
-      expect(CmdIs.request(noName)).to.eql(false);
-      expect(CmdIs.request(badId)).to.eql(false);
-      expect(CmdIs.request(badName)).to.eql(false);
+      expect(CmdIs.request({ kind: 'cmd:result', id: 'req-123', name: 'foo' })).to.eql(false);
+      expect(CmdIs.request({ kind: 'cmd', name: 'foo' })).to.eql(false);
+      expect(CmdIs.request({ kind: 'cmd', id: 'req-123' })).to.eql(false);
+      expect(CmdIs.request({ kind: 'cmd', id: '123', name: 'foo' })).to.eql(false);
+      expect(CmdIs.request({ kind: 'cmd', id: 'req-', name: 'foo' })).to.eql(false);
+      expect(CmdIs.request({ kind: 'cmd', id: 'req-123', name: '' })).to.eql(false);
+      expect(CmdIs.request({ kind: 'cmd', id: 'req-123', name: 42 })).to.eql(false);
+      expect(CmdIs.request({ kind: 'cmd', id: 'req-123', name: 'foo', ns: null })).to.eql(false);
     });
   });
 
@@ -57,41 +44,18 @@ describe('Cmd.Is', () => {
       expect(CmdIs.event(msg)).to.eql(true);
     });
 
-    it('rejects non-record values', () => {
+    it('rejects invalid event envelopes', () => {
       expect(CmdIs.event(null)).to.eql(false);
       expect(CmdIs.event(undefined)).to.eql(false);
       expect(CmdIs.event(123)).to.eql(false);
       expect(CmdIs.event('cmd:event')).to.eql(false);
       expect(CmdIs.event([])).to.eql(false);
-    });
-
-    it('rejects wrong kind', () => {
-      const asCmd = {
-        kind: 'cmd',
-        id: 'req-123',
-        name: 'worker/progress',
-      };
-
-      const asResult = {
-        kind: 'cmd:result',
-        id: 'req-123',
-        name: 'worker/progress',
-      };
-
-      expect(CmdIs.event(asCmd)).to.eql(false);
-      expect(CmdIs.event(asResult)).to.eql(false);
-    });
-
-    it('rejects missing or invalid id/name', () => {
-      const noId = { kind: 'cmd:event', name: 'foo' };
-      const noName = { kind: 'cmd:event', id: 'req-123' };
-      const badId = { kind: 'cmd:event', id: 123, name: 'foo' };
-      const badName = { kind: 'cmd:event', id: 'req-123', name: 42 };
-
-      expect(CmdIs.event(noId)).to.eql(false);
-      expect(CmdIs.event(noName)).to.eql(false);
-      expect(CmdIs.event(badId)).to.eql(false);
-      expect(CmdIs.event(badName)).to.eql(false);
+      expect(CmdIs.event({ kind: 'cmd', id: 'req-123', name: 'foo' })).to.eql(false);
+      expect(CmdIs.event({ kind: 'cmd:event', name: 'foo' })).to.eql(false);
+      expect(CmdIs.event({ kind: 'cmd:event', id: 'req-123' })).to.eql(false);
+      expect(CmdIs.event({ kind: 'cmd:event', id: '123', name: 'foo' })).to.eql(false);
+      expect(CmdIs.event({ kind: 'cmd:event', id: 'req-123', name: '' })).to.eql(false);
+      expect(CmdIs.event({ kind: 'cmd:event', id: 'req-123', name: 'foo', ns: 1 })).to.eql(false);
     });
   });
 
@@ -99,87 +63,97 @@ describe('Cmd.Is', () => {
     it('matches a valid result envelope', () => {
       const msg = {
         kind: 'cmd:result',
-        id: 'abc',
+        id: 'req-abc',
         name: 'worker/ping',
         payload: { reply: 'ok' },
       };
+
       expect(CmdIs.response(msg)).to.eql(true);
     });
 
-    it('rejects non-record values', () => {
+    it('rejects invalid result envelopes', () => {
       expect(CmdIs.response(null)).to.eql(false);
       expect(CmdIs.response(undefined)).to.eql(false);
       expect(CmdIs.response(123)).to.eql(false);
       expect(CmdIs.response('cmd:result')).to.eql(false);
       expect(CmdIs.response([])).to.eql(false);
+      expect(CmdIs.response({ kind: 'cmd', id: 'req-123', name: 'foo' })).to.eql(false);
+      expect(CmdIs.response({ kind: 'cmd:result', name: 'foo' })).to.eql(false);
+      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123' })).to.eql(false);
+      expect(CmdIs.response({ kind: 'cmd:result', id: '123', name: 'foo' })).to.eql(false);
+      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-', name: 'foo' })).to.eql(false);
+      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123', name: '' })).to.eql(false);
+      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123', name: 'foo', ns: false })).to.eql(
+        false,
+      );
+      expect(CmdIs.response({ kind: 'cmd:result', id: 'req-123', name: 'foo', error: 123 })).to.eql(
+        false,
+      );
     });
+  });
 
-    it('rejects wrong kind', () => {
+  describe('Cmd.Is.cancel', () => {
+    it('matches a valid cancel envelope', () => {
       const msg = {
-        kind: 'cmd',
-        id: 'abc',
+        kind: 'cmd:cancel',
+        id: 'req-abc',
         name: 'worker/ping',
+        reason: 'timeout',
       };
 
-      expect(CmdIs.response(msg)).to.eql(false);
+      expect(CmdIs.cancel(msg)).to.eql(true);
     });
 
-    it('rejects missing or invalid id/name', () => {
-      const noId = { kind: 'cmd:result', name: 'foo' };
-      const noName = { kind: 'cmd:result', id: '123' };
-      const badId = { kind: 'cmd:result', id: 123, name: 'foo' };
-      const badName = { kind: 'cmd:result', id: '123', name: 42 };
-
-      expect(CmdIs.response(noId)).to.eql(false);
-      expect(CmdIs.response(noName)).to.eql(false);
-      expect(CmdIs.response(badId)).to.eql(false);
-      expect(CmdIs.response(badName)).to.eql(false);
+    it('rejects invalid cancel envelopes', () => {
+      expect(CmdIs.cancel(null)).to.eql(false);
+      expect(CmdIs.cancel(undefined)).to.eql(false);
+      expect(CmdIs.cancel(123)).to.eql(false);
+      expect(CmdIs.cancel('cmd:cancel')).to.eql(false);
+      expect(CmdIs.cancel([])).to.eql(false);
+      expect(CmdIs.cancel({ kind: 'cmd:cancel', name: 'foo' })).to.eql(false);
+      expect(CmdIs.cancel({ kind: 'cmd:cancel', id: 'req-123' })).to.eql(false);
+      expect(CmdIs.cancel({ kind: 'cmd:cancel', id: '123', name: 'foo' })).to.eql(false);
+      expect(CmdIs.cancel({ kind: 'cmd:cancel', id: 'req-', name: 'foo' })).to.eql(false);
+      expect(CmdIs.cancel({ kind: 'cmd:cancel', id: 'req-123', name: '' })).to.eql(false);
+      expect(CmdIs.cancel({ kind: 'cmd:cancel', id: 'req-123', name: 'foo', reason: 1 })).to.eql(
+        false,
+      );
     });
   });
 
   describe('Cmd.Is.error', () => {
-    it('returns true for a valid CmdErrorTimeout', () => {
-      const err = new Error('x') as t.DeepMutable<t.CmdError>;
-      err.name = 'CmdErrorTimeout';
-      err.cmd = { name: 'foo', id: 'req-123' };
+    it('returns true for known CmdError names', () => {
+      const timeout = makeError('CmdError.Timeout');
+      const disposed = makeError('CmdError.ClientDisposed');
+      const remote = makeError('CmdError.Remote');
+      const cancelled = makeError('CmdError.Cancelled');
 
-      expect(CmdIs.error(err)).to.eql(true);
+      expect(CmdIs.error(timeout)).to.eql(true);
+      expect(CmdIs.error(disposed)).to.eql(true);
+      expect(CmdIs.error(remote)).to.eql(true);
+      expect(CmdIs.error(cancelled)).to.eql(true);
     });
 
-    it('returns true for a valid CmdErrorClientDisposed (no meta)', () => {
-      const err = new Error('x') as t.CmdError;
-      err.name = 'CmdErrorClientDisposed';
+    it('returns false for unknown or non-error values', () => {
+      const unknown = new Error('x');
+      unknown.name = 'CmdErrorMadeUp';
 
-      expect(CmdIs.error(err)).to.eql(true);
-    });
-
-    it('returns true for CmdErrorRemote', () => {
-      const err = new Error('boom') as t.DeepMutable<t.CmdError>;
-      err.name = 'CmdErrorRemote';
-      err.cmd = { name: 'fail', id: 'req-abc' };
-
-      expect(CmdIs.error(err)).to.eql(true);
-    });
-
-    it('returns false for Error with non-CmdError name', () => {
-      const err = new Error('nope');
-      err.name = 'SomethingElse';
-
-      expect(CmdIs.error(err)).to.eql(false);
-    });
-
-    it('returns false for plain Error (default name)', () => {
-      const err = new Error('nope');
-      // Default name is "Error"
-      expect(CmdIs.error(err)).to.eql(false);
-    });
-
-    it('returns false for non-error values', () => {
+      expect(CmdIs.error(unknown)).to.eql(false);
+      expect(CmdIs.error(new Error('plain'))).to.eql(false);
       expect(CmdIs.error(undefined)).to.eql(false);
       expect(CmdIs.error(null)).to.eql(false);
       expect(CmdIs.error({})).to.eql(false);
-      expect(CmdIs.error({ name: 'CmdErrorTimeout' })).to.eql(false);
-      expect(CmdIs.error({ name: 'CmdErrorTimeout', message: 'x' })).to.eql(false);
+      expect(CmdIs.error({ name: 'CmdError.Timeout' })).to.eql(false);
+      expect(CmdIs.error({ name: 'CmdError.Timeout', message: 'x' })).to.eql(false);
     });
   });
 });
+
+/**
+ * Helpers:
+ */
+function makeError(kind: t.Cmd.Error.Kind) {
+  const err = new Error('x') as t.DeepMutable<t.Cmd.Error.Instance>;
+  err.name = kind;
+  return err;
+}

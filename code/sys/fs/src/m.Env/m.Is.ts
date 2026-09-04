@@ -1,10 +1,10 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
-export const Is: t.EnvIsLib = {
+export const Is: t.Env.Is.Lib = Object.freeze({
   get vscode() {
     return isVsCode();
   },
-};
+});
 
 /**
  * Helpers:

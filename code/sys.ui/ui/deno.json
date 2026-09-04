@@ -1,0 +1,58 @@
+{
+  "name": "@sys/ui",
+  "version": "0.0.42",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -P=test",
+    "dev": "deno run -P=dev ./-scripts/task.cell.ts --mode dev --reporter auto",
+    "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
+    "serve": "deno run -P=dev ./-scripts/task.cell.ts --reporter auto",
+    "kill": "deno task kill:dev && deno task kill:serve",
+    "kill:dev": "deno run -P=dev @sys/cell kill . --mode dev",
+    "kill:serve": "deno run -P=dev @sys/cell kill . --mode default",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./react/t": "./src/ui.react/t.ts",
+    "./react/files": "./src/ui.react/ui.files/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    }
+  }
+}
+

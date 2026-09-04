@@ -1,5 +1,5 @@
-import { Dev, Spec, Signal } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Harness, Signal, Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Landing, signalsFactory } from './mod.ts';
 
 export default Spec.describe('Landing', (e) => {
@@ -10,7 +10,7 @@ export default Spec.describe('Landing', (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    Dev.Theme.signalEffect(ctx, d.theme, 1);
+    Harness.Theme.signalEffect(ctx, d.theme, 1);
     Signal.effect(() => {
       p.ready.value;
       p.sidebarVisible.value;

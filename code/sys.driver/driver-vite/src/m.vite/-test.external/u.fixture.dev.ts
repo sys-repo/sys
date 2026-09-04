@@ -15,7 +15,7 @@ export type DevModule = DevResponse & {
 };
 
 export type DevSample = {
-  readonly dev: t.ViteProcess;
+  readonly dev: t.Vite.Dev.Process;
   readonly html: DevResponse;
   readonly entry: DevModule;
   readonly modules: readonly DevModule[];

@@ -3,20 +3,23 @@ import type { t } from '../common.ts';
 /**
  * Factory and helpers for constructing `VirtualClock` instances.
  */
-export type VirtualClockLib = {
-  /** Create a new virtual clock bound to a resolved timeline. */
-  make(timeline?: t.TimecodeCompositionResolved, opts?: VirtualClockOpts): t.VirtualClock;
+export namespace VirtualClock {
+  /** Virtual clock helper library surface. */
+  export type Lib = {
+    /** Create a new virtual clock bound to a resolved timeline. */
+    make(timeline?: t.TimecodeCompositionResolved, opts?: VirtualClockOpts): t.VirtualClock;
 
-  /**
-   * Create a virtual clock when only the total duration is known.
-   *
-   * - No segments are provided
-   * - mapToSource() will always return null
-   *
-   * This is the canonical interop seam for hosts that only need vTime advancement/clamping.
-   */
-  makeForTotal(total: t.Msecs, opts?: VirtualClockOpts): t.VirtualClock;
-};
+    /**
+     * Create a virtual clock when only the total duration is known.
+     *
+     * - No segments are provided
+     * - mapToSource() will always return null
+     *
+     * This is the canonical interop seam for hosts that only need vTime advancement/clamping.
+     */
+    makeForTotal(total: t.Msecs, opts?: VirtualClockOpts): t.VirtualClock;
+  };
+}
 
 /** Options controlling initial playback and behavior. */
 export type VirtualClockOpts = {

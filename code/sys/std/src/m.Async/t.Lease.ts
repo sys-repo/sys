@@ -1,36 +1,38 @@
 import type { t } from './common.ts';
 
-/**
- * Lease Library
- *
- * Provides "latest-wins" leases over arbitrary keys/tokens.
- * Only the most recent claimant for a given key is considered the owner.
- */
-export type LeaseLib = {
+export namespace Lease {
   /**
-   * Create a new in-memory LeaseMap.
+   * Latest-wins lease utility contracts.
    *
-   * @example
-   *    const lease = Lease.make<string>();
-   *    const token = 'abc';
-   *    lease.claim('editor-1', token);
-   *    lease.isOwner('editor-1', token); // true
+   * Provides leases over arbitrary keys/tokens. Only the most recent claimant
+   * for a given key is considered the owner.
    */
-  make<K, T extends string = string>(): LeaseMap<K, T>;
+  export type Lib = {
+    /**
+     * Create a new in-memory LeaseMap.
+     *
+     * @example
+     *    const lease = Lease.make<string>();
+     *    const token = 'abc';
+     *    lease.claim('editor-1', token);
+     *    lease.isOwner('editor-1', token); // true
+     */
+    make<K, T extends string = string>(): LeaseMap<K, T>;
 
-  /**
-   * Rx guard operator: only allows events through if the given `token`
-   * currently holds the lease for `key`.
-   *
-   * Usage:
-   *   source$.pipe(Lease.guard(lease, key, token))
-   */
-  guard<K, T extends string = string, E = unknown>(
-    lease: LeaseMap<K, T>,
-    key: K,
-    token: T,
-  ): t.OperatorFunction<E, E>;
-};
+    /**
+     * Rx guard operator: only allows events through if the given `token`
+     * currently holds the lease for `key`.
+     *
+     * Usage:
+     *   source$.pipe(Lease.guard(lease, key, token))
+     */
+    guard<K, T extends string = string, E = unknown>(
+      lease: LeaseMap<K, T>,
+      key: K,
+      token: T,
+    ): t.OperatorFunction<E, E>;
+  };
+}
 
 /**
  * A "latest-wins" lease over a key space.

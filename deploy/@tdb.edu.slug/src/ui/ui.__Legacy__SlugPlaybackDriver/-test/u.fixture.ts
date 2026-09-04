@@ -1,10 +1,24 @@
-import { type t, Effect, Immutable, Player, slug } from '../common.ts';
+import { Effect, Immutable, Player, slug, type t } from '../common.ts';
 
 /**
  * Test-only base URL used by SlugPlaybackDriver fixtures.
  * Not exported by runtime modules.
  */
 export const baseUrl: t.StringUrl = 'http://test';
+
+/** Create fresh bounded transport authority for a SlugPlaybackDriver test. */
+export function testTransport(): t.SlugLoadTransport {
+  return {
+    policy: {
+      maxBytes: 1024,
+      timeout: 1000,
+      maxRedirects: 0,
+      progressInterval: 25,
+      sourceOrigins: ['http://test'],
+      credentialOrigins: [],
+    },
+  };
+}
 
 /**
  * Create test VideoDecks signals.
@@ -27,7 +41,7 @@ export function createTestController() {
 
   const id = `slug-playback-${slug()}`;
   const ref = Immutable.clonerRef<State>({});
-  const props: Props = { baseUrl };
+  const props: Props = { baseUrl, transport: testTransport() };
   return Effect.Controller.create({ id, ref, props });
 }
 

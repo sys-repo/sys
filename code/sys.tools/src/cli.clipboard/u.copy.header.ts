@@ -40,8 +40,8 @@ export async function makeHeader(
     bytes,
     modified,
     lang,
-    toString: () =>
-      [
+    toString() {
+      return [
         hr,
         `# file:        ${basename}`,
         `# path.repo:   ${repoRel}`,
@@ -52,7 +52,8 @@ export async function makeHeader(
         `# lang:        ${lang}`,
         hr,
         '',
-      ].join('\n'),
+      ].join('\n');
+    },
   };
 
   return header;

@@ -76,7 +76,7 @@ describe('Esm.Topological.build', () => {
     expect(res.items[3].after).to.eql(['@sys/net', '@sys/ui']);
   });
 
-  it('returns the remaining nodes when a cycle is detected', () => {
+  it('returns the remaining nodes and a deterministic cycle path when a cycle is detected', () => {
     const res = Esm.Topological.build({
       nodes: [node('@sys/a'), node('@sys/b'), node('@sys/c')],
       edges: [
@@ -90,6 +90,25 @@ describe('Esm.Topological.build', () => {
     if (res.ok || !('cycle' in res)) return;
 
     expect(res.cycle.keys).to.eql(['@sys/a', '@sys/b', '@sys/c']);
+    expect(res.cycle.path).to.eql(['@sys/a', '@sys/b', '@sys/c', '@sys/a']);
+  });
+
+  it('reports a minimal cycle path when cyclic nodes have downstream dependents', () => {
+    const res = Esm.Topological.build({
+      nodes: [node('@sys/a'), node('@sys/b'), node('@sys/c'), node('@sys/downstream')],
+      edges: [
+        { from: '@sys/a', to: '@sys/b' },
+        { from: '@sys/b', to: '@sys/a' },
+        { from: '@sys/b', to: '@sys/c' },
+        { from: '@sys/c', to: '@sys/downstream' },
+      ],
+    });
+
+    expect(res.ok).to.eql(false);
+    if (res.ok || !('cycle' in res)) return;
+
+    expect(res.cycle.keys).to.eql(['@sys/a', '@sys/b', '@sys/c', '@sys/downstream']);
+    expect(res.cycle.path).to.eql(['@sys/a', '@sys/b', '@sys/a']);
   });
 
   it('detects a self-cycle', () => {
@@ -101,6 +120,7 @@ describe('Esm.Topological.build', () => {
     expect(res.ok).to.eql(false);
     if (res.ok || !('cycle' in res)) return;
     expect(res.cycle.keys).to.eql(['@sys/a']);
+    expect(res.cycle.path).to.eql(['@sys/a', '@sys/a']);
   });
 
   it('dedupes repeated after keys from duplicate edges', () => {

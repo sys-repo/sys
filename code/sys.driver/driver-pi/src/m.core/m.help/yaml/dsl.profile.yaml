@@ -1,0 +1,50 @@
+id: profile
+title: Pi-Driver profile
+summary: |
+  Resolve active profile authority, edit only the durable YAML policy surface, and require restart
+  or relaunch before claiming any effect on a live Pi session.
+
+sections:
+  - label: Use when
+    items: |
+      The prompt asks which Pi-Driver profile is active.
+      The prompt asks to edit profile YAML.
+      The prompt asks why a profile change is not visible in the current session.
+      The prompt asks whether restart or relaunch is required.
+      The prompt needs OCR enabled or set up for a future launch.
+
+  - label: Rule
+    items: |
+      Profile YAML is the durable policy input for Pi-Driver launch behavior.
+      Top-level profile policy keys include `prompt`, `sandbox`, and `tools`.
+      Prefer launcher-provided runtime metadata such as `runtime.pi.active-profile` when available.
+      If active profile authority is absent or ambiguous, stop and ask; do not invent a profile path.
+      Profile edits do not hot-enable tools or permissions inside an existing Pi session.
+      Make the smallest safe YAML edit and ask the human to restart or relaunch Pi.
+
+  - label: Selection basics
+    items: |
+      The default `/cli` entrypoint is profile-driven; raw upstream Pi access is explicit at `/cli/raw`.
+      Named profiles resolve to `-config/@sys.driver-pi/<name>.yaml`.
+      `--profile <name|path>` loads a named profile or an explicit profile YAML file.
+      Path-like profile selectors start with `/`, `./`, `../`, or `~/`.
+      Ordinary arguments after `--` pass through to Pi unchanged.
+      Profile mode still owns prompt, context, skill, and extension startup surfaces; passthrough for those surfaces is rejected.
+      Legacy `-config/@sys.driver-pi.pi/` profiles migrate without overwriting canonical files.
+
+  - label: Edit sequence
+    items: |
+      Identify the active profile path before changing YAML.
+      Read the exact file before editing it.
+      Change only the requested profile policy surface.
+      For tool policy changes, read `dsl tools` and any matching concrete tool chapter first.
+      For OCR setup or enablement, continue to `dsl tools ocr-pdf` before giving setup steps.
+      Preserve unrelated profile fields and comments when possible.
+      After the edit, state that the current live session is unchanged until restart or relaunch.
+
+  - label: Do not
+    items: |
+      Do not use Pi prompt passthrough flags to bypass profile ownership.
+      Do not duplicate profile grants outside active profile YAML.
+      Do not hand-author generated extension files as a profile-edit shortcut.
+      Do not claim a profile YAML edit made a tool callable in the current session.

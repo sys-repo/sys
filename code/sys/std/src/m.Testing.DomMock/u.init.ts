@@ -1,7 +1,7 @@
-import { type t, Schedule } from './common.ts';
+import { Schedule, type t } from './common.ts';
 import { polyfill, unpolyfill } from './u.polyfill.ts';
 
-export const init: t.DomMockLib['init'] = (args) => {
+export const init: t.DomMock.Lib['init'] = (args) => {
   const before = async () => {
     polyfill();
     await drain();
@@ -9,7 +9,7 @@ export const init: t.DomMockLib['init'] = (args) => {
 
   const after = async () => {
     await terminalDrain();
-    unpolyfill();
+    await unpolyfill();
     await terminalDrain();
   };
 

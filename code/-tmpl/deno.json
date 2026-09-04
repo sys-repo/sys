@@ -1,14 +1,16 @@
 {
   "name": "@sys/tmpl",
-  "version": "0.0.361",
+  "version": "0.0.481",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "cli": "deno run -P=cli ./src/mod.ts",
     "tmpl": "deno run -P=tmpl ./src/mod.ts",
     "prep": "deno task clean && deno run -P=prep ./-scripts/task.prep.ts",
+    "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -19,6 +21,11 @@
   },
   "permissions": {
     "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "cli": {
       "read": true,
       "write": true,
       "env": true

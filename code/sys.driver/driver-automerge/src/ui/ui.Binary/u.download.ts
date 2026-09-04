@@ -4,7 +4,7 @@ import { Binary } from './m.Binary.ts';
 /**
  * Initiates a browser download of a single file.
  */
-export function downloadFile(file: t.BinaryFile) {
+export function downloadFile(file: t.BinaryFile.File) {
   if (file == null) return;
 
   // Wrap bytes in a Blob and create an in-memory URL:
@@ -26,7 +26,7 @@ export function downloadFile(file: t.BinaryFile) {
 /**
  * Drag-n-drop a file to the desktop of finder.
  */
-export function dragdropFile(dt: DataTransfer, input: t.BinaryFile) {
+export function dragdropFile(dt: DataTransfer, input: t.BinaryFile.File) {
   if (input == null) return;
   const file = Binary.toBrowserFile(input);
 

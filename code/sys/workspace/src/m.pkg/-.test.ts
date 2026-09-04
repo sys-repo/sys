@@ -1,4 +1,5 @@
-import { describe, expect, Fs, it, Testing } from '../-test.ts';
+import { describe, expect, expectTypeOf, Fs, it, type t, Testing } from '../-test.ts';
+import { pkg } from '../pkg.ts';
 import { WorkspacePkg } from './mod.ts';
 import { resolveExistingTargets } from './u.targets.ts';
 import { renderPkg } from './u.render.ts';
@@ -7,6 +8,23 @@ describe(`Workspace.Pkg`, () => {
   it('API', async () => {
     const m = await import('@sys/workspace/pkg');
     expect(m.WorkspacePkg).to.equal(WorkspacePkg);
+  });
+
+  it('exports frozen generated package metadata', () => {
+    const original = { ...pkg };
+
+    const mutate = () => {
+      // @ts-expect-error Generated package metadata is readonly.
+      pkg.name = '@sys/mutated';
+    };
+
+    expectTypeOf(pkg).toEqualTypeOf<Readonly<t.Pkg>>();
+    expectTypeOf(mutate).toEqualTypeOf<() => void>();
+    expect(Object.isFrozen(pkg)).to.eql(true);
+    expect(Reflect.set(pkg, 'name', '@sys/mutated')).to.eql(false);
+    expect(Reflect.set(pkg, 'extra', true)).to.eql(false);
+    expect(pkg).to.eql(original);
+    expect(Reflect.ownKeys(pkg)).to.eql(['name', 'version']);
   });
 
   it('discovers package roots from explicit deno.json include globs', async () => {

@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
 export type * from './t.timeline.ts';
-export type * from './t.map.ts';
 
 /**
  * Canonical library of pure, programmatic operations for working with
@@ -19,90 +18,6 @@ export type * from './t.map.ts';
  * Used internally by higher-order systems (e.g. player, editor, CRDT sync)
  * as the low-level substrate for timecode composition logic.
  */
-export type TimecodeCompositeLib = {
-  /** Build a resolved timeline from authoring spec + known durations. */
-  readonly resolve: t.TimecodeResolveComposition;
-
-  /** Mapping helpers between virtual-time and source-time domains. */
-  readonly Map: t.TimecodeCompositeMapLib;
-
-  /** Small time utilities on the virtual timeline. */
-  readonly Time: {
-    /** Clamp a virtual time into [0,total]. */
-    clamp(v: t.TimecodeVTime, total: t.Msecs): t.TimecodeVTime;
-    /** Convert a source timestamp inside a segment to virtual time. */
-    toVirtual(
-      segments: t.Ary<t.TimecodeResolvedSegment>,
-      index: number,
-      srcTime: t.Msecs,
-    ): t.TimecodeVTime;
-  };
-
-  /** Validate spec+durations for composability; never throws. */
-  validate(
-    spec: t.TimecodeCompositionSpec,
-    durations: t.TimecodeDurationMap,
-  ): { readonly ok: boolean; readonly issues: readonly TimecodeCompositeIssue[] };
-
-  /** Sanitize authoring input (trim, drop empty slices, normalise tuples, etc.). */
-  normalize(spec: t.TimecodeCompositionSpec): t.TimecodeCompositionSpec;
-
-  /** Duration helpers (env-specific probing is left to caller; this is the contract). */
-  readonly Durations: {
-    /** Resolve durations per src (implementation may be provided by host app). */
-    probe(srcs: readonly string[]): Promise<t.TimecodeDurationMap>;
-    /** List srcs whose duration changed. */
-    diff(prev: t.TimecodeDurationMap, next: t.TimecodeDurationMap): readonly string[];
-    /** Return a normalized spec with missing durations filled from map. */
-    with(spec: t.TimecodeCompositionSpec, map: t.TimecodeDurationMap): t.TimecodeCompositionSpec;
-  };
-
-  /** Indexing helpers over a resolved composition. */
-  cursor(resolved: t.TimecodeCompositionResolved): {
-    /** Lookup segment at virtual time (or null if out of range). */
-    at(v: t.TimecodeVTime): t.TimecodeMapToSourceResult | null;
-    /** Next segment index or null if none. */
-    next(index: number): number | null;
-    /** Previous segment index or null if none. */
-    prev(index: number): number | null;
-  };
-
-  /** Pure transforms on resolved timelines. */
-  readonly Ops: {
-    /** Insert pieces at segment boundary; returns a new resolved timeline. */
-    splice(
-      resolved: t.TimecodeCompositionResolved,
-      at: number,
-      pieces: t.TimecodeCompositionSpec,
-      durations: t.TimecodeDurationMap,
-    ): t.TimecodeCompositionResolved;
-
-    /** Concatenate two resolved timelines, rebasing vFrom/vTo. */
-    concat(
-      a: t.TimecodeCompositionResolved,
-      b: t.TimecodeCompositionResolved,
-    ): t.TimecodeCompositionResolved;
-  };
-
-  /**
-   * Build a purely-virtual resolved timeline from authoring spec only.
-   *
-   * Resolution rules (no environment metadata is consulted):
-   * - Length is determinable when either:
-   *    - slice is absolute "START..END" → len = END - START
-   *    - OR a `duration` is supplied on the piece:
-   *       - "..END"        → len = END - 0
-   *       - "START.."      → len = duration - START
-   *       - "START..-X"    → len = duration - START - X
-   *       - ".." or no slice → len = duration
-   * - Pieces whose length cannot be determined are excluded from `segments` and
-   *   reported as issues (see `unresolved-length`). Zero/negative lengths are dropped.
-   * - Segments are emitted contiguously on the virtual axis via accumulated lengths.
-   * - Always returns an object; use `is.empty` and `is.valid` for quick checks.
-   */
-  readonly toVirtualTimeline: (spec?: t.TimecodeCompositionSpec) => t.TimecodeResolved;
-};
-
 /**
  * Validation/diagnostic issues emitted by Composite.validate.
  */

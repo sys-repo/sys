@@ -5,13 +5,13 @@ type O = Record<string, unknown>;
 /**
  * Method names reserved for future doc-level RPC.
  * These are not yet used by `WireCall`/`WireResult`, but define the
- * stable string surface for document operations over the wire.
+ * stable string protocol for document operations over the wire.
  */
 export type WireDocMethod = 'doc.change' | 'doc.dispose' | 'doc.path' | 'doc.events';
 
 /**
  * Argument tuples per doc method (reserved for doc-level RPC).
- * These are shaped around the existing `CrdtRef` surface:
+ * These are shaped around the existing `CrdtRef` API:
  * - `doc.change`   → mutate a document by id with a change patch descriptor.
  * - `doc.dispose`  → dispose a document ref on the worker side.
  * - `doc.path`     → subscribe to path-based events for a given document.

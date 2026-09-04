@@ -1,4 +1,4 @@
-import { type t, Err, Fs, Is, Pkg, pkg } from '../common.ts';
+import { Err, Fs, Is, Pkg, pkg, type t } from '../common.ts';
 import { HashJobSchema } from './u.hash.schema.ts';
 import type * as h from './t.ts';
 
@@ -47,5 +47,6 @@ export async function runHashJob(
     bytesTotal,
     computedAt,
     dist,
+    manifest: res.manifest,
   };
 }

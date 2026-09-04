@@ -1,20 +1,128 @@
-import { type t, c, HashFmt, Time } from './common.ts';
+import type { t } from './common.ts';
+import { c, Fmt, stripAnsi, Text } from '@sys/cli/fmt';
+import { HashFmt } from '@sys/crypto/fmt';
+import { Is } from '@sys/std/is';
+import { Time } from '@sys/std/time';
 
 const MINUTE = 60_000;
 
-export const digest: t.ViteLogLib['digest'] = (hash?: t.StringHash) => {
-  if (!hash) return '';
-  const uri = HashFmt.digest(hash);
-  return c.gray(`${c.green('←')} ${uri}`);
+type MetadataRowArgs = {
+  label: string;
+  value: string;
+  valueUrl?: URL;
+  width: number;
+  indent?: number;
+  labelWidth?: number;
+  styledLabel?: string;
+  suffix?: (maxWidth: number) => string;
 };
 
-export const elapsed: t.ViteLogLib['elapsed'] = (msec) => {
+export const digest: t.ViteLog.Lib['digest'] = (hash, options = {}) =>
+  HashFmt.digest(hash, { ...options, arrow: true });
+
+export const elapsed: t.ViteLog.Lib['elapsed'] = (msec) => {
   if (msec == null) return '-';
   if (msec > MINUTE) return `${(msec / MINUTE).toFixed(2)}m`;
   return String(Time.duration(msec));
 };
 
-export const pad: t.ViteLogLib['pad'] = (text, pad) => {
+export const pad: t.ViteLog.Lib['pad'] = (text, pad) => {
   text = text.trim();
   return pad ? `\n${text}\n` : text;
 };
+
+export function outputWidth(input?: number) {
+  return Is.num(input) ? Math.max(0, Math.floor(input)) : Text.Width.fit();
+}
+
+export function reserveWidth(width: number, reserve: number) {
+  return Math.max(0, Math.floor(width) - Math.max(0, Math.floor(reserve)));
+}
+
+export function clipLine(input: string, width: number) {
+  if (width <= 0) return '';
+  if (Text.Width.measure(input) <= width) return input;
+  return Text.ellipsize(stripAnsi(input), width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.gray(head)}${Fmt.omission(ellipsis)}${c.gray(tail)}`;
+    },
+  });
+}
+
+export function clipText(input: string, width: number) {
+  if (width <= 0) return '';
+  if (Text.Width.measure(input) <= width) return input;
+  return Text.ellipsize(input, width);
+}
+
+export function clipValue(input: string, width: number) {
+  if (width <= 0) return '';
+  const text = stripAnsi(input);
+  if (Text.Width.measure(text) <= width) return input;
+  return Text.ellipsize(text, width, {
+    render: ({ head, ellipsis, tail }) => `${head}${Fmt.omission(ellipsis)}${tail}`,
+  });
+}
+
+export function metadataRow(args: MetadataRowArgs) {
+  const { value, valueUrl, width, suffix: resolveSuffix } = args;
+  const prefix = metadataPrefix(args);
+  const base = `${prefix}${formatMetadataValue(value, valueUrl)}`;
+  const availableSuffixWidth = Math.max(
+    0,
+    width - Text.Width.measure(`${base} `),
+  );
+  const suffix = resolveSuffix?.(availableSuffixWidth);
+  if (suffix && Text.Width.measure(`${base} ${suffix}`) <= width) {
+    return `${base} ${suffix}`;
+  }
+  if (Text.Width.measure(base) <= width) return base;
+
+  const compactSuffix = resolveSuffix?.(
+    Math.max(0, width - Text.Width.measure(`${prefix}… `)),
+  );
+  if (compactSuffix && Text.Width.measure(`${prefix}… ${compactSuffix}`) <= width) {
+    const valueWidth = Text.Width.fit({
+      width,
+      reserve: Text.Width.measure(`${prefix} ${compactSuffix}`),
+      terminal: false,
+    });
+    const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+    return `${prefix}${clipped} ${compactSuffix}`;
+  }
+
+  const valueWidth = Text.Width.fit({
+    width,
+    reserve: Text.Width.measure(prefix),
+    terminal: false,
+  });
+  const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+  return clipLine(`${prefix}${clipped}`.trimEnd(), width);
+}
+
+function formatMetadataValue(value: string, url: URL | undefined) {
+  return value && url ? Fmt.hyperlink(value, url) : value;
+}
+
+export function metadataPrefix(
+  args: Pick<MetadataRowArgs, 'label' | 'indent' | 'labelWidth' | 'styledLabel'>,
+) {
+  const { label, indent = 0, labelWidth = 14, styledLabel = c.gray(label) } = args;
+  const labelDisplayWidth = Text.Width.measure(styledLabel);
+  const gap = ' '.repeat(Math.max(1, labelWidth - labelDisplayWidth));
+  return `${' '.repeat(Math.max(0, indent))}${styledLabel}${gap}`;
+}
+
+export function hashValue(hash: t.StringHash, width: number) {
+  if (width <= 0) return '';
+  if (Text.Width.measure(hash) <= width) return formatHashTail(hash);
+  return Text.ellipsize(hash, width, {
+    render: ({ head, ellipsis, tail }) => {
+      return `${c.dim(c.gray(head))}${Fmt.omission(ellipsis)}${formatHashTail(tail)}`;
+    },
+  });
+}
+
+function formatHashTail(tail: string) {
+  return `${c.dim(c.gray(tail.slice(0, -5)))}${c.gray(tail.slice(-5))}`;
+}

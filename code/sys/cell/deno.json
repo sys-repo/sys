@@ -1,0 +1,119 @@
+{
+  "name": "@sys/cell",
+  "version": "0.0.80",
+  "license": "MIT",
+  "tasks": {
+    "test": "deno test -P=test ./src",
+    "test:deploy:authority": "deno run --check -P=test-deploy-authority --cached-only --frozen --no-prompt --ignore-env --deny-env --deny-net --deny-run --deny-sys --deny-ffi ./src/m.cell/-test/-u.sample.deploy.authority.ts",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
+    "cli": "deno run -P=cli ./-scripts/task.cli.ts",
+    "pi": "cd ./-sample && deno run -A @sys/driver-pi Profiles --git-root none --config ./-config/sample.yaml --",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "prep": "deno task tmpl:bundle && deno task help:bundle",
+    "tmpl:bundle": "deno run -RWE ./src/m.tmpl/-bundle/mod.ts",
+    "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
+    "start": "deno task sample:stripe",
+    "sample": "deno run -P=sample ./-scripts/task.sample.ts",
+    "sample:stripe": "deno run -P=sample @sys/cell start ./-sample/cell.stripe --reporter auto",
+    "sample:deploy:start": "deno run -P=sample @sys/cell start ./-sample/cell.deploy --reporter auto",
+    "sample:deploy": "deno run -P=sample-deploy --cached-only --frozen --no-prompt --ignore-env --deny-env --deny-net --deny-run --deny-sys --deny-ffi @sys/cell task sample:deploy ./-sample/cell.deploy",
+    "sample:vite": "deno run -P=sample @sys/cell start ./-sample/cell.vite --reporter auto",
+    "sample:vite:dev": "deno run -P=sample-vite-dev @sys/cell start ./-sample/cell.vite --mode dev --reporter auto",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./cli": "./src/m.cli/mod.ts"
+  },
+  "exclude": [
+    ".tmp",
+    "-sample/.pi",
+    "-sample/*/.tmp",
+    "-sample/*/.sys.rooted",
+    "-sample/*/view/.pulled",
+    "-spec.agent"
+  ],
+  "permissions": {
+    "cli": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "sample": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "sample-deploy": {
+      "read": true,
+      "write": true
+    },
+    "sample-vite-dev": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    },
+    "test-deploy-authority": {
+      "read": true,
+      "write": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
+    }
+  }
+}
+

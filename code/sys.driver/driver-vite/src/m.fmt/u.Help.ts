@@ -1,16 +1,17 @@
-import type { ViteLogHelpLib } from './t.ts';
-
-import { c, pkg as modulePkg, Pkg } from './common.ts';
-import { API } from './u.API.ts';
+import type { t } from './common.ts';
+import { c } from '@sys/cli/fmt';
+import { Pkg } from '@sys/fs/pkg';
+import { pkg as modulePkg } from '../pkg.ts';
+import { Tasks } from './u.Tasks.ts';
 import { Dist } from './u.Dist.ts';
 
-export const Help: ViteLogHelpLib = {
+export const Help: t.ViteLog.Help.Lib = {
   async log(args) {
     const pkg = args.pkg ?? modulePkg;
     const dirs = args.dirs;
 
-    // API (commands).
-    if (args.api !== false) API.log({ ...args.api, minimal: false });
+    // Common tasks.
+    if (args.tasks !== false) Tasks.log({ ...args.tasks, minimal: false });
     console.info();
 
     // Dist bundle.

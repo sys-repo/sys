@@ -107,7 +107,7 @@ describe('Monaco.Link', () => {
     /**
      * Find first occurrence of `needle` and build bounds for it.
      */
-    const makeBoundsFor = (model: t.Monaco.TextModel, needle: string): t.EditorLinkBounds => {
+    const makeBoundsFor = (model: t.Monaco.TextModel, needle: string): t.MonacoDriver.Link.Bounds => {
       const src = model.getValue();
       const idx = src.indexOf(needle);
       if (idx < 0) throw new Error(`needle not found: ${needle}`);

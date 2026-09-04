@@ -1,19 +1,37 @@
 {
   "name": "@sys/testing",
-  "version": "0.0.280",
+  "version": "0.0.339",
   "license": "MIT",
+  "x-sys": {
+    "ci": {
+      "test": {
+        "browser": true
+      }
+    }
+  },
   "tasks": {
-    "test": "deno test -P=test",
+    "test": "deno task test:unit && deno task test:process",
+    "test:unit": "deno test -P=test-unit --ignore=./src/-test/-bdd-contract.test.ts --ignore=./src/-test/-sanitizer-alarm.test.ts --ignore=./src/-test/u.fixture-process.ts --ignore=./src/-test/fixtures --ignore=./src/m.server/m.Browser",
+    "test:process": "deno check -- ./src/-test/fixtures ./src/-test/u.fixture-process.ts && deno test -P=test-process ./src/-test/-bdd-contract.test.ts ./src/-test/-sanitizer-alarm.test.ts",
+    "test:browser": "deno task test:browser:preflight && deno task test:browser:unit && deno task test:browser:prepare && deno task test:browser:chrome && deno task test:browser:postflight",
+    "test:browser:preflight": "deno run --no-prompt -P=test-browser-preflight ./scripts/task.browser.preflight.ts",
+    "test:browser:unit": "TMPDIR=./.tmp/browser-proof deno test --no-prompt --deny-run -P=test-browser-unit --trace-leaks ./src/m.server/m.Browser/-test/-internal.test.ts ./src/m.server/m.Browser/-test/-u.chrome.executable.test.ts --",
+    "test:browser:prepare": "TMPDIR=./.tmp/browser-proof deno run --no-prompt -P=test-browser-prepare ./scripts/task.browser.prepare.ts",
+    "test:browser:admit": "deno run --no-prompt -P=test-browser-admit ./scripts/task.browser.admit.ts",
+    "test:browser:chrome": "deno task test:browser:admit && env -u CHROME_BIN TMPDIR=./.tmp/browser-proof deno test --no-prompt -P=test-browser-chrome --allow-run=\"$CHROME_BIN\" --trace-leaks ./src/m.server/m.Browser/-test/-chrome.authority.process.test.ts ./src/m.server/m.Browser/-test/-m.Browser.load.test.ts ./src/m.server/m.Browser/-test/-m.Browser.ServiceWorker.test.ts -- --chrome-executable=\"$CHROME_BIN\"",
+    "test:browser:postflight": "deno run --no-prompt -P=test-browser-postflight ./scripts/task.browser.postflight.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
   "exports": {
-    ".": "./src/ns.client/mod.ts",
+    ".": "./src/m.client/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
-    "./spec": "./src/ns.client/m.Spec/mod.ts",
-    "./server": "./src/ns.server/mod.ts"
+    "./spec": "./src/m.client/m.Spec/mod.ts",
+    "./server": "./src/m.server/mod.ts",
+    "./server/dom": "./src/m.server/m.DomMock/mod.ts",
+    "./web": "./src/m.web/mod.ts"
   },
   "permissions": {
     "clean": {
@@ -21,11 +39,74 @@
       "write": true,
       "env": true
     },
-    "test": {
+    "test-unit": {
       "read": true,
       "write": true,
       "env": true,
       "net": true
+    },
+    "test-process": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": [
+        "deno"
+      ]
+    },
+    "test-browser-preflight": {
+      "read": true,
+      "write": [
+        "./.tmp/browser-proof"
+      ],
+      "env": [
+        "CHROME_BIN"
+      ]
+    },
+    "test-browser-unit": {
+      "read": true,
+      "write": [
+        "./.tmp/browser-proof"
+      ]
+    },
+    "test-browser-prepare": {
+      "read": true,
+      "write": [
+        "./.tmp/browser-proof"
+      ],
+      "run": [
+        "deno"
+      ]
+    },
+    "test-browser-admit": {
+      "read": true,
+      "env": [
+        "CHROME_BIN"
+      ]
+    },
+    "test-browser-chrome": {
+      "read": true,
+      "write": [
+        "./.tmp/browser-proof"
+      ],
+      "env": [
+        "TMPDIR"
+      ],
+      "net": [
+        "127.0.0.1"
+      ]
+    },
+    "test-browser-postflight": {
+      "read": [
+        "./.tmp/browser-proof"
+      ],
+      "write": [
+        "./.tmp/browser-proof"
+      ],
+      "run": [
+        "/bin/ps",
+        "/usr/bin/ps"
+      ]
     }
   }
 }

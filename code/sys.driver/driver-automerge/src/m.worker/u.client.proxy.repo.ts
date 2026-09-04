@@ -1,4 +1,4 @@
-import { type t, Is, Rx, Try, toWorkerError } from './common.ts';
+import { Is, Rx, type t, toWorkerError, Try } from './common.ts';
 import { createDocProxy } from './u.client.proxy.doc.ts';
 import { createStallDetector } from './u.client.stall.ts';
 import { Wire } from './u.wire.ts';
@@ -13,9 +13,6 @@ const PORT = new WeakMap<t.CrdtRepoWorkerProxy, MessagePort>();
  * Factory: repo client façade over a MessagePort.
  */
 export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opts = {}) => {
-  const life = Rx.lifecycleAsync(opts.until);
-  port.start?.();
-
   /**
    * Local state mirrored from wire.
    */
@@ -36,28 +33,6 @@ export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opt
   const event$ = Rx.subject<t.CrdtRepoEvent>();
   const emit = (e: t.CrdtRepoEvent) => event$.next(e);
 
-  function updateReady(next: boolean) {
-    if (next === state.ready) return;
-    const before = Wire.clone(repo);
-    state.ready = next;
-    emit({
-      type: 'props/change',
-      payload: { prop: 'status', before, after: Wire.clone(repo) },
-    });
-  }
-
-  const stallDetector = createStallDetector({
-    until: life.dispose$,
-    stallAfter: opts.stalledAfter ?? 2_000,
-    onStalledChange(stalled) {
-      if (!state.props) return; // If we don’t yet have props, there’s nothing meaningful to emit.
-      const before = Wire.clone(state.props);
-      const after: t.CrdtRepoProps = { ...state.props, status: { ...state.props.status, stalled } };
-      state.props = after;
-      emit({ type: 'props/change', payload: { prop: 'status', before, after } });
-    },
-  });
-
   /**
    * RPC call tracking for client → worker method calls.
    */
@@ -68,6 +43,54 @@ export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opt
 
   let nextId: t.WireId = 1;
   const pending = new Map<t.WireId, RpcPendingEntry>();
+
+  const cleanup = () => {
+    Try.run(() => port.removeEventListener?.('message', onMessage));
+    Try.run(() => port.close?.());
+    Try.run(() => event$.complete());
+
+    const error = new Error('Crdt worker repo disposed');
+    pending.forEach((entry) => entry.reject(error));
+    pending.clear();
+  };
+
+  const life = Rx.lifecycleAsync(opts.until, cleanup);
+  const rollbackConstruction: (error: unknown) => never = (error) => {
+    const rollback = life.dispose(error);
+    void rollback.catch(() => undefined);
+    throw error;
+  };
+
+  function updateReady(next: boolean) {
+    if (next === state.ready) return;
+    const before = Wire.clone(repo);
+    state.ready = next;
+    emit({
+      type: 'props/change',
+      payload: { prop: 'status', before, after: Wire.clone(repo) },
+    });
+  }
+
+  let stallDetector: ReturnType<typeof createStallDetector>;
+  try {
+    port.start?.();
+    stallDetector = createStallDetector({
+      until: life.dispose$,
+      stallAfter: opts.stalledAfter ?? 2_000,
+      onStalledChange(stalled) {
+        if (!state.props) return; // If we don’t yet have props, there’s nothing meaningful to emit.
+        const before = Wire.clone(state.props);
+        const after: t.CrdtRepoProps = {
+          ...state.props,
+          status: { ...state.props.status, stalled },
+        };
+        state.props = after;
+        emit({ type: 'props/change', payload: { prop: 'status', before, after } });
+      },
+    });
+  } catch (error) {
+    rollbackConstruction(error);
+  }
 
   function rpc<M extends t.WireRepoMethod>(
     method: M,
@@ -143,7 +166,7 @@ export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opt
       if (Wire.Is.streamLifecycle(e)) {
         if (e.type === 'stream/close') {
           // The host worker-repo has gone away → dispose proxy.
-          repo.dispose('worker:repo:stream/close');
+          void repo.dispose('worker:repo:stream/close').catch(() => undefined);
         }
         return;
       }
@@ -291,6 +314,7 @@ export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opt
      * Lifecycle:
      */
     dispose: life.dispose,
+    [Symbol.asyncDispose]: life[Symbol.asyncDispose],
     get dispose$() {
       return life.dispose$;
     },
@@ -299,19 +323,13 @@ export const createRepo: t.CrdtWorkerClientLib['repo'] = (port: MessagePort, opt
     },
   };
 
-  life.dispose$.subscribe(() => {
-    Try.run(() => port.removeEventListener?.('message', onMessage));
-    Try.run(() => port.close?.());
-    Try.run(() => event$.complete());
-
-    const err = new Error('Crdt worker repo disposed');
-    pending.forEach((entry) => entry.reject(err));
-    pending.clear();
-  });
-
-  port.addEventListener?.('message', onMessage);
-  PORT.set(repo, port);
-  return repo;
+  try {
+    port.addEventListener?.('message', onMessage);
+    PORT.set(repo, port);
+    return repo;
+  } catch (error) {
+    return rollbackConstruction(error);
+  }
 };
 
 /**

@@ -1,5 +1,6 @@
-import { Fs, SAMPLE, pkg, type t } from '../../-test.ts';
-import { Vite } from '../mod.ts';
+import { Fs, Is, Process, SAMPLE, Str, type t } from '../../-test.ts';
+import { writeLocalFixtureImports } from '../-test/u.bridge.fixture.ts';
+import { captureDiagnostic, FIXTURE_CAPTURE, formatRunFailure } from './u.fixture.run.ts';
 
 type BuiltJsFile = { readonly filename: string; readonly text: string };
 type BuiltFiles = {
@@ -7,18 +8,61 @@ type BuiltFiles = {
   readonly dist: t.DistPkg | undefined;
   readonly js: readonly BuiltJsFile[];
 };
+export type SerializedBuild = {
+  readonly ok: t.Vite.Build.Response['ok'];
+  readonly elapsed: t.Vite.Build.Response['elapsed'];
+  readonly paths: {
+    readonly cwd: t.Vite.Build.Response['paths']['cwd'];
+    readonly app: Pick<t.Vite.Build.Response['paths']['app'], 'outDir'>;
+  };
+  readonly cmd: {
+    readonly input: t.Vite.Build.Response['cmd']['input'];
+    readonly output: {
+      readonly code: t.Vite.Build.Response['cmd']['output']['code'];
+      readonly text: Pick<t.Vite.Build.Response['cmd']['output']['text'], 'stdout' | 'stderr'>;
+    };
+  };
+};
 export type BuiltSample = {
-  readonly build: t.ViteBuildResponse;
+  readonly build: SerializedBuild;
   readonly outDir: string;
   readonly files: BuiltFiles;
 };
+
+type BuildDiagnostic = {
+  readonly ok: boolean;
+  readonly paths: Pick<SerializedBuild['paths'], 'cwd'>;
+  readonly cmd: SerializedBuild['cmd'];
+};
+
+const CHILD = Fs.Path.fromFileUrl(new URL('./u.fixture.build.child.ts', import.meta.url));
+const PACKAGE_DIR = Fs.Path.fromFileUrl(new URL('../../../', import.meta.url));
+
+/**
+ * Preserve a failed published-fixture build's command context for external-lane diagnosis.
+ */
+export function assertBuildOk(build: BuildDiagnostic, message: string) {
+  if (build.ok) return;
+
+  throw new Error(
+    formatRunFailure({
+      message,
+      status: `exit ${build.cmd.output.code}`,
+      cwd: build.paths.cwd,
+      invocation: `cmd: ${build.cmd.input}`,
+      stdout: build.cmd.output.text.stdout,
+      stderr: build.cmd.output.text.stderr,
+    }),
+  );
+}
 
 export async function buildSample(args: {
   sampleName: string;
   sampleDir: t.StringDir;
   entry?: string;
+  local?: boolean;
 }): Promise<BuiltSample> {
-  const { sampleName, sampleDir, entry } = args;
+  const { sampleName, sampleDir, entry, local = false } = args;
   const fs = await SAMPLE.fs(sampleName);
   await Fs.remove(fs.dir);
   await Fs.copy(sampleDir, fs.dir);
@@ -26,17 +70,43 @@ export async function buildSample(args: {
   if (entry && entry !== './index.html') {
     const source = entry.startsWith('./') ? entry.slice(2) : entry;
     const html = (await Fs.readText(Fs.join(fs.dir, source))).data;
-    if (typeof html !== 'string') throw new Error(`Missing fixture entry html: ${entry}`);
+    if (!Is.string(html)) throw new Error(`Missing fixture entry html: ${entry}`);
     await Fs.write(Fs.join(fs.dir, 'index.html'), html);
   }
+  if (local) await writeLocalFixtureImports(fs.dir);
 
-  const build = await Vite.build({
-    cwd: fs.dir,
-    pkg,
-    silent: true,
-    spinner: false,
-    exitOnError: false,
+  const resultPath = Fs.join(fs.dir, '.sys-vite-build-result.json');
+
+  // Importing fixture vite.config.ts in the test process loads Rolldown, whose SignalExit
+  // installs process signal listeners without a public removal API. Isolate that world here.
+  const childArgs = ['run', '-P=test', CHILD, fs.dir, resultPath];
+  const child = await Process.capture({
+    cmd: Deno.execPath(),
+    args: childArgs,
+    cwd: PACKAGE_DIR,
+    ...FIXTURE_CAPTURE,
   });
+  if (child.outcome !== 'exited' || !child.success) {
+    const captured = captureDiagnostic(child);
+    throw new Error(
+      Str.dedent(`
+        Vite fixture build process failed.
+        cmd: ${[Deno.execPath(), ...childArgs].join(' ')}
+        cwd: ${PACKAGE_DIR}
+        outcome: ${child.outcome}
+        termination: ${child.termination.reason ?? 'none'}
+        code: ${child.code ?? 'none'}
+        signal: ${child.signal ?? 'none'}
+        stderr:
+        ${captured.stderr || '(empty)'}
+        stdout:
+        ${captured.stdout || '(empty)'}
+      `),
+    );
+  }
+
+  const build = (await Fs.readJson<SerializedBuild>(resultPath)).data;
+  if (!build) throw new Error(`Vite fixture build result missing: ${resultPath}`);
 
   const outDir = Fs.join(build.paths.cwd, build.paths.app.outDir);
   return {

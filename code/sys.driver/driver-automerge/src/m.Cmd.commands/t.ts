@@ -22,7 +22,7 @@ export type CrdtCmdName =
  * For each command name:
  *   handler(args) → result | Promise<result>
  */
-export type CrdtCmdHandlers = t.CmdHandlers<Name, Payload, Result>;
+export type CrdtCmdHandlers = t.Cmd.Handler.Map<Name, Payload, Result>;
 
 /**
  * Payloads keyed by command name.
@@ -44,7 +44,7 @@ export type CrdtCmdPayload = {
 
 /**
  * Result payloads keyed by command name.
- * - attach       → simple success acknowledgement.
+ * - attach       → success acknowledgement.
  * - doc:create   → newly created document id.
  * - doc:read     → document reference (if present).
  * - doc:write    → document reference (if present).
@@ -64,11 +64,17 @@ export type CrdtCmdResult = {
  * Types related to the commands.
  */
 export namespace CrdtCommands {
+  /** Acknowledgement returned after attaching a worker command host. */
   export type AttachResult = { readonly ok: true };
+  /** Result returned after creating a new CRDT document. */
   export type DocCreateResult = { readonly doc: t.Crdt.Id };
+  /** Result returned after reading a CRDT document path. */
   export type DocReadResult = { readonly value?: t.Json };
+  /** Acknowledgement returned after writing a CRDT document path. */
   export type DocWriteResult = { readonly ok: true };
-  export type DocStatsResult = t.DocumentStats;
+  /** Document statistics returned by the stats command. */
+  export type DocStatsResult = t.Document.Stats;
+  /** File save metadata returned after persisting a CRDT document. */
   export type DocSaveResult = {
     readonly ok: true;
     readonly bytes: t.NumberBytes;

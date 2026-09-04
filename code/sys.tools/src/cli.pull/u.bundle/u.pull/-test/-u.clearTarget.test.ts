@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it } from '../../../../-test.ts';
-import { clearTargetDir } from '../common.ts';
+import { clearTargetDir } from '../u.clearTargetDir.ts';
 
 describe('cli.pull/u.bundle/u.pull → clearTargetDir', () => {
   it('clears a nested target directory inside the pull base', async () => {

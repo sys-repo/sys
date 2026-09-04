@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import type { t } from '../common.ts';
-import prefixPlugin from '../u.prefix.ts';
+import prefixPlugin from '../u/u.prefix.ts';
 
 describe('ViteTransport.prefix', () => {
   describe('plugin shape', () => {
@@ -13,16 +13,11 @@ describe('ViteTransport.prefix', () => {
 
   describe('specifier delegation', () => {
     it('strips npm versions and delegates to vite resolution', async () => {
+      let fallbackCalls = 0;
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: 'react@19.2.0',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
-        async resolveNpmPath() {
+        async resolveNpmPath(id) {
+          fallbackCalls++;
+          expect(id).to.eql('react');
           return null;
         },
         async resolveViteSpecifier() {
@@ -41,18 +36,11 @@ describe('ViteTransport.prefix', () => {
       );
 
       expect(res).to.eql('react');
+      expect(fallbackCalls).to.eql(1);
     });
 
     it('prefers vite resolution for dual-package npm imports', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: 'tinycolor2@1.6.0',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath() {
           throw new Error('resolveNpmPath should not be used when vite resolves first');
         },
@@ -86,14 +74,6 @@ describe('ViteTransport.prefix', () => {
 
     it('preserves scoped npm subpaths when stripping versions', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: '@noble/hashes@2.0.1/legacy.js',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath() {
           return null;
         },
@@ -115,16 +95,8 @@ describe('ViteTransport.prefix', () => {
       expect(res).to.eql('@noble/hashes/legacy.js');
     });
 
-    it('preserves npm subpaths even when deno info reports only the package root', async () => {
+    it('returns normalized npm subpaths when Vite and file-path fallback both miss', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: '@noble/hashes@2.0.1',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath() {
           return null;
         },
@@ -148,9 +120,6 @@ describe('ViteTransport.prefix', () => {
 
     it('delegates http imports to resolveViteSpecifier', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return null;
-        },
         async resolveNpmPath() {
           return null;
         },
@@ -171,9 +140,6 @@ describe('ViteTransport.prefix', () => {
 
     it('ignores unrelated specifiers', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return null;
-        },
         async resolveNpmPath() {
           return null;
         },
@@ -193,14 +159,6 @@ describe('ViteTransport.prefix', () => {
 
     it('falls back to a deno-resolved npm file path when vite resolution fails', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveDeno() {
-          return {
-            id: 'react@19.2.4',
-            kind: 'npm',
-            loader: null,
-            dependencies: [],
-          };
-        },
         async resolveNpmPath(id, cwd) {
           expect(id).to.eql('react');
           expect(cwd).to.eql('/tmp/project');
@@ -222,7 +180,9 @@ describe('ViteTransport.prefix', () => {
         wrangle.options(),
       );
 
-      expect(res).to.eql('/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js');
+      expect(res).to.eql(
+        '/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js',
+      );
     });
   });
 });

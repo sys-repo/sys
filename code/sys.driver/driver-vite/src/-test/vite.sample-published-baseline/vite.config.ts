@@ -1,9 +1,8 @@
-import { Vite } from 'jsr:@sys/driver-vite@0.0.382';
-import { defineConfig } from 'npm:vite';
+import { Vite } from 'jsr:@sys/driver-vite@0.0.475';
 
 const workspace = `${import.meta.dirname ?? '.'}/deno.json`;
 
-export default defineConfig(async () =>
+export default Vite.Config.define(async () =>
   await Vite.Config.app({
     paths: Vite.Config.paths({ app: { entry: './index.html' } }),
     plugins: { react: false },

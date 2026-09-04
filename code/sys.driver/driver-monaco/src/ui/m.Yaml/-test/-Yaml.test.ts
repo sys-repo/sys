@@ -11,7 +11,7 @@ import {
   Rx,
   settle,
 } from '../../../-test.ts';
-import { type t, Bus, Immutable } from '../common.ts';
+import { Bus, Immutable, type t } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 import { useYaml } from '../use.Yaml.ts';
 import { useYamlErrorMarkers } from '../use.YamlErrorMarkers.ts';
@@ -37,11 +37,11 @@ describe('Monaco.Yaml', () => {
       const doc = Immutable.clonerRef({ text: 'foo: bar' });
 
       const { result, unmount } = renderHook(() =>
-        EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco, debounce: 0 }),
+        EditorYaml.useYaml({ bus$, doc, path: ['text'], editor, monaco, debounce: 0 })
       );
 
-      const life = Rx.disposable();
-      const events: t.EditorEvent[] = [];
+      const life = Rx.lifecycle();
+      const events: t.EditorEvent.Shape[] = [];
       const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
       try {
         const nonce = 'nonce-123';
@@ -50,8 +50,8 @@ describe('Monaco.Yaml', () => {
           await settle();
         });
 
-        const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EventYaml;
-        const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
+        const yaml = events.find((e) => e.kind === 'editor:yaml') as t.EditorEvent.Yaml.Data;
+        const pong = events.find((e) => e.kind === 'editor:pong') as t.EditorEvent.Ping.Response;
 
         expect(yaml).to.exist;
         expect(pong).to.exist;

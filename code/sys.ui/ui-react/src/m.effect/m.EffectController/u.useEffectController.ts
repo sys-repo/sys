@@ -6,7 +6,8 @@ type LastEvent = {
   readonly state: any;
 };
 
-export const useEffectController: t.UseEffectController = (controller, options) => {
+/** Subscribe a React component to an EffectController state snapshot. */
+export const useEffectController: t.EffectController.Hook.Fn = (controller, options) => {
   const id = controller?.id;
   const opts = wrangle.options(options);
   const [, bump] = React.useState(0);
@@ -67,9 +68,9 @@ export const useEffectController: t.UseEffectController = (controller, options) 
 const wrangle = {
   options<State, Patch, Props>(
     input?:
-      | t.UseEffectControllerOptions<State, Patch, Props>
-      | t.UseEffectControllerChangeHandler<State, Patch, Props>,
-  ): t.UseEffectControllerOptions<State, Patch, Props> {
+      | t.EffectController.Hook.Options<State, Patch, Props>
+      | t.EffectController.Hook.ChangeHandler<State, Patch, Props>,
+  ): t.EffectController.Hook.Options<State, Patch, Props> {
     if (!input) return {};
     if (Is.func(input)) return { onChange: input };
     return input;

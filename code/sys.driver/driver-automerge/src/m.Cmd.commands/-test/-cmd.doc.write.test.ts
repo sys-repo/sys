@@ -1,14 +1,17 @@
 import {
   afterAll,
-  expectError,
   beforeAll,
   describe,
   expect,
+  expectError,
   it,
   makeWorkerFixture,
 } from '../../-test.ts';
 import { type t } from '../common.ts';
 import { makeDocWriteHandler } from '../mod.ts';
+import { cmdContext } from './u.fixture.ts';
+
+type Doc = { foo: { bar: number } };
 
 describe('Command: "doc:write"', () => {
   let env: t.TestWorkerFixture;
@@ -19,22 +22,21 @@ describe('Command: "doc:write"', () => {
     const { repo } = env;
     const handler = makeDocWriteHandler(() => repo);
 
-    // Create a document with a nested shape.
-    type T = { foo: { bar: number } };
-    const created = await repo.create<T>({ foo: { bar: 123 } });
+    const created = await repo.create<Doc>({ foo: { bar: 123 } });
     const doc = created.doc!;
 
-    // Perform the write via the command handler.
-    const resA = await handler({
-      doc: doc.id,
-      path: ['foo', 'bar'],
-      value: 456,
-    });
+    const resA = await handler(
+      {
+        doc: doc.id,
+        path: ['foo', 'bar'],
+        value: 456,
+      },
+      cmdContext('doc:write'),
+    );
 
     expect(resA.ok).to.eql(true);
 
-    // Read the document back from the repo and ensure the value was updated.
-    const resB = await repo.get<T>(doc.id);
+    const resB = await repo.get<Doc>(doc.id);
     expect(resB.ok).to.eql(true);
 
     const current = resB.doc!.current;
@@ -48,7 +50,7 @@ describe('Command: "doc:write"', () => {
       const missingId = 'does-not-exist';
 
       await expectError(
-        () => handler({ doc: missingId, path: ['foo'], value: 123 }),
+        () => handler({ doc: missingId, path: ['foo'], value: 123 }, cmdContext('doc:write')),
         `Failed to load document for write (id: ${missingId}).`,
       );
     });
@@ -59,7 +61,7 @@ describe('Command: "doc:write"', () => {
       const handler = makeDocWriteHandler(() => undefined);
 
       await expectError(
-        () => handler({ doc: existing.id, path: ['foo'], value: 999 }),
+        () => handler({ doc: existing.id, path: ['foo'], value: 999 }, cmdContext('doc:write')),
         'No repo to operate on.',
       );
     });
@@ -72,7 +74,7 @@ describe('Command: "doc:write"', () => {
       const doc = created.doc!;
 
       await expectError(
-        () => handler({ doc: doc.id, path: [], value: 999 }),
+        () => handler({ doc: doc.id, path: [], value: 999 }, cmdContext('doc:write')),
         'doc:write requires a non-empty object path.',
       );
     });

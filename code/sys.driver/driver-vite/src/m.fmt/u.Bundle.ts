@@ -1,47 +1,108 @@
-import { type t, c, Path, Semver, Str } from './common.ts';
-import { digest, elapsed, pad } from './u.ts';
+import { c, Cli, Path, Semver, Str, type t } from './common.ts';
+import {
+  clipLine,
+  clipText,
+  digest,
+  elapsed,
+  hashValue,
+  metadataRow,
+  outputWidth,
+  pad,
+  reserveWidth,
+} from './u.ts';
 
-export const Bundle: t.ViteLogLib['Bundle'] = {
+export const Bundle: t.ViteLog.Bundle.Lib = {
   log(args) {
     console.info(Bundle.toString(args));
   },
 
   toString(args) {
     const { ok, dirs, pkg, hash } = args;
+    const width = wrangle.width(args.width);
     const size = Str.bytes(args.totalSize);
     const titleColor = ok ? c.brightGreen : c.brightYellow;
-
     const input = Path.trimCwd(dirs.in) || './';
     const outDir = Path.trimCwd(dirs.out);
     const fmtElapsed = elapsed(args.elapsed);
-    const tx = digest(hash);
+    const manifestUrl = ok ? args.manifestUrl : undefined;
+    const lines = [
+      wrangle.clip(
+        `${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${fmtElapsed})`)}`,
+        width,
+      ),
+      wrangle.row('pkg:', pkg ? wrangle.pkg(pkg, args.pkgSize, width) : '', width),
+      wrangle.row('in:', clean(input), width),
+      metadataRow({
+        label: 'out:',
+        value: wrangle.manifest(clean(outDir), manifestUrl),
+        width,
+        labelWidth: 10,
+        suffix: (maxWidth) => digest(hash, { maxWidth }),
+      }),
+    ];
 
-    let strPkg = ``;
-    if (pkg) {
-      const strVersion = Semver.Fmt.colorize(pkg.version);
-      const strModule = `${c.white(c.bold(pkg.name))}${c.dim('@')}${strVersion}`;
-      strPkg = strModule;
-      if (args.pkgSize) strPkg += ` /pkg:${c.white(Str.bytes(args.pkgSize))}`;
-    }
+    if (hash) lines.push(wrangle.row('', hashValue(hash, wrangle.valueWidth(width)), width));
 
-    let fmtHash = hash ?? '';
-    if (hash) fmtHash = c.gray(c.dim(hash.slice(0, -5)) + hash.slice(-5));
-
-    let text = `
-${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${fmtElapsed})`)}
-${c.gray(`pkg:      ${strPkg}`)}
-${c.gray(`in:       ${clean(input)}`)}
-${c.gray(`out:      ${clean(outDir)}/dist.json`)} ${tx}
-          ${fmtHash}
-`.trim();
-
-    return pad(text.trim(), args.pad);
+    return pad(lines.join('\n').trim(), args.pad);
   },
 };
 
 /**
  * Helpers:
  */
+const wrangle = {
+  width: outputWidth,
+
+  manifest(outDir: string, manifestUrl: URL | undefined) {
+    const filename = manifestUrl ? Cli.Fmt.hyperlink('dist.json', manifestUrl) : 'dist.json';
+    return `${outDir ? `${outDir}/` : '/'}${filename}`;
+  },
+
+  row(label: string, value: string, width: number) {
+    const prefix = c.gray(label.padEnd(10, ' '));
+    const text = `${prefix}${wrangle.clip(value, wrangle.valueWidth(width))}`.trimEnd();
+    return clipLine(text, width);
+  },
+
+  valueWidth(width: number) {
+    return reserveWidth(width, 10);
+  },
+
+  pkg(pkg: t.Pkg, pkgSize: t.NumberBytes | undefined, width: number) {
+    const valueWidth = wrangle.valueWidth(width);
+    const pkgBytes = pkgSize ? ` /pkg:${c.white(Str.bytes(pkgSize))}` : '';
+    const version = Semver.Fmt.colorize(pkg.version);
+    const name = c.white(c.bold(pkg.name));
+    const module = `${name}${c.dim('@')}${version}`;
+    const nameOnly = c.white(c.bold(pkg.name));
+    const unscoped = wrangle.unscoped(pkg.name);
+    const candidates = [
+      `${module}${pkgBytes}`,
+      module,
+      nameOnly,
+      c.white(c.bold(unscoped)),
+    ];
+    const match = candidates.find((candidate) =>
+      Cli.Fmt.Text.Width.measure(candidate) <= valueWidth
+    );
+    return match ?? c.white(c.bold(wrangle.clipText(unscoped, valueWidth)));
+  },
+
+  unscoped(name: string) {
+    const index = name.lastIndexOf('/');
+    const value = index >= 0 ? name.slice(index + 1) : name;
+    return value || name || 'unknown';
+  },
+
+  clip(input: string, width: number) {
+    if (width <= 0) return '';
+    if (Cli.Fmt.Text.Width.measure(input) <= width) return input;
+    return clipLine(input, width);
+  },
+
+  clipText,
+};
+
 function clean(input: t.StringPath = '') {
   return input
     .trim()

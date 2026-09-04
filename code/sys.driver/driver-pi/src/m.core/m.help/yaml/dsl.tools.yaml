@@ -1,0 +1,47 @@
+id: tools
+title: Pi-Driver tools
+summary: |
+  Use profile-authored `tools:` policy to enable, disable, or configure wrapper-owned tools for a
+  future Pi-Driver launch. Do not confuse future-launch policy with live-session callability.
+
+sections:
+  - label: Use when
+    items: |
+      The prompt asks to enable, disable, or configure a Pi-Driver tool through profile YAML.
+      The prompt asks why a configured tool is not callable in this live session.
+      The prompt asks where a concrete Pi-Driver tool DSL chapter belongs.
+      The prompt asks how `tools.remove`, `tools.move`, `tools.copy`, or `tools.ocr.pdf` should be authored.
+
+  - label: Rule
+    items: |
+      `tools:` in profile YAML is durable policy for the next Pi-Driver launch.
+      DSL tool guidance is not a Runtime Tool Contract.
+      A tool is callable only when this live Pi session exposes that tool.
+      Profile `tools:` edits require restart or relaunch before they can affect availability.
+      Concrete tool policy guidance lives under `dsl tools <tool>`.
+      Do not use `capabilities` as a tool-policy noun; `sandbox.capability` already owns Deno read, write, and env grants.
+
+  - label: Sequence
+    items: |
+      If the question is about calling a tool now, inspect the live session tools first.
+      If the question is about future launch behavior, read the smallest matching tool policy chapter.
+      Read `dsl profile` before editing profile YAML.
+      Edit only the relevant `tools:` policy.
+      Ask the human to restart or relaunch Pi after policy changes.
+      After relaunch, answer callability from the live Runtime Tool Contract, not from profile text alone.
+
+  - label: Current guidance
+    items: |
+      Filesystem removal profile policy → `dsl tools remove`.
+      Filesystem move or rename profile policy → `dsl tools move`.
+      Filesystem copy or artifact-import profile policy → `dsl tools copy`.
+      OCR PDF profile policy → `dsl tools ocr-pdf`.
+      These are guidance paths for profile policy, not callable tool APIs.
+
+  - label: Shared YAML shape
+    items: |
+      Tool policy lives under the top-level `tools:` profile key.
+      `enabled: true` requests registration for the next launch when startup resolution permits it.
+      `enabled: false` requests that the launcher not register the tool for the next launch.
+      Omitted filesystem tool policy currently resolves to wrapper defaults; author explicit policy when changing durable behavior.
+      A profile edit alone is not proof that a live session can call the tool.

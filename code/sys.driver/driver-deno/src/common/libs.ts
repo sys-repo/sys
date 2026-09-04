@@ -11,6 +11,7 @@ export { Args } from '@sys/std/args';
 export { Delete } from '@sys/std/delete';
 export { Err } from '@sys/std/error';
 export { Json } from '@sys/std/json';
+export { Glob } from '@sys/std/glob';
 export { Path } from '@sys/std/path';
 export { slug } from '@sys/std/random';
 export { Schedule } from '@sys/std/async';

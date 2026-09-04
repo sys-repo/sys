@@ -6,33 +6,14 @@
  * - `back` → navigate to the previous menu level.
  * - `stay` → remain on the current menu.
  *
- * Used as:
- * - a bare `MenuResultKind` value, or
- * - an object wrapper `{ kind }` when future metadata is needed.
+ * The canonical `CliInput.Menu.ResultKind` type is derived from this literal source.
  */
-export const MenuResultKind = {
+export const MenuResultKind: Readonly<{
+  Exit: 'exit';
+  Back: 'back';
+  Stay: 'stay';
+}> = Object.freeze({
   Exit: 'exit',
   Back: 'back',
   Stay: 'stay',
-} as const;
-
-/**
- * Union of all valid menu result discriminants.
- */
-export type MenuResultKind = (typeof MenuResultKind)[keyof typeof MenuResultKind];
-
-/**
- * Result returned from a menu handler.
- *
- * Forms:
- * - `undefined` → no-op / ignored input.
- * - `MenuResultKind` → shorthand result.
- * - `{ kind }` → structured result.
- */
-export type MenuResult =
-  | {
-      /** Structured menu result discriminant. */
-      readonly kind: MenuResultKind;
-    }
-  | MenuResultKind
-  | undefined;
+});

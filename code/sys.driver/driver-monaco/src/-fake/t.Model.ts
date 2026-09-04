@@ -2,25 +2,20 @@ import type { t } from './common.ts';
 
 type StringSrcCode = string;
 
-/**
- * Factory: Create a new text model fake.
- */
-export type CreateFakeTextModel = (
-  src: StringSrcCode,
-  options?: t.FakeTextModelOptions,
-) => t.FakeTextModelFull;
+/** Factory: create a new text model fake. */
+export type Create = (src: StringSrcCode, options?: Options) => Full;
 
 /** Options passed to the text-model factory. */
-export type FakeTextModelOptions = {
+export type Options = {
   language?: t.EditorLanguage;
   uri?: t.Monaco.Uri | string;
 };
 
-/**
- * Minimal `ITextModel` mock.
- */
-export type FakeTextModelFull = t.Monaco.TextModel & t.FakeTextModel;
-export type FakeTextModel = Pick<
+/** Minimal `ITextModel` mock, cast with Monaco text-model shape. */
+export type Full = t.Monaco.TextModel & Shape;
+
+/** Minimal `ITextModel` mock shape. */
+export type Shape = Pick<
   t.Monaco.TextModel,
   | 'uri'
   | 'getValue'
@@ -33,9 +28,7 @@ export type FakeTextModel = Pick<
   | 'getValueLength'
   | 'getLineMaxColumn'
   | 'getWordAtPosition'
-  //
   | 'setValue'
-  //
   | 'onDidChangeContent'
   | 'onDidChangeLanguage'
   | 'isDisposed'

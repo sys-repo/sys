@@ -1,9 +1,20 @@
-import { type t, Schedule, describe, expect, it, MonacoFake, Rx } from '../../../-test.ts';
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  MonacoFake,
+  Rx,
+  Schedule,
+  type t,
+  Time,
+} from '../../../-test.ts';
 import { Crdt } from '../common.ts';
 import { EditorCrdt } from '../mod.ts';
 import { __test as RegisterTest } from '../u.Link.register.ts';
 
-describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('Monaco/Crdt', () => {
   it('API', async () => {
     const m = await import('@sys/driver-monaco');
     expect(m.Monaco.Crdt).to.equal(EditorCrdt);
@@ -14,8 +25,8 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
   describe('Crdt.Link', () => {
     describe('Link.register', () => {
       const ready = (
-        model: t.FakeTextModel,
-        monaco: t.FakeMonacoGlobal = MonacoFake.monaco(),
+        model: t.MonacoFake.Model.Shape,
+        monaco: t.MonacoFake.Global.Shape = MonacoFake.monaco(),
         until?: t.UntilInput,
       ): t.MonacoEditorReady => {
         const life = Rx.lifecycle(until);
@@ -30,7 +41,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const src = 'foo crdt:abc/one/two bar';
         const model = MonacoFake.model(src, { uri: 'inmemory://m/alpha' });
 
-        let ev: t.EditorCrdtLinkClick | undefined;
+        let ev: t.EditorCrdt.Link.Click | undefined;
         const life = await EditorCrdt.Link.register(ready(model, monaco), {
           language: 'yaml',
           onLinkClick: (e) => (ev = e),
@@ -68,7 +79,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const monaco = MonacoFake.monaco();
         const model = MonacoFake.model('x crdt:create y', { uri: 'inmemory://m/create' });
 
-        let ev: t.EditorCrdtLinkClick | undefined;
+        let ev: t.EditorCrdt.Link.Click | undefined;
         const life = await EditorCrdt.Link.register(ready(model, monaco), (e) => (ev = e)); // handler shorthand
 
         const list = monaco.languages._provideLinks('yaml', model)!;
@@ -134,7 +145,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const src = 'alpha\nbravo crdt:xyz/state tango\ncharlie';
         const model = MonacoFake.model(src, { uri: 'inmemory://m/round' });
 
-        let ev: t.EditorCrdtLinkClick | undefined;
+        let ev: t.EditorCrdt.Link.Click | undefined;
         const life = await EditorCrdt.Link.register(ready(model, monaco), {
           onLinkClick: (e) => (ev = e),
         });
@@ -163,7 +174,14 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
     });
 
     describe('Link.create', () => {
-      const repo = Crdt.repo();
+      let repo!: ReturnType<typeof Crdt.repo>;
+      beforeAll(() => {
+        repo = Crdt.repo();
+      });
+      afterAll(async () => {
+        await repo.dispose();
+        await Time.wait(110);
+      });
 
       it('creates a doc, inserts `crdt:<id>` token, moves caret, and returns { doc }', async () => {
         // Arrange.
@@ -177,11 +195,11 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const placeholder = 'crdt:create';
         const { range, startOffset } = substringBounds(model!, placeholder);
 
-        const bounds: t.EditorLinkBounds = {
+        const bounds: t.MonacoDriver.Link.Bounds = {
           model: { uri: model!.uri },
           range,
           startOffset,
-        } as unknown as t.EditorLinkBounds;
+        } as unknown as t.MonacoDriver.Link.Bounds;
 
         // Act.
         const res = await EditorCrdt.Link.create(ctx, repo, bounds);
@@ -224,11 +242,11 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const before = modelA.getValue();
         const beforePos = editor.getPosition();
 
-        const bounds: t.EditorLinkBounds = {
+        const bounds: t.MonacoDriver.Link.Bounds = {
           model: { uri: modelB.uri },
           range,
           startOffset,
-        } as unknown as t.EditorLinkBounds;
+        } as unknown as t.MonacoDriver.Link.Bounds;
 
         // Act
         const res = await EditorCrdt.Link.create(ctx, repo, bounds);
@@ -250,7 +268,14 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
     });
 
     describe('Link.enable', () => {
-      const repo = Crdt.repo();
+      let repo!: ReturnType<typeof Crdt.repo>;
+      beforeAll(() => {
+        repo = Crdt.repo();
+      });
+      afterAll(async () => {
+        await repo.dispose();
+        await Time.wait(110);
+      });
 
       it('registers a listener and, on create-event, inserts token and calls onCreate', async () => {
         // Arrange.
@@ -263,7 +288,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const placeholder = 'crdt:create';
         const { range, startOffset } = substringBounds(model, placeholder);
 
-        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        let onCreateCalled: t.EditorCrdt.Link.CreateResult | undefined;
         const life = await EditorCrdt.Link.enable(ctx, repo, {
           onCreate: (res) => (onCreateCalled = res),
         });
@@ -272,7 +297,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         expect(RegisterTest.lastHandler).to.be.a('function');
 
         // Act: simulate a link "create" click event (full event shape).
-        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+        const ev: t.EditorCrdt.Link.Click = makeClickEvent({
           model,
           range,
           startOffset,
@@ -320,7 +345,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
 
         const { range, startOffset } = substringBounds(modelA, 'crdt:create');
 
-        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        let onCreateCalled: t.EditorCrdt.Link.CreateResult | undefined;
         const life = await EditorCrdt.Link.enable(ctx, repo, {
           onCreate: (res) => (onCreateCalled = res),
         });
@@ -329,7 +354,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const beforePos = editor.getPosition();
 
         // Act: simulate event that points to the *other* model
-        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+        const ev: t.EditorCrdt.Link.Click = makeClickEvent({
           model: modelB,
           range,
           startOffset,
@@ -364,7 +389,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const model = editor.getModel()!;
         model.setValue('hello world');
 
-        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        let onCreateCalled: t.EditorCrdt.Link.CreateResult | undefined;
         const life = await EditorCrdt.Link.enable(ctx, repo, {
           onCreate: (res) => (onCreateCalled = res),
         });
@@ -372,7 +397,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const before = model.getValue();
 
         // Act: simulate a non-create event (full event shape)
-        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+        const ev: t.EditorCrdt.Link.Click = makeClickEvent({
           model,
           range: { startLineNumber: 1, startColumn: 1, endLineNumber: 1, endColumn: 1 },
           startOffset: 0,
@@ -402,7 +427,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const placeholder = 'crdt:create';
         const { range, startOffset } = substringBounds(model, placeholder);
 
-        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        let onCreateCalled: t.EditorCrdt.Link.CreateResult | undefined;
         const life = await EditorCrdt.Link.enable(ctx, repo, {
           onCreate: (res) => (onCreateCalled = res),
         });
@@ -415,7 +440,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
 
         // After dispose, test hook should be cleared (or the handler should no-op)
         // Simulate a click event after disposal
-        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+        const ev: t.EditorCrdt.Link.Click = makeClickEvent({
           model,
           range,
           startOffset,
@@ -447,7 +472,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         const placeholder = 'crdt:create';
         const { range, startOffset } = substringBounds(model, placeholder);
 
-        let onCreateCalled: t.EditorCrdtLinkCreateResult | undefined;
+        let onCreateCalled: t.EditorCrdt.Link.CreateResult | undefined;
         const until = Rx.lifecycle();
         const life = await EditorCrdt.Link.enable(ctx, repo, {
           until,
@@ -460,7 +485,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
         // Dispose via external lifecycle.
         until.dispose();
 
-        const ev: t.EditorCrdtLinkClick = makeClickEvent({
+        const ev: t.EditorCrdt.Link.Click = makeClickEvent({
           model,
           range,
           startOffset,
@@ -488,7 +513,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
     });
 
     /**
-     * Build a valid EditorCrdtLinkClick with the required fields.
+     * Build a valid CRDT link click with the required fields.
      */
     function makeClickEvent(input: {
       model: t.Monaco.TextModel;
@@ -496,13 +521,13 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
       startOffset: number;
       create: boolean;
       raw: string;
-    }): t.EditorCrdtLinkClick {
+    }): t.EditorCrdt.Link.Click {
       const { model, range, startOffset, create, raw } = input;
-      const bounds: t.EditorLinkBounds = {
+      const bounds: t.MonacoDriver.Link.Bounds = {
         model: { uri: model.uri },
         range,
         startOffset,
-      } as unknown as t.EditorLinkBounds;
+      } as unknown as t.MonacoDriver.Link.Bounds;
 
       // If your t.ObjectPath has a factory, use it; otherwise an empty path is fine for tests.
       const path = [] as unknown as t.ObjectPath;
@@ -520,7 +545,7 @@ describe('Monaco/Crdt', { sanitizeResources: false, sanitizeOps: false }, () => 
 
 /**
  * Find bounds for the first occurrence of `substring` within `model`.
- * - Returns { range, startOffset } for use as EditorLinkBounds pieces.
+ * - Returns { range, startOffset } for use as editor link bounds pieces.
  * - This derives a range from offsets (non-overlapping with RangeUtil).
  */
 function substringBounds(

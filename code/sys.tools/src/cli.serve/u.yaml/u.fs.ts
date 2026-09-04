@@ -1,4 +1,4 @@
-import { type t, Fs, Path, pkg, Schema, Str, Yaml } from '../common.ts';
+import { Fs, Is, Path, pkg, Schema, Str, type t, Yaml } from '../common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 import { ServeYamlErrorCode, validateServeYamlText } from './u.validate.ts';
 
@@ -15,6 +15,21 @@ export const ServeFs = {
    */
   fileOf(name: string): t.StringPath {
     return `${SERVE_DIR}/${name}${SERVE_EXT}`;
+  },
+
+  /**
+   * Resolve a bare serve profile name to its owner YAML path.
+   */
+  profilePath(cwd: t.StringDir, profile: unknown, owner = 'ServeFs'): t.StringPath {
+    const ref = YamlConfig.Ref.resolve({
+      value: profile,
+      dir: SERVE_DIR,
+      ext: SERVE_EXT,
+      label: 'profile',
+      errorPrefix: owner,
+    });
+    if (ref.kind !== 'name') throw new Error(`${owner}: profile must be a bare config name.`);
+    return Fs.resolve(cwd, ref.path);
   },
 
   /**
@@ -84,13 +99,16 @@ export const ServeFs = {
    * Load a serve location from its YAML file.
    *
    * Resolves `dir` relative to the project root (cwd).
-   * The cwd is derived by walking up from the YAML file location.
+   * The cwd may be provided explicitly; otherwise it is derived by walking up from the YAML file location.
    */
-  async loadLocation(yamlPath: t.StringPath): Promise<t.ServeTool.LocationYaml.LoadResult> {
+  async loadLocation(
+    yamlPath: t.StringPath,
+    options: { cwd?: t.StringDir } = {},
+  ): Promise<t.ServeTool.LocationYaml.LoadResult> {
     const checked = await ServeFs.validateYaml(yamlPath);
     if (!checked.ok) return { ok: false, errors: checked.errors };
 
-    const cwd = resolveCwdFromYamlPath(yamlPath);
+    const cwd = options.cwd ?? resolveCwdFromYamlPath(yamlPath);
     const doc = checked.doc;
 
     // Resolve dir relative to cwd (project root), not the YAML file location.
@@ -102,6 +120,7 @@ export const ServeFs = {
       location: {
         name: doc.name,
         dir: resolvedDir,
+        info: doc.info,
       },
     };
   },
@@ -110,15 +129,15 @@ export const ServeFs = {
 function resolveCwdFromYamlPath(yamlPath: t.StringPath): t.StringDir {
   const depth = ServeFs.dir.split('/').filter(Boolean).length;
   const parts = Array.from({ length: depth }, () => '..');
-  return Path.resolve(Fs.dirname(yamlPath), ...parts) as t.StringDir;
+  return Path.resolve(Fs.dirname(yamlPath), ...parts);
 }
 
 /**
  * Resolve a directory path relative to cwd.
  */
 function resolveDir(cwd: t.StringDir, dir: t.StringDir): t.StringDir {
-  const raw = String(dir ?? '').trim();
+  const raw = Is.str(dir) ? dir.trim() : '';
   if (!raw || raw === '.') return cwd;
-  if (raw.startsWith('/')) return raw as t.StringDir;
+  if (raw.startsWith('/')) return raw;
   return Fs.join(cwd, Str.trimLeadingDotSlash(raw));
 }

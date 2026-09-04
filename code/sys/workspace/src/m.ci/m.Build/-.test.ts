@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 
 describe('WorkspaceCi.Build', () => {
@@ -51,6 +51,21 @@ describe('WorkspaceCi.Build', () => {
     expect(text).to.eql(res.yaml);
   });
 
+  it('fails closed before rendering unsafe matrix values into build workflow YAML', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Build.safe');
+    const moduleDir = fs.join('code/sys/bad;echo');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha',
+      tasks: { build: 'deno task info' },
+    });
+
+    await expectError(
+      async () => await WorkspaceCi.Build.text({ paths: [moduleDir] }),
+      'Unsafe workflow matrix path',
+    );
+  });
+
   it('returns unchanged when the rendered workflow already matches disk', async () => {
     const fs = await Testing.dir('WorkspaceCi.Build.sync.unchanged');
     const moduleDir = fs.join('code/sys/alpha');
@@ -61,7 +76,11 @@ describe('WorkspaceCi.Build', () => {
       tasks: { build: 'deno task info' },
     });
 
-    const first = await WorkspaceCi.Build.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    const first = await WorkspaceCi.Build.sync({
+      cwd: fs.dir,
+      source: { paths: [moduleDir] },
+      target,
+    });
     expect(first.kind).to.eql('written');
 
     const second = await WorkspaceCi.Build.sync({

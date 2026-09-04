@@ -18,10 +18,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "@sys/ui-react-devharness"
-            path: code/sys.ui/ui-react-devharness
-          - name: "@sys/ui-react-components"
-            path: code/sys.ui/ui-react-components
+          - name: "@sys/dev"
+            path: code/sys.dev
+          - name: "@sys/ui-dev"
+            path: code/sys.ui/ui-dev
+          - name: "@sys/ui-components"
+            path: code/sys.ui/ui-components
           - name: "@sys/driver-automerge"
             path: code/sys.driver/driver-automerge
           - name: "@sys/driver-monaco"
@@ -30,14 +32,14 @@ jobs:
             path: code/sys.driver/driver-prosemirror
           - name: "@sys/driver-stripe"
             path: code/sys.driver/driver-stripe
-          - name: "@sys/ui-factory"
-            path: code/sys.ui/ui-factory
-          - name: "@sys/dev"
-            path: code/sys.dev
-          - name: "@sys/crdt"
-            path: code/sys/crdt
-          - name: "@sys/driver-agent"
-            path: code/sys.driver/driver-agent
+          - name: "@sys/ui"
+            path: code/sys.ui/ui
+          - name: "@sys/driver-pi"
+            path: code/sys.driver/driver-pi
+          - name: "@sys/driver-vite"
+            path: code/sys.driver/driver-vite
+          - name: "@draft/shell"
+            path: deploy/@draft.shell
           - name: "@tdb/data"
             path: deploy/@tdb.data
           - name: "@tdb/slc"
@@ -53,7 +55,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.7.13
+          deno-version: v2.9.6
       - name: Install Dependencies
         run: |
           max_attempts=3

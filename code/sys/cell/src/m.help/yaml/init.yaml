@@ -1,0 +1,27 @@
+summary: |
+  Create the minimal Cell folder contract in the target directory.
+  Init creates the canonical `-config/@sys.cell/cell.yaml` descriptor, `data/` source-material lane,
+  and local ignore for .env.
+
+usage:
+  - deno run -ERW jsr:@sys/cell init [dir]
+  - deno run -ERW jsr:@sys/cell init [dir] --dry-run
+  - deno run -ERW jsr:@sys/cell init [dir] --help --agent
+
+options:
+  - name: -h, --help
+    text: show init help
+  - name: --agent
+    text: include command-specific agent guidance with help
+  - name: --dry-run
+    text: preview writes without changing files
+
+safety:
+  - additive; validates existing canonical and legacy Cell descriptors before writing
+  - use --dry-run to preview exact file operations
+  - .gitignore may add .env once
+  - leaves .pi/ and other tool-owned -config/* namespaces untouched
+
+agent:
+  - Run init when the folder is missing the canonical `-config/@sys.cell/cell.yaml` descriptor.
+  - Init is additive and writes the embedded default resources.

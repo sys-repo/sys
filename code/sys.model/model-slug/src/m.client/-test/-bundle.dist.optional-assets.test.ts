@@ -1,9 +1,31 @@
 import { describe, expect, it } from '../../-test.ts';
-import { SlugClient } from '../mod.ts';
+import { SlugClient as SlugClientBase } from '../mod.ts';
 import { Dist } from '../u.io.Dist.ts';
 
 import type { t } from '../common.ts';
-import { jsonResponse, stubFetch } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch } from './u.fixture.ts';
+
+const SlugClient = {
+  ...SlugClientBase,
+  FromEndpoint: {
+    ...SlugClientBase.FromEndpoint,
+    Timeline: {
+      ...SlugClientBase.FromEndpoint.Timeline,
+      Bundle: {
+        load<P = unknown>(
+          baseUrl: t.StringUrl,
+          docid: t.StringId,
+          options: t.SlugScopedTimelineBundleLoadOptions = {},
+        ) {
+          return SlugClientBase.FromEndpoint.Timeline.Bundle.load<P>(baseUrl, docid, {
+            ...LOAD_OPTIONS,
+            ...options,
+          });
+        },
+      },
+    },
+  },
+};
 
 const baseUrl = 'http://example.com/';
 
@@ -161,17 +183,6 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
   it('fails when dist parts use manifests/ prefix (invalid key-space)', async () => {
     const docid = 'crdt:dist-bare-keys' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
-
-    const playback: t.SpecTimelineManifest = {
-      docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
-      beats: [
-        {
-          src: { kind: 'video', logicalPath: '/video/main', time: 0 as t.Msecs },
-          payload: null,
-        },
-      ],
-    };
 
     const dist = makeDist([`manifests/${SlugClient.Url.playbackFilename(cleaned)}`]);
     Dist.invalidate(baseUrl);

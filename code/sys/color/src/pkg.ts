@@ -13,4 +13,7 @@ import type { Pkg } from '@sys/types';
  *    - DO check this file in to source control.
  *    - Do NOT manually alter this file.
  */
-export const pkg: Pkg = { name: '@sys/color', version: '0.0.237' };
+export const pkg: Readonly<Pkg> = Object.freeze({
+  name: '@sys/color',
+  version: '0.0.276',
+});

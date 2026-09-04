@@ -17,6 +17,7 @@ export declare namespace EsmDeps {
     applyPackage(
       path: t.StringPath | undefined,
       entries?: Entry[],
+      options?: PackageProjectionOptions,
     ): Promise<ApplyPackageResult | undefined>;
     /** Write canonical dependency YAML back to a deps.yaml target. */
     applyYaml(
@@ -30,7 +31,8 @@ export declare namespace EsmDeps {
         readonly depsPath?: t.StringPath;
         readonly denoFilePath?: t.StringPath;
         readonly packageFilePath?: t.StringPath;
-        readonly yaml?: YamlOptions;
+        readonly yaml?: ApplyFilesYamlOptions;
+        readonly packageJson?: PackageJsonPolicy;
       },
       entries?: Entry[],
     ): Promise<ApplyFilesResult>;
@@ -92,7 +94,18 @@ export declare namespace EsmDeps {
     readonly dependencies: Record<string, t.StringSemver>;
     /** Final development dependency map written to `package.json`. */
     readonly devDependencies: Record<string, t.StringSemver>;
+    /** Final package override policy written to `package.json`. */
+    readonly overrides: t.PkgNodeOverrides;
   };
+
+  /** Options for projecting canonical package policy into `package.json`. */
+  export type PackageProjectionOptions = {
+    /** Optional package.json resolver policy. */
+    readonly packageJson?: PackageJsonPolicy;
+  };
+
+  /** YAML options accepted by multi-file projection. */
+  export type ApplyFilesYamlOptions = Omit<YamlOptions, 'packageJson'>;
 
   /** Result from applying canonical deps to deps.yaml and projected files. */
   export type ApplyFilesResult = {
@@ -110,8 +123,16 @@ export declare namespace EsmDeps {
     readonly entries: Entry[];
     /** Parsed ESM module set derived from the entries. */
     readonly modules: t.EsmModules;
+    /** Parsed package.json resolver policy. */
+    readonly packageJson?: PackageJsonPolicy;
     /** Render the manifest state back to YAML. */
     toYaml(options?: YamlOptions): Yaml;
+  };
+
+  /** Canonical package.json resolver policy parsed from `deps.yaml`. */
+  export type PackageJsonPolicy = {
+    /** npm-compatible package override policy. */
+    readonly overrides?: t.PkgNodeOverrides;
   };
 
   /** YAML manifest wrapper. */
@@ -128,6 +149,8 @@ export declare namespace EsmDeps {
   export type YamlOptions = {
     /** Optional grouping callback for named dependency groups. */
     groupBy?: CategorizeByGroup;
+    /** Optional package.json resolver policy to render. */
+    packageJson?: PackageJsonPolicy;
   };
 
   /** Categorize a dependency into a named group. */
@@ -206,5 +229,8 @@ export declare namespace EsmDeps {
      * Only relevant when projecting to `package.json`.
      */
     dev?: boolean;
+
+    /** npm-compatible package override policy. */
+    overrides?: t.PkgNodeOverrides;
   };
 }

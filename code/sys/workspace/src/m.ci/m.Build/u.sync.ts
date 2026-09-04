@@ -1,5 +1,5 @@
 import { type t } from '../common.ts';
-import { logSyncResult, removeIfExists, resolveSourcePaths } from '../u.source.ts';
+import { logSyncResult, removeIfExists, resolveSourcePaths } from '../u/u.source.ts';
 import { write } from './u.write.ts';
 
 export async function sync(args: t.WorkspaceCi.Build.SyncArgs): Promise<t.WorkspaceCi.SyncResult> {

@@ -1,0 +1,57 @@
+import { D, Harness, Signal, Spec } from './common.ts';
+import { InfoPanelConfig } from '../mod.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+
+export default Spec.describe(D.displayName, async (e) => {
+  const debug = await createDebugSignals();
+  const p = debug.props;
+
+  function Root() {
+    const v = Signal.toObject(p);
+    return (
+      <InfoPanelConfig.UI
+        debug={v.debug}
+        theme={v.theme}
+        reorder={v.reorder}
+        items={v.items}
+        cursor={{
+          enabled: v.cursor.enabled,
+          model: v.cursor.model,
+          entry: 'option-click',
+          navigation: 'keyboard',
+          onChange(e) {
+            console.info(`⚡️ ${D.name}.cursor.onChange:`, e);
+            p.cursor.model.value = e.next;
+          },
+        }}
+        onItemsChange={(e) => {
+          console.info(`⚡️ ${D.name}.onItemsChange:`, e);
+          p.items.value = e.next;
+        }}
+      />
+    );
+  }
+
+  e.it('init', (e) => {
+    const ctx = Spec.ctx(e);
+
+    update();
+    function update() {
+      debug.listen();
+      ctx.redraw();
+    }
+
+    Signal.effect(update);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
+
+    ctx.subject
+      .size([360, null])
+      .display('grid')
+      .render(() => <Root />);
+  });
+
+  e.it('ui:debug', (e) => {
+    const ctx = Spec.ctx(e);
+    ctx.debug.row(<Debug debug={debug} />);
+  });
+});

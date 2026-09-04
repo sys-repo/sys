@@ -1,16 +1,22 @@
 {
   "name": "@sys/tools",
-  "version": "0.0.377",
+  "version": "0.0.497",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./-scripts ./src",
+    "test:upgrade": "deno test -P=test --trace-leaks ./src/cli.upgrade",
+    "test:deploy": "deno test -P=test --trace-leaks ./src/cli.deploy",
+    "test:deploy:authority": "deno test -P=test-deploy-authority-owner --cached-only --frozen --no-prompt --trace-leaks ./src/cli.deploy/u.endpoints/-test/-u.env.test.ts ./src/cli.deploy/u.endpoints/-test/-u.resolve.test.ts ./src/cli.deploy/u.endpoints/-test/-u.endpoints.fs.test.ts ./src/cli.deploy/-test/-u.stage.test.ts && deno run --check -P=test-deploy-authority-parent --cached-only --frozen --no-prompt --ignore-env ./src/cli.deploy/-test/-u.stage.authority.ts --no-color",
+    "test:pull": "deno test -P=test --trace-leaks ./src/cli.pull",
+    "test:serve": "deno test -P=test --trace-leaks ./src/cli.serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "prep": "deno run -P=dev ./-scripts/task.prep.ts && deno run -P=dev ./src/-tmpl/mod.ts",
+    "prep": "deno run -P=dev ./-scripts/task.prep.ts && deno run -P=dev ./src/-tmpl/mod.ts && deno task help:bundle",
     "tmpl": "deno run -P=dev ./src/-tmpl.cli/mod.ts",
     "help": "deno run -P=dev ./src/mod.ts --help",
-    "tmp": "deno run -P=dev ./-scripts/task.tmp.ts"
+    "tmp": "deno run -P=dev ./-scripts/task.tmp.ts",
+    "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
@@ -18,14 +24,17 @@
     "./types": "./src/types.ts",
     "./cp": "./src/cli.clipboard/mod.ts",
     "./copy": "./src/cli.clipboard/mod.ts",
+    "./pull": "./src/cli.pull/mod.ts",
+    "./shell": "./src/cli.shell/mod.ts",
     "./pi": "./src/cli.pi/mod.ts",
     "./tmpl": "./src/cli.tmpl/mod.ts",
     "./crdt": "./src/cli.crdt/mod.ts",
     "./video": "./src/cli.video/mod.ts",
     "./serve": "./src/cli.serve/mod.ts",
     "./deploy": "./src/cli.deploy/mod.ts",
-    "./up": "./src/cli.update/mod.ts",
-    "./update": "./src/cli.update/mod.ts",
+    "./up": "./src/cli.upgrade/mod.ts",
+    "./upgrade": "./src/cli.upgrade/mod.ts",
+    "./upgrade/advisory-probe": "./src/cli.upgrade/u.advisory.probe.ts",
     "./env": "./src/-exports/-env.ts"
   },
   "permissions": {
@@ -40,6 +49,18 @@
       "env": true,
       "net": true,
       "run": true
+    },
+    "test-deploy-authority-owner": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test-deploy-authority-parent": {
+      "read": true,
+      "write": true,
+      "run": [
+        "deno"
+      ]
     },
     "dev": {
       "read": true,

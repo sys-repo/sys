@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, DomMock, expect, it } from '../-test.ts';
-import { type t, D } from './common.ts';
+import { D, type t } from './common.ts';
 import { WebFont } from './mod.ts';
 
 describe(`useWebFont`, () => {
@@ -14,7 +14,7 @@ describe(`useWebFont`, () => {
   describe('WebFont.inject', () => {
     describe('environment', () => {
       it('SSR-safe: no DOM → injected:false', async () => {
-        DomMock.unpolyfill();
+        await DomMock.unpolyfill();
         const doc = (globalThis as any).document;
         (globalThis as any).document = undefined;
 
@@ -24,11 +24,11 @@ describe(`useWebFont`, () => {
         (globalThis as any).document = doc; // restore
       });
 
-      it('DOM available via DomMock', () => {
+      it('DOM available via DomMock', async () => {
         DomMock.polyfill();
         expect(typeof document).to.eql('object');
         expect(document.head).to.not.eql(undefined);
-        DomMock.unpolyfill();
+        await DomMock.unpolyfill();
       });
     });
 
@@ -97,8 +97,9 @@ describe(`useWebFont`, () => {
           italic: true,
           fileForStatic: ({ dir, weight, italic }) => {
             if (weight === 400 && !italic) return `${dir}/et-book-roman-old-style-figures.woff`;
-            if (weight === 400 && italic)
+            if (weight === 400 && italic) {
               return `${dir}/et-book-display-italic-old-style-figures.woff`;
+            }
             if (weight === 600 && !italic) return `${dir}/et-book-semi-bold-old-style-figures.woff`;
             if (weight === 700 && !italic) return `${dir}/et-book-bold-line-figures.woff`;
             return `${dir}/et-book-roman-line-figures.woff`;
@@ -216,13 +217,13 @@ describe(`useWebFont`, () => {
   });
 
   describe('Webfont.def', () => {
-    const ET_BOOK: t.WebFontConfig = {
+    const ET_BOOK: t.WebFont.Config = {
       family: 'ET Book',
       variable: false,
       weights: [400, 600, 700],
       italic: true,
       local: ['ETBook-Roman', 'ETBook-Italic', 'ETBook-SemiBold', 'ETBook-Bold'],
-      fileForStatic: ({ dir, family, weight, italic }) => {
+      fileForStatic: ({ dir, weight, italic }) => {
         // Example: matching filenames exactly:
         if (weight === 400 && !italic) return `${dir}/et-book-roman-old-style-figures.woff`;
         if (weight === 400 && italic) return `${dir}/et-book-display-italic-old-style-figures.woff`;

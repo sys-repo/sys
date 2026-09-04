@@ -1,0 +1,21 @@
+# Cell descriptor.
+
+kind: cell
+version: 1
+name: sample:stripe
+
+services:
+  - name: ui:static:views
+    use: HttpStatic
+    from: 'jsr:@sys/http/server/static'
+    config: ./-config/@sys.http/static.view.yaml
+
+  - name: stripe:dev:fixture
+    use: StripeFixture
+    from: 'jsr:@sys/driver-stripe/server/fixture'
+    config: ./-config/@sys.driver-stripe/fixture.yaml
+
+  - name: cell:proxy
+    use: HttpProxy
+    from: 'jsr:@sys/http/server/proxy'
+    config: ./-config/@sys.http/proxy.yaml

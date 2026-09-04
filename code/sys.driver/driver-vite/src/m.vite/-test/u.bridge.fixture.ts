@@ -1,8 +1,10 @@
-import type { DenoWorkspace } from '@sys/driver-deno/t';
-
-import { DenoFile, Fs, Is, Json, Process, ROOT } from '../../-test.ts';
+import { DenoFile, Fs, Is, Json, Process, ROOT, type t } from '../../-test.ts';
 
 const LOCAL_DRIVER_VITE_IMPORTS = ['@sys/driver-vite', '@sys/driver-vite/main'] as const;
+const INJECTED_SOURCE_IMPORTS = [
+  '@oxc-project/runtime/helpers/usingCtx',
+  '@sys/std/dispose/compat',
+] as const;
 const DENO_BINARY = Deno.build.os === 'windows' ? 'deno.exe' : 'deno';
 const VALID_PACKAGE_SPECIFIER = /^(@[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+|[A-Za-z0-9._-]+)(\/.*)?$/;
 
@@ -24,7 +26,7 @@ type BridgeAuthority = {
   readonly packageVersions: RootPackageVersions;
   readonly imports: RootImportMap;
 };
-type WorkspaceAuthority = DenoWorkspace;
+type WorkspaceAuthority = t.DenoFile.Workspace.Info;
 type SourceImportMatch = {
   readonly specifier: string;
 };
@@ -318,15 +320,11 @@ function localPackageDependencies(
 }
 
 function localToolchainDependencies(authority: BridgeAuthority) {
-  const names = ['esbuild', 'vite'] as const;
-  const entries = names.map((name) => {
-    const version = authority.packageVersions[name];
-    if (!Is.str(version)) {
-      throw new Error(`Missing root package version authority for package "${name}"`);
-    }
-    return [name, version] as const;
-  });
-  return Object.fromEntries(entries);
+  const vite = authority.packageVersions.vite;
+  if (!Is.str(vite)) {
+    throw new Error('Missing root package version authority for package "vite"');
+  }
+  return { vite };
 }
 
 async function localToolchainImports(authority: BridgeAuthority) {
@@ -335,35 +333,13 @@ async function localToolchainImports(authority: BridgeAuthority) {
     throw new Error('Missing root package version authority for package "vite"');
   }
 
-  const pluginReact = authority.packageVersions['@vitejs/plugin-react'];
-  if (!Is.str(pluginReact)) {
-    throw new Error('Missing root package version authority for package "@vitejs/plugin-react"');
-  }
-  const pluginReactPkgPath = ROOT.resolve(
-    'node_modules/.deno',
-    `${toDenoNpmDir('@vitejs/plugin-react')}@${pluginReact}`,
-    'node_modules/@vitejs/plugin-react/package.json',
-  );
-  const pluginReactPkg = (await Fs.readJson<{ dependencies?: O }>(pluginReactPkgPath)).data ?? {};
-  const pluginutils = pluginReactPkg.dependencies?.['@rolldown/pluginutils'];
-  if (!Is.str(pluginutils)) {
-    throw new Error(
-      'Missing @rolldown/pluginutils dependency authority from installed @vitejs/plugin-react package',
-    );
-  }
-
   return {
-    '@rolldown/pluginutils': `npm:@rolldown/pluginutils@${pluginutils}`,
     fs: 'node:fs',
     path: 'node:path',
     'vite/internal': `npm:vite@${vite}/internal`,
     'vite/module-runner': `npm:vite@${vite}/module-runner`,
     zlib: 'node:zlib',
   } as const;
-}
-
-function toDenoNpmDir(name: string) {
-  return name.replace('/', '+');
 }
 
 function defaultDenoJson(dir: string) {
@@ -388,7 +364,11 @@ function defaultTsconfigJson() {
   return Json.stringify(obj, 2);
 }
 
-export async function writeLocalFixtureImports(dir: string, config = 'vite.config.ts') {
+export async function writeLocalFixtureImports(
+  dir: string,
+  config = 'vite.config.ts',
+  options: { skipTsconfig?: boolean } = {},
+) {
   const importsPath = Fs.join(dir, 'imports.json');
   const denoJsonPath = Fs.join(dir, 'deno.json');
   const packageJsonPath = Fs.join(dir, 'package.json');
@@ -411,7 +391,7 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
   if (!hadDenoJson) {
     await Fs.write(denoJsonPath, defaultDenoJson(dir));
   }
-  if (!hadTsconfig) {
+  if (!options.skipTsconfig && !hadTsconfig) {
     await Fs.write(tsconfigPath, defaultTsconfigJson());
   }
 
@@ -420,7 +400,9 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
   const bridgeImports = await localConfigImports(ws, authority, configEntry);
   const sourceSpecifiers = await localSourceImports(ws, authority, dir);
   const localWorkspaceSpecifiers = await localWorkspaceSourceImports(ws, sourceSpecifiers);
-  const bridgedSpecifiers = [...new Set([...sourceSpecifiers, ...localWorkspaceSpecifiers])].sort();
+  const bridgedSpecifiers = [
+    ...new Set([...sourceSpecifiers, ...localWorkspaceSpecifiers, ...INJECTED_SOURCE_IMPORTS]),
+  ].sort();
   const sourceImports = await importsMapForSpecifiers(ws, authority, bridgedSpecifiers);
   const sourceDependencies = localPackageDependencies(bridgedSpecifiers, authority);
   const toolchainDependencies = localToolchainDependencies(authority);
@@ -475,12 +457,15 @@ export async function writeLocalFixtureImports(dir: string, config = 'vite.confi
     else await Fs.remove(packageJsonPath, { log: false });
 
     if (hadTsconfig) await Fs.write(tsconfigPath, originalTsconfig);
-    else await Fs.remove(tsconfigPath, { log: false });
+    else if (!options.skipTsconfig) await Fs.remove(tsconfigPath, { log: false });
 
     await Fs.write(configPath, originalConfig);
   };
 }
 
-export async function writeLocalBridgeImports(dir: string) {
-  return writeLocalFixtureImports(dir);
+export async function writeLocalBridgeImports(
+  dir: string,
+  options: { skipTsconfig?: boolean } = {},
+) {
+  return writeLocalFixtureImports(dir, 'vite.config.ts', options);
 }

@@ -1,9 +1,8 @@
-import { type t, Fs, Path, pkg, Schema, Str, Yaml, YamlConfig } from '../common.ts';
-import { PullTool } from '../t.namespace.ts';
+import { D, Fs, Path, pkg, Schema, Str, type t, Yaml, YamlConfig } from '../common.ts';
 import { PullYamlErrorCode, validatePullYamlText } from './u.validate.ts';
 
 const ROOT = YamlConfig.File.fromPkg('-config', pkg).dir.name;
-const CONFIG_DIR = `-config/${ROOT}.${PullTool.ID}` satisfies t.PullTool.ConfigYaml.DirName;
+const CONFIG_DIR = `-config/${ROOT}.${D.tool.id}` satisfies t.PullTool.ConfigYaml.DirName;
 const CONFIG_EXT = '.yaml' satisfies t.PullTool.ConfigYaml.Ext;
 
 export const PullFs = {
@@ -64,7 +63,6 @@ export const PullFs = {
       cwd,
       location: {
         dir: resolvedDir,
-        defaults: doc.defaults,
         bundles: doc.bundles,
       },
     };

@@ -16,6 +16,8 @@ export declare namespace WorkspaceCli {
     readonly argv?: readonly string[];
     /** Optional working directory override. */
     readonly cwd?: t.StringDir;
+    /** Optional policy override for the bump command. */
+    readonly bumpPolicy?: t.WorkspaceBump.Policy;
   };
 
   /** Interaction mode for one CLI run. */
@@ -32,7 +34,9 @@ export declare namespace WorkspaceCli {
     /** Render the upgrade result without mutating files. */
     readonly 'dry-run'?: boolean;
     /** Upgrade policy override. */
-    readonly policy?: t.EsmPolicyMode;
+    readonly policy?: t.EsmPolicy.Mode;
+    /** Minimum npm publish age before a dependency upgrade can be selected. */
+    readonly 'minimum-dependency-age'?: string | boolean | readonly (string | boolean)[];
     /** Canonical dependency manifest path override. */
     readonly deps?: string;
     /** Dependency names or aliases to include. */
@@ -41,6 +45,24 @@ export declare namespace WorkspaceCli {
     readonly exclude?: string | readonly string[];
   };
 
+  /** Typed argv shape for the workspace DSL help command. */
+  export type ParsedDslArgs = {
+    /** Show help and exit. */
+    readonly help: boolean;
+    /** Raw `--format` flag value, accepted only by `dsl`. */
+    readonly format?: string | boolean | readonly (string | boolean)[];
+    /** Unknown flag tokens rejected by argument parsing. */
+    readonly unknown: readonly string[];
+    /** Positional DSL chapter path tokens. */
+    readonly _: readonly string[];
+  };
+
+  /** Types for the `dsl` command. */
+  export namespace Dsl {
+    /** Supported DSL chapter output formats. */
+    export type Format = 'human' | 'skill';
+  }
+
   /** Fully normalized CLI options for one run. */
   export type ResolvedOptions = {
     /** Canonical dependency manifest path for the run. */
@@ -48,9 +70,13 @@ export declare namespace WorkspaceCli {
     /** Whether prompts and selection menus are allowed. */
     readonly mode: Mode;
     /** Upgrade policy mode passed through to workspace orchestration. */
-    readonly policy: t.EsmPolicyMode;
+    readonly policy: t.EsmPolicy.Mode;
     /** Whether prerelease versions are considered during collection and planning. */
     readonly prerelease: boolean;
+    /** Minimum npm publish age before a dependency upgrade can be selected; 0 disables. */
+    readonly minimumDependencyAge: t.Msecs;
+    /** Stable Unix timestamp used when evaluating time-sensitive upgrade policy. */
+    readonly evaluatedAt: t.UnixTimestamp;
     /** Dependency names or aliases to include. */
     readonly include: readonly string[];
     /** Dependency names or aliases to exclude. */
@@ -68,7 +94,7 @@ export declare namespace WorkspaceCli {
   };
 
   /** Result from a workspace CLI run. */
-  export type Result = Help | Planned | Applied;
+  export type Result = Help | Planned | Applied | Bumped;
 
   /** Help-only CLI run result. */
   export type Help = {
@@ -78,6 +104,16 @@ export declare namespace WorkspaceCli {
     readonly input: Input;
     /** Rendered help output. */
     readonly text: string;
+  };
+
+  /** Bump command run result. */
+  export type Bumped = {
+    /** Result discriminant. */
+    readonly kind: 'bump';
+    /** Raw input passed to the CLI entrypoint. */
+    readonly input: Input;
+    /** Workspace package bump result. */
+    readonly bump: t.WorkspaceBump.RunResult;
   };
 
   /** Planned-only CLI run result. */

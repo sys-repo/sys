@@ -1,0 +1,601 @@
+import type { FsRooted, Pkg as FsPkg } from '@sys/fs/t';
+import type { HttpFetch, HttpPull, HttpServer } from '@sys/http/t';
+import type { t } from './common.ts';
+
+type NestedServeArgs<T> = Omit<T, 'silent' | 'keyboard'> & {
+  navigation: 'nested';
+  silent?: never;
+  keyboard?: never;
+};
+
+/**
+ * Contracts for checksum-pinned Dist materialization, sealing, and final-directory evidence.
+ */
+export declare namespace Dist {
+  /** Product-neutral API for checksum-pinned Dist generations. */
+  export type Lib = {
+    /**
+     * Settle one pinned Dist as `existing`, `promoted`, or `failed`.
+     *
+     * Every success carries fresh verification and applied sealing evidence for its exact returned
+     * directory.
+     */
+    readonly materialize: Materialize;
+    /** Open and own one checksum-pinned generation under caller-selected store authority. */
+    readonly Generation: Generation.Lib;
+  };
+
+  /**
+   * Settle one pinned Dist as `existing`, `promoted`, or `failed`.
+   *
+   * Every success carries fresh verification and applied sealing evidence for its exact returned
+   * directory.
+   */
+  export type Materialize = (args: MaterializeArgs) => Promise<MaterializeResult>;
+
+  /** Complete caller authority for one materialization attempt. */
+  export type MaterializeArgs = {
+    /** Absolute HTTP(S) location of the `dist.json` to authenticate. */
+    readonly manifestUrl: t.StringUrl;
+    /** Caller-supplied canonical SHA-256 pin for the exact `dist.json` response bytes. */
+    readonly integrity: t.StringHash;
+    /** Root directory whose children are integrity-addressed generations. */
+    readonly storeDir: t.StringDir;
+    /** Required finite authority for acquisition and complete-generation verification. */
+    readonly policy: Policy;
+    /** Optional credentials confined independently to manifest and asset requests. */
+    readonly credentials?: Credentials;
+    /** Caller lifecycle for cancellable work; visible publication outcomes settle independently. */
+    readonly until?: t.UntilInput;
+  };
+
+  /** Finite authority composed from canonical transport and verification policies. */
+  export type Policy = {
+    /** Bounded manifest Fetch authority. */
+    readonly manifest: HttpFetch.ResponsePolicy;
+    /** Bounded checksum-pinned asset Pull authority. */
+    readonly resources: HttpPull.ResourcePolicy;
+    /** Bounded complete-generation verification authority. */
+    readonly verification: FsPkg.Dist.Pinned.Verify.Limits;
+  };
+
+  /** Manifest-request credentials; callbacks run only when network work is required. */
+  export type ManifestCredentials = HttpFetch.DefaultHeaders.Options;
+
+  /** Credentials confined independently to manifest and asset origins. */
+  export type Credentials = {
+    readonly manifest?: ManifestCredentials;
+    readonly resources?: HttpPull.ResourceCredentials;
+  };
+
+  /** Terminal truth for the integrity-addressed generation target. */
+  export type MaterializeResult = Existing | Promoted | Failed;
+
+  /** Safe private-stage cleanup outcome; never a claim that a generation was rolled back. */
+  export type Cleanup = 'not-needed' | 'complete' | 'pending';
+
+  /** Sanitized configured manifest source evidence. */
+  export type ConfiguredSource = {
+    /** Configured origin and path with userinfo, query, and fragment removed. */
+    readonly configuredUrl: t.StringUrl;
+  };
+
+  /** Sanitized source evidence observed while fetching the promoted generation. */
+  export type ObservedSource = ConfiguredSource & HttpFetch.ResponsePolicy.SourceEvidence;
+
+  /** Truth shared by successes freshly verified at their returned final directory. */
+  type Success = {
+    /** Canonical admitted generation directory. */
+    readonly dir: t.StringAbsoluteDir;
+    /** Exact external manifest pin naming this generation. */
+    readonly integrity: t.StringHash;
+    /** Fresh owner evidence produced against this exact returned directory. */
+    readonly verification: FsPkg.Dist.Pinned.Verify.Evidence;
+    /** Frozen lower-owner evidence that the complete returned generation is sealed. */
+    readonly seal: FsRooted.SealApplied;
+    /** Private-stage cleanup truth. */
+    readonly cleanup: Cleanup;
+    readonly stage?: undefined;
+    readonly reason?: undefined;
+    readonly publication?: undefined;
+  };
+
+  /** Freshly verified generation whose publication was not proven by this attempt. */
+  export type Existing = Success & {
+    readonly kind: 'existing';
+    readonly source: ConfiguredSource;
+    readonly totals?: undefined;
+  };
+
+  /** Generation published here and then freshly verified at its final directory. */
+  export type Promoted = Success & {
+    readonly kind: 'promoted';
+    readonly source: ObservedSource;
+    readonly totals: HttpPull.ResourceTotals;
+  };
+
+  /** Stable orchestration phase in which materialization failed. */
+  export type FailureStage =
+    | 'input'
+    | 'storage'
+    | 'existing-verification'
+    | 'manifest-fetch'
+    | 'manifest-admission'
+    | 'staging'
+    | 'resource-pull'
+    | 'stage-verification'
+    | 'promotion'
+    | 'sealing'
+    | 'final-verification';
+
+  /** Stable sanitized reason for a failed result. */
+  export type FailureReason =
+    | 'invalid-input'
+    | 'invalid-policy'
+    | 'cancelled'
+    | 'source-denied'
+    | 'timeout'
+    | 'limit-exceeded'
+    | 'integrity-mismatch'
+    | 'malformed-manifest'
+    | 'resource-failure'
+    | 'verification-failure'
+    | 'filesystem-failure'
+    | 'unsupported'
+    | 'execution-failure';
+
+  /** Visible target state known even though final verified settlement failed. */
+  export type FailedPublication = 'committed' | 'occupied';
+
+  /** Bounded checksum evidence retained from one failed manifest response. */
+  export type ManifestChecksumMismatch = {
+    /** Caller-supplied manifest pin snapshotted before transport. */
+    readonly expected: t.StringHash;
+    /** SHA-256 observed over the response bytes received by this attempt. */
+    readonly received: t.StringHash;
+  };
+
+  /** Sanitized failure fields without paths, raw causes, credentials, or verification evidence. */
+  type FailedBase = {
+    readonly kind: 'failed';
+    readonly stage: FailureStage;
+    readonly reason: FailureReason;
+    readonly cleanup: Cleanup;
+    readonly publication?: FailedPublication;
+    readonly dir?: undefined;
+    readonly integrity?: undefined;
+    readonly verification?: undefined;
+    readonly seal?: undefined;
+    readonly source?: undefined;
+    readonly totals?: undefined;
+  };
+
+  /** Exact manifest-fetch mismatch carrying bounded lower-owner diagnostics. */
+  export type ManifestChecksumFailed = FailedBase & {
+    readonly stage: 'manifest-fetch';
+    readonly reason: 'integrity-mismatch';
+    readonly cleanup: 'not-needed';
+    readonly publication?: undefined;
+    readonly manifestChecksum: ManifestChecksumMismatch;
+  };
+
+  /** Failure variants that cannot carry manifest checksum diagnostics. */
+  type FailedWithoutManifestChecksum =
+    | (FailedBase & {
+      readonly stage: 'manifest-fetch';
+      readonly reason: Exclude<FailureReason, 'integrity-mismatch'>;
+      readonly manifestChecksum?: undefined;
+    })
+    | (FailedBase & {
+      readonly stage: Exclude<FailureStage, 'manifest-fetch'>;
+      readonly reason: FailureReason;
+      readonly manifestChecksum?: undefined;
+    });
+
+  /** Sanitized failed settlement with diagnostics reserved to the exact mismatch variant. */
+  export type Failed = ManifestChecksumFailed | FailedWithoutManifestChecksum;
+
+  /**
+   * Outer ownership contracts for one checksum-pinned Dist generation.
+   */
+  export namespace Generation {
+    /** Generation-session API. */
+    export type Lib = {
+      /** Open one verified generation and retain shared ownership of its store target. */
+      readonly open: Open.Method;
+    };
+
+    /**
+     * Generation opening contracts.
+     */
+    export namespace Open {
+      /** Open one verified generation under retained shared package-store ownership. */
+      export type Method = (args: Args) => Promise<Result>;
+
+      /** Complete caller authority for one generation open. */
+      export type Args = {
+        /** Caller-selected package-store authority. */
+        store: Store.Input;
+        /** Absolute HTTP(S) location of the `dist.json` to authenticate. */
+        manifestUrl: t.StringUrl;
+        /** Caller-supplied canonical SHA-256 pin for the exact `dist.json` response bytes. */
+        integrity: t.StringHash;
+        /** Explicit network and verification policy. */
+        policy: Policy;
+        /** Optional caller-selected credentials. */
+        credentials?: Credentials;
+        /** Optional cancellation/lifecycle input observed only while opening. */
+        until?: t.UntilInput;
+      };
+
+      /** Complete bounded settlement from opening one generation. */
+      export type Result = Success | Failure.Result;
+
+      /** Successfully materialized generation with retained outer ownership. */
+      export type Success = {
+        readonly kind: 'opened';
+        /** Complete admitted materialization settlement for the verified generation. */
+        readonly generation: Existing | Promoted;
+        /** Shared outer ownership retained independently of opening cancellation. */
+        readonly owner: Owner;
+      };
+    }
+
+    /**
+     * Generation failure contracts.
+     */
+    export namespace Failure {
+      /** Complete bounded failed-open settlement. */
+      export type Result =
+        | Input
+        | StoreNotAcquired
+        | StoreOwned
+        | MaterializationOrchestration
+        | Materialization;
+
+      /** Stable generation-open phase. */
+      export type Phase = 'input' | 'store' | 'materialization';
+
+      /** Stable bounded reason for a Generation-owned failure. */
+      export type Reason =
+        | 'invalid-input'
+        | 'cancelled'
+        | 'busy'
+        | 'filesystem-failure'
+        | 'execution-failure';
+
+      /** Whether outer ownership is absent, observably released, or conservatively retained. */
+      export type Ownership = 'not-acquired' | 'released' | 'pending';
+
+      /** Failure retaining the exact admitted lower materialization settlement. */
+      export type Materialization = {
+        readonly kind: 'failed';
+        readonly phase: 'materialization';
+        readonly generation: Dist.Failed;
+        readonly reason?: undefined;
+        readonly ownership: 'released' | 'pending';
+      };
+
+      type Base = {
+        readonly kind: 'failed';
+        readonly generation?: undefined;
+      };
+
+      type Input = Base & {
+        readonly phase: 'input';
+        readonly reason: 'invalid-input' | 'cancelled' | 'execution-failure';
+        readonly ownership: 'not-acquired';
+      };
+
+      type StoreNotAcquired = Base & {
+        readonly phase: 'store';
+        readonly reason: 'cancelled' | 'busy' | 'filesystem-failure' | 'execution-failure';
+        readonly ownership: 'not-acquired';
+      };
+
+      type StoreOwned = Base & {
+        readonly phase: 'store';
+        readonly reason: 'cancelled' | 'execution-failure';
+        readonly ownership: 'released' | 'pending';
+      };
+
+      type MaterializationOrchestration = Base & {
+        readonly phase: 'materialization';
+        readonly reason: 'cancelled' | 'execution-failure';
+        readonly ownership: 'released' | 'pending';
+      };
+    }
+
+    /**
+     * Caller-selected and admitted package-store paths.
+     */
+    export namespace Store {
+      /** Store authority supplied by the caller. */
+      export type Input = {
+        /** Directory whose complete ancestry Server prepares before Rooted binds it. */
+        root: t.StringDir;
+        /** Root-relative package-store target held for the owner lifetime. */
+        target: t.StringPath;
+      };
+
+      /** Frozen canonical store authority retained by a successful owner. */
+      export type Admitted = {
+        readonly root: t.StringAbsoluteDir;
+        readonly target: t.StringRelativePath;
+        readonly dir: t.StringAbsoluteDir;
+      };
+    }
+
+    /** Async-disposable owner of one admitted package-store target. */
+    export type Owner = globalThis.AsyncDisposable & {
+      readonly store: Store.Admitted;
+      /** Return the one terminal release operation; failed release remains retained. */
+      readonly release: () => Promise<void>;
+      /** Return the same terminal release operation as `release()`. */
+      readonly [Symbol.asyncDispose]: () => Promise<void>;
+      readonly [Symbol.dispose]?: never;
+    };
+  }
+}
+
+/**
+ * Checksum-pinned local Dist hosting contracts.
+ */
+export declare namespace DistServer {
+  /** Direct verified-or-refuse Dist hosting surface. */
+  export type Lib = {
+    /** Start one checksum-pinned Dist host and return its lifecycle. */
+    readonly start: (args: Start.Args) => Promise<Started>;
+    /** Blocking terminal-owned serve with pinned authority semantics. */
+    readonly serve: Serve.Operation;
+    /** Explicit locally verified, unpinned authority family. */
+    readonly Local: Local.Lib;
+    readonly Error: Error.Lib;
+  };
+
+  /**
+   * Direct verified-or-refuse startup contracts.
+   */
+  export namespace Start {
+    /**
+     * Start one checksum-pinned Dist host.
+     *
+     * Unlike `Dist.materialize`, this method returns only a running HTTP lifecycle. Every startup
+     * failure rejects as a sanitized `StartError`.
+     */
+    export namespace Pinned {
+      export type Args = {
+        /** Local generation directory containing the pinned `dist.json`. */
+        dir: t.StringDir;
+        /** Canonical SHA-256 pin for the exact `dist.json` bytes. */
+        integrity: t.StringHash;
+        /** Required finite complete-generation verification authority. */
+        limits: FsPkg.Dist.Pinned.Verify.Limits;
+        /** Loopback hostname. Defaults to `127.0.0.1`. */
+        hostname?: t.StringHostname;
+        /** Listen port. Defaults to an ephemeral port. */
+        port?: t.PortNumber;
+        /** Optional explicit browser-origin authority applied to this verified generation. */
+        browserPolicy?: BrowserPolicy.Input;
+        /** Optional owner-local display name. */
+        name?: string;
+        /** Suppress owner-local startup output. */
+        silent?: boolean;
+        /** Optional keyboard controls for the hosting lifecycle. */
+        keyboard?: HttpServer.Start.Options['keyboard'];
+        /** Caller lifecycle for verification, serving, and admitted part reads. */
+        until?: t.UntilInput;
+      };
+    }
+
+    /** Default (pinned) start arguments. */
+    export type Args = Pinned.Args;
+  }
+
+  /**
+   * Terminal-owned serving contracts for checksum-pinned authority.
+   */
+  export namespace Serve {
+    /** Pinned terminal-serving operation with default and nested-navigation overloads. */
+    export type Operation = {
+      /** Serve as a nested screen and settle only after complete presentation cleanup. */
+      (args: NestedArgs): Promise<Result>;
+      /** Preserve the default blocking serve contract. */
+      (args: Args): Promise<void>;
+    };
+
+    /** Pinned start authority plus an optional package-application subpath. */
+    export type Args = Start.Args & {
+      /** Raw package subpath rendered only after verified package resolution. */
+      pkgSubpath?: string;
+    };
+
+    /** Pinned authority for one terminal-owned nested serve generation. */
+    export type NestedArgs = NestedServeArgs<Args>;
+
+    /** Finite nested-screen completion after listener and presentation cleanup. */
+    export type Result = { readonly kind: 'back' } | { readonly kind: 'closed' };
+  }
+
+  /**
+   * Locally verified, unpinned hosting contracts.
+   */
+  export namespace Local {
+    export type Lib = {
+      /** Start one complete local Dist transport, including its exact verified manifest bytes. */
+      readonly start: (args: Args) => Promise<Started>;
+      /** Blocking terminal-owned serve for one complete locally verified Dist transport. */
+      readonly serve: Serve.Operation;
+    };
+
+    /**
+     * Local authority derives manifest integrity from observed bytes and still refuses startup if the
+     * observed generation mutates, contains undeclared entries, or fails complete verification. Its
+     * listener serves the exact verified manifest at `/dist.json`, all declared parts, and the `/`
+     * preview alias. Pinned application hosts keep their separate asset-only contract.
+     */
+    export type Args = {
+      /** Local generation directory whose resolved path must be exact canonical authority. */
+      dir: t.StringDir;
+      /** Required finite complete-generation verification authority. */
+      limits: FsPkg.Dist.Verify.Limits;
+      /** Loopback hostname. Defaults to `127.0.0.1`. */
+      hostname?: t.StringHostname;
+      /** Listen port. Defaults to an ephemeral port. */
+      port?: t.PortNumber;
+      /** Optional explicit browser-origin authority applied to this verified generation. */
+      browserPolicy?: BrowserPolicy.Input;
+      /** Optional owner-local display name. */
+      name?: string;
+      /** Suppress owner-local startup output. */
+      silent?: boolean;
+      /** Optional keyboard controls for the hosting lifecycle. */
+      keyboard?: HttpServer.Start.Options['keyboard'];
+      /** Caller lifecycle for verification, serving, and admitted part reads. */
+      until?: t.UntilInput;
+    };
+
+    /** Local start authority plus terminal-only package-application presentation. */
+    export type ServeArgs = Args & {
+      /** Raw package subpath rendered only after verified package resolution. */
+      pkgSubpath?: string;
+    };
+
+    /**
+     * Locally verified nested-serving contracts.
+     */
+    export namespace Serve {
+      /** Local terminal-serving operation with default and nested-navigation overloads. */
+      export type Operation = {
+        /** Serve as a nested screen and settle only after complete presentation cleanup. */
+        (args: NestedArgs): Promise<DistServer.Serve.Result>;
+        /** Preserve the default blocking serve contract. */
+        (args: ServeArgs): Promise<void>;
+      };
+
+      /** Local authority for one terminal-owned nested serve generation. */
+      export type NestedArgs = NestedServeArgs<ServeArgs>;
+    }
+  }
+
+  /**
+   * Explicit browser-origin authority for one exact verified Dist.
+   *
+   * Omit this policy to retain generic Dist hosting. Selecting it switches the listener to exact
+   * numeric-loopback authority and applies the complete closed response/request policy below.
+   */
+  export namespace BrowserPolicy {
+    /** Caller-selected browser authority. Every selected asset must exist in the verified Dist. */
+    export type Input = {
+      /** Closed browser-policy variant for a verified numeric-loopback listener. */
+      readonly kind: 'verified-loopback';
+      /** Exact sources admitted for dedicated workers. An empty list denies dedicated workers. */
+      readonly dedicatedWorkers: readonly DedicatedWorker.Source[];
+      /** Independent Service Worker request admission. */
+      readonly serviceWorker: ServiceWorker.Admission;
+    };
+
+    /**
+     * Dedicated-worker source authority.
+     */
+    export namespace DedicatedWorker {
+      /** One explicit dedicated-worker source capability. */
+      export type Source = Asset | Blob;
+      /** One exact verified Dist asset admitted as a dedicated-worker source. */
+      export type Asset = {
+        readonly kind: 'asset';
+        readonly path: t.Files.String.Path;
+      };
+      /** Explicit `blob:` bootstrap authority tied to one exact verified worker module. */
+      export type Blob = {
+        readonly kind: 'blob';
+        readonly worker: t.Files.String.Path;
+      };
+    }
+
+    /**
+     * Service Worker request authority, kept distinct from dedicated workers.
+     */
+    export namespace ServiceWorker {
+      /** Deny every observed Service Worker destination, or admit one exact verified tombstone. */
+      export type Admission = Deny | Tombstone;
+      /** Deny every observed Service Worker destination. */
+      export type Deny = {
+        readonly kind: 'deny';
+      };
+      /** Admit one exact verified inert migration asset for observed Service Worker requests. */
+      export type Tombstone = {
+        readonly kind: 'tombstone';
+        readonly path: t.Files.String.Path;
+      };
+    }
+
+    /** Fixed response headers applied by the selected browser policy. */
+    export type Headers = {
+      readonly cacheControl: 'no-store';
+      readonly contentSecurityPolicy: string;
+      readonly crossOriginOpenerPolicy: 'same-origin';
+      readonly crossOriginResourcePolicy: 'same-origin';
+      readonly referrerPolicy: 'no-referrer';
+      readonly xContentTypeOptions: 'nosniff';
+      readonly xFrameOptions: 'DENY';
+    };
+
+    /** Immutable evidence of the browser authority actually applied by the started host. */
+    export type Applied = {
+      /** Closed browser-policy variant applied by this host. */
+      readonly kind: 'verified-loopback';
+      /** Canonical numeric-loopback origin owned by the settled listener. */
+      readonly origin: t.StringUrl;
+      /** The one exact request Host authority admitted by the host. */
+      readonly host: string;
+      /** Exact dedicated-worker sources applied to this verified Dist. */
+      readonly dedicatedWorkers: readonly DedicatedWorker.Source[];
+      /** Independent Service Worker request admission applied to this verified Dist. */
+      readonly serviceWorker: ServiceWorker.Admission;
+      /** Fetch Metadata handling; omission remains compatible with direct clients. */
+      readonly fetchMetadata: {
+        readonly crossSite: 'deny';
+        readonly missing: 'allow';
+      };
+      /** Exact fixed response headers applied on success and error responses. */
+      readonly headers: Headers;
+    };
+  }
+
+  /** Stable runtime truth when one Dist host is successfully started. */
+  export type Started = HttpServer.Started & {
+    /** Authority provenance for this started host. */
+    readonly authority:
+      | { readonly kind: 'pinned'; readonly integrity: t.StringHash }
+      | { readonly kind: 'local-unpinned'; readonly integrity: t.StringHash };
+    /** Immutable evidence from the exact generation verification used to start this host. */
+    readonly verification: FsPkg.Dist.Verify.Evidence;
+    /** Frozen applied browser authority, when explicitly selected by the caller. */
+    readonly browserPolicy?: BrowserPolicy.Applied;
+  };
+
+  /** Stable sanitized startup failure reasons. */
+  export type StartFailureReason =
+    | FsPkg.Dist.Verify.FailureKind
+    | 'invalid-hostname'
+    | 'address-in-use'
+    | 'startup-failure';
+
+  /** Frozen startup failure without embedded input or cause details. */
+  export type StartError = globalThis.Error & {
+    readonly name: 'DistServer.StartError';
+    readonly reason: StartFailureReason;
+    readonly cause?: never;
+  };
+
+  /**
+   * Startup-error classifier contracts.
+   */
+  export namespace Error {
+    export type Lib = {
+      /** Determine whether a value is an authentic DistServer startup failure. */
+      readonly is: (value: unknown) => value is StartError;
+    };
+  }
+}

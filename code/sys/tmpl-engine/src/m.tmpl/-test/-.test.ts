@@ -11,10 +11,10 @@ describe('Tmpl', () => {
   const logOps = (
     res: t.TmplWriteResult,
     title: string,
-    options: { indent?: number; hideExcluded?: boolean; pad?: boolean } = {},
+    options: { indent?: number; hideSkipped?: boolean; pad?: boolean } = {},
   ) => {
-    const { indent, hideExcluded = true, pad = true } = options;
-    const tbl = TmplEngine.Log.table(res.ops, { hideExcluded, indent });
+    const { indent, hideSkipped = true, pad = true } = options;
+    const tbl = TmplEngine.Log.table(res.ops, { hideSkipped, indent });
     if (pad) console.info();
     console.info(c.bold(c.cyan(title)), '\n');
     console.info(tbl);
@@ -26,6 +26,12 @@ describe('Tmpl', () => {
     expect(TmplEngine.Log).to.equal(Log);
     expect(TmplEngine.FileMap).to.equal(FileMap);
     expect(TmplEngine.bundle).to.equal(FileMap.bundle);
+  });
+
+  it('freezes every namespace API', () => {
+    for (const namespace of [TmplEngine, TmplEngine.File, TmplEngine.Log, File, Log]) {
+      expect(Object.isFrozen(namespace)).to.eql(true);
+    }
   });
 
   describe('init: source path/file-map', () => {
@@ -204,7 +210,7 @@ describe('Tmpl', () => {
         for (const op of res.ops) {
           const name = Path.basename(op.path);
 
-          type S = t.FileMapOpOfKind<'skip'>;
+          type S = t.FileMap.Write.Op.OfKind<'skip'>;
           if (name.endsWith('.md')) {
             expect(op.kind).to.eql('skip');
             expect((op as S).reason).to.eql('user-space'); // skipped with explicit reason.
@@ -233,7 +239,7 @@ describe('Tmpl', () => {
           // Target dir should reflect the write destination:
           expect(e.target.dir).to.eql(target);
 
-          // Basic invariants exposed by FileMapProcessorArgs:
+          // Basic invariants exposed by FileMap.Write.Processor.Args:
           expect(e.target.filename).to.eql(Path.basename(e.target.relative));
           expect(typeof e.target.absolute).to.eql('string');
         });
@@ -258,7 +264,7 @@ describe('Tmpl', () => {
         if (match) {
           // First pass → should be a create with rename meta
           expect(match.kind).to.eql('create');
-          expect((match as t.FileMapOpOfKind<'create'>).renamed?.from).to.eql('mod.ts');
+          expect((match as t.FileMap.Write.Op.OfKind<'create'>).renamed?.from).to.eql('mod.ts');
         }
 
         // Filesystem reflects the rename
@@ -336,7 +342,10 @@ describe('Tmpl', () => {
         expect(afterSecond).to.eql(replaceWith);
 
         // Op assertions
-        const pick = (ops: readonly t.FileMapOp[], base: string): t.FileMapOp => {
+        const pick = (
+          ops: readonly t.FileMap.Write.Op.Any[],
+          base: string,
+        ): t.FileMap.Write.Op.Any => {
           const m = ops.find((op) => Path.basename(op.path) === base);
           if (!m) throw new Error(`op not found: ${base}`);
           return m;
@@ -502,7 +511,7 @@ describe('Tmpl', () => {
           Path.basename(o.path) === 'index.md' && /docs[\\/]/.test(o.path);
 
         const skipped = resB.ops.find((o) => o.kind === 'skip' && isDocsIndex(o)) as
-          | t.FileMapOpOfKind<'skip'>
+          | t.FileMap.Write.Op.OfKind<'skip'>
           | undefined;
         expect(!!skipped).to.eql(true);
         if (skipped) expect(skipped.reason).to.eql('user-space');

@@ -1,0 +1,21 @@
+# Cell descriptor.
+
+kind: cell
+version: 1
+name: sample:deploy
+
+services:
+  - name: deploy:view
+    use: Serve
+    from: 'jsr:@sys/tools/serve'
+    config: ./-config/@sys.tools.serve/view.yaml
+
+tasks:
+  - name: deploy:stage
+    use: DeployStageTask
+    from: ./-scripts/deploy.ts
+    config: ./-config/@sys.tools.deploy/stage.yaml
+
+  - name: sample:deploy
+    steps:
+      - task: deploy:stage

@@ -1,9 +1,11 @@
-import type Preact from '@preact/signals-core';
+import type { batch, computed, signal } from '@preact/signals-core';
+import type { Signal as SignalType } from '@sys/types';
 import type { t } from './common.ts';
 
 export type * from './t.effect.ts';
 export type * from './t.walk.ts';
 
+export type Signal<T = unknown> = SignalType<T>;
 type O = Record<string, unknown>;
 
 /**
@@ -13,73 +15,79 @@ type O = Record<string, unknown>;
  *    https://preactjs.com/blog/introducing-signals/
  *    https://preactjs.com/guide/v10/signals
  */
-export type SignalLib = {
-  readonly Is: SignalIsLib;
+export namespace Signal {
+  /** Reactive signal helper library surface. */
+  export type Lib = {
+    readonly Is: Is.Lib;
 
-  /** Create a new plain signal. */
-  create: typeof Preact.signal;
+    /** Create a new plain signal. */
+    create: typeof signal;
 
-  /** Create an effect to run arbitrary code in response to signal changes. */
-  effect: t.SignalEffectListener;
+    /** Create an effect to run arbitrary code in response to signal changes. */
+    effect: t.SignalEffectListener;
 
-  /** Combine multiple value updates into one "commit" at the end of the provided callback. */
-  batch: typeof Preact.batch;
+    /** Combine multiple value updates into one "commit" at the end of the provided callback. */
+    batch: typeof batch;
 
-  /** Create a new signal that is computed based on the values of other signals. */
-  computed: typeof Preact.computed;
+    /** Create a new signal that is computed based on the values of other signals. */
+    computed: typeof computed;
 
-  /** Create a new listeners collection. */
-  listeners(dispose$?: t.UntilInput): t.SignalListeners;
+    /** Create a new listeners collection. */
+    listeners(until?: t.UntilInput): t.SignalListeners;
 
-  /** Hooks into signal(s) value property. */
-  listen(subject?: t.Signal | Array<unknown> | O, deep?: boolean): void;
+    /** Hooks into signal(s) value property. */
+    listen(subject?: t.Signal | Array<unknown> | O, deep?: boolean): void;
 
-  /**
-   * Convert any mix of values, arrays, and `Signal`s into a plain,
-   * JSON-safe snapshot.
-   *
-   * - Replaces each `Signal<X>` with its current `.value`.
-   * - Traverses arrays and plain objects recursively.
-   * - Skips accessors by default (avoids invoking getters).
-   * - Function handling defaults to stringifying; set `func` to control behavior.
-   * - Guards against cycles and deep recursion.
-   *
-   * Intended for debug/inspection: produces a safe, non-reentrant
-   * structure suitable for logging or UI tree viewers.
-   */
-  toObject<T>(input: T, opts?: t.SignalToObjectOptions): t.UnwrapSignals<T>;
+    /**
+     * Convert any mix of values, arrays, and `Signal`s into a plain,
+     * JSON-safe snapshot.
+     *
+     * - Replaces each `Signal<X>` with its current `.value`.
+     * - Traverses arrays and plain objects recursively.
+     * - Skips accessors by default (avoids invoking getters).
+     * - Function handling defaults to stringifying; set `func` to control behavior.
+     * - Guards against cycles and deep recursion.
+     *
+     * Intended for debug/inspection: produces a safe, non-reentrant
+     * structure suitable for logging or UI tree viewers.
+     */
+    toObject<T>(input: T, opts?: t.SignalToObjectOptions): t.UnwrapSignals<T>;
 
-  /**
-   * Walks an object tree (recursive descent) and invokes `fn` for each Signal found.
-   * Returns the number of visited signals.
-   */
-  walk: t.SignalWalk;
-} & t.SignalValueHelpersLib;
-
-/**
- * Utility helpers for operating on Signal values.
- */
-export type SignalValueHelpersLib = {
-  /** Toggle a boolean signal. */
-  toggle(signal: t.Signal<boolean | number | undefined>, forceValue?: boolean): boolean;
-
-  /** Cycle a union string signal through a list of possible values. */
-  cycle<T>(signal: t.Signal<T | undefined>, values: t.Ary<T>, forceValue?: T): T;
+    /**
+     * Walks an object tree (recursive descent) and invokes `fn` for each Signal found.
+     * Returns the number of visited signals.
+     */
+    walk: t.SignalWalk;
+  } & Value.Lib;
 
   /**
-   * Read the current value from a readable signal abstraction.
-   * - If given a plain T, returns it.
-   * - If given a getter, invokes it.
-   * - If given an object with { value }, returns .value.
-   * - If input is undefined, returns undefined.
-   *
-   * Overloads ensure strong typing: passing a defined input yields T,
-   * passing undefined yields undefined.
+   * Utility helpers for operating on Signal values.
    */
-  read<T>(input: t.ReadableSignal<T>): T;
-  read<T>(input: undefined): undefined;
-  read<T>(input: t.ReadableSignal<T> | undefined): T | undefined;
-};
+  export namespace Value {
+    /** Signal value helper library surface. */
+    export type Lib = {
+      /** Toggle a boolean signal. */
+      toggle(signal: t.Signal<boolean | number | undefined>, forceValue?: boolean): boolean;
+
+      /** Cycle a union string signal through a list of possible values. */
+      cycle<T>(signal: t.Signal<T | undefined>, values: t.Ary<T>, forceValue?: T): T;
+
+      /**
+       * Read the current value from a readable signal abstraction.
+       * - If given a plain T, returns it.
+       * - If given a getter, invokes it.
+       * - If given an object with { value }, returns .value.
+       * - If input is undefined, returns undefined.
+       *
+       * Overloads ensure strong typing: passing a defined input yields T,
+       * passing undefined yields undefined.
+       */
+      read<T>(input: t.ReadableSignal<T>): T;
+      read<T>(input: undefined): undefined;
+      read<T>(input: t.ReadableSignal<T> | undefined): T | undefined;
+    };
+  }
+}
 
 /**
  * Helper for managing the disposal of a collection
@@ -90,12 +98,17 @@ export type SignalListeners = t.Lifecycle & {
   effect(fn: t.SignalEffectFn): SignalListeners;
 };
 
-/**
- * Flag helpers for working with Signals.
- */
-export type SignalIsLib = {
-  signal<T = unknown>(val: unknown): val is t.Signal<T>;
-};
+export namespace Signal {
+  /**
+   * Flag helpers for working with Signals.
+   */
+  export namespace Is {
+    /** Signal type-guard library surface. */
+    export type Lib = {
+      signal<T = unknown>(val: unknown): val is t.Signal<T>;
+    };
+  }
+}
 
 /** Options to control how aggressively `Signal.toObject` dehydrates. */
 export type SignalToObjectOptions = {

@@ -1,14 +1,15 @@
 {
   "name": "@sys/driver-monaco",
-  "version": "0.0.216",
+  "version": "0.0.293",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/index.html",
     "test": "deno test -P=test",
     "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/index.html",
+    "smoke:browser": "deno run -P=dev ./-scripts/task.browser-smoke.ts",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check src/",
+    "check": "deno check src/ ./-scripts/ vite.config.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "info": "deno run -P=dev   ./-scripts/task.main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
@@ -18,7 +19,8 @@
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
     "./crdt": "./src/-exports/-crdt.ts",
-    "./dev": "./src/-exports/-dev.ts"
+    "./dev": "./src/-exports/-dev.ts",
+    "./vite": "./src/m.Vite/mod.ts"
   },
   "permissions": {
     "clean": {
@@ -29,7 +31,21 @@
     "test": {
       "read": true,
       "write": true,
-      "env": true
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
+      }
     },
     "dev": {
       "read": true,

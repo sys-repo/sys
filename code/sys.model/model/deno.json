@@ -1,6 +1,6 @@
 {
   "name": "@sys/model",
-  "version": "0.0.80",
+  "version": "0.0.143",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -13,6 +13,14 @@
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
     "./types": "./src/types.ts",
+    "./files": "./src/m.files/mod.ts",
+    "./files/t": "./src/m.files/t.ts",
+    "./files/fs": "./src/m.files.fs/mod.ts",
+    "./files/fs/t": "./src/m.files.fs/t.ts",
+    "./files/memory": "./src/m.files.memory/mod.ts",
+    "./files/memory/t": "./src/m.files.memory/t.ts",
+    "./files/static": "./src/m.files.static/mod.ts",
+    "./files/static/t": "./src/m.files.static/t.ts",
     "./timecode/playback": "./src/m.timecode.playback/mod.ts",
     "./timecode/playback/t": "./src/m.timecode.playback/t.ts"
   },

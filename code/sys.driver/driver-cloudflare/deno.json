@@ -1,0 +1,47 @@
+{
+  "name": "@sys/driver-cloudflare",
+  "version": "0.0.39",
+  "license": "MIT",
+  "description": "Cloudflare runtime integration.",
+  "tasks": {
+    "test": "deno test -P=test",
+    "dry": "deno publish --allow-dirty --dry-run",
+    "check": "deno check -- ./src/ ./-scripts/*",
+    "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "tmp": "deno run -A ./-scripts/task.tmp.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts",
+    "./r2": "./src/m.r2/mod.ts"
+  },
+  "permissions": {
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "dev": {
+      "read": true,
+      "write": true,
+      "run": true,
+      "env": true,
+      "net": true,
+      "ffi": true,
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname"
+        ]
+      }
+    }
+  }
+}
+

@@ -1,6 +1,6 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { HeadDebug } from './-SPEC.Debug.tsx';
-import { D, SpecRoot, createDebugSignals, makeDebugPanel } from './common.ts';
+import { createDebugSignals, D, makeDebugPanel, SpecRoot } from './common.ts';
 
 export default Spec.describe(D.name, async (e) => {
   const debug = await createDebugSignals({
@@ -35,7 +35,7 @@ export default Spec.describe(D.name, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size('fill')

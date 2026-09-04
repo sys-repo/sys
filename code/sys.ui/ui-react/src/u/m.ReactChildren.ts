@@ -1,9 +1,10 @@
-import type { ReactChildrenLib } from './t.ts';
+import { type t } from './common.ts';
 
 import { useMemo } from 'react';
 import { deps } from './m.ReactChildren.deps.ts';
 
-export const ReactChildren: ReactChildrenLib = {
+/** React children dependency helpers for memo and effect inputs. */
+export const ReactChildren: t.ReactChildren.Lib = {
   deps,
   useDeps: (children) => useMemo(() => ReactChildren.deps(children), [children]),
 };

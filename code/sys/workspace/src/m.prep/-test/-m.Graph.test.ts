@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Str, Testing } from '../../-test.ts';
 import { Graph } from '../m.Graph.ts';
 import { State } from '../m.State.ts';
 
@@ -13,6 +13,23 @@ describe('Workspace.Prep.Graph', () => {
       orderedPaths: ['code/pkg-a', 'code/pkg-b'],
       edges: [{ from: 'code/pkg-a', to: 'code/pkg-b' }],
     });
+  });
+
+  it('reports a bounded package cycle path with witness imports', async () => {
+    const fs = await Testing.dir('WorkspacePrep.Graph.build.cycle');
+    await writeCyclicWorkspace(fs.dir);
+
+    const error = await expectError(() => Graph.build(fs.dir));
+
+    expect(error.message).to.include(
+      'Workspace.Prep.Graph.build: failed to order workspace paths (cycle): code/pkg-a → code/pkg-b → code/pkg-a',
+    );
+    expect(error.message).to.include('remaining: code/pkg-a, code/pkg-b, code/pkg-downstream');
+    expect(error.message).to.include('witness imports:');
+    expect(error.message).to.include('code/pkg-a → code/pkg-b');
+    expect(error.message).to.include('code/pkg-b/src/mod.ts → code/pkg-a/src/mod.ts (code)');
+    expect(error.message).to.include('code/pkg-b → code/pkg-a');
+    expect(error.message).to.include('code/pkg-a/src/mod.ts → code/pkg-b/src/mod.ts (code)');
   });
 
   it('ensures the workspace graph snapshot file and reports unchanged on repeat writes', async () => {
@@ -103,6 +120,45 @@ async function writeWorkspace(cwd: string) {
       'src/mod.ts': Str.dedent(`
         import { a } from '../../pkg-a/src/mod.ts';
         export const b = a;
+      `),
+    },
+  });
+}
+
+async function writeCyclicWorkspace(cwd: string) {
+  await Fs.writeJson(Fs.join(cwd, 'deno.json'), {
+    workspace: ['code/pkg-a', 'code/pkg-b', 'code/pkg-downstream'],
+  });
+
+  await writePackage(cwd, 'code/pkg-a', {
+    name: '@scope/a',
+    exports: { '.': './src/mod.ts' },
+    files: {
+      'src/mod.ts': Str.dedent(`
+        import { b } from '../../pkg-b/src/mod.ts';
+        export const a = b;
+      `),
+    },
+  });
+
+  await writePackage(cwd, 'code/pkg-b', {
+    name: '@scope/b',
+    exports: { '.': './src/mod.ts' },
+    files: {
+      'src/mod.ts': Str.dedent(`
+        import { a } from '../../pkg-a/src/mod.ts';
+        export const b = a;
+      `),
+    },
+  });
+
+  await writePackage(cwd, 'code/pkg-downstream', {
+    name: '@scope/downstream',
+    exports: { '.': './src/mod.ts' },
+    files: {
+      'src/mod.ts': Str.dedent(`
+        import { b } from '../../pkg-b/src/mod.ts';
+        export const downstream = b;
       `),
     },
   });

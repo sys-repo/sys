@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  * - 'absolute'  → prefix `rel` with `base` (when rel is non-empty).
  * - 'relative'  → return `rel` unchanged (or [] if absent).
  */
-export const join: t.ObjPathLib['join'] = (base, rel, mode = 'absolute') => {
+export const join: t.Obj.Path.Lib['join'] = (base, rel, mode = 'absolute') => {
   const hasRel = !!rel && rel.length > 0;
   if (!hasRel) return mode === 'absolute' ? base : ([] as t.ObjectPath);
   if (mode === 'relative') return rel!;
@@ -20,7 +20,7 @@ export const join: t.ObjPathLib['join'] = (base, rel, mode = 'absolute') => {
  * - Skips empty/undefined segments.
  * - Equivalent to: segments.reduce((acc, seg) => join(acc, seg, mode), [])
  */
-export const joinAll: t.ObjPathLib['joinAll'] = (...args: unknown[]) => {
+export const joinAll: t.Obj.Path.Lib['joinAll'] = (...args: unknown[]) => {
   const isMode = (x: unknown): x is t.PathMode => x === 'absolute' || x === 'relative';
 
   const mode: t.PathMode =

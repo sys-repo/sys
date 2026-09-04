@@ -1,67 +1,151 @@
 import { describe, expect, it, Rx } from '../../-test/common.ts';
 import type { t } from '../common.ts';
-import { keyboardFactory } from '../u.keyboard.ts';
+import { keyboardFactory } from '../u/u.keyboard.ts';
 
 describe('Vite.dev keyboard', () => {
-  it('handles info redraw before quit without losing the dispose path', async () => {
+  it('routes footer-advertised quit controls through the same disposal path', async () => {
+    for (const input of [{ key: 'q' }, { key: 'c', ctrlKey: true }]) {
+      const events: string[] = [];
+      const keyboard = keyboardFactory({
+        cwd: '/tmp/pkg',
+        url: 'http://localhost:1234/',
+        dispose: async () => void events.push('dispose'),
+      }, {
+        keypress: () => keypress([input]),
+        exit: (code) => events.push(`exit:${code}`),
+      });
+
+      await keyboard();
+      expect(events).to.eql(['dispose', 'exit:0']);
+    }
+  });
+
+  it('opens the normalized resolved URL without changing lifecycle state', async () => {
     const events: string[] = [];
     const keyboard = keyboardFactory({
-      paths: paths(),
-      port: 1234,
-      url: 'http://localhost:1234/',
-      pkg: pkg(),
-      dispose: async () => {
-        events.push('dispose');
-      },
+      cwd: '/tmp/pkg',
+      url: 'http://localhost:1234',
+      dispose: async () => void events.push('dispose'),
     }, {
-      keypress: () => keypress([{ key: 'i' }, { key: 'c', ctrlKey: true }]),
-      workspace: async () => workspace(),
-      clear: () => events.push('clear'),
-      print: (text) => events.push(text.includes('Options') ? 'help' : 'info'),
+      keypress: () => keypress([{ key: 'o' }]),
+      open: (url) => events.push(`open:${url}`),
       exit: (code) => events.push(`exit:${code}`),
     });
 
     await keyboard();
-
-    expect(events).to.eql(['clear', 'help', 'dispose', 'exit:0']);
+    expect(events).to.eql(['open:http://localhost:1234/']);
   });
 
-  it('renders extended info for shift+i before the plain info branch', async () => {
+  it('admits canonical redraw without changing open or quit controls', async () => {
     const events: string[] = [];
+    const exact = {
+      key: 'r',
+      ctrlKey: false,
+      altKey: false,
+      metaKey: false,
+      shiftKey: false,
+    } as const;
     const keyboard = keyboardFactory({
-      paths: paths(),
-      port: 1234,
-      url: 'http://localhost:1234/',
-      pkg: pkg(),
-      dispose: async () => {},
+      cwd: '/tmp/pkg',
+      url: 'http://localhost:1234',
+      redraw: () => events.push('redraw'),
+      dispose: async () => void events.push('dispose'),
     }, {
-      keypress: () => keypress([{ key: 'i', shiftKey: true }]),
-      workspace: async () => workspace(),
-      clear: () => events.push('clear'),
-      print: (text) => events.push(text.includes('workspace-render') ? 'extended' : 'plain'),
-      exit: (_code) => {},
+      keypress: () =>
+        keypress([
+          { key: 'o' },
+          { ...exact, key: 'R' },
+          { ...exact, ctrlKey: true },
+          { ...exact, altKey: true },
+          { ...exact, metaKey: true },
+          { ...exact, shiftKey: true },
+          { key: 'r' },
+          exact,
+          { key: 'o' },
+          { key: 'q' },
+        ]),
+      open: () => events.push('open'),
+      exit: (code) => events.push(`exit:${code}`),
     });
 
     await keyboard();
+    expect(events).to.eql(['open', 'redraw', 'open', 'dispose', 'exit:0']);
+  });
 
-    expect(events).to.eql(['clear', 'extended']);
+  it('preserves redraw failure over lifecycle cleanup failure', async () => {
+    const redrawFailure = new Error('ENOTTY redraw failed');
+    let thrown: unknown;
+    let disposals = 0;
+    const keyboard = keyboardFactory({
+      cwd: '/tmp/pkg',
+      url: 'http://localhost:1234',
+      redraw: () => {
+        throw redrawFailure;
+      },
+      dispose: () => {
+        disposals += 1;
+        throw new Error('dispose-failed');
+      },
+    }, {
+      keypress: () =>
+        keypress([{
+          key: 'r',
+          ctrlKey: false,
+          altKey: false,
+          metaKey: false,
+          shiftKey: false,
+        }]),
+      exit: () => {
+        throw new Error('redraw failure must not exit');
+      },
+    });
+
+    try {
+      await keyboard();
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).to.equal(redrawFailure);
+    expect(disposals).to.eql(1);
+  });
+
+  it('keeps redraw inert when no screen adapter exists', async () => {
+    const keyboard = keyboardFactory({
+      cwd: '/tmp/pkg',
+      url: 'http://localhost:1234',
+      dispose: () => Promise.resolve(),
+    }, {
+      keypress: () =>
+        keypress([{
+          key: 'r',
+          ctrlKey: false,
+          altKey: false,
+          metaKey: false,
+          shiftKey: false,
+        }]),
+    });
+
+    await keyboard();
   });
 
   it('waits for child disposal when keyboard input is unavailable', async () => {
     const events: string[] = [];
     const dispose$ = new Rx.Subject<t.DisposeAsyncEvent>();
+    let entered: () => void;
+    const inputUnavailable = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
     let resolved = false;
     const keyboard = keyboardFactory({
-      paths: paths(),
-      port: 1234,
+      cwd: '/tmp/pkg',
       url: 'http://localhost:1234/',
       until: dispose$,
-      dispose: async () => {
-        events.push('dispose');
-      },
+      dispose: async () => void events.push('dispose'),
     }, {
       keypress: () => ({
         async *[Symbol.asyncIterator]() {
+          entered();
           throw new Error('ENOTTY');
         },
       }),
@@ -72,9 +156,7 @@ describe('Vite.dev keyboard', () => {
       resolved = true;
       events.push('done');
     });
-    await Promise.resolve();
-    await Promise.resolve();
-
+    await inputUnavailable;
     expect(resolved).to.eql(false);
     expect(events).to.eql([]);
 
@@ -89,60 +171,19 @@ describe('Vite.dev keyboard', () => {
   });
 });
 
+/**
+ * Helpers:
+ */
 function keypress(items: readonly KeypressInput[]) {
   return (async function* () {
-    for (const item of items) yield event(item);
+    for (const item of items) yield item;
   })();
 }
 
 type KeypressInput = {
-  key: string;
+  key?: string;
   ctrlKey?: boolean;
+  altKey?: boolean;
+  metaKey?: boolean;
   shiftKey?: boolean;
 };
-
-function event(input: KeypressInput) {
-  return {
-    key: input.key,
-    ctrlKey: input.ctrlKey ?? false,
-    shiftKey: input.shiftKey ?? false,
-  };
-}
-
-function paths(): t.ViteConfigPaths {
-  return {
-    cwd: '/tmp/pkg',
-    app: {
-      entry: 'src/index.html',
-      outDir: 'dist',
-      base: './',
-    },
-  };
-}
-
-function pkg(): t.Pkg {
-  return {
-    name: '@sys/example',
-    version: '0.0.0',
-  };
-}
-
-function workspace(): t.ViteDenoWorkspace {
-  type EsmImportMap = { readonly [key: string]: string };
-  function latest(name: t.StringModuleSpecifier): t.StringSemver;
-  function latest(deps: EsmImportMap): EsmImportMap;
-  function latest(input: t.StringModuleSpecifier | EsmImportMap): t.StringSemver | EsmImportMap {
-    return typeof input === 'string' ? '0.0.0' : input;
-  }
-  return {
-    exists: true,
-    dir: '/tmp/pkg',
-    file: '/tmp/pkg/deno.json',
-    children: [],
-    modules: { ok: true, items: [], count: 0, latest },
-    aliases: [],
-    toAliasMap: () => ({}),
-    toString: () => 'workspace-render',
-    log: () => {},
-  };
-}

@@ -1,6 +1,6 @@
 import { RepoProcess } from '../cmd.repo.daemon/mod.ts';
 
-import { type t, c, Cli, Crdt, Fs, Str, Time } from '../common.ts';
+import { c, Cli, Crdt, Fs, Str, type t, Time } from '../common.ts';
 import { CrdtReposFs } from '../u.config.repo/u.fs.ts';
 import { Fmt } from '../u.fmt.ts';
 import { calcAndSaveDist } from './u.calcAndSaveDist.ts';
@@ -23,7 +23,7 @@ export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
    * Process snapshot/backup request.
    */
   const tableProcessed = Cli.table([]);
-  const appendTable = (tbl: t.CliTable, e: t.CrdtSnapshotProgressSaved) => {
+  const appendTable = (tbl: t.Cli.Table.Instance, e: t.CrdtSnapshotProgressSaved) => {
     const coloredId = Fmt.prettyUri(e.id);
     const branch = Tree.branch(false);
     const identity = c.gray(`${branch} ${e.isRoot ? c.white(coloredId) : coloredId}`);

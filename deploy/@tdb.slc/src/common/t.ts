@@ -8,10 +8,15 @@ export type { ReactElement, MouseEventHandler as ReactMouseEventHandler, ReactNo
  */
 export type * from '@sys/types';
 
-export type { ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { SpecImports } from '@sys/testing/t';
-export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
-export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
+import type * as TCss from '@sys/ui-css/t';
+export type CssEdgesInput = TCss.CssEdges.Input;
+export type CssInput = TCss.Style.Input;
+export type CssMarginArray = TCss.CssEdges.Margin.Array;
+export type CssProps = TCss.Style.Props;
+export type CssValue = TCss.Style.Value;
+export type { Keyboard } from '@sys/ui-dom/t';
 export type { YamlSyncParser } from '@sys/yaml/t';
 
 export type {
@@ -24,10 +29,10 @@ export type {
   VideoElementProps,
   VideoPlayerSignals,
   VimeoIFrame,
-} from '@sys/ui-react-components/t';
-export type { DevCtx } from '@sys/ui-react-devharness/t';
+} from '@sys/ui-components/t';
+export type { DevCtx } from '@sys/ui-dev/react/devharness/t';
 
-export type { Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
+export type { Crdt } from '@sys/driver-automerge/t';
 export type { Monaco } from '@sys/driver-monaco/t';
 
 /**

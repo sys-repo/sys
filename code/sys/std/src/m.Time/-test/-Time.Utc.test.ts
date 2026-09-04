@@ -1,5 +1,4 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Date as D } from '../../m.Time.Date/mod.ts';
 import { Time } from '../mod.ts';
 
 describe('Time.utc', () => {
@@ -37,6 +36,6 @@ describe('Time.now', () => {
     const template = 'yy-MM-dd';
     const now = Time.now;
     const res = now.format(template);
-    expect(res).to.eql(D.format(now.date, template));
+    expect(res).to.eql(Time.Date.format(now.date, template));
   });
 });

@@ -1,21 +1,36 @@
-import { type t, c, D, done, Fs, Is } from './common.ts';
-import { executeBundlePull, pullBundle } from './u.bundle/mod.ts';
+import { c, D, done, Err, Fs, Is, type t } from './common.ts';
+import { runAdd } from './u.add.run.ts';
 import { parseArgs } from './u.args.ts';
+import { pullBundle } from './u.bundle/mod.ts';
 import { Fmt } from './u.fmt.ts';
 import { yamlConfigsMenu } from './u.menu.yaml.ts';
 import { resolveNonInteractive } from './u.resolve.nonInteractive.ts';
-import { PullFs, PullMigrate } from './u.yaml/mod.ts';
+import { run } from './u.run.ts';
+import { PullFs } from './u.yaml/mod.ts';
 
-/**
- * Main entry:
- */
-export const cli: t.PullToolsLib['cli'] = async (cwd, argv) => {
+/** Run Pull with interactive menus or explicit non-interactive arguments. */
+export const cli: t.PullToolsLib['cli'] = async (cwd, argv): Promise<void> => {
   const args = parseArgs(argv);
   const toolname = D.tool.name;
   cwd = cwd ?? Fs.cwd('terminal');
 
+  if (args.command === 'add') {
+    if (args.help) return void console.info(await Fmt.addHelp(cwd));
+    console.info(await Fmt.header(toolname, undefined, { exitHint: false }));
+    const res = await runAdd(cwd, args);
+    console.info(Fmt.signoff(toolname));
+    const exit = res.exit === true ? 0 : Is.num(res.exit) ? res.exit : -1;
+    if (exit > -1) Deno.exit(exit);
+    return;
+  }
+
+  if (args._.length > 0) {
+    console.info(await Fmt.help(cwd));
+    console.info(c.yellow(`Unknown command: ${args._[0]}`));
+    Deno.exit(1);
+  }
+
   if (args.help) return void console.info(await Fmt.help(cwd));
-  await PullMigrate.run(cwd);
 
   /* Run */
   console.info(await Fmt.header(toolname));
@@ -56,20 +71,26 @@ async function runInteractive(cwd: t.StringDir): Promise<t.RunReturn> {
   }
 }
 
-async function runNonInteractive(cwd: t.StringDir, args: t.PullTool.CliParsedArgs): Promise<t.RunReturn> {
+async function runNonInteractive(
+  cwd: t.StringDir,
+  args: t.PullTool.CliParsedArgs,
+): Promise<t.RunReturn> {
   const resolved = await resolveNonInteractive(cwd, args);
-  const bundles = resolved.location.bundles ?? [];
-  if (bundles.length === 0) {
-    console.info(c.gray('No bundles configured.'));
-    return done(0);
-  }
 
-  for (const bundle of bundles) {
-    const result = await executeBundlePull(resolved.yamlPath, resolved.location, bundle);
-    if (!result.ok) {
-      throw new Error(result.error);
+  try {
+    const result = await run({ cwd, config: resolved.config });
+    if (result.bundles.length === 0) {
+      console.info(c.gray('No bundles configured.'));
+      return done(0);
     }
-  }
 
-  return done(0);
+    for (const bundle of result.bundles) {
+      console.info(Fmt.pullSummary({ bundle: bundle.bundle, data: bundle.data }));
+    }
+
+    return done(0);
+  } catch (error) {
+    console.info(Fmt.pullError(Err.summary(error, { cause: true, stack: false })));
+    return done(1);
+  }
 }

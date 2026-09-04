@@ -1,4 +1,4 @@
-import { type t, Testing, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t, Testing } from '../../-test.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Time } from '../mod.ts';
 
@@ -30,6 +30,18 @@ describe('Time.interval', () => {
     const stoppedAt = count;
     await Testing.wait(30);
     expect(count).to.eql(stoppedAt);
+  });
+
+  it('oversized interval → clamps to the canonical timer domain without firing early', async () => {
+    let count = 0;
+    const tick = Time.interval(Time.Delay.MAX + 1, () => count++);
+
+    expect(tick.interval).to.eql(Time.Delay.MAX);
+    await Time.wait(0);
+    expect(count).to.eql(0);
+
+    tick.cancel();
+    expect(tick.is.cancelled).to.eql(true);
   });
 
   it('supports immediate execution before the first scheduled tick', async () => {
@@ -65,7 +77,7 @@ describe('Time.interval', () => {
   });
 
   it('Time.until(interval) cancels on dispose', async () => {
-    const { dispose, dispose$ } = Rx.disposable();
+    const { dispose, dispose$ } = Rx.lifecycle();
     const time = Time.until(dispose$);
     let count = 0;
     const tick = time.interval(10, () => count++);
@@ -81,11 +93,19 @@ describe('Time.interval', () => {
   });
 
   it('has the correct type signature', () => {
-    expectTypeOf(Time.interval).toEqualTypeOf<t.TimeLib['interval']>();
+    expectTypeOf(Time.interval).toEqualTypeOf<t.Time.Lib['interval']>();
 
     type IntervalShape =
-      & ((msecs: t.Msecs, fn: t.TimeIntervalCallback, options?: t.TimeIntervalOptions | AbortSignal | AbortController) => t.TimeInterval)
-      & ((msecs: t.Msecs, options: t.TimeIntervalOptions | AbortSignal | AbortController, fn: t.TimeIntervalCallback) => t.TimeInterval);
+      & ((
+        msecs: t.Msecs,
+        fn: t.Time.Interval.Callback,
+        options?: t.Time.Interval.Options | AbortSignal | AbortController,
+      ) => t.Time.Interval.Handle)
+      & ((
+        msecs: t.Msecs,
+        options: t.Time.Interval.Options | AbortSignal | AbortController,
+        fn: t.Time.Interval.Callback,
+      ) => t.Time.Interval.Handle);
 
     expectTypeOf(Time.interval).toEqualTypeOf<IntervalShape>();
   });

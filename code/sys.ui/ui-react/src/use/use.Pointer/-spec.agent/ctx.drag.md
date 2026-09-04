@@ -5,7 +5,7 @@ Purpose: harden `use.Pointer.Drag.ts` in a single cohesive pass without API drif
 ## Scope (locked)
 
 - Target file:
-  - `/Users/phil/code/org.sys/sys/code/sys.ui/ui-react/src/use/use.Pointer/use.Pointer.Drag.ts`
+  - `code/sys.ui/ui-react/src/use/use.Pointer/use.Pointer.Drag.ts`
 - Allowed:
   - internal lifecycle/session refactor
   - internal listener strategy refactor
@@ -72,14 +72,14 @@ No hidden coupling or cross-ownership bleed.
 - no leaked listeners after teardown
 
 2. Pointer regression tests (second):
-- `/Users/phil/code/org.sys/sys/code/sys.ui/ui-react/src/use/use.Pointer/-test/-use.Pointer.test.ts`
+- `code/sys.ui/ui-react/src/use/use.Pointer/-test/-use.Pointer.test.ts`
 
 3. Tabs canary tests (third):
-- `/Users/phil/code/org.sys/sys/code/sys.ui/ui-react-components/src/ui/Layout.Tabs/-test/-.test.tsx`
+- `code/sys.ui/ui-components/src/ui/Layout.Tabs/-test/-.test.tsx`
 
 4. Module-wide verification (final):
 - `ui-react`: `deno task test --trace-leaks`
-- `ui-react-components`: `deno task test --trace-leaks`
+- `ui-components`: `deno task test --trace-leaks`
 
 ## Exit criteria
 

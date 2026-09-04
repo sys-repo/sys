@@ -1,0 +1,65 @@
+id: websocket.cmd
+title: WebSocketServer Cmd binding
+summary: |
+  Bind nested `t.Cmd.*` command algebra to a WebSocket transport
+  without inventing a second protocol.
+
+sections:
+  - label: Rule
+    items: |
+      Command grammar belongs to `@sys/event/cmd`.
+      Use nested `t.Cmd.*` types only.
+      Do not add old flat command type aliases.
+      Do not invent a second WebSocket JSON protocol beside Cmd transport frames.
+      `WebSocketServer` owns transport binding.
+      Applications own command names, payloads, results, events, and handlers.
+      This chapter is for generic Cmd-over-WebSocket usage.
+      Files-specific consumers should use `Files.Client.websocket(url)`.
+      Do not repeat raw WebSocket/Cmd client wiring in Files consumers.
+      WebSocket Cmd frames are JSON transport frames.
+      Do not assume byte payload fidelity until an explicit codec is implemented.
+
+  - label: Speech acts
+    items: |
+      define a typed command namespace
+      define Cmd payload/result/event maps
+      attach t.Cmd.Handler.Map handlers
+      serve unary Cmd requests over WebSocket
+      stream Cmd events from ctx.emit(...)
+      use Cmd.Transport.fromWebSocket as the generic transport seam
+      avoid inventing a second WebSocket JSON protocol
+      distinguish generic Cmd-over-WebSocket from Files-over-WebSocket
+      verify a typed Cmd roundtrip over a real WebSocket server
+
+  - label: Type grammar
+    items: |
+      Command names extend `string` and usually narrow to a union.
+      Payload maps use `t.Cmd.Payload.Map<N>`.
+      Result maps use `t.Cmd.Result.Map<N>`.
+      Event maps use `t.Cmd.Event.Map<N>`.
+      Handler maps use `t.Cmd.Handler.Map<N, P, R, E>`.
+      Keep concrete command grammar close to the consuming package.
+      Do not put application command grammar inside `@sys/server`.
+      Files command grammar belongs to `@sys/model/files`.
+      Files command grammar is hosted by the `@sys/server/files` facade.
+
+  - label: Server options
+    items: |
+      `cmd.handlers` is required and is attached to each accepted WebSocket.
+      `cmd.ns` is optional and scopes command traffic when sharing a transport namespace.
+      Each accepted socket receives a Cmd endpoint adapted from the raw WebSocket.
+      Each accepted socket receives a Cmd host bound to that endpoint.
+      The `onSocket` hook may inspect `context.endpoint` and `context.host`.
+      The `onSocket` hook must not replace the protocol.
+
+  - label: Verify
+    items: |
+      Stand up a real `WebSocketServer`.
+      Connect with a real WebSocket client.
+      Prove at least one typed unary command roundtrip.
+      Prove at least one streamed event from `ctx.emit(...)`.
+      Prove streamed events when event behavior is relevant.
+      Prove disposed clients reject safely without hitting the server.
+      Do not retest all of `@sys/event/cmd`; prove the server transport binding.
+      For Files-specific flows, prove behavior through `Files.Client.websocket(url)`.
+      Prove Files-specific hosting through the Files server facade.

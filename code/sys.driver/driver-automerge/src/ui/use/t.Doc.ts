@@ -23,6 +23,7 @@ export type CrdtDocHook<T extends O> = {
  * Handles when a document id loaded and ready (or has error'd out).
  */
 export type CrdtDocHookReadyHandler<T extends O = O> = (e: CrdtDocHookReady<T>) => void;
+/** Ready/error payload emitted by the document-loading hook. */
 export type CrdtDocHookReady<T extends O> = {
   readonly doc?: t.Crdt.Ref<T>;
   readonly error?: t.StdError;

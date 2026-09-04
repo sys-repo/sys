@@ -29,6 +29,7 @@ export const ServeYamlSchema = {
     {
       name: Schema.Type.String(),
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
+      info: Schema.Type.Optional(Schema.Type.Record(Schema.Type.String(), Schema.Type.String())),
     },
     { additionalProperties: false },
   ),

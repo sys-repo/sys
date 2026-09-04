@@ -1,18 +1,18 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /** Playback-manifest endpoint loaders. */
 export type SlugClientPlaybackLib = {
   readonly load: <P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    options?: t.SlugLoadOptions,
+    options: t.SlugLoadOptions,
   ) => Promise<t.SlugClientResult<t.SpecTimelineManifest<P>>>;
 };
 
 /** Playback loaders scoped to a descriptor client. */
 export type SlugClientPlaybackFromDescriptorLib = {
   readonly load: <P = unknown>(
-    options?: t.SlugLoadOptions,
+    options?: t.SlugScopedLoadOptions,
   ) => Promise<t.SlugClientResult<t.SpecTimelineManifest<P>>>;
 };
 
@@ -21,14 +21,14 @@ export type SlugClientTimelineBundleLib = {
   readonly load: <P = unknown>(
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    options?: t.SlugTimelineBundleLoadOptions,
+    options: t.SlugTimelineBundleLoadOptions,
   ) => Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>>;
 };
 
 /** Timeline bundle loaders scoped to a descriptor client. */
 export type SlugClientTimelineBundleFromDescriptorLib = {
   readonly load: <P = unknown>(
-    options?: t.SlugTimelineBundleLoadOptions,
+    options?: t.SlugScopedTimelineBundleLoadOptions,
   ) => Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>>;
 };
 
@@ -40,9 +40,15 @@ export type SlugClientTimelineFromDescriptorLib = {
 };
 /** Options for loading a timeline bundle. */
 export type SlugTimelineBundleLoadOptions = t.SlugLoadOptions & {
-  hrefResolver?: SlugTimelineBundleHrefResolver;
+  readonly hrefResolver?: SlugTimelineBundleHrefResolver;
+};
+
+/** Descriptor-bound bundle options without transport authority. */
+export type SlugScopedTimelineBundleLoadOptions = t.SlugScopedLoadOptions & {
+  readonly hrefResolver?: SlugTimelineBundleHrefResolver;
 };
 
 /** Href resolver for timeline bundle assets. */
-export type SlugTimelineBundleHrefResolver =
-  t.SlugBundleHrefResolver<t.BundleDescriptorSlugTreeMediaSeqAssetKind>;
+export type SlugTimelineBundleHrefResolver = t.SlugBundleHrefResolver<
+  t.BundleDescriptorSlugTreeMediaSeqAssetKind
+>;

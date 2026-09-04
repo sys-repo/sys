@@ -1,25 +1,78 @@
-import { type t, Cli, Fs } from './common.ts';
+import { c, Cli, Err, Fs, Is, type t } from './common.ts';
+import { WorkspaceBump } from '../m.bump/mod.ts';
+import { WorkspaceDelta } from '../m.delta/mod.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
-import { parseArgs, wantsHelp } from './u.args.ts';
-import { Fmt } from './u.fmt.ts';
-import { FmtHelp } from './u.fmt.help.ts';
-import { runInteractive } from './u.interactive.ts';
+import { commandOf, parseArgs, parseDslArgs, wantsHelp } from './u/u.args.ts';
+import { runInteractive } from './u/u.interactive.ts';
+import { Fmt } from './u.fmt/u.fmt.ts';
+import { FmtHelp } from './u.fmt/u.fmt.help.ts';
+
+export type WorkspaceCliDependencies = {
+  readonly bumpRun: t.WorkspaceBump.Lib['run'];
+  readonly interactive: typeof runInteractive;
+  readonly upgrade: t.WorkspaceUpgrade.Lib;
+};
+
+export type WorkspaceCliDependencyOverrides = Partial<WorkspaceCliDependencies>;
+
+const DEFAULT_DEPS: WorkspaceCliDependencies = {
+  bumpRun: WorkspaceBump.run,
+  interactive: runInteractive,
+  upgrade: WorkspaceUpgrade,
+};
 
 export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
+  return await runWith({}, input);
+};
+
+/** Package-internal dependency seam for command orchestration. */
+export async function runWith(
+  overrides: WorkspaceCliDependencyOverrides,
+  input: t.WorkspaceCli.Input = {},
+): Promise<t.WorkspaceCli.Result> {
+  const deps: WorkspaceCliDependencies = {
+    bumpRun: overrides.bumpRun ?? DEFAULT_DEPS.bumpRun,
+    interactive: overrides.interactive ?? DEFAULT_DEPS.interactive,
+    upgrade: overrides.upgrade ?? DEFAULT_DEPS.upgrade,
+  };
   const cwd = input.cwd ?? Fs.cwd('process');
   const argv = [...(input.argv ?? [])];
-  if (wantsHelp(argv)) {
+  const command = commandOf(argv);
+
+  if (command === 'dsl') return await runDsl({ argv, cwd });
+  if (command === 'bump') return await runBump(deps, { argv, cwd, policy: input.bumpPolicy });
+  if (command === 'upgrade') return await runUpgrade(deps, { argv, cwd });
+
+  if (argv.length === 0 || wantsHelp(argv)) {
     const text = FmtHelp.output();
     console.info(text);
-    console.info();
     return { kind: 'help', input: { argv, cwd }, text };
   }
 
-  const options = parseArgs(cwd, argv);
+  throw Err.std(`Unknown command: ${command}`);
+}
+
+/**
+ * Helpers:
+ */
+
+async function runUpgrade(deps: WorkspaceCliDependencies, input: {
+  readonly argv: readonly string[];
+  readonly cwd: t.StringDir;
+}): Promise<t.WorkspaceCli.Result> {
+  const { argv, cwd } = input;
+  const upgradeArgv = wrangle.commandArgs(argv, 'upgrade');
+  if (wantsHelp(upgradeArgv)) {
+    const text = FmtHelp.upgradeOutput();
+    console.info(text);
+    return { kind: 'help', input: { argv, cwd }, text } as const;
+  }
+
+  const options = parseArgs(cwd, upgradeArgv);
   const upgradeInput = { cwd, deps: options.deps };
 
   if (options.mode === 'interactive') {
-    const res = await runInteractive(upgradeInput, options);
+    const res = await deps.interactive(upgradeInput, options);
     if (res.applied) {
       return {
         kind: 'apply',
@@ -40,16 +93,15 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
     };
   }
 
-  const selection = await wrangle.selection(upgradeInput, options);
+  const selection = await wrangle.selection(deps, upgradeInput, options);
 
   const upgrade = await Cli.Spinner.with(
     Fmt.spinnerProgress({ kind: 'plan' }),
     (spinner) =>
-      WorkspaceUpgrade.upgrade(
+      deps.upgrade.upgrade(
         upgradeInput,
         wrangle.upgradeOptions(options, selection.exclude, (progress) =>
-          spinner.start(Fmt.spinnerProgress(progress))
-        ),
+          spinner.start(Fmt.spinnerProgress(progress))),
       ),
   );
   if (options.dryRun) {
@@ -61,11 +113,10 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
   const applied = await Cli.Spinner.with(
     Fmt.spinnerProgress({ kind: 'apply' }),
     (spinner) =>
-      WorkspaceUpgrade.apply(
+      deps.upgrade.apply(
         upgradeInput,
         wrangle.upgradeOptions(options, selection.exclude, (progress) =>
-          spinner.start(Fmt.spinnerProgress(progress))
-        ),
+          spinner.start(Fmt.spinnerProgress(progress))),
       ),
   );
 
@@ -76,14 +127,137 @@ export const run: t.WorkspaceCli.Lib['run'] = async (input = {}) => {
     console.info(commit);
   }
   console.info();
-  return { kind: 'apply', input: { argv, cwd }, options, selection, upgrade: applied.upgrade, applied };
-};
+  return {
+    kind: 'apply',
+    input: { argv, cwd },
+    options,
+    selection,
+    upgrade: applied.upgrade,
+    applied,
+  };
+}
 
-/**
- * Helpers:
- */
+async function runBump(deps: WorkspaceCliDependencies, input: {
+  readonly argv: readonly string[];
+  readonly cwd: t.StringDir;
+  readonly policy?: t.WorkspaceBump.Policy;
+}): Promise<t.WorkspaceCli.Result> {
+  const { argv, cwd, policy } = input;
+  const bumpArgv = wrangle.commandArgs(argv, 'bump');
+  const args = WorkspaceBump.Args.run({ argv: bumpArgv, options: { cwd }, policy });
+
+  if (args.help) {
+    const text = WorkspaceBump.Fmt.help('@sys/workspace bump');
+    return { kind: 'help', input: { argv, cwd }, text } as const;
+  }
+  if (args.conflict) throw Err.std(args.conflict.message);
+  if (args.invalidRelease) console.warn(WorkspaceBump.Fmt.invalidRelease(args.invalidRelease));
+
+  const bump = args.since === undefined
+    ? await wrangle.runDefaultBump(deps, args)
+    : await wrangle.runSinceBump(deps, args, cwd);
+
+  return { kind: 'bump', input: { argv, cwd }, bump } as const;
+}
+
+async function runDsl(input: {
+  readonly argv: readonly string[];
+  readonly cwd: t.StringDir;
+}): Promise<t.WorkspaceCli.Result> {
+  const { argv, cwd } = input;
+  const args = parseDslArgs(argv);
+  if (args.help) {
+    const text = await FmtHelp.dslOutput({ path: args._.map(String), format: 'human' });
+    console.info(text);
+    return { kind: 'help', input: { argv, cwd }, text } as const;
+  }
+
+  const format = wrangle.dslFormat(args.format);
+
+  if (args.unknown.length > 0) throw Err.std(`Unknown option for dsl: ${args.unknown.join(', ')}`);
+  if (!format.ok) throw Err.std(format.message);
+
+  const text = await FmtHelp.dslOutput({ path: args._.map(String), format: format.value });
+  console.info(text);
+  return { kind: 'help', input: { argv, cwd }, text } as const;
+}
+
+const DEFAULT_BUMP_DELTA_REF = 'jsr-publish';
 
 const wrangle = {
+  commandArgs(input: readonly string[], command: string): string[] {
+    const argv = input[0] === '--' ? input.slice(1) : input;
+    return argv[0] === command ? argv.slice(1) : [...argv];
+  },
+
+  async runDefaultBump(
+    deps: WorkspaceCliDependencies,
+    args: t.WorkspaceBump.Args.RunResolved,
+  ): Promise<t.WorkspaceBump.RunResult> {
+    const runBump = deps.bumpRun;
+    if (!wrangle.shouldShowDeltaPrelude(args)) return await runBump(args.run);
+
+    try {
+      const delta = await WorkspaceDelta.Git.fromRef({
+        cwd: args.run.cwd,
+        ref: DEFAULT_BUMP_DELTA_REF,
+        release: args.run.release,
+        policy: args.run.policy,
+      });
+      console.info();
+      for (const line of wrangle.deltaPrelude(delta)) console.info(line);
+      console.info();
+      return await runBump({
+        ...args.run,
+        collect: delta.collect,
+        suggestedRoots: delta.bumpRootPkgPaths,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.warn(c.yellow(`Delta prelude unavailable: ${message}`));
+      return await runBump(args.run);
+    }
+  },
+
+  shouldShowDeltaPrelude(args: t.WorkspaceBump.Args.RunResolved): boolean {
+    if (args.run.nonInteractive) return false;
+    if (args.run.from !== undefined && args.run.from.length > 0) return false;
+    return args.since === undefined;
+  },
+
+  deltaPrelude(delta: t.WorkspaceDelta.Git.FromRefResult): readonly string[] {
+    const roots = new Set(delta.bumpRootPkgPaths);
+    const selected = new Set(delta.bumpClosurePkgPaths);
+    const plan: t.WorkspaceBump.PlanResult = {
+      roots: delta.collect.candidates.filter((candidate) => roots.has(candidate.pkgPath)),
+      selected: delta.collect.candidates.filter((candidate) => selected.has(candidate.pkgPath)),
+      selectedPaths: delta.bumpClosurePkgPaths,
+    };
+    return WorkspaceBump.Fmt.planSummary({ plan });
+  },
+
+  async runSinceBump(
+    deps: WorkspaceCliDependencies,
+    args: t.WorkspaceBump.Args.RunResolved,
+    cwd: t.StringDir,
+  ): Promise<t.WorkspaceBump.RunResult> {
+    const delta = await WorkspaceDelta.Git.fromRef({
+      cwd,
+      ref: args.since ?? '',
+      release: args.run.release,
+      policy: args.run.policy,
+    });
+    if (args.explainDelta) {
+      console.info();
+      console.info(WorkspaceDelta.Fmt.explain({ delta }));
+    }
+    return await deps.bumpRun({
+      ...args.run,
+      collect: delta.collect,
+      from: delta.bumpRootPkgPaths,
+    });
+  },
+
   upgradeOptions(
     options: t.WorkspaceCli.ResolvedOptions,
     exclude: readonly string[],
@@ -95,11 +269,28 @@ const wrangle = {
         exclude: exclude.length > 0 ? exclude : undefined,
       },
       prerelease: options.prerelease,
+      minimumDependencyAge: options.minimumDependencyAge,
+      evaluatedAt: options.evaluatedAt,
       progress,
     };
   },
 
+  dslFormat(
+    value: t.WorkspaceCli.ParsedDslArgs['format'],
+  ):
+    | { readonly ok: true; readonly value: t.WorkspaceCli.Dsl.Format }
+    | { readonly ok: false; readonly message: string } {
+    if (value === undefined) return { ok: true, value: 'human' };
+    if (Is.array<string | boolean>(value)) {
+      return { ok: false, message: 'Repeated option for dsl: --format' };
+    }
+    if (!Is.str(value)) return { ok: false, message: 'Option requires a value: --format' };
+    if (value === 'human' || value === 'skill') return { ok: true, value };
+    return { ok: false, message: `Unsupported dsl format: ${value} (expected: human, skill)` };
+  },
+
   async selection(
+    deps: WorkspaceCliDependencies,
     input: t.WorkspaceUpgrade.Input,
     options: t.WorkspaceCli.ResolvedOptions,
   ): Promise<t.WorkspaceCli.Selection> {
@@ -107,9 +298,11 @@ const wrangle = {
       return { include: [], exclude: options.exclude };
     }
 
-    const collected = await WorkspaceUpgrade.collect(input, {
+    const collected = await deps.upgrade.collect(input, {
       policy: { mode: options.policy, exclude: options.exclude },
       prerelease: options.prerelease,
+      minimumDependencyAge: options.minimumDependencyAge,
+      evaluatedAt: options.evaluatedAt,
     });
 
     const include = options.include;

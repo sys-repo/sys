@@ -1,13 +1,17 @@
 {
   "name": "@sys/workspace",
-  "version": "0.0.73",
+  "version": "0.0.154",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
+    "test:resolve": "deno test -P=test --trace-leaks ./src/m.resolve",
     "test:cli": "deno run -P=test:cli ./-scripts/task.cli.ts",
+    "cli": "deno run -P=cli ./src/m.cli/mod.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
+    "prep": "deno task help:bundle",
+    "help:bundle": "deno run -RWE ./src/m.help/-bundle/mod.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -17,15 +21,24 @@
     "./bump": "./src/m.bump/mod.ts",
     "./ci": "./src/m.ci/mod.ts",
     "./cli": "./src/m.cli/mod.ts",
+    "./delta": "./src/m.delta/mod.ts",
     "./graph": "./src/m.graph/mod.ts",
     "./info": "./src/m.info/mod.ts",
     "./pkg": "./src/m.pkg/mod.ts",
     "./prep": "./src/m.prep/mod.ts",
+    "./resolve": "./src/m.resolve/mod.ts",
     "./run": "./src/m.run/mod.ts",
     "./upgrade": "./src/m.upgrade/mod.ts",
     "./testing": "./src/m.testing/mod.ts"
   },
   "permissions": {
+    "cli": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
     "clean": {
       "read": true,
       "write": true,

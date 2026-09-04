@@ -1,4 +1,4 @@
-import { type t, Fs, Pkg, Str } from '../common.ts';
+import { Fs, Is, Path, Pkg, Str, type t } from '../common.ts';
 import { TEMPLATE } from './u.generateHtml.tmpl.ts';
 import { ensureBuildResetMeta, withBuildResetMeta } from './u.buildReset.ts';
 
@@ -9,84 +9,89 @@ type TDir = {
   readonly abs: t.StringDir;
   readonly rel: t.StringDir;
   readonly dist?: t.DistPkg;
-  readonly hasIndex: boolean;
-  readonly hasDistJson: boolean;
 };
 
-/**
- * Ensure an `index.html` exists inside a staging root.
- */
+/** Ensure a marker-owned exact-file directory index exists. */
 export async function ensureIndexHtml(
   cwd: t.StringDir,
   options: {
-    readonly force?: boolean;
-    readonly baseDomain?: string;
-    readonly buildResetToken?: string;
+    /** Destination directory for the generated index; defaults to the scan root. */
+    targetDir?: t.StringDir;
+    force?: boolean;
+    buildResetToken?: string;
+    /** Link the page to its final local manifest. Defaults true. */
+    includeDistLink?: boolean;
+    /** Generated index destinations omitted from the scan projection. */
+    excludeDirs?: t.StringDir[];
   } = {},
 ): Promise<void> {
-  const raw = String(cwd ?? '').trim();
+  const raw = String(cwd ?? '');
   if (!raw) return;
 
   const root = Fs.Path.resolve(raw);
-  const target = Fs.join(root, 'index.html');
-  const exists = await Fs.exists(target);
-  if (exists) {
-    const ok = await shouldOverwrite(target, options.force === true);
-    if (!ok) {
+  const targetRoot = Fs.Path.resolve(options.targetDir ?? root);
+  const target = Fs.join(targetRoot, 'index.html');
+  if (await Fs.exists(target)) {
+    const overwrite = await shouldOverwrite(target, options.force === true);
+    if (!overwrite) {
       await ensureBuildResetMeta(target, options.buildResetToken);
       return;
     }
   }
-  if (!exists && !options.force) {
-    // no-op: only create when missing unless force is requested
-  }
 
-  const dirs = await directories(root);
-  const html = renderHtml(dirs, options.baseDomain, options.buildResetToken);
-  await Fs.write(target, html);
+  const excludedRoots = [targetRoot, ...(options.excludeDirs ?? [])]
+    .map((path) => Fs.Path.resolve(path))
+    .filter((path) => path !== root);
+  const dirs = (await directories(root)).filter((dir) =>
+    excludedRoots.every((excluded) =>
+      !Path.Is.within(excluded, dir.abs) && !Path.Is.within(dir.abs, excluded)
+    )
+  );
+  const html = renderHtml(
+    dirs,
+    targetRoot,
+    options.buildResetToken,
+    options.includeDistLink !== false,
+  );
+  await Fs.ensureDir(targetRoot);
+  await Fs.write(target, html, { throw: true });
 }
 
-/**
- * Helpers:
- */
-async function directories(root: t.StringDir) {
-  const glob = Fs.glob(Fs.Path.resolve(root), { includeDirs: true, depth: 1 });
+async function directories(root: t.StringDir): Promise<readonly TDir[]> {
+  const base = Path.resolve(root, '.');
+  const glob = Fs.glob(base, { includeDirs: true });
   const entries = await glob.find('*');
 
   const res: TDir[] = [];
   for (const entry of entries.filter((entry) => entry.isDirectory)) {
     const abs = entry.path;
-    const rel = Str.trimSlashes(abs.startsWith(root) ? abs.slice(root.length) : abs);
-    if (rel === '-root') continue;
+    const relative = Path.relative(base, abs);
+    if (Path.Is.absolute(relative) || !Path.Is.within(base, abs)) {
+      throw new Error(`Deploy generated index directory escaped its scan root: ${abs}`);
+    }
+    const rel = Path.relativePosix(relative);
     const dist = (await Pkg.Dist.load(abs)).dist;
-    const hasIndex = await Fs.exists(Fs.join(abs, 'index.html'));
-    const hasDistJson = await Fs.exists(Fs.join(abs, 'dist.json'));
-    res.push({ abs, rel, dist, hasIndex, hasDistJson });
+    res.push({ abs, rel, dist });
   }
 
   const compare = Str.Compare.natural();
-  return res.toSorted((a, b) => compareDirName(compare, a.rel, b.rel));
+  return Object.freeze(res.toSorted((a, b) => compareDirName(compare, a.rel, b.rel)));
 }
 
-function renderHtml(dirs: TDir[], baseDomain?: string, buildResetToken?: string): string {
+function renderHtml(
+  dirs: TDir[],
+  targetRoot: t.StringDir,
+  buildResetToken: string | undefined,
+  includeDistLink: boolean,
+): string {
   const indent = ' '.repeat(8);
-  const domain = String(baseDomain ?? '').trim();
   const items = dirs
     .map((dir) => {
+      const href = escapeHtml(`${relativeHref(targetRoot, dir.abs)}/index.html`);
       const trimmed = Str.trimLeadingDotSlash(dir.rel);
-      const shardIndex = parseShardIndex(trimmed);
-      const absolute =
-        shardIndex !== undefined && domain ? `https://${shardIndex}.${domain}/` : undefined;
-      const href =
-        absolute ??
-        (dir.hasIndex
-          ? `./${trimmed}/`
-          : dir.hasDistJson
-            ? `./${trimmed}/dist.json`
-            : `./${trimmed}/`);
-      let label = trimmed;
+      let label = escapeHtml(trimmed);
       if (dir.dist) {
-        const hash = dir.dist.hash.digest;
+        const hash = escapeHtml(dir.dist.hash.digest);
         label = `<span class="version" title="${hash}">#${hash.slice(-5)}</span> ${label}`;
       }
       return `${indent}<li><a href="${href}">${label}</a></li>`;
@@ -94,24 +99,42 @@ function renderHtml(dirs: TDir[], baseDomain?: string, buildResetToken?: string)
     .join('\n');
 
   const list = items ? `${items}\n${indent}<hr />\n` : '';
-  const html = TEMPLATE.replace('__LIST__\n', list);
+  const dist = includeDistLink
+    ? `${indent}<li><a href="./dist.json" class="version">dist.json</a></li>`
+    : '';
+  const html = TEMPLATE.replace('__LIST__\n', list).replace('__DIST__', dist);
   return buildResetToken ? withBuildResetMeta(html, buildResetToken) : html;
 }
 
-function parseShardIndex(input: string): number | undefined {
-  const m = /^shard\.(\d+)$/.exec(input);
-  if (!m) return undefined;
-  const value = Number.parseInt(m[1]!, 10);
-  return Number.isFinite(value) ? value : undefined;
+function relativeHref(from: t.StringDir, to: t.StringDir): string {
+  const relative = Path.relative(from, to);
+  if (Path.Is.absolute(relative)) {
+    throw new Error(`Deploy generated index paths do not share one host root: ${from} → ${to}`);
+  }
+  const encoded = Path.relativePosix(relative).split('/').map(encodeURIComponent).join('/');
+  return encoded.startsWith('.') ? encoded : `./${encoded}`;
 }
 
 function compareDirName(compare: (a: string, b: string) => number, a: string, b: string): number {
-  return compare(Str.trimLeadingDotSlash(a), Str.trimLeadingDotSlash(b));
+  const left = Str.trimLeadingDotSlash(a);
+  const right = Str.trimLeadingDotSlash(b);
+  return compare(left, right) || Str.Compare.codeUnit()(left, right);
 }
 
-const shouldOverwrite = async (target: string, force: boolean): Promise<boolean> => {
+function escapeHtml(input: string): string {
+  return input
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+async function shouldOverwrite(target: string, force: boolean): Promise<boolean> {
   if (!force) return false;
   const res = await Fs.readText(target);
-  if (!res.exists || !res.data) return true;
+  if (!res.ok || !Is.str(res.data)) {
+    throw res.error ?? new Error(`Deploy staged index could not be read: ${target}`);
+  }
   return res.data.includes(MARKER_TOKEN);
-};
+}

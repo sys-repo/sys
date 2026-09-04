@@ -1,9 +1,9 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Lens } from '../mod.ts';
 
 describe('Obj.Lens.Is', () => {
   it('lens: unbound builder', () => {
-    const unbound = Lens.at('/a/b'); // ObjLens (unbound)
+    const unbound = Lens.at('/a/b'); // unbound lens
     expect(Lens.Is.lens(unbound)).to.eql(true);
     expect(Lens.Is.lensRef(unbound)).to.eql(false);
     expect(Lens.Is.lensRefReadonly(unbound)).to.eql(false);
@@ -12,7 +12,7 @@ describe('Obj.Lens.Is', () => {
 
     // type narrowing
     if (Lens.Is.lens(unbound)) {
-      expectTypeOf(unbound).toMatchTypeOf<t.ObjLens<unknown>>();
+      expectTypeOf(unbound).toMatchTypeOf<t.Obj.Lens.Unbound<unknown>>();
     }
   });
 
@@ -29,7 +29,7 @@ describe('Obj.Lens.Is', () => {
 
     // type narrowing
     if (Lens.Is.lensRefWritable(rw)) {
-      expectTypeOf(rw).toMatchTypeOf<t.ObjLensRef<typeof subject, unknown>>();
+      expectTypeOf(rw).toMatchTypeOf<t.Obj.Lens.Ref<typeof subject, unknown>>();
     }
   });
 
@@ -46,7 +46,7 @@ describe('Obj.Lens.Is', () => {
 
     // type narrowing
     if (Lens.Is.lensRefReadonly(ro)) {
-      expectTypeOf(ro).toMatchTypeOf<t.ReadonlyObjLensRef<typeof subject, unknown>>();
+      expectTypeOf(ro).toMatchTypeOf<t.Obj.Lens.ReadonlyRef<typeof subject, unknown>>();
     }
   });
 

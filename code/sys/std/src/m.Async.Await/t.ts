@@ -1,18 +1,23 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for working with promises.
+ * Promise helper contracts.
  */
-export type AwaitLib = {
-  /** Determine if the value is a Promise. */
-  isPromise: t.StdIsLib['promise'];
+export namespace Await {
+  /**
+   * Tools for working with promises.
+   */
+  export type Lib = {
+    /** Determine if the value is a Promise. */
+    isPromise: t.Is.Lib['promise'];
 
-  /** Wait for the promise to complete if the value is a promise; otherwise resolve immediately. */
-  maybeWait<T>(value: T | Promise<T>): Promise<T>;
+    /** Wait for the promise to complete if the value is a promise; otherwise resolve immediately. */
+    maybeWait<T>(value: T | Promise<T>): Promise<T>;
 
-  /** Semaphore (concurrency limiter): cap concurrent promise tasks at `max` (extra tasks wait). */
-  semaphore: t.Semaphore;
-};
+    /** Semaphore (concurrency limiter): cap concurrent promise tasks at `max` (extra tasks wait). */
+    semaphore: t.Semaphore;
+  };
+}
 
 /**
  * Wait for the promise to complete if the given value

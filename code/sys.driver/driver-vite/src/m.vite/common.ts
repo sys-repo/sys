@@ -1,4 +1,4 @@
-export type * as t from '../common/t.ts';
+export type * as t from './t.internal.ts';
 
 export { pkg } from '../pkg.ts';
 
@@ -8,11 +8,12 @@ export { DenoFile } from '@sys/driver-deno/runtime';
 export { Fs, Path, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/server';
 export { Net } from '@sys/net';
-export { Process } from '@sys/process';
+export { Open, Process } from '@sys/process';
 export { Json } from '@sys/std/json';
 export { Is } from '@sys/std/is';
 export { Num } from '@sys/std/num';
 export { Rx } from '@sys/std/rx';
+export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
 
@@ -21,4 +22,6 @@ export { ViteConfig } from '../m.vite.config/mod.ts';
 /**
  * Constants.
  */
-export const DEFAULTS = { port: 1234 } as const;
+export const DEFAULTS = {
+  port: 1234,
+} as const;

@@ -1,4 +1,4 @@
-import { describe, expect, it, R, Testing } from '../../-test.ts';
+import { Arr, describe, expect, it, Testing } from '../../-test.ts';
 import { Port } from '../mod.ts';
 
 describe('Net.Port', () => {
@@ -28,7 +28,7 @@ describe('Net.Port', () => {
     it('Port.random()', async () => {
       await Testing.retry(10, () => {
         const ports = [...Array(50)].map(() => Port.random());
-        expect(R.equals(R.uniq(ports), ports)).to.eql(true);
+        expect(Arr.uniq(ports)).to.eql(ports);
         expect(ports.every((v) => typeof v === 'number')).to.eql(true);
       });
     });
@@ -131,4 +131,12 @@ describe('Net.Port', () => {
       expect(Port.inUse(res)).to.eql(false);
     });
   });
+});
+
+Deno.test({
+  name: 'Net.Port.get preserves port zero without wildcard probe authority',
+  permissions: { net: ['127.0.0.1'] },
+  fn() {
+    expect(Port.get(0)).to.eql(0);
+  },
 });

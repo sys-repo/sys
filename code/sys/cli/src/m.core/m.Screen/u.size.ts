@@ -1,45 +1,20 @@
-import { type t, Is } from '../common.ts';
+import type { t } from '../common.ts';
+import { ScreenMeasure, type ScreenMeasurement } from './u.measure.ts';
+import { ScreenPlatform } from './u.platform.ts';
 
-export const size: t.CliScreenLib['size'] = () => {
-  const fallback: t.CliScreenSize = { width: 80, height: 24 };
+type Measure = () => ScreenMeasurement | undefined;
 
-  // Deno (preferred):
-  try {
-    const denoGlobal = globalThis as {
-      Deno?: { consoleSize?: () => { columns: number; rows: number } };
-    };
+const FALLBACK: t.CliScreen.Size = { width: 80, height: 24 };
 
-    const deno = denoGlobal.Deno;
-
-    if (deno?.consoleSize) {
-      const { columns, rows } = deno.consoleSize();
-      const width = typeof columns === 'number' && columns > 0 ? columns : fallback.width;
-      const height = typeof rows === 'number' && rows > 0 ? rows : fallback.height;
-      return { width, height };
-    }
-  } catch {
-    // ignore and fall through
-  }
-
-  // Node-style process.stdout (if present):
-  const nodeGlobal = globalThis as unknown as {
-    process?: { stdout?: { columns?: number; rows?: number } };
-  };
-
-  const stdout = nodeGlobal.process?.stdout;
-
-  if (
-    stdout &&
-    Is.num(stdout.columns) &&
-    stdout.columns > 0 &&
-    Is.num(stdout.rows) &&
-    stdout.rows > 0
-  ) {
+/** Create a terminal-size reader over an injected raw measurement source. */
+export function createSize(measure: Measure): t.CliScreen.Lib['size'] {
+  return () => {
+    const current = measure();
     return {
-      width: stdout.columns,
-      height: stdout.rows,
+      width: ScreenMeasure.dimension(current?.width) ?? FALLBACK.width,
+      height: ScreenMeasure.dimension(current?.height) ?? FALLBACK.height,
     };
-  }
+  };
+}
 
-  return fallback;
-};
+export const size = createSize(ScreenPlatform.measure);
