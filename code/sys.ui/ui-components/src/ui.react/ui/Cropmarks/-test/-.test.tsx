@@ -1,4 +1,13 @@
-import { act, afterEach, beforeEach, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
+import {
+  act,
+  afterEach,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  it,
+  TestReact,
+} from '../../../-test.ts';
 import { Cropmarks } from '../mod.ts';
 
 describe('<Cropmarks> percent mode', () => {
@@ -24,8 +33,12 @@ describe('<Cropmarks> percent mode', () => {
     expect(hostCS.getPropertyValue('--pct-w').trim()).to.equal('80');
     expect(hostCS.getPropertyValue('--pct-h').trim()).to.equal('60');
 
-    // Subject sizes via container query units (Happy DOM resolves var() in computed styles):
-    const norm = (s: string) => s.replace(/\s+/g, '');
+    // Happy DOM resolves defined vars but may preserve nested fallback vars in computed styles:
+    const norm = (s: string) =>
+      s
+        .replace(/\s+/g, '')
+        .replace('var(--pct-w-max,100)', '100')
+        .replace('var(--pct-h-max,100)', '100');
     expect(norm(subjCS.getPropertyValue('inline-size'))).to.equal('calc(min(80,100)*1cqi)');
     expect(norm(subjCS.getPropertyValue('block-size'))).to.equal('calc(min(60,100)*1cqb)');
 
