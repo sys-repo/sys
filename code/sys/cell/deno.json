@@ -1,6 +1,6 @@
 {
   "name": "@sys/cell",
-  "version": "0.0.79",
+  "version": "0.0.80",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src",
@@ -45,12 +45,33 @@
       "run": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     },
-    "clean": { "read": true, "write": true, "env": true },
-    "sample": { "read": true, "write": true, "env": true, "net": true, "run": true },
-    "sample-deploy": { "read": true, "write": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "sample": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "sample-deploy": {
+      "read": true,
+      "write": true
+    },
     "sample-vite-dev": {
       "read": true,
       "write": true,
@@ -59,10 +80,21 @@
       "run": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     },
-    "test-deploy-authority": { "read": true, "write": true },
+    "test-deploy-authority": {
+      "read": true,
+      "write": true
+    },
     "test": {
       "read": true,
       "write": true,
@@ -71,8 +103,17 @@
       "run": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     }
   }
 }
+

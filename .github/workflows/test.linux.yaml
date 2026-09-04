@@ -41,6 +41,8 @@ jobs:
             path: code/sys/crdt
           - name: "@sys/std"
             path: code/sys/std
+          - name: "@sys/archive"
+            path: code/sys/archive
           - name: "@sys/color"
             path: code/sys/color
           - name: "@sys/ui-css"

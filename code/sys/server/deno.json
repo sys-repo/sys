@@ -1,6 +1,6 @@
 {
   "name": "@sys/server",
-  "version": "0.0.52",
+  "version": "0.0.53",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:dist:process",
@@ -31,9 +31,31 @@
     "./websocket": "./src/m.server.websocket/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
-    "sample": { "read": true, "env": true, "run": true },
-    "sample-files-tty": { "read": true, "env": true, "net": true, "run": ["sh"] }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "sample": {
+      "read": true,
+      "env": true,
+      "run": true
+    },
+    "sample-files-tty": {
+      "read": true,
+      "env": true,
+      "net": true,
+      "run": [
+        "sh"
+      ]
+    }
   }
 }
+

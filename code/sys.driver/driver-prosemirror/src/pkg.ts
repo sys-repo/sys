@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/driver-prosemirror',
-  version: '0.0.274',
+  version: '0.0.275',
 });

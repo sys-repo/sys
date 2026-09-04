@@ -1,6 +1,6 @@
 {
   "name": "@sys/fs",
-  "version": "0.0.347",
+  "version": "0.0.348",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -26,9 +26,28 @@
     "./watch": "./src/m.Watch/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true },
-    "test-process": { "read": true, "write": true, "env": true, "run": ["deno"] },
-    "test-process-child": { "read": true, "write": true }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test-process": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": [
+        "deno"
+      ]
+    },
+    "test-process-child": {
+      "read": true,
+      "write": true
+    }
   }
 }
+

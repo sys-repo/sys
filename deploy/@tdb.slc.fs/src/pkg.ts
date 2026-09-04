@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@tdb/slc-fs',
-  version: '0.0.203',
+  version: '0.0.204',
 });

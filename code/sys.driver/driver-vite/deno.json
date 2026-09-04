@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.474",
+  "version": "0.0.475",
   "license": "MIT",
   "tasks": {
     "ci": "deno task check && deno task test && deno task test:external && deno task clean",
@@ -48,9 +48,17 @@
       "env": true
     },
     "entry-serve-proof": {
-      "read": ["./.tmp/entry-serve-proof/dist"],
-      "net": ["127.0.0.1:0"],
-      "env": ["FORCE_COLOR", "TERM", "TERM_PROGRAM"]
+      "read": [
+        "./.tmp/entry-serve-proof/dist"
+      ],
+      "net": [
+        "127.0.0.1:0"
+      ],
+      "env": [
+        "FORCE_COLOR",
+        "TERM",
+        "TERM_PROGRAM"
+      ]
     },
     "test": {
       "read": true,
@@ -92,3 +100,4 @@
     }
   }
 }
+

@@ -1,6 +1,6 @@
 {
   "name": "@sys/process",
-  "version": "0.0.317",
+  "version": "0.0.318",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:process && deno task test:retention",
@@ -18,9 +18,26 @@
     "./process": "./src/m.process/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
-    "test-process": { "read": true, "env": true, "run": ["deno"] },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "test-process": {
+      "read": true,
+      "env": true,
+      "run": [
+        "deno"
+      ]
+    },
     "test-retention": {}
   }
 }
+

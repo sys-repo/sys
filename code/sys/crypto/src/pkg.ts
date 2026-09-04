@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/crypto',
-  version: '0.0.318',
+  version: '0.0.319',
 });

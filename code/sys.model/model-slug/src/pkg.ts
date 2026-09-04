@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/model-slug',
-  version: '0.0.152',
+  version: '0.0.153',
 });

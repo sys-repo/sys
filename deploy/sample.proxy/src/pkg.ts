@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sample/proxy',
-  version: '0.0.114',
+  version: '0.0.115',
 });

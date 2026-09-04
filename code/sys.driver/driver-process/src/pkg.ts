@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/driver-process',
-  version: '0.0.140',
+  version: '0.0.141',
 });
