@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { Is, type t } from '../common.ts';
 
 const CONTRACT_ERROR =
   'Obj.deepFreeze expected primitive leaves in a data-property graph of plain objects and arrays.';

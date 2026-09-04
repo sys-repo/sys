@@ -1,4 +1,4 @@
-import { Is } from './common.ts';
+import { Is } from '../common.ts';
 
 /**
  * Determine whether an object owns the given property key.

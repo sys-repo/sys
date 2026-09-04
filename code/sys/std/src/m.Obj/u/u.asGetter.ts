@@ -1,4 +1,4 @@
-import { type t, Is } from './common.ts';
+import { Is, type t } from '../common.ts';
 
 type O = Record<string, unknown>;
 
@@ -27,12 +27,11 @@ export const asGetter: t.Obj.Lib['asGetter'] = (
   const { enumerable = true, configurable = true } = options ?? {};
 
   // Transform the object:
-  const list: readonly string[] =
-    keys == null
-      ? Object.keys(obj)
-      : Array.isArray(keys)
-        ? (keys as readonly string[])
-        : [keys as string];
+  const list: readonly string[] = keys == null
+    ? Object.keys(obj)
+    : Array.isArray(keys)
+    ? (keys as readonly string[])
+    : [keys as string];
 
   for (const key of list) {
     const value = obj[key];

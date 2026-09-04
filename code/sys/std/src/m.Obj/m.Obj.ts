@@ -5,16 +5,21 @@ import { Path } from '../m.Obj.Path/mod.ts';
 
 import { deep as equals } from '../m.Eql/m.Eql.ts';
 import { isEmptyRecord, isObject, isRecord } from './common.ts';
-import { asGetter } from './u.asGetter.ts';
-import { clone } from './u.clone.ts';
-import { deepFreeze } from './u.deepFreeze.ts';
-import { extend } from './u.extend.ts';
-import { entries } from './u.entries.ts';
-import { hash } from './u.hash.ts';
-import { hasOwn } from './u.hasOwn.ts';
-import { truncateStrings } from './u.truncate.ts';
-import { keys, pick, sortKeys, toArray } from './u.ts';
-import { walk } from './u.walk.ts';
+import {
+  asGetter,
+  clone,
+  deepFreeze,
+  entries,
+  extend,
+  hash,
+  hasOwn,
+  keys,
+  pick,
+  sortKeys,
+  toArray,
+  truncateStrings,
+  walk,
+} from './u/mod.ts';
 
 export const Obj: t.Obj.Lib = Object.freeze({
   Path,

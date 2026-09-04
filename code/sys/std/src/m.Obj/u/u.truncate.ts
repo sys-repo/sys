@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
-import { isRecord } from './common.ts';
+import type { t } from '../common.ts';
+import { isRecord } from '../common.ts';
 import { clone } from './u.clone.ts';
 import { walk } from './u.walk.ts';
 
