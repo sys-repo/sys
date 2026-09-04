@@ -1,5 +1,5 @@
-import { type t, isPlainObject } from './common.ts';
-import { Is } from './m.Is.ts';
+import { isPlainObject, type t } from '../common.ts';
+import { Is } from '../m.Is.ts';
 
 export const toObject: t.Obj.Lens.Lib['toObject'] = (input, opts = {}) => {
   const { depth = 32, includeGetters = false } = opts;

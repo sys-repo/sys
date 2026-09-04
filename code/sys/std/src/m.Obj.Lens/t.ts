@@ -1,17 +1,18 @@
 import type { t } from './common.ts';
+import type * as TIs from './t/t.is.ts';
 
 type O = Record<string, unknown>;
 type PathInput = t.PathLike | undefined | null;
 
-export type * from './t.lens.ts';
-export type * from './t.toObject.ts';
+export type * from './t/t.lens.ts';
+export type * from './t/t.toObject.ts';
 
 /**
  * Library surface for Obj.Path.Lens (no implementation here; types only).
  */
 export type Lib = {
   /** Guard checks on value types. */
-  readonly Is: t.Obj.Lens.Is.Lib;
+  readonly Is: Is.Lib;
 
   /** Create an unbound lens at a path. Accepts pointer string or ObjectPath. */
   at<T = unknown>(...path: PathInput[]): t.Obj.Lens.Unbound<T>;
@@ -43,3 +44,11 @@ export type Lib = {
     ): t.Obj.Lens.ReadonlyRef<S, T>;
   };
 };
+
+/**
+ * Guard checks for object lens values.
+ */
+export declare namespace Is {
+  /** Guard checks on value types. */
+  export type Lib = TIs.Lib;
+}

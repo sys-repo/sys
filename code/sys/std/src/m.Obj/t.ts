@@ -1,6 +1,5 @@
 import type { t } from './common.ts';
 import type * as TLens from '../m.Obj.Lens/t.ts';
-import type * as TLensIs from '../m.Obj.Lens/t.is.ts';
 import type * as TPath from '../m.Obj.Path/t.ts';
 import type * as TPathCodec from '../m.Obj.Path/t.codec.ts';
 import type * as TPathCurried from '../m.Obj.Path/t.curried.ts';
@@ -273,7 +272,7 @@ export declare namespace Obj {
      */
     export namespace Is {
       /** Guard checks on value types. */
-      export type Lib = TLensIs.Lib;
+      export type Lib = TLens.Is.Lib;
     }
   }
 }

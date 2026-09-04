@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
-import { bindRO } from './u.bindRO.ts';
-import { bindRW } from './u.bindRW.ts';
-import { makeCurriedAll } from './u.path.ts';
-import { toObject } from './u.toObject.ts';
+import { bindRO } from './u/u.bindRO.ts';
+import { bindRW } from './u/u.bindRW.ts';
+import { makeCurriedAll } from './u/u.path.ts';
+import { toObject } from './u/u.toObject.ts';
 
 type PathInput = t.PathLike | undefined | null;
 

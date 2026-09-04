@@ -1,4 +1,4 @@
-import type { t } from './common.ts';
+import type { t } from '../common.ts';
 import type { ReadonlyRef, Ref } from './t.lens.ts';
 
 /** Options to control how aggressively `Lens.toObject` dehydrates. */

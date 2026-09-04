@@ -1,4 +1,4 @@
-import { Path, type t } from './common.ts';
+import { Path, type t } from '../common.ts';
 
 export * from './u.bindRO.ts';
 export * from './u.bindRW.ts';
