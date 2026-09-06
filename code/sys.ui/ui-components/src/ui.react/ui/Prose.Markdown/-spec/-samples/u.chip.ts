@@ -23,5 +23,5 @@ export const chip = {
 } as const;
 
 function toDevHref(namespace: string): t.StringUri {
-  return `/?dev=${Obj.hash(namespace)}`;
+  return `/?dev=${Obj.hash(namespace).toString(36)}`;
 }

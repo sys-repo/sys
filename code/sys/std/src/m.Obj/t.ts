@@ -142,8 +142,11 @@ export declare namespace Obj {
     extend<T extends object, U extends object>(src: T, extra: U): ObjExtend<T, U>;
 
     /**
-     * Convert the value to a simple number-hash.
-     * "fast, consistent, unique hashCode" on arbitrary JS value objects.
+     * Create a fast, non-cryptographic number hash for transient equality and cache keys.
+     *
+     * Equal value-based inputs hash identically within one `hash-it` version and environment. The
+     * numeric result may change across dependency or runtime versions, and collisions remain
+     * possible. Do not persist it, use it as a protocol identifier, or rely on it for security.
      */
     hash<T>(value: T): number;
 

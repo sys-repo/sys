@@ -28,10 +28,13 @@ export type DevUrlLib = {
   /** Convert an input location into a standard [URL] object. */
   location(value?: t.UrlInput): URL;
 
+  /** Derive a compact, transient URL identifier from a canonical module namespace. */
+  moduleId(namespace: string): string;
+
   /** Derive and load the module from the given URL. */
   module(url: URL, specs: t.SpecImports): Promise<any | undefined>;
 
-  /** Match fields on the spec {Imports} object with the given query-string key name. */
+  /** Match a canonical namespace or compact URL identifier to imported specs. */
   moduleMatches(field: string, specs: t.SpecImports): { namespace: string; fn: t.SpecImporter }[];
 };
 

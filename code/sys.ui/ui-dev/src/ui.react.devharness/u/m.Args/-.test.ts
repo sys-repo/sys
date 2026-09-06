@@ -1,4 +1,5 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, Obj } from '../../-test.ts';
+import { SampleSpecs } from '../../-test/-specs.ts';
 import { DevUrl, DevUrlParams } from './mod.ts';
 
 describe('Entry', () => {
@@ -7,6 +8,24 @@ describe('Entry', () => {
     expect(isDev('https://domain.com/')).to.eql(false);
     expect(isDev('https://domain.com/?d')).to.eql(true);
     expect(isDev('https://domain.com/?dev')).to.eql(true);
+  });
+
+  it('moduleId → compact URL-safe value', () => {
+    const namespace = 'dev.sample.MySample';
+    const id = DevUrl.moduleId(namespace);
+
+    expect(id).to.eql(Obj.hash(namespace).toString(36));
+    expect(id).to.match(/^[0-9a-z]+$/);
+    expect(id.length).to.be.at.most(11);
+  });
+
+  it('moduleMatches ← canonical namespace or compact ID', () => {
+    const namespace = 'dev.sample.MySample';
+    const expected = [{ namespace, fn: SampleSpecs[namespace] }];
+
+    expect(DevUrl.moduleMatches(namespace, SampleSpecs)).to.eql(expected);
+    expect(DevUrl.moduleMatches(DevUrl.moduleId(namespace), SampleSpecs)).to.eql(expected);
+    expect(DevUrl.moduleMatches('missing', SampleSpecs)).to.eql([]);
   });
 
   it('formatDevFlag', () => {

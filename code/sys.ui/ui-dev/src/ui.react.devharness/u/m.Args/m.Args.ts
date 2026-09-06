@@ -1,4 +1,4 @@
-import { type t, DEFAULTS, Obj } from '../common.ts';
+import { DEFAULTS, Obj, type t } from '../common.ts';
 import type { DevArgsLib, DevUrlLib, DevUrlParamsLib } from './t.ts';
 
 const QS = DEFAULTS.qs;
@@ -61,18 +61,27 @@ export const DevUrl: DevUrlLib = {
     return typeof value === 'string' ? new URL(value) : new URL(value.href);
   },
 
+  moduleId(namespace: string) {
+    return Obj.hash(namespace).toString(36);
+  },
+
   async module(url: URL, specs: t.SpecImports) {
     const params = url.searchParams;
     if (!params.has(QS.dev)) return undefined;
 
-    const namespace = params.get(QS.dev) ?? '';
-    const matches = DevUrl.moduleMatches(namespace, specs);
+    const field = params.get(QS.dev) ?? '';
+    const matches = DevUrl.moduleMatches(field, specs);
+    if (matches.length > 1) {
+      console.warn(`DevHarness module ID "${field}" is ambiguous`);
+      return undefined;
+    }
 
-    if (matches[0]) {
-      const res = await matches[0].fn();
+    const match = matches[0];
+    if (match) {
+      const res = await match.fn();
       if (typeof res !== 'object') return undefined;
       if (res.default?.kind === 'TestSuite') return res.default;
-      console.warn(`Imported default from field "${namespace}" is not of kind "TestSuite"`);
+      console.warn(`Imported default from field "${field}" is not of kind "TestSuite"`);
     }
 
     return undefined;
@@ -80,8 +89,12 @@ export const DevUrl: DevUrlLib = {
 
   moduleMatches(field: string, specs: t.SpecImports) {
     if (!field) return [];
-    return Object.keys(specs)
-      .filter((key) => key === field || String(Obj.hash(key)) === field)
+
+    const keys = Object.keys(specs);
+    const exact = keys.find((key) => key === field);
+    const matches = exact ? [exact] : keys.filter((key) => DevUrl.moduleId(key) === field);
+
+    return matches
       .map((namespace) => ({ namespace, fn: (specs as any)[namespace] }))
       .filter(({ fn }) => typeof fn === 'function');
   },

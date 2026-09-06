@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { VscSymbolClass } from 'react-icons/vsc';
-import { type t, COLORS, Color, DEFAULTS, css, Obj } from './common.ts';
+import { DevUrl } from '../../u/m.Args/mod.ts';
+import { Color, COLORS, css, DEFAULTS, type t } from './common.ts';
 import { HrCalc } from './u.Hr.Calc.ts';
 import { Styles } from './u.style.ts';
 
@@ -39,7 +40,7 @@ export const ListItem: React.FC<ListItemProps> = (props) => {
   const next = importsKeys[index];
   const showHr = !beyondBounds && index > 0 && HrCalc.show(props.hr, prev, next);
 
-  if (uri) params.set(DEFAULTS.qs.dev, String(Obj.hash(uri)));
+  if (uri) params.set(DEFAULTS.qs.dev, DevUrl.moduleId(uri));
   if (!uri) params.delete(DEFAULTS.qs.dev);
 
   /**

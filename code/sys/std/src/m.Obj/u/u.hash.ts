@@ -2,8 +2,11 @@ import { hash as hashit } from 'hash-it';
 import { type t } from '../common.ts';
 
 /**
- * Convert the value to a simple number-hash.
- * "fast, consistent, unique hashCode" on any JS value object.
+ * Create a fast, non-cryptographic number hash for transient equality and cache keys.
+ *
+ * Equal value-based inputs hash identically within one `hash-it` version and environment. The
+ * numeric result may change across dependency or runtime versions, and collisions remain possible.
+ * Do not persist it, use it as a protocol identifier, or rely on it for security.
  */
 export const hash: t.Obj.Lib['hash'] = <T>(value: T): number => {
   return hashit<T>(value);

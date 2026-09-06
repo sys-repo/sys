@@ -1,3 +1,4 @@
+import { Obj } from '@sys/std/obj';
 import { FALLBACK_CANARY_NODE_TYPE, MarkdownSample } from '../-spec/-samples/mod.ts';
 import { ProseMarkdown } from '../mod.ts';
 import { afterEach, beforeEach, describe, DomMock, expect, it, TestReact } from './common.ts';
@@ -11,6 +12,14 @@ describe('Prose.Markdown: spec samples', () => {
     expect(MarkdownSample.viewport('fallback-canary')).to.equal('center');
     expect(MarkdownSample.viewport('lists')).to.equal('center');
     expect(MarkdownSample.viewport('thematic-breaks')).to.equal('scroll');
+  });
+
+  it('links primitive samples by compact module ID', () => {
+    const value = MarkdownSample.value('chip');
+    const moduleId = (namespace: string) => Obj.hash(namespace).toString(36);
+
+    expect(value).to.include(`/?dev=${moduleId('sys.ui.component: Chip')}`);
+    expect(value).to.include(`/?dev=${moduleId('sys.ui.component: Anchor')}`);
   });
 
   it('keeps a permanent unsupported-node canary visible', async () => {
