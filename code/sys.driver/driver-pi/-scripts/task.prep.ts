@@ -3,6 +3,7 @@ import { DenoDeps } from '@sys/driver-deno/runtime';
 import { Fs } from '@sys/fs';
 import { bundleOcr } from '../src/m.core/m.extension/m.ocr/-bundle/mod.ts';
 import { bundleSandboxFs } from '../src/m.core/m.extension/m.sandbox.fs/-bundle/mod.ts';
+import { bundleZipRead } from '../src/m.core/m.extension/m.zip/-bundle/mod.ts';
 import { bundlePiHelp } from '../src/m.core/m.help/-bundle/mod.ts';
 import { PATH, pinPiAgentImport, resolvePiAgentImport } from './-prep.u.ts';
 
@@ -14,6 +15,7 @@ await main();
 async function main() {
   await bundleSandboxFs();
   await bundleOcr();
+  await bundleZipRead();
   await bundlePiHelp();
 
   const source = await readText(path.resolvePkgFile);

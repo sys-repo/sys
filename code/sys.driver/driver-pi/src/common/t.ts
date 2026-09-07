@@ -7,8 +7,9 @@ export type { FC, ReactElement, ReactNode } from 'react';
  * @system
  */
 export type * from '@sys/types';
+export type { Zip } from '@sys/archive/t';
 export type { Cli } from '@sys/cli/t';
-export type { FileMap, FsRooted, JsonFile } from '@sys/fs/t';
+export type { FileMap, FsRooted, JsonFile, Snapshot } from '@sys/fs/t';
 export type { HttpServer } from '@sys/http/t';
 export type { OpenLib, Process } from '@sys/process/t';
 export type { BootstrapStatus, Dist, DistServer } from '@sys/server/t';

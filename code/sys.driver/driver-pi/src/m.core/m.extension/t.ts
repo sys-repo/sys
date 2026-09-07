@@ -10,5 +10,7 @@ export declare namespace PiExtension {
     readonly Ocr: t.PiOcrExtension.Lib;
     /** Sandbox filesystem extension helpers. */
     readonly SandboxFs: t.PiSandboxFsExtension.Lib;
+    /** Bounded read-only ZIP extension helpers. */
+    readonly Zip: t.PiZipExtension.Lib;
   };
 }
