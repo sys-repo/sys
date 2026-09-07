@@ -120,7 +120,7 @@ function serviceValue(
 ): string {
   const { hyperlinks, width } = context;
   const fit = { width, terminal: shouldFit(width) };
-  if (row.kind === 'path') return FmtFit.path(row.value, reserve, fit);
+  if (row.kind === 'path') return c.underline(FmtFit.path(row.value, reserve, fit));
   if (row.kind === 'title') return serviceTitle(row.value, reserve, width);
   if (row.kind === 'state') return serviceState(row.value as t.Service.State, reserve, width);
   if (row.kind === 'error') return FmtFit.value(row.value, reserve, { ...fit, color: c.yellow });

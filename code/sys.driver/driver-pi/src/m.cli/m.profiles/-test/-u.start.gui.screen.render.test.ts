@@ -1,5 +1,5 @@
 import { describe, expect, it, type t } from '../../../-test.ts';
-import { Cli, Fs } from '../common.ts';
+import { c, Cli, Fs, HashFmt } from '../u.start/common.ts';
 import type { Start } from '../u.start/u.gui/t.ts';
 import { StartGuiPresentation } from '../u.start/u.gui/u.presentation.ts';
 import { captureRootLink } from '../u.start/u.screen/u.render.serviceRow.ts';
@@ -70,6 +70,18 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     expect(ready).to.contain(`\x1b]8;;${STATUS}\x1b\\`);
     expect(ready).to.contain(`\x1b]8;;${START_GUI_SERVICE.source.manifestUrl}\x1b\\`);
     expect(ready).to.contain(`\x1b]8;;${Fs.Path.toFileUrl(GENERATION_DIR).href}\x1b\\`);
+    expect(ready).to.contain(c.underline(c.gray('dist/')));
+    expect(ready).to.contain(c.underline(HashFmt.digest(DIST_DIGEST)));
+    for (const width of [37, 100]) {
+      const frame = render(READY, { viewport: { width, height: 18 } });
+      for (const label of ['open', 'app']) {
+        const row = frame.split('\n').find((row) =>
+          Cli.stripAnsi(row).trimStart().startsWith(label)
+        );
+        expect(row).to.contain('\x1b]8;;');
+        expect(row).not.to.contain('\x1b[4m');
+      }
+    }
   });
 
   it('renders bounded materialization evidence, mismatch values, and exact recovery copy', () => {

@@ -82,12 +82,18 @@ export declare namespace CliFormat {
    */
   export namespace Hyperlink {
     /**
-     * Wrap terminal presentation text in an underlined OSC 8 hyperlink.
+     * Wrap terminal presentation text in an OSC 8 hyperlink.
      *
      * Existing ANSI styling survives inside the label. The URL supplies the serialized absolute href.
      * Callers own label trust, URL scheme policy, and terminal/fallback selection.
      */
-    export type Fn = (label: string, href: URL) => string;
+    export type Fn = (label: string, href: URL, options?: Options) => string;
+
+    /** Optional hyperlink label decoration. */
+    export type Options = {
+      /** Add an underline for opaque references; defaults to false. */
+      underline?: boolean;
+    };
   }
 
   /**

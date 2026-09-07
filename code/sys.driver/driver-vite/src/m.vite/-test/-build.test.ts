@@ -110,8 +110,8 @@ describe('Vite.build', () => {
       const manifestUrl = Path.toFileUrl(distPath);
       const digest = HashFmt.digest(res.dist.hash.digest);
       const output = res.toString({ width: 500 });
-      expect(output).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl));
-      expect(output).to.not.include(Cli.Fmt.hyperlink(digest, manifestUrl));
+      expect(output).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl, { underline: true }));
+      expect(output).to.not.include(Cli.Fmt.hyperlink(digest, manifestUrl, { underline: true }));
       const json = await Fs.readJson<t.DistPkg>(distPath);
       const manifest = await Fs.read(distPath);
       const html = await readFile(Fs.join(outDir, 'index.html'));
@@ -204,9 +204,13 @@ describe('Vite.build', () => {
       expect(first.ok).to.eql(true);
       expect(second.ok).to.eql(true);
       expect(first.dist.hash.digest).to.not.eql(second.dist.hash.digest);
-      expect(firstOutput).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl));
+      expect(firstOutput).to.include(
+        Cli.Fmt.hyperlink('dist.json', manifestUrl, { underline: true }),
+      );
       expect(stripAnsi(firstOutput)).to.include(`← ${stripAnsi(firstDigest)}`);
-      expect(firstOutput).to.not.include(Cli.Fmt.hyperlink(firstDigest, manifestUrl));
+      expect(firstOutput).to.not.include(
+        Cli.Fmt.hyperlink(firstDigest, manifestUrl, { underline: true }),
+      );
     } finally {
       await restore();
     }

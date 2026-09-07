@@ -66,8 +66,8 @@ describe('Vite.build output formatting', () => {
     });
     const digest = HashFmt.digest(hash);
 
-    expect(text).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl));
-    expect(text).to.not.include(Cli.Fmt.hyperlink(digest, manifestUrl));
+    expect(text).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl, { underline: true }));
+    expect(text).to.not.include(Cli.Fmt.hyperlink(digest, manifestUrl, { underline: true }));
     expect(stripAnsi(text)).to.include(`dist/dist.json ← ${stripAnsi(digest)}`);
     expect(manifestUrl.protocol).to.eql('file:');
     expect(manifestUrl.hash).to.eql('');
@@ -88,8 +88,8 @@ describe('Vite.build output formatting', () => {
     const compact = HashFmt.digest(hash, { maxWidth: 13 });
 
     expectBounded(text, 40);
-    expect(text).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl));
-    expect(text).to.not.include(Cli.Fmt.hyperlink(compact, manifestUrl));
+    expect(text).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl, { underline: true }));
+    expect(text).to.not.include(Cli.Fmt.hyperlink(compact, manifestUrl, { underline: true }));
     expect(stripAnsi(text)).to.include('dist/dist.json ← sha256:#ccd11');
   });
 

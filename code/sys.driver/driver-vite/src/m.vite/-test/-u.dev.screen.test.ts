@@ -385,8 +385,8 @@ describe('DevScreen', () => {
         Path.resolve(customPaths.cwd, customPaths.app.outDir, 'dist.json'),
       );
       const directoryUrl = new URL('./', manifestUrl);
-      const directoryLink = Cli.Fmt.hyperlink('dist/', directoryUrl);
-      const digestLink = Cli.Fmt.hyperlink(HashFmt.digest(HASH), manifestUrl);
+      const directoryLink = Cli.Fmt.hyperlink(c.gray('dist/'), directoryUrl, { underline: true });
+      const digestLink = Cli.Fmt.hyperlink(HashFmt.digest(HASH), manifestUrl, { underline: true });
       const outputs = [
         DevScreen.startupToString({ ...args, spinner: '⠋' }),
         DevScreen.toString(args),
@@ -433,10 +433,12 @@ describe('DevScreen', () => {
       const clippedRows = [renderRow(24, true, true), renderRow(24, true)];
 
       expect(missing).to.not.include('\x1b]8;;');
+      expect(missing).to.include(c.gray(customPaths.app.outDir));
       for (const row of clippedRows) {
         const label = hyperlinkLabel(row, directoryUrl);
         expect(label).to.not.eql(undefined);
         expect(stripAnsi(label ?? '')).to.include('…');
+        expect(label?.startsWith('\x1b[4m\x1b[90m')).to.eql(true);
         expect(Cli.Fmt.Text.Width.measure(row) <= 24).to.eql(true);
       }
     });
@@ -451,7 +453,7 @@ describe('DevScreen', () => {
         Path.resolve(customPaths.cwd, customPaths.app.outDir, 'dist.json'),
       );
       const directoryUrl = new URL('./', manifestUrl);
-      const directoryLink = Cli.Fmt.hyperlink('dist/', directoryUrl);
+      const directoryLink = Cli.Fmt.hyperlink(c.gray('dist/'), directoryUrl, { underline: true });
       const outputLine = (width: number, includeDist = true) => {
         const raw = DevScreen.toString({
           identity: pkg(),
@@ -477,20 +479,20 @@ describe('DevScreen', () => {
       expect(full).to.include('dist/ ← digest:sha256:#ccd11 · 3d');
       expect(fullRaw).to.include(directoryLink);
       expect(fullRaw).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 20 }), manifestUrl),
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 20 }), manifestUrl, { underline: true }),
       );
       expect(fullRaw).to.include(c.dim(c.gray('· 3d')));
       expect(algorithm).to.include('dist/ ← sha256:#ccd11 · 3d');
       expect(algorithm).to.not.include('digest:');
       expect(algorithmRaw).to.include(directoryLink);
       expect(algorithmRaw).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 13 }), manifestUrl),
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 13 }), manifestUrl, { underline: true }),
       );
       expect(short).to.include('dist/ ← #ccd11 · 3d');
       expect(short).to.not.include('sha256');
       expect(shortRaw).to.include(directoryLink);
       expect(shortRaw).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 6 }), manifestUrl),
+        Cli.Fmt.hyperlink(HashFmt.digest(HASH, { maxWidth: 6 }), manifestUrl, { underline: true }),
       );
       expect(none).to.include('output   dist/');
       expect(none).to.not.include('←');
@@ -536,6 +538,7 @@ describe('DevScreen', () => {
         const directory = hyperlinkLabel(row, directoryUrl);
         expect(directory).to.not.eql(undefined);
         expect(stripAnsi(directory ?? '')).to.include('…');
+        expect(directory?.startsWith('\x1b[4m\x1b[90m')).to.eql(true);
         expect(Cli.Fmt.Text.Width.measure(row) <= width).to.eql(true);
 
         const label = stripAnsi(digest);

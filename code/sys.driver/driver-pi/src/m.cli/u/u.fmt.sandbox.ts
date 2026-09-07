@@ -129,7 +129,7 @@ export const PiSandboxFmt = {
     const body = reportLink
       ? tableText.replace(
         reportLink.display,
-        () => Cli.Fmt.hyperlink(reportLink.display, reportLink.href),
+        () => Cli.Fmt.hyperlink(reportLink.display, reportLink.href, { underline: true }),
       )
       : tableText;
 

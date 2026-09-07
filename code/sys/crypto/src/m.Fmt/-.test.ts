@@ -38,7 +38,7 @@ describe('HashFmt.digest', () => {
 
     const linked = HashFmt.digest(HASH, { arrow: true, maxWidth: 22, url });
     expect(linked).to.eql(
-      `${c.green('←')} ${Fmt.hyperlink(HashFmt.digest(HASH), url)}`,
+      `${c.green('←')} ${Fmt.hyperlink(HashFmt.digest(HASH), url, { underline: true })}`,
     );
   });
 });

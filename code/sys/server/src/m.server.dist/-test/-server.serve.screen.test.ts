@@ -516,7 +516,7 @@ describe('DistServeScreen', () => {
       const dist = fixture.cloneDist();
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const staticHref = new URL('./', manifestHref);
-      const staticLink = Cli.Fmt.hyperlink(c.gray('./dist/'), staticHref);
+      const staticLink = Cli.Fmt.hyperlink(c.gray('./dist/'), staticHref, { underline: true });
       const outputRow = (width: number) => {
         const output = DistServeScreen.toString({
           identity: dist.pkg,
@@ -540,17 +540,23 @@ describe('DistServeScreen', () => {
       expect(text(full)).to.include(`dist/ ← digest:sha256:${suffix}`);
       expect(full).to.include(staticLink);
       expect(full).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 20 }), manifestHref),
+        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 20 }), manifestHref, {
+          underline: true,
+        }),
       );
       expect(text(algorithm)).to.include(`dist/ ← sha256:${suffix}`);
       expect(algorithm).to.include(staticLink);
       expect(algorithm).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 13 }), manifestHref),
+        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 13 }), manifestHref, {
+          underline: true,
+        }),
       );
       expect(text(short)).to.include(`dist/ ← ${suffix}`);
       expect(short).to.include(staticLink);
       expect(short).to.include(
-        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 6 }), manifestHref),
+        Cli.Fmt.hyperlink(HashFmt.digest(dist.hash.digest, { maxWidth: 6 }), manifestHref, {
+          underline: true,
+        }),
       );
       expect(text(outputRow(32))).to.not.include('←');
     } finally {
@@ -564,9 +570,9 @@ describe('DistServeScreen', () => {
       const dist = fixture.cloneDist();
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const staticHref = new URL('./', manifestHref);
-      const staticLink = Cli.Fmt.hyperlink(c.gray('./dist/'), staticHref);
+      const staticLink = Cli.Fmt.hyperlink(c.gray('./dist/'), staticHref, { underline: true });
       const digest = HashFmt.digest(dist.hash.digest);
-      const digestLink = Cli.Fmt.hyperlink(digest, manifestHref);
+      const digestLink = Cli.Fmt.hyperlink(digest, manifestHref, { underline: true });
       const frame = DistServeScreen.toString({
         identity: dist.pkg,
         origin: 'http://127.0.0.1:49152/' as t.StringUrl,

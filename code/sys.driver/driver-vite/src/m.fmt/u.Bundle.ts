@@ -54,7 +54,9 @@ const wrangle = {
   width: outputWidth,
 
   manifest(outDir: string, manifestUrl: URL | undefined) {
-    const filename = manifestUrl ? Cli.Fmt.hyperlink('dist.json', manifestUrl) : 'dist.json';
+    const filename = manifestUrl
+      ? Cli.Fmt.hyperlink('dist.json', manifestUrl, { underline: true })
+      : 'dist.json';
     return `${outDir ? `${outDir}/` : '/'}${filename}`;
   },
 

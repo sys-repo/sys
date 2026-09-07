@@ -25,7 +25,7 @@ export const HashFmt: t.HashFmt.Lib = Object.freeze({
 
     const hashIndex = uri.lastIndexOf('#');
     const digest = `${c.gray(uri.slice(0, hashIndex))}${c.green(uri.slice(hashIndex))}`;
-    const value = options.url ? Fmt.hyperlink(digest, options.url) : digest;
+    const value = options.url ? Fmt.hyperlink(digest, options.url, { underline: true }) : digest;
     return `${arrow}${value}`;
   },
 });

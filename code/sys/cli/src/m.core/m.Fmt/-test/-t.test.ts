@@ -57,7 +57,8 @@ type ExpectedHeaderOptions = {
 type ExpectedHeaderLib = {
   readonly rows: (options: ExpectedHeaderOptions) => readonly string[];
 };
-type ExpectedHyperlink = (label: string, href: URL) => string;
+type ExpectedHyperlinkOptions = { underline?: boolean };
+type ExpectedHyperlink = (label: string, href: URL, options?: ExpectedHyperlinkOptions) => string;
 type ExpectedKeyboardCommandOptions = {
   label: string;
   keys: [first: string, ...rest: string[]];
@@ -136,6 +137,17 @@ type CanonicalFormatterProof = [
   >,
 
   // Hyperlink.
+  Assert<Equal<t.CliFormat.Hyperlink.Options, ExpectedHyperlinkOptions>>,
+  Assert<
+    Exact6<
+      t.CliFormat.Hyperlink.Options,
+      t.Cli.Fmt.Hyperlink.Options,
+      CliFormatFromT.Hyperlink.Options,
+      CliFormatFromTypes.Hyperlink.Options,
+      CliFromT.Fmt.Hyperlink.Options,
+      CliFromTypes.Fmt.Hyperlink.Options
+    >
+  >,
   Assert<Equal<t.CliFormat.Hyperlink.Fn, ExpectedHyperlink>>,
   Assert<
     Exact6<

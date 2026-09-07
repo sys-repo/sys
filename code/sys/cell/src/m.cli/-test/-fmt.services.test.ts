@@ -36,6 +36,45 @@ describe(`@sys/cell/cli service status formatter`, () => {
   });
 
   describe('responsive fitting', () => {
+    it('underlines full and clipped root paths without underlining service URLs', () => {
+      const root = Fs.join(Fs.cwd(), '-sample/files') as t.StringDir;
+      for (const width of [24, 100]) {
+        for (const hyperlinks of [false, true]) {
+          const rendered = Fmt.Services.started({
+            width,
+            hyperlinks,
+            services: [serviceStatus({
+              owner: {
+                state: 'ready',
+                root,
+                urls: [
+                  { href: 'ws://localhost:5050/files' },
+                  { href: 'http://localhost:5050/files/manifest' },
+                ],
+              },
+            })],
+          });
+          const path = Cli.Fmt.Path.tty('./-sample/files', {
+            reserve: 10,
+            terminal: true,
+            width,
+            min: 1,
+            highlightBasename: false,
+          });
+          const rootLine = rendered.split('\n').find((line) =>
+            stripAnsi(line).trimStart().startsWith('root')
+          ) ?? '';
+
+          expect(rootLine).to.contain(c.underline(path));
+          expect(stripAnsi(rootLine).trim()).to.eql(`root     ${stripAnsi(path)}`);
+          expect(Cli.Fmt.Text.Width.measure(rootLine) <= width).to.eql(true);
+          for (const line of urlLines(rendered)) {
+            expect(line).not.to.contain('\x1b[4m');
+          }
+        }
+      }
+    });
+
     it('ellipsizes root paths against terminal width', () => {
       const text = stripAnsi(Fmt.Services.started({
         width: 48,
@@ -100,7 +139,9 @@ describe(`@sys/cell/cli service status formatter`, () => {
         'http://localhost:8080/services/manifest?mode=dev#top',
       );
       expect(linked).to.contain(target);
+      expect(linked).not.to.contain('\x1b[4m');
       expect(wide).to.contain(target);
+      expect(wide).not.to.contain('\x1b[4m');
       expect(stripAnsi(wide)).to.contain('http://localhost:8080/services/manifest?mode=dev#top');
       expect(Cli.Fmt.Text.Width.measure(linkedLine)).to.eql(
         Cli.Fmt.Text.Width.measure(stripAnsi(linkedLine)),
@@ -196,6 +237,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
         });
 
         expect(rendered).to.contain(`${OSC_8}${new URL(href).href}${STRING_TERMINATOR}`);
+        expect(rendered).not.to.contain('\x1b[4m');
       }
     });
 

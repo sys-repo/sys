@@ -195,7 +195,9 @@ const wrangle = {
     while (hash && maxDigestWidth > 0) {
       const digest = HashFmt.digest(hash, { maxWidth: maxDigestWidth });
       if (!digest) break;
-      const linked = manifestHref ? Cli.Fmt.hyperlink(digest, manifestHref) : digest;
+      const linked = manifestHref
+        ? Cli.Fmt.hyperlink(digest, manifestHref, { underline: true })
+        : digest;
       digests.push(`${arrow} ${linked}${elapsed ? ` ${elapsed}` : ''}`);
       maxDigestWidth = Cli.Fmt.Text.Width.measure(digest) - 1;
     }
@@ -366,7 +368,7 @@ function compactMetadataRow(
 }
 
 function formatMetadataValue(value: string, url: URL | undefined) {
-  return value && url ? Cli.Fmt.hyperlink(value, url) : value;
+  return value && url ? Cli.Fmt.hyperlink(value, url, { underline: true }) : value;
 }
 
 function styleMetadataValue(value: string, style: MetadataValueStyle | undefined) {

@@ -129,6 +129,7 @@ const wrangle = {
         labelWidth: 9,
         styledLabel: c.white('output'),
         suffix: ViteScreenLayout.distSuffix(args.dist, output.manifestUrl, args.renderedAt),
+        valueColor: c.gray,
       }),
       '',
       subHr,
@@ -161,6 +162,7 @@ const wrangle = {
         labelWidth: 9,
         styledLabel: c.white('output'),
         suffix: ViteScreenLayout.distSuffix(args.dist, output.manifestUrl, args.renderedAt),
+        valueColor: c.gray,
       }),
     ];
   },

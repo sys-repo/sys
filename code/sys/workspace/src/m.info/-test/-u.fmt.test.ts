@@ -130,7 +130,7 @@ describe(`Workspace.Info.fmt`, () => {
       expect(columnOf(workspace, '396 edges')).to.eql(columnOf(packages, '@sys/*'));
       expect(rawWorkspace).to.contain(Path.toFileUrl(GRAPH.path).href);
       expect(rawWorkspace).to.contain(
-        Cli.Fmt.hyperlink(c.dim('graph:#e0a7c'), Path.toFileUrl(GRAPH.path)),
+        Cli.Fmt.hyperlink(c.dim('graph:#e0a7c'), Path.toFileUrl(GRAPH.path), { underline: true }),
       );
       expect(rawWorkspace).to.contain(c.dim('396 edges'));
       expect(rawWorkspace).to.contain(c.dim(' • 3d'));

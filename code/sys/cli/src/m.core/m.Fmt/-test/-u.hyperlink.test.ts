@@ -12,16 +12,24 @@ describe('Cli.Fmt.hyperlink', () => {
 
     expect(url.href).to.contain('sandbox%20report.log.md');
     expect(result).to.eql(
-      `${OSC_8}${url.href}${STRING_TERMINATOR}${c.underline(label)}${OSC_8}${STRING_TERMINATOR}`,
+      `${OSC_8}${url.href}${STRING_TERMINATOR}${label}${OSC_8}${STRING_TERMINATOR}`,
     );
   });
 
-  it('underlines styled labels while preserving ANSI stripping and cell width', () => {
+  it('preserves styled labels and targets with default, false, and true decoration', () => {
     const label = c.cyan('sandbox-report.log.md');
-    const result = Fmt.hyperlink(label, new URL('file:///tmp/sandbox-report.log.md'));
+    for (const href of ['file:///tmp/sandbox-report.log.md', 'https://example.test/report']) {
+      const url = new URL(href);
+      for (const options of [undefined, {}, { underline: false }, { underline: true }]) {
+        const result = Fmt.hyperlink(label, url, options);
+        const display = options?.underline === true ? c.underline(label) : label;
 
-    expect(result).to.contain(c.underline(label));
-    expect(stripAnsi(result)).to.eql('sandbox-report.log.md');
-    expect(Fmt.Text.Width.measure(result)).to.eql(Fmt.Text.Width.measure(label));
+        expect(result).to.eql(
+          `${OSC_8}${url.href}${STRING_TERMINATOR}${display}${OSC_8}${STRING_TERMINATOR}`,
+        );
+        expect(stripAnsi(result)).to.eql('sandbox-report.log.md');
+        expect(Fmt.Text.Width.measure(result)).to.eql(Fmt.Text.Width.measure(label));
+      }
+    }
   });
 });

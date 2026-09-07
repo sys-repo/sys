@@ -10,6 +10,7 @@ type MetadataRowArgs = {
   label: string;
   value: string;
   valueUrl?: URL;
+  valueColor?: (text: string) => string;
   width: number;
   indent?: number;
   labelWidth?: number;
@@ -67,7 +68,7 @@ export function clipValue(input: string, width: number) {
 export function metadataRow(args: MetadataRowArgs) {
   const { value, valueUrl, width, suffix: resolveSuffix } = args;
   const prefix = metadataPrefix(args);
-  const base = `${prefix}${formatMetadataValue(value, valueUrl)}`;
+  const base = `${prefix}${formatMetadataValue(value, valueUrl, args.valueColor)}`;
   const availableSuffixWidth = Math.max(
     0,
     width - Text.Width.measure(`${base} `),
@@ -87,7 +88,7 @@ export function metadataRow(args: MetadataRowArgs) {
       reserve: Text.Width.measure(`${prefix} ${compactSuffix}`),
       terminal: false,
     });
-    const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+    const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl, args.valueColor);
     return `${prefix}${clipped} ${compactSuffix}`;
   }
 
@@ -96,12 +97,17 @@ export function metadataRow(args: MetadataRowArgs) {
     reserve: Text.Width.measure(prefix),
     terminal: false,
   });
-  const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl);
+  const clipped = formatMetadataValue(clipValue(value, valueWidth), valueUrl, args.valueColor);
   return clipLine(`${prefix}${clipped}`.trimEnd(), width);
 }
 
-function formatMetadataValue(value: string, url: URL | undefined) {
-  return value && url ? Fmt.hyperlink(value, url) : value;
+function formatMetadataValue(
+  value: string,
+  url: URL | undefined,
+  color?: MetadataRowArgs['valueColor'],
+) {
+  const label = color?.(value) ?? value;
+  return value && url ? Fmt.hyperlink(label, url, { underline: true }) : label;
 }
 
 export function metadataPrefix(

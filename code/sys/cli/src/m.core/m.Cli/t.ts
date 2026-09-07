@@ -447,6 +447,8 @@ export declare namespace Cli {
     export namespace Hyperlink {
       /** OSC 8 terminal hyperlink formatter. */
       export type Fn = t.CliFormat.Hyperlink.Fn;
+      /** Optional hyperlink label decoration. */
+      export type Options = t.CliFormat.Hyperlink.Options;
     }
 
     /**

@@ -166,7 +166,7 @@ function serviceValue(
       terminal: true,
       width,
     });
-    return Cli.Fmt.hyperlink(display, new URL(value.root.href));
+    return Cli.Fmt.hyperlink(display, new URL(value.root.href), { underline: true });
   }
   if (value.kind === 'url' || value.kind === 'capability') {
     const part = captureServiceUrl(value.text);
@@ -194,7 +194,7 @@ function serviceValue(
       : stableNativeUrl(value.directoryHref);
     const directory = fitValue(DIST_PATH, width, c.gray);
     const linkedDirectory = directory && directoryUrl
-      ? Cli.Fmt.hyperlink(directory, directoryUrl)
+      ? Cli.Fmt.hyperlink(directory, directoryUrl, { underline: true })
       : directory;
     const digest = HashFmt.digest(value.hash, {
       arrow: true,
