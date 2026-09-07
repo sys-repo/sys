@@ -310,9 +310,60 @@ export declare namespace FsRooted {
   export type Stage = {
     /** Canonical absolute path of the staged content before promotion. */
     readonly path: t.StringAbsoluteDir;
-    /** Rooted publisher for files and nested stages within this stage. */
+    /** Rooted publisher for files and nested stages within this stage, until writer claim or revocation. */
     readonly files: Instance;
+    /** Single-use construction authority over this stage's pristine content root. */
+    readonly writer: StageWriter;
     readonly [STAGE]: true;
+  };
+
+  /** One explicit directory; all non-root parents must also be supplied. */
+  export type TreeDirectory = { readonly kind: 'directory'; readonly path: t.StringPath };
+
+  /** One file consumed in supplied order, with serial demand and no cross-file prefetch. */
+  export type TreeFile = {
+    readonly kind: 'file';
+    readonly path: t.StringPath;
+    readonly expectedBytes: number;
+    readonly content: AsyncIterable<Uint8Array>;
+  };
+
+  /** Declarative private-tree entry; no links, metadata restoration, or implicit parents. */
+  export type TreeEntry = TreeDirectory | TreeFile;
+
+  /** Required positive safe limits and a non-negative safe monotonic deadline. */
+  export type TreeWriteOptions = {
+    readonly maxEntries: number;
+    readonly maxPathBytes: number;
+    readonly maxPathDepth: number;
+    readonly maxFileBytes: number;
+    readonly maxTreeBytes: number;
+    /** Non-proxy lifetime inputs; direct async lifecycle owners must supply an explicit stop stream. */
+    readonly until?: t.UntilInput;
+    /** Zero times out before claim or I/O; pending host I/O and cleanup are not preemptible. */
+    readonly timeout: t.Msecs;
+  };
+
+  /** Frozen construction surface owned by one private stage. */
+  export type StageWriter = {
+    /**
+     * Snapshot and construct one complete private tree without overwriting or publishing.
+     *
+     * Claims an active, idle stage once and revokes its ordinary descendant operations. A failed
+     * claimed construction prevents promotion; discard retains cleanup ownership. Pre-claim rejection
+     * leaves writer state unchanged.
+     *
+     * Writer claim also disables creating-instance `Tree.inspectSeal(stage)` and `Tree.seal(stage)`.
+     * After successful construction, request sealing with `Stage.promote(stage, target, { seal: true })`.
+     *
+     * Chunks must be fixed native ordinary Uint8Arrays of 1–65536 bytes. Producers receive no
+     * filesystem authority. This is cooperative filesystem safety, not confinement against an
+     * equivalent-authority process racing paths.
+     */
+    readonly writeTree: (
+      entries: readonly TreeEntry[],
+      options: TreeWriteOptions,
+    ) => Promise<void>;
   };
 
   /** Promotion options; sealing is opt-in, while an already sealed stage stays sealed. */
@@ -350,6 +401,7 @@ export declare namespace FsRooted {
     | 'remove-tree'
     | 'remove-tree-batch'
     | 'publish-file'
+    | 'write-tree'
     | 'create-stage'
     | 'discard-stage'
     | 'promote-stage';
@@ -357,6 +409,9 @@ export declare namespace FsRooted {
   /** Stable failure codes reported by Rooted. */
   export type FailureKind =
     | 'cancelled'
+    | 'timeout'
+    | 'limit-exceeded'
+    | 'producer-failure'
     | 'invalid-root'
     | 'invalid-target'
     | 'invalid-lease'

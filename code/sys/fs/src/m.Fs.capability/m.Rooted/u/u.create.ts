@@ -1,6 +1,7 @@
 import { Is as ServerIs } from '@sys/std/is/server';
 
 import { Is, Rx, StdPath, type t } from '../common.ts';
+import { activityIo, guardRooted } from './u.activity.ts';
 import { checkCancelled, failure, ioFailure, isFailure, runOperation } from './u.error.ts';
 import { publishFile } from './u.file.ts';
 import { DEFAULT_IO, type Io } from './u.io.ts';
@@ -40,8 +41,10 @@ type CreateInput = {
 /** Internal factory with injectable filesystem operations for deterministic tests. */
 export async function createRooted(
   options: t.FsRooted.CreateOptions,
-  io: Io = DEFAULT_IO,
+  baseIo: Io = DEFAULT_IO,
+  ancestors: readonly t.RootedActivity[] = [],
 ): Promise<t.FsRooted.Instance> {
+  const io = activityIo(baseIo, ancestors);
   const input = createInput(options);
   return await runOperation(operation, input, async (signal) => {
     const root = await createRootState(input.root, io, signal, input.create);
@@ -221,8 +224,14 @@ export async function createRooted(
               io,
               root,
               operationSignal,
-              (stageRoot) => createRooted({ root: stageRoot, until: operationSignal }, io),
+              (stageRoot, activity) =>
+                createRooted(
+                  { root: stageRoot, until: operationSignal },
+                  baseIo,
+                  [...ancestors, activity],
+                ),
               stages,
+              ancestors,
             );
           });
         },
@@ -265,7 +274,11 @@ export async function createRooted(
       }),
     });
 
-    return api;
+    return guardRooted(
+      api,
+      ancestors,
+      (tree) => Is.object(tree) ? stages.get(tree)?.activity : undefined,
+    );
   });
 }
 

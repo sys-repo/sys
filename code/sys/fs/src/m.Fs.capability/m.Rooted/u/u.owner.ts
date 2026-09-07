@@ -1,4 +1,5 @@
 import { Is, Num, StdPath, type t } from '../common.ts';
+import { activityIo } from './u.activity.ts';
 import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
 import type { Io } from './u.io.ts';
 import {
@@ -116,6 +117,7 @@ export async function inspectOwnedSeal(
   const operation = 'inspect-seal';
   const state = ownedTreeState(targets, stages, tree, operation);
   if (state.kind === 'stage') {
+    io = activityIo(io, [state.state.activity]);
     if (input.lease) throw failure(operation, 'invalid-lease');
     await validateActive(io, state.state, operation);
     return await inspectTreeSeal(
@@ -164,6 +166,7 @@ export async function sealOwnedTree(
   const operation = 'seal-tree';
   const state = ownedTreeState(targets, stages, tree, operation);
   if (state.kind === 'stage') {
+    io = activityIo(io, [state.state.activity]);
     if (input.lease) throw failure(operation, 'invalid-lease');
     await validateActive(io, state.state, operation);
     return await sealTreeEntries(

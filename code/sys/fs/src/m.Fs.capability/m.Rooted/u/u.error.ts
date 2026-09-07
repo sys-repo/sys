@@ -11,12 +11,16 @@ const OPERATIONS: readonly t.FsRooted.Operation[] = [
   'remove-tree',
   'remove-tree-batch',
   'publish-file',
+  'write-tree',
   'create-stage',
   'discard-stage',
   'promote-stage',
 ];
 const KINDS: readonly t.FsRooted.FailureKind[] = [
   'cancelled',
+  'timeout',
+  'limit-exceeded',
+  'producer-failure',
   'invalid-root',
   'invalid-target',
   'invalid-lease',
@@ -103,6 +107,12 @@ function message(kind: t.FsRooted.FailureKind): string {
   switch (kind) {
     case 'cancelled':
       return 'Rooted filesystem operation cancelled';
+    case 'timeout':
+      return 'Rooted filesystem operation timed out';
+    case 'limit-exceeded':
+      return 'Rooted tree construction limit exceeded';
+    case 'producer-failure':
+      return 'Rooted tree content producer failed';
     case 'invalid-root':
       return 'Invalid rooted filesystem directory';
     case 'invalid-target':
