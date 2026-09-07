@@ -2,25 +2,6 @@ omakase - お任せ
 
 
 
-
-verified-package-ui-release.plan.md
-- [x] 9159b6770 feat(fs): expose leased owned-tree batch removal
-- [x] f122a2bef refactor(fs): remove Rooted type alias facade
-- [x] 13a913ab8 refactor(fs): group Rooted operations by capability noun
-- [x] 23b18c40d refactor(driver-pi): consume leased owned-tree batch removal in GUI reset
-- [x] b627146ef feat(server): expose owned pinned Dist generation sessions
-- [x] 038e8cd7e Commit: refactor(driver-pi): adopt Server-owned Dist generations
-- [x] f710d3aa0 plan(snapshot): direct-gui-release-composition.plan.md
-- [ ] [direct-gui-release-composition.plan.md](direct-gui-release-composition.plan.md)
-
-direct-gui-release-composition.plan.md
-- [ ] refactor(driver-pi): collapse GUI release orchestration to direct composition
-
-
-
-
-
-
 @sys.driver-pi
 start-ui-release-evidence.plan.md
 - [x] [start-ui.design.md](start-ui.design.md)
@@ -70,8 +51,11 @@ start-ui-release-evidence.plan.md
 - [x] 5760c29a4 chore(driver-pi): bind rebuilt local GUI evidence
 - [x] 82b510a0f fix(driver-pi): make start:gui back reopen profile menu
 - [x] b0ef3401c chore(driver-pi): bind rebuilt local GUI evidence
-- [ ] fix(server): bind pinned Dist hosts to one absolute root
-- [ ] plan(snapshot): verified-package-ui-release.plan.md
+- [x] 255498c88 fix(server): bind pinned Dist hosts to one absolute root
+- [x] f33eb684b fix(server): right-size bootstrap capability paths
+- [x] e6ff0d57f fix(driver-pi): clarify bootstrap capability status
+- [x] 60c623bca test(driver-pi): prove bottom-docked start:gui footer
+- [x] c39511c15 [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
 - [ ] GATE release owner selects immutable artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
 - [ ] feat(driver-pi): bind published GUI Dist evidence for release
 
@@ -79,12 +63,9 @@ start-ui-release-evidence.plan.md
 
 
 
-
-
 r2-dist-generation-publication.plan.md
-- [ ] GATE official Cloudflare sources prove required conditional R2 semantics
 - [ ] test(driver-cloudflare): add an opt-in conditional R2 settlement proof
-- [ ] GATE authorized disposable-bucket conditional R2 proof passes
+- [ ] GATE authorize bounded disposable R2 experiments
 - [ ] feat(driver-cloudflare): expose conditional R2 object writes
 - [ ] feat(tools): publish exact verified R2 Dist generations
 - [ ] feat(tools): activate R2 Dist generations with guarded settlement
@@ -104,12 +85,6 @@ native-windows-ci-baseline.plan.md
 - [x] 27b6cb5fa test(ci): clear native Windows admission blockers
 - [ ] test(ci): establish native Windows proof with @sys/std
 
-@sys.std
-obj-deep-freeze.plan.md
-- [x] 69a00d48f fix(types): preserve DeepReadonly tuple structure
-- [x] 80ede9a0b feat(std): add typed deep-freeze primitive
-- [ ] refactor(fs): use Obj deep freeze for admitted manifests
-- [ ] refactor(driver-pi): adopt Obj deep freeze in GUI reset data
 
 
 @sys.archive
@@ -120,8 +95,23 @@ zip.plan.md
 - [x] 3ca35dc7c fix(zip): enforce cancellation fan-in bounds
 - [x] 6b2098dbd feat(fs): add bounded stable file snapshots
 - [x] c88540147 docs(fs): clarify stable snapshot evidence and limits
-- [ ] feat(driver-pi): expose bounded ZIP inspection and integrity tools
-- [ ] GATE human accepts the cooperative-filesystem ZIP extraction threat model
-- [ ] feat(fs): add owned streaming tree construction to Rooted stages
+- [x] ac9ce8579 refactor(fs): establish standalone Snapshot module
+- [x] 063bdfb51 feat(fs): expose lstat and realPath through a narrow observation entry
+- [x] b6d5762f0 refactor(fs): narrow observation dependencies and verify public imports
+- [x] 973a448f2 refactor(driver-pi): factor profile tool schemas
+- [x] 62daa0c38 feat(driver-pi): add bounded read-only ZIP extension
+- [x] 1dbe61766 feat(driver-pi): enable ZIP inspection in profiles
+- [x] 08956e1b0 refactor(driver-pi): nest filesystem extension under sandbox
+- [ ] [rooted-streaming-tree.plan.md](../@sys.fs/rooted-streaming-tree.plan.md)
 - [ ] feat(zip): add bounded ZIP extraction through a tree sink
 - [ ] feat(driver-pi): expose ZIP extraction under a cooperative-filesystem contract
+- [ ] [dispose-until-snapshot.plan.md](../@sys.std/dispose-until-snapshot.plan.md)
+
+@sys.fs
+rooted-streaming-tree.plan.md
+- [x] GATE human accepts cooperative-filesystem ZIP extraction and admits this Rooted writer as its current filesystem prerequisite
+- [ ] feat(fs): add owned streaming tree construction to Rooted stages
+
+@sys.std
+dispose-until-snapshot.plan.md
+- [ ] refactor(std): centralize bounded cancellation-input admission
