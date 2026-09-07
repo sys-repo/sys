@@ -1,23 +1,25 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Fs } from '../mod.ts';
-import * as Observe from '../../-exports/-observe.ts';
+import { lstat, realPath } from '@sys/fs/observe';
 
 describe('@sys/fs/observe', () => {
-  it('narrow entry → exposes the existing Fs observation identities only', () => {
-    expect(Object.keys(Observe).sort()).to.eql(['lstat', 'realPath']);
-    expect(Observe.lstat).to.equal(Fs.lstat);
-    expect(Observe.realPath).to.equal(Fs.realPath);
+  it('public entry → preserves the existing Fs observation identities', () => {
+    expect(lstat).to.equal(Fs.lstat);
+    expect(realPath).to.equal(Fs.realPath);
   });
 
   it('missing and existing paths → preserves observation semantics without creating entries', async () => {
     const root = (await Fs.makeTempDir({ prefix: 'fs.observe.' })).absolute;
     const absent = Fs.join(root, 'absent');
     try {
-      expect(await Observe.lstat(absent)).to.eql(undefined);
-      const info = await Observe.lstat(root);
+      expect(await lstat(absent)).to.eql(undefined);
+      const info = await lstat(root);
       expect(info?.isDirectory).to.eql(true);
       expect(info?.isSymlink).to.eql(false);
-      expect(await Observe.realPath(root)).to.eql(await Fs.realPath(root));
+      expect(await realPath(root)).to.eql(await Fs.realPath(root));
+      const url = Fs.Path.toFileUrl(root);
+      expect((await lstat(url))?.isDirectory).to.eql(true);
+      expect((await lstat(Fs.Path.relative(Fs.cwd(), root)))?.isDirectory).to.eql(true);
       expect(await Fs.exists(absent)).to.eql(false);
     } finally {
       await Fs.remove(root);
@@ -31,8 +33,8 @@ describe('@sys/fs/observe', () => {
     try {
       await Fs.ensureDir(target);
       await Fs.ensureSymlink(target, link);
-      expect((await Observe.lstat(link))?.isSymlink).to.eql(true);
-      expect(await Observe.realPath(link)).to.eql(await Fs.realPath(target));
+      expect((await lstat(link))?.isSymlink).to.eql(true);
+      expect(await realPath(link)).to.eql(await Fs.realPath(target));
     } finally {
       await Fs.remove(root);
     }
