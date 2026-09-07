@@ -42,6 +42,8 @@ export const ProfilesFs = {
             maxPages: 10
             maxChars: 60000
             timeoutMs: 120000
+        zip:
+          enabled: true
 
       `,
     ).trimStart();

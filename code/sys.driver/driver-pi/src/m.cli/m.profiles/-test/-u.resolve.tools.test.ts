@@ -1,6 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { PI_AGENT_IMPORT } from '../../u/u.resolve.pkg.ts';
-import { PI_TOOL_SELECTION_IMPORT, resolveActiveToolNames } from '../u/u.resolve.tools.ts';
+import { resolveActiveToolNames } from '../u/u.resolve.tools.ts';
 
 const SOURCE = {
   builtin: ['read', 'bash', 'edit', 'write', 'grep', 'find', 'ls'],
@@ -8,10 +7,6 @@ const SOURCE = {
 };
 
 describe(`@sys/driver-pi/cli/Profiles/u.resolve.tools`, () => {
-  it('pins the selector grammar to the canonical Pi package identity', () => {
-    expect(PI_TOOL_SELECTION_IMPORT).to.eql(PI_AGENT_IMPORT);
-  });
-
   it('resolveActiveToolNames → renders only registered explicit tools after exclusion', () => {
     const tools = resolveActiveToolNames({
       args: ['--tools', 'read,bash,remove,missing', '--exclude-tools', 'bash'],
@@ -65,7 +60,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.resolve.tools`, () => {
       source: SOURCE,
     });
 
-    expect(trailingExclude).to.eql(['read']);
+    expect(trailingExclude).to.eql(undefined);
     expect(consumedNoBuiltins).to.eql([]);
     expect(consumedAlias).to.eql(undefined);
     expect(repeatedTools).to.eql(['bash']);
@@ -74,6 +69,18 @@ describe(`@sys/driver-pi/cli/Profiles/u.resolve.tools`, () => {
 
   it('resolveActiveToolNames → omits unparsed assignments and argument errors', () => {
     const assignment = resolveActiveToolNames({ args: ['--tools=read'], source: SOURCE });
+    const assignmentAfterSelection = resolveActiveToolNames({
+      args: ['--tools', 'read', '--tools=remove'],
+      source: SOURCE,
+    });
+    const missingExclusion = resolveActiveToolNames({
+      args: ['--tools', 'read', '--exclude-tools'],
+      source: SOURCE,
+    });
+    const missingModel = resolveActiveToolNames({
+      args: ['--no-builtin-tools', '--model'],
+      source: SOURCE,
+    });
     const diagnostic = resolveActiveToolNames({
       args: ['-unknown', '--tools', 'read'],
       source: SOURCE,
@@ -84,6 +91,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.resolve.tools`, () => {
     });
 
     expect(assignment).to.eql(undefined);
+    expect(assignmentAfterSelection).to.eql(undefined);
+    expect(missingExclusion).to.eql(undefined);
+    expect(missingModel).to.eql(undefined);
     expect(diagnostic).to.eql(undefined);
     expect(afterTerminator).to.eql(undefined);
   });

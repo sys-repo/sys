@@ -25,6 +25,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.schema`, () => {
             timeoutMs: 120_000,
           },
         },
+        zip: { enabled: true },
       },
     });
   });

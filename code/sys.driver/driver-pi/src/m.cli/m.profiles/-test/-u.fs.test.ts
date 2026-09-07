@@ -50,6 +50,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.fs`, () => {
             maxPages: 10
             maxChars: 60000
             timeoutMs: 120000
+        zip:
+          enabled: true
       `,
     ));
 

@@ -1,17 +1,14 @@
 import { Arr } from '../common.ts';
-import { PI_AGENT_IMPORT_BASE } from '../../u/u.resolve.pkg.ts';
 
 type ToolSource = {
-  builtin: string[];
-  extension: string[];
+  readonly builtin: readonly string[];
+  readonly extension: readonly string[];
 };
 
 type ResolveActiveToolNamesInput = {
-  args?: string[];
+  args?: readonly string[];
   source: ToolSource;
 };
-
-export const PI_TOOL_SELECTION_IMPORT = `${PI_AGENT_IMPORT_BASE}@0.84.4` as const;
 
 export const PI_BUILTIN_TOOL_NAMES = [
   'read',
@@ -80,7 +77,9 @@ type ParsedToolSelection = {
   error?: boolean;
 };
 
-/** Resolve model-callable tools only when pinned Pi arguments prove the complete set. */
+/**
+ * Resolve model-callable tools only when pinned Pi arguments prove the complete set.
+ */
 export function resolveActiveToolNames(
   input: ResolveActiveToolNamesInput,
 ): readonly string[] | undefined {
@@ -105,26 +104,32 @@ export function resolveActiveToolNames(
 }
 
 /**
- * Mirror Pi 0.84.4 token consumption only far enough to prove its tool selection.
- * Pi's root parser export initializes host-runtime modules, so keep launcher authority unchanged.
+ * Interpret pinned Pi arguments only far enough to prove their tool selection.
+ * Pi's root parser export initializes host-runtime modules; this projection adds no host authority.
  */
-function parseToolSelection(args: string[]) {
+function parseToolSelection(args: readonly string[]) {
   const result: ParsedToolSelection = {};
 
-  // Positional token consumption requires a cursor to preserve Pi's exact flag/value pairing.
+  // Positional consumption preserves Pi's exact flag/value pairing, including flag-shaped values.
   for (let cursor = 0; cursor < args.length; cursor += 1) {
     const arg = args[cursor];
     const next = args[cursor + 1];
     if (arg === '--') break;
 
-    if ((arg === '--tools' || arg === '-t') && next !== undefined) {
-      result.tools = toolList(next);
-      cursor += 1;
+    if (arg === '--tools' || arg === '-t') {
+      if (next === undefined) result.error = true;
+      else {
+        result.tools = toolList(next);
+        cursor += 1;
+      }
       continue;
     }
-    if ((arg === '--exclude-tools' || arg === '-xt') && next !== undefined) {
-      result.excludeTools = toolList(next);
-      cursor += 1;
+    if (arg === '--exclude-tools' || arg === '-xt') {
+      if (next === undefined) result.error = true;
+      else {
+        result.excludeTools = toolList(next);
+        cursor += 1;
+      }
       continue;
     }
     if (arg === '--no-tools' || arg === '-nt') {
@@ -141,7 +146,8 @@ function parseToolSelection(args: string[]) {
       continue;
     }
     if (VALUE_FLAGS.has(arg)) {
-      if (next !== undefined) cursor += 1;
+      if (next === undefined) result.error = true;
+      else cursor += 1;
       continue;
     }
     if (BOOLEAN_FLAGS.has(arg) || arg.startsWith('@')) continue;
@@ -167,11 +173,9 @@ function parseToolSelection(args: string[]) {
       continue;
     }
     if (arg.startsWith('--')) {
-      if (
-        !arg.includes('=') && next !== undefined && !next.startsWith('-') && !next.startsWith('@')
-      ) {
-        cursor += 1;
-      }
+      // Unknown long options may be extension flags. Their eventual validity is outside this
+      // projection, so no complete tool set can be claimed.
+      result.error = true;
       continue;
     }
     if (arg.startsWith('-')) result.error = true;

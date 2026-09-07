@@ -48,6 +48,9 @@ describe('Pi: ZIP policy', () => {
     const [flag, text] = toPromptArgs(policy);
     expect(flag).to.eql('--append-system-prompt');
     expect(toPromptArgs({ ...policy, enabled: false })).to.eql([]);
+    expect(text).to.include('callable only when selected by the live Pi launch');
+    expect(text).to.include('live tool list and Pi selection are authoritative');
+    expect(text).not.to.include('Available additional tools:');
     expect(text).to.include(`${policy.zipLimits.maxSourceBytes / 1_048_576} MiB source`);
     expect(text).to.include(`${policy.zipLimits.maxEntries} entries`);
     expect(text).to.include(`${policy.zipLimits.maxEntryBytes / 1_048_576} MiB per file`);

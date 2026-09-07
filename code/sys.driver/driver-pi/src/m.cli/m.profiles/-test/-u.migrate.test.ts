@@ -521,6 +521,8 @@ function profileWithToolDefaults(prefix: string) {
         enabled: true
       copy:
         enabled: true
+      zip:
+        enabled: true
     `,
   ).trimStart();
 }

@@ -259,6 +259,8 @@ export declare namespace PiCliProfiles {
     readonly copy?: Tools.Copy;
     /** Optical character recognition (OCR) tool policy. */
     readonly ocr?: Tools.Ocr;
+    /** Read-only ZIP inspection and integrity tool policy. */
+    readonly zip?: Tools.Zip;
   };
 
   /** Tool policy helper types. */
@@ -280,6 +282,12 @@ export declare namespace PiCliProfiles {
     /** Filesystem copy/import tool policy. */
     export type Copy = {
       /** Enable the wrapper-owned `copy` tool. */
+      readonly enabled?: boolean;
+    };
+
+    /** Read-only ZIP inspection and integrity tool policy. */
+    export type Zip = {
+      /** Enable wrapper-owned `zip_inspect` and `zip_test` tools. */
       readonly enabled?: boolean;
     };
 

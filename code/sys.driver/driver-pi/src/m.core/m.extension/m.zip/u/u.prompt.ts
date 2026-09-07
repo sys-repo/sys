@@ -15,9 +15,9 @@ function formatPrompt(policy: t.PiZipExtension.Policy) {
     `
     # Runtime Tool Contract: ZIP inspection
 
-    The launcher has enabled the wrapper-owned read-only ZIP tools for a strict supported ZIP32 subset.
+    The launcher has materialized the wrapper-owned read-only ZIP extension for a strict supported ZIP32 subset.
 
-    Available additional tools:
+    Registered additional tools, callable only when selected by the live Pi launch:
     - zip_inspect: Structural validation and metadata; does not verify payload integrity.
     - zip_test: Whole-archive payload decoding, size, and CRC verification; every file must pass for success. Testing also validates structure; no preliminary inspection is required.
 
@@ -30,7 +30,7 @@ function formatPrompt(policy: t.PiZipExtension.Policy) {
     Rules:
     - Neither tool returns file contents, extracts, or modifies files.
     - Unsupported features or exceeded limits alone are not evidence of corruption. Unsupported, malformed, ambiguous, split, encrypted, ZIP64, linked, and special-file features fail closed.
-    - If an advertised requested tool is not callable, STOP and report the availability mismatch. Live registration and selection determine callability, not this contract.
+    - Registration in this contract does not establish callability. The live tool list and Pi selection are authoritative; if a requested tool is absent, STOP and report that mismatch.
     - On refusal, report the returned reason without switching readers, weakening policy, or presenting an incomplete test as passed.
     - No Bash, external archive executable, subprocess, runtime package resolution, FFI, or ad hoc script fallback.
     - Fixed runtime limits: ${
