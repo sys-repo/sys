@@ -3,8 +3,11 @@ import { copySource, openOptions, workOptions } from './u.input.ts';
 import { operation, operationStart } from './u.operation.ts';
 import { parseZip } from './u.parse.ts';
 import { testPayloads } from './u.payload.ts';
+import { extractTo } from './u.extract.ts';
 
-/** Open and own one strict bounded ZIP32 archive. */
+/**
+ * Open and own one strict bounded ZIP32 archive.
+ */
 export async function open(
   input: Uint8Array,
   optionsInput: t.Zip.OpenOptions,
@@ -19,6 +22,8 @@ export async function open(
 
     const archive: t.Zip.Archive = Object.freeze({
       inspect: () => parsed.inspection,
+      extractTo: (sink, optionsInput) =>
+        extractTo(bytes, parsed, sink, optionsInput, options.limits),
       test: async (testOptionsInput) => {
         const testStarted = operationStart();
         const testOptions = workOptions(testOptionsInput, options.limits.maxErrorChars);

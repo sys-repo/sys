@@ -1,6 +1,6 @@
 /**
  * @module
- * Strict bounded ZIP32 inspection and integrity testing.
+ * Strict bounded ZIP32 inspection, integrity testing, and extraction through a tree sink.
  */
 import type { t } from './common.ts';
 import { Is } from './m.Is.ts';

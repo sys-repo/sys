@@ -1,12 +1,12 @@
 import { deflateRawSync } from 'node:zlib';
 import { describe, expect, it, type t, Time } from '../../-test.ts';
-import { deadlineTimerMsecs, operation, type OperationContext } from '../u/u.operation.ts';
+import { deadlineTimerMsecs, operation } from '../u/u.operation.ts';
+import type { InflaterWriter, OperationContext } from '../u/t.ts';
 import { parseZip } from '../u/u.parse.ts';
 import {
   createInflater,
   INFLATE_BLOCK_BYTES,
   INFLATE_READABLE_HIGH_WATER_BYTES,
-  type InflaterWriter,
   testPayloads,
   writeInflater,
 } from '../u/u.payload.ts';

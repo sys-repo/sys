@@ -1,302 +1,310 @@
 # @sys/archive
 
-`@sys/archive/zip` is a strict, bounded, read-only ZIP32 inspector and payload-integrity tester. It
-accepts archive bytes, takes an internal snapshot, and exposes frozen structural evidence. It has no
-filesystem, network, environment, or subprocess authority; it does not extract files, create ZIPs,
-or resolve paths.
+`@sys/archive/zip` reads ZIP32 archives with explicit time and size bounds. Inspect metadata, check
+integrity, or extract verified contents through a destination writer. ZIP creation is not supported.
 
-Use the protocol-specific subpath:
-
-```ts
-import { Zip } from 'jsr:@sys/archive/zip';
-```
-
-The package does not auto-detect formats or expose a format-neutral `Archive.open()` facade. Public
-types are available from `jsr:@sys/archive/t`.
-
-## Three different claims
-
-A ZIP can be structurally valid while containing corrupt payloads. A ZIP whose payloads match their
-recorded CRC values can still be malicious or come from the wrong source. The API keeps these claims
-separate:
-
-```text
-caller-owned bytes
-  → Zip.open()         structural and path-tree admission over an owned snapshot
-  → archive.inspect() frozen metadata from that admitted structure
-  → archive.test()    complete payload decoding, size accounting, and CRC-32 testing
-  → caller policy     origin, signature, cryptographic digest, and content trust
-```
-
-| Layer                 | What it establishes                                                                          |
-| --------------------- | -------------------------------------------------------------------------------------------- |
-| `Zip.open()`          | The owned bytes form one supported, contiguous ZIP32 archive with one portable path tree.    |
-| `archive.inspect()`   | The admitted structure and its recorded metadata are available as cached frozen evidence.    |
-| `archive.test()`      | Every file decodes completely, consumes its exact compressed range, and matches size/CRC.    |
-| Caller authentication | The exact stable archive bytes came from the intended source and satisfy application policy. |
-
-Neither structural admission nor CRC-32 authenticates an archive. CRC-32 detects ordinary
-corruption; an attacker can replace a payload and its CRC together.
-
-## Open, inspect, and test
+## Open, inspect, and verify
 
 ```ts
 import { Zip } from 'jsr:@sys/archive/zip';
 
 async function examineZip(bytes: Uint8Array) {
-  const archive = await Zip.open(bytes, {
-    timeout: 30_000,
-    limits: { maxEntries: 500 },
-  });
-
+  const work = { timeout: 30_000 };
+  const archive = await Zip.open(bytes, { ...work, limits: { maxEntries: 500 } });
   const inspection = archive.inspect();
-  const integrity = await archive.test({ timeout: 30_000 });
+  const integrity = await archive.test(work);
 
   return { inspection, integrity };
 }
 ```
 
-`Zip.open()` and `archive.test()` each require an explicit finite `timeout` and accept an optional
-canonical `until` lifecycle.
+| Operation                 | What it establishes                                                                 |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| `Zip.open()`              | An owned snapshot with supported ZIP32 structure and an admitted path tree.         |
+| `archive.inspect()`       | Cached metadata from that structure, without decoding payloads.                     |
+| `archive.test()`          | Complete payload decoding, exact compressed consumption, matching sizes and CRC-32. |
+| `archive.extractTo(sink)` | Verified content and complete sink consumption—not filesystem publication.          |
 
-### Source ownership
+Structural validity is not payload integrity, and integrity is not trust. CRC-32 detects corruption;
+an attacker can replace both a payload and its CRC. Authenticate the source separately before
+trusting its origin or contents.
 
-`Zip.open()` accepts only a direct native `Uint8Array` backed by one fixed, non-shared
-`ArrayBuffer`. Proxies, subclasses, detached buffers, `SharedArrayBuffer`, and resizable or growable
-backing stores are rejected because they cannot provide the required snapshot boundary.
+Public types are available from `jsr:@sys/archive/t`.
 
-Opening performs its copy after initial option and lifecycle settlement. Treat the input as borrowed
-while the returned promise is pending; once `Zip.open()` resolves, later caller mutation cannot
-alter the opened archive. The internal copy and payload bytes are never exposed.
+## Execution policy
 
-A complete byte snapshot is deliberate. ZIP places its authoritative central directory at the end
-and then refers back to local records, so strict validation requires bounded random access. A
-forward-only source would require a separate spool or seekable-source owner rather than a nominally
-streaming overload.
+Each asynchronous operation requires a `timeout` in milliseconds; there is no default. The caller
+chooses how long it is willing to wait. Each call starts a fresh budget, even when it reuses the
+same options object: opening does not set the archive's lifetime or a shared workflow deadline. The
+value must be a non-negative safe integer; zero expires before archive work begins.
 
-### Structural inspection
+Optional `until` accepts a native `AbortSignal` or another supported `UntilInput`: a lifecycle view,
+an observable, or nested arrays of these. Zip observes termination without taking ownership of the
+input. An already-terminal input prevents copying, parsing, and payload work. A shared signal can
+cancel several operations together.
 
-`archive.inspect()` is synchronous and returns the same frozen `Inspection` identity on every call.
-It does not inflate payloads. The `Archive`, `Inspection`, `Usage`, entry array, and every `Entry`
-record are frozen; none exposes the private source buffer.
+Timeout and cancellation are cooperative: they cannot interrupt synchronous JavaScript or host I/O,
+and cleanup may finish after the budget expires. Zip stops delivery and waits for its own payload
+work to close, but an external writer may still be running when extraction rejects. Keep filesystem
+coordination active until that writer and its cleanup have settled.
 
-| Evidence          | Meaning                                                                                   |
-| ----------------- | ----------------------------------------------------------------------------------------- |
-| `sourceBytes`     | Exact size of the internal archive snapshot.                                              |
-| `fileCount`       | Explicit regular-file records in the central directory.                                   |
-| `directoryCount`  | Explicit directory records in the central directory.                                      |
-| `treeEntryCount`  | Unique files, explicit directories, and implicit parent directories in the realized tree. |
-| `compressedBytes` | Sum of compressed sizes recorded by admitted entries.                                     |
-| `expandedBytes`   | Sum of expanded sizes recorded by admitted entries.                                       |
-| `usage`           | Counts of stored, deflated, UTF-8, and data-descriptor entries.                           |
-| `entries`         | Frozen records in zero-based central and physical order.                                  |
+## Extraction through a tree sink
 
-Each entry reports its admitted path and kind, creator convention, compression method, encoded
-DEFLATE option bits, UTF-8 and descriptor use, CRC-32, recorded sizes, and local-header offset.
-Directory paths retain their trailing slash. `deflateOption` describes the two general-purpose flag
-bits; it does not measure how a compressor actually encoded the payload.
+Zip verifies the contents; the writer decides where they go. With `@sys/fs` Rooted, files are built
+in a private staging directory. You can inspect or reject that tree before publishing it.
 
-Recorded expanded sizes and CRC values remain archive claims until `archive.test()` succeeds.
-Archive and entry comments are accepted as opaque structural bytes but are not exposed.
-
-### Payload integrity
-
-`archive.test()` walks every regular file in physical order. For each file it:
-
-1. reads only the admitted compressed range;
-2. checks stored bytes directly or completes one raw-DEFLATE stream;
-3. proves that DEFLATE consumed the exact compressed range, rejecting trailing or concatenated data;
-4. accounts actual expanded bytes against the per-entry and archive limits;
-5. compares actual size with the recorded size; and
-6. computes and compares ZIP CRC-32 over the complete expanded payload.
-
-A successful result is frozen:
+This example publishes at `root/unpacked`. The root must be an existing directory whose writers
+follow Rooted's coordination rules.
 
 ```ts
-{
-  kind: 'passed',
-  filesTested,
-  compressedBytes,
-  expandedBytes,
+import { Zip } from 'jsr:@sys/archive/zip';
+import { Fs } from 'jsr:@sys/fs';
+
+async function extractZip(bytes: Uint8Array, root: string, until: AbortSignal) {
+  const work = { timeout: 30_000, until };
+  const archive = await Zip.open(bytes, work);
+  const rooted = await Fs.Capability.Rooted.create({ root });
+  const { targets: [target] } = await rooted.Target.admit([{
+    kind: 'directory',
+    path: './unpacked', // Relative to root, not the working directory.
+  }]);
+  const stage = await rooted.Stage.create();
+  let outcome;
+  try {
+    const result = await archive.extractTo(stage.writer, work);
+    const publication = await rooted.Stage.promote(stage, target, { until });
+    outcome = { ok: true as const, value: { result, publication } };
+  } catch (error) {
+    outcome = { ok: false as const, error };
+  }
+
+  let cleanup;
+  try {
+    await rooted.Stage.discard(stage);
+    cleanup = { ok: true as const };
+  } catch (error) {
+    cleanup = { ok: false as const, error };
+  }
+  return { outcome, cleanup };
 }
 ```
 
-The result reports actual processed file totals; the inspection retains the archive's recorded
-claims. Testing discards expanded bytes after accounting and CRC work. It is not extraction, content
-scanning, provenance verification, or a promise that decoded content is safe to interpret.
+Operation and cleanup have separate outcomes: neither can erase the other. Setup failures still
+reject; once stage creation returns a handle, check both `outcome.ok` and `cleanup.ok`.
+
+When `outcome.ok`, inspect `outcome.value.publication`. Its `kind` is `published` if the tree became
+visible at the target, or `occupied` if an existing destination was left untouched. Also inspect
+`publication.cleanupError`: cleanup, cancellation, or post-publication verification can report a
+problem without changing that known outcome.
+
+Failed cleanup may leave private staging residue. An error does not establish rollback; retain the
+reported outcome and reconcile filesystem state rather than deleting a possibly published target.
+
+Extraction returns a frozen
+`{ kind: 'extracted', fileCount, directoryCount, treeEntryCount, expandedBytes }`. Directory counts
+include implicit parents. Byte counts describe verified consumption, not proof of a writer's
+external writes. Only content and directory structure are restored—not ownership, modes, timestamps,
+ACLs, xattrs, links, or special entries.
+
+### Writing another sink
+
+Implement `Zip.Extract.TreeSink` to send contents somewhere else. Supply a plain object containing
+only an own, enumerable `writeTree(entries, options)` method; accessors and proxies are rejected.
+
+Zip calls the method once, **after verifying every payload**, with frozen entries and options.
+Directories precede files, parents precede children, and files retain archive order. Directory paths
+have no trailing slash. Options supply tree, path, and byte limits, an operation-owned
+`AbortSignal`, and the remaining timeout.
+
+Each file carries `path`, `expectedBytes`, and a frozen `content: AsyncIterable<Uint8Array>`.
+Consumption runs a second pass with the same [integrity checks](#payload-verification), yielding
+fresh chunks of 1–65,536 bytes. Calling `archive.test()` beforehand is unnecessary.
+
+Consume files in order. Acquire each content source once, allow only one unsettled `next()` per
+iterator, and read through `done: true`—including empty files. Repeated acquisition, out-of-order or
+overlapping demand, and incomplete consumption fail as `sink-protocol`. Catching an explicit
+protocol violation inside the sink does not clear it.
+
+Early `return()` joins cleanup, including an interrupted pending demand, but does not complete the
+file. If the sink then fulfills, extraction fails as `sink-protocol`; if it rejects, the failure is
+`sink-failure` unless an earlier owner failure already won.
+
+Consumption must be complete when Zip observes sink fulfillment. Later consumption cannot repair an
+incomplete sink. Settlement revokes retained sources and iterators; calls during cleanup cannot
+change the selected outcome.
+
+## Inputs and evidence
+
+### Byte ownership
+
+`Zip.open()` accepts a direct native `Uint8Array` backed by a fixed, non-shared `ArrayBuffer`.
+Proxies, subclasses, detached buffers, shared storage, and resizable or growable backing stores are
+rejected.
+
+Keep the input unchanged while opening is pending. After opening resolves, the archive owns an
+independent copy; caller mutation cannot affect it. That private copy is never exposed to a sink. If
+authenticating the source, use the same unchanged bytes for authentication and opening.
+
+The complete snapshot supports bounded random access: ZIP places its central directory at the end
+and refers back to local records. Payload delivery is streaming; source acquisition is not.
+
+### Option snapshots
+
+Open accepts `{ timeout, until?, limits? }`; test and extraction accept `{ timeout, until? }`.
+Options and limits must be ordinary own-data records without unknown keys, accessors, symbols, or
+proxies. They are captured before the first asynchronous boundary.
+
+Cancellation-array containers are also copied and frozen; their signal and lifecycle leaves stay
+live. Sparse or decorated arrays, cycles, repeated container identities, more than 256 total nodes,
+or more than 32 array levels are rejected. Structural leaves retain `UntilInput` behavior; container
+admission does not make arbitrary leaf getters inert.
+
+### Inspection
+
+`archive.inspect()` returns the same frozen `Inspection` on every call. The archive handle,
+inspection, usage record, entries array, and entry records are frozen.
+
+| Field                              | Meaning                                                                   |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| `sourceBytes`                      | Exact snapshot size.                                                      |
+| `fileCount`                        | Explicit regular-file records.                                            |
+| `directoryCount`                   | Explicit directory records; unlike extraction, excludes implicit parents. |
+| `treeEntryCount`                   | Files, explicit directories, and implicit parents in the admitted tree.   |
+| `compressedBytes`, `expandedBytes` | Sizes recorded by the archive, not yet verified.                          |
+| `usage`                            | Counts of stored, deflated, UTF-8, and data-descriptor entries.           |
+| `entries`                          | Complete metadata in zero-based central and physical order.               |
+
+Each entry reports its path, kind, creator convention, compression method, DEFLATE option bits,
+UTF-8 and descriptor use, CRC-32, sizes, and local-header offset. Directory paths retain `/`.
+`deflateOption` records header flags, not a measurement of compression behavior. Archive and entry
+comments remain private opaque bytes.
+
+### Payload verification
+
+`archive.test()` decodes regular files in archive order and checks:
+
+- Complete decoding within each file's compressed range, with no trailing or concatenated data.
+- Actual expanded sizes that match the recorded sizes and stay within file and aggregate limits.
+- A matching CRC-32 for every file.
+
+It discards decoded bytes and returns the frozen result
+`{ kind: 'passed', filesTested, compressedBytes, expandedBytes }`. Inspection retains the recorded
+claims; this result reports verified totals.
+
+## Resource limits
+
+Set partial `limits` at opening; they remain fixed for that archive. Omitted fields use these
+defaults. Overrides must be positive safe integers.
+
+| Limit              | Meaning                                                   | Default |
+| ------------------ | --------------------------------------------------------- | ------: |
+| `maxSourceBytes`   | Source bytes, checked before allocating the private copy. |  64 MiB |
+| `maxEntries`       | Central-directory records.                                |   2,048 |
+| `maxTreeEntries`   | Files, directories, and unique implicit parents.          |   8,192 |
+| `maxPathBytes`     | Raw bytes in one entry name.                              |     512 |
+| `maxPathDepth`     | Path components.                                          |      32 |
+| `maxEntryBytes`    | Declared and actual expanded bytes per file.              | 128 MiB |
+| `maxExpandedBytes` | Declared and actual expanded bytes across all files.      | 512 MiB |
+| `maxErrorChars`    | Characters retained in a public failure message.          |  16,000 |
+
+Opening adds one source-sized allocation plus parser metadata. Verification and extraction do not
+buffer a complete expanded archive inside Zip; sink retention is the sink's responsibility. Declared
+expansion is checked during opening and actual expansion during verification and both extraction
+passes.
+
+Zip yields between bounded segments of parsing and payload work, checking cancellation and elapsed
+time at those boundaries. Inflater backpressure keeps input from outrunning content consumption.
 
 ## Supported ZIP32 grammar
 
-Protocol semantics are pinned to
-[PKWARE APPNOTE 6.3.10](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT), final revision
-2022-11-01. The implementation intentionally accepts a closed subset:
+The reader implements a closed subset of
+[PKWARE APPNOTE 6.3.10](https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT), revised
+2022-11-01:
 
-| Dimension        | Accepted                                                                                     |
-| ---------------- | -------------------------------------------------------------------------------------------- |
-| Container        | One contiguous, single-disk ZIP32 archive, including the empty archive.                      |
-| Record layout    | Local records from byte zero, one matching central directory, and one terminal EOCD record.  |
-| Versions         | ZIP versions needed 1.0 and 2.0 for their admitted features.                                 |
-| Compression      | Stored entries and raw DEFLATE.                                                              |
-| Data descriptors | Exact signed or unsigned ZIP32 descriptors.                                                  |
-| Creator systems  | MS-DOS (`0`) and Unix (`3`) conventions for ordinary files and directories.                  |
-| Entry names      | Canonical UTF-8 when flagged; otherwise printable ASCII only.                                |
-| Extra fields     | Extended timestamp (`0x5455`) and Info-ZIP Unix UID/GID (`0x7875`) grammars only.            |
-| Comments         | Structurally bounded archive and central-entry comments; retained only in the private bytes. |
+| Dimension        | Accepted                                                                   |
+| ---------------- | -------------------------------------------------------------------------- |
+| Container        | One contiguous, single-disk ZIP32 archive, including an empty archive.     |
+| Layout           | Local records from byte zero, one central directory, one terminal EOCD.    |
+| Versions         | Version-needed 1.0 or 2.0, according to the admitted feature.              |
+| Compression      | Stored entries and raw DEFLATE.                                            |
+| Data descriptors | Exact signed or unsigned ZIP32 descriptors.                                |
+| Creators         | MS-DOS (`0`) and Unix (`3`) conventions for regular files and directories. |
+| Names            | Canonical UTF-8 when flagged; otherwise printable ASCII only.              |
+| Extra fields     | Extended timestamp (`0x5455`) and Info-ZIP Unix UID/GID (`0x7875`).        |
+| Comments         | Bounded opaque bytes; not exposed.                                         |
 
-Local and central records must agree on name, flags, method, and required version. Without a data
-descriptor, their size and CRC fields must also match; with one, the local fields must be exact zero
-placeholders and the terminal descriptor must match the central record. Directory names, creator
-attributes, and the trailing slash must agree, and every directory must be stored with zero sizes
-and CRC.
+Local and central records must agree on names, flags, method, and required version. Without a data
+descriptor, sizes and CRC must match too. With one, local size/CRC fields must be zero and the
+terminal descriptor must match the central record. Directory names, creator attributes, and the
+trailing slash must agree; directories must be stored with zero sizes and CRC.
 
-Local records, descriptors, the central directory, and EOCD must meet exactly: gaps, overlaps,
-prefix bytes, suffix bytes, ambiguous terminal records, and contradictory offsets fail closed.
-Accepted timestamp and Unix identity fields are grammar-checked but are not returned or applied to a
-filesystem.
+Records must meet exactly, without gaps, overlaps, prefixes, suffixes, ambiguous terminal records,
+or contradictory offsets. Accepted timestamp and identity fields are grammar-checked, not returned
+or applied to the filesystem.
 
-The following are outside the contract and reject rather than degrade:
+The reader rejects these features rather than attempting partial support:
 
-- ZIP64, split or multi-disk archives, encryption, and unsupported compression methods;
+- ZIP64, split archives, encryption, and unsupported compression methods;
 - patching, strong encryption, masked headers, digital signatures, and archive-extra-data records;
-- symbolic links, devices, sockets, volume labels, and other special entry types;
-- unknown creator systems, unknown flags, and unrecognized or duplicate extra fields; and
-- self-extracting prefixes, arbitrary trailing bytes, sparse layouts, or overlapping records.
+- symbolic links, devices, sockets, volume labels, and other special entries;
+- unknown creators, flags, and unrecognized or duplicate extra fields;
+- self-extracting prefixes, sparse layouts, and overlapping records.
 
-Unsupported is not malformed: `unsupported` means the archive identifies a feature outside this
-reader's contract, while `malformed` means admitted ZIP32 structure is inconsistent or ambiguous.
+### Portable paths
 
-## Portable path admission
+Archive names must describe one unambiguous relative tree:
 
-ZIP names are not treated as trustworthy filesystem paths. `Zip.open()` first admits one portable,
-unambiguous path tree:
+- Use `/` between non-empty components. No absolute paths, drive prefixes, backslashes, `.` or `..`.
+- Names must already be Unicode NFC, without C0/C1, line-separator, or format controls.
+- No Windows-forbidden characters, trailing dots or spaces, or reserved device names.
+- `.sys.rooted` component prefixes are reserved case-insensitively.
+- Exact, lowercase, NFC, and NFD aliases may not collide.
+- A file cannot also be a directory or an ancestor of another entry.
+- Implicit parents count toward `maxTreeEntries`.
 
-- paths are relative and use `/`; absolute paths, drive prefixes, and backslashes are rejected;
-- every component is non-empty and is neither `.` nor `..`;
-- names must already be Unicode NFC and contain no C0/C1, line-separator, or format controls;
-- Windows-forbidden characters, trailing dots or spaces, and reserved device names are rejected;
-- names beginning with the reserved `.sys.rooted` prefix are rejected case-insensitively;
-- exact, lowercase, NFC, and NFD aliases may not collide;
-- a file may not also be a directory or an ancestor of another entry; and
-- implicit parent directories count toward the realized-tree limit.
-
-This policy is designed to map admitted names into the narrower `@sys/fs` Rooted target model, but
-`@sys/archive/zip` itself performs no filesystem operation. Path admission prevents ambiguous
-archive names; it is not an extraction sandbox or a defense against concurrent filesystem
-replacement.
-
-## Work and memory bounds
-
-`Zip.open()` accepts an exact partial `limits` record. Omitted fields use frozen package defaults;
-unknown keys, accessors, proxies, non-positive values, unsafe integers, and infinite values are
-rejected before archive copying or parsing. A source exceeding `maxSourceBytes` is rejected before
-the private archive buffer is allocated.
-
-| Override           | Meaning                                              | Default |
-| ------------------ | ---------------------------------------------------- | ------: |
-| `maxSourceBytes`   | Bytes copied into the private archive snapshot.      |  64 MiB |
-| `maxEntries`       | Central-directory records.                           |   2,048 |
-| `maxTreeEntries`   | Files, directories, and unique implicit parents.     |   8,192 |
-| `maxPathBytes`     | Raw bytes in one entry name.                         |     512 |
-| `maxPathDepth`     | Components in one path.                              |      32 |
-| `maxEntryBytes`    | Declared and actual expanded bytes in one file.      | 128 MiB |
-| `maxExpandedBytes` | Declared and actual expanded bytes across all files. | 512 MiB |
-| `maxErrorChars`    | Characters retained in one public failure message.   |  16,000 |
-
-The source already exists in caller memory; opening adds one exact private copy plus parser
-metadata. Payload testing does not retain a complete expanded archive. Stored and DEFLATE work is
-admitted in blocks no larger than 64 KiB, and inflater input/output uses explicit backpressure
-rather than an unbounded application queue.
-
-Declared expansion is checked during open, before inflation. Actual output is checked during test,
-so a false declared size cannot bypass either per-entry or aggregate expansion policy.
-
-### Option snapshots, cancellation, and deadlines
-
-Open options admit only `{ timeout, until?, limits? }`; test options admit only
-`{ timeout, until? }`. Both are ordinary own-data records. They and any nested cancellation-array
-containers are snapshotted before the first asynchronous boundary, so later caller mutation cannot
-change the operation. Accessors, symbols, proxies, cycles, more than 256 lifecycle nodes, or more
-than 32 nested array levels are rejected; inherited values are never admitted. Structural lifecycle
-leaves retain canonical `UntilInput` behavior.
-
-`timeout` is a non-negative safe-integer millisecond budget. It begins at the public operation
-boundary and includes option admission, initial scheduling, and all structure or payload work. A
-pre-terminal lifecycle performs no archive copy, parsing, or inflation. Active inflater work is
-revoked and awaited before a cancelled or timed-out test settles.
-
-Work is cooperatively bounded:
-
-- parsing yields after at most 32 records or 1 MiB of linear byte work;
-- payload input, inflater output, and CRC calls use blocks no larger than 64 KiB; and
-- payload processing yields after 1 MiB of compressed input or expanded output.
-
-A timeout is therefore a finite work budget, not a hard real-time interrupt. The fixed source copy
-and an individual native operation cannot be preempted once entered; cancellation and the monotonic
-deadline are checked before and after those bounded segments.
+These rules align with Rooted target admission. They prevent ambiguous names, not concurrent
+filesystem replacement. The concrete sink still needs a cooperative-filesystem contract; this is not
+hostile-filesystem confinement or a durability guarantee.
 
 ## Failures
 
-Expected rejection uses frozen, owner-authenticated `ZipError` values:
+Expected failures reject with frozen `ZipError` values. Use `Zip.Is.failure()` to authenticate them,
+not their name or message:
 
 ```ts
-try {
-  const archive = await Zip.open(bytes, { timeout: 30_000 });
-  await archive.test({ timeout: 30_000 });
-} catch (error) {
-  if (!Zip.Is.failure(error)) throw error;
-  console.error(error.operation, error.kind, error.entryIndex);
+import { Zip } from 'jsr:@sys/archive/zip';
+
+async function verifyZip(bytes: Uint8Array) {
+  const work = { timeout: 30_000 };
+  try {
+    const archive = await Zip.open(bytes, work);
+    return await archive.test(work);
+  } catch (error) {
+    if (!Zip.Is.failure(error)) throw error;
+    console.error(error.operation, error.kind, error.entryIndex);
+    throw error;
+  }
 }
 ```
 
-`Zip.Is.failure()` recognizes only failures created by this library; structural lookalikes and
-proxies are rejected without traversing them. Use these stable fields for control flow:
+`operation` identifies `open`, `test`, or `extract`; `kind` is the stable classification.
+`entryIndex`, when present, identifies the zero-based entry responsible for a localized failure.
 
-| Field        | Meaning                                                                 |
-| ------------ | ----------------------------------------------------------------------- |
-| `operation`  | `open` or `test`.                                                       |
-| `kind`       | Stable failure classification.                                          |
-| `entryIndex` | Optional zero-based admitted entry responsible for a localized failure. |
+| Boundary   | Kinds                                                                       |
+| ---------- | --------------------------------------------------------------------------- |
+| Input      | `invalid-input`, `invalid-options`                                          |
+| Lifecycle  | `cancelled`, `timeout`                                                      |
+| Limits     | `source-limit`, `entry-limit`, `tree-limit`, `path-limit`, `expanded-limit` |
+| Grammar    | `malformed`, `unsupported`, `invalid-name`, `collision`                     |
+| Payload    | `deflate-failure`, `size-mismatch`, `crc-mismatch`                          |
+| Extraction | `invalid-sink`, `sink-protocol`, `sink-failure`                             |
 
-Failure kinds are intentionally finite:
+`unsupported` identifies an excluded feature; `malformed` identifies inconsistent or ambiguous
+structure. Lookalikes and proxies do not pass `Zip.Is.failure()`. Messages are capped by
+`maxErrorChars`; messages and `Error.cause` are diagnostics, not control-flow authority.
 
-| Boundary     | Kinds                                                                       |
-| ------------ | --------------------------------------------------------------------------- |
-| Input/policy | `invalid-input`, `invalid-options`                                          |
-| Lifecycle    | `cancelled`, `timeout`                                                      |
-| Limits       | `source-limit`, `entry-limit`, `tree-limit`, `path-limit`, `expanded-limit` |
-| ZIP grammar  | `malformed`, `unsupported`, `invalid-name`, `collision`                     |
-| Payload test | `deflate-failure`, `size-mismatch`, `crc-mismatch`                          |
+## Verification
 
-Messages are bounded by `maxErrorChars`. Message text and any standard `Error.cause` are diagnostic,
-not stable authority; lower causes are not traversed to construct the public classification.
-
-## Verification posture
-
-The conformance suite does not use one ZIP encoder as its sole oracle. It combines hand-assembled
-APPNOTE records, independently mutated fields, the canonical `123456789` CRC-32 vector, and pinned
-raw-DEFLATE bytes whose SHA-256 is checked before use. Accepted and rejected cases exercise record
-boundaries, descriptors, extra fields, creator attributes, path aliases, declared limits, actual
-expansion, size, CRC, and exact DEFLATE consumption.
-
-Separate proofs cover caller-byte mutation after opening resolves, hostile object admission, Rooted
-path compatibility, parser scheduling, inflater backpressure under a slow consumer, cancellation
-settlement, and open/test with every ambient Deno permission denied. These proofs support the narrow
-contract documented here; they do not imply interoperability with ZIP features the grammar excludes.
-
-## Security boundary
-
-A passing `archive.test()` proves internal consistency of the private byte snapshot. It does not
-establish:
-
-- who produced or delivered the archive;
-- a cryptographic digest or signature over the archive bytes;
-- malware safety or semantic safety of decoded content;
-- filesystem containment, safe extraction, or resistance to concurrent path replacement;
-- durability, immutability after external publication, or policy compliance beyond the limits above.
-
-Authenticate the same stable source bytes separately before assigning origin or release identity.
-Keep the source unchanged until `Zip.open()` resolves so its private snapshot cannot diverge from
-the bytes your caller-owned digest or signature policy admitted.
-
-The narrow boundary is intentional: archive parsing owns archive truth; source acquisition,
-cryptographic authentication, extraction, publication, and application trust remain separate owners.
+The [tests](./src/m.Zip/-test/) use independently constructed ZIP records and corrupted payloads.
+They cover strict grammar, byte ownership, resource bounds, extraction settlement, Rooted
+interoperability, and execution with all ambient Deno permissions denied.

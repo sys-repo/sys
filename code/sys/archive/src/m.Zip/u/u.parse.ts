@@ -1,6 +1,6 @@
 import { Arr, Num, type t } from '../common.ts';
 import { failure } from './u.failure.ts';
-import type { OperationContext } from './u.operation.ts';
+import type { OperationContext, ParsedArchive, ParsedEntry } from './t.ts';
 
 const EOCD = 0x06054b50;
 const CENTRAL = 0x02014b50;
@@ -39,16 +39,6 @@ const CONTROL_OR_FORMAT = /[\u0000-\u001f\u007f-\u009f\u2028\u2029\p{Cf}]/u;
 const WINDOWS_FORBIDDEN = /[<>:"|?*]/u;
 const DRIVE_PREFIX = /^[A-Za-z]:/u;
 const DEVICE = /^(?:CON|PRN|AUX|NUL|CLOCK\$|CONIN\$|CONOUT\$|COM[1-9¹²³]|LPT[1-9¹²³])$/u;
-
-export type ParsedEntry = {
-  readonly metadata: t.Zip.Entry;
-  readonly dataOffset: number;
-};
-
-export type ParsedArchive = {
-  readonly entries: readonly ParsedEntry[];
-  readonly inspection: t.Zip.Inspection;
-};
 
 type CentralEntry = {
   readonly metadata: t.Zip.Entry;

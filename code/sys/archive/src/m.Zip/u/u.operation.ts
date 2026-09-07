@@ -1,6 +1,6 @@
 import { Dispose, Schedule, type t, Time } from '../common.ts';
 import { failure, isFailure } from './u.failure.ts';
-import type { WorkInput } from './u.input.ts';
+import type { OperationContext, WorkInput } from './t.ts';
 
 const now = globalThis.performance.now.bind(globalThis.performance);
 const TIMEOUT = Symbol('zip-timeout');
@@ -14,14 +14,6 @@ export function operationStart(): number {
 export function deadlineTimerMsecs(remaining: number): t.Msecs {
   return Math.min(Time.Delay.MAX, Math.ceil(remaining)) as t.Msecs;
 }
-
-export type OperationContext = {
-  readonly operation: t.Zip.Operation;
-  readonly limits: t.Zip.Limits;
-  readonly signal: AbortSignal;
-  readonly checkpoint: (entryIndex?: number) => void;
-  readonly yieldTurn: (entryIndex?: number) => Promise<void>;
-};
 
 /** Run one asynchronous ZIP operation inside an owned cancellation/deadline lifecycle. */
 export async function operation<T>(

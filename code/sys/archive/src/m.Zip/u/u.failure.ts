@@ -7,6 +7,9 @@ const DEFAULT_MESSAGE_LIMIT = 1024;
 const MESSAGES: Readonly<Record<t.Zip.Failure.Kind, string>> = Object.freeze({
   'invalid-input': 'Invalid ZIP input',
   'invalid-options': 'Invalid ZIP operation options',
+  'invalid-sink': 'Invalid ZIP extraction sink',
+  'sink-protocol': 'ZIP extraction content protocol violated',
+  'sink-failure': 'ZIP extraction sink failed',
   'cancelled': 'ZIP operation cancelled',
   'timeout': 'ZIP operation timed out',
   'source-limit': 'ZIP source byte limit exceeded',

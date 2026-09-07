@@ -1,4 +1,5 @@
 import { Is, Num, type t } from '../common.ts';
+import type { OpenInput, WorkInput } from './t.ts';
 import { failure, isFailure } from './u.failure.ts';
 
 const NativeArray = Array;
@@ -67,17 +68,6 @@ const LIMIT_KEYS = [
   'maxErrorChars',
 ] as const satisfies readonly (keyof t.Zip.Limits)[];
 
-export type OpenInput = {
-  readonly until?: t.UntilInput;
-  readonly timeout: t.Msecs;
-  readonly limits: t.Zip.Limits;
-};
-
-export type WorkInput = {
-  readonly until?: t.UntilInput;
-  readonly timeout: t.Msecs;
-};
-
 /** Snapshot one exact open-options record without invoking its properties. */
 export function openOptions(input: unknown): OpenInput {
   let maxErrorChars = openErrorLimit(input);
@@ -94,14 +84,18 @@ export function openOptions(input: unknown): OpenInput {
 }
 
 /** Snapshot one exact work-options record without invoking its properties. */
-export function workOptions(input: unknown, maxErrorChars: number): WorkInput {
+export function workOptions(
+  input: unknown,
+  maxErrorChars: number,
+  name: 'test' | 'extract' = 'test',
+): WorkInput {
   try {
     const values = exactRecord(input, ['timeout'], ['until']);
     const timeout = finiteTimeout(values.timeout);
     const until = untilInput(values.until);
     return Object.freeze({ ...(until === undefined ? {} : { until }), timeout });
   } catch (cause) {
-    throw failure('test', 'invalid-options', { maxErrorChars, cause });
+    throw failure(name, 'invalid-options', { maxErrorChars, cause });
   }
 }
 
