@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Fs } from '../common.ts';
 import { resolveExtensions, type ResolveExtensionsInput } from '../u/u.resolve.extensions.ts';
-import { SandboxFs } from '../../../m.core/m.extension/m.sandbox.fs/mod.ts';
+import { Sandbox } from '../../../m.core/m.extension/m.sandbox/mod.ts';
 
 describe('@sys/driver-pi/cli/Profiles/extension resolution', () => {
   it('ZIP omission, empty policy, and enablement → one loader with matching tools and prompts', async () => {
@@ -55,7 +55,7 @@ describe('@sys/driver-pi/cli/Profiles/extension resolution', () => {
     try {
       await Fs.write(file, 'notes', { throw: true });
       await Fs.ensureSymlink(file, alias);
-      const sandboxFs = SandboxFs.resolvePolicy({
+      const sandboxFs = Sandbox.Fs.resolvePolicy({
         cwd: { invoked: cwd, git: cwd },
         read: [file, alias, directoryRoot],
         remove: { enabled: false },
@@ -97,7 +97,7 @@ function inputOf(cwd: string): ResolveExtensionsInput {
   return {
     cwd,
     enabled: true,
-    sandboxFs: SandboxFs.resolvePolicy({
+    sandboxFs: Sandbox.Fs.resolvePolicy({
       cwd: { invoked: cwd, git: cwd },
       remove: { enabled: false },
       move: { enabled: false },

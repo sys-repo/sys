@@ -1,10 +1,25 @@
 import type { t } from './common.ts';
 
 /**
+ * Wrapper-owned sandbox Pi extensions.
+ */
+export declare namespace PiSandboxExtension {
+  /**
+   * Runtime surface for sandbox-owned Pi extensions.
+   */
+  export type Lib = {
+    /** Sandbox filesystem extension helpers. */
+    readonly Fs: PiSandboxFsExtension.Lib;
+  };
+}
+
+/**
  * Wrapper-owned sandbox filesystem Pi extension.
  */
 export declare namespace PiSandboxFsExtension {
-  /** Runtime surface for the sandbox filesystem extension. */
+  /**
+   * Runtime surface for the sandbox filesystem extension.
+   */
   export type Lib = {
     /** Resolve effective sandbox filesystem tool policy from profile policy and runtime roots. */
     resolvePolicy(input: ResolvePolicyInput): Policy;

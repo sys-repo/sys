@@ -1,7 +1,7 @@
 import { lstat } from '@sys/fs/observe';
 import type { t } from '../common.ts';
 import { Ocr } from '../../../m.core/m.extension/m.ocr/mod.ts';
-import { SandboxFs } from '../../../m.core/m.extension/m.sandbox.fs/mod.ts';
+import { Sandbox } from '../../../m.core/m.extension/m.sandbox/mod.ts';
 import { Zip } from '../../../m.core/m.extension/m.zip/mod.ts';
 
 export type ResolveExtensionsInput = {
@@ -19,8 +19,8 @@ export async function resolveExtensions(input: ResolveExtensionsInput) {
   if (!input.enabled) return { args: [], promptArgs: [], tools: [] };
 
   const { cwd, sandboxFs, ocr } = input;
-  const filesystem = SandboxFs.toolNames(sandboxFs).length > 0
-    ? await SandboxFs.write({ cwd, policy: sandboxFs })
+  const filesystem = Sandbox.Fs.toolNames(sandboxFs).length > 0
+    ? await Sandbox.Fs.write({ cwd, policy: sandboxFs })
     : undefined;
   const ocrExtension = ocr
     ? await Ocr.write({ cwd, policy: Ocr.resolveExtensionPolicy(ocr) })
@@ -41,12 +41,12 @@ export async function resolveExtensions(input: ResolveExtensionsInput) {
       ...(zipExtension?.args ?? []),
     ],
     promptArgs: [
-      ...(filesystem ? SandboxFs.toPromptArgs(sandboxFs) : []),
+      ...(filesystem ? Sandbox.Fs.toPromptArgs(sandboxFs) : []),
       ...(ocrExtension && ocr ? Ocr.toPromptArgs(ocr.policy) : []),
       ...(zipExtension && zipPolicy ? Zip.toPromptArgs(zipPolicy) : []),
     ],
     tools: [
-      ...(filesystem ? SandboxFs.toolNames(sandboxFs) : []),
+      ...(filesystem ? Sandbox.Fs.toolNames(sandboxFs) : []),
       ...(ocrExtension && ocr ? Ocr.toolNames(ocr.policy) : []),
       ...(zipExtension && zipPolicy ? Zip.toolNames(zipPolicy) : []),
     ],

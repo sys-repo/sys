@@ -2,7 +2,7 @@ import { Fs, type t } from '../common.ts';
 import { PI_AGENT_IMPORT, resolvePkg } from '../../u/u.resolve.pkg.ts';
 import { resolveSandboxSummary } from '../../u/u.resolve.sandbox.ts';
 import { resolveTempArtifactRoots } from '../../u/u.runtime.ts';
-import { SandboxFs } from '../../../m.core/m.extension/m.sandbox.fs/mod.ts';
+import { Sandbox } from '../../../m.core/m.extension/m.sandbox/mod.ts';
 import { ProfileMigrate } from '../u.migrate/mod.ts';
 import { ProfileContext } from './u.context.ts';
 import { ProfilesFs } from './u.fs.ts';
@@ -82,7 +82,7 @@ export async function resolveRun(
   const callerWrite = input.write ?? [];
   const write = [...profileWrite, ...callerWrite];
   const tempArtifactRoots = await resolveTempArtifactRoots();
-  const sandboxFsPolicy = SandboxFs.resolvePolicy({
+  const sandboxFsPolicy = Sandbox.Fs.resolvePolicy({
     cwd,
     read: [
       ...ProfilePath.resolveAll(root, [...(capability?.read ?? []), ...(input.read ?? [])]),

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../../-test.ts';
 import { Fs, Path, type t } from '../common.ts';
-import { SandboxFs } from '../mod.ts';
+import { Sandbox } from '../mod.ts';
 import type { SandboxFsPolicy as GeneratedSandboxFsPolicy } from '../tmpl/t.ts';
 import { expectStandaloneGeneratedExtension } from '../../-test/u.generated.ts';
 
@@ -56,11 +56,7 @@ type GeneratedSandboxFsModule = {
 describe(`Pi: sandbox filesystem extension`, () => {
   it('API', async () => {
     const m = await import('../mod.ts');
-    expect(m.SandboxFs).to.equal(SandboxFs);
-    expect(SandboxFs.resolvePolicy).to.equal(m.SandboxFs.resolvePolicy);
-    expect(SandboxFs.toolNames).to.equal(m.SandboxFs.toolNames);
-    expect(SandboxFs.toPromptArgs).to.equal(m.SandboxFs.toPromptArgs);
-    expect(SandboxFs.write).to.equal(m.SandboxFs.write);
+    expect(m.Sandbox).to.equal(Sandbox);
   });
 
   it('keeps host policy assignable to the generated standalone policy ABI', () => {
@@ -74,7 +70,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
 
   it('resolvePolicy → separates read roots, write roots, and protected runtime roots', async () => {
     const root = '/tmp/driver-pi-sandbox-fs' as t.StringDir;
-    const policy = SandboxFs.resolvePolicy({
+    const policy = Sandbox.Fs.resolvePolicy({
       cwd: { invoked: root, git: root },
       read: ['./profile-read' as t.StringPath, '/tmp/driver-pi-readable' as t.StringPath],
       write: ['./profile-write' as t.StringPath, '/tmp/driver-pi-extra' as t.StringPath],
@@ -102,7 +98,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
 
   it('resolvePolicy → defaults wrapper-owned filesystem tools to enabled', () => {
     const root = '/tmp/driver-pi-sandbox-fs' as t.StringDir;
-    const policy = SandboxFs.resolvePolicy({ cwd: { invoked: root, git: root } });
+    const policy = Sandbox.Fs.resolvePolicy({ cwd: { invoked: root, git: root } });
 
     expect(policy.remove).to.eql({ enabled: true, recursive: true });
     expect(policy.move).to.eql({ enabled: true });
@@ -110,7 +106,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
   });
 
   it('toolNames → reports only enabled registered filesystem tools', () => {
-    const names = SandboxFs.toolNames({
+    const names = Sandbox.Fs.toolNames({
       readRoots: [],
       writeRoots: [],
       protectedRoots: [],
@@ -123,7 +119,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
   });
 
   it('toPromptArgs → appends truthful contracts only for enabled tools', () => {
-    const disabled = SandboxFs.toPromptArgs({
+    const disabled = Sandbox.Fs.toPromptArgs({
       readRoots: [],
       writeRoots: [],
       protectedRoots: [],
@@ -133,7 +129,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
     });
     expect(disabled).to.eql([]);
 
-    const enabled = SandboxFs.toPromptArgs({
+    const enabled = Sandbox.Fs.toPromptArgs({
       readRoots: ['/tmp/pi-read' as t.StringPath],
       writeRoots: ['/tmp/pi-root' as t.StringPath],
       protectedRoots: [],
@@ -154,7 +150,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.sandbox-fs.test.' }))
       .absolute as t.StringDir;
     try {
-      const policy = SandboxFs.resolvePolicy({
+      const policy = Sandbox.Fs.resolvePolicy({
         cwd: { invoked: cwd, git: cwd },
         read: ['./readable' as t.StringPath],
         write: ['./src' as t.StringPath],
@@ -162,7 +158,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
         move: { enabled: true },
         copy: { enabled: true },
       });
-      const res = await SandboxFs.write({ cwd, policy });
+      const res = await Sandbox.Fs.write({ cwd, policy });
       const mod = await Fs.readText(res.path);
       if (!mod.ok) throw mod.error;
       const modText = mod.data ?? '';
@@ -215,7 +211,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
       await Fs.write(moveFrom, 'move me');
       await Fs.write(copyFrom, 'png bytes');
 
-      const policy = SandboxFs.resolvePolicy({
+      const policy = Sandbox.Fs.resolvePolicy({
         cwd: { invoked: cwd, git: cwd },
         read: [outside],
         write: ['./allowed' as t.StringPath],
@@ -223,7 +219,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
         move: { enabled: true },
         copy: { enabled: true },
       });
-      const res = await SandboxFs.write({ cwd, policy });
+      const res = await Sandbox.Fs.write({ cwd, policy });
       const mod = await importGenerated(res.path);
       const tools: RegisteredTool[] = [];
       mod.default({ registerTool: (tool) => tools.push(tool) });
@@ -281,7 +277,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
       await Fs.ensureDir(Fs.join(cwd, '.tmp', 'pi.cli'));
       await Fs.write(Fs.join(outside, 'outside.txt'), 'outside');
 
-      const policy = SandboxFs.resolvePolicy({
+      const policy = Sandbox.Fs.resolvePolicy({
         cwd: { invoked: cwd, git: cwd },
         read: [outside],
         write: ['./explicit-write-root' as t.StringPath],
@@ -289,7 +285,7 @@ describe(`Pi: sandbox filesystem extension`, () => {
         move: { enabled: true },
         copy: { enabled: true },
       });
-      const res = await SandboxFs.write({ cwd, policy });
+      const res = await Sandbox.Fs.write({ cwd, policy });
       const guards = (await importGenerated(res.path)).__sandboxFsTest;
 
       const parent = await guards.guardMove({
