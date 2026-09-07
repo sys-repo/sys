@@ -1,6 +1,8 @@
 import { Arr, Is, Num, Obj, ServerIs, StdPath, type t } from '../common.ts';
 import { failure, isFailure } from './u.failure.ts';
 
+type UntilBudget = { nodes: number };
+
 const NativeArray = Array;
 const NativeObject = Object;
 const freeze = NativeObject.freeze;
@@ -13,18 +15,8 @@ const MAX_PATH_CODE_UNITS = 32_768;
 const MAX_UNTIL_NODES = 256;
 const MAX_UNTIL_DEPTH = 32;
 
-type UntilBudget = { nodes: number };
-
-export type SnapshotInput = {
-  readonly root: t.StringAbsoluteDir;
-  readonly path: t.StringAbsolutePath;
-  readonly maxBytes: t.NumberBytes;
-  readonly until?: t.UntilInput;
-  readonly timeout: t.Msecs;
-};
-
 /** Snapshot one exact file-snapshot options record without invoking its properties. */
-export function snapshotOptions(input: unknown): SnapshotInput {
+export function snapshotOptions(input: unknown): t.SnapshotInput {
   const values = exactRecord(input, ['root', 'path', 'maxBytes', 'timeout'], ['until']);
   const root = pathInput(values.root, 'invalid-root') as t.StringAbsoluteDir;
   const path = pathInput(values.path, 'invalid-path') as t.StringAbsolutePath;

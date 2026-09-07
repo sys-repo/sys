@@ -1,6 +1,5 @@
 import { Dispose, Schedule, type t, Time } from '../common.ts';
 import { failure, hostFailure, isFailure } from './u.failure.ts';
-import type { SnapshotInput } from './u.input.ts';
 
 const now = globalThis.performance.now.bind(globalThis.performance);
 const TIMEOUT = Symbol('fs-snapshot-timeout');
@@ -15,16 +14,10 @@ export function deadlineTimerMsecs(remaining: number): t.Msecs {
   return Math.min(Time.Delay.MAX, Math.ceil(remaining)) as t.Msecs;
 }
 
-export type SnapshotContext = {
-  readonly signal: AbortSignal;
-  readonly checkpoint: () => void;
-  readonly yield: () => Promise<void>;
-};
-
 /** Run one file snapshot inside an owned cancellation/deadline lifecycle. */
 export async function snapshotOperation<T>(
-  options: SnapshotInput,
-  fn: (context: SnapshotContext) => Promise<T>,
+  options: t.SnapshotInput,
+  fn: (context: t.SnapshotContext) => Promise<T>,
   started = snapshotStart(),
 ): Promise<T> {
   let life: t.Abortable;
@@ -70,7 +63,7 @@ export async function snapshotOperation<T>(
     await Schedule.tick();
     checkpoint();
   };
-  const context: SnapshotContext = Object.freeze({
+  const context: t.SnapshotContext = Object.freeze({
     signal: life.signal,
     checkpoint,
     yield: yieldTurn,

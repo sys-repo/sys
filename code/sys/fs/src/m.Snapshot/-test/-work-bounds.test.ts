@@ -1,7 +1,27 @@
-import { describe, expect, it, Rx, type t, Time } from '../../-test.ts';
+import { describe, expect, it, Rx, Time } from '../../-test.ts';
 import { Fs } from '../../m.Fs/mod.ts';
 import { snapshotFileWithIo as snapshotFile } from '../u/u.file.ts';
-import type { SnapshotHandle, SnapshotIo } from '../u/u.io.ts';
+import type { t } from './common.ts';
+
+type Harness = {
+  readonly io: t.SnapshotIo;
+  readonly reads: number[];
+  readonly lstats: string[];
+  readonly state: {
+    opens: number;
+    stats: number;
+    closes: number;
+  };
+};
+
+type HarnessOptions = {
+  readonly bytes?: Uint8Array;
+  readonly pathStats?: readonly Deno.FileInfo[];
+  readonly handleStats?: readonly Deno.FileInfo[];
+  readonly onOpen?: () => void | Promise<void>;
+  readonly onRead?: (buffer: Uint8Array, fallback: () => number | null) => Promise<number | null>;
+  readonly onClose?: () => void | Promise<void>;
+};
 
 const root = Fs.resolve('/snapshot-root') as t.StringAbsoluteDir;
 const path = Fs.join(root, 'file') as t.StringAbsolutePath;
@@ -38,26 +58,6 @@ function info(
   } as Deno.FileInfo;
 }
 
-type Harness = {
-  readonly io: SnapshotIo;
-  readonly reads: number[];
-  readonly lstats: string[];
-  readonly state: {
-    opens: number;
-    stats: number;
-    closes: number;
-  };
-};
-
-type HarnessOptions = {
-  readonly bytes?: Uint8Array;
-  readonly pathStats?: readonly Deno.FileInfo[];
-  readonly handleStats?: readonly Deno.FileInfo[];
-  readonly onOpen?: () => void | Promise<void>;
-  readonly onRead?: (buffer: Uint8Array, fallback: () => number | null) => Promise<number | null>;
-  readonly onClose?: () => void | Promise<void>;
-};
-
 function harness(options: HarnessOptions = {}): Harness {
   const bytes = options.bytes ?? new Uint8Array([1, 2, 3, 4]);
   const baseline = info('file', { size: bytes.byteLength });
@@ -68,7 +68,7 @@ function harness(options: HarnessOptions = {}): Harness {
   const state = { opens: 0, stats: 0, closes: 0 };
   let offset = 0;
 
-  const handle: SnapshotHandle = {
+  const handle: t.SnapshotHandle = {
     async read(buffer) {
       reads.push(buffer.byteLength);
       const fallback = () => {
@@ -91,7 +91,7 @@ function harness(options: HarnessOptions = {}): Harness {
     },
   };
 
-  const io: SnapshotIo = {
+  const io: t.SnapshotIo = {
     lstat(selected) {
       lstats.push(selected);
       if (selected === root) return Promise.resolve(info('directory'));
@@ -192,7 +192,7 @@ describe('Fs.Snapshot: bounded work and lifecycle', () => {
     const child = Fs.join(ceilingRoot, 'file') as t.StringAbsolutePath;
     const empty = info('file', { size: 0 });
     let closes = 0;
-    const handle: SnapshotHandle = {
+    const handle: t.SnapshotHandle = {
       read() {
         return Promise.resolve(null);
       },
@@ -203,7 +203,7 @@ describe('Fs.Snapshot: bounded work and lifecycle', () => {
         closes++;
       },
     };
-    const io: SnapshotIo = {
+    const io: t.SnapshotIo = {
       lstat(selected) {
         return Promise.resolve(selected === ceilingRoot ? info('directory') : empty);
       },
@@ -235,7 +235,7 @@ describe('Fs.Snapshot: bounded work and lifecycle', () => {
 
   it('settles pre-cancellation and zero deadlines before filesystem IO', async () => {
     let ioCalls = 0;
-    const io: SnapshotIo = {
+    const io: t.SnapshotIo = {
       lstat() {
         ioCalls++;
         throw new Error('unexpected');
@@ -306,7 +306,7 @@ describe('Fs.Snapshot: bounded work and lifecycle', () => {
 
   it('counts undefined cancellation slots and exact nested array levels before IO', async () => {
     let ioCalls = 0;
-    const io: SnapshotIo = {
+    const io: t.SnapshotIo = {
       lstat() {
         ioCalls++;
         throw new Error('unexpected');

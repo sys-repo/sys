@@ -4,12 +4,16 @@ import type { t } from './common.ts';
  * Bounded stable filesystem snapshot contracts.
  */
 export declare namespace Snapshot {
-  /** Runtime file-snapshot library. */
+  /**
+   * Runtime file-snapshot library.
+   */
   export type Lib = {
     /** Owner-authenticated snapshot predicates. */
     readonly Is: Is.Lib;
 
-    /** Read one bounded stable snapshot through one file handle. */
+    /**
+     * Read one bounded stable snapshot through one file handle.
+     */
     readonly file: File.Method;
   };
 
@@ -76,9 +80,13 @@ export declare namespace Snapshot {
    * Snapshot predicate contracts.
    */
   export namespace Is {
-    /** Snapshot predicate library. */
+    /**
+     * Snapshot predicate library.
+     */
     export type Lib = {
-      /** Determine whether an input is an owner-authenticated snapshot failure. */
+      /**
+       * Determine whether an input is an owner-authenticated snapshot failure.
+       */
       failure(input: unknown): input is Failure.Error;
     };
   }

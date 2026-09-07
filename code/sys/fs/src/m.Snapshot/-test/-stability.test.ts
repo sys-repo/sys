@@ -1,7 +1,21 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { Fs } from '../../m.Fs/mod.ts';
 import { snapshotFileWithIo as snapshotFile } from '../u/u.file.ts';
-import type { SnapshotHandle, SnapshotIo } from '../u/u.io.ts';
+import type { t } from './common.ts';
+
+type FixtureOptions = {
+  readonly bytes?: Uint8Array;
+  readonly pathBefore?: Deno.FileInfo;
+  readonly handleBefore?: Deno.FileInfo;
+  readonly pathAfterOpen?: Deno.FileInfo;
+  readonly handleAfter?: Deno.FileInfo;
+  readonly rootInfo?: Deno.FileInfo;
+  readonly openFailure?: unknown;
+  readonly readFailure?: unknown;
+  readonly statFailureAt?: number;
+  readonly lstatFailureAt?: number;
+  readonly hostFailure?: unknown;
+};
 
 const root = Fs.resolve('/snapshot-race-root') as t.StringAbsoluteDir;
 const path = Fs.join(root, 'file') as t.StringAbsolutePath;
@@ -37,22 +51,8 @@ function info(
   } as Deno.FileInfo;
 }
 
-type FixtureOptions = {
-  readonly bytes?: Uint8Array;
-  readonly pathBefore?: Deno.FileInfo;
-  readonly handleBefore?: Deno.FileInfo;
-  readonly pathAfterOpen?: Deno.FileInfo;
-  readonly handleAfter?: Deno.FileInfo;
-  readonly rootInfo?: Deno.FileInfo;
-  readonly openFailure?: unknown;
-  readonly readFailure?: unknown;
-  readonly statFailureAt?: number;
-  readonly lstatFailureAt?: number;
-  readonly hostFailure?: unknown;
-};
-
 function fixture(input: FixtureOptions = {}): {
-  readonly io: SnapshotIo;
+  readonly io: t.SnapshotIo;
   readonly state: { reads: number; closes: number };
 } {
   const baseline = info();
@@ -64,7 +64,7 @@ function fixture(input: FixtureOptions = {}): {
   let stats = 0;
   let offset = 0;
 
-  const handle: SnapshotHandle = {
+  const handle: t.SnapshotHandle = {
     read(buffer) {
       state.reads++;
       if (input.readFailure !== undefined) return Promise.reject(input.readFailure);
@@ -84,7 +84,7 @@ function fixture(input: FixtureOptions = {}): {
     },
   };
 
-  const io: SnapshotIo = {
+  const io: t.SnapshotIo = {
     lstat(selected) {
       if (selected === root) return Promise.resolve(input.rootInfo ?? info('directory'));
       pathLstats++;

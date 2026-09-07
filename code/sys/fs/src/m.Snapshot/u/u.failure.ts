@@ -35,7 +35,9 @@ export function failure(
   return freeze(error) as t.Snapshot.Failure.Error;
 }
 
-/** Test private owner identity without traversing untrusted input. */
+/**
+ * Test private owner identity without traversing untrusted input.
+ */
 export function isFailure(input: unknown): input is t.Snapshot.Failure.Error {
   return Is.object(input) && !ServerIs.Native.proxy(input) && FAILURES.has(input);
 }
