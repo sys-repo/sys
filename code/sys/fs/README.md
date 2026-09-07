@@ -19,6 +19,7 @@ canonical root.
 | `@sys/fs/file`       | `JsonFile` for JSON and JSONC              |
 | `@sys/fs/filemap`    | `FileMap` for declarative file trees       |
 | `@sys/fs/pkg`        | `Pkg.Dist` package metadata and integrity  |
+| `@sys/fs/snapshot`   | Standalone `Snapshot` file-read module     |
 | `@sys/fs/watch`      | `Watch` for directory changes              |
 | `@sys/fs/t`          | Public types                               |
 
@@ -30,26 +31,28 @@ mutation; this gives integrity checks a precise input while leaving containment 
 systems that can provide them.
 
 `Fs.Snapshot.file()` answers one narrow question: did this bounded read finish without a change the
-host could reveal? It reads one absolute file selected strictly beneath an absolute root.
-The caller must set finite `maxBytes` and `timeout` limits and may supply `until` for cancellation.
-Symbolic links anywhere in the observed root-to-file chain are rejected.
+host could reveal? Consumers that prefer the standalone module may import `Snapshot` from
+`@sys/fs/snapshot`; that export is the same frozen runtime object composed at `Fs.Snapshot`. It
+reads one absolute file selected strictly beneath an absolute root. The caller must set finite
+`maxBytes` and `timeout` limits and may supply `until` for cancellation. Symbolic links anywhere in
+the observed root-to-file chain are rejected.
 
 ### Reading the result
 
 A successful snapshot is a frozen record. Read it as evidence about one completed operation, not as
 authority over the path.
 
-| Field        | Meaning                                                                   |
-| ------------ | ------------------------------------------------------------------------- |
-| `path`       | Normalized absolute path that was read                                    |
-| `byteLength` | Exact length of the returned bytes                                        |
+| Field        | Meaning                                                                    |
+| ------------ | -------------------------------------------------------------------------- |
+| `path`       | Normalized absolute path that was read                                     |
+| `byteLength` | Exact length of the returned bytes                                         |
 | `bytes`      | Mutable `Uint8Array` with fresh, exact backing storage owned by the caller |
-| `evidence`   | Strength of final-file identity evidence available from the host          |
+| `evidence`   | Strength of final-file identity evidence available from the host           |
 
 `device-inode` means every final-file observation supplied the same non-negative safe-integer device
-and inode, alongside stable size and available modification/change timestamps. `metadata-only`
-means complete identity evidence was unavailable, not that checking was skipped. Both values
-describe a successful observation; the caller decides whether that evidence is sufficient.
+and inode, alongside stable size and available modification/change timestamps. `metadata-only` means
+complete identity evidence was unavailable, not that checking was skipped. Both values describe a
+successful observation; the caller decides whether that evidence is sufficient.
 
 ### What it does not prove
 

@@ -15,8 +15,6 @@ export { Err } from '@sys/std/error';
 export { Ignore } from '@sys/std/ignore';
 export { Path as StdPath } from '@sys/std/path';
 export { Rx } from '@sys/std/rx';
-export { constants as NodeFsConstants } from 'node:fs';
-export { open as openNodeFile } from 'node:fs/promises';
 
 export { HashFmt } from '@sys/crypto/fmt';
 export { CompositeHash, Hash } from '@sys/crypto/hash';

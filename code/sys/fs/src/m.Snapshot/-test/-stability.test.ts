@@ -1,11 +1,11 @@
 import { describe, expect, it, type t } from '../../-test.ts';
-import { Fs } from '../mod.ts';
-import { snapshotFile } from '../u/u.snapshot.file.ts';
-import type { SnapshotHandle, SnapshotIo } from '../u/u.snapshot.io.ts';
+import { Fs } from '../../m.Fs/mod.ts';
+import { snapshotFileWithIo as snapshotFile } from '../u/u.file.ts';
+import type { SnapshotHandle, SnapshotIo } from '../u/u.io.ts';
 
 const root = Fs.resolve('/snapshot-race-root') as t.StringAbsoluteDir;
 const path = Fs.join(root, 'file') as t.StringAbsolutePath;
-const options: t.Fs.Snapshot.File.Options = { root, path, maxBytes: 1, timeout: 10_000 };
+const options: t.Snapshot.File.Options = { root, path, maxBytes: 1, timeout: 10_000 };
 
 function info(
   kind: 'file' | 'directory' | 'symlink' = 'file',
@@ -101,8 +101,8 @@ function fixture(input: FixtureOptions = {}): {
 
 async function expectFailure(
   promise: Promise<unknown>,
-  kind: t.Fs.Snapshot.Failure.Kind,
-): Promise<t.Fs.Snapshot.Failure.Error> {
+  kind: t.Snapshot.Failure.Kind,
+): Promise<t.Snapshot.Failure.Error> {
   let cause: unknown;
   try {
     await promise;
@@ -115,7 +115,7 @@ async function expectFailure(
   return cause;
 }
 
-describe('Fs.Snapshot: stable evidence and race rejection', () => {
+describe('Fs.Snapshot: stability evidence and observed-drift rejection', () => {
   it('reports device-inode only when every final-file observation has stable identity', async () => {
     const strong = fixture();
     expect((await snapshotFile(options, strong.io)).evidence).to.eql('device-inode');
@@ -239,7 +239,7 @@ describe('Fs.Snapshot: stable evidence and race rejection', () => {
 
   it('closes once when post-open lstat, fstat, or read fails', async () => {
     const cases: ReadonlyArray<
-      readonly [FixtureOptions, t.Fs.Snapshot.Failure.Kind]
+      readonly [FixtureOptions, t.Snapshot.Failure.Kind]
     > = [
       [{ lstatFailureAt: 2, hostFailure: new Deno.errors.NotFound('gone') }, 'missing'],
       [

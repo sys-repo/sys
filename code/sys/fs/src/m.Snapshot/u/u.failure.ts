@@ -5,7 +5,7 @@ const defineProperties = Object.defineProperties;
 const freeze = Object.freeze;
 const FAILURES = new WeakSet<object>();
 
-const MESSAGES: Readonly<Record<t.Fs.Snapshot.Failure.Kind, string>> = freeze({
+const MESSAGES: Readonly<Record<t.Snapshot.Failure.Kind, string>> = freeze({
   'invalid-options': 'Invalid filesystem snapshot options',
   'invalid-root': 'Invalid filesystem snapshot root',
   'invalid-path': 'Invalid filesystem snapshot path',
@@ -21,8 +21,8 @@ const MESSAGES: Readonly<Record<t.Fs.Snapshot.Failure.Kind, string>> = freeze({
 
 /** Create one frozen owner-authenticated snapshot failure. */
 export function failure(
-  kind: t.Fs.Snapshot.Failure.Kind,
-): t.Fs.Snapshot.Failure.Error {
+  kind: t.Snapshot.Failure.Kind,
+): t.Snapshot.Failure.Error {
   const message = Str.truncate(MESSAGES[kind], 256, { ellipsis: '' });
   const error = new NativeError(message);
 
@@ -32,16 +32,16 @@ export function failure(
     kind: { value: kind, enumerable: true },
   });
   FAILURES.add(error);
-  return freeze(error) as t.Fs.Snapshot.Failure.Error;
+  return freeze(error) as t.Snapshot.Failure.Error;
 }
 
 /** Test private owner identity without traversing untrusted input. */
-export function isFailure(input: unknown): input is t.Fs.Snapshot.Failure.Error {
+export function isFailure(input: unknown): input is t.Snapshot.Failure.Error {
   return Is.object(input) && !ServerIs.Native.proxy(input) && FAILURES.has(input);
 }
 
 /** Convert one host failure into the stable snapshot taxonomy. */
-export function hostFailure(cause: unknown): t.Fs.Snapshot.Failure.Error {
+export function hostFailure(cause: unknown): t.Snapshot.Failure.Error {
   if (isFailure(cause)) return cause;
   const native = ServerIs.Native.error(cause) && Err.Is.error(cause) ? cause : undefined;
   if (native instanceof Deno.errors.NotFound) return failure('missing');

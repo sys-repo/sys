@@ -23,6 +23,7 @@
     "./path": "./src/m.Path/mod.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
     "./pkg/dist/verify": "./src/-exports/-pkg.dist.verify.ts",
+    "./snapshot": "./src/m.Snapshot/mod.ts",
     "./watch": "./src/m.Watch/mod.ts"
   },
   "permissions": {
@@ -50,4 +51,3 @@
     }
   }
 }
-

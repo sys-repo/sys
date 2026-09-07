@@ -1,13 +1,14 @@
+import { Snapshot } from '@sys/fs/snapshot';
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import { Fs } from '../mod.ts';
-import { normalizedPath } from '../u/u.snapshot.input.ts';
+import { Fs } from '../../m.Fs/mod.ts';
+import { normalizedPath } from '../u/u.input.ts';
 
 const timeout = 10_000;
 
 async function expectFailure(
   promise: Promise<unknown>,
-  kind: t.Fs.Snapshot.Failure.Kind,
-): Promise<t.Fs.Snapshot.Failure.Error> {
+  kind: t.Snapshot.Failure.Kind,
+): Promise<t.Snapshot.Failure.Error> {
   let failure: unknown;
   try {
     await promise;
@@ -20,33 +21,51 @@ async function expectFailure(
   return failure;
 }
 
-function call(input: unknown): Promise<t.Fs.Snapshot.File.Result> {
-  return Fs.Snapshot.file(input as t.Fs.Snapshot.File.Options);
+function call(input: unknown): Promise<t.Snapshot.File.Result> {
+  return Snapshot.file(input as t.Snapshot.File.Options);
+}
+
+async function tempDir(prefix: string): Promise<t.StringAbsoluteDir> {
+  return (await Fs.makeTempDir({ prefix })).absolute;
+}
+
+async function write(path: t.StringPath, bytes: Uint8Array) {
+  await Fs.write(path, bytes, { throw: true });
+}
+
+async function read(path: t.StringPath) {
+  const result = await Fs.read(path);
+  if (result.error || !result.data) {
+    throw result.error ?? new Error('Snapshot fixture read failed.');
+  }
+  return result.data;
 }
 
 describe('Fs.Snapshot: bounded stable file snapshots', () => {
-  it('exposes frozen typed runtime libraries', () => {
-    expect(Object.keys(Fs.Snapshot)).to.eql(['Is', 'file']);
-    expect(Object.keys(Fs.Snapshot.Is)).to.eql(['failure']);
-    expect(Object.isFrozen(Fs.Snapshot)).to.eql(true);
-    expect(Object.isFrozen(Fs.Snapshot.Is)).to.eql(true);
-    expectTypeOf(Fs.Snapshot.file).toEqualTypeOf<t.Fs.Snapshot.File.Method>();
+  it('exposes one frozen typed module through the standalone and composed surfaces', () => {
+    expect(Snapshot).to.equal(Fs.Snapshot);
+    expect(Object.keys(Snapshot)).to.eql(['Is', 'file']);
+    expect(Object.keys(Snapshot.Is)).to.eql(['failure']);
+    expect(Object.isFrozen(Snapshot)).to.eql(true);
+    expect(Object.isFrozen(Snapshot.Is)).to.eql(true);
+    expectTypeOf(Snapshot).toEqualTypeOf<t.Snapshot.Lib>();
+    expectTypeOf(Snapshot.file).toEqualTypeOf<t.Snapshot.File.Method>();
   });
 
   it('returns a frozen exact record with mutable, exact, exclusively owned bytes', async () => {
-    const root = await Deno.makeTempDir({ prefix: 'sys-fs-snapshot-' });
+    const root = await tempDir('sys-fs-snapshot-');
     const path = Fs.join(root, 'source.bin') as t.StringAbsolutePath;
     const source = new Uint8Array([1, 2, 3, 4]);
 
     try {
-      await Deno.writeFile(path, source);
-      const options: t.Fs.Snapshot.File.Options = {
+      await write(path, source);
+      const options: t.Snapshot.File.Options = {
         root,
         path,
         maxBytes: source.byteLength,
         timeout,
       };
-      const snapshot: t.Fs.Snapshot.File.Result = await Fs.Snapshot.file(options);
+      const snapshot: t.Snapshot.File.Result = await Snapshot.file(options);
 
       expect(snapshot).to.include({ path, byteLength: 4 });
       expect(['device-inode', 'metadata-only']).to.include(snapshot.evidence);
@@ -60,24 +79,24 @@ describe('Fs.Snapshot: bounded stable file snapshots', () => {
       expect(snapshot.bytes.buffer.byteLength).to.eql(snapshot.byteLength);
       expect((snapshot.bytes.buffer as ArrayBuffer).resizable).to.eql(false);
       expect((snapshot.bytes.buffer as ArrayBuffer).detached).to.eql(false);
-      expectTypeOf(snapshot).toEqualTypeOf<t.Fs.Snapshot.File.Result>();
+      expectTypeOf(snapshot).toEqualTypeOf<t.Snapshot.File.Result>();
 
       snapshot.bytes[0] = 99;
-      expect(await Deno.readFile(path)).to.eql(source);
-      await Deno.writeFile(path, new Uint8Array([8, 8, 8, 8]));
+      expect(await read(path)).to.eql(source);
+      await write(path, new Uint8Array([8, 8, 8, 8]));
       expect(snapshot.bytes).to.eql(new Uint8Array([99, 2, 3, 4]));
     } finally {
-      await Deno.remove(root, { recursive: true });
+      await Fs.remove(root);
     }
   });
 
   it('normalizes the selected absolute path and enforces exact cap-plus-one limits', async () => {
-    const root = await Deno.makeTempDir({ prefix: 'sys-fs-snapshot-limit-' });
+    const root = await tempDir('sys-fs-snapshot-limit-');
     const empty = Fs.join(root, 'empty') as t.StringAbsolutePath;
     const full = Fs.join(root, 'full') as t.StringAbsolutePath;
     try {
-      await Deno.writeFile(empty, new Uint8Array());
-      await Deno.writeFile(full, new Uint8Array([1, 2, 3]));
+      await write(empty, new Uint8Array());
+      await write(full, new Uint8Array([1, 2, 3]));
 
       const emptyResult = await Fs.Snapshot.file({ root, path: empty, maxBytes: 0, timeout });
       expect(emptyResult.byteLength).to.eql(0);
@@ -101,19 +120,19 @@ describe('Fs.Snapshot: bounded stable file snapshots', () => {
         'source-limit',
       );
     } finally {
-      await Deno.remove(root, { recursive: true });
+      await Fs.remove(root);
     }
   });
 
   it('snapshots exact option values synchronously without invoking accessors or proxy traps', async () => {
-    const root = await Deno.makeTempDir({ prefix: 'sys-fs-snapshot-input-' });
+    const root = await tempDir('sys-fs-snapshot-input-');
     const first = Fs.join(root, 'first') as t.StringAbsolutePath;
     const second = Fs.join(root, 'second') as t.StringAbsolutePath;
     try {
-      await Deno.writeFile(first, new Uint8Array([1]));
-      await Deno.writeFile(second, new Uint8Array([2]));
+      await write(first, new Uint8Array([1]));
+      await write(second, new Uint8Array([2]));
 
-      const options: t.Fs.Snapshot.File.Options = {
+      const options: t.Snapshot.File.Options = {
         root,
         path: first,
         maxBytes: 1,
@@ -171,7 +190,7 @@ describe('Fs.Snapshot: bounded stable file snapshots', () => {
         'invalid-options',
       );
     } finally {
-      await Deno.remove(root, { recursive: true });
+      await Fs.remove(root);
     }
   });
 
@@ -229,17 +248,17 @@ describe('Fs.Snapshot: bounded stable file snapshots', () => {
   });
 
   it('rejects symlinked roots, ancestors, and final files without following them', async () => {
-    const workspace = await Deno.makeTempDir({ prefix: 'sys-fs-snapshot-link-' });
+    const workspace = await tempDir('sys-fs-snapshot-link-');
     const root = Fs.join(workspace, 'root') as t.StringAbsoluteDir;
     const outside = Fs.join(workspace, 'outside') as t.StringAbsoluteDir;
     const rootLink = Fs.join(workspace, 'root-link') as t.StringAbsoluteDir;
     try {
-      await Deno.mkdir(root);
-      await Deno.mkdir(outside);
-      await Deno.writeFile(Fs.join(outside, 'file'), new Uint8Array([1]));
-      await Deno.symlink(root, rootLink, { type: 'dir' });
-      await Deno.symlink(outside, Fs.join(root, 'ancestor'), { type: 'dir' });
-      await Deno.symlink(Fs.join(outside, 'file'), Fs.join(root, 'final'), { type: 'file' });
+      await Fs.ensureDir(root);
+      await Fs.ensureDir(outside);
+      await write(Fs.join(outside, 'file'), new Uint8Array([1]));
+      await Fs.ensureSymlink(root, rootLink);
+      await Fs.ensureSymlink(outside, Fs.join(root, 'ancestor'));
+      await Fs.ensureSymlink(Fs.join(outside, 'file'), Fs.join(root, 'final'));
 
       await expectFailure(
         Fs.Snapshot.file({
@@ -264,12 +283,12 @@ describe('Fs.Snapshot: bounded stable file snapshots', () => {
         'unsafe-filesystem',
       );
     } finally {
-      await Deno.remove(workspace, { recursive: true });
+      await Fs.remove(workspace);
     }
   });
 
   it('authenticates fixed frozen failures without trusting structural lookalikes', async () => {
-    const root = await Deno.makeTempDir({ prefix: 'sys-fs-snapshot-failure-' });
+    const root = await tempDir('sys-fs-snapshot-failure-');
     const path = Fs.join(root, 'missing') as t.StringAbsolutePath;
     try {
       const error = await expectFailure(
@@ -301,15 +320,15 @@ describe('Fs.Snapshot: bounded stable file snapshots', () => {
       expect(Fs.Snapshot.Is.failure(proxy)).to.eql(false);
       expect(trapped).to.eql(false);
     } finally {
-      await Deno.remove(root, { recursive: true });
+      await Fs.remove(root);
     }
   });
 
   it('bounds and snapshots nested cancellation fan-in', async () => {
-    const root = await Deno.makeTempDir({ prefix: 'sys-fs-snapshot-until-' });
+    const root = await tempDir('sys-fs-snapshot-until-');
     const path = Fs.join(root, 'file') as t.StringAbsolutePath;
     try {
-      await Deno.writeFile(path, new Uint8Array([1]));
+      await write(path, new Uint8Array([1]));
       const controller = new AbortController();
       const until: t.UntilInput[] = [controller.signal];
       const pending = Fs.Snapshot.file({ root, path, maxBytes: 1, timeout, until });
@@ -411,7 +430,7 @@ describe('Fs.Snapshot: bounded stable file snapshots', () => {
       );
       expect(proxyTrap).to.eql(false);
     } finally {
-      await Deno.remove(root, { recursive: true });
+      await Fs.remove(root);
     }
   });
 });

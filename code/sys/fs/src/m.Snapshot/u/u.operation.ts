@@ -1,6 +1,6 @@
 import { Dispose, Schedule, type t, Time } from '../common.ts';
-import { failure, hostFailure, isFailure } from './u.snapshot.failure.ts';
-import type { SnapshotInput } from './u.snapshot.input.ts';
+import { failure, hostFailure, isFailure } from './u.failure.ts';
+import type { SnapshotInput } from './u.input.ts';
 
 const now = globalThis.performance.now.bind(globalThis.performance);
 const TIMEOUT = Symbol('fs-snapshot-timeout');
@@ -34,7 +34,7 @@ export async function snapshotOperation<T>(
     throw failure('invalid-options');
   }
 
-  let terminal: t.Fs.Snapshot.Failure.Error | undefined;
+  let terminal: t.Snapshot.Failure.Error | undefined;
   const onAbort = () => {
     terminal ??= life.signal.reason === TIMEOUT ? failure('timeout') : failure('cancelled');
   };

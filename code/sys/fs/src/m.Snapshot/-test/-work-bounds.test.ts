@@ -1,7 +1,7 @@
 import { describe, expect, it, Rx, type t, Time } from '../../-test.ts';
-import { Fs } from '../mod.ts';
-import { snapshotFile } from '../u/u.snapshot.file.ts';
-import type { SnapshotHandle, SnapshotIo } from '../u/u.snapshot.io.ts';
+import { Fs } from '../../m.Fs/mod.ts';
+import { snapshotFileWithIo as snapshotFile } from '../u/u.file.ts';
+import type { SnapshotHandle, SnapshotIo } from '../u/u.io.ts';
 
 const root = Fs.resolve('/snapshot-root') as t.StringAbsoluteDir;
 const path = Fs.join(root, 'file') as t.StringAbsolutePath;
@@ -108,14 +108,14 @@ function harness(options: HarnessOptions = {}): Harness {
   return { io, reads, lstats, state };
 }
 
-function options(overrides: Partial<t.Fs.Snapshot.File.Options> = {}) {
+function options(overrides: Partial<t.Snapshot.File.Options> = {}) {
   return { root, path, maxBytes: 4, timeout, ...overrides };
 }
 
 async function expectFailure(
   promise: Promise<unknown>,
-  kind: t.Fs.Snapshot.Failure.Kind,
-): Promise<t.Fs.Snapshot.Failure.Error> {
+  kind: t.Snapshot.Failure.Kind,
+): Promise<t.Snapshot.Failure.Error> {
   let cause: unknown;
   try {
     await promise;

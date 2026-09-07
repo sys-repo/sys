@@ -1,5 +1,5 @@
 import { Arr, Is, Num, Obj, ServerIs, StdPath, type t } from '../common.ts';
-import { failure, isFailure } from './u.snapshot.failure.ts';
+import { failure, isFailure } from './u.failure.ts';
 
 const NativeArray = Array;
 const NativeObject = Object;

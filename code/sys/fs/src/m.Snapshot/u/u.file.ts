@@ -1,8 +1,8 @@
 import { Num, ServerIs, StdPath, type t } from '../common.ts';
-import { failure, hostFailure, isFailure } from './u.snapshot.failure.ts';
-import { normalizedPath, type SnapshotInput, snapshotOptions } from './u.snapshot.input.ts';
-import { DEFAULT_SNAPSHOT_IO, type SnapshotHandle, type SnapshotIo } from './u.snapshot.io.ts';
-import { type SnapshotContext, snapshotOperation, snapshotStart } from './u.snapshot.operation.ts';
+import { failure, hostFailure, isFailure } from './u.failure.ts';
+import { normalizedPath, type SnapshotInput, snapshotOptions } from './u.input.ts';
+import { DEFAULT_SNAPSHOT_IO, type SnapshotHandle, type SnapshotIo } from './u.io.ts';
+import { type SnapshotContext, snapshotOperation, snapshotStart } from './u.operation.ts';
 
 const NativeArrayBuffer = ArrayBuffer;
 const NativeDate = Date;
@@ -56,12 +56,15 @@ type Observation = {
   readonly inode: number | null;
 };
 
-/** Read one bounded stable file snapshot through an injectable host seam. */
-export async function snapshotFile(
+/** Read one bounded stable file snapshot through the public Snapshot boundary. */
+export const snapshotFile: t.Snapshot.File.Method = (options) => snapshotFileWithIo(options);
+
+/** Internal injectable host seam for deterministic lifecycle and race proof. */
+export async function snapshotFileWithIo(
   input: unknown,
   io: SnapshotIo = DEFAULT_SNAPSHOT_IO,
   started = snapshotStart(),
-): Promise<t.Fs.Snapshot.File.Result> {
+): Promise<t.Snapshot.File.Result> {
   const options = snapshotOptions(input);
   return await snapshotOperation(
     options,
@@ -74,13 +77,13 @@ async function readSnapshot(
   options: SnapshotInput,
   io: SnapshotIo,
   context: SnapshotContext,
-): Promise<t.Fs.Snapshot.File.Result> {
+): Promise<t.Snapshot.File.Result> {
   const { root, path } = normalizeSelection(options);
   const beforePath = await observeSelection(root, path, io, context);
 
   let handle: SnapshotHandle | undefined;
-  let result: t.Fs.Snapshot.File.Result | undefined;
-  let primary: t.Fs.Snapshot.Failure.Error | undefined;
+  let result: t.Snapshot.File.Result | undefined;
+  let primary: t.Snapshot.Failure.Error | undefined;
   try {
     context.checkpoint();
     try {
@@ -116,9 +119,7 @@ async function readSnapshot(
     const byteLength = getTypedArrayByteLength.call(bytes) as number;
     if (byteLength !== afterHandle.size) throw failure('source-changed');
 
-    const evidence: t.Fs.Snapshot.Evidence.Kind = completeIdentity
-      ? 'device-inode'
-      : 'metadata-only';
+    const evidence: t.Snapshot.Evidence.Kind = completeIdentity ? 'device-inode' : 'metadata-only';
     result = freeze({ path, byteLength, evidence, bytes });
   } catch (cause) {
     primary = asFailure(cause);
@@ -367,13 +368,13 @@ function assertOwnedBytes(input: Uint8Array, expected: number): void {
   }
 }
 
-function asFailure(cause: unknown): t.Fs.Snapshot.Failure.Error {
+function asFailure(cause: unknown): t.Snapshot.Failure.Error {
   return isFailure(cause) ? cause : hostFailure(cause);
 }
 
 function checkpointFailure(
   context: SnapshotContext,
-): t.Fs.Snapshot.Failure.Error | undefined {
+): t.Snapshot.Failure.Error | undefined {
   try {
     context.checkpoint();
     return undefined;
