@@ -1,33 +1,17 @@
 import { Type } from './common.ts';
-import { ocr } from './s.ocr.ts';
+import { remove } from './s.tools.remove.ts';
+import { move } from './s.tools.move.ts';
+import { copy } from './s.tools.copy.ts';
+import { ocr } from './s.tools.ocr.ts';
+import { zip } from './s.tools.zip.ts';
 
 /** Profile tools schema fragment. */
 export const tools = Type.Optional(
-  Type.Object(
-    {
-      remove: Type.Optional(
-        Type.Object(
-          {
-            enabled: Type.Optional(Type.Boolean()),
-            recursive: Type.Optional(Type.Boolean()),
-          },
-          { additionalProperties: false },
-        ),
-      ),
-      move: Type.Optional(
-        Type.Object(
-          { enabled: Type.Optional(Type.Boolean()) },
-          { additionalProperties: false },
-        ),
-      ),
-      copy: Type.Optional(
-        Type.Object(
-          { enabled: Type.Optional(Type.Boolean()) },
-          { additionalProperties: false },
-        ),
-      ),
-      ocr,
-    },
-    { additionalProperties: false },
-  ),
+  Type.Object({
+    remove,
+    move,
+    copy,
+    ocr,
+    zip,
+  }, { additionalProperties: false }),
 );

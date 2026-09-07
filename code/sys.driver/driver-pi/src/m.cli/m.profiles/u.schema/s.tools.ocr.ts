@@ -1,7 +1,7 @@
 import { OcrPdfPolicyBounds } from '../../../m.core/m.extension/m.ocr/u/u.bounds.ts';
 import { Type } from './common.ts';
 
-/** Profile OCR schema fragment. */
+/** Profile schema fragment for the OCR tool. */
 export const ocr = Type.Optional(
   Type.Object(
     {
@@ -27,6 +27,6 @@ export const ocr = Type.Optional(
 /**
  * Helpers:
  */
-function toJsonSchemaRange(bound: { readonly min: number; readonly max: number }) {
+function toJsonSchemaRange(bound: { min: number; max: number }) {
   return { minimum: bound.min, maximum: bound.max };
 }

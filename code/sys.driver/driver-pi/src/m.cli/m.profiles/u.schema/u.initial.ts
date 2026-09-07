@@ -22,6 +22,7 @@ export function initial(): t.PiCliProfiles.Yaml.Profile {
           timeoutMs: 120_000,
         },
       },
+      zip: { enabled: true },
     },
   };
 }
