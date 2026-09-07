@@ -21,6 +21,7 @@
     "./file": "./src/-exports/-file.ts",
     "./filemap": "./src/m.FileMap/mod.ts",
     "./path": "./src/m.Path/mod.ts",
+    "./observe": "./src/-exports/-observe.ts",
     "./pkg": "./src/m.Pkg/mod.ts",
     "./pkg/dist/verify": "./src/-exports/-pkg.dist.verify.ts",
     "./snapshot": "./src/m.Snapshot/mod.ts",

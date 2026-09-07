@@ -11,6 +11,7 @@ import { makeTempDir } from '../u/u.makeTmpDir.ts';
 import { read, readJson, readText, readYaml } from '../u/u.read.ts';
 import { remove } from '../u/u.remove.ts';
 import { rename } from '../u/u.rename.ts';
+import { realPath } from '../u/u.realPath.ts';
 import { resolve } from '../u/u.resolve.ts';
 import { stat } from '../u/u.stat.ts';
 import { toDir } from '../u/u.toDir.ts';
@@ -60,7 +61,7 @@ export const Fs: t.Fs.Lib = Object.freeze({
   rename,
   cwd,
   trimCwd: Path.trimCwd,
-  realPath: Deno.realPath,
+  realPath,
 
   join,
   resolve,
