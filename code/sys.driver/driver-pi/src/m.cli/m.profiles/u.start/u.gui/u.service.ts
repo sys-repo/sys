@@ -1,8 +1,8 @@
 import { DistServer } from '@sys/server/dist';
-import { PiFs } from '../../../m.core/u.fs.ts';
+import { PiFs } from '../../../../m.core/u.fs.ts';
 import { Arr, Err, Fs, Is, Num, Obj, Str, type t, Time } from '../common.ts';
-import type { Start } from '../u.start/u.gui/t.ts';
-import { START_GUI_RELEASE_EVIDENCE } from './u.start.gui.service.evidence.ts';
+import type { Start } from './t.ts';
+import { START_GUI_RELEASE_EVIDENCE } from './u.service.evidence.ts';
 
 const AUTHORITY_LIMITS = Object.freeze({
   manifestUrl: 4096,

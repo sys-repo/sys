@@ -25,7 +25,7 @@ import {
   snapshotDevelopmentAuthority,
   snapshotReleaseAuthority,
   START_GUI_SERVICE,
-} from '../../u/u.start.gui.service.ts';
+} from './u.service.ts';
 import { StartGuiPresentation } from './u.presentation.ts';
 import type { Start } from './t.ts';
 

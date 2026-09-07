@@ -10,7 +10,7 @@ import {
   snapshotDevelopmentAuthority,
   snapshotReleaseAuthority,
   START_GUI_SERVICE,
-} from '../u/u.start.gui.service.ts';
+} from '../u.start/u.gui/u.service.ts';
 import type { Start } from '../u.start/u.gui/t.ts';
 import { fakeGeneration, GENERATION_DIR, startedFixture } from './u.fixture.start.gui.ts';
 

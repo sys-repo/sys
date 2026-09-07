@@ -1,5 +1,5 @@
 import { Cli, Err, Fs, Is, pkg, Str, type t } from '../common.ts';
-import { START_GUI_SERVICE } from '../../u/u.start.gui.service.ts';
+import { START_GUI_SERVICE } from './u.service.ts';
 import type { Start } from './t.ts';
 import { normalizeScreenSize, renderScreen } from '../u.screen/u.render.ts';
 import { captureRootLink } from '../u.screen/u.render.serviceRow.ts';

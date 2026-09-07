@@ -1,6 +1,6 @@
 import { c, Cli, Fs, HashFmt, Is, type t } from '../common.ts';
 
-import { START_GUI_SERVICE } from '../../u/u.start.gui.service.ts';
+import { START_GUI_SERVICE } from '../u.gui/u.service.ts';
 import type { Start } from '../u.gui/t.ts';
 
 const SERVICE_LEFT_INSET = 2;

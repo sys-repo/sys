@@ -3,7 +3,7 @@ import { Cli } from '../common.ts';
 import { startDevelopmentWith, startWith } from '../u.start/u.gui/mod.ts';
 import type { Start } from '../u.start/u.gui/t.ts';
 import { StartGuiPresentation } from '../u.start/u.gui/u.presentation.ts';
-import { generationOpenArgs, START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
+import { generationOpenArgs, START_GUI_SERVICE } from '../u.start/u.gui/u.service.ts';
 import {
   asProfileRoot,
   bootstrapStatusFixture,

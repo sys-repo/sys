@@ -2,7 +2,7 @@ import { describe, expect, it, type t } from '../../../-test.ts';
 import { Cli, Err, Is } from '../common.ts';
 import type { Start } from '../u.start/u.gui/t.ts';
 import { StartGuiPresentation } from '../u.start/u.gui/u.presentation.ts';
-import { snapshotReleaseAuthority, START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
+import { snapshotReleaseAuthority, START_GUI_SERVICE } from '../u.start/u.gui/u.service.ts';
 import { deferred, GENERATION_DIR } from './u.fixture.start.gui.ts';
 
 type PresentationHarnessOptions = Readonly<{

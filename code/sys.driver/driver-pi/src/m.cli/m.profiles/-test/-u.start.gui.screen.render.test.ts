@@ -3,7 +3,7 @@ import { Cli, Fs } from '../common.ts';
 import type { Start } from '../u.start/u.gui/t.ts';
 import { StartGuiPresentation } from '../u.start/u.gui/u.presentation.ts';
 import { captureRootLink } from '../u.start/u.screen/u.render.serviceRow.ts';
-import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
+import { START_GUI_SERVICE } from '../u.start/u.gui/u.service.ts';
 import { DIST_DIGEST, GENERATION_DIR } from './u.fixture.start.gui.ts';
 
 const STATUS: t.StringUrl = 'http://127.0.0.1:45000/0123456789abcdefghijklmnopqrstuvwxyzabcd';

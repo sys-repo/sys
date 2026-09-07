@@ -1,6 +1,6 @@
 import { Fs, Is, type t } from '../common.ts';
 import type { Start } from '../u.start/u.gui/t.ts';
-import { START_GUI_SERVICE } from '../u/u.start.gui.service.ts';
+import { START_GUI_SERVICE } from '../u.start/u.gui/u.service.ts';
 export const DIST_DIGEST = `sha256-${'d'.repeat(59)}84346` as t.StringHash;
 export const GENERATION_DIR = '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir;
 export const GENERATION_HREF = Fs.Path.toFileUrl(GENERATION_DIR).href as t.StringUrl;

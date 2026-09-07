@@ -1,12 +1,12 @@
 import { describe, Err, expect, it } from '../../common.ts';
 import { pkg } from '../../../src/pkg.ts';
-import { START_GUI_RELEASE_EVIDENCE } from '../../../src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts';
-import { START_GUI_SERVICE } from '../../../src/m.cli/m.profiles/u/u.start.gui.service.ts';
-import { c, Fmt, Pkg, stripAnsi } from '../common.ts';
+import { START_GUI_RELEASE_EVIDENCE } from '../../../src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts';
+import { START_GUI_SERVICE } from '../../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
+import { c, Fmt, Fs, Pkg, stripAnsi } from '../common.ts';
 import { EVIDENCE, renderEvidence, renderEvidenceBoundOutput, writeEvidenceWith } from '../mod.ts';
 
 const EVIDENCE_LEAF = new URL(
-  '../../../src/m.cli/m.profiles/u/u.start.gui.service.evidence.ts',
+  '../../../src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts',
   import.meta.url,
 );
 
@@ -26,6 +26,20 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
     expect(START_GUI_RELEASE_EVIDENCE.expectedPkg.name).to.eql(pkg.name);
     expect(Object.isFrozen(START_GUI_RELEASE_EVIDENCE)).to.eql(true);
     expect(Object.isFrozen(START_GUI_RELEASE_EVIDENCE.expectedPkg)).to.eql(true);
+  });
+
+  it('targets the colocated evidence leaf without writing it', async () => {
+    expect(new URL(`../../../${EVIDENCE.outputPath}`, import.meta.url).href).to.eql(
+      EVIDENCE_LEAF.href,
+    );
+    const writes: unknown[] = [];
+    await writeEvidenceWith('candidate', {
+      writeTextFile(path, data) {
+        writes.push([path, data]);
+        return Promise.resolve();
+      },
+    });
+    expect(writes).to.eql([[Fs.Path.fromFileUrl(EVIDENCE_LEAF), 'candidate']]);
   });
 
   it('renders the checked-in evidence leaf byte-for-byte', async () => {
