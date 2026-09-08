@@ -1,10 +1,12 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 import { applyDeno } from './u.apply.ts';
 import { applyPackage } from './u.applyPackage.ts';
 import { applyYaml } from './u.applyYaml.ts';
 
 /**
- * Apply canonical deps to deps.yaml and projected files together.
+ * Apply deps.yaml, Deno imports, then the optional package target sequentially.
+ * Reject on the first failure without attempting later writes. Application is not transactional:
+ * earlier writes and partial bytes from a failed write may remain; no rollback is performed.
  */
 export async function applyFiles(
   input: {

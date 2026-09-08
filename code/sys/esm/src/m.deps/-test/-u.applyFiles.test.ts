@@ -1,7 +1,43 @@
-import { Deps, describe, expect, Fs, it, type t, Testing } from './common.ts';
+import { Deps, describe, expect, expectError, Fs, it, type t, Testing } from './common.ts';
 
 describe('Deps.applyFiles', () => {
   type DenoConfigJson = { imports?: Record<string, string>; tasks?: Record<string, string> };
+
+  it('YAML write failure → rejects and leaves later projection targets unchanged', async () => {
+    const fs = await Testing.dir('EsmDeps.applyFiles.writeFailure');
+    const depsPath = fs.join('deps.yaml');
+    const denoPath = fs.join('deno.json');
+    const importMapPath = fs.join('imports.json');
+    const packagePath = fs.join('package.json');
+    const entries = [
+      Deps.toEntry('npm:react@19.0.0', { target: ['deno.json', 'package.json'] }),
+    ];
+    await Fs.ensureDir(depsPath);
+    await Fs.writeJson(denoPath, { importMap: './imports.json' }, { throw: true });
+    await Fs.writeJson(importMapPath, { imports: { react: 'npm:react@18.2.0' } }, { throw: true });
+    await Fs.writeJson(packagePath, { dependencies: { react: '18.2.0' } }, { throw: true });
+    const targets = [denoPath, importMapPath, packagePath];
+    const before = [];
+    for (const path of targets) {
+      const file = await Fs.readText(path);
+      expect(file.ok).to.eql(true);
+      before.push(file.data);
+    }
+
+    await expectError(() =>
+      Deps.applyFiles(
+        { depsPath, denoFilePath: denoPath, packageFilePath: packagePath },
+        entries,
+      )
+    );
+    const after = [];
+    for (const path of targets) {
+      const file = await Fs.readText(path);
+      expect(file.ok).to.eql(true);
+      after.push(file.data);
+    }
+    expect(after).to.eql(before);
+  });
 
   it('writes deps.yaml and projected deno imports together', async () => {
     const fs = await Testing.dir('EsmDeps.applyFiles');

@@ -29,7 +29,7 @@ export async function applyPackage(
   if (next.overrides && !isEmptyRecord(next.overrides)) packageJson.overrides = next.overrides;
   else delete packageJson.overrides;
 
-  await Fs.writeJson(packageFilePath, packageJson);
+  await Fs.writeJson(packageFilePath, packageJson, { throw: true });
 
   return {
     packageFilePath,

@@ -1,6 +1,16 @@
-import { Deps, describe, expect, Fs, it, type t, Testing } from './common.ts';
+import { Deps, describe, expect, expectError, Fs, it, type t, Testing } from './common.ts';
 
 describe('Deps.applyPackage', () => {
+  it('directory at the package target → rejects the write failure', async () => {
+    const fs = await Testing.dir('EsmDeps.applyPackage.writeFailure');
+    const packagePath = fs.join('package.json');
+    const entry = Deps.toEntry('npm:react@19.0.0', { target: 'package.json' });
+    await Fs.ensureDir(packagePath);
+
+    await expectError(() => Deps.applyPackage(packagePath, [entry]));
+    expect(await Fs.Is.dir(packagePath)).to.eql(true);
+  });
+
   it('projects package override policy into package.json', async () => {
     const fs = await Testing.dir('EsmDeps.applyPackage.overrides');
     const packagePath = fs.join('package.json');
