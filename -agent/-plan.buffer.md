@@ -2,6 +2,9 @@ omakase - お任せ
 
 
 
+
+
+
 @sys.driver-pi
 start-ui-release-evidence.plan.md
 - [x] [start-ui.design.md](start-ui.design.md)
@@ -102,16 +105,23 @@ zip.plan.md
 - [x] 62daa0c38 feat(driver-pi): add bounded read-only ZIP extension
 - [x] 1dbe61766 feat(driver-pi): enable ZIP inspection in profiles
 - [x] 08956e1b0 refactor(driver-pi): nest filesystem extension under sandbox
-- [ ] [rooted-streaming-tree.plan.md](../@sys.fs/rooted-streaming-tree.plan.md)
-- [ ] feat(zip): add bounded ZIP extraction through a tree sink
+- [x] [rooted-streaming-tree.plan.md](../@sys.fs/rooted-streaming-tree.plan.md)
+- [x] 2487b8b62 feat(zip): add bounded ZIP extraction through a tree sink
+- [x] [pi-dependency-metadata.plan.md](../@sys.driver-pi/pi-dependency-metadata.plan.md)
 - [ ] feat(driver-pi): expose ZIP extraction under a cooperative-filesystem contract
-- [ ] [dispose-until-snapshot.plan.md](../@sys.std/dispose-until-snapshot.plan.md)
+- [x] [dispose-until-snapshot.plan.md](../@sys.std/dispose-until-snapshot.plan.md)
 
-@sys.fs
-rooted-streaming-tree.plan.md
-- [x] GATE human accepts cooperative-filesystem ZIP extraction and admits this Rooted writer as its current filesystem prerequisite
-- [ ] feat(fs): add owned streaming tree construction to Rooted stages
+pi-dependency-metadata.plan.md
+- [x] 7d4c4332e fix(esm): propagate dependency file write failures
+- [x] bb8e2bb51 fix(driver-pi): refresh host metadata after dependency updates
 
-@sys.std
-dispose-until-snapshot.plan.md
-- [ ] refactor(std): centralize bounded cancellation-input admission
+
+
+@sys.cli
+system-owned-spinner.plan.md
+- [ ] feat(process): expose canonical stderr output
+- [ ] fix(driver-vite): stop build feedback before failure output
+- [ ] fix(tools): stop daemon feedback before clearing the terminal
+- [ ] refactor(cli): replace Ora with an owned spinner runtime
+- [ ] chore(deps): remove Ora from the workspace graph
+
