@@ -13,19 +13,36 @@ export type Fixture = {
 };
 
 export async function setup(): Promise<Fixture> {
-  const workspace = (await Deno.makeTempDir({
-    dir: Deno.cwd(),
-    prefix: '.tmp-fs-rooted-',
-  })) as t.StringAbsoluteDir;
+  const dir = Fs.Path.fromFileUrl(new URL('../../../../.tmp/fs-rooted/', import.meta.url));
+  await Deno.mkdir(dir, { recursive: true });
+  const { absolute: workspace } = await Fs.makeTempDir({ dir, prefix: 'fs-' });
   return {
     workspace,
-    root: Fs.join(workspace, 'root') as t.StringAbsoluteDir,
-    outside: Fs.join(workspace, 'outside') as t.StringAbsoluteDir,
+    root: Fs.join(workspace, 'root'),
+    outside: Fs.join(workspace, 'outside'),
   };
 }
 
 export async function teardown(fixture: Fixture): Promise<void> {
-  await Deno.remove(fixture.workspace, { recursive: true }).catch(() => undefined);
+  await removeFixture(fixture.workspace);
+}
+
+/** Dispose settled test-owned trees; concurrent path replacement is outside this helper's contract. */
+async function removeFixture(path: string): Promise<void> {
+  const info = await Fs.lstat(path);
+  if (!info) return;
+
+  if (info.isDirectory && !info.isSymlink) {
+    // Sealing removes directory write access. Restore owner access only for fixture disposal.
+    // Never chmod files: they may be hard-linked to a preserved fixture outside this tree.
+    if (Deno.build.os !== 'windows' && info.mode !== null && (info.mode & 0o700) !== 0o700) {
+      await Deno.chmod(path, (info.mode & 0o7777) | 0o700);
+    }
+    for await (const entry of Deno.readDir(path)) {
+      await removeFixture(Fs.join(path, entry.name));
+    }
+  }
+  await Deno.remove(path);
 }
 
 export function wrapFile(
