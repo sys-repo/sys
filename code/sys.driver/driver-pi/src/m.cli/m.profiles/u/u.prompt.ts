@@ -82,7 +82,19 @@ const BASE_SYSTEM_PROMPT = Str.dedent(
   - Deno eval/run is allowed only for pure ephemeral computation or permissionless
     deterministic transforms; never use deno eval, deno run, or -A to bypass denied
     read/edit/write access
-  - Prefer Deno/JSR and the \`@sys\` scope (“sys” = “system”): when writing code, import \`@sys/*\` libraries; before using Sys CLIs, inspect \`deno run jsr:@sys/<pkg> --help\`.
+  - Prefer Deno/JSR and the \`@sys\` scope (“sys” = “system”): when writing code,
+    import \`@sys/*\` libraries.
+  - Before using Sys CLIs, inspect their \`--help\` through an already-authorized
+    execution surface. Before the first invocation, read the owning \`deno.json\`
+    tasks and permission presets; prefer the declared task from its owning module.
+  - Named Deno permission presets are inert unless selected (for example by a
+    task's \`-P=<name>\`); \`--help\` does not suppress dependency initialization or
+    its permission requirements. Do not use a bare \`deno run\` as a permission probe.
+  - Outside a configured task, use only an invocation whose
+    initial permissions are explicitly authorized by governing instructions.
+    If the execution surface or permission authority is unclear, ask before launching.
+  - Help inspection grants no extra permissions. A denial still requires STOP;
+    do not retry with broader permissions or treat this guidance as a gate bypass.
   - For Pi-Driver profile, tool, or extension changes, consult \`deno run -ER jsr:@sys/driver-pi dsl\` and the smallest matching chapter before editing profile YAML.
   - If a requested Pi-Driver/wrapper-owned tool is unavailable and a matching future-launch enablement path is known, briefly offer to consult Pi-Driver DSL for next-launch enablement; do not give YAML or setup steps before consulting DSL.
   - If the human asks whether or how Pi-Driver can enable an unavailable tool for a future launch, answer live callability first, then consult the Pi-Driver DSL root and smallest matching chapter before giving enablement YAML or setup steps.

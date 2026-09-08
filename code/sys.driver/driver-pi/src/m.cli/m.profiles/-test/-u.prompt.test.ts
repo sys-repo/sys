@@ -8,6 +8,40 @@ import {
 } from '../u/u.prompt.ts';
 
 describe(`@sys/driver-pi/cli/Profiles/u.prompt`, () => {
+  it('DEFAULT_SYSTEM_PROMPT → resolves help authority before launch without weakening stops', () => {
+    const prompt = DEFAULT_SYSTEM_PROMPT;
+    const policy = {
+      requiresHelp: prompt.includes('Before using Sys CLIs, inspect their `--help`'),
+      selectsTaskUpfront:
+        prompt.includes('Before the first invocation, read the owning `deno.json`') &&
+        prompt.includes('prefer the declared task from its owning module'),
+      explainsPresets: prompt.includes('permission presets are inert unless selected') &&
+        prompt.includes('`--help` does not suppress dependency initialization'),
+      rejectsPermissionProbes: prompt.includes(
+        'Do not use a bare `deno run` as a permission probe',
+      ),
+      requiresInitialAuthority: prompt.includes(
+        'initial permissions are explicitly authorized by governing instructions',
+      ) && prompt.includes('ask before launching'),
+      preservesDenialStop: prompt.includes('A denial still requires STOP') &&
+        prompt.includes('do not retry with broader permissions') &&
+        prompt.endsWith(PROVENANCE_SAFETY_PROMPT),
+      omitsBareHelpRecipe: !prompt.includes('deno run jsr:@sys/<pkg> --help'),
+      preservesDslInvocation: prompt.includes('deno run -ER jsr:@sys/driver-pi dsl'),
+    };
+
+    expect(policy).to.eql({
+      requiresHelp: true,
+      selectsTaskUpfront: true,
+      explainsPresets: true,
+      rejectsPermissionProbes: true,
+      requiresInitialAuthority: true,
+      preservesDenialStop: true,
+      omitsBareHelpRecipe: true,
+      preservesDslInvocation: true,
+    });
+  });
+
   it('DEFAULT_SYSTEM_PROMPT → permits Git observation without granting mutation', () => {
     const prompt = DEFAULT_SYSTEM_PROMPT;
     const policy = {
