@@ -24,6 +24,7 @@
     "./delete": "./src/m.Delete/mod.ts",
     "./dispose": "./src/m.Dispose/mod.ts",
     "./dispose/compat": "./src/m.Dispose/m.Compat/mod.ts",
+    "./dispose/server": "./src/m.Dispose/m.Server/mod.ts",
     "./error": "./src/-exports/-err.ts",
     "./fn": "./src/m.Fn/mod.ts",
     "./glob": "./src/m.Glob/mod.ts",
@@ -67,4 +68,3 @@
     }
   }
 }
-

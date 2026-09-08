@@ -1,9 +1,6 @@
-import { Arr, Is, Num, Obj, ServerIs, StdPath, type t } from '../common.ts';
+import { Is, Num, ServerDispose, ServerIs, StdPath, type t } from '../common.ts';
 import { failure, isFailure } from './u.failure.ts';
 
-type UntilBudget = { nodes: number };
-
-const NativeArray = Array;
 const NativeObject = Object;
 const freeze = NativeObject.freeze;
 const getOwnPropertyDescriptor = NativeObject.getOwnPropertyDescriptor;
@@ -12,8 +9,6 @@ const getPrototypeOf = NativeObject.getPrototypeOf;
 const ownKeys = Reflect.ownKeys;
 
 const MAX_PATH_CODE_UNITS = 32_768;
-const MAX_UNTIL_NODES = 256;
-const MAX_UNTIL_DEPTH = 32;
 
 /** Snapshot one exact file-snapshot options record without invoking its properties. */
 export function snapshotOptions(input: unknown): t.SnapshotInput {
@@ -63,96 +58,15 @@ function finiteTimeout(input: unknown): t.Msecs {
   return input as t.Msecs;
 }
 
-function untilInput(input: unknown): t.UntilInput | undefined {
-  if (input === undefined) return undefined;
+function untilInput(input: unknown): t.UntilInput {
   try {
-    return snapshotUntil(input, new WeakSet<object>(), { nodes: 0 }, 0);
-  } catch (cause) {
+    return ServerDispose.Snapshot.until(input);
+  } catch (error) {
+    // Snapshot owns this wrapper; only this owner authenticates the opaque caller exception.
+    const cause = Is.object(error) ? getOwnPropertyDescriptor(error, 'cause')?.value : undefined;
     if (isFailure(cause)) throw cause;
     throw failure('invalid-options');
   }
-}
-
-function snapshotUntil(
-  input: unknown,
-  seen: WeakSet<object>,
-  budget: UntilBudget,
-  arrayDepth: number,
-): t.UntilInput {
-  if (!Is.object(input) || ServerIs.Native.proxy(input)) throw failure('invalid-options');
-  consumeUntilNode(budget);
-  if (!Arr.isArray(input)) {
-    if (hasProxyPrototype(input) || !Is.untilInput(input)) throw failure('invalid-options');
-    return input as t.UntilInput;
-  }
-
-  if (
-    arrayDepth >= MAX_UNTIL_DEPTH ||
-    getPrototypeOf(input) !== NativeArray.prototype ||
-    seen.has(input)
-  ) {
-    throw failure('invalid-options');
-  }
-  seen.add(input);
-
-  const lengthDescriptor = getOwnPropertyDescriptor(input, 'length');
-  if (!lengthDescriptor || !Obj.hasOwn(lengthDescriptor, 'value')) {
-    throw failure('invalid-options');
-  }
-  const length = lengthDescriptor.value;
-  if (
-    !Num.Is.safeInt(length) ||
-    length < 0 ||
-    length > MAX_UNTIL_NODES - budget.nodes
-  ) {
-    throw failure('invalid-options');
-  }
-
-  const descriptors = getOwnPropertyDescriptors(input);
-  const keys = ownKeys(input);
-  if (keys.length !== length + 1) throw failure('invalid-options');
-
-  const snapshot: t.UntilInput[] = [];
-  for (let index = 0; index < length; index++) {
-    const key = String(index);
-    if (!Obj.hasOwn(descriptors, key)) throw failure('invalid-options');
-    const descriptor = descriptors[key];
-    if (!descriptor || !('value' in descriptor) || descriptor.enumerable !== true) {
-      throw failure('invalid-options');
-    }
-    snapshot.push(snapshotUntilValue(descriptor.value, seen, budget, arrayDepth + 1));
-  }
-  if (keys.some((key) => key !== 'length' && !/^\d+$/u.test(String(key)))) {
-    throw failure('invalid-options');
-  }
-  return freeze(snapshot) as t.UntilInput;
-}
-
-function snapshotUntilValue(
-  input: unknown,
-  seen: WeakSet<object>,
-  budget: UntilBudget,
-  arrayDepth: number,
-): t.UntilInput {
-  if (input === undefined) {
-    consumeUntilNode(budget);
-    return undefined;
-  }
-  return snapshotUntil(input, seen, budget, arrayDepth);
-}
-
-function consumeUntilNode(budget: UntilBudget): void {
-  budget.nodes++;
-  if (budget.nodes > MAX_UNTIL_NODES) throw failure('invalid-options');
-}
-
-function hasProxyPrototype(input: object): boolean {
-  let current = getPrototypeOf(input);
-  while (current) {
-    if (ServerIs.Native.proxy(current)) return true;
-    current = getPrototypeOf(current);
-  }
-  return false;
 }
 
 function exactRecord(

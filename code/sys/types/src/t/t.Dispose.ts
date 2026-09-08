@@ -62,7 +62,7 @@ export type DisposeInput =
   | t.LifecycleView
   | AbortSignal
   | undefined
-  | DisposeInput[];
+  | readonly DisposeInput[];
 
 /** Optional lifetime signal accepted at public `until` boundaries. */
 export type UntilInput = DisposeInput;

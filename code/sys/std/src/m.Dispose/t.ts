@@ -2,6 +2,27 @@ import type { t } from './common.ts';
 
 /** Type contracts for observable disposal lifecycle helpers. */
 export declare namespace Dispose {
+  /** Bounded capture of cancellation-input containers, retaining live leaf identities. */
+  export namespace Snapshot {
+    /** Synchronous server-runtime capture; invalid inputs throw `TypeError('Invalid UntilInput')`. */
+    export type Lib = {
+      /**
+       * Copy and freeze containers (256 nodes / 32 array levels); never subscribe or dispose.
+       * Throws a fixed-message TypeError: admission refusal has no own `cause`; exceptions from
+       * capture are retained by identity in an own `cause`, even when the thrown value is undefined.
+       */
+      readonly until: (input?: unknown) => Until;
+    };
+
+    /** Recursively readonly containers, not frozen leaves or captured cancellation state. */
+    export type Until = Exclude<t.UntilInput, readonly unknown[]> | readonly Until[];
+  }
+
+  /** Opt-in Deno/Node surface; the universal runtime does not expose Snapshot. */
+  export namespace Server {
+    export type Lib = Dispose.Lib & { readonly Snapshot: Dispose.Snapshot.Lib };
+  }
+
   /** Lifecycle factories, signals, and authority-preserving or authority-free projections. */
   export type Lib = {
     /** Create a synchronous lifecycle whose disposal also aborts its signal. */
