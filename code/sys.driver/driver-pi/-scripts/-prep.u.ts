@@ -1,5 +1,5 @@
-import { Fs } from '@sys/fs';
-import { Is } from '@sys/std/is';
+import { DenoDeps } from '@sys/driver-deno/runtime';
+import { Fs, Is, Semver } from './common.ts';
 import { PI_AGENT_IMPORT_BASE } from '../src/m.cli/u/u.resolve.pkg.ts';
 
 export type PrepPaths = {
@@ -16,7 +16,7 @@ const PI_AGENT_IMPORT_BASE_LINE =
   `export const PI_AGENT_IMPORT_BASE = '${PI_AGENT_IMPORT_BASE}' as const;`;
 const PI_AGENT_IMPORT_EXPRESSION =
   'export const PI_AGENT_IMPORT = `${PI_AGENT_IMPORT_BASE}@${PI_AGENT_IMPORT_VERSION}` as const;';
-const PI_AGENT_IMPORT_VERSION_PATTERN = /const PI_AGENT_IMPORT_VERSION = '[^']+' as const;/;
+const PI_AGENT_IMPORT_VERSION_PATTERN = /^const PI_AGENT_IMPORT_VERSION = '[^']+' as const;$/gm;
 
 export const PATH = {
   fromRoot(root: string): PrepPaths {
@@ -26,6 +26,31 @@ export const PATH = {
     };
   },
 } as const;
+
+/**
+ * Keep the release fallback derived from dependency authority.
+ * Check mode rejects drift without writing; apply writes only on change.
+ * Failures reject without rollback or atomic-replacement guarantees.
+ */
+export async function syncPiAgentImport(path: PrepPaths, options: { check?: boolean } = {}) {
+  const specifier = await resolvePiAgentImport(path.rootDepsYaml, DenoDeps);
+  const source = await Fs.readText(path.resolvePkgFile);
+  if (!source.ok || !Is.string(source.data)) {
+    throw new Error(`Failed to read Pi dependency metadata: ${path.resolvePkgFile}`, {
+      cause: source.error,
+    });
+  }
+  const next = pinPiAgentImport(source.data, specifier);
+  const changed = next !== source.data;
+  if (changed && options.check) {
+    throw new Error(
+      `Stale Pi dependency metadata: ${path.resolvePkgFile}. ` +
+        'Run deno task prep:deps in code/sys.driver/driver-pi.',
+    );
+  }
+  if (changed) await Fs.write(path.resolvePkgFile, next, { throw: true });
+  return { changed, specifier, path: path.resolvePkgFile } as const;
+}
 
 export async function resolvePiAgentImport(
   source: string,
@@ -38,6 +63,7 @@ export async function resolvePiAgentImport(
   if (!Is.string(value)) {
     throw new Error(`Missing deps import for package "${PI_AGENT_IMPORT_BASE}": ${source}`);
   }
+  parsePiAgentVersion(value);
   return value;
 }
 
@@ -45,9 +71,9 @@ export function pinPiAgentImport(source: string, specifier: string): string {
   const version = parsePiAgentVersion(specifier);
   assertCurrentPiAgentImportShape(source);
 
-  if (!PI_AGENT_IMPORT_VERSION_PATTERN.test(source)) {
+  if (source.match(PI_AGENT_IMPORT_VERSION_PATTERN)?.length !== 1) {
     throw new Error(
-      'Could not locate PI_AGENT_IMPORT_VERSION in m.cli/u/u.resolve.pkg.ts',
+      'Expected exactly one PI_AGENT_IMPORT_VERSION in m.cli/u/u.resolve.pkg.ts',
     );
   }
 
@@ -57,6 +83,9 @@ export function pinPiAgentImport(source: string, specifier: string): string {
   );
 }
 
+/**
+ * Helpers:
+ */
 function assertCurrentPiAgentImportShape(source: string) {
   if (!source.includes(PI_AGENT_IMPORT_BASE_LINE)) {
     throw new Error(
@@ -78,7 +107,8 @@ function parsePiAgentVersion(specifier: string) {
   }
 
   const version = specifier.slice(prefix.length);
-  if (!version) {
+  const parsed = Semver.parse(version);
+  if (parsed.error || Semver.toString(parsed.version) !== version) {
     throw new Error(`Expected pinned Pi coding agent npm specifier: ${specifier}`);
   }
   return version;

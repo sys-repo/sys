@@ -13,6 +13,7 @@
     "lint": "deno run -P=clean ./-scripts/main.ts --lint",
     "clean": "deno run -P=clean ./-scripts/main.ts --clean",
     "upgrade": "deno run -P=upgrade ./-scripts/task.upgrade.ts",
+    "test:upgrade": "deno test -P=test ./-scripts/-test/-task.upgrade.test.ts",
     "prep": "deno run -P=dev ./-scripts/main.ts --prep-all",
     "prep:ahead": "deno run -P=dev ./-scripts/main.ts --prep-all --ahead-only",
     "prep:imports": "deno run -P=dev ./-scripts/main.ts --prep",
@@ -161,4 +162,3 @@
     }
   }
 }
-

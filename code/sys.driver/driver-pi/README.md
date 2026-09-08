@@ -108,8 +108,21 @@ deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf
 
 ## Upstream
 
-The workspace `deps.yaml` owns the upstream Pi npm package specifier and exact version.
-`deno task prep` copies that pin into the fallback used when no `deps.yaml` is discoverable.
+Root `deps.yaml` selects the upstream Pi version. The launcher carries a derived fallback so it can
+run without a local Pi dependency declaration. A local declaration takes precedence over that
+fallback; an explicit package override takes precedence over both.
+
+Edit the manifest, not the fallback. Root `deno task upgrade` refreshes the fallback after applying
+the root manifest. After manual dependency edits, use root `deno task prep` for full preparation.
+Package `deno task prep:deps` repairs only the fallback; import and lock files must already be
+current.
+
+Package `deno task check:deps` rejects fallback drift without writing; package `check` includes it.
+`deno task test:deps` also checks agreement with the import map. Version agreement does not
+establish compatibility with the upstream Pi host.
+
+An upgrade is not a transaction: a refresh failure rejects the task but leaves prior dependency
+writes in place. The printed dependency summary is not confirmation that the whole task succeeded.
 
 ## Runtime policy
 
