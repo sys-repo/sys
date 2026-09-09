@@ -1,12 +1,58 @@
 zip.plan.md
 - [x] e3cd77745 chore(archive): establish minimal package baseline
-- [ ] feat(zip): add strict bounded ZIP32 inspection and integrity
-- [ ] feat(fs): add bounded stable file snapshots
-- [ ] feat(driver-pi): expose bounded ZIP inspection and integrity tools
-- [ ] GATE human accepts the cooperative-filesystem ZIP extraction threat model
-- [ ] feat(fs): add owned streaming tree construction to Rooted stages
-- [ ] feat(zip): add bounded ZIP extraction through a tree sink
-- [ ] feat(driver-pi): expose ZIP extraction under a cooperative-filesystem contract
+- [x] ebca1f132 feat(zip): add strict bounded ZIP32 inspection and integrity
+- [x] a121f91d6 test(zip): prove direct Fs snapshot interoperability
+- [x] 3ca35dc7c fix(zip): enforce cancellation fan-in bounds
+- [x] 6b2098dbd feat(fs): add bounded stable file snapshots
+- [x] c88540147 docs(fs): clarify stable snapshot evidence and limits
+- [x] ac9ce8579 refactor(fs): establish standalone Snapshot module
+- [x] 063bdfb51 feat(fs): expose lstat and realPath through a narrow observation entry
+- [x] b6d5762f0 refactor(fs): narrow observation dependencies and verify public imports
+- [x] 973a448f2 refactor(driver-pi): factor profile tool schemas
+- [x] 62daa0c38 feat(driver-pi): add bounded read-only ZIP extension
+- [x] 1dbe61766 feat(driver-pi): enable ZIP inspection in profiles
+- [x] 08956e1b0 refactor(driver-pi): nest filesystem extension under sandbox
+- [x] [rooted-streaming-tree.plan.md](../@sys.fs/rooted-streaming-tree.plan.md)
+- [x] 2487b8b62 feat(zip): add bounded ZIP extraction through a tree sink
+- [x] [pi-dependency-metadata.plan.md](../@sys.driver-pi/pi-dependency-metadata.plan.md)
+- [x] 8294315b9 fix(fs): preserve Rooted publication and cleanup failure evidence
+- [x] 951a682ec feat(driver-pi): expose ZIP extraction under a cooperative-filesystem contract
+- [x] [dispose-until-snapshot.plan.md](../@sys.std/dispose-until-snapshot.plan.md)
+- [x] 431d5a769 fix(driver-pi): restore browser proof environment ordering
+
+## Completion
+
+The ZIP feature and final corrective item are landed. The implementation arc is complete;
+this plan is ready for separate retirement.
+Every checked local item reconciles to reachable history, and the three prerequisite plans have
+completed opening arcs. The human's cooperative-filesystem admission is recorded in the Rooted
+prerequisite. This file retains the implementation, decisions, proof, and limits.
+
+The extraction landing received a focused independent GO with no material target findings. The
+accepted artifact hashes, selected-host proof, and four independent native-I/O probes are recorded
+below. Archive fixture maintenance has separate owner-test evidence; it was outside the independent
+reviewer's stated approval scope. No additional ZIP behavior or architectural review is required;
+the final correction resolved the browser-task mismatch carried by the feature commit.
+
+The subsequent GUI test-rollup cleanup landed in `7d5257552`; its grouped task passed **4 suites /
+46 steps**. That commit also reordered ZIP test-common exports. These are adjacent test maintenance,
+not another ZIP feature item, and do not change the production extraction or artifact contract.
+
+Completion is scoped, not a claim of a green repository-wide suite. The extraction commit also
+carried the unrelated `test-browser-frozen.env` ordering change that had been excluded from ZIP
+review. A post-landing focused run reproduced the assertion failure at
+`code/sys.driver/driver-pi/-scripts/-test/-task.start.gui.release.local.test.ts:90`.
+The correction landed in `431d5a769`, restoring the original `test-browser-frozen.env` order in
+`code/sys.driver/driver-pi/deno.json`. At the human's request, the test now checks exact environment
+allowlist membership without order; the remaining permission object retains exact equality.
+Missing or extra grants still fail. No permission expansion or ZIP production/artifact change occurred.
+
+The final assertion passed the focused browser-task contract test (**1 suite / 5 steps**), formatting,
+lint, and whitespace checks. After landing, `deno task --cwd code/sys.driver/driver-pi test:unit --quiet`
+passed **73 suites / 486 steps, 0 failures**, closing the recorded unit-suite failure. The broader
+`deno task test` chain was not run for this closeout; no process, real-preview, or browser-release
+acceptance is inferred from the unit result. Earlier review-time failures below remain historical
+evidence, not current blockers.
 
 ## Purpose
 
@@ -36,20 +82,21 @@ Use `@sys/archive/zip`.
   registry, shared entry contract, or format detection.
 - `compress` would be false: ZIP is a container format with paths, records, metadata, CRC, and
   stored entries that use no compression.
-- `zip32` would freeze module identity to the first admitted grammar instead of expressing that ZIP64
-  is currently unsupported policy.
+- `zip32` would freeze module identity to the first admitted grammar instead of expressing that
+  ZIP64 is currently unsupported policy.
 - `fs/zip` would put serialization, record parsing, DEFLATE, and CRC under the filesystem owner.
 
-`@sys/archive` is reserved on JSR and its canonical baseline exists at `code/sys/archive`. The
-package exports root and type surfaces plus a behavior-free frozen `Zip` library stub from
-`@sys/archive/zip`; the subpath import is covered by a direct dynamic-import test. Its README and JSR
-description are `Read and write archives (ZIP).`
+`@sys/archive` has its canonical package at `code/sys/archive`. The baseline established the root,
+type, and ZIP subpath surfaces; the ZIP owner implementation supplies the frozen `Zip` library with
+`Is` and `open`, followed by inspection and integrity methods on an opened archive. The package-domain
+description is `Read and write archives (ZIP).` It does not attest to implemented ZIP creation.
 
 That description names the durable package domain. This plan implements ZIP reading, integrity
 testing, and gated extraction only; ZIP creation and update remain outside this arc.
 
-Do not create `@sys/compress`, an `Fs.Zip` namespace, compatibility aliases, or format-generic Driver
-Pi tool names in this plan. Driver Pi names the exact protocol directly as `tools.zip` and `zip_*`.
+Do not create `@sys/compress`, an `Fs.Zip` namespace, compatibility aliases, or format-generic
+Driver Pi tool names in this plan. Driver Pi names the exact protocol directly as `tools.zip` and
+`zip_*`.
 
 ## TMIND review outcome
 
@@ -70,7 +117,17 @@ The adversarial ownership review changed the earlier Driver Pi-local design:
   clock; and
 - Deno 2.9.6's built-in `node:zlib` provides both strict inflater settlement evidence and
   incremental CRC-32, avoiding `DecompressionStream`, a hand-written checksum, and an external
-  dependency.
+  dependency;
+- a 64-KiB chunk cap does not by itself bound a duplex transform, so the inflater must use fixed
+  readable/writable high-water marks, one-at-a-time input admission, pull-mode output, and explicit
+  write backpressure rather than an application-level output queue; and
+- `AsyncIterable` is the one narrow owner-to-owner content seam: each source is lazy, pull-driven,
+  single-use, and operation-scoped, with exact iterator acquisition, early-return, revocation, and
+  settlement rules; and
+- the tree writer rejects empty or oversized producer chunks and snapshots each complete admitted
+  chunk before its first await, closing the mutation window rather than pretending that segmented
+  copying stabilizes a larger caller-owned view. Do not add a second public payload-stream
+  abstraction before a demonstrated consumer requires one.
 
 The remaining hard boundary is unchanged: path-based Deno filesystem APIs cannot defend extraction
 against hostile concurrent ancestry replacement. Extraction therefore remains behind the explicit
@@ -127,8 +184,8 @@ runtime abstraction. Its `/zip` module owns only ZIP-format semantics:
 - verified entry streaming; and
 - extraction orchestration against a narrow owned-tree sink.
 
-`@sys/archive/zip` must not resolve filesystem paths, open source files, create arbitrary destination
-paths, know Pi profiles, import Pi, or invoke a subprocess.
+`@sys/archive/zip` must not resolve filesystem paths, open source files, create arbitrary
+destination paths, know Pi profiles, import Pi, or invoke a subprocess.
 
 ### `@sys/fs`
 
@@ -137,15 +194,19 @@ Own the two filesystem primitives exposed by the concrete ZIP consumer:
 1. a bounded one-handle file snapshot with honest observed-drift evidence; and
 2. streaming construction of files and directories inside a private active `Rooted` stage.
 
-These are general filesystem operations, not ZIP methods. `@sys/fs` remains the only source owner of
-platform filesystem calls. Do not duplicate its path, handle, identity, staging, publication, or
-cleanup semantics inside `@sys/archive/zip` or Driver Pi.
+These are general filesystem operations, not ZIP methods. Launch-time and pre-snapshot metadata
+observations use the existing `lstat` and `realPath` functions through explicit named exports at
+`@sys/fs/observe`; they preserve identity with `Fs.lstat` and `Fs.realPath`. This entry is not a
+second observation implementation, a stable-identity capability, or filesystem confinement.
+
+`@sys/fs` remains the only source owner of platform filesystem calls. Do not duplicate its path,
+handle, identity, staging, publication, or cleanup semantics inside `@sys/archive/zip` or Driver Pi.
 
 ### Driver Pi
 
 Own only the agent-facing policy boundary:
 
-- profile schema and disabled defaults;
+- profile schema and default-on read-only ZIP policy with explicit opt-out;
 - configured read/write roots and protected control/runtime roots;
 - fixed wrapper limits and argument admission;
 - generated extension materialization and prompt/runtime contracts;
@@ -165,7 +226,7 @@ Implement the canonical `m.Zip` module already exposed from `code/sys/archive` a
 ```ts
 import { Zip } from '@sys/archive/zip';
 
-const archive = await Zip.open(bytes, { limits, until, timeout });
+const archive = await Zip.open(bytes, { limits: { maxEntries: 500 }, until, timeout });
 const inspection = archive.inspect();
 const tested = await archive.test({ until, timeout });
 ```
@@ -176,6 +237,23 @@ The extraction item later adds:
 await archive.extractTo(stage.writer, { until, timeout });
 ```
 
+The ZIP inspection/integrity item deliberately exposes no standalone entry-content stream. `test` owns and drains its payload
+work internally. A public `read()`, `ReadableStream`, or disposable reader would add another
+lifecycle and partial-consumption contract without a current consumer. The ZIP extraction item
+introduces the first content seam only inside the bounded lifetime of `extractTo`: a standard pull-based `AsyncIterable`
+connects one ZIP-owned file source to one tree sink, while `extractTo` owns ordering, cancellation,
+integrity preflight, and final revocation. This keeps the ordinary API simple and leaves deeper
+composition available through a deliberately supplied sink. `AsyncIterable` is the smallest standard
+protocol that expresses this ownership: one `next()` is one unit of demand and `return()` is the
+cleanup path. `ReadableStream` would add controller queues, locking, teeing, and adapter semantics;
+a chunk callback would invert control into a bespoke push protocol.
+
+`Zip.open` likewise does not accept a forward-only archive stream. ZIP locates its authoritative
+central directory at the end and then requires validated random access to local records. A forward
+source therefore needs a separate bounded spool or seekable-source owner; disguising that storage as
+simple streaming would add authority and failure modes. V1's finite owned `Uint8Array` snapshot is
+the explicit, sufficient source contract.
+
 Contract:
 
 - `Zip.open` is asynchronous. Before copying input it snapshots and validates arguments, attaches a
@@ -184,6 +262,11 @@ Contract:
   rechecks cancellation/timeout, parses once with fixed cooperative yield points, and returns an
   object whose internal bytes cannot be mutated by the caller. The open lifecycle is operation
   scoped and disposed before promise settlement.
+- `Zip.open` and `archive.test` snapshot cancellation-array containers before byte work. Count every
+  input/array node, including `undefined` placeholders, against one exact 256-node budget and admit
+  at most 32 nested array levels. Bound each array length against the remaining node budget before
+  bulk descriptor/key collection, reject direct or prototype-chain proxies without invoking traps,
+  and retain canonical getter-bearing structural lifecycle-leaf behavior.
 - `inspect` is synchronous after open, performs no payload inflation, exposes no payload bytes or
   mutable internal buffers, and returns frozen structured metadata.
 - `test` processes every regular-file payload in physical order and returns only integrity counts
@@ -193,7 +276,8 @@ Contract:
   sink.
 - Every public result and entry record is frozen. Names are strings decoded under the contract
   below; raw mutable name buffers are not exposed.
-- The API uses caller-supplied, validated finite limits. There is no unbounded overload.
+- `Zip.open` merges optional caller limit overrides into finite package defaults before work. There
+  is no unbounded overload.
 - Cancellation is explicit through canonical `UntilInput`. `Zip.open` yields after at most 32 parsed
   records or 1 MiB of linear byte work, whichever comes first, using `Schedule.tick()` before
   rechecking lifecycle state. Finite `timeout` is the remaining work budget at each call boundary
@@ -203,7 +287,7 @@ Contract:
   failures reject with the exact typed failure ABI below. Error text safely escapes hostile names
   and is bounded by caller policy.
 
-Item 1 lands this exact read-only public ABI, with namespace aliases under `t.Zip`:
+The ZIP inspection/integrity item defines this exact read-only public ABI under `t.Zip`:
 
 ```ts
 type Format = 'zip32';
@@ -213,12 +297,12 @@ type Compression = 'stored' | 'deflate';
 type DeflateOption = 'none' | 'normal' | 'maximum' | 'fast' | 'super-fast';
 
 type WorkOptions = {
-  readonly until?: t.UntilInput;
-  readonly timeout: t.Msecs;
+  until?: t.UntilInput;
+  timeout: t.Msecs;
 };
 
 type OpenOptions = WorkOptions & {
-  readonly limits: Limits;
+  limits?: Partial<Limits>;
 };
 
 type Entry = {
@@ -268,35 +352,42 @@ type Archive = {
 };
 
 type Operation = 'open' | 'test';
-type FailureKind =
-  | 'invalid-input'
-  | 'invalid-options'
-  | 'cancelled'
-  | 'timeout'
-  | 'source-limit'
-  | 'entry-limit'
-  | 'tree-limit'
-  | 'path-limit'
-  | 'expanded-limit'
-  | 'malformed'
-  | 'unsupported'
-  | 'invalid-name'
-  | 'collision'
-  | 'deflate-failure'
-  | 'size-mismatch'
-  | 'crc-mismatch';
 
-type Failure = Error & {
-  readonly name: 'ZipError';
-  readonly operation: Operation;
-  readonly kind: FailureKind;
-  readonly entryIndex?: number;
-};
+namespace Failure {
+  type Error = globalThis.Error & {
+    readonly name: 'ZipError';
+    readonly operation: Operation;
+    readonly kind: Kind;
+    readonly entryIndex?: number;
+  };
+
+  type Kind =
+    | 'invalid-input'
+    | 'invalid-options'
+    | 'cancelled'
+    | 'timeout'
+    | 'source-limit'
+    | 'entry-limit'
+    | 'tree-limit'
+    | 'path-limit'
+    | 'expanded-limit'
+    | 'malformed'
+    | 'unsupported'
+    | 'invalid-name'
+    | 'collision'
+    | 'deflate-failure'
+    | 'size-mismatch'
+    | 'crc-mismatch';
+}
+
+namespace Is {
+  type Lib = {
+    failure(input: unknown): input is Failure.Error;
+  };
+}
 
 type Lib = {
-  readonly Is: {
-    readonly failure: (input: unknown) => input is Failure;
-  };
+  readonly Is: Is.Lib;
   readonly open: (bytes: Uint8Array, options: OpenOptions) => Promise<Archive>;
 };
 ```
@@ -307,23 +398,26 @@ slash. `fileCount` and `directoryCount` count explicit central records, while `t
 counts unique implicit directories. `deflateOption` is `none` only for stored entries; deflate flag
 bits `00`, `01`, `10`, and `11` map respectively to `normal`, `maximum`, `fast`, and `super-fast`.
 `inspect()` returns the same cached frozen `Inspection` identity on every call. Freeze `Archive`,
-`Inspection`, `Usage`, every `Entry`, the entry array, every `TestResult`, and every `Failure` with
-exact own public properties and no emitted `undefined` keys. A failure's optional `entryIndex`
+`Inspection`, `Usage`, every `Entry`, the entry array, every `TestResult`, and every `Failure.Error`
+with exact own public properties and no emitted `undefined` keys. A failure's optional `entryIndex`
 appears only when one admitted central entry is responsible; `cause` is non-authoritative and never
 traversed for formatting.
 
 `Zip.Is.failure` is trap-free for arbitrary input, rejects proxies/accessors and structural
 lookalikes, and recognizes only package-created branded failures with one listed operation/kind.
 Consumer type fixtures for the future Driver read surface compile without casts and exact-shape
-runtime tests assert every own field. Item 6 deliberately extends this ABI with extraction-specific
-members listed in its section; no other item guesses field names.
+runtime tests assert every own field. The ZIP extraction item deliberately extends this ABI with
+extraction-specific members listed in its section; no other item guesses field names.
 
 Do not expose local-header scanners, inflater handles, unchecked entry constructors, writable
-archive state, format-generic adapters, or dependency-specific zlib types.
+archive state, standalone entry readers, Web/Node stream objects, format-generic adapters, or
+dependency-specific zlib types.
 
 ## Fixed Driver Pi policy
 
-Driver Pi freezes these v1 values into its generated runtime policy:
+`@sys/archive/zip` uses the ZIP parser values below as bounded defaults. Driver Pi freezes the same
+v1 parser values into its generated runtime policy and supplies them explicitly, so wrapper policy
+does not depend on package-default drift:
 
 | Limit                                     |             Value |
 | ----------------------------------------- | ----------------: |
@@ -339,28 +433,29 @@ Driver Pi freezes these v1 values into its generated runtime policy:
 | Failure message text                      | 16,000 characters |
 | Guard/open/parse/test/extract work budget |        120,000 ms |
 
-The required `Zip.Limits` shape is exact:
+The complete mutable input field set is:
 
 ```ts
 type Limits = {
-  readonly maxSourceBytes: number;
-  readonly maxEntries: number;
-  readonly maxTreeEntries: number;
-  readonly maxPathBytes: number;
-  readonly maxPathDepth: number;
-  readonly maxEntryBytes: number;
-  readonly maxExpandedBytes: number;
-  readonly maxErrorChars: number;
+  maxSourceBytes: number;
+  maxEntries: number;
+  maxTreeEntries: number;
+  maxPathBytes: number;
+  maxPathDepth: number;
+  maxEntryBytes: number;
+  maxExpandedBytes: number;
+  maxErrorChars: number;
 };
 ```
 
-Every field is a positive safe integer. Unknown/missing fields, accessors, proxies, and unsafe or
-infinite values reject before input copying or parsing. Human-facing text and tool-argument limits
-remain Driver Pi concerns rather than ZIP parser fields.
+Every supplied field is a positive safe integer. `OpenOptions.limits` is an optional exact
+`Partial<Limits>` record: omitted fields use the package defaults above, while unknown fields,
+accessors, proxies, and unsafe or infinite supplied values reject before input copying or parsing.
+Human-facing text and tool-argument limits remain Driver Pi concerns rather than ZIP parser fields.
 
-`@sys/archive/zip` validates safe-integer limit values and enforces the supplied policy. It does not
-silently replace caller limits with Driver Pi values. Driver Pi owns these product limits and may
-not widen them through profile YAML in v1.
+`@sys/archive/zip` validates the resolved finite limit set and enforces it. Driver Pi owns its fixed
+product policy, supplies every parser field explicitly, and may not widen those values through
+profile YAML in v1.
 
 Before copying, use canonical `Is.Native.proxy`, `Is.Native.uint8Array`, and
 `Is.Native.sharedArrayBuffer` checks to require a host-native, non-proxy `Uint8Array` whose direct
@@ -389,8 +484,20 @@ the finite remaining timeout into each `@sys/fs` and `@sys/archive/zip` call; an
 `AbortSignal.timeout()` alone cannot interrupt the bounded native byte copy or CPU work between
 cooperative parse yields. On expiry, stop new work, terminate and await active inflaters and file
 operations, then await owned cleanup. Deno filesystem calls are not preemptible, so cleanup may
-extend beyond the work budget; do
-not claim a hard wall-clock termination guarantee.
+extend beyond the work budget; do not claim a hard wall-clock termination guarantee.
+
+## Cancellation snapshot maintenance
+
+[dispose-until-snapshot.plan.md](../@sys.std/dispose-until-snapshot.plan.md) independently owns the
+`Dispose.Snapshot.until()` primitive, readonly-input compatibility, Archive/Fs Snapshot call-site
+replacements, and affected Driver Pi artifact regeneration. Existing admission remains valid until
+replaced; this maintenance does not block the preceding ZIP implementation items or change the
+independent Rooted streaming-tree work.
+
+The reference at the end of this plan's opening arc participates in plan closure: ZIP implementation
+may proceed without the refactor, but this plan cannot close until the referenced maintenance plan
+completes. Its contract and implementation ledger live only in that std plan. Deadline factoring is
+a separate opportunity, not part of the cancellation snapshot refactor.
 
 ## Lifecycle settlement and work quanta
 
@@ -414,8 +521,8 @@ Use these exact maximum synchronous/native segments:
   output segment, then uses `Schedule.tick()` after 1 MiB of compressed input or expanded output,
   whichever occurs first;
 - `Fs.Snapshot.file` requests at most 64 KiB per handle read; and
-- the stage writer copies and submits at most 64 KiB per write segment, regardless of producer chunk
-  size.
+- the stage writer admits only non-empty producer chunks of at most 64 KiB, snapshots the complete
+  admitted chunk before its first write await, and submits at most 64 KiB per write segment.
 
 The one fixed-source copy in `Zip.open` is the only unchunked native byte segment and remains
 bounded by `maxSourceBytes`. A native segment or filesystem promise is not preemptible; checks bound
@@ -425,9 +532,49 @@ Each generated tool owns the same initial settlement before filesystem or host-q
 passes only that already-settled live signal to existing Rooted calls and rechecks immediately
 before each call; it never forwards the caller's raw `UntilInput` independently to nested owners.
 
+## Bounded payload pump
+
+Use one internal payload-processing contract for integrity testing and extraction. It accepts one
+admitted entry, reads only that entry's exact private compressed range, and either discards verified
+output for `test` or presents fresh expanded segments to the operation-scoped extraction source
+after archive-wide integrity preflight. Stored and deflated entries share actual-size, CRC,
+aggregate-limit, lifecycle, and scheduler accounting. No public type exposes this internal pump.
+
+For DEFLATE, configure `createInflateRaw` with a 64-KiB `chunkSize`, a 64-KiB
+`writableHighWaterMark`, and a one-byte `readableHighWaterMark`. Node's readable high-water mark is
+a backpressure threshold, not a hard byte cap: the one-byte threshold makes every non-empty output
+chunk apply backpressure, while `chunkSize` bounds that one queued chunk to 64 KiB. The compressed
+feeder and expanded consumer run as one joined duplex operation:
+
+- submit at most one compressed block of at most 64 KiB at a time; do not submit the next block
+  until the current write callback has settled and any `false` write result has reached `drain`;
+- consume the readable side only in paused pull mode; do not use flowing `data` events, an
+  application-level chunk queue, eager pumping, or concurrent `next()` calls;
+- count limits and update CRC before an expanded segment can be discarded or exposed;
+- admit at most one expanded segment of at most 64 KiB across the JavaScript consumer boundary, and
+  request another only after the current demand has settled;
+- after the exact compressed range is submitted, join feeder completion, writable `end`, readable
+  completion, inflater success, exact input consumption, actual size, and CRC before reporting
+  success; and
+- on cancellation, timeout, consumer return, feeder/readable failure, or limit breach, stop both
+  sides, destroy the inflater exactly once, observe every late callback/rejection, and await all
+  owner-controlled settlement before the operation settles.
+
+This is backpressure, not merely chunking. The package memory claim includes the private archive
+copy, parser metadata, fixed zlib/native high-water buffers, one admitted compressed block, and one
+expanded block. It excludes bytes a caller deliberately retains after receiving fresh output. Stored
+entries use the same pull contract without zlib and never copy or CRC more than one 64-KiB segment
+in response to one demand.
+
+The implementation may use the inflater's native async iterator or an equivalent paused reader, but
+it must prove these semantics under pinned Deno 2.9.6. Do not bridge zlib through a freely growing
+promise/event queue. The implementation is blocked if the runtime cannot prove the configured
+high-water marks, maximum emitted chunk size, exact-input-consumption evidence, or complete destroy
+settlement.
+
 ## Bounded stable file snapshot
 
-Add one `@sys/fs` operation with this semantic shape:
+Add one `@sys/fs` operation with this exact runtime shape:
 
 ```ts
 const snapshot = await Fs.Snapshot.file({
@@ -439,30 +586,143 @@ const snapshot = await Fs.Snapshot.file({
 });
 ```
 
-Use this exact namespace and method name. Its types follow the existing namespace/type grammar and
-must preserve these semantics:
+`t.Snapshot` owns the exact public contract below, and `Fs.Lib` gains
+`readonly Snapshot: t.Snapshot.Lib`:
 
-1. Snapshot and validate every option before the first filesystem await.
-2. Require an absolute configured root path and a selected absolute path lexically beneath it under
-   canonical `@sys/fs` path semantics.
-3. `lstat` the selected root as a real directory; reject a symlink root, every observed intermediate
-   symlink, a final symlink, and a final non-file.
-4. Open one read handle, `fstat` it, compare it with a post-open path `lstat`, and reject observed
-   type or identity drift. Use `dev`/`ino` only where the host supplies safe-integer values; report
-   metadata fallback as observed drift checking, never stable identity.
-5. Read from that handle exactly once with cap-plus-one allocation behavior, checking cancellation
-   and deadline between reads. Never reopen by path.
-6. `fstat` again and reject observed identity and size drift plus mtime/ctime drift wherever those
-   fields are available on both observations.
-7. Close the handle on every path and settle closure before returning or rejecting.
-8. Return the canonical absolute path, byte count, truthful evidence kind, and an owned plain fixed
-   `Uint8Array` with direct `Uint8Array.prototype`, ordinary non-resizable `ArrayBuffer` backing,
-   and no shared alias. Do not claim that the bytes authenticate their source or that the path
-   stayed stable after return.
+```ts
+namespace Snapshot {
+  type Lib = {
+    readonly Is: Is.Lib;
+    readonly file: File.Method;
+  };
 
-The operation narrows ordinary drift and creates one internally consistent byte snapshot. Because
-Deno 2.9.6 exposes no directory-handle-relative `openat` traversal, it cannot remove the path-open
-race under hostile concurrent ancestry replacement. That limitation belongs in the public contract.
+  namespace File {
+    type Method = (options: Options) => Promise<Result>;
+
+    type Options = {
+      root: t.StringAbsoluteDir;
+      path: t.StringAbsolutePath;
+      maxBytes: t.NumberBytes;
+      until?: t.UntilInput;
+      timeout: t.Msecs;
+    };
+
+    type Result = {
+      readonly path: t.StringAbsolutePath;
+      readonly byteLength: t.NumberBytes;
+      readonly evidence: Evidence.Kind;
+      readonly bytes: Uint8Array;
+    };
+  }
+
+  namespace Evidence {
+    type Kind = 'device-inode' | 'metadata-only';
+  }
+
+  namespace Failure {
+    type Error = globalThis.Error & {
+      readonly name: 'FsSnapshotError';
+      readonly operation: 'file';
+      readonly kind: Kind;
+    };
+
+    type Kind =
+      | 'invalid-options'
+      | 'invalid-root'
+      | 'invalid-path'
+      | 'cancelled'
+      | 'timeout'
+      | 'missing'
+      | 'source-limit'
+      | 'unsafe-filesystem'
+      | 'source-changed'
+      | 'permission-denied'
+      | 'io-failure';
+  }
+
+  namespace Is {
+    type Lib = {
+      failure(input: unknown): input is Failure.Error;
+    };
+  }
+}
+```
+
+Caller options are mutable input. Snapshot the top-level options record and every cancellation-array
+container before the first filesystem await without invoking container getters, proxy traps,
+inherited values, or iterators; reject unknown or missing option keys and malformed array
+containers. Structural lifecycle leaves retain canonical `UntilInput` behavior: validation and
+subscription may observe their public properties and invoke getters as caller-authorized lifecycle
+code. `root`, `path`, `maxBytes`, and `timeout` are required and `until` is the only optional key.
+Before path normalization, reject NUL and cap each raw `root` and `path` at a fixed package ceiling
+of 32,768 UTF-16 code units; recheck each normalized value against the same ceiling. This safety
+bound is not a profile knob, and Driver Pi's 4,096-character request limit remains independently
+stricter. `maxBytes` is a non-negative safe integer with checked room for the cap-plus-one probe, so
+zero admits only an empty file. `timeout` is a non-negative safe integer and starts at the public
+call boundary before option and `UntilInput` snapshotting. Snapshot cancellation fan-in with the
+same maximum 256 total input/array nodes, counting `undefined` placeholders, and 32 nested array
+levels as the ZIP owner. Bound an array's length against the remaining node budget before bulk key
+or descriptor collection. A pre-terminal lifecycle performs no filesystem operation, and every
+lifecycle subscription is disposed before settlement.
+
+`Fs.Snapshot` and `Fs.Snapshot.Is` are frozen exact-key runtime records. A `Failure.Error` is a
+frozen owner-branded native error with exactly the enumerable `name`, `operation`, and `kind`
+fields; `Fs.Snapshot.Is.failure` is trap-free and rejects proxies and structural lookalikes. Failure
+messages are fixed bounded text and never interpolate caller paths or native cause text. The failure
+kinds are semantic API classifications rather than a mirror of host exception names:
+`invalid-options` covers the options container, key set, numeric fields, or cancellation shape;
+`invalid-root` covers a non-string, empty, NUL-bearing, over-limit, or non-absolute root;
+`invalid-path` covers the same selected-path defects plus failure to be a strict lexical descendant;
+`missing` covers any observed filesystem absence; `unsafe-filesystem` covers an observed symlink or
+wrong filesystem type; `source-changed` covers observed identity/size/time drift; and `source-limit`
+covers cap-plus-one. Map recognized authority failures to `permission-denied` and all other host
+failures to `io-failure` without exposing host-specific error types. The first authoritative
+terminal cause wins; always close the one owned handle, observe closure failure, and classify it as
+`io-failure` only when no prior failure exists. A later cleanup failure never replaces an existing
+primary failure.
+
+Own the runtime at `m.Snapshot/mod.ts`, its guard library at `m.Snapshot/m.Is.ts`, its public type
+spine at `m.Snapshot/t.ts`, and its behavior under `m.Snapshot/u/*`. Compose that same frozen runtime
+object into `Fs.Snapshot` and export it directly as `@sys/fs/snapshot`. `t.Snapshot` is the sole type
+owner; do not mirror it under `t.Fs` or add another runtime implementation, ambient path reader, or
+package-path alias. Keep Node filesystem imports localized to their sole Rooted consumer.
+Preserve these operation semantics:
+
+1. After the fixed pre-normalization length check, normalize the already-absolute root and selected
+   path through canonical `@sys/fs` lexical path semantics, recheck both lengths, require the
+   selected path to be strictly beneath the root, and return that normalized selected path rather
+   than a symlink-following `realPath` result.
+2. `lstat` the selected root as a real directory and each selected-path component in order; reject a
+   symlink root, every observed intermediate symlink or non-directory, a final symlink, and a final
+   non-regular file.
+3. Open one read-only handle exactly once, `fstat` it, compare it with a post-open path `lstat`, and
+   reject observed type, identity, size, or available mtime/ctime drift. Never reopen by path.
+4. Read one complete pass from that handle with each request capped at 64 KiB. Do not trust metadata
+   size for allocation or admission; detect exactly cap plus one and reject `source-limit` before
+   retaining additional source bytes. Check cancellation and the monotonic deadline before and after
+   every filesystem await and read segment.
+5. `fstat` the same handle after the read and reject observed identity or size drift plus
+   mtime/ctime drift wherever each field is available on both compared observations.
+6. Emit `device-inode` only when every required final-file observation supplies matching
+   non-negative safe-integer device and inode values. This public literal expands Deno's `dev`
+   (filesystem device identifier, not development) and `ino` (inode number) field names. Every pair
+   of observations that supplies complete device/inode values must agree even when another
+   observation forces fallback. Emit `metadata-only` whenever complete identity evidence across all
+   observations is unavailable; this fallback reports only regular-file type, size, and available
+   mtime/ctime observations. The literals describe final-file evidence, not continuity of the
+   previously observed ancestry.
+7. Close the handle exactly once on every path and settle closure before returning or rejecting.
+8. Return one frozen exact-key `File.Result`. Its `byteLength` equals `bytes.byteLength`; `bytes` is
+   a caller-owned mutable `Uint8Array` with direct `Uint8Array.prototype`, byte offset zero, and an
+   exact-length ordinary non-resizable `ArrayBuffer` backing with no shared alias or retained
+   package reference. It is accepted directly by `Zip.open` without adaptation.
+
+The operation narrows ordinary drift and creates one internally consistent byte snapshot. Neither
+evidence kind authenticates the source, proves uninterrupted path or ancestry identity, detects
+every possible in-place content mutation, or claims that the path remains stable after return.
+Because Deno 2.9.6 exposes no directory-handle-relative `openat` traversal, this operation cannot
+remove the path-open race under hostile concurrent ancestry replacement. That limitation is public
+contract, not an implementation defect.
 
 ## Exact ZIP32 grammar
 
@@ -614,31 +874,27 @@ completion and consumption, actual and declared sizes, and CRC values passed und
 It is not malware scanning, authenticity, provenance, signature verification, or content-safety
 certification.
 
-## Extraction gate contract
+## Extraction admission dependency
 
 Gate-creation provenance (`2026-09-02`): the human architecture owner explicitly instructed this
 planning work to keep extraction blocked until that owner accepts the cooperative-filesystem threat
 model. This is a finite product-admission decision for mutating extraction, not a cautionary review
-gate. The human architecture owner is the decision authority. The gate blocks these exact downstream
-items:
+gate. The human architecture owner is the decision authority.
 
-- `feat(fs): add owned streaming tree construction to Rooted stages`;
+The referenced
+[`rooted-streaming-tree.plan.md`](../@sys.fs/rooted-streaming-tree.plan.md) owns the one live gate and
+its resolution evidence because that decision now controls admission of the Rooted writer as well as
+these downstream items:
+
 - `feat(zip): add bounded ZIP extraction through a tree sink`; and
 - `feat(driver-pi): expose ZIP extraction under a cooperative-filesystem contract`.
 
-The pass condition is an explicit human decision equivalent to:
-
-> I accept cooperative-filesystem ZIP extraction for isolated or hygienic single-user launches.
-> Adversarial concurrent mutation of destination ancestry, Rooted metadata or stage state, and the
-> published extraction tree is out of scope.
-
-Before checking the gate, record the authority's exact decision wording and decision date in this
-section. A question, design discussion, readiness assessment, or acknowledgement is not acceptance.
-
-If the authority rejects this boundary or requires adversarial-concurrency resistance, remove the
-gate and all three downstream extraction items from the live arc. Finish with `@sys/archive/zip`
-inspection/testing, bounded `@sys/fs` snapshots, and Driver Pi read-only tools. A native
-cross-platform directory-handle broker requires another reviewed plan.
+The human accepted the boundary and the Rooted writer landed; the prerequisite owns their resolution
+evidence. This section preserves the downstream rationale and is not a second gate ledger. If a
+future deployment requires adversarial-concurrency resistance, keep extraction disabled there and
+use the read-only tools under their source-topology contract. A native cross-platform
+directory-handle broker or stronger isolation belongs to another reviewed plan; it does not erase
+the completed cooperative arc.
 
 ## Cooperative-filesystem threat model
 
@@ -666,112 +922,17 @@ Suitable launches are isolated containers or hygienic single-user workspaces wit
 untrusted path mutation. A bind mount is not suitable when a host process can mutate it
 concurrently. If the assumption cannot be made, extraction remains disabled.
 
-## Owned streaming tree construction
+## Filesystem prerequisite
 
-Extend `Fs.Capability.Rooted.Stage` with a writer bound to that private active stage:
-
-```ts
-await stage.writer.writeTree(entries, {
-  maxEntries,
-  maxPathBytes,
-  maxPathDepth,
-  maxBytes,
-  until,
-  timeout,
-});
-```
-
-Item 5 adds structurally compatible owner types under `t.FsRooted` without importing
-`@sys/archive/zip`:
-
-```ts
-type TreeDirectory = { readonly kind: 'directory'; readonly path: t.StringPath };
-type TreeFile = {
-  readonly kind: 'file';
-  readonly path: t.StringPath;
-  readonly expectedBytes: number;
-  readonly maxBytes: number;
-  readonly stream: AsyncIterable<Uint8Array>;
-};
-type TreeEntry = TreeDirectory | TreeFile;
-type TreeWriteOptions = {
-  readonly maxEntries: number;
-  readonly maxPathBytes: number;
-  readonly maxPathDepth: number;
-  readonly maxBytes: number;
-  readonly until?: t.UntilInput;
-  readonly timeout: t.Msecs;
-};
-type StageWriter = {
-  readonly writeTree: (
-    entries: readonly TreeEntry[],
-    options: TreeWriteOptions,
-  ) => Promise<void>;
-};
-```
-
-`Stage` gains one frozen `readonly writer: StageWriter`; `t.FsRooted.Operation` adds `write-tree`,
-and `t.FsRooted.FailureKind` adds `timeout`, `limit-exceeded`, and `producer-failure`. A write-tree
-failure has `committed: false` before its first private mutation and `committed: true` afterward;
-that flag reports private-stage reconciliation, never destination publication. `entries` is one
-snapshotted declarative batch of root-relative directories and files. Use this exact runtime shape
-under the existing namespace grammar and preserve:
-
-- it works only while the creating stage is active and privately owned;
-- it snapshots and validates the complete entry batch before invoking a byte source or mutating;
-- batch admission rejects malformed paths, duplicate paths, file-as-parent conflicts, unknown keys,
-  accessors, proxies, non-positive/unsafe limits, and non-finite byte bounds; it enforces exact
-  entry, UTF-8 path-byte, depth, per-file, checked aggregate expected-byte, and actual
-  aggregate-byte limits before or during mutation as applicable;
-- directories are created non-recursively in deterministic parent-first order;
-- files use create-new semantics and consume their streams sequentially in supplied order with
-  backpressure;
-- writes loop until every supplied byte is written, count before writing, enforce expected and
-  maximum bytes, sync, close, and recheck descriptor identity and size;
-- reject empty chunks; every yielded chunk passes the same native, non-proxy, fixed ordinary
-  `Uint8Array` admission as ZIP input, and is copied through captured intrinsics in segments of at
-  most 64 KiB before each subsequent await, preventing producer mutation from changing bytes in
-  flight;
-- symlinks, special files, multiply linked files, missing parents, collisions, foreign entries, and
-  identity drift fail closed;
-- cancellation stops new work and awaits active handle closure;
-- no method overwrites, follows a link, recursively deletes, or mutates outside the stage; and
-- after failure, the caller uses existing `discardStage`; cleanup refuses ownership loss and may
-  leave private residue rather than delete an unproved path.
-
-Item 5 also adds one stage-wide activity barrier. Every filesystem operation through `stage.files`
-and every writer call acquires a parent-stage borrow before I/O and releases it only after handles
-settle. A promotion atomically changes an active stage to `promoting` only when no borrow is live,
-then blocks new borrows; otherwise it rejects `invalid-state` without renaming. Discard atomically
-blocks new borrows, aborts an active writer through a stage-owned controller, and awaits all
-borrowed operations before validation/removal. No stage mutation may continue after publication or
-removal.
-
-The writer itself is single-use with internal state `unclaimed | writing | complete | failed`. Its
-first call atomically claims writer ownership; concurrent/repeated calls and every `stage.files`
-operation after that claim reject. Success becomes `complete` only after every stream, write, sync,
-identity check, and handle closure settles. Failure becomes `failed`; a writer-claimed stage
-promotes only from `complete`, while `writing` or `failed` can only be discarded. An unclaimed stage
-retains existing manually constructed-stage behavior, subject to the same zero-borrow promotion
-barrier.
-
-Paths, counts, and yielded bytes are untrusted data; executable `AsyncIterable` producer behavior is
-a cooperative caller boundary. Race each `next()` against lifecycle expiry, observe late rejection,
-and revoke its writer token so a late yield cannot write. A producer whose `next()` never settles
-cannot be preempted by JavaScript. The stage writer closes owned file handles and revokes further
-writes on timeout, but claims timely producer settlement only for conforming producers. Driver Pi
-supplies only `@sys/archive/zip`-owned producers whose timeout/abort settlement is independently
-proved.
-
-This primitive constructs an unpublished tree. Publication still uses existing no-replace
-`promoteStage()`. No partially constructed destination becomes visible. A published result followed
-by a Rooted cleanup error is a committed failure: the complete destination may exist and must not be
-deleted speculatively.
+The independent
+[rooted-streaming-tree.plan.md](../@sys.fs/rooted-streaming-tree.plan.md) owns bounded streaming tree
+construction inside private Rooted stages. ZIP extraction depends only on its landed public tree-sink
+contract; this plan does not govern that filesystem implementation.
 
 ## Cooperative ZIP extraction
 
-Item 6 adds the `Tree*` contracts under `t.Zip.Extract`, adds `ExtractResult` under `t.Zip`, and
-extends the public ABI exactly:
+The ZIP extraction item adds the `Tree*` contracts under `t.Zip.Extract`, adds `ExtractResult`
+under `t.Zip`, and extends the public ABI exactly:
 
 ```ts
 type TreeDirectory = {
@@ -783,8 +944,7 @@ type TreeFile = {
   readonly kind: 'file';
   readonly path: string;
   readonly expectedBytes: number;
-  readonly maxBytes: number;
-  readonly stream: AsyncIterable<Uint8Array>;
+  readonly content: AsyncIterable<Uint8Array>;
 };
 
 type TreeEntry = TreeDirectory | TreeFile;
@@ -792,7 +952,8 @@ type TreeSinkOptions = {
   readonly maxEntries: number;
   readonly maxPathBytes: number;
   readonly maxPathDepth: number;
-  readonly maxBytes: number;
+  readonly maxFileBytes: number;
+  readonly maxTreeBytes: number;
   readonly until: AbortSignal;
   readonly timeout: t.Msecs;
 };
@@ -814,11 +975,13 @@ type ExtractResult = {
 ```
 
 It adds `extract` to `t.Zip.Operation`, adds `invalid-sink | sink-protocol | sink-failure` to
-`t.Zip.FailureKind`, and adds
+`t.Zip.Failure.Kind`, and adds
 `extractTo(sink: TreeSink, options: WorkOptions): Promise<ExtractResult>` to `Archive`.
-`directoryCount` includes explicit and implicit realized directories, `treeEntryCount` is exactly
-`fileCount + directoryCount`, and `expandedBytes` is the actual written file-byte total. Freeze
-every batch, entry, options record, and result with the same exact-shape rules as item 1.
+`directoryCount` includes explicit and implicit requested directories, `treeEntryCount` is exactly
+`fileCount + directoryCount`, and `expandedBytes` is the actual content-byte total fully consumed by
+the successful sink. It does not independently prove the sink's external side effects. Freeze every
+batch, entry, content source, options record, and result with the read-only ABI's exact-shape rules;
+iterator instances remain private operation state rather than reusable public records.
 
 `archive.extractTo(sink, { until, timeout })` performs:
 
@@ -826,30 +989,54 @@ every batch, entry, options record, and result with the same exact-shape rules a
    methods;
 2. a complete integrity pass over the archive's private snapshot before invoking the sink;
 3. construction of one deterministic directory/file batch, including implicit parents;
-4. one sink call with directories in parent-first order and one-use file streams in physical archive
-   order, passing exact `maxTreeEntries`, `maxPathBytes`, `maxPathDepth`, and `maxExpandedBytes`
-   values as the sink's four bounds;
-5. a second payload pass whose streams enforce the same DEFLATE completion, exact-input-consumption,
-   size, CRC, cancellation, and deadline checks, yielding only fresh plain fixed `Uint8Array` chunks
-   of at most 64 KiB; stored chunks are copied from archive-private bytes, and deflate output is
-   copied from Node-owned buffers before exposure;
-6. verification that the sink consumed every file stream exactly once, fully, sequentially, and
+4. one sink call with directories in parent-first order and one-use file `content` sources in
+   physical archive order, passing `maxTreeEntries` as `maxEntries`, `maxPathBytes` and
+   `maxPathDepth` unchanged, `maxEntryBytes` as `maxFileBytes`, and `maxExpandedBytes` as
+   `maxTreeBytes`;
+5. a second payload pass whose content sources use the bounded pump and recheck DEFLATE completion,
+   exact input consumption, actual size, CRC, cancellation, and deadline, yielding only fresh plain
+   fixed `Uint8Array` chunks of at most 64 KiB; stored chunks are copied from archive-private bytes,
+   and deflate output is copied from Node-owned buffers before exposure;
+6. verification that the sink consumed every file's content exactly once, fully, sequentially, and
    settled before success; and
 7. unconditional revocation in `finally`: every iterator method checks an operation token, active
    `next()` work is aborted, its inflater is destroyed and awaited, and every retained iterator
    rejects after settlement without reading archive bytes.
 
+Each `TreeFile.content` is a frozen inert `AsyncIterable` until its iterator is acquired. Its first
+`[Symbol.asyncIterator]()` call atomically claims that exact file at the expected ordinal; repeated,
+concurrent, or out-of-order acquisition latches and throws a branded `sink-protocol` failure. The
+returned iterator accepts only one live `next()` call, starts no payload work without demand, and
+yields at most one fresh 64-KiB-or-smaller chunk per settled demand. `done: true` is returned only
+after the second-pass size, CRC, DEFLATE-finalization, and exact-consumption checks succeed. Before
+that point, `return()` records incomplete consumption, revokes the source, and destroys and awaits
+active inflater work; after clean completion, repeated `next()`/`return()` are inert `done: true`
+results. Repeated/concurrent/out-of-order acquisition or demand is an operation-terminal protocol
+violation even when a hostile sink catches the surfaced failure. An ordinary early `return()` is
+cleanup evidence rather than immediate public error selection: if the sink then rejects, its
+`sink-failure` remains primary unless cancellation, timeout, an explicit protocol violation, or a
+package-owned payload failure already won the terminal latch; if the sink resolves, incomplete
+consumption becomes `sink-protocol`. Cleanup failures are observed but never overwrite that primary
+failure. After operation settlement, acquisition throws and asynchronous iterator methods reject
+before reading archive bytes. The extraction terminal latch is monotonic: the first authoritative
+package, lifecycle, explicit-protocol, or sink terminal wins, and every later settlement is observed
+without reclassification. This standard async-iteration seam deliberately has no parallel custom
+`done` promise, stream controller, Node handle, or eager producer queue. Every file, including a
+zero-byte file, must be acquired and reach clean iterator completion; declared size is not a
+substitute for consuming the content protocol.
+
 The extraction batch realizes exactly the path trie admitted by `Zip.open`; it creates no additional
 node, and `treeEntryCount <= maxTreeEntries` is rechecked before the sink call. Thus implicit-parent
 amplification is an explicit 8,192-node product bound, not `maxEntries × maxPathDepth` hidden work.
 
-The extraction API receives no destination root or ambient filesystem object. The sink contract can
-only consume the validated tree batch. Race the single sink promise against lifecycle expiry and
-attach a late-rejection observer before returning a timeout failure. Sink implementation code is a
-cooperative caller boundary: JavaScript cannot force an arbitrary never-settling sink promise to
-finish. Timeout revokes all ZIP stream authority, but timely full sink settlement is claimed only
-for conforming sinks. Driver Pi supplies the independently proved active `@sys/fs` stage writer,
-retains ownership of discard/promotion, and keeps destination coordination active until one settles.
+The extraction API receives no destination root or ambient filesystem object. The sink receives only
+the validated tree batch and normalized bounded operation options. Race the single sink promise
+against lifecycle expiry and attach a late-rejection observer before returning a timeout failure.
+Invoking `writeTree`, its synchronous prefix, and a returned promise that never settles are
+cooperative caller boundaries JavaScript cannot preempt. Timeout revokes all ZIP content authority,
+but timely full sink settlement is claimed only for conforming sinks. Driver Pi supplies the
+independently proved active `@sys/fs` stage writer, retains ownership of discard/promotion, and
+keeps destination coordination active until one settles.
 
 Do not preserve ownership, ACLs, xattrs, executable bits, DOS attributes, timestamps, or archive
 permissions. Do not create links or special entries. Running `archive.test()` first is neither
@@ -858,29 +1045,71 @@ private bytes.
 
 ## Driver Pi read-only integration
 
-The read-only Driver Pi item adds this dormant profile family:
+### Scope and evidence
+
+Expose exactly two read-only tools: `zip_inspect` and `zip_test`. Keep ZIP parsing and integrity in
+Archive, byte snapshots in Fs, and path/protected-root policy in Driver Pi. Do not add extraction,
+provider serializers, private Pi imports, fake models, parser-differential harnesses, Agent-loop
+proofs, custom syntax plugins, or feature-specific process-test infrastructure.
+
+Pi package authority is root `deps.yaml`; prep regenerates the single fallback in
+`src/m.cli/u/u.resolve.pkg.ts`. Tool-summary admission compares against that generated package spec
+and omits advisory detail for a custom or mismatched package. No second Pi version pin is permitted.
+
+Current read-only evidence:
+
+- `prep:zip` admits one text-plus-digest ESM artifact with one default export and only `node:util`
+  and `node:zlib` imports.
+- Profile proofs cover default-on/opt-out materialization, alias-safe migration, exact file/symlink
+  read grants without parent broadening, conservative selector reporting, and registration versus
+  live-callability wording.
+- Filesystem-extension composition is exposed and consumed through `PiExtension.Sandbox.Fs` without
+  changing the generated sandbox filesystem policy or runtime path.
+- Nine focused modules / 75 steps and the full 69-module / 429-step Driver Pi unit suite passed;
+  package check, exact-scope lint, correction-scope formatting, and whitespace checks also passed.
+
+These results do not claim live-session callability, provider serialization, hostile-filesystem
+confinement, or extraction. The schema layout under `u.schema/` is independently owned and must not
+be reorganized as part of ZIP work.
+
+### Completion order
+
+1. Keep the fixed policy, source guard, Snapshot handoff, Archive calls, and bounded result
+   formatting.
+2. Keep default-on schema/migration behavior, explicit opt-out, future-launch materialization, and
+   advertisement derived from successfully materialized extensions.
+3. Regenerate the single-file artifact with `prep:zip`; require its exact import/export graph,
+   policy marker, admitted text shape, and digest.
+4. Run only affected ZIP/profile tests, Driver Pi `check`, formatting, lint, and whitespace checks.
+5. Stop. Extraction remains behind its existing human gate and is not part of this item.
+
+### Profile and runtime contract
+
+The read-only Driver Pi item adds this default-on profile family, as approved by the human:
 
 ```yaml
 tools:
   zip:
-    enabled: false
+    enabled: true
 ```
 
-`enabled: true` registers:
+Omitted policy and `enabled: true` register:
 
 ```text
 zip_inspect({ path })
 zip_test({ path })
 ```
 
-Register both with `executionMode: 'sequential'`. In Pi 0.84.4, the presence of either in one Agent
-batch serializes every sibling call in that batch, bounding one active ZIP snapshot/inflater per
-Agent loop. Do not claim process-global or cross-process serialization.
+Register both with `executionMode: 'sequential'` so the host does not overlap them within one tool
+batch. Do not add an Agent-loop harness or claim process-global/cross-process serialization.
 
-Omission and `enabled: false` register nothing. At this arc point, `extract` is an unknown key and
-must be rejected. No existing profile is migrated or silently enabled.
+Explicit `enabled: false` registers nothing. Migration fills missing ZIP policy or `enabled` with
+`true` for discoverability, preserves explicit `false`, and leaves malformed tool policy invalid for
+schema validation. This default enables only inspection and integrity testing; it adds no filesystem
+grants, extraction, creation, or fallback authority. At this arc point, `extract` is an unknown key
+and must be rejected; future mutation tools do not inherit this enablement.
 
-Item 3 establishes one Driver-owned protected-path guard shared by read and later extraction code;
+The read-only Driver Pi item establishes one protected-path guard shared by read and later extraction;
 generated entrypoints bundle that owner and do not copy its logic. For every path component, compare
 conservative ASCII-lowercase plus NFC/NFD forms and reject `.git`, `.pi`, and every name whose
 folded form starts `.sys.rooted`. Normalize Windows drive-letter case. Resolve configured operation
@@ -914,29 +1143,15 @@ Generate and load only:
 .pi/@sys/extensions/zip/mod.read.ts
 ```
 
-Materialize it from owner source with pinned Deno `2.9.6` single-file bundling: inline relative
-modules, disable code splitting and source maps, and externalize only the approved host built-ins.
-The read artifact has no residual relative or dynamic import and exactly two permitted external
-specifier values: `node:zlib` and `node:util`. The mutating artifact later has no residual relative
-or dynamic import and permits exactly `node:zlib`, `node:util`, `node:fs`, `node:fs/promises`, and
-bare `@earendil-works/pi-coding-agent`. Every other `node:`, bare, `npm:`, `jsr:`, `http:`, or
-`https:` specifier is a generation failure; allowlists never widen automatically.
+Materialize it from owner source with one frozen Deno single-file bundle. Generation admits one ESM
+module, one default export, exactly `node:zlib` and `node:util` imports, one policy marker, and no
+source-map directive. The prepared artifact stores only its text and SHA-256 digest. Do not add a
+compiler-version pin, duplicate source/import metadata, deterministic double-build, custom AST
+plugin, or separate host process proof.
 
-Build twice from separate clean temporary roots and require byte-identical output and identical
-`@sys/crypto` SHA-256 values. Use syntax-aware pinned-Deno module-graph inspection—not regular
-expressions—to enumerate all static imports/exports and reject every dynamic import,
-`import.meta.resolve`, `eval`, and `Function` construction form before materialization. Build and
-validate the complete enabled artifact set in a private generated directory, atomically replace each
-owned entrypoint, remove stale ZIP-owned read/extract artifacts from prior profile states, assert
-the exact final file set, and only then emit loader arguments. A fresh directory and every
-disabled/read/extract state transition must converge to that same exact set; no missing or stale
-sidecar can participate in loading.
-
-The read entrypoint adds no run, net, env, FFI, subprocess, or write permission and uses only
-already resolved user-data read roots. The later mutating entrypoint adds only configured
-destination-write roots; it still adds no run, net, env, FFI, or subprocess authority. Built-in
-imports grant no such authority. Neither entrypoint introduces an executable dependency or startup
-preflight.
+The entrypoint adds no run, net, env, FFI, subprocess, or write permission and uses only resolved
+user-data read roots. Built-in imports grant no permissions. It introduces no executable dependency
+or startup preflight.
 
 ## Driver Pi extraction integration
 
@@ -965,15 +1180,20 @@ canonical existing parent, without allocating source bytes, then wrap source sna
 complete destination guard, Rooted stage construction, promotion, cleanup, and settlement window in
 the exact running Pi host's `withFileMutationQueue(absoluteDestination, fn)`.
 
-The pinned Pi `0.84.4` queue first serializes every caller through one process-global,
-non-cancellable registration chain while deriving a key: an existing path uses `realpath`, while an
-`ENOENT`/`ENOTDIR` path uses its lexical absolute form. Only after registration does callback mutual
+Historical Pi `0.84.4` source inspection found that the queue first serializes every caller through
+one process-global, non-cancellable registration chain while deriving a key: an existing path uses
+`realpath`, while an `ENOENT`/`ENOTDIR` path uses its lexical absolute form. Only after registration
+does callback mutual
 exclusion apply to that exact derived key. A blocked `realpath` therefore blocks registration for
 unrelated destinations, and existence races can change key form. The queue does not coordinate
 descendants or the Rooted metadata tree; it is cooperative coordination, not subtree confinement. Do
 not claim that different-destination admission or any registration wait is independently bounded.
 
-Pi 0.84.4's registration and same-key callback waits are not cancellation-aware. Queue contention or
+That 0.84.4 implementation's registration and same-key callback waits are not cancellation-aware.
+Review these internal semantics in the dependency-selected host source; retain that as source
+evidence, not a live stalled-I/O proof. Verify public loading, contention, cancellation, and actual
+extraction through the real host. Do not instrument native `realpath` or add a private host simulator.
+Queue contention or
 key resolution is therefore a cooperative external wait that may delay tool settlement beyond the
 120-second work budget. When the callback eventually starts, it must recheck cancellation and the
 monotonic deadline before source allocation or filesystem mutation, throw without mutation if either
@@ -983,9 +1203,295 @@ caller holds the host queue indefinitely.
 Import the queue through bare `@earendil-works/pi-coding-agent` only in the mutating entrypoint
 module. Pi's extension loader must alias it to the running host module and shared singleton. Before
 adding prompt text or launch args, reject an unresolved, local, overridden, or otherwise unproven
-host specifier. V1 supports only the exact pinned Pi `0.84.4` ABI established by owner tests.
+host specifier. Support only the canonical exact host specifier established by owner tests for the
+prepared release. `deps.yaml` is the only authored version authority; reuse the launch selector and
+its generated fallback, never a ZIP-specific supported-version literal.
+[pi-dependency-metadata.plan.md](../@sys.driver-pi/pi-dependency-metadata.plan.md) owns metadata
+refresh and freshness. Extraction independently requires compatibility proof against the newly
+selected dependency. Historical host observations are evidence of past behavior, not a live version
+allowlist. Metadata agreement alone does not establish host compatibility.
 
-Extraction flow:
+### Real-host acceptance boundary
+
+Keep one explicit `test:host` task in `code/sys.driver/driver-pi/deno.json`, with its own
+`test-host` permission preset and entry `-scripts/-test.external/-host.zip.ts`. Do not add it to
+ordinary unit discovery or treat a successful metadata check as host evidence. This is acceptance
+work within the extraction commit, not a new production abstraction or a separate framework commit.
+
+The exploratory SDK-only `-scripts/-test.external/-host.queue.ts` has been removed. Its identity
+coverage now runs inside the selected CLI through `-host.zip.ts`. The installed package's public SDK
+and CLI can use different extension-loading branches; importing the same SDK twice outside the
+launched CLI does not establish its binding. Bootstrap-only success is not the feature's release
+criterion; the generated-entry and real-Agent acceptance results below supply the feature evidence.
+
+Use the existing profile resolver for policy and materialization, then the public raw runner for
+explicit host-test extension input. The raw runner uses CLI `m.run.ts` → `PiArgs.toArgs()`, the same
+process boundary used by profile launches. Production profile passthrough deliberately rejects
+`--extension`; preserve that refusal. A test extension belongs to the public raw runner's explicit
+contract, not a new production profile field, a relaxed guard, or an environment-injected module.
+Keep the resolved profile args intact and append only the declared test fixture at this raw boundary.
+This proves profile-owned policy/materialization plus real host execution; it does not claim that
+production profile passthrough accepts extra extensions.
+
+Never reconstruct the package specifier, runtime-root layout, launch flags, extension policy, or
+prepared ZIP bytes in a test. The fixture must consume the generated `mod.extract.ts`, not direct
+`registerZipExtract` source or a text-patched substitute. Preserve the declared bare host import and
+verify artifact admission independently from host loading.
+
+At the existing `withInherit` boundary, use `Process.capture` to observe the actual no-shell child
+process, preserving the owner's selected package, cwd, and argv. This dependency seam changes capture
+and test-environment isolation only; it must still execute real Pi, not return a simulated launch.
+Use the existing capture timeout, output bounds, and owned-child settlement result rather than adding
+ZIP-specific process management, retry, transcript, or receipt infrastructure.
+
+The fixture owns a private tree below the package's `.tmp/`, including HOME, agent configuration,
+source ZIPs, destinations, and the launcher's Deno cache. Clear inherited child environment and pass
+only the owner's fixture environment plus explicitly required platform variables. Do not read real
+agent settings, credentials, sessions, or project extensions. Fixture HOME isolation is not a way to
+avoid a denied system permission. Use explicit CLI extensions; never disable a trust gate to admit a
+fixture. Missing dependency/cache preparation or trust authority is reported, not bypassed.
+
+Account for the two execution authorities separately:
+
+- Parent `test-host`: repository/input reads; writes only below package `.tmp/`; environment access
+  for the existing launcher; permission to execute Deno. It needs no parent network, FFI, or system
+  permission merely to launch and capture the child. The task uses frozen, cached-only, non-prompting
+  test execution. Its direct executable allowlist names Deno; child authority is separate.
+- Child Pi: the existing scoped launch contract, including `homedir`, `osRelease`, and `uid` system
+  queries, its current network/process permissions, cache-scoped FFI, and owner-derived filesystem
+  scopes. These are real host-startup capabilities, not extraction requirements. Parent
+  `run: [deno]` does not confine the child to the parent's permissions. Review this complete transitive
+  authority before execution; do not claim that the new test grants only a home-path query.
+- Extraction itself: retain the independent exact-source-read/destination-write proof with run,
+  network, and FFI denied. The real-host test cannot substitute for that lower-authority proof.
+
+The parent task/preset requires human-provisioned execution authority. Declaring this contract does
+not grant permission to widen a denied execution surface. Do not modify ordinary `test` permissions,
+borrow `dev` or another feature's process preset, alter active profiles, or retry a denial with broader
+flags. Any capability not covered by the reviewed contract requires separate resolution.
+
+**Host verification decisions:**
+
+- The selected CLI has passed shared loader binding, existing/missing exact-key exclusion,
+  different-key progress, callback failure identity, registration rejection, and recovery.
+- Canonical alias exclusion passes using the workspace installation's existing public
+  `node_modules/@earendil-works/pi-coding-agent` symlink. The test verifies that it resolves to a
+  distinct directory inside that installation. No current-version directory is embedded in the
+  fixture. Only the alias and canonical target receive additional child read scope; neither is
+  written or removed. No symlink provisioning or broader write permission is needed.
+- The harness rejects unexpected child environment keys and non-fixture HOME/configuration/cache
+  paths. It retains the private fixture if child settlement is unconfirmed. Native async disposal
+  preserves a cleanup failure alongside an earlier test failure.
+- A stalled-realpath experiment using public `node:fs/promises` replacement plus
+  `syncBuiltinESMExports()` did **not** intercept the running host's binding. The behavioral probe
+  failed with `Running host did not use the observed public I/O binding.` This is a test-seam
+  limitation, not a permission refusal or evidence of a queue defect. That unsuccessful interceptor
+  has been removed; do not treat it as global-registration proof or repeat it as a prerequisite.
+- The human approved source review for upstream registration behavior in place of native
+  blocked-realpath instrumentation. Keep real-host generated extraction, Agent sequencing/failure
+  ABI, queued cancellation, and publication/cleanup acceptance. Direct caller tests cover delayed
+  queue entry without pretending to model the host's internal filesystem. No new framework,
+  prerequisite arc, or permission widening is part of this correction.
+
+Acceptance is behavioral, not a startup banner or zero exit code:
+
+1. Establish the selected CLI's public loading, existence-sensitive keying, and same-key callback
+   exclusion using controlled paths and actual host APIs. Review global registration in selected
+   source separately; do not claim native stalled-realpath behavior was runtime-proven. Coordinate
+   behavioral tests with observable barriers, not sleeps or an unobserved pending promise.
+2. In the completed feature, resolve opt-in policy through the actual profile owner, load the
+   generated extraction entry through that host, and observe real `zip_extract` registration and
+   execution. Exercise shared-key contention with the host mutation mechanism; a private queue or
+   SDK-only substitute must not satisfy the assertions.
+3. Drive the real Agent through public APIs with deterministic fixture provider output, not a live
+   model request or a substitute Agent. Prove sequential sibling execution and the real event plus
+   transcript failure ABI. No credential, external provider request, or private host import is
+   required by the fixture contract.
+4. Verify one complete publication, corrupt-input refusal before stage construction, and a queued
+   cancellation that performs no later source allocation or mutation after eventual admission.
+   Assert publication and cleanup truth separately; successful process exit is not extraction proof.
+5. Fail on missing registration, mismatched events/results, missing fixture evidence, capture
+   truncation, timeout, or incomplete child settlement. A host-startup-only success cannot mark this
+   task or the extraction item complete. Retain the remaining owner fault-injection proofs below;
+   do not duplicate Archive's format suite inside the host fixture.
+
+### Verification evidence and failure-contract corrections
+
+The integration results below are a historical checkpoint before the final Fs correction in
+`8294315b9`. They do not establish acceptance of artifacts built from that later owner revision.
+
+- Strict cooperative opt-in, canonical-host admission, destination guards, the separate generated
+  extraction entry, materialization, prompt, README, and `dsl tools zip` share one policy contract.
+  Omitted ZIP policy remains read-only. Explicit disablement loads no ZIP entry.
+- Archive owns full preflight and verified extraction. Fs owns private construction, promotion, and
+  cleanup. Pi retains and joins the actual sink promise before discarding or releasing the lease
+  and host queue, including cancellation before Fs construction returns.
+- Publication and cleanup are reported independently. Known publication survives late cancellation;
+  uncertain committed promotion retains its private stage. Failed acquisition without a returned
+  lease/stage handle reports cleanup as unconfirmed, not complete.
+- Fs preserves the primary failure and exposes the first cleanup failure as `Failure.cleanupError`.
+  Subsequent cleanup cannot clear reconciliation evidence. Failed rename reconciliation closes
+  construction authority and retains private residue with `committed: true`; Pi reports uncertain
+  publication rather than asserting non-publication. This is first-failure reporting, not an
+  exhaustive cleanup transcript.
+- Rooted fault tests exercise rename-after-effect plus failed destination/source observation,
+  including a subsequent lock-release failure; a rejected rename without effect plus failed
+  observation retains the private tree. Partial lock/lease acquisition and promotion's internal discard preserve both
+  primary and cleanup causes. Rooted tests passed **23 suites / 159 steps**; Fs process tests passed
+  **4 suites / 6 steps**.
+- Pi direct tests inject those owner operations through Fs's IO seam, not replacement promotion
+  results. Error rendering reserves the authenticated primary reason independently of path context.
+  A 4,007-character admitted source argument retains `crc-mismatch` under the 16,000-character cap
+  both directly and through generated extraction in the real Agent.
+- Selected Pi `0.85.1` source review confirms global non-cancellable registration and exact-key
+  callback exclusion. This is source evidence, not a native stalled-realpath runtime proof.
+- At that integration checkpoint, `test:host` passed **3 suites / 3 steps**, covering baseline, installed
+  alias, generated extraction, actual Agent sequencing/failure results, and queued cancellation.
+- `test:zip:permissions` passed **1 suite / 1 step** with fixture-only source/destination reads,
+  destination-only writes, and run/net/FFI/env/sys denied. This direct runtime lane uses a caller
+  queue seam and does not substitute for host compatibility evidence.
+- ZIP suites passed **4 suites / 35 steps**, including corrupt preflight, delayed admission,
+  joined late construction, occupied publication, lost identity, failed discard/acquisition, and
+  post-publication cleanup truth.
+- Full Pi unit run after the failure-contract corrections: **69 suites / 459 steps passed;
+  1 suite / 1 step failed**. The failure is the unrelated browser env-allowlist ordering assertion in
+  `-scripts/-test/-task.start.gui.release.local.test.ts:90`. ZIP, profile, and help suites passed;
+  existing browser configuration is preserved rather than changed to make this lane green.
+- Fs and Pi `check` and publish dry-run passed. ZIP artifacts were regenerated after the owner and
+  presentation corrections. The missing JSON comma introduced during formatting-residue cleanup
+  was restored; JSON-import failures are distinct from the preserved browser env-order assertion.
+  Workspace graph regeneration adds only the Archive → Driver Pi edge plus generated metadata;
+  `check:graph` passed.
+- Fs failure-contract corrections remain in Fs; Pi consumes their stable fields without walking
+  arbitrary causes. No new framework, runtime permission widening, Archive-format duplication, or
+  shell fallback is part of these corrections.
+
+### Final Fs failure-evidence proof
+
+The Fs correction in `8294315b9` preserves accumulated mutation evidence during partial tree cleanup,
+compound failures through unsupported-result adapters, and the first descriptor/marker close failure.
+The supplied fresh-session review identified three material findings; implementing-thread
+reproductions and adjacent propagation checks closed them. Closure was not a new independent review
+of the final bytes.
+
+The correction proof recorded **11 failing settlement steps → all 26 steps passing**, Rooted
+**23 tests / 178 steps**, and Fs process **4 tests / 6 steps**. Fs check and publish dry-run, scoped
+lint/formatting, and whitespace checks passed. The final README pass separately corrected the
+writer/sealing restriction and distinguished publication, permission evidence, mutation, and cleanup;
+README formatting, whitespace, and Fs check passed after that documentation-only edit.
+
+Changes to a bundled Fs owner require ZIP artifact regeneration and renewed source, selected-host,
+and narrow-permission acceptance. Earlier generated-host results cannot attest to later owner bytes.
+This is acceptance work within the existing Pi extraction item, not another arc item or approval gate.
+
+### Pi failure-evidence acceptance
+
+Pi retains the owner-selected primary failure when cancellation arrives during Fs settlement and
+reports the later interruption separately. Discard, lease release, and promotion-result cleanup
+retain both authenticated failure classifications, including equal classifications in different
+roles. Presentation remains bounded and does not walk diagnostic causes.
+
+Seven real-Fs IO regressions cover late cancellation and compound cleanup at those three boundaries
+with distinct and equal classifications. The initial four reproductions failed while the preceding
+19 extraction steps passed; after correction and the equal-classification additions, all **26
+extraction steps** passed. Assertions distinguish publication, retained residue, primary/secondary
+classification, and unlock/close settlement before queue release. They reject arbitrary cause text
+and subsequent speculative removal. These are authored-Pi/real-Fs proofs, not native-fault injection
+through the actual Agent.
+
+`deno task --cwd code/sys.driver/driver-pi prep:zip --check` rebuilds both entries through the owning
+configuration and existing graph/export/marker admission, then compares exact artifact JSON without
+rewriting it. It rejected the stale extraction artifact before regeneration and passed afterward.
+The accepted digests are:
+
+- read: `sha256-fc906bbb2e3aa2206e6f1482c6b60a07237a8aa40cd3044c18700a5c27d9ac84`;
+- extract: `sha256-87b4ce9498951accbc25523e9661d9d7a324c066dd94cdd642f8f388559d9cdc`.
+
+Acceptance used Deno **2.9.6**, Darwin arm64, and dependency-selected Pi **0.85.1**, composing Fs
+`8294315b9` with the corrected Pi source. Selected-host acceptance passed **3 tests / 3 steps**;
+narrow-permission acceptance passed **1 test / 1 step**. Host execution covers prepared entry loading,
+shared queue behavior, actual Agent sequencing/failure, and queued cancellation. The permission proof
+uses authored runtime with an immediate queue; it proves permission scope, not host singleton identity.
+
+Pi check, publish dry-run, workspace graph check, scoped lint/formatting, and whitespace checks passed.
+The full Pi unit run recorded **69 passed / 466 steps**, with **1 failed / 1 step** at
+`-scripts/-test/-task.start.gui.release.local.test.ts:90`: the unrelated browser environment-order
+assertion. Its mixed `deno.json` ordering hunk remains outside ZIP scope; the full suite is not green.
+Plans remain separate from implementation paths.
+
+This checkpoint supplied implementing-thread closure evidence. The subsequent independent acceptance
+below separately established the final scoped landing verdict; it did not repeat broad lower-owner
+design review.
+
+### Independent landing acceptance
+
+The completed pass was reviewed by gpt-6-astra at high and returned **GO — no material target
+findings** for the scoped extraction implementation against baseline `8294315b9`. Its verdict
+excluded plans, the unrelated browser-ordering hunk, and Archive test restructuring. The
+implementing thread accepted that disposition; no production correction followed from the pass.
+
+The reviewer reported four independent native-I/O probes, all passing after actual work settled:
+
+- owner-selected promotion failure survives later cancellation; when Archive cancellation selects
+  first, separately observed Fs construction failure remains visible;
+- distinct and identical cleanup classifications retain their roles, and later close failure cannot
+  replace the first separately recorded cleanup failure;
+- known publication is not rollback; rename-after-effect plus failed reconciliation preserves the
+  complete destination and private residue without speculative removal; and
+- actual open/write effects, delayed handle/promise return, descriptor close, stage discard, unlock,
+  and close settle before queue release, including failed lease acquisition.
+
+Diagnostics remained bounded and omitted injected `SECRET` cause text. The reviewer removed its
+temporary probe file after all probes settled. These probes exercised authored Pi source and real
+Fs IO; they were not fault injection through the generated Agent entry.
+
+Complete serialized artifact correspondence passed independently before and after acceptance, with
+both digests unchanged from those recorded above. Generated-host acceptance consumed those prepared
+artifacts through normal policy injection. The selected host was independently corroborated as
+`npm:@earendil-works/pi-coding-agent@0.85.1`; runtime was Deno **2.9.6**, Darwin arm64, V8
+**15.0.245.2-rusty**, TypeScript **6.0.3**.
+
+The independent commands passed Pi ZIP **7 suites / 61 steps**, all **4 probes**, host **3 tests**,
+narrow permissions, Pi check, publish dry-run, workspace graph, and whitespace checks. The full Pi
+unit run passed **72 suites / 485 steps**, with the same **1 failed suite / 1 step** at the browser
+ordering assertion above. Publish dry-run reported three dynamic-import warnings in existing
+sandbox/OCR test helpers. The scoped GO is not a whole-suite-green claim.
+
+The earlier cache and execution-authority stops were resolved, not waived. Parent verification used
+only PATH, HOME, and the existing prepared DENO_DIR in a credential-free environment:
+
+```sh
+env -i PATH="$PATH" HOME="$HOME" DENO_DIR=/Users/phil/code/org.sys/sys/.pi/@sys/tmp/deno deno task --cwd code/sys.driver/driver-pi prep:zip --check
+```
+
+The human separately authorized the unmodified host harness's existing child-startup authority,
+including public dependency retrieval into its disposable fixture-local cache. Parent frozen and
+cached-only constraints do not constrain that child. Child startup used `--no-lock` and is not
+hermetic or lockfile-reproducible. Credential-free fixture HOME/config/cache, no remote model-provider
+requests, and actual permission/trust stops were preserved. This historical authorization does not
+grant another launcher broader permissions.
+
+Native stalled-realpath behavior and other platforms remain unproven at runtime. Hostile
+same-authority filesystem mutation remains outside the accepted contract. No further review-count
+or architecture gate was created.
+
+### Test-maintenance evidence
+
+Archive's unchanged byte builder moved to `u.fixture.zip.ts`, behind a runner-independent `Fixture`
+facade. Pi's test `common.ts` explicitly centralizes Archive/Fs fixture imports without routing
+restricted-runtime fixtures through the test runner. Pi retains all **42 leaf cases**; **7 suites /
+61 steps** includes **19 organizing groups**, not additional coverage. Real-Fs fault injection,
+primary/secondary classifications, publication/residue assertions, and observable settlement barriers
+remain. The independent reviewer inspected the reorganized extraction specs and helpers and found
+those proofs meaningful; file movement did not invalidate production observations.
+
+Separate implementing-thread post-maintenance proof passed Archive **13 suites / 100 steps**, Pi ZIP
+**7 suites / 61 steps**, generated-host **3 tests / 3 steps**, narrow-permission **1 test / 1 step**,
+Archive/Pi checks, 32-file scoped lint/formatting, exact artifact correspondence, Pi publish dry-run,
+workspace graph, and whitespace checks. This supplies the Archive fixture-migration evidence without
+extending the independent reviewer's stated approval scope.
+
+### Extraction flow
 
 1. validate arguments and derive/admit the absolute destination queue key without reading the
    source, then repeat the complete guard inside the callback;
@@ -1000,14 +1506,17 @@ Extraction flow:
 7. bind `Rooted` to the configured write root, admit the destination, and acquire the required
    exclusive cooperative lease;
 8. create one private stage, extract through its writer, and promote the complete stage with
-   no-replace semantics;
+   cooperative no-replace semantics;
 9. discard only an unpublished owned stage on failure, preserving any ownership-loss residue and
    reporting cleanup separately; and
-10. settle queue, lease, inflater, file, and cleanup resources before success or thrown failure.
+10. join actual Fs sink settlement before discard, lease release, and host queue release, even when
+    Archive has already stopped; settle owned inflater, file, and cleanup work before returning.
 
-A prepublication failure exposes no destination. `occupied` leaves the existing target untouched. A
-post-publication cleanup failure reports that the complete destination may exist; it never claims
-rollback and never removes the published tree speculatively.
+A confirmed prepublication failure publishes no destination. `occupied` leaves the existing target
+untouched. Known publication remains reported as published even when cleanup fails. An authenticated
+committed promotion failure reports uncertain publication and retains the private stage. Neither
+case claims rollback or removes the destination speculatively. Failed acquisition before a handle
+returns reports cleanup as unconfirmed.
 
 The Runtime Tool Contract, prompt, and `dsl tools zip` state exact limits, restart semantics,
 live-callability boundaries, untrusted-data status, cooperative threat model, the queue-contention
@@ -1032,16 +1541,16 @@ Before the extraction item, only these states exist:
 
 | Profile state                   | Generated/loaded entrypoints | Prompt/runtime tools      |
 | ------------------------------- | ---------------------------- | ------------------------- |
-| ZIP omitted or `enabled: false` | none                         | none                      |
-| `enabled: true`                 | `mod.read.ts`                | `zip_inspect`, `zip_test` |
+| `enabled: false`                | none                         | none                      |
+| ZIP omitted or `enabled: true`  | `mod.read.ts`                | `zip_inspect`, `zip_test` |
 | any `extract` key               | schema rejected              | none                      |
 
 After the gated extraction item:
 
 | Profile state                                                   | Generated/loaded entrypoints       | Prompt/runtime tools                     |
 | --------------------------------------------------------------- | ---------------------------------- | ---------------------------------------- |
-| ZIP omitted or `enabled: false`                                 | none                               | none                                     |
-| `enabled: true`, extract omitted                                | `mod.read.ts`                      | `zip_inspect`, `zip_test`                |
+| `enabled: false`                                                | none                               | none                                     |
+| ZIP omitted, or `enabled: true` with extract omitted             | `mod.read.ts`                      | `zip_inspect`, `zip_test`                |
 | `enabled: true`, `extract: cooperative` with supported host ABI | read + extract                     | all three tools plus cooperative warning |
 | extract requested with unproven host ABI                        | launch rejected before prompt/args | none                                     |
 | invalid extract shape or mode                                   | schema rejected                    | none                                     |
@@ -1060,9 +1569,17 @@ Owner tests in `@sys/archive/zip` prove:
   allocator proving no oversized copy; concurrent shared mutation cannot enter the copy path;
 - async `Zip.open` and `archive.test` reject pre-aborted signals, disposed lifecycle views, and
   synchronously emitting observables with zero copy/parser/payload/inflater work;
+- both operations admit exactly 256 total cancellation input/array nodes and 32 nested array levels,
+  reject plus one before byte work, count `undefined` placeholders, bound array length before bulk
+  descriptor/key collection, and reject direct or prototype-chain proxies without invoking traps;
 - cancellation and finite timeout during parsing and payload processing stop at each declared
   64-KiB/1-MiB/record quantum; only the bounded source copy is unchunked, and every lifecycle
   listener is disposed before settlement;
+- pinned-runtime probes assert the one-byte readable threshold, 64-KiB writable threshold, and
+  64-KiB emitted-chunk cap; an instrumented duplex proves one-at-a-time writes, hard pause until
+  `drain`, concurrent feeder/consumer progress without deadlock, no flowing-mode/application queue,
+  at most one bounded pending output chunk under a fast feeder and slow consumer, and complete
+  settlement for write, drain, readable, error, destroy, and cancellation races;
 - exact empty, stored, deflated, mixed file/directory, descriptor, ASCII, and UTF-8 fixtures;
 - zero-length, ordinary, and unsigned-16-bit-boundary EOCD and central file comments pass as opaque
   metadata and never appear in public results; malformed comment lengths, comment range overruns,
@@ -1100,80 +1617,58 @@ check for the new package.
 
 Owner tests in `@sys/fs` prove:
 
-- strict option snapshotting and root/path admission;
+- the exact standalone `Snapshot` runtime keys, identity with the composed `Fs.Snapshot` surface,
+  sole canonical `t.Snapshot` contract, frozen record surfaces, owner-branded trap-free failure
+  guard, and one external consumer compiled without casts;
+- the top-level mutable options record and cancellation-array containers are captured as exact own
+  enumerable data before I/O; unknown/missing option keys, container accessors and proxies, NUL,
+  non-absolute or out-of-root paths, and invalid numeric values reject without invoking container
+  code, while getter-bearing structural lifecycle leaves retain canonical `UntilInput` behavior;
+- raw and normalized root/path lengths pass at the fixed 32,768-code-unit ceiling and reject at plus
+  one through an admission seam that performs no filesystem operation;
+- `maxBytes` passes at zero and its largest admitted cap-plus-one-safe value, while timeout and the
+  256-total-node/32-array-level `UntilInput` bounds pass exactly and reject at plus one, including
+  `undefined` termini;
 - pre-aborted, disposed, and synchronously emitting lifecycle inputs settle before any filesystem
   invocation, with lifecycle disposal on every result;
-- exact cap and cap-plus-one behavior without trusting metadata size, using reads of at most 64 KiB;
-- returned bytes have exact plain fixed non-shared `Uint8Array` ownership accepted directly by
-  `Zip.open`;
-- one handle, no path reopen, descriptor reads, and complete closure on every path;
-- root/intermediate/final symlink refusal and final regular-file requirement;
-- observed open/path identity mismatch and during-read size/time/identity drift refusal;
-- honest evidence fallback where stable identity is unavailable;
-- cancellation and monotonic finite-timeout checks between reads; and
-- direct execution with only exact fixture-read permission while write, run, net, and FFI are
-  denied.
+- each failure kind is produced by its declared semantic family, messages contain no hostile path or
+  cause text, structural lookalikes fail authentication, and close failure becomes primary only when
+  no earlier terminal cause exists;
+- exact cap and cap-plus-one behavior without trusting metadata size, using one handle and read
+  requests of at most 64 KiB with no path reopen; legal short reads fill retained slabs rather than
+  retaining one allocation per read, and the final byte extent must equal the stable observed size;
+- returned bytes have direct `Uint8Array.prototype`, offset zero, exact-length fixed ordinary
+  backing, no shared or retained alias, exact `byteLength`, and direct `Zip.open` admission;
+- root/intermediate/final symlink refusal, intermediate-directory and final-regular-file
+  requirements, observed open/path mismatch, and during-read identity/size/time drift refusal;
+- `device-inode` appears only with complete matching safe-integer final-file identity observations,
+  while injected missing/unsafe identity fields produce `metadata-only` without weakening the
+  required type/size/available-time comparisons or claiming ancestry stability;
+- cancellation and monotonic finite-timeout checks surround every read/I/O segment, and the one
+  handle closes exactly once and settles on success, rejection, cancellation, and timeout; and
+- direct execution succeeds with only exact fixture-read permission while write, run, net, and FFI
+  are denied.
 
 Run `@sys/fs` check/unit/process proof and broader workspace checks affected by its public type
 surface.
 
 ## Proof — Driver Pi read tools
 
-Owner tests prove:
+Focused owner tests cover:
 
-- strict read-only schema, disabled defaults, policy roots, protected roots, and the pre-extraction
-  runtime matrix;
-- shared path guarding rejects ASCII-case, drive-case, NFC/NFD, canonical-realpath, and
-  safe-identity aliases of `.git`, `.pi`, `.sys.rooted*`, and configured protected roots under
-  injected case-insensitive semantics and each real supported host;
-- a fresh output and every prior profile transition leave exactly one atomically written
-  `mod.read.ts`, no sidecar/stale extraction artifact, and unchanged launcher permission scope;
-- two clean pinned-Deno builds are byte/hash identical; syntax-aware graph inspection finds no
-  relative or dynamic import and exactly `node:zlib` plus `node:util` as external specifiers;
-- read entrypoint loading through the pinned real Pi extension loader;
-- direct generated execution with only extension/fixture read permission while write, run, net, and
-  FFI are denied;
-- generated execute lifecycle settlement makes a pre-aborted execution signal perform zero
-  filesystem or ZIP work;
-- a real Agent batch containing many inspect/test calls executes with at most one active ZIP source
-  snapshot or inflater and preserves ordered settlement;
-- source guarding delegates one-handle bounded snapshot behavior to `@sys/fs` and parsing/integrity
-  to `@sys/archive/zip` without local reimplementation;
-- inspect text escaping/truncation preserves complete bounded structured details;
-- inspect performs no payload work and test performs no filesystem write; and
-- thrown failures produce failed events/transcript results through the pinned real Agent loop.
+- strict read-only schema, default-on/new-profile behavior, malformed-policy refusal, and migration
+  that preserves opt-outs while refusing alias-indirected mutation paths;
+- configured readable/protected roots, exact argument capture, protected-name/symlink refusal,
+  pre-aborted execution, and file/symlink grants excluded from ZIP roots without parent broadening;
+- structural inspection versus CRC/payload testing, no payload exposure or extraction, bounded
+  escaped text, exact omitted count, complete structured entries, and authenticated failures;
+- one prepared text-plus-digest artifact with exact generated imports/exports and literal policy
+  injection; and
+- enabled/disabled/suppressed materialization, loader args, conservative selected-tool reporting,
+  and prompt wording that separates materialized registration from live callability.
 
-Run narrow archive/extension/profile tests, Driver Pi `deno task check`, and `deno task test:unit`.
-
-## Proof — owned streaming Rooted stages
-
-Owner tests in `@sys/fs` prove:
-
-- only active creating stages accept one writer call, and pre-aborted/disposed/synchronous lifecycle
-  input performs zero producer or filesystem work;
-- complete-batch snapshotting rejects malformed inputs, collisions, prefix conflicts, accessors, and
-  proxies before invoking byte sources or writing, with exact entry/path/depth/aggregate boundaries
-  and checked arithmetic;
-- deterministic non-recursive directory creation and create-new streaming file writes;
-- short writes, strict producer-chunk admission, at-most-64-KiB copying/writes, mutation after
-  yield, per-file and actual aggregate byte boundaries, finite timeout, sync, close, and descriptor
-  recheck;
-- symlink, special-file, multiply-linked, missing-parent, collision, and identity-drift refusal;
-- cancellation and injected write/sync/close failures settle handles before discard;
-- timeout races a delayed/non-settling `next()`, closes the handle, observes late rejection, and
-  prevents a late yield from writing;
-- stage activity borrows reject concurrent promotion and second/repeated writers, block every child
-  operation after writer claim or promotion/discard begins, and permit writer-owned promotion only
-  after `complete`;
-- discard during delayed write/sync/close aborts and awaits the writer plus every stage borrow
-  before removal, while failed writers can never promote;
-- failed discard leaves unproved objects rather than recursively deleting them;
-- no target destination is visible before `promoteStage`, and no descriptor writes after
-  publication; and
-- occupied, published, committed-cleanup, and ownership-loss outcomes preserve existing Rooted
-  contracts.
-
-Run all Rooted unit/process proofs, package check, and affected workspace tests.
+Do not test provider serializers, private Pi modules, fake models, or Agent-loop internals. Run the
+affected tests, `prep:zip`, Driver Pi `deno task check`, and scoped formatting/lint/whitespace.
 
 ## Proof — cooperative ZIP extraction
 
@@ -1184,13 +1679,22 @@ Owner tests in `@sys/archive/zip` prove:
 - malformed sink inputs and pre-aborted/disposed/synchronous lifecycle inputs are rejected without
   getter/method/payload invocation, and corrupt archives fail complete preflight without invoking
   the sink;
-- exact stored/deflated bytes, implicit directories, and UTF-8 paths stream through one
-  deterministic snapshotted sink batch with all four exact archive bounds passed to the sink;
-- skipped, repeated, concurrent, partial, and out-of-order stream consumption reject, while the
-  write-pass DEFLATE completion, exact consumption, actual size, and CRC are reverified;
-- retained iterators after success, failure, early sink return, sink throw, timeout, or partial
-  consumption are revoked; active `next()` and inflater work settles, and later calls expose no
-  bytes;
+- exact stored/deflated bytes, implicit directories, and UTF-8 paths pass through one deterministic
+  snapshotted sink batch with the exact entry/path/depth/file/tree bounds and mapping declared by
+  the API;
+- every content source is frozen and inert before acquisition; each demand yields at most one fresh
+  bounded chunk, a slow consumer causes no eager inflater input or growing output queue, and
+  `done: true` appears only after second-pass integrity settles; zero-byte files still require one
+  clean source completion;
+- skipped, repeated, concurrent, partial, and out-of-order content acquisition or consumption
+  rejects, while the write-pass DEFLATE completion, exact consumption, actual size, and CRC are
+  reverified; a caught explicit protocol failure remains terminal;
+- early iterator return followed by sink success reports `sink-protocol`, while automatic iterator
+  cleanup caused by a rejecting sink preserves `sink-failure` and cleanup failure never masks the
+  primary terminal reason;
+- retained iterators after success, failure, early sink return, sink throw, timeout, explicit
+  `return()`, or partial consumption are revoked; active `next()` and inflater work settles, and
+  later calls expose no bytes;
 - timeout can reject around a deliberately non-settling sink, observes a later sink rejection, and
   leaves every ZIP iterator revoked;
 - cooperative sink/producer limits are explicit, and conforming test sinks settle under every
@@ -1209,21 +1713,25 @@ Owner tests prove:
 
 - only `extract: cooperative` plus the supported host ABI controls schema, bundle args, prompt text,
   and live registration;
-- the mutating entrypoint resolves the bare queue import to the pinned real host singleton;
-- pinned source-contract tests distinguish global non-cancellable registration, existence-sensitive
-  realpath/lexical keying, and exact-key callback exclusion;
-- same-key, different-key, blocked-realpath, existing/missing-key, cancelled-waiter, and
-  registration-failure-recovery probes retain no source bytes before callback entry; after eventual
-  release an expired callback performs no mutation and both global/key queues remain usable;
+- the mutating entrypoint resolves the bare queue import to the dependency-selected real host
+  singleton; no test fixture or package-cache path embeds the current version;
+- host integration proofs live outside ordinary unit discovery and require separately approved
+  host-startup permissions, never new extraction runtime grants;
+- source review of the selected host records global non-cancellable registration separately from
+  real-host existence-sensitive keying and exact-key callback exclusion tests;
+- same-key, different-key, existing/missing-key, cancelled-waiter, and registration-failure-recovery
+  tests retain no source bytes before callback entry; direct delayed-entry tests and real-host queued
+  cancellation prove an expired callback performs no mutation after release and the queue remains
+  usable, without claiming native realpath interception;
 - a real Agent batch containing extraction executes sibling tools sequentially;
 - direct extraction works with exact source-read/destination-write permission while run, net, and
   FFI are denied;
 - corrupt input creates neither stage nor destination;
 - existing destination, missing parent, operation/protected roots, case/normalization/realpath
-  aliases, symlink parents, and no-replace races are refused through the item-3 shared guard;
+  aliases, symlink parents, and no-replace races are refused through the shared read-tool guard;
 - successful extraction publishes one complete destination through Rooted;
-- cross-owner integration proves the concrete Rooted writer plus ZIP producer pair settles and
-  revokes stream authority under every injected timeout/failure;
+- cross-owner integration proves the concrete Rooted writer plus ZIP content-source pair settles and
+  revokes content authority under every injected timeout/failure;
 - every prepublication injected failure discards only its owned stage, with primary and cleanup
   errors separated and bounded;
 - ownership loss leaves private residue visible in the cleanup report;
@@ -1249,8 +1757,7 @@ workspace verification appropriate to the final diff.
 - no passwords or encrypted archives;
 - no ZIP64, split archives, self-extracting prefixes, central signatures, or nested recursion;
 - no TAR, GZIP, BZIP2, XZ, Zstandard, 7z, or RAR;
-- no generic cross-format archive API, compression package, adapter registry, or format
-  negotiation;
+- no generic cross-format archive API, compression package, adapter registry, or format negotiation;
 - no profile-level limit tuning in Driver Pi v1; and
 - no claim that CRC, integrity testing, staging, sealing, or extraction establishes provenance,
   authenticity, malware safety, content trust, or future filesystem state.
