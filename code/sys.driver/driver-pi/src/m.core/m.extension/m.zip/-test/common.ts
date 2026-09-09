@@ -1,6 +1,6 @@
+export { describe, expect, it } from '../../../../-test.ts';
 export * from '../common.ts';
 export type * as t from './t.ts';
-export { describe, expect, it } from '../../../../-test.ts';
 
 export { Fixture as ArchiveFixture } from '../../../../../../../sys/archive/src/m.Zip/-test/u.fixture.ts';
 export {
