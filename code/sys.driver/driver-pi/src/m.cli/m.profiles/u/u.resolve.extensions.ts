@@ -28,7 +28,9 @@ export async function resolveExtensions(input: ResolveExtensionsInput) {
   const zipPolicy = input.zip?.enabled !== false
     ? await Zip.resolvePolicy({
       enabled: input.zip?.enabled,
-      readRoots: await zipReadRoots(sandboxFs.readRoots),
+      extract: input.zip?.extract,
+      readRoots: await zipDirectoryRoots(sandboxFs.readRoots),
+      writeRoots: input.zip?.extract ? await zipDirectoryRoots(sandboxFs.writeRoots) : [],
       protectedRoots: [...sandboxFs.protectedRoots],
     })
     : undefined;
@@ -54,7 +56,7 @@ export async function resolveExtensions(input: ResolveExtensionsInput) {
 }
 
 /** Preserve directory and absent roots without broadening exact file grants to their parents. */
-async function zipReadRoots(roots: readonly t.StringPath[]) {
+async function zipDirectoryRoots(roots: readonly t.StringPath[]) {
   const next: t.StringPath[] = [];
   for (const path of roots) {
     try {

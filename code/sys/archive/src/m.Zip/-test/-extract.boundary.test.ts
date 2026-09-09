@@ -1,7 +1,7 @@
 import { describe, expect, it, type t } from '../../-test.ts';
 import { Zip } from '../mod.ts';
 import { drain, rejected } from './u.fixture.extract.ts';
-import { zip } from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 
 const WORK = { timeout: 10_000 };
 const BLOCK = 64 * 1024;
@@ -29,7 +29,7 @@ describe('@sys/archive/zip: public settlement boundaries', () => {
     // Fail visibly if a runtime changes the inspection format, rather than silently weakening proof.
     expect(pending(new Promise(() => {}))).to.eql(true);
     expect(pending(Promise.resolve())).to.eql(false);
-    const archive = await Zip.open(zip([{ name: 'a', data: 'payload' }]).bytes, WORK);
+    const archive = await Zip.open(Fixture.zip([{ name: 'a', data: 'payload' }]).bytes, WORK);
     for (let turns = 0; turns <= 10; turns++) {
       const controller = new AbortController();
       let wasPending = false;
@@ -56,7 +56,7 @@ describe('@sys/archive/zip: public settlement boundaries', () => {
 
   it('continuation-window overlap cannot release the slot before the public promise settles', async () => {
     const archive = await Zip.open(
-      zip([{ name: 'a', data: new Uint8Array(BLOCK * 2) }]).bytes,
+      Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 2) }]).bytes,
       WORK,
     );
     for (let turns = 0; turns <= 10; turns++) {
@@ -92,7 +92,7 @@ describe('@sys/archive/zip: public settlement boundaries', () => {
 
   it('continuation-window early return joins pending demand without exposing its bytes', async () => {
     const archive = await Zip.open(
-      zip([{ name: 'a', data: new Uint8Array(BLOCK * 2) }]).bytes,
+      Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 2) }]).bytes,
       WORK,
     );
     for (let turns = 0; turns <= 10; turns++) {
@@ -122,7 +122,7 @@ describe('@sys/archive/zip: public settlement boundaries', () => {
   });
 
   it('fulfilled incomplete sinks cannot be rescued by later acquisition or demand', async () => {
-    const archive = await Zip.open(zip([{ name: 'empty' }]).bytes, WORK);
+    const archive = await Zip.open(Fixture.zip([{ name: 'empty' }]).bytes, WORK);
     for (const acquireFirst of [false, true]) {
       for (let turns = 1; turns <= 8; turns++) {
         let late: Promise<void> | undefined;
@@ -146,7 +146,7 @@ describe('@sys/archive/zip: public settlement boundaries', () => {
   });
 
   it('successful cleanup callbacks cannot rewrite success through retained sources or iterators', async () => {
-    const archive = await Zip.open(zip([{ name: 'empty' }]).bytes, WORK);
+    const archive = await Zip.open(Fixture.zip([{ name: 'empty' }]).bytes, WORK);
     let calls = 0;
     const late: Promise<unknown>[] = [];
     const result = await archive.extractTo({
@@ -170,7 +170,10 @@ describe('@sys/archive/zip: public settlement boundaries', () => {
   });
 
   it('instance-shadowed signal listener methods never execute as trusted payload or cleanup work', async () => {
-    const corrupt = await Zip.open(zip([{ name: 'bad', data: 'abc', crc32: 0 }]).bytes, WORK);
+    const corrupt = await Zip.open(
+      Fixture.zip([{ name: 'bad', data: 'abc', crc32: 0 }]).bytes,
+      WORK,
+    );
     let borrowed: unknown;
     try {
       await corrupt.test(WORK);
@@ -179,7 +182,10 @@ describe('@sys/archive/zip: public settlement boundaries', () => {
     }
     expect(Zip.Is.failure(borrowed)).to.eql(true);
     for (const method of [0, 8] as const) {
-      const archive = await Zip.open(zip([{ name: 'a', data: 'payload', method }]).bytes, WORK);
+      const archive = await Zip.open(
+        Fixture.zip([{ name: 'a', data: 'payload', method }]).bytes,
+        WORK,
+      );
       for (const property of ['addEventListener', 'removeEventListener']) {
         for (const accessor of [false, true]) {
           for (const cause of [new Error('sink callback'), borrowed]) {

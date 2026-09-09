@@ -1,7 +1,7 @@
 import { Hash } from '@sys/crypto/hash';
 import { describe, expect, it } from '../../-test.ts';
 import { Zip } from '../mod.ts';
-import { zip } from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 
 /** APPNOTE 6.3.10 sections 4.3.1 and 4.3.16: hand-assembled empty ZIP32 EOCD. */
 const EMPTY_ZIP32 = new Uint8Array([
@@ -32,7 +32,7 @@ const EMPTY_ZIP32 = new Uint8Array([
 describe('@sys/archive/zip: ambient-authority boundary', () => {
   it('extracts stored and deflated bytes through an in-memory sink without ambient authority', async () => {
     const archive = await Zip.open(
-      zip([
+      Fixture.zip([
         { name: 'a', data: 'stored' },
         { name: 'd/b', data: 'deflated', method: 8 },
       ]).bytes,

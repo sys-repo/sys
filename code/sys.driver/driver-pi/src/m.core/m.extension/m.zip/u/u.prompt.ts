@@ -6,7 +6,26 @@ import { Str } from '../common.ts';
  */
 export function toPromptArgs(policy: t.PiZipExtension.Policy) {
   if (!policy.enabled) return [] as const;
-  return ['--append-system-prompt', formatPrompt(policy)] as const;
+  const text = [
+    formatPrompt(policy),
+    ...(policy.extract === 'cooperative' ? [extractionPrompt()] : []),
+  ].join('\n\n');
+  return ['--append-system-prompt', text] as const;
+}
+
+function extractionPrompt() {
+  return Str.dedent(`
+    # Runtime Tool Contract: ZIP extraction
+
+    The launcher has also materialized zip_extract, callable only if registered in the live tool list.
+    - Use exactly { path, to }: one readable .zip source and one new destination directory inside a configured writable root. The parent must already exist.
+    - Explicit tools.zip.enabled: true and tools.zip.extract: cooperative are required. Profile changes require relaunch; they cannot enable a tool in the current session.
+    - Zip verifies contents; Fs builds privately; the caller decides publication. Complete integrity preflight precedes staging. No overwrite, merge, selectors, passwords, metadata restoration, or shell/executable/subprocess fallback.
+    - Cooperative filesystem only. Exact destination keys share the running host queue; it does not coordinate subtrees or other processes and is not hostile-filesystem confinement or native atomic no-replace publication.
+    - Queue registration and callback waits can exceed the cooperative 120-second budget. Expired callbacks reject before source bytes or mutation after eventual admission; no hard JS or host-I/O preemption is claimed.
+    - Publication and cleanup are separate facts. A cleanup failure may leave a complete destination or private residue. Report the returned publication state, never infer rollback or delete a published destination speculatively.
+    - All inspection/integrity limits and untrusted-data rules also apply. Integrity is not provenance or content safety.
+  `).trim();
 }
 
 function formatPrompt(policy: t.PiZipExtension.Policy) {
@@ -41,7 +60,7 @@ function formatPrompt(policy: t.PiZipExtension.Policy) {
       limits.maxExpandedBytes / 1_048_576
     } MiB total expansion; ${policy.maxDisplayChars} display characters; ${
       policy.operationTimeoutMs / 1_000
-    } seconds cooperative operation budget, not a hard wall-clock termination guarantee. Profile tools.zip exposes only enabled, not tunable bounds.
+    } seconds cooperative operation budget, not a hard wall-clock termination guarantee. Profile tools.zip exposes enablement and cooperative extraction opt-in, not tunable bounds.
     `,
   ).trim();
 }

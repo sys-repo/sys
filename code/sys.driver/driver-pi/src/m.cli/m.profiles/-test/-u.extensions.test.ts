@@ -22,6 +22,48 @@ describe('@sys/driver-pi/cli/Profiles/extension resolution', () => {
     }
   });
 
+  it('cooperative opt-in → both entries materialize before matching tool and prompt advertisement', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'pi.extensions.extract.' })).absolute;
+    try {
+      const input = { ...inputOf(cwd), zip: { enabled: true, extract: 'cooperative' } } as const;
+      const resolved = await resolveExtensions(input);
+      const base = Fs.join(cwd, '.pi/@sys/extensions/zip');
+      expect(resolved.args).to.eql([
+        '--extension',
+        Fs.join(base, 'mod.read.ts'),
+        '--extension',
+        Fs.join(base, 'mod.extract.ts'),
+      ]);
+      expect(resolved.tools).to.eql(['zip_inspect', 'zip_test', 'zip_extract']);
+      expect(resolved.promptArgs.join('\n')).to.include('Cooperative filesystem only');
+      expect((await Fs.readText(Fs.join(base, 'mod.extract.ts'))).ok).to.eql(true);
+      const readonly = await resolveExtensions(inputOf(cwd));
+      expect(readonly.args).to.eql(['--extension', Fs.join(base, 'mod.read.ts')]);
+      expect(readonly.tools).not.to.include('zip_extract');
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('failed extraction materialization → no successful resolution or advertisement', async () => {
+    const cwd = (await Fs.makeTempDir({ prefix: 'pi.extensions.extract-failure.' })).absolute;
+    try {
+      await Fs.ensureDir(Fs.join(cwd, '.pi/@sys/extensions/zip/mod.extract.ts'));
+      let failed = false;
+      try {
+        await resolveExtensions({
+          ...inputOf(cwd),
+          zip: { enabled: true, extract: 'cooperative' },
+        });
+      } catch {
+        failed = true;
+      }
+      expect(failed).to.eql(true);
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
   it('explicit opt-out → no ZIP loader, prompt, tool names, or materialization', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'pi.extensions.' })).absolute;
     try {

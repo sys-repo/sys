@@ -1,6 +1,6 @@
 import { describe, expect, it, Schedule, type t } from '../../-test.ts';
 import { Zip } from '../mod.ts';
-import { zip } from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 import { drain, rejected } from './u.fixture.extract.ts';
 
 const WORK = { timeout: 10_000 };
@@ -10,7 +10,7 @@ describe('@sys/archive/zip: retained content settlement', () => {
   it('sink throw, partial success, early return, and timeout → retained chunks cannot corrupt later operations', async () => {
     for (const method of [0, 8] as const) {
       const data = new Uint8Array(BLOCK * 3).fill(17);
-      const fixture = zip([{ name: 'a', data, method }]);
+      const fixture = Fixture.zip([{ name: 'a', data, method }]);
       const archive = await Zip.open(fixture.bytes, WORK);
       const inspection = archive.inspect();
       // Extraction must not revisit the caller's source allocation, even after transfer.
@@ -62,7 +62,7 @@ describe('@sys/archive/zip: retained content settlement', () => {
   it('automatic for-await cleanup from a rejecting sink preserves sink-failure and revokes the source', async () => {
     for (const method of [0, 8] as const) {
       const archive = await Zip.open(
-        zip([{ name: 'a', data: new Uint8Array(BLOCK * 2), method }]).bytes,
+        Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 2), method }]).bytes,
         WORK,
       );
       let content: AsyncIterable<Uint8Array> | undefined;
@@ -88,7 +88,7 @@ describe('@sys/archive/zip: retained content settlement', () => {
   it('return interrupts and joins pending next without replacing a rejecting sink with cleanup failure', async () => {
     for (const method of [0, 8] as const) {
       const archive = await Zip.open(
-        zip([{ name: 'a', data: new Uint8Array(BLOCK * 2), method }]).bytes,
+        Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 2), method }]).bytes,
         WORK,
       );
       for (const throws of [false, true]) {
@@ -114,7 +114,7 @@ describe('@sys/archive/zip: retained content settlement', () => {
 
   it('concurrent operations have independent consumption state and cancellation authority', async () => {
     const archive = await Zip.open(
-      zip([{ name: 'a', data: new Uint8Array(BLOCK * 2), method: 8 }]).bytes,
+      Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 2), method: 8 }]).bytes,
       WORK,
     );
     const controller = new AbortController();

@@ -7,7 +7,7 @@ import { DEFAULT_SYSTEM_PROMPT, PROVENANCE_SAFETY_PROMPT } from '../u/u.prompt.t
 import { resolveRun } from '../u/u.resolve.run.ts';
 import { withInherit } from '../../u/u.inherit.ts';
 import { withInvoke } from '../../u/u.invoke.ts';
-import { PI_AGENT_IMPORT_BASE } from '../../u/u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT, PI_AGENT_IMPORT_BASE } from '../../u/u.resolve.pkg.ts';
 
 const Process = { ...ProcessOwner };
 const Profiles = {
@@ -55,6 +55,30 @@ describe(`@sys/driver-pi/cli/Profiles/m.run`, () => {
         expect(contract).to.include('Do not make exhaustive listings or absence claims');
         expectFinalProvenanceSafety(resolved.args);
       }
+    } finally {
+      await Fs.remove(root);
+    }
+  });
+
+  it('cooperative extraction → package overrides refuse before extension materialization', async () => {
+    const root = (await Fs.makeTempDir({ prefix: 'pi.zip.host-admission.' })).absolute;
+    const config = Fs.join(root, 'profile.yaml');
+    try {
+      await Fs.write(
+        config,
+        Json.stringify({ tools: { zip: { enabled: true, extract: 'cooperative' } }, sandbox: {} }),
+        { throw: true },
+      );
+      let refused = false;
+      try {
+        await resolveRun({ cwd: { invoked: root, root }, config, pkg: PI_AGENT_IMPORT }, {
+          ocrPreflight: false,
+        });
+      } catch {
+        refused = true;
+      }
+      expect(refused).to.eql(true);
+      expect(await Fs.exists(Fs.join(root, '.pi/@sys/extensions'))).to.eql(false);
     } finally {
       await Fs.remove(root);
     }

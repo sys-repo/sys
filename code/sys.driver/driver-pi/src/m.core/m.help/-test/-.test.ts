@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import { PiHelp } from '../mod.ts';
 
 const structuralChapters = ['extensions', 'profile', 'tools'] as const;
-const toolPolicyChapters = ['copy', 'move', 'ocr-pdf', 'remove'] as const;
+const toolPolicyChapters = ['copy', 'move', 'ocr-pdf', 'remove', 'zip'] as const;
 
 describe('@sys/driver-pi/m.help', () => {
   it('loads the root DSL chapter with the structural chapter index', async () => {
@@ -52,6 +52,13 @@ describe('@sys/driver-pi/m.help', () => {
       expect(chapter.id).to.eql(id);
       expect(chapter.path).to.eql(['tools', id]);
       expect(chapter.chapters).to.eql([]);
+      if (id === 'zip') {
+        const text = chapterText(chapter);
+        expect(text).to.contain('extract: cooperative');
+        expect(text).to.contain('Publication and cleanup are separate facts');
+        expect(text).to.contain('not subtrees or other processes');
+        expect(text).to.contain('Package overrides are refused');
+      }
       if (id === 'ocr-pdf') {
         const text = chapterText(chapter);
         expect(text).to.contain('Default OCR PDF policy is disabled');

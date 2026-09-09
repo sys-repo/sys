@@ -10,7 +10,7 @@ sections:
       The prompt asks to enable, disable, or configure a Pi-Driver tool through profile YAML.
       The prompt asks why a configured tool is not callable in this live session.
       The prompt asks where a concrete Pi-Driver tool DSL chapter belongs.
-      The prompt asks how `tools.remove`, `tools.move`, `tools.copy`, or `tools.ocr.pdf` should be authored.
+      The prompt asks how `tools.remove`, `tools.move`, `tools.copy`, `tools.ocr.pdf`, or `tools.zip` should be authored.
 
   - label: Rule
     items: |
@@ -36,6 +36,7 @@ sections:
       Filesystem move or rename profile policy → `dsl tools move`.
       Filesystem copy or artifact-import profile policy → `dsl tools copy`.
       OCR PDF profile policy → `dsl tools ocr-pdf`.
+      ZIP inspection, integrity, and cooperative extraction policy → `dsl tools zip`.
       These are guidance paths for profile policy, not callable tool APIs.
 
   - label: Shared YAML shape

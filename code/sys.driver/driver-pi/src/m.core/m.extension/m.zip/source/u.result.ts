@@ -72,17 +72,24 @@ export function toolFailure(
   error: unknown,
   max: number,
 ): Error {
-  let reason = 'unexpected bounded ZIP tool failure';
-  if (isGuardFailure(error)) reason = error.message;
-  else if (Zip.Is.failure(error)) {
-    reason = `ZIP ${error.operation} ${error.kind}${
-      error.entryIndex === undefined ? '' : ` at entry ${error.entryIndex}`
-    }`;
-  } else if (Snapshot.Is.failure(error)) reason = `source snapshot ${error.kind}`;
-  const suffix = `: ${reason}.`;
+  const suffix = `: ${toolFailureReason(error)}.`;
   const prefix = `${name} failed for `;
   const path = boundedText(displayPath(requested), max - prefix.length - suffix.length);
   return new Error(`${prefix}${path}${suffix}`);
+}
+
+/**
+ * Select the authenticated reason independently of path context and presentation budgets.
+ */
+export function toolFailureReason(error: unknown): string {
+  if (isGuardFailure(error)) return error.message;
+  if (Zip.Is.failure(error)) {
+    return `ZIP ${error.operation} ${error.kind}${
+      error.entryIndex === undefined ? '' : ` at entry ${error.entryIndex}`
+    }`;
+  }
+  if (Snapshot.Is.failure(error)) return `source snapshot ${error.kind}`;
+  return 'unexpected bounded ZIP tool failure';
 }
 
 function formatEntry(entry: t.Entry) {

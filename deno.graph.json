@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1788489699169,
+    "createdAt": 1788858738170,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-cfd892e2eac9761c375ade9f88d7e22343083ded0bbabc3aa687b4141b3d1fb5",
+      "/graph": "sha256-edc1d737a571de74e26b0f5bb4f668497a7e4120ecc12159347a4e0f5c19962f",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.154/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.154/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1788489699174
+    "modifiedAt": 1788858738176
   },
   "graph": {
     "orderedPaths": [
@@ -462,6 +462,10 @@
       {
         "from": "code/sys.ui/ui-state",
         "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/archive",
+        "to": "code/sys.driver/driver-pi"
       },
       {
         "from": "code/sys/cli",

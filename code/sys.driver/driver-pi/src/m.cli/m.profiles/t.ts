@@ -285,11 +285,10 @@ export declare namespace PiCliProfiles {
       readonly enabled?: boolean;
     };
 
-    /** Read-only ZIP inspection and integrity tool policy. */
-    export type Zip = {
-      /** Enable wrapper-owned `zip_inspect` and `zip_test` tools. */
-      readonly enabled?: boolean;
-    };
+    /** ZIP reads, with extraction available only by explicit cooperative opt-in. */
+    export type Zip =
+      | { readonly enabled?: boolean; readonly extract?: never }
+      | { readonly enabled: true; readonly extract: 'cooperative' };
 
     /** Optical character recognition (OCR) tool policy. */
     export type Ocr = {

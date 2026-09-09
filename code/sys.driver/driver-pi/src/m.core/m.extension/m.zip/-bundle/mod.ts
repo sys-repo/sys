@@ -1,76 +1,103 @@
 import { Hash } from '@sys/crypto/hash';
 import { Fs } from '@sys/fs';
-import { Is, Json, Path } from './common.ts';
+import { Is, Json, Path, type t } from './common.ts';
 
-const EXTERNAL_IMPORTS = ['node:util', 'node:zlib'] as const;
-export const ZIP_POLICY_MARKER = '__ZIP_READ_POLICY__' as const;
-
-/** Prepared standalone ZIP extension artifact. */
-export type ZipReadBundleArtifact = {
-  readonly bundleHash: string;
-  readonly text: string;
-};
+const EXTERNAL_IMPORTS = {
+  read: ['node:util', 'node:zlib'],
+  extract: [
+    'node:util',
+    'node:zlib',
+    'node:fs',
+    'node:fs/promises',
+    '@earendil-works/pi-coding-agent',
+  ],
+} as const;
+const MARKERS = { read: '__ZIP_READ_POLICY__', extract: '__ZIP_EXTRACT_POLICY__' } as const;
+export const ZIP_POLICY_MARKER = MARKERS.read;
+export const ZIP_EXTRACT_POLICY_MARKER = MARKERS.extract;
 
 /**
- * Bundle the read-only ZIP runtime and update its prepared artifact.
+ * Prepare both ZIP entries, or check their exact correspondence to freshly built owner source.
+ * Check mode leaves prepared artifacts unchanged; both modes use the same admission rules.
  */
-export async function bundleZipRead(): Promise<ZipReadBundleArtifact> {
-  const root = Path.resolve(import.meta.dirname ?? '.', '..');
-  const source = Path.join(root, 'source/mod.read.ts');
-  const built = await build(source);
-  const artifact = { bundleHash: Hash.sha256(built), text: built };
-  await writeIfChanged(
-    Path.join(root, '-bundle/artifact.json'),
-    Json.stringify(artifact, 2),
-  );
-  return artifact;
+export async function bundleZipExtensions(mode: t.Mode = 'write'): Promise<void> {
+  await bundle('read', mode);
+  await bundle('extract', mode);
 }
 
 /**
  * Compute the digest for generated extension bytes.
  */
-export function hashZipReadArtifact(text: string) {
+export function hashZipArtifact(text: string) {
   return Hash.sha256(text);
 }
 
 /**
- * Verify the generated module has one entry and only its required built-in imports.
+ * Require one unresolved launch-policy marker and no source-map directive.
  */
-async function validateZipReadArtifact(path: string) {
-  assertGraph(await denoJson(['info', '--json', '--no-config', path]));
-  assertDefaultOnly(await denoJson(['doc', '--json', '--no-config', path]));
+export function assertPolicyMarker(text: string, kind: t.Kind = 'read') {
+  if (text.split(MARKERS[kind]).length !== 2) {
+    throw new Error(`ZIP ${kind} extension bundle must contain exactly one policy marker.`);
+  }
+  if (text.includes('//# sourceMappingURL=') || text.includes('//@ sourceMappingURL=')) {
+    throw new Error(`ZIP ${kind} extension bundle must not contain source-map directives.`);
+  }
+}
+
+if (import.meta.main) {
+  const usage = 'Usage: deno task prep:zip [--check | --help]';
+  const [arg] = Deno.args;
+  if (Deno.args.length > 1 || (arg !== undefined && arg !== '--check' && arg !== '--help')) {
+    throw new Error(usage);
+  }
+  if (arg === '--help') {
+    console.info(`${usage}\n--check rebuilds and compares without updating prepared artifacts.`);
+  } else {
+    await bundleZipExtensions(arg === '--check' ? 'check' : 'write');
+  }
 }
 
 /**
- * Require exactly one unresolved launch-policy marker and no source-map directive.
+ * Helpers:
  */
-export function assertPolicyMarker(text: string) {
-  if (text.split(ZIP_POLICY_MARKER).length !== 2) {
-    throw new Error('ZIP read extension bundle must contain exactly one policy marker.');
-  }
-  if (text.includes('//# sourceMappingURL=') || text.includes('//@ sourceMappingURL=')) {
-    throw new Error('ZIP read extension bundle must not contain source-map directives.');
-  }
-}
-
-if (import.meta.main) await bundleZipRead();
-
-async function build(source: string) {
+async function bundle(kind: t.Kind, mode: t.Mode): Promise<t.Artifact> {
+  const root = Path.resolve(import.meta.dirname ?? '.', '..');
+  const source = Path.join(root, `source/mod.${kind}.ts`);
   const dir = (await Fs.makeTempDir({ prefix: 'sys-driver-pi-zip-bundle-' })).absolute;
-  const output = Path.join(dir, 'mod.read.ts');
+  const output = Path.join(dir, `mod.${kind}.ts`);
   try {
     await deno([
       'bundle',
       '--frozen',
       '--platform=deno',
-      ...EXTERNAL_IMPORTS.map((specifier) => `--external=${specifier}`),
+      ...EXTERNAL_IMPORTS[kind].map((specifier) => `--external=${specifier}`),
       `--output=${output}`,
       source,
     ]);
     const text = await readText(output);
-    assertPolicyMarker(text);
-    await validateZipReadArtifact(output);
-    return text;
+    assertPolicyMarker(text, kind);
+    // The extraction artifact's bare host import resolves through the owning module's authority.
+    const config = `--config=${Path.resolve(root, '../../../../deno.json')}`;
+    assertGraph(await denoJson(['info', '--json', config, output]), kind);
+    assertDefaultOnly(await denoJson(['doc', '--json', config, output]));
+    const artifact = { bundleHash: hashZipArtifact(text), text };
+    const target = Path.join(
+      root,
+      '-bundle',
+      kind === 'read' ? 'artifact.json' : 'artifact.extract.json',
+    );
+    const prepared = Json.stringify(artifact, 2);
+    if (mode === 'check') {
+      if (await readText(target) !== prepared) {
+        throw new Error(
+          `Prepared ZIP ${kind} artifact differs from current owner source: ${target}`,
+        );
+      }
+      console.info(`ZIP ${kind} artifact matches current owner source: ${artifact.bundleHash}`);
+    } else {
+      await writeIfChanged(target, prepared);
+    }
+    return artifact;
   } finally {
     await Fs.remove(dir);
   }
@@ -93,28 +120,35 @@ async function denoJson(args: readonly string[]): Promise<unknown> {
   return Json.parse(new TextDecoder().decode((await deno(args)).stdout));
 }
 
-function assertGraph(input: unknown) {
+function assertGraph(input: unknown, kind: t.Kind) {
   if (
     !Is.record(input) || !Is.array(input.modules) || !Is.array(input.roots) ||
     input.roots.length !== 1
   ) {
     throw new Error('Deno emitted an invalid ZIP extension module graph.');
   }
-  const esm = input.modules.filter((module) => Is.record(module) && module.kind === 'esm');
-  if (esm.length !== 1 || !Is.record(esm[0]) || !Is.array(esm[0].dependencies)) {
-    throw new Error('ZIP read extension must contain exactly one generated ESM module.');
+  const root = input.roots[0];
+  const modules = input.modules.filter((module) => Is.record(module) && module.specifier === root);
+  const entry = modules[0];
+  if (
+    modules.length !== 1 || !Is.record(entry) || entry.kind !== 'esm' ||
+    !Is.array(entry.dependencies)
+  ) {
+    throw new Error('ZIP extension must contain exactly one generated root ESM module.');
   }
   const imports: string[] = [];
-  for (const dependency of esm[0].dependencies) {
+  for (const dependency of entry.dependencies) {
     if (
       !Is.record(dependency) || !Is.string(dependency.specifier) || dependency.isDynamic === true
     ) {
-      throw new Error('ZIP read extension contains an invalid or dynamic import.');
+      throw new Error('ZIP extension contains an invalid or dynamic import.');
     }
     imports.push(dependency.specifier);
   }
-  if (Json.stringify(imports.sort()) !== Json.stringify([...EXTERNAL_IMPORTS].sort())) {
-    throw new Error(`ZIP read extension has an invalid import graph: ${Json.stringify(imports)}`);
+  if (Json.stringify(imports.sort()) !== Json.stringify([...EXTERNAL_IMPORTS[kind]].sort())) {
+    throw new Error(
+      `ZIP ${kind} extension has an invalid import graph: ${Json.stringify(imports)}`,
+    );
   }
 }
 
@@ -124,14 +158,14 @@ function assertDefaultOnly(input: unknown) {
   }
   const modules = Object.values(input.nodes);
   if (modules.length !== 1 || !Is.record(modules[0]) || !Is.array(modules[0].symbols)) {
-    throw new Error('ZIP read extension export metadata is invalid.');
+    throw new Error('ZIP extension export metadata is invalid.');
   }
   const symbols = modules[0].symbols;
   if (
     symbols.length !== 1 || !Is.record(symbols[0]) || symbols[0].name !== 'default' ||
     symbols[0].isDefault !== true
   ) {
-    throw new Error('ZIP read extension must export exactly one default extension function.');
+    throw new Error('ZIP extension must export exactly one default extension function.');
   }
 }
 

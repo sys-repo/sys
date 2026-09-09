@@ -1,7 +1,7 @@
 import { Fs } from '@sys/fs';
 import { describe, expect, it, type t } from '../../-test.ts';
 import { Zip } from '../mod.ts';
-import { zip } from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 
 const WORK = { timeout: 10_000 };
 
@@ -18,7 +18,7 @@ describe('@sys/archive/zip: owned tree sink interoperability', () => {
       // This assignment proves the two public owner contracts compose without an adapter or cast.
       const sink: t.Zip.Extract.TreeSink = stage.writer;
       const archive = await Zip.open(
-        zip([
+        Fixture.zip([
           { name: 'deep/stored.txt', data: 'stored' },
           { name: 'deep/deflated.txt', data: 'deflated', method: 8 },
           { name: 'empty' },
@@ -54,7 +54,10 @@ describe('@sys/archive/zip: owned tree sink interoperability', () => {
         path: './unpacked',
       }]);
       const stage = await rooted.Stage.create();
-      const archive = await Zip.open(zip([{ name: 'a.txt', data: 'published' }]).bytes, WORK);
+      const archive = await Zip.open(
+        Fixture.zip([{ name: 'a.txt', data: 'published' }]).bytes,
+        WORK,
+      );
       const warning = new Error('promotion cleanup warning');
       const discardError = new Error('discard failure');
       let discardCalls = 0;
@@ -94,7 +97,7 @@ describe('@sys/archive/zip: owned tree sink interoperability', () => {
       }]);
       const stage = await rooted.Stage.create();
       const archive = await Zip.open(
-        zip([{ name: 'a.txt', data: 'corrupt', crc32: 0 }]).bytes,
+        Fixture.zip([{ name: 'a.txt', data: 'corrupt', crc32: 0 }]).bytes,
         WORK,
       );
       const discardError = new Error('discard failure');
@@ -143,7 +146,7 @@ describe('@sys/archive/zip: owned tree sink interoperability', () => {
       const stage = await rooted.Stage.create();
       const controller = new AbortController();
       const archive = await Zip.open(
-        zip([{ name: 'a', data: new Uint8Array(128 * 1024), method: 8 }]).bytes,
+        Fixture.zip([{ name: 'a', data: new Uint8Array(128 * 1024), method: 8 }]).bytes,
         WORK,
       );
       let error: unknown;

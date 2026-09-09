@@ -1,15 +1,15 @@
 import type { t } from './common.ts';
 
 /**
- * Wrapper-owned bounded ZIP inspection Pi extension.
+ * Wrapper-owned bounded ZIP tools with opt-in cooperative extraction.
  */
 export declare namespace PiZipExtension {
   /**
-   * Runtime surface for bounded read-only ZIP tools.
+   * Runtime surface for bounded ZIP tools.
    */
   export type Lib = {
     /**
-     * Resolve immutable extension policy from launcher read/protected roots.
+     * Resolve immutable extension policy from launcher filesystem roots.
      */
     resolvePolicy(input: ResolvePolicyInput): Promise<Policy>;
     /**
@@ -21,13 +21,13 @@ export declare namespace PiZipExtension {
      */
     toPromptArgs(policy: Policy): readonly string[];
     /**
-     * Materialize the generated read-only ZIP extension.
+     * Materialize the read entry and, only when opted in, the extraction entry.
      */
     write(input: WriteInput): Promise<WriteResult>;
   };
 
-  /** Read-only ZIP tool name. */
-  export type ToolName = 'zip_inspect' | 'zip_test';
+  /** ZIP tool name. */
+  export type ToolName = 'zip_inspect' | 'zip_test' | 'zip_extract';
 
   /** Safe device/inode identity available from the host. */
   export type Identity = { readonly dev: number; readonly ino: number };
@@ -47,7 +47,9 @@ export declare namespace PiZipExtension {
   export type Policy = {
     readonly version: 1;
     readonly enabled: boolean;
+    readonly extract?: 'cooperative';
     readonly readRoots: readonly RootEvidence[];
+    readonly writeRoots: readonly RootEvidence[];
     readonly protectedRoots: readonly RootEvidence[];
     readonly protectedNames: readonly ['.git', '.pi', '.sys.rooted'];
     readonly operationTimeoutMs: 120_000;
@@ -70,7 +72,9 @@ export declare namespace PiZipExtension {
   /** Inputs for resolving ZIP extension policy. */
   export type ResolvePolicyInput = {
     enabled?: boolean;
+    extract?: 'cooperative';
     readRoots: t.StringPath[];
+    writeRoots?: t.StringPath[];
     protectedRoots: t.StringPath[];
   };
 
@@ -83,6 +87,7 @@ export declare namespace PiZipExtension {
   /** Materialized ZIP extension result. */
   export type WriteResult = {
     readonly path: t.StringPath;
+    readonly extractPath?: t.StringPath;
     readonly args: readonly string[];
     readonly policy: Policy;
   };

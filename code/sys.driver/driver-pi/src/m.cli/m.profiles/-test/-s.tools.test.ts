@@ -45,7 +45,23 @@ describe('@sys/driver-pi/cli/Profiles/tools schema', () => {
     expect(Schema.Value.Check(schema, { tools: { ocr: { pdf: { force: true } } } })).to.eql(false);
   });
 
-  it('unknown fields → rejects extra tools, extra options, and ZIP extraction policy', () => {
+  it('ZIP extraction → requires explicit enabled and exactly the cooperative mode', () => {
+    const valid = { tools: { zip: { enabled: true, extract: 'cooperative' } } };
+    expect(Schema.Value.Check(schema, valid)).to.eql(true);
+    for (
+      const zip of [
+        { extract: 'cooperative' },
+        { enabled: false, extract: 'cooperative' },
+        { enabled: true, extract: true },
+        { enabled: true, extract: 'overwrite' },
+        { enabled: true, extract: 'cooperative', overwrite: true },
+      ]
+    ) {
+      expect(Schema.Value.Check(schema, { tools: { zip } })).to.eql(false);
+    }
+  });
+
+  it('unknown fields → rejects extra tools, extra options, and boolean ZIP extraction', () => {
     expect(Schema.Value.Check(schema, { tools: { unknown: {} } })).to.eql(false);
     for (const name of ['remove', 'move', 'copy', 'ocr', 'zip']) {
       expect(Schema.Value.Check(schema, { tools: { [name]: { force: true } } })).to.eql(false);

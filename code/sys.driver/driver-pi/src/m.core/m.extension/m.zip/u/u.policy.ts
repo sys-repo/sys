@@ -17,11 +17,20 @@ const ZIP_LIMITS = {
 } as const;
 
 /**
- * Resolve immutable launch-time policy for read-only ZIP tools.
+ * Resolve immutable launch-time policy for bounded ZIP tools.
  */
 export async function resolvePolicy(
   input: t.PiZipExtension.ResolvePolicyInput,
 ): Promise<t.PiZipExtension.Policy> {
+  if (input.extract !== undefined && (input.extract !== 'cooperative' || input.enabled !== true)) {
+    throw new Error('ZIP extraction requires enabled: true and extract: cooperative.');
+  }
+  const writeRoots = input.extract
+    ? await Promise.all(
+      Arr.uniq((input.writeRoots ?? []).map((path) => Path.resolve(path)))
+        .map((path) => rootEvidence(path, true)),
+    )
+    : [];
   const readRoots = await Promise.all(
     Arr.uniq(input.readRoots.map((path) => Path.resolve(path))).map((path) =>
       rootEvidence(path, true)
@@ -36,7 +45,9 @@ export async function resolvePolicy(
   return Obj.deepFreeze({
     version: 1,
     enabled: input.enabled !== false,
+    ...(input.extract ? { extract: input.extract } : {}),
     readRoots,
+    writeRoots,
     protectedRoots,
     protectedNames: PROTECTED_NAMES,
     operationTimeoutMs: 120_000,
@@ -52,7 +63,10 @@ export async function resolvePolicy(
  * Resolve tool names registered by an enabled ZIP policy.
  */
 export function toolNames(policy: t.PiZipExtension.Policy): readonly t.PiZipExtension.ToolName[] {
-  return policy.enabled ? ['zip_inspect', 'zip_test'] : [];
+  if (!policy.enabled) return [];
+  return policy.extract === 'cooperative'
+    ? ['zip_inspect', 'zip_test', 'zip_extract']
+    : ['zip_inspect', 'zip_test'];
 }
 
 async function rootEvidence(

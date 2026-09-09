@@ -127,7 +127,10 @@ async function test(
   }
 }
 
-async function openSource(policy: t.Policy, source: t.Source, operation: t.Operation) {
+/**
+ * Snapshot once and transfer bytes to Archive; shared by reads and extraction.
+ */
+export async function openSource(policy: t.Policy, source: t.Source, operation: t.Operation) {
   let snapshot: t.SnapshotResult | undefined = await Snapshot.file({
     root: source.root,
     path: source.resolved,
@@ -151,21 +154,37 @@ async function openSource(policy: t.Policy, source: t.Source, operation: t.Opera
   }
 }
 
-function startOperation(name: t.ToolName, policy: t.Policy, signal?: AbortSignal): t.Operation {
+/**
+ * Start the monotonic operation budget before argument or filesystem work.
+ */
+export function startOperation(
+  name: t.ToolName,
+  policy: t.Policy,
+  signal?: AbortSignal,
+): t.Operation {
   return { name, deadline: performance.now() + policy.operationTimeoutMs, signal };
 }
 
-async function initialSettlement(operation: t.Operation) {
+/**
+ * Yield once so an already-stopped call fails before filesystem work.
+ */
+export async function initialSettlement(operation: t.Operation) {
   await Schedule.tick();
   check(operation);
 }
 
-function check(operation: t.Operation) {
+/**
+ * Recheck cooperative cancellation and the original monotonic deadline.
+ */
+export function check(operation: t.Operation) {
   if (operation.signal?.aborted) throw guardFailure('operation cancelled');
   if (performance.now() >= operation.deadline) throw guardFailure('operation timeout exceeded');
 }
 
-function remaining(operation: t.Operation) {
+/**
+ * Pass only the remaining operation budget to the next owner.
+ */
+export function remaining(operation: t.Operation) {
   check(operation);
   return Math.max(1, Math.ceil(operation.deadline - performance.now()));
 }

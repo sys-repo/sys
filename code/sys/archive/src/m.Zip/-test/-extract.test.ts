@@ -1,6 +1,6 @@
 import { describe, Dispose, expect, Is, it, Schedule, type t, Time } from '../../-test.ts';
 import { Zip } from '../mod.ts';
-import { zip } from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 import { drain, rejected } from './u.fixture.extract.ts';
 
 type Entries = readonly t.Zip.Extract.TreeEntry[];
@@ -17,7 +17,7 @@ async function call(fn: () => unknown) {
 describe('@sys/archive/zip: extraction', () => {
   it('empty and directory-only trees → one frozen complete batch and exact result', async () => {
     for (const names of [[], ['d/', 'd/e/']]) {
-      const archive = await Zip.open(zip(names.map((name) => ({ name }))).bytes, WORK);
+      const archive = await Zip.open(Fixture.zip(names.map((name) => ({ name }))).bytes, WORK);
       let called = 0;
       const result = await archive.extractTo({
         async writeTree(entries, options) {
@@ -44,7 +44,7 @@ describe('@sys/archive/zip: extraction', () => {
 
   it('mixed files and implicit parents → physical file order, exact limits, and original payloads', async () => {
     const archive = await Zip.open(
-      zip([
+      Fixture.zip([
         { name: 'deep/path/é.txt', data: 'stored' },
         { name: 'other/value', data: 'deflated', method: 8, descriptor: 'signed' },
         { name: 'deep/', creator: 3 },
@@ -96,7 +96,7 @@ describe('@sys/archive/zip: extraction', () => {
   it('hostile retention, mutation, and transfer → fresh bounded chunks never alias archive storage', async () => {
     for (const method of [0, 8] as const) {
       const input = new Uint8Array(BLOCK * 3 + 1).fill(7);
-      const archive = await Zip.open(zip([{ name: 'a', data: input, method }]).bytes, WORK);
+      const archive = await Zip.open(Fixture.zip([{ name: 'a', data: input, method }]).bytes, WORK);
       const retained: Uint8Array[] = [];
       await archive.extractTo({
         async writeTree(entries) {
@@ -123,7 +123,7 @@ describe('@sys/archive/zip: extraction', () => {
 
   it('stored private views never invoke species or shadowable typed-array accessors after sink entry', async () => {
     const archive = await Zip.open(
-      zip([{ name: 'a', data: new Uint8Array(BLOCK * 2) }]).bytes,
+      Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 2) }]).bytes,
       WORK,
     );
     let reads = 0;
@@ -152,7 +152,7 @@ describe('@sys/archive/zip: extraction', () => {
   });
 
   it('corrupt payloads → preflight selects owner failure before any sink invocation', async () => {
-    const cases: Array<{ data: Parameters<typeof zip>[0]; kind: t.Zip.Failure.Kind }> = [
+    const cases: Array<{ data: Parameters<typeof Fixture.zip>[0]; kind: t.Zip.Failure.Kind }> = [
       { data: [{ name: 'a', data: 'abc', crc32: 0 }], kind: 'crc-mismatch' },
       { data: [{ name: 'a', data: 'abc', method: 8, expandedSize: 2 }], kind: 'size-mismatch' },
       {
@@ -161,7 +161,7 @@ describe('@sys/archive/zip: extraction', () => {
       },
     ];
     for (const item of cases) {
-      const archive = await Zip.open(zip(item.data).bytes, WORK);
+      const archive = await Zip.open(Fixture.zip(item.data).bytes, WORK);
       let calls = 0;
       await rejected(
         archive.extractTo({
@@ -177,7 +177,7 @@ describe('@sys/archive/zip: extraction', () => {
   });
 
   it('sink and option admission → exact own data, no proxy traps or accessor execution', async () => {
-    const archive = await Zip.open(zip().bytes, WORK);
+    const archive = await Zip.open(Fixture.zip().bytes, WORK);
     let reads = 0;
     const trap = () => {
       reads++;
@@ -205,7 +205,7 @@ describe('@sys/archive/zip: extraction', () => {
   });
 
   it('captured sink, options, and fan-in containers → caller mutation cannot redirect the operation', async () => {
-    const archive = await Zip.open(zip([{ name: 'a', data: 'value' }]).bytes, WORK);
+    const archive = await Zip.open(Fixture.zip([{ name: 'a', data: 'value' }]).bytes, WORK);
     let calls = 0;
     const sink = {
       async writeTree(entries: Entries) {
@@ -246,7 +246,7 @@ describe('@sys/archive/zip: extraction', () => {
       },
     };
     // Corruption would fail preflight if cancellation did not win first.
-    const archive = await Zip.open(zip([{ name: 'a', data: 'abc', crc32: 0 }]).bytes, WORK);
+    const archive = await Zip.open(Fixture.zip([{ name: 'a', data: 'abc', crc32: 0 }]).bytes, WORK);
     for (const until of [controller.signal, disposed, synchronous]) {
       await rejected(
         Reflect.apply(archive.extractTo, archive, [discard, { ...WORK, until }]),
@@ -256,7 +256,7 @@ describe('@sys/archive/zip: extraction', () => {
     await rejected(archive.extractTo(discard, { timeout: 0 }), 'timeout');
     expect(subscribed).to.eql(1);
     expect(unsubscribed).to.eql(1);
-    const empty = await Zip.open(zip().bytes, WORK);
+    const empty = await Zip.open(Fixture.zip().bytes, WORK);
     await empty.extractTo(discard, { ...WORK, until: Array(255).fill(undefined) });
     await rejected(
       empty.extractTo(discard, { ...WORK, until: Array(256).fill(undefined) }),
@@ -269,7 +269,7 @@ describe('@sys/archive/zip: extraction', () => {
   });
 
   it('sink-thrown errors and borrowed branded errors → sink failure, never forged operation authority', async () => {
-    const archive = await Zip.open(zip().bytes, { ...WORK, limits: { maxErrorChars: 8 } });
+    const archive = await Zip.open(Fixture.zip().bytes, { ...WORK, limits: { maxErrorChars: 8 } });
     let reads = 0;
     const hostile = Object.defineProperty({}, 'message', {
       get() {
@@ -299,7 +299,7 @@ describe('@sys/archive/zip: extraction', () => {
 
   it('skipped, repeated, out-of-order, or overlapping demands → latched protocol failure even if caught', async () => {
     const archive = await Zip.open(
-      zip([{ name: 'a', data: 'a' }, { name: 'b', data: 'b' }]).bytes,
+      Fixture.zip([{ name: 'a', data: 'a' }, { name: 'b', data: 'b' }]).bytes,
       WORK,
     );
     const violations: Array<(entries: Entries) => void | Promise<void>> = [
@@ -339,7 +339,7 @@ describe('@sys/archive/zip: extraction', () => {
   it('early return → incomplete on sink success, sink-failure on rejection, never false completion', async () => {
     for (const method of [0, 8] as const) {
       const archive = await Zip.open(
-        zip([{ name: 'a', data: new Uint8Array(BLOCK * 2), method }]).bytes,
+        Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 2), method }]).bytes,
         WORK,
       );
       for (const throws of [false, true]) {
@@ -360,7 +360,7 @@ describe('@sys/archive/zip: extraction', () => {
   });
 
   it('completed iterators are inert within the operation; all retained authority is revoked afterward', async () => {
-    const archive = await Zip.open(zip([{ name: 'zero' }]).bytes, WORK);
+    const archive = await Zip.open(Fixture.zip([{ name: 'zero' }]).bytes, WORK);
     let source: AsyncIterable<Uint8Array> | undefined;
     let iterator: AsyncIterator<Uint8Array> | undefined;
     await archive.extractTo({
@@ -379,7 +379,7 @@ describe('@sys/archive/zip: extraction', () => {
 
   it('timeout while the sink retains a paused inflater → revoke, join native work, observe late rejection', async () => {
     const archive = await Zip.open(
-      zip([{ name: 'a', data: new Uint8Array(BLOCK * 4), method: 8 }]).bytes,
+      Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 4), method: 8 }]).bytes,
       WORK,
     );
     let iterator: AsyncIterator<Uint8Array> | undefined;
@@ -406,7 +406,7 @@ describe('@sys/archive/zip: extraction', () => {
   it('active cancellation → no later payload exposure and no failure replacement by the sink', async () => {
     for (const method of [0, 8] as const) {
       const archive = await Zip.open(
-        zip([{ name: 'a', data: new Uint8Array(BLOCK * 4), method }]).bytes,
+        Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 4), method }]).bytes,
         WORK,
       );
       const controller = new AbortController();
@@ -429,7 +429,7 @@ describe('@sys/archive/zip: extraction', () => {
   });
 
   it('a non-preemptible sink prefix exhausts the deadline → timeout wins over its later exception', async () => {
-    const archive = await Zip.open(zip().bytes, WORK);
+    const archive = await Zip.open(Fixture.zip().bytes, WORK);
     let entered = false;
     await rejected(
       archive.extractTo({
@@ -448,7 +448,7 @@ describe('@sys/archive/zip: extraction', () => {
 
   it('slow demand → bounded chunks and complete consumption', async () => {
     const archive = await Zip.open(
-      zip([{ name: 'a', data: new Uint8Array(BLOCK * 4), method: 8 }]).bytes,
+      Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 4), method: 8 }]).bytes,
       WORK,
     );
     let count = 0;

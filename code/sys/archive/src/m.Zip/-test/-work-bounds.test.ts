@@ -10,7 +10,7 @@ import {
   testPayloads,
   writeInflater,
 } from '../u/u.payload.ts';
-import { zip } from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 
 const MIB = 1024 * 1024;
 const LIMITS: t.Zip.Limits = Object.freeze({
@@ -252,14 +252,14 @@ describe('@sys/archive/zip: bounded work', () => {
 
   describe('cooperative parser and payload scheduling', () => {
     it('yields after at most 32 parsed central and local records', async () => {
-      const fifteen = zip(
+      const fifteen = Fixture.zip(
         Array.from({ length: 15 }, (_, index) => ({ name: `entry-${index}` })),
       );
       const before = context();
       await parseZip(fifteen.bytes, LIMITS, before.context);
       expect(before.yields()).to.eql(0);
 
-      const sixteen = zip(
+      const sixteen = Fixture.zip(
         Array.from({ length: 16 }, (_, index) => ({ name: `entry-${index}` })),
       );
       const boundary = context();
@@ -268,7 +268,7 @@ describe('@sys/archive/zip: bounded work', () => {
     });
 
     it('observes cancellation at the parser record boundary', async () => {
-      const fixture = zip(
+      const fixture = Fixture.zip(
         Array.from({ length: 32 }, (_, index) => ({ name: `entry-${index}` })),
       );
       const controller = new AbortController();
@@ -286,7 +286,7 @@ describe('@sys/archive/zip: bounded work', () => {
 
     it('yields once when stored payload work reaches the 1-MiB boundary', async () => {
       const data = new Uint8Array(MIB);
-      const fixture = zip([{ name: 'one-mib.bin', data }]);
+      const fixture = Fixture.zip([{ name: 'one-mib.bin', data }]);
       const parseContext = context();
       const parsed = await parseZip(fixture.bytes, LIMITS, parseContext.context);
       const payloadContext = context();
@@ -297,7 +297,7 @@ describe('@sys/archive/zip: bounded work', () => {
 
     it('revokes and settles an active inflater when cancellation arrives at a payload yield', async () => {
       const data = new Uint8Array(MIB);
-      const fixture = zip([{ name: 'cancel.bin', data, method: 8 }]);
+      const fixture = Fixture.zip([{ name: 'cancel.bin', data, method: 8 }]);
       const parseContext = context();
       const parsed = await parseZip(fixture.bytes, LIMITS, parseContext.context);
       const controller = new AbortController();

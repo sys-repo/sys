@@ -3,16 +3,7 @@ import { Hash } from '@sys/crypto/hash';
 import { describe, Dispose, expect, it, type t } from '../../-test.ts';
 import { Zip } from '../mod.ts';
 import { copySource, DEFAULT_LIMITS } from '../u/u.input.ts';
-import {
-  clone,
-  extra,
-  PINNED_DEFLATE_SHA256,
-  PINNED_DEFLATE_TEXT,
-  pinnedDeflateBytes,
-  setU16,
-  setU32,
-  zip,
-} from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 
 const LIMITS: t.Zip.Limits = Object.freeze({
   maxSourceBytes: 2 * 1024 * 1024,
@@ -81,7 +72,7 @@ function rejectedSync(
 describe('@sys/archive/zip: read-only API', () => {
   describe('archive surface', () => {
     it('returns complete frozen evidence for an empty archive', async () => {
-      const fixture = zip();
+      const fixture = Fixture.zip();
       const archive = await Zip.open(fixture.bytes, options());
       const inspection = archive.inspect();
 
@@ -129,24 +120,26 @@ describe('@sys/archive/zip: read-only API', () => {
       });
       expect(Object.isFrozen(DEFAULT_LIMITS)).to.eql(true);
 
-      expect((await Zip.open(zip().bytes, { timeout: 10_000 })).inspect().format).to.eql('zip32');
+      expect((await Zip.open(Fixture.zip().bytes, { timeout: 10_000 })).inspect().format).to.eql(
+        'zip32',
+      );
       expect(
-        (await Zip.open(zip().bytes, { timeout: 10_000, limits: {} })).inspect().format,
+        (await Zip.open(Fixture.zip().bytes, { timeout: 10_000, limits: {} })).inspect().format,
       ).to.eql('zip32');
       expect(
-        (await Zip.open(zip().bytes, {
+        (await Zip.open(Fixture.zip().bytes, {
           timeout: 10_000,
           limits: { maxSourceBytes: 22 },
         })).inspect().sourceBytes,
       ).to.eql(22);
       await rejected(
-        Zip.open(zip().bytes, { timeout: 10_000, limits: { maxSourceBytes: 21 } }),
+        Zip.open(Fixture.zip().bytes, { timeout: 10_000, limits: { maxSourceBytes: 21 } }),
         'source-limit',
       );
     });
 
     it('reports exact entry, tree, and feature-use metadata', async () => {
-      const fixture = zip([
+      const fixture = Fixture.zip([
         { name: 'root/', utf8: false },
         { name: 'root/stored.txt', data: 'stored', utf8: false },
         { name: 'deep/path/value.txt', data: 'deflated value', method: 8 },
@@ -190,7 +183,7 @@ describe('@sys/archive/zip: read-only API', () => {
     it('admits signed and unsigned ZIP32 data descriptors', async () => {
       for (const descriptor of ['signed', 'unsigned'] as const) {
         const archive = await Zip.open(
-          zip([{ name: `${descriptor}.txt`, data: descriptor, descriptor }]).bytes,
+          Fixture.zip([{ name: `${descriptor}.txt`, data: descriptor, descriptor }]).bytes,
           options(),
         );
         expect(archive.inspect().entries[0].dataDescriptor).to.eql(true);
@@ -200,7 +193,7 @@ describe('@sys/archive/zip: read-only API', () => {
 
     it('admits maximum-length opaque comments without exposing them', async () => {
       const ordinary = await Zip.open(
-        zip([{ name: 'ordinary.txt', comment: new Uint8Array([1, 2, 3]) }], {
+        Fixture.zip([{ name: 'ordinary.txt', comment: new Uint8Array([1, 2, 3]) }], {
           comment: new Uint8Array([4, 5, 6]),
         }).bytes,
         options(),
@@ -211,7 +204,7 @@ describe('@sys/archive/zip: read-only API', () => {
       archiveComment.fill(0x61);
       const centralComment = new Uint8Array(0xffff);
       centralComment.fill(0x62);
-      const fixture = zip(
+      const fixture = Fixture.zip(
         [{ name: 'commented.txt', data: 'value', comment: centralComment }],
         { comment: archiveComment },
       );
@@ -239,7 +232,7 @@ describe('@sys/archive/zip: read-only API', () => {
 
   describe('source ownership and admission', () => {
     it('retains an immutable byte snapshot after caller mutation', async () => {
-      const fixture = zip([{ name: 'safe.txt', data: 'safe', utf8: false }]);
+      const fixture = Fixture.zip([{ name: 'safe.txt', data: 'safe', utf8: false }]);
       const source = fixture.bytes.slice();
       const archive = await Zip.open(source, options());
       source.fill(0);
@@ -248,7 +241,7 @@ describe('@sys/archive/zip: read-only API', () => {
     });
 
     it('reads native input through captured intrinsics instead of shadowed properties', async () => {
-      const source = zip().bytes;
+      const source = Fixture.zip().bytes;
       for (const key of ['buffer', 'byteLength', 'constructor'] as const) {
         Object.defineProperty(source, key, {
           configurable: true,
@@ -267,7 +260,7 @@ describe('@sys/archive/zip: read-only API', () => {
     });
 
     it('rejects proxies, subclasses, detached, shared, and resizable backing stores', async () => {
-      const fixture = zip().bytes;
+      const fixture = Fixture.zip().bytes;
       await rejected(Zip.open(new Proxy(fixture, {}) as Uint8Array, options()), 'invalid-input');
 
       class Bytes extends Uint8Array {}
@@ -306,9 +299,11 @@ describe('@sys/archive/zip: read-only API', () => {
 
     it('enforces source ownership and size caps before allocation', async () => {
       const exact = Object.freeze({ ...LIMITS, maxSourceBytes: 22 });
-      expect((await Zip.open(zip().bytes, options(exact))).inspect().sourceBytes).to.eql(22);
+      expect((await Zip.open(Fixture.zip().bytes, options(exact))).inspect().sourceBytes).to.eql(
+        22,
+      );
       const tiny = Object.freeze({ ...LIMITS, maxSourceBytes: 21 });
-      await rejected(Zip.open(zip().bytes, options(tiny)), 'source-limit');
+      await rejected(Zip.open(Fixture.zip().bytes, options(tiny)), 'source-limit');
 
       let allocated = false;
       rejectedSync(
@@ -345,11 +340,11 @@ describe('@sys/archive/zip: read-only API', () => {
   describe('options and lifecycle', () => {
     it('snapshots exact mutable options without invoking accessors', async () => {
       await rejected(
-        Zip.open(zip().bytes, { ...options(), unknown: true } as t.Zip.OpenOptions),
+        Zip.open(Fixture.zip().bytes, { ...options(), unknown: true } as t.Zip.OpenOptions),
         'invalid-options',
       );
       await rejected(
-        Zip.open(zip().bytes, { timeout: 10_000, limits: { maxEntries: 0 } }),
+        Zip.open(Fixture.zip().bytes, { timeout: 10_000, limits: { maxEntries: 0 } }),
         'invalid-options',
       );
 
@@ -362,12 +357,15 @@ describe('@sys/archive/zip: read-only API', () => {
           return LIMITS;
         },
       });
-      await rejected(Zip.open(zip().bytes, accessor as t.Zip.OpenOptions), 'invalid-options');
+      await rejected(
+        Zip.open(Fixture.zip().bytes, accessor as t.Zip.OpenOptions),
+        'invalid-options',
+      );
       expect(invoked).to.eql(false);
 
       const mutableLimits: t.Zip.Limits = { ...LIMITS };
       const mutableOptions: t.Zip.OpenOptions = { limits: mutableLimits, timeout: 10_000 };
-      const pending = Zip.open(zip().bytes, mutableOptions);
+      const pending = Zip.open(Fixture.zip().bytes, mutableOptions);
       mutableOptions.timeout = -1;
       mutableOptions.limits = { maxSourceBytes: 1 };
       mutableLimits.maxSourceBytes = 1;
@@ -375,7 +373,7 @@ describe('@sys/archive/zip: read-only API', () => {
 
       const signal = new AbortController().signal;
       await rejected(
-        Zip.open(zip().bytes, {
+        Zip.open(Fixture.zip().bytes, {
           ...options(),
           until: Array.from({ length: 256 }, () => signal),
         }),
@@ -384,11 +382,11 @@ describe('@sys/archive/zip: read-only API', () => {
       let nested: t.UntilInput = signal;
       for (let index = 0; index < 33; index++) nested = [nested];
       await rejected(
-        Zip.open(zip().bytes, { ...options(), until: nested }),
+        Zip.open(Fixture.zip().bytes, { ...options(), until: nested }),
         'invalid-options',
       );
 
-      const archive = await Zip.open(zip().bytes, options());
+      const archive = await Zip.open(Fixture.zip().bytes, options());
       const workFailure = await rejected(
         archive.test({ timeout: -1 }),
         'invalid-options',
@@ -398,12 +396,12 @@ describe('@sys/archive/zip: read-only API', () => {
     });
 
     it('enforces exact cancellation fan-in bounds for open and test', async () => {
-      const archive = await Zip.open(zip().bytes, options());
+      const archive = await Zip.open(Fixture.zip().bytes, options());
       const operations = [
         {
           operation: 'open',
           run: (until: t.UntilInput, timeout: number) =>
-            Zip.open(zip().bytes, { ...options(), until, timeout }),
+            Zip.open(Fixture.zip().bytes, { ...options(), until, timeout }),
         },
         {
           operation: 'test',
@@ -472,10 +470,10 @@ describe('@sys/archive/zip: read-only API', () => {
       const controller = new AbortController();
       controller.abort('stop');
       await rejected(
-        Zip.open(zip().bytes, { ...options(), until: controller.signal }),
+        Zip.open(Fixture.zip().bytes, { ...options(), until: controller.signal }),
         'cancelled',
       );
-      await rejected(Zip.open(zip().bytes, { ...options(), timeout: 0 }), 'timeout');
+      await rejected(Zip.open(Fixture.zip().bytes, { ...options(), timeout: 0 }), 'timeout');
 
       let synchronousUnsubscribed = false;
       const synchronous = {
@@ -490,7 +488,7 @@ describe('@sys/archive/zip: read-only API', () => {
         },
       };
       await rejected(
-        Zip.open(zip().bytes, { ...options(), until: synchronous as t.UntilInput }),
+        Zip.open(Fixture.zip().bytes, { ...options(), until: synchronous as t.UntilInput }),
         'cancelled',
       );
       expect(synchronousUnsubscribed).to.eql(true);
@@ -498,7 +496,7 @@ describe('@sys/archive/zip: read-only API', () => {
       const life = Dispose.lifecycle();
       life.dispose();
       await rejected(
-        Zip.open(zip().bytes, { ...options(), until: [undefined, [life]] }),
+        Zip.open(Fixture.zip().bytes, { ...options(), until: [undefined, [life]] }),
         'cancelled',
       );
 
@@ -513,7 +511,7 @@ describe('@sys/archive/zip: read-only API', () => {
           };
         },
       };
-      const completed = await Zip.open(zip().bytes, {
+      const completed = await Zip.open(Fixture.zip().bytes, {
         ...options(),
         until: never as t.UntilInput,
       });
@@ -547,13 +545,13 @@ describe('@sys/archive/zip: read-only API', () => {
       const failure = await rejected(Zip.open(new Uint8Array(), options(limits)), 'malformed');
       expect(failure.message.length).to.be.at.most(5);
       const invalid = await rejected(
-        Zip.open(zip().bytes, { limits, timeout: -1 }),
+        Zip.open(Fixture.zip().bytes, { limits, timeout: -1 }),
         'invalid-options',
       );
       expect(invalid.message.length).to.be.at.most(5);
 
       const invalidSibling = await rejected(
-        Zip.open(zip().bytes, {
+        Zip.open(Fixture.zip().bytes, {
           timeout: 10_000,
           limits: { maxEntries: 0, maxErrorChars: 5 },
         }),
@@ -562,7 +560,7 @@ describe('@sys/archive/zip: read-only API', () => {
       expect(invalidSibling.message.length).to.be.at.most(5);
 
       const unknownSibling = await rejected(
-        Zip.open(zip().bytes, {
+        Zip.open(Fixture.zip().bytes, {
           timeout: 10_000,
           limits: { maxErrorChars: 5 },
           unknown: true,
@@ -576,7 +574,7 @@ describe('@sys/archive/zip: read-only API', () => {
       expect(
         await consumeThroughPublicContract(
           Zip,
-          zip().bytes,
+          Fixture.zip().bytes,
           { timeout: 10_000 },
           { timeout: 10_000 },
         ),
@@ -600,19 +598,19 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
         expect(crc32(data.subarray(split), first) >>> 0).to.eql(expected);
       }
       const archive = await Zip.open(
-        zip([{ name: 'crc-vector.txt', data, crc32: expected }]).bytes,
+        Fixture.zip([{ name: 'crc-vector.txt', data, crc32: expected }]).bytes,
         options(),
       );
       expect((await archive.test({ timeout: 10_000 })).kind).to.eql('passed');
     });
 
     it('verifies the pinned Deno 2.9.6 raw-DEFLATE bytes and checksum', async () => {
-      const data = new TextEncoder().encode(PINNED_DEFLATE_TEXT);
-      const compressed = pinnedDeflateBytes();
+      const data = new TextEncoder().encode(Fixture.deflate.text);
+      const compressed = Fixture.deflate.bytes();
       expect(new Uint8Array(deflateRawSync(data))).to.eql(compressed);
-      expect(Hash.sha256(compressed)).to.eql(PINNED_DEFLATE_SHA256);
+      expect(Hash.sha256(compressed)).to.eql(Fixture.deflate.sha256);
       const archive = await Zip.open(
-        zip([{ name: 'pinned.txt', data, method: 8, compressed }]).bytes,
+        Fixture.zip([{ name: 'pinned.txt', data, method: 8, compressed }]).bytes,
         options(),
       );
       expect((await archive.test({ timeout: 10_000 })).kind).to.eql('passed');
@@ -621,7 +619,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
 
   describe('record grammar and entry metadata', () => {
     it('rejects non-contiguous, truncated, ambiguous, and contradictory records', async () => {
-      const fixture = zip([{ name: 'value.txt', data: 'value' }]);
+      const fixture = Fixture.zip([{ name: 'value.txt', data: 'value' }]);
       const trailing = new Uint8Array(fixture.bytes.byteLength + 1);
       trailing.set(fixture.bytes);
       await rejected(Zip.open(trailing, options()), 'malformed');
@@ -631,37 +629,37 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       await rejected(Zip.open(prepended, options()), 'malformed');
       await rejected(Zip.open(fixture.bytes.slice(0, -1), options()), 'malformed');
 
-      const centralSignature = clone(fixture.bytes);
-      setU32(centralSignature, fixture.centralOffset, 0);
+      const centralSignature = Fixture.clone(fixture.bytes);
+      Fixture.setU32(centralSignature, fixture.centralOffset, 0);
       await rejected(Zip.open(centralSignature, options()), 'malformed');
 
-      const localName = clone(fixture.bytes);
+      const localName = Fixture.clone(fixture.bytes);
       localName[30] ^= 1;
       await rejected(Zip.open(localName, options()), 'malformed');
 
-      const fakeEocd = zip().bytes;
-      setU32(fakeEocd, 16, 22);
-      const ambiguous = zip([], { comment: fakeEocd });
+      const fakeEocd = Fixture.zip().bytes;
+      Fixture.setU32(fakeEocd, 16, 22);
+      const ambiguous = Fixture.zip([], { comment: fakeEocd });
       await rejected(Zip.open(ambiguous.bytes, options()), 'malformed');
 
-      const badCommentLength = clone(zip().bytes);
-      setU16(badCommentLength, 20, 1);
+      const badCommentLength = Fixture.clone(Fixture.zip().bytes);
+      Fixture.setU16(badCommentLength, 20, 1);
       await rejected(Zip.open(badCommentLength, options()), 'malformed');
 
-      const centralCommentOverrun = clone(fixture.bytes);
-      setU16(centralCommentOverrun, fixture.centralOffset + 32, 1);
+      const centralCommentOverrun = Fixture.clone(fixture.bytes);
+      Fixture.setU16(centralCommentOverrun, fixture.centralOffset + 32, 1);
       await rejected(Zip.open(centralCommentOverrun, options()), 'malformed');
 
-      const descriptor = zip([{ name: 'd', data: 'x', descriptor: 'signed' }]);
-      const badDescriptor = clone(descriptor.bytes);
-      setU32(badDescriptor, descriptor.centralOffset - 12, 0);
+      const descriptor = Fixture.zip([{ name: 'd', data: 'x', descriptor: 'signed' }]);
+      const badDescriptor = Fixture.clone(descriptor.bytes);
+      Fixture.setU32(badDescriptor, descriptor.centralOffset - 12, 0);
       await rejected(Zip.open(badDescriptor, options()), 'malformed');
 
-      const nonzeroPlaceholder = clone(descriptor.bytes);
-      setU32(nonzeroPlaceholder, 14, 1);
+      const nonzeroPlaceholder = Fixture.clone(descriptor.bytes);
+      Fixture.setU32(nonzeroPlaceholder, 14, 1);
       await rejected(Zip.open(nonzeroPlaceholder, options()), 'malformed');
 
-      const unequalStored = zip([{
+      const unequalStored = Fixture.zip([{
         name: 'unequal-stored',
         data: '12345',
         compressed: new Uint8Array([1, 2, 3, 4]),
@@ -670,33 +668,33 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
     });
 
     it('rejects split, ZIP64, encrypted, unknown-method, and unknown-creator features', async () => {
-      const base = zip([{ name: 'value.txt', data: 'value' }]);
+      const base = Fixture.zip([{ name: 'value.txt', data: 'value' }]);
       const cases: Uint8Array[] = [];
 
-      const split = clone(base.bytes);
-      setU16(split, base.eocdOffset + 4, 1);
+      const split = Fixture.clone(base.bytes);
+      Fixture.setU16(split, base.eocdOffset + 4, 1);
       cases.push(split);
 
-      const splitCount = clone(base.bytes);
-      setU16(splitCount, base.eocdOffset + 8, 0);
+      const splitCount = Fixture.clone(base.bytes);
+      Fixture.setU16(splitCount, base.eocdOffset + 8, 0);
       cases.push(splitCount);
 
-      const zip64 = clone(base.bytes);
-      setU32(zip64, base.centralOffset + 20, 0xffffffff);
+      const zip64 = Fixture.clone(base.bytes);
+      Fixture.setU32(zip64, base.centralOffset + 20, 0xffffffff);
       cases.push(zip64);
 
-      const encrypted = clone(base.bytes);
-      setU16(encrypted, base.centralOffset + 8, 0x0801);
-      setU16(encrypted, 6, 0x0801);
+      const encrypted = Fixture.clone(base.bytes);
+      Fixture.setU16(encrypted, base.centralOffset + 8, 0x0801);
+      Fixture.setU16(encrypted, 6, 0x0801);
       cases.push(encrypted);
 
-      const method = clone(base.bytes);
-      setU16(method, base.centralOffset + 10, 99);
-      setU16(method, 8, 99);
+      const method = Fixture.clone(base.bytes);
+      Fixture.setU16(method, base.centralOffset + 10, 99);
+      Fixture.setU16(method, 8, 99);
       cases.push(method);
 
-      const creator = clone(base.bytes);
-      setU16(creator, base.centralOffset + 4, (9 << 8) | 20);
+      const creator = Fixture.clone(base.bytes);
+      Fixture.setU16(creator, base.centralOffset + 4, (9 << 8) | 20);
       cases.push(creator);
 
       for (const bytes of cases) await rejected(Zip.open(bytes, options()), 'unsupported');
@@ -704,11 +702,15 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
 
     it('admits only supported version-needed and DEFLATE-option combinations', async () => {
       expect(
-        (await Zip.open(zip([{ name: 'stored', versionNeeded: 20 }]).bytes, options())).inspect()
+        (await Zip.open(Fixture.zip([{ name: 'stored', versionNeeded: 20 }]).bytes, options()))
+          .inspect()
           .entries[0].compression,
       ).to.eql('stored');
       await rejected(
-        Zip.open(zip([{ name: 'deflated', method: 8, versionNeeded: 10 }]).bytes, options()),
+        Zip.open(
+          Fixture.zip([{ name: 'deflated', method: 8, versionNeeded: 10 }]).bytes,
+          options(),
+        ),
         'unsupported',
       );
 
@@ -720,19 +722,19 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
           [0x0006, 'super-fast'],
         ] as const
       ) {
-        const fixture = zip([{ name: `${expected}.txt`, data: expected, method: 8 }]);
-        setU16(fixture.bytes, 6, 0x0800 | bits);
-        setU16(fixture.bytes, fixture.centralOffset + 8, 0x0800 | bits);
+        const fixture = Fixture.zip([{ name: `${expected}.txt`, data: expected, method: 8 }]);
+        Fixture.setU16(fixture.bytes, 6, 0x0800 | bits);
+        Fixture.setU16(fixture.bytes, fixture.centralOffset + 8, 0x0800 | bits);
         const entry = (await Zip.open(fixture.bytes, options())).inspect().entries[0];
         expect(entry.deflateOption).to.eql(expected);
       }
     });
 
     it('accepts only the bounded 0x5455 and 0x7875 extra-field grammars', async () => {
-      const timestamp = extra(0x5455, new Uint8Array([1, 1, 0, 0, 0]));
-      const unixIdentity = extra(0x7875, new Uint8Array([1, 1, 42, 1, 43]));
+      const timestamp = Fixture.extra(0x5455, new Uint8Array([1, 1, 0, 0, 0]));
+      const unixIdentity = Fixture.extra(0x7875, new Uint8Array([1, 1, 42, 1, 43]));
       const archive = await Zip.open(
-        zip([{
+        Fixture.zip([{
           name: 'extras.txt',
           data: 'extras',
           localExtra: timestamp,
@@ -742,17 +744,17 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       );
       expect((await archive.test({ timeout: 10_000 })).kind).to.eql('passed');
 
-      const localTimes = extra(
+      const localTimes = Fixture.extra(
         0x5455,
         new Uint8Array([7, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0]),
       );
-      const centralTimes = extra(0x5455, new Uint8Array([0]));
-      const wideIdentity = extra(
+      const centralTimes = Fixture.extra(0x5455, new Uint8Array([0]));
+      const wideIdentity = Fixture.extra(
         0x7875,
         new Uint8Array([1, 8, 1, 2, 3, 4, 5, 6, 7, 8, 8, 8, 7, 6, 5, 4, 3, 2, 1]),
       );
       const boundaryArchive = await Zip.open(
-        zip([{
+        Fixture.zip([{
           name: 'extra-boundaries',
           localExtra: new Uint8Array([...localTimes, ...wideIdentity]),
           centralExtra: new Uint8Array([...centralTimes, ...wideIdentity]),
@@ -764,7 +766,10 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       for (const id of [0x000d, 0x0001, 0x0017, 0x6375, 0x7075, 0x9901]) {
         await rejected(
           Zip.open(
-            zip([{ name: `unsupported-${id}`, centralExtra: extra(id, new Uint8Array([1])) }])
+            Fixture.zip([{
+              name: `unsupported-${id}`,
+              centralExtra: Fixture.extra(id, new Uint8Array([1])),
+            }])
               .bytes,
             options(),
           ),
@@ -773,7 +778,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       }
       await rejected(
         Zip.open(
-          zip([{
+          Fixture.zip([{
             name: 'duplicate',
             centralExtra: new Uint8Array([...timestamp, ...timestamp]),
           }]).bytes,
@@ -783,7 +788,10 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       );
       await rejected(
         Zip.open(
-          zip([{ name: 'bad-time', centralExtra: extra(0x5455, new Uint8Array([2])) }]).bytes,
+          Fixture.zip([{
+            name: 'bad-time',
+            centralExtra: Fixture.extra(0x5455, new Uint8Array([2])),
+          }]).bytes,
           options(),
         ),
         'malformed',
@@ -794,7 +802,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       const regular = (0o100644 << 16) >>> 0;
       const directory = ((0o040755 << 16) | 0x10) >>> 0;
       const archive = await Zip.open(
-        zip([
+        Fixture.zip([
           { name: 'unix.txt', creator: 3, attributes: regular },
           { name: 'unix-dir/', creator: 3, attributes: directory },
         ]).bytes,
@@ -805,30 +813,33 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       for (const type of [0o010000, 0o020000, 0o060000, 0o120000, 0o140000, 0o160000]) {
         const attributes = ((type | 0o777) << 16) >>> 0;
         await rejected(
-          Zip.open(zip([{ name: `special-${type}`, creator: 3, attributes }]).bytes, options()),
+          Zip.open(
+            Fixture.zip([{ name: `special-${type}`, creator: 3, attributes }]).bytes,
+            options(),
+          ),
           'unsupported',
         );
         await rejected(
-          Zip.open(zip([{ name: `dos-${type}`, creator: 0, attributes }]).bytes, options()),
+          Zip.open(Fixture.zip([{ name: `dos-${type}`, creator: 0, attributes }]).bytes, options()),
           'unsupported',
         );
       }
       await rejected(
         Zip.open(
-          zip([{ name: 'wrong/', creator: 3, attributes: regular | 0x10 }]).bytes,
+          Fixture.zip([{ name: 'wrong/', creator: 3, attributes: regular | 0x10 }]).bytes,
           options(),
         ),
         'malformed',
       );
       await rejected(
         Zip.open(
-          zip([{ name: 'missing-dos/', creator: 3, attributes: directory & ~0x10 }]).bytes,
+          Fixture.zip([{ name: 'missing-dos/', creator: 3, attributes: directory & ~0x10 }]).bytes,
           options(),
         ),
         'malformed',
       );
       await rejected(
-        Zip.open(zip([{ name: 'volume', attributes: 0x08 }]).bytes, options()),
+        Zip.open(Fixture.zip([{ name: 'volume', attributes: 0x08 }]).bytes, options()),
         'unsupported',
       );
     });
@@ -856,7 +867,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
         'e\u0301.txt',
       ];
       for (const name of names) {
-        await rejected(Zip.open(zip([{ name }]).bytes, options()), 'invalid-name');
+        await rejected(Zip.open(Fixture.zip([{ name }]).bytes, options()), 'invalid-name');
       }
 
       const devices = [
@@ -877,11 +888,14 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
         'LPT³',
       ];
       for (const device of devices) {
-        await rejected(Zip.open(zip([{ name: `${device}.ext` }]).bytes, options()), 'invalid-name');
+        await rejected(
+          Zip.open(Fixture.zip([{ name: `${device}.ext` }]).bytes, options()),
+          'invalid-name',
+        );
       }
 
       const explicitAfterImplicit = await Zip.open(
-        zip([{ name: 'same/child' }, { name: 'same/' }]).bytes,
+        Fixture.zip([{ name: 'same/child' }, { name: 'same/' }]).bytes,
         options(),
       );
       expect(explicitAfterImplicit.inspect().treeEntryCount).to.eql(2);
@@ -896,13 +910,13 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
           [{ name: 'A/' }, { name: 'a/child' }],
         ]
       ) {
-        await rejected(Zip.open(zip(entries).bytes, options()), 'collision');
+        await rejected(Zip.open(Fixture.zip(entries).bytes, options()), 'collision');
       }
     });
 
     it('rejects invalid UTF-8 and non-ASCII legacy names', async () => {
       for (const utf8 of [true, false]) {
-        const fixture = zip([{ name: 'x', utf8 }]);
+        const fixture = Fixture.zip([{ name: 'x', utf8 }]);
         fixture.bytes[30] = 0xff;
         fixture.bytes[fixture.centralOffset + 46] = 0xff;
         await rejected(Zip.open(fixture.bytes, options()), 'invalid-name');
@@ -910,7 +924,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
     });
 
     it('enforces entry, tree, path, depth, and declared expansion limits', async () => {
-      const two = zip([{ name: 'one', data: '123' }, { name: 'two', data: '12' }]);
+      const two = Fixture.zip([{ name: 'one', data: '123' }, { name: 'two', data: '12' }]);
       expect(
         (await Zip.open(two.bytes, options({ ...LIMITS, maxEntries: 2 }))).inspect().fileCount,
       ).to.eql(2);
@@ -919,7 +933,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
         'entry-limit',
       );
 
-      const deep = zip([{ name: 'a/b/c' }]);
+      const deep = Fixture.zip([{ name: 'a/b/c' }]);
       expect(
         (await Zip.open(
           deep.bytes,
@@ -939,7 +953,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
         'path-limit',
       );
 
-      const expanded = zip([{ name: 'large', data: '12345' }]);
+      const expanded = Fixture.zip([{ name: 'large', data: '12345' }]);
       expect(
         (await Zip.open(
           expanded.bytes,
@@ -963,7 +977,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
 
   describe('payload integrity', () => {
     it('rejects CRC, size, expansion, and malformed DEFLATE evidence', async () => {
-      const badCrc = zip([{ name: 'crc.txt', data: 'value', crc32: 1 }]);
+      const badCrc = Fixture.zip([{ name: 'crc.txt', data: 'value', crc32: 1 }]);
       const crcArchive = await Zip.open(badCrc.bytes, options());
       const crcFailure = await rejected(
         crcArchive.test({ timeout: 10_000 }),
@@ -973,15 +987,20 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       expect(crcFailure.entryIndex).to.eql(0);
       expect(Object.keys(crcFailure)).to.eql(['name', 'operation', 'kind', 'entryIndex']);
 
-      const badSize = zip([{ name: 'size.txt', data: 'value', method: 8, expandedSize: 6 }]);
+      const badSize = Fixture.zip([{
+        name: 'size.txt',
+        data: 'value',
+        method: 8,
+        expandedSize: 6,
+      }]);
       const sizeArchive = await Zip.open(badSize.bytes, options());
       await rejected(sizeArchive.test({ timeout: 10_000 }), 'size-mismatch', 'test');
 
-      const data = new TextEncoder().encode(PINNED_DEFLATE_TEXT);
-      const compressed = pinnedDeflateBytes();
+      const data = new TextEncoder().encode(Fixture.deflate.text);
+      const compressed = Fixture.deflate.bytes();
       const unfinished = compressed.slice(0, -1);
       const unfinishedArchive = await Zip.open(
-        zip([{
+        Fixture.zip([{
           name: 'unfinished.txt',
           data,
           method: 8,
@@ -994,13 +1013,13 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       const clearedFinal = compressed.slice();
       clearedFinal[0] &= 0xfe;
       const clearedFinalArchive = await Zip.open(
-        zip([{ name: 'no-final.txt', data, method: 8, compressed: clearedFinal }]).bytes,
+        Fixture.zip([{ name: 'no-final.txt', data, method: 8, compressed: clearedFinal }]).bytes,
         options(),
       );
       await rejected(clearedFinalArchive.test({ timeout: 10_000 }), 'deflate-failure', 'test');
 
       const malformedArchive = await Zip.open(
-        zip([{
+        Fixture.zip([{
           name: 'malformed.txt',
           data,
           method: 8,
@@ -1014,7 +1033,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       trailing.set(compressed);
       trailing[trailing.length - 1] = 0;
       const trailingArchive = await Zip.open(
-        zip([{ name: 'trailing.txt', data, method: 8, compressed: trailing }]).bytes,
+        Fixture.zip([{ name: 'trailing.txt', data, method: 8, compressed: trailing }]).bytes,
         options(),
       );
       await rejected(trailingArchive.test({ timeout: 10_000 }), 'deflate-failure', 'test');
@@ -1023,13 +1042,15 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
       concatenated.set(compressed);
       concatenated.set(compressed, compressed.byteLength);
       const concatenatedArchive = await Zip.open(
-        zip([{ name: 'concatenated.txt', data, method: 8, compressed: concatenated }]).bytes,
+        Fixture.zip([{ name: 'concatenated.txt', data, method: 8, compressed: concatenated }])
+          .bytes,
         options(),
       );
       await rejected(concatenatedArchive.test({ timeout: 10_000 }), 'deflate-failure', 'test');
 
       const expansionArchive = await Zip.open(
-        zip([{ name: 'expands.txt', data: '1234567890', method: 8, expandedSize: 4 }]).bytes,
+        Fixture.zip([{ name: 'expands.txt', data: '1234567890', method: 8, expandedSize: 4 }])
+          .bytes,
         options({ ...LIMITS, maxEntryBytes: 5 }),
       );
       await rejected(expansionArchive.test({ timeout: 10_000 }), 'expanded-limit', 'test');
@@ -1041,7 +1062,7 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
         for (let index = 0; index < data.length; index++) data[index] = index % 251;
         for (const method of [0, 8] as const) {
           const archive = await Zip.open(
-            zip([{ name: `${method}-${size}.bin`, data, method }]).bytes,
+            Fixture.zip([{ name: `${method}-${size}.bin`, data, method }]).bytes,
             options(),
           );
           expect((await archive.test({ timeout: 10_000 })).expandedBytes).to.eql(size);
@@ -1050,7 +1071,10 @@ describe('@sys/archive/zip: ZIP32 grammar and integrity', () => {
     });
 
     it('rejects pre-cancelled and zero-budget integrity operations', async () => {
-      const archive = await Zip.open(zip([{ name: 'value', data: 'value' }]).bytes, options());
+      const archive = await Zip.open(
+        Fixture.zip([{ name: 'value', data: 'value' }]).bytes,
+        options(),
+      );
       const controller = new AbortController();
       controller.abort('stop');
       await rejected(

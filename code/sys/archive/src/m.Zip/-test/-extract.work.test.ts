@@ -5,7 +5,7 @@ import { DEFAULT_LIMITS } from '../u/u.input.ts';
 import { operation } from '../u/u.operation.ts';
 import { parseZip } from '../u/u.parse.ts';
 import { createInflater, payloadPass } from '../u/u.payload.ts';
-import { zip } from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 import { drain, rejected } from './u.fixture.extract.ts';
 
 const WORK = { timeout: 10_000 };
@@ -13,7 +13,7 @@ const BLOCK = 64 * 1024;
 
 describe('@sys/archive/zip: extraction work ownership', () => {
   it('native reader starts only on demand, backpressures while paused, and closes on return', async () => {
-    const fixture = zip([{ name: 'a', data: new Uint8Array(BLOCK * 8), method: 8 }]);
+    const fixture = Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 8), method: 8 }]);
     await operation('extract', WORK, DEFAULT_LIMITS, async (context) => {
       const parsed = await parseZip(fixture.bytes, DEFAULT_LIMITS, context);
       let starts = 0;
@@ -45,7 +45,7 @@ describe('@sys/archive/zip: extraction work ownership', () => {
 
   it('second-pass integrity is real → owner-only byte instrumentation cannot bypass verification', async () => {
     for (const method of [0, 8] as const) {
-      const fixture = zip([{ name: 'a', data: new Uint8Array(BLOCK * 2).fill(7), method }]);
+      const fixture = Fixture.zip([{ name: 'a', data: new Uint8Array(BLOCK * 2).fill(7), method }]);
       const parsed = await operation(
         'open',
         WORK,
@@ -96,7 +96,7 @@ describe('@sys/archive/zip: extraction work ownership', () => {
       ] as const
     ) {
       // One final DEFLATE stored block: LEN=3, NLEN=~3, literal bytes "abc".
-      const fixture = zip([{
+      const fixture = Fixture.zip([{
         name: 'a',
         data: 'abc',
         method: 8,

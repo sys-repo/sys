@@ -106,6 +106,36 @@ paths, and the live-callability boundary:
 deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf
 ```
 
+### ZIP
+
+`zip_inspect` and `zip_test` are enabled by default for a bounded, strict ZIP32 subset. Inspection
+reports structure; testing verifies every payload's size and CRC. Neither returns file contents.
+
+Extraction is a separate next-launch opt-in:
+
+```yaml
+tools:
+  zip:
+    enabled: true
+    extract: cooperative
+```
+
+`zip_extract` accepts exactly `{ path, to }`. The source must be readable and the destination must
+be a new directory beneath an existing parent in a configured writable root. No overwrite, merge,
+symlink traversal, shell fallback, or ZIP creation is provided. Only the live tool list establishes
+callability; profile changes require relaunch.
+
+Archive verifies before Fs constructs privately, then Pi requests promotion. Exact destination keys
+share the running host's queue—not subtrees or other processes. This is cooperative filesystem
+safety, not hostile-filesystem confinement or native atomic no-replace publication. The 120-second
+budget cannot hard-preempt queue waiting or native I/O; expired callbacks refuse work on entry.
+
+Publication and cleanup are separate facts: a cleanup error can leave a complete destination or
+private residue. Do not infer rollback. Integrity establishes neither provenance nor content safety.
+Extraction requires the canonical dependency-selected Pi host; package overrides are refused.
+
+See `deno run -ER jsr:@sys/driver-pi dsl tools zip` for fixed limits and policy details.
+
 ## Upstream
 
 Root `deps.yaml` selects the upstream Pi version. The launcher carries a derived fallback so it can
@@ -172,6 +202,18 @@ Choose the task by outcome:
 | Serve the existing `dist/`              | `deno task serve`    |
 | Remove a rejected GUI cache             | `deno task reset`    |
 | Build and bind local rehearsal evidence | `deno task bind:dev` |
+
+### ZIP verification
+
+`deno task prep:zip` prepares both entries with exact import/export admission and byte digests.
+`deno task prep:zip --check` rebuilds and compares exact prepared bytes without updating the
+artifacts; use it to verify source correspondence before generated-host acceptance.
+`deno task test:unit` covers policy, guards, construction settlement, publication races and cleanup.
+`deno task test:host` separately exercises generated extraction in the selected CLI, its shared
+queue, and actual Agent sequencing and failure results using a local scripted provider, not a remote
+request. `deno task test:zip:permissions` proves fixture-scoped reads and destination-only writes
+with run, net, FFI, env and sys denied. The host child retains its existing startup authority
+separately.
 
 ### Local GUI evidence
 

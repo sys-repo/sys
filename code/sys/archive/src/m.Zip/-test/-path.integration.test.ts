@@ -2,7 +2,7 @@ import { Fs } from '@sys/fs';
 import type { FsRooted } from '@sys/fs/t';
 import { describe, expect, it, type t } from '../../-test.ts';
 import { Zip } from '../mod.ts';
-import { zip } from './u.fixture.ts';
+import { Fixture } from './u.fixture.ts';
 
 const LIMITS: t.Zip.Limits = Object.freeze({
   maxSourceBytes: 2 * 1024 * 1024,
@@ -22,7 +22,7 @@ describe('@sys/archive/zip: Rooted path compatibility', () => {
       const rooted = await Fs.Capability.Rooted.create({ root, create: false });
       const names = generatedNames();
       const archive = await Zip.open(
-        zip(names.map((name) => ({ name, utf8: !isAscii(name) }))).bytes,
+        Fixture.zip(names.map((name) => ({ name, utf8: !isAscii(name) }))).bytes,
         { limits: LIMITS, timeout: 10_000 },
       );
       const targets = archive.inspect().entries.map((entry) => ({
@@ -42,7 +42,10 @@ describe('@sys/archive/zip: Rooted path compatibility', () => {
     const root = await Deno.makeTempDir({ prefix: 'sys-archive-zip-snapshot-' });
     const path = Fs.join(root, 'archive.zip');
     try {
-      const source = zip([{ name: 'payload.txt', data: new TextEncoder().encode('snapshot') }]);
+      const source = Fixture.zip([{
+        name: 'payload.txt',
+        data: new TextEncoder().encode('snapshot'),
+      }]);
       await Deno.writeFile(path, source.bytes);
       const snapshot = await Fs.Snapshot.file({
         root,
@@ -90,7 +93,7 @@ describe('@sys/archive/zip: Rooted path compatibility', () => {
 
 async function zipAdmits(name: string): Promise<boolean> {
   try {
-    await Zip.open(zip([{ name, utf8: !isAscii(name) }]).bytes, {
+    await Zip.open(Fixture.zip([{ name, utf8: !isAscii(name) }]).bytes, {
       limits: LIMITS,
       timeout: 10_000,
     });

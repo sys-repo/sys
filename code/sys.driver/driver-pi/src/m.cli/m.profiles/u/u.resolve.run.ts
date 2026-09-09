@@ -56,6 +56,11 @@ export async function resolveRun(
 
   const pkg = await resolvePkg({ cwd: root, pkg: input.pkg });
   const profile = checked.doc;
+  if (profile.tools?.zip?.extract && (input.pkg !== undefined || pkg !== PI_AGENT_IMPORT)) {
+    throw new Error(
+      'Cooperative ZIP extraction requires the canonical dependency-selected Pi host; overrides are refused.',
+    );
+  }
   const prompt = profile.prompt;
   const capability = profile.sandbox?.capability;
   const context = profile.sandbox?.context;

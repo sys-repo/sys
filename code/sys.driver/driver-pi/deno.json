@@ -6,6 +6,8 @@
     "test": "deno task test:unit && deno task test:reset:process && deno task test:profiles:process && deno task test:preview:real",
     "test:unit": "deno test -P=test ./src ./-scripts",
     "test:deps": "deno test -P=test ./-scripts/-test/-prep.test.ts",
+    "test:host": "TMPDIR=./.tmp TMP=./.tmp TEMP=./.tmp deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-host.zip.ts",
+    "test:zip:permissions": "deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-zip.permission.ts",
     "test:reset:process": "deno test --frozen --cached-only --no-prompt -P=test-reset-process --trace-leaks ./-scripts/-test.external/-task.start.gui.reset.process-proof.ts",
     "test:profiles": "deno test -P=test ./src/m.cli/m.profiles/-test && deno task test:profiles:process",
     "test:profiles:gui": "deno test -P=test ./src/m.cli/m.profiles/-test/-u.start.gui.test.ts ./src/m.cli/m.profiles/-test/-u.start.gui.service.test.ts ./src/m.cli/m.profiles/-test/-u.start.gui.presentation.test.ts ./src/m.cli/m.profiles/-test/-u.start.gui.screen.render.test.ts",
@@ -155,15 +157,16 @@
       "read": true,
       "write": ["./.tmp"],
       "env": [
-        "SYS_DRIVER_PI_RELEASE_EVIDENCE",
+        "TERM",
+        "TERM_PROGRAM",
+        "NO_COLOR",
         "FORCE_COLOR",
         "NODE_DISABLE_COLORS",
-        "NO_COLOR",
-        "TERM",
-        "TERM_PROGRAM"
+        "SYS_DRIVER_PI_RELEASE_EVIDENCE"
       ],
       "net": ["127.0.0.1"]
     },
+    "test-host": { "read": true, "write": ["./.tmp"], "env": true, "run": ["deno"] },
     "cli": {
       "read": true,
       "write": true,
