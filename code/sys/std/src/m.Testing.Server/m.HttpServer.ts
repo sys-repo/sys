@@ -4,7 +4,7 @@ import { TestServer } from './m.Server.ts';
 /**
  * HTTP test helpers.
  */
-export const TestHttpServer: t.TestHttpServer = {
+export const TestHttpServer: t.TestHttpServer = Object.freeze({
   server: TestServer.create,
 
   json(...args: any[]) {
@@ -26,7 +26,7 @@ export const TestHttpServer: t.TestHttpServer = {
   error(status, statusText) {
     return new Response(null, { status, statusText });
   },
-};
+});
 
 /**
  * Helpers

@@ -46,7 +46,7 @@ export const HashPreflight = {
   },
 
   isInteractive() {
-    return Deno.stdin.isTerminal() && Deno.stdout.isTerminal();
+    return Cli.Is.interactive();
   },
 
   async confirmContinue(summary: t.HashPreflight): Promise<boolean> {

@@ -1,6 +1,6 @@
-import { type t, Dev, Spec } from '../-test.ui.ts';
+import { Harness, Spec, type t } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { css, Signal, ReactEvent, CanvasPanel } from './common.ts';
+import { CanvasPanel, css, ReactEvent, Signal } from './common.ts';
 import { LogoCanvas } from './mod.ts';
 
 export default Spec.describe('Logo.Canvas', (e) => {
@@ -38,7 +38,7 @@ export default Spec.describe('Logo.Canvas', (e) => {
       else ctx.subject.size([width, null]);
     };
 
-    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
+    Harness.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
       debug.listen();
       updateSize();

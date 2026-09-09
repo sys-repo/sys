@@ -9,17 +9,17 @@ describe('Style: types', () => {
         containerType: 'inline-size',
         ['--pct-w']: 80,
         ['--pct-h']: '15',
-      } satisfies t.CssProps;
+      } satisfies t.Style.Props;
 
-      // Also acceptable as a CssValue input to css():
-      expectTypeOf(input).toMatchTypeOf<t.CssProps>();
+      // Also acceptable as a Style.Value input to css():
+      expectTypeOf(input).toMatchTypeOf<t.Style.Props>();
       const out = css(input);
-      expectTypeOf(out).toMatchTypeOf<t.CssTransformed>();
+      expectTypeOf(out).toMatchTypeOf<t.Style.Transform.Result>();
     });
 
     it('rejects invalid value types', () => {
       // @ts-expect-error boolean is not allowed for custom properties:
-      const bad: t.CssProps = { ['--foo']: true };
+      const bad: t.Style.Props = { ['--foo']: true };
       void bad;
     });
 
@@ -27,8 +27,8 @@ describe('Style: types', () => {
       const vars = {
         ['--anything-goes']: 1,
         ['--dash-separated-name']: '42',
-      } satisfies t.CssProps;
-      expectTypeOf(vars).toMatchTypeOf<t.CssProps>();
+      } satisfies t.Style.Props;
+      expectTypeOf(vars).toMatchTypeOf<t.Style.Props>();
     });
   });
 });

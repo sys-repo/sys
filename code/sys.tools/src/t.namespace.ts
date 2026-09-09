@@ -15,18 +15,32 @@ export namespace Tools {
     | t.CryptoTool.Id
     | t.CrdtTool.Id
     | t.DeployTool.Id
-    | t.UpdateTool.Id
+    | t.UpgradeTool.Id
     | t.VideoTool.Id
     | t.PullTool.Id
-    | t.TmplTool.Id;
+    | t.ShellTool.Id
+    | t.TmplTool.Id
+    | 'dsl';
 
   /** Command line arguments (argv). */
   /** Common flags. */
   export type CliArgs = { help: boolean; debug?: boolean };
-  /** Root-entry-only flags */
-  export type CliRootArgs = CliArgs & {};
+  /** Root-entry-only flags. */
+  export type CliRootArgs = CliArgs & {
+    readonly noUpgradeCheck?: boolean;
+    readonly 'no-upgrade-check'?: boolean;
+  };
   /** Root parse result (adds typed command from first positional). */
   export type CliRootParsedArgs = t.ParsedArgs<CliRootArgs> & { readonly command?: Command };
+
+  /** Owner config refs supplied by programmatic Cell/task callers. */
+  export type ConfigRefPaths = { readonly config: t.StringPath };
+  /** Optional owner config refs for config alias compatibility. */
+  export type ConfigRefPathsInput = { readonly config?: t.StringPath };
+  /** Programmatic config-ref selector accepted by finite tool endpoints. */
+  export type ConfigRefArgs =
+    | { readonly config: t.StringPath; readonly paths?: ConfigRefPathsInput }
+    | { readonly config?: never; readonly paths: ConfigRefPaths };
 
   /**
    * Usage timestamps for recency-aware behavior.

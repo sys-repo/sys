@@ -6,7 +6,7 @@ const TS_EXTENSIONS = ['.ts', '.tsx', '.mts', '.cts'] as const;
 /**
  * Fail early when projected Deno imports do not satisfy source specifiers.
  */
-export const verifyDeno: t.DepsLib['verifyDeno'] = async (input) => {
+export const verifyDeno: t.DenoDeps.Lib['verifyDeno'] = async (input) => {
   const cwd = Path.resolve(input.cwd ?? '.');
   const configPath = Path.resolve(cwd, input.configPath ?? DEFAULT_CONFIG_PATH);
   const paths = await wrangle.paths(cwd, input.include);

@@ -8,6 +8,16 @@ import type { t } from './common.ts';
  */
 export declare namespace VitePlugins {
   export type Lib = {
+    readonly DisposeProtocolCompat: t.DisposeProtocolCompatPlugin.Lib;
     readonly OptimizeImports: t.OptimizeImportsPlugin.Lib;
+  };
+}
+
+/** Disposal-protocol compatibility delivery plugin. */
+export declare namespace DisposeProtocolCompatPlugin {
+  /** Runtime surface for constructing the plugin. */
+  export type Lib = {
+    /** Create a client-only Vite plugin that installs disposal protocol symbols before module bodies. */
+    readonly plugin: () => t.VitePlugin;
   };
 }

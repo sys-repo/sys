@@ -1,5 +1,6 @@
-import { c, describe, expect, Fs, it, Json, Path, type t } from '../../-test.ts';
+import { c, DenoFile, describe, expect, Fs, Is, it, Json, Path, type t } from '../../-test.ts';
 import { ViteConfig } from '../mod.ts';
+import { BROWSER_SYNTAX_TARGETS } from '../u/u.browserSyntaxTargets.ts';
 
 describe('Config.Build', () => {
   const { brightCyan: cyan } = c;
@@ -20,7 +21,7 @@ describe('Config.Build', () => {
       return aliases.find((item) => item.find === find)?.replacement;
     };
 
-    const print = (config: t.ViteUserConfig, titleSuffix?: string, paths?: t.ViteConfigPaths) => {
+    const print = (config: t.ViteUserConfig, titleSuffix?: string, paths?: t.ViteConfig.Paths) => {
       if (paths) {
         console.info();
         console.info(cyan(c.bold('↓ INPUT paths')));
@@ -47,25 +48,56 @@ describe('Config.Build', () => {
       const config = await ViteConfig.app();
       print(config, '(defaults)', p);
 
-      const input = config.build?.rollupOptions?.input as any;
+      const input = config.build?.rollupOptions?.input;
+      if (!Is.record(input)) throw new Error('Expected named build inputs');
 
       expect(config.root).to.eql(p.cwd);
       expect(config.envDir).to.eql(p.cwd);
+      const workspaceRoot = Path.dirname((await DenoFile.workspace()).file);
       expect(config.cacheDir).to.eql(Fs.join(p.cwd, 'node_modules', '.vite'));
+      expect(config.server?.fs?.allow).to.eql([Path.resolve(p.cwd), workspaceRoot]);
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
       expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
       expect(config.optimizeDeps).to.eql(undefined);
+      expect(config.build?.target).to.eql([...BROWSER_SYNTAX_TARGETS]);
+      expect(config.oxc).to.eql({ target: [...BROWSER_SYNTAX_TARGETS] });
+      expect(config.build?.target).not.to.equal(config.oxc && config.oxc.target);
 
       expect(includesPlugin(config, 'wasm')).to.be.true;
       expect(includesPlugin(config, 'react')).to.be.true;
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.be.true;
+      expect(includesPlugin(config, 'sys:dispose-protocol-compat')).to.be.true;
+      expect(includesPlugin(config, 'sys:oxc-preflight')).to.be.true;
     });
 
     it('no common plugins', async () => {
       const config = await ViteConfig.app({ plugins: { wasm: false, react: false, deno: false } });
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
-      expect(names).to.eql(['sys:optimize-imports']);
+      expect(names).to.eql([
+        'sys:dispose-protocol-compat',
+        'sys:optimize-imports',
+        'sys:oxc-preflight',
+      ]);
+    });
+
+    it('creates fresh worker plugin instances with disposal compatibility enabled', async () => {
+      const config = await ViteConfig.app();
+      const createWorkerPlugins = config.worker?.plugins;
+      if (!createWorkerPlugins) throw new Error('Expected worker plugin factory');
+
+      const first = createWorkerPlugins().flat() as t.VitePlugin[];
+      const second = createWorkerPlugins().flat() as t.VitePlugin[];
+      const firstCompat = first.find((plugin) => plugin.name === 'sys:dispose-protocol-compat');
+      const secondCompat = second.find((plugin) => plugin.name === 'sys:dispose-protocol-compat');
+      const firstDeno = first.find((plugin) => plugin.name === 'deno');
+      const secondDeno = second.find((plugin) => plugin.name === 'deno');
+
+      expect(first).not.to.equal(second);
+      expect(firstCompat?.name).to.eql('sys:dispose-protocol-compat');
+      expect(secondCompat?.name).to.eql('sys:dispose-protocol-compat');
+      expect(firstCompat).not.to.equal(secondCompat);
+      expect(firstDeno).not.to.equal(secondDeno);
     });
 
     it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {
@@ -96,7 +128,8 @@ describe('Config.Build', () => {
       });
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
-      expect(names.at(-2)).to.eql('custom:a');
+      expect(names.at(-3)).to.eql('custom:a');
+      expect(names.at(-2)).to.eql('sys:oxc-preflight');
       expect(names.at(-1)).to.eql('visualizer');
     });
 
@@ -126,6 +159,7 @@ describe('Config.Build', () => {
         const config = await ViteConfig.app({ workspace: false, paths });
 
         expect(config.resolve?.alias).to.eql([]);
+        expect(config.server?.fs?.allow).to.eql([Path.resolve(fs.absolute)]);
         expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
         expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
       } finally {
@@ -163,7 +197,8 @@ describe('Config.Build', () => {
       expect(config.cacheDir).to.eql(Fs.join(paths.cwd, 'node_modules', '.vite'));
       expect(config.build?.outDir).to.eql(Fs.join(paths.cwd, 'foobar/out'));
 
-      const input = config.build?.rollupOptions?.input as any;
+      const input = config.build?.rollupOptions?.input;
+      if (!Is.record(input)) throw new Error('Expected named build inputs');
       expect(input.main).to.eql(Fs.join(paths.cwd, 'src/-foo.html'));
       expect(input.sw).to.eql(Fs.join(paths.cwd, 'src/sw.ts'));
       expect(config.envDir).to.eql(paths.cwd);
@@ -179,17 +214,46 @@ describe('Config.Build', () => {
       expect(config.root).to.eql('/pkg/src');
       expect(config.envDir).to.eql('/pkg');
       expect(config.cacheDir).to.eql('/pkg/node_modules/.vite');
+      expect(config.server?.fs?.allow).to.include('/pkg');
     });
 
-    it('passes optimizeDeps through without adding driver defaults', async () => {
+    it('passes optimizeDeps and explicit OXC options through', async () => {
       const optimizeDeps: NonNullable<t.ViteUserConfig['optimizeDeps']> = {
         include: ['react', 'react-dom/client'],
         exclude: ['@acme/skip'],
         entries: ['src/-test/index.html'],
       };
-      const config = await ViteConfig.app({ optimizeDeps });
+      const oxc: NonNullable<t.ViteUserConfig['oxc']> = {
+        include: /\.tsx$/,
+        target: ['safari18'],
+      };
+      const config = await ViteConfig.app({ optimizeDeps, oxc });
 
       expect(config.optimizeDeps).to.eql(optimizeDeps);
+      expect(config.oxc).to.eql(oxc);
+      expect(config.oxc).not.to.equal(oxc);
+    });
+
+    it('preserves explicit OXC disablement', async () => {
+      const config = await ViteConfig.app({ oxc: false });
+      expect(config.oxc).to.eql(false);
+    });
+
+    it('resolves default workspace authority from app cwd', async () => {
+      const fs = await fixture.aliasWorld('ViteConfig.app.workspace.cwd.', {});
+      try {
+        const paths = ViteConfig.paths({ cwd: fs.appDir });
+        const config = await ViteConfig.app({
+          paths,
+          plugins: { optimizeImports: false },
+        });
+        const aliases = (config.resolve?.alias ?? []) as t.ViteAlias[];
+        const lib = aliases.find((item) => item.find === '@tmp/lib/mod');
+
+        expect(lib?.replacement).to.eql(Path.join(fs.root, 'code', 'lib', 'src', 'mod.ts'));
+      } finally {
+        await Fs.remove(fs.root);
+      }
     });
 
     it('adds a package-level alias for react-inspector to the dominant workspace authority', async () => {

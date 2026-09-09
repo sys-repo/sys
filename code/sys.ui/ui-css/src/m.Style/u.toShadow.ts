@@ -3,7 +3,7 @@ import { type t, Color, Is } from './common.ts';
 /**
  * Converts into to a box-shadow.
  */
-export const toShadow: t.CssToShadow = (input) => {
+export const toShadow: t.Style.Shadow.ToString = (input) => {
   if (input === undefined) return undefined;
   const { blur } = input;
   const x = input.x ? `${input.x}px` : '0';

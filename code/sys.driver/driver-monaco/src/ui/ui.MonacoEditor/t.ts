@@ -79,7 +79,7 @@ export type MonacoEditorKeyDownHandler = (e: MonacoEditorKeyDown) => void;
 export type MonacoEditorKeyDown = {
   readonly event: t.Monaco.I.IKeyboardEvent;
   readonly key: string;
-  readonly modifiers: t.KeyboardModifierFlags;
+  readonly modifiers: t.Keyboard.Modifier.Flags;
   preventDefault(): void;
   stopPropagation(): void;
 };

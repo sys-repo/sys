@@ -1,4 +1,4 @@
-import { type t, Arr, describe, expect, expectError, it, sampleDir, slug } from '../../-test.ts';
+import { Arr, describe, expect, expectError, it, sampleDir, slug, type t } from '../../-test.ts';
 import { Path } from '../common.ts';
 import { Fs } from '../mod.ts';
 
@@ -50,6 +50,16 @@ describe('Fs: directory operations', () => {
         expect(await Fs.exists(dir.b)).to.eql(true);
         expect(await Fs.exists(file.b)).to.eql(true); // NB: parent dir created.
         await assertFileText(file.b, file.text);
+      });
+
+      it('error: missing parent preserved ← {ensureParent:false}', async () => {
+        const { dir, file } = await setupCopyTest();
+        const res = await Fs.copyFile(file.a, file.b, { ensureParent: false });
+        expect(res.error?.message).to.include(
+          'Cannot copy file because target parent directory does not exist',
+        );
+        expect(res.error?.message).to.include(dir.b);
+        expect(await Fs.exists(dir.b)).to.eql(false);
       });
 
       it('success: replaces directory ← {force:true}', async () => {

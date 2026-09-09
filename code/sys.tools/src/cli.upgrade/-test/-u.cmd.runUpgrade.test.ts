@@ -1,0 +1,780 @@
+import { c, Cli, describe, expect, Is, it, type t } from '../../-test.ts';
+import { versionsSuccess } from './u.fixture.ts';
+import { runUpgrade } from '../u.cmd.runUpgrade.ts';
+import { getVersionInfo } from '../u.versionInfo.ts';
+
+describe('cli.upgrade.runUpgrade', () => {
+  describe('already latest', () => {
+    it('shows a version-check spinner and exits without prompting when already latest', async () => {
+      const events: string[] = [];
+      let prompted = false;
+      let refreshed = false;
+      let advisoryRemote = '';
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: true }, {
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.318',
+          latest: '0.0.318',
+          is: { latest: true },
+        }),
+        refreshCache: async () => {
+          refreshed = true;
+          return {
+            success: true,
+            code: 0,
+            text: { stdout: '', stderr: '' },
+            toString: () => '',
+          };
+        },
+        prompt: async () => {
+          prompted = true;
+          return 'upgrade';
+        },
+        spinner: () => spinner(events),
+        info: (...data) => {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        writeAdvisorySuccess: async (version) => {
+          advisoryRemote = version.remote;
+        },
+      });
+
+      const plain = events.map((line) => Cli.stripAnsi(line));
+      expect(plain[0]).to.include('start:checking latest @sys/tools version...');
+      expect(plain[1]).to.eql('stop');
+      const output = plain.join('\n');
+      const statusAt = output.indexOf('@sys/tools is up to date');
+      const registryLatestAt = output.indexOf('  registry:latest  0.0.318 ✔');
+      const localCurrentAt = output.indexOf('  local:current    0.0.318');
+      const registryUrlAt = output.indexOf('  https://jsr.io/@sys/tools');
+
+      expect(statusAt).to.be.greaterThan(-1);
+      expect(registryLatestAt).to.be.greaterThan(statusAt);
+      expect(localCurrentAt).to.be.greaterThan(registryLatestAt);
+      expect(registryUrlAt).to.be.greaterThan(localCurrentAt);
+      expect(plain.some((line) => line.includes('No upgrade needed.'))).to.eql(true);
+      expect(events.join('\n')).to.contain(c.gray(c.dim('https://jsr.io/@sys/tools')));
+      expect(events.join('\n')).to.contain(c.gray(c.italic('No upgrade needed.')));
+      expect(prompted).to.eql(false);
+      expect(refreshed).to.eql(false);
+      expect(advisoryRemote).to.eql('0.0.318');
+    });
+
+    it('offers back instead of exiting when root-menu upgrade is already latest', async () => {
+      let prompted = false;
+      let refreshed = false;
+      let message = '';
+      let options: string[] = [];
+
+      const result = await runUpgrade('/tmp' as t.StringDir, {
+        interactive: true,
+        source: 'root-menu',
+      }, {
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.318',
+          latest: '0.0.318',
+          is: { latest: true },
+        }),
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async (args) => {
+          prompted = true;
+          message = String(args.message);
+          options = promptOptionNames(args.options);
+          return '__back__';
+        },
+        spinner: () => spinner([]),
+        info() {},
+        async writeAdvisorySuccess() {},
+      });
+
+      expect(result).to.eql({ kind: 'back' });
+      expect(prompted).to.eql(true);
+      expect(refreshed).to.eql(false);
+      expect(message).to.eql('No upgrades');
+      expect(options).to.eql(['  rescan', '← back']);
+    });
+
+    it('rescans from the root-menu latest screen before returning back', async () => {
+      let versionChecks = 0;
+      let prompts = 0;
+      let refreshed = false;
+
+      const result = await runUpgrade('/tmp' as t.StringDir, {
+        interactive: true,
+        source: 'root-menu',
+      }, {
+        getVersionInfo: async () => {
+          versionChecks += 1;
+          return {
+            local: '0.0.318',
+            remote: '0.0.318',
+            latest: '0.0.318',
+            is: { latest: true },
+          };
+        },
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async () => {
+          prompts += 1;
+          return prompts === 1 ? '__rescan__' : '__back__';
+        },
+        spinner: () => spinner([]),
+        info() {},
+        async writeAdvisorySuccess() {},
+      });
+
+      expect(result).to.eql({ kind: 'back' });
+      expect(versionChecks).to.eql(2);
+      expect(prompts).to.eql(2);
+      expect(refreshed).to.eql(false);
+    });
+  });
+
+  describe('upgrade available', () => {
+    it('checks latest first, then prompts, then runs the refresh spinner', async () => {
+      const events: string[] = [];
+      let advisoryRemote = '';
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: true }, {
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.319',
+          latest: '0.0.319',
+          resolution: resolved('jsr:@sys/tools', '0.0.319'),
+          is: { latest: false },
+        }),
+        resolvePublicToolsPackage: async () => resolved('jsr:@sys/tools', '0.0.319'),
+        refreshCache: async () => ({
+          success: true,
+          code: 0,
+          text: { stdout: '', stderr: '' },
+          toString: () => '',
+        }),
+        prompt: async () => {
+          events.push('prompt');
+          return 'upgrade';
+        },
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess(version) {
+          advisoryRemote = version.remote;
+        },
+      });
+
+      const plain = events.map((line) => Cli.stripAnsi(line));
+      expect(plain[0]).to.include('start:checking latest @sys/tools version...');
+      expect(plain[1]).to.eql('stop');
+      expect(plain).to.include('prompt');
+      expect(
+        plain.findIndex((line) => line.includes('start:checking latest @sys/tools version...')),
+      )
+        .to.be.lessThan(
+          plain.indexOf('prompt'),
+        );
+      expect(
+        plain.findIndex((line) =>
+          line.includes('start:upgrading @sys/tools from 0.0.318 to 0.0.319...')
+        ),
+      ).to.be.greaterThan(
+        plain.indexOf('prompt'),
+      );
+      expect(advisoryRemote).to.eql('0.0.319');
+    });
+
+    it('uses a normal version check before refresh and reloaded public resolution after refresh', async () => {
+      const versionReloads: Array<boolean | undefined> = [];
+      const verificationReloads: Array<boolean | undefined> = [];
+      let refreshed = false;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: async (_cwd, options) => {
+          versionReloads.push(options?.resolverReload);
+          return {
+            local: '0.0.318',
+            remote: '0.0.319',
+            latest: '0.0.319',
+            actionable: '0.0.319',
+            resolution: resolved('jsr:@sys/tools', '0.0.319'),
+            is: { latest: false, upgradeAvailable: true, pending: false },
+          };
+        },
+        resolvePublicToolsPackage: async (_cwd, options) => {
+          verificationReloads.push(options?.reload);
+          return resolved('jsr:@sys/tools', '0.0.319');
+        },
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async () => 'upgrade',
+        spinner: () => spinner([]),
+        info() {},
+        async writeAdvisorySuccess() {},
+      });
+
+      expect(refreshed).to.eql(true);
+      expect(versionReloads).to.eql([false]);
+      expect(verificationReloads).to.eql([true]);
+    });
+
+    it('keeps direct interactive prompts on the existing upgrade/exit menu', async () => {
+      let refreshed = false;
+      let options: string[] = [];
+
+      const result = await runUpgrade(
+        '/tmp' as t.StringDir,
+        { interactive: true, source: 'argv' },
+        {
+          getVersionInfo: async () => ({
+            local: '0.0.318',
+            remote: '0.0.319',
+            latest: '0.0.319',
+            is: { latest: false },
+          }),
+          refreshCache: async () => {
+            refreshed = true;
+            return { success: true, toString: () => '' };
+          },
+          prompt: async (args) => {
+            options = promptOptionNames(args.options);
+            return '__exit__';
+          },
+          spinner: () => spinner([]),
+          info() {},
+          async writeAdvisorySuccess() {},
+        },
+      );
+
+      expect(result).to.eql(undefined);
+      expect(refreshed).to.eql(false);
+      expect(options).to.eql([
+        ' - upgrade now to 0.0.319',
+        '(exit)',
+      ]);
+    });
+
+    it('offers an actionable intermediate upgrade while latest is standing down', async () => {
+      const events: string[] = [];
+      let refreshed = false;
+      let options: string[] = [];
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: true, source: 'argv' }, {
+        getVersionInfo: async () => ({
+          local: '0.0.462',
+          remote: '0.0.464',
+          remoteCreatedAt: '2026-07-05T01:17:43.938610Z',
+          latest: '0.0.463',
+          actionable: '0.0.463',
+          latestResolution: {
+            ok: false,
+            specifier: 'jsr:@sys/tools@0.0.464' as t.StringModuleSpecifier,
+            registry: 'jsr',
+            package: '@sys/tools' as t.StringPkgName,
+            reason: {
+              code: 'policy:minimum-dependency-age',
+              minimumDependencyDate: '2026-07-04T04:32:25.677189Z' as t.StringTimestamp,
+            },
+          },
+          is: { latest: false, upgradeAvailable: true, pending: false },
+        }),
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async (args) => {
+          options = promptOptionNames(args.options);
+          return '__exit__';
+        },
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const output = events.map((line) => Cli.stripAnsi(line)).join('\n');
+      expect(refreshed).to.eql(false);
+      expect(options).to.eql([
+        ' - upgrade now to 0.0.463',
+        '(exit)',
+      ]);
+      expect(output).to.contain('@sys/tools upgrade available');
+      expect(output).to.contain(
+        'registry:latest  0.0.464  — minimum dependency age window clears in 21h',
+      );
+      expect(output).to.contain('local:current    0.0.462');
+      expect(output).to.contain('local:next       0.0.463');
+      expect(output).to.not.contain('auto-upgrade pending — standing down');
+    });
+
+    it('uses a back affordance from the root menu and returns without refreshing', async () => {
+      let refreshed = false;
+      let options: string[] = [];
+
+      const result = await runUpgrade('/tmp' as t.StringDir, {
+        interactive: true,
+        source: 'root-menu',
+      }, {
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.319',
+          latest: '0.0.319',
+          is: { latest: false },
+        }),
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async (args) => {
+          options = promptOptionNames(args.options);
+          return '__back__';
+        },
+        spinner: () => spinner([]),
+        info() {},
+        async writeAdvisorySuccess() {},
+      });
+
+      expect(result).to.eql({ kind: 'back' });
+      expect(refreshed).to.eql(false);
+      expect(options).to.eql([
+        '  upgrade now to 0.0.319',
+        '← back',
+      ]);
+      expect(options.join('\n')).to.not.contain('(exit)');
+    });
+  });
+
+  describe('auto-upgrade pending standdown', () => {
+    it('reports standdown when latest cannot be used yet', async () => {
+      const events: string[] = [];
+      let refreshed = false;
+      let prompted = false;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.319',
+          remoteCreatedAt: '2026-07-05T01:17:43.938610Z',
+          latest: '0.0.318',
+          actionable: '0.0.318',
+          latestResolution: {
+            ok: false,
+            specifier: 'jsr:@sys/tools@0.0.319' as t.StringModuleSpecifier,
+            registry: 'jsr',
+            package: '@sys/tools' as t.StringPkgName,
+            reason: {
+              code: 'policy:minimum-dependency-age',
+              minimumDependencyDate: '2026-07-04T04:32:25.677189Z' as t.StringTimestamp,
+            },
+          },
+          is: { latest: true, upgradeAvailable: false, pending: true },
+        }),
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async () => {
+          prompted = true;
+          return 'upgrade';
+        },
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const plain = events.map((line) => Cli.stripAnsi(line));
+      expect(refreshed).to.eql(false);
+      expect(prompted).to.eql(false);
+      expect(plain.some((line) => line.includes('@sys/tools auto-upgrade pending — standing down')))
+        .to.eql(true);
+      expect(plain.some((line) => line.includes('registry:latest  0.0.319'))).to.eql(true);
+      expect(plain.some((line) => line.includes('local:current    0.0.318'))).to.eql(true);
+      expect(plain.some((line) => line.includes('local:next       none yet'))).to.eql(true);
+      expect(plain.join('\n')).to.not.contain('held at');
+      expect(plain.join('\n')).to.not.contain('Deno is not allowing this upgrade yet.');
+      expect(
+        plain.some((line) =>
+          line.includes('waiting 21h for the minimum dependency age window to pass.')
+        ),
+      ).to.eql(true);
+      expect(events.join('\n')).to.contain(
+        c.gray(c.italic('waiting 21h for the minimum dependency age window to pass.')),
+      );
+      expect(plain.join('\n')).to.not.contain('upgrade now to 0.0.319');
+    });
+
+    it('uses neutral pending copy when standdown is not minimum dependency age', async () => {
+      const events: string[] = [];
+      let refreshed = false;
+      let prompted = false;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.319',
+          latest: '0.0.318',
+          actionable: '0.0.318',
+          latestResolution: {
+            ok: false,
+            specifier: 'jsr:@sys/tools@0.0.319' as t.StringModuleSpecifier,
+            registry: 'jsr',
+            package: '@sys/tools' as t.StringPkgName,
+            reason: { code: 'unknown', message: 'not actionable yet' },
+          },
+          is: { latest: true, upgradeAvailable: false, pending: true },
+        }),
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async () => {
+          prompted = true;
+          return 'upgrade';
+        },
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const output = events.map((line) => Cli.stripAnsi(line)).join('\n');
+      expect(refreshed).to.eql(false);
+      expect(prompted).to.eql(false);
+      expect(output).to.contain('Published version is not currently installable.');
+      expect(output).to.not.contain('minimum dependency age window');
+    });
+
+    it('reports bounded resolver detail and the direct cache-refresh command', async () => {
+      const events: string[] = [];
+      const rawDetail = `registry resolution failed\n${'x'.repeat(300)}`;
+      let refreshed = false;
+      let prompted = false;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: unavailableVersionCheck(rawDetail),
+        refreshCache: async () => {
+          refreshed = true;
+          return { success: true, toString: () => '' };
+        },
+        prompt: async () => {
+          prompted = true;
+          return 'upgrade';
+        },
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const plain = events.map((line) => Cli.stripAnsi(line));
+      const output = plain.join('\n');
+      const recovery = plain.find((line) => line.includes('No upgrade was run.')) ?? '';
+      const recoveryLines = recovery.split('\n');
+      const detail = recoveryLines[2];
+
+      expect(refreshed).to.eql(false);
+      expect(prompted).to.eql(false);
+      expect(output).to.contain('@sys/tools upgrade check unavailable');
+      expect(recoveryLines.length).to.eql(4);
+      expect(recoveryLines[0]).to.eql('info:No upgrade was run.');
+      expect(recoveryLines[1]).to.eql('Could not complete the upgrade check.');
+      expect(detail).to.contain('Resolver: registry resolution failed ');
+      expect(detail.length).to.eql(160);
+      expect(detail.endsWith('…')).to.eql(true);
+      expect(recoveryLines[3]).to.eql(
+        'Retry: deno cache --reload --no-config --no-lock jsr:@sys/tools',
+      );
+      expect(output).to.not.contain('Deno currently resolves @sys/tools');
+    });
+
+    it('omits absent resolver detail while preserving the retry path', async () => {
+      const events: string[] = [];
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: unavailableVersionCheck(),
+        refreshCache: async () => ({ success: true, toString: () => '' }),
+        prompt: async () => 'upgrade',
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const plain = events.map((line) => Cli.stripAnsi(line));
+      const recovery = plain.find((line) => line.includes('No upgrade was run.')) ?? '';
+      expect(recovery.split('\n')).to.eql([
+        'info:No upgrade was run.',
+        'Could not complete the upgrade check.',
+        'Retry: deno cache --reload --no-config --no-lock jsr:@sys/tools',
+      ]);
+    });
+  });
+
+  describe('refresh outcomes', () => {
+    it('fails instead of claiming success when public resolution remains below target', async () => {
+      let versionChecks = 0;
+      let refreshed = false;
+
+      let error: unknown;
+      try {
+        await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+          getVersionInfo: async () => {
+            versionChecks += 1;
+            return {
+              local: '0.0.318',
+              remote: '0.0.319',
+              latest: '0.0.319',
+              actionable: '0.0.319',
+              is: { latest: false, upgradeAvailable: true, pending: false },
+            };
+          },
+          resolvePublicToolsPackage: async () => resolved('jsr:@sys/tools', '0.0.318'),
+          refreshCache: async () => {
+            refreshed = true;
+            return { success: true, toString: () => '' };
+          },
+          prompt: async () => 'upgrade',
+          spinner: () => spinner([]),
+          info() {},
+          async writeAdvisorySuccess() {},
+        });
+      } catch (err) {
+        error = err;
+      }
+
+      expect(refreshed).to.eql(true);
+      expect(versionChecks).to.eql(1);
+      expect(error).to.be.instanceOf(Error);
+      expect((error as Error).message).to.include('Expected upgrade version 0.0.319 or newer');
+      expect((error as Error).message).to.include('public specifier resolved 0.0.318');
+    });
+
+    it('fails truthfully when post-refresh public resolution becomes unavailable', async () => {
+      let versionChecks = 0;
+      let refreshed = false;
+
+      let error: unknown;
+      try {
+        await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+          getVersionInfo: async () => {
+            versionChecks += 1;
+            return {
+              local: '0.0.318',
+              remote: '0.0.319',
+              latest: '0.0.319',
+              actionable: '0.0.319',
+              is: { latest: false, upgradeAvailable: true, pending: false },
+            };
+          },
+          resolvePublicToolsPackage: async () => ({
+            ok: false,
+            specifier: 'jsr:@sys/tools' as t.StringModuleSpecifier,
+            registry: 'jsr',
+            package: '@sys/tools' as t.StringPkgName,
+            reason: { code: 'registry' },
+          }),
+          refreshCache: async () => {
+            refreshed = true;
+            return { success: true, toString: () => '' };
+          },
+          prompt: async () => 'upgrade',
+          spinner: () => spinner([]),
+          info() {},
+          async writeAdvisorySuccess() {},
+        });
+      } catch (err) {
+        error = err;
+      }
+
+      expect(refreshed).to.eql(true);
+      expect(versionChecks).to.eql(1);
+      expect(error).to.be.instanceOf(Error);
+      expect((error as Error).message).to.include('Deno resolver state is unavailable');
+      expect((error as Error).message).to.not.include('resolved 0.0.318');
+    });
+
+    it('verifies refresh without fetching registry metadata again', async () => {
+      const events: string[] = [];
+      let versionChecks = 0;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: async () => {
+          versionChecks += 1;
+          if (versionChecks > 1) throw new Error('registry metadata should not be fetched again');
+          return {
+            local: '0.0.318',
+            remote: '0.0.319',
+            latest: '0.0.319',
+            resolution: resolved('jsr:@sys/tools', '0.0.319'),
+            is: { latest: false },
+          };
+        },
+        resolvePublicToolsPackage: async () => resolved('jsr:@sys/tools', '0.0.319'),
+        refreshCache: async () => ({ success: true, toString: () => '' }),
+        prompt: async () => 'upgrade',
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      expect(versionChecks).to.eql(1);
+      expect(events.map((line) => Cli.stripAnsi(line)).join('\n')).to.contain(
+        'Upgraded @sys/tools to 0.0.319 ✔',
+      );
+    });
+
+    it('accepts a newer public version after refresh and reports the actual resolution', async () => {
+      const events: string[] = [];
+      let versionChecks = 0;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: async () => {
+          versionChecks += 1;
+          return {
+            local: '0.0.318',
+            remote: '0.0.319',
+            latest: '0.0.319',
+            resolution: resolved('jsr:@sys/tools', '0.0.319'),
+            is: { latest: false },
+          };
+        },
+        resolvePublicToolsPackage: async () => resolved('jsr:@sys/tools', '0.0.320'),
+        refreshCache: async () => ({ success: true, toString: () => '' }),
+        prompt: async () => 'upgrade',
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {},
+      });
+
+      const output = events.map((line) => Cli.stripAnsi(line)).join('\n');
+      expect(versionChecks).to.eql(1);
+      expect(output).to.contain('Upgraded @sys/tools to 0.0.320 ✔');
+    });
+
+    it('keeps upgrade flow working when advisory persistence fails', async () => {
+      const events: string[] = [];
+      let refreshed = false;
+
+      await runUpgrade('/tmp' as t.StringDir, { interactive: false }, {
+        getVersionInfo: async () => ({
+          local: '0.0.318',
+          remote: '0.0.319',
+          latest: '0.0.319',
+          resolution: resolved('jsr:@sys/tools', '0.0.319'),
+          is: { latest: false },
+        }),
+        resolvePublicToolsPackage: async () => resolved('jsr:@sys/tools', '0.0.319'),
+        refreshCache: async () => {
+          refreshed = true;
+          return {
+            success: true,
+            code: 0,
+            text: { stdout: '', stderr: '' },
+            toString: () => '',
+          };
+        },
+        prompt: async () => 'upgrade',
+        spinner: () => spinner(events),
+        info(...data) {
+          events.push(`info:${data.map(String).join(' ')}`);
+        },
+        async writeAdvisorySuccess() {
+          throw new Error('disk full');
+        },
+      });
+
+      const plain = events.map((line) => Cli.stripAnsi(line));
+      expect(refreshed).to.eql(true);
+      expect(
+        plain.some((line) => line.includes('Upgraded @sys/tools to 0.0.319 ✔')),
+      ).to.eql(true);
+    });
+  });
+});
+
+function unavailableVersionCheck(message?: string) {
+  return (cwd: t.StringDir, options: { readonly resolverReload?: boolean } = {}) =>
+    getVersionInfo(cwd, {
+      ...options,
+      versions: () => versionsSuccess({ latest: '999999.0.0' as t.StringSemver }),
+      resolvePackage: async ({ specifier }) => ({
+        ok: false,
+        specifier,
+        registry: 'jsr',
+        package: '@sys/tools' as t.StringPkgName,
+        reason: {
+          code: 'registry',
+          ...(message ? { message } : {}),
+        },
+      }),
+    });
+}
+
+function resolved(
+  specifier: string,
+  version: string,
+): Extract<NonNullable<t.UpgradeTool.VersionInfo['resolution']>, { readonly ok: true }> {
+  return {
+    ok: true,
+    specifier: specifier as t.StringModuleSpecifier,
+    registry: 'jsr',
+    package: '@sys/tools' as t.StringPkgName,
+    resolved: version as t.StringSemver,
+  };
+}
+
+function promptOptionNames(
+  options: readonly unknown[],
+  opts: { stripAnsi?: boolean } = {},
+) {
+  const { stripAnsi = true } = opts;
+  return options.map((option) => {
+    const name = Is.str(option)
+      ? option
+      : String((option as { readonly name?: unknown }).name ?? '');
+    return stripAnsi ? Cli.stripAnsi(name) : name;
+  });
+}
+
+function spinner(events: string[]) {
+  return {
+    text: '',
+    start(text?: string) {
+      events.push(`start:${String(text ?? '')}`);
+      this.text = String(text ?? '');
+      return this;
+    },
+    stop() {
+      events.push('stop');
+      return this;
+    },
+    succeed(text?: string) {
+      events.push(`succeed:${Cli.stripAnsi(String(text ?? ''))}`);
+      this.text = String(text ?? '');
+      return this;
+    },
+    fail(text?: string) {
+      events.push(`fail:${Cli.stripAnsi(String(text ?? ''))}`);
+      this.text = String(text ?? '');
+      return this;
+    },
+  };
+}

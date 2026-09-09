@@ -1,0 +1,14 @@
+# Proxied Cell app service.
+
+name: cell:proxy
+hostname: 127.0.0.1
+port: 8080
+root:
+  target: http://127.0.0.1:4040/hello-world/
+mounts:
+  - path: /payments/
+    target: http://127.0.0.1:4040/.pulled/driver.stripe/
+  - path: /view/
+    target: http://127.0.0.1:4040/
+  - path: /-/stripe/
+    target: http://127.0.0.1:9090/-/stripe/

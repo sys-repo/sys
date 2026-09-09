@@ -1,0 +1,99 @@
+import { Fs, Is, Jsr, pkg, Semver, type t, WorkspaceResolve } from './common.ts';
+import { toVersionState } from './u.versionState.ts';
+
+type FetchPackageVersions = t.Registry.Jsr.Fetch.Pkg.Lib['versions'];
+type ResolvePackage = t.WorkspaceResolve.Lib['resolvePackage'];
+type ResolvePublicToolsPackageOptions = {
+  readonly reload?: boolean;
+  readonly resolvePackage?: ResolvePackage;
+};
+type GetVersionInfoDeps = {
+  readonly versions?: FetchPackageVersions;
+  readonly resolvePackage?: ResolvePackage;
+  /** Force Deno to reload resolver/cache state before reporting the actionable upgrade version. */
+  readonly resolverReload?: boolean;
+};
+
+/** Resolve the unpinned public tools package without workspace config or lock discovery. */
+export function resolvePublicToolsPackage(
+  cwd: t.StringDir,
+  options: ResolvePublicToolsPackageOptions = {},
+): Promise<t.WorkspaceResolve.PackageResolutionFact> {
+  const resolvePackage = options.resolvePackage ?? WorkspaceResolve.resolvePackage;
+  return resolvePackage({
+    cwd,
+    specifier: `jsr:${pkg.name}`,
+    reload: options.reload ?? false,
+    noConfig: true,
+    noLock: true,
+  });
+}
+
+export async function getVersionInfo(
+  cwd: t.StringDir = Fs.cwd('terminal'),
+  deps: GetVersionInfoDeps = {},
+): Promise<t.UpgradeTool.VersionInfo> {
+  const local = pkg.version as t.StringSemver;
+  const versions = deps.versions ?? Jsr.Fetch.Pkg.versions;
+  const resolvePackage = deps.resolvePackage ?? WorkspaceResolve.resolvePackage;
+
+  const metadataResponse = await versions(pkg.name);
+  const metadata = metadataResponse.data;
+  const remote = metadata?.latest;
+  if (!metadataResponse.ok || !metadata || !isExactSemver(remote)) {
+    const reason = !metadataResponse.ok
+      ? `HTTP ${metadataResponse.status}`
+      : !metadata
+      ? 'empty response'
+      : 'invalid latest version';
+    throw new Error(`Could not retrieve JSR package metadata for ${pkg.name}: ${reason}`, {
+      cause: metadataResponse.error,
+    });
+  }
+
+  const remoteCreatedAt = metadata.versions?.[remote]?.createdAt;
+  const resolverOptions = {
+    cwd,
+    reload: deps.resolverReload ?? false,
+    noConfig: true,
+    noLock: true,
+  } as const;
+  const resolution = await resolvePublicToolsPackage(cwd, {
+    reload: resolverOptions.reload,
+    resolvePackage,
+  });
+  const actionable = resolution.ok ? resolution.resolved : undefined;
+  const latest = actionable ?? local;
+  const base = {
+    local,
+    remote,
+    ...(remoteCreatedAt ? { remoteCreatedAt } : {}),
+    latest,
+    actionable,
+    resolution,
+  } as const;
+  const initial = toVersionState(base);
+  const latestResolution = initial.pending
+    ? await resolvePackage({
+      ...resolverOptions,
+      specifier: `jsr:${pkg.name}@${remote}`,
+    })
+    : undefined;
+  const state = toVersionState({ ...base, latestResolution });
+
+  return {
+    ...base,
+    latestResolution,
+    is: {
+      latest: !state.upgradeAvailable,
+      upgradeAvailable: state.upgradeAvailable,
+      pending: state.pending,
+      resolverUnavailable: state.resolverUnavailable,
+    },
+  };
+}
+
+function isExactSemver(value: unknown): value is t.StringSemver {
+  if (!Is.str(value) || Semver.Prefix.strip(value) !== value) return false;
+  return Semver.Is.valid(value);
+}

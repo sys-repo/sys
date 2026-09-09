@@ -1,7 +1,7 @@
 import { Pkg, pkg } from '../common.ts';
 
 export { Crdt, DocumentId } from '@sys/driver-automerge/web/ui';
-export { SplitPane } from '@sys/ui-react-components/layout/split-pane';
+export { SplitPane } from '@sys/ui-components/react/layout/split-pane';
 export { Monaco } from '../m.Monaco/mod.ts';
 export * from '../ui/common.ts';
 

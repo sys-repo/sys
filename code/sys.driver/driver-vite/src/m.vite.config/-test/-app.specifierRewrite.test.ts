@@ -6,7 +6,7 @@ import {
   parseJsrSpecifier,
   parseNpmSpecifier,
   resolveFromImportsMap,
-} from '../u.app.specifierRewrite.ts';
+} from '../u/u.app.specifierRewrite.ts';
 
 describe('ViteConfig.app specifier rewrite', () => {
   describe('parseNpmSpecifier', () => {

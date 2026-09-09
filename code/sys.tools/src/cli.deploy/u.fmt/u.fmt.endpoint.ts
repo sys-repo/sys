@@ -1,8 +1,23 @@
-import { type t, c, Cli, Fmt, Fs, Is, Pkg, Str } from '../common.ts';
-import { Provider } from '../u.providers/mod.ts';
+import { c, Cli, Fmt, Fs, Is, Obj, Pkg, Str, type t } from '../common.ts';
 import { fmtProvider } from './u.fmt.provider.ts';
 
-export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.EndpointRef) {
+type EndpointTableOptions = {
+  yaml?: t.EndpointYamlFile;
+  verification?: t.Pkg.Dist.Local.Verify.Evidence;
+};
+type EndpointTableResult = {
+  readonly text: string;
+  readonly yaml: t.EndpointYamlFile | undefined;
+};
+
+/**
+ * Format one Deploy endpoint and its verified staging metadata.
+ */
+export async function endpointTable(
+  cwd: t.StringDir,
+  ref: t.DeployTool.Config.EndpointRef,
+  options: EndpointTableOptions = {},
+): Promise<EndpointTableResult> {
   const table = Cli.table();
 
   const childText = (label: string, isLast = false) => ` ${Fmt.Tree.branch(isLast)} ${label}`;
@@ -14,43 +29,31 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   const file = String(ref.file ?? '');
 
   // Read YAML once (provider + mappings); never throw.
-  let yaml: t.EndpointYamlFile | undefined;
+  let yaml = options.yaml;
   try {
-    const abs = Fs.join(cwd, file);
-    const res = await Fs.readYaml<t.EndpointYamlFile>(abs);
-    yaml = res.ok ? res.data : undefined;
+    if (!yaml) {
+      const abs = Fs.join(cwd, file);
+      const res = await Fs.readYaml<t.EndpointYamlFile>(abs);
+      yaml = res.ok ? res.data : undefined;
+    }
   } catch {
     yaml = undefined;
   }
 
   const mappingsCount = yaml?.mappings?.length ?? 0;
-  const shardTotal = yaml?.provider?.kind === 'orbiter' ? yaml?.provider?.shards?.total : undefined;
-  const mappingsLabel =
-    Is.num(shardTotal) && Number.isFinite(shardTotal) && shardTotal > 0
-      ? `${mappingsCount} ${Str.plural(mappingsCount, 'bundle')} over ${c.white(`${shardTotal}-shards`)}`
-      : `${String(mappingsCount)} ${Str.plural(mappingsCount, 'bundle')}`;
+  const mappingsLabel = `${String(mappingsCount)} ${Str.plural(mappingsCount, 'bundle')}`;
   const providerFmt = fmtProvider(yaml?.provider);
-  const providerDomain =
-    yaml?.provider?.kind === 'orbiter' ? String(yaml.provider.domain ?? '').trim() : '';
-
-  let providerProbe: t.PushProbe | undefined;
-  try {
-    const provider = yaml?.provider;
-    if (provider) providerProbe = await Provider.probe(cwd, provider);
-  } catch {
-    providerProbe = undefined;
-  }
+  const providerDomain = yaml?.provider?.kind === 'r2'
+    ? String(yaml.provider.readOrigin ?? '').trim()
+    : '';
 
   // Align mapping "second column" under the endpoint value column.
   const baseLabels = [
-    'Endpoint',
+    'endpoint',
     childText('config'),
     childText('mappings'),
     ...(providerFmt ? [childText(providerFmt.label)] : []),
     ...(providerDomain ? [childText('domain')] : []),
-    ...(providerFmt && providerProbe && !providerProbe.ok
-      ? [childText('provider probe', true)]
-      : []),
   ];
   const valuesIndent = baseLabels.reduce((m, s) => Math.max(m, s.length), 0) + 2;
 
@@ -64,29 +67,15 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   }
 
   if (providerDomain) {
-    rows.push({ label: 'domain', value: c.cyan(`https://${providerDomain}`) });
+    const domain = providerDomain.startsWith('http') ? providerDomain : `https://${providerDomain}`;
+    rows.push({ label: 'domain', value: c.cyan(domain) });
   }
 
-  const body: Array<[string, string]> = [[c.gray('Endpoint'), c.cyan(name)]];
+  const body: Array<[string, string]> = [[c.gray('endpoint'), c.cyan(name)]];
 
-  rows.forEach((row, index) => {
-    const isLast =
-      index === rows.length - 1 && !(providerFmt && providerProbe && !providerProbe.ok);
+  for (const [index, row] of rows.entries()) {
+    const isLast = index === rows.length - 1;
     body.push([child(row.label, isLast), row.value]);
-  });
-
-  if (providerFmt && providerProbe && !providerProbe.ok) {
-    const reason = String(providerProbe.reason ?? 'unavailable');
-    const hint = String(providerProbe.hint ?? '').trim();
-
-    // 1) main row: only the reason (yellow)
-    body.push([child('provider probe', true), c.yellow(reason)]);
-
-    // 2) second line: install hint (dim), drawn as a nested tree line
-    if (hint) {
-      const tree = ` ${c.dim(Fmt.Tree.vert)}  `;
-      body.push([c.gray(`${tree}`), c.gray(c.dim(c.italic(hint)))]);
-    }
   }
 
   table.body(body);
@@ -94,56 +83,39 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
   let mappingsBlock = '';
 
   try {
-    const tail = (p: string) => {
-      const parts = Str.splitPathSegments(String(p ?? ''));
-      return parts.length ? parts[parts.length - 1]! : String(p ?? '');
+    const tail = (path: string) => {
+      return Str.splitPathSegments(String(path ?? '')).at(-1) ?? String(path ?? '');
     };
 
     const mappings = yaml?.mappings ?? [];
-    const stagingRootRel = String(yaml?.staging?.dir ?? '').trim() || '.';
-    const stagingRootAbs = Fs.join(cwd, stagingRootRel);
-    const hashSuffix = (digest?: string) => {
-      const value = String(digest ?? '').trim();
-      if (!value) return '';
-      return Fmt.hashSuffix(value);
-    };
 
     if (mappings.length) {
       const mt = Cli.table();
 
+      type Destination = { readonly path: string; readonly coverage: string };
       type Group = {
         readonly mode: string;
         readonly srcNames: readonly string[];
-        readonly dsts: readonly {
-          readonly path: string;
-          readonly hash: string;
-          readonly sizeLabel: string;
-        }[];
+        readonly dsts: readonly Destination[];
       };
+      type MutableGroup = { srcNames: string[]; dsts: Destination[] };
 
       const groups: Group[] = [];
-      const byMode = new Map<
-        string,
-        { srcNames: string[]; dsts: Array<{ path: string; hash: string; sizeLabel: string }> }
-      >();
+      const byMode = new Map<string, MutableGroup>();
 
       for (const m of mappings) {
         const mode = String(m.mode ?? '');
         const src = tail(String(m.dir.source ?? ''));
         const dstRaw = String(m.dir.staging ?? '');
-        const targetAbs = Fs.join(stagingRootAbs, dstRaw || '.');
-        const dist = (await Pkg.Dist.load(targetAbs)).dist;
-        const hash = hashSuffix(dist?.hash?.digest);
-        const size = dist?.build?.size?.total;
-        const sizeLabel = Is.num(size) && size > 0 ? c.dim(c.gray(` | ${Str.bytes(size)}`)) : '';
-        const dst = { path: dstRaw, hash, sizeLabel };
+        const coverage = mappingCoverage(options.verification, dstRaw);
+        const dst = { path: dstRaw, coverage };
 
         const hit = byMode.get(mode);
         if (hit) {
           hit.srcNames.push(src);
           hit.dsts.push(dst);
         } else {
-          const next = { srcNames: [src], dsts: [dst] };
+          const next: MutableGroup = { srcNames: [src], dsts: [dst] };
           byMode.set(mode, next);
           groups.push({ mode, ...next });
         }
@@ -162,9 +134,9 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
         const maxDstPathLen = g.dsts.reduce((acc, d) => Math.max(acc, d.path.length), 0);
         const dstLines = g.dsts.map((d) => {
           const path = c.white(d.path);
-          if (!d.hash) return `${path}${d.sizeLabel}`;
+          if (!d.coverage) return path;
           const pad = ' '.repeat(Math.max(1, maxDstPathLen - d.path.length + 1));
-          return `${path}${pad}${d.hash}${d.sizeLabel}`;
+          return `${path}${pad}${c.dim(c.gray(d.coverage))}`;
         });
         return [...srcLines, c.cyan('↓'), ...dstLines].join('\n');
       };
@@ -200,4 +172,32 @@ export async function endpointTable(cwd: t.StringDir, ref: t.DeployTool.Config.E
       return yaml;
     },
   };
+}
+
+/** Format one sanitized preview-authority refusal. */
+export function previewUnavailable(reason: t.DistServer.StartFailureReason): string {
+  return String(
+    Str.builder()
+      .line(c.yellow('Preview unavailable'))
+      .line(c.gray(c.dim(`reason: ${reason}`))),
+  );
+}
+
+/** Helpers: */
+function mappingCoverage(
+  evidence: t.Pkg.Dist.Local.Verify.Evidence | undefined,
+  destination: string,
+): string {
+  if (!evidence) return '';
+  const relative = destination === '.' ? '' : Str.trimLeadingDotSlash(destination);
+  const prefix = relative ? `${relative}/` : '';
+  const parts = Obj.entries(evidence.dist.hash.parts).filter(([path]) =>
+    !prefix || String(path).startsWith(prefix)
+  );
+  const totalBytes = parts.reduce((total, [, part]) => {
+    const size = Pkg.Dist.Part.parse(part)?.size;
+    return total + (Is.num(size) ? size : 0);
+  }, 0);
+  const files = `${parts.length} ${Str.plural(parts.length, 'file')}`;
+  return `${files} | ${Str.bytes(totalBytes)}`;
 }

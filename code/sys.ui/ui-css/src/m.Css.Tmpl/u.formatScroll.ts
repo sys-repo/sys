@@ -6,7 +6,7 @@ import { mergeAndReplace } from './u.ts';
  * See:
  *    https://css-tricks.com/snippets/css/momentum-scrolling-on-ios-overflow-elements/
  */
-export function formatScroll(key: string, value: unknown, target: t.CssProps) {
+export function formatScroll(key: string, value: unknown, target: t.Style.Props) {
   if (value === true) {
     const styles = {
       overflowX: 'hidden',

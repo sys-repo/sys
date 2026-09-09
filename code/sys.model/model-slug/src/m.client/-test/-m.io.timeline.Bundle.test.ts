@@ -1,9 +1,31 @@
 import { describe, expect, it } from '../../-test.ts';
-import { SlugClient } from '../mod.ts';
+import { SlugClient as SlugClientBase } from '../mod.ts';
 import { Dist } from '../u.io.Dist.ts';
 
-import { type t, Shard } from '../common.ts';
-import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
+import { Shard, type t } from '../common.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch, textResponse } from './u.fixture.ts';
+
+const SlugClient = {
+  ...SlugClientBase,
+  FromEndpoint: {
+    ...SlugClientBase.FromEndpoint,
+    Timeline: {
+      ...SlugClientBase.FromEndpoint.Timeline,
+      Bundle: {
+        load<P = unknown>(
+          baseUrl: t.StringUrl,
+          docid: t.StringId,
+          options: t.SlugScopedTimelineBundleLoadOptions = {},
+        ) {
+          return SlugClientBase.FromEndpoint.Timeline.Bundle.load<P>(baseUrl, docid, {
+            ...LOAD_OPTIONS,
+            ...options,
+          });
+        },
+      },
+    },
+  },
+};
 
 const baseUrl = 'http://example.com/';
 
@@ -353,8 +375,9 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
         urls: { assetBase },
         layout: { shard: { video: { strategy: 'prefix-range', total: 64 } } },
       });
-      if (!result.ok)
+      if (!result.ok) {
         throw new Error(`expected bundle result (${result.error.kind}): ${result.error.message}`);
+      }
 
       const rewritten = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
       expect(rewritten?.href).to.eql(
@@ -531,8 +554,9 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
           },
         },
       });
-      if (!result.ok)
+      if (!result.ok) {
         throw new Error(`expected bundle result (${result.error.kind}): ${result.error.message}`);
+      }
 
       const rewritten = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
       expect(rewritten?.href).to.eql(`https://${expectedIndex}.video.cdn.example.com/main.webm`);

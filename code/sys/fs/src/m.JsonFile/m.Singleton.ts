@@ -1,23 +1,24 @@
-import { type t, Is, Fs } from './common.ts';
+import { Fs, Is, type t } from './common.ts';
 import { get } from './u.get.ts';
 
-const pool = new Map<t.StringPath, t.JsonFile>();
+const pool = new Map<t.StringPath, t.JsonFile.Instance>();
 
 /**
  * Singleton pool API for JsonFile handles.
  */
-export const Singleton: t.JsonFileSingletonLib = {
-  async get<D extends t.JsonFileDoc = t.JsonFileDoc>(
+export const Singleton: t.JsonFile.Singleton.Lib = Object.freeze({
+  async get<D extends t.JsonFile.Doc = t.JsonFile.Doc>(
     path: t.StringPath,
     initial?: D | (() => D),
-    options: t.JsonFileGetOptions = {},
-  ): Promise<t.JsonFile<D>> {
+    options: t.JsonFile.GetOptions = {},
+  ): Promise<t.JsonFile.Instance<D>> {
     const resolved = Fs.resolve(path);
     const existing = pool.get(resolved);
-    if (existing) return existing as t.JsonFile<D>;
+    if (existing) return existing as t.JsonFile.Instance<D>;
 
     if (initial === undefined) {
-      const msg = `JsonFile.Singleton.get: no instance for path "${resolved}" and no initial value provided.`;
+      const msg =
+        `JsonFile.Singleton.get: no instance for path "${resolved}" and no initial value provided.`;
       throw new Error(msg);
     }
 
@@ -38,4 +39,4 @@ export const Singleton: t.JsonFileSingletonLib = {
   clear() {
     pool.clear();
   },
-};
+});

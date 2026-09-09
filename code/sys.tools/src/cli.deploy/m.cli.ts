@@ -1,4 +1,4 @@
-import { type t, D, done, Fs, Is } from './common.ts';
+import { D, done, Fs, Is, type t } from './common.ts';
 import { runEndpointAction } from './u.endpointAction.ts';
 import { parseArgs } from './u.args.ts';
 import { Fmt } from './u.fmt.ts';
@@ -38,6 +38,7 @@ async function runInteractive(cwd: t.StringDir): Promise<t.RunReturn> {
 
     const res = await endpointMenu({ cwd, key: picked.key });
     if (res.kind === 'back') continue;
+    if (res.kind === 'closed') return done(0);
   }
 }
 
@@ -53,6 +54,7 @@ async function runNonInteractive(
     key: resolved.key,
     yamlPath: resolved.yamlPath,
     action: resolved.action,
+    force: resolved.force,
   });
 
   return done(result.ok ? 0 : 1);

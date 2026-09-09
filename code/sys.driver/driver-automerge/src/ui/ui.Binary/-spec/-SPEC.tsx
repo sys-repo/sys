@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { DocumentId } from '../../ui.DocumentId/mod.ts';
 import { type t, Color, D } from '../common.ts';
 import { Binary } from '../mod.ts';
@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
-  function HostDocumentId(props: t.DocumentIdProps) {
+  function HostDocumentId(props: t.Crdt.DocumentId.Props) {
     const doc = p.doc;
     const theme = Color.theme(p.theme.value);
     return (
@@ -31,7 +31,7 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

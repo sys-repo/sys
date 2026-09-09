@@ -1,0 +1,76 @@
+id: pulled-view
+title: Pulled view
+summary: Add a view backed by checksum-pinned `@sys/tools/pull` materialization.
+
+sections:
+  - label: Rule
+    items: |
+      Classify "add a pulled view from <manifest-url> pinned by <integrity>" as `add: pulled view`.
+      Classify "materialize configured pulled views" as `refresh: pulled views`.
+      Treat add prompts as intent plus partial slots.
+      Treat refresh prompts as owner materialization, not Cell descriptor edits.
+      A manifest URL alone is insufficient artifact authority.
+      Do not guess or derive missing integrity.
+      Configure first; materialize only when needed or approved.
+
+  - label: 'Slot policy'
+    items: |
+      `<manifest-url>` is the exact remote `dist.json` URL.
+      `<integrity>` is the independently published SHA-256 of those exact manifest bytes.
+      Reject integrity calculated from the same download being configured.
+      Ask for `<name>`; view names are semantic/user-facing owner handles.
+      `<name>` is not a Cell descriptor field.
+      Prefer lowercase segmented names for owner-facing handles.
+      Avoid `_`, `/`, spaces, uppercase letters, and path-like values in view handles.
+      Do not derive `<name>` from the manifest URL.
+      Propose pull config: `./-config/@sys.tools.pull/view.yaml`.
+      Propose immutable store: `./.dist-store`.
+      Propose mutable projection: `./view/.pulled/<name>` with mode `replace`.
+      Do not use a raw view handle as a path segment without confirming concrete owner paths.
+      Confirm proposed paths before writing.
+      If the user confirms alternate paths, use those confirmed values.
+
+  - label: 'Dialogue'
+    items:
+      - Do not restate the DSL contract to the user.
+      - Ask for every missing authority or semantic slot and confirm proposed paths.
+      - Do not present the proposed projection as a required user operand.
+      - |-
+          Example response when the prompt supplies `<manifest-url>` but not `<integrity>` or `<name>`:
+          OK — I can prepare that pulled view once its publisher pin is supplied.
+          I’ll use:
+          manifest: `<manifest-url>`
+          pull config: `<pull-config-path>`
+          immutable store: `<store-path>`
+          mutable projection: `<project-path>`
+          Please provide the independently published manifest SHA-256 and the view name.
+
+  - label: 'Owner flow'
+    items: |
+      Use owner CLI: `@sys/tools pull add`.
+      Pass `--config <pull-config-path>`.
+      Pass `--manifest <manifest-url>`.
+      Pass `--integrity <integrity>`.
+      Pass `--store <store-path>`.
+      Pass `--project <project-path> --mode replace` when a mutable view projection is required.
+      This creates or updates pull config; it does not pull files.
+      Do not hand-author `@sys/tools/pull` YAML.
+      Use owner CLI when it can create config.
+      Pulled-view setup does not change the Cell descriptor.
+      Do not put artifact authority, projection paths, or view registry entries in
+      `-config/@sys.cell/cell.yaml`.
+
+  - label: 'Materialize'
+    items:
+      - Pull add configures only; it does not materialize files.
+      - Materialize only when needed or approved.
+      - 'For `refresh: pulled views`, use confirmed pull config path(s).'
+      - >-
+          If the prompt does not identify pull config(s) and no project convention is established,
+          ask.
+      - Run one materialization per distinct pull config.
+      - 'Use owner CLI: `@sys/tools pull`.'
+      - Pass `--non-interactive`.
+      - Pass `--config <pull-config-path>`.
+      - Do not read `views.*` from `-config/@sys.cell/cell.yaml`.
+      - Do not edit `-config/@sys.cell/cell.yaml` for refresh-only materialization.

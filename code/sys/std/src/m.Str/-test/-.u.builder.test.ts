@@ -1,4 +1,6 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import type { Str as StrFromT } from '@sys/std/t';
+import type { Str as StrFromTypes } from '@sys/std/types';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Str } from '../mod.ts';
 
 describe('Str.builder', () => {
@@ -6,29 +8,60 @@ describe('Str.builder', () => {
    * Type surface
    */
   describe('types', () => {
-    it('type: Str.builder matches t.StrLib["builder"]', () => {
-      expectTypeOf(Str.builder).toEqualTypeOf<t.StrLib['builder']>();
+    it('type: Str.builder matches t.Str.Lib["builder"]', () => {
+      expectTypeOf(Str.builder).toEqualTypeOf<t.Str.Lib['builder']>();
+    });
+
+    it('type: canonical namespace is exposed through public type roots', () => {
+      const builder: t.Str.Builder = Str.builder();
+      const fromT: StrFromT.Builder = builder;
+      const fromTypes: StrFromTypes.Builder = builder;
+      const options: t.Str.Builder.Options = {};
+      const optionsFromT: StrFromT.Builder.Options = options;
+      const optionsFromTypes: StrFromTypes.Builder.Options = options;
+      const toTextOptions: t.Str.Builder.ToTextOptions = {};
+      const toTextOptionsFromT: StrFromT.Builder.ToTextOptions = toTextOptions;
+      const toTextOptionsFromTypes: StrFromTypes.Builder.ToTextOptions = toTextOptions;
+
+      expectTypeOf(Str.builder).toEqualTypeOf<
+        (options?: t.Str.Builder.Options) => t.Str.Builder
+      >();
+      expectTypeOf(builder).toEqualTypeOf<t.Str.Builder>();
+      expectTypeOf(fromT).toEqualTypeOf<StrFromTypes.Builder>();
+      expectTypeOf(fromTypes).toEqualTypeOf<StrFromT.Builder>();
+      expectTypeOf(options).toEqualTypeOf<t.Str.Builder.Options>();
+      expectTypeOf(optionsFromT).toEqualTypeOf<StrFromTypes.Builder.Options>();
+      expectTypeOf(optionsFromTypes).toEqualTypeOf<StrFromT.Builder.Options>();
+      expectTypeOf(toTextOptions).toEqualTypeOf<t.Str.Builder.ToTextOptions>();
+      expectTypeOf(toTextOptionsFromT).toEqualTypeOf<
+        StrFromTypes.Builder.ToTextOptions
+      >();
+      expectTypeOf(toTextOptionsFromTypes).toEqualTypeOf<
+        StrFromT.Builder.ToTextOptions
+      >();
     });
 
     it('type: instance exposes the minimal chainable API', () => {
       const b = Str.builder();
       expectTypeOf(b.toString).toEqualTypeOf<() => string>();
-      expectTypeOf(b.line).toEqualTypeOf<(input?: string) => t.StrBuilder>();
+      expectTypeOf(b.line).toEqualTypeOf<(input?: string) => t.Str.Builder>();
     });
 
     it('type: extended builder surface', () => {
       const b = Str.builder();
-      expectTypeOf(b.blank).toEqualTypeOf<(count?: number) => t.StrBuilder>();
-      expectTypeOf(b.empty).toEqualTypeOf<(count?: number) => t.StrBuilder>();
-      expectTypeOf(b.raw).toEqualTypeOf<(text: string) => t.StrBuilder>();
-      expectTypeOf(b.lines).toEqualTypeOf<(items: t.Ary<string>) => t.StrBuilder>();
-      expectTypeOf(b.toText).toEqualTypeOf<(options?: t.StrBuilderToTextOptions) => string>();
+      expectTypeOf(b.blank).toEqualTypeOf<(count?: number) => t.Str.Builder>();
+      expectTypeOf(b.empty).toEqualTypeOf<(count?: number) => t.Str.Builder>();
+      expectTypeOf(b.raw).toEqualTypeOf<(text: string) => t.Str.Builder>();
+      expectTypeOf(b.lines).toEqualTypeOf<(items: t.Ary<string>) => t.Str.Builder>();
+      expectTypeOf(b.toText).toEqualTypeOf<
+        (options?: t.Str.Builder.ToTextOptions) => string
+      >();
     });
 
     it('type: indent() exposes scoped indentation API', () => {
       const b = Str.builder();
       expectTypeOf(b.indent).toEqualTypeOf<
-        (spaces: number, fn: (bb: t.StrBuilder) => void) => t.StrBuilder
+        (spaces: number, fn: (bb: t.Str.Builder) => void) => t.Str.Builder
       >();
     });
   });

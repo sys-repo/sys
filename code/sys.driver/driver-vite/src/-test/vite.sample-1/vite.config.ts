@@ -1,7 +1,6 @@
 import { Vite } from '@sys/driver-vite';
-import { defineConfig } from 'npm:vite';
 
-export default defineConfig(async () =>
+export default Vite.Config.define(async () =>
   await Vite.Config.app({
     paths: Vite.Config.paths(),
     chunks(e) {

@@ -5,7 +5,7 @@ import { type t, CrdtCmd, Rx } from './common.ts';
  * Hook that computes and tracks stats for the given CRDT doc-id.
  */
 export const useDocStats: t.UseCrdtDocStats = (repo, docid) => {
-  const [info, setInfo] = useState<t.DocumentStats>();
+  const [info, setInfo] = useState<t.Document.Stats>();
 
   useEffect(() => {
     // Reset whenever the driving inputs change.

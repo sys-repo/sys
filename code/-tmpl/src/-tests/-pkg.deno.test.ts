@@ -1,12 +1,39 @@
-import { type t, describe, expect, Fs, it, makeTmpl, Process, Templates } from '../-test.ts';
+import { pkg as pkgTemplateSeed } from '../../-templates/tmpl.pkg/src/pkg.ts';
+import {
+  describe,
+  expect,
+  expectTypeOf,
+  Fs,
+  it,
+  makeTmpl,
+  Process,
+  type t,
+  Templates,
+} from '../-test.ts';
 import { logTemplate, makeWorkspace } from './u.ts';
 
 describe('Template: pkg', () => {
+  it('exports frozen generated package metadata', () => {
+    const original = { ...pkgTemplateSeed };
+
+    const mutate = () => {
+      // @ts-expect-error Generated package metadata is readonly.
+      pkgTemplateSeed.name = '@sample/mutated';
+    };
+
+    expectTypeOf(pkgTemplateSeed).toEqualTypeOf<Readonly<t.Pkg>>();
+    expectTypeOf(mutate).toEqualTypeOf<() => void>();
+    expect(Object.isFrozen(pkgTemplateSeed)).to.eql(true);
+    expect(Reflect.set(pkgTemplateSeed, 'name', '@sample/mutated')).to.eql(false);
+    expect(Reflect.set(pkgTemplateSeed, 'extra', true)).to.eql(false);
+    expect(pkgTemplateSeed).to.eql(original);
+    expect(Reflect.ownKeys(pkgTemplateSeed)).to.eql(['name', 'version']);
+  });
+
   it('run', async () => {
     /**
      * Template setup:
      */
-    const ns = 'ns';
     const test = await makeWorkspace({
       workspace: ['code/zns/zed', 'code/ans/alpha'],
     });
@@ -44,6 +71,12 @@ describe('Template: pkg', () => {
       const blob = texts.join('\n');
       expect(blob.includes('@sample/foo-1')).to.eql(false, 'should replace all @sample/foo');
       expect(blob.includes('@my-scope/foo-1')).to.eql(true, 'should insert provided pkgName');
+    }
+
+    // Generic test barrels must not preinstall server-side DOM emulation.
+    {
+      const testBarrel = (await Fs.readText(Fs.join(dirA, 'src/-test/mod.ts'))).data ?? '';
+      expect(testBarrel.includes('DomMock')).to.eql(false);
     }
 
     // Workspace update: `deno.json` workspace should now include a new comma-terminated entry

@@ -1,4 +1,4 @@
-import { type t, R } from '../common.ts';
+import { Obj, type t } from '../common.ts';
 
 export * from '../common.ts';
 export { UserAgent } from '../m.UserAgent/mod.ts';
@@ -6,9 +6,9 @@ export { UserAgent } from '../m.UserAgent/mod.ts';
 /**
  * Defaults
  */
-const modifiers: t.KeyboardModifierFlags = { shift: false, ctrl: false, alt: false, meta: false };
+const modifiers: t.Keyboard.Modifier.Flags = { shift: false, ctrl: false, alt: false, meta: false };
 
-const state: t.KeyboardState = {
+const state: t.Keyboard.State.Snapshot = {
   last: undefined,
   current: {
     modified: false,
@@ -20,9 +20,9 @@ const state: t.KeyboardState = {
 
 export const DEFAULTS = {
   get state() {
-    return R.clone(state);
+    return Obj.clone(state);
   },
   get modifiers() {
-    return R.clone(modifiers);
+    return Obj.clone(modifiers);
   },
 };

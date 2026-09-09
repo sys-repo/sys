@@ -165,7 +165,7 @@ describe(`DenoEntry.serve`, () => {
     expect((err as Error).message).to.contain(`DenoEntry.serve: 'targetDir' escapes root`);
   });
 
-  it('rejects tampered dist artifacts at startup', async () => {
+  it('rejects inconsistent self-reported dist artifacts at startup', async () => {
     const fixture = await createServeWorkspace();
     await Fs.write(
       fixture.fs.join('code/projects/foo/dist/pkg/app.js'),
@@ -183,6 +183,6 @@ describe(`DenoEntry.serve`, () => {
     }
 
     expect(err).to.be.instanceOf(Error);
-    expect((err as Error).message).to.contain('invalid dist artifact');
+    expect((err as Error).message).to.contain('inconsistent self-reported dist artifact');
   });
 });

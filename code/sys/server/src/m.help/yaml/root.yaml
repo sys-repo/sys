@@ -1,0 +1,17 @@
+summary: |
+  Server primitives for system packages.
+  Agents must read `dsl` before using, changing, or composing server primitives.
+
+usage:
+  - deno run -ER jsr:@sys/server --help
+  - deno run -ER jsr:@sys/server dsl [chapter...] [--format human|skill]
+
+commands:
+  - name: dsl
+    text: >-
+      agent must read first — server primitive boundaries, speech acts, Cmd transport rules,
+      Files WebSocket facade, lifecycle, and service contracts
+
+options:
+  - name: -h, --help
+    text: show help

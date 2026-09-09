@@ -4,6 +4,7 @@ export async function main(cwd = Deno.cwd()) {
   const stats = await Workspace.Info.stats({
     cwd,
     source: {
+      kind: 'glob',
       include: ['code/**/*.{ts,tsx}'],
       exclude: ['**/node_modules/**', '**/.tmp/**', '**/dist/**'],
     },

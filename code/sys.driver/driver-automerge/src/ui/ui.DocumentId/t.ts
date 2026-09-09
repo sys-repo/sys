@@ -1,75 +1,111 @@
 import type { t } from './common.ts';
-export type * from './t.hooks.ts';
-export type * from './t.parse.ts';
+import type * as THook from './t.hooks.ts';
+import type * as TParse from './t.parse.ts';
 
 type ActionParams = ActionParamsCopyUrl | ActionParamsPlain;
 type ActionParamsPlain = { action: 'Load' | 'Create' | 'Clear' | 'Copy' };
 type ActionParamsCopyUrl = { action: 'Copy:Url'; href: string; addressbarAction: 'add' | 'remove' };
 
-/** The various states the action button can assume. */
-export type DocumentIdAction = ActionParams['action'];
-
 /**
- * Library: document-id UI tools.
+ * Document-id UI contracts.
  */
-export type DocumentIdLib = {
-  readonly View: React.FC<t.DocumentIdProps>;
-  readonly useController: t.UseDocumentIdHook;
-  readonly Parse: t.DocumentIdParseLib;
-};
+export declare namespace DocumentId {
+  /** Library of document-id UI tools. */
+  export type Lib = {
+    readonly View: t.FC<Props>;
+    readonly useController: Hook.Use;
+    readonly Parse: Parse.Lib;
+  };
 
-/**
- * <Component>:
- */
-export type DocumentIdProps = {
-  debug?: boolean;
-  controller?:
-    | t.DocumentIdHook //         ← controlled.
-    | t.UseDocumentIdHookArgs; // ← uncontrolled (auto-create).
+  /** Component props. */
+  export type Props = {
+    debug?: boolean;
+    controller?: Hook.Instance | Hook.Args;
+    placeholder?: string;
+    label?: string;
+    labelOpacity?: t.Percent;
+    enabled?: boolean;
+    autoFocus?: boolean | number;
+    theme?: t.CommonTheme;
+    style?: t.CssInput;
+    buttonStyle?: t.CssInput;
+    background?: string | number;
+    onReady?: Event.ReadyHandler;
+    onChange?: Event.ChangedHandler;
+  };
 
-  placeholder?: string;
-  label?: string;
-  labelOpacity?: t.Percent;
+  /**
+   * Document-id action contracts.
+   */
+  export namespace Action {
+    /** Action button state name. */
+    export type Name = ActionParams['action'];
 
-  enabled?: boolean;
-  autoFocus?: boolean | number;
+    /** `<DocumentId>` action triggered event. */
+    export type Args = ActionParams;
 
-  // Appearance:
-  theme?: t.CommonTheme;
-  style?: t.CssInput;
-  buttonStyle?: t.CssInput;
-  background?: string | number;
+    /** Handler for when the `<DocumentId>` action button is triggered. */
+    export type Handler = (e: Args) => void;
+  }
 
-  // Events:
-  onReady?: t.DocumentIdReadyHandler;
-  onChange?: t.DocumentIdChangedHandler;
-};
+  /**
+   * Document-id event contracts.
+   */
+  export namespace Event {
+    /** Handler for when the `<DocumentId>` is ready. */
+    export type ReadyHandler = (e: Changed) => void;
 
-/**
- * Events:
- */
+    /** Handler for when the `<DocumentId>` changes value. */
+    export type ChangedHandler = (e: Changed) => void;
 
-/** Handler for when the <DocumentId> is ready. */
-export type DocumentIdReadyHandler = (e: DocumentIdChanged) => void;
+    /** The `<DocumentId>` changed event. */
+    export type Changed = {
+      readonly is: { readonly head: boolean };
+      readonly signals: Hook.Signals;
+      readonly values: Hook.SignalValues;
+      readonly repo: t.CrdtRepo;
+    };
+  }
 
-/** Handler for when the <DocumentId> action button is triggered. */
-export type DocumentIdActionHandler = (e: DocumentIdActionArgs) => void;
-/** <DocumentId> action tiggered event. */
-export type DocumentIdActionArgs = ActionParams;
+  /**
+   * Document-id URL contracts.
+   */
+  export namespace Url {
+    /** Handler that generates a URL when activated by a user gesture. */
+    export type Factory = (e: FactoryArgs) => t.StringUrl | undefined;
 
-/** Handler for when the <DocumentId> changes value. */
-export type DocumentIdChangedHandler = (e: DocumentIdChanged) => void;
-/** The <DocumentId> changed event. */
-export type DocumentIdChanged = {
-  readonly is: { readonly head: boolean };
-  readonly signals: t.DocumentIdHookSignals;
-  readonly values: t.DocumentIdHookSignalValues;
-  readonly repo: t.CrdtRepo;
-};
+    /** Arguments passed to a document-id URL factory. */
+    export type FactoryArgs = {
+      readonly docId: t.StringId;
+      readonly urlKey: string;
+    };
+  }
 
-/** Handler that generates a URL when activated by a user gesture. */
-export type DocumentIdUrlFactory = (e: DocumentIdUrlFactoryArgs) => t.StringUrl | undefined;
-export type DocumentIdUrlFactoryArgs = {
-  readonly docId: t.StringId;
-  readonly urlKey: string;
-};
+  /**
+   * Document-id controller hook contracts.
+   */
+  export namespace Hook {
+    /** Controller hook for the document-id input. */
+    export type Use = THook.Use;
+    /** Arguments accepted by the document-id controller hook. */
+    export type Args<T = Record<string, unknown>> = THook.Args<T>;
+    /** Controller instance returned by the hook. */
+    export type Instance = THook.Instance;
+    /** Props derived for the document-id view. */
+    export type Props = THook.Props;
+    /** Signal bundle managed by the controller. */
+    export type Signals = THook.Signals;
+    /** Snapshot of controller signal values. */
+    export type SignalValues = THook.SignalValues;
+  }
+
+  /**
+   * Document-id parser contracts.
+   */
+  export namespace Parse {
+    /** Parser API for document-id text input. */
+    export type Lib = TParse.Lib;
+    /** Parsed document-id input result. */
+    export type Result = TParse.Result;
+  }
+}

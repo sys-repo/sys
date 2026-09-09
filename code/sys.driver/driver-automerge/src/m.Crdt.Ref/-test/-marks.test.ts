@@ -1,7 +1,20 @@
-import { type t, A, AutomergeRepo, c, describe, expect, it, Testing } from '../../-test.ts';
+import {
+  A,
+  afterAll,
+  AutomergeRepo,
+  c,
+  describe,
+  expect,
+  it,
+  repoCleanup,
+  type t,
+  Testing,
+} from '../../-test.ts';
 import { toRef } from '../mod.ts';
 
-describe('marks', { sanitizeResources: false, sanitizeOps: false }, () => {
+const Repos = repoCleanup(afterAll);
+
+describe('marks', () => {
   describe('sample: editor code-folding state stored on string', () => {
     /** Range on a sequence that we want to (un)mark. */
     type SequenceRange = {
@@ -28,7 +41,7 @@ describe('marks', { sanitizeResources: false, sanitizeOps: false }, () => {
 
     type T = { msg: string };
     const sample = (msg = '') => {
-      const repo = new AutomergeRepo();
+      const repo = Repos.automerge(new AutomergeRepo());
       const path = ['msg'];
       const handle = repo.create<T>({ msg });
       const doc = toRef(handle);
@@ -81,7 +94,7 @@ describe('marks', { sanitizeResources: false, sanitizeOps: false }, () => {
       expect(doc.current.msg).to.eql('foo hello world'); // ← sanity check.
 
       mark = A.marks(doc.current, path)[0];
-      expect([mark.start, mark.end]).to.eql([10, 15]); // 6 + 4, 11 + 4
+      expect([mark.start, mark.end]).to.eql([10, 15]); // 6 + 4, 11 + 4
     });
 
     it('events: change fired on writing marks', async () => {
@@ -114,7 +127,7 @@ describe('marks', { sanitizeResources: false, sanitizeOps: false }, () => {
       type Doc = { a: string; b?: string };
 
       const setup = (initial: Partial<Doc> = { a: '' }) => {
-        const repo = new AutomergeRepo();
+        const repo = Repos.automerge(new AutomergeRepo());
         const handle = repo.create<Doc>({ a: '', ...initial });
         const doc = toRef(handle);
         return { doc, repo } as const;

@@ -1,24 +1,17 @@
-import { type t, pkg, c, Cli, Err, Path, Pkg, Str, Time } from '../common.ts';
-import { shouldExclude } from '../u.exclude.ts';
-import { executeStaging, finalizeDistTree, stagingConcurrencyDefault } from '../u.staging/mod.ts';
+import { c, Cli, Err, Path, Str, type t, Time } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
+import { type StagePlan, stagePlan } from '../u.stage.ts';
 
 type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly error: unknown };
 
 /**
- * Run executeStaging with a stable spinner UI.
+ * Run endpoint staging with a stable spinner UI.
  * Never throws unless you choose to rethrow based on ok:false.
  */
-export async function runStagingWithSpinner(args: {
-  cwd: t.StringDir;
-  mappings: t.Ary<t.DeployTool.Staging.Mapping>;
-  stagingRoot: t.StringRelativeDir;
-  sourceRoot?: string;
-  clear?: boolean;
-  indexBaseDomain?: string;
-  buildResetHtml?: boolean;
-}): Promise<RunStagingResult> {
-  const { cwd, mappings } = args;
+export async function runStagingWithSpinner(
+  plan: Extract<StagePlan, { kind: 'mappings' }>,
+): Promise<RunStagingResult> {
+  const { mappings } = plan.stage;
 
   const spin = Cli.spinner();
   const started = Time.now.timestamp;
@@ -54,29 +47,7 @@ export async function runStagingWithSpinner(args: {
 
   try {
     try {
-      await executeStaging({
-        cwd,
-        mappings,
-        stagingRoot: args.stagingRoot,
-        sourceRoot: args.sourceRoot,
-        indexBaseDomain: args.indexBaseDomain,
-        buildResetHtml: args.buildResetHtml,
-        concurrency: stagingConcurrencyDefault({ total }),
-        cleanStagingRoot: args.clear ?? false,
-        writeDistJson: true,
-
-        async onWriteDistJson(e) {
-          // Regenerate dist metadata for the entire staging tree.
-          await finalizeDistTree({
-            dir: e.stagingRoot,
-            pkg,
-            builder: pkg,
-            baseDomain: args.indexBaseDomain,
-            buildResetToken: e.buildResetToken,
-            filter: (path) => !shouldExclude(Path.basename(path)),
-          });
-        },
-
+      const staged = await stagePlan(plan, {
         onProgress(e) {
           if (e.kind === 'mapping:start') {
             active.set(e.index, Path.basename(e.source));
@@ -101,17 +72,15 @@ export async function runStagingWithSpinner(args: {
           refresh();
         },
       });
+      if (!staged.ok) throw (staged.error ?? new Error('Staging failed'));
+      const hash = String(staged.verification.dist.hash.digest).trim();
+      const suffix = hash ? Fmt.hashSuffix(hash) : '';
+      const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;
+      spin.succeed(Fmt.spinnerText(status));
+      return { ok: true };
     } finally {
       globalThis.clearInterval(timer);
     }
-
-    const stageAbs = Path.resolve(cwd, args.stagingRoot);
-    const dist = (await Pkg.Dist.load(stageAbs)).dist;
-    const hash = String(dist?.hash?.digest ?? '').trim();
-    const suffix = hash ? Fmt.hashSuffix(hash) : '';
-    const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;
-    spin.succeed(Fmt.spinnerText(status));
-    return { ok: true };
   } catch (error) {
     spin.fail(Fmt.spinnerText('Staging failed'));
     const detail = Err.summary(error, { cause: true, stack: false });

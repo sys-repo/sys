@@ -29,7 +29,7 @@ type T = MyEvents
 const bus$ = Rx.subject<T>(); // ← your event bus.
 const emit = emitFor<T>();
 
-// Stronly-typed, scheduled, publishing of an event:
+// Strongly-typed, scheduled, publishing of an event:
 emitFor<T>(bus$, 'micro', { kind: 'debug:a.b', total: 42 });
 ```
 
@@ -71,7 +71,9 @@ bus$
 
 `Cmd` provides **typed request/response and streaming events** over any
 `MessagePort`-like endpoint ([Web Worker](https://html.spec.whatwg.org/multipage/workers.html),
-`MessageChannel`, `window.postMessage`, etc).
+`MessageChannel`, `window.postMessage`, etc). Cmd owns its listeners and
+pending request lifecycles; the underlying transport remains caller-owned unless
+endpoint closing is explicitly requested.
 
 <p>&nbsp;</p>
 
@@ -112,7 +114,11 @@ const { port1, port2 } = new MessageChannel();
 
 // Host: runs on the "service" side.
 const host = cmd.host(port1, {
-  ping: async ({ msg }) => ({ reply: `pong: ${msg}` }),
+  async ping({ msg }, ctx) {
+    ctx.emit({ tick: 1 });
+    ctx.emit({ tick: 2 });
+    return { reply: `pong: ${msg}` };
+  },
   sum: ({ values }) => ({ total: values.reduce((n, v) => n + v, 0) }),
 });
 
@@ -131,6 +137,21 @@ const res = await client.send('sum', { values: [1, 2, 3] });
 res.total; // 6
 ```
 
+`Cmd` multiplexes concurrent in-flight requests over the same endpoint. Start
+independent commands before awaiting them when you want one latency window rather
+than sequential round-trips:
+
+```ts
+const [a, b, c] = await Promise.all([
+  client.send('sum', { values: [1] }),
+  client.send('sum', { values: [2] }),
+  client.send('sum', { values: [3] }),
+]);
+```
+
+Each result is correlated by request id, so host responses may arrive out of
+order without changing the caller's result association.
+
 <p>&nbsp;</p>
 
 ### Streaming: events + terminal result
@@ -139,7 +160,12 @@ res.total; // 6
  - `id` – request id (shared with mid-stream events)
  - `onEvent` – subscribe to typed events
  - `done` – promise for the final result
- - `dispose` – cancel the stream and detach listeners
+ - `dispose` – cancel the stream, reject `done`, and detach listeners
+
+Stream events are live. Attach `onEvent` or async-iterator consumers immediately
+after `stream(...)`; late consumers should not expect event replay. Breaking out
+of async iteration cancels the stream. Disposing a host terminal-settles active
+requests with remote errors before aborting their cooperative `AbortSignal`.
 
 ```ts
 /**
@@ -166,4 +192,6 @@ const final = await stream.done;
 sub.dispose();
 client.dispose();
 host.dispose();
+port1.close();
+port2.close();
 ```

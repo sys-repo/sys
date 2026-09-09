@@ -1,11 +1,11 @@
-import type { IndexedDbLib } from './t.ts';
+import type * as Type from './t.ts';
 
 type DeleteResponse = { name: string; error?: string };
 
 /**
  * A promise based wrapper into the IndexedDB API.
  */
-export const IndexedDb: IndexedDbLib = {
+export const IndexedDb: Type.IndexedDb.Lib = Object.freeze({
   /**
    * Create a promised base interface into an IndexedDb
    */
@@ -70,7 +70,7 @@ export const IndexedDb: IndexedDbLib = {
   /**
    * Operations on DB record objects.
    */
-  Record: {
+  Record: Object.freeze({
     /**
      * Retrieves the value of the first record matching the
      * given key or key range in query.
@@ -96,12 +96,12 @@ export const IndexedDb: IndexedDbLib = {
     delete<T>(store: IDBObjectStore, key: IDBValidKey | IDBKeyRange) {
       return IndexedDb.asPromise<T>(store.delete(key));
     },
-  },
+  }),
 
   /**
    * Determine if an IDBDatabase is closed.
    */
-  Database: {
+  Database: Object.freeze({
     isClosed(db: IDBDatabase) {
       let res = false;
       try {
@@ -111,5 +111,5 @@ export const IndexedDb: IndexedDbLib = {
       }
       return res;
     },
-  },
-} as const;
+  }),
+});

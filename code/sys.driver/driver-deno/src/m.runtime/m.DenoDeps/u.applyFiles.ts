@@ -3,26 +3,16 @@ import { Deps, type t } from './common.ts';
 /**
  * Apply canonical deps to deps.yaml and projected Deno files together.
  */
-export const applyFiles: t.DepsLib['applyFiles'] = async (
-  input: {
-    readonly depsPath?: t.StringPath;
-    readonly denoFilePath?: t.StringPath;
-    readonly packageFilePath?: t.StringPath;
-    readonly yaml?: t.DepsYamlOptions;
-  },
-  deps?: t.Dep[],
-): Promise<t.DenoDeps.ApplyFilesResult> => await Deps.applyFiles(wrangle.input(input), deps);
+export const applyFiles: t.DenoDeps.Lib['applyFiles'] = async (
+  input: t.DenoDeps.Apply.FilesInput,
+  deps?: t.DenoDeps.Dep[],
+): Promise<t.DenoDeps.Apply.FilesResult> => await Deps.applyFiles(wrangle.input(input), deps);
 
 /**
  * Helpers:
  */
 const wrangle = {
-  input(input: {
-    readonly depsPath?: t.StringPath;
-    readonly denoFilePath?: t.StringPath;
-    readonly packageFilePath?: t.StringPath;
-    readonly yaml?: t.DepsYamlOptions;
-  }): {
+  input(input: t.DenoDeps.Apply.FilesInput): {
     readonly depsPath?: t.StringPath;
     readonly denoFilePath?: t.StringPath;
     readonly packageFilePath?: t.StringPath;

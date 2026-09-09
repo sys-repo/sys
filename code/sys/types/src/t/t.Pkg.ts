@@ -22,6 +22,9 @@ export type StringScopedPkgNameVer = `@${string}/${string}@${string}`;
  */
 export type PkgScoped = { name: t.StringScopedPkgName; version: t.StringSemver };
 
+/** Recursive npm-compatible `package.json` override policy. */
+export type PkgNodeOverrides = { [key: string]: string | PkgNodeOverrides };
+
 /**
  * Common/minimal definition of the `package.json` file fields.
  */
@@ -31,6 +34,7 @@ export type PkgNodeJson = {
   scripts?: { [key: string]: string };
   dependencies?: { [key: string]: t.StringSemver };
   devDependencies?: { [key: string]: t.StringSemver };
+  overrides?: PkgNodeOverrides;
 };
 
 /**

@@ -1,36 +1,240 @@
 import {
-  type t,
   c,
   describe,
   expect,
   Fs,
   it,
-  pkg,
+  Rx,
   SAMPLE,
   Str,
+  type t,
   Testing,
   Time,
+  Try,
+  WebFixture,
 } from '../../-test.ts';
 import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts';
 import { Vite } from '../mod.ts';
+import type { ViteDevDeps } from '../t.internal.ts';
+import { devWithDeps } from '../u.dev/mod.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
 
 const DEV_FETCH_TIMEOUT = 5_000 as t.Msecs;
 const DEV_CONNECT_RETRY_TIMEOUT = 2_000 as t.Msecs;
 const DEV_CONNECT_RETRY_INTERVAL = 100 as t.Msecs;
-const DEV_ENTRY_RETRY_TIMEOUT = 2_000 as t.Msecs;
+// Vite dev can transiently 404/500 an entry while the server finishes cold-start transforms.
+// The dev contract we own here is eventual entry readiness once the server is up.
+const DEV_ENTRY_RETRY_TIMEOUT = 5_000 as t.Msecs;
 const DEV_ENTRY_RETRY_INTERVAL = 100 as t.Msecs;
 
 describe('Vite.dev', () => {
-  const printHtml = (html: string, title: string, dir: t.StringDir) => {
-    console.info();
-    console.info(c.brightCyan(`${c.bold(title)}:`));
-    console.info(c.gray(Fs.trimCwd(dir)), '\n');
-    console.info(c.italic(c.yellow(html)));
-    console.info();
-  };
+  it('rejects invalid and orphan package subpaths before startup work', async () => {
+    const pkg = { name: '@sys/example', version: '1.2.3' };
+    const cases: readonly [unknown, string][] = [
+      [{ pkg, pkgSubpath: '\u001b[2J' }, 'invalid package subpath'],
+      [{ pkgSubpath: 'ui' }, 'package subpath requires package metadata'],
+    ];
+
+    for (const [input, message] of cases) {
+      let pathResolutions = 0;
+      using _fixture = WebFixture.Property.mock([{
+        target: Wrangle,
+        key: 'pathsFromConfigfile',
+        descriptor: {
+          value: () => {
+            pathResolutions += 1;
+            throw new Error('unexpected path resolution');
+          },
+        },
+      }]);
+
+      const error = await catchError(() => devWithDeps(input as t.Vite.Dev.Args));
+      expect(error?.message).to.include(message);
+      expect(pathResolutions).to.eql(0);
+    }
+  });
+
+  it('composes one normalized compound identity only for the screen reporter', async () => {
+    const pkg = { name: '@sys/example', version: '1.2.3' } as const;
+    const screenArgs: Parameters<NonNullable<ViteDevDeps['createScreen']>>[0][] = [];
+    const manifestPath = 'vite manifest #1/dist.json';
+    const deps = {
+      ...createDevStartupFixtures(),
+      loadDist: () =>
+        Promise.resolve({
+          exists: true,
+          kind: 'canonical' as const,
+          path: manifestPath,
+          dist: {
+            build: { time: 1 },
+            hash: { digest: 'sha256-deadbeef', parts: {} },
+          } as t.DistPkg,
+        }),
+    };
+
+    const paths = {
+      cwd: '/tmp/vite-dev-identity' as t.StringAbsoluteDir,
+      app: { entry: 'src/index.html', outDir: 'dist', base: './' },
+    } as const;
+    const server = await devWithDeps(
+      { pkg, pkgSubpath: '/ui//preview/', paths, port: 49152, reporter: 'screen' },
+      {
+        ...deps,
+        waitForHttp: waitForHttpReady,
+        createScreen: (args) => {
+          screenArgs.push(args);
+          return { outputChanged() {}, ready() {}, redraw() {}, dispose() {} };
+        },
+      },
+    );
+
+    try {
+      expect(screenArgs).to.have.length(1);
+      expect(screenArgs[0]?.identity).to.eql({ root: pkg, subpath: 'ui/preview' });
+      expect(screenArgs[0]).to.not.have.property('manifestUrl');
+      expect(screenArgs[0]).to.not.have.property('pkg');
+      expect(screenArgs[0]).to.not.have.property('pkgSubpath');
+    } finally {
+      await server.dispose();
+    }
+  });
+
+  it('loads the screen digest from its declared output directory', async () => {
+    const pkg = { name: '@sys/example', version: '1.2.3' } as const;
+    const paths = {
+      cwd: '/tmp/vite-dev-output-authority' as t.StringAbsoluteDir,
+      app: { entry: 'src/index.html', outDir: 'custom-output', base: './' },
+    } as const;
+    const manifestPath = Fs.resolve(paths.cwd, paths.app.outDir, 'dist.json');
+    const loadedPaths: string[] = [];
+    const screenArgs: Parameters<NonNullable<ViteDevDeps['createScreen']>>[0][] = [];
+    const server = await devWithDeps(
+      { pkg, paths, port: 49152, reporter: 'screen' },
+      {
+        ...createDevStartupFixtures(),
+        loadDist: (path) => {
+          loadedPaths.push(path);
+          return Promise.resolve({
+            exists: true,
+            kind: 'canonical' as const,
+            path,
+            dist: {
+              build: { time: 1 },
+              hash: { digest: 'sha256-output-authority', parts: {} },
+            } as t.DistPkg,
+          });
+        },
+        waitForHttp: waitForHttpReady,
+        createScreen: (args) => {
+          screenArgs.push(args);
+          return { outputChanged() {}, ready() {}, redraw() {}, dispose() {} };
+        },
+      },
+    );
+
+    try {
+      expect(loadedPaths).to.eql([manifestPath]);
+      expect(screenArgs[0]?.dist?.hash.digest).to.eql('sha256-output-authority');
+      expect(screenArgs[0]).to.not.have.property('manifestUrl');
+    } finally {
+      await server.dispose();
+    }
+  });
+
+  it('passes a redraw adapter only for an acquired ready screen', async () => {
+    const pkg = { name: '@sys/example', version: '1.2.3' } as const;
+    const paths = {
+      cwd: '/tmp/vite-dev-redraw' as t.StringAbsoluteDir,
+      app: { entry: 'src/index.html', outDir: 'dist', base: './' },
+    } as const;
+
+    for (const reporter of ['screen', 'raw'] as const) {
+      const events: string[] = [];
+      const keyboardArgs: Parameters<NonNullable<ViteDevDeps['keyboardFactory']>>[0][] = [];
+      const server = await devWithDeps(
+        { pkg, paths, port: 49152, reporter, silent: reporter === 'raw' },
+        {
+          ...createDevStartupFixtures(),
+          waitForHttp: waitForHttpReady,
+          createScreen: () => ({
+            outputChanged() {},
+            ready: () => void events.push('ready'),
+            redraw: () => void events.push('redraw'),
+            dispose: () => void events.push('dispose'),
+          }),
+          keyboardFactory: (args) => {
+            keyboardArgs.push(args);
+            return async () => {};
+          },
+        },
+      );
+
+      try {
+        expect(keyboardArgs).to.have.length(1);
+        if (reporter === 'screen') {
+          expect(events).to.eql(['ready']);
+          keyboardArgs[0]?.redraw?.();
+          expect(events).to.eql(['ready', 'redraw']);
+        } else {
+          expect(keyboardArgs[0]).to.not.have.property('redraw');
+          expect(events).to.eql([]);
+        }
+      } finally {
+        await server.dispose();
+      }
+    }
+  });
+
+  it('does not acquire a screen in raw or silent modes', async () => {
+    const pkg = { name: '@sys/example', version: '1.2.3' } as const;
+    const paths = {
+      cwd: '/tmp/vite-dev-raw-identity' as t.StringAbsoluteDir,
+      app: { entry: 'src/index.html', outDir: 'dist', base: './' },
+    } as const;
+
+    for (
+      const input of [
+        { pkg, pkgSubpath: 'ui', paths, port: 49152, reporter: 'raw' as const },
+        { pkg, pkgSubpath: 'ui', paths, port: 49152, reporter: 'screen' as const, silent: true },
+      ]
+    ) {
+      let screens = 0;
+      const output: unknown[][] = [];
+      const deps = {
+        ...createDevStartupFixtures(),
+        loadDist: () =>
+          Promise.resolve({
+            exists: true,
+            kind: 'canonical' as const,
+            path: 'relative manifest #1/dist.json',
+            dist: {
+              build: { time: 1 },
+              hash: { digest: 'sha256-deadbeef', parts: {} },
+            } as t.DistPkg,
+          }),
+      };
+      using _console = WebFixture.Property.mock([{
+        target: console,
+        key: 'info',
+        descriptor: { value: (...args: unknown[]) => output.push(args) },
+      }]);
+      const server = await devWithDeps(input, {
+        ...deps,
+        waitForHttp: waitForHttpReady,
+        createScreen: () => {
+          screens += 1;
+          return { outputChanged() {}, ready() {}, redraw() {}, dispose() {} };
+        },
+      });
+
+      await server.dispose();
+      expect(screens).to.eql(0);
+      expect(output.flat().join('\n')).to.not.include('/ui');
+    }
+  });
 
   /**
-   * Dev Mode: long-running child process runing the Vite server.
+   * Dev Mode: long-running child process running the Vite server.
    * Uses Deno's NPM compatibility layer.
    *
    * Command:
@@ -42,7 +246,6 @@ describe('Vite.dev', () => {
    *
    *    ➜  Local:   http://localhost:1234/
    *    ➜  Network: use --host to expose
-   *
    */
   it('process: start → fetch(200) → dispose', async () => {
     await Testing.retry(2, async () => {
@@ -50,7 +253,7 @@ describe('Vite.dev', () => {
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       await prepareDevEntryFixture(cwd);
-      const restore = await writeLocalFixtureImports(cwd);
+      const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
       const paths = {
         cwd,
         app: {
@@ -60,8 +263,8 @@ describe('Vite.dev', () => {
         },
       } as const;
       const port = Testing.randomPort();
-      let server: t.ViteProcess | undefined;
-      let timeout: t.TimeDelayPromise | undefined;
+      let server: t.Vite.Dev.Process | undefined;
+      let timeout: t.Time.Delay.Promise | undefined;
       const controller = new AbortController();
       let stderr = '';
 
@@ -80,7 +283,7 @@ describe('Vite.dev', () => {
         // Vite.dev(...) does not return until the child server is reachable.
         timeout = Time.delay(DEV_FETCH_TIMEOUT, () => {
           controller.abort();
-          server?.dispose();
+          void server?.dispose().catch(() => undefined);
         });
         console.info(c.yellow(`\nInvoking test fetch to: ${c.white(server.url)}`));
 
@@ -120,13 +323,240 @@ describe('Vite.dev', () => {
     });
   });
 
-  it('falls forward to the next port when requested port is occupied', async () => {
-    await Testing.retry(2, async () => {
-      const fs = await SAMPLE.fs('Vite.dev-port-fallback');
+  it('native disposal is outer completion truth under await using', async () => {
+    const fs = await SAMPLE.fs('Vite.dev-native-disposal');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+    await prepareDevEntryFixture(cwd);
+    const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+    const paths = {
+      cwd,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: './',
+      },
+    } as const;
+    let server: t.Vite.Dev.Process | undefined;
+
+    try {
+      server = await Vite.dev({ paths, port: Testing.randomPort(), silent: true });
+      const fired: t.DisposeAsyncEvent[] = [];
+      server.dispose$.subscribe((event) => fired.push(event));
+
+      {
+        await using resource = server;
+        expect(resource.disposed).to.eql(false);
+      }
+
+      const completion = server.dispose('direct:later');
+      expect(server[Symbol.asyncDispose]()).to.equal(completion);
+      await completion;
+      expect(server.disposed).to.eql(true);
+      expect(server.proc.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+      expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
+    } finally {
+      await server?.dispose();
+      await restore();
+    }
+  });
+
+  it('preserves a child-first reason at the outer lifecycle boundary', async () => {
+    const fs = await SAMPLE.fs('Vite.dev-child-first-reason');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+    await prepareDevEntryFixture(cwd);
+    const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+    const paths = {
+      cwd,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: './',
+      },
+    } as const;
+    let server: t.Vite.Dev.Process | undefined;
+
+    try {
+      server = await Vite.dev({ paths, port: Testing.randomPort(), silent: true });
+      const port = server.port;
+      const fired: t.DisposeAsyncEvent[] = [];
+      server.dispose$.subscribe((event) => fired.push(event));
+
+      const childCompletion = server.proc.dispose('child:first');
+      const outerCompletion = server.dispose('outer:later');
+      expect(server[Symbol.asyncDispose]()).to.equal(outerCompletion);
+      await Promise.all([childCompletion, outerCompletion]);
+
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'complete']);
+      expect(fired.map((event) => event.payload.reason)).to.eql([
+        'child:first',
+        'child:first',
+      ]);
+      expect((await Testing.connect(port)).refused).to.eql(true);
+    } finally {
+      await server?.dispose();
+      await restore();
+    }
+  });
+
+  it('pre-aborted and synchronous until inputs cancel startup promptly', async () => {
+    const abort = new AbortController();
+    abort.abort('pre-aborted');
+    const cases: readonly { readonly label: string; readonly until: t.UntilInput }[] = [
+      { label: 'pre-aborted', until: abort.signal },
+      { label: 'synchronous', until: Rx.of({ reason: 'synchronous:until' }) },
+    ];
+
+    for (const test of cases) {
+      const fs = await SAMPLE.fs(`Vite.dev-${test.label}-until`);
       const cwd = fs.join('fixture');
       await Fs.copy(SAMPLE.Dirs.sample2, cwd);
       await prepareDevEntryFixture(cwd);
-      const restore = await writeLocalFixtureImports(cwd);
+      const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', {
+        skipTsconfig: true,
+      });
+      const paths = {
+        cwd,
+        app: {
+          entry: 'index.html',
+          outDir: 'dist',
+          base: './',
+        },
+      } as const;
+      const port = Testing.randomPort();
+      const startedAt = Date.now();
+
+      try {
+        const error = await catchError(() =>
+          Vite.dev({ paths, port, silent: true, until: test.until })
+        );
+
+        expect(error?.message).to.contain('Vite.dev: failed to start dev server');
+        expect(Date.now() - startedAt).to.be.lessThan(10_000);
+        expect((await Testing.connect(port)).refused).to.eql(true);
+      } finally {
+        await restore();
+      }
+    }
+  });
+
+  it('cancels the HTTP readiness wait through the outer lifecycle', async () => {
+    const fs = await SAMPLE.fs('Vite.dev-http-ready-cancel');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+    await prepareDevEntryFixture(cwd);
+    const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+    const paths = {
+      cwd,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: './',
+      },
+    } as const;
+    const port = Testing.randomPort();
+    const until = new AbortController();
+    const waiting = Promise.withResolvers<AbortSignal | undefined>();
+    const waitForHttp: ViteDevDeps['waitForHttp'] = (_url, options) => {
+      const signal = options?.signal;
+      waiting.resolve(signal);
+      return new Promise<never>((_resolve, reject) => {
+        const fail = () => reject(new Error('Vite.dev:test:http-wait-aborted'));
+        if (!signal || signal.aborted) fail();
+        else signal.addEventListener('abort', fail, { once: true });
+      });
+    };
+
+    try {
+      const startup = devWithDeps(
+        { paths, port, silent: true, until: until.signal },
+        { waitForHttp },
+      );
+      const signal = await waiting.promise;
+      const abortedAt = Date.now();
+      until.abort('test:http-ready-cancel');
+      const error = await catchError(() => startup);
+
+      expect(signal?.aborted).to.eql(true);
+      expect(error?.message).to.contain('Vite.dev: failed to start dev server');
+      expect(Date.now() - abortedAt).to.be.lessThan(2_000);
+      expect((await Testing.connect(port)).refused).to.eql(true);
+    } finally {
+      await restore();
+    }
+  });
+
+  it('outer disposal preserves raw child cleanup failure truth', async () => {
+    const fs = await SAMPLE.fs('Vite.dev-cleanup-failure');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+    await prepareDevEntryFixture(cwd);
+    const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+    const paths = {
+      cwd,
+      app: {
+        entry: 'index.html',
+        outDir: 'dist',
+        base: './',
+      },
+    } as const;
+    let server: t.Vite.Dev.Process | undefined;
+    let disposeProcess: t.Process.Handle['dispose'] | undefined;
+
+    try {
+      server = await Vite.dev({ paths, port: Testing.randomPort(), silent: true });
+      disposeProcess = server.proc.dispose;
+      const failure = new Error('Vite.dev:test:cleanup-failure');
+      const fired: t.DisposeAsyncEvent[] = [];
+      let childReason: unknown;
+      server.dispose$.subscribe((event) => fired.push(event));
+      Object.defineProperty(server.proc, 'dispose', {
+        configurable: true,
+        value: (reason?: unknown) => {
+          childReason = reason;
+          return Promise.reject(failure);
+        },
+      });
+
+      const completion = server.dispose('direct:first');
+      expect(server[Symbol.asyncDispose]()).to.equal(completion);
+
+      let caught: unknown;
+      try {
+        await completion;
+      } catch (error) {
+        caught = error;
+      }
+
+      expect(caught).to.equal(failure);
+      expect(childReason).to.eql('direct:first');
+      expect(server.disposed).to.eql(true);
+      expect(fired.map((event) => event.payload.stage)).to.eql(['start', 'error']);
+      expect(fired.map((event) => event.payload.reason)).to.eql([
+        'direct:first',
+        'direct:first',
+      ]);
+    } finally {
+      if (server && disposeProcess) {
+        Object.defineProperty(server.proc, 'dispose', {
+          configurable: true,
+          value: disposeProcess,
+        });
+        await disposeProcess();
+      }
+      await restore();
+    }
+  });
+
+  it('rejects strict startup when requested port is occupied', async () => {
+    await Testing.retry(2, async () => {
+      const fs = await SAMPLE.fs('Vite.dev-strict-port-occupied');
+      const cwd = fs.join('fixture');
+      await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+      await prepareDevEntryFixture(cwd);
+      const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
       const paths = {
         cwd,
         app: {
@@ -137,7 +567,42 @@ describe('Vite.dev', () => {
       } as const;
       const requestedPort = Testing.randomPort();
       const blocker = Deno.listen({ hostname: '0.0.0.0', port: requestedPort });
-      let server: t.ViteProcess | undefined;
+
+      try {
+        const error = await catchError(() =>
+          Vite.dev({ cwd, paths, port: requestedPort, strictPort: true, silent: true })
+        );
+
+        expect(error?.message).to.contain('Vite.dev: failed to start strict dev server');
+        expect(error?.message).to.contain(`port ${requestedPort}`);
+        expect((error?.cause as Error | undefined)?.message).to.contain(
+          `Port already in use: ${requestedPort}`,
+        );
+      } finally {
+        blocker.close();
+        await restore();
+      }
+    });
+  });
+
+  it('falls forward to the next port when requested port is occupied', async () => {
+    await Testing.retry(2, async () => {
+      const fs = await SAMPLE.fs('Vite.dev-port-fallback');
+      const cwd = fs.join('fixture');
+      await Fs.copy(SAMPLE.Dirs.sample2, cwd);
+      await prepareDevEntryFixture(cwd);
+      const restore = await writeLocalFixtureImports(cwd, 'vite.config.ts', { skipTsconfig: true });
+      const paths = {
+        cwd,
+        app: {
+          entry: 'index.html',
+          outDir: 'dist',
+          base: './',
+        },
+      } as const;
+      const requestedPort = Testing.randomPort();
+      const blocker = Deno.listen({ hostname: '0.0.0.0', port: requestedPort });
+      let server: t.Vite.Dev.Process | undefined;
       let stderr = '';
 
       try {
@@ -169,16 +634,16 @@ describe('Vite.dev', () => {
 });
 
 /**
- * Harden the copied temp dev fixture against the upstream Vite/OXC TSX-entry
- * transform crash seen in CI (`Failed to recover TsconfigCache type from napi value`).
- *
- * This keeps the dev smoke truthful by still proving:
- * - dev startup
- * - HTML serving
- * - entry-module serving
- * - local bridge imports
- * while avoiding ownership drift into upstream TSX transform instability.
+ * Helpers:
  */
+function printHtml(html: string, title: string, dir: t.StringDir) {
+  console.info();
+  console.info(c.brightCyan(`${c.bold(title)}:`));
+  console.info(c.gray(Fs.trimCwd(dir)), '\n');
+  console.info(c.italic(c.yellow(html)));
+  console.info();
+}
+
 async function prepareDevEntryFixture(cwd: string) {
   const entryDir = Fs.join(cwd, 'src/-entry');
   await Fs.write(
@@ -204,18 +669,60 @@ async function prepareDevEntryFixture(cwd: string) {
       import { createRoot } from 'react-dom/client';
       import '@sys/driver-vite/sample-imports';
       const dynamic = import('../m.foo.ts');
-      dynamic.then((mod) => console.info('💦 dynmaic import', mod));
+      dynamic.then((mod) => console.info('💦 dynamic import', mod));
       const root = createRoot(document.getElementById('root'));
       root.render(React.createElement('div', { style: { border: 'solid 1px blue' } }, 'dev ok'));
     `),
   );
 }
 
+function createDevStartupFixtures(): ViteDevDeps {
+  const process = createDevProcessHarness();
+  return {
+    spawn: process.spawn,
+    loadDist: (path) =>
+      Promise.resolve({
+        exists: false,
+        kind: 'missing',
+        path: Fs.resolve(String(path)),
+      }),
+    command: () =>
+      Promise.resolve({ cmd: 'vite', args: [], env: {}, dispose: () => Promise.resolve() }),
+  };
+}
+
+function createDevProcessHarness() {
+  const life = Rx.lifecycleAsync();
+  const handle: t.Process.Handle = {
+    pid: 1,
+    $: Rx.subject<t.Process.Event>().asObservable(),
+    is: { ready: true },
+    whenReady: () => Promise.resolve(handle),
+    onStdOut: () => handle,
+    onStdErr: () => handle,
+    dispose: life.dispose,
+    [Symbol.asyncDispose]: life[Symbol.asyncDispose],
+    dispose$: life.dispose$,
+    get disposed() {
+      return life.disposed;
+    },
+  } satisfies t.Process.Handle;
+  return { spawn: () => handle };
+}
+
+const waitForHttpReady: NonNullable<ViteDevDeps['waitForHttp']> = (url) =>
+  Promise.resolve({ url, attempts: 1, elapsed: 0 as t.Msecs });
+
+async function catchError(fn: () => Promise<unknown>): Promise<Error | undefined> {
+  const { result } = await Try.run(fn);
+  return result.ok ? undefined : result.error;
+}
+
 async function fetchWhenReady(
   url: string,
   args: {
     signal: AbortSignal;
-    server: t.ViteProcess;
+    server: t.Vite.Dev.Process;
     stderr: () => string;
   },
 ) {
@@ -253,7 +760,7 @@ async function fetchEntryWhenReady(
   url: string,
   args: {
     signal: AbortSignal;
-    server: t.ViteProcess;
+    server: t.Vite.Dev.Process;
     stderr: () => string;
   },
 ) {

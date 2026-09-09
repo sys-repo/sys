@@ -77,6 +77,143 @@ describe('Deps.from', () => {
     expect(res.data?.modules.count).to.eql(2);
   });
 
+  it('parses package override policy from direct package.json entries', async () => {
+    const yaml = `
+      package.json:
+        - import: npm:react@19.2.6
+        - overrides:
+            monaco-editor:
+              dompurify: '3.4.0'
+        - overrides:
+            "@automerge/automerge-repo":
+              uuid: '11.1.1'
+    `;
+
+    const res = await Deps.from(yaml);
+
+    expect(res.error).to.eql(undefined);
+    expect(res.data?.entries.length).to.eql(1);
+    expect(res.data?.packageJson).to.eql({
+      overrides: {
+        '@automerge/automerge-repo': { uuid: '11.1.1' },
+        'monaco-editor': { dompurify: '3.4.0' },
+      },
+    });
+  });
+
+  it('parses npm override grammar as opaque strings', async () => {
+    const yaml = `
+      package.json:
+        - overrides:
+            "@scope/parent@1":
+              ".": 'npm:@scope/parent@1.2.3'
+              child: '$child'
+            parent:
+              child: 'npm:child@^2'
+    `;
+
+    const res = await Deps.from(yaml);
+
+    expect(res.error).to.eql(undefined);
+    expect(res.data?.packageJson?.overrides).to.eql({
+      '@scope/parent@1': {
+        '.': 'npm:@scope/parent@1.2.3',
+        child: '$child',
+      },
+      parent: {
+        child: 'npm:child@^2',
+      },
+    });
+  });
+
+  it('deep-merges disjoint package override entries', async () => {
+    const yaml = `
+      package.json:
+        - overrides:
+            parent:
+              alpha: '1.0.0'
+        - overrides:
+            parent:
+              beta: '2.0.0'
+    `;
+
+    const res = await Deps.from(yaml);
+
+    expect(res.error).to.eql(undefined);
+    expect(res.data?.packageJson?.overrides).to.eql({
+      parent: {
+        alpha: '1.0.0',
+        beta: '2.0.0',
+      },
+    });
+  });
+
+  it('errors: package overrides fail closed when malformed', async () => {
+    const yaml = `
+      package.json:
+        - overrides:
+            monaco-editor:
+              dompurify: 3.4
+    `;
+
+    const res = await Deps.from(yaml);
+
+    expect(res.data).to.eql(undefined);
+    expect(res.error?.message).to.include('package.json[0].overrides.monaco-editor.dompurify');
+  });
+
+  it('errors: package overrides are only direct package.json policy entries', async () => {
+    const invalid = [
+      `
+        deno.json:
+          - overrides:
+              monaco-editor:
+                dompurify: '3.4.0'
+      `,
+      `
+        groups:
+          browser:
+            - overrides:
+                monaco-editor:
+                  dompurify: '3.4.0'
+        package.json:
+          - group: browser
+      `,
+      `
+        package.json:
+          - import: npm:monaco-editor@0.55.1
+            overrides:
+              monaco-editor:
+                dompurify: '3.4.0'
+      `,
+    ];
+
+    for (const yaml of invalid) {
+      const res = await Deps.from(yaml);
+      expect(res.data).to.eql(undefined);
+      expect(res.error?.message).to.include('overrides');
+    }
+  });
+
+  it('errors: duplicate package override paths fail closed', async () => {
+    const yaml = `
+      package.json:
+        - overrides:
+            monaco-editor:
+              dompurify: '3.4.0'
+        - overrides:
+            monaco-editor:
+              dompurify: '3.4.0'
+    `;
+
+    const res = await Deps.from(yaml);
+
+    expect(res.data).to.eql(undefined);
+    expect(res.error?.message).to.include(
+      'duplicate package override path monaco-editor.dompurify',
+    );
+  });
+
   it('de-dupes to the latest version', async () => {
     const yaml = `
       groups:
@@ -115,8 +252,12 @@ describe('Deps.from', () => {
     expect(res.error).to.eql(undefined);
     expect(entries.length).to.eql(2);
 
-    const jsr = entries.find((entry) => entry.module.registry === 'jsr' && entry.module.name === '@scope/foo');
-    const npm = entries.find((entry) => entry.module.registry === 'npm' && entry.module.name === '@scope/foo');
+    const jsr = entries.find((entry) =>
+      entry.module.registry === 'jsr' && entry.module.name === '@scope/foo'
+    );
+    const npm = entries.find((entry) =>
+      entry.module.registry === 'npm' && entry.module.name === '@scope/foo'
+    );
 
     expect(jsr?.module.version).to.eql('1.2.4');
     expect(npm?.module.version).to.eql('4.5.6');
@@ -221,7 +362,9 @@ describe('Deps.from', () => {
     const res = await Deps.from(yaml);
 
     expect(res.error?.message).to.include('Failed while parsing given YAML');
-    expect(res.error?.cause?.message).to.include('Plain value cannot start with reserved character @');
+    expect(res.error?.cause?.message).to.include(
+      'Plain value cannot start with reserved character @',
+    );
   });
 
   it('errors: invalid ESM import is captured without dropping the rest', async () => {

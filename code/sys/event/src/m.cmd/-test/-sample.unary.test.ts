@@ -29,5 +29,7 @@ describe('Cmd:unary req/res → 👋 Hello World', () => {
     // 7. Cleanup.
     client.dispose();
     host.dispose();
+    port1.close();
+    port2.close();
   });
 });

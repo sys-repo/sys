@@ -16,7 +16,7 @@ export const DocUrl = {
     return url;
   },
 
-  resolve(urlProp: t.UseDocumentIdHookArgs['url'], docId: t.StringId, urlKey?: string) {
+  resolve(urlProp: t.DocumentId.Hook.Args['url'], docId: t.StringId, urlKey?: string) {
     if (urlProp == null) return undefined;
     if (urlProp === true) return DocUrl.createFrom(location.href, docId, urlKey).href;
     if (Is.func(urlProp)) return urlProp({ docId, urlKey: urlKey ?? D.urlKey });

@@ -3,22 +3,22 @@ import { Schema } from '../mod.ts';
 
 describe('StandardSchema', () => {
   describe('toStandardSchema', () => {
-    it('wraps a TypeBox schema and validates (success path)', () => {
+    it('wraps a TypeBox schema and validates (success path)', async () => {
       const S = Schema.Type.Object({ name: Schema.Type.String(), age: Schema.Type.Number() });
       const Std = Schema.toStandardSchema(S);
 
       const input = { name: 'Ada', age: 37 };
-      const res = Std['~standard'].validate(input);
+      const res = await Std['~standard'].validate(input);
 
-      expect(res.ok).to.eql(true);
-      if (res.ok) {
+      expect(res).to.eql({ value: input });
+      if (res.issues === undefined) {
         // Type inference: value is Static<typeof S>.
         expectTypeOf(res.value).toEqualTypeOf<{ name: string; age: number }>();
         expect(res.value).to.eql(input);
       }
     });
 
-    it('returns issues on failure with decoded object paths', () => {
+    it('returns issues on failure with decoded object paths', async () => {
       const S = Schema.Type.Object({
         user: Schema.Type.Object({
           tags: Schema.Type.Array(
@@ -31,27 +31,27 @@ describe('StandardSchema', () => {
 
       // Invalid: tags[0].id should be number, but is string:
       const bad = { user: { tags: [{ id: '1', label: 'x' }] } };
-      const res = Std['~standard'].validate(bad);
+      const res = await Std['~standard'].validate(bad);
 
-      expect(res.ok).to.eql(false);
-      if (!res.ok) {
+      expect('issues' in res).to.eql(true);
+      if (res.issues) {
         // At least one issue, with precise path:
         const [issue] = res.issues;
-        expect(issue.path).to.eql(['user', 'tags', 0, 'id']); // ← Numeric index preserved,
-        expect(issue.message).to.be.a('string').and.not.equal('');
+        expect(issue?.path).to.eql(['user', 'tags', 0, 'id']); // ← Numeric index preserved,
+        expect(issue?.message).to.be.a('string').and.not.equal('');
       }
     });
 
-    it('strict (no coercion): "123" is not a number', () => {
+    it('strict (no coercion): "123" is not a number', async () => {
       const S = Schema.Type.Object({ n: Schema.Type.Number() });
       const Std = Schema.toStandardSchema(S);
 
-      const res1 = Std['~standard'].validate({ n: 123 });
-      const res2 = Std['~standard'].validate({ n: '123' });
+      const res1 = await Std['~standard'].validate({ n: 123 });
+      const res2 = await Std['~standard'].validate({ n: '123' });
 
-      expect(res1.ok).to.eql(true);
-      expect(res2.ok).to.eql(false);
-      if (!res2.ok) {
+      expect(res1.issues).to.eql(undefined);
+      expect('issues' in res2).to.eql(true);
+      if (res2.issues) {
         // Path points to offending property:
         expect(res2.issues[0]?.path).to.eql(['n']);
       }
@@ -76,40 +76,40 @@ describe('StandardSchema', () => {
       const A = Schema.toStandardSchema(S); //         ← default vendor
       const B = Schema.toStandardSchema(S, 'acme'); // ← explicit vendor
 
-      expect(A['~standard'].version).to.eql('1.0.0');
+      expect(A['~standard'].version).to.eql(1);
       expect(A['~standard'].vendor).to.eql('sys');
       expect(B['~standard'].vendor).to.eql('acme');
     });
 
-    it('type inference: Output equals Static<typeof S>', () => {
+    it('type inference: Output equals Static<typeof S>', async () => {
       const S = Schema.Type.Object({
         id: Schema.Type.String(),
         meta: Schema.Type.Object({ count: Schema.Type.Number() }),
       });
       const Std = Schema.toStandardSchema(S);
 
-      const res = Std['~standard'].validate({ id: 'a', meta: { count: 1 } });
-      if (res.ok) {
+      const res = await Std['~standard'].validate({ id: 'a', meta: { count: 1 } });
+      if (res.issues === undefined) {
         type Out = typeof res.value;
         // Exact structural type check:
         expectTypeOf<Out>(res.value).toEqualTypeOf<{ id: string; meta: { count: number } }>();
       } else {
-        throw new Error('expected ok result');
+        throw new Error('expected successful validation');
       }
     });
 
-    it('aggregates multiple issues (stable order not guaranteed by spec)', () => {
+    it('aggregates multiple issues (stable order not guaranteed by spec)', async () => {
       const S = Schema.Type.Object({
         a: Schema.Type.Number(),
         b: Schema.Type.String(),
       });
       const Std = Schema.toStandardSchema(S);
 
-      const res = Std['~standard'].validate({ a: 'nope', b: 42 });
-      expect(res.ok).to.eql(false);
-      if (!res.ok) {
+      const res = await Std['~standard'].validate({ a: 'nope', b: 42 });
+      expect('issues' in res).to.eql(true);
+      if (res.issues) {
         // We expect at least two issues somewhere at paths ['a'] and ['b'].
-        const paths = res.issues.map((i) => i.path as readonly (string | number)[]);
+        const paths = res.issues.map((i) => i.path ?? []);
         expect(paths.some((p) => p.length === 1 && p[0] === 'a')).to.eql(true);
         expect(paths.some((p) => p.length === 1 && p[0] === 'b')).to.eql(true);
       }
@@ -126,14 +126,19 @@ describe('StandardSchema', () => {
       expect(isStandardSchema({})).to.eql(false);
       expect(isStandardSchema({ '~standard': {} })).to.eql(false);
       expect(isStandardSchema({ '~standard': { version: '1.0.0', vendor: 'x' } })).to.be.false; // no validate().
+      expect(
+        isStandardSchema({
+          '~standard': { version: '1.0.0', vendor: 'x', validate: (_: unknown) => ({ value: _ }) },
+        }),
+      ).to.be.false;
     });
 
     it('returns true for objects exposing the v1 surface', () => {
       const std = {
         '~standard': {
-          version: '1.0.0' as const,
+          version: 1 as const,
           vendor: 'x',
-          validate: (_: unknown) => ({ ok: true as const, value: _ }),
+          validate: (_: unknown) => ({ value: _ }),
         },
       } as const;
       expect(Schema.isStandardSchema(std)).to.eql(true);
@@ -141,22 +146,22 @@ describe('StandardSchema', () => {
   });
 
   describe('asStandardSchema', () => {
-    it('passes through when already StandardSchema (identity)', () => {
+    it('passes through when already StandardSchema (identity)', async () => {
       const std = {
         '~standard': {
-          version: '1.0.0',
+          version: 1,
           vendor: 'passthrough',
-          validate: (_: unknown) => ({ ok: true, value: _ }),
+          validate: (_: unknown) => ({ value: _ }),
         },
       } as const;
 
       const normalized = Schema.asStandardSchema(std);
       expect(normalized).to.eql(std); // ← identity
-      const ok = normalized['~standard'].validate({ a: 1 });
-      expect(ok.ok).to.eql(true);
+      const result = await normalized['~standard'].validate({ a: 1 });
+      expect(result).to.eql({ value: { a: 1 } });
     });
 
-    it('wraps a TypeBox schema via toStandardSchema (no mutation)', () => {
+    it('wraps a TypeBox schema via toStandardSchema (no mutation)', async () => {
       const S = Schema.Type.Object({
         user: Schema.Type.Object({
           tags: Schema.Type.Array(
@@ -172,23 +177,25 @@ describe('StandardSchema', () => {
       expect('~standard' in (std as unknown as Record<string, unknown>)).to.be.true;
 
       // Valid:
-      const ok = std['~standard'].validate({ user: { tags: [{ id: 1, label: 'x' }] } });
-      expect(ok.ok).to.eql(true);
+      const ok = await std['~standard'].validate({ user: { tags: [{ id: 1, label: 'x' }] } });
+      expect(ok.issues).to.eql(undefined);
 
       // Invalid (string instead of number) → path decodes with numeric index:
-      const bad = std['~standard'].validate({ user: { tags: [{ id: '1', label: 'x' }] } });
-      expect(bad.ok).to.eql(false);
-      if (!bad.ok) {
+      const bad = await std['~standard'].validate({
+        user: { tags: [{ id: '1', label: 'x' }] },
+      });
+      expect('issues' in bad).to.eql(true);
+      if (bad.issues) {
         const [issue] = bad.issues;
-        expect(issue.path).to.eql(['user', 'tags', 0, 'id']);
-        expect(issue.message).to.be.a('string');
+        expect(issue?.path).to.eql(['user', 'tags', 0, 'id']);
+        expect(issue?.message).to.be.a('string');
       }
     });
 
     it('respects vendor override when wrapping', () => {
       const S = Schema.Type.Object({ ok: Schema.Type.Boolean() });
       const std = Schema.asStandardSchema(S, 'acme');
-      expect(std['~standard'].version).to.eql('1.0.0');
+      expect(std['~standard'].version).to.eql(1);
       expect(std['~standard'].vendor).to.eql('acme');
     });
   });

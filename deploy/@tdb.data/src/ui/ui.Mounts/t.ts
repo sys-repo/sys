@@ -20,13 +20,17 @@ export declare namespace Mounts {
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
-  };
+  } & t.SlugLoadTransport;
 
   /** Hook for loading mounts and tracking the selected mount. */
   export type UseController = (args: UseControllerArgs) => ControllerState;
 
   /** Inputs consumed by the mounts controller hook. */
-  export type UseControllerArgs = Pick<Props, 'origin' | 'selected' | 'onSelect'>;
+  export type UseControllerArgs = {
+    readonly origin: t.StringUrl;
+    readonly selected?: t.StringId;
+    readonly onSelect?: (next: t.StringId) => void;
+  } & t.SlugLoadTransport;
 
   /** Reactive controller state for the mounts selector UI. */
   export type ControllerState = {

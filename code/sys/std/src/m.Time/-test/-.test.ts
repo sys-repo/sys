@@ -10,5 +10,6 @@ describe('Time', () => {
     expect(m.Time).to.equal(Time);
     expect(m.Timecode).to.equal(Timecode);
     expect(m.Date).to.equal(Date);
+    expect(m.Time.Date).to.equal(Date);
   });
 });

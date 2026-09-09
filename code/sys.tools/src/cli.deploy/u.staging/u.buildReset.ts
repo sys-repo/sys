@@ -1,4 +1,4 @@
-import { type t, Fs, slug, Time } from '../common.ts';
+import { Fs, Is, slug, type t, Time } from '../common.ts';
 
 const META_RE = /<meta\s+name=["']x-build-reset["'][^>]*>/i;
 const META_LINE_RE = /\n?[ \t]*<meta\s+name=["']x-build-reset["'][^>]*>\s*\n?/i;
@@ -53,8 +53,10 @@ export async function ensureBuildResetMeta(path: t.StringPath, token?: string): 
   const value = String(token ?? '').trim();
   if (!value) return;
   const res = await Fs.readText(path);
-  if (!res.exists || !res.data) return;
+  if (!res.ok || !Is.str(res.data)) {
+    throw res.error ?? new Error(`Deploy staged index could not be read: ${path}`);
+  }
   const next = withBuildResetMeta(res.data, value);
   if (next === res.data) return;
-  await Fs.write(path, next);
+  await Fs.write(path, next, { throw: true });
 }

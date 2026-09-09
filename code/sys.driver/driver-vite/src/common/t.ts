@@ -2,14 +2,15 @@
  * External
  */
 export type {
-  Rollup,
   Alias as ViteAlias,
   BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
   ConfigEnv as ViteConfigEnv,
   LibraryOptions as ViteLibraryOptions,
   Plugin as VitePlugin,
   PluginOption as VitePluginOption,
+  Rollup,
   UserConfig as ViteUserConfig,
+  UserConfigExport as ViteUserConfigExport,
 } from 'vite';
 
 /**
@@ -17,18 +18,11 @@ export type {
  */
 export type * from '@sys/types';
 
-export type {
-  DenoFileJson,
-  DenoFileLib,
-  DenoFilePath,
-  DenoImportMapJson,
-  DenoWorkspace,
-  DenoWorkspaceChild,
-  Dep,
-} from '@sys/driver-deno/t';
+export type { Cli } from '@sys/cli/t';
+export type { DenoDeps, DenoFile } from '@sys/driver-deno/t';
 export type { Process } from '@sys/process/t';
-export type { TimeDelayPromise } from '@sys/std/t';
-export type { CssValue } from '@sys/ui-css/t';
+export type { DistServer } from '@sys/server/t';
+export type { Time } from '@sys/std/t';
 
 /**
  * Local

@@ -27,4 +27,5 @@ export type ClickHookProps<T extends E> = {
   stage?: t.UseClickStage;
   callback?: t.DomMouseEventHandler;
 };
+/** Mouse stage that triggers the click callback. */
 export type UseClickStage = 'down' | 'up';

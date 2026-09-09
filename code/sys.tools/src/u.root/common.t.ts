@@ -5,8 +5,7 @@
  * `types.ts` barrel. Only launcher-local contracts belong here.
  *
  * Boundary note:
- * - Use `/Users/phil/code/org.sys/sys/code/sys.tools/src/types.ts` for the
- *   public package type surface.
+ * - Use `../types.ts` for the public package type surface.
  * - Use this file only for cold-start root launcher paths that must stay
  *   isolated from package-wide runtime/type barrels.
  */
@@ -22,6 +21,7 @@ export namespace Root {
   /** Tool command ids handled by the root launcher. */
   export type Command =
     | 'pull'
+    | 'shell'
     | 'serve'
     | 'pi'
     | 'deploy'
@@ -30,13 +30,18 @@ export namespace Root {
     | 'video'
     | 'copy'
     | 'tmpl'
-    | 'update';
+    | 'upgrade'
+    | 'dsl';
+
+  /** Invocation origin passed from the root launcher to selected tools. */
+  export type ToolCliOrigin = 'argv' | 'root-menu';
+  export type ToolCliContext = { readonly origin: ToolCliOrigin };
 
   /** Shared root CLI flags accepted before tool dispatch. */
-  export type CliArgs = { help: boolean; debug?: boolean };
+  export type CliArgs = { help: boolean; debug?: boolean; noUpgradeCheck?: boolean };
 
   /** Root-level argument shape parsed from the launcher argv. */
-  export type CliRootArgs = CliArgs & {};
+  export type CliRootArgs = CliArgs & { readonly 'no-upgrade-check'?: boolean };
 
   /** Parsed root args, with an optional resolved tool command. */
   export type CliRootParsedArgs = ParsedArgs<CliRootArgs> & { readonly command?: Command };

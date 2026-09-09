@@ -41,6 +41,24 @@ describe('@sys/model-slug export graph boundary', () => {
     });
   });
 
+  it('keeps non-bundle exports free of media-type resolution', async () => {
+    const root = Path.resolve(import.meta.dirname ?? '.');
+    const entries = [
+      '../mod.ts',
+      '../m.client/mod.ts',
+      '../m.core/mod.ts',
+      '../m.fs/mod.ts',
+      '../m.schema/mod.ts',
+    ];
+
+    for (const entry of entries) {
+      await EsmAssert.runtimeGraphBoundary({
+        entry: Path.resolve(root, entry),
+        forbiddenImports: ['@sys/std/media-type'],
+      });
+    }
+  });
+
   it('allows the fs export to own @sys/fs imports', async () => {
     const root = Path.resolve(import.meta.dirname ?? '.');
     await EsmAssert.runtimeGraphOwnership({

@@ -12,7 +12,7 @@ import {
  * Injects @font-face rules for the given family into <head> once.
  * SSR-safe: returns { injected:false } if there is no DOM.
  */
-export const inject: t.WebFontLib['inject'] = (dir, opts) => {
+export const inject: t.WebFont.Lib['inject'] = (dir, opts) => {
   const {
     family,
     variable = D.variable,

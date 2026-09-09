@@ -1,43 +1,53 @@
-import { type t, Delete, Err, Is, Subject } from './common.ts';
+import { Delete, Err, Is, Subject, type t } from './common.ts';
+import { createDeferred, enqueueMicrotask } from './u.async.ts';
 import { done } from './u.done.ts';
-import { until } from './u.until.ts';
+import { requireSymbolAsyncDispose, requireSymbolDispose } from './u.protocol.ts';
+import { until as untilObservables } from './u.until.ts';
+
+type LifetimeBridge = ReturnType<t.Observable<unknown>['subscribe']>;
+type LifetimeBridgeState = 'attaching' | 'live' | 'failed';
+type AsyncDisposalState = 'idle' | 'running' | 'fulfilled' | 'rejected';
+
+type DisposableKernel = globalThis.Disposable & {
+  readonly [Symbol.asyncDispose]?: never;
+  readonly dispose$: t.DisposeObservable;
+  dispose(reason?: unknown): void;
+};
+
+type DisposableAsyncKernel = globalThis.AsyncDisposable & {
+  readonly [Symbol.dispose]?: never;
+  readonly dispose$: t.Observable<t.DisposeAsyncEvent>;
+  dispose(reason?: unknown): Promise<void>;
+};
 
 /**
- * Generates a generic disposable interface that is
- * typically mixed into a wider interface of some kind.
+ * Package-private synchronous owner kernel consumed by `lifecycle()`.
+ *
+ * @internal
  */
-export function disposable(until$?: t.UntilInput): t.Disposable {
+export function createDisposable(until?: t.UntilInput): DisposableKernel {
+  requireSymbolDispose();
   const subject$ = new Subject<t.DisposeEvent>();
   const dispose$ = subject$.asObservable();
 
   let disposed = false;
-  const bridges = new Set<{ unsubscribe(): void }>();
+  const bridges = new Set<LifetimeBridge>();
 
-  const dispose: t.Disposable['dispose'] = (reason) => {
+  const dispose: DisposableKernel['dispose'] = (reason) => {
     if (disposed) return; // idempotent
     disposed = true;
 
-    // Tear down any external lifetime bridges.
-    for (const s of bridges)
-      try {
-        s.unsubscribe();
-      } catch {}
-    bridges.clear();
-
-    // Emit and complete.
+    releaseLifetimeBridges(bridges);
     done(subject$, reason);
   };
 
-  // Bridge external lifetimes into this disposable.
-  // Assumes `until(until$)` → Iterable<Observable<DisposeEvent>>.
-  for (const $ of until(until$)) {
-    type T = t.DisposeEvent | undefined;
-    const sub = $.subscribe((e) => dispose((e as T)?.reason));
-    bridges.add(sub);
-  }
+  attachLifetimeBridges(until, bridges, () => disposed, dispose);
 
   return {
     dispose,
+    [Symbol.dispose]() {
+      dispose();
+    },
     get dispose$() {
       return dispose$;
     },
@@ -45,12 +55,17 @@ export function disposable(until$?: t.UntilInput): t.Disposable {
 }
 
 /**
- * Generates an asnchronous Disposable interface.
+ * Package-private asynchronous owner kernel consumed by `lifecycleAsync()`.
+ *
+ * @internal
  */
-export function disposableAsync(...args: any[]) {
-  const { until$, onDispose } = toDisposableAsyncArgs(args);
+export function createDisposableAsync(...args: any[]): DisposableAsyncKernel {
+  requireSymbolAsyncDispose();
+  const { until, onDispose } = toDisposableAsyncArgs(args);
   const dispose$ = new Subject<t.DisposeAsyncEvent>();
-  let _disposing = false;
+  const bridges = new Set<LifetimeBridge>();
+  let state: AsyncDisposalState = 'idle';
+  let completion: Promise<void> | undefined;
 
   type P = t.DisposeAsyncEventArgs;
   const asPayload = (stage: t.DisposeAsyncStage, reason?: unknown, error?: t.DisposeError): P => {
@@ -63,33 +78,56 @@ export function disposableAsync(...args: any[]) {
     dispose$.next({ type: 'dispose', payload });
   };
 
-  const disposable: t.DisposableAsync = {
-    dispose$: dispose$.asObservable(),
-    async dispose(reason) {
-      if (_disposing) return; // idempotent
-      _disposing = true;
+  const dispose: DisposableAsyncKernel['dispose'] = (reason) => {
+    if (completion) return completion;
 
-      fire('start', reason);
-      try {
-        // Invoke handler ("clean up resources").
-        // Pass a structured event with the optional disposal reason.
-        await onDispose?.({ reason });
-        fire('complete', reason);
-      } catch (err: any) {
-        fire('error', reason, {
-          name: 'DisposeError',
-          message: 'Failed while disposing asynchronously',
-          cause: Err.std(err),
-        });
-      }
+    const deferred = createDeferred<void>();
+    completion = deferred.promise;
+    state = 'running';
+
+    const complete = () => {
+      if (state !== 'running') return;
+      fire('complete', reason);
+      state = 'fulfilled';
+      deferred.resolve(undefined);
+    };
+    const fail = (error: unknown) => {
+      if (state !== 'running') return;
+      fire('error', reason, asDisposeError(error));
+      state = 'rejected';
+      deferred.reject(error);
+    };
+
+    releaseLifetimeBridges(bridges);
+    fire('start', reason);
+
+    let result: unknown;
+    try {
+      // Invoke the cleanup handler in the requesting turn.
+      result = onDispose?.({ reason });
+    } catch (error) {
+      fail(error);
+      return completion;
+    }
+
+    if (result === completion) {
+      fail(new TypeError('Asynchronous disposal cleanup cannot await its own completion'));
+      return completion;
+    }
+
+    void settleAsyncResult(result, complete, fail);
+    return completion;
+  };
+
+  const disposable: DisposableAsyncKernel = {
+    dispose$: dispose$.asObservable(),
+    dispose,
+    [Symbol.asyncDispose]() {
+      return dispose();
     },
   };
 
-  // Bridge external lifetimes into this disposable.
-  // Assumes `until(until$)` → Iterable<Observable<DisposeEvent>>.
-  for (const $ of until(until$)) {
-    $.subscribe((e) => disposable.dispose((e as t.DisposeEvent | undefined)?.reason));
-  }
+  attachLifetimeBridges(until, bridges, () => state !== 'idle', dispose);
 
   return disposable;
 }
@@ -97,16 +135,112 @@ export function disposableAsync(...args: any[]) {
 /**
  * Helpers:
  */
-export function toDisposableAsyncArgs(args: any[]) {
-  type Fn = (e: t.DisposeEvent) => Promise<void>;
-  let onDispose: Fn | undefined;
-  let until$: t.UntilObservable | undefined;
+async function settleAsyncResult(
+  result: unknown,
+  onFulfilled: () => void,
+  onRejected: (error: unknown) => void,
+) {
+  try {
+    await result;
+  } catch (error) {
+    onRejected(error);
+    return;
+  }
+  onFulfilled();
+}
 
-  if (typeof args[0] === 'function') onDispose = args[0];
-  if (typeof args[1] === 'function') onDispose = args[1];
-  if (Is.observable(args[0]) || Array.isArray(args[0]) || Is.disposable(args[0])) {
-    until$ = until(args[0]);
+function asDisposeError(error: unknown): t.DisposeError {
+  let cause: t.StdError | undefined;
+  try {
+    cause = Err.std(error);
+  } catch {
+    // Raw completion truth must survive opaque telemetry input.
   }
 
-  return { onDispose, until$ };
+  return Delete.undefined({
+    name: 'DisposeError',
+    message: 'Failed while disposing asynchronously',
+    cause,
+  });
+}
+
+function attachLifetimeBridges(
+  until: t.UntilInput | undefined,
+  bridges: Set<LifetimeBridge>,
+  hasDisposalStarted: () => boolean,
+  request: (reason?: unknown) => void | Promise<void>,
+) {
+  let state: LifetimeBridgeState = 'attaching';
+
+  try {
+    for (const $ of untilObservables(until)) {
+      const subscription = $.subscribe((event) => {
+        const reason = (event as t.DisposeEvent | undefined)?.reason;
+        const run = () => {
+          if (state !== 'failed') ownLifetimeRequest(request, reason);
+        };
+
+        if (state === 'attaching') enqueueMicrotask(run);
+        else run();
+      });
+
+      if (hasDisposalStarted() || subscription.closed) releaseLifetimeBridge(subscription);
+      else bridges.add(subscription);
+    }
+    state = 'live';
+  } catch (error) {
+    state = 'failed';
+    releaseLifetimeBridges(bridges);
+    throw error;
+  }
+}
+
+function ownLifetimeRequest(
+  request: (reason?: unknown) => void | Promise<void>,
+  reason?: unknown,
+) {
+  void settleLifetimeRequest(request(reason));
+}
+
+async function settleLifetimeRequest(result: unknown): Promise<void> {
+  try {
+    await result;
+  } catch {
+    // Lifetime-triggered disposal owns its rejection without changing disposal truth.
+  }
+}
+
+function releaseLifetimeBridge(bridge: LifetimeBridge) {
+  try {
+    bridge.unsubscribe();
+  } catch {
+    /* Best-effort bridge teardown. */
+  }
+}
+
+function releaseLifetimeBridges(bridges: Set<LifetimeBridge>) {
+  for (const bridge of bridges) releaseLifetimeBridge(bridge);
+  bridges.clear();
+}
+
+export function toDisposableAsyncArgs(args: any[]) {
+  const invalid = () =>
+    new TypeError(
+      'Invalid asynchronous disposal overload: expected (handler?) or (UntilInput?, handler?)',
+    );
+  if (args.length > 2) throw invalid();
+
+  const [first, second] = args;
+  if (Is.func(first)) {
+    if (second !== undefined) throw invalid();
+    return { onDispose: first, until: undefined };
+  }
+
+  if (!Is.untilInput(first)) throw invalid();
+  if (second !== undefined && !Is.func(second)) throw invalid();
+
+  return {
+    onDispose: second,
+    until: untilObservables(first),
+  };
 }

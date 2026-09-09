@@ -91,7 +91,7 @@ describe('Style.css → transform', () => {
       const sheet = Style.Dom.stylesheet({ classPrefix: 'foo' });
       const css = Style.transformer({ sheet });
 
-      const input: t.CssValue = { PaddingX: [10, 30] };
+      const input: t.Style.Value = { PaddingX: [10, 30] };
       const m = css({ PaddingX: [10, 30] });
       const className = `foo-${m.hx}`;
       expect(FindCss.rule(className)).to.eql(undefined);
@@ -109,7 +109,7 @@ describe('Style.css → transform', () => {
   describe('toString', () => {
     const style = { fontSize: 30, fontFamily: 'sans-serif' };
 
-    const print = (kind: t.CssTransformToStringKind, value: string) => {
+    const print = (kind: t.Style.Transform.ToStringKind, value: string) => {
       console.info();
       console.info(`${c.brightCyan(kind)}: "${c.yellow(value)}"`);
       console.info();
@@ -152,7 +152,7 @@ describe('Style.css → transform', () => {
     });
 
     it('deep merge', () => {
-      const assert = (res: t.CssTransformed) => {
+      const assert = (res: t.Style.Transform.Result) => {
         expect(res.style).to.include({ color: 'red' });
         expect(res.style).to.include({ background: 'blue' });
       };
@@ -173,7 +173,7 @@ describe('Style.css → transform', () => {
     });
 
     it('deep merge ← {style} object', () => {
-      const assert = (res: t.CssTransformed) => {
+      const assert = (res: t.Style.Transform.Result) => {
         expect(res.style).to.include({ color: 'red' });
         expect(res.style).to.include({ background: 'blue' });
       };

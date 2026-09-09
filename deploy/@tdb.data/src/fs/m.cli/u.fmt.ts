@@ -8,7 +8,9 @@ export const Fmt = {
   slugDatasetProgress(info: t.SlugDataPipeline.StageSlugDataset.Progress): string {
     if (info.stage === 'mount') {
       return Fmt.spinnerText(
-        `staging slug dataset ${c.white(info.mount)} (${c.white(String(info.current))}/${info.total} mounts)`,
+        `staging slug dataset ${c.white(info.mount)} (${
+          c.white(String(info.current))
+        }/${info.total} mounts)`,
       );
     }
     return Fmt.spinnerText(
@@ -35,7 +37,9 @@ export const Fmt = {
   },
 
   refreshRoot(result: t.SlugDataCli.RefreshResult): string {
-    return `${c.green('✔')} ${c.gray('Refreshed mounts index:')} ${c.cyan(Fs.trimCwd(result.mountsPath))}`;
+    return `${c.green('✔')} ${c.gray('Refreshed mounts index:')} ${
+      c.cyan(Fs.trimCwd(result.mountsPath))
+    }`;
   },
 
   result(result: t.SlugDataCli.Result): string {
@@ -50,7 +54,6 @@ export const Fmt = {
 
   validationErrors(errors: readonly t.ValueError[]): string {
     return errors
-      .slice(0, 3)
       .map((error) => {
         const path = error.path || '<root>';
         return `${path}: ${error.message}`;

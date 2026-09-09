@@ -6,7 +6,12 @@ declare var self: ServiceWorkerGlobalScope;
 /**
  * The moment this file is evaluated in the SW context, it will log:
  */
-console.info('🐷[sw] Service Worker file loaded');
+const disposalTrace: string[] = [];
+{
+  using resource = { [Symbol.dispose]: () => disposalTrace.push('sw:dispose') };
+  void resource;
+}
+console.info('🐷[sw] Service Worker file loaded', disposalTrace);
 
 /**
  * ⚡️ Installation: (once)

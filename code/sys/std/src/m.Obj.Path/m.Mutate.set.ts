@@ -2,11 +2,11 @@ import { type t } from './common.ts';
 
 type O = Record<string, unknown>;
 type Path = t.ObjectPath;
-type Op = t.ObjDiffOp;
+type Op = t.Obj.Path.Mutate.Op;
 
 /**
  * Mutates `subject`, setting (or deleting) a nested value at `path`, and
- * returns the precise `ObjDiffOp` that describes what changed.
+ * returns the precise mutation op that describes what changed.
  *
  * - Creates intermediate objects/arrays as needed.
  * - Writing `undefined` removes the key via `delete`.
@@ -22,8 +22,7 @@ export function set<T = unknown>(subject: O, path: Path, value: T): Op | undefin
     const nextKey = path[i + 1];
     const shouldBeArray = typeof nextKey === 'number';
 
-    const shouldUpdate =
-      node[key] === undefined ||
+    const shouldUpdate = node[key] === undefined ||
       (shouldBeArray && !Array.isArray(node[key])) ||
       (!shouldBeArray && typeof node[key] !== 'object');
 

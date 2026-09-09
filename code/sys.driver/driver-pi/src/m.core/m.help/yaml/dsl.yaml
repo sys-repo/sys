@@ -1,0 +1,61 @@
+id: dsl
+title: Pi-Driver DSL
+summary: |
+  Pi-Driver DSL is the operating contract for moving durable profile policy through a Pi-Driver
+  launch into a live Pi session. Use it to choose the right profile, tools, or extensions chapter
+  before editing policy or explaining tool availability.
+
+sections:
+  - label: Reading protocol
+    items: |
+      Agents MUST read this root DSL layer before changing Pi-Driver profile, tools, or extension policy.
+      Command: `deno run -ER jsr:@sys/driver-pi dsl`.
+      Agents MUST NOT read every chapter by default.
+      Classify the requested Pi-Driver speech act first.
+      Read the smallest matching chapter before editing durable policy.
+      Command: `deno run -ER jsr:@sys/driver-pi dsl <chapter>`.
+      If no chapter matches, stop and ask or make a separate plan.
+
+  - label: Authority model
+    items: |
+      Durable policy lives in profile YAML.
+      Pi-Driver resolves profile policy and startup facts at launch time.
+      Pi-Driver may materialize generated extension files from that resolved policy.
+      A tool is callable only when this live Pi session exposes its Runtime Tool Contract.
+      Profile YAML edits require restart or relaunch before they can affect tool availability.
+      Generated extension files are launcher artifacts, not hand-authored policy.
+
+  - label: Decision protocol
+    items: |
+      Active profile, profile path, profile YAML, or restart semantics → read `dsl profile`.
+      Enabling, disabling, or configuring a profile-authored tool for a future launch → read `dsl tools`.
+      Filesystem tool policy for removal, moves, or copies → read `dsl tools remove`, `dsl tools move`, or `dsl tools copy`.
+      Run OCR on a PDF now ("OCR this PDF", "read this scanned PDF", PDF cover read) → answer live callability first; if callable, use live OCR; if unavailable, read `dsl profile` and `dsl tools ocr-pdf`.
+      OCR setup for a future launch ("install OCR", "set up OCR", "enable OCR", "why can't you OCR this?") → answer live callability first, then read `dsl profile` and `dsl tools ocr-pdf`; setup affects the next launch only.
+      OCR for images or other non-PDF sources → no Pi-Driver chapter exists; stop and ask or make a plan; do not reuse `dsl tools ocr-pdf`.
+      Generated Pi extensions, materialized files, templates, or hand-edit questions → read `dsl extensions`.
+      Whether a tool can be called in this session → answer from live session tools, not DSL text.
+      Missing concrete tool chapter → stop and create or update a plan before inventing guidance.
+
+  - label: Speech acts
+    items: |
+      locate active profile authority
+      edit active profile YAML
+      enable, disable, or configure a profile-authored tool for the next launch
+      run OCR on a PDF in this live session
+      explain restart or relaunch requirements
+      explain why a tool is not callable in this live session
+      separate durable policy from live tool callability
+      preserve generated extension ownership
+      add a concrete Pi-Driver tool DSL chapter
+
+  - label: Command grammar
+    items: |
+      DSL root: `deno run -ER jsr:@sys/driver-pi dsl`.
+      DSL chapter: `deno run -ER jsr:@sys/driver-pi dsl <chapter>`.
+      Skill projection: `deno run -ER jsr:@sys/driver-pi dsl <chapter> --format skill`.
+      Structural chapters: `profile`, `tools`, and `extensions`.
+      Tool policy guidance paths: `tools remove`, `tools move`, `tools copy`, and `tools ocr-pdf`.
+      These paths are documentation chapters, not callable tool APIs.
+      Do not use `jsr:@sys/driver-pi/dsl` or any other DSL subpath.
+      The DSL command reads guidance only; it must not launch Pi, edit profile YAML, install dependencies, or probe local substrate.

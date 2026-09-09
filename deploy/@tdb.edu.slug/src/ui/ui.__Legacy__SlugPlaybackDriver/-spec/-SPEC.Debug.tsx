@@ -1,7 +1,6 @@
-import React from 'react';
+import type React from 'react';
 import { LoadSample, SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
 import {
-  type t,
   Button,
   Color,
   css,
@@ -12,6 +11,7 @@ import {
   ObjectView,
   Player,
   Signal,
+  type t,
 } from '../common.ts';
 import { Payload, PlayControls, SlugPlaybackDriver } from './mod.ts';
 
@@ -32,14 +32,24 @@ export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 /**
  * Signals:
  */
-export async function createDebugSignals() {
+export function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const baseUrl = LoadSample.SAMPLES.baseUrl;
   const docid = LoadSample.SAMPLES.SlugTree['slug-tree.gHcQi:'].docid;
-  const controller = SlugPlaybackDriver.Controller.create({ baseUrl });
+  const transport = {
+    policy: {
+      maxBytes: 64 * 1024 * 1024,
+      timeout: 30_000,
+      maxRedirects: 3,
+      progressInterval: 100,
+      sourceOrigins: [new URL(baseUrl).origin],
+      credentialOrigins: [],
+    },
+  } satisfies t.SlugLoadTransport;
+  const controller = SlugPlaybackDriver.Controller.create({ baseUrl, transport });
 
   const decks = Player.Video.Decks.create();
   controller.next({ playback: { decks } });
@@ -77,7 +87,12 @@ export async function createDebugSignals() {
     });
   });
 
-  const load = () => void LoadSample.load(p.tree, p.load.value, { baseUrl, docid });
+  const load = () =>
+    void LoadSample.load(p.tree, p.load.value, {
+      baseUrl,
+      docid,
+      ...transport,
+    });
   Signal.effect(load);
 
   /**
@@ -101,16 +116,6 @@ export async function createDebugSignals() {
 
   return api;
 }
-
-const Styles = {
-  title: css({
-    fontWeight: 'bold',
-    marginBottom: 10,
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }),
-};
 
 /**
  * Component:
@@ -145,9 +150,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Player.Video.Decks.UI
         decks={state?.playback?.decks}
         active={state?.playback?.snapshot?.state.decks.active}
-        muted={true}
-        show={'both'}
-        aspectRatio={'4/3'}
+        muted
+        show='both'
+        aspectRatio='4/3'
         gap={20}
         style={{ Margin: [10, 50, 15, 50] }}
       />
@@ -174,7 +179,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
 
       <hr />
       <Payload controller={controller} />

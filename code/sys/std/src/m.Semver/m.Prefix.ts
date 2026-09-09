@@ -1,8 +1,8 @@
-import type { SemverPrefixLib } from './t.ts';
+import type { Semver } from './t.ts';
 
 const REGEX = /^(~|\^|=|>=|<=|>|<|\*|x|\d+x|\d+\.\d+x|\d+\.\d+\.\dx)?\s*/;
 
-export const Prefix: SemverPrefixLib = {
+export const Prefix: Semver.Prefix.Lib = Object.freeze({
   get(input) {
     if (typeof input !== 'string') return '';
     input = input.trim();
@@ -14,4 +14,4 @@ export const Prefix: SemverPrefixLib = {
     if (typeof input !== 'string') return '';
     return input.trim().replace(REGEX, '');
   },
-};
+});

@@ -1,12 +1,20 @@
-import { type t, describe, expect, it } from '../../../-test.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
 
 import { CacheCmd } from '../m.Cmd.ts';
 import { Cache } from '../../m.HttpCache/mod.ts';
+import { PkgCache } from '../../m.HttpCache/u.pkg.names.ts';
 
 describe('Http.Cache.Cmd', () => {
   describe('API', () => {
     it('exports from Http.Cache namespace', () => {
       expect(Cache.Cmd).to.equal(CacheCmd);
+      expect(Cache.Pkg).to.equal(PkgCache);
+      expect(Object.isFrozen(Cache.Pkg)).to.eql(true);
+      expect(Cache.Pkg.names({ name: 'my-pkg', version: '1.0.0' }).current).to.eql([
+        'my-pkg:asset-files',
+        'my-pkg:media-files',
+        'my-pkg:media-range-files',
+      ]);
     });
 
     it('constants', () => {
@@ -49,21 +57,25 @@ describe('Http.Cache.Cmd', () => {
       });
 
       const client = cmd.client(port2);
-      const result = await client.send(CacheCmd.CLEAR, { scope: 'pkg' });
+      try {
+        const result = await client.send(CacheCmd.CLEAR, { scope: 'pkg' });
 
-      expect(result.ok).to.eql(true);
-      expect(result.deleted).to.eql(['a', 'b']);
-      expect(result.total).to.eql(2);
-      expect(result.at).to.eql(123);
+        expect(result.ok).to.eql(true);
+        expect(result.deleted).to.eql(['a', 'b']);
+        expect(result.total).to.eql(2);
+        expect(result.at).to.eql(123);
 
-      const info = await client.send(CacheCmd.INFO, { scope: 'all' });
-      expect(info.ok).to.eql(true);
-      expect(info.scope).to.eql('all');
-      expect(info.totals.entries).to.eql(5);
-      expect(info.caches.length).to.eql(2);
-
-      client.dispose();
-      host.dispose();
+        const info = await client.send(CacheCmd.INFO, { scope: 'all' });
+        expect(info.ok).to.eql(true);
+        expect(info.scope).to.eql('all');
+        expect(info.totals.entries).to.eql(5);
+        expect(info.caches.length).to.eql(2);
+      } finally {
+        client.dispose();
+        host.dispose();
+        port1.close();
+        port2.close();
+      }
     });
   });
 
@@ -89,7 +101,9 @@ describe('Http.Cache.Cmd', () => {
       });
 
       try {
-        const clear = CacheCmd.Handlers.clear({ pkg: { name: 'my-pkg', version: '1.0.0' } });
+        const pkg = { name: 'my-pkg', version: '1.0.0' };
+        const clear = CacheCmd.Handlers.clear({ pkg });
+        pkg.name = 'changed';
         const result = await clear({});
 
         expect(deleted).to.eql([
@@ -154,10 +168,11 @@ describe('Http.Cache.Cmd', () => {
         open: async (name: string) => {
           if (name === 'my-pkg:media-range-files') {
             return {
-              keys: async () =>
-                index['my-pkg:media-range-files'].map(
+              async keys() {
+                return index['my-pkg:media-range-files'].map(
                   (key) => new Request(`https://example.com/${key}`),
-                ),
+                );
+              },
               match: async (key: string) => {
                 if (key !== '__sys_http_media_range_meta__') return undefined;
                 return new Response(
@@ -230,10 +245,11 @@ describe('Http.Cache.Cmd', () => {
         open: async (name: string) => {
           if (name === 'my-pkg:media-range-files') {
             return {
-              keys: async () =>
-                index['my-pkg:media-range-files'].map(
+              async keys() {
+                return index['my-pkg:media-range-files'].map(
                   (key) => new Request(`https://example.com/${key}`),
-                ),
+                );
+              },
               match: async (key: string) => {
                 if (key !== '__sys_http_media_range_meta__') return undefined;
                 return new Response(
@@ -289,10 +305,57 @@ describe('Http.Cache.Cmd', () => {
   });
 
   describe('Handlers.all', () => {
-    it('returns clear and info handlers', () => {
-      const handlers = CacheCmd.Handlers.all({ pkg: { name: 'my-pkg', version: '1.0.0' } });
-      expect(typeof handlers.clear).to.eql('function');
-      expect(typeof handlers.info).to.eql('function');
+    it('snapshots one package namespace across clear and info', async () => {
+      const original = Object.getOwnPropertyDescriptor(globalThis, 'caches');
+      const current = [
+        'my-pkg:asset-files',
+        'my-pkg:media-files',
+        'my-pkg:media-range-files',
+      ];
+      const changed = [
+        'changed:asset-files',
+        'changed:media-files',
+        'changed:media-range-files',
+      ];
+      const deleted: string[] = [];
+      const mock = {
+        keys: async () => [...current, ...changed],
+        delete: async (name: string) => {
+          deleted.push(name);
+          return true;
+        },
+        open: async (_name: string) => ({
+          keys: async () => [],
+          match: async (_key: string) => undefined,
+        }),
+      };
+      Object.defineProperty(globalThis, 'caches', {
+        value: mock,
+        configurable: true,
+        writable: true,
+      });
+
+      let reads = 0;
+      const pkg = {
+        get name() {
+          reads += 1;
+          return reads === 1 ? 'my-pkg' : 'changed';
+        },
+        version: '1.0.0',
+      };
+
+      try {
+        const handlers = CacheCmd.Handlers.all({ pkg });
+        const clear = await handlers.clear({});
+        const info = await handlers.info({});
+
+        expect(reads).to.eql(1);
+        expect(clear.deleted).to.eql(current);
+        expect(deleted).to.eql(current);
+        expect(info.caches.map((cache) => cache.name)).to.eql(current);
+      } finally {
+        if (original) Object.defineProperty(globalThis, 'caches', original);
+      }
     });
   });
 
@@ -319,27 +382,30 @@ describe('Http.Cache.Cmd', () => {
         },
       });
 
-      sender.postMessage({ kind: CacheCmd.CONNECT }, [hostEndpoint]);
-      await new Promise((resolve) => setTimeout(resolve, 0));
-
       const client = CacheCmd.make().client(clientEndpoint);
-      const result = await client.send(CacheCmd.CLEAR, { scope: 'all' });
+      try {
+        sender.postMessage({ kind: CacheCmd.CONNECT }, [hostEndpoint]);
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
-      expect(result.ok).to.eql(true);
-      expect(result.deleted).to.eql(['x', 'y', 'z']);
-      expect(result.total).to.eql(3);
-      expect(typeof result.at).to.eql('number');
+        const result = await client.send(CacheCmd.CLEAR, { scope: 'all' });
 
-      const info = await client.send(CacheCmd.INFO, { scope: 'pkg' });
-      expect(info.ok).to.eql(true);
-      expect(info.scope).to.eql('pkg');
-      expect(info.totals.caches).to.eql(1);
+        expect(result.ok).to.eql(true);
+        expect(result.deleted).to.eql(['x', 'y', 'z']);
+        expect(result.total).to.eql(3);
+        expect(typeof result.at).to.eql('number');
 
-      client.dispose();
-      life.dispose();
-      target.close();
-      sender.close();
-      clientEndpoint.close();
+        const info = await client.send(CacheCmd.INFO, { scope: 'pkg' });
+        expect(info.ok).to.eql(true);
+        expect(info.scope).to.eql('pkg');
+        expect(info.totals.caches).to.eql(1);
+      } finally {
+        client.dispose();
+        life.dispose();
+        target.close();
+        sender.close();
+        clientEndpoint.close();
+        hostEndpoint.close();
+      }
     });
   });
 });

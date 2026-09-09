@@ -1,4 +1,4 @@
-import { type t, Err, Is, isRecord } from './common.ts';
+import { Err, Is, isRecord, type t } from './common.ts';
 type O = Record<string, unknown>;
 
 /**
@@ -31,7 +31,7 @@ export function toHeaders(input?: Headers | HeadersInit): t.HttpHeaders {
 /**
  * Convert a web `Response` into the standard client HTTP error object.
  */
-export function toError(res: Response): t.HttpError | undefined {
+export function toError(res: Response): t.HttpFetch.Error | undefined {
   const status = res.status;
   if (Is.statusOK(status)) return undefined;
 
@@ -46,23 +46,25 @@ export function toError(res: Response): t.HttpError | undefined {
 /**
  * Convert a web [Response] into the standard client JSON {Response} object.
  */
-export async function toJsonResponse<T extends O>(res: Response) {
+export async function toJsonResponse<T extends O>(
+  res: Response,
+): Promise<t.HttpClient.JsonResponse<T>> {
   const { ok, status } = res;
   const url = res.url;
   if (!ok) {
-    return { ok, status, url, data: undefined, error: toError(res) } as t.FetchResponse<T>;
+    return { ok, status, url, data: undefined, error: toError(res)! };
   }
 
   try {
     const data = (await res.json()) as T;
-    return { ok: true, status, url, data, error: undefined } as t.FetchResponse<T>;
+    return { ok: true, status, url, data, error: undefined };
   } catch (cause: unknown) {
     const statusText = String(res.statusText).trim();
     const name = 'HttpError';
     const message = `${status} ${statusText || 'Invalid JSON Response'}`;
     const base = Err.std(message, { name, cause });
     const error = { ...base, status, statusText, headers: toHeaders(res.headers) };
-    return { ok: false, status, url, data: undefined, error } as t.FetchResponse<T>;
+    return { ok: false, status, url, data: undefined, error };
   }
 }
 

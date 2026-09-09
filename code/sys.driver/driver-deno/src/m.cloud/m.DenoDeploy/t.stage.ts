@@ -29,7 +29,7 @@ export type Result = {
   readonly target: DenoDeploy.Target;
 
   /** Resolved workspace context used during staging. */
-  readonly workspace: t.DenoWorkspace;
+  readonly workspace: t.DenoFile.Workspace.Info;
 
   /** Root directory of the staged deployable artifact. */
   readonly root: t.StringDir;
@@ -42,7 +42,7 @@ export type Result = {
  * Narrow stage-like input required by `prepare()`.
  *
  * This exists so external callers can rehydrate staged metadata without
- * pretending to own the full resolved `DenoWorkspace` object.
+ * pretending to own the full resolved `DenoFile.Workspace.Info` object.
  */
 export type PrepareInput = {
   readonly target: DenoDeploy.Target;

@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const CrdtUrl: t.CrdtUrlLib = {
+export const CrdtUrl: t.Crdt.Lib['Url'] = {
   ws(input) {
     const host = (input ?? '').trim().replace(/^wss?:\/\//, '');
     const protocol = host.startsWith('localhost') ? 'ws' : 'wss';

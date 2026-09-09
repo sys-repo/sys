@@ -39,15 +39,15 @@ describe('Jsr.Manifest (integration test)', () => {
       }
 
       console.info();
-      console.info(`T:${c.cyan('JsrManifestFetchResponse')}:`, {
+      console.info(`T:${c.cyan('JsrManifest.Fetch.Response')}:`, {
         ok: res.ok,
         status: res.status,
         origin: res.origin,
         manifest: res.manifest
           ? {
-              pkg: res.manifest.pkg,
-              paths: res.manifest.paths.length,
-            }
+            pkg: res.manifest.pkg,
+            paths: res.manifest.paths.length,
+          }
           : undefined,
         error: res.error,
       });
@@ -68,7 +68,7 @@ describe('Jsr.Manifest (integration test)', () => {
       expect(res.error?.message).to.include(`https://jsr.io/${name}`);
 
       console.info();
-      console.info(`T:${c.cyan('JsrManifestFetchResponse')}:`, {
+      console.info(`T:${c.cyan('JsrManifest.Fetch.Response')}:`, {
         ok: res.ok,
         status: res.status,
         origin: res.origin,
@@ -96,9 +96,10 @@ describe('Jsr.Manifest (integration test)', () => {
         expect(file.error).to.eql(undefined);
         expect(file.checksum?.valid).to.eql(true);
 
-        const path = file.url.slice(baseUrl.length - 1) as keyof typeof SAMPLE.def;
+        const url = file.ok ? file.finalUrl : file.url;
+        const path = url.slice(baseUrl.length - 1) as keyof typeof SAMPLE.def;
         const def = SAMPLE.def[path];
-        expect(file.checksum?.actual).to.eql(def.checksum);
+        expect(file.checksum?.received).to.eql(def.checksum);
         expect(file.checksum?.expected).to.eql(def.checksum);
       }
     });
@@ -115,7 +116,8 @@ describe('Jsr.Manifest (integration test)', () => {
       expect(res.written?.relative).to.eql(Pkg.toString(SAMPLE.pkg));
 
       for (const file of res.files) {
-        const path = Fs.join(res.written?.absolute || '', file.url.slice(baseUrl.length));
+        const url = file.ok ? file.finalUrl : file.url;
+        const path = Fs.join(res.written?.absolute || '', url.slice(baseUrl.length));
         const data = (await Fs.read(path)).data;
         expect(Hash.sha256(data)).to.eql(file.checksum?.expected);
       }
@@ -131,7 +133,7 @@ describe('Jsr.Manifest (integration test)', () => {
 
       expect(resA.files.length).to.eql(Object.keys(SAMPLE.def).length);
       expect(resB.files.length).to.eql(1);
-      expect(resB.files[0].checksum?.actual).to.eql(SAMPLE.def['/src/pkg.ts'].checksum);
+      expect(resB.files[0].checksum?.received).to.eql(SAMPLE.def['/src/pkg.ts'].checksum);
     });
 
     it('error: checksum fail', async () => {

@@ -13,6 +13,7 @@ export type SlugClientDescriptorLoadLib = {
   readonly load: (
     origin: t.StringUrl,
     manifests: t.StringPath,
+    transport: t.SlugLoadTransport,
   ) => Promise<t.SlugClientResult<t.BundleDescriptorDoc>>;
 };
 
@@ -22,7 +23,7 @@ export type SlugClientFromDescriptorArgs = {
   readonly baseUrl: t.StringUrl;
   readonly kind?: t.BundleDescriptorKind;
   readonly docid?: t.StringId;
-};
+} & t.SlugLoadTransport;
 
 /** Inputs for selecting one bundle from a descriptor (or descriptor-doc). */
 export type SlugClientFromDescriptorSelectArgs = {
@@ -32,7 +33,7 @@ export type SlugClientFromDescriptorSelectArgs = {
 };
 
 /** Normalized slug descriptor with derived loaders. */
-export type SlugClientDescriptor = {
+export type SlugClientDescriptor = t.Lifecycle & {
   readonly kind: t.BundleDescriptorKind;
   readonly docid: t.StringId;
   readonly baseUrl: t.StringUrl;

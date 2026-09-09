@@ -1,0 +1,6 @@
+{
+  "siteId": "bc6366c5-7c26-4ee1-a6d1-b61a93010dd7",
+  "domain": "fs",
+  "buildCommand": "echo no-op",
+  "buildDir": "dist"
+}

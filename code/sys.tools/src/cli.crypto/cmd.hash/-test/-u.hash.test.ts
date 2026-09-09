@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, Fs, Pkg, pkg } from '../../common.ts';
+import { Fs, Hash, Json, Pkg, pkg, type t } from '../../common.ts';
 import { HashJobSchema, runHashJob } from '../mod.ts';
 
 describe('cli.crypto/cmd.hash', () => {
@@ -21,6 +21,7 @@ describe('cli.crypto/cmd.hash', () => {
       expect(String(res.digest).startsWith('sha256-')).to.eql(true);
       expect(res.fileCount).to.eql(2);
       expect(res.dist.build.builder).to.eql(Pkg.toString(pkg));
+      expect(res.manifest.integrity).to.eql(Hash.sha256(Json.stringify(res.dist, 2)));
 
       expect(await Fs.exists(Fs.join(dir, 'dist.json'))).to.eql(false);
     } finally {
@@ -56,8 +57,11 @@ describe('cli.crypto/cmd.hash', () => {
       await Fs.write(Fs.join(dir, 'doc.txt'), 'docs\n');
 
       const res = await runHashJob({ dir, saveDist: true });
+      const manifest = await Fs.read(Fs.join(dir, 'dist.json'));
       expect(String(res.digest).startsWith('sha256-')).to.eql(true);
       expect(await Fs.exists(Fs.join(dir, 'dist.json'))).to.eql(true);
+      expect(manifest.data).to.not.eql(undefined);
+      expect(res.manifest.integrity).to.eql(Hash.sha256(manifest.data));
     } finally {
       await Fs.remove(dir);
     }

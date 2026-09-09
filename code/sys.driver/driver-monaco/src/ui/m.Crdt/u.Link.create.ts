@@ -1,7 +1,7 @@
 import { type t, Err } from './common.ts';
 
-export const create: t.EditorCrdtLinkCreateDoc = async (ctx, repo, bounds) => {
-  type R = t.EditorCrdtLinkCreateResult;
+export const create: t.EditorCrdt.Link.CreateDoc = async (ctx, repo, bounds) => {
+  type R = t.EditorCrdt.Link.CreateResult;
   const editor = ctx.editor;
   const fail = (err: string) => ({ ok: false, error: Err.std(err) }) as R;
 

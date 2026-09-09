@@ -2,13 +2,12 @@
  * @module
  * Test HTTP server tools.
  */
-import type { TestingHttpLib } from './t.ts';
+import type { t } from '../common/mod.ts';
 
 import { Testing as Base } from '../m.Testing/mod.ts';
 export {
   afterAll,
   afterEach,
-  Bdd,
   beforeAll,
   beforeEach,
   describe,
@@ -18,12 +17,11 @@ export {
 } from '../m.Testing/mod.ts';
 
 import { TestHttpServer as Http } from './m.HttpServer.ts';
-export { DomMock } from '../m.Testing.DomMock/mod.ts';
 
 /**
  * Testing helpers including light-weight HTTP server helpers (Deno).
  */
-export const Testing: TestingHttpLib = {
+export const Testing: t.Testing.Server.Lib = Object.freeze({
   ...Base,
   Http,
-};
+});

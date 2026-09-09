@@ -7,6 +7,7 @@ describe('Workspace.Prep.Deps', () => {
     const depsPath = Fs.join(fs.dir, 'deps.yaml');
     await Fs.writeJson(Fs.join(fs.dir, 'deno.json'), { importMap: 'imports.json' });
     const denoImport = 'jsr:@sys/std@0.0.333';
+    const mdastImport = 'npm:@types/mdast@4.0.4';
     const reactImport = 'npm:react@19.2.5';
     const viteImport = 'npm:vite@7.3.2';
 
@@ -16,22 +17,30 @@ describe('Workspace.Prep.Deps', () => {
         deno.json:
           - import: ${denoImport}
             subpaths: [async]
+          - import: ${mdastImport}
+            name: mdast
         package.json:
           - import: ${reactImport}
           - import: ${viteImport}
             dev: true
+          - overrides:
+              "@automerge/automerge-repo":
+                uuid: '11.1.1'
+              monaco-editor:
+                dompurify: '3.4.0'
         `),
     );
 
     type O = Record<string, string>;
+    type TOverrides = Record<string, string | O>;
     type TImports = { imports?: O };
-    type TPackage = { dependencies?: O; devDependencies?: O };
+    type TPackage = { dependencies?: O; devDependencies?: O; overrides?: TOverrides };
 
     const result = await WorkspacePrep.Deps.sync({ cwd: fs.dir });
     const imports = await Fs.readJson<TImports>(Fs.join(fs.dir, 'imports.json'));
     const pkg = await Fs.readJson<TPackage>(Fs.join(fs.dir, 'package.json'));
 
-    expect(result.total).to.eql(3);
+    expect(result.total).to.eql(4);
     expect(result.depsPath).to.eql(depsPath);
     expect(result.deno.denoFilePath).to.eql(Fs.join(fs.dir, 'deno.json'));
     expect(result.deno.targetPath).to.eql(Fs.join(fs.dir, 'imports.json'));
@@ -39,9 +48,16 @@ describe('Workspace.Prep.Deps', () => {
     expect(imports.data?.imports).to.eql({
       '@sys/std': denoImport,
       '@sys/std/async': `${denoImport}/async`,
+      mdast: mdastImport,
     });
+    const overrides = {
+      '@automerge/automerge-repo': { uuid: '11.1.1' },
+      'monaco-editor': { dompurify: '3.4.0' },
+    };
     expect(pkg.data?.dependencies).to.eql({ react: '19.2.5' });
     expect(pkg.data?.devDependencies).to.eql({ vite: '7.3.2' });
+    expect(pkg.data?.overrides).to.eql(overrides);
+    expect(result.package?.overrides).to.eql(overrides);
   });
 
   it('emits the canonical import-map summary when log is enabled', async () => {

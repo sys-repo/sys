@@ -36,5 +36,5 @@ export type DocumentGraphWalkHookCtx<T extends O = O> = {
 export type DocumentGraphHookLog = {
   id: t.Crdt.Id;
   depth: number;
-  log: t.StrBuilder;
+  log: t.Str.Builder;
 };

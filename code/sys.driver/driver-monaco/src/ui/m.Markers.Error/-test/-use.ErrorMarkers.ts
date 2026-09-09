@@ -18,7 +18,7 @@ import { useErrorMarkers } from '../mod.ts';
 describe('useErrorMarkers', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  it('type: matches UseYamlErrorMarkers', () => {
+  it('type: matches YAML error-marker hook', () => {
     expectTypeOf(useErrorMarkers).toEqualTypeOf<t.UseErrorMarkers>();
   });
 

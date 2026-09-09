@@ -1,15 +1,15 @@
 import { Workspace } from '@sys/workspace';
-import { Args, D } from './common.ts';
+import { Args } from './common.ts';
 
 import { main as clean } from './task.clean.ts';
 import { main as dry } from './task.dry.ts';
 import { main as info } from './task.info.ts';
 import { main as lint } from './task.lint.ts';
 import { main as prepCiDeno } from './task.prep.ci.deno.ts';
+import { main as prepCi, type PrepCiOptions } from './task.prep.ci.ts';
 import { type CommitContext, main as prep, syncPackageMetadata } from './task.prep.ts';
 import { main as test } from './task.test.ts';
 import { bumpPolicy } from './task.bump.policy.ts';
-import { orderedWorkspacePaths } from './u.graph.ts';
 
 export type MainArgs = {
   dry?: boolean;
@@ -42,26 +42,6 @@ type Lib = {
   readonly prepCiDeno: typeof prepCiDeno;
 };
 
-type PrepCiOptions = {
-  versionFilter?: 'all' | 'ahead';
-  prepared?: number;
-  final?: boolean;
-  ensureGraph?: boolean;
-};
-
-async function prepCi(options: PrepCiOptions = {}) {
-  await Workspace.Ci.sync({
-    cwd: Deno.cwd(),
-    sourcePaths: await orderedWorkspacePaths(),
-    jsrScopes: D.ci.jsrScopes,
-    on: D.ci.on,
-    versionFilter: options.versionFilter,
-    prepared: options.prepared,
-    final: options.final,
-    ...(options.ensureGraph !== undefined ? { ensureGraph: options.ensureGraph } : {}),
-  });
-}
-
 const lib: Lib = {
   dry,
   test,
@@ -89,6 +69,7 @@ export async function run(argv: MainArgs, api: Lib = lib) {
   if (argv['prep-pkg']) await api.prepPkg();
   if (argv['prep-bump']) {
     const prepared = await api.prep(argv['prep-context']);
+    await api.prepCiDeno();
     await api.prepCi({
       versionFilter: 'ahead',
       prepared,

@@ -1,6 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { PercentRange } from '../m.Percent.Range.ts';
-import { Percent } from '../m.Percent.ts';
+import { Percent } from '../m.Percent/mod.ts';
 import { Ratio } from '../m.Ratio.ts';
 import { Num } from '../mod.ts';
 
@@ -10,11 +9,32 @@ describe('Value.Num', () => {
     expect(typeof Num.Is.int).to.equal('function');
     expect(typeof Num.Is.safeInt).to.equal('function');
     expect(Num.Percent).to.equal(Percent);
-    expect(Num.Percent.Range).to.eql(PercentRange);
+    expect(Num.Percent.Is).to.equal(Percent.Is);
+    expect(Num.Percent.Range).to.equal(Percent.Range);
     expect(Num.Ratio).to.equal(Ratio);
   });
 
   describe('Num.Is', () => {
+    const predicateInputs: readonly unknown[] = [
+      Num.MIN_INT - 1,
+      Num.MIN_INT,
+      -12,
+      -1.5,
+      0,
+      1.5,
+      12,
+      Num.MAX_INT,
+      Num.MAX_INT + 1,
+      NaN,
+      Number.NEGATIVE_INFINITY,
+      Number.POSITIVE_INFINITY,
+      '1',
+      1n,
+      {},
+      null,
+      undefined,
+    ];
+
     it('finite', () => {
       expect(Num.Is.finite(0)).to.eql(true);
       expect(Num.Is.finite(1.5)).to.eql(true);
@@ -23,20 +43,16 @@ describe('Value.Num', () => {
       expect(Num.Is.finite('1')).to.eql(false);
     });
 
-    it('int', () => {
-      expect(Num.Is.int(0)).to.eql(true);
-      expect(Num.Is.int(-12)).to.eql(true);
-      expect(Num.Is.int(1.5)).to.eql(false);
-      expect(Num.Is.int(NaN)).to.eql(false);
-      expect(Num.Is.int('1')).to.eql(false);
+    it('int corresponds to Number.isInteger', () => {
+      for (const input of predicateInputs) {
+        expect(Num.Is.int(input)).to.equal(Number.isInteger(input));
+      }
     });
 
-    it('safeInt', () => {
-      expect(Num.Is.safeInt(0)).to.eql(true);
-      expect(Num.Is.safeInt(Number.MAX_SAFE_INTEGER)).to.eql(true);
-      expect(Num.Is.safeInt(Number.MAX_SAFE_INTEGER + 1)).to.eql(false);
-      expect(Num.Is.safeInt(1.5)).to.eql(false);
-      expect(Num.Is.safeInt('1')).to.eql(false);
+    it('safeInt corresponds to Number.isSafeInteger', () => {
+      for (const input of predicateInputs) {
+        expect(Num.Is.safeInt(input)).to.equal(Number.isSafeInteger(input));
+      }
     });
   });
 
@@ -74,41 +90,95 @@ describe('Value.Num', () => {
   });
 
   describe('Num.toString', () => {
-    it('returns "0" when called without arguments', () => {
-      expect(Num.toString()).to.eql('0');
+    const format = (value = 0, maxDecimals = 2) => {
+      return new Intl.NumberFormat(undefined, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: maxDecimals,
+      }).format(value);
+    };
+
+    const expectDisplay = (value?: number, maxDecimals?: number) => {
+      expect(Num.toString(value, maxDecimals)).to.eql(format(value, maxDecimals));
+    };
+
+    it('defaults omitted and explicit undefined arguments', () => {
+      expect(Num.toString()).to.eql(format());
+      expect(Num.toString(undefined, undefined)).to.eql(format(undefined, undefined));
     });
 
-    it('formats integer values without decimals', () => {
-      expect(Num.toString(0)).to.eql('0');
-      expect(Num.toString(123)).to.eql('123');
-      expect(Num.toString(-456)).to.eql('-456');
+    it('forwards the host-default locale and documented Intl options', () => {
+      const descriptor = Object.getOwnPropertyDescriptor(
+        Intl,
+        'NumberFormat',
+      ) as PropertyDescriptor;
+      const calls: {
+        readonly locales: unknown;
+        readonly options: Intl.NumberFormatOptions | undefined;
+      }[] = [];
+      let outputs: readonly string[] = [];
+
+      try {
+        Object.defineProperty(Intl, 'NumberFormat', {
+          ...descriptor,
+          value: class {
+            constructor(locales?: unknown, options?: Intl.NumberFormatOptions) {
+              calls.push({ locales, options });
+            }
+
+            format(value: number) {
+              return `formatted:${value}`;
+            }
+          },
+        });
+        outputs = [Num.toString(), Num.toString(1.234, 3)];
+      } finally {
+        Object.defineProperty(Intl, 'NumberFormat', descriptor);
+      }
+
+      expect(outputs).to.eql(['formatted:0', 'formatted:1.234']);
+      expect(calls).to.eql([
+        {
+          locales: undefined,
+          options: { minimumFractionDigits: 0, maximumFractionDigits: 2 },
+        },
+        {
+          locales: undefined,
+          options: { minimumFractionDigits: 0, maximumFractionDigits: 3 },
+        },
+      ]);
     });
 
-    it('formats values with up to the default 2 decimal places', () => {
-      expect(Num.toString(1.2)).to.eql('1.2');
-      expect(Num.toString(1.234)).to.eql('1.23');
-      expect(Num.toString(123_456.12345)).to.eql('123,456.12');
+    it('matches host-default Intl formatting for integer, fraction, and negative values', () => {
+      for (const value of [0, 123, -456, 1.2, 1.234, 123_456.12345, -1.234]) {
+        expectDisplay(value);
+      }
     });
 
-    it('respects a custom maxDecimals parameter', () => {
-      expect(Num.toString(1.2345, 3)).to.eql('1.235');
-      expect(Num.toString(1.2345, 1)).to.eql('1.2');
+    it('uses maximumFractionDigits without forcing trailing zeros', () => {
+      const cases = [
+        [1.2345, 3],
+        [1.2345, 1],
+        [1.5, 2],
+        [2, 3],
+        [1.5, 0],
+      ];
+
+      for (const [value, maxDecimals] of cases) {
+        expectDisplay(value, maxDecimals);
+      }
     });
 
-    it('drops trailing zeros after the decimal', () => {
-      expect(Num.toString(1.5, 2)).to.eql('1.5');
-      expect(Num.toString(2.0, 3)).to.eql('2');
+    it('preserves native maximumFractionDigits coercion and supported bounds', () => {
+      for (const maxDecimals of [1.5, 100]) {
+        expectDisplay(1.2345, maxDecimals);
+      }
     });
 
-    it('rounds correctly when maxDecimals is zero', () => {
-      expect(Num.toString(1.4, 0)).to.eql('1');
-      expect(Num.toString(1.5, 0)).to.eql('2');
-      expect(Num.toString(-1.6, 0)).to.eql('-2');
-    });
-
-    it('rounds negative values to the correct precision', () => {
-      expect(Num.toString(-1.234, 2)).to.eql('-1.23');
-      expect(Num.toString(-1.235, 2)).to.eql('-1.24');
+    it('preserves native maximumFractionDigits range errors', () => {
+      for (const maxDecimals of [Number.NaN, -1, 101, Number.POSITIVE_INFINITY]) {
+        expect(() => format(1.2345, maxDecimals)).to.throw(RangeError);
+        expect(() => Num.toString(1.2345, maxDecimals)).to.throw(RangeError);
+      }
     });
   });
 
@@ -211,8 +281,8 @@ describe('Value.Num', () => {
       expect(Num.MAX_INT).to.equal(Number.MAX_SAFE_INTEGER);
     });
 
-    it('MIN_INT equals negative Number.MAX_SAFE_INTEGER', () => {
-      expect(Num.MIN_INT).to.equal(-Number.MAX_SAFE_INTEGER);
+    it('MIN_INT equals Number.MIN_SAFE_INTEGER', () => {
+      expect(Num.MIN_INT).to.equal(Number.MIN_SAFE_INTEGER);
     });
 
     it('INFINITY equals Number.POSITIVE_INFINITY', () => {

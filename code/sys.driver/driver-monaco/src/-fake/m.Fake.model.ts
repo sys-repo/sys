@@ -4,7 +4,7 @@ import { makePosition } from './u.ts';
 /**
  * Minimal `ITextModel` mock.
  */
-export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
+export const fakeModel: t.MonacoFake.Lib['model'] = (src, options = {}) => {
   const life = Rx.lifecycle();
 
   // Normalize newlines once so offset/position math is deterministic.
@@ -126,7 +126,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
     };
   };
 
-  const getWordAtPosition: t.FakeTextModel['getWordAtPosition'] = ({ lineNumber, column }) => {
+  const getWordAtPosition: t.MonacoFake.Model.Shape['getWordAtPosition'] = ({ lineNumber, column }) => {
     const lines = text.split('\n');
     const line = lines[lineNumber - 1] ?? '';
 
@@ -152,7 +152,7 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
   /**
    * API surface exposed to tests:
    */
-  const api: t.FakeTextModel = {
+  const api: t.MonacoFake.Model.Shape = {
     uri,
     /** Getters */
     getValue: () => text,
@@ -185,5 +185,5 @@ export const fakeModel: t.FakeMonacoLib['model'] = (src, options = {}) => {
    * Initialize:
    */
   if (options.language) __setLanguageId(options.language);
-  return api as t.FakeTextModelFull;
+  return api as t.MonacoFake.Model.Full;
 };

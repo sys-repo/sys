@@ -1,7 +1,7 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { D, css, useEffectController } from '../common.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { css, D, useEffectController } from '../common.ts';
 import { TreeHost } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { BackButton } from './-ui.BackButton.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -52,7 +52,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size('fill', 80)

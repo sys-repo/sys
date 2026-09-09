@@ -1,33 +1,38 @@
-import type { StdIsLib } from './t.ts';
-
 import {
-  type t,
   isEmptyRecord,
   isObject,
   isPlainObject,
   isPlainRecord,
   isPromise,
   isRecord,
+  isSymbol,
+  type t,
 } from '../common.ts';
-import { Err } from '../m.Err/mod.ts';
+import { Is as ErrIs } from '../m.Err/m.Is.ts';
 import { number, numeric } from './u.number.ts';
 import { string } from './u.string.ts';
 import { urlLike, urlString } from './u.url.ts';
 import { websocket } from './u.websocket.ts';
 import { browser } from './u.browser.ts';
 
+const arrayIsArray = Array.isArray;
+const typedArrayTag = Object.getOwnPropertyDescriptor(
+  Object.getPrototypeOf(Uint8Array.prototype),
+  Symbol.toStringTag,
+)?.get;
+
 /**
  * Common flag evaluators.
  */
-export const Is: StdIsLib = {
+export const Is: t.Is.Lib = Object.freeze({
   get error() {
-    return Err.Is.error;
+    return ErrIs.error;
   },
   get errorLike() {
-    return Err.Is.errorLike;
+    return ErrIs.errorLike;
   },
   get stdError() {
-    return Err.Is.stdError;
+    return ErrIs.stdError;
   },
 
   object: isObject,
@@ -36,6 +41,10 @@ export const Is: StdIsLib = {
   plainObject: isPlainObject,
   plainRecord: isPlainRecord,
   promise: isPromise,
+  symbol: isSymbol,
+  waitableHandle(input?: unknown): input is t.WaitableHandle {
+    return isRecord(input) && isPromise(input.finished);
+  },
 
   numeric,
   number,
@@ -47,10 +56,29 @@ export const Is: StdIsLib = {
   websocket,
   browser,
 
-  disposable(input?: any): input is t.Disposable {
+  disposable(input?: unknown): input is t.Disposable {
     if (!isObject(input)) return false;
-    const obj = input as t.Disposable;
-    return typeof obj.dispose === 'function' && Is.observable(obj.dispose$);
+    const dispose = Symbol.dispose;
+    if (Is.nil(dispose)) return false;
+
+    const obj = input as Record<PropertyKey, unknown>;
+    const asyncDispose = Symbol.asyncDispose;
+    const hasAsyncAuthority = !Is.nil(asyncDispose) && obj[asyncDispose] !== undefined;
+    return (
+      typeof obj.dispose === 'function' &&
+      typeof obj[dispose] === 'function' &&
+      !hasAsyncAuthority
+    );
+  },
+  lifecycleView(input?: unknown): input is t.LifecycleView {
+    if (!isObject(input)) return false;
+
+    const view = input as Record<PropertyKey, unknown>;
+    const asyncDispose = Symbol.asyncDispose;
+    // Async omission projections retain a non-callable protocol marker so their telemetry cannot
+    // be narrowed to the synchronous LifecycleView event contract.
+    const hasAsyncCategory = !Is.nil(asyncDispose) && asyncDispose in view;
+    return Is.bool(view.disposed) && Is.observable(view.dispose$) && !hasAsyncCategory;
   },
   disposableLike(input?: any): input is t.DisposableLike {
     if (!isObject(input)) return false;
@@ -116,7 +144,7 @@ export const Is: StdIsLib = {
   },
 
   array<T>(input?: any): input is T[] {
-    return Array.isArray(input);
+    return arrayIsArray(input);
   },
 
   json(input?: any): input is t.Json {
@@ -130,8 +158,12 @@ export const Is: StdIsLib = {
     return tag === '[object ArrayBuffer]' || tag === '[object SharedArrayBuffer]';
   },
 
-  uint8Array(input?: any): input is Uint8Array {
-    return Object.prototype.toString.call(input) === '[object Uint8Array]';
+  uint8Array(input?: unknown): input is Uint8Array {
+    return (
+      ArrayBuffer.isView(input) &&
+      typeof typedArrayTag === 'function' &&
+      Reflect.apply(typedArrayTag, input, []) === 'Uint8Array'
+    );
   },
 
   /**
@@ -234,10 +266,17 @@ export const Is: StdIsLib = {
    */
   until(input?: unknown): input is t.Until {
     if (input === undefined) return false; // ergonomic at call-site, but not an until
-    if (Array.isArray(input)) return input.every((v) => Is.until(v));
-    if (Is.disposable(input)) return true;
+    if (Is.array<t.Until>(input)) return input.every((v) => Is.until(v));
+    if (Is.lifecycleView(input)) return true;
     if (Is.observable(input)) return true;
     if (Is.subject(input)) return true;
+    if (Is.abortSignal(input)) return true;
     return false;
   },
-};
+
+  untilInput(input?: unknown): input is t.UntilInput {
+    if (input === undefined) return true;
+    if (Is.array<t.UntilInput>(input)) return input.every((v) => Is.untilInput(v));
+    return Is.until(input);
+  },
+});

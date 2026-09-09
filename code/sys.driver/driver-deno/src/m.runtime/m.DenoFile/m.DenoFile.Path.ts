@@ -1,7 +1,7 @@
-import { type t, Fs, Is } from './common.ts';
+import { Fs, Is, type t } from './common.ts';
 import { load } from './u.load.ts';
 
-export const Path: t.DenoFileLib['Path'] = {
+export const Path: t.DenoFile.Path.Lib = {
   async nearest(start, fnStop) {
     start = Fs.resolve(start);
     const filenames = ['deno.json', 'deno.jsonc'];
@@ -25,8 +25,7 @@ export const Path: t.DenoFileLib['Path'] = {
     let root: t.StringPath | undefined;
     await Fs.walkUp(start, async (e) => {
       const files = await e.files();
-      const denofile =
-        files.find((file) => file.name === 'deno.json') ??
+      const denofile = files.find((file) => file.name === 'deno.json') ??
         files.find((file) => file.name === 'deno.jsonc');
       if (denofile && (await shouldStop(denofile.path))) {
         root = denofile.path;

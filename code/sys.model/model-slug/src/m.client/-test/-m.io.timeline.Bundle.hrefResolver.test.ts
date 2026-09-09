@@ -1,8 +1,30 @@
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import type { t } from '../common.ts';
-import { SlugClient } from '../mod.ts';
+import { SlugClient as SlugClientBase } from '../mod.ts';
 import { Dist } from '../u.io.Dist.ts';
-import { jsonResponse, stubFetch } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch } from './u.fixture.ts';
+
+const SlugClient = {
+  ...SlugClientBase,
+  FromEndpoint: {
+    ...SlugClientBase.FromEndpoint,
+    Timeline: {
+      ...SlugClientBase.FromEndpoint.Timeline,
+      Bundle: {
+        load<P = unknown>(
+          baseUrl: t.StringUrl,
+          docid: t.StringId,
+          options: t.SlugScopedTimelineBundleLoadOptions = {},
+        ) {
+          return SlugClientBase.FromEndpoint.Timeline.Bundle.load<P>(baseUrl, docid, {
+            ...LOAD_OPTIONS,
+            ...options,
+          });
+        },
+      },
+    },
+  },
+};
 
 describe('SlugClient.Timeline.Bundle: hrefResolver', () => {
   describe('SlugClient.Timeline.Bundle hrefResolver types', () => {
@@ -88,8 +110,9 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
     const cleanup = stubFetch((url) => {
       if (url.includes('dist.json')) return jsonResponse(dist);
       if (url.includes(SlugClient.Url.assetsFilename(cleaned))) return jsonResponse(assetsManifest);
-      if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
         return jsonResponse(playbackManifest);
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 

@@ -1,6 +1,6 @@
 import { describe, expect, it, stripAnsi } from '../-test.ts';
 
-import { type t, Fs, Path } from '../common.ts';
+import { Fs, Path, type t } from '../common.ts';
 import { Log } from './mod.ts';
 import { bundled } from './u.bundled.ts';
 import { table } from './u.table.ts';
@@ -24,13 +24,13 @@ describe('Tmpl.Log', () => {
     // Use the same absolute base for normalization and trimming.
     const base = Fs.toDir(Path.resolve('/tmp/log-table-base')) as t.FsDir;
 
-    const ops: t.FileMapOp[] = [
+    const ops: t.FileMap.Write.Op.Any[] = [
       { kind: 'create', path: 'x/y.txt' },
       { kind: 'modify', path: 'x/z.md' },
       { kind: 'skip', path: 'x/w.bin' },
     ];
 
-    const out = Log.table(ops as any, {
+    const out = Log.table(ops, {
       baseDir: base.absolute,
       trimPathLeft: base.absolute,
     });
@@ -39,34 +39,51 @@ describe('Tmpl.Log', () => {
     const cleaned = stripAnsi(out);
     expect(cleaned).to.include('y.txt');
     expect(cleaned).to.include('z.md');
-    expect(cleaned).to.include('w.bin'); // skip appears when hideExcluded is false (default)
+    expect(cleaned).to.include('w.bin'); // skip appears when hideSkipped is false (default)
   });
 
-  it('hideExcluded=true filters skip ops', () => {
+  it('hideSkipped=true hides skip ops', () => {
     const base = Fs.toDir(Path.resolve('/tmp/log-table-base-2')) as t.FsDir;
-    const ops: t.FileMapOp[] = [
+    const ops: t.FileMap.Write.Op.Any[] = [
       { kind: 'create', path: 'a.txt' },
       { kind: 'skip', path: 'b.txt' },
       { kind: 'modify', path: 'c.txt' },
     ];
 
-    const out = Log.table(ops as any, {
+    const out = Log.table(ops, {
       baseDir: base.absolute,
       trimPathLeft: base.absolute,
-      hideExcluded: true,
+      hideSkipped: true,
     });
 
     const cleaned = stripAnsi(out);
     expect(cleaned).to.include('a.txt');
     expect(cleaned).to.include('c.txt');
-    expect(cleaned).to.include('b.txt   ← skipped');
+    expect(cleaned).to.not.include('b.txt');
+  });
+
+  it('plan preset → operation-kind labels, ./ paths, no repeated dry-run notes', () => {
+    const ops: t.FileMap.Write.Op.Any[] = [
+      { kind: 'create', path: 'x/y.txt', dryRun: true },
+      { kind: 'skip', path: '.gitignore', reason: 'unchanged', dryRun: true },
+    ];
+
+    const out = Log.table(ops, { preset: 'plan' });
+    const cleaned = stripAnsi(out);
+
+    expect(cleaned).to.include('create');
+    expect(cleaned).to.include('./x/y.txt');
+    expect(cleaned).to.include('./.gitignore');
+    expect(cleaned).to.include('← unchanged');
+    expect(cleaned).to.not.include('created');
+    expect(cleaned).to.not.include('dry-run');
   });
 
   it('indent adds left padding', () => {
     const base = Fs.toDir(Path.resolve('/tmp/log-table-indent')) as t.FsDir;
-    const ops: t.FileMapOp[] = [{ kind: 'create', path: 'p/q.txt' }];
+    const ops: t.FileMap.Write.Op.Any[] = [{ kind: 'create', path: 'p/q.txt' }];
 
-    const out = Log.table(ops as any, {
+    const out = Log.table(ops, {
       baseDir: base.absolute,
       trimPathLeft: base.absolute,
       indent: 4,

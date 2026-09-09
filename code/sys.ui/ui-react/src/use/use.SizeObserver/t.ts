@@ -44,6 +44,7 @@ export type SizeObserverHook<T extends HTMLElement> = {
  * Fires when the size of an observed DOM element changes.
  */
 export type SizeObserverChangeHandler = (e: SizeObserverChangeHandlerArgs) => void;
+/** Size observer change payload with DOMRect conversion helper. */
 export type SizeObserverChangeHandlerArgs = {
   readonly rect: DOMRectReadOnly;
   toObject(): t.DomRect;

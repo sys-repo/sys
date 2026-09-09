@@ -2,7 +2,7 @@ import type { HttpProxy } from '@sys/http/t';
 
 export type Routes = {
   readonly baseUrl: string;
-  readonly proxy: HttpProxy.Config;
+  readonly proxy: HttpProxy.Routing.Config;
 };
 
 export const Routes: Routes = {

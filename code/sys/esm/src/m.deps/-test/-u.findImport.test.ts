@@ -4,10 +4,10 @@ describe('Deps.findImport', () => {
   it('returns the canonical import for a versionless stem', async () => {
     const { data, error } = await Deps.from(`
       deno.json:
-        - import: npm:esbuild@0.27.3
+        - import: npm:left-pad@1.3.0
     `);
     expect(error).to.eql(undefined);
-    expect(Deps.findImport(data?.entries, 'npm:esbuild')).to.eql('npm:esbuild@0.27.3');
+    expect(Deps.findImport(data?.entries, 'npm:left-pad')).to.eql('npm:left-pad@1.3.0');
   });
 
   it('returns undefined when no matching import exists', async () => {
@@ -16,6 +16,6 @@ describe('Deps.findImport', () => {
         - import: npm:vite@7.3.1
     `);
     expect(error).to.eql(undefined);
-    expect(Deps.findImport(data?.entries, 'npm:esbuild')).to.eql(undefined);
+    expect(Deps.findImport(data?.entries, 'npm:left-pad')).to.eql(undefined);
   });
 });

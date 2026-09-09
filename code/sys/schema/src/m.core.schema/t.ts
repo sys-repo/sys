@@ -1,6 +1,5 @@
-import type { Type } from '@sinclair/typebox';
-import type { Value } from '@sinclair/typebox/value';
 import type { t } from './common.ts';
+import type { Type } from './m.Type.ts';
 
 export type * from './t.error.ts';
 export type * from './t.std.ts';
@@ -11,7 +10,7 @@ export type * from './t.std.ts';
 export type SchemaLib = {
   /** Type builder with static type inference. */
   readonly Type: typeof Type;
-  readonly Value: typeof Value;
+  readonly Value: t.Typebox.Value.Lib;
 
   /** Convert parser/validator errors into normalized validation errors. */
   readonly Error: t.SchemaErrorLib;

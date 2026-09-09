@@ -1,5 +1,5 @@
 import { describe, expect, it } from '@sys/testing/server';
-import { tmplPrepArgs } from '../task.prep.ts';
+import { isTmplModulePath, tmplPrepArgs } from '../task.prep.ts';
 
 describe('scripts/task.prep', () => {
   it('prepares the template repo against published package authorities', () => {
@@ -20,5 +20,10 @@ describe('scripts/task.prep', () => {
       '--version-source=published',
       '--commit-context=bump',
     ]);
+  });
+
+  it('recognizes the relative workspace child path for the explicit template prep lane', () => {
+    expect(isTmplModulePath('/repo', 'code/-tmpl')).to.eql(true);
+    expect(isTmplModulePath('/repo', 'code/sys/std')).to.eql(false);
   });
 });

@@ -1,4 +1,4 @@
-import { type t, SlugClient, Url } from './common.ts';
+import { SlugClient, type t, Url } from './common.ts';
 import { toLayout } from './u.layout.ts';
 import { loadTreeContent } from './u.treeContent.ts';
 
@@ -6,7 +6,10 @@ export function create(args: t.SlugDataClient.CreateArgs): t.SlugDataClient.Clie
   const layout = toLayout(args.layout);
   const baseUrl = String(Url.parse(args.baseUrl).href) as t.StringUrl;
   const docid = String(args.docid).trim() as t.StringId;
-  const options = { layout } as const;
+  const transport: t.SlugLoadTransport = args.client
+    ? { client: args.client }
+    : { policy: args.policy };
+  const options: t.SlugLoadOptions = { ...transport, layout };
 
   return {
     baseUrl,

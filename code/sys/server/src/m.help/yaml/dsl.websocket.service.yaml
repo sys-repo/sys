@@ -1,0 +1,63 @@
+id: websocket.service
+title: WebSocketServer service handle
+summary: |
+  Use the started WebSocket command server as a renderer-neutral `t.Service.Handle`
+  while keeping owner config outside the primitive.
+
+sections:
+  - label: Rule
+    items: |
+      `WebSocketServer.Started` is service-compatible.
+      `status()` returns a renderer-neutral `t.Service.Status` snapshot.
+      `CreateOptions.status` is metadata only.
+      `WebSocketServer.start(...)` renders direct startup output from `status()`.
+      `silent: true` suppresses hosted startup output.
+      `WebSocketServer.create(...)` never prints startup output.
+      Cell adapters own config loading, handler construction, endpoint modules, and names.
+      Cell adapters own status rendering.
+      `WebSocketServer` must not parse Cell configs or become an app-service framework.
+      Keep service composition outside the low-level WebSocket command primitive.
+
+  - label: Speech acts
+    items: |
+      expose WebSocketServer as a t.Service.Handle
+      provide status metadata for a WebSocket service
+      report service ready/stopping/stopped/error states
+      render direct startup output for hosted standalone usage
+      suppress hosted startup output with silent
+      adapt WebSocketServer into a Cell service endpoint
+      keep Cell config loading outside WebSocketServer
+      keep handler construction outside WebSocketServer
+
+  - label: Status metadata
+    items: |
+      `status.name` is an optional owner-local display name.
+      `status.kind` defaults to the module's WebSocket command kind.
+      `status.root` is only for owners that have a meaningful served/root path.
+      `status.config` points to owner config when the adapter knows one.
+      `status.urlLabel` labels the WebSocket URL in renderer output.
+      `status.details` carries extra owner facts that are not lifecycle controls.
+      Live snapshot details such as `connections` may appear in `status()`.
+      Do not render live snapshot details as static startup facts.
+
+  - label: Cell adapter posture
+    items: |
+      A Cell service endpoint should call `WebSocketServer.create(...)`.
+      The Cell adapter passes `until: args.until` when Cell owns the lifecycle boundary.
+      The Cell adapter owns config file parsing and validation.
+      The Cell adapter owns command handler construction.
+      The Cell adapter returns or tracks the started service handle.
+      Cell service mode selection stays in Cell/adapter code.
+      Cell service mode selection does not belong in `WebSocketServer`.
+      Do not add Cell-specific flags, YAML parsing, or endpoint loading.
+      Keep those concerns outside `@sys/server/websocket`.
+      If an adapter must route through `start(...)`, pass `silent: true`.
+      Keep Cell status rendering in Cell.
+
+  - label: Verify
+    items: |
+      Prove the handle satisfies `t.Service.Handle` expectations.
+      Prove `status()` reports ready, stopping, stopped, and error states as applicable.
+      Prove status URLs and details are renderer-neutral data.
+      Prove Cell adapter tests at the adapter layer.
+      Do not expand `WebSocketServer` to satisfy adapter responsibilities.

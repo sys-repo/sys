@@ -7,7 +7,7 @@ export type * from './t.lib.ts';
 export type * from './t.wire.ts';
 
 /**
- * Worker-backed facade for a CRDT repo.
+ * Worker-backed proxy for a CRDT repo.
  *
  * Structurally a `t.CrdtRepo` with an extra `via: 'worker-proxy'` brand
  * so callers can distinguish worker-based repos from local ones.
@@ -17,7 +17,7 @@ export type CrdtRepoWorkerProxy = t.CrdtRepo & {
 };
 
 /**
- * Worker-backed facade for a CRDT document reference.
+ * Worker-backed proxy for a CRDT document reference.
  *
  * Structurally a `t.CrdtRef<T>` with an extra `via: 'worker-proxy'` brand
  * so callers can distinguish worker-based docs from local ones.

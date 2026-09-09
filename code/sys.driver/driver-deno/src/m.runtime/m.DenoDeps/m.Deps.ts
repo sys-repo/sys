@@ -1,17 +1,17 @@
-import { Deps, type t, Err } from './common.ts';
+import { Deps, Err, type t } from './common.ts';
 
 export function findImport(
-  deps: t.Dep[] | undefined,
+  deps: t.DenoDeps.Dep[] | undefined,
   input: t.StringModuleSpecifier,
 ): t.StringModuleSpecifier | undefined {
   return Deps.findImport(deps, input);
 }
 
-export const toDep: t.DepsLib['toDep'] = (input, options = {}) => {
+export const toDep: t.DenoDeps.Lib['toDep'] = (input, options = {}) => {
   return Deps.toEntry(input, options);
 };
 
-export const toYaml: t.DepsLib['toYaml'] = (deps, options = {}) => {
+export const toYaml: t.DenoDeps.Lib['toYaml'] = (deps, options = {}) => {
   return Deps.toYaml(deps, {
     groupBy: options.groupBy
       ? ({ entry, target, group }) => options.groupBy?.({ dep: entry, target, group })
@@ -19,7 +19,7 @@ export const toYaml: t.DepsLib['toYaml'] = (deps, options = {}) => {
   });
 };
 
-export const from: t.DepsLib['from'] = async (input) => {
+export const from: t.DenoDeps.Lib['from'] = async (input) => {
   const res = await Deps.from(input);
   if (res.error && !res.data) {
     return {

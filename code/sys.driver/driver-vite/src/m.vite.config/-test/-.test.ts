@@ -2,14 +2,16 @@ import { type t, c, describe, expect, it } from '../../-test.ts';
 import { Vite } from '../../mod.ts';
 import { Is } from '../m.Is.ts';
 import { ViteConfig } from '../mod.ts';
-import { toAlias, toAliasRegex } from '../u.alias.ts';
+import { toAlias, toAliasRegex } from '../u/u.alias.ts';
 
 describe('ViteConfig', () => {
   const { brightCyan: cyan, bold } = c;
 
   it('API', () => {
+    const config = { root: '.' };
     expect(Vite.Config).to.equal(ViteConfig);
     expect(ViteConfig.Is).to.equal(Is);
+    expect(ViteConfig.define(config)).to.equal(config);
     expect(ViteConfig.alias).to.equal(toAlias);
   });
 
@@ -68,7 +70,7 @@ describe('ViteConfig', () => {
       });
 
       const test = (
-        registry: t.CodeRegistry,
+        registry: t.ViteConfig.CodeRegistry,
         moduleName: string,
         input: string,
         expected: string,

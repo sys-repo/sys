@@ -1,0 +1,16 @@
+/**
+ * @module
+ * UI for surfacing HTTP Origin/Endpoint url value maps.
+ */
+import type { t } from './common.ts';
+import { Uncontrolled } from './ui.tsx';
+import { Controlled } from './ui.Controlled.tsx';
+import { createController as controller } from './u.controller.ts';
+import { Data } from './m.Data.ts';
+
+/** HTTP origin value-map UI, controller, and data helpers. */
+export const HttpOrigin: t.HttpOrigin.Lib = {
+  Data,
+  controller,
+  UI: { Controlled, Uncontrolled },
+};

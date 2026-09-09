@@ -3,7 +3,7 @@
  * Convenience hooks for loading a document.
  */
 import React from 'react';
-import { type t, Rx, Time } from './common.ts';
+import { Rx, type t, Time } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -16,6 +16,9 @@ const RETRY = {
   DELAY_MAX: 30_000, // ← cap the back-off delay
 } as const;
 
+/**
+ * Load a CRDT document reference, retrying lookup errors with bounded backoff.
+ */
 export const useDoc: t.UseCrdtDoc = <T extends O = O>(
   repo?: t.Crdt.Repo,
   id?: t.StringDocumentId,
@@ -35,7 +38,7 @@ export const useDoc: t.UseCrdtDoc = <T extends O = O>(
 
     const life = Rx.lifecycle();
     const time = Time.until(life);
-    let timer: t.TimeDelayPromise | undefined;
+    let timer: t.Time.Delay.Promise | undefined;
     let attempt = 0;
 
     const fetch = () => {

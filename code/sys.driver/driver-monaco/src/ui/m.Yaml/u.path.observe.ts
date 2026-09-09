@@ -7,7 +7,7 @@ const registry = new Map<t.StringId, Registry>();
 /**
  * Public API: singleton-safe observe.
  */
-export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
+export const observe: t.EditorYaml.Path.Lib['observe'] = (args, until) => {
   const { editor } = args;
   const editorId = editor.getId();
 
@@ -15,7 +15,7 @@ export const observe: t.EditorYamlPathLib['observe'] = (args, until) => {
   const { producer, dispose } = singleton(registry, editorId, () => createProducer(args));
   life.dispose$.pipe(Rx.take(1)).subscribe(dispose);
 
-  return Rx.toLifecycle<t.EditorYamlCursorPathObserver>(life, {
+  return Rx.toLifecycle<t.EditorYaml.Path.Observer>(life, {
     get $() {
       return producer.$.pipe(Rx.takeUntil(life.dispose$));
     },

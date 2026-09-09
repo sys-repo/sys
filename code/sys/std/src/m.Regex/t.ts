@@ -1,13 +1,16 @@
-import type { t } from './common.ts';
-
 /**
- * Helpers for working with regular-expressions.
+ * Regular-expression helper contracts.
  */
-export type RegexLib = {
+export declare namespace Regex {
   /**
-   * Escapes special characters in a string to be used in a regular expression.
-   * @param input The string to escape.
-   * @returns The escaped string.
+   * Helpers for working with regular-expressions.
    */
-  escape(input: string): string;
-};
+  export type Lib = {
+    /**
+     * Escapes special characters in a string to be used in a regular expression.
+     * @param input The string to escape.
+     * @returns The escaped string.
+     */
+    escape(input: string): string;
+  };
+}

@@ -1,25 +1,32 @@
 import type { t } from './common.ts';
-
-export type * from './t.font.config.ts';
+import type * as TConfig from './t.font.config.ts';
 
 /**
- * Tools for working with web-fonts.
+ * Web-font contracts.
  */
-export type WebFontLib = {
+export declare namespace WebFont {
   /**
-   * Injects @font-face rules for the given family into <head> once.
-   * SSR-safe: returns { injected:false } if there is no DOM.
+   * Runtime library surface.
    */
-  inject(dir: t.StringDir, opts: t.WebFontConfig): t.WebFontInjectResult;
+  export type Lib = {
+    /** Injects @font-face rules for the given family into <head> once. */
+    inject(dir: t.StringDir, opts: Config): Inject.Result;
+
+    /** Return a defensive web-font config copy. */
+    def(opts: Config): Config;
+  };
+
+  /** Web-font configuration options. */
+  export type Config = TConfig.Config;
 
   /**
-   *
+   * Web-font injection contracts.
    */
-  def(opts: t.WebFontConfig): t.WebFontConfig;
-};
-
-/** Result from the `WebFont.inject` method */
-export type WebFontInjectResult = {
-  readonly id: string;
-  readonly injected: boolean;
-};
+  export namespace Inject {
+    /** Result from the `WebFont.inject` method. */
+    export type Result = {
+      readonly id: string;
+      readonly injected: boolean;
+    };
+  }
+}

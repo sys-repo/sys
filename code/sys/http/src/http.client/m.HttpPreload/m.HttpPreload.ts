@@ -4,6 +4,6 @@ import { warm } from './u.warm.ts';
 /**
  * Small, pure preloader for warming HTTP cache/network only.
  */
-export const Preload: t.HttpPreloadLib = {
+export const Preload: t.HttpPreload.Lib = Object.freeze({
   warm,
-};
+});

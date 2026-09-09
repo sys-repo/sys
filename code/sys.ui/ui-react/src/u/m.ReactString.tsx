@@ -1,9 +1,8 @@
-import type { ReactStringLib } from './t.ts';
-
 import { Fragment } from 'react';
 import { type t } from './common.ts';
 
-export const ReactString: ReactStringLib = {
+/** React text helpers for preserving line breaks as elements. */
+export const ReactString: t.ReactString.Lib = {
   break(input: string | t.ReactNode) {
     if (typeof input !== 'string') return input;
     return input

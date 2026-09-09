@@ -1,13 +1,21 @@
 import type { t } from './common.ts';
 
 /**
- * Universal (client + server) HTTP namespace.
+ * Universal HTTP contracts.
  */
-export type HttpLib = {
-  readonly Client: t.HttpClientLib;
-  readonly Server: t.HttpServerLib;
-  readonly Pull: t.HttpPullLib;
+export declare namespace Http {
+  /**
+   * Universal HTTP helper library.
+   */
+  export type Lib = {
+    /** Client-side fetch, cache, URL, and preload helpers. */
+    readonly Client: t.HttpClient.Lib;
+    /** Server-side HTTP helpers. */
+    readonly Server: t.HttpServer.Lib;
 
-  /** Factory function that makes a new fetch client. */
-  readonly client: t.HttpFetchLib['make'];
-};
+    /**
+     * Create one bounded Fetch client.
+     */
+    readonly client: t.HttpFetch.Lib['make'];
+  };
+}

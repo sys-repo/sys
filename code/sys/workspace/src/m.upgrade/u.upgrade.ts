@@ -1,4 +1,4 @@
-import { type t, Esm } from './common.ts';
+import { Esm, Obj, type t } from './common.ts';
 import { collectWithSession } from './u.collect.ts';
 import { createSession, Session, type UpgradeSession } from './u.session.ts';
 
@@ -16,7 +16,9 @@ export async function upgradeWithSession(
 ): Promise<t.WorkspaceUpgrade.Result> {
   const collected = await collectWithSession(input, options, session);
   collected.options.progress?.({ kind: 'plan' });
-  const policy = Esm.Policy.decideAll(collected.candidates.map(wrangle.policyInput(collected.options)));
+  const policy = Esm.Policy.decideAll(
+    collected.candidates.map(wrangle.policyInput(collected.options)),
+  );
   const graph = await wrangle.graph(policy, session);
   const topological = Esm.Topological.build({ nodes: graph.nodes, edges: graph.edges });
 
@@ -33,26 +35,33 @@ export async function upgradeWithSession(
 
 const wrangle = {
   policyInput(options: t.WorkspaceUpgrade.ResolvedOptions) {
-    return (candidate: t.WorkspaceUpgrade.Candidate): t.EsmPolicyInput => ({
-      policy: options.policy,
-      subject: {
-        entry: candidate.entry,
-        current: candidate.current,
-        available: candidate.available,
-      },
-    });
+    return (candidate: t.WorkspaceUpgrade.Candidate): t.EsmPolicy.Input => {
+      const selectable = candidate.eligible;
+      return {
+        policy: options.policy,
+        subject: {
+          entry: candidate.entry,
+          current: candidate.current,
+          // Esm.Policy names these `available`; workspace has already reduced visible versions to selectable versions.
+          available: selectable,
+        },
+      };
+    };
   },
 
-  async graph(policy: t.EsmPolicyResult, session: UpgradeSession): Promise<t.WorkspaceUpgrade.Graph> {
+  async graph(
+    policy: t.EsmPolicy.Result,
+    session: UpgradeSession,
+  ): Promise<t.WorkspaceUpgrade.Graph> {
     const nodes = policy.decisions
-      .filter((decision): decision is t.EsmPolicyDecision & { ok: true } => decision.ok)
+      .filter((decision): decision is t.EsmPolicy.Decision & { ok: true } => decision.ok)
       .map((decision) => ({
         key: wrangle.key(decision.input.subject.entry),
         value: decision,
       }));
 
     const nodeKeys = new Set(nodes.map((node) => node.key));
-    const edges = new Map<string, t.EsmTopologicalInput['edges'][number]>();
+    const edges = new Map<string, t.EsmTopological.Decision.Input['edges'][number]>();
     const unresolved: t.WorkspaceUpgrade.GraphUnresolved[] = [];
 
     for (const node of nodes) {
@@ -67,16 +76,21 @@ const wrangle = {
             entry,
             reason: {
               code: 'registry:info',
-              message: res.error?.message ?? `Failed to derive npm graph metadata for ${entry.module.name}`,
+              message: res.error?.message ??
+                `Failed to derive npm graph metadata for ${entry.module.name}`,
             },
           });
           continue;
         }
 
-        for (const depName of Object.keys(res.data.dependencies ?? {}).sort((a, b) => a.localeCompare(b))) {
+        for (
+          const depName of Obj.keys(res.data.dependencies ?? {}).sort((a, b) =>
+            String(a).localeCompare(String(b))
+          )
+        ) {
           const from = `npm:${depName}`;
           if (!nodeKeys.has(from)) continue;
-          const edge: t.EsmTopologicalInput['edges'][number] = { from, to: node.key };
+          const edge: t.EsmTopological.Decision.Input['edges'][number] = { from, to: node.key };
           edges.set(`${edge.from}->${edge.to}`, edge);
         }
         continue;
@@ -89,7 +103,8 @@ const wrangle = {
             entry,
             reason: {
               code: 'registry:info',
-              message: res.error?.message ?? `Failed to derive JSR graph metadata for ${entry.module.name}`,
+              message: res.error?.message ??
+                `Failed to derive JSR graph metadata for ${entry.module.name}`,
             },
           });
           continue;
@@ -109,7 +124,7 @@ const wrangle = {
         for (const specifier of wrangle.jsrDependencies(res.data.graph)) {
           const from = wrangle.specifierKey(specifier);
           if (!from || from === node.key || !nodeKeys.has(from)) continue;
-          const edge: t.EsmTopologicalInput['edges'][number] = { from, to: node.key };
+          const edge: t.EsmTopological.Decision.Input['edges'][number] = { from, to: node.key };
           edges.set(`${edge.from}->${edge.to}`, edge);
         }
         continue;
@@ -129,11 +144,13 @@ const wrangle = {
       edges: [...edges.values()].sort((a, b) =>
         a.from === b.from ? a.to.localeCompare(b.to) : a.from.localeCompare(b.from)
       ),
-      unresolved: unresolved.sort((a, b) => wrangle.key(a.entry).localeCompare(wrangle.key(b.entry))),
+      unresolved: unresolved.sort((a, b) =>
+        wrangle.key(a.entry).localeCompare(wrangle.key(b.entry))
+      ),
     };
   },
 
-  jsrDependencies(graph: t.Registry.Jsr.Fetch.PkgGraph): readonly string[] {
+  jsrDependencies(graph: t.Registry.Jsr.Fetch.Pkg.Graph): readonly string[] {
     const specifiers = new Set<string>();
     for (const module of graph.modules) {
       for (const dep of module.dependencies) {
@@ -171,8 +188,8 @@ const wrangle = {
 
   totals(
     collected: t.WorkspaceUpgrade.CollectResult,
-    policy: t.EsmPolicyResult,
-    topological: t.EsmTopologicalResult,
+    policy: t.EsmPolicy.Result,
+    topological: t.EsmTopological.Decision.Result,
   ): t.WorkspaceUpgrade.SummaryTotals {
     return {
       dependencies: collected.totals.dependencies,

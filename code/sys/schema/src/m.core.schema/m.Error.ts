@@ -1,8 +1,8 @@
-import { type t, Obj, Yaml } from './common.ts';
+import { Obj, type t, Yaml } from './common.ts';
 
 type NodeOrNil = t.Yaml.Node | null | undefined;
 
-export const Error: t.SchemaErrorLib = {
+export const Error: t.SchemaErrorLib = Object.freeze({
   fromSchema(ast, errors) {
     return Array.from(errors).map((e): t.SchemaValidationError => {
       const path = Obj.Path.decode(e.path, { numeric: true });
@@ -28,7 +28,7 @@ export const Error: t.SchemaErrorLib = {
       };
     });
   },
-};
+});
 
 /**
  * Helpers:

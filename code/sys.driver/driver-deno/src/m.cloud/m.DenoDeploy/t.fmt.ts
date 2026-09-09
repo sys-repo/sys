@@ -1,4 +1,4 @@
-import type { CliSpinner } from '@sys/cli/types';
+import type { Cli } from '@sys/cli/t';
 
 import type { t } from './common.ts';
 import type * as d from './t.deploy.ts';
@@ -61,7 +61,7 @@ export type SpinnerLib = {
   text(text: string): string;
 
   /** Create a styled spinner for staged deploy progress. */
-  create(text: string): CliSpinner.Instance;
+  create(text: string): Cli.Spinner.Instance;
 };
 
 /**

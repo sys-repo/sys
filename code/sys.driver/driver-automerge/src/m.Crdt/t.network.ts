@@ -1,11 +1,5 @@
-import type { t } from './common.ts';
+/** A string representing a WebSocket network endpoint. */
+export type WebsocketEndpoint = string;
 
-/**
- * A string representing a "wss://" network endpoint.
- */
-export type StringWebsocketEndpoint = string;
-
-/**
- * Represents the configuration for a sync-server running over websockets.
- */
-export type CrdtWebsocketNetworkArg = { ws: t.StringWebsocketEndpoint };
+/** Configuration for a sync-server running over WebSocket. */
+export type WebsocketArg = { ws: WebsocketEndpoint };

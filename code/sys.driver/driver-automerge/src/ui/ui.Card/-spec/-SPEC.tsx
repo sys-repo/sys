@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 
 import { D, DocumentId } from '../common.ts';
 import { Card } from '../mod.ts';
@@ -19,7 +19,7 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

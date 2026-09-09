@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Utilities for determining relationships between object-paths.
  */
-export const Rel: t.ObjPathRelLib = {
+export const Rel: t.Obj.Path.Rel.Lib = Object.freeze({
   relate(a, b) {
     const A = normalize(a);
     const B = normalize(b);
@@ -19,7 +19,7 @@ export const Rel: t.ObjPathRelLib = {
   overlaps(a, b) {
     return this.relate(a, b) !== 'disjoint';
   },
-};
+});
 
 /**
  * Helpers:

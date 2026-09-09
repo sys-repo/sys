@@ -5,34 +5,36 @@
 import { BrowserWebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { NodeFSStorageAdapter } from '@automerge/automerge-repo-storage-nodefs';
 import {
-  type t,
   Arr,
   AutomergeRepo,
   CrdtCmd,
   CrdtGraph,
   CrdtId,
   CrdtIs,
+  CrdtStr,
   CrdtUrl,
   CrdtWorker,
   createPeerId,
   Is,
+  type t,
   toObject,
   toRepo,
   whenReady,
-  CrdtStr,
 } from './common.ts';
 
-type Args = t.CrdtFsRepoArgs;
+type Args = t.CrdtFs.RepoArgs;
 
 /**
  * Exports:
  */
-export { A, toAutomergeHandle, toAutomergeRepo } from './common.ts';
+/** Automerge core runtime namespace. */
+export { A } from './common.ts';
+export { toAutomergeHandle, toAutomergeRepo } from './common.ts';
 
 /**
  * Library:
  */
-export const Crdt: t.CrdtFilesystemLib = {
+export const Crdt: t.CrdtFs.Lib = {
   kind: 'crdt:fs',
   repo(input) {
     const args = wrangle.dir(input);
@@ -82,7 +84,7 @@ const wrangle = {
       .filter(Boolean) as t.NetworkAdapterInterface[];
   },
 
-  adapter(arg?: t.CrdtFsNetworkArgInput) {
+  adapter(arg?: t.CrdtFs.Network.Input) {
     if (Is.string(arg)) return wrangle.ws(arg);
     if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
     return arg as t.NetworkAdapterInterface | undefined;

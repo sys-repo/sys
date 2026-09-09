@@ -23,7 +23,7 @@ const NULL_RANGE: t.Monaco.I.IRange = {
   endColumn: -1,
 };
 
-export const Severity: t.DiagnosticSeverityConst = {
+export const Severity: t.EditorError.Diagnostic.SeverityConst = {
   Hint: 1,
   Info: 2,
   Warning: 4,

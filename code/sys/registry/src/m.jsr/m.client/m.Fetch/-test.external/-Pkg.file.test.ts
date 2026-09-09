@@ -1,14 +1,4 @@
-import {
-  type t,
-  describe,
-  expect,
-  Hash,
-  it,
-  Rx,
-  SAMPLE,
-  slug,
-  Testing,
-} from '../../../-test.ts';
+import { describe, expect, Hash, it, Rx, SAMPLE, slug, type t, Testing } from '../../../-test.ts';
 import { assertFetchDisposed } from '../-u.ts';
 import { JsrUrl } from '../common.ts';
 import { Fetch } from '../mod.ts';
@@ -17,13 +7,13 @@ import { Fmt } from './u.fmt.ts';
 describe('Jsr.Fetch.Pkg.file (external)', () => {
   const { name, version } = SAMPLE.pkg;
 
-  const print = (res: t.JsrFetch.PkgFileResponse, checksum: t.StringHash) => {
+  const print = (res: t.JsrFetch.Pkg.FileResponse, checksum: t.StringHash) => {
     const hx = Hash.sha256(res.data);
     Fmt.printExternalTable(
       'Jsr.Fetch.Pkg.file',
       [
         { label: 'status', value: String(res.status) },
-        { label: 'url', value: res.url },
+        { label: 'url', value: res.ok ? res.finalUrl : res.url },
         { label: 'hash (manifest)', value: checksum },
         { label: 'hash (pulled)', value: hx },
       ],
@@ -40,7 +30,7 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
 
       expect(res.status).to.eql(200);
       expect(res.error).to.eql(undefined);
-      expect(res.url).to.eql(JsrUrl.Pkg.file(name, version, path));
+      expect(res.ok ? res.finalUrl : res.url).to.eql(JsrUrl.Pkg.file(name, version, path));
       expect(hx).to.eql(SAMPLE.def[path].checksum);
       expectText.forEach((text) => {
         expect(res.data).to.include(text);
@@ -80,19 +70,19 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
     });
 
     describe('checksum', () => {
-      const assertSuccess = (res: t.FetchResponse<unknown>) => {
+      const assertSuccess = (res: t.HttpFetch.Response<unknown>) => {
         expect(res.ok).to.eql(true);
         expect(res.status).to.eql(200);
         expect(res.error).to.eql(undefined);
       };
 
-      const assertChecksumFail = (res: t.FetchResponse<unknown>) => {
+      const assertChecksumFail = (res: t.HttpFetch.Response<unknown>) => {
         const error = res.error?.cause;
         expect(res.ok).to.eql(false);
         expect(res.status).to.eql(412);
         expect(error?.message).to.include(`412: Pre-condition failed (checksum-mismatch)`);
         expect(error?.message).to.include(`does not match the expected checksum:`);
-        expect(error?.message).to.include(res.checksum?.actual);
+        expect(error?.message).to.include(res.checksum?.received);
         expect(error?.message).to.include(res.checksum?.expected);
       };
 
@@ -113,7 +103,7 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
         print(resB, 'sha256-FAIL');
 
         expect(resA.checksum).to.eql(undefined);
-        expect(resC.checksum).to.eql({ valid: true, expected: checksum, actual: checksum });
+        expect(resC.checksum).to.eql({ valid: true, expected: checksum, received: checksum });
       });
     });
   });
@@ -121,18 +111,18 @@ describe('Jsr.Fetch.Pkg.file (external)', () => {
   describe('dispose ← (cancel fetch operation)', () => {
     const path = '/src/pkg.ts';
 
-    it('dispose$: param on fetcher constructor', async () => {
-      const { dispose, dispose$ } = Rx.disposable();
-      const file = Fetch.Pkg.file(name, version, { dispose$ });
+    it('until param on fetcher constructor', async () => {
+      const { dispose, dispose$ } = Rx.lifecycle();
+      const file = Fetch.Pkg.file(name, version, { until: dispose$ });
       const promise = file.text(path);
       dispose();
       assertFetchDisposed(await promise);
     });
 
-    it('dispose$: param on path fetch request', async () => {
-      const { dispose, dispose$ } = Rx.disposable();
+    it('until param on path fetch request', async () => {
+      const { dispose, dispose$ } = Rx.lifecycle();
       const file = Fetch.Pkg.file(name, version);
-      const promise = file.text(path, { dispose$ });
+      const promise = file.text(path, { until: dispose$ });
       dispose();
       assertFetchDisposed(await promise);
     });

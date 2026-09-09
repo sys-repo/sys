@@ -1,3 +1,4 @@
+export type * from './t.file.ts';
 export type * from './t.init.ts';
 export type * from './t.lib.ts';
 export type * from './t.probe.ts';

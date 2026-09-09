@@ -26,7 +26,7 @@ export const PaymentElement: t.FC<t.PaymentElement.Props> = (props) => {
   const message = state.error
     ? state.error.message
     : missing
-      ? 'Stripe PaymentElement not configured (missing publishableKey/clientSecret).'
+      ? 'Stripe PaymentElement waiting for runtime payment session.'
       : undefined;
 
   const elMessage = message && (

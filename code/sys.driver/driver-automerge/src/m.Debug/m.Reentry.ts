@@ -6,7 +6,7 @@ const labelsStack: string[] = [];
 /**
  * Re-entrancy sentinel.
  */
-export const Reentry: t.DebugReentryLib = {
+export const Reentry: t.Debug.Reentry.Lib = {
   enter<T>(label: string, fn: () => T): T {
     depth++;
     labelsStack.push(label);
@@ -23,4 +23,4 @@ export const Reentry: t.DebugReentryLib = {
   labels(): readonly string[] {
     return labelsStack.slice();
   },
-} satisfies t.DebugReentryLib;
+} satisfies t.Debug.Reentry.Lib;

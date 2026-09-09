@@ -1,11 +1,11 @@
 import type { t } from './common.ts';
 
-type ToStringOptions = { pad?: boolean };
+type ToStringOptions = { pad?: boolean; width?: number };
 
 /**
  * Vite/Deno workspace helpers.
  */
-export type ViteDenoWorkspace = t.DenoWorkspace & {
+export type ViteDenoWorkspace = t.DenoFile.Workspace.Info & {
   /** If defined, indicates the workspace could not be resolved. */
   readonly error?: string;
 
@@ -31,6 +31,7 @@ export type ViteDenoWorkspace = t.DenoWorkspace & {
  * Filter a workspace of modules.
  */
 export type WorkspaceFilter = (e: t.WorkspaceFilterArgs) => boolean;
+/** Workspace export details passed to a module filter. */
 export type WorkspaceFilterArgs = {
   pkg: string;
   export: string;

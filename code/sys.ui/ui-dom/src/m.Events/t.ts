@@ -1,12 +1,12 @@
-import type { t } from './common.ts';
 export type * from './t.dom.ts';
 
 /**
- * Tools for interacting with.
+ * User interaction state contracts.
  */
-export type UserHasLib = {
-  /**
-   *
-   */
-  interacted: boolean;
-};
+export declare namespace UserHas {
+  /** User interaction state surface. */
+  export type Lib = {
+    /** Whether the user has interacted with the current window. */
+    readonly interacted: boolean;
+  };
+}

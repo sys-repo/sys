@@ -1,10 +1,36 @@
-import { NetworkAdapter, type Message, type PeerId, type PeerMetadata } from '@automerge/automerge-repo';
-import { type t, AutomergeRepo, describe, expect, it, Rx, Time } from '../../-test.ts';
+import {
+  type Message,
+  NetworkAdapter,
+  type PeerId,
+  type PeerMetadata,
+} from '@automerge/automerge-repo';
+import {
+  afterAll,
+  AutomergeRepo,
+  describe,
+  expect,
+  it,
+  repoCleanup,
+  Rx,
+  type t,
+  Time,
+} from '../../-test.ts';
 
-import { Crdt } from '../../m.server/common.ts';
-import { toAutomergeRepo, toRepo } from '../mod.ts';
+import { Crdt as BaseCrdt } from '../../m.server/common.ts';
+import { toAutomergeRepo, toRepo as createRepo } from '../mod.ts';
 
-describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
+const Repos = repoCleanup(afterAll);
+const toRepo =
+  ((...args: Parameters<typeof createRepo>) =>
+    Repos.crdt(createRepo(...args))) as typeof createRepo;
+const Crdt = {
+  ...BaseCrdt,
+  repo:
+    ((...args: Parameters<typeof BaseCrdt.repo>) =>
+      Repos.crdt(BaseCrdt.repo(...args))) as typeof BaseCrdt.repo,
+};
+
+describe('CrdtRepo', () => {
   type T = { count: number };
 
   class TestNetworkAdapter extends NetworkAdapter {
@@ -56,6 +82,22 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       if (error) throw error;
       expect(doc.current).to.eql(initial);
       expect(doc.current).to.not.equal(initial);
+    });
+
+    it('create converts a seed throw into a rejected promise', async () => {
+      const repo = toRepo(new AutomergeRepo());
+      const failure = new Error('SYS:CRDT:CREATE:FAIL');
+      const result = repo.create<T>(() => {
+        throw failure;
+      });
+
+      let caught: unknown;
+      try {
+        await result;
+      } catch (error) {
+        caught = error;
+      }
+      expect(caught).to.equal(failure);
     });
 
     it('creates with { peerId }', () => {
@@ -341,16 +383,16 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('errors', () => {
     it('control: ensure monkey-patching is non-destructive', () => {
-      const a = new AutomergeRepo();
-      const b = new AutomergeRepo();
+      const a = Repos.automerge(new AutomergeRepo());
+      const b = Repos.automerge(new AutomergeRepo());
       (a as any).find = 0;
       expect(a.find).to.not.equal(b.find);
       expect(typeof b.find === 'function').to.be.true;
     });
 
-    it('error: NotFound', async () => {
+    it('error: NotFound cancels the pending timeout', async () => {
       const repo = toRepo(new AutomergeRepo());
-      const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
+      const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y', { timeout: 50_000 });
       expect(res.ok).to.eql(false);
       expect(res.doc).to.eql(undefined);
       expect(res.error?.kind === 'NotFound').to.be.true;
@@ -360,16 +402,22 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
     it('error: Timeout', async () => {
       const base = new AutomergeRepo();
       const repo = toRepo(base);
+      const pending = Time.delay(50_000);
 
-      (base as any).find = async () => Time.wait(50_000);
+      try {
+        (base as any).find = async () => pending;
 
-      const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y', { timeout: 5 });
-      expect(res.ok).to.eql(false);
-      expect(res.error?.kind === 'Timeout').to.be.true;
-      expect(res.error?.message).to.include('Timed out retrieving document');
+        const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y', { timeout: 5 });
+        expect(res.ok).to.eql(false);
+        expect(res.error?.kind === 'Timeout').to.be.true;
+        expect(res.error?.message).to.include('Timed out retrieving document');
+      } finally {
+        pending.cancel();
+        await pending;
+      }
     });
 
-    it('error: UNKNOWN - bork the repo', async () => {
+    it('error: UNKNOWN cancels the pending timeout', async () => {
       const base = new AutomergeRepo();
       const error = '💥 test explosion';
 
@@ -378,7 +426,7 @@ describe('CrdtRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
       };
 
       const repo = toRepo(base);
-      const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y');
+      const res = await repo.get('Juwryn74i3Aia5Kb529XUm3hU4Y', { timeout: 50_000 });
 
       expect(res.ok).to.eql(false);
       expect(res.error?.message).to.eql(error);

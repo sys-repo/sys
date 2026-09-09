@@ -16,35 +16,44 @@ describe('ViteConfig.app', () => {
       .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
       .flatMap((entry) => pluginName(entry));
 
-    expect(names).to.eql(['sys:optimize-imports', 'user:plugin']);
+    expect(names).to.eql([
+      'sys:dispose-protocol-compat',
+      'sys:optimize-imports',
+      'user:plugin',
+      'sys:oxc-preflight',
+    ]);
 
-    const optimize = firstPlugin(plugins[0]);
+    const optimize = plugins.flatMap((entry) => Array.isArray(entry) ? entry : [entry])
+      .find((entry) => pluginName(entry)[0] === 'sys:optimize-imports');
     expect(pluginName(optimize)[0]).to.eql(OptimizeImportsPlugin.plugin().name);
     expect(pluginEnforce(optimize)).to.eql('pre');
   });
 
-  it('applies derived optimize-imports to the published ui-components sample entry', async () => {
+  it('keeps the published ui-components sample entry already narrow', async () => {
     const config = await ViteConfig.app({
       plugins: { deno: false, react: false, wasm: false },
     });
-    const source = (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
-    const optimize = firstPlugin(config.plugins?.[0]);
+    const source =
+      (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
+    const optimize = (config.plugins ?? [])
+      .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
+      .find((entry) => pluginName(entry)[0] === 'sys:optimize-imports');
     const transform = asTransform(pluginTransform(optimize));
     const result = await transform(source, '/tmp/main.tsx');
 
-    expect(Is.object(result)).to.eql(true);
-    if (!result || typeof result === 'string') throw new Error('Expected transform result object');
-    expect(result.code.includes('ui-react-devharness/hooks')).to.eql(true);
-    expect(result.code.includes('ui-react-components/button')).to.eql(true);
-    expect(result.code.includes(`from '@sys/ui-react-devharness'`)).to.eql(false);
-    expect(result.code.includes(`from "@sys/ui-react-devharness"`)).to.eql(false);
+    expect(result).to.eql(null);
+    expect(source.includes('ui-dev/react/devharness/hooks')).to.eql(true);
+    expect(source.includes('ui-components/react/button')).to.eql(true);
+    expect(source.includes(`from '@sys/ui-dev';`)).to.eql(false);
+    expect(source.includes(`from "@sys/ui-dev";`)).to.eql(false);
   });
 
   it('can disable optimize-imports for on/off proofing', async () => {
     const config = await ViteConfig.app({
       plugins: { deno: false, react: false, wasm: false, optimizeImports: false },
     });
-    const source = (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
+    const source =
+      (await Fs.readText(`${SAMPLE.Dirs.samplePublishedUiComponents}/main.tsx`)).data ?? '';
     const plugins = config.plugins ?? [];
     const names = plugins
       .flatMap((entry) => Array.isArray(entry) ? entry : [entry])
@@ -54,14 +63,10 @@ describe('ViteConfig.app', () => {
 
     expect(names.includes('sys:optimize-imports')).to.eql(false);
     expect(optimize).to.eql(undefined);
-    expect(source.includes(`from '@sys/ui-react-components/button'`)).to.eql(true);
-    expect(source.includes(`from '@sys/ui-react-devharness'`)).to.eql(true);
+    expect(source.includes(`from '@sys/ui-components/react/button'`)).to.eql(true);
+    expect(source.includes(`from '@sys/ui-dev/react/devharness/hooks'`)).to.eql(true);
   });
 });
-
-function firstPlugin(input: unknown) {
-  return Array.isArray(input) ? input[0] : input;
-}
 
 function pluginName(input: unknown) {
   if (!Is.record<Record<string, unknown>>(input)) return [];
@@ -81,9 +86,8 @@ function pluginTransform(input: unknown) {
 }
 
 function asTransform(transform: unknown) {
-  if (!transform) throw new Error('Expected transform hook');
-  if (typeof transform === 'function') return transform;
-  if (Is.record<Record<string, unknown>>(transform) && typeof transform.handler === 'function') {
+  if (Is.func(transform)) return transform;
+  if (Is.record<Record<string, unknown>>(transform) && Is.func(transform.handler)) {
     return transform.handler;
   }
   throw new Error('Expected callable transform hook');

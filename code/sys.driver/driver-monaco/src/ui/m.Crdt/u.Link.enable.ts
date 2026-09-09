@@ -2,7 +2,7 @@ import { type t, Is, Rx } from './common.ts';
 import { create } from './u.Link.create.ts';
 import { register } from './u.Link.register.ts';
 
-export const enable: t.EditorCrdtLinkEnable = async (ctx, repo, opts) => {
+export const enable: t.EditorCrdt.Link.Enable = async (ctx, repo, opts) => {
   const options = wrangle.options(opts);
   const life = Rx.lifecycle(options.until);
   const sub = await register(ctx, async (ev) => {
@@ -20,7 +20,7 @@ export const enable: t.EditorCrdtLinkEnable = async (ctx, repo, opts) => {
  * Helpers:
  */
 const wrangle = {
-  options(input: Parameters<t.EditorCrdtLinkEnable>[2]): t.EditorCrdtLinkEnableOptions {
+  options(input: Parameters<t.EditorCrdt.Link.Enable>[2]): t.EditorCrdt.Link.EnableOptions {
     if (!input) return {};
     if (Is.until(input)) return { until: input };
     if (Is.record(input)) return input;

@@ -20,6 +20,11 @@ const toClientUrl = (input: string): string => {
 };
 
 describe('Testing.HttpServer', () => {
+  it('public surface excludes DomMock', async () => {
+    const m = await import('@sys/std/testing/server');
+    expect('DomMock' in m).to.eql(false);
+  });
+
   it('create: listen → dispose (close)', async () => {
     const server = Testing.Http.server();
     expect(server.disposed).to.eql(false);

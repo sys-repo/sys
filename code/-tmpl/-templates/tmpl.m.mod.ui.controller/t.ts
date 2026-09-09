@@ -18,7 +18,7 @@ export declare namespace MyCtrl {
   export type Props = {
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 
   /**
@@ -27,7 +27,7 @@ export declare namespace MyCtrl {
   export type ControlledProps = {
     debug?: t.Signal<boolean | undefined>;
     theme?: t.Signal<t.CommonTheme | undefined>;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 
   /**

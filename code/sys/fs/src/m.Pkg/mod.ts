@@ -1,12 +1,11 @@
 /**
  * @module
- * Tools for working with the standard system `{pkg}` package
- * meta-data structure with file-system extensions
+ * Filesystem tools for package metadata and distribution integrity.
  *
  * @example
  * ```ts
- * import { Pkg, Dist } from '@sys/fs/pkg';
+ * import { Dist, Pkg } from '@sys/fs/pkg';
  * ```
  */
-export { Dist } from './m.Pkg.Dist.ts';
+export { Dist } from '../m.Pkg.Dist/mod.ts';
 export { Pkg } from './m.Pkg.ts';

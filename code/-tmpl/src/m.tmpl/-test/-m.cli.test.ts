@@ -1,5 +1,5 @@
-import { describe, expect, expectError, Fs, it } from '../../-test.ts';
-import { makeWorkspace } from '../../-tests/u.ts';
+import { describe, expect, Fs, it } from '../../-test.ts';
+import { makeWorkspace, makeWorkspaceWithPkg } from '../../-tests/u.ts';
 import { cli } from '../m.cli.ts';
 import { parseArgs } from '../u.args.ts';
 import { Prompt } from '../u.prompt.ts';
@@ -78,31 +78,118 @@ describe('m.tmpl/m.cli', () => {
     const output = lines.join('\n');
     expect(output.includes('commit msg:')).to.eql(true);
     expect(
-      output.includes(
-        'chore(tmpl:pkg): scaffold code/ns/agent-driven for @my-scope/agent-driven (38 files)',
-      ),
+      output.includes('chore(tmpl:pkg): scaffold code/ns/agent-driven for @my-scope/agent-driven'),
     ).to.eql(true);
+  });
+
+  it('non-interactive pkg.help targets an existing package without force', async () => {
+    const test = await makeWorkspaceWithPkg('ns', 'helped', '@my-scope/helped');
+    const lines: string[] = [];
+    const info = console.info;
+
+    try {
+      console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));
+      await cli(
+        test.root,
+        parseArgs(['pkg.help', '--dir', 'code/ns/helped', '--non-interactive']),
+      );
+    } finally {
+      console.info = info;
+    }
+
+    expect(await Fs.exists(Fs.join(test.pkgDir, 'src/m.help/mod.ts'))).to.eql(true);
+    const output = lines.join('\n');
+    expect(output.includes('commit msg:')).to.eql(true);
+    expect(output.includes('docs(tmpl:pkg.help): add help resources to code/ns/helped')).to.eql(true);
+  });
+
+  it('non-interactive pkg.help rejects template-specific name flags before writing', async () => {
+    const test = await makeWorkspaceWithPkg('ns', 'helped', '@my-scope/helped');
+    const message = await errorText(() =>
+      cli(
+        test.root,
+        parseArgs([
+          'pkg.help',
+          '--dir',
+          'code/ns/helped',
+          '--pkgName',
+          '@my-scope/helped',
+          '--non-interactive',
+        ]),
+      )
+    );
+
+    expect(message).to.contain('Template "pkg.help" does not accept --pkgName.');
+    expect(message).to.contain('hint: deno run -ERW jsr:@sys/tmpl dsl pkg.help');
+    expect(await Fs.exists(Fs.join(test.pkgDir, 'src/m.help'))).to.eql(false);
+  });
+
+  it('non-interactive pkg.help preflights package shape before writing', async () => {
+    const test = await makeWorkspace();
+    const relTarget = 'code/ns/not-a-sys-pkg';
+    const target = Fs.join(test.root, relTarget);
+    await Fs.ensureDir(target);
+    await Fs.writeJson(Fs.join(target, 'deno.json'), {
+      name: '@my-scope/not-a-sys-pkg',
+      version: '0.0.0',
+    });
+
+    const message = await errorText(() =>
+      cli(test.root, parseArgs(['pkg.help', '--dir', relTarget, '--non-interactive']))
+    );
+
+    expect(message).to.contain('target must be an existing sys package root');
+    expect(message).to.contain('runtime common surface');
+    expect(message).to.contain('type surface');
+    expect(await Fs.exists(Fs.join(target, 'src/m.help'))).to.eql(false);
+  });
+
+  it('non-interactive pkg.help requires --force before replacing an existing help spine', async () => {
+    const test = await makeWorkspaceWithPkg('ns', 'helped', '@my-scope/helped');
+    await cli(
+      test.root,
+      parseArgs(['pkg.help', '--dir', 'code/ns/helped', '--non-interactive']),
+    );
+
+    const message = await errorText(() =>
+      cli(
+        test.root,
+        parseArgs(['pkg.help', '--dir', 'code/ns/helped', '--non-interactive']),
+      )
+    );
+
+    expect(message).to.contain('help resources already exist');
+    expect(message).to.contain('Use --force only after approving overwrite');
   });
 
   it('non-interactive fails when --dir missing', async () => {
     const test = await makeWorkspace();
-    await expectError(
-      () => cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--non-interactive'])),
-      'Missing required flag: --dir',
+    const message = await errorText(() =>
+      cli(test.root, parseArgs(['pkg', '--pkgName', '@my-scope/foo', '--non-interactive']))
     );
+
+    expect(message).to.contain('Missing required flag: --dir');
+    expect(message).to.contain('hint: deno run -ERW jsr:@sys/tmpl dsl pkg');
   });
 
   it('non-interactive fails when required template params are missing', async () => {
     const test = await makeWorkspace();
-    await expectError(
-      () => cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--non-interactive'])),
-      'requires --pkgName',
+    const pkgMessage = await errorText(() =>
+      cli(test.root, parseArgs(['pkg', '--dir', 'code/ns/foo', '--non-interactive']))
     );
 
-    await expectError(
-      () => cli(test.root, parseArgs(['m.mod.ui', '--dir', 'code/ns/foo/src/ui/Button', '--non-interactive'])),
-      'requires --name',
+    expect(pkgMessage).to.contain('requires --pkgName');
+    expect(pkgMessage).to.contain('hint: deno run -ERW jsr:@sys/tmpl dsl pkg');
+
+    const uiMessage = await errorText(() =>
+      cli(
+        test.root,
+        parseArgs(['m.mod.ui', '--dir', 'code/ns/foo/src/ui/Button', '--non-interactive']),
+      )
     );
+
+    expect(uiMessage).to.contain('requires --name');
+    expect(uiMessage).to.contain('hint: deno run -ERW jsr:@sys/tmpl dsl m.mod.ui');
   });
 
   it('non-interactive repo dry-run does not execute setup side effects', async () => {
@@ -174,3 +261,13 @@ describe('m.tmpl/m.cli', () => {
     expect(await Fs.exists(Fs.join(target, 'src', 'mod.ts'))).to.eql(true);
   });
 });
+
+async function errorText(fn: () => Promise<unknown>): Promise<string> {
+  try {
+    await fn();
+  } catch (error) {
+    return error instanceof Error ? error.message : String(error);
+  }
+
+  throw new Error('Expected function to throw.');
+}

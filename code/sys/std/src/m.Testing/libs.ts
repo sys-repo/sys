@@ -1,2 +1,2 @@
-export { afterAll, afterEach, beforeAll, beforeEach, describe, it } from '@std/testing/bdd';
+export { afterAll, afterEach, beforeAll, beforeEach, describe, it } from '@sys/types/testing';
 export { expect } from 'chai';

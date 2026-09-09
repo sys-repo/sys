@@ -1,138 +1,153 @@
-import { Octokit } from '@octokit/rest';
-import { type t, Env, Is } from '../common.ts';
+import { Env, Fetch, Json, type t } from './common.ts';
 
-type OctokitLike = {
-  readonly rest: {
-    readonly repos: {
-      listReleases(args: { owner: string; repo: string; per_page?: number }): Promise<{
-        data: Array<{
-          tag_name: string;
-          draft?: boolean;
-          prerelease?: boolean;
-          assets: Array<{ id: number; name: string; browser_download_url: string }>;
-        }>;
-      }>;
-      getReleaseAsset(args: {
-        owner: string;
-        repo: string;
-        asset_id: number;
-        headers?: { accept?: string };
-      }): Promise<{ data: unknown }>;
-    };
-  };
-};
+const API_ORIGIN = 'https://api.github.com' as t.StringUrl;
+const SOURCE_ORIGINS = [
+  API_ORIGIN,
+  'https://objects.githubusercontent.com',
+  'https://release-assets.githubusercontent.com',
+  'https://raw.githubusercontent.com',
+] as const satisfies readonly t.StringUrl[];
+
+const RepoNamePattern = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 
 export type GithubRepoRef = {
   readonly owner: string;
   readonly repo: string;
 };
 
+export type GithubClientFailure = {
+  readonly ok: false;
+  readonly kind: 'source-failure' | 'limit-exceeded' | 'cancelled';
+  readonly error: string;
+};
+
+export type GithubClientResult<T> = { readonly ok: true; readonly data: T } | GithubClientFailure;
+
+export type GithubClient = {
+  readonly metadata: (path: string) => Promise<GithubClientResult<unknown>>;
+  readonly download: (
+    path: string,
+    accept: string,
+    maxBytes: t.NumberBytes,
+  ) => Promise<GithubClientResult<Uint8Array>>;
+};
+
 export function parseGithubRepo(value: string): GithubRepoRef {
-  const raw = value.trim();
-  const parts = raw.split('/');
-  if (parts.length !== 2 || !parts[0] || !parts[1]) {
+  const raw = value;
+  const [owner, repo] = raw.split('/') as [string, string];
+  if (
+    !RepoNamePattern.test(raw) ||
+    owner === '.' ||
+    owner === '..' ||
+    repo === '.' ||
+    repo === '..'
+  ) {
     throw new Error(`Invalid GitHub repository format: "${value}" (expected "owner/repo")`);
   }
-  return { owner: parts[0], repo: parts[1] };
+  return { owner, repo };
 }
 
-export async function loadGithubToken(): Promise<string | undefined> {
-  const env = await Env.load({ search: 'upward' });
+export async function loadGithubToken(
+  args: { cwd?: t.StringDir } = {},
+): Promise<string | undefined> {
+  const env = await Env.load({ cwd: args.cwd, search: 'upward' });
   const token = env.get('GH_TOKEN') || env.get('GITHUB_TOKEN');
   return token.trim() || undefined;
 }
 
-export async function listGithubReleases(args: {
-  repo: string;
-  token?: string;
-}): Promise<readonly t.PullTool.GithubRelease[]> {
-  const { repo, token } = args;
-  const repoRef = parseGithubRepo(repo);
-  const octokit = await createOctokit(token);
-  const res = await octokit.rest.repos.listReleases({
-    owner: repoRef.owner,
-    repo: repoRef.repo,
-    per_page: 100,
-  });
+export function createGithubClient(args: {
+  readonly limits: t.GithubPull.Limits;
+  readonly token?: string;
+  readonly until: AbortSignal;
+}): GithubClient {
+  const { limits, until } = args;
+  const token = args.token?.trim();
+  let metadataBytes = 0;
 
-  return res.data.map((item) => ({
-    tag: item.tag_name,
-    draft: item.draft,
-    prerelease: item.prerelease,
-    assets: item.assets.map((asset) => ({
-      id: asset.id,
-      name: asset.name,
-      downloadUrl: asset.browser_download_url as t.StringUrl,
-    })),
-  }));
-}
+  const invoke = async (
+    path: string,
+    accept: string,
+    maxBytes: number,
+  ): Promise<GithubClientResult<Blob>> => {
+    const url = apiUrl(path);
+    const headers = new Headers({
+      accept,
+      'x-github-api-version': '2022-11-28',
+    });
+    if (token) headers.set('authorization', `Bearer ${token}`);
 
-export async function downloadGithubAsset(args: {
-  url: t.StringUrl;
-  token?: string;
-}): Promise<Uint8Array> {
-  const headers = new Headers();
-  if (Is.str(args.token) && args.token.trim()) {
-    headers.set('Authorization', `Bearer ${args.token.trim()}`);
-  }
-  headers.set('Accept', 'application/octet-stream');
+    const fetch = Fetch.make({
+      policy: {
+        maxBytes,
+        timeout: limits.totalTime,
+        maxRedirects: 5,
+        progressInterval: 250,
+        sourceOrigins: SOURCE_ORIGINS,
+        credentialOrigins: [API_ORIGIN],
+      },
+      until,
+    });
 
-  const res = await fetch(args.url, { headers });
-  if (!res.ok) {
-    throw new Error(`GitHub asset download failed (${res.status} ${res.statusText})`);
-  }
-
-  const bytes = new Uint8Array(await res.arrayBuffer());
-  if (!bytes.byteLength) {
-    throw new Error('GitHub asset download returned empty content.');
-  }
-  return bytes;
-}
-
-export async function downloadGithubAssetById(args: {
-  repo: string;
-  assetId: number;
-  token?: string;
-}): Promise<Uint8Array> {
-  const { repo, assetId, token } = args;
-  const repoRef = parseGithubRepo(repo);
-  const octokit = await createOctokit(token);
-  const res = await octokit.rest.repos.getReleaseAsset({
-    owner: repoRef.owner,
-    repo: repoRef.repo,
-    asset_id: assetId,
-    headers: { accept: 'application/octet-stream' },
-  });
-
-  return await bytesFromUnknown(res.data);
-}
-
-async function bytesFromUnknown(input: unknown): Promise<Uint8Array> {
-  if (input instanceof Uint8Array) return input;
-  if (input instanceof ArrayBuffer) return new Uint8Array(input);
-  if (typeof input === 'string') return bytesFromBinaryString(input);
-  if (input instanceof Blob) return new Uint8Array(await input.arrayBuffer());
-
-  if (input && typeof input === 'object') {
-    const maybe = input as { arrayBuffer?: unknown };
-    if (typeof maybe.arrayBuffer === 'function') {
-      const arrayBuffer = await (maybe as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer();
-      return new Uint8Array(arrayBuffer);
+    try {
+      const response = await fetch.blob(url, { headers });
+      if (!response.ok) return fromFetchFailure(response);
+      return { ok: true, data: response.data };
+    } finally {
+      fetch.dispose('github-pull.request.complete');
     }
-  }
+  };
 
-  throw new Error('GitHub release asset API returned unsupported binary payload.');
+  return {
+    async metadata(path) {
+      const remaining = limits.metadataBytes - metadataBytes;
+      if (remaining <= 0) return limitFailure();
+
+      const response = await invoke(path, 'application/vnd.github+json', remaining);
+      if (!response.ok) return response;
+      metadataBytes += response.data.size;
+
+      try {
+        const text = await response.data.text();
+        if (until.aborted) return cancelledFailure();
+        return { ok: true, data: Json.parse<unknown>(text) };
+      } catch {
+        return { ok: false, kind: 'source-failure', error: 'GitHub metadata is malformed.' };
+      }
+    },
+
+    async download(path, accept, maxBytes) {
+      const response = await invoke(path, accept, Math.min(limits.fileBytes, maxBytes));
+      if (!response.ok) return response;
+      const data = new Uint8Array(await response.data.arrayBuffer());
+      if (until.aborted) return cancelledFailure();
+      return { ok: true, data };
+    },
+  };
 }
 
-function bytesFromBinaryString(input: string): Uint8Array {
-  const bytes = new Uint8Array(input.length);
-  for (let i = 0; i < input.length; i++) {
-    bytes[i] = input.charCodeAt(i) & 0xff;
-  }
-  return bytes;
+function apiUrl(path: string): t.StringUrl {
+  return `${API_ORIGIN}${path.startsWith('/') ? path : `/${path}`}` as t.StringUrl;
 }
 
-async function createOctokit(token?: string): Promise<OctokitLike> {
-  const OctokitCtor = Octokit as new (args?: { auth?: string }) => OctokitLike;
-  return new OctokitCtor({ auth: token });
+function fromFetchFailure(response: t.HttpFetch.ResponseFailure): GithubClientFailure {
+  if (response.status === 499) return cancelledFailure();
+  if (response.error.policyFailure === 'response-too-large') return limitFailure();
+  if (response.status === 401 || response.status === 403) {
+    return { ok: false, kind: 'source-failure', error: 'GitHub access denied.' };
+  }
+  if (response.status === 404) {
+    return { ok: false, kind: 'source-failure', error: 'GitHub source not found.' };
+  }
+  if (response.status === 429) {
+    return { ok: false, kind: 'source-failure', error: 'GitHub API rate limit reached.' };
+  }
+  return { ok: false, kind: 'source-failure', error: 'GitHub source request failed.' };
+}
+
+function cancelledFailure(): GithubClientFailure {
+  return { ok: false, kind: 'cancelled', error: 'GitHub pull cancelled.' };
+}
+
+function limitFailure(): GithubClientFailure {
+  return { ok: false, kind: 'limit-exceeded', error: 'GitHub pull limit exceeded.' };
 }

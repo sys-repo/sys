@@ -20,9 +20,12 @@ export type SlugUrlLib = {
 export type SlugUrlCompositionLib = {
   readonly manifestsLocation: (
     baseUrl: t.StringUrl,
-    options?: t.SlugLoadOptions,
+    options?: t.SlugScopedLoadOptions,
   ) => ManifestsLocation;
-  readonly contentLocation: (baseUrl: t.StringUrl, options?: t.SlugLoadOptions) => ContentLocation;
+  readonly contentLocation: (
+    baseUrl: t.StringUrl,
+    options?: t.SlugScopedLoadOptions,
+  ) => ContentLocation;
   readonly manifests: (args: ManifestsArgs) => string;
   readonly content: (args: ContentArgs) => string;
   readonly descriptor: (args: DescriptorArgs) => string;

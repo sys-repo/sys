@@ -1,0 +1,23 @@
+{
+  "type": "https://jsr.io/@sys/types/0.0.0/src/types/t.Pkg.dist.ts",
+  "build": {
+    "time": 1700000000000,
+    "size": {
+      "total": 183,
+      "pkg": 0
+    },
+    "builder": "@sys/server-sample@0.0.0",
+    "runtime": "deno=sample",
+    "hash": {
+      "policy": "sample:files.static:sha256-json-parts"
+    }
+  },
+  "hash": {
+    "digest": "sha256-323be1e9e6c95c0d40a5eac234a006cb570048efe33718b6af660e9db7887b3a",
+    "parts": {
+      "docs/README.md": "sha256-12f48775930802cefa8e3f53a5919ddf2442771efae6eb33fb6423b29d8b51c0:size=97",
+      "hello.json": "sha256-62f1cd01edaaae558e247d10ca3b00219d3f79fa979c569093b4913b54e12df3:size=43",
+      "hello.txt": "sha256-7602057c35118035642e9affbf9128893a5683283a5a180179892f9c5bb8e525:size=43"
+    }
+  }
+}

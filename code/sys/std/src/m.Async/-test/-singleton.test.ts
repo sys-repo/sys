@@ -1,20 +1,10 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { Rx } from '../common.ts';
-import { singleton } from '../mod.ts';
+import { Schedule, singleton } from '../mod.ts';
+
+type P = t.DisposableLike & { tag?: string };
 
 describe('Async: singleton', () => {
-  type P = t.DisposableLike & { tag?: string };
-
-  const makeProducer = (counter: { created: number; disposed: number }, tag?: string): P => {
-    counter.created += 1;
-    return {
-      tag,
-      dispose: () => {
-        counter.disposed += 1;
-      },
-    };
-  };
-
   it('creates new on first acquire, reuses on subsequent acquires', () => {
     const registry = new Map<string, { refCount: number; producer: P }>();
     const counter = { created: 0, disposed: 0 };
@@ -75,7 +65,7 @@ describe('Async: singleton', () => {
     const counter = { created: 0, disposed: 0 };
 
     const { dispose: end, dispose$ } = Rx.lifecycle();
-    const a = singleton(registry, 'k', () => makeProducer(counter), dispose$);
+    singleton(registry, 'k', () => makeProducer(counter), dispose$);
     const b = singleton(registry, 'k', () => makeProducer(counter));
 
     expect(counter.created).to.eql(1);
@@ -174,6 +164,25 @@ describe('Async: singleton', () => {
     expect(calls).to.eql(1);
   });
 
+  it('rejected async producer disposal → no unhandled rejection', async () => {
+    const registry = new Map<string, { refCount: number; producer: P }>();
+    const completion = Promise.withResolvers<void>();
+    const trap = trapUnhandledRejections();
+    const producer: P = { dispose: () => completion.promise };
+
+    try {
+      singleton(registry, 'async', () => producer).dispose();
+      completion.reject(new Error('singleton:dispose:rejected'));
+      await Schedule.tick();
+      await Schedule.tick();
+
+      expect(registry.has('async')).to.eql(false);
+      expect(trap.reasons).to.eql([]);
+    } finally {
+      trap.dispose();
+    }
+  });
+
   it('until$ + manual dispose are jointly idempotent for the same handle', () => {
     const registry = new Map<string, { refCount: number; producer: P }>();
     const counter = { created: 0, disposed: 0 };
@@ -193,3 +202,30 @@ describe('Async: singleton', () => {
     expect(counter.disposed).to.eql(1);
   });
 });
+
+/**
+ * Helpers:
+ */
+function makeProducer(counter: { created: number; disposed: number }, tag?: string): P {
+  counter.created += 1;
+  return {
+    tag,
+    dispose: () => {
+      counter.disposed += 1;
+    },
+  };
+}
+
+function trapUnhandledRejections() {
+  const reasons: unknown[] = [];
+  const onUnhandled = (event: PromiseRejectionEvent) => {
+    event.preventDefault();
+    reasons.push(event.reason);
+  };
+
+  addEventListener('unhandledrejection', onUnhandled);
+  return {
+    reasons,
+    dispose: () => removeEventListener('unhandledrejection', onUnhandled),
+  };
+}

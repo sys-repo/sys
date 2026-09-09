@@ -1,5 +1,5 @@
 import type { TestingDir } from '@sys/testing/t';
-import { type t, Arr, describe, expect, Fs, it, slug, Testing } from '../-test.ts';
+import { Arr, describe, expect, Fs, it, slug, type t, Testing } from '../-test.ts';
 import { File } from './mod.ts';
 
 describe('Tmpl.File', () => {
@@ -90,7 +90,6 @@ describe('Tmpl.File', () => {
         expect(res.changes.map((m) => m.op)).to.eql(['modify']);
         expect((await Fs.readText(file.path)).data).to.eql(res.after); // NB: changes written to fs.
       });
-
     });
 
     describe('File.insert()', () => {
@@ -154,35 +153,35 @@ describe('Tmpl.File', () => {
         await file.expectFileMatches(res);
       });
 
-      it('accurately returns of immutable `lines` array after insert', async () => {
+      it('exposes the immutable original `lines` array during functional updates', async () => {
         const file = await getFile();
         const lines: (readonly string[])[] = [];
         await File.update(file.path, (line) => {
           if (line.text === 'line-1') {
-            lines.push(line.file.lines); // Before.
-            lines.push(line.file.lines); // After: same as before
+            lines.push(line.file.lines);
+            lines.push(line.file.lines);
           }
           if (line.text === 'line-2') {
-            lines.push(line.file.lines); // Before.
+            lines.push(line.file.lines);
             line.insert('modified!');
-            lines.push(line.file.lines); // After: same as before
+            lines.push(line.file.lines);
           }
         });
         expect(lines[0]).to.equal(lines[1]);
-        expect(lines[2]).to.not.equal(lines[3]);
-        expect(lines[3].length).to.eql(lines[2].length + 1);
+        expect(lines[2]).to.equal(lines[3]);
+        expect(lines[0]).to.eql(['line-1', 'line-2', 'line-3']);
       });
 
-      it('insert after', async () => {
+      it('insert after does not revisit inserted lines in the same pass', async () => {
         const file = await getFile();
         const res = await File.update(file.path, (line) => {
           if (line.text === 'line-1') line.insert('foo', 'after');
-          if (line.text === 'foo') line.insert('bar'); // NB: insert before the other newly inserted line.
+          if (line.text === 'foo') line.insert('bar');
         });
 
         const lines = res.after.split('\n');
-        expect(lines).to.eql(['line-1', 'bar', 'foo', 'line-2', 'line-3', '']);
-        expect(res.changes.map((m) => m.op)).to.eql(['insert', 'insert']);
+        expect(lines).to.eql(['line-1', 'foo', 'line-2', 'line-3', '']);
+        expect(res.changes.map((m) => m.op)).to.eql(['insert']);
         await file.expectFileMatches(res);
       });
     });
@@ -206,7 +205,7 @@ describe('Tmpl.File', () => {
           line.delete();
         });
         expect(res.after).to.eql('\n');
-        expect(res.changes.map((m) => m.op)).to.eql(Array(4).fill('delete'));
+        expect(res.changes.map((m) => m.op)).to.eql(Array(3).fill('delete'));
         await file.expectFileMatches(res);
       });
     });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Color, Cropmarks, css, Icons, type t, Time } from '../common.ts';
 
-import { IFrame as IFrameView } from '@sys/ui-react-components/iframe';
+import { IFrame as IFrameView } from '@sys/ui-components/react/iframe';
 import type { IFrameSchema } from '../-schemas/mod.ts';
 
 export type IFrameHostProps = {
@@ -23,7 +23,7 @@ export const IFrameHost: React.FC<IFrameHostProps> = (props) => {
    * Hooks:
    */
   const [url, setUrl] = React.useState<t.StringUrl>('url');
-  const [hrefButton, setHrefButton] = React.useState<t.ButtonFlags>();
+  const [hrefButton, setHrefButton] = React.useState<t.Button.Flags>();
   const [copied, setCopied] = React.useState(false);
   const [iframe, setIframe] = React.useState<React.RefObject<HTMLIFrameElement | null>>();
 

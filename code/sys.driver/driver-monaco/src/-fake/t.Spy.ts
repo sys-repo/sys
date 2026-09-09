@@ -1,32 +1,27 @@
 import type { t } from './common.ts';
 
-/**
- * Collection of small test spies for Monaco editor globals.
- */
-export type SpyLib = {
-  /**
-   * Wraps `monaco.editor.setModelMarkers` and records invocations
-   * until `restore()` is called.
-   */
-  forSetModelMarkers(monaco: t.Monaco.Monaco): SetModelMarkersSpy;
+/** Collection of small test spies for Monaco editor globals. */
+export type Lib = {
+  /** Wrap `monaco.editor.setModelMarkers` and record invocations until `restore()`. */
+  forSetModelMarkers(monaco: t.Monaco.Monaco): Handle;
 };
 
-/**
- * Signature and call-shape for `monaco.editor.setModelMarkers`.
- */
-export type SetModelMarkersFn = t.Monaco.Monaco['editor']['setModelMarkers'];
-export type SetModelMarkersArgs = Parameters<SetModelMarkersFn>;
-export type SetModelMarkersCall = { readonly args: SetModelMarkersArgs };
+/** Signature for `monaco.editor.setModelMarkers`. */
+export type MarkerSetter = t.Monaco.Monaco['editor']['setModelMarkers'];
 
-/**
- * Handle returned by a spy. Restorable and queryable.
- */
-export type SetModelMarkersSpy = {
+/** Call arguments for `monaco.editor.setModelMarkers`. */
+export type MarkerSetterArgs = Parameters<MarkerSetter>;
+
+/** Captured `setModelMarkers` call. */
+export type MarkerSetCall = { readonly args: MarkerSetterArgs };
+
+/** Handle returned by a spy. Restorable and queryable. */
+export type Handle = {
   /** All captured invocations in call order. */
-  readonly calls: readonly SetModelMarkersCall[];
+  readonly calls: readonly MarkerSetCall[];
 
   /** Convenience accessor for the markers array of a given call (defaults to last). */
-  getMarkers(i?: number): readonly t.Monaco.I.IMarkerData[];
+  getMarkers(index?: number): readonly t.Monaco.I.IMarkerData[];
 
   /** Restore the original implementation. */
   restore(): void;

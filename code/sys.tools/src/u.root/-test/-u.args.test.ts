@@ -1,6 +1,6 @@
-import { describe, it, expect, expectTypeOf } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it } from '../../-test.ts';
 import type { t } from '../common.ts';
-import { parseArgs } from '../u.args.ts';
+import { parseArgs, toRootDispatchArgv } from '../u.args.ts';
 
 describe('Root Args', () => {
   it('parses -h alias as help=true (no command)', () => {
@@ -20,14 +20,31 @@ describe('Root Args', () => {
     }
   });
 
-  it('keeps pi as the canonical root command and normalizes agent as an alias', () => {
+  it('keeps pi as the canonical root command and normalizes aliases', () => {
     const primary = parseArgs(['pi', 'x']);
     expect(primary.command).eql('pi');
     expect(primary._).eql(['pi', 'x']);
 
-    const alias = parseArgs(['agent', 'x']);
-    expect(alias.command).eql('pi');
-    expect(alias._).eql(['pi', 'x']);
+    const agent = parseArgs(['agent', 'x']);
+    expect(agent.command).eql('pi');
+    expect(agent._).eql(['pi', 'x']);
+
+    const harness = parseArgs(['harness', 'x']);
+    expect(harness.command).eql('pi');
+    expect(harness._).eql(['pi', 'x']);
+  });
+
+  it('recognizes shell as a root command without aliases', () => {
+    const res = parseArgs(['shell', 'doctor']);
+    expect(res.command).eql('shell');
+    expect(res._).eql(['shell', 'doctor']);
+    expect(toRootDispatchArgv(['shell', 'doctor'], res)).eql(['shell', 'doctor']);
+  });
+
+  it('recognizes dsl as a root command under more tools', () => {
+    const res = parseArgs(['dsl']);
+    expect(res.command).eql('dsl');
+    expect(res._).eql(['dsl']);
   });
 
   it('does not accept removed fn command', () => {
@@ -66,5 +83,43 @@ describe('Root Args', () => {
     expect(res.help).eql(true);
     expect(res.command).eql('serve');
     expect(res._).eql(['serve']);
+  });
+
+  it('parses --no-upgrade-check as a root-only advisory flag', () => {
+    const res = parseArgs(['--no-upgrade-check', 'pi']);
+    expect(res.noUpgradeCheck).eql(true);
+    expect(res.command).eql('pi');
+    expect(res._).eql(['pi']);
+  });
+
+  it('normalizes the first positional alias even when root flags come first', () => {
+    const res = parseArgs(['--no-upgrade-check', 'agent', 'x']);
+    expect(res.command).eql('pi');
+    expect(res._).eql(['pi', 'x']);
+  });
+
+  it('creates child argv with the command first and strips root-only advisory flags', () => {
+    const res = parseArgs(['--no-upgrade-check', 'agent', '--help']);
+    expect(toRootDispatchArgv(['--no-upgrade-check', 'agent', '--help'], res)).eql([
+      'pi',
+      '--help',
+    ]);
+  });
+
+  it('strips the root-only advisory flag after the command too', () => {
+    const res = parseArgs(['pi', '--no-upgrade-check', '--flag']);
+    expect(toRootDispatchArgv(['pi', '--no-upgrade-check', '--flag'], res)).eql([
+      'pi',
+      '--flag',
+    ]);
+  });
+
+  it('does not strip root-only advisory flag text after the positional separator', () => {
+    const res = parseArgs(['pi', '--', '--no-upgrade-check']);
+    expect(toRootDispatchArgv(['pi', '--', '--no-upgrade-check'], res)).eql([
+      'pi',
+      '--',
+      '--no-upgrade-check',
+    ]);
   });
 });

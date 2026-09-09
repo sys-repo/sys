@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { Http } from '../../../mod.ts';
-import { HttpProxyResolver } from '../m.Resolver.ts';
+import { HttpProxyResolver } from '../m/m.Resolver.ts';
 import { HttpProxy } from '../mod.ts';
 import { usingServer } from './u.fixture.usingServer.ts';
 
@@ -100,10 +100,7 @@ describe('HttpProxyResolver', () => {
 
   it('validation → rejects upstreams without trailing slash', () => {
     expectThrowMessage(
-      () =>
-        HttpProxyResolver({
-          root: { upstream: 'https://example.com/root' },
-        }),
+      () => HttpProxyResolver({ root: { upstream: 'https://example.com/root' } }),
       `must end with '/'`,
     );
 
@@ -118,10 +115,7 @@ describe('HttpProxyResolver', () => {
 
   it('validation → rejects upstreams with query strings or hash fragments', () => {
     expectThrowMessage(
-      () =>
-        HttpProxyResolver({
-          root: { upstream: 'https://example.com/root/?x=1' },
-        }),
+      () => HttpProxyResolver({ root: { upstream: 'https://example.com/root/?x=1' } }),
       'must not include query or hash',
     );
 
@@ -165,18 +159,14 @@ describe('HttpProxy → runtime', () => {
     await usingServer({
       app: upstream,
       fn: async ({ url: upstreamUrl }) => {
-        const app = HttpProxy.create({
-          config: {
-            root: { upstream: joinUrl(upstreamUrl.raw, 'site/') },
-          },
-        });
+        const upstream = joinUrl(upstreamUrl.raw, 'site/');
+        const app = HttpProxy.create({ config: { root: { upstream } } });
 
         await usingServer({
           app,
-          fn: async ({ url }) => {
-            const res = await fetch(joinUrl(url.raw, 'about?x=1'), {
-              headers: { 'x-proxy-test': 'root' },
-            });
+          async fn({ url }) {
+            const headers = { 'x-proxy-test': 'root' };
+            const res = await fetch(joinUrl(url.raw, 'about?x=1'), { headers });
             const data = await res.json();
 
             expect(res.status).to.eql(200);
@@ -383,7 +373,8 @@ describe('HttpProxy → runtime', () => {
 
   it('response transform → can rewrite proxied html bodies before header overrides', async () => {
     const upstream = Http.Server.create({ static: false, cors: false });
-    const html = '<!doctype html><html><head><base href="https://upstream.example/site/"></head><body>ok</body></html>';
+    const html =
+      '<!doctype html><html><head><base href="https://upstream.example/site/"></head><body>ok</body></html>';
 
     upstream.get('*', (c) => c.html(html));
 
@@ -438,7 +429,7 @@ describe('HttpProxy → runtime', () => {
 function mkEchoApp(tag: string) {
   const app = Http.Server.create({ static: false, cors: false });
 
-  app.all('*', async (c) => {
+  app.all('*', (c) => {
     const url = new URL(c.req.raw.url);
     return c.json(
       {

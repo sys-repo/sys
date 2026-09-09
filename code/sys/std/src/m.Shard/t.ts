@@ -24,32 +24,38 @@ export type ShardMeta = {
  * Pure math + validation only: given a sha256 hex string and shard count,
  * returns a stable shard index via prefix-range bucketing.
  */
-export type ShardLib = {
-  /** Deterministically select a shard index using prefix-range bucketing. */
-  pick(policy: ShardPolicy, sha256Hex: string): ShardIndex;
+export declare namespace Shard {
+  /** Sharding helper library surface. */
+  export type Lib = {
+    /** Deterministically select a shard index using prefix-range bucketing. */
+    pick(policy: ShardPolicy, sha256Hex: string): ShardIndex;
 
-  /** Build canonical shard metadata from a policy and sha256 value. */
-  meta(policy: ShardPolicy, sha256Hex: string): ShardMeta;
+    /** Build canonical shard metadata from a policy and sha256 value. */
+    meta(policy: ShardPolicy, sha256Hex: string): ShardMeta;
 
-  /**
-   * Create a deterministic sharding policy.
-   * Defaults to the "prefix-range" strategy.
-   */
-  policy(shards: ShardCount, strategy?: ShardStrategy): ShardPolicyPick;
+    /**
+     * Create a deterministic sharding policy.
+     * Defaults to the "prefix-range" strategy.
+     */
+    policy(shards: ShardCount, strategy?: ShardStrategy): ShardPolicyPick;
+
+    /** SHA256 helpers. */
+    readonly Sha256: Sha256.Lib;
+  };
 
   /** SHA256 helpers. */
-  readonly Sha256: ShardSha256Lib;
-};
-
-/** SHA256 helpers */
-export type ShardSha256Lib = {
-  /**
-   * Normalize sha256 hex strings.
-   * Accepts "sha256-<hex64>" or "<hex64>".
-   * Returns "<hex64>" in lower-case.
-   */
-  normalizeHex(input: string): ShardSha256Hex;
-};
+  export namespace Sha256 {
+    /** SHA256 helper library surface. */
+    export type Lib = {
+      /**
+       * Normalize sha256 hex strings.
+       * Accepts "sha256-<hex64>" or "<hex64>".
+       * Returns "<hex64>" in lower-case.
+       */
+      normalizeHex(input: string): ShardSha256Hex;
+    };
+  }
+}
 
 /** Policy for deterministic prefix-range sharding. */
 export type ShardPolicy = {

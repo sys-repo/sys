@@ -1,12 +1,12 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 
 /**
  * Library for managing "latest-wins" ownership leases over keys.
  */
-export const Lease: t.LeaseLib = {
+export const Lease: t.Lease.Lib = Object.freeze({
   guard,
   make,
-};
+});
 
 /**
  * Rx operator: pass events only if `token` currently holds the lease for `key`.

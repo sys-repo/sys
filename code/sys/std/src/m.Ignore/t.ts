@@ -3,21 +3,26 @@ import type { t } from './common.ts';
 export type IgnoreInput = string | readonly string[];
 
 /**
- * Tools for working with ignore files (eg. ".gitignore").
+ * Ignore-file helper contracts.
  */
-export type IgnoreLib = {
-  /** Create an instance of an glob-ignore helpers (eg. from a `.gititnore` file).  */
-  create(rules: IgnoreInput): Ignore;
+export namespace Ignore {
+  /**
+   * Tools for working with ignore files (eg. ".gitignore").
+   */
+  export type Lib = {
+    /** Create an instance of an glob-ignore helpers (eg. from a `.gititnore` file).  */
+    create(rules: IgnoreInput): Ignore;
 
-  /** Normalize input to a deterministic ordered list of ignore patterns. */
-  normalize(input: IgnoreInput): readonly string[];
+    /** Normalize input to a deterministic ordered list of ignore patterns. */
+    normalize(input: IgnoreInput): readonly string[];
 
-  /** Serialize normalized ignore rules into canonical text (trailing newline always present). */
-  serialize(input: IgnoreInput): string;
+    /** Serialize normalized ignore rules into canonical text (trailing newline always present). */
+    serialize(input: IgnoreInput): string;
 
-  /** Digest canonical ignore-policy text as `sha256-<hex>`. */
-  digest(input: IgnoreInput): Promise<t.StringHash>;
-};
+    /** Digest canonical ignore-policy text as `sha256-<hex>`. */
+    digest(input: IgnoreInput): Promise<t.StringHash>;
+  };
+}
 
 /**
  * A glob-ignore pattern matcher.

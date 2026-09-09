@@ -1,6 +1,7 @@
-import { type t, describe, Err, expect, it, Url } from '../../../-test.ts';
+import { describe, Err, expect, it, type t, Url } from '../../../-test.ts';
 import { Cache } from '../../m.HttpCache/mod.ts';
 import { Fetch } from '../../m.HttpFetch/mod.ts';
+import { ServiceWorker } from '../../m.HttpServiceWorker/mod.ts';
 import { Http } from '../mod.ts';
 
 describe('Http', () => {
@@ -10,6 +11,8 @@ describe('Http', () => {
     expect(Http.Fetch).to.equal(Fetch);
     expect(Http.fetcher).to.equal(Fetch.make);
     expect(Http.Cache).to.equal(Cache);
+    expect(Http.ServiceWorker).to.equal(ServiceWorker);
+    expect(Object.isFrozen(Http)).to.eql(true);
   });
 
   describe('Http.toError', () => {

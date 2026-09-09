@@ -1,39 +1,32 @@
 import type { t } from './common.ts';
 
-/**
- * Yaml sync/parsing hook.
- */
-export type UseEditorYaml = (args: UseEditorYamlArgs) => t.EditorYamlHook;
+/** YAML sync/parsing hook. */
+export type Use = (args: Args) => Result;
 
 /** Arguments passed to the `useYaml` hook. */
-export type UseEditorYamlArgs = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
-  /** Event-bus */
-  bus$?: t.EditorEventBus;
-  /** Editor instance: */
+export type Args = Partial<Omit<t.YamlSyncArgsInput, 'dispose$'>> & {
+  /** Event-bus. */
+  bus$?: t.EditorBus.Subject;
+  /** Monaco API instance. */
   monaco?: t.Monaco.Monaco;
+  /** Editor instance. */
   editor?: t.Monaco.Editor;
-  /** Render red squiggles from YAML errors. (default = off) */
+  /** Render red squiggles from YAML errors. */
   errorMarkers?: boolean;
 };
 
 /** A YAML hook instance. */
-export type EditorYamlHook = { readonly ok: boolean; readonly current?: t.EditorYaml };
+export type Result = { readonly ok: boolean; readonly current?: t.EditorYaml.State };
 
-/**
- * Synchronize Monaco editor markers from YAML diagnostics.
- *
- * Converts YAML validation output into Monaco-compatible markers
- * and delegates to the generic `useErrorMarkers` hook.
- * Accepts parser, schema, or semantic diagnostics.
- */
-export type UseYamlErrorMarkers = (args: UseYamlErrorMarkersArgs) => void;
+/** Synchronize Monaco editor markers from YAML diagnostics. */
+export type UseErrorMarkers = (args: UseErrorMarkersArgs) => void;
 
 /** Arguments for `useYamlErrorMarkers`. */
-export type UseYamlErrorMarkersArgs = {
+export type UseErrorMarkersArgs = {
   /** Enable or disable marker updates. */
   readonly enabled?: boolean;
 
-  /** Marker owner ID (used to isolate editor decorations). */
+  /** Marker owner ID. */
   readonly owner?: string;
 
   /** Monaco API instance. */
@@ -42,10 +35,6 @@ export type UseYamlErrorMarkersArgs = {
   /** Monaco editor instance to attach markers to. */
   readonly editor?: t.Monaco.Editor;
 
-  /**
-   * YAML issues to render as Monaco markers.
-   * - Accepts normalized diagnostics (`Yaml.Diagnostic[]`) or raw parser errors (`Yaml.Error[]`).
-   * - Mixed arrays are allowed; items are normalized per-element.
-   */
+  /** YAML issues to render as Monaco markers. */
   readonly errors?: t.Ary<t.Yaml.Diagnostic | t.Yaml.Error>;
 };

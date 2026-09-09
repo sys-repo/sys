@@ -3,39 +3,63 @@ import type { t } from './common.ts';
 type P = t.StringPath;
 
 /**
- * The API invoked via the CLI command API.
+ * CLI command entrypoint surface.
  */
-export type ViteEntryLib = {
-  /** Main entry: [argv] "cmd" parse and delegate.  */
-  main(argv?: string[] | t.ViteEntryArgs): Promise<void>;
+export declare namespace ViteEntry {
+  /** CLI entry runtime surface. */
+  export type Lib = {
+    /** Main entry: [argv] "cmd" parse and delegate.  */
+    main(argv?: string[] | Args): Promise<void>;
 
-  /** Start the HMR `dev` server. */
-  dev(args: t.ViteEntryArgsDev): Promise<void>;
+    /** Start the HMR `dev` server. */
+    dev(args: Args.Dev): Promise<void>;
 
-  /** Build the production `dist` bundle. */
-  build(args: t.ViteEntryArgsBuild): Promise<void>;
+    /** Build the production `dist` bundle. */
+    build(args: Args.Build): Promise<void>;
 
-  /** Start the HTTP static server on the bundled `dist/*` folder. */
-  serve(args: t.ViteEntryArgsServe): Promise<void>;
-};
+    /** Serve one locally verified production Dist preview. */
+    serve(args: Args.Serve): Promise<void>;
+  };
 
-/**
- * ARGV (Command Line Arguments)
- */
-export type ViteEntryArgs =
-  | ViteEntryArgsDev
-  | ViteEntryArgsBuild
-  | ViteEntryArgsServe
-  | ViteEntryArgsInfo;
+  /** ARGV (Command Line Arguments). */
+  export type Args = Args.Dev | Args.Build | Args.Serve | Args.Info;
 
-/** The HMR `dev` server. */
-export type ViteEntryArgsDev = { cmd: 'dev'; dir?: P; entry?: P; open?: boolean };
+  /**
+   * Command argument variants.
+   */
+  export namespace Args {
+    /** The HMR `dev` server. */
+    export type Dev = {
+      cmd: 'dev';
+      dir?: P;
+      entry?: P;
+      open?: boolean;
+      port?: number;
+      reporter?: t.Vite.Dev.ReporterMode;
+      /** Package subpath appended to the dev-server presentation identity. */
+      pkgSubpath?: string;
+      /** CLI field corresponding to `pkgSubpath`. */
+      'pkg-subpath'?: string;
+      logLines?: number;
+      'log-lines'?: number;
+    };
 
-/** The `build` project command. */
-export type ViteEntryArgsBuild = { cmd: 'build'; dir?: P; silent?: boolean };
+    /** The `build` project command. */
+    export type Build = { cmd: 'build'; dir?: P; silent?: boolean };
 
-/** The `serve` the built project `/dist` folder command. */
-export type ViteEntryArgsServe = { cmd: 'serve'; port?: number; dir?: P; silent?: boolean };
+    /** The locally verified production Dist preview command. */
+    export type Serve = {
+      cmd: 'serve';
+      port?: number;
+      dir?: P;
+      silent?: boolean;
+      /** Package subpath appended to the verified preview display identity. */
+      pkgSubpath?: string;
+      /** CLI field corresponding to `pkgSubpath`. */
+      'pkg-subpath'?: string;
+    };
 
-/** The `info` information command. */
-export type ViteEntryArgsInfo = { cmd: 'info'; dir?: P; info?: boolean };
+    /** The `info` information command. */
+    export type Info = { cmd: 'info'; dir?: P; info?: boolean };
+  }
+}

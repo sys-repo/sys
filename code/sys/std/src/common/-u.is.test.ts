@@ -6,6 +6,7 @@ import {
   isPlainRecord,
   isPromise,
   isRecord,
+  isSymbol,
 } from './u.is.ts';
 
 type O = Record<string, unknown>;
@@ -14,6 +15,14 @@ class MyClass {
 }
 
 describe('u.is (primitive flag evaluators)', () => {
+  describe('isSymbol', () => {
+    it('accepts symbols and rejects other values', () => {
+      expect(isSymbol(Symbol('value'))).to.eql(true);
+      expect(isSymbol('value')).to.eql(false);
+      expect(isSymbol(undefined)).to.eql(false);
+    });
+  });
+
   describe('isObject', () => {
     it('returns true for any non-null object (arrays included)', () => {
       expect(isObject({})).to.eql(true);

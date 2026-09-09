@@ -1,82 +1,72 @@
 import { describe, expect, it } from '../../-test.ts';
-import { DEFAULTS } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
 describe('FileMap.Is', () => {
   const Is = FileMap.Is;
 
   it('Is.dataUri', () => {
-    const test = (input: any, expected: boolean) => {
-      expect(Is.dataUri(input)).to.eql(expected);
+    const dataUri = Is.dataUri as (input: unknown) => boolean;
+    const test = (input: unknown, expected: boolean) => {
+      expect(dataUri(input)).to.eql(expected);
     };
+
     test('data:text/plain;base64,0000', true);
+    test('DATA:text/plain,hello', true);
+    test('data:,hello', true);
     test('text/plain;base64,0000', false);
-    const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-    NON.forEach((v) => test(v, false));
+    test('data:text/plain', false);
+    test('data:text/*,hello', false);
+    test('data:text/plain;broken,hello', false);
+    [123, true, null, undefined, {}, []].forEach((input) => test(input, false));
   });
 
-  it('Is.supported.contentType', () => {
-    const set = new Set<string>([
-      DEFAULTS.contentType.toLowerCase(),
-      ...Object.values(DEFAULTS.contentTypes.all()).map((m) => m.toLowerCase()),
-      ...Object.keys(DEFAULTS.contentTypes.structuredText).map((m) => m.toLowerCase()),
-    ]);
-
-    const test = (mime: any, expected: boolean) => {
-      expect(Is.supported.contentType(mime)).to.eql(expected);
+  it('Is.supported.contentType delegates syntactic validity', () => {
+    const test = (contentType: string, expected: boolean) => {
+      expect(Is.supported.contentType(contentType)).to.eql(expected);
     };
 
-    // All supported should be true (case preserved as in our set)
-    set.forEach((m) => test(m, true));
-
-    // Also explicitly assert structuredText mimes are supported
-    test('application/markdown', true);
-    test('application/javascript', true);
-
-    // Nonsensical values
-    [123, true, null, undefined, BigInt(0), Symbol('x'), {}, []].forEach((v: any) =>
-      test(v, false),
-    );
+    test('text/plain', true);
+    test('TEXT/PLAIN; charset=UTF-8', true);
+    test('image/png', true);
+    test('application/vnd.example', true);
+    test('application/vnd.example+json; version=1', true);
     test('', false);
     test('foo', false);
-    test('foo/bar', false);
+    test('*/*', false);
+    test('text/plain;', false);
+    test('text/plain; charset UTF-8', false);
   });
 
-  it('Is.contentType.string', () => {
-    const test = (contentType: any, expected: boolean) => {
+  it('Is.contentType.string delegates canonical text classification', () => {
+    const test = (contentType: string, expected: boolean) => {
       expect(Is.contentType.string(contentType)).to.eql(expected);
     };
 
+    test('text/plain; charset=UTF-8', true);
     test('application/json', true);
-    test('text/plain', true);
-    test('text/markdown', true);
+    test('application/vnd.api+json', true);
+    test('application/example+yaml', true);
     test('image/svg+xml', true);
-    test('application/markdown', true);
     test('application/javascript', true);
-
-    const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-    NON.forEach((v) => test(v, false));
+    test('application/typescript+jsx', true);
+    test('application/octet-stream; type=text/plain', false);
+    test('application/vnd.example', false);
     test('image/png', false);
-    test('image/jpeg', false);
-    test('image/webb', false); // ← Not a real mime.
+    test('malformed', false);
   });
 
-  it('Is.contentType.binary', () => {
-    const test = (contentType: any, expected: boolean) => {
+  it('Is.contentType.binary delegates valid non-text classification', () => {
+    const test = (contentType: string, expected: boolean) => {
       expect(Is.contentType.binary(contentType)).to.eql(expected);
     };
 
     test('image/png', true);
-    test('image/jpeg', true);
-    test('image/webp', true);
-
-    const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-    NON.forEach((v) => test(v, false));
+    test('application/octet-stream', true);
+    test('application/vnd.example', true);
     test('application/json', false);
     test('text/plain', false);
-    test('text/markdown', false);
-    test('application/markdown', false);
-    test('application/javascript', false);
+    test('image/svg+xml', false);
+    test('malformed', false);
   });
 
   describe('Is.fileMap', () => {

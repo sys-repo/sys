@@ -4,25 +4,23 @@ import { Process } from '../mod.ts';
 describe('Process.Script', () => {
   const { Script } = Process;
 
-  it('t: dedents a typical template literal (drops one leading newline)', () => {
+  it('t: dedents a typical template literal and removes one blank edge per side', () => {
     const s = Script.t`
       one
         two
       three
     `;
-    // Allow possible trailing newline from closing indentation line:
-    expect(s.trimEnd()).to.eql(`one\n  two\nthree`);
+    expect(s).to.eql('one\n  two\nthree');
   });
 
-  it('t: preserves interior blank lines and trailing content (drops only the single closing blank, if any)', () => {
+  it('t: preserves interior blank lines after removing the closing template edge', () => {
     const s = Script.t`
       one
 
       two
 
     `;
-    // May retain a trailing newline if the closing line de-indents to spaces.
-    expect(s.trimEnd()).to.eql(`one\n\ntwo`);
+    expect(s).to.eql('one\n\ntwo\n');
   });
 
   it('t: normalizes CRLF and lone CR to LF', () => {
@@ -38,8 +36,7 @@ describe('Process.Script', () => {
 \t\t  beta
 \t\tgamma
     `;
-    // Allow trailing newline/spaces from closing line
-    expect(s.trimEnd()).to.eql(`alpha\n  beta\ngamma`);
+    expect(s).to.eql('alpha\n  beta\ngamma');
   });
 
   it('tight: removes ALL leading/trailing blank lines (beyond Str.dedent defaults)', () => {

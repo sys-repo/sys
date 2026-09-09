@@ -1,0 +1,112 @@
+id: dsl
+title: Templater DSL
+summary: |
+  Templater DSL: the operating contract for agents using `@sys/tmpl`.
+  Read this root layer before applying a template; then read the matching chapter from
+  the chapter index.
+
+sections:
+  - label: Reading protocol
+    items: |
+      Agents MUST read this root DSL layer before applying a template.
+      Command: `deno run -ERW jsr:@sys/tmpl dsl`.
+      Agents MUST NOT read every chapter by default.
+      Agents MUST identify the intended target boundary.
+      Use Speech acts and Decision protocol.
+      Agents MUST read each matching template chapter from the chapter index.
+      Do this before running `@sys/tmpl`.
+      Command: `deno run -ERW jsr:@sys/tmpl dsl <template>`.
+      If no chapter index entry matches, stop and ask.
+
+  - label: Rule
+    items:
+      - Treat template requests as `@sys/tmpl` operations, not manual copy/edit tasks.
+      - Use `@sys/tmpl` with a positional template name.
+      - Never use `jsr:@sys/tmpl/<template>` subpaths.
+      - Do not invoke `@sys/tmpl-engine` directly to apply templates; use `@sys/tmpl`.
+      - Pick one target boundary per operation.
+      - Do not silently cascade repo → pkg → module → component.
+      - In agent runs, prefer `--non-interactive`.
+      - Provide every required slot explicitly.
+      - Choose command cwd deliberately.
+      - Run repo scaffolds from the intended parent.
+      - Run pkg scaffolds from the workspace root.
+      - Run `pkg.help` from the workspace root when using a relative package directory.
+      - Run module/UI scaffolds from the containing package root.
+      - Relative `--dir` values resolve from the command cwd.
+      - >-
+        If any slot, target, overwrite policy, or side-effect boundary is unclear,
+        stop and ask before proceeding.
+      - Use `--dry-run` first when target, write set, or side effects are unconfirmed.
+
+  - label: Template grammar
+    items: |
+      Generated artifacts carry template grammar: file roles, import lanes, type lanes, naming, and section markers.
+      Post-scaffold cleanup may remove placeholders and unused optional affordances only.
+      When removing an optional affordance, remove its generated references as one coherent cleanup.
+      Do not reshape generated artifacts to satisfy local taste or a narrow compiler error.
+      If generated code fails typecheck, inspect the template and owning boundary first.
+      Fix the source template or owning boundary when the issue is structural.
+      Only diverge from template grammar after an explicit design decision.
+      Passing typecheck is not sufficient; the scaffold must still preserve template grammar.
+
+  - label: Decision protocol
+    items: |
+      New system workspace or monorepo root → `repo`.
+      New package inside an existing system workspace → `pkg`.
+      Package-local YAML help-resource spine inside an existing sys package → `pkg.help`.
+      New TypeScript module folder inside a package → `m.mod`.
+      New React UI component module → `m.mod.ui`.
+      New React UI component with controller/state boundary → `m.mod.ui.controller`.
+      If a prompt spans multiple boundaries, scaffold and verify outer-to-inner.
+      Boundary order: repo → pkg → one inner operation.
+      Inner operations: `pkg.help`, `m.mod`, `m.mod.ui`, `m.mod.ui.controller`.
+      Ask for approval before each next write.
+
+  - label: Speech acts
+    items: |
+      create a new sys repo
+      bootstrap a system workspace
+      add a package named <@scope/name>
+      add a YAML help-resource spine to <package-dir>
+      create a module at <target-dir>
+      add a UI component named <ComponentName>
+      add a controlled UI component named <ComponentName>
+      make a module for <concept>
+
+  - label: Slots
+    items: |
+      Every deterministic agent run needs `--dir <target-dir>`.
+      `pkg` requires `--pkgName <@scope/name>`.
+      `pkg.help` targets an existing sys package root and has no template-specific name flag.
+      `m.mod.ui` and `m.mod.ui.controller` require `--name <ComponentName>`.
+      `repo` has no template-specific name flag.
+      Repo identity comes from the target directory and later metadata.
+      `m.mod` has no `--name` flag; module identity comes from the target directory.
+      Ask for missing slots.
+      Do not invent names from vibes or rewrite user names silently.
+      If a proposed package/component name needs normalization, ask first.
+      Do not change it silently.
+
+  - label: Command grammar
+    items:
+      - |-
+        Normal form:
+        `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <target-dir> <template> [template-flags]`.
+      - Template selection is positional.
+      - 'Valid templates: `repo`, `pkg`, `pkg.help`, `m.mod`, `m.mod.ui`, `m.mod.ui.controller`.'
+      - 'Preview form: add `--dry-run`.'
+      - 'Existing target with approval: add `--force`.'
+      - Do not run `deno run -ERW jsr:@sys/tmpl/repo` or any other template subpath.
+
+  - label: Verification
+    items: |
+      Read the command output table for created/modified files.
+      Read the suggested commit message line.
+      Inspect the target folder and nearest parent `types.ts` as applicable.
+      Inspect workspace `deno.json` or `src/-test/-specs.ts` when applicable.
+      Prefer the narrowest relevant check.
+      Use package `deno task check`, repo `deno task ci`, or targeted tests.
+      If setup logs a missing `types.ts` warning, stop.
+      Decide whether to create one or choose a different target.
+      Do not hand-wire guessed exports.

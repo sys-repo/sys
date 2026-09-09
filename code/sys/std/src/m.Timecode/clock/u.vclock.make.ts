@@ -1,4 +1,4 @@
-import { type t, Num } from '../common.ts';
+import { Num, type t } from '../common.ts';
 import { VTime } from './m.VTime.ts';
 
 type MappedSouceInner = {
@@ -17,7 +17,7 @@ type MappedSouceInner = {
  * This helper formalizes the "total-only" clock contract and avoids
  * ad-hoc or implicit timeline shaping at hosts.
  */
-export const makeForTotal: t.VirtualClockLib['makeForTotal'] = (total, opts) => {
+export const makeForTotal: t.VirtualClock.Lib['makeForTotal'] = (total, opts) => {
   return make({ total, segments: [] }, opts);
 };
 
@@ -27,7 +27,7 @@ export const makeForTotal: t.VirtualClockLib['makeForTotal'] = (total, opts) => 
  * - Caller drives progression via `advance(deltaMsecs)` — the elapsed real time in milliseconds
  * - `get()` returns an immutable snapshot; methods mutate internal clock state.
  */
-export const make: t.VirtualClockLib['make'] = (timeline, opts = {}) => {
+export const make: t.VirtualClock.Lib['make'] = (timeline, opts = {}) => {
   const total: t.Msecs = Math.max(0, Number(timeline?.total ?? 0));
   const loop = Boolean(opts?.loop);
   let speed = saneSpeed(opts?.speed);

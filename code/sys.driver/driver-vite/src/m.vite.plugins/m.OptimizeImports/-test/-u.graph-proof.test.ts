@@ -1,11 +1,11 @@
 import { describe, expect, Fs, Json, Path, ROOT, it } from '../../../-test.ts';
 
 describe('OptimizeImportsPlugin graph proof', () => {
-  it('reduces ui-react-devharness local module graph breadth for the derived narrow import', async () => {
+  it('reduces ui-dev DevHarness local module graph breadth for the derived narrow import', async () => {
     const counts = await graphCounts({
-      packageDir: ROOT.resolve('code/sys.ui/ui-react-devharness').replaceAll('\\', '/'),
-      rootImport: "import { useKeyboard } from '@sys/ui-react-devharness';",
-      narrowImport: "import { useKeyboard } from '@sys/ui-react-devharness/hooks';",
+      packageDir: ROOT.resolve('code/sys.ui/ui-dev').replaceAll('\\', '/'),
+      rootImport: "import { useKeyboard } from '@sys/ui-dev/react/devharness';",
+      narrowImport: "import { useKeyboard } from '@sys/ui-dev/react/devharness/hooks';",
       symbol: 'useKeyboard',
     });
 

@@ -19,7 +19,7 @@ export type GptTokenLib = {
  */
 export type GptTokenInfo = {
   readonly tokenizer: 'gpt-tokenizer';
-  readonly esm: t.JsrUrlRef;
+  readonly esm: t.JsrUrl.Ref;
 
   /** Core facts: */
   readonly encoding: 'o200k_base' | 'cl100k_base' | 'p50k_base' | 'p50k_edit' | 'r50k_base';

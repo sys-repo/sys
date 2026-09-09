@@ -6,7 +6,7 @@ import { parse } from './u.parse.ts';
 /**
  * Sort a list of versions.
  */
-export const sort: t.SemverLib['sort'] = (input, opt) => {
+export const sort: t.Semver.Lib['sort'] = (input, opt) => {
   const { order = 'desc' } = wrangle.options(opt);
   const sorted = [...input].sort((inputA, inputB) => {
     const a = wrangle.semver(inputA);

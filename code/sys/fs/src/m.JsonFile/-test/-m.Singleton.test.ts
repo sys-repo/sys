@@ -6,7 +6,7 @@ describe('JsonFile.Singleton', () => {
   const root = '.tmp/test/m.JsonFile.Singleton';
   beforeAll(async () => void (await Fs.remove(root)));
 
-  type D = t.JsonFileDoc & { msg?: string; count: number };
+  type D = t.JsonFile.Doc & { msg?: string; count: number };
   const initial: D = { '.meta': { createdAt: 0 }, count: 0 };
 
   it('throws when no instance exists and no initial is provided', async () => {

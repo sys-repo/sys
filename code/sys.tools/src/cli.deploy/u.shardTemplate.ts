@@ -1,10 +1,10 @@
-import { Is } from './common.ts';
+import { Num } from './common.ts';
 
 export type ShardTemplatePaths = {
-  readonly source: string;
-  readonly staging: string;
-  readonly total?: number;
-  readonly requireAll?: boolean;
+  source: string;
+  staging: string;
+  total?: number;
+  requireAll?: boolean;
 };
 
 export type ShardExpandedPaths = {
@@ -19,11 +19,9 @@ export function expandShardTemplatePaths(args: ShardTemplatePaths): ShardExpande
   if (!hasTemplate) return [{ source, staging }];
 
   const total = args.total;
-  if (!Is.num(total) || !Number.isFinite(total) || total <= 0) {
-    return [{ source, staging }];
-  }
+  if (!Num.Is.safeInt(total) || total < 1) return [{ source, staging }];
 
-  const count = Math.floor(total);
+  const count = total;
   const expanded: ShardExpandedPaths[] = [];
   for (let index = 0; index < count; index += 1) {
     expanded.push({

@@ -1,7 +1,5 @@
 import type * as ext from '../t.ext.ts';
-
-/** Type re-exports. */
-export type * from './t.menu.ts';
+import type { MenuResultKind } from './t.menu.ts';
 
 /**
  * Human input helpers for CLI tools.
@@ -9,44 +7,104 @@ export type * from './t.menu.ts';
  * Stable, opinionated wrappers for requesting input from a user.
  * `Cli.Prompt.*` is available where direct access to prompt primitives is needed.
  */
-export type CliInputLib = {
-  /** Single free-form text input. */
-  readonly Text: {
-    readonly prompt: typeof ext.CliffyInput.prompt;
+export declare namespace CliInput {
+  /**
+   * Human input helper library contract.
+   */
+  export type Lib = {
+    /** Single free-form text input. */
+    readonly Text: {
+      readonly prompt: typeof ext.CliffyInput.prompt;
+    };
+
+    /** Explicit yes/no decision or consent. */
+    readonly Confirm: {
+      readonly prompt: typeof ext.CliffyConfirm.prompt;
+    };
+
+    /** Numeric value input. */
+    readonly Number: {
+      readonly prompt: typeof ext.CliffyNumber.prompt;
+    };
+
+    /** Hidden or sensitive text input. */
+    readonly Secret: {
+      readonly prompt: typeof ext.CliffySecret.prompt;
+    };
+
+    /** Toggle a boolean state or option. */
+    readonly Toggle: {
+      readonly prompt: typeof ext.CliffyToggle.prompt;
+    };
+
+    /** Repeated free-form text input (one or more values). */
+    readonly MultiText: {
+      readonly prompt: typeof ext.CliffyList.prompt;
+    };
+
+    /** Choose exactly one option from a set. */
+    readonly Select: {
+      readonly prompt: Select.Prompt;
+      readonly start: Select.Start;
+    };
+
+    /** Choose zero or more options from a set. */
+    readonly Checkbox: {
+      prompt: typeof ext.CliffyCheckbox.prompt;
+    };
   };
 
-  /** Explicit yes/no decision or consent. */
-  readonly Confirm: {
-    readonly prompt: typeof ext.CliffyConfirm.prompt;
-  };
+  /**
+   * Single-selection prompt types.
+   */
+  export namespace Select {
+    /**
+     * Options for selecting one value.
+     * Omit `message` to render without a title. Other options retain Cliffy semantics.
+     */
+    export type Options<TValue> = Omit<ext.CliffySelectOptions<TValue>, 'message'> & {
+      /** Prompt title. Omit or pass `''` for none. */
+      message?: string;
+    };
 
-  /** Numeric value input. */
-  readonly Number: {
-    readonly prompt: typeof ext.CliffyNumber.prompt;
-  };
+    /** Single-selection prompt. */
+    export type Prompt = <TValue>(
+      options: Options<TValue>,
+    ) => ReturnType<typeof ext.CliffySelect.prompt<TValue>>;
 
-  /** Hidden or sensitive text input. */
-  readonly Secret: {
-    readonly prompt: typeof ext.CliffySecret.prompt;
-  };
+    /** Options supported by a lifecycle-owned prompt. Input and callback ownership stay internal. */
+    export type StartOptions<TValue> = Omit<Options<TValue>, 'reader' | 'validate' | 'transform'>;
 
-  /** Toggle a boolean state or option. */
-  readonly Toggle: {
-    readonly prompt: typeof ext.CliffyToggle.prompt;
-  };
+    /** Terminal settlement of one lifecycle-owned prompt. */
+    export type Outcome<TValue> =
+      | { readonly kind: 'selected'; readonly value: TValue }
+      | { readonly kind: 'cancelled' };
 
-  /** Repeated free-form text input (one or more values). */
-  readonly MultiText: {
-    readonly prompt: typeof ext.CliffyList.prompt;
-  };
+    /** Running prompt authority whose disposal settles all prompt-owned work. */
+    export type Started<TValue> = {
+      readonly finished: Promise<Outcome<TValue>>;
+      dispose(reason?: unknown): Promise<void>;
+      [Symbol.asyncDispose](): Promise<void>;
+    };
 
-  /** Choose exactly one option from a set. */
-  readonly Select: {
-    readonly prompt: typeof ext.CliffySelect.prompt;
-  };
+    /** Start one lifecycle-owned single-selection prompt. */
+    export type Start = <TValue>(options: StartOptions<TValue>) => Started<TValue>;
+  }
 
-  /** Choose zero or more options from a set. */
-  readonly Checkbox: {
-    prompt: typeof ext.CliffyCheckbox.prompt;
-  };
-};
+  /**
+   * Menu interaction result types.
+   */
+  export namespace Menu {
+    /** Discrete menu interaction outcome. */
+    export type ResultKind = (typeof MenuResultKind)[keyof typeof MenuResultKind];
+
+    /** Result returned from a menu handler. */
+    export type Result =
+      | {
+        /** Structured menu result discriminant. */
+        readonly kind: ResultKind;
+      }
+      | ResultKind
+      | undefined;
+  }
+}

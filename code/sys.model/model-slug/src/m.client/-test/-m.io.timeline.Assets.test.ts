@@ -1,14 +1,20 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Assets } from '../m.io.timeline.Assets.ts';
+import { Assets as AssetsEndpoint } from '../m.io.timeline.Assets.ts';
 import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
 import { D } from '../common.ts';
-import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch, textResponse } from './u.fixture.ts';
+
+const Assets = {
+  load(baseUrl: t.StringUrl, docid: t.StringId, options: t.SlugScopedLoadOptions = {}) {
+    return AssetsEndpoint.load(baseUrl, docid, { ...LOAD_OPTIONS, ...options });
+  },
+};
 
 describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
   it('is the SlugClient asset loader', () => {
-    expect(SlugClient.FromEndpoint.Timeline.Assets).to.equal(Assets);
+    expect(SlugClient.FromEndpoint.Timeline.Assets).to.equal(AssetsEndpoint);
   });
 
   it('loads assets manifest (happy path)', async () => {
@@ -68,7 +74,7 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
     }
   });
 
-  it('passes RequestInit extras but enforces cache policy', async () => {
+  it('passes admitted init extras but enforces GET and cache policy', async () => {
     const docid = 'crdt:assets-init' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const manifest: t.SpecTimelineAssetsManifest = {
@@ -85,21 +91,19 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
     });
 
     try {
-      const init: RequestInit = {
-        method: 'POST',
+      const init: t.HttpFetch.Init = {
         headers: { 'x-test': '1' },
         cache: 'force-cache',
       };
       const result = await Assets.load('http://example.com/', docid, { init });
       if (!result.ok) throw new Error('expected assets result');
       const headers = seenInit?.headers;
-      const headerValue =
-        headers instanceof Headers
-          ? headers.get('x-test')
-          : headers && typeof headers === 'object' && !Array.isArray(headers)
-            ? (headers as Record<string, string>)['x-test']
-            : undefined;
-      expect(seenInit?.method).to.equal('POST');
+      const headerValue = headers instanceof Headers
+        ? headers.get('x-test')
+        : headers && typeof headers === 'object' && !Array.isArray(headers)
+        ? (headers as Record<string, string>)['x-test']
+        : undefined;
+      expect(seenInit?.method).to.equal('GET');
       expect(headerValue).to.eql('1');
       expect(seenInit?.cache).to.eql(D.CACHE_INIT.cache);
     } finally {
@@ -111,11 +115,12 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
     const docid = 'crdt:assets-http' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) {
         return textResponse('Service Unavailable', {
           status: 503,
           statusText: 'Service Unavailable',
         });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -136,8 +141,9 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
     const docid = 'crdt:assets-missing' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) {
         return textResponse('Not Found', { status: 404, statusText: 'Not Found' });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -158,8 +164,9 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
     const docid = 'crdt:assets-schema' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) {
         return jsonResponse({ docid: cleaned });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -179,11 +186,12 @@ describe('SlugClient.FromEndpoint.Timeline.Assets.load', () => {
     const docid = 'crdt:assets-mismatch' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.assetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.assetsFilename(cleaned))) {
         return jsonResponse({
           docid: 'other-doc',
           assets: [],
         });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 

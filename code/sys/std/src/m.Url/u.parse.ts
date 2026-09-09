@@ -1,6 +1,6 @@
 import { type t, Err, Is, Path } from './common.ts';
 
-export const parse: t.UrlLib['parse'] = (base) => {
+export const parse: t.Url.Lib['parse'] = (base) => {
   return Is.netaddr(base) ? wrangle.fromAddr(base) : wrangle.fromUrl(base);
 };
 

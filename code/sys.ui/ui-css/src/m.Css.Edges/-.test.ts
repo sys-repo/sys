@@ -4,7 +4,7 @@ import { CssEdges } from './mod.ts';
 describe('Css: Edges', () => {
   describe('toArray', () => {
     it('toArray', () => {
-      const test = (input: any, expected: t.CssEdgesArray) => {
+      const test = (input: any, expected: t.CssEdges.Array) => {
         const res = CssEdges.toArray(input);
         expect(res).to.eql(expected, input);
       };
@@ -26,7 +26,7 @@ describe('Css: Edges', () => {
     });
 
     it('toArrayX', () => {
-      const test = (input: any, expected: t.CssEdgesArray) => {
+      const test = (input: any, expected: t.CssEdges.Array) => {
         const res = CssEdges.toArrayX(input);
         expect(res).to.eql(expected, input);
       };
@@ -38,7 +38,7 @@ describe('Css: Edges', () => {
     });
 
     it('toArrayY', () => {
-      const test = (input: any, expected: t.CssEdgesArray) => {
+      const test = (input: any, expected: t.CssEdges.Array) => {
         const res = CssEdges.toArrayY(input);
         expect(res).to.eql(expected, input);
       };
@@ -49,15 +49,15 @@ describe('Css: Edges', () => {
     });
 
     it('custom default value ← (replaces <undefined>, null means <null>)', () => {
-      const test = (input: t.CssEdgesInput, def: any, expected: t.CssEdgesArray) => {
+      const test = (input: t.CssEdges.Input, def: any, expected: t.CssEdges.Array) => {
         const res = CssEdges.toArray(input, def);
         expect(res).to.eql(expected, input);
       };
-      const testX = (input: t.CssEdgesXYInput, def: any, expected: t.CssEdgesArray) => {
+      const testX = (input: t.CssEdges.XYInput, def: any, expected: t.CssEdges.Array) => {
         const res = CssEdges.toArrayX(input, def);
         expect(res).to.eql(expected, input);
       };
-      const testY = (input: t.CssEdgesXYInput, def: any, expected: t.CssEdgesArray) => {
+      const testY = (input: t.CssEdges.XYInput, def: any, expected: t.CssEdges.Array) => {
         const res = CssEdges.toArrayY(input, def);
         expect(res).to.eql(expected, input);
       };

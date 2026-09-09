@@ -1,129 +1,111 @@
 import type { t } from './common.ts';
 
-type N = t.CssNumberOrStringInput;
+type N = number | string | null | undefined;
 
 /**
- * Types a default value for an edge can be.
+ * Edge value formatting contracts.
  */
-export type CssEdgeDefault = t.CssNumberOrStringInput;
+export declare namespace CssEdges {
+  /**
+   * Runtime library surface.
+   */
+  export type Lib = {
+    /** Convert sloppy inputs into a clean edges array. */
+    toArray(input: Input, defaultValue?: Default): Array;
 
-/**
- * Callback that mutates the results of the toEdges function.
- */
-export type CssEdgeMutater = (e: CssEdgeMutaterArgs) => void;
+    /** Convert sloppy inputs into a clean edges array on the X-dimension (horizontal). */
+    toArrayX(input: XYInput, defaultValue?: Default): Array;
 
-/**
- * Arguments for the CssEdgeMutator.
- */
-export type CssEdgeMutaterArgs = {
-  readonly current: { readonly value?: N; readonly edge: keyof t.CssEdges };
-  changeValue(next: N): void;
-  changeField(next: keyof t.CssProps | null): void;
-};
+    /** Convert sloppy inputs into a clean edges array on the Y-dimension (vertical). */
+    toArrayY(input: XYInput, defaultValue?: Default): Array;
 
-/**
- * Edge value formatting tools.
- */
-export type CssEdgesLib = {
-  /** Convert sloppy inputs into a clean edges array. */
-  toArray(input: t.CssEdgesInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
+    /** Convert CSS shorthand input into [top, right, bottom, left] shape fields. */
+    toEdges: ToEdges<Shape>;
 
-  /** Convert sloppy inputs into a clean edges array on the X-dimension (horizontal). */
-  toArrayX(input: t.CssEdgesXYInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
+    /** Converts input to CSS margin edges. */
+    toMargins: ToEdges<Margin.Shape>;
 
-  /** Convert sloppy inputs into a clean edges array on the Y-dimension (vertical). */
-  toArrayY(input: t.CssEdgesXYInput, defaultValue?: CssEdgeDefault): t.CssEdgesArray;
+    /** Converts input to CSS padding edges. */
+    toPadding: ToEdges<Padding.Shape>;
+  };
+
+  /** Default value for an edge. */
+  export type Default = N;
+
+  /** Callback that mutates the results of the `toEdges` function. */
+  export type Mutater = (e: MutaterArgs) => void;
+
+  /** Arguments passed to an edge mutater. */
+  export type MutaterArgs = {
+    readonly current: { readonly value?: N; readonly edge: keyof Shape };
+    changeValue(next: N): void;
+    changeField(next: keyof t.Style.Props | null): void;
+  };
+
+  /** Transformer that converts edge value inputs to an edge object. */
+  export type ToEdges<T> = (
+    input?: Input | [],
+    options?: { defaultValue?: Input },
+  ) => Partial<T>;
+
+  /** Value representing an edge. */
+  export type ValueInput = N;
+
+  /** Four-part CSS edge tuple: [top, right, bottom, left]. */
+  export type Quad = [N, N, N, N];
+
+  /** Loose input for edges around a 4-sided entity. */
+  export type Input = N | [N] | [N, N] | Quad;
+
+  /** Loose input for a single edge dimension (X/Y). */
+  export type XYInput = N | [N] | [N, N];
+
+  /** Edges for a 4-sided entity. */
+  export type Shape = {
+    top: string | number;
+    right: string | number;
+    bottom: string | number;
+    left: string | number;
+  };
+
+  /** Array of edge values: [top, right, bottom, left]. */
+  export type Array = [N, N, N, N];
 
   /**
-   * Takes an array of input CSS values and converts them to
-   * [top, right, bottom, left] values.
-   *
-   * Input:
-   *  - single value (eg. 0 or '5em')
-   *  - 4-part array (eg. [10, null, 0, 5])
-   *  - Y/X array    (eg. [20, 5])
+   * Margin edge contracts.
    */
-  toEdges: t.CssToEdges<t.CssEdges>;
+  export namespace Margin {
+    /** Loose input for margin edges. */
+    export type Input = CssEdges.Input;
 
-  /** Converts input to CSS margin edges. */
-  toMargins: t.CssToEdges<t.CssMarginEdges>;
+    /** Margin edge tuple. */
+    export type Array = CssEdges.Array;
 
-  /** Converts input to CSS padding edges. */
-  toPadding: t.CssToEdges<t.CssPaddingEdges>;
-};
+    /** CSS margin edge fields. */
+    export type Shape = {
+      marginTop: string | number;
+      marginRight: string | number;
+      marginBottom: string | number;
+      marginLeft: string | number;
+    };
+  }
 
-/**
- * Transformer that converts a set of edge value inpurts to a CssEdges object.
- */
-export type CssToEdges<T> = (
-  input?: t.CssEdgesInput | [],
-  options?: { defaultValue?: t.CssEdgesInput },
-) => Partial<T>;
+  /**
+   * Padding edge contracts.
+   */
+  export namespace Padding {
+    /** Loose input for padding edges. */
+    export type Input = CssEdges.Input;
 
-/**
- * Edges
- */
+    /** Padding edge tuple. */
+    export type Array = CssEdges.Array;
 
-export type CssMarginInput = CssEdgesInput;
-export type CssPaddingInput = CssEdgesInput;
-
-/**
- * Value representing an edge (eg. "left" or "right").
- */
-export type CssEdgeInput = N;
-export type CssEdgesQuad = [N, N, N, N];
-
-/**
- * Loose input for edges around a 4-sided entity.
- */
-export type CssEdgesInput = N | [N] | [N, N] | CssEdgesQuad;
-
-/**
- * Loose inputs for a value representing a single-dimension (X/Y)
- */
-export type CssEdgesXYInput = N | [N] | [N, N];
-
-/**
- * Edges for a 4-sided entity.
- */
-export type CssEdges = {
-  top: string | number;
-  right: string | number;
-  bottom: string | number;
-  left: string | number;
-};
-
-/**
- * Array of edge values: "top", "right", "bottom", "left"
- */
-export type CssEdgesArray = [N, N, N, N];
-
-/**
- * An array of edges representing a margin.
- */
-export type CssMarginArray = CssEdgesArray;
-
-/**
- * An array of edges representing a padding.
- */
-export type CssPaddingArray = CssEdgesArray;
-
-/**
- * CSS margin edges.
- */
-export type CssMarginEdges = {
-  marginTop: string | number;
-  marginRight: string | number;
-  marginBottom: string | number;
-  marginLeft: string | number;
-};
-
-/**
- * CSS padding edges.
- */
-export type CssPaddingEdges = {
-  paddingTop: string | number;
-  paddingRight: string | number;
-  paddingBottom: string | number;
-  paddingLeft: string | number;
-};
+    /** CSS padding edge fields. */
+    export type Shape = {
+      paddingTop: string | number;
+      paddingRight: string | number;
+      paddingBottom: string | number;
+      paddingLeft: string | number;
+    };
+  }
+}

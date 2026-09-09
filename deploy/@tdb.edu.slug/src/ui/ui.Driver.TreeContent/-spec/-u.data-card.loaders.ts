@@ -1,5 +1,6 @@
 import { DataCards, DESCRIPTOR } from '../../-dev/ui.Http.DataCards/mod.ts';
-import { type t, Is } from './common.ts';
+import { Is, type t } from './common.ts';
+import { slugTransport } from './u.fixture.ts';
 
 type TLoad = t.TreeContentDriver.ContentLoader;
 type ResolveLoaderArgs = {
@@ -27,23 +28,28 @@ function fileContentLoader(origin?: t.SlugUrlOrigin): TLoad {
 
     const client = await DESCRIPTOR.file.client({
       origin,
+      ...slugTransport(url),
     });
     if (!client.ok) throw new Error(client.error.message);
 
-    const index = await client.value.FileContent.index();
-    if (!index.ok) throw new Error(index.error.message);
+    try {
+      const index = await client.value.FileContent.index();
+      if (!index.ok) throw new Error(index.error.message);
 
-    const hash = DataCards.Helpers.findHash(index.value.entries, request.key);
-    if (!hash) throw new Error(`No content hash found for ref: ${request.key}`);
+      const hash = DataCards.Helpers.findHash(index.value.entries, request.key);
+      if (!hash) throw new Error(`No content hash found for ref: ${request.key}`);
 
-    const file = await client.value.FileContent.get(hash);
-    if (!file.ok) throw new Error(file.error.message);
+      const file = await client.value.FileContent.get(hash);
+      if (!file.ok) throw new Error(file.error.message);
 
-    return {
-      kind: 'file-content',
-      content: file.value,
-      index: index.value,
-    };
+      return {
+        kind: 'file-content',
+        content: file.value,
+        index: index.value,
+      };
+    } finally {
+      client.value.dispose();
+    }
   };
 }
 
@@ -56,18 +62,23 @@ function playbackContentLoader(origin?: t.SlugUrlOrigin): TLoad {
     const client = await DESCRIPTOR.media.client({
       origin,
       docid: request.key,
+      ...slugTransport(url),
     });
     if (!client.ok) throw new Error(client.error.message);
 
-    const assets = await client.value.Timeline.Assets.load();
-    if (!assets.ok) throw new Error(assets.error.message);
-    const playback = await client.value.Timeline.Playback.load();
-    if (!playback.ok) throw new Error(playback.error.message);
+    try {
+      const assets = await client.value.Timeline.Assets.load();
+      if (!assets.ok) throw new Error(assets.error.message);
+      const playback = await client.value.Timeline.Playback.load();
+      if (!playback.ok) throw new Error(playback.error.message);
 
-    return {
-      kind: 'playback-content',
-      playback: playback.value,
-      assets: assets.value.assets,
-    };
+      return {
+        kind: 'playback-content',
+        playback: playback.value,
+        assets: assets.value.assets,
+      };
+    } finally {
+      client.value.dispose();
+    }
   };
 }

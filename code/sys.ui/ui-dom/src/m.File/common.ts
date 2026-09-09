@@ -4,7 +4,7 @@ export * from '../common.ts';
 /**
  * Constants
  */
-export const DEFAULTS: t.FileLibDefaults = {
+export const DEFAULTS: t.File.Defaults = {
   mimetype: 'application/octet-stream',
 };
 export const D = DEFAULTS;

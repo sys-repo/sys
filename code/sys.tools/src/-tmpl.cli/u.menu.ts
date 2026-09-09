@@ -1,4 +1,4 @@
-import { type t, c, Cli, opt } from './common.ts';
+import { c, Cli, Fmt, opt, type t } from './common.ts';
 
 /**
  * Prompt for which template variant to generate.
@@ -10,7 +10,7 @@ export async function promptTemplateVariant(): Promise<t.__NAME__Tool.TemplateVa
       options: [
         opt(`  clone: ${c.green('stateless')} template`, 'option-a:stateless'),
         opt(`  clone: ${c.green('stateful (yaml-config)')} template`, 'option-a:yaml'),
-        opt(`${c.cyan('←')} back`, 'back'),
+        opt(Fmt.back(), 'back'),
       ],
       hideDefault: true,
     })) as t.__NAME__Tool.MenuCmd;

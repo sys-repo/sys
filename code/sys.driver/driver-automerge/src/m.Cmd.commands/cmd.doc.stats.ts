@@ -21,7 +21,7 @@ export function makeDocStatsHandler(getRepo: t.CrdtGetRepoInput): H['doc:stats']
       return {
         bytes,
         total: { changes: s.numChanges, ops: s.numOps },
-      } satisfies t.DocumentStats;
+      } satisfies t.Document.Stats;
     } catch {
       return EMPTY.stats;
     }
@@ -32,7 +32,7 @@ export function makeDocStatsHandler(getRepo: t.CrdtGetRepoInput): H['doc:stats']
  * Helpers:
  */
 const EMPTY = {
-  get stats(): t.DocumentStats {
+  get stats(): t.Document.Stats {
     return {
       bytes: -1,
       total: { changes: -1, ops: -1 },

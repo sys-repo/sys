@@ -1,5 +1,6 @@
-import { Fs, type t } from './common.ts';
+import { Fs, Is, type t } from './common.ts';
 import { EndpointsFs } from './u.endpoints/mod.ts';
+import { Fmt } from './u.fmt.ts';
 
 export async function resolveNonInteractive(
   cwd: t.StringDir,
@@ -8,6 +9,7 @@ export async function resolveNonInteractive(
   readonly yamlPath: t.StringPath;
   readonly key: string;
   readonly action: t.DeployTool.Endpoint.RunAction;
+  readonly force: boolean;
 }> {
   const config = String(args.config ?? '').trim();
   if (!config) {
@@ -21,16 +23,19 @@ export async function resolveNonInteractive(
     throw new Error('Missing required flag: --action (required with --non-interactive).');
   }
 
-  const yamlPath = Fs.resolve(cwd, config) as t.StringPath;
-  const check = await EndpointsFs.validateYaml(yamlPath);
+  const yamlPath: t.StringPath = Fs.resolve(cwd, config);
+  const check = await EndpointsFs.validateYaml(yamlPath, { cwd });
   if (!check.ok) {
-    throw new Error(`Could not load deploy config: ${Fs.trimCwd(yamlPath)}`);
+    const details = errorMessagesOf(check) || Fmt.endpointValidation(check);
+    const suffix = details ? `\n${details}` : '';
+    throw new Error(`Could not load deploy config: ${Fs.trimCwd(yamlPath)}${suffix}`);
   }
 
   return {
     yamlPath,
     key: labelFromPath(yamlPath),
     action,
+    force: args.force === true,
   };
 }
 
@@ -50,4 +55,16 @@ function toRunAction(input: unknown): t.DeployTool.Endpoint.RunAction | undefine
 function labelFromPath(path: t.StringPath): string {
   const base = Fs.basename(path);
   return base.endsWith(EndpointsFs.ext) ? base.slice(0, -EndpointsFs.ext.length) : base;
+}
+
+function errorMessagesOf(check: t.DeployTool.Endpoint.Fs.YamlCheck): string {
+  if (check.ok) return '';
+
+  return check.errors
+    .map((error) => {
+      const message = (error as { readonly message?: unknown }).message;
+      return Is.str(message) ? message.trim() : '';
+    })
+    .filter((message) => message.length > 0)
+    .join('\n');
 }

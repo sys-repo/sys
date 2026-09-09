@@ -2,10 +2,15 @@ import { describe, expect, it } from '../../-test.ts';
 import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
-import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch, textResponse } from './u.fixture.ts';
 
 describe('SlugClient.FromEndpoint.Descriptor.load', () => {
-  const Descriptor = SlugClient.FromEndpoint.Descriptor;
+  const endpoint = SlugClient.FromEndpoint.Descriptor;
+  const Descriptor = {
+    load(origin: t.StringUrl, manifests: t.StringPath) {
+      return endpoint.load(origin, manifests, LOAD_OPTIONS);
+    },
+  };
 
   it('loads dist.client.json (happy path)', async () => {
     const payload: t.BundleDescriptorDoc = {

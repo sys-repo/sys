@@ -17,7 +17,7 @@ export async function createPaymentIntent() {
   });
 
   console.info();
-  console.info('# Paste into .env (DevHarness only)');
+  console.info('# Runtime-only PaymentIntent client secret (do not prefix with VITE_)');
   console.info(`STRIPE_CLIENT_SECRET="${clientSecret}"`);
   console.info();
 }

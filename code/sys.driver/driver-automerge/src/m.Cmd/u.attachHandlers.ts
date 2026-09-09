@@ -5,7 +5,7 @@ import {
   makeDocStatsHandler,
   makeDocWriteHandler,
 } from '../m.Cmd.commands/mod.ts';
-import { type t, Is } from './common.ts';
+import { Is, type t } from './common.ts';
 import { make } from './u.make.ts';
 
 /**
@@ -15,10 +15,11 @@ import { make } from './u.make.ts';
  * (Worker hosts still use their own attach handler/factory logic.)
  */
 export const attachHandlers = (args: {
-  endpoint: t.CmdEndpoint;
+  endpoint: t.Cmd.Endpoint;
   repo: t.CrdtRepoInput;
   handlers?: Partial<t.CrdtCmdHandlers>;
-}): t.CmdHost => {
+  closeEndpoint?: boolean;
+}): t.Cmd.Host.Handle => {
   const { endpoint } = args;
   const cmd = make();
   const getRepo = () => (Is.func(args.repo) ? args.repo() : args.repo);
@@ -33,5 +34,5 @@ export const attachHandlers = (args: {
     ...args.handlers,
   };
 
-  return cmd.host(endpoint, handlers);
+  return cmd.host(endpoint, handlers, { closeEndpoint: args.closeEndpoint });
 };

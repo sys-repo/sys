@@ -7,11 +7,11 @@ import { get } from './m.Path.get.ts';
 
 type O = Record<string, unknown>;
 
-export const CurriedPath: t.CurriedPathLib = {
+export const CurriedPath: t.Obj.Path.Curried.Lib = Object.freeze({
   make<T = unknown>(path: t.ObjectPath) {
     path = Array.isArray(path) ? path : [];
 
-    const api: t.CurriedPath<T> = {
+    const api: t.Obj.Path.Curried.Instance<T> = {
       path,
       exists(subject: O | undefined) {
         return exists(subject, path);
@@ -35,4 +35,4 @@ export const CurriedPath: t.CurriedPathLib = {
 
     return api;
   },
-};
+});

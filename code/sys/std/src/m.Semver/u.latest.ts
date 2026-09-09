@@ -11,7 +11,7 @@ type Input = t.Semver | t.StringSemver | undefined;
  * - Invalid or undefined values are ignored.
  * - If all values are missing/invalid → returns undefined.
  */
-export const latest: t.SemverLib['latest'] = (
+export const latest: t.Semver.Lib['latest'] = (
   ...inputs: t.Ary<Input>
 ): t.StringSemver | undefined => {
   /**

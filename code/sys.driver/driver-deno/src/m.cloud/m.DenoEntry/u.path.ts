@@ -1,5 +1,5 @@
-import { type t, Fs } from './common.ts';
-import { verifyDist } from './u.verify.ts';
+import { Fs, type t } from './common.ts';
+import { checkSelfReportedDist } from './u.checkSelfReported.ts';
 
 export async function loadTarget(options: t.DenoEntry.ServeOptions) {
   const cwd = Fs.resolve(options.cwd ?? Fs.cwd());
@@ -32,7 +32,7 @@ export async function loadTarget(options: t.DenoEntry.ServeOptions) {
     } as const;
   }
 
-  const distPkg = await verifyDist(dist.absolute);
+  const distPkg = await checkSelfReportedDist(dist.absolute);
   const pkg = distPkg.pkg || sourcePkg;
   const hash = distPkg.hash.digest;
 

@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { type t, Time } from './common.ts';
 
-type T = t.DocumentIdHook['transient'];
+type T = t.DocumentId.Hook.Instance['transient'];
 type Kind = T['kind'];
 type Options = { timeout?: t.Msecs };
 
@@ -30,7 +30,7 @@ export function useTransientMessage(options: Options = {}) {
       setMessage(text);
       timeoutRef.current = Time.delay(msecs, clear).cancel;
     },
-    toObject(): t.DocumentIdHook['transient'] {
+    toObject(): t.DocumentId.Hook.Instance['transient'] {
       return { kind, message, timeout };
     },
   };

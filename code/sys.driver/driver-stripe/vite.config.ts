@@ -1,10 +1,10 @@
-import { Vite } from 'jsr:@sys/driver-vite';
-import { defineConfig } from 'npm:vite';
+import { Vite } from '@sys/driver-vite';
 
-export default defineConfig(() => {
+export default Vite.Config.define(() => {
   const entry = './src/index.html';
   const sw = './src/-test/-sw.ts';
   const paths = Vite.Config.paths({ app: { entry, sw } });
+
   return Vite.Config.app({
     paths,
     visualizer: false,

@@ -1,41 +1,9 @@
-import type * as dt from '@sys/driver-deno/t';
-import { describe, expect, Fs, it } from '../../src/-test.ts';
+import { describe, expect, Fs, it, type t } from '../../src/-test.ts';
 import { SAMPLE } from '../../src/-test/u.SAMPLE.ts';
 import { syncPublishedFixture, syncPublishedFixtureImport, syncPublishedFixtureImports } from '../task.prep.u.published.ts';
-import { PUBLISHED_FIXTURE_DIRS, syncTransportLoaderImport, syncTransportLoaderVersion, syncWasmPluginImport } from '../task.prep.ts';
+import { PUBLISHED_FIXTURE_DIRS, syncTransportLoaderVersion, syncWasmPluginImport } from '../task.prep.ts';
 
 describe('driver-vite prep', () => {
-  it('syncs the transport loader import from root deps.yaml', async () => {
-    const fs = await Fs.makeTempDir({ prefix: 'driver-vite.prep.' });
-    const depsPath = Fs.join(fs.absolute, 'deps.yaml');
-    const targetPath = Fs.join(fs.absolute, 'u.load.ts');
-
-    await Fs.write(
-      depsPath,
-      `
-        groups:
-          build/tools/vite:
-            - import: npm:esbuild@0.27.3
-
-        deno.json:
-          - group: build/tools/vite
-      `,
-    );
-
-    await Fs.write(
-      targetPath,
-      "import { transform } from 'npm:esbuild@0.27.2';\nexport const ok = true;\n",
-    );
-
-    await syncTransportLoaderImport({ depsPath, targetPath });
-
-    const text = (await Fs.readText(targetPath)).data ?? '';
-    expect(text).to.include("from 'npm:esbuild@0.27.3'");
-    expect(text).to.not.include("from 'npm:esbuild@0.27.2'");
-
-    await Fs.remove(fs.absolute);
-  });
-
   it('syncs the transport loader cache version from root deps.yaml', async () => {
     const fs = await Fs.makeTempDir({ prefix: 'driver-vite.prep.' });
     const depsPath = Fs.join(fs.absolute, 'deps.yaml');
@@ -46,7 +14,7 @@ describe('driver-vite prep', () => {
       `
         groups:
           build/tools/vite:
-            - import: npm:esbuild@0.27.3
+            - import: jsr:@deno/loader@0.5.3
 
         deno.json:
           - group: build/tools/vite
@@ -55,14 +23,14 @@ describe('driver-vite prep', () => {
 
     await Fs.write(
       targetPath,
-      "const ESBUILD_VERSION = '0.27.2';\nexport const ok = true;\n",
+      "const DENO_LOADER_VERSION = '0.5.2';\nexport const ok = true;\n",
     );
 
     await syncTransportLoaderVersion({ depsPath, targetPath });
 
     const text = (await Fs.readText(targetPath)).data ?? '';
-    expect(text).to.include("const ESBUILD_VERSION = '0.27.3'");
-    expect(text).to.not.include("const ESBUILD_VERSION = '0.27.2'");
+    expect(text).to.include("const DENO_LOADER_VERSION = '0.5.3'");
+    expect(text).to.not.include("const DENO_LOADER_VERSION = '0.5.2'");
 
     await Fs.remove(fs.absolute);
   });
@@ -102,7 +70,7 @@ describe('driver-vite prep', () => {
     const fs = await Fs.makeTempDir({ prefix: 'driver-vite.bridge-prep.' });
     const rootDenoJson = Fs.join(fs.absolute, 'deno.json');
     const targetPath = Fs.join(fs.absolute, 'vite.config.ts');
-    const denoFile: Pick<dt.DenoFileLib, 'workspaceVersion'> = {
+    const denoFile: Pick<t.DenoFile.Lib, 'workspaceVersion'> = {
       workspaceVersion(name, src) {
         expect(name).to.eql('@sys/driver-vite');
         expect(src).to.eql(rootDenoJson);
@@ -129,7 +97,7 @@ describe('driver-vite prep', () => {
     const fs = await Fs.makeTempDir({ prefix: 'driver-vite.published-imports-prep.' });
     const rootDenoJson = Fs.join(fs.absolute, 'deno.json');
     const targetPath = Fs.join(fs.absolute, 'imports.json');
-    const denoFile: Pick<dt.DenoFileLib, 'workspaceVersion'> = {
+    const denoFile: Pick<t.DenoFile.Lib, 'workspaceVersion'> = {
       workspaceVersion(name, src) {
         expect(src).to.eql(rootDenoJson);
         if (name === '@sys/http') return Promise.resolve('0.0.217');
@@ -155,7 +123,7 @@ describe('driver-vite prep', () => {
     const fs = await Fs.makeTempDir({ prefix: 'driver-vite.published-fixture-prep.' });
     const rootDenoJson = Fs.join(fs.absolute, 'deno.json');
     const fixtureDir = Fs.join(fs.absolute, 'fixture');
-    const denoFile: Pick<dt.DenoFileLib, 'workspaceVersion'> = {
+    const denoFile: Pick<t.DenoFile.Lib, 'workspaceVersion'> = {
       workspaceVersion(name, src) {
         expect(src).to.eql(rootDenoJson);
         if (name === '@sys/driver-vite') return Promise.resolve('0.0.297');
@@ -204,9 +172,9 @@ describe('driver-vite prep', () => {
       (await Fs.readJson<{ imports?: Record<string, string> }>(`${SAMPLE.Dirs.samplePublishedUiComponents}/imports.json`))
         .data?.imports ?? {};
 
-    expect(imports['@sys/ui-react-components']).to.match(/^jsr:@sys\/ui-react-components@\d+\.\d+\.\d+$/);
-    expect(imports['@sys/ui-react-components/button']).to.match(
-      /^jsr:@sys\/ui-react-components@\d+\.\d+\.\d+\/button$/,
+    expect(imports['@sys/ui-components']).to.match(/^jsr:@sys\/ui-components@\d+\.\d+\.\d+$/);
+    expect(imports['@sys/ui-components/react/button']).to.match(
+      /^jsr:@sys\/ui-components@\d+\.\d+\.\d+\/react\/button$/,
     );
   });
 

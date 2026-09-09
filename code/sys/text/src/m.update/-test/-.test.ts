@@ -1,9 +1,9 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Update as PublicUpdate } from '@sys/text/update';
-import { Update } from '../mod.ts';
+import { TextUpdate as PublicTextUpdate } from '@sys/text/update';
+import { TextUpdate } from '../mod.ts';
 
-describe(`Update`, () => {
+describe(`TextUpdate`, () => {
   it('API', () => {
-    expect(PublicUpdate).to.equal(Update);
+    expect(PublicTextUpdate).to.equal(TextUpdate);
   });
 });

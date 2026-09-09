@@ -1,6 +1,6 @@
 import { type t, Is } from './common.ts';
 
-export const memo: t.LazyLib['memo'] = (compute, optsInput) => {
+export const memo: t.Lazy.Lib['memo'] = (compute, optsInput) => {
   const { reset$ } = normalizeOptions(optsInput);
   let cached: unknown;
   let hasValue = false;

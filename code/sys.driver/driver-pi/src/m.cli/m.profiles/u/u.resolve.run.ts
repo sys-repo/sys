@@ -1,0 +1,152 @@
+import { Fs, type t } from '../common.ts';
+import { PI_AGENT_IMPORT, resolvePkg } from '../../u/u.resolve.pkg.ts';
+import { resolveSandboxSummary } from '../../u/u.resolve.sandbox.ts';
+import { resolveTempArtifactRoots } from '../../u/u.runtime.ts';
+import { Sandbox } from '../../../m.core/m.extension/m.sandbox/mod.ts';
+import { ProfileMigrate } from '../u.migrate/mod.ts';
+import { ProfileContext } from './u.context.ts';
+import { ProfilesFs } from './u.fs.ts';
+import { ProfilePath } from './u.path.ts';
+import {
+  assertNoPromptSurfacePassthrough,
+  toFinalProvenanceSafetyArgs,
+  toPromptArgs,
+} from './u.prompt.ts';
+import { preflightOcrStartup } from './u.ocr.preflight.ts';
+import { RuntimeMetadata } from './u.runtime.metadata.ts';
+import { resolveExtensions } from './u.resolve.extensions.ts';
+import { PI_BUILTIN_TOOL_NAMES, resolveActiveToolNames } from './u.resolve.tools.ts';
+
+export type ResolvedProfileRun = {
+  readonly cwd: t.PiCli.Cwd;
+  readonly args: readonly string[];
+  readonly read: readonly t.StringPath[];
+  readonly write: readonly t.StringPath[];
+  readonly env: Record<string, string>;
+  readonly allowAll?: boolean;
+  readonly pkg: t.StringModuleSpecifier;
+  readonly sandbox: t.PiCli.SandboxSummary;
+  readonly tools?: readonly string[];
+};
+
+export type ResolveRunOptions = {
+  /** Whether to run and persist launcher-owned extensions. */
+  readonly extensions?: boolean;
+  /** Preflight behavior override. */
+  readonly ocrPreflight?: boolean;
+};
+
+/**
+ * Resolve one validated profile into raw CLI launch inputs without starting Pi.
+ */
+export async function resolveRun(
+  input: t.PiCliProfiles.RunArgs,
+  options: ResolveRunOptions = {},
+): Promise<ResolvedProfileRun> {
+  assertNoPromptSurfacePassthrough(input.args);
+  const cwd = input.cwd;
+  const root = ProfilePath.root(cwd);
+  const runOcrPreflight = options.ocrPreflight !== false && input.ocr?.preflight !== false;
+
+  // CLI profile selection is invocation-relative; paths authored inside YAML are root-relative.
+  const activeProfile = Fs.resolve(cwd.invoked, input.config);
+  await ProfileMigrate.file(activeProfile);
+  const checked = await ProfilesFs.validateYaml(activeProfile);
+  if (!checked.ok) throw new Error(`Could not load profile config: ${Fs.trimCwd(activeProfile)}`);
+
+  const pkg = await resolvePkg({ cwd: root, pkg: input.pkg });
+  const profile = checked.doc;
+  if (profile.tools?.zip?.extract && (input.pkg !== undefined || pkg !== PI_AGENT_IMPORT)) {
+    throw new Error(
+      'Cooperative ZIP extraction requires the canonical dependency-selected Pi host; overrides are refused.',
+    );
+  }
+  const prompt = profile.prompt;
+  const capability = profile.sandbox?.capability;
+  const context = profile.sandbox?.context;
+  const env = { ...(capability?.env ?? {}), ...(input.env ?? {}) };
+  const ocrPreflight = runOcrPreflight
+    ? await preflightOcrStartup({
+      pdf: profile.tools?.ocr?.pdf,
+      env,
+      setup: {
+        installDeps: input.ocr?.installDeps === true,
+        interactive: input.ocr?.interactive === true,
+      },
+    })
+    : { enabled: false as const };
+  const contextResolution = await ProfileContext.resolve({
+    cwd,
+    append: context?.append,
+    defaultSystem: prompt?.system == null,
+  });
+
+  // Preserve caller paths for raw CLI resolution; extension policy receives absolute roots.
+  const read = [...ProfilePath.resolveAll(root, capability?.read), ...(input.read ?? [])];
+  const profileWrite = ProfilePath.resolveAll(root, capability?.write);
+  const callerWrite = input.write ?? [];
+  const write = [...profileWrite, ...callerWrite];
+  const tempArtifactRoots = await resolveTempArtifactRoots();
+  const sandboxFsPolicy = Sandbox.Fs.resolvePolicy({
+    cwd,
+    read: [
+      ...ProfilePath.resolveAll(root, [...(capability?.read ?? []), ...(input.read ?? [])]),
+      ...tempArtifactRoots,
+    ],
+    write: [...profileWrite, ...ProfilePath.resolveAll(root, callerWrite)],
+    remove: profile.tools?.remove,
+    move: profile.tools?.move,
+    copy: profile.tools?.copy,
+  });
+  const extensions = await resolveExtensions({
+    cwd: root,
+    enabled: options.extensions !== false,
+    sandboxFs: sandboxFsPolicy,
+    zip: profile.tools?.zip,
+    ocr: ocrPreflight.enabled
+      ? {
+        cwd,
+        read,
+        policy: ocrPreflight.policy,
+        executables: ocrPreflight.executables,
+        installCommand: ocrPreflight.installCommand,
+      }
+      : undefined,
+  });
+  const tools = pkg === PI_AGENT_IMPORT
+    ? resolveActiveToolNames({
+      args: input.args,
+      source: { builtin: PI_BUILTIN_TOOL_NAMES, extension: extensions.tools },
+    })
+    : undefined;
+  const sandbox = await resolveSandboxSummary({
+    cwd,
+    read,
+    write,
+    allowAll: input.allowAll,
+    context: { include: contextResolution.include },
+  });
+
+  return {
+    cwd,
+    args: [
+      ...toPromptArgs(prompt, {
+        append: contextResolution.systemPromptAppend,
+        finalSafety: false,
+      }),
+      ...contextResolution.args,
+      ...extensions.promptArgs,
+      ...RuntimeMetadata.toPromptArgs({ cwd, profile: activeProfile }),
+      ...extensions.args,
+      ...toFinalProvenanceSafetyArgs(),
+      ...(input.args ?? []),
+    ],
+    read,
+    write,
+    env,
+    allowAll: input.allowAll,
+    pkg,
+    sandbox,
+    ...(tools ? { tools } : {}),
+  };
+}

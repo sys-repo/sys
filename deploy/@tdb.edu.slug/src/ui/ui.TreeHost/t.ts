@@ -5,7 +5,7 @@ export type * from './t.node.ts';
 
 /**
  * Split layout with main tree navigation.
- * UI contract is re-exported from `@sys/ui-react-components/TreeHost`.
+ * UI contract is re-exported from `@sys/ui-components/TreeHost`.
  * Local extension keeps slug-aware Data helpers.
  */
 export type TreeHostLib = {

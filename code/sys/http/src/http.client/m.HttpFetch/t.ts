@@ -1,81 +1,233 @@
 import type { t } from './common.ts';
-export type * from './t.Headers.ts';
-
-type RequestInput = RequestInfo | URL;
 
 /**
- * Tools for working with the `fetch` function in system/standard ways.
+ * HTTP fetch helper contracts.
  */
-export type HttpFetchLib = {
-  /** Fetch helper that can cancel fetch operations mid-stream. */
-  make(args?: HttpFetchCreateOptions | t.UntilInput): t.HttpFetch;
+export declare namespace HttpFetch {
+  /** Fetch helper library. */
+  export type Lib = {
+    /** Create one bounded Fetch capability. */
+    make(options: CreateOptions): Instance;
 
-  /** Probe header information to retrieve the byte-size of an HTTP resource. */
-  byteSize(url: t.StringUrl, fetch: t.HttpFetch): Promise<ByteSizeResult>;
-  byteSize(url: t.StringUrl, until?: t.UntilInput): Promise<ByteSizeResult>;
-};
+    /** Snapshot canonical default Fetch headers. */
+    readonly defaultHeaders: DefaultHeaders.Method;
 
-/** Options passed to the `HttpFetch.create` method. */
-export type HttpFetchCreateOptions = {
-  headers?: t.HttpMutateHeaders;
-  accessToken?: t.StringJwt | (() => t.StringJwt);
-  dispose$?: t.UntilObservable;
+    /** Probe header information to retrieve the byte-size of an HTTP resource. */
+    readonly byteSize: ByteSize.Method;
+  };
+
+  /** Fetch client handle. */
+  export type Instance = t.Lifecycle & {
+    /** HTTP headers map. */
+    readonly headers: t.HttpHeaders;
+
+    /** Retrieve the value for the specified header. */
+    header(name: t.StringHttpHeaderName): t.StringHttpHeader | undefined;
+
+    /** Invoke a bounded fetch with the HTTP verb "HEAD". */
+    head(input: t.FetchInput, init?: Init): Promise<Response<undefined>>;
+
+    /** Invoke a bounded fetch with the HTTP verb "GET" for JSON data. */
+    json<T>(input: t.FetchInput, init?: Init, options?: Options): Promise<Response<T>>;
+
+    /** Invoke a bounded fetch with the HTTP verb "GET" for text data. */
+    text(input: t.FetchInput, init?: Init, options?: Options): Promise<Response<string>>;
+
+    /** Invoke a bounded fetch with the HTTP verb "GET" for binary data. */
+    blob(input: t.FetchInput, init?: Init, options?: Options): Promise<Response<Blob>>;
+  };
+
+  type OwnedInitKey =
+    | 'body'
+    | 'credentials'
+    | 'method'
+    | 'redirect'
+    | 'referrer'
+    | 'referrerPolicy';
+
+  /** Request initialization excluding authority owned by bounded Fetch helpers. */
+  export type Init = Omit<RequestInit, OwnedInitKey> & {
+    readonly body?: never;
+    readonly credentials?: never;
+    readonly method?: never;
+    readonly redirect?: never;
+    readonly referrer?: never;
+    readonly referrerPolicy?: never;
+  };
+
+  /** Response from an HTTP fetch request. */
+  export type Response<T> = ResponseSuccess<T> | ResponseFailure;
+
+  type ResponseCommon = {
+    readonly status: t.HttpStatusCode;
+    readonly statusText: string;
+    readonly headers: Headers;
+    readonly checksum?: ResponseChecksum;
+  };
+
+  /** Successful HTTP fetch response. */
+  export type ResponseSuccess<T> = ResponseCommon & ResponsePolicy.SourceEvidence & {
+    readonly ok: true;
+    readonly data: T;
+    readonly error: undefined;
+  };
+
+  /** Failed HTTP fetch response. */
+  export type ResponseFailure = ResponseCommon & {
+    readonly ok: false;
+    /** Sanitized requested URL retained for diagnostics. */
+    readonly url: t.StringUrl;
+    readonly data: undefined;
+    readonly error: HttpFetch.Error;
+  };
+
+  /** Checksum evidence for fetched response data. */
+  export type ResponseChecksum = {
+    readonly valid: boolean;
+    readonly expected: t.StringHash;
+    readonly received: t.StringHash;
+  };
+
+  /** Standard error extended with HTTP details. */
+  export type Error = t.StdError & {
+    readonly status: t.HttpStatusCode;
+    readonly statusText: string;
+    readonly headers: t.HttpHeaders;
+    /** Stable diagnostic code for an owner-authenticated policy failure. */
+    readonly policyFailure?: ResponsePolicy.FailureKind;
+  };
+
+  /** Options passed to `Fetch.make`. */
+  export type CreateOptions = {
+    /** Finite response and source-authority policy snapshotted by the client. */
+    readonly policy: ResponsePolicy;
+    /** Mutate default headers used by created request helpers. */
+    readonly headers?: Mutate.Headers;
+    /** Access token or token factory normalized into an Authorization header. */
+    readonly accessToken?: t.StringJwt | (() => t.StringJwt);
+    /** Lifecycle boundary that aborts in-flight requests. */
+    readonly until?: t.UntilInput;
+    /**
+     * Controls when the default `content-type` header is set.
+     * - 'corsSafe' (default) sets it only for requests that include a body.
+     * - 'always' sets it whenever a content type is available and the caller omitted one.
+     */
+    readonly contentTypePolicy?: 'corsSafe' | 'always';
+  };
+
   /**
-   * Controls when the default `content-type` header is set.
-   * - 'corsSafe' (default) sets it only for non-GET/HEAD requests that include a body.
-   * - 'always' sets it whenever a content type is available and the user didn't supply one.
+   * Default header snapshot contracts.
    */
-  contentTypePolicy?: 'corsSafe' | 'always';
-};
+  export namespace DefaultHeaders {
+    /** Canonical default-header construction authority. */
+    export type Options = Readonly<Pick<CreateOptions, 'accessToken' | 'headers'>>;
 
-/**
- * A `fetch` helper that implements the `disposable` pattern using
- * an AbortController and signals to cancel fetch operations mid-stream.
- */
-export type HttpFetch = t.Lifecycle & {
-  /** HTTP headers map. */
-  readonly headers: t.HttpHeaders;
+    /** Snapshot canonical default Fetch headers. */
+    export type Method = (options: Options) => Headers;
+  }
 
-  /** Retrieve the value for the specified header. */
-  header(name: t.StringHttpHeaderName): t.StringHttpHeader | undefined;
+  /** Options passed to body-bearing Fetch helpers. */
+  export type Options = {
+    /** Optional expected checksum for validating successful response data. */
+    readonly checksum?: t.StringHash;
+    /** Receive bounded body-transfer progress. */
+    readonly onProgress?: ResponsePolicy.ProgressHandler;
+  };
 
-  /** Invoke a fetch with the HTTP verb "HEAD" (no response body expected). */
-  head(
-    input: RequestInput,
-    init?: RequestInit,
-    options?: t.HttpFetchOptions,
-  ): Promise<t.FetchResponse<undefined>>;
+  /** Finite response and source-authority policy. */
+  export type ResponsePolicy = {
+    /** Maximum successful response-body bytes retained. */
+    readonly maxBytes: t.NumberBytes;
+    /** Maximum milliseconds for one complete Fetch operation. */
+    readonly timeout: t.Msecs;
+    /** Maximum redirect hops followed. */
+    readonly maxRedirects: number;
+    /** Minimum milliseconds between non-terminal progress events. */
+    readonly progressInterval: t.Msecs;
+    /** Exact HTTP(S) origins admitted for requests. */
+    readonly sourceOrigins: readonly t.StringUrl[];
+    /** Admitted source origins authorized to receive caller/default headers. */
+    readonly credentialOrigins: readonly t.StringUrl[];
+  };
 
-  /** Invoke a fetch with the HTTP verb "GET" to retrieve "application/json". */
-  json<T>(
-    input: RequestInput,
-    init?: RequestInit,
-    options?: t.HttpFetchOptions,
-  ): Promise<t.FetchResponse<T>>;
+  /**
+   * Bounded response-policy contracts.
+   */
+  export namespace ResponsePolicy {
+    /** Requested and terminal source evidence from a successful policy-bound request. */
+    export type SourceEvidence = {
+      readonly requestedUrl: t.StringUrl;
+      readonly finalUrl: t.StringUrl;
+    };
 
-  /** Invoke a fetch with the HTTP verb "GET" to retrieve "text/plain". */
-  text(
-    input: RequestInput,
-    init?: RequestInit,
-    options?: t.HttpFetchOptions,
-  ): Promise<t.FetchResponse<string>>;
+    /** Synchronous body-transfer progress callback. */
+    export type ProgressHandler = (event: ProgressEvent) => void;
 
-  /** Invoke a fetch with the HTTP verb "GET" to retrieve "application/octet-stream" binary file data. */
-  blob(
-    input: RequestInput,
-    init?: RequestInit,
-    options?: t.HttpFetchOptions,
-  ): Promise<t.FetchResponse<Blob>>;
-};
+    /** Body-transfer progress from a policy-bound response. */
+    export type ProgressEvent = SourceEvidence & {
+      readonly loaded: t.NumberBytes;
+      readonly total?: t.NumberBytes;
+      readonly complete: boolean;
+    };
 
-/** Options passed to the `fetch.text` method. */
-export type HttpFetchOptions = { checksum?: t.StringHash };
+    /** Stable diagnostic code for a bounded Fetch policy failure. */
+    export type FailureKind =
+      | 'invalid-policy'
+      | 'invalid-request'
+      | 'invalid-url'
+      | 'source-denied'
+      | 'redirect-invalid'
+      | 'redirect-downgrade'
+      | 'redirect-loop'
+      | 'redirect-limit'
+      | 'response-timeout'
+      | 'response-too-large'
+      | 'progress-failure';
+  }
 
-/**
- * Response from `Fetch.byteSize` method.
- */
-export type ByteSizeResult = Readonly<{
-  url: string;
-  bytes?: t.NumberBytes;
-  from: 'head' | 'range' | 'unknown';
-}>;
+  /**
+   * Fetch mutation contracts.
+   */
+  export namespace Mutate {
+    /** Safely mutate headers within a fetch client. */
+    export type Headers = (e: Headers.Args) => void;
+
+    /**
+     * Header mutation contracts.
+     */
+    export namespace Headers {
+      /** Header mutation callback arguments. */
+      export type Args = {
+        /** Current HTTP headers. */
+        readonly headers: t.HttpHeaders;
+        /** Retrieve a header by name when present. */
+        get(name: t.StringHttpHeaderName): t.StringHttpHeader | undefined;
+        /** Set or remove a header value. */
+        set(
+          name: t.StringHttpHeaderName,
+          value: t.StringHttpHeader | number | null,
+        ): Args;
+      };
+    }
+  }
+
+  /**
+   * HTTP byte-size probing contracts.
+   */
+  export namespace ByteSize {
+    /** Probe header information to retrieve the byte-size of an HTTP resource. */
+    export type Method = (url: t.StringUrl, until?: t.UntilInput) => Promise<Result>;
+
+    /** Response from `Fetch.byteSize`. */
+    export type Result = Readonly<{
+      /** URL that was probed. */
+      url: string;
+      /** Byte size when discoverable from headers. */
+      bytes?: t.NumberBytes;
+      /** Indicates that probing ended because its lifecycle was cancelled. */
+      cancelled?: true;
+      /** Header strategy that produced the byte size. */
+      from: 'head' | 'range' | 'unknown';
+    }>;
+  }
+}

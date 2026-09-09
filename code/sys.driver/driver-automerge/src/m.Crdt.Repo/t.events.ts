@@ -18,7 +18,7 @@ export type CrdtRepoEvents = t.Lifecycle & {
 };
 
 /**
- * Wire-level repo events (i.e. things that actually travel over the wire).
+ * Repo events that travel over the worker wire.
  * - Used by Wire.Is.repoEvent and by the worker attach layer.
  */
 export type CrdtRepoWireEvent = CrdtRepoPropChangeEvent | CrdtNetworkChangeEvent;

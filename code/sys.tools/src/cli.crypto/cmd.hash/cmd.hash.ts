@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Time } from '../common.ts';
+import { c, Cli, Fs, type t, Time } from '../common.ts';
 import { HashFmt } from './u.fmt.ts';
 import { HashJobSchema } from './u.hash.schema.ts';
 import { HashRowDist } from './u.row.dist.ts';
@@ -28,7 +28,11 @@ export async function hashDir(
       if (kinds.length > 0) {
         const removed = await HashPreflight.deleteSelected(preflight, kinds);
         console.info();
-        console.info(c.yellow(`deleted ${removed.toLocaleString()} pre-clean ${removed === 1 ? 'file' : 'files'}`));
+        console.info(
+          c.yellow(
+            `deleted ${removed.toLocaleString()} pre-clean ${removed === 1 ? 'file' : 'files'}`,
+          ),
+        );
         console.info();
         preflight = await HashPreflight.scan(resolved);
       } else {
@@ -95,6 +99,7 @@ export async function hashDir(
       elapsed,
       dirLabel,
       dist: distRow,
+      showManifestIntegrity: saveDist,
     }),
   );
   console.info();

@@ -1,3 +1,5 @@
+import { Host } from './u.host.ts';
+
 /**
  * Host-agnostic port utilities.
  * Probes IPv4 and IPv6 wildcards + loopbacks; no hostname required.
@@ -51,14 +53,9 @@ export function probe(hostname: string, port: number): ProbeResult {
  */
 export function probeTargets(): readonly string[] {
   const targets: string[] = [
-    '0.0.0.0', //   ← IPv4 any
-    '127.0.0.1', // ← IPv4 loopback
+    Host.ipv4.wildcard,
+    Host.ipv4.loopback,
   ];
-  if (ipv6Supported()) {
-    targets.push(
-      '::', // IPv6 any
-      '::1',
-    ); // IPv6 loopback
-  }
+  if (ipv6Supported()) targets.push(Host.ipv6.wildcard, Host.ipv6.loopback);
   return targets;
 }

@@ -1,11 +1,11 @@
 import { type t } from './common.ts';
 import { normalize } from './u.normalize.ts';
 
-export const Durations: t.TimecodeCompositeLib['Durations'] = {
+export const Durations: t.Timecode.Composite.Lib['Durations'] = Object.freeze({
   diff,
   probe,
   with: merge,
-};
+});
 
 /**
  * List srcs whose duration changed.
@@ -52,8 +52,8 @@ function merge(
     const eff = finiteNonNeg(inline)
       ? inline
       : finiteNonNeg(fromMap)
-        ? (fromMap as t.Msecs)
-        : undefined;
+      ? (fromMap as t.Msecs)
+      : undefined;
     return eff === undefined ? p : { ...p, duration: eff };
   });
 }

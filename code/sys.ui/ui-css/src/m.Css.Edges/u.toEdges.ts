@@ -2,7 +2,7 @@ import { Is, type t } from './common.ts';
 
 type O = Record<string, unknown>;
 
-export const toEdges: t.CssToEdges<t.CssEdges> = (input, options = {}) => {
+export const toEdges: t.CssEdges.ToEdges<t.CssEdges.Shape> = (input, options = {}) => {
   if ((Array.isArray(input) && input.length === 0) || Is.blank(input)) {
     const { defaultValue } = options;
     if (defaultValue && !Is.blank(defaultValue)) {
@@ -15,7 +15,7 @@ export const toEdges: t.CssToEdges<t.CssEdges> = (input, options = {}) => {
   input = input || 0;
 
   if (!Array.isArray(input)) {
-    input = input.toString().split(' ') as [t.CssEdgeInput];
+    input = input.toString().split(' ') as [t.CssEdges.ValueInput];
   }
 
   const edges = input
@@ -69,12 +69,12 @@ export const toEdges: t.CssToEdges<t.CssEdges> = (input, options = {}) => {
   }
 };
 
-export const toMargins: t.CssToEdges<t.CssMarginEdges> = (input, options = {}) => {
-  return prefixEdges<t.CssMarginEdges>('margin', toEdges(input, options));
+export const toMargins: t.CssEdges.ToEdges<t.CssEdges.Margin.Shape> = (input, options = {}) => {
+  return prefixEdges<t.CssEdges.Margin.Shape>('margin', toEdges(input, options));
 };
 
-export const toPadding: t.CssToEdges<t.CssPaddingEdges> = (input, options = {}) => {
-  return prefixEdges<t.CssPaddingEdges>('padding', toEdges(input, options));
+export const toPadding: t.CssEdges.ToEdges<t.CssEdges.Padding.Shape> = (input, options = {}) => {
+  return prefixEdges<t.CssEdges.Padding.Shape>('padding', toEdges(input, options));
 };
 
 /**
@@ -82,22 +82,22 @@ export const toPadding: t.CssToEdges<t.CssPaddingEdges> = (input, options = {}) 
  */
 
 /** Prefixes each of the edge properties with the given prefix. */
-export function prefixEdges<T extends O>(prefix: string, edges: Partial<t.CssEdges>): T {
+export function prefixEdges<T extends O>(prefix: string, edges: Partial<t.CssEdges.Shape>): T {
   return Object.keys(edges).reduce((acc, key) => {
-    const value = edges[key as keyof t.CssEdges];
+    const value = edges[key as keyof t.CssEdges.Shape];
     key = `${prefix}${key[0].toUpperCase()}${key.substring(1)}`;
     return { ...acc, [key]: value };
   }, {}) as T;
 }
 
 const wrangle = {
-  defaultValue(value?: t.CssEdgeDefault) {
+  defaultValue(value?: t.CssEdges.Default) {
     if (value === undefined || value === null) return null;
     if (Is.num(value) || Is.str(value)) return value;
     return null;
   },
 
-  asArray(input: t.CssEdgesInput, defaultValue?: t.CssEdgeDefault) {
+  asArray(input: t.CssEdges.Input, defaultValue?: t.CssEdges.Default) {
     if (input === null || input === undefined) return [wrangle.defaultValue(defaultValue)];
     return Array.isArray(input) ? input : [input];
   },

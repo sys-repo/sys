@@ -4,7 +4,7 @@ import { rewriteImport, rewriteJson } from './task.prep.u.ts';
 const DRIVER_PKG = '@sys/driver-vite';
 const BRIDGE_IMPORT_PATTERN = /from 'jsr:@sys\/driver-vite(?:@[^']+)?'/;
 
-export type DenoFileVersionLib = Pick<t.DenoFileLib, 'workspaceVersion'>;
+export type DenoFileVersionLib = Pick<t.DenoFile.Lib, 'workspaceVersion'>;
 
 export async function syncPublishedFixtureImport(args: {
   rootDenoJson: string;

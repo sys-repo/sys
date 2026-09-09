@@ -1,10 +1,9 @@
-import { type t, Arr, Err, exists, Path, Rx } from './common.ts';
-import type { FsWatchLib } from './t.ts';
+import { Arr, Err, exists, Path, Rx, type t } from './common.ts';
 
 /**
  * Tools for watching file-system changes.
  */
-export const Watch: FsWatchLib = {
+export const Watch: t.Watch.Lib = Object.freeze({
   /**
    * Start a file-system watcher instance.
    */
@@ -12,9 +11,9 @@ export const Watch: FsWatchLib = {
     const { recursive = true } = options;
     const paths = Arr.asArray(pathInput);
     const errors = Err.errors();
-    const life = Rx.lifecycle(options.dispose$);
+    const life = Rx.lifecycle(options.until);
 
-    const $$ = Rx.subject<t.FsWatchEvent>();
+    const $$ = Rx.subject<t.Watch.Event>();
     const $ = $$.pipe(Rx.takeUntil(life.dispose$));
 
     let _watcher: Deno.FsWatcher | undefined;
@@ -40,18 +39,18 @@ export const Watch: FsWatchLib = {
 
     if (exists.ok) {
       _watcher = Deno.watchFs(paths, { recursive });
-      listen(_watcher);
+      void listen(_watcher);
     }
 
     /**
      * API
      */
-    const api = Rx.toLifecycle<t.FsWatcher>(life, {
+    const api = Rx.toLifecycle<t.Watch.Instance>(life, {
       get $() {
         return $;
       },
       get paths() {
-        return paths;
+        return [...paths];
       },
       get exists() {
         return exists.ok;
@@ -65,7 +64,7 @@ export const Watch: FsWatchLib = {
     });
     return api;
   },
-};
+});
 
 /**
  * Helpers

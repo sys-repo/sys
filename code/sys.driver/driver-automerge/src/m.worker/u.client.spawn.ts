@@ -1,16 +1,17 @@
-import { type t, CrdtCmd, Rx, Schedule } from './common.ts';
+import { CrdtCmd, Rx, Schedule, type t } from './common.ts';
 
 import { createRepo } from './u.client.proxy.repo.ts';
 import { Wire } from './u.wire.ts';
 
 /**
- * Spawn a Web Worker and return { worker, repoFacade }.
- * Client-side helper: creates MessageChannel, posts port2 to worker, binds facade to port1.
+ * Spawn a Web Worker and return its worker-backed repo proxy.
+ * Creates a MessageChannel, transfers port2 to the worker, and binds the repo to port1.
  */
 export const spawn: t.CrdtWorkerClientLib['spawn'] = async (input, opts = {}) => {
   const { until, config } = opts;
-  const worker =
-    input instanceof Worker ? input : new Worker(input, opts.worker ?? { type: 'module' });
+  const worker = input instanceof Worker
+    ? input
+    : new Worker(input, opts.worker ?? { type: 'module' });
 
   const { port1, port2 } = new MessageChannel();
   const repo = createRepo(port1, { until });

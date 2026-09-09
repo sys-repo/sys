@@ -1,0 +1,15 @@
+# Pi profile: @sys/cell sample default.
+#
+# Vanilla sample profile for starting Pi from ./-sample without system canon grants.
+# The launcher may still load cwd-local default context files (AGENTS.md, SYSTEM.md) if present.
+
+prompt:
+  system: null # default: use the wrapper-owned Pi system prompt
+
+sandbox:
+  capability:
+    read: []
+    write: []
+    env: {}
+  context:
+    append: []

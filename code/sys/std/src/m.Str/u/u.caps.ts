@@ -1,0 +1,8 @@
+import { Is, type t } from '../common.ts';
+
+/** Capitalize the given word. */
+export const capitalize: t.Str.Lib['capitalize'] = (word) => {
+  if (!Is.string(word)) return String(word);
+  if (!word) return word;
+  return word[0].toLocaleUpperCase() + word.slice(1);
+};

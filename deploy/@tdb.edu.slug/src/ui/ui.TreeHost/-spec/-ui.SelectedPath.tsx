@@ -39,7 +39,7 @@ export const SelectedPath: React.FC<SelectedPathProps> = (props) => {
   };
 
   const mono = true;
-  const items: t.KeyValueItem[] = [{ kind: 'title', v: title }];
+  const items: t.KeyValue.Item[] = [{ kind: 'title', v: title }];
 
   items.push({
     k: (

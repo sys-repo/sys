@@ -11,7 +11,7 @@ type BinaryFileFormatted = {
  * Display formatter:
  */
 export const Fmt = {
-  file(f: t.BinaryFile): BinaryFileFormatted {
+  file(f: t.BinaryFile.File): BinaryFileFormatted {
     return {
       name: f.name,
       type: f.type,
@@ -20,12 +20,12 @@ export const Fmt = {
     };
   },
 
-  toFileList(filemap: t.BinaryFileMap = {}) {
+  toFileList(filemap: t.BinaryFile.Map = {}) {
     if (!filemap) return [];
     return Object.values(filemap).map((f) => Fmt.file(f));
   },
 
-  fileMap(filemap: t.BinaryFileMap = {}) {
+  fileMap(filemap: t.BinaryFile.Map = {}) {
     const res: Record<string, BinaryFileFormatted> = {};
     Object.entries(filemap).forEach(([key, f]) => {
       const hash = Hash.shorten(key, [0, 5]);

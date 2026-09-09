@@ -1,6 +1,6 @@
-import { Str } from './common.ts';
-import type { FileSizeLib } from './t.ts';
+import { type t, Str } from './common.ts';
 
-export const FileSize: FileSizeLib = {
+/** File-size formatting helpers. */
+export const FileSize: t.File.Size.Lib = {
   toString: Str.bytes,
 };

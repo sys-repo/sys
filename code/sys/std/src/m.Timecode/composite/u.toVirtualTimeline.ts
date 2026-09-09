@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Pure functional implementation of `Composite.toVirtualTimeline`.
  */
-export const toVirtualTimeline: t.TimecodeCompositeLib['toVirtualTimeline'] = (spec) => {
+export const toVirtualTimeline: t.Timecode.Composite.Lib['toVirtualTimeline'] = (spec) => {
   const issues: t.TimecodeIssue[] = [];
 
   const pieces = spec?.length ?? 0;
@@ -67,12 +67,11 @@ export const toVirtualTimeline: t.TimecodeCompositeLib['toVirtualTimeline'] = (s
       } else if (piece.duration != null) {
         const total = piece.duration;
         const startMs: t.Msecs = parsed.start.kind === 'abs' ? parsed.start.ms : 0;
-        const endMs =
-          parsed.end.kind === 'abs'
-            ? parsed.end.ms
-            : parsed.end.kind === 'open'
-              ? total
-              : Number(total) - Number(parsed.end.ms); // relEnd
+        const endMs = parsed.end.kind === 'abs'
+          ? parsed.end.ms
+          : parsed.end.kind === 'open'
+          ? total
+          : Number(total) - Number(parsed.end.ms); // relEnd
 
         from = startMs;
         to = endMs;

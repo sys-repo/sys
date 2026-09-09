@@ -3,10 +3,22 @@ import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
 import { D } from '../common.ts';
-import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch, textResponse } from './u.fixture.ts';
 
 describe('SlugClient.FromEndpoint.FileContent', () => {
-  const FileContent = SlugClient.FromEndpoint.FileContent;
+  const endpoint = SlugClient.FromEndpoint.FileContent;
+  const FileContent = {
+    index(
+      baseUrl: t.StringUrl,
+      docid: t.StringId,
+      options: t.SlugScopedLoadOptions = {},
+    ) {
+      return endpoint.index(baseUrl, docid, { ...LOAD_OPTIONS, ...options });
+    },
+    get(baseUrl: t.StringUrl, hash: string, options: t.SlugScopedLoadOptions = {}) {
+      return endpoint.get(baseUrl, hash, { ...LOAD_OPTIONS, ...options });
+    },
+  };
 
   it('loads slug-file-content index (happy path)', async () => {
     const docid = 'crdt:file-index' as t.StringId;
@@ -63,7 +75,7 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
     }
   });
 
-  it('passes RequestInit extras but enforces cache policy', async () => {
+  it('passes admitted init extras but enforces GET and cache policy', async () => {
     const docid = 'crdt:file-init' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const index: t.SlugFileContentIndex = { docid: cleaned, entries: [] };
@@ -77,21 +89,19 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
     });
 
     try {
-      const init: RequestInit = {
-        method: 'POST',
+      const init: t.HttpFetch.Init = {
         headers: { 'x-file': '1' },
         cache: 'force-cache',
       };
       const result = await FileContent.index('http://example.com/', docid, { init });
       if (!result.ok) throw new Error('expected index result');
       const headers = seenInit?.headers;
-      const headerValue =
-        headers instanceof Headers
-          ? headers.get('x-file')
-          : headers && typeof headers === 'object' && !Array.isArray(headers)
-            ? (headers as Record<string, string>)['x-file']
-            : undefined;
-      expect(seenInit?.method).to.equal('POST');
+      const headerValue = headers instanceof Headers
+        ? headers.get('x-file')
+        : headers && typeof headers === 'object' && !Array.isArray(headers)
+        ? (headers as Record<string, string>)['x-file']
+        : undefined;
+      expect(seenInit?.method).to.equal('GET');
       expect(headerValue).to.eql('1');
       expect(seenInit?.cache).to.eql(D.CACHE_INIT.cache);
     } finally {
@@ -103,8 +113,9 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
     const docid = 'crdt:file-http' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned))) {
         return textResponse('Not Found', { status: 404, statusText: 'Not Found' });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -125,8 +136,9 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
     const docid = 'crdt:file-schema' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned))) {
         return jsonResponse({ docid: cleaned });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -146,11 +158,12 @@ describe('SlugClient.FromEndpoint.FileContent', () => {
     const docid = 'crdt:file-mismatch' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned)))
+      if (url.includes(SlugClient.Url.treeAssetsFilename(cleaned))) {
         return jsonResponse({
           docid: 'other-doc',
           entries: [],
         });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 

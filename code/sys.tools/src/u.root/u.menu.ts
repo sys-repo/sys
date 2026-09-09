@@ -1,7 +1,6 @@
-import { type t, c, Cli, pkg } from './common.ts';
+import { c, Cli, Fmt, pkg, Str, type t } from './common.ts';
 import { isToolCommand } from './u.is.ts';
 import { rootRows } from './u.rows.ts';
-import { dedent, trimEdgeNewlines } from './u.text.ts';
 
 type RootMenuAction = t.Root.Command | 'more' | 'back' | 'exit';
 export type RootMenuPick =
@@ -10,11 +9,11 @@ export type RootMenuPick =
 
 const ROOT_MENU_MAX_ROWS = 20;
 
-export async function rootMenu(args: { highlightUpdate?: boolean } = {}): Promise<RootMenuPick> {
+export async function rootMenu(args: { highlightUpgrade?: boolean } = {}): Promise<RootMenuPick> {
   let scope: 'primary' | 'secondary' = 'primary';
 
   while (true) {
-    const picked = await promptMenu(scope, args.highlightUpdate);
+    const picked = await promptMenu(scope, args.highlightUpgrade);
 
     if (picked === 'exit') return { kind: 'exit' };
     if (picked === 'more') {
@@ -31,7 +30,7 @@ export async function rootMenu(args: { highlightUpdate?: boolean } = {}): Promis
 }
 
 export function optionLines(table: string): string[] {
-  return trimEdgeNewlines(table)
+  return Str.trimEdgeNewlines(table)
     .split('\n')
     .filter((line) => visibleText(line).length > 0);
 }
@@ -47,16 +46,23 @@ function visibleText(input?: string): string {
 }
 
 export function menuMessage(): string {
-  return dedent(`
+  return Str.dedent(`
     ${c.green('system:tools')}${c.gray(c.dim('@'))}${c.gray(pkg.version)}
       ${c.dim(Cli.Fmt.Tree.vert)}
   `);
 }
 
-async function promptMenu(scope: 'primary' | 'secondary', highlightUpdate?: boolean): Promise<RootMenuAction> {
+async function promptMenu(
+  scope: 'primary' | 'secondary',
+  highlightUpgrade?: boolean,
+): Promise<RootMenuAction> {
   const rows = scope === 'primary'
-    ? [...toolMenuRows('primary', highlightUpdate), specialRow('more'), ...toolMenuRows('utility', highlightUpdate)]
-    : [...toolMenuRows('secondary', highlightUpdate), specialRow('back')];
+    ? [
+      ...toolMenuRows('primary', highlightUpgrade),
+      specialRow('more'),
+      ...toolMenuRows('utility', highlightUpgrade),
+    ]
+    : [...toolMenuRows('secondary', highlightUpgrade), specialRow('back')];
   const options = rowsToOptions(rows);
 
   const picked = await Cli.Input.Select.prompt<RootMenuAction>({
@@ -72,9 +78,15 @@ async function promptMenu(scope: 'primary' | 'secondary', highlightUpdate?: bool
 
 type MenuRow = { readonly value: RootMenuAction; readonly columns: readonly string[] };
 
-function toolMenuRows(group: 'primary' | 'secondary' | 'utility', highlightUpdate?: boolean): MenuRow[] {
-  const highlightCommand = highlightUpdate ? 'update' : undefined;
-  return rootRows(group, { highlightCommand }).map((row) => ({ value: row.command, columns: row.columns }));
+function toolMenuRows(
+  group: 'primary' | 'secondary' | 'utility',
+  highlightUpgrade?: boolean,
+): MenuRow[] {
+  const highlightCommand = highlightUpgrade ? 'upgrade' : undefined;
+  return rootRows(group, { highlightCommand }).map((row) => ({
+    value: row.command,
+    columns: row.columns,
+  }));
 }
 
 function isRootMenuAction(value: string): value is RootMenuAction {
@@ -125,9 +137,7 @@ function specialRow(kind: 'more' | 'back'): MenuRow {
   return {
     value: kind,
     columns: [
-      kind === 'more'
-        ? c.gray(c.italic('more...'))
-        : c.gray('← back'),
+      kind === 'more' ? c.gray(c.italic('more...')) : Fmt.back(),
     ],
   };
 }

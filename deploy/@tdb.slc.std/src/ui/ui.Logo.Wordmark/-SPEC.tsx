@@ -1,5 +1,5 @@
-import { Dev, Signal, Spec } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Harness, Signal, Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { LogoWordmark } from './mod.ts';
 
 export default Spec.describe('Logo.Wordmark', (e) => {
@@ -15,7 +15,7 @@ export default Spec.describe('Logo.Wordmark', (e) => {
       else ctx.subject.size([width, null]);
     };
 
-    Dev.Theme.signalEffect(ctx, p.theme);
+    Harness.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       debug.listen();
       updateSize();

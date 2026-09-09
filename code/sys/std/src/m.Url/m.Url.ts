@@ -6,8 +6,8 @@ import { toCanonical } from './u.toCanonical.ts';
 /**
  * Helpers for a URL used within an HTTP fetch client.
  */
-export const Url: t.UrlLib = {
+export const Url: t.Url.Lib = Object.freeze({
   normalize,
   parse,
   toCanonical,
-} as const;
+});

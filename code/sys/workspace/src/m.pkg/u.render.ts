@@ -1,10 +1,10 @@
-import { Str, type t } from './common.ts';
+import { Str } from './common.ts';
 
 /**
  * Render canonical package metadata module text from `deno.json` values.
  */
 export function renderPkg(args: { name: string; version: string }) {
-  return `${Str.dedent(`
+  const text = Str.dedent(`
     import type { Pkg } from '@sys/types';
 
     /**
@@ -20,7 +20,10 @@ export function renderPkg(args: { name: string; version: string }) {
      *    - DO check this file in to source control.
      *    - Do NOT manually alter this file.
      */
-    export const pkg: Pkg = { name: '${args.name}', version: '${args.version}' };
-  `)}
-`;
+    export const pkg: Readonly<Pkg> = Object.freeze({
+      name: '${args.name}',
+      version: '${args.version}',
+    });
+  `);
+  return `${text}\n`;
 }

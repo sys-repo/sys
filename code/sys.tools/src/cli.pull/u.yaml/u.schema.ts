@@ -1,21 +1,54 @@
-import { type t, Schema } from '../common.ts';
+import { Schema, type t } from '../common.ts';
 
-const BundleSharedSchema = {
-  local: Schema.Type.Object(
-    {
-      dir: Schema.Type.String(),
-      clear: Schema.Type.Optional(Schema.Type.Boolean()),
-    },
-    { additionalProperties: false },
-  ),
-  lastUsedAt: Schema.Type.Optional(Schema.Type.Number()),
+const RelativeDirSchema = Schema.Type.String({
+  pattern:
+    '^(?!.*[\\u0000-\\u001f\\u007f-\\u009f])(?!.*\\\\)(?![~/\\\\])(?![A-Za-z]:)(?!\\.{1,2}$)(?!\\.\\.[/\\\\])(?!.*[/\\\\]\\.\\.(?:[/\\\\]|$)).+$',
+});
+
+const MutationModeSchema = Schema.Type.Union([
+  Schema.Type.Literal('create'),
+  Schema.Type.Literal('replace'),
+]);
+
+const MutableTargetSchema = Schema.Type.Object(
+  {
+    dir: RelativeDirSchema,
+    mode: MutationModeSchema,
+  },
+  { additionalProperties: false },
+);
+
+const PositiveSafeIntegerSchema = Schema.Type.Integer({
+  minimum: 1,
+  maximum: Number.MAX_SAFE_INTEGER,
+});
+
+const GithubLimitsSchema = Schema.Type.Object(
+  {
+    metadataBytes: PositiveSafeIntegerSchema,
+    entries: PositiveSafeIntegerSchema,
+    fileBytes: PositiveSafeIntegerSchema,
+    totalBytes: PositiveSafeIntegerSchema,
+    totalTime: PositiveSafeIntegerSchema,
+  },
+  { additionalProperties: false },
+);
+
+const GithubBundleSharedSchema = {
+  repo: Schema.Type.String({
+    pattern: '^(?!\\.{1,2}/)(?![A-Za-z0-9_.-]+/\\.{1,2}$)[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$',
+  }),
+  local: MutableTargetSchema,
+  limits: GithubLimitsSchema,
 } as const;
 
-const BundleHttpSchema = Schema.Type.Object(
+const BundleDistSchema = Schema.Type.Object(
   {
-    kind: Schema.Type.Literal('http'),
-    dist: Schema.Type.String(),
-    ...BundleSharedSchema,
+    kind: Schema.Type.Literal('dist'),
+    manifest: Schema.Type.String({ pattern: '^https?://[^\\s]+$' }),
+    integrity: Schema.Type.String({ pattern: '^sha256-[0-9a-f]{64}$' }),
+    store: RelativeDirSchema,
+    project: Schema.Type.Optional(MutableTargetSchema),
   },
   { additionalProperties: false },
 );
@@ -23,7 +56,7 @@ const BundleHttpSchema = Schema.Type.Object(
 const BundleGithubReleaseSchema = Schema.Type.Object(
   {
     kind: Schema.Type.Literal('github:release'),
-    repo: Schema.Type.String({ pattern: '^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$' }),
+    ...GithubBundleSharedSchema,
     tag: Schema.Type.Optional(Schema.Type.String()),
     asset: Schema.Type.Optional(
       Schema.Type.Union([
@@ -31,7 +64,16 @@ const BundleGithubReleaseSchema = Schema.Type.Object(
         Schema.Type.Array(Schema.Type.String(), { minItems: 1 }),
       ]),
     ),
-    ...BundleSharedSchema,
+  },
+  { additionalProperties: false },
+);
+
+const BundleGithubRepoSchema = Schema.Type.Object(
+  {
+    kind: Schema.Type.Literal('github:repo'),
+    ...GithubBundleSharedSchema,
+    ref: Schema.Type.Optional(Schema.Type.String()),
+    path: Schema.Type.Optional(Schema.Type.String()),
   },
   { additionalProperties: false },
 );
@@ -50,24 +92,9 @@ export const PullYamlSchema = {
   schema: Schema.Type.Object(
     {
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
-      defaults: Schema.Type.Optional(
-        Schema.Type.Object(
-          {
-            local: Schema.Type.Optional(
-              Schema.Type.Object(
-                {
-                  clear: Schema.Type.Optional(Schema.Type.Boolean()),
-                },
-                { additionalProperties: false },
-              ),
-            ),
-          },
-          { additionalProperties: false },
-        ),
-      ),
       bundles: Schema.Type.Optional(
         Schema.Type.Array(
-          Schema.Type.Union([BundleHttpSchema, BundleGithubReleaseSchema]),
+          Schema.Type.Union([BundleDistSchema, BundleGithubReleaseSchema, BundleGithubRepoSchema]),
         ),
       ),
     },
