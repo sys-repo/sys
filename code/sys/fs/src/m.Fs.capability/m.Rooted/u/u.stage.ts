@@ -1,6 +1,6 @@
 import { Is, Num, StdPath, type t } from '../common.ts';
 import { activityIo, drainActivity, stageActivity } from './u.activity.ts';
-import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
+import { checkCancelled, cleanupFailure, failure, ioFailure, isFailure } from './u.error.ts';
 import type { Io } from './u.io.ts';
 import {
   borrowLease,
@@ -172,15 +172,13 @@ export async function createStage(
     stages.set(handle, state);
     return handle;
   } catch (cause) {
-    let pending = cause;
     try {
       await drainActivity(activity, operation);
       await removeContainer(io, container, containerIdentity, operation);
     } catch (cleanupCause) {
-      pending = cleanupCause;
+      throw cleanupFailure(operation, cause, cleanupCause);
     }
-    if (isFailure(pending)) throw pending;
-    throw ioFailure(operation, pending);
+    throw ioFailure(operation, cause);
   }
 }
 
@@ -305,8 +303,20 @@ export async function promoteStage(
       try {
         await io.rename(state.content, target.absolute);
       } catch (cause) {
-        const published = await lstatMaybe(io, target.absolute, operation);
-        const source = await lstatMaybe(io, state.content, operation);
+        let published: Deno.FileInfo | undefined;
+        let source: Deno.FileInfo | undefined;
+        try {
+          published = await lstatMaybe(io, target.absolute, operation);
+          source = await lstatMaybe(io, state.content, operation);
+        } catch (reconciliationCause) {
+          // A rejected rename does not prove that it had no effect. Close construction authority
+          // and retain the stage when observation cannot establish either publication outcome.
+          activity.status = 'published';
+          throw failure(operation, 'unsafe-filesystem', {
+            cause: new SuppressedError(reconciliationCause, cause),
+            committed: true,
+          });
+        }
         const moved = published?.isDirectory &&
           !published.isSymlink &&
           sameIdentity(state.contentIdentity, published) &&
@@ -384,7 +394,12 @@ export async function promoteStage(
       try {
         await discardActive(io, state, operation, promotion);
       } catch (cleanupCause) {
-        pending = toFailure(operation, cleanupCause, prePublicationCommitted);
+        pending = cleanupFailure(
+          operation,
+          operationFailure,
+          cleanupCause,
+          prePublicationCommitted,
+        );
       }
     }
   } finally {
@@ -398,7 +413,11 @@ export async function promoteStage(
             cause,
             outcome === 'published' || prePublicationCommitted,
           );
-        } else pending ??= cause;
+        } else {
+          pending = pending
+            ? cleanupFailure(operation, pending, cause, prePublicationCommitted)
+            : toFailure(operation, cause, prePublicationCommitted);
+        }
       }
     }
     if (borrow) releaseLeaseBorrow(borrow);
@@ -484,12 +503,13 @@ async function makeStageMovable(
   committed: boolean,
   promotion: object,
 ): Promise<boolean> {
+  let info: Deno.FileInfo | undefined;
   try {
     await validateActive(io, state, operation, promotion);
+    info = await lstatMaybe(io, state.content, operation);
   } catch (cause) {
     throw toFailure(operation, cause, committed);
   }
-  const info = await lstatMaybe(io, state.content, operation);
   if (!info?.isDirectory || info.isSymlink || !sameIdentity(state.contentIdentity, info)) {
     throw failure(operation, 'ownership-lost', { committed });
   }
@@ -514,12 +534,13 @@ async function makeStageMovable(
   }
 
   const currentCommitted = committed || changed;
+  let movable: Deno.FileInfo | undefined;
   try {
     await validateActive(io, state, operation, promotion);
+    movable = await lstatMaybe(io, state.content, operation);
   } catch (cause) {
     throw toFailure(operation, cause, currentCommitted);
   }
-  const movable = await lstatMaybe(io, state.content, operation);
   if (
     !movable?.isDirectory ||
     movable.isSymlink ||
@@ -563,6 +584,7 @@ async function writeMarker(
   const bytes = new TextEncoder().encode(token);
   const file = await io.open(path, { read: true, write: true, createNew: true, mode: 0o600 });
   let identity: Identity | undefined;
+  let pending: t.FsRooted.Failure | undefined;
   try {
     const opened = await file.stat();
     identity = identityRequired(opened, operation);
@@ -580,10 +602,18 @@ async function writeMarker(
     if (final.size !== bytes.byteLength || !sameIdentity(identity, final)) {
       throw failure(operation, 'ownership-lost');
     }
-    return identity;
+  } catch (cause) {
+    pending = ioFailure(operation, cause);
   } finally {
-    file.close();
+    try {
+      file.close();
+    } catch (cause) {
+      pending = pending ? cleanupFailure(operation, pending, cause) : ioFailure(operation, cause);
+    }
   }
+  if (pending) throw pending;
+  if (!identity) throw failure(operation, 'io-failure');
+  return identity;
 }
 
 async function readMarker(
@@ -597,6 +627,7 @@ async function readMarker(
   }
 
   const file = await io.open(state.marker, { read: true });
+  let pending: t.FsRooted.Failure | undefined;
   try {
     const opened = await file.stat();
     if (!sameIdentity(state.markerIdentity, opened)) throw failure(operation, 'ownership-lost');
@@ -613,9 +644,16 @@ async function readMarker(
     for (let index = 0; index < expected.byteLength; index++) {
       if (buffer[index] !== expected[index]) throw failure(operation, 'ownership-lost');
     }
+  } catch (cause) {
+    pending = ioFailure(operation, cause);
   } finally {
-    file.close();
+    try {
+      file.close();
+    } catch (cause) {
+      pending = pending ? cleanupFailure(operation, pending, cause) : ioFailure(operation, cause);
+    }
   }
+  if (pending) throw pending;
 }
 
 async function discardActive(
@@ -711,7 +749,11 @@ function toFailure(
 ): t.FsRooted.Failure {
   if (isFailure(cause)) {
     if (!committed || cause.committed) return cause;
-    return failure(operation, cause.kind, { cause, committed: true });
+    return failure(operation, cause.kind, {
+      cause,
+      committed: true,
+      cleanupError: cause.cleanupError,
+    });
   }
   return ioFailure(operation, cause, committed);
 }

@@ -1,5 +1,5 @@
 import { Is, Num, StdPath, Str, type t } from '../common.ts';
-import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
+import { checkCancelled, cleanupFailure, failure, ioFailure, isFailure } from './u.error.ts';
 import type { Io, ModeHandle, ModeInfo } from './u.io.ts';
 import { type Identity, identityRequired, lstatMaybe, sameIdentity } from './u.path.ts';
 
@@ -37,7 +37,11 @@ export async function inspectTreeSeal(
   try {
     entries = await stableSnapshot(io, tree, operation, signal, false);
   } catch (cause) {
-    if (isFailure(cause) && cause.kind === 'unsupported' && !cause.committed) {
+    // A compound failure is not an ordinary unsupported-host result.
+    if (
+      isFailure(cause) && cause.kind === 'unsupported' && !cause.committed &&
+      cause.cleanupError === undefined
+    ) {
       return Object.freeze({ kind: 'unsupported' });
     }
     throw cause;
@@ -62,7 +66,10 @@ export async function sealTreeEntries(
   try {
     entries = await stableSnapshot(io, tree, operation, signal, false);
   } catch (cause) {
-    if (isFailure(cause) && cause.kind === 'unsupported' && !cause.committed) {
+    if (
+      isFailure(cause) && cause.kind === 'unsupported' && !cause.committed &&
+      cause.cleanupError === undefined
+    ) {
       return Object.freeze({ kind: 'unsupported' });
     }
     throw cause;
@@ -96,7 +103,7 @@ export async function sealTreeEntries(
       ) || committed;
     } catch (cause) {
       const error = toFailure(operation, cause, committed);
-      if (error.kind === 'unsupported' && !error.committed) {
+      if (error.kind === 'unsupported' && !error.committed && error.cleanupError === undefined) {
         return Object.freeze({ kind: 'unsupported' });
       }
       throw error;
@@ -313,7 +320,12 @@ async function visit(
       }
       const childPath = StdPath.join(path, child.name);
       const childRelative = relative ? `${relative}/${child.name}` : child.name;
-      const childInfo = await lstatMaybe(io, childPath, operation);
+      let childInfo: Deno.FileInfo | undefined;
+      try {
+        childInfo = await lstatMaybe(io, childPath, operation);
+      } catch (cause) {
+        throw toFailure(operation, cause, committed);
+      }
       if (!childInfo) throw failure(operation, 'ownership-lost', { committed });
       if (childInfo.isSymlink) {
         throw failure(operation, 'unsafe-filesystem', { committed });
@@ -411,7 +423,9 @@ export async function changeEntryMode(
     try {
       await handle.close();
     } catch (cause) {
-      pending ??= toFailure(operation, cause, committed || changed);
+      pending = pending
+        ? cleanupFailure(operation, pending, cause, committed || changed)
+        : toFailure(operation, cause, committed || changed);
     }
   }
   if (pending) throw pending;
@@ -448,7 +462,12 @@ async function assertEntry(
   operation: t.FsRooted.Operation,
   committed: boolean,
 ): Promise<Deno.FileInfo> {
-  const info = await lstatMaybe(io, entry.path, operation);
+  let info: Deno.FileInfo | undefined;
+  try {
+    info = await lstatMaybe(io, entry.path, operation);
+  } catch (cause) {
+    throw toFailure(operation, cause, committed);
+  }
   if (!info || info.isSymlink) {
     throw failure(operation, 'ownership-lost', { committed });
   }
@@ -591,7 +610,11 @@ function toFailure(
 ): t.FsRooted.Failure {
   if (isFailure(cause)) {
     if (!committed || cause.committed) return cause;
-    return failure(operation, cause.kind, { cause, committed: true });
+    return failure(operation, cause.kind, {
+      cause,
+      committed: true,
+      cleanupError: cause.cleanupError,
+    });
   }
   return ioFailure(operation, cause, committed);
 }

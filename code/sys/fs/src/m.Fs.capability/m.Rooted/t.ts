@@ -436,5 +436,7 @@ export declare namespace FsRooted {
     readonly kind: FailureKind;
     /** Whether this operation may have changed filesystem state that requires reconciliation. */
     readonly committed: boolean;
+    /** First cleanup failure, reported separately without replacing the primary failure. */
+    readonly cleanupError?: Failure;
   };
 }

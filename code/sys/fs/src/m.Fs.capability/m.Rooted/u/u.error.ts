@@ -40,7 +40,11 @@ const KINDS: readonly t.FsRooted.FailureKind[] = [
 export function failure(
   operation: t.FsRooted.Operation,
   kind: t.FsRooted.FailureKind,
-  options: { readonly cause?: unknown; readonly committed?: boolean } = {},
+  options: {
+    readonly cause?: unknown;
+    readonly committed?: boolean;
+    readonly cleanupError?: t.FsRooted.Failure;
+  } = {},
 ): t.FsRooted.Failure {
   const error = new Error(message(kind), { cause: options.cause }) as t.FsRooted.Failure;
   Object.defineProperties(error, {
@@ -48,8 +52,29 @@ export function failure(
     operation: { value: operation, enumerable: true },
     kind: { value: kind, enumerable: true },
     committed: { value: options.committed ?? false, enumerable: true },
+    ...(options.cleanupError
+      ? { cleanupError: { value: options.cleanupError, enumerable: true } }
+      : {}),
   });
   return error;
+}
+
+/**
+ * Preserve the primary failure and first cleanup failure, with monotonic reconciliation evidence.
+ */
+export function cleanupFailure(
+  operation: t.FsRooted.Operation,
+  cause: unknown,
+  cleanupCause: unknown,
+  committed = false,
+): t.FsRooted.Failure {
+  const primary = ioFailure(operation, cause);
+  const cleanup = ioFailure(operation, cleanupCause);
+  return failure(primary.operation, primary.kind, {
+    cause: primary.cause,
+    committed: committed || primary.committed || cleanup.committed,
+    cleanupError: primary.cleanupError ?? cleanup,
+  });
 }
 
 export function isFailure(input: unknown): input is t.FsRooted.Failure {

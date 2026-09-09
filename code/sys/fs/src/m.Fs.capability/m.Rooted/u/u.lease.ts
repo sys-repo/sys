@@ -1,5 +1,5 @@
 import { Is, Str, type t } from '../common.ts';
-import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
+import { checkCancelled, cleanupFailure, failure, ioFailure, isFailure } from './u.error.ts';
 import type { Io } from './u.io.ts';
 import { acquireLock, type LockState, releaseLock, toLockName } from './u.lock.ts';
 import { observeTarget, type RootState, type TargetState } from './u.path.ts';
@@ -133,7 +133,7 @@ export async function acquireLease(
     try {
       await releaseAll(io, root, held, operation);
     } catch (cleanupCause) {
-      throw asFailure(operation, cleanupCause);
+      throw cleanupFailure(operation, cause, cleanupCause);
     }
     throw asFailure(operation, cause);
   }

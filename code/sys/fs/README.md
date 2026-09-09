@@ -5,9 +5,8 @@ permission model; it does not abstract other runtimes.
 
 Choose the narrowest surface that owns the guarantee you need. Use `Fs` and `Path` for ordinary file
 and path work, `Fs.Snapshot` for bounded single-file reads with explicit stability evidence,
-`Pkg.Dist` for distribution verification and checksum-matched reads, and `Rooted` to publish
-complete targets without replacement while coordinating their use, sealing, and removal beneath one
-canonical root.
+`Pkg.Dist` for distribution verification and checksum-matched reads, and `Rooted` for coordinated
+publication, use, sealing, and removal beneath one canonical root.
 
 ## Primary imports
 
@@ -25,17 +24,15 @@ canonical root.
 
 ## Stable file snapshots
 
-A stable file snapshot pairs bounded, caller-owned bytes with evidence of the source's observed
-stability; use it when an ordinary read offers no explicit evidence about concurrent replacement or
-mutation; this gives integrity checks a precise input while leaving containment and provenance to
-systems that can provide them.
+A file snapshot pairs bounded, caller-owned bytes with evidence of the source's observed stability.
+Use it when an ordinary read provides insufficient evidence about concurrent replacement or
+mutation. It gives integrity checks a precise input; it does not establish containment or
+provenance.
 
-`Fs.Snapshot.file()` answers one narrow question: did this bounded read finish without a change the
-host could reveal? Consumers that prefer the standalone module may import `Snapshot` from
-`@sys/fs/snapshot`; that export is the same frozen runtime object composed at `Fs.Snapshot`. It
-reads one absolute file selected strictly beneath an absolute root. The caller must set finite
-`maxBytes` and `timeout` limits and may supply `until` for cancellation. Symbolic links anywhere in
-the observed root-to-file chain are rejected.
+`Fs.Snapshot.file()` reads one absolute file selected strictly beneath an absolute root. Supply
+finite `maxBytes` and `timeout` limits, and optionally `until` for cancellation. Symbolic links in
+the observed root-to-file chain are rejected. The same API is available as `Snapshot` from
+`@sys/fs/snapshot`.
 
 ### Reading the result
 
@@ -49,30 +46,25 @@ authority over the path.
 | `bytes`      | Mutable `Uint8Array` with fresh, exact backing storage owned by the caller |
 | `evidence`   | Strength of final-file identity evidence available from the host           |
 
-`device-inode` means every final-file observation supplied the same non-negative safe-integer device
-and inode, alongside stable size and available modification/change timestamps. `metadata-only` means
-complete identity evidence was unavailable, not that checking was skipped. Both values describe a
-successful observation; the caller decides whether that evidence is sufficient.
+Both evidence grades require stable size and available modification/change timestamps.
+`device-inode` additionally records consistent device and inode identity across the final-file
+observations. `metadata-only` means complete identity evidence was unavailable, not that checking
+was skipped. The caller decides whether that evidence is sufficient.
 
 ### What it does not prove
 
-This is a cooperative-filesystem check, not a provenance or containment proof. Deno does not provide
-directory-handle-relative `openat`, so another actor can replace an already observed ancestor before
-the selected file is opened. A successful snapshot therefore does not prove uninterrupted ancestry
-identity, detect every same-metadata in-place mutation, authenticate the file's origin, or promise
-stability after return. These are separate guarantees: use an external sandbox or excluded mutation
-for stronger location stability, and independent evidence for intended content or origin.
+A snapshot observes change; it does not prevent it. Another actor can replace an ancestor path
+during the read or change file contents without changing the metadata the host reveals. Success
+therefore establishes neither containment, authenticated origin, nor stability after return. Use an
+external sandbox or excluded mutation for stronger location stability, and independent verification
+for intended content or origin.
 
-### Operational contract
+### Limits and failures
 
-Options and nested cancellation arrays are copied before filesystem work, so later container
-mutation cannot redirect the operation. Lifecycle leaves remain live cancellation sources and follow
-canonical `UntilInput` behavior; validating or subscribing to them may invoke public getters or
-subscription code.
-
-The selected path is opened once and read through that handle in chunks no larger than 64 KiB. To
-distinguish an exact-cap file from an oversized source, the operation may read one byte beyond
-`maxBytes`; that byte is never retained.
+`maxBytes` is an acceptance limit: an oversized file rejects rather than returning a prefix.
+`timeout` and `until` request termination; neither can interrupt pending native I/O. Changing
+options or cancellation arrays after invocation does not reconfigure the read; admitted lifecycle
+sources remain live.
 
 Rejected operations throw frozen `FsSnapshotError` values. Test them with
 `Fs.Snapshot.Is.failure(error)` and inspect their stable `kind`. Messages contain neither paths nor
@@ -103,17 +95,19 @@ long-lived service should resolve one absolute root at startup and reuse it.
 
 ## Rooted
 
-A `Rooted` instance binds publication, sealing, lease coordination, and removal to one canonical
-directory. It suits assets, builds, application versions, and caches that are published once, shared
-by several processes, and removed later.
+`Rooted` separates private construction from public visibility and coordinates the use of published
+targets. It suits assets, builds, application versions, and caches shared by cooperating processes.
+Publication, leases, and sealing serve different purposes: visibility, coordination, and
+permissions.
 
-Every admitted target is a validated root-relative path. Every private stage and lock file remains
-beneath the root. Binding an existing root observes and canonicalizes that exact directory without
-requesting ambient ancestor reads. Set `{ create: false }` to require the root to exist. Creating a
-missing root still validates its complete parent chain. `Rooted` neither replaces Deno permissions
-nor restricts direct filesystem calls.
+Create an instance with `Fs.Capability.Rooted.create()`, or `FsCapability.Rooted.create()` from
+`@sys/fs/capability`. Each instance binds to one canonical directory and accepts validated
+root-relative targets. Set `{ create: false }` when the root must already exist. Binding an existing
+root requires no ancestor read permission; creating a missing root requires an existing parent and
+permission to validate its ancestry. Rooted does not replace Deno permissions or restrict direct
+filesystem calls.
 
-Operations are grouped by capability noun:
+The API groups operations by what they act on:
 
 | Family   | Operations                                     |
 | -------- | ---------------------------------------------- |
@@ -123,194 +117,162 @@ Operations are grouped by capability noun:
 | `File`   | `publish`                                      |
 | `Stage`  | `create`, `discard`, `promote`                 |
 
-The instance and every family object are frozen. Methods close over the creating instance rather
-than `this`, so they remain valid when passed or destructured.
+The instance and its operation families are frozen. Methods retain their instance binding when
+passed or destructured.
 
 Three handles carry scoped authority:
 
-| Handle   | Meaning                                                                    |
-| -------- | -------------------------------------------------------------------------- |
-| `Target` | A validated root-relative path accepted only by the creating instance.     |
-| `Stage`  | Private content owned by the creating instance until promotion or discard. |
-| `Lease`  | A shared or exclusive OS-backed lock for cooperating callers.              |
+| Handle   | Meaning                                                                   |
+| -------- | ------------------------------------------------------------------------- |
+| `Target` | A validated root-relative path accepted only by the creating instance.    |
+| `Stage`  | Private construction and cleanup authority held by the creating instance. |
+| `Lease`  | A shared or exclusive OS-backed lock for cooperating callers.             |
 
-Protocol metadata lives under `.sys.rooted`; transient publication files use
-`.sys.rooted-tmp-<token>`.
-
-`Rooted` makes four deliberately narrow promises:
-
-- Successful publication makes one complete target visible; it never replaces an existing target.
-- File publication has at most one winner. Directory publication has at most one winner among
-  `Rooted` instances bound to the same root.
-- Leases coordinate use, publication, sealing, and removal among cooperating `Rooted` callers.
-- When identity or permission safety cannot be proved, Rooted refuses the operation rather than
-  guessing or falling back to recursive mutation.
+Rooted reserves `.sys.rooted` for protocol metadata and `.sys.rooted-tmp-<token>` for private file
+publication. These are not application targets.
 
 ### Publish
 
-`Target.admit()` validates root-relative paths as one batch. If any path is invalid, the whole batch
-is rejected. Each returned handle belongs to the `Rooted` instance that created it.
+Publication makes constructed content visible as a complete file or tree, not a partially built
+destination. File publication never replaces an existing target and has at most one winner in a
+race. Directory publication offers that guarantee only among cooperating Rooted instances bound to
+the same canonical root; it is not a filesystem-enforced no-replace guarantee. Atomic visibility
+also does not imply durability after sudden power loss.
 
-`File.publish()` writes and syncs bytes in a private same-directory `.sys.rooted-tmp-<token>` file,
-then makes the target visible only if it is absent. It removes the temporary file only while that
-file's identity remains owned. An existing target or a lost race rejects with an `FsRootedError`
-whose `kind` is `occupied`.
+`Target.admit()` validates root-relative paths as a batch: either every path is accepted or the call
+rejects. `File.publish()` publishes one file; an existing target or a lost race rejects with kind
+`occupied`.
 
-`Stage.create()` opens a private `.sys.rooted/stages/<token>` directory. Populate it through the
-complete `Rooted` instance at `stage.files`, then pass the stage to `Stage.promote()`. Promotion
-publishes the complete stage with one rename. If the target exists, it returns `occupied`, leaves
-the target untouched, and attempts to clean the losing stage. `Stage.discard()` removes an
-unpromoted stage or retries cleanup after a promotion attempt.
+`Stage.create()` provides private content under the root. Choose one construction model:
 
-The directory race guarantee covers only `Rooted` instances bound to the same canonical root.
-Publication is atomic to readers, but success does not guarantee that a new directory entry survives
-sudden power loss.
+- `stage.files` is a Rooted instance for publishing files and nested stages within that content.
+- `stage.writer.writeTree()` provides bounded streaming construction of a pristine stage. It claims
+  the stage once, disabling `stage.files` operations and the creating instance's
+  `Tree.inspectSeal(stage)` and `Tree.seal(stage)`. After successful construction, request sealing
+  through `Stage.promote()` with `{ seal: true }`. A failure after claim prevents promotion.
 
-If stage construction or cleanup can no longer prove ownership of a private container, Rooted leaves
-it in place rather than risk deleting the wrong path. The capability intentionally provides no API
-to read file contents, list directories, or overwrite targets.
+Await construction before promotion; do not mix construction models. Rooted provides no API to read
+file contents, list directories, or overwrite targets.
+
+`Stage.promote()` publishes the constructed tree. An existing directory yields `occupied`: the
+existing target is untouched, and private cleanup of the losing stage is attempted.
+`Stage.discard()` removes an unpromoted stage or retries private cleanup after promotion. Discard is
+not rollback: it never removes the published destination. Private artifacts may remain when safe
+cleanup cannot be proved.
 
 ### Lease
 
-`Lease.acquire()` requests shared or exclusive ownership of one or more directory targets. A shared
-lease marks them as in use; an exclusive lease reserves them from cooperating callers for
-publication, sealing, or removal. Acquisition is all-or-nothing: `acquired` owns every requested
-target, while `busy` owns none.
+A lease coordinates use of exact directory targets, not entire subtrees. A shared lease marks those
+targets as in use; an exclusive lease reserves them from cooperating callers for publication,
+sealing, or removal. An `acquired` result covers every requested target; `busy` owns none.
 
 | Option                  | Contention behavior                                              |
 | ----------------------- | ---------------------------------------------------------------- |
-| `wait` omitted or false | Return `busy` immediately and release any partial acquisition.   |
+| `wait` omitted or false | Return `busy` without a lease.                                   |
 | `wait: true`            | Wait for the complete batch, or stop on cancellation or failure. |
 
-Targets are always acquired in stable lock-identity order, regardless of caller order. Two
-cooperating callers therefore cannot deadlock merely because they list the same targets differently.
-The `until` option can cancel acquisition; it never releases a lease already returned.
+Supply targets in the order your application needs; batch acquisition does not depend on that order.
+The `until` option cancels acquisition, not the lifetime of a returned lease.
 
-`lease.release()` waits for operations currently borrowing the lease, then attempts to unlock every
-target. `await using` follows the same release path. If the process exits, the operating system
-releases its locks.
+`lease.release()` is idempotent and waits for operations already using the lease. `await using` has
+the same semantics. The operating system releases native locks when their owning process exits.
 
-Operations that need ownership normally acquire it themselves. When the same instance already holds
-a lease over the target, pass that compatible lease as `{ lease }` to `Tree.inspectSeal()`,
-`Tree.seal()`, or `Stage.promote()`. Omitting it fails immediately with `invalid-lease` instead of
-waiting on the caller's own lock. Inspection accepts a shared or exclusive lease. Sealing and
-promotion require an exclusive lease.
+`Tree.inspectSeal()`, `Tree.seal()`, and `Stage.promote()` normally acquire ownership as needed.
+When this instance already holds a lease over the directory target, pass that compatible lease as
+`{ lease }`. Omitting it fails immediately with `invalid-lease`. Inspection accepts a shared or
+exclusive lease; sealing and promotion require an exclusive lease.
 
-Empty lock files persist in `.sys.rooted/locks`; their paths provide stable lock identity across
-release and reacquisition. Private stage containers are transient under `.sys.rooted/stages` and are
-removed after completed promotion or discard. Never delete or replace a lock file: a process could
-keep locking the old file while another process locks its replacement, splitting one lock into two.
-Lock files contain no process data.
+Lock files in `.sys.rooted/locks` are persistent coordination metadata, not stale process records.
+Never delete or replace them: cooperating callers must share the same lock identity.
 
 ### Seal
 
-A sealed tree has all write bits clear on every ordinary file and directory in the owned tree. Files
-remain readable by the owner, and directories retain owner traversal. This is a checked mode state,
-not permanent immutability.
+Sealing is a verified permission state, not permanent immutability. Every ordinary file and
+directory in a sealed tree has all write bits clear and remains owner-readable; directories also
+retain owner traversal. Seal evidence describes permissions, not content integrity, provenance, or
+future state.
 
 `Tree.inspectSeal()` reports `sealed`, `unsealed`, or `unsupported` without changing the tree.
-`Tree.seal()` clears the required bits and rechecks the complete tree before returning `applied`.
-`changed: false` means the tree already satisfied the seal.
+`Tree.seal()` returns `applied` only for a verified complete seal. `changed: false` means the tree
+already satisfied it. Required identity or mode evidence may be unavailable on an unsupported host;
+an unsafe or observably changing tree fails verification.
 
-Before changing an entry, Rooted opens it and rechecks its filesystem identity. Replacing the path
-therefore cannot redirect that permission change to another file. If the host cannot provide the
-required identity or mode evidence, the operation reports `unsupported`. If the tree changes during
-verification or contains an unsafe entry, the operation fails with a typed error. Rooted never
-fabricates applied evidence.
+Use `{ seal: true }` with `Stage.promote()` to request a sealed publication. Check the returned
+`seal` when permission evidence is required, even if the stage was sealed in advance: publication
+and verified sealing are separate facts.
 
-With `{ seal: true }`, `Stage.promote()` performs the sensitive work before publication: it seals
-the private tree, temporarily adds owner-write to the stage root, renames the tree into place, then
-reseals and checks the published target. Seal evidence describes permissions only. It says nothing
-about content bytes, provenance, or future state.
-
-With an exclusive lease, `Tree.remove()` can restore only the permissions needed inside that target
-and remove it. Sealing therefore resists ordinary writes; it is not a retention lock.
+Sealing is not a retention lock. Removal under an exclusive lease may restore the permissions needed
+inside the target.
 
 ### Remove
 
-`Tree.remove()` requires an exclusive lease for the exact admitted target handle. This prevents
-cooperating cleanup from removing a directory that is still in use. Releasing the lease while
-removal is running waits for that operation before unlocking. A missing target returns `absent`.
+`Tree.remove()` requires an exclusive lease for the exact admitted target handle, so cooperating
+cleanup cannot remove a directory held under a shared lease. Success reports `removed` or `absent`;
+it does not prevent later recreation or guarantee durability after sudden power loss.
 
-`Tree.removeBatch()` accepts directory paths directly. Before I/O, it snapshots the complete path
-array and any nested lifecycle arrays. One cancellation latch then spans admission, acquisition,
-every removal, and mandatory release. Later caller mutation cannot alter the captured paths or
-lifecycle structure; an empty batch creates neither Rooted metadata nor a lifecycle subscription.
+Removal authority does not extend to ancestor or sibling permissions. In particular, a sealed parent
+prevents removal on POSIX hosts and yields `permission-denied`; Rooted does not weaken the parent to
+make removal succeed.
 
-The method admits the complete batch, acquires one non-waiting exclusive lease in stable lock order,
-removes targets in caller order, and then attempts to release every acquired lock. Contention
-returns `busy` before removal and maps the contended lock back to its caller index. A `settled`
-result carries ordered `removed` or `absent` results. After input capture succeeds, an operational
-failure returns `failed`, which reports the completed prefix, the current target when known, the
-unattempted suffix, and whether mutation may have occurred. Both settlements preserve any
-independent release failure instead of rewriting removal truth. The method never probes afterward to
-manufacture certainty about unfinished targets.
+`Tree.removeBatch()` accepts directory paths and owns the required lease. It provides ordered
+removal, not an all-or-nothing transaction: failure does not undo completed removals.
 
-On POSIX hosts, Rooted refuses removal unless the parent's mode grants write and traversal in at
-least one permission class. The operating system still applies the process identity and its other
-rules. A sealed parent therefore fails with `permission-denied` without weakening or deleting the
-target. The operation never broadens ancestor or sibling permissions.
+- `busy`: no target was removed; identifies the contended target by caller index.
+- `settled`: ordered `removed` or `absent` results for every target.
+- `failed`: the completed prefix, current target when known, and unattempted suffix, plus whether
+  mutation may have occurred.
 
-If removal may have changed the target before failing, the error has `committed: true`. Keep the
-still-active lease, inspect the cause, and retry. Success means the target was absent when the
-operation finished. It does not promise that the deletion reached durable storage before sudden
-power loss.
+Input-capture errors reject; subsequent operational failures return `failed`. Both `settled` and
+`failed` may carry an independent `releaseError`. Neither implies that lease release succeeded.
+Later edits to the supplied path or cancellation arrays do not change the operation; lifecycle
+sources remain live. An empty batch is a no-op.
 
-Seal, removal, and stage-cleanup operations first check that every entry is an ordinary file or
-directory on the same filesystem. They refuse symbolic links, special files, and hard-linked files.
-An entry that cannot be proved safe remains in place for retry. No operation falls back to an
-unverified recursive delete.
+For a failed single-target removal, retain the required lease and reconcile partial changes before
+retrying. For a failed batch, use its progress report to distinguish completed work from work that
+still needs reconciliation or retry.
+
+Sealing, removal, and stage cleanup accept only ordinary files and directories on one filesystem.
+They refuse symbolic links, special files, and multiply linked files. Unproved ownership or safety
+is a reason to retain an entry, not permission for an unchecked recursive delete.
 
 ### Outcomes and failures
 
-Expected conditions settle explicitly:
+A known outcome and a subsequent failure can both be true. A returned `Stage.promote()` result
+records `published` or `occupied`. Its `cleanupError` reports an additional publication-boundary,
+cleanup, cancellation, or verification problem; it does not revise that outcome.
 
-| Condition                                     | Settlement                                    |
-| --------------------------------------------- | --------------------------------------------- |
-| A non-waiting lease is contended              | `Lease.acquire()` returns `busy`              |
-| Batch removal finds a contended target        | `Tree.removeBatch()` returns `busy`           |
-| A directory target already exists             | `Stage.promote()` returns `occupied`          |
-| A removal target is already absent            | `Tree.remove()` returns `absent`              |
-| The host cannot prove identity or mode safety | Tree seal operations may return `unsupported` |
-| A file target already exists                  | `File.publish()` rejects with kind `occupied` |
+Rejected Rooted operations use `FsRootedError`. Identify one with
+`Fs.Capability.Rooted.Is.failure(error)`, then read its fields as separate facts:
 
-Other rejected operations use `FsRootedError`. Call `Fs.Capability.Rooted.Is.failure(error)` to
-identify one. Its `operation` and `kind` fields say where and why it failed. `committed: true` means
-filesystem state may have changed and must be checked before retry.
+- **Primary failure:** `operation` and `kind` classify it; `cause` is diagnostic context.
+- **Possible change:** `committed: true` requires reconciliation before retry.
+- **Cleanup failure:** `cleanupError` preserves the first separately recorded cleanup failure.
 
-Once `Stage.promote()` knows whether publication succeeded or the target was occupied, `kind` does
-not change. A later cleanup, cancellation, or post-publication seal problem appears in
-`cleanupError` instead of rewriting the known outcome.
+`committed` is not a publication result. It can describe private permission changes or an unresolved
+publication attempt. When publication cannot be determined, Rooted revokes construction authority
+and retains private residue; do not infer success or non-publication from that rejection.
 
-### Example
+Preserve primary and cleanup failures together. Cleanup evidence is not an exhaustive record of
+cleanup attempts: `committed: false`, absence of `cleanupError`, or absence of a returned stage or
+lease handle does not prove that every resource was released or every private artifact removed.
+
+An `unsupported` result differs from an `unsupported` failure. Sealing and inspection reject when
+mutation or cleanup evidence needs to accompany that classification.
+
+### Reading a promotion result
+
+Assume `stage` has finished construction and `lease` is an active exclusive lease for `target`, all
+from the same `rooted` instance. Report publication separately from any additional failure:
 
 ```ts
-import { Fs } from '@sys/fs';
-
-const rooted = await Fs.Capability.Rooted.create({ root: './store' });
-const admission = await rooted.Target.admit([{ kind: 'directory', path: 'generations/v1' }]);
-const target = admission.targets[0];
-
-const stage = await rooted.Stage.create();
-const files = await stage.files.Target.admit([{ kind: 'file', path: 'index.html' }]);
-await stage.files.File.publish(files.targets[0], new TextEncoder().encode('<h1>Hello</h1>'));
-
-const ownership = await rooted.Lease.acquire([target], {
-  mode: 'exclusive',
-});
-if (ownership.kind === 'busy') {
-  await rooted.Stage.discard(stage);
-  throw new Error(`Directory is busy: ${ownership.target.path}`);
-}
-
-await using lease = ownership.lease;
 const publication = await rooted.Stage.promote(stage, target, { seal: true, lease });
+console.info('Publication:', publication.kind);
 if (publication.cleanupError) {
-  await rooted.Stage.discard(stage);
-  throw publication.cleanupError;
+  console.warn('Additional failure:', publication.cleanupError.kind);
 }
-if (publication.kind === 'occupied') throw new Error(`Target exists: ${target.path}`);
 ```
+
+This example reads a returned result; it is not a complete rejection or recovery workflow.
 
 ### Security boundary
 
@@ -368,14 +330,14 @@ reports unsaved changes. A successful save records `.meta.modifiedAt`; `.meta.cr
 stable. JSONC input may contain comments and trailing commas.
 
 ```ts
-import type * as t from '@sys/fs/t';
+import type { t } from '@sys/fs';
 import { JsonFile } from '@sys/fs/file';
 
-type Doc = t.JsonFile.Doc & { msg?: string; count: number };
+type Doc = t.JsonFile.Doc & { count: number };
 const initial = JsonFile.default<Doc>({ count: 123 });
 const file = await JsonFile.get('./config.json', initial);
 
-console.info(file.current.count); // → 123
+console.info(file.current.count);
 file.change((draft) => {
   draft.count += 1;
 });

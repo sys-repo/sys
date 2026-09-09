@@ -1,5 +1,5 @@
 import { Hash, Is, StdPath, type t } from '../common.ts';
-import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
+import { checkCancelled, cleanupFailure, failure, ioFailure, isFailure } from './u.error.ts';
 import type { FileHandle, Io } from './u.io.ts';
 import {
   ensureDescendantDirectory,
@@ -135,13 +135,13 @@ export async function releaseLock(
   try {
     await lock.file.unlock();
   } catch (cause) {
-    pending ??= ioFailure(operation, cause);
+    pending = pending ? cleanupFailure(operation, pending, cause) : ioFailure(operation, cause);
   }
 
   try {
     lock.file.close();
   } catch (cause) {
-    pending ??= ioFailure(operation, cause);
+    pending = pending ? cleanupFailure(operation, pending, cause) : ioFailure(operation, cause);
   }
 
   if (pending) throw pending;
@@ -172,13 +172,13 @@ async function closeAfterFailure(
     try {
       await file.unlock();
     } catch (cleanupCause) {
-      pending = ioFailure(operation, cleanupCause);
+      pending = cleanupFailure(operation, pending, cleanupCause);
     }
   }
   try {
     file.close();
   } catch (cleanupCause) {
-    pending = ioFailure(operation, cleanupCause);
+    pending = cleanupFailure(operation, pending, cleanupCause);
   }
   return pending;
 }

@@ -336,8 +336,11 @@ describe('Fs.Capability.Rooted stages: private ownership and pre-publication cle
       });
       const rooted = await createRooted({ root: fixture.root }, io);
 
-      const failure = await expectFailure(() => rooted.Stage.create(), 'io-failure');
-      expect((failure.cause as Error).message).to.eql('cleanup');
+      const failure = await expectFailure(() => rooted.Stage.create(), 'unsupported');
+      expect((failure.cause as Error).message).to.eql('child-root');
+      expect(failure.cleanupError?.kind).to.eql('io-failure');
+      expect((failure.cleanupError?.cause as Error).message).to.eql('cleanup');
+      expect(Object.getOwnPropertyDescriptor(failure, 'cleanupError')?.writable).to.eql(false);
     } finally {
       await teardown(fixture);
     }
