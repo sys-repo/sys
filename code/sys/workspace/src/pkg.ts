@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/workspace',
-  version: '0.0.154',
+  version: '0.0.155',
 });

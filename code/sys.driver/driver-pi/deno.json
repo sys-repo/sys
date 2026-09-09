@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-pi",
-  "version": "0.0.140",
+  "version": "0.0.141",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:reset:process && deno task test:profiles:process && deno task test:preview:real",
@@ -51,23 +51,70 @@
     "./cli": "./src/m.cli/mod.ts",
     "./cli/raw": "./src/m.cli/m.raw/mod.ts"
   },
-  "exclude": [".tmp", ".pi", "-agent", "-config", "dist"],
+  "exclude": [
+    ".tmp",
+    ".pi",
+    "-agent",
+    "-config",
+    "dist"
+  ],
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "test": {
       "read": true,
       "write": true,
       "env": true,
-      "net": ["localhost", "127.0.0.1", "0.0.0.0"]
+      "net": [
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0"
+      ]
     },
-    "test-process": { "read": true, "run": ["deno"], "env": true },
-    "zip-build": { "read": true, "write": true, "env": true, "run": ["deno"] },
-    "test-reset-process": { "read": true, "write": true, "env": true, "run": ["deno"] },
-    "test-process-child": { "read": true, "env": true },
+    "test-process": {
+      "read": true,
+      "run": [
+        "deno"
+      ],
+      "env": true
+    },
+    "zip-build": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": [
+        "deno"
+      ]
+    },
+    "test-reset-process": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": [
+        "deno"
+      ]
+    },
+    "test-process-child": {
+      "read": true,
+      "env": true
+    },
     "serve": {
-      "read": ["./dist"],
-      "net": ["127.0.0.1:8080"],
-      "env": ["FORCE_COLOR", "NODE_DISABLE_COLORS", "NO_COLOR", "TERM", "TERM_PROGRAM"],
+      "read": [
+        "./dist"
+      ],
+      "net": [
+        "127.0.0.1:8080"
+      ],
+      "env": [
+        "FORCE_COLOR",
+        "NODE_DISABLE_COLORS",
+        "NO_COLOR",
+        "TERM",
+        "TERM_PROGRAM"
+      ],
       "run": [
         "/usr/bin/open",
         "/usr/bin/wslview",
@@ -78,21 +125,38 @@
       ]
     },
     "serve-process": {
-      "read": ["./dist"],
-      "net": ["localhost:8080", "127.0.0.1:8080"],
-      "env": ["FORCE_COLOR"],
-      "run": ["deno"]
+      "read": [
+        "./dist"
+      ],
+      "net": [
+        "localhost:8080",
+        "127.0.0.1:8080"
+      ],
+      "env": [
+        "FORCE_COLOR"
+      ],
+      "run": [
+        "deno"
+      ]
     },
     "preview-launch": {
       "read": true,
-      "env": ["DENO_DIR", "SystemRoot"],
-      "run": ["deno"]
+      "env": [
+        "DENO_DIR",
+        "SystemRoot"
+      ],
+      "run": [
+        "deno"
+      ]
     },
     "preview-worker": {
       "read": true,
       "write": true,
       "env": true,
-      "net": ["localhost", "127.0.0.1"],
+      "net": [
+        "localhost",
+        "127.0.0.1"
+      ],
       "run": [
         "deno",
         "open",
@@ -106,34 +170,77 @@
     "preview-build": {
       "read": true,
       "env": true,
-      "run": ["deno"],
-      "ffi": ["../../../node_modules/.deno"],
+      "run": [
+        "deno"
+      ],
+      "ffi": [
+        "../../../node_modules/.deno"
+      ],
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     },
     "preview-test": {
       "read": true,
       "write": true,
       "env": true,
-      "net": ["localhost", "127.0.0.1"],
-      "run": ["deno"]
+      "net": [
+        "localhost",
+        "127.0.0.1"
+      ],
+      "run": [
+        "deno"
+      ]
     },
     "evidence-local": {
-      "read": ["./dist"],
-      "write": ["./src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts"]
+      "read": [
+        "./dist"
+      ],
+      "write": [
+        "./src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts"
+      ]
     },
     "test-evidence-process": {
-      "read": ["./.tmp", "./src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts"],
-      "write": ["./.tmp", "./src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts"],
-      "env": ["DENO_DIR", "SystemRoot"],
-      "run": ["deno"]
+      "read": [
+        "./.tmp",
+        "./src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts"
+      ],
+      "write": [
+        "./.tmp",
+        "./src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts"
+      ],
+      "env": [
+        "DENO_DIR",
+        "SystemRoot"
+      ],
+      "run": [
+        "deno"
+      ]
     },
-    "test-release-launch": { "env": ["CHROME_BIN"], "run": ["deno"] },
+    "test-release-launch": {
+      "env": [
+        "CHROME_BIN"
+      ],
+      "run": [
+        "deno"
+      ]
+    },
     "release-local-test": {
       "read": true,
-      "write": ["./.tmp"],
-      "net": ["127.0.0.1"],
+      "write": [
+        "./.tmp"
+      ],
+      "net": [
+        "127.0.0.1"
+      ],
       "env": [
         "FORCE_COLOR",
         "NODE_DISABLE_COLORS",
@@ -147,15 +254,22 @@
       "write": true,
       "env": true,
       "run": true,
-      "net": ["127.0.0.1", "0.0.0.0"]
+      "net": [
+        "127.0.0.1",
+        "0.0.0.0"
+      ]
     },
     "test-browser-admit": {
       "read": true,
-      "env": ["CHROME_BIN"]
+      "env": [
+        "CHROME_BIN"
+      ]
     },
     "test-browser-frozen": {
       "read": true,
-      "write": ["./.tmp"],
+      "write": [
+        "./.tmp"
+      ],
       "env": [
         "SYS_DRIVER_PI_RELEASE_EVIDENCE",
         "FORCE_COLOR",
@@ -164,15 +278,30 @@
         "TERM",
         "TERM_PROGRAM"
       ],
-      "net": ["127.0.0.1"]
+      "net": [
+        "127.0.0.1"
+      ]
     },
-    "test-host": { "read": true, "write": ["./.tmp"], "env": true, "run": ["deno"] },
+    "test-host": {
+      "read": true,
+      "write": [
+        "./.tmp"
+      ],
+      "env": true,
+      "run": [
+        "deno"
+      ]
+    },
     "cli": {
       "read": true,
       "write": true,
       "run": true,
       "env": true,
-      "net": ["localhost", "127.0.0.1", "0.0.0.0"]
+      "net": [
+        "localhost",
+        "127.0.0.1",
+        "0.0.0.0"
+      ]
     },
     "dev": {
       "read": true,
@@ -181,7 +310,15 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": { "allow": ["cpus", "networkInterfaces", "hostname", "osRelease"] }
+      "sys": {
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease"
+        ]
+      }
     }
   }
 }
+

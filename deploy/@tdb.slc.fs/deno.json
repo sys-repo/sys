@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc-fs",
-  "version": "0.0.204",
+  "version": "0.0.205",
   "license": "MIT",
   "private": true,
   "tasks": {
