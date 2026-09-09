@@ -87,19 +87,21 @@ describe('driver-pi/scripts/task.start.gui.release.local', () => {
       read: true,
       env: ['CHROME_BIN'],
     });
-    expect(permissions['test-browser-frozen']).to.eql({
+    const { env, ...browserPermissions } = permissions['test-browser-frozen'];
+    expect(browserPermissions).to.eql({
       read: true,
       write: ['./.tmp'],
-      env: [
-        'SYS_DRIVER_PI_RELEASE_EVIDENCE',
-        'FORCE_COLOR',
-        'NODE_DISABLE_COLORS',
-        'NO_COLOR',
-        'TERM',
-        'TERM_PROGRAM',
-      ],
       net: ['127.0.0.1'],
     });
+    // Environment grants are an allowlist, not a precedence order.
+    expect(env).to.have.members([
+      'SYS_DRIVER_PI_RELEASE_EVIDENCE',
+      'FORCE_COLOR',
+      'NODE_DISABLE_COLORS',
+      'NO_COLOR',
+      'TERM',
+      'TERM_PROGRAM',
+    ]);
 
     const entry = './-scripts/-test.browser.ts';
     const admitEntry = './-scripts/-test.browser.admit.ts';
