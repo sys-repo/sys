@@ -4,140 +4,156 @@ r2-web-exposure.plan.md
 - [ ] feat(driver-cloudflare): add web exposure verify seam
 - [ ] feat(driver-cloudflare): verify R2 files exposure
 - [ ] feat(tools): surface web exposure verification
+- [ ] [r2-dist-generation-publication.plan.md](../@sys.tools/r2-dist-generation-publication.plan.md)
 - [ ] docs(plan): record first R2 web exposure proof
 
-Single-plan anchor for the `@sys/web` exposure primitive and its first Cloudflare/R2 realization. The subject is not Cloudflare product configuration, and not R2 alone. The subject is intentional surfacing of a system resource onto the public web through an owned, protected host. This file focuses on the R2-backed Files exposure; the same root primitive also covers Deno Deploy app/API exposure.
+## Purpose and collaboration boundary
 
-## Collaboration guardrail
+Own the `@sys/web` exposure contract and its first Cloudflare/R2 realization: intentional surfacing
+of a system resource through an owned, protected public HTTPS host. This is larger than `readOrigin`
+and smaller than a generic CDN/cloud abstraction. Deno Deploy app/API exposure is a sibling resource
+kind, not an implicit reverse proxy in the R2 files path.
 
-This is a DMIND architecture plan, not a transcript or brainstorming dump. Do not accrete AI-generated screeds, speculative option lists, or unverified product claims into this file on each turn. Only final, verified, real design judgments should land here: named invariants, chosen topology, rejected alternatives with concrete reasons, source-backed Cloudflare/Deno/R2 facts, and explicit HOLD conditions.
+Keep the primitive and its Cloudflare realization in this one plan. Record durable decisions,
+verified provider facts, ownership, and scoped proof requirements, not transcripts, speculative
+option lists, duplicate commit arcs, or review-count gates. The opening block is the sole ledger.
 
-Keep this as one plan. Do not split the primitive and Cloudflare realization into separate plan files unless a later implementation boundary forces it.
-
-
-
-## DMIND verdict
-
-The correct root concept is:
-
-> an owned public web exposure contract for a system resource, with declared access, URL, protection, and origin policy.
-
-For this file, the concrete resource is a Files-backed namespace served through R2. The same `Web.Exposure` root also covers Deno Deploy app/API traffic because public REST/app traffic is still intentional public web exposure.
-
-This is bigger than `readOrigin`, but smaller than a generic CDN/cloud abstraction.
-
-The package direction is:
+## First complete files journey
 
 ```text
-@sys/web                       pure owned-web contract/model
-@sys/driver-cloudflare/web     Cloudflare realization/probe/plan/apply
-@sys/driver-cloudflare/r2      existing R2 Files backing
-@sys/tools deploy              publication workflow consumer
+one frozen, verified Dist
+→ separately verified R2 generation publication
+→ owned HTTPS hostname
+→ Cloudflare edge + R2 custom-domain binding
+→ exact generation-qualified manifest and declared assets
 ```
 
-Rejected names/scopes:
+The client-to-storage request path is:
 
-- `@sys/surface`: too abstract; invites concept drift.
-- `@sys/http`: already owns HTTP protocol/tools, not public web exposure authority.
-- `@sys/model/files`: Files owns bounded file capabilities, not internet exposure.
-- `@sys/tools deploy`: deploy consumes the host contract; it must not own cloud control-plane configuration.
-- `@sys/driver-cloudflare` alone: too provider-specific for the root concept.
+```text
+browser or downloader → owned HTTPS host → Cloudflare/R2 → object
+```
 
-## Primitive name
+No Deno server, Worker, Files-over-Cmd server, or reverse proxy is required merely to serve public
+objects. Cloudflare supplies the serving infrastructure. Actual hostname, TLS, protection, cache,
+and path behavior still need verification; this topology is not evidence of a configured live host.
 
-Root primitive:
+The first proof needs one owner-selected files hostname and one frozen Dist. The second domain pair,
+Deno app exposure, automated apply, and Pi's product release do not block it. A small non-release
+proof Dist is sufficient here; it must not be reported as Pi release evidence. Pi later proves its
+own selected product artifact against the realized exposure without rebuilding that candidate.
+
+## Ownership and dependency direction
+
+| Owner                        | Responsibility                                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| `@sys/web`                   | Pure owned-web intent, resource references, access, URL, and protection vocabulary   |
+| `@sys/driver-cloudflare/web` | Cloudflare realization and read-only verification; later earned plan/apply           |
+| `@sys/driver-cloudflare/r2`  | Existing bucket and ordinary Files backing; provider-specific conditional primitives |
+| `@sys/tools`                 | Publication and operator-facing exposure verification consumers                      |
+| Driver Pi                    | Product graph, independent pin/package authority, release policy and execution proof |
+
+Exposure consumes stored objects. It does not own generation writes, receipts, pointer activation,
+retry/settlement, artifact rebuilding, or launcher evidence. Deploy consumes the host contract and
+must not own Cloudflare control-plane configuration. Neither the R2 driver nor `@sys/web` imports
+Deploy policy.
+
+### Execution dependencies
+
+- Model and read-only verifier implementation may proceed independently of publication, using
+  deterministic injected provider/HTTP observations. No production exposure success follows from
+  those fixtures.
+- The publication prerequisite appears immediately before the live generation-proof item. That item
+  consumes the completed storage protocol; it does not use the old mutable flat publisher.
+- The publication plan does not wait for this plan. Its documentation reports generation URLs as
+  unverified exposure until public proof exists. Do not create a documentation dependency cycle.
+- [start-ui-release-evidence.plan.md](../@sys.driver-pi/start-ui-release-evidence.plan.md) consumes
+  publication and exposure for its published binding. Its product-entry work, owner choices, and
+  public-browser proof remain Pi-owned; none is a prerequisite for this plan's non-release proof.
+
+## Landed Files foundation
+
+`28faad7b4 feat(driver-cloudflare): add R2 Files backing` supplied
+`code/sys.driver/driver-cloudflare/src/m.r2/m.Files/m.create.ts`. It binds Files/Cmd handlers to an
+R2 bucket. Current Deploy's `createFilesClient` composes `R2.Files.create(...)` with
+`Files.Client.local(...)` in `code/sys.tools/src/cli.deploy/u.providers/provider.r2/u.push.ts`.
+
+```text
+Files client → Files/Cmd handlers → R2.Bucket → authenticated S3 requests → R2
+```
+
+The former `r2-files-backing.plan.md` is recoverable at `bd7d0e6c7` and was removed by `dd5bd2450`.
+Do not recreate that completed integration or treat ordinary object access as conditional
+publication.
+
+Ordinary namespace operations remain through Files. Generation publication deliberately uses the
+bucket directly because Files/Cmd do not promise conditional writes or coherent bytes/validators.
+Public HTTP reads do not traverse Files/Cmd and do not inherit Files policy checks. In particular, a
+Files prefix does not establish the public custom domain's access boundary. Verify the actual public
+namespace and known alternate public endpoints, including any enabled R2 development origin, against
+the declared access/protection policy. An alternate route that bypasses required protection prevents
+a protected-exposure claim; changing it requires separate setup authority.
+
+[r2-files-enumeration-bounds.plan.md](r2-files-enumeration-bounds.plan.md) separately owns finite
+scan/index budgets for the existing Files backing. Result paging currently follows a whole-prefix
+index; it does not bound provider work. That correction is neither completed by the publication
+plan's bounded generation listing nor a prerequisite for direct public object delivery.
+
+## Exposure model
+
+The root concept is `Web.Exposure`: owned public web exposure with declared access, URL, protection,
+and origin policy. The first resource kinds are `Web.FilesExposure` and `Web.AppExposure`.
+
+Contract vocabulary, not a shipping API declaration:
 
 ```text
 Web.Exposure
-```
-
-Meaning:
-
-> intentional surfacing of a system resource onto the public web under declared access, URL, protection, and origin policy.
-
-Concrete kinds relevant to this topology:
-
-```text
-Web.FilesExposure
-Web.AppExposure
-```
-
-Meanings:
-
-- `Web.FilesExposure`: a Files-backed namespace intentionally exposed to public web clients through an owned HTTPS hostname.
-- `Web.AppExposure`: a Deno Deploy/app/API surface intentionally exposed to public web clients through an owned HTTPS hostname.
-
-Do not split `Web.ApiExposure` out of `Web.AppExposure` until route-level policy demands it. For now, Deno Deploy REST/app traffic is one app exposure with auth, CORS, rate-limit, body-size, and abuse controls.
-
-Supporting names:
-
-```text
-Web.Exposure
-Web.FilesExposure
-Web.AppExposure
-Web.AccessPolicy
-Web.UrlPolicy
-Web.Protection
-Web.Origin
-```
-
-Use `Exposure`, not `Host`, because the subject is the act and policy of surfacing something. The host is one field.
-Use `Protection`, not `EdgeProfile`, so Cloudflare product vocabulary does not leak upward.
-Use `UrlPolicy`, not `RefPolicy`, because the web boundary cares about emitted URLs.
-Use `AccessPolicy`, not raw `ACL`, because this is a small declarative authority model, not a general permission engine.
-
-## Core model boundary
-
-`@sys/web` should express intent only:
-
-```ts
-Web.Exposure {
-  kind: 'files' | 'app'
+  kind: files | app
   host
   origin
   accessPolicy
   urlPolicy
   protection
-}
 ```
 
-Where the v0 meaning is:
+- `Web.FilesExposure`: a Files-backed namespace exposed as public web objects under an owned HTTPS
+  hostname. Public reads are for public-by-design objects; public listing is denied by default.
+- `Web.AppExposure`: app/API traffic, for example Deno Deploy, under an owned HTTPS hostname. Its
+  auth, entitlement, CORS/origin, request-size, rate, and cost/abuse controls belong at the
+  appropriate app/control-plane boundary, not in the R2 object adapter.
+- `host`: the owned public hostname, not a raw provider endpoint.
+- `origin`: a system resource reference. R2 and Deno Deploy identifiers belong to provider
+  realizations, not the root model.
+- `Web.AccessPolicy`: audience and permitted public operations, not a general ACL engine.
+- `Web.UrlPolicy`: emitted product URLs use admitted owned hosts; provider endpoints remain
+  substrate.
+- `Web.Protection`: required HTTPS and an explicit public DDoS/abuse baseline; declaring it does not
+  prove Cloudflare enforces it. Record verified limits and residual cost exposure honestly.
+- `Web.Origin`: the resource-reference vocabulary needed by the selected files/app forms.
 
-- `kind: 'files'`: exposes a Files namespace as public web objects.
-- `kind: 'app'`: exposes an app/API control surface, for example Deno Deploy.
-- `host`: owned public HTTPS hostname, for example `cdn.nz.accountants` or `nz.accountants`.
-- `origin`: a system resource reference; Files/R2 and Deno Deploy are provider realizations, not root `@sys/web` vocabulary.
-- `accessPolicy`: audience and allowed public operations. For Files, anonymous/public clients may read selected objects while public listing is denied by default. For app/API, auth/origin/rate/body constraints belong here or in narrow sub-policy fields.
-- `urlPolicy`: app/deploy code may emit only owned-host URLs; provider/raw URLs are denied as product contracts.
-- `protection`: HTTPS is required and a public baseline DDoS/abuse shield is required.
+Use `Exposure`, not `Host`, because the subject includes the act and policy of surfacing a resource.
+Use `Protection`, not provider-specific edge-profile terms. Do not split API exposure from app
+exposure without a demonstrated route-policy requirement.
 
-`@sys/web` must not expose:
+Keep Cloudflare WAF/rulesets, DNS ceremony, account IDs, credentials, regions, S3 terms, Worker
+routing, plan tiers, Deno project IDs, and provider cache knobs out of `@sys/web`. Add pure types
+and only the guards/schema required by the actual verification boundary; no generic cloud ontology.
 
-- Cloudflare WAF/ruleset/page-rule syntax;
-- R2 account IDs, credentials, regions, or S3 terms;
-- Deno Deploy project IDs or provider routing ceremony;
-- DNS record ceremony;
-- Worker routing details;
-- Cloudflare plan-tier vocabulary;
-- cache product knobs unless/until they become a provider-neutral web-host invariant.
+Rejected owners/names remain `@sys/surface` (vague), `@sys/http` (HTTP mechanics),
+`@sys/model/files` (bounded file capabilities), Tools alone (consumer, not host authority), and the
+Cloudflare driver alone (too provider-specific for the root model).
 
-## Architecture anchor
+## Intended topology and domain instances
 
 ```text
-owned web exposure contract
-├─ app exposure
-│  └─ protected owned HTTPS host
-│     └─ Deno Deploy app/control plane
-│        ├─ auth / entitlement / routing decisions
-│        └─ emits only owned URLs allowed by Web.UrlPolicy
-│
-└─ files exposure
-   └─ protected owned HTTPS host
-      └─ Files-backed public read namespace
-         └─ first realization: Cloudflare edge + R2 custom domain
+owned Web.Exposure
+├─ app: owned protected HTTPS host → Deno Deploy app/API
+│  └─ auth/entitlement/routing; emits only admitted owned URLs
+└─ files: owned protected HTTPS host → Cloudflare edge + R2 custom domain
+   └─ public-by-design generation-qualified objects
 ```
 
-First concrete domain set:
+The intended domain instances remain:
 
 ```text
 nz.accountants        → Cloudflare edge → Deno Deploy app exposure
@@ -147,149 +163,163 @@ db.team               → Cloudflare edge → Deno Deploy app exposure
 cdn.db.team           → Cloudflare edge → R2 files exposure
 ```
 
-The paired domains are intentional first movers for the same exposure model. Do not create domain-specific architecture branches unless a verified provider/domain constraint forces one.
+These are intended instances, not verified configurations or mandatory simultaneous first proofs.
+Select one files host for the first proof; keep the other instances unclaimed until separately
+verified. Do not fork the model by domain.
 
-Design invariants:
+Deno may decide whether to emit a public asset URL. Once emitted, direct R2 reads are not subject to
+Deno's per-request authorization. Private or revocable reads, required rewrites, header-sensitive
+behavior, or a stable-current resolver may earn a gateway. Name the failed invariant and prove the
+smallest realization before adding one; a Worker is not the default.
 
-- Every public hostname is declared as a `Web.Exposure`.
-- Owned hostnames are the public contract.
-- Provider URLs are substrate and must not become product URLs.
-- DDoS/abuse baseline protection applies to app and files exposures; the R2 files host is not a special escape hatch.
-- Public direct-R2 reads are only for public-by-design objects.
-- Deno Deploy app/API exposure needs auth, CORS/origin, request-size, rate-limit, and cost/abuse controls at the app/control plane.
-- Deno Deploy decides whether to emit an asset URL; after public URL emission, Deno is not enforcing per-request access.
-- Private, revocable, path-rewritten, or header-sensitive reads require a gateway decision; do not pretend direct R2 solves those cases.
-- A Worker/read gateway is a last-mile constraint tool, not the default architecture.
+## Reader and URL contracts
 
-## Existing package seam
-
-`@sys/driver-cloudflare/r2` already exposes the R2 `Files<T>` backing through `R2.Files.create(...)` over the system `Cmd<T>` / `Files<T>` transport abstraction. Treat this as landed infrastructure for write/control workflows, especially R2-backed publication and object namespace access.
-
-Do not bend the exposure primitive around R2 mechanics. The relationship should be:
+The publication plan owns the exact generation layout and per-segment key encoding:
 
 ```text
-Web.Exposure(kind: files) intent
-  → Cloudflare web realization
-  → R2 custom-domain/public-read binding
-  → R2.Files backing used by deploy/control paths
+<readOrigin>/<prefix>/generations/<generation>/content/<path>
 ```
 
-Deploy should continue to publish through the Files client boundary. `readOrigin` should eventually become a projection of the realized `Web.FilesExposure`, not an isolated R2-provider idea.
+- Discovery readers resolve `current.json` once and bind the subsequent graph to that generation.
+- Independently pinned readers such as Pi already have the manifest URL, pin, and expected package.
+  They do not acquire execution authority from `current.json`, receipts, ETags, or public responses.
+- Direct R2 does not resolve the pointer, provide implicit `/index.html` routing, rewrite
+  root-absolute HTML/CSS/module paths, or select a stable-current generation.
+- For generation publication, derive an origin-only owned HTTPS `readOrigin` from the admitted
+  realized `Web.FilesExposure`; no credentials, query, fragment, or path prefix. Encode each
+  admitted object-key segment once. Do not silently reinterpret existing ordinary Files URL
+  contracts.
+- Tools verification reports that derived origin and compares any configured Deploy `readOrigin`. A
+  mismatch is visible refusal/drift, not silent YAML mutation or a second host authority. This
+  projection is part of `feat(tools): surface web exposure verification`, not an orphaned extra arc.
+- A generation prefix is not a distinct browser origin. Retention and immutable object names do not
+  isolate Service Workers or CacheStorage by themselves.
 
-## Cloudflare realization boundary
+## Three distinct proof boundaries
 
-`@sys/driver-cloudflare/web` should translate `Web.Exposure` into Cloudflare/Deno/R2 facts and actions while hiding vendor config weight. For this file, the first concrete slice is `Web.FilesExposure` backed by R2.
+### Authenticated storage proof — publication owner
 
-The driver may own provider-specific details such as:
+Exact S3 readback establishes stored bytes, representation metadata, key-set correspondence,
+receipt, and observed activation settlement. It does not establish public reachability, cache
+behavior, public authorization, TLS policy, or browser execution.
 
-- zone/hostname lookup;
-- DNS record/custom hostname state;
-- R2 bucket custom-domain binding;
-- Deno Deploy custom-domain/protected-host proof for app exposure;
-- TLS/HTTPS proof;
-- proxied/protected edge posture checks where applicable;
-- provider drift reporting;
-- idempotent plan/apply once facts are source-backed.
+### Public artifact-delivery proof — this plan
 
-Those details should not bubble into `@sys/web` unless they represent a provider-neutral invariant.
+Tools derives finite object/byte expectations from independently retained `Pkg.Dist` evidence. The
+Cloudflare verifier owns provider/URL/HTTP observations against those supplied expectations, not a
+second Dist parser, generation-layout policy, or artifact-selection authority. Reuse the existing
+Dist owner to admit manifest/package truth; never bootstrap expected hashes from the public target.
 
-## No-snowflake automation posture
+Against that retained authority for the frozen proof Dist:
 
-Cloud configuration should become repeatable desired-state reconciliation, not console snowflakes. But automation must be phased so `@sys` does not ingest all of Cloudflare.
+- verify the selected owned hostname, normally trusted HTTPS, R2 custom-domain realization, and
+  declared protection/access posture using bounded read-only observations;
+- fetch the generation-qualified manifest and every declared asset; verify complete bytes, sizes,
+  hashes, package identity, representation headers, and admitted redirects against that authority;
+- test exact key-segment roundtrips, including spaces, literal `%`, `?`, `#`, and Unicode;
+- verify cache and negative-cache behavior at the public host. Where a missing-key observation must
+  precede publication, arrange it before the separately authorized publication of that exact proof
+  generation. Do not manufacture fixtures with unconditional writes inside the protocol namespace;
+- use the actual product URL without cache-busting queries or bypass headers. Missing visibility or
+  stale responses are failures/pending evidence, not permission to relax pins or claim success;
+- retain operator evidence that lifecycle expiration and legacy-writer authority cannot delete the
+  selected retained namespace. New prefix spelling or absence of an expiry header is insufficient;
+- record configured intent, observed facts, unmet invariants, exact code/artifact identity, and
+  bounded request/byte counts separately. No credentials, signed headers, or raw private provider
+  responses enter reports.
 
-Target phases:
+A successful representative object is a smoke test, not full Dist delivery proof. Pi's Deno
+acquisition does not inherently require browser CORS to the R2 origin; apply CORS checks only to the
+client journey that needs them. Header-only or authenticated S3 success cannot replace public byte
+verification.
 
-1. **Verify** — read-only proof that the host contract is actually satisfied.
-2. **Plan** — idempotent diff of required provider changes.
-3. **Apply** — narrow, explicit mutation of only the required provider resources.
+### Direct public-browser execution — product/release owner
 
-Bootstrap exceptions are allowed for account creation, domain purchase/delegation, and API token creation. After bootstrap, host realization should be verifiable and eventually apply-able.
+The selected product must separately prove the full HTML/CSS/module/asset/worker request graph stays
+within admitted generation-bound URLs, with correct MIME/headers, redirects, relevant CORS, cache
+behavior, and supported browser floors. `base: './'` is useful configuration, not transitive proof.
+Separately admitted app/API traffic is not generation content and does not turn Deno into an R2
+proxy.
 
-HOLD before implementation:
+Pi's release plan owns the concrete product entry, direct-public and verified-loopback execution,
+worker/migration policy, cold acquisition, warm offline reuse, and tamper refusal. No-store response
+headers alone disable neither explicit Service Worker CacheStorage nor prior-worker authority.
+Public browsing does not inherit the launcher's independent manifest pin. Do not close that release
+item merely because this plan has verified downloadable bytes.
 
-- source-backed confirmation of exact Cloudflare API resources needed for R2 custom domains and hostname/DNS/TLS protection;
-- source-backed confirmation of the Deno Deploy custom-domain/protected-host path before automating app exposure;
-- clear token scopes for read-only verify vs mutating apply;
-- proof that apply can be narrow and idempotent without modeling unrelated Cloudflare state.
+## Phased realization and authority
 
-## TMIND closure for this pass
+Cloudflare realization belongs in `@sys/driver-cloudflare/web`: hostname/zone lookup, R2
+custom-domain binding, DNS/TLS/protection observations, provider drift, and eventually narrow
+reconciliation. The Deno app realization remains a sibling and needs its own provider facts before
+automation.
 
-This should stay small. The production-useful v0 is not a full Cloudflare automation system; it is:
+1. **Model and local verification tests:** no credentials, network, domain setup, app deployment, or
+   publication required. Keep unavailable observations explicitly unverified/unsupported.
+2. **Live files verification:** requires a selected owned files host, concrete source-backed API and
+   DNS/TLS/protection facts for the checks used, least-authority read credentials where necessary,
+   the committed proof generation, and explicit bounded probe authorization. Default tests never
+   perform these calls. Inability to establish a required invariant prevents a verified result.
+3. **Plan/apply, later:** requires source-backed mutation resources, separately approved token
+   scopes and targets, a narrow idempotent diff, and explicit mutation authorization. This arc adds
+   no apply path. Deno app-provider facts and both domain pairs are not prerequisites for files
+   verify.
 
-```text
-Web.Exposure vocabulary
-+ existing Files<T> → R2 deploy push
-+ owned R2 files host per first domain
-+ owned Deno app host per first domain
-+ verify-before-apply operator proof
-```
+Account creation, domain purchase/delegation, and API-token creation remain bootstrap exceptions. A
+manual host setup is acceptable if its desired state and subsequent verification are recorded; first
+use is not blocked on automated apply. Never weaken certificate, secure-context, credential,
+permission, or provider-policy checks to obtain a proof.
 
-Adversarial constraints:
+## Commit contracts
 
-- Do not model Cloudflare's config universe in `@sys/web`.
-- Do not block first use on automated `apply`; a manual/bootstrap setup is acceptable if it is immediately verifiable and documented as desired state.
-- Do not let `Web.AppExposure` turn this R2 slice into app router/auth framework work.
-- Do not let `Web.FilesExposure` imply private/revocable access; direct R2 custom-domain reads are public-by-design.
-- Do not introduce a Worker gateway unless a named files-exposure invariant fails.
-- Do not fork the concept for `nz.accountants` and `db.team`; they are two instances of the same model.
-- Treat raw provider URLs, unprotected hostnames, and unbounded public cost surfaces as failures, not TODO polish.
+### `chore(tmpl:pkg): scaffold @sys/web package`
 
-Bounded next win: get one known object published through the existing deploy path and reachable through each owned `cdn.*` hostname, then verify the app-side URL emission uses only owned URLs.
+Landed in `07a0a8028`: lean package namespace, types/common spine, and minimal test; no runtime
+exposure model, Cloudflare behavior, R2 or Deno deployment, or product proof was established.
 
-## Core question
+### `feat(web): add exposure model types`
 
-What is the smallest correct `@sys/web` + Cloudflare/R2 setup for the R2-backed files slice on `nz.accountants` and `db.team`, while preserving the same exposure model for Deno Deploy app/API traffic:
+Define the smallest files/app exposure vocabulary above, with pure boundary admission as required.
+No vendor dependencies, routing engine, provider configuration, or runtime reachability claim.
 
-- a protected owned public Files exposure;
-- DDoS/bot-abuse baseline before public traffic hits the origin;
-- R2-backed public object reads over owned DNS;
-- app/deploy URL emission that never exposes provider/raw URLs as durable product contracts;
-- no accidental Worker/app-policy creep;
-- no vendor-config weight leaking into the root `@sys` API.
+### `feat(driver-cloudflare): add web exposure verify seam`
 
-## Landed namespace commit
+Add the Cloudflare web entry point with injected read-only observations and truthful result shapes:
+configured intent is distinct from verified, failed, and unavailable evidence. Validate targets and
+finite work bounds before effects. No automatic apply, retries with broadened authority, or secrets
+in result values. Default tests are deterministic and credential-free.
 
-```text
-chore(tmpl:pkg): scaffold @sys/web package
-```
+### `feat(driver-cloudflare): verify R2 files exposure`
 
-Landed as the smallest inertia-removing commit:
+Implement the selected files checks and bounded public-byte verification described above. Prove
+host/URL/redirect refusal, wrong bytes/headers, unavailable provider facts, stale/negative cache
+observations, alternate-public-route policy failures, and finite work with injected effects. Verify
+supplied complete object expectations without importing Deploy layout or duplicating Dist parsing.
+This implementation commit does not require a live product release or claim the later live proof.
+Keep gateway decisions tied to named failures.
 
-- created the `@sys/web` package namespace;
-- kept root package shape lean: package root, types barrel, common spine, and minimal test;
-- removed UI/Vite/fs template sample cruft;
-- added no Cloudflare, R2, Deno Deploy, or deploy-provider dependency;
-- deferred `Web.Exposure` vocabulary and all runtime behavior to follow-up commits.
+### `feat(tools): surface web exposure verification`
 
-BMIND/DMIND review: this was the right first cut. The package now exists without pretending the model is done, and without letting provider or UI template weight shape the API before the concept lands.
+Expose read-only operator verification through existing Tools composition. Report independent
+storage and exposure status, derived `readOrigin`, configuration drift, and generation-qualified
+locations. Do not change provider state, silently rewrite endpoint YAML, rebuild artifacts, or turn
+an unverified configured URL into success. Test projection and mismatch/refusal at the consumer
+seam.
 
-## Speculative commit arc
+### `docs(plan): record first R2 web exposure proof`
 
-Keep the arc narrow and falsifiable. Each commit should either establish pure vocabulary, verify provider facts, or connect an existing workflow to the verified exposure. Do not jump straight to mutating Cloudflare apply.
+After the publication prerequisite, record one explicitly authorized first files-host proof against
+one frozen Dist and its independent authority. Preserve exact same-artifact public readback and
+cache evidence. Record the selected hostname and verified protection/retention boundaries; do not
+mark the other domain, Deno app exposure, automated apply, or Pi release complete by association.
+Unmet required evidence leaves this item incomplete; no review or upload receipt substitutes for it.
 
-1. `feat(web): add exposure model types`
-   - Add `Web.Exposure`, `Web.FilesExposure`, `Web.AppExposure`, `AccessPolicy`, `UrlPolicy`, `Protection`, and `Origin` type vocabulary.
-   - Pure types/guards/schema only if needed; no provider dependencies.
-2. `feat(driver-cloudflare): add web exposure verify seam`
-   - Add a Cloudflare web module entry point with read-only verification result shapes.
-   - No mutation/apply path yet.
-3. `feat(driver-cloudflare): verify R2 files exposure`
-   - Verify owned hostname, HTTPS reachability, R2 custom-domain behavior, and public object read for a known path.
-   - Keep direct R2 vs gateway decision tied to named invariants.
-4. `feat(tools): surface web exposure verification`
-   - Add an operator-facing verify command/workflow that reports exposure status without mutating provider state.
-5. `feat(deploy): derive R2 readOrigin from web exposure`
-   - Only after the exposure model is stable enough to avoid duplicating owned host config in deploy YAML.
-6. `docs(plan): record first R2 web exposure proof`
-   - Record the first successful `nz.accountants` / `db.team` proof and any HOLDs before apply automation.
+## Verification and non-goals
 
-## Next pass
+Each implementation item must pass the affected package's configured check/test tasks with no live
+credentials or provider mutation in the default suite. The final proof uses the bounded opt-in
+workflow implemented by this plan, with separately authorized publication/setup where needed.
 
-1. Define the smallest `@sys/web` `Web.Exposure` vocabulary with `files` and `app` kinds, while implementing the R2 files slice first.
-2. Define the Cloudflare driver realization seam without exposing Cloudflare config vocabulary upward.
-3. Verify Cloudflare API facts for DNS/custom hostname/R2 custom-domain/TLS/protection.
-4. Decide the first operator workflow shape: likely `verify` before `plan/apply`.
-5. Map realized `Web.FilesExposure` to existing deploy R2 provider fields, especially `readOrigin`.
-6. Confirm whether direct R2 custom-domain serving satisfies the files-exposure invariants; add a thin gateway only if a named invariant fails.
-7. Keep Deno Deploy app/API exposure as the sibling `Web.AppExposure` path, not as an R2 concern.
-8. Prove the first domain pair on `nz.accountants` and `db.team` without creating domain-specific abstractions.
+No generic cloud facade, Files publication API, uploader in Pi, default reverse proxy, private-read
+design, GC, browser-policy bypass, or speculative apply framework is authorized. Keep first files
+verification useful while independently owned product, app, and provider-automation work proceeds.
