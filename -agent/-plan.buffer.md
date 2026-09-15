@@ -1,7 +1,7 @@
-omakase - お任せ
-
-
-
+- r2-files-delivery.plan.md
+- r2-web-exposure.plan.md
+- start-ui-release-evidence.plan.md
+- r2-files-enumeration-bounds.plan.md
 
 
 
@@ -66,6 +66,17 @@ start-ui-release-evidence.plan.md
 
 
 
+@sys.driver.cloudflare
+r2-web-exposure.plan.md
+- [x] 07a0a8028 chore(tmpl:pkg): scaffold @sys/web package
+- [ ] feat(web): add exposure model types
+- [ ] feat(driver-cloudflare): add web exposure verify seam
+- [ ] feat(driver-cloudflare): verify R2 files exposure
+- [ ] feat(tools): surface web exposure verification
+- [ ] docs(plan): record first R2 web exposure proof
+
+
+@sys.driver.cloudflare
 r2-dist-generation-publication.plan.md
 - [ ] test(driver-cloudflare): add an opt-in conditional R2 settlement proof
 - [ ] GATE authorize bounded disposable R2 experiments
@@ -89,34 +100,6 @@ native-windows-ci-baseline.plan.md
 - [ ] test(ci): establish native Windows proof with @sys/std
 
 
-
-@sys.archive
-zip.plan.md
-- [x] e3cd77745 chore(archive): establish minimal package baseline
-- [x] ebca1f132 feat(zip): add strict bounded ZIP32 inspection and integrity
-- [x] a121f91d6 test(zip): prove direct Fs snapshot interoperability
-- [x] 3ca35dc7c fix(zip): enforce cancellation fan-in bounds
-- [x] 6b2098dbd feat(fs): add bounded stable file snapshots
-- [x] c88540147 docs(fs): clarify stable snapshot evidence and limits
-- [x] ac9ce8579 refactor(fs): establish standalone Snapshot module
-- [x] 063bdfb51 feat(fs): expose lstat and realPath through a narrow observation entry
-- [x] b6d5762f0 refactor(fs): narrow observation dependencies and verify public imports
-- [x] 973a448f2 refactor(driver-pi): factor profile tool schemas
-- [x] 62daa0c38 feat(driver-pi): add bounded read-only ZIP extension
-- [x] 1dbe61766 feat(driver-pi): enable ZIP inspection in profiles
-- [x] 08956e1b0 refactor(driver-pi): nest filesystem extension under sandbox
-- [x] [rooted-streaming-tree.plan.md](../@sys.fs/rooted-streaming-tree.plan.md)
-- [x] 2487b8b62 feat(zip): add bounded ZIP extraction through a tree sink
-- [x] [pi-dependency-metadata.plan.md](../@sys.driver-pi/pi-dependency-metadata.plan.md)
-- [ ] feat(driver-pi): expose ZIP extraction under a cooperative-filesystem contract
-- [x] [dispose-until-snapshot.plan.md](../@sys.std/dispose-until-snapshot.plan.md)
-
-pi-dependency-metadata.plan.md
-- [x] 7d4c4332e fix(esm): propagate dependency file write failures
-- [x] bb8e2bb51 fix(driver-pi): refresh host metadata after dependency updates
-
-
-
 @sys.cli
 system-owned-spinner.plan.md
 - [ ] feat(process): expose canonical stderr output
@@ -124,4 +107,17 @@ system-owned-spinner.plan.md
 - [ ] fix(tools): stop daemon feedback before clearing the terminal
 - [ ] refactor(cli): replace Ora with an owned spinner runtime
 - [ ] chore(deps): remove Ora from the workspace graph
+
+
+@sys.std
+time-canon.plan.md
+- [ ] fix(std): settle rejected Schedule queue tasks
+- [ ] fix(std): own delayed callback settlement
+- [ ] fix(std): terminate failed intervals
+- [ ] fix(std): align scoped timers with root lifecycle contracts
+- [ ] fix(std): enforce Time polling deadlines and cancellation
+- [ ] fix(std): correct Time instant and timer ownership
+- [ ] fix(std): normalize duration parsing and validity
+- [ ] refactor(std): tighten Time type-plane contracts
+
 
