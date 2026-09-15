@@ -16,7 +16,7 @@ export type ResolveExtensionsInput = {
  * Materialize enabled extensions before deriving any loader or advertisement output.
  */
 export async function resolveExtensions(input: ResolveExtensionsInput) {
-  if (!input.enabled) return { args: [], promptArgs: [], tools: [] };
+  if (!input.enabled) return { args: [], promptArgs: [], tools: [], contributions: [] };
 
   const { cwd, sandboxFs, ocr } = input;
   const filesystem = Sandbox.Fs.toolNames(sandboxFs).length > 0
@@ -37,6 +37,11 @@ export async function resolveExtensions(input: ResolveExtensionsInput) {
   const zipExtension = zipPolicy ? await Zip.write({ cwd, policy: zipPolicy }) : undefined;
 
   return {
+    contributions: [
+      ...(filesystem ? ['filesystem tool contract'] : []),
+      ...(ocrExtension ? ['OCR tool contract'] : []),
+      ...(zipExtension ? ['ZIP tool contract'] : []),
+    ],
     args: [
       ...(filesystem?.args ?? []),
       ...(ocrExtension?.args ?? []),

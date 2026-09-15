@@ -124,8 +124,28 @@ export declare namespace PiCli {
     readonly _: readonly string[];
   };
 
-  /** Effective permission posture for the launched Pi child. */
+  /** Deno API permission mode; not a native-process confinement guarantee. */
   export type PermissionMode = 'scoped' | 'allow-all';
+
+  /** Launcher-resolved input snapshot, never session or provider-prompt attestation. */
+  export type LaunchIdentity = {
+    /** Preview resolution or final inputs prepared for launch (not observed execution). */
+    readonly stage: 'preview' | 'launch-input';
+    /** Time this resolution completed; not a content fingerprint or report-write time. */
+    readonly resolvedAt: string;
+    /** Safe selected package specifier, or an explicit redacted/unknown identity. */
+    readonly upstream: string;
+    /** Whether the caller explicitly selected the upstream package. */
+    readonly upstreamExplicit: boolean;
+    /** Selected profile path. */
+    readonly profile: t.StringPath;
+    /** Ownership of the base system prompt. */
+    readonly system: 'default' | 'custom';
+    /** Ordered instruction input identities, without their bodies. */
+    readonly contributions: readonly string[];
+    /** Selected tool names, not proof of live callability; absent when unresolved. */
+    readonly tools?: readonly string[];
+  };
 
   /** Boundary result union. */
   export type Result = Help | Ran | Exit;
@@ -144,8 +164,10 @@ export declare namespace PiCli {
   export type SandboxSummary = {
     /** Optional persisted report path for the full sandbox inspection artifact. */
     readonly report?: t.StringPath;
-    /** Effective permission posture for the launched Pi child. */
+    /** Deno API permissions only; native subprocesses do not inherit these path bounds. */
     readonly permissions: PermissionMode;
+    /** Optional launcher-input observation supplied by normal profile resolution. */
+    readonly launch?: LaunchIdentity;
     /** Working directories preserved across startup resolution. */
     readonly cwd: Cwd;
     /** Effective read scope grouped for display. */

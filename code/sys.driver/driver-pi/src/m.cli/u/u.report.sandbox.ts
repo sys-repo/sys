@@ -1,6 +1,7 @@
 import { Fs, pkg, slug, type t } from '../common.ts';
 import { runtimeRoot } from './u.runtime.ts';
 import { PiFs } from '../../m.core/u.fs.ts';
+import { PiAuthority } from './u.authority.ts';
 
 type Input = {
   readonly cwd: t.StringDir;
@@ -35,7 +36,7 @@ export const PiSandboxReport = {
     const context = [...(sandbox.context?.include ?? [])];
     const git = sandbox.cwd.git ? [`- cwd.git: ${sandbox.cwd.git}`] : [];
     const lines = [
-      '# Pi Sandbox Report',
+      '# Pi Deno Permissions and Launcher Inputs',
       '',
       `- pkg: ${pkg.name}@${pkg.version}`,
       `- time: ${new Date().toISOString()}`,
@@ -44,8 +45,15 @@ export const PiSandboxReport = {
       `- cwd.git-root: ${input.gitRootExplicit === true ? 'explicit' : 'inferred'}`,
       `- cwd.invoked: ${sandbox.cwd.invoked}`,
       '',
+      '## Authority',
+      `- Deno API permissions: ${sandbox.permissions}`,
+      `- Process sandbox: ${PiAuthority.process}`,
+      `- Outer sandbox: ${PiAuthority.enclosure}`,
+      `- ${PiAuthority.limitation}`,
+      '',
+      ...launchLines(sandbox.launch),
+      '',
       '## Summary',
-      `- permissions: ${sandbox.permissions}`,
       `- read: ${allowAll ? 'all' : toSummary(sandbox.read)}`,
       `- write: ${allowAll ? 'all' : toSummary(sandbox.write, { temp: 'tmp' })}`,
       `- context: ${toContextSummary(sandbox.context)}`,
@@ -63,6 +71,27 @@ export const PiSandboxReport = {
     return lines.join('\n');
   },
 } as const;
+
+function launchLines(input?: t.PiCli.LaunchIdentity): readonly string[] {
+  const source = input ? input.upstreamExplicit ? 'explicit' : 'dependency/fallback' : 'unknown';
+  return [
+    '## Launcher Input Snapshot',
+    `- observation: ${input?.stage ?? 'unknown'}`,
+    `- resolved at: ${input?.resolvedAt ?? 'unknown'}`,
+    `- upstream selection: ${input?.upstream ?? 'unknown'}`,
+    `- upstream selection source: ${source}`,
+    `- profile: ${input?.profile ?? 'unknown'}`,
+    `- system prompt: ${input?.system ?? 'unknown'}`,
+    `- selected tools: ${input?.tools ? input.tools.join(', ') || 'none' : 'unknown'}`,
+    '- live tools/runtime: unknown (not observed)',
+    '',
+    'Not session or provider-prompt evidence; paths do not attest content identity.',
+    'Preview omits extension materialization and OCR preflight; launch-input means prepared, not executed.',
+    '',
+    '### Instruction Contributions (launcher order)',
+    ...(input?.contributions.map((item, index) => `${index + 1}. ${item}`) ?? ['- unknown']),
+  ];
+}
 
 function toSummary(
   input?: t.PiCli.SandboxSummary.Scope,

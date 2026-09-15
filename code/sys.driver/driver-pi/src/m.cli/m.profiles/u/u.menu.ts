@@ -230,6 +230,7 @@ async function prepareSandboxScreen(args: MenuContext): Promise<ProfileScreen> {
       ocr: { preflight: false },
     },
     {
+      stage: 'preview',
       extensions: false,
       ocrPreflight: false,
     },

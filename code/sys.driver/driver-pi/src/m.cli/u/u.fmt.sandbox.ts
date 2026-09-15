@@ -1,14 +1,17 @@
 import { c, Cli, Fs, Is, Num, Path, pkg, Str, type t } from '../common.ts';
 import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
+import { PiAuthority } from './u.authority.ts';
 
 type PiSandboxTableOptions = {
   readonly width?: number;
   readonly gitRootExplicit?: boolean;
-  /** Exact callable tool names resolved for this launch. */
+  /** Selected tool names resolved for launch; not evidence of live callability. */
   readonly tools?: readonly string[];
   /** Terminal-output override for deterministic rendering tests. */
   readonly terminal?: boolean;
 };
+
+type SandboxRow = [label: string, value: string];
 
 type PreviewFit = {
   readonly visible: readonly string[];
@@ -32,9 +35,9 @@ type DisplayPathFit = {
 };
 
 const SANDBOX_EDGE_MARGIN = 1;
-const SANDBOX_TABLE_LABEL_WIDTH = Cli.Fmt.Text.Width.measure('permissions');
-const SANDBOX_TABLE_GAP = 3;
-const SANDBOX_TABLE_MARGIN = SANDBOX_TABLE_LABEL_WIDTH + SANDBOX_TABLE_GAP + 1;
+const SANDBOX_TABLE_LABEL_WIDTH = Cli.Fmt.Text.Width.measure('Deno permissions');
+const SANDBOX_TABLE_MARGIN = SANDBOX_TABLE_LABEL_WIDTH + Cli.Table.cellGap + 1;
+const SANDBOX_STACK_INDENT = 2;
 const PREVIEW_ELLIPSIS = '..';
 const PREVIEW_PROFILES: readonly (readonly [number, number])[] = [
   [10, 18],
@@ -45,47 +48,38 @@ const PATH_DIR_PREFIX_WIDTH = 4;
 const WRITE_GIT_MARKER = ' (--git-root)';
 const WRITE_ROOT_MARKER = ' (root)';
 
-const PI_SANDBOX_TITLE = {
-  base: 'sys:pi',
-  scoped: ':sandbox',
-  allowAll: ':no-sandbox',
-} as const;
+// Keep a marked path fragment and atomic status words in the value column; otherwise stack.
+const SANDBOX_TABLE_MIN_WIDTH = SANDBOX_TABLE_MARGIN +
+  Cli.Fmt.Text.Width.measure(WRITE_GIT_MARKER) + 1;
 
 /**
  * Pi sandbox CLI formatters.
  */
 export const PiSandboxFmt = {
   title(permissions: t.PiCli.PermissionMode) {
-    const suffix = permissions === 'allow-all'
-      ? PI_SANDBOX_TITLE.allowAll
-      : PI_SANDBOX_TITLE.scoped;
     const color = permissions === 'allow-all' ? c.yellow : c.cyan;
-    return `${c.bold(color(PI_SANDBOX_TITLE.base))}${c.dim(color(suffix))}`;
+    return c.bold(color('sys:pi'));
   },
 
-  /** Render the permission-truthful Pi application header. */
+  /** Render application identity and safety facts before a profile is resolved. */
   header(
     permissions: t.PiCli.PermissionMode,
     renderWidth = sandboxRenderWidth(),
     tools?: readonly string[],
   ): readonly string[] {
-    const tone = permissions === 'allow-all' ? 'yellow' : 'cyan';
-    const identity = PiSandboxFmt.title(permissions);
-    const flag = permissions === 'allow-all' ? c.yellow('--allow-all') : '';
-    const title = flag ? `${identity} ${flag}` : identity;
-    return Cli.Fmt.Header.rows({
-      pkg,
-      width: renderWidth,
-      tone,
-      title,
-      detail: tools?.length === 0 ? 'tools:none' : tools?.join(', '),
-    });
+    return [
+      ...identityRows(permissions, renderWidth, tools),
+      ...renderRows(authorityRows(permissions), renderWidth).split('\n'),
+      '',
+      ...limitationRows(renderWidth),
+    ];
   },
 
   table(input: t.PiCli.SandboxSummary, opts: PiSandboxTableOptions = {}) {
     const renderWidth = sandboxRenderWidth(opts.width);
     const contentBudget = sandboxContentBudget(renderWidth);
-    const table = Cli.table([]);
+    const rows = authorityRows(input.permissions);
+    rows.push([c.gray('Report snapshot'), formatSnapshot(input.launch?.stage)]);
 
     const root = runtimeRoot(input.cwd);
     let reportLink: ReportLink | undefined;
@@ -96,28 +90,26 @@ export const PiSandboxFmt = {
       const report = terminal
         ? (reportLink?.display ?? '')
         : formatReportPath(input.report, contentBudget, root);
-      table.push([c.gray('report'), report]);
-      table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
+      rows.push([c.gray('Report'), report]);
     } else {
-      table.push([c.gray('permissions'), formatPermissions(input.permissions)]);
-      table.push([
+      rows.push([
         c.gray('context'),
         formatPreview(input.context?.include ?? [], contentBudget, root),
       ]);
-      table.push([
+      rows.push([
         c.gray('read'),
         input.permissions === 'allow-all'
           ? c.yellow('all')
           : formatPreview(cwdAndDetail(root, input.read?.detail ?? []), contentBudget),
       ]);
-      if (input.permissions === 'allow-all') table.push([c.yellow('write'), c.yellow('all')]);
+      if (input.permissions === 'allow-all') rows.push([c.yellow('write'), c.yellow('all')]);
       else {
         const marker = writeCwdMarker(input.cwd, opts.gitRootExplicit === true);
-        pushWriteRows(table, root, input.write, contentBudget, marker);
+        pushWriteRows(rows, root, input.write, contentBudget, marker);
       }
     }
 
-    const [title = '', headerHr = ''] = PiSandboxFmt.header(
+    const header = identityRows(
       input.permissions,
       renderWidth,
       opts.tools,
@@ -125,7 +117,7 @@ export const PiSandboxFmt = {
     const bodyHr = c.dim(
       Cli.Fmt.hr({ width: renderWidth, color: 'gray', weight: 'dashed' }),
     );
-    const tableText = Str.trimEdgeNewlines(String(table));
+    const tableText = renderRows(rows, renderWidth);
     const body = reportLink
       ? tableText.replace(
         reportLink.display,
@@ -134,13 +126,73 @@ export const PiSandboxFmt = {
       : tableText;
 
     return Str.builder()
-      .line(title)
-      .line(headerHr)
+      .line(header.join('\n'))
       .line(body)
+      .line('')
+      .line(limitationRows(renderWidth).join('\n'))
       .line(bodyHr)
       .toString();
   },
 } as const;
+
+/**
+ * Helpers:
+ */
+function identityRows(
+  permissions: t.PiCli.PermissionMode,
+  width: number,
+  tools?: readonly string[],
+): readonly string[] {
+  return Cli.Fmt.Header.rows({
+    pkg,
+    width,
+    tone: permissions === 'allow-all' ? 'yellow' : 'cyan',
+    title: PiSandboxFmt.title(permissions),
+    detail: tools?.length === 0 ? 'tools:none' : tools?.join(', '),
+  });
+}
+
+function authorityRows(permissions: t.PiCli.PermissionMode): SandboxRow[] {
+  return [
+    [c.gray('Deno permissions'), formatPermissions(permissions)],
+    [c.gray('Process sandbox'), c.yellow(PiAuthority.process)],
+    [c.gray('Outer sandbox'), c.dim(c.gray(`<${PiAuthority.enclosure}>`))],
+  ];
+}
+
+function formatSnapshot(stage?: t.PiCli.LaunchIdentity['stage']) {
+  if (stage === 'preview') return c.gray('preview settings');
+  if (stage === 'launch-input') return c.gray('launch settings');
+  return c.dim(c.gray('<unknown>'));
+}
+
+function limitationRows(width: number): readonly string[] {
+  return Cli.Fmt.Text.Wrap.lines(PiAuthority.limitation, { width, preserve: 'none' })
+    .map((line) => c.yellow(line));
+}
+
+/** Status prose wraps without clipping; path values are already fitted to the same budget. */
+function renderRows(rows: readonly SandboxRow[], width: number) {
+  const table = Cli.table([]);
+  const budget = sandboxContentBudget(width);
+  const stacked = width < SANDBOX_TABLE_MIN_WIDTH;
+  for (const [label, value] of rows) {
+    const wrapped = Cli.Fmt.Text.Wrap.lines(value, { width: budget, preserve: 'none' });
+    if (stacked) {
+      if (label) {
+        for (const line of Cli.Fmt.Text.Wrap.lines(label, { width, preserve: 'none' })) {
+          table.push([line]);
+        }
+      }
+      for (const line of wrapped) table.push([Str.indent(line, SANDBOX_STACK_INDENT)]);
+    } else {
+      const [first = '', ...rest] = wrapped;
+      table.push([label, first]);
+      for (const line of rest) table.push(['', line]);
+    }
+  }
+  return Str.trimEdgeNewlines(String(table));
+}
 
 function sandboxRenderWidth(width = Cli.Screen.size().width) {
   const measured = Is.num(width) && width > 0 ? width : Cli.Screen.size().width;
@@ -151,7 +203,7 @@ function sandboxContentBudget(renderWidth: number) {
   if (renderWidth <= 0) return 0;
   return Cli.Fmt.Text.Width.fit({
     width: renderWidth,
-    reserve: SANDBOX_TABLE_MARGIN,
+    reserve: renderWidth < SANDBOX_TABLE_MIN_WIDTH ? SANDBOX_STACK_INDENT : SANDBOX_TABLE_MARGIN,
     terminal: false,
   });
 }
@@ -256,11 +308,11 @@ function fitPathToBudget(path: string, budget: number): DisplayPathFit {
 }
 
 function formatPermissions(input: t.PiCli.PermissionMode) {
-  return input === 'allow-all' ? c.yellow(input) : c.gray(input);
+  return input === 'allow-all' ? c.yellow(input) : c.white(input);
 }
 
 function pushWriteRows(
-  table: ReturnType<typeof Cli.table>,
+  table: SandboxRow[],
   cwd: t.StringDir,
   input: t.PiCli.SandboxSummary.Scope | undefined,
   budget: number,
@@ -363,7 +415,7 @@ function cwdAndDetail(cwd: t.StringDir, input: readonly t.StringPath[]) {
 }
 
 function pushWriteBucket(
-  table: ReturnType<typeof Cli.table>,
+  table: SandboxRow[],
   label: string,
   input: readonly t.StringPath[],
   cwd: t.StringDir,

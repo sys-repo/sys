@@ -6,7 +6,9 @@
     "test": "deno task test:unit && deno task test:reset:process && deno task test:profiles:process && deno task test:preview:real",
     "test:unit": "deno test -P=test ./src ./-scripts",
     "test:deps": "deno test -P=test ./-scripts/-test/-prep.test.ts",
+    "test:reporting": "deno test -P=test ./-scripts/-test.reporting.ts",
     "test:host": "TMPDIR=./.tmp TMP=./.tmp TEMP=./.tmp deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-host.zip.ts",
+    "test:reporting:host": "TMPDIR=./.tmp TMP=./.tmp TEMP=./.tmp deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-host.reporting.ts",
     "test:zip:permissions": "deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-zip.permission.ts",
     "test:reset:process": "deno test --frozen --cached-only --no-prompt -P=test-reset-process --trace-leaks ./-scripts/-test.external/-task.start.gui.reset.process-proof.ts",
     "test:profiles": "deno test -P=test ./src/m.cli/m.profiles/-test && deno task test:profiles:process",
@@ -321,4 +323,3 @@
     }
   }
 }
-

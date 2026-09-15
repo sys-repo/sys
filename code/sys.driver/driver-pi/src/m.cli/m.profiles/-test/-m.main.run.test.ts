@@ -40,7 +40,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       console.info = (value?: unknown) => {
         const text = String(value ?? '');
         calls.push(text);
-        if (Cli.stripAnsi(text).includes('sys:pi:sandbox')) events.push('sheet');
+        if (Cli.stripAnsi(text).startsWith('sys:pi ')) events.push('sheet');
       };
       Object.defineProperty(PiSandboxReport, 'write', {
         value: async (input: Parameters<typeof PiSandboxReport.write>[0]) => {
@@ -66,7 +66,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('sys:pi:sandbox');
+      expect(printed).to.match(/Deno permissions\s+scoped/);
+      expect(printed).to.match(/Report snapshot\s+launch settings/);
       expect(printed).to.contain('.sandbox.log.md');
       expect(events).to.eql(['report:start', 'report:done', 'sheet', 'launch']);
     } finally {
@@ -94,7 +95,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
         cwd,
         argv: ['--profile', config, '--', '--tools', 'read,bash'],
       });
-      const sheet = calls.map(Cli.stripAnsi).find((value) => value.startsWith('sys:pi:sandbox'));
+      const sheet = calls.map(Cli.stripAnsi).find((value) => value.startsWith('sys:pi '));
       const header = sheet?.split('\n')[0] ?? '';
 
       expect(res.kind).to.eql('run');
@@ -130,7 +131,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
         pkg,
         argv: ['--profile', config, '--', '--tools', 'powershell'],
       });
-      const sheet = calls.map(Cli.stripAnsi).find((value) => value.startsWith('sys:pi:sandbox'));
+      const sheet = calls.map(Cli.stripAnsi).find((value) => value.startsWith('sys:pi '));
       const header = sheet?.split('\n')[0] ?? '';
 
       expect(res.kind).to.eql('run');
@@ -173,7 +174,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
 
       const res = await Profiles.main({ cwd, argv: ['--profile', 'profiles.yaml'] });
       expect(res.kind).to.eql('run');
-      expect(Cli.stripAnsi(calls.join('\n'))).to.contain('sys:pi:sandbox');
+      expect(Cli.stripAnsi(calls.join('\n'))).to.match(/Deno permissions\s+scoped/);
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
@@ -281,7 +282,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('sys:pi:sandbox');
+      expect(printed).to.match(/Deno permissions\s+scoped/);
       expect(printed).to.contain('.sandbox.log.md');
     } finally {
       Process.inherit = prev;
@@ -341,7 +342,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).not.to.contain('canon/AGENTS.md');
-      expect(printed).to.contain('sys:pi:sandbox');
+      expect(printed).to.match(/Deno permissions\s+scoped/);
       expect(report?.data).to.contain(`- ${contextFile}`);
     } finally {
       Process.inherit = prev;
@@ -384,7 +385,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
       expect(printed).to.contain('Migrated 2 Pi config/runtime items.');
-      expect(printed).to.contain('sys:pi:sandbox');
+      expect(printed).to.match(/Deno permissions\s+scoped/);
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
@@ -414,7 +415,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/run`, () => {
       const res = await Profiles.main({ cwd, argv: ['--profile', 'default', '--', '--help'] });
       expect(res.kind).to.eql('run');
       const printed = Cli.stripAnsi(calls.join('\n'));
-      expect(printed).to.contain('sys:pi:sandbox');
+      expect(printed).to.match(/Deno permissions\s+scoped/);
       expect(printed).to.contain('.sandbox.log.md');
       expect(printed).not.to.contain('write:cwd');
     } finally {

@@ -512,9 +512,9 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(prints.filter((value) => value === '')).to.have.length(2);
       expect(prints.filter((value) => value.includes('.sandbox.log.md'))).to.have.length(1);
-      expect(printed).to.contain('sys:pi:sandbox');
-      expect(printed).to.match(/permissions\s+scoped/);
-      expect(printed).to.match(/report\s+.*\.sandbox\.log\.md/);
+      expect(printed).to.contain('sys:pi');
+      expect(printed).to.match(/Deno permissions\s+scoped/);
+      expect(printed).to.match(/Report\s+.*\.sandbox\.log\.md/);
       expect(printed).to.not.contain(`${cwd}/.log`);
       expect(printed).to.contain('.sandbox.log.md');
       expect(printed).not.to.match(/\ncontext\s+/);
@@ -745,7 +745,8 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       const rootHeader = Cli.stripAnsi(prints[0] ?? '');
       expect(res).to.eql({ kind: 'exit' });
       expect(rootHeader).to.eql(expectedProfileHeader('allow-all'));
-      expect(rootHeader).to.contain('sys:pi:no-sandbox --allow-all');
+      expect(rootHeader).to.contain('sys:pi');
+      expect(rootHeader).to.match(/Deno permissions\s+allow-all/);
       expect(rootHeader).not.to.contain('read');
       expect(printed).to.match(/permissions\s+allow-all/);
       expect(printed).not.to.match(/\nread\s+/);

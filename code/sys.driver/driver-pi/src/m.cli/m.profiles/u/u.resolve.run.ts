@@ -1,5 +1,5 @@
 import { Fs, type t } from '../common.ts';
-import { PI_AGENT_IMPORT, resolvePkg } from '../../u/u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT, reportPkg, resolvePkg } from '../../u/u.resolve.pkg.ts';
 import { resolveSandboxSummary } from '../../u/u.resolve.sandbox.ts';
 import { resolveTempArtifactRoots } from '../../u/u.runtime.ts';
 import { Sandbox } from '../../../m.core/m.extension/m.sandbox/mod.ts';
@@ -30,6 +30,8 @@ export type ResolvedProfileRun = {
 };
 
 export type ResolveRunOptions = {
+  /** Reporting stage only; does not change execution or resolution behavior. */
+  readonly stage?: t.PiCli.LaunchIdentity['stage'];
   /** Whether to run and persist launcher-owned extensions. */
   readonly extensions?: boolean;
   /** Preflight behavior override. */
@@ -38,6 +40,7 @@ export type ResolveRunOptions = {
 
 /**
  * Resolve one validated profile into raw CLI launch inputs without starting Pi.
+ * Side-effectful: migrates profiles, writes context/extensions, and may preflight OCR.
  */
 export async function resolveRun(
   input: t.PiCliProfiles.RunArgs,
@@ -146,7 +149,26 @@ export async function resolveRun(
     env,
     allowAll: input.allowAll,
     pkg,
-    sandbox,
+    sandbox: {
+      ...sandbox,
+      launch: {
+        stage: options.stage ?? 'launch-input',
+        resolvedAt: new Date().toISOString(),
+        upstream: reportPkg(pkg),
+        upstreamExplicit: input.pkg !== undefined,
+        profile: activeProfile,
+        system: prompt?.system == null ? 'default' : 'custom',
+        contributions: [
+          `system prompt: ${prompt?.system == null ? 'default' : 'custom'}`,
+          ...contextResolution.contributions,
+          ...extensions.contributions,
+          'runtime metadata',
+          'final provenance safety',
+        ],
+        // Preview skips extension materialization/preflight; it is not a final tool selection.
+        ...(options.stage !== 'preview' && tools ? { tools } : {}),
+      },
+    },
     ...(tools ? { tools } : {}),
   };
 }

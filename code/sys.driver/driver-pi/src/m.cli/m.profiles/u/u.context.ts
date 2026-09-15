@@ -20,6 +20,8 @@ type ResolvedContext = {
   readonly args: readonly string[];
   readonly include: readonly t.StringPath[];
   readonly systemPromptAppend?: string;
+  /** Source identities in prompt assembly order, without source contents. */
+  readonly contributions: readonly string[];
 };
 
 const DEFAULT_AGENT_CONTEXT = 'AGENTS.md' as t.StringPath;
@@ -41,6 +43,10 @@ export const ProfileContext = {
       args,
       include: entries.map((entry) => entry.path),
       systemPromptAppend: systemEntries.length > 0 ? formatSystemAppend(systemEntries) : undefined,
+      contributions: [
+        ...systemEntries.map((entry) => `system file: ${entry.path}`),
+        ...contextEntries.map((entry) => `context file: ${entry.path}`),
+      ],
     };
   },
 

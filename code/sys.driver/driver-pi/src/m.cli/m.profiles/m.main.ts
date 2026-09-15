@@ -2,7 +2,7 @@ import { run } from '../m.run.ts';
 import { PiSandboxFmt } from '../u/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../u/u.report.sandbox.ts';
 
-import { Cli, Obj, type t } from './common.ts';
+import { Cli, type t } from './common.ts';
 import { ProfileArgs } from './u/u.args.ts';
 import { ProfilesDslFmt } from './u/u.fmt.dsl.ts';
 import { ProfilesFmt } from './u/u.fmt.help.ts';
@@ -137,13 +137,12 @@ export async function mainWith(
       },
     },
   );
-  const report = picked.preview && Obj.eql(picked.preview.sandbox, resolved.sandbox)
-    ? picked.preview.report
-    : await PiSandboxReport.write({
-      cwd: root,
-      sandbox: resolved.sandbox,
-      gitRootExplicit,
-    });
+  // Equal grants (or contribution paths) do not make preview evidence fresh launch inputs.
+  const report = await PiSandboxReport.write({
+    cwd: root,
+    sandbox: resolved.sandbox,
+    gitRootExplicit,
+  });
   const sheet = PiSandboxFmt.table({ ...resolved.sandbox, report }, {
     gitRootExplicit,
     tools: resolved.tools,

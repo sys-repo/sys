@@ -163,8 +163,19 @@ writes in place. The printed dependency summary is not confirmation that the who
 - Default launches derive scoped Deno permissions from the working directory, runtime directories,
   profile policy, and explicit extras.
 - Launcher arguments `-A` and `--allow-all` explicitly disable child scoping for unsafe debugging.
-- Sandbox previews and `./.pi/@sys/log/@sys.driver-pi/*.sandbox.log.md` record the effective
-  permission posture.
+- Previews/startup sheets and `./.pi/@sys/log/@sys.driver-pi/*.sandbox.log.md` distinguish scoped
+  versus allow-all **Deno API permissions** from process confinement. This launcher supplies no
+  shell/process confinement; any enclosing protection is unknown. Native subprocesses do not inherit
+  Deno read/write path bounds. Allow-all does not prove an enclosing sandbox is absent.
+- Reports identify launcher version, safe upstream selection, profile, default/custom system prompt,
+  and ordered instruction contributions without recording prompt/context bodies or environment
+  values. Only the known upstream package stem with a numeric release is shown; other specifiers are
+  redacted, not echoed. Unknown tool/runtime facts remain unknown.
+- A `preview` snapshot skips extension materialization and OCR preflight. A fresh `launch-input`
+  report is written after final resolution and before process launch, even when grants are
+  unchanged. Its resolution timestamp is distinct from report-write time. Neither snapshot proves
+  execution, live tool callability, content identity from paths, or the provider's effective prompt.
+  Resolution itself may migrate profiles and write context/extensions; it is not read-only.
 - Legacy `.log/@sys.driver-pi/` and `.log/@sys.driver-pi.pi/` reports migrate without overwriting
   canonical files.
 

@@ -26,6 +26,15 @@ export async function resolvePkg(input: {
   return DenoDeps.findImport(res.data?.deps, PI_AGENT_IMPORT_BASE) ?? PI_AGENT_IMPORT;
 }
 
+/** Report only the known package stem and a numeric release; redact all custom specifiers. */
+export function reportPkg(specifier: t.StringModuleSpecifier): string {
+  const prefix = `${PI_AGENT_IMPORT_BASE}@`;
+  const version = specifier.startsWith(prefix) ? specifier.slice(prefix.length) : '';
+  return /^\d+\.\d+\.\d+$/.test(version)
+    ? `${prefix}${version}`
+    : 'custom (redacted; identity unknown)';
+}
+
 /**
  * Helpers:
  */

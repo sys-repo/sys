@@ -12,6 +12,7 @@ describe('@sys/driver-pi/cli/Profiles/extension resolution', () => {
         const path = Fs.join(cwd, '.pi/@sys/extensions/zip/mod.read.ts');
         expect(resolved.args).to.eql(['--extension', path]);
         expect(resolved.tools).to.eql(['zip_inspect', 'zip_test']);
+        expect(resolved.contributions).to.eql(['ZIP tool contract']);
         expect(resolved.promptArgs[0]).to.eql('--append-system-prompt');
         expect(resolved.promptArgs[1]).to.contain('- zip_inspect:');
         expect(resolved.promptArgs[1]).to.contain('- zip_test:');
@@ -68,7 +69,7 @@ describe('@sys/driver-pi/cli/Profiles/extension resolution', () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'pi.extensions.' })).absolute;
     try {
       const result = await resolveExtensions({ ...inputOf(cwd), zip: { enabled: false } });
-      expect(result).to.eql({ args: [], promptArgs: [], tools: [] });
+      expect(result).to.eql({ args: [], promptArgs: [], tools: [], contributions: [] });
       expect(await Fs.exists(Fs.join(cwd, '.pi'))).to.eql(false);
     } finally {
       await Fs.remove(cwd);
@@ -81,7 +82,7 @@ describe('@sys/driver-pi/cli/Profiles/extension resolution', () => {
       const absent = Fs.join(cwd, 'not-created');
       const input = inputOf(absent);
       const result = await resolveExtensions({ ...input, enabled: false, zip: { enabled: true } });
-      expect(result).to.eql({ args: [], promptArgs: [], tools: [] });
+      expect(result).to.eql({ args: [], promptArgs: [], tools: [], contributions: [] });
       expect(await Fs.exists(absent)).to.eql(false);
     } finally {
       await Fs.remove(cwd);

@@ -4,6 +4,8 @@ import { Process as ProcessOwner } from '../../common.ts';
 import { mainWith as mainWithOwner } from '../m.main.ts';
 import { Profiles as ProfilesOwner } from '../mod.ts';
 import { withInherit } from '../../u/u.inherit.ts';
+import { PI_AGENT_IMPORT, PI_AGENT_IMPORT_BASE } from '../../u/u.resolve.pkg.ts';
+import { PiSandboxReport } from '../../u/u.report.sandbox.ts';
 
 type MainWithDeps = NonNullable<Parameters<typeof mainWithOwner>[1]>;
 type SelectPromptInput = {
@@ -102,9 +104,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     }
   });
 
-  it('repaints the terminal with the final sandbox sheet immediately before profile launch', async () => {
+  it('equal preview grants → fresh launch report and final sheet for a different package selection', async () => {
     const prev = Process.inherit;
     const prevInfo = console.info;
+    const prevReportWrite = PiSandboxReport.write;
     const originalPrompt = Cli.Input.Select.prompt;
     const screen = Cli.Screen as { repaint: (frame: string) => void };
     const prevRepaint = screen.repaint;
@@ -114,6 +117,8 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const calls: string[] = [];
     const events: string[] = [];
     const frames: string[] = [];
+    const reports: Array<{ path: t.StringPath; sandbox: t.PiCli.SandboxSummary }> = [];
+    const selectedPkg = `${PI_AGENT_IMPORT_BASE}@0.83.0` as const;
     let topLevelCount = 0;
     let launchCount = 0;
     try {
@@ -125,10 +130,22 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
         frames.push(frame);
         events.push('repaint');
       };
-      Process.inherit = () => {
+      // Observe the report boundary while retaining the actual persistence operation.
+      Object.defineProperty(PiSandboxReport, 'write', {
+        value: async (input: Parameters<typeof PiSandboxReport.write>[0]) => {
+          const path = await prevReportWrite(input);
+          reports.push({ path, sandbox: input.sandbox });
+          events.push(`report:${input.sandbox.launch?.stage}`);
+          return path;
+        },
+      });
+      Process.inherit = async (input) => {
         launchCount += 1;
+        expect(input.args).to.include(selectedPkg);
+        expect(reports, 'preview and launch reports exist before spawn').to.have.length(2);
+        expect(await Fs.exists(reports[1].path), 'launch report is already persisted').to.eql(true);
         events.push('launch');
-        return Promise.resolve({ code: 0, success: true, signal: null });
+        return { code: 0, success: true, signal: null };
       };
       Object.defineProperty(Cli.Input.Select, 'prompt', {
         value(input: SelectPromptInput) {
@@ -144,7 +161,11 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
         },
       });
 
-      const res = await Profiles.main({ cwd, tty: { stdin: true, stdout: true } });
+      const res = await Profiles.main({
+        cwd,
+        pkg: selectedPkg,
+        tty: { stdin: true, stdout: true },
+      });
       const reportFiles = (await Fs.ls(
         Fs.join(cwd, '.pi', '@sys', 'log', '@sys.driver-pi') as t.StringDir,
       )).filter((path) => path.endsWith('.sandbox.log.md'));
@@ -153,17 +174,43 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
 
       expect(res.kind).to.eql('run');
       expect(launchCount).to.eql(1);
-      expect(events).to.eql(['repaint', 'launch']);
+      expect(events).to.eql(['report:preview', 'report:launch-input', 'repaint', 'launch']);
       expect(frames).to.have.length(1);
-      expect(frame).to.contain('sys:pi:sandbox');
-      expect(frame).to.match(/permissions\s+scoped/);
+      expect(frame).to.contain('sys:pi');
+      expect(frame).to.match(/Report snapshot\s+launch settings/);
+      expect(printed).to.match(/Report snapshot\s+preview settings/);
+      expect(frame).to.match(/Deno permissions\s+scoped/);
       expect(frame).to.contain('.sandbox.log.md');
-      expect(printed.match(/permissions\s+scoped/g)?.length).to.eql(1);
-      expect(reportFiles.length).to.eql(1);
+      expect(printed.match(/Report snapshot/g)?.length).to.eql(1);
+      expect(reportFiles.length).to.eql(2);
+      expect(reports.map((item) => item.sandbox.launch?.stage)).to.eql(['preview', 'launch-input']);
+      const [preview, launch] = reports;
+      expect(launch.path).not.to.eql(preview.path);
+      expect(printed).to.contain(Fs.basename(preview.path));
+      expect(frame).to.contain(Fs.basename(launch.path));
+
+      // Equal structured grants, not equal Markdown suffixes, establish the reuse regression.
+      expect(preview.sandbox.permissions).to.eql('scoped');
+      expect(preview.sandbox.read?.summary).to.include('cwd');
+      expect(preview.sandbox.write?.summary).to.include('cwd');
+      expect(launch.sandbox.permissions).to.eql(preview.sandbox.permissions);
+      expect(launch.sandbox.cwd).to.eql(preview.sandbox.cwd);
+      expect(launch.sandbox.read).to.eql(preview.sandbox.read);
+      expect(launch.sandbox.write).to.eql(preview.sandbox.write);
+      const previewText = await Fs.readText(preview.path);
+      const launchText = await Fs.readText(launch.path);
+      expect(previewText.ok).to.eql(true);
+      expect(launchText.ok).to.eql(true);
+      expect(previewText.data).to.contain('- observation: preview');
+      expect(previewText.data).to.contain(`- upstream selection: ${PI_AGENT_IMPORT}`);
+      expect(launchText.data).to.contain('- observation: launch-input');
+      expect(launchText.data).to.contain(`- upstream selection: ${selectedPkg}`);
+      expect(launchText.data).to.contain('- selected tools: unknown');
     } finally {
       Process.inherit = prev;
       console.info = prevInfo;
       screen.repaint = prevRepaint;
+      Object.defineProperty(PiSandboxReport, 'write', { value: prevReportWrite });
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
       await Fs.remove(cwd);
     }
