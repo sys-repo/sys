@@ -4,7 +4,7 @@ import { toObjectMeta, toS3Metadata } from './u.metadata.ts';
 
 /** Private adapter from the R2-shaped bucket transport to signed S3-compatible HTTP. */
 export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.Bucket.Transport {
-  const client = new S3Client({
+  const clientOptions = {
     endPoint: context.storageUrl,
     region: 'auto',
     accessKey: context.credentials.accessKeyId,
@@ -12,7 +12,8 @@ export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.B
     sessionToken: context.credentials.sessionToken,
     bucket: context.bucketName,
     pathStyle: true,
-  });
+  };
+  const client = new S3Client(clientOptions);
 
   const bucketName = context.bucketName;
 
@@ -45,7 +46,16 @@ export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.B
     },
     async *list(options) {
       if (options?.limit === 0) return;
-      const objects = client.listObjects({
+      // A listing owns its client: concurrent operations cannot replace each other's guard.
+      // The SDK's public request seam includes continuations hidden inside listObjects.
+      const beforeRequest = options?.beforeRequest;
+      const listing = new class extends S3Client {
+        override makeRequest(...args: Parameters<S3Client['makeRequest']>) {
+          beforeRequest?.();
+          return super.makeRequest(...args);
+        }
+      }(clientOptions);
+      const objects = listing.listObjects({
         bucketName,
         prefix: options?.prefix,
         maxResults: options?.limit,

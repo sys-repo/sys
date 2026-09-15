@@ -1,6 +1,7 @@
 import { Glob, Is, Num, Str, type t } from '../common.ts';
 import { buildEntryIndex, dirEntry, type EntryIndex } from './entry.ts';
 import { fail, invalidPath } from './error.ts';
+import type { EnumerationBudget } from './enumeration.ts';
 import {
   descendantPrefix,
   encodeKeyPath,
@@ -17,6 +18,7 @@ export type Runtime = {
   readonly policy: t.Files.Policy.Shape;
   readonly capabilities: t.Files.Capabilities;
   readonly defaultLimit: t.Files.Limit;
+  readonly enumeration: EnumerationBudget;
 };
 
 export type ListQuery = {
@@ -29,10 +31,11 @@ export type ListQuery = {
 /** Read the current provider object projection into a Files tree index. */
 export async function readIndex(runtime: Runtime): Promise<EntryIndex> {
   const objects: t.R2.ObjectInfo[] = [];
-  for await (const object of runtime.bucket.list({ prefix: namespacePrefix(runtime.prefix) })) {
+  // No provider maxResults: successful exhaustion must not be a silently capped tree.
+  for await (const object of enumerate(runtime, { prefix: namespacePrefix(runtime.prefix) })) {
     objects.push(object);
   }
-  return buildEntryIndex(runtime.prefix, objects);
+  return buildEntryIndex(runtime.prefix, objects, runtime.enumeration);
 }
 
 /** List object infos below a Files directory path. */
@@ -45,12 +48,13 @@ export async function descendantObjects(
   if (!listPrefix.possible) return [];
   const objects: t.R2.ObjectInfo[] = [];
   for await (
-    const object of runtime.bucket.list({
+    const object of enumerate(runtime, {
       prefix: listPrefix.prefix,
       ...(limit === undefined ? {} : { limit }),
     })
   ) {
     objects.push(object);
+    if (limit !== undefined && objects.length >= limit) break;
   }
   return objects;
 }
@@ -113,6 +117,26 @@ export function validateListQuery(query: ListQuery): void {
   }
   validateMatch(query.match, 'match');
   validateMatch(query.exclude, 'exclude');
+}
+
+/** Account before retaining any record; a custom bucket must honor request accounting. */
+async function* enumerate(runtime: Runtime, options: t.R2.Bucket.ListOptions) {
+  let requested = false;
+  const beforeRequest = () => {
+    runtime.enumeration.request();
+    requested = true;
+  };
+  const assertRequested = () => {
+    if (!requested) {
+      throw fail('FilesR2Error.Unsupported', 'R2 listing requires request accounting');
+    }
+  };
+  for await (const object of runtime.bucket.list({ ...options, beforeRequest })) {
+    assertRequested();
+    runtime.enumeration.object(object);
+    yield object;
+  }
+  assertRequested();
 }
 
 function assertDirectory(index: EntryIndex, path: t.Files.String.Path): void {

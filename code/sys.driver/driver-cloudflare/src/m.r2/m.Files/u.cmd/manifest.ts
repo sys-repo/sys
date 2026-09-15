@@ -1,4 +1,4 @@
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
 import { fail, provider } from '../u/error.ts';
 import { page, validatePageInput } from '../u/page.ts';
 import { listEntries, readIndex, type Runtime, urlRef } from '../u/runtime.ts';
@@ -73,7 +73,10 @@ async function contentRefs(
       ? entry
       : { ...entry, mediaType: stat.metadata.mediaType };
     const ref = urlRef(runtime, entry.path, file);
-    if (ref) refs.push(ref);
+    if (ref) {
+      runtime.enumeration.path(ref.path);
+      refs.push(ref);
+    }
   }
   return refs;
 }

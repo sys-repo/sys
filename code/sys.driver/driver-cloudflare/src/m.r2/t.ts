@@ -89,6 +89,12 @@ export declare namespace R2 {
       readonly prefix?: string;
       readonly limit?: number;
       readonly pageSize?: number;
+      /**
+       * Called before each client-issued listing request, including hidden continuation requests.
+       * Throwing refuses dispatch. Custom buckets/transports must honor this hook when supplied.
+       * This counts client dispatches, not HTTP redirects, response bytes, or completion time.
+       */
+      readonly beforeRequest?: () => void;
     };
 
     export type TransportFactory = (context: TransportContext) => Transport;
@@ -129,12 +135,29 @@ export declare namespace R2 {
       & {
         readonly bucket: Bucket;
         readonly prefix?: string;
+        /** Complete per-operation enumeration policy; omitted means finite driver defaults. */
+        readonly enumeration?: EnumerationLimits;
       };
+
+    /**
+     * Finite enumeration limits, captured at backing construction and renewed per Files command.
+     * Objects/keys count every yielded record before filtering; entries/paths bound index growth.
+     * These are not SDK XML-buffer, process-memory, network-redirect, or timeout guarantees.
+     */
+    export type EnumerationLimits = {
+      readonly maxRequests: number;
+      readonly maxObjects: number;
+      readonly maxKeyBytes: number;
+      readonly maxEntries: number;
+      readonly maxPathBytes: number;
+    };
 
     /** Files/R2 backing error surface. */
     export namespace Error {
       /** Files/R2 backing error name. */
-      export type Kind = `FilesR2Error.${TFiles.Backing.ErrorKindSuffix}`;
+      export type Kind =
+        | `FilesR2Error.${TFiles.Backing.ErrorKindSuffix}`
+        | 'FilesR2Error.EnumerationLimit';
     }
   }
 

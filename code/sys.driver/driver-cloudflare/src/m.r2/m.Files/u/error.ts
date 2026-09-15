@@ -22,7 +22,7 @@ export async function provider<T>(args: {
 
 /** True when an error is already in the Files/R2 backing domain. */
 export function isFilesR2Error(error: unknown): error is Error {
-  return Is.error(error) && error.name.startsWith('FilesR2Error.');
+  return (Is.error(error) || Err.Is.stdError(error)) && error.name.startsWith('FilesR2Error.');
 }
 
 /** Files/R2 invalid path error factory. */

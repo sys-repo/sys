@@ -1,5 +1,7 @@
 import { Is, Str, type t } from '../common.ts';
 import { fail, isFilesR2Error, provider } from '../u/error.ts';
+import { buildEntryIndex } from '../u/entry.ts';
+import type { EnumerationBudget } from '../u/enumeration.ts';
 import { descendantObjects, type Runtime } from '../u/runtime.ts';
 import { objectKey, pathFromObjectKey, requiredVisiblePath } from '../u/path.ts';
 
@@ -30,7 +32,7 @@ export async function remove(
       const key = objectKey(runtime.prefix, path);
       const [object, descendants] = await Promise.all([
         runtime.bucket.stat(key),
-        descendantObjects(runtime, path),
+        descendantObjects(runtime, path, payload.recursive === true ? undefined : 1),
       ]);
 
       if (object && descendants.length > 0) {
@@ -40,10 +42,16 @@ export async function remove(
         throw fail('FilesR2Error.NotFound', `Path not found: ${path}`);
       }
 
-      const targets = object ? [{ key, path }] : descendantTargets(runtime.prefix, descendants);
       if (!object && payload.recursive !== true) {
         throw fail('FilesR2Error.DirectoryNotEmpty', `Directory not empty: ${path}`);
       }
+      if (object) runtime.enumeration.object(object);
+      // Admit the whole projection (including descendant collisions) before any mutation.
+      buildEntryIndex(runtime.prefix, object ? [object] : descendants, runtime.enumeration);
+      if (object) runtime.enumeration.path(path, 2);
+      const targets = object
+        ? [{ key, path }]
+        : descendantTargets(runtime.prefix, descendants, runtime.enumeration);
       for (const target of targets) {
         if (!runtime.authority.allows('remove', target.path)) {
           throw fail('FilesR2Error.PolicyDenied', `Remove denied: ${target.path}`);
@@ -56,7 +64,7 @@ export async function remove(
           await runtime.bucket.remove(target.key);
           deleted.push(target.path);
         } catch (cause) {
-          if (isFilesR2Error(cause)) throw cause;
+          if (deleted.length === 0 && isFilesR2Error(cause)) throw cause;
           throw partialFailure(path, target.path, deleted, cause);
         }
       }
@@ -69,14 +77,17 @@ export async function remove(
 function descendantTargets(
   prefix: string,
   objects: readonly t.R2.ObjectInfo[],
+  budget: EnumerationBudget,
 ): readonly { readonly key: string; readonly path: t.Files.String.Path }[] {
+  const targets: { readonly key: string; readonly path: t.Files.String.Path }[] = [];
+  for (const object of objects) {
+    const path = pathFromObjectKey(prefix, object.key);
+    if (path === undefined || path === '') continue;
+    budget.path(path, 2); // Reserve target and eventual deleted-path result before retention.
+    targets.push({ key: object.key, path });
+  }
   const compare = Str.Compare.codeUnit();
-  return objects
-    .map((object) => ({ key: object.key, path: pathFromObjectKey(prefix, object.key) }))
-    .filter((item): item is { readonly key: string; readonly path: t.Files.String.Path } => {
-      return item.path !== undefined && item.path !== '';
-    })
-    .sort((a, b) => b.path.length - a.path.length || compare(a.path, b.path));
+  return targets.sort((a, b) => b.path.length - a.path.length || compare(a.path, b.path));
 }
 
 function partialFailure(

@@ -1,5 +1,6 @@
 import { Num, type t } from '../common.ts';
 import { fail } from './error.ts';
+import type { EnumerationBudget } from './enumeration.ts';
 import { ancestors, pathFromObjectKey } from './path.ts';
 
 export type FileNode = {
@@ -13,8 +14,13 @@ export type EntryIndex = {
 };
 
 /** Build a deterministic Files tree projection from flat R2 objects. */
-export function buildEntryIndex(prefix: string, objects: readonly t.R2.ObjectInfo[]): EntryIndex {
+export function buildEntryIndex(
+  prefix: string,
+  objects: readonly t.R2.ObjectInfo[],
+  budget: EnumerationBudget,
+): EntryIndex {
   const files = new Map<t.Files.String.Path, FileNode>();
+  budget.entry('', 2);
   const dirs = new Set<t.Files.String.Path>(['' as t.Files.String.Path]);
 
   for (const object of objects) {
@@ -24,8 +30,14 @@ export function buildEntryIndex(prefix: string, objects: readonly t.R2.ObjectInf
 
     for (const ancestor of ancestors(path)) {
       if (files.has(ancestor)) throw collision(ancestor);
-      dirs.add(ancestor);
+      if (!dirs.has(ancestor)) {
+        // Set identity and eventual returned directory entry path.
+        budget.entry(ancestor, 2);
+        dirs.add(ancestor);
+      }
     }
+    // Map identity and File.entry.path are separately accounted logical path slots.
+    if (!files.has(path)) budget.entry(path, 2);
     files.set(path, { entry: fileEntry(path, object), object });
   }
 

@@ -43,7 +43,8 @@ export function fakeTransport(calls: unknown[] = []): t.R2.Bucket.TransportFacto
       return Promise.resolve();
     },
     async *list(options) {
-      calls.push(['list', options]);
+      options?.beforeRequest?.();
+      calls.push(['list', listCallOptions(options)]);
       yield { key: 'assets/app.js', size: 12 };
     },
   });
@@ -90,7 +91,8 @@ export function fakeBucket(
       return Promise.resolve();
     },
     async *list(options) {
-      calls.push(['list', options]);
+      options?.beforeRequest?.();
+      calls.push(['list', listCallOptions(options)]);
       let count = 0;
       const compare = Str.Compare.codeUnit();
       for (const [key, object] of [...store.entries()].sort((a, b) => compare(a[0], b[0]))) {
@@ -135,6 +137,12 @@ function meta(key: string, object: StoredObject): t.R2.ObjectMeta {
       ...(object.custom === undefined ? {} : { custom: object.custom }),
     },
   };
+}
+
+function listCallOptions(options: t.R2.Bucket.ListOptions | undefined) {
+  if (!options) return options;
+  const { beforeRequest: _beforeRequest, ...rest } = options;
+  return rest;
 }
 
 function modifiedAt(): Date {

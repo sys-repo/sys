@@ -171,6 +171,7 @@ function localBucket(store: Map<string, StoredObject>): t.R2.Bucket {
       return Promise.resolve();
     },
     async *list(options) {
+      options?.beforeRequest?.();
       const keys = [...store.keys()].sort();
       let count = 0;
       for (const key of keys) {

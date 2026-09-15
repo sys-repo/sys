@@ -70,6 +70,10 @@ export function toListOptions(
   if (!Is.nil(input.pageSize)) {
     options.pageSize = toListPageSize(input.pageSize);
   }
+  if (input.beforeRequest !== undefined) {
+    if (!Is.func(input.beforeRequest)) throw Err.std('R2 list.beforeRequest must be a function.');
+    options.beforeRequest = input.beforeRequest;
+  }
   return Obj.keys(options).length > 0
     ? Object.freeze(options) as t.R2.Bucket.ListOptions
     : undefined;
