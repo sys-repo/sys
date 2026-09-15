@@ -74,8 +74,8 @@ describe('Vite external-fixture lifecycle under local equivalent authority', () 
     }
     expect(stdout).to.include('Leaks detected');
     expect(stdout).to.include('async operations to get the next signal');
-    expect(stdout).to.include('SignalExit.load');
-    expect(stdout).to.include('rolldown@1.2.5');
+    // Attribute the signal leak to Rolldown without pinning its installed version.
+    expect(stdout).to.match(/SignalExit\.load \([^\r\n]*[/\\]node_modules[/\\]rolldown[/\\]/);
     expect(stderr).to.not.include('Leaks detected');
   });
 });
