@@ -27,8 +27,10 @@ export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.B
         throw error;
       }
     },
-    read(key) {
-      return client.getObject(key, { bucketName });
+    read: (key) => client.getObject(key, { bucketName }),
+    presignGet(key, options) {
+      const expirySeconds = options.expirySeconds;
+      return client.getPresignedUrl('GET', key, { bucketName, expirySeconds });
     },
     async write(key, data, options) {
       const res = await client.putObject(key, data, {
@@ -41,9 +43,7 @@ export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.B
         version: res.versionId ?? undefined,
       };
     },
-    remove(key) {
-      return client.deleteObject(key, { bucketName });
-    },
+    remove: (key) => client.deleteObject(key, { bucketName }),
     async *list(options) {
       if (options?.limit === 0) return;
       // A listing owns its client: concurrent operations cannot replace each other's guard.
