@@ -17,6 +17,9 @@
     "sample:files:http:static": "deno run -P=sample-files-tty ./-sample/files.http.static/-start.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
+  "publish": {
+    "exclude": ["-sample/"]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",

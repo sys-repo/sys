@@ -8,6 +8,9 @@
     "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
+  "publish": {
+    "exclude": ["src/-test/sample-1/", "src/-test/sample-2/"]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",

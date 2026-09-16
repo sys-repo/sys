@@ -11,6 +11,17 @@
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmp": "deno run -P=clean ./-scripts/task.tmp.ts"
   },
+  "publish": {
+    "exclude": [
+      "src/-test/-sample-1/",
+      "src/-test/-sample-2/",
+      "src/-test/-sample-3/",
+      "src/-test/-sample-4/",
+      "src/-test/-sample-5/",
+      "src/-test/-sample-6/",
+      "src/-test/-sample-files/"
+    ]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",

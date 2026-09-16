@@ -22,6 +22,9 @@
     "sample:vite:dev": "deno run -P=sample-vite-dev @sys/cell start ./-sample/cell.vite --mode dev --reporter auto",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
+  "publish": {
+    "exclude": ["-sample/"]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",

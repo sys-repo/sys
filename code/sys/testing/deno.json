@@ -24,6 +24,9 @@
     "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
+  "publish": {
+    "exclude": ["src/-test/fixtures/", "src/m.client/m.Spec/-test/samples/"]
+  },
   "exports": {
     ".": "./src/m.client/mod.ts",
     "./t": "./src/types.ts",

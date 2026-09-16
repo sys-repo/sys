@@ -11,6 +11,9 @@
     "test:file-bytes:entry": "deno run --no-prompt -P=file-bytes-entry ./src/http.server/m.FileBytes/-test.external/-entry.process-proof.ts",
     "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'"
   },
+  "publish": {
+    "exclude": ["src/-test/-sample.dist/"]
+  },
   "exports": {
     ".": "./src/-exports/-http.ts",
     "./t": "./src/types.ts",

@@ -16,6 +16,9 @@
     "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
+  "publish": {
+    "exclude": ["-sample/"]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
