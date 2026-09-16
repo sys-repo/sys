@@ -116,6 +116,27 @@ describe('ViteTransport.resolve', () => {
     });
 
     describe('resolved module ids', () => {
+      it('resolves exact npm specifiers through the consumer loader without node_modules assumptions', async () => {
+        const id = 'npm:@preact/signals-core@1.14.4';
+        for (
+          const path of [
+            '/cache/npm/signals-core/dist/signals-core.mjs',
+            '/app/node_modules/@preact/signals-core/dist/signals-core.mjs',
+          ]
+        ) {
+          const resolved = await resolveViteSpecifier(id, new Map(), '/app', undefined, {
+            async invoke() {
+              throw new Error('Unexpected subprocess');
+            },
+            async resolveLoader(specifier) {
+              expect(specifier).to.eql(id);
+              return Path.toFileUrl(path).href;
+            },
+          });
+          expect(resolved).to.eql(path);
+        }
+      });
+
       it('returns direct file ids for in-root esm modules', async () => {
         const root = '/tmp/project';
         const cache = new Map<string, t.DenoResolved>([

@@ -11,6 +11,7 @@ import { visualizerPlugin } from './u.app.visualizerPlugin.ts';
 import { paths as formatPaths } from './u.paths.ts';
 import { commonPlugins } from './u.plugins.ts';
 import { browserSyntaxTargets } from './u.browserSyntaxTargets.ts';
+import { serverFsGuard } from './u.plugin.serverFs.ts';
 
 /**
  * Application bundle configuration.
@@ -66,7 +67,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
   const publicDir = Path.join(paths.cwd, 'public');
   const root = Path.dirname(main);
   const cacheDir = wrangle.cacheDir(paths.cwd);
-  const fsAllow = wrangle.serverFsAllow(paths.cwd, ws);
+  const fsAllow = await wrangle.serverFsAllow(paths.cwd, ws);
 
   /**
    * Chunking:
@@ -112,6 +113,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
   const createPlugins = (includeAppPlugins: boolean) => {
     const plugins = createCommonPlugins();
     plugins.unshift(DisposeProtocolCompatPlugin.plugin());
+    if (includeAppPlugins) plugins.unshift(serverFsGuard());
     if (denoConfig && (options.plugins?.deno ?? true)) {
       plugins.unshift(createSpecifierRewrite(denoConfig));
       if (npmPrewarm) plugins.unshift(createNpmPrewarm(denoConfig));
@@ -251,10 +253,21 @@ const wrangle = {
     return Path.join(Path.resolve(cwd), 'node_modules', '.vite');
   },
 
-  serverFsAllow(cwd: string, ws?: { file: t.StringPath }) {
+  async serverFsAllow(cwd: string, ws?: { file: t.StringPath }) {
     const roots = [Path.resolve(cwd)];
     if (ws?.file) roots.push(Path.dirname(ws.file));
-    return [...new Set(roots.map((path) => Path.resolve(path)))];
+    const canonical = await Promise.all(roots.map(async (root) => {
+      const path = Path.resolve(root);
+      try {
+        // Vite resolves module ids through real paths; retain the same physical root scope.
+        return Path.resolve(await Fs.realPath(path));
+      } catch (error) {
+        // Config construction also supports roots that have not been created yet.
+        if (Is.error(error) && error.name === 'NotFound') return path;
+        throw error;
+      }
+    }));
+    return [...new Set(canonical)];
   },
 
   async resolveAliases(

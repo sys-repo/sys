@@ -5,12 +5,15 @@ export type {
   Alias as ViteAlias,
   BuildEnvironmentOptions as ViteBuildEnvironmentOptions,
   ConfigEnv as ViteConfigEnv,
+  Connect as ViteConnect,
   LibraryOptions as ViteLibraryOptions,
   Plugin as VitePlugin,
   PluginOption as VitePluginOption,
+  ResolvedConfig as ViteResolvedConfig,
   Rollup,
   UserConfig as ViteUserConfig,
   UserConfigExport as ViteUserConfigExport,
+  ViteDevServer,
 } from 'vite';
 
 /**

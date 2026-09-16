@@ -75,6 +75,7 @@ describe('Config.Build', () => {
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
       expect(names).to.eql([
+        'sys:fs-root-identity',
         'sys:dispose-protocol-compat',
         'sys:optimize-imports',
         'sys:oxc-preflight',
@@ -159,9 +160,30 @@ describe('Config.Build', () => {
         const config = await ViteConfig.app({ workspace: false, paths });
 
         expect(config.resolve?.alias).to.eql([]);
-        expect(config.server?.fs?.allow).to.eql([Path.resolve(fs.absolute)]);
+        expect(config.server?.fs?.allow).to.eql([Path.resolve(await Fs.realPath(fs.absolute))]);
         expect(includesPlugin(config, 'sys:specifier-rewrite')).to.eql(true);
         expect(includesPlugin(config, 'sys:npm-prewarm')).to.eql(false);
+      } finally {
+        await Fs.remove(fs.absolute);
+      }
+    });
+
+    it('symlinked app/workspace roots → one canonical directory, no parent grants', async () => {
+      const fs = await Fs.makeTempDir({ prefix: 'ViteConfig.app.root-identity.' });
+      try {
+        const real = Fs.join(fs.absolute, 'app');
+        const linked = Fs.join(fs.absolute, 'app-link');
+        await Fs.ensureDir(real);
+        await Fs.writeJson(Fs.join(real, 'deno.json'), { workspace: [] });
+        await Fs.ensureSymlink(real, linked);
+        const config = await ViteConfig.app({
+          paths: ViteConfig.paths({ cwd: linked }),
+          workspace: Fs.join(real, 'deno.json'),
+          plugins: { deno: false, react: false, wasm: false, optimizeImports: false },
+        });
+
+        expect(config.server?.fs?.allow).to.eql([Path.resolve(await Fs.realPath(real))]);
+        expect(config.server?.fs?.strict).not.to.eql(false);
       } finally {
         await Fs.remove(fs.absolute);
       }

@@ -17,6 +17,7 @@ describe('ViteConfig.app', () => {
       .flatMap((entry) => pluginName(entry));
 
     expect(names).to.eql([
+      'sys:fs-root-identity',
       'sys:dispose-protocol-compat',
       'sys:optimize-imports',
       'user:plugin',

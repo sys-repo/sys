@@ -12,7 +12,7 @@ export async function resolveWithLoader(
   deps: t.ResolveDeps,
   options: { readonly referrer?: string },
 ) {
-  if (id.startsWith('\0') || id.startsWith('npm:')) return;
+  if (id.startsWith('\0')) return;
   if (!deps.resolveLoader) return;
 
   try {
@@ -52,7 +52,7 @@ export function adaptLoaderResolution(
   if (!resolvedUrl.startsWith('file://')) return;
 
   const resolvedPath = Path.fromFileUrl(resolvedUrl);
-  if (isNodeModulesPath(resolvedPath)) return;
+  if (isNodeModulesPath(resolvedPath) && !id.startsWith('npm:')) return;
 
   const loader = mediaTypeFromPath(resolvedPath);
   const resolved = {
@@ -76,6 +76,8 @@ export function adaptCachedResolution(
 
   cache.set(resolved.id, resolved);
 
+  // npm fallback needs a concrete file; preserve existing workspace virtual identities.
+  if (id.startsWith('npm:')) return resolved.id;
   if (resolved.loader === null) return resolved.id;
   if (isConcreteRemoteUrl(resolved.id)) return toDenoSpecifier(resolved.loader, id, resolved.id);
   if (isInRoot(resolved.id, root)) return resolved.id;
