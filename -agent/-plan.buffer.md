@@ -4,18 +4,22 @@ r2-files-delivery.plan.md
 - [x] efdd7cdde docs(deploy): record Files-backed R2 upload and readback
 
 
-
 @sys.driver.cloudflare
 r2-web-exposure.plan.md
 - [x] 07a0a8028 chore(tmpl:pkg): scaffold @sys/web package
 - [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
-- [ ] GATE owner authorizes the first R2 files hostname and bounded exposure operations
+- [ ] feat(driver-cloudflare): expose presigned object reads
+- [ ] feat(driver-cloudflare): add R2-backed application read routes
+- [ ] feat(deploy): compose a Deno-hosted R2 application
+- [ ] GATE owner authorizes local application proof against selected live R2 objects
+- [ ] docs(plan): record local R2 application proof
+- [ ] GATE owner authorizes the first R2-backed app hostname and bounded deployment/exposure operations
 - [ ] docs(plan): record first R2 web exposure proof
+
 
 @sys.driver.cloudflare
 r2-files-enumeration-bounds.plan.md
 - [x] 2d4e9d2ce fix(driver-cloudflare): bound R2 Files enumeration work
-
 
 
 @sys.driver-pi
@@ -23,16 +27,12 @@ start-ui-release-evidence.plan.md
   ...
 - [x] c39511c15 [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
 - [ ] GATE release owner selects versioned artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
-- [ ] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
+- [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
 - [ ] [r2-web-exposure.plan.md](../@sys.driver.cloudflare/r2-web-exposure.plan.md)
 - [ ] feat(driver-pi): bind published GUI Dist evidence for release
 
 
-
-
 # Maintenance ----------------------------------------------------------------------
-
-
 
 
 @sys.workspace
