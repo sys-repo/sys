@@ -10,6 +10,9 @@
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
+  "publish": {
+    "exclude": ["-sample/"]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
@@ -17,16 +20,8 @@
     "./r2": "./src/m.r2/mod.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true },
     "dev": {
       "read": true,
       "write": true,
@@ -34,14 +29,7 @@
       "env": true,
       "net": true,
       "ffi": true,
-      "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname"
-        ]
-      }
+      "sys": { "allow": ["cpus", "networkInterfaces", "hostname"] }
     }
   }
 }
-

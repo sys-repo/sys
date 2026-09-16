@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1788944486858,
+    "createdAt": 1789598231672,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-edc1d737a571de74e26b0f5bb4f668497a7e4120ecc12159347a4e0f5c19962f",
+      "/graph": "sha256-383514be7767196dd761fccfc3ca01ab36d603acdb8559ff3915ae7061e43e95",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.155/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.155/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1788944486864
+    "modifiedAt": 1789598231677
   },
   "graph": {
     "orderedPaths": [
@@ -63,6 +63,7 @@
       "code/sys/workspace",
       "code/sys.driver/driver-deno",
       "code/-tmpl",
+      "code/sys.driver/driver-cloudflare/-sample/deploy",
       "code/sys.driver/driver-pi",
       "code/sys.driver/driver-vite",
       "code/sys.tools",
@@ -97,11 +98,19 @@
       },
       {
         "from": "code/sys.driver/driver-cloudflare",
+        "to": "code/sys.driver/driver-cloudflare/-sample/deploy"
+      },
+      {
+        "from": "code/sys.driver/driver-cloudflare",
         "to": "code/sys.tools"
       },
       {
         "from": "code/sys.driver/driver-deno",
         "to": "code/-tmpl"
+      },
+      {
+        "from": "code/sys.driver/driver-deno",
+        "to": "code/sys.driver/driver-cloudflare/-sample/deploy"
       },
       {
         "from": "code/sys.driver/driver-deno",
@@ -741,6 +750,10 @@
       },
       {
         "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-cloudflare/-sample/deploy"
+      },
+      {
+        "from": "code/sys/fs",
         "to": "code/sys.driver/driver-deno"
       },
       {
@@ -822,6 +835,14 @@
       {
         "from": "code/sys/http",
         "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.driver/driver-cloudflare"
+      },
+      {
+        "from": "code/sys/http",
+        "to": "code/sys.driver/driver-cloudflare/-sample/deploy"
       },
       {
         "from": "code/sys/http",
@@ -1094,6 +1115,10 @@
       {
         "from": "code/sys/std",
         "to": "code/sys.driver/driver-cloudflare"
+      },
+      {
+        "from": "code/sys/std",
+        "to": "code/sys.driver/driver-cloudflare/-sample/deploy"
       },
       {
         "from": "code/sys/std",
@@ -1394,6 +1419,10 @@
       {
         "from": "code/sys/types",
         "to": "code/sys.driver/driver-cloudflare"
+      },
+      {
+        "from": "code/sys/types",
+        "to": "code/sys.driver/driver-cloudflare/-sample/deploy"
       },
       {
         "from": "code/sys/types",

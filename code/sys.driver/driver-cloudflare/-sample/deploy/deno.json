@@ -1,0 +1,36 @@
+{
+  "name": "@sample/r2",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": true,
+  "tasks": {
+    "test": "deno test -P=test ./src/-test/",
+    "build": "deno run --no-prompt -P=build ./-scripts/task.build.ts",
+    "push": "deno run --no-prompt -P=push ./-scripts/task.push.ts",
+    "stage": "deno run --no-prompt -P=build ./-scripts/task.stage.ts",
+    "start": "deno run --no-prompt --unstable-no-legacy-abort -P=start ./-scripts/task.start.ts"
+  },
+  "exports": {
+    ".": "./src/mod.ts",
+    "./t": "./src/types.ts",
+    "./types": "./src/types.ts"
+  },
+  "permissions": {
+    "test": { "read": true, "write": true, "env": true },
+    "build": { "read": true, "write": true, "env": true, "run": ["deno"], "ffi": true },
+    "push": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": ["1e6ec0395407e49eef7ee54f667d61de.r2.cloudflarestorage.com:443"]
+    },
+    "start": {
+      "read": true,
+      "env": true,
+      "net": [
+        "127.0.0.1:8080",
+        "1e6ec0395407e49eef7ee54f667d61de.r2.cloudflarestorage.com:443"
+      ]
+    }
+  }
+}
