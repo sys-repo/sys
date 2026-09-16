@@ -11,8 +11,10 @@ export const Wrangle = {
     const end = Perf.section('wrangle.command', { cwd: paths.cwd, cmd: arg }, { level: 2 });
     const config = 'vite.config.ts';
     const env = wrangle.env(paths.cwd);
-    const bootstrap = await Bootstrap.create(paths.cwd, await wrangle.viteSpecifier(paths.cwd));
-    const args = await wrangle.args(paths, arg, config, bootstrap?.path);
+    // Resolve once so bootstrap, executable, and config loader share the same authority.
+    const vite = await wrangle.viteSpecifier(paths.cwd);
+    const bootstrap = await Bootstrap.create(paths.cwd, vite);
+    const args = await wrangle.args(paths, arg, config, vite, bootstrap?.path);
     const cmd = ['deno', ...args].join(' ');
     end({ importMap: bootstrap?.path ?? '', argCount: args.length });
     return {
@@ -41,12 +43,12 @@ const wrangle = {
     paths: t.ViteConfig.Paths,
     arg: string,
     config: string,
+    vite: string,
     importMap?: string,
   ) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
-    const configLoader = await wrangle.configLoaderArg(paths.cwd);
+    const configLoader = wrangle.configLoaderArg(vite);
     const permissions = await wrangle.permissions(paths, cmd ?? '', configLoader);
-    const vite = await wrangle.viteSpecifier(paths.cwd);
     const outDir = cmd === 'build' ? `--outDir=${Path.resolve(paths.cwd, paths.app.outDir)}` : '';
     return [
       'run',
@@ -146,9 +148,9 @@ const wrangle = {
     return pkg.dependencies?.vite ?? pkg.devDependencies?.vite ?? '';
   },
 
-  async configLoaderArg(cwd: string) {
-    const end = Perf.section('wrangle.configLoaderArg', { cwd }, { level: 2 });
-    const version = await wrangle.viteVersionFromPackage(await wrangle.packageAnchor(cwd));
+  configLoaderArg(vite: string) {
+    const end = Perf.section('wrangle.configLoaderArg', { vite }, { level: 2 });
+    const version = vite.slice('npm:vite@'.length);
     const arg = wrangle.viteMajor(version) >= 8 ? '--configLoader=native' : '';
     end({ version, arg });
     return arg;

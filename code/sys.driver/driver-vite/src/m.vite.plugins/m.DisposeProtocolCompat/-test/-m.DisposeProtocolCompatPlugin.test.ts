@@ -2,7 +2,7 @@ import { describe, expect, Is, it, Json } from '../../../-test.ts';
 import { DisposeProtocolCompatPlugin } from '../mod.ts';
 import { context, moduleParsedHook, resolveHook, transformHook } from './u.fixture.ts';
 
-const COMPAT_SPECIFIER = '@sys/std/dispose/compat';
+const COMPAT_SPECIFIER = import.meta.resolve('@sys/std/dispose/compat');
 const COMPAT_IMPORT = `import '${COMPAT_SPECIFIER}';`;
 
 describe('DisposeProtocolCompatPlugin', () => {
@@ -15,6 +15,27 @@ describe('DisposeProtocolCompatPlugin', () => {
     if (!apply) throw new Error('Expected applyToEnvironment hook');
     expect(apply({ name: 'client', config: { consumer: undefined } } as never)).to.eql(true);
     expect(apply({ name: 'ssr', config: { consumer: 'server' } } as never)).to.eql(false);
+  });
+
+  it('resolves injected compatibility from driver authority without consumer mappings', async () => {
+    const plugin = DisposeProtocolCompatPlugin.plugin();
+    const requests: string[] = [];
+    const ctx = context(async (source) => {
+      requests.push(source);
+      return source === COMPAT_SPECIFIER ? { id: '/driver/compat.ts' } : null;
+    });
+    const result = await transformHook(plugin).call(
+      ctx,
+      'export const value = 1;',
+      '/consumer/main.ts',
+    );
+    expect(requests).to.eql([COMPAT_SPECIFIER]);
+    expect(result?.code).to.eql(`${COMPAT_IMPORT}\nexport const value = 1;`);
+    expect(
+      await resolveHook(plugin).call(ctx, '@sys/std/dispose/compat', '/consumer/main.ts', {
+        isEntry: false,
+      }),
+    ).to.eql(null);
   });
 
   it('injects one side-effect import with a high-resolution source map', async () => {

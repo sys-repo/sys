@@ -1,7 +1,8 @@
 import MagicString from 'magic-string';
 import { Is, type t } from './common.ts';
 
-const COMPAT_SPECIFIER = '@sys/std/dispose/compat';
+// The driver owns this injected dependency; consumer import maps must not supply it.
+const COMPAT_SPECIFIER = import.meta.resolve('@sys/std/dispose/compat');
 const COMPAT_IMPORT = `import '${COMPAT_SPECIFIER}';\n`;
 const SOURCE_ID = /\.(?:[cm]?[jt]sx?)$/;
 

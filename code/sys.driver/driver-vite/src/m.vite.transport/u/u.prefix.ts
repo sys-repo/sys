@@ -26,8 +26,8 @@ export default function prefixPlugin(cache: t.DenoCache, deps: t.PrefixDeps = de
         const result = await this.resolve(actual, importer, { ...options, skipSelf: true });
         if (result) return result;
 
-        const fallback = await deps.resolveNpmPath(actual, root);
-        return fallback ?? actual;
+        // Keep the declared version/subpath when consumer resolution cannot supply the package.
+        return await deps.resolveNpmPath(id, root);
       }
 
       if (id.startsWith('http:') || id.startsWith('https:')) {

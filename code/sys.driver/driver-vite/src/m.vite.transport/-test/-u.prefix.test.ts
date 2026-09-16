@@ -17,7 +17,7 @@ describe('ViteTransport.prefix', () => {
       const plugin = prefixPlugin(new Map(), {
         async resolveNpmPath(id) {
           fallbackCalls++;
-          expect(id).to.eql('react');
+          expect(id).to.eql('npm:react@19.2.0');
           return null;
         },
         async resolveViteSpecifier() {
@@ -35,7 +35,7 @@ describe('ViteTransport.prefix', () => {
         wrangle.options(),
       );
 
-      expect(res).to.eql('react');
+      expect(res).to.eql(null);
       expect(fallbackCalls).to.eql(1);
     });
 
@@ -72,10 +72,11 @@ describe('ViteTransport.prefix', () => {
       });
     });
 
-    it('preserves scoped npm subpaths when stripping versions', async () => {
+    it('preserves scoped npm version and subpath for Deno fallback', async () => {
       const plugin = prefixPlugin(new Map(), {
-        async resolveNpmPath() {
-          return null;
+        async resolveNpmPath(id) {
+          expect(id).to.eql('npm:@noble/hashes@2.0.1/legacy.js');
+          return '/consumer/node_modules/@noble/hashes/legacy.js';
         },
         async resolveViteSpecifier() {
           return undefined;
@@ -92,10 +93,10 @@ describe('ViteTransport.prefix', () => {
         wrangle.options(),
       );
 
-      expect(res).to.eql('@noble/hashes/legacy.js');
+      expect(res).to.eql('/consumer/node_modules/@noble/hashes/legacy.js');
     });
 
-    it('returns normalized npm subpaths when Vite and file-path fallback both miss', async () => {
+    it('does not claim a bare npm name is a resolved file when both resolvers miss', async () => {
       const plugin = prefixPlugin(new Map(), {
         async resolveNpmPath() {
           return null;
@@ -115,7 +116,7 @@ describe('ViteTransport.prefix', () => {
         wrangle.options(),
       );
 
-      expect(res).to.eql('@noble/hashes/legacy.js');
+      expect(res).to.eql(null);
     });
 
     it('delegates http imports to resolveViteSpecifier', async () => {
@@ -160,7 +161,7 @@ describe('ViteTransport.prefix', () => {
     it('falls back to a deno-resolved npm file path when vite resolution fails', async () => {
       const plugin = prefixPlugin(new Map(), {
         async resolveNpmPath(id, cwd) {
-          expect(id).to.eql('react');
+          expect(id).to.eql('npm:react@19.2.4');
           expect(cwd).to.eql('/tmp/project');
           return '/tmp/project/node_modules/.deno/react@19.2.4/node_modules/react/index.js';
         },
