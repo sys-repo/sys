@@ -4,12 +4,11 @@ import type { Files as TFiles } from '@sys/model/files/t';
  * Cloudflare R2 integration.
  */
 export declare namespace R2 {
-  /**
-   * R2 service construction and Files adapters.
-   */
+  /** R2 object access, Files adapters, and application read routes. */
   export type Lib = {
     readonly Service: Service.Lib;
     readonly Files: Files.Lib;
+    readonly ReadRoute: ReadRoute.Lib;
   };
 
   /** R2 account credentials for signed HTTP access. */
@@ -30,9 +29,7 @@ export declare namespace R2 {
    * Service constructor surface.
    */
   export namespace Service {
-    /**
-     * Create an R2 service and resolve its storage endpoint.
-     */
+    /** Create an R2 service and resolve its storage endpoint. */
     export type Lib = {
       create(options: CreateOptions): Service;
       storageUrl(accountId: string): string;
@@ -149,12 +146,10 @@ export declare namespace R2 {
   }
 
   /**
-   * Files<T> backing adapter over an R2 bucket.
+   * Policy-controlled Files views over an R2 bucket.
    */
   export namespace Files {
-    /**
-     * Create a writable Files adapter for an R2 bucket.
-     */
+    /** Create a writable Files adapter for an R2 bucket. */
     export type Lib = {
       create(options: CreateOptions): Writable;
     };
@@ -196,6 +191,86 @@ export declare namespace R2 {
         | `FilesR2Error.${TFiles.Backing.ErrorKindSuffix}`
         | 'FilesR2Error.EnumerationLimit';
     }
+  }
+
+  /**
+   * Application HTTP reads from an explicit map of paths to private R2 objects.
+   */
+  export namespace ReadRoute {
+    /** Construct bounded GET/HEAD handlers without starting a server. */
+    export type Lib = {
+      /**
+       * Create a handler with fixed routes, explicit authorization, and read limits.
+       * The bucket must support `presignGet`. Construction captures the route map,
+       * limits, callback, and signer; invalid configuration throws.
+       */
+      create(options: CreateOptions): Handler;
+    };
+
+    /**
+     * Serve a mapped object after authorization.
+     *
+     * GET and HEAD share a bounded, buffered read; HEAD omits the body. MIME comes
+     * from the object filename, length from decoded bytes. Every response uses
+     * `no-store` and `nosniff`; provider headers and error details are not forwarded.
+     *
+     * Failures have empty bodies:
+     * - Request: 400 malformed path or query, 405 unsupported method, 416 Range.
+     * - Authorization: 403 denied, 500 callback failure.
+     * - Object: 404 unmapped or missing, 502 signing or upstream failure.
+     * - Capacity: 413 object too large, 503 all read slots occupied.
+     * - Cancellation: 499 caller abort, 504 deadline expired.
+     */
+    export type Handler = (req: Request) => Promise<Response>;
+
+    /** Application-owned routing, authorization, and resource budgets. */
+    export type CreateOptions = {
+      bucket: Pick<Bucket, 'name' | 'presignGet'>;
+      /** Exact R2 S3 origin from Service.storageUrl; never the public readOrigin. */
+      storageOrigin: string;
+      /**
+       * Exact encoded path → unchanged object key; no query strings or fallbacks.
+       * Use `/` for root. For other routes, prepend `/` to a presigning-compatible
+       * key with each segment encoded by `encodeURIComponent`.
+       */
+      routes: Readonly<Record<string, string>>;
+      /** Required even for anonymous access, which must explicitly return true. */
+      authorize: Authorize;
+      limits: Limits;
+    };
+
+    /** Authorize the selected object; only `true` permits storage work. */
+    export type Authorize = (args: AuthorizeArgs) => boolean | Promise<boolean>;
+
+    /** Request and selected object passed to authorization. */
+    export type AuthorizeArgs = {
+      req: Request;
+      key: string;
+      /** Covers caller cancellation and the deadline. */
+      signal: AbortSignal;
+    };
+
+    /**
+     * Object-size, deadline, and concurrency limits for one handler instance.
+     * All are required positive safe integers, captured at construction.
+     *
+     * These are not process-memory or deployment-wide traffic limits. Transport
+     * buffers and byte copies need additional headroom; returned responses can
+     * outlive their read slots.
+     */
+    export type Limits = {
+      /** Maximum decoded object size in bytes. */
+      maxBytes: number;
+      /** Milliseconds from admission through response creation; at most seven days. */
+      timeout: number;
+      /**
+       * Maximum active operations, from authorization through response creation.
+       * Excess requests are refused, not queued. Timeout or cancellation retains
+       * the slot until pending work and body cleanup settle; a dependency that
+       * never settles can exhaust capacity.
+       */
+      maxConcurrent: number;
+    };
   }
 
   /** Content headers and custom metadata associated with an object. */
