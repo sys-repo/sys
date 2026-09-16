@@ -1,6 +1,8 @@
-import { Fs, Is, Path, type t } from '../common.ts';
+import { Fs, Is, Path, Str, type t } from '../common.ts';
 
-/** Apply Vite's existing filesystem policy to the physical target before static fallback. */
+/**
+ * Apply Vite's existing filesystem policy to the physical target before static fallback.
+ */
 export function serverFsGuard(): t.VitePlugin {
   return {
     name: 'sys:fs-root-identity',
@@ -45,5 +47,5 @@ function requestPath(rawUrl: string, { root, base }: t.ViteResolvedConfig): stri
     : url.pathname;
   const path = decodeURIComponent(pathname);
   if (path.startsWith('/@id/') || path.startsWith('/@vite/')) return;
-  return path.startsWith('/@fs/') ? path.slice('/@fs/'.length) : Path.join(root, path);
+  return path.startsWith('/@fs/') ? Str.stripPrefixOnce(path, '/@fs/') : Path.join(root, path);
 }
