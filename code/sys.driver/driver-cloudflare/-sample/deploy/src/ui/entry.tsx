@@ -13,8 +13,9 @@ function App() {
         message: <code>"{message}"</code>
       </p>
       <p>
-        This page’s HTML and JavaScript are stored in Cloudflare R2 and served by Deno. The message
-        comes from the same server’s <a href='/api/hello'>/api/hello</a> endpoint.
+        This page’s HTML and JavaScript are stored in Cloudflare R2 and served by Deno.
+        <br />
+        The message comes from the same server’s <a href='/api/hello'>/api/hello</a> endpoint.
       </p>
     </main>
   );
