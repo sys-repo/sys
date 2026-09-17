@@ -1,0 +1,36 @@
+body {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 30px;
+  font: 1rem/1.5 system-ui, sans-serif;
+}
+
+h1 {
+  margin: 0;
+}
+
+h2 {
+  font-size: 1.125rem;
+}
+
+p {
+  margin-inline-start: 1rem;
+  font-size: 0.9375rem;
+}
+
+code {
+  color: #b90063;
+  overflow-wrap: anywhere;
+}
+
+code a {
+  color: inherit;
+}
+
+.fetches {
+  overflow-x: auto;
+}
+
+.fetches .digest {
+  white-space: nowrap;
+}
