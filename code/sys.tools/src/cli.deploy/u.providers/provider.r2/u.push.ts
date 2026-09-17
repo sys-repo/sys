@@ -3,6 +3,7 @@ import {
   Err,
   Files,
   Fs,
+  Hash,
   Json,
   MediaType,
   Num,
@@ -33,9 +34,15 @@ type IndexedPublishFile = {
   readonly entry: t.PushPublishFile;
 };
 
+type RemoteDist = {
+  readonly dist: t.DistPkg;
+  readonly integrity?: t.StringHash;
+};
+
 type PublishFilesOptions = {
   readonly remote?: t.DistPkg;
   readonly remoteFiles?: readonly t.Files.File[];
+  readonly manifestMatches?: boolean;
 };
 
 const DIST_PATH = 'dist.json' as t.Files.String.Path;
@@ -69,14 +76,18 @@ async function publish(
   options: { readonly force: boolean },
 ): Promise<PublishResult> {
   const { provider, stagingDir } = target;
-  const dist = await loadDist(stagingDir);
+  const local = await loadDist(stagingDir);
   const files = createFiles(provider);
 
   try {
     const remote = options.force ? undefined : await readRemoteDist(files);
     const remoteFiles = !options.force && remote ? await listRemoteFiles(files) : undefined;
-    const plan = publishFiles(dist, { remote, remoteFiles });
-    const resultFiles = await writePublishPlan(files, stagingDir, plan);
+    const plan = publishFiles(local.dist, {
+      remote: remote?.dist,
+      remoteFiles,
+      manifestMatches: remote?.integrity === local.integrity,
+    });
+    const resultFiles = await writePublishPlan(files, stagingDir, plan, local.bytes);
 
     const expected = new Set(plan.map((entry) => entry.path));
     const prune = await pruneStaleFiles(files, expected, remoteFiles);
@@ -90,6 +101,7 @@ async function writePublishPlan(
   files: t.Files.Client.Handle,
   stagingDir: t.StringDir,
   plan: readonly t.PushPublishFile[],
+  manifestBytes: Uint8Array,
 ): Promise<readonly t.PushPublishFile[]> {
   const resultFiles = new Array<t.PushPublishFile>(plan.length);
   const assetWrites: IndexedPublishFile[] = [];
@@ -111,7 +123,7 @@ async function writePublishPlan(
   });
 
   if (dist) {
-    resultFiles[dist.index] = await writePublishFile(files, stagingDir, dist.entry);
+    resultFiles[dist.index] = await writePublishFile(files, stagingDir, dist.entry, manifestBytes);
   }
 
   return resultFiles;
@@ -121,16 +133,20 @@ async function writePublishFile(
   files: t.Files.Client.Handle,
   stagingDir: t.StringDir,
   entry: t.PushPublishFile,
+  bytes?: Uint8Array,
 ): Promise<t.PushPublishFile> {
   const path = entry.path;
-  const absolute = absoluteStagedFile(stagingDir, path);
-  const read = await Fs.read(absolute);
-  if (!read.ok || !read.data) {
-    throw Err.std(`Could not read staged deploy file: ${path}`, { cause: read.error });
+  if (bytes === undefined) {
+    const absolute = absoluteStagedFile(stagingDir, path);
+    const read = await Fs.read(absolute);
+    if (!read.ok || !read.data) {
+      throw Err.std(`Could not read staged deploy file: ${path}`, { cause: read.error });
+    }
+    bytes = read.data;
   }
   const mediaType = entry.mediaType ?? mediaTypeOf(path);
-  await files.writeBytes(path, read.data, { mediaType });
-  return { ...entry, bytes: read.data.byteLength, mediaType };
+  await files.writeBytes(path, bytes, { mediaType });
+  return { ...entry, bytes: bytes.byteLength, mediaType };
 }
 
 async function runBounded<T>(
@@ -163,23 +179,33 @@ async function runBounded<T>(
   if (failure) throw failure.error;
 }
 
-async function loadDist(stagingDir: t.StringDir): Promise<t.DistPkg> {
-  const res = await Pkg.Dist.load(stagingDir);
-  if (!res.dist?.hash?.digest) {
+async function loadDist(stagingDir: t.StringDir) {
+  const read = await Fs.read(absoluteStagedFile(stagingDir, DIST_PATH));
+  if (!read.ok || !read.data) {
+    throw Err.std(`Missing staged dist metadata: ${Fs.trimCwd(stagingDir)}`, { cause: read.error });
+  }
+  const bytes = read.data;
+  const parsed = Json.safeParse<unknown>(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
+  if (!parsed.ok || !Pkg.Is.dist(parsed.data) || !parsed.data.hash.digest) {
     throw Err.std(`Missing staged dist metadata: ${Fs.trimCwd(stagingDir)}`);
   }
-  return res.dist;
+  // Retain the same bytes for comparison and manifest-last publication; do not reserialize JSON.
+  return { dist: parsed.data, bytes, integrity: Hash.sha256(bytes) };
 }
 
-async function readRemoteDist(files: t.Files.Client.Handle): Promise<t.DistPkg | undefined> {
+async function readRemoteDist(files: t.Files.Client.Handle): Promise<RemoteDist | undefined> {
   try {
     const result = await files.cmd.send(Files.Cmd.Name.read, { path: DIST_PATH });
-    const text = result.kind === 'inline'
-      ? result.content
-      : await Files.ContentRef.text(result.contentRef);
-    const parsed = Json.safeParse<unknown>(text);
+    if (result.kind === 'inline' && result.truncated) return undefined;
+    const bytes = result.kind === 'inline'
+      ? new TextEncoder().encode(result.content)
+      : await Files.ContentRef.bytes(result.contentRef);
+    const parsed = Json.safeParse<unknown>(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     if (!parsed.ok || !Pkg.Is.dist(parsed.data)) return undefined;
-    return parsed.data;
+    // R2's fatal UTF-8 decoder can strip a BOM. Require the round-trip size before trusting
+    // inline text as byte identity; unknown/lossy identity must republish the manifest.
+    const exact = result.kind === 'ref' || result.file.size === bytes.byteLength;
+    return { dist: parsed.data, integrity: exact ? Hash.sha256(bytes) : undefined };
   } catch {
     return undefined;
   }
@@ -216,7 +242,9 @@ function publishFiles(
     ...files,
     {
       path: DIST_PATH,
-      status: remote && remoteMatchesDist && distExists && !wroteAsset ? 'skipped' : 'written',
+      status: remote && remoteMatchesDist && options.manifestMatches && distExists && !wroteAsset
+        ? 'skipped'
+        : 'written',
       digest: dist.hash.digest,
       mediaType: mediaTypeOf(DIST_PATH),
     },

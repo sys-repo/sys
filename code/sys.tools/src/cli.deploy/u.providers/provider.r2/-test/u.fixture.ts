@@ -81,28 +81,39 @@ export function filesHandle(args: {
   return {
     dispose() {},
     cmd: {
-      async send() {
+      send() {
         if (args.remoteText !== undefined) {
-          return { kind: 'inline', content: args.remoteText };
+          return Promise.resolve({
+            kind: 'inline',
+            file: {
+              path: 'dist.json',
+              kind: 'file',
+              size: new TextEncoder().encode(args.remoteText).byteLength,
+            },
+            encoding: 'utf8',
+            content: args.remoteText,
+          });
         }
         if (args.remoteRefText !== undefined) {
-          return {
+          return Promise.resolve({
             kind: 'ref',
             contentRef: {
               kind: 'url',
               path: 'dist.json',
               url: dataUrl(args.remoteRefText),
             },
-          };
+          });
         }
-        throw new Error('remote dist unavailable');
+        return Promise.reject(new Error('remote dist unavailable'));
       },
     },
-    async list() {
+    list() {
       args.events?.push('list');
-      if (args.listError) throw args.listError;
-      if (args.listPages) return args.listPages[listPageIndex++] ?? { entries: [] };
-      return { entries: args.entries ?? [] };
+      if (args.listError) return Promise.reject(args.listError);
+      const page = args.listPages
+        ? args.listPages[listPageIndex++] ?? { entries: [] }
+        : { entries: args.entries ?? [] };
+      return Promise.resolve(page);
     },
     async writeBytes(
       path: t.Files.String.Path,
@@ -123,11 +134,11 @@ export function filesHandle(args: {
         args.onWriteFinish?.(path);
       }
     },
-    async remove(path: t.Files.String.Path) {
+    remove(path: t.Files.String.Path) {
       args.events?.push(`remove:${path}`);
-      if (args.removeError) throw args.removeError;
+      if (args.removeError) return Promise.reject(args.removeError);
       args.removes?.push({ path });
-      return { kind: 'deleted', path };
+      return Promise.resolve({ kind: 'deleted', path });
     },
   } as unknown as t.Files.Client.Handle;
 }

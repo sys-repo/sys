@@ -533,7 +533,69 @@ describe('R2 Provider: push', () => {
   });
 
   describe('remote dist manifest optimization', () => {
-    it('skips staged file reads and writes when remote dist digest matches inline manifest', async () => {
+    for (const change of ['metadata', 'formatting', 'utf8-bom'] as const) {
+      it(`equal asset tree with changed ${change} → replaces only the exact manifest`, async () => {
+        await withTmpDir(async (cwd) => {
+          const stagingDir = await stageDist(cwd);
+          const local = (await Fs.read(`${stagingDir}/dist.json`)).data!;
+          const dist = await loadStagedDist(stagingDir);
+          const store = new Map<string, StoredObject>();
+          const target = r2Target(cwd, stagingDir);
+          const createFiles = () => localR2FilesHandle({ store });
+          const push = () => R2Provider.push({ cwd: cwd as t.StringDir, target, createFiles });
+          const initial = await push();
+          expect(initial.ok).to.eql(true);
+
+          const key = 'deploy/site/dist.json';
+          const text = new TextDecoder().decode(local);
+          const changed = change === 'metadata'
+            ? Json.stringify({ ...dist, build: { ...dist.build, time: dist.build.time + 1 } })
+            : change === 'formatting'
+            ? `${text}\n`
+            : `\uFEFF${text}`;
+          store.set(key, { ...store.get(key)!, body: new TextEncoder().encode(changed) });
+
+          const result = await push();
+          expect(result.ok).to.eql(true);
+          expect(publishFileStatuses(result)).to.eql([
+            { path: 'asset.bin', status: 'skipped' },
+            { path: 'index.html', status: 'skipped' },
+            { path: 'dist.json', status: 'written' },
+          ]);
+          expect(store.get(key)?.body).to.eql(local);
+
+          const repeated = await push();
+          expect(repeated.ok ? PushPublishStats.summary(repeated.publish) : undefined).to.eql({
+            total: 3,
+            written: 0,
+            skipped: 3,
+          });
+        });
+      });
+    }
+
+    it('equal JSON from a content ref with different bytes → replaces the manifest', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const local = (await Fs.read(`${stagingDir}/dist.json`)).data!;
+        const writes: Write[] = [];
+        const result = await R2Provider.push({
+          cwd: cwd as t.StringDir,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({
+              writes,
+              remoteRefText: `\uFEFF${new TextDecoder().decode(local)}\n`,
+              entries: expectedEntries(),
+            }),
+        });
+        expect(result.ok).to.eql(true);
+        expect(writes.map((write) => write.path)).to.eql(['dist.json']);
+        expect(writes[0].bytes).to.eql([...local]);
+      });
+    });
+
+    it('skips asset reads and all writes when exact inline manifest bytes match', async () => {
       await withTmpDir(async (cwd) => {
         const stagingDir = await stageDist(cwd);
         const dist = await loadStagedDist(stagingDir);
@@ -567,7 +629,7 @@ describe('R2 Provider: push', () => {
       });
     });
 
-    it('skips writes when remote dist digest matches content-ref manifest', async () => {
+    it('skips writes when exact content-ref manifest bytes match', async () => {
       await withTmpDir(async (cwd) => {
         const stagingDir = await stageDist(cwd);
         const dist = await loadStagedDist(stagingDir);
