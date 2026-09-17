@@ -29,7 +29,6 @@
     ".": "./src/mod.ts",
     "./config": "./src/m.vite.config/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./entry": "./src/-entry/mod.ts",
     "./main": "./src/-entry/-main.ts",
     "./service": "./src/m.service/mod.ts",

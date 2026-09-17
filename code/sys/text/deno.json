@@ -11,7 +11,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./block": "./src/m.block/mod.ts",
     "./diff": "./src/m.diff/mod.ts",
     "./filter": "./src/m.filter/mod.ts",

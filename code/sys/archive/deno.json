@@ -11,8 +11,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./zip": "./src/m.Zip/mod.ts",
-    "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./t": "./src/types.ts"
   },
   "permissions": {
     "clean": {

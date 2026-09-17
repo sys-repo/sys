@@ -48,7 +48,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
     "./cli": "./src/m.cli/mod.ts",
     "./cli/raw": "./src/m.cli/m.raw/mod.ts"

@@ -24,7 +24,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./react/t": "./src/ui.react/t.ts",
     "./react/files": "./src/ui.react/ui.files/mod.ts"
   },

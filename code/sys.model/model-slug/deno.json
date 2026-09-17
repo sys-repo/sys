@@ -12,7 +12,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./bundle": "./src/m.bundle/mod.ts",
     "./core": "./src/m.core/mod.ts",
     "./client": "./src/m.client/mod.ts",

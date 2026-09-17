@@ -33,7 +33,6 @@
   "exports": {
     ".": "./src/m.client/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./spec": "./src/m.client/m.Spec/mod.ts",
     "./server": "./src/m.server/mod.ts",
     "./server/dom": "./src/m.server/m.DomMock/mod.ts",

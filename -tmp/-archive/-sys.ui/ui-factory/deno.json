@@ -18,7 +18,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
     "./schema": "./src/m.schema/mod.ts",
     "./tmpl": "./src/m.tmpl/mod.ts",

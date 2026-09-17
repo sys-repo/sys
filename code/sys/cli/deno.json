@@ -12,7 +12,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./core": "./src/m.core/mod.ts",
     "./keyboard": "./src/m.core/m.Keyboard/mod.ts",
     "./fmt": "./src/m.core/m.Fmt/mod.ts",

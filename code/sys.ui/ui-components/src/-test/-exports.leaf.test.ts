@@ -81,14 +81,9 @@ describe('@sys/ui-components package exports', () => {
       expect(root.pkg).to.equal(react.pkg);
     });
 
-    it('keeps both type entrypoints runtime-empty', async () => {
-      const [t, types] = await Promise.all([
-        import('@sys/ui-components/t'),
-        import('@sys/ui-components/types'),
-      ]);
-
+    it('keeps the type entrypoint runtime-empty', async () => {
+      const t = await import('@sys/ui-components/t');
       expect(Object.keys(t)).to.eql([]);
-      expect(Object.keys(types)).to.eql([]);
     });
   });
 

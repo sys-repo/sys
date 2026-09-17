@@ -16,7 +16,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./react/devharness": "./src/ui.react.devharness/mod.ts",
     "./react/devharness/t": "./src/ui.react.devharness/types.ts",
     "./react/devharness/hooks": "./src/ui.react.devharness/hooks.ts",

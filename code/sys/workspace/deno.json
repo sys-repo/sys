@@ -17,7 +17,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./bump": "./src/m.bump/mod.ts",
     "./ci": "./src/m.ci/mod.ts",
     "./cli": "./src/m.cli/mod.ts",

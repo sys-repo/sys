@@ -12,8 +12,7 @@
   },
   "exports": {
     ".": "./src/mod.ts",
-    "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./t": "./src/types.ts"
   },
   "permissions": {
     "test": { "read": true, "write": true, "env": true },

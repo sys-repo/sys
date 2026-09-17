@@ -1,5 +1,5 @@
 import { SlugClient } from '@sys/model-slug/client';
-import type { SlugLoadTransport } from '@sys/model-slug/types';
+import type { SlugLoadTransport } from '@sys/model-slug/t';
 import type { t } from './common.ts';
 import { SHARD_LAYOUT } from './-u.origin.ts';
 

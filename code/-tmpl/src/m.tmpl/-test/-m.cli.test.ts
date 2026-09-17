@@ -74,7 +74,15 @@ describe('m.tmpl/m.cli', () => {
     }
 
     const denoJson = Fs.join(cwd, relTarget, 'deno.json');
-    expect(await Fs.exists(denoJson)).to.eql(true);
+    const manifest = await Fs.readJson<{ exports: Record<string, string> }>(denoJson);
+    expect(manifest.ok).to.eql(true);
+    expect(manifest.data?.exports).to.eql({
+      '.': './src/mod.ts',
+      './t': './src/types.ts',
+      './fs': './src/fs/mod.ts',
+      './ui': './src/ui/mod.ts',
+    });
+    expect(await Fs.exists(Fs.join(cwd, relTarget, 'src/types.ts'))).to.eql(true);
     const output = lines.join('\n');
     expect(output.includes('commit msg:')).to.eql(true);
     expect(
@@ -100,7 +108,9 @@ describe('m.tmpl/m.cli', () => {
     expect(await Fs.exists(Fs.join(test.pkgDir, 'src/m.help/mod.ts'))).to.eql(true);
     const output = lines.join('\n');
     expect(output.includes('commit msg:')).to.eql(true);
-    expect(output.includes('docs(tmpl:pkg.help): add help resources to code/ns/helped')).to.eql(true);
+    expect(output.includes('docs(tmpl:pkg.help): add help resources to code/ns/helped')).to.eql(
+      true,
+    );
   });
 
   it('non-interactive pkg.help rejects template-specific name flags before writing', async () => {

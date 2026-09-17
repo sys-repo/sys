@@ -210,7 +210,7 @@ function workspaceFixture(options: { filtered?: boolean } = {}): t.ViteDenoWorks
     modules: { ok: true, items: [], count: 0, latest },
     aliases: [
       { find: PRIMARY_SPECIFIER, replacement: `/repo/${PRIMARY_PATH.replace(/^\.\//, '')}` },
-      { find: '@sys/tmpl/types', replacement: '/repo/code/-tmpl/src/types.ts' },
+      { find: '@sys/tmpl/t', replacement: '/repo/code/-tmpl/src/types.ts' },
     ],
     filter: options.filtered ? (() => true) : undefined,
     toAliasMap: () => ({}),

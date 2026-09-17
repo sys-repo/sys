@@ -7,7 +7,7 @@ describe('Workspace.Graph.collect', () => {
 
     await writePackage(fs.dir, 'code/pkg-a', {
       name: '@scope/a',
-      exports: { '.': './src/mod.ts', './types': './src/types.ts' },
+      exports: { '.': './src/mod.ts', './t': './src/types.ts' },
       files: {
         'src/mod.ts': `export const a = 'a';\n`,
         'src/types.ts': `export type A = string;\n`,

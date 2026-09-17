@@ -19,7 +19,6 @@
   "exports": {
     ".": "./src/-exports/-http.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./client": "./src/-exports/-http.client.ts",
     "./cmd": "./src/http.cmd/mod.ts",
     "./server": "./src/-exports/-http.server.ts",

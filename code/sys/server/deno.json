@@ -25,7 +25,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./bootstrap/status": "./src/m.server.bootstrap-status/mod.ts",
     "./dist": "./src/m.server.dist/mod.ts",
     "./dist/server": "./src/-exports/-dist.server.ts",

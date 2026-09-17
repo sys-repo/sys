@@ -12,7 +12,6 @@
   "exports": {
     ".": "./src/-exports/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./alias": "./src/-exports/-alias.ts",
     "./async": "./src/m.Async/mod.ts",
     "./effect": "./src/m.Effect/mod.ts",

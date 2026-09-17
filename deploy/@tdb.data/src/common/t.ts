@@ -29,7 +29,7 @@ export type {
 } from '@sys/ui-components/t';
 export type { DevCtx, DevSpec } from '@sys/ui-dev/react/devharness/t';
 export type * from '@sys/model-slug/client';
-export type * from '@sys/model-slug/types';
+export type * from '@sys/model-slug/t';
 
 /**
  * @local
