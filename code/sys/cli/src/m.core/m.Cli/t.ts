@@ -236,6 +236,12 @@ export declare namespace Cli {
     export type Lib = t.CliTable.Lib;
     /** CLI table instance. */
     export type Instance = t.CliTable.Instance;
+    /** Create a CLI table instance. */
+    export type Create = t.CliTable.Create;
+    /** Render fitted label/value pairs. */
+    export type Pairs = t.CliTable.Pairs;
+    /** One label/value pair. */
+    export type Pair = t.CliTable.Pair;
   }
 
   /**

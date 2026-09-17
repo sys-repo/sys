@@ -6,7 +6,8 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts",
-    "test": "deno test -P=test && deno task test:keyboard:entry",
+    "test": "deno task test:unit && deno task test:keyboard:entry",
+    "test:unit": "deno test -P=test",
     "test:keyboard:entry": "deno run --no-prompt --deny-read --deny-write --deny-net --deny-env --deny-sys --deny-run --deny-ffi ./src/m.core/m.Keyboard/-test.external/-entry.process-proof.ts"
   },
   "exports": {
@@ -32,4 +33,3 @@
     }
   }
 }
-

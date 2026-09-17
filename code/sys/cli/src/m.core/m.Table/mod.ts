@@ -1,14 +1,12 @@
-import { Table as CliffyTable } from '@cliffy/table';
 import type { t } from '../common.ts';
-
-const CELL_GAP = 3;
+import { CELL_GAP, create } from './u.create.ts';
+import { pairs } from './u.pairs.ts';
 
 /**
  * Tools for working with CLI tables.
  */
 export const Table: t.CliTable.Lib = Object.freeze({
   cellGap: CELL_GAP,
-  create(items = []) {
-    return new CliffyTable(items).padding(CELL_GAP);
-  },
+  create,
+  pairs,
 });
