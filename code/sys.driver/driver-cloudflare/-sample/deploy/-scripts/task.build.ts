@@ -1,6 +1,6 @@
 import { Vite } from '@sys/driver-vite';
 import { Fs, Obj, Pkg, pkg, ROOT } from './common.ts';
-import { artifactFrom, DIST_LIMITS } from '../src/u.selection.ts';
+import { artifactFrom, DIST_LIMITS } from '../src/app/u.selection.ts';
 
 const build = await Vite.build({ cwd: ROOT, pkg, exitOnError: false });
 if (!build.ok) throw new Error('Sample UI build failed.');
@@ -22,4 +22,5 @@ await Fs.writeJson(Fs.join(ROOT, 'artifact.json'), {
 }, { throw: true });
 
 console.info(build.toString());
+console.info();
 console.info(`Admitted ${artifact.files.length} files; ${artifact.integrity}`);

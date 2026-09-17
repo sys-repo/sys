@@ -1,8 +1,8 @@
 import { Deploy, type DeployTool } from '@sys/tools/deploy';
 import { Yaml } from '@sys/yaml';
 import { Arr, Fs, Is, Obj, Pkg, ROOT } from './common.ts';
-import { readData } from '../src/u.data.ts';
-import { artifactFrom, configFrom, DIST_LIMITS } from '../src/u.selection.ts';
+import { readData } from '../src/app/u.data.ts';
+import { artifactFrom, configFrom, DIST_LIMITS } from '../src/app/u.selection.ts';
 
 /** Push the existing selected build. Never rebuild, stage, or resolve secrets into a file. */
 export async function pushSample(root = ROOT, publish: DeployTool.Lib['push'] = Deploy.push) {
@@ -46,16 +46,6 @@ export async function pushSample(root = ROOT, publish: DeployTool.Lib['push'] = 
   }
 }
 
-if (import.meta.main) {
-  const result = await pushSample();
-  const files = result.publish?.files ?? [];
-  const written = files.filter((file) => file.status === 'written').length;
-  const skipped = files.filter((file) => file.status === 'skipped').length;
-  console.info(
-    `R2 push: ${written} written, ${skipped} skipped, ${result.prune?.files.length ?? 0} removed.`,
-  );
-}
-
 /** Keep permission denials visible through Deploy's wrappers, but redact provider diagnostics. */
 function pushFailure(error: unknown): Error {
   const pending = [error];
@@ -76,4 +66,16 @@ function pushFailure(error: unknown): Error {
     if ('error' in value) pending.push(value.error);
   }
   return new Error('Sample R2 push failed. No automatic retry or cleanup was performed.');
+}
+
+/**
+ * Main
+ */
+if (import.meta.main) {
+  const result = await pushSample();
+  const files = result.publish?.files ?? [];
+  const written = files.filter((file) => file.status === 'written').length;
+  const skipped = files.filter((file) => file.status === 'skipped').length;
+  const removed = result.prune?.files.length ?? 0;
+  console.info(`R2 push: ${written} written, ${skipped} skipped, ${removed} removed.`);
 }

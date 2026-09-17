@@ -1,6 +1,6 @@
 import { describe, expect, expectError, Fs, it, Json } from '../-test.ts';
-import { readData } from '../u.data.ts';
-import { DIST_LIMITS } from '../u.selection.ts';
+import { readData } from '../app/u.data.ts';
+import { DIST_LIMITS } from '../app/u.selection.ts';
 
 describe('R2 deployment sample: bounded package data', () => {
   it('reads valid JSON at the byte limit through the real filesystem primitive', async () => {

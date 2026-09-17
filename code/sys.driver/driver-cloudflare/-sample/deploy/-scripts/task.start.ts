@@ -3,7 +3,9 @@ import { HttpServer } from '@sys/http/server';
 import { main } from '../src/entry.ts';
 import { ROOT } from './common.ts';
 
-// Reuse the existing repository dotenv lookup without exporting secrets into process env.
+/**
+ * Reuse the existing repository dotenv lookup without exporting secrets into process env.
+ */
 const env = await Env.load({ cwd: ROOT, search: 'upward' });
 const app = await main({ targetDir: '.' }, env);
 const server = HttpServer.start(app, {
@@ -13,8 +15,10 @@ const server = HttpServer.start(app, {
   keyboard: false,
   status: { urlPaths: ['/', '/ui/', '/api/hello?msg=hello'] },
 });
+
 const stop = () => void server.close();
 Deno.addSignalListener('SIGINT', stop);
+
 try {
   await server.finished;
 } finally {

@@ -1,7 +1,7 @@
 import { R2 } from '@sys/driver-cloudflare/r2';
 import { describe, expect, it, type t, Time, WebFixture } from '../-test.ts';
-import { createApp } from '../u.app.ts';
-import { artifactFrom, configFrom, LIMITS } from '../u.selection.ts';
+import { createApp } from '../app/u.app.ts';
+import { artifactFrom, configFrom, LIMITS } from '../app/u.selection.ts';
 
 const config: t.Config = {
   accountId: '0'.repeat(32),

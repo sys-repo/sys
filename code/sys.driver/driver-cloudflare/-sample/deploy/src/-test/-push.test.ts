@@ -2,7 +2,7 @@ import type { DeployTool } from '@sys/tools/deploy';
 import { Yaml } from '@sys/yaml';
 import { describe, expect, expectError, Fs, it, Obj, Pkg, type t } from '../-test.ts';
 import { pushSample } from '../../-scripts/task.push.ts';
-import { DIST_LIMITS, LIMITS } from '../u.selection.ts';
+import { DIST_LIMITS, LIMITS } from '../app/u.selection.ts';
 
 const config: t.Config = {
   accountId: '1'.repeat(32),
