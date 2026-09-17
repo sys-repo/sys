@@ -1,6 +1,6 @@
 {
   "name": "@sample/r2",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "private": true,
   "tasks": {
@@ -16,13 +16,27 @@
     "./types": "./src/types.ts"
   },
   "permissions": {
-    "test": { "read": true, "write": true, "env": true },
-    "build": { "read": true, "write": true, "env": true, "run": ["deno"], "ffi": true },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "build": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "run": [
+        "deno"
+      ],
+      "ffi": true
+    },
     "push": {
       "read": true,
       "write": true,
       "env": true,
-      "net": ["1e6ec0395407e49eef7ee54f667d61de.r2.cloudflarestorage.com:443"]
+      "net": [
+        "1e6ec0395407e49eef7ee54f667d61de.r2.cloudflarestorage.com:443"
+      ]
     },
     "start": {
       "read": true,
@@ -34,3 +48,4 @@
     }
   }
 }
+

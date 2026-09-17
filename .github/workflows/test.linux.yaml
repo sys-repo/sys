@@ -123,6 +123,8 @@ jobs:
             path: code/sys.driver/driver-deno
           - name: "@sys/tmpl"
             path: code/-tmpl
+          - name: "@sample/r2"
+            path: code/sys.driver/driver-cloudflare/-sample/deploy
           - name: "@sys/driver-pi"
             path: code/sys.driver/driver-pi
           - name: "@sys/driver-vite"

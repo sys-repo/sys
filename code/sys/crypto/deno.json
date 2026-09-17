@@ -1,6 +1,6 @@
 {
   "name": "@sys/crypto",
-  "version": "0.0.320",
+  "version": "0.0.321",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -9,7 +9,9 @@
     "test": "deno test -P=test"
   },
   "publish": {
-    "exclude": ["src/-test/-sample-dist/"]
+    "exclude": [
+      "src/-test/-sample-dist/"
+    ]
   },
   "exports": {
     ".": "./src/mod.ts",

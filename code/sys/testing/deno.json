@@ -1,6 +1,6 @@
 {
   "name": "@sys/testing",
-  "version": "0.0.340",
+  "version": "0.0.341",
   "license": "MIT",
   "x-sys": {
     "ci": {
@@ -25,7 +25,10 @@
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
   "publish": {
-    "exclude": ["src/-test/fixtures/", "src/m.client/m.Spec/-test/samples/"]
+    "exclude": [
+      "src/-test/fixtures/",
+      "src/m.client/m.Spec/-test/samples/"
+    ]
   },
   "exports": {
     ".": "./src/m.client/mod.ts",

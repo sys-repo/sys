@@ -34,6 +34,8 @@ jobs:
             path: code/sys.driver/driver-stripe
           - name: "@sys/ui"
             path: code/sys.ui/ui
+          - name: "@sample/r2"
+            path: code/sys.driver/driver-cloudflare/-sample/deploy
           - name: "@sys/driver-pi"
             path: code/sys.driver/driver-pi
           - name: "@sys/driver-vite"

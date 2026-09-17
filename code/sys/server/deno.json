@@ -1,6 +1,6 @@
 {
   "name": "@sys/server",
-  "version": "0.0.54",
+  "version": "0.0.55",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:dist:process",
@@ -18,7 +18,9 @@
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "publish": {
-    "exclude": ["-sample/"]
+    "exclude": [
+      "-sample/"
+    ]
   },
   "exports": {
     ".": "./src/mod.ts",
