@@ -1,5 +1,5 @@
 import { Fs, Path, type t } from '../common.ts';
-import { serveFileWithEtag } from './u.serveFileWithEtag.ts';
+import { serveFileWithEtag } from '../u.serveFile/u.serveFileWithEtag.ts';
 
 type Input = Parameters<t.HttpServer.ServeStatic.Method>[0];
 

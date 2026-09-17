@@ -1,7 +1,7 @@
 import { HashFmt } from '@sys/crypto/fmt';
 import { c, Cli, describe, expect, it, pkg, Str, type t } from '../../../-test.ts';
 import { HttpServer } from '../mod.ts';
-import { printWith } from '../u/u.print.ts';
+import { printWith } from '../u.print/u.print.ts';
 
 const SAMPLE_ROOT =
   '/test/fixtures/fake-workspace/.pi/@sys/dist/@sys.driver-pi/sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' as t.StringDir;

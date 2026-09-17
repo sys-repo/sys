@@ -1,5 +1,12 @@
 import { c, Cli, Path, Str, type t } from '../common.host.ts';
-import { formatPrintUrls } from './u.print.url.ts';
+import {
+  fittedLabel,
+  fittedValue,
+  labelReserve,
+  labelWidth,
+  valueWidth,
+} from './u.print.layout.ts';
+import { formatPrintUrls, urlValue } from './u.print.url.ts';
 
 type PrintDependencies = {
   readonly isTerminal: t.Cli.Is.Lib['terminal'];
@@ -87,7 +94,7 @@ function detailValue(
   reserve: number,
   format?: t.HttpServer.Print.FormatDetail,
 ) {
-  const maxWidth = deps.isTerminal('stdout') ? valueWidth(deps, reserve) : undefined;
+  const maxWidth = terminalValueWidth(deps, reserve);
   const formatted = format?.({ detail, maxWidth });
   if (formatted !== undefined) {
     if (maxWidth === undefined) return formatted;
@@ -106,7 +113,9 @@ function pushUrls(
   reserve: number,
 ) {
   urls.forEach((url, index) => {
-    table.push([index === 0 ? childLabel(deps, 'url') : '', urlValue(deps, url, reserve)]);
+    const title = index === 0 ? childLabel(deps, 'url') : '';
+    const width = terminalValueWidth(deps, reserve);
+    table.push([title, urlValue(url, width)]);
   });
 }
 
@@ -124,8 +133,9 @@ function pushKeyboard(
   }
 }
 
-function label(deps: PrintDependencies, input: string) {
-  return fittedLabel(deps, input, c.gray);
+function label(deps: PrintDependencies, input: string, color = c.gray) {
+  const width = deps.isTerminal('stdout') ? labelWidth(deps.screenSize().width) : undefined;
+  return fittedLabel(input, width, color);
 }
 
 function childLabel(deps: PrintDependencies, input: string) {
@@ -133,19 +143,19 @@ function childLabel(deps: PrintDependencies, input: string) {
 }
 
 function keyboardLabel(deps: PrintDependencies, input: string) {
-  return fittedLabel(deps, `  ${input}`, (text) => c.dim(c.gray(text)));
+  return label(deps, `  ${input}`, (text) => c.dim(c.gray(text)));
 }
 
 function serviceName(deps: PrintDependencies, input: string, reserve: number) {
-  return fittedValue(deps, input, reserve, c.white);
+  return value(deps, input, reserve, c.white);
 }
 
-function value(deps: PrintDependencies, input: string, reserve: number) {
-  return fittedValue(deps, input, reserve, c.gray);
+function value(deps: PrintDependencies, input: string, reserve: number, color = c.gray) {
+  return fittedValue(input, terminalValueWidth(deps, reserve), color);
 }
 
 function path(deps: PrintDependencies, input: string, reserve: number) {
-  if (deps.isTerminal('stdout') && valueWidth(deps, reserve) === 0) return '';
+  if (deps.isTerminal('stdout') && valueWidth(deps.screenSize().width, reserve) === 0) return '';
   return Cli.Fmt.Path.tty(trimCwd(input), {
     reserve,
     terminal: deps.isTerminal('stdout'),
@@ -164,94 +174,12 @@ function trimCwd(input: string): string {
 }
 
 function keyboardValue(deps: PrintDependencies, input: string, reserve: number) {
-  return fittedValue(deps, input, reserve, (text) => c.dim(c.gray(text)));
+  return value(deps, input, reserve, (text) => c.dim(c.gray(text)));
 }
 
-function urlValue(
-  deps: PrintDependencies,
-  part: t.Cli.Fmt.ServiceUrl.Part,
-  reserve: number,
-) {
-  if (!deps.isTerminal('stdout')) return Cli.Fmt.ServiceUrl.format(part);
-  const width = valueWidth(deps, reserve);
-  if (Cli.Fmt.Text.Width.measure(part.display) <= width) return Cli.Fmt.ServiceUrl.format(part);
-
-  return Cli.Fmt.Text.ellipsize(part.display, width, {
-    render({ head, ellipsis, tail }) {
-      const tailStart = part.display.length - tail.length;
-      const headText = formatUrlFragment(part, head, 0);
-      const omission = Cli.Fmt.omission(ellipsis);
-      const tailText = formatUrlFragment(part, tail, tailStart);
-      return `${headText}${omission}${tailText}`;
-    },
-  });
-}
-
-function formatUrlFragment(part: t.Cli.Fmt.ServiceUrl.Part, text: string, offset: number) {
-  const originEnd = part.origin.length;
-  const portStart = part.port ? originEnd - part.port.length : originEnd;
-  const origin = part.highlightOrigin ? c.cyan : c.gray;
-  const port = part.highlightOrigin ? (value: string) => c.bold(c.cyan(value)) : c.gray;
-  const suffix = part.highlightOrigin && part.suffix === '/' ? c.cyan : c.gray;
-  return [
-    formatUrlRange(text, offset, 0, portStart, origin),
-    formatUrlRange(text, offset, portStart, originEnd, port),
-    formatUrlRange(text, offset, originEnd, part.display.length, suffix),
-  ].join('');
-}
-
-function formatUrlRange(
-  text: string,
-  offset: number,
-  start: number,
-  end: number,
-  color: (value: string) => string,
-) {
-  const from = Math.max(offset, start);
-  const to = Math.min(offset + text.length, end);
-  return from >= to ? '' : color(text.slice(from - offset, to - offset));
-}
-
-function fittedLabel(
-  deps: PrintDependencies,
-  input: string,
-  color: (text: string) => string,
-) {
-  const width = deps.isTerminal('stdout') ? labelWidth(deps) : undefined;
-  return input.split('\n').map((line) => {
-    if (width === undefined || Cli.Fmt.Text.Width.measure(line) <= width) return color(line);
-    return Cli.Fmt.Text.ellipsize(line, width, {
-      render: ({ head, ellipsis, tail }) => {
-        return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
-      },
-    });
-  }).join('\n');
-}
-
-function fittedValue(
-  deps: PrintDependencies,
-  input: string,
-  reserve: number,
-  color: (text: string) => string,
-) {
-  if (!deps.isTerminal('stdout')) return color(input);
-  const width = valueWidth(deps, reserve);
-  if (Cli.Fmt.Text.Width.measure(input) <= width) return color(input);
-  return Cli.Fmt.Text.ellipsize(input, width, {
-    render({ head, ellipsis, tail }) {
-      return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
-    },
-  });
-}
-
-function labelWidth(deps: PrintDependencies) {
-  const width = deps.screenSize().width;
-  return width > Cli.Table.cellGap ? Math.floor((width - Cli.Table.cellGap) / 2) : 0;
-}
-
-function valueWidth(deps: PrintDependencies, reserve: number) {
-  const width = deps.screenSize().width;
-  return width > 0 ? Math.max(0, width - reserve) : 0;
+function terminalValueWidth(deps: PrintDependencies, reserve: number) {
+  if (!deps.isTerminal('stdout')) return undefined;
+  return valueWidth(deps.screenSize().width, reserve);
 }
 
 function tableValueReserve(deps: PrintDependencies, input: {
@@ -270,8 +198,7 @@ function tableValueReserve(deps: PrintDependencies, input: {
   if (input.port) labels.push(childLabel(deps, 'port'));
   if (input.keyboard?.open) labels.push(keyboardLabel(deps, 'open'));
   if (input.keyboard?.quit) labels.push(keyboardLabel(deps, 'quit'));
-  const lines = labels.flatMap((label) => label.split('\n'));
-  return Cli.Fmt.Text.Width.max(lines) + Cli.Table.cellGap;
+  return labelReserve(labels);
 }
 
 function formatDivider(deps: PrintDependencies) {

@@ -1,6 +1,5 @@
 import { runInNewContext } from 'node:vm';
-import { Is } from '@sys/std/is';
-import { describe, expect, expectTypeOf, Fs, it, type t } from '../../../-test.ts';
+import { describe, expect, expectTypeOf, Fs, Is, it, type t } from '../../../-test.ts';
 import { serveFileBytes } from '../mod.ts';
 
 const encoder = new TextEncoder();
@@ -352,12 +351,13 @@ describe('serveFileBytes', () => {
   });
 
   it('keeps the primitive free of filesystem, checksum, and alternate media-type kernels', async () => {
-    const path = Fs.resolve(
-      './src/http.server/m.HttpServer/u/u.serveFileBytes.ts',
-    );
-    const read = await Fs.readText(path);
-    if (!read.ok) throw new Error('Failed to read constrained primitive source');
-    const source = read.data ?? '';
+    const root = './src/http.server/m.HttpServer';
+    const files = [
+      'u.serveFile/u.serveFileBytes.ts',
+      'u.serveFile/u.serveFileBytes.input.ts',
+      'u.serveFile/common.ts',
+      'u/u.contentTypeFromPath.ts',
+    ];
     const forbidden = [
       '@sys/fs',
       '@sys/crypto',
@@ -371,7 +371,14 @@ describe('serveFileBytes', () => {
       'Fs.',
     ];
 
-    for (const token of forbidden) expect(source.includes(token)).to.eql(false);
+    for (const file of files) {
+      const read = await Fs.readText(Fs.resolve(root, file));
+      if (!read.ok) throw new Error(`Failed to read constrained primitive source: ${file}`);
+      const source = read.data ?? '';
+      for (const token of forbidden) {
+        expect(source.includes(token), `${file}: ${token}`).to.eql(false);
+      }
+    }
   });
 });
 

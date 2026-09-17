@@ -2,7 +2,7 @@ import { Cli, Dispose, Err, Is, type t } from '../common.host.ts';
 import { bindKeyboard } from './u.keyboard.ts';
 import { listenerOrigin, validateOriginMode } from './u.origin.ts';
 import { options as createOptions } from './u.options.ts';
-import { printWithOrigin as printStarted } from './u.print.ts';
+import { printWithOrigin as printStarted } from '../u.print/u.print.ts';
 import { statusUrls } from './u.status.url.ts';
 
 export type StartDependencies = {

@@ -1,8 +1,8 @@
 import { serveFile } from '@std/http/file-server';
 
-import { Fs } from '../common.ts';
-import { computeEtag } from './u.computeEtag.ts';
-import { contentTypeFromPath } from './u.contentTypeFromPath.ts';
+import { Fs } from './common.host.ts';
+import { computeEtag } from '../u/u.computeEtag.ts';
+import { contentTypeFromPath } from '../u/u.contentTypeFromPath.ts';
 
 /**
  * Serve a single file via `serveFile`, adding canonical Content-Type and ETag handling.

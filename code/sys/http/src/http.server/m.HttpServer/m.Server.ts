@@ -3,7 +3,7 @@ import { create } from './m.Server.create.ts';
 import { keyboard } from './u/u.keyboard.ts';
 import { forceDirSlash } from './u/u.middleware.ts';
 import { options } from './u/u.options.ts';
-import { print } from './u/u.print.ts';
+import { print } from './u.print/u.print.ts';
 import { serveStatic } from './u/u.serveStatic.ts';
 import { start } from './u/u.start.ts';
 
