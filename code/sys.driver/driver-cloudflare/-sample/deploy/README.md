@@ -38,8 +38,6 @@ Open:
 - UI: <http://127.0.0.1:8080/ui/>
 - API: <http://127.0.0.1:8080/api/hello?msg=hello>
 
-The UI requires the matching build to be uploaded. `/` returns `404`; there is no SPA fallback.
-
 `deno task test` runs fixture tests, not live R2 requests.
 
 ## Boundaries

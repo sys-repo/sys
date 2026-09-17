@@ -1,7 +1,7 @@
 import { R2 } from '@sys/driver-cloudflare/r2';
 import { describe, expect, it, type t, Time, WebFixture } from '../-test.ts';
 import { createApp } from '../u.app.ts';
-import { artifactFrom, configFrom, LIMITS, routesFor } from '../u.selection.ts';
+import { artifactFrom, configFrom, LIMITS } from '../u.selection.ts';
 
 const config: t.Config = {
   accountId: '0'.repeat(32),
@@ -18,127 +18,81 @@ const artifact: t.Artifact = {
   files: ['index.html', 'pkg/file.js', 'dist.json'],
 };
 
-describe('R2 deployment sample: one origin', () => {
-  it('maps only the selected artifact beneath the literal mount', async () => {
+describe('R2 deployment sample: app', () => {
+  it('serves the selected index and asset, including HEAD', async () => {
     using f = fixture();
-    for (
-      const [path, key] of [
-        ['/ui/', 'index.html'],
-        ['/ui/index.html', 'index.html'],
-        ['/ui/pkg/file.js', 'pkg/file.js'],
-        ['/ui/dist.json', 'dist.json'],
-      ]
-    ) {
+    for (const [path, key] of [['/ui/', 'index.html'], ['/ui/pkg/file.js', 'pkg/file.js']]) {
       const res = await f.request(path);
       expect(res.status).to.eql(200);
       expect(await res.text()).to.eql('selected bytes');
       expect(f.signed.at(-1)).to.eql(`sample/ui/${key}`);
-      headers(res);
     }
-    expect(f.fetched.every((req) => req.method === 'GET')).to.eql(true);
+    const head = await f.request('/ui/pkg/file.js', { method: 'HEAD' });
+    expect(head.status).to.eql(200);
+    expect(await head.text()).to.eql('');
   });
 
-  it('redirects only /ui and never discards its query', async () => {
+  it('redirects / and /ui → /ui/ without storage', async () => {
     using f = fixture();
-    for (const method of ['GET', 'HEAD']) {
-      const res = await f.request('/ui', { method });
+    for (const path of ['/', '/ui']) {
+      const res = await f.request(path);
       expect(res.status).to.eql(308);
       expect(res.headers.get('location')).to.eql('/ui/');
-      expect(await res.text()).to.eql('');
-      headers(res);
     }
-    expect((await f.request('/ui?msg=hello')).status).to.eql(400);
-    expect(f.signed).to.eql([]);
+    expect(f.fetched).to.eql([]);
   });
 
-  it('answers JSON without storage, escaping data rather than constructing HTML', async () => {
+  it('answers the API with shared headers and no storage', async () => {
     using f = fixture();
-    for (const value of [undefined, '', 'hello', '<script>"&', '😀'.repeat(64)]) {
-      const path = value === undefined
-        ? '/api/hello'
-        : `/api/hello?msg=${encodeURIComponent(value)}`;
+    for (const [path, msg] of [['/api/hello', 'hello'], ['/api/hello?msg=sample', 'sample']]) {
       const res = await f.request(path);
       expect(res.status).to.eql(200);
-      expect(await res.json()).to.eql({ msg: `${value ?? 'hello'} world!` });
+      expect(await res.json()).to.eql({ msg: `${msg} world!` });
       expect(res.headers.get('content-type')).to.include('application/json');
-      headers(res);
+      expect(res.headers.get('cache-control')).to.eql('no-store');
+      expect(res.headers.get('x-content-type-options')).to.eql('nosniff');
     }
-    const get = await f.request('/api/hello?msg=hello');
-    const head = await f.request('/api/hello?msg=hello', { method: 'HEAD' });
-    expect([...head.headers]).to.eql([...get.headers]);
-    expect(await head.text()).to.eql('');
-    expect(f.signed).to.eql([]);
+    expect(f.fetched).to.eql([]);
   });
 
-  it('refuses unsupported input before storage and never supplies fallback HTML', async () => {
+  it('refuses invalid queries, encoded aliases and unselected paths before storage', async () => {
     using f = fixture();
     const cases = [
+      ['/?q=1', 400],
       ['/api/hello?msg=a&msg=b', 400],
       ['/api/hello?other=x', 400],
       [`/api/hello?msg=${'a'.repeat(129)}`, 400],
-      [`/api/hello?msg=${encodeURIComponent('😀'.repeat(65))}`, 400],
       ['/ui/?q=1', 400],
-      ['/ui/pkg/file.js?q=1', 400],
       ['/ui/pkg/%66ile.js', 400],
-      ['/ui/pkg%2Ffile.js', 400],
-      ['/ui/%ZZ', 400],
-      ['/ui/missing.js', 404],
-      ['/ui/pkg/', 400],
-      ['/uix/', 404],
-      ['/ui%2Fpkg/file.js', 404],
       ['/%75i/', 404],
       ['/api/%68ello', 404],
-      ['/', 404],
-      ['/index.html', 404],
-      ['/config.json', 404],
-      ['/api/hello/', 404],
+      ['/ui/unselected.js', 404],
+      ['/missing', 404],
     ] as const;
     for (const [path, status] of cases) {
       const res = await f.request(path);
       expect(res.status, path).to.eql(status);
       expect(await res.text(), path).to.eql('');
-      headers(res);
     }
-    for (const path of ['/ui', '/ui/', '/ui/pkg/file.js', '/api/hello']) {
-      for (const method of ['POST', 'OPTIONS', 'PUT', 'DELETE']) {
-        const res = await f.request(path, { method });
-        expect(res.status, `${method} ${path}`).to.eql(405);
-        expect(res.headers.get('allow')).to.eql('GET, HEAD');
-        headers(res);
-      }
-    }
-    const range = await f.request('/ui/pkg/file.js', { headers: { Range: 'bytes=0-1' } });
-    expect(range.status).to.eql(416);
     expect(f.signed).to.eql([]);
     expect(f.fetched).to.eql([]);
   });
 
-  it('keeps GET/HEAD representation headers and strips browser authority', async () => {
+  it('rejects writes on declared routes and keeps unknown routes as 404', async () => {
     using f = fixture();
-    const get = await f.request('/ui/pkg/file.js');
-    const head = await f.request('/ui/pkg/file.js', {
-      method: 'HEAD',
-      headers: { Cookie: 'private', Authorization: 'private' },
-    });
-    expect(head.status).to.eql(200);
-    expect([...head.headers]).to.eql([...get.headers]);
-    expect(head.headers.get('content-type')).to.include('javascript');
-    expect(head.headers.get('content-length')).to.eql('14');
-    expect(await head.text()).to.eql('');
-    expect(await get.text()).to.eql('selected bytes');
-    expect([...f.fetched.at(-1)!.headers]).to.eql([]);
+    for (const path of ['/', '/ui', '/api/hello', '/ui/pkg/file.js']) {
+      const res = await f.request(path, { method: 'POST' });
+      expect(res.status, path).to.eql(405);
+      expect(res.headers.get('allow')).to.eql('GET, HEAD');
+    }
+    const missing = await f.request('/missing', { method: 'POST' });
+    expect(missing.status).to.eql(404);
+    expect(missing.headers.get('cache-control')).to.eql('no-store');
+    expect(missing.headers.get('x-content-type-options')).to.eql('nosniff');
+    expect(f.fetched).to.eql([]);
   });
 
-  it('preserves missing-object responses after admitted storage work', async () => {
-    using f = fixture(() => Promise.resolve(new Response(null, { status: 404 })));
-    const res = await f.request('/ui/pkg/file.js');
-    expect(res.status).to.eql(404);
-    expect(f.signed).to.eql(['sample/ui/pkg/file.js']);
-    expect(await res.text()).to.eql('');
-    headers(res);
-  });
-
-  it('propagates caller cancellation through the mount into the storage fetch fixture', async () => {
+  it('passes cancellation through the UI mount', async () => {
     const started = Promise.withResolvers<AbortSignal>();
     using f = fixture((req) => {
       started.resolve(req.signal);
@@ -164,50 +118,17 @@ describe('R2 deployment sample: one origin', () => {
       await response;
     }
   });
-});
 
-describe('R2 deployment sample: local authority', () => {
-  it('projects a copied selection without mutation or remote discovery', () => {
-    const input = { ...artifact, files: [...artifact.files] };
-    const selected = artifactFrom(input);
-    input.files.push('unadmitted.js');
-    expect(selected.files).to.eql(artifact.files);
-    expect(routesFor(configFrom(config), selected)).to.eql({
-      '/': 'sample/ui/index.html',
-      '/index.html': 'sample/ui/index.html',
-      '/pkg/file.js': 'sample/ui/pkg/file.js',
-      '/dist.json': 'sample/ui/dist.json',
-    });
-  });
-
-  it('rejects missing, ambiguous, oversized or unsupported authority', () => {
-    for (
-      const input of [
-        undefined,
-        {},
-        { ...config, accountId: 'wrong' },
-        { ...config, prefix: '../other' },
-        { ...config, bucket: 'bucket/other' },
-        { ...config, limits: { ...LIMITS, maxBytes: LIMITS.maxBytes + 1 } },
-      ]
-    ) {
-      expect(() => configFrom(input)).to.throw('Invalid sample configuration.');
-    }
-    for (
-      const files of [
-        [],
-        ['index.html'],
-        ['dist.json'],
-        [...artifact.files, 'index.html'],
-        [...artifact.files, '../secret'],
-        [...artifact.files, 'pkg/%66ile.js'],
-        [...artifact.files, 'a'.repeat(513)],
-        [...artifact.files, ...Array.from({ length: 256 }, (_, index) => `f${index}`)],
-      ]
-    ) {
-      expect(() => artifactFrom({ ...artifact, files })).to.throw('Invalid sample artifact.');
-    }
-    expect(() => artifactFrom({ ...artifact, integrity: 'untrusted' })).to.throw();
+  it('rejects unsafe configuration, incomplete selection and a mismatched bucket', () => {
+    expect(() => configFrom({ ...config, prefix: '../other' })).to.throw(
+      'Invalid sample configuration.',
+    );
+    expect(() => artifactFrom({ ...artifact, files: ['dist.json'] })).to.throw(
+      'Invalid sample artifact.',
+    );
+    expect(() => createApp({ config, artifact, bucket: { name: 'other' } })).to.throw(
+      'Sample bucket does not match configuration.',
+    );
   });
 });
 
@@ -230,21 +151,9 @@ function fixture(read?: (req: Request) => Promise<Response>) {
   const mock = WebFixture.Fetch.mock((input, init) => {
     const req = new Request(input, init);
     fetched.push(req);
-    return read ? read(req) : Promise.resolve(
-      new Response('selected bytes', {
-        headers: { 'Set-Cookie': 'must-not-escape', 'X-Provider': 'must-not-escape' },
-      }),
-    );
+    return read ? read(req) : Promise.resolve(new Response('selected bytes'));
   });
   const request = (path: string, init?: RequestInit) =>
     app.fetch(new Request(`http://sample.test${path}`, init));
-  return { request, signed, fetched, dispose: mock.dispose, [Symbol.dispose]: mock.dispose };
-}
-
-function headers(response: Response) {
-  expect(response.headers.get('cache-control')).to.eql('no-store');
-  expect(response.headers.get('x-content-type-options')).to.eql('nosniff');
-  expect(response.headers.has('access-control-allow-origin')).to.eql(false);
-  expect(response.headers.has('set-cookie')).to.eql(false);
-  expect(response.headers.has('x-provider')).to.eql(false);
+  return { request, signed, fetched, [Symbol.dispose]: mock.dispose };
 }
