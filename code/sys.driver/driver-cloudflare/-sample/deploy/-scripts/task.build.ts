@@ -1,6 +1,5 @@
-import { c, Fmt } from '@sys/cli/fmt';
 import { Vite } from '@sys/driver-vite';
-import { Fs, Obj, Pkg, pkg, ROOT } from './common.ts';
+import { c, Fmt, Fs, Obj, Pkg, pkg, ROOT } from './common.ts';
 import { artifactFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
 
 /**

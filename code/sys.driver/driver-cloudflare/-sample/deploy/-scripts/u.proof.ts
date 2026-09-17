@@ -1,12 +1,9 @@
-import { Hash } from '@sys/crypto/hash';
-import { Env } from '@sys/fs/env';
 import { Fetch } from '@sys/http/client';
 import { HttpServer } from '@sys/http/server';
-import { MediaType } from '@sys/std/media-type';
 import { main } from '../src/entry.ts';
 import { readData } from '../src/m.app/u.data.ts';
 import { artifactFrom, configFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
-import { Arr, Fs, Is, Json, Obj, Pkg, ROOT } from './common.ts';
+import { Arr, Env, Fs, Hash, Is, Json, MediaType, Obj, Pkg, ROOT } from './common.ts';
 
 const ORIGIN = 'http://127.0.0.1:8080';
 

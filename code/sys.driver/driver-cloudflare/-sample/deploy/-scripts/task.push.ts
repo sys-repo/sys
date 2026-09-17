@@ -1,11 +1,14 @@
-import { Deploy, type DeployTool } from '@sys/tools/deploy';
+import { Cli } from '@sys/cli';
+import { Deploy } from '@sys/tools/deploy';
 import { Yaml } from '@sys/yaml';
-import { Arr, Fs, Is, Obj, Pkg, ROOT } from './common.ts';
 import { readData } from '../src/m.app/u.data.ts';
 import { artifactFrom, configFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
+import { Arr, c, Fs, Is, Obj, Pkg, ROOT, type t } from './common.ts';
 
-/** Push the existing selected build. Never rebuild or resolve secrets into a file. */
-export async function pushSample(root = ROOT, publish: DeployTool.Lib['push'] = Deploy.push) {
+/**
+ * Push the existing selected build. Never rebuild or resolve secrets into a file.
+ */
+export async function pushSample(root = ROOT, publish: t.DeployTool.Lib['push'] = Deploy.push) {
   const data = (name: string) => readData(Fs.Path.toFileUrl(Fs.join(root, name)));
   const config = configFrom(await data('config.json'));
   const artifact = artifactFrom(await data('artifact.json'));
@@ -33,7 +36,7 @@ export async function pushSample(root = ROOT, publish: DeployTool.Lib['push'] = 
     },
     staging: { dir: './dist' },
     mappings: [],
-  } satisfies DeployTool.Config.EndpointYaml.Doc;
+  } satisfies t.DeployTool.Config.EndpointYaml.Doc;
   const path = Fs.join(root, '.tmp', 'push.yaml');
   const yaml = Yaml.stringify(endpoint);
   if (yaml.error) throw new Error('Sample upload configuration could not be serialized.');
@@ -72,10 +75,14 @@ function pushFailure(error: unknown): Error {
  * Main
  */
 if (import.meta.main) {
-  const result = await pushSample();
+  const result = await Cli.Spinner.with(
+    Cli.Fmt.spinnerText('pushing to R2…', false),
+    () => pushSample(),
+  );
   const files = result.publish?.files ?? [];
   const written = files.filter((file) => file.status === 'written').length;
   const skipped = files.filter((file) => file.status === 'skipped').length;
   const removed = result.prune?.files.length ?? 0;
-  console.info(`R2 push: ${written} written, ${skipped} skipped, ${removed} removed.`);
+  const prefix = c.cyan('R2 push:');
+  console.info(`${prefix} ${written} written, ${skipped} skipped, ${removed} removed.`);
 }
