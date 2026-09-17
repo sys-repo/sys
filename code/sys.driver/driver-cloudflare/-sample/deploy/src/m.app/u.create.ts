@@ -57,5 +57,5 @@ function redirectUi(c: t.HttpServer.Hono.Context) {
 }
 
 function hello(c: t.HttpServer.Hono.Context) {
-  return c.json({ msg: 'hello world!' });
+  return c.json({ msg: '👋 hello world!' });
 }

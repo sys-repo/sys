@@ -47,7 +47,7 @@ describe('R2 deployment sample: app', () => {
     for (const path of ['/api/hello', '/api/hello?msg=foo']) {
       const res = await f.request(path);
       expect(res.status).to.eql(200);
-      expect(await res.json()).to.eql({ msg: 'hello world!' });
+      expect(await res.json()).to.eql({ msg: '👋 hello world!' });
       expect(res.headers.get('content-type')).to.include('application/json');
       expect(res.headers.get('cache-control')).to.eql('no-store');
       expect(res.headers.get('x-content-type-options')).to.eql('nosniff');
