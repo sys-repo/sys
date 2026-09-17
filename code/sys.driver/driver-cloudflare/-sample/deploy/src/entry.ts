@@ -1,10 +1,10 @@
 import { R2 } from '@sys/driver-cloudflare/r2';
 
 import type { t } from './common.ts';
-import { createApp } from './app/u.app.ts';
-import { credentialsFrom } from './app/u.credentials.ts';
-import { readData } from './app/u.data.ts';
-import { artifactFrom, configFrom } from './app/u.selection.ts';
+import { createApp } from './m.app/mod.ts';
+import { credentialsFrom } from './m.app/u.credentials.ts';
+import { readData } from './m.app/u.data.ts';
+import { artifactFrom, configFrom } from './m.app/u.selection.ts';
 
 /**
  * Load package-local data. Local startup supplies a dotenv reader; hosting uses process env.

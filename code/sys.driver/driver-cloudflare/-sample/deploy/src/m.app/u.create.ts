@@ -57,14 +57,5 @@ function redirectUi(c: t.HttpServer.Hono.Context) {
 }
 
 function hello(c: t.HttpServer.Hono.Context) {
-  const params = new URL(c.req.url).searchParams;
-  const msg = params.get('msg') ?? 'hello';
-  if (
-    params.getAll('msg').length > 1 ||
-    [...params.keys()].some((key) => key !== 'msg') ||
-    msg.length > 128
-  ) {
-    return c.body(null, 400);
-  }
-  return c.json({ msg: `${msg} world!` });
+  return c.json({ msg: 'hello world!' });
 }

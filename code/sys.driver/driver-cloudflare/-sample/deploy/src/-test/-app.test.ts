@@ -1,7 +1,7 @@
 import { R2 } from '@sys/driver-cloudflare/r2';
 import { describe, expect, it, type t, Time, WebFixture } from '../-test.ts';
-import { createApp } from '../app/u.app.ts';
-import { artifactFrom, configFrom, LIMITS } from '../app/u.selection.ts';
+import { createApp } from '../m.app/mod.ts';
+import { artifactFrom, configFrom, LIMITS } from '../m.app/u.selection.ts';
 
 const config: t.Config = {
   accountId: '0'.repeat(32),
@@ -44,10 +44,10 @@ describe('R2 deployment sample: app', () => {
 
   it('answers the API with shared headers and no storage', async () => {
     using f = fixture();
-    for (const [path, msg] of [['/api/hello', 'hello'], ['/api/hello?msg=sample', 'sample']]) {
+    for (const path of ['/api/hello', '/api/hello?msg=foo']) {
       const res = await f.request(path);
       expect(res.status).to.eql(200);
-      expect(await res.json()).to.eql({ msg: `${msg} world!` });
+      expect(await res.json()).to.eql({ msg: 'hello world!' });
       expect(res.headers.get('content-type')).to.include('application/json');
       expect(res.headers.get('cache-control')).to.eql('no-store');
       expect(res.headers.get('x-content-type-options')).to.eql('nosniff');
@@ -59,9 +59,6 @@ describe('R2 deployment sample: app', () => {
     using f = fixture();
     const cases = [
       ['/?q=1', 400],
-      ['/api/hello?msg=a&msg=b', 400],
-      ['/api/hello?other=x', 400],
-      [`/api/hello?msg=${'a'.repeat(129)}`, 400],
       ['/ui/?q=1', 400],
       ['/ui/pkg/%66ile.js', 400],
       ['/%75i/', 404],

@@ -1,6 +1,6 @@
 import { Env } from '@sys/fs/env';
 import { describe, expect, Fs, it, Str } from '../-test.ts';
-import { credentialsFrom } from '../app/u.credentials.ts';
+import { credentialsFrom } from '../m.app/u.credentials.ts';
 
 const names = {
   accessKeyId: 'SAMPLE_R2_TEST_ACCESS_KEY_ID',

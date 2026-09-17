@@ -9,7 +9,7 @@ The browser calls the API and renders `hello world!`.
 
 Use an existing R2 bucket and a dedicated prefix you control. [config.json](config.json) currently
 selects bucket `sys-test` and prefix `tmp.sys.tools/r2-ui-proof`. If changing accounts, also update
-the matching R2 hostnames in the `push` and `start` network grants in [deno.json](deno.json).
+the matching R2 hostnames in the `push` and `serve` network grants in [deno.json](deno.json).
 
 Provide the configured credentials in the repository-root `.env` or process environment:
 
@@ -26,17 +26,17 @@ From `code/sys.driver/driver-cloudflare/-sample/deploy`:
 ```sh
 deno task build
 deno task push
-deno task start
+deno task serve
 ```
 
 - `build` creates `dist/` and records the build selection in `artifact.json`.
 - `push` verifies and publishes that existing build without rebuilding it.
-- `start` serves the application on port 8080; it does not upload files.
+- `serve` serves the application on port 8080; it does not upload files.
 
 Open:
 
 - UI: <http://127.0.0.1:8080/ui/>
-- API: <http://127.0.0.1:8080/api/hello?msg=hello>
+- API: <http://127.0.0.1:8080/api/hello>
 
 `deno task test` runs fixture tests, not live R2 requests.
 

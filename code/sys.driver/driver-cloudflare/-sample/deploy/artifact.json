@@ -1,9 +1,9 @@
 {
-  "integrity": "sha256-66a08b8c19104864b8d1e594175399cb40c932b7f24c25dfa00547be341d42d8",
+  "integrity": "sha256-25a3af66cc66a04639883e33a82583e533a4f3854b22a5c99e5d963bd75d7033",
   "files": [
     "dist.json",
     "index.html",
-    "pkg/-entry.m68Rd7FX.js",
+    "pkg/-entry.BveKM3B1.js",
     "pkg/-pkg.json"
   ]
 }

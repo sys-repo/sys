@@ -9,7 +9,13 @@ function App() {
   return (
     <main>
       <h1>R2 + Deno</h1>
-      <p role='status'>{message}</p>
+      <p role='status'>
+        message: <code>"{message}"</code>
+      </p>
+      <p>
+        This page’s HTML and JavaScript are stored in Cloudflare R2 and served by Deno. The message
+        comes from the same server’s <a href='/api/hello'>/api/hello</a> endpoint.
+      </p>
     </main>
   );
 }
@@ -19,7 +25,7 @@ function startMessageLoad(onMessage: (message: string) => void): () => void {
 
   async function load() {
     const signal = controller.signal;
-    const response = await fetch('/api/hello?msg=hello', { signal });
+    const response = await fetch('/api/hello', { signal });
     if (!response.ok) throw new Error('Request failed.');
 
     const data: unknown = await response.json();

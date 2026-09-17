@@ -1,8 +1,8 @@
 import { Deploy, type DeployTool } from '@sys/tools/deploy';
 import { Yaml } from '@sys/yaml';
 import { Arr, Fs, Is, Obj, Pkg, ROOT } from './common.ts';
-import { readData } from '../src/app/u.data.ts';
-import { artifactFrom, configFrom, DIST_LIMITS } from '../src/app/u.selection.ts';
+import { readData } from '../src/m.app/u.data.ts';
+import { artifactFrom, configFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
 
 /** Push the existing selected build. Never rebuild, stage, or resolve secrets into a file. */
 export async function pushSample(root = ROOT, publish: DeployTool.Lib['push'] = Deploy.push) {
