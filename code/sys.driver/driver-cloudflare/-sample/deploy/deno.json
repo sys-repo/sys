@@ -7,7 +7,6 @@
     "test": "deno test -P=test ./src/-test/",
     "build": "deno run --no-prompt -P=build ./-scripts/task.build.ts",
     "push": "deno run --no-prompt -P=push ./-scripts/task.push.ts",
-    "stage": "deno run --no-prompt -P=build ./-scripts/task.stage.ts",
     "serve": "deno run --no-prompt --unstable-no-legacy-abort -P=serve ./-scripts/task.serve.ts"
   },
   "exports": {

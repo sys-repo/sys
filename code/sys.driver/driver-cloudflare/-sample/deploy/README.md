@@ -50,17 +50,3 @@ individual R2 responses.
 
 Publishing is not atomic. A failed push can leave partial changes, with no automatic rollback. Keep
 `dist/`, `artifact.json` and `config.json` unchanged during publication.
-
-## Optional staging
-
-```sh
-deno task stage
-```
-
-Staging prepares the application for Deno hosting; it does not upload or deploy, and is not needed
-for the local workflow. It **rebuilds the UI** and prints the stage location. Retain that stage
-together with its matching `artifact.json` and complete `dist/`, and publish that build before
-serving it.
-
-Hosted execution uses platform-provided environment variables rather than local dotenv discovery.
-Keep `.env` and credential values out of the stage.

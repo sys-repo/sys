@@ -4,7 +4,7 @@ import { Arr, Fs, Is, Obj, Pkg, ROOT } from './common.ts';
 import { readData } from '../src/m.app/u.data.ts';
 import { artifactFrom, configFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
 
-/** Push the existing selected build. Never rebuild, stage, or resolve secrets into a file. */
+/** Push the existing selected build. Never rebuild or resolve secrets into a file. */
 export async function pushSample(root = ROOT, publish: DeployTool.Lib['push'] = Deploy.push) {
   const data = (name: string) => readData(Fs.Path.toFileUrl(Fs.join(root, name)));
   const config = configFrom(await data('config.json'));
