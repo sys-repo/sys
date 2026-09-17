@@ -5,13 +5,9 @@ import { options as createOptions } from './u.options.ts';
 import { printWithOrigin as printStarted } from './u.print.ts';
 import { statusUrls } from './u.status.url.ts';
 
-type F = t.HttpServer.Lib['start'];
-
 export type StartDependencies = {
   readonly bindKeyboard: typeof bindKeyboard;
 };
-
-const DEFAULT_DEPS: StartDependencies = { bindKeyboard };
 
 type KeyboardOptions = { readonly print: boolean; readonly exit: boolean } | undefined;
 type StartValues = {
@@ -24,21 +20,26 @@ type StartValues = {
   readonly silent?: boolean;
   readonly dir?: t.StringDir;
   readonly status?: t.HttpServer.Status.Options;
+  readonly formatDetail?: t.HttpServer.Print.FormatDetail;
   readonly until?: t.UntilInput;
   readonly keyboard?: KeyboardOptions;
 };
 
+const DEFAULT_DEPS: StartDependencies = { bindKeyboard };
+
 /**
  * Start a Hono app as a managed HTTP server lifecycle.
  */
-export const start: F = (app, input = {}) => startWith(DEFAULT_DEPS, app, input);
+export const start: t.HttpServer.Lib['start'] = (app, input = {}) => {
+  return startWith(DEFAULT_DEPS, app, input);
+};
 
 /** Package-internal HTTP server start dependency seam. */
 export function startWith(
   deps: StartDependencies,
-  app: Parameters<F>[0],
-  input: NonNullable<Parameters<F>[1]> = {},
-): ReturnType<F> {
+  app: t.HttpServer.App,
+  input: t.HttpServer.Start.Options = {},
+): t.HttpServer.Started {
   const hostname: t.StringHostname = input.hostname ?? '127.0.0.1';
   const originMode = input.origin;
   validateOriginMode({ hostname, mode: originMode });
@@ -298,6 +299,7 @@ const wrangle = {
       requestedPort: input.port,
       dir: input.dir,
       status: input.status,
+      formatDetail: input.formatDetail,
       keyboard: wrangle.printKeyboard(keyboardOptions, keyboardBound),
     }, context.origin);
   },
@@ -313,6 +315,7 @@ const wrangle = {
       silent: input.silent,
       dir: input.dir,
       status: wrangle.statusOptions(input.status),
+      formatDetail: input.formatDetail,
       until: input.until,
       keyboard: wrangle.keyboardOptions(input.keyboard),
     };
@@ -326,9 +329,10 @@ const wrangle = {
       kind: input.kind,
       config: input.config,
       root: input.root,
-      urlPaths: input.urlPaths?.map((item) =>
-        Is.string(item) ? item : { path: item.path, label: item.label }
-      ),
+      urlPaths: input.urlPaths?.map((item) => {
+        if (Is.string(item)) return item;
+        return { path: item.path, label: item.label };
+      }),
       details: input.details?.map((detail) => ({ label: detail.label, value: detail.value })),
     };
   },

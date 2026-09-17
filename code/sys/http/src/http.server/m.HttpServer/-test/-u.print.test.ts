@@ -1,4 +1,5 @@
-import { c, Cli, describe, expect, it, pkg, type t } from '../../../-test.ts';
+import { HashFmt } from '@sys/crypto/fmt';
+import { c, Cli, describe, expect, it, pkg, Str, type t } from '../../../-test.ts';
 import { HttpServer } from '../mod.ts';
 import { printWith } from '../u/u.print.ts';
 
@@ -42,6 +43,234 @@ describe('HttpServer.print', () => {
     expect(output.indexOf('service')).to.be.lessThan(output.indexOf('module'));
     expect(output).to.not.contain('service:');
     expect(output).to.not.contain('module:');
+  });
+
+  it('owner details → identity, build, then requestable URLs', () => {
+    const output = capturePrint(() => {
+      printWith(
+        { isTerminal: () => false, screenSize: () => ({ width: 80, height: 24 }) },
+        {
+          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+          name: '@sample/r2',
+          status: {
+            details: [{ label: 'build', value: 'dist/ ← digest:sha256:#e1743' }],
+            urlPaths: ['/', '/ui/'],
+          },
+        },
+      );
+    }).join('\n');
+
+    const lines = Cli.stripAnsi(output).trim().split('\n');
+    const text = lines.map((line) => line.trimEnd()).join('\n');
+    expect(text).to.eql(Str.dedent(`
+      service   @sample/r2
+        build   dist/ ← digest:sha256:#e1743
+        url     http://localhost:8080/
+                http://localhost:8080/ui/
+    `));
+  });
+
+  it('linked detail → compact rows without hyperlink-sized trailing padding', () => {
+    const directory = new URL(`file:///fixture/${'long-directory/'.repeat(12)}dist/`);
+    const manifest = new URL('dist.json', directory);
+    const hash = `sha256-${'0'.repeat(59)}91492`;
+    const linkedPath = Cli.Fmt.hyperlink(c.gray('dist/'), directory, { underline: true });
+    const linkedDigest = HashFmt.digest(hash, { arrow: true, url: manifest });
+    const detail = { label: 'build', value: 'dist/ ← digest:sha256:#91492' };
+
+    const output = capturePrint(() => {
+      printWith(
+        { isTerminal: () => true, screenSize: () => ({ width: 80, height: 24 }) },
+        {
+          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+          name: '@sample/r2',
+          status: { details: [detail], urlPaths: ['/', '/ui/', '/api/hello', '/ui/dist.json'] },
+          formatDetail: () => `${linkedPath} ${linkedDigest}`,
+        },
+      );
+    }).join('\n');
+
+    expect(output).to.contain(linkedPath);
+    expect(output).to.contain(linkedDigest);
+    for (const line of output.split('\n')) {
+      expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(80);
+    }
+    expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
+      service   @sample/r2
+        build   dist/ ← digest:sha256:#91492
+        url     http://localhost:8080/
+                http://localhost:8080/ui/
+                http://localhost:8080/api/hello
+                http://localhost:8080/ui/dist.json
+    `));
+    expect(detail).to.eql({ label: 'build', value: 'dist/ ← digest:sha256:#91492' });
+  });
+
+  it('undefined or over-width detail presentation → the plain fact', () => {
+    const detail = { label: 'build', value: 'plain' };
+    for (const formatted of [undefined, 'x'.repeat(71), `short\n${'x'.repeat(71)}`]) {
+      const output = capturePrint(() => {
+        printWith(
+          { isTerminal: () => true, screenSize: () => ({ width: 80, height: 24 }) },
+          {
+            addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+            name: 'example',
+            status: { details: [detail] },
+            formatDetail: (args) => {
+              expect(args.detail).to.eql(detail);
+              expect(args.maxWidth).to.eql(70);
+              return formatted;
+            },
+          },
+        );
+      }).join('\n');
+      expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
+        service   example
+          build   plain
+          url     http://localhost:8080/
+      `));
+    }
+  });
+
+  it('multiline label → budget comes from the widest physical line', () => {
+    const formatted = c.cyan('x'.repeat(65));
+    for (const terminal of [true, false]) {
+      let maxWidth: number | undefined;
+      const output = capturePrint(() => {
+        printWith(
+          { isTerminal: () => terminal, screenSize: () => ({ width: 80, height: 24 }) },
+          {
+            addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+            name: 'example',
+            status: { details: [{ label: 'local\nremote', value: 'plain' }] },
+            formatDetail: (args) => {
+              maxWidth = args.maxWidth;
+              return formatted;
+            },
+          },
+        );
+      }).join('\n');
+
+      expect(maxWidth).to.eql(terminal ? 70 : undefined);
+      expect(output).to.contain(formatted);
+      expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
+        service   example
+          local   ${'x'.repeat(65)}
+        remote${' '.repeat(4)}
+          url     http://localhost:8080/
+      `));
+      for (const line of output.split('\n')) {
+        expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(80);
+      }
+    }
+  });
+
+  it('narrow terminal → each label line is fitted and styled independently', () => {
+    const cases = [
+      { width: 24, first: c.gray('  local'), last: c.gray('remote'), lastGap: 4 },
+      {
+        width: 12,
+        first: `${c.gray('  ')}${Cli.Fmt.omission()}${c.gray('l')}`,
+        last: `${c.gray('re')}${Cli.Fmt.omission()}${c.gray('e')}`,
+        lastGap: 3,
+      },
+    ];
+    for (const { width, first, last, lastGap } of cases) {
+      const output = capturePrint(() => {
+        printWith(
+          { isTerminal: () => true, screenSize: () => ({ width, height: 24 }) },
+          {
+            addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+            name: 'example',
+            status: { details: [{ label: 'local\nremote', value: 'one\ntwo' }] },
+          },
+        );
+      }).join('\n');
+
+      // Each line's style closes before pair padding and the independently styled value.
+      const rows = output.trim().split('\n').slice(1, 3);
+      expect(rows[0]).to.eql(`${first}   ${c.gray('one')}`);
+      expect(rows[1]).to.eql(`${last}${' '.repeat(lastGap)}${c.gray('two')}`);
+      for (const line of output.split('\n')) {
+        expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width);
+      }
+    }
+  });
+
+  it('multiline presentation → fits each display line, not their combined width', () => {
+    const first = 'a'.repeat(40);
+    const last = '東京'.repeat(10);
+    const linked = Cli.Fmt.hyperlink(c.cyan(last), new URL('file:///fixture/manifest.json'));
+    const detail = { label: 'notes', value: 'plain' };
+    const output = capturePrint(() => {
+      printWith(
+        { isTerminal: () => true, screenSize: () => ({ width: 80, height: 24 }) },
+        {
+          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+          name: 'example',
+          status: { details: [detail] },
+          formatDetail: () => `${c.green(first)}\n\n${linked}`,
+        },
+      );
+    }).join('\n');
+
+    expect(output).to.contain(linked);
+    expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
+      service   example
+        notes   ${first}
+      ${' '.repeat(10)}
+      ${' '.repeat(10)}${last}
+        url     http://localhost:8080/
+    `));
+    for (const line of output.split('\n')) {
+      expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(80);
+    }
+    expect(detail).to.eql({ label: 'notes', value: 'plain' });
+  });
+
+  it('plain multiline detail → each line fits independently, including formatter fallback', () => {
+    const first = 'a'.repeat(40);
+    const last = 'b'.repeat(40);
+    for (const formatted of [undefined, 'x'.repeat(71)]) {
+      const output = capturePrint(() => {
+        printWith(
+          { isTerminal: () => true, screenSize: () => ({ width: 80, height: 24 }) },
+          {
+            addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+            name: 'example',
+            status: { details: [{ label: 'notes', value: `${first}\n\n${last}` }] },
+            formatDetail: () => formatted,
+          },
+        );
+      }).join('\n');
+      expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
+        service   example
+          notes   ${first}
+        ${' '.repeat(10)}
+        ${' '.repeat(10)}${last}
+          url     http://localhost:8080/
+      `));
+    }
+  });
+
+  it('non-TTY multiline detail → preserves blank continuation rows', () => {
+    const output = capturePrint(() => {
+      printWith(
+        { isTerminal: () => false, screenSize: () => ({ width: 80, height: 24 }) },
+        {
+          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
+          name: 'example',
+          status: { details: [{ label: 'notes', value: 'first\n\nlast' }] },
+        },
+      );
+    }).join('\n');
+    expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
+      service   example
+        notes   first
+      ${' '.repeat(10)}
+      ${' '.repeat(10)}last
+        url     http://localhost:8080/
+    `));
   });
 
   it('prints a stable service fallback when no display name is provided', () => {
@@ -243,8 +472,8 @@ describe('HttpServer.print', () => {
         },
       );
     }).join('\n');
-    const root =
-      Cli.stripAnsi(output).split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
+    const lines = Cli.stripAnsi(output).split('\n');
+    const root = lines.find((line) => line.trimStart().startsWith('root')) ?? '';
 
     expect(root).to.contain('9abcdef');
     expect(Cli.Fmt.Text.Width.measure(root)).to.be.at.most(48);

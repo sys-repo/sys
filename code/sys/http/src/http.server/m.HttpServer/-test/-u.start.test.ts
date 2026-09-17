@@ -123,6 +123,31 @@ describe('HttpServer.start', () => {
     }
   });
 
+  it('linked startup presentation → unchanged renderer-neutral status facts', async () => {
+    const app = HttpServer.create({ static: false });
+    const detail = { label: 'build', value: 'dist/' };
+    const linked = Cli.Fmt.hyperlink('dist/', new URL('file:///fixture/dist/'), {
+      underline: true,
+    });
+    const options: t.HttpServer.Start.Options = {
+      hostname: '127.0.0.1',
+      port: 0,
+      strictPort: true,
+      keyboard: false,
+      status: { details: [detail] },
+      formatDetail: () => linked,
+    };
+    const printed = capturePrint(() => HttpServer.start(app, options));
+    const server = printed.value;
+    try {
+      expect(printed.output.join('\n')).to.contain(linked);
+      expect(server.status().details).to.eql([detail]);
+      expect(server.status()).not.to.have.property('formatDetail');
+    } finally {
+      await server.close('test');
+    }
+  });
+
   it('exposes renderer-neutral service status snapshots', async () => {
     const app = HttpServer.create({ static: false });
     const server = HttpServer.start(app, {
@@ -259,33 +284,48 @@ describe('HttpServer.start', () => {
     expect(server.status().state).to.eql('stopped');
   });
 
-  it('setup failure after listen rolls back the server', async () => {
+  it('formatter failure after listen → original error and exact port released', async () => {
     const app = HttpServer.create({ static: false });
+    const hostname = '127.0.0.1';
     const port = Testing.randomPort();
-    const failure = new Error('HttpServer.start:test:setup-failure');
+    const failure = new Error('HttpServer.start:test:format-failure');
+    let formatCalls = 0;
     const options: t.HttpServer.Start.Options = {
       port,
-      hostname: '127.0.0.1',
-      get silent(): boolean {
+      hostname,
+      strictPort: true,
+      keyboard: false,
+      status: { details: [{ label: 'build', value: 'fixture' }] },
+      formatDetail() {
+        formatCalls += 1;
+        // Prove that this failure occurs while the exact listener is already bound.
+        expect(() => {
+          using _unexpected = Deno.listen({ hostname, port });
+        }).to.throw(Deno.errors.AddrInUse);
         throw failure;
       },
     };
 
     let caught: unknown;
+    let unexpected: t.HttpServer.Started | undefined;
     try {
-      HttpServer.start(app, options);
+      unexpected = HttpServer.start(app, options);
     } catch (error) {
       caught = error;
+    } finally {
+      await unexpected?.close('test:unexpected-start');
     }
+    expect(formatCalls).to.eql(1);
     expect(caught).to.equal(failure);
 
     await Testing.retry(10, { silent: true, delay: 10 }, async () => {
-      const replacement = HttpServer.start(app, {
+      await using replacement = HttpServer.start(app, {
         port,
-        hostname: '127.0.0.1',
+        hostname,
+        strictPort: true,
         silent: true,
       });
-      await replacement.close('test:port-reacquired');
+      expect(replacement.port).to.eql(port);
     });
   });
 
@@ -303,14 +343,13 @@ describe('HttpServer.start', () => {
 
   it('settles one exact ephemeral IPv4 authority across origin, status, and output', async () => {
     const app = HttpServer.create({ static: false });
-    const lines = capturePrint(() =>
-      HttpServer.start(app, {
-        port: 0,
-        hostname: '127.0.0.1',
-        origin: 'exact-loopback',
-        status: { urlPaths: ['/health'] },
-      })
-    );
+    const options: t.HttpServer.Start.Options = {
+      port: 0,
+      hostname: '127.0.0.1',
+      origin: 'exact-loopback',
+      status: { urlPaths: ['/health'] },
+    };
+    const lines = capturePrint(() => HttpServer.start(app, options));
     const server = lines.value;
 
     try {
@@ -327,12 +366,8 @@ describe('HttpServer.start', () => {
 
   it('formats one exact IPv6 listener authority across origin and output', async () => {
     const app = HttpServer.create({ static: false });
-    const lines = capturePrint(() =>
-      HttpServer.start(app, {
-        hostname: '::1',
-        origin: 'exact-loopback',
-      })
-    );
+    const options: t.HttpServer.Start.Options = { hostname: '::1', origin: 'exact-loopback' };
+    const lines = capturePrint(() => HttpServer.start(app, options));
     const server = lines.value;
 
     try {
@@ -356,17 +391,16 @@ describe('HttpServer.start', () => {
 
   it('rejects exact loopback origins for wildcard, hostname, and non-loopback binds', () => {
     const app = HttpServer.create({ static: false });
-    for (
-      const hostname of [
-        '0.0.0.0',
-        '::',
-        'localhost',
-        '127.0.0.2',
-        '[::1]',
-        '192.0.2.10',
-        '2001:db8::1',
-      ]
-    ) {
+    const hostnames = [
+      '0.0.0.0',
+      '::',
+      'localhost',
+      '127.0.0.2',
+      '[::1]',
+      '192.0.2.10',
+      '2001:db8::1',
+    ];
+    for (const hostname of hostnames) {
       expect(() =>
         HttpServer.start(app, {
           silent: true,

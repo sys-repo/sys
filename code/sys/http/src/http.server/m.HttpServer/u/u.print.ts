@@ -1,11 +1,9 @@
 import { c, Cli, Path, Str, type t } from '../common.host.ts';
 import { formatPrintUrls } from './u.print.url.ts';
 
-type PrintUrl = ReturnType<typeof formatPrintUrls>[number];
-
-export type PrintDependencies = {
-  readonly isTerminal: typeof Cli.Is.terminal;
-  readonly screenSize: typeof Cli.Screen.size;
+type PrintDependencies = {
+  readonly isTerminal: t.Cli.Is.Lib['terminal'];
+  readonly screenSize: t.Cli.Screen.Lib['size'];
 };
 
 const DEFAULT_DEPS: PrintDependencies = {
@@ -47,7 +45,7 @@ export function printWith(
     keyboard: options.keyboard,
   });
 
-  const table = Cli.Table.create([]);
+  const table: t.Cli.Table.Pair[] = [];
 
   table.push([
     label(deps, 'service'),
@@ -59,17 +57,21 @@ export function printWith(
     const pkgVersion = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
     table.push([childLabel(deps, 'module'), value(deps, `${pkgName} ${pkgVersion}`, reserve)]);
   }
+  for (const detail of details) {
+    table.push([
+      childLabel(deps, detail.label),
+      detailValue(deps, detail, reserve, options.formatDetail),
+    ]);
+  }
   pushUrls(deps, table, urls, reserve);
   if (root) table.push([childLabel(deps, 'root'), path(deps, root, reserve)]);
-  for (const detail of details) {
-    table.push([childLabel(deps, detail.label), value(deps, detail.value, reserve)]);
-  }
   if (hx) table.push([childLabel(deps, 'dist'), value(deps, `${hx} ← dist/dist.json`, reserve)]);
   if (fallback) table.push([childLabel(deps, 'port'), value(deps, fallback, reserve)]);
   pushKeyboard(deps, table, options.keyboard, reserve);
 
+  const output = Cli.Table.pairs(table, reserve);
   if (wrangle.shouldPrintDivider()) console.info(formatDivider(deps));
-  console.info(`\n${Str.trimEdgeNewlines(String(table))}\n`);
+  console.info(`\n${Str.trimEdgeNewlines(output)}\n`);
 }
 
 /**
@@ -79,10 +81,28 @@ function infoDetails(info: Record<string, string> | undefined): readonly t.Servi
   return Object.entries(info ?? {}).map(([label, value]) => ({ label, value }));
 }
 
+function detailValue(
+  deps: PrintDependencies,
+  detail: t.Service.Detail,
+  reserve: number,
+  format?: t.HttpServer.Print.FormatDetail,
+) {
+  const maxWidth = deps.isTerminal('stdout') ? valueWidth(deps, reserve) : undefined;
+  const formatted = format?.({ detail, maxWidth });
+  if (formatted !== undefined) {
+    if (maxWidth === undefined) return formatted;
+    const lines = formatted.split('\n');
+    const fits = lines.every((line) => Cli.Fmt.Text.Width.measure(line) <= maxWidth);
+    if (fits) return formatted;
+  }
+
+  return detail.value.split('\n').map((line) => value(deps, line, reserve)).join('\n');
+}
+
 function pushUrls(
   deps: PrintDependencies,
-  table: ReturnType<typeof Cli.Table.create>,
-  urls: readonly PrintUrl[],
+  table: t.Cli.Table.Pair[],
+  urls: readonly t.Cli.Fmt.ServiceUrl.Part[],
   reserve: number,
 ) {
   urls.forEach((url, index) => {
@@ -92,7 +112,7 @@ function pushUrls(
 
 function pushKeyboard(
   deps: PrintDependencies,
-  table: ReturnType<typeof Cli.Table.create>,
+  table: t.Cli.Table.Pair[],
   keyboard: t.HttpServer.Print.Keyboard.Options | undefined,
   reserve: number,
 ) {
@@ -139,7 +159,8 @@ function trimCwd(input: string): string {
   if (Path.Is.relative(input)) return input.replace(/^\.\//, '');
   const cwd = Deno.cwd();
   const prefix = cwd.endsWith('/') ? cwd : `${cwd}/`;
-  return input === cwd ? '' : input.startsWith(prefix) ? input.slice(prefix.length) : input;
+  if (input === cwd) return '';
+  return input.startsWith(prefix) ? input.slice(prefix.length) : input;
 }
 
 function keyboardValue(deps: PrintDependencies, input: string, reserve: number) {
@@ -148,26 +169,25 @@ function keyboardValue(deps: PrintDependencies, input: string, reserve: number) 
 
 function urlValue(
   deps: PrintDependencies,
-  part: PrintUrl,
+  part: t.Cli.Fmt.ServiceUrl.Part,
   reserve: number,
 ) {
-  if (
-    !deps.isTerminal('stdout') ||
-    Cli.Fmt.Text.Width.measure(part.display) <= valueWidth(deps, reserve)
-  ) {
-    return Cli.Fmt.ServiceUrl.format(part);
-  }
-  return Cli.Fmt.Text.ellipsize(part.display, valueWidth(deps, reserve), {
-    render: ({ head, ellipsis, tail }) => {
+  if (!deps.isTerminal('stdout')) return Cli.Fmt.ServiceUrl.format(part);
+  const width = valueWidth(deps, reserve);
+  if (Cli.Fmt.Text.Width.measure(part.display) <= width) return Cli.Fmt.ServiceUrl.format(part);
+
+  return Cli.Fmt.Text.ellipsize(part.display, width, {
+    render({ head, ellipsis, tail }) {
       const tailStart = part.display.length - tail.length;
-      return `${formatUrlFragment(part, head, 0)}${Cli.Fmt.omission(ellipsis)}${
-        formatUrlFragment(part, tail, tailStart)
-      }`;
+      const headText = formatUrlFragment(part, head, 0);
+      const omission = Cli.Fmt.omission(ellipsis);
+      const tailText = formatUrlFragment(part, tail, tailStart);
+      return `${headText}${omission}${tailText}`;
     },
   });
 }
 
-function formatUrlFragment(part: PrintUrl, text: string, offset: number) {
+function formatUrlFragment(part: t.Cli.Fmt.ServiceUrl.Part, text: string, offset: number) {
   const originEnd = part.origin.length;
   const portStart = part.port ? originEnd - part.port.length : originEnd;
   const origin = part.highlightOrigin ? c.cyan : c.gray;
@@ -197,14 +217,15 @@ function fittedLabel(
   input: string,
   color: (text: string) => string,
 ) {
-  if (!deps.isTerminal('stdout')) return color(input);
-  const width = labelWidth(deps);
-  if (Cli.Fmt.Text.Width.measure(input) <= width) return color(input);
-  return Cli.Fmt.Text.ellipsize(input, width, {
-    render: ({ head, ellipsis, tail }) => {
-      return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
-    },
-  });
+  const width = deps.isTerminal('stdout') ? labelWidth(deps) : undefined;
+  return input.split('\n').map((line) => {
+    if (width === undefined || Cli.Fmt.Text.Width.measure(line) <= width) return color(line);
+    return Cli.Fmt.Text.ellipsize(line, width, {
+      render: ({ head, ellipsis, tail }) => {
+        return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
+      },
+    });
+  }).join('\n');
 }
 
 function fittedValue(
@@ -217,7 +238,7 @@ function fittedValue(
   const width = valueWidth(deps, reserve);
   if (Cli.Fmt.Text.Width.measure(input) <= width) return color(input);
   return Cli.Fmt.Text.ellipsize(input, width, {
-    render: ({ head, ellipsis, tail }) => {
+    render({ head, ellipsis, tail }) {
       return `${color(head)}${Cli.Fmt.omission(ellipsis)}${color(tail)}`;
     },
   });
@@ -249,12 +270,14 @@ function tableValueReserve(deps: PrintDependencies, input: {
   if (input.port) labels.push(childLabel(deps, 'port'));
   if (input.keyboard?.open) labels.push(keyboardLabel(deps, 'open'));
   if (input.keyboard?.quit) labels.push(keyboardLabel(deps, 'quit'));
-  return Cli.Fmt.Text.Width.max(labels) + Cli.Table.cellGap;
+  const lines = labels.flatMap((label) => label.split('\n'));
+  return Cli.Fmt.Text.Width.max(lines) + Cli.Table.cellGap;
 }
 
 function formatDivider(deps: PrintDependencies) {
   const width = deps.isTerminal('stdout') ? deps.screenSize().width : undefined;
-  return c.dim(c.gray(width === undefined ? Cli.Fmt.hr() : Cli.Fmt.hr({ width })));
+  const rule = width === undefined ? Cli.Fmt.hr() : Cli.Fmt.hr({ width });
+  return c.dim(c.gray(rule));
 }
 
 function formatPortFallback(input: { requestedPort?: number; actualPort: number }) {

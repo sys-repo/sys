@@ -128,6 +128,9 @@ export declare namespace HttpServer {
       /** Structured, renderer-neutral status metadata for the running server handle. */
       status?: Status.Options;
 
+      /** Optional terminal presentation for detail values; never stored in service status. */
+      formatDetail?: Print.FormatDetail;
+
       /**
        * Report the exact numeric loopback listener authority instead of `localhost`.
        *
@@ -203,8 +206,23 @@ export declare namespace HttpServer {
       requestedPort?: t.PortNumber;
       dir?: t.StringDir;
       status?: Status.Options;
+      formatDetail?: FormatDetail;
       keyboard?: Keyboard.Options;
     };
+
+    /**
+     * Render one detail value with optional ANSI styling and navigation links.
+     * Return undefined for default formatting. If any LF-delimited line exceeds maxWidth,
+     * the whole presentation falls back to the plain fact.
+     *
+     * Each line must contain complete ANSI controls and independently closed styles and OSC 8
+     * links. Controls and their scopes must not span lines; the renderer does not rebalance them.
+     */
+    export type FormatDetail = (args: {
+      readonly detail: t.Service.Detail;
+      /** Available terminal cells; undefined preserves full non-TTY output. */
+      readonly maxWidth?: number;
+    }) => string | undefined;
 
     /**
      * HTTP server print keyboard contracts.
