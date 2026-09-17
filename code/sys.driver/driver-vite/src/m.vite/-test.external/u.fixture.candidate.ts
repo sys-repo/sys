@@ -91,7 +91,8 @@ export async function proveCandidate(sample: keyof typeof SAMPLES) {
       expect(html.status, html.text.slice(0, 2_000)).to.eql(200);
       expect(html.contentType).to.include('text/html');
       phase('request entry');
-      const entry = await request(base, spec.module);
+      // The first module request includes cold dependency optimization on CI.
+      const entry = await request(base, spec.module, 60_000);
       expect(entry.status, entry.text.slice(0, 2_000)).to.eql(200);
       expect(entry.contentType).to.include('javascript');
       expect(entry.text.length).to.be.greaterThan(0);
@@ -121,12 +122,22 @@ export async function proveCandidate(sample: keyof typeof SAMPLES) {
   }
 }
 
-/** Consume the entire response within the bounded child probe. */
-async function request(base: string, path: string) {
-  const response = await fetch(new URL(path, base), { signal: AbortSignal.timeout(10_000) });
-  return {
-    status: response.status,
-    contentType: response.headers.get('content-type') ?? '',
-    text: await response.text(),
-  } as const;
+/** Bound headers and body consumption; the child probe retains its overall deadline. */
+async function request(base: string, path: string, timeout = 10_000) {
+  const url = new URL(path, base);
+  const started = performance.now();
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(timeout) });
+    return {
+      status: response.status,
+      contentType: response.headers.get('content-type') ?? '',
+      text: await response.text(),
+    } as const;
+  } catch (cause) {
+    const elapsed = (performance.now() - started).toFixed(0);
+    throw new Error(
+      `Candidate HTTP request failed: ${url.href} after ${elapsed}ms (deadline ${timeout}ms)`,
+      { cause },
+    );
+  }
 }
