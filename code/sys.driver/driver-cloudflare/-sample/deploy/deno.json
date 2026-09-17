@@ -4,7 +4,8 @@
   "license": "MIT",
   "private": true,
   "tasks": {
-    "test": "deno test -P=test ./src/-test/",
+    "test": "deno test -P=test ./src/-test/ ./-scripts/-test/",
+    "proof:local": "deno run --no-prompt --unstable-no-legacy-abort -P=serve ./-scripts/task.proof.local.ts",
     "build": "deno run --no-prompt -P=build ./-scripts/task.build.ts",
     "push": "deno run --no-prompt -P=push ./-scripts/task.push.ts",
     "serve": "deno run --no-prompt --unstable-no-legacy-abort -P=serve ./-scripts/task.serve.ts"
