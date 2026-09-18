@@ -1,7 +1,7 @@
 import { Rx, type t } from './common.ts';
 import { snapshotManifestArgs } from './u.admitManifest.input.ts';
-import { checkCancelled, isFailure } from './u.pinned.io.ts';
-import { admitManifestBytes } from './u.pinned.manifest.ts';
+import { checkCancelled, isFailure } from './u.io.ts';
+import { admitManifestBytes } from './u.manifest.ts';
 
 /**
  * Admit manifest bytes against an expected checksum, without filesystem or network I/O.

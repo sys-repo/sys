@@ -1,12 +1,6 @@
 import { Num, Path, Str, type t } from './common.ts';
-import type { StrictPart } from './u.pinned.manifest.ts';
-import {
-  checkCancelled,
-  failure,
-  ioFailure,
-  type ReadHandle,
-  type VerifyIo,
-} from './u.pinned.io.ts';
+import type { StrictPart } from './u.manifest.ts';
+import { checkCancelled, failure, ioFailure, type ReadHandle, type VerifyIo } from './u.io.ts';
 
 export type Identity = {
   readonly dev: number;

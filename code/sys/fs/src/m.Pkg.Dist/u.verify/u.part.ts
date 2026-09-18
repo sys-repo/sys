@@ -8,14 +8,9 @@ import {
   ioFailure,
   isFailure,
   type VerifyIo,
-} from './u.pinned.io.ts';
-import { isSafeNonNegative } from './u.pinned.limit.ts';
-import {
-  observePartAncestors,
-  readRegularFile,
-  resolveLocalRoot,
-  resolveRoot,
-} from './u.pinned.tree.ts';
+} from './u.io.ts';
+import { isSafeNonNegative } from './u.limit.ts';
+import { observePartAncestors, readRegularFile, resolveLocalRoot, resolveRoot } from './u.tree.ts';
 
 type ReadMode = 'local' | 'pinned';
 type ReadArgs = Omit<t.Pkg.Dist.Pinned.ReadPart.Args, 'dir'> & {

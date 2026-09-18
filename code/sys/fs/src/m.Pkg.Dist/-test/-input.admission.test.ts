@@ -1,8 +1,8 @@
 import { describe, expect, Hash, Is, it, Rx, StdPath } from '../../-test.ts';
 import { Fs } from '../common.ts';
-import { readLocalPartWithIo, readPinnedPartWithIo } from '../u.verify/u.pinned.part.ts';
-import type { VerifyIo } from '../u.verify/u.pinned.io.ts';
-import { verifyLocalWithIo, verifyPinnedWithIo } from '../u.verify/u.pinned.ts';
+import { readLocalPartWithIo, readPinnedPartWithIo } from '../u.verify/u.part.ts';
+import type { VerifyIo } from '../u.verify/u.io.ts';
+import { verifyLocalWithIo, verifyPinnedWithIo } from '../u.verify/u.verify.ts';
 import {
   type Fixture,
   fixturePart,

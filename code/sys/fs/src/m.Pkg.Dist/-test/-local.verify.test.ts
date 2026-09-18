@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, Hash, it, Num, StdPath, type t } from '../../-test.ts';
 import { Pkg } from '../../m.Pkg/mod.ts';
 import { Fs } from '../common.ts';
-import { readLocalPartWithIo } from '../u.verify/u.pinned.part.ts';
-import { verifyLocalWithIo } from '../u.verify/u.pinned.ts';
+import { readLocalPartWithIo } from '../u.verify/u.part.ts';
+import { verifyLocalWithIo } from '../u.verify/u.verify.ts';
 import {
   DEFAULT_IO,
   expectIoPathsWithin,

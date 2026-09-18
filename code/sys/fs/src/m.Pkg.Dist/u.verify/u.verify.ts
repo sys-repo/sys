@@ -7,9 +7,9 @@ import {
   ioFailure,
   isFailure,
   type VerifyIo,
-} from './u.pinned.io.ts';
-import { addBytes } from './u.pinned.limit.ts';
-import { admitManifestBytes } from './u.pinned.manifest.ts';
+} from './u.io.ts';
+import { addBytes } from './u.limit.ts';
+import { admitManifestBytes } from './u.manifest.ts';
 import {
   assertExactTree,
   assertObserved,
@@ -21,7 +21,7 @@ import {
   readManifest,
   resolveLocalRoot,
   resolveRoot,
-} from './u.pinned.tree.ts';
+} from './u.tree.ts';
 
 type VerifiedBase = {
   readonly dir: t.StringAbsoluteDir;

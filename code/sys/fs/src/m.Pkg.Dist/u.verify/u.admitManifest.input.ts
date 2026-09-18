@@ -1,6 +1,6 @@
 import { Pkg, ServerIs, type t } from './common.ts';
 import { snapshotExactDataObject, snapshotUntilInput, snapshotVerifyLimits } from './u.input.ts';
-import { failure } from './u.pinned.io.ts';
+import { failure } from './u.io.ts';
 
 const NativeUint8Array = Uint8Array;
 const typedArrayPrototype = Object.getPrototypeOf(NativeUint8Array.prototype);

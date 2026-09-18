@@ -1,5 +1,5 @@
 import { Is, Obj, ServerIs, type t } from './common.ts';
-import { isSafeNonNegative, isSafePositive } from './u.pinned.limit.ts';
+import { isSafeNonNegative, isSafePositive } from './u.limit.ts';
 
 const arrayPrototype = Array.prototype;
 const freeze = Object.freeze;

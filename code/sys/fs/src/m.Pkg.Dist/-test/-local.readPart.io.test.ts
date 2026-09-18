@@ -1,6 +1,6 @@
 import { describe, expect, Hash, it, Json, Num, StdPath } from '../../-test.ts';
 import { Fs } from '../common.ts';
-import { readLocalPartWithIo } from '../u.verify/u.pinned.part.ts';
+import { readLocalPartWithIo } from '../u.verify/u.part.ts';
 import {
   DEFAULT_IO,
   expectIoPathsWithin,

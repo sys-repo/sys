@@ -1,6 +1,6 @@
 import { expect, Hash, Json, StdPath, type t } from '../../-test.ts';
 import { Pkg } from '../../m.Pkg/mod.ts';
-import { DEFAULT_IO, type VerifyIo } from '../u.verify/u.pinned.io.ts';
+import { DEFAULT_IO, type VerifyIo } from '../u.verify/u.io.ts';
 
 const encoder = new TextEncoder();
 

@@ -1,7 +1,7 @@
 import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
 import { CompositeHash, Hash, Ignore, Is, Json, Obj, Path, Pkg, Str, type t } from './common.ts';
-import { failure } from './u.pinned.io.ts';
-import { addBytes, isSafeNonNegative } from './u.pinned.limit.ts';
+import { failure } from './u.io.ts';
+import { addBytes, isSafeNonNegative } from './u.limit.ts';
 
 const compare = Str.Compare.codeUnit();
 const decoder = new TextDecoder('utf-8', { fatal: true });
