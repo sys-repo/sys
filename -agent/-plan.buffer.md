@@ -8,13 +8,33 @@ r2-files-delivery.plan.md
 r2-web-exposure.plan.md
 - [x] 07a0a8028 chore(tmpl:pkg): scaffold @sys/web package
 - [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
-- [ ] feat(driver-cloudflare): expose presigned object reads
-- [ ] feat(driver-cloudflare): add R2-backed application read routes
-- [ ] feat(deploy): compose a Deno-hosted R2 application
-- [ ] GATE owner authorizes local application proof against selected live R2 objects
-- [ ] docs(plan): record local R2 application proof
+- [x] 12167cd70 feat(driver-cloudflare): expose presigned object reads
+- [x] a54a39f98 feat(driver-cloudflare): add R2-backed application read routes
+- [x] e242fbce4 feat(driver-cloudflare): add self-contained R2 deployment sample
+- [x] db0e67864 docs(driver-cloudflare): clarify R2 sample workflow
+- [x] e2e0afd44 feat(driver-cloudflare): add explicit sample routes and root redirect
+- [x] 9f062ede0 refactor(driver-cloudflare): group sample application helpers
+- [x] 6153361a0 refactor(driver-cloudflare): normalize sample app module layout
+- [x] 3bb85eb9f chore(driver-cloudflare): remove unused sample staging task
+- [x] d5248f6fa style(driver-cloudflare): separate sample explanation lines
+- [x] 920158a72 style(driver-cloudflare): separate sample explanation lines
+- [x] GATE owner authorizes local application proof against selected live R2 objects
+- [x] 54afcb4a4 test(driver-cloudflare): add pinned local delivery probe
+- [x] 204fca7d9 refactor(exports)!: standardize package type entrypoints on /t
+- [x] 867add7c5 fix(tools): compare R2 manifest identity before skipping publication
+- [x] e01433a26 docs(driver-cloudflare): describe the local proof task
+- [x] 4f72461bb style(driver-cloudflare): clarify build checksum output
+- [x] 4f5ebb73a feat(cli): add fitted label-value pair rendering
+- [x] 35be4e1b0 feat(driver-cloudflare): add push progress and consolidate script helpers
+- [x] 20e0464b7 feat(driver-cloudflare): clarify sample UI and show same-origin fetches
+- [x] 43799c643 feat(http): support cell-aware startup detail presentation
+- [x] 1a3667ffc refactor(http): separate startup presentation and file-serving helpers
+- [x] 7c9fecaa5 refactor(driver-cloudflare): centralize sample build selection
+- [x] 0169c2c20 feat(pkg): add canonical Dist pin contracts
+- [x] 73c59650d refactor(driver-cloudflare): bootstrap sample routes from a pinned manifest
+- [x] e210dc608 test(driver-cloudflare): verify local R2 application delivery
 - [ ] GATE owner authorizes the first R2-backed app hostname and bounded deployment/exposure operations
-- [ ] docs(plan): record first R2 web exposure proof
+- [ ] test(driver-cloudflare): verify hosted R2 application delivery
 
 
 @sys.driver.cloudflare
@@ -62,4 +82,17 @@ time-canon.plan.md
 - [ ] fix(std): correct Time instant and timer ownership
 - [ ] fix(std): normalize duration parsing and validity
 - [ ] refactor(std): tighten Time type-plane contracts
+
+@sys
+type-export-path-cleanup.plan.md
+- [ ] GATE sys.canon owner adopts the /t-only package type export policy
+- [ ] refactor(exports)!: standardize package type entrypoints on /t
+
+jsr-readme-quality.plan.md
+- [ ] docs(jsr): correct foundational README contracts
+- [ ] docs(jsr): correct adapter and application README contracts
+- [ ] docs(jsr): orient platform package README surfaces
+- [ ] docs(jsr): orient UI and model README surfaces
+- [ ] docs(jsr): reduce package README reference sprawl
+- [ ] docs(jsr): polish package README residue
 
