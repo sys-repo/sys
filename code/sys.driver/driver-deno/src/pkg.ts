@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/driver-deno',
-  version: '0.0.405',
+  version: '0.0.406',
 });

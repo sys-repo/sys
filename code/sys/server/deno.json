@@ -1,6 +1,6 @@
 {
   "name": "@sys/server",
-  "version": "0.0.55",
+  "version": "0.0.56",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:dist:process",
