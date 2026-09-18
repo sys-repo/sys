@@ -10,8 +10,8 @@ the object and return its bytes. The URL and R2 credentials stay server-side.
 ## Run
 
 Use an existing R2 bucket and a dedicated prefix you control. [r2.config.json](r2.config.json)
-currently selects bucket `sys-test` and prefix `tmp.sys.tools/r2-ui-proof`. If changing accounts,
-also update the matching R2 hostnames in the `push` and `serve` network grants in
+currently selects bucket `sys-test` and prefix `tmp.sys.driver-cloudflare/r2-proof-ui`. If changing
+accounts, also update the matching R2 hostnames in the `push` and `serve` network grants in
 [deno.json](deno.json). The `serve` grant also applies to `proof:local`.
 
 Provide the configured credentials in the repository-root `.env` or process environment:
