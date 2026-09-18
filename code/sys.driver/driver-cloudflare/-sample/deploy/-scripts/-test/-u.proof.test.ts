@@ -22,6 +22,19 @@ describe('R2 deployment sample: proof selection', () => {
     expect((await second.verify()).kind).to.eql('verified');
   });
 
+  it('later artifact edits → rechecks retain the original manifest pin and selection', async () => {
+    await using f = await fixture();
+    const selected = await prepareProof(f.dir.absolute);
+    await Fs.writeJson(f.dir.join('artifact.json'), {
+      integrity: `sha256-${'0'.repeat(64)}`,
+      files: [...f.artifact.files, 'later.js'],
+    }, { throw: true });
+
+    expect((await selected.verify()).kind).to.eql('verified');
+    expect(selected.artifact).to.eql(f.artifact);
+    expect([...selected.expected.keys()].sort()).to.eql(['dist.json', 'index.html']);
+  });
+
   it('rebuilt Dist with the old artifact pin → refusal, not automatic repinning', async () => {
     await using f = await fixture();
     await f.build('second');

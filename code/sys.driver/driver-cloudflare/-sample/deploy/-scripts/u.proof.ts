@@ -2,28 +2,24 @@ import { Fetch } from '@sys/http/client';
 import { HttpServer } from '@sys/http/server';
 import { main } from '../src/entry.ts';
 import { readData } from '../src/m.app/u.data.ts';
-import { artifactFrom, configFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
-import { Arr, Env, Fs, Hash, Is, Json, MediaType, Obj, Pkg, ROOT } from './common.ts';
+import { configFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
+import { Arr, Env, Fs, Hash, Is, Json, MediaType, Pkg, ROOT } from './common.ts';
+import { selectBuild } from './u.selection.ts';
 
 const ORIGIN = 'http://127.0.0.1:8080';
 
 /** Select one local build and retain its verified expectations before any live work. */
 export async function prepareProof(root = ROOT) {
-  const data = (name: string) => readData(Fs.Path.toFileUrl(Fs.join(root, name)));
-  const config = configFrom(await data('config.json'));
-  const artifact = artifactFrom(await data('artifact.json'));
-  const { integrity } = artifact;
-  const dir = Fs.join(root, 'dist');
-  const verify = () => Pkg.Dist.Pinned.verify({ dir, integrity, limits: DIST_LIMITS });
-  const before = await verify();
-  require(before.kind === 'verified', `Local Dist refused: ${before.kind}.`);
+  const configUrl = Fs.Path.toFileUrl(Fs.join(root, 'config.json'));
+  const config = configFrom(await readData(configUrl));
+  const selected = await selectBuild(root);
   require(
-    Arr.equal(
-      [...Obj.keys(before.evidence.dist.hash.parts), 'dist.json'].sort(),
-      [...artifact.files].sort(),
-    ),
+    selected.kind !== 'selection-mismatch',
     'Artifact filename selection differs from the verified Dist.',
   );
+  require(selected.kind === 'verified', `Local Dist refused: ${selected.kind}.`);
+  const { artifact, dir, evidence, verify } = selected;
+  const { integrity } = artifact;
 
   const expected = new Map<string, Uint8Array>();
   for (const path of artifact.files) {
@@ -35,7 +31,7 @@ export async function prepareProof(root = ROOT) {
     });
     const checksum = path === 'dist.json'
       ? integrity
-      : Pkg.Dist.Part.hash(before.evidence.dist.hash.parts[path]);
+      : Pkg.Dist.Part.hash(evidence.dist.hash.parts[path]);
     require(
       Hash.sha256(snapshot.bytes) === checksum,
       'Local Dist changed during expectation capture.',

@@ -2,26 +2,21 @@ import { Cli } from '@sys/cli';
 import { Deploy } from '@sys/tools/deploy';
 import { Yaml } from '@sys/yaml';
 import { readData } from '../src/m.app/u.data.ts';
-import { artifactFrom, configFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
-import { Arr, c, Fs, Is, Obj, Pkg, ROOT, type t } from './common.ts';
+import { configFrom } from '../src/m.app/u.selection.ts';
+import { c, Fs, Is, ROOT, type t } from './common.ts';
+import { selectBuild } from './u.selection.ts';
 
 /**
  * Push the existing selected build. Never rebuild or resolve secrets into a file.
  */
 export async function pushSample(root = ROOT, publish: t.DeployTool.Lib['push'] = Deploy.push) {
-  const data = (name: string) => readData(Fs.Path.toFileUrl(Fs.join(root, name)));
-  const config = configFrom(await data('config.json'));
-  const artifact = artifactFrom(await data('artifact.json'));
-  const verified = await Pkg.Dist.Pinned.verify({
-    dir: Fs.join(root, 'dist'),
-    integrity: artifact.integrity,
-    limits: DIST_LIMITS,
-  });
-  if (verified.kind !== 'verified') throw new Error(`Sample Dist refused: ${verified.kind}.`);
-  const files = [...Obj.keys(verified.evidence.dist.hash.parts).map(String), 'dist.json'].sort();
-  if (!Arr.equal(files, [...artifact.files].sort())) {
+  const configUrl = Fs.Path.toFileUrl(Fs.join(root, 'config.json'));
+  const config = configFrom(await readData(configUrl));
+  const selected = await selectBuild(root);
+  if (selected.kind === 'selection-mismatch') {
     throw new Error('Sample artifact filenames do not match the verified Dist.');
   }
+  if (selected.kind !== 'verified') throw new Error(`Sample Dist refused: ${selected.kind}.`);
 
   const endpoint = {
     provider: {

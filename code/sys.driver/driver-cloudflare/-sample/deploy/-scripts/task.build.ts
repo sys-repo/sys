@@ -1,6 +1,7 @@
 import { Vite } from '@sys/driver-vite';
-import { c, Fmt, Fs, Obj, Pkg, pkg, ROOT } from './common.ts';
+import { c, Fmt, Fs, Pkg, pkg, ROOT } from './common.ts';
 import { artifactFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
+import { selectionFiles } from './u.selection.ts';
 
 /**
  * Build the sample UI, verify the Dist, and record the selected artifact.
@@ -16,7 +17,7 @@ if (verified.kind !== 'verified') throw new Error(`Sample Dist refused: ${verifi
 
 const artifact = artifactFrom({
   integrity: verified.evidence.integrity,
-  files: [...Obj.keys(verified.evidence.dist.hash.parts), 'dist.json'].sort(),
+  files: selectionFiles(verified.evidence.dist),
 });
 
 const artifactPath = Fs.join(ROOT, 'artifact.json');
