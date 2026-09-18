@@ -1,6 +1,6 @@
 import type { DeployTool } from '@sys/tools/deploy';
 import { Yaml } from '@sys/yaml';
-import { describe, expect, expectError, Fs, it, Obj, Pkg, type t } from '../-test.ts';
+import { describe, expect, expectError, Fs, it, Pkg, type t } from '../-test.ts';
 import { pushSample } from '../../-scripts/task.push.ts';
 import { DIST_LIMITS, LIMITS } from '../m.app/u.selection.ts';
 
@@ -23,7 +23,8 @@ describe('R2 deployment sample: push', () => {
     const path = f.dir.join('.tmp/push.yaml');
     expect(result.targets).to.eql(1);
     expect(f.calls).to.eql([{ cwd: f.dir.absolute, config: path }]);
-    const generated = Yaml.parse((await Fs.readText(path)).data);
+    const yaml = await Fs.readText(path);
+    const generated = Yaml.parse(yaml.data);
     expect(generated.error).to.eql(undefined);
     expect(generated.data).to.eql({
       provider: {
@@ -39,7 +40,8 @@ describe('R2 deployment sample: push', () => {
       staging: { dir: './dist' },
       mappings: [],
     });
-    expect((await Fs.readText(f.dir.join('dist/dist.json'))).data).to.eql(before.data);
+    const after = await Fs.readText(f.dir.join('dist/dist.json'));
+    expect(after.data).to.eql(before.data);
   });
 
   it('refuses changed asset bytes before writing config or calling the uploader', async () => {
@@ -52,24 +54,22 @@ describe('R2 deployment sample: push', () => {
 
   it('refuses a different manifest checksum before calling the uploader', async () => {
     await using f = await fixture();
-    await Fs.writeJson(f.dir.join('artifact.json'), {
-      ...f.artifact,
-      files: [...f.artifact.files],
-      integrity: `sha256-${'0'.repeat(64)}`,
+    await Fs.writeJson(f.dir.join('dist.pin.json'), {
+      'dist.json': `sha256-${'0'.repeat(64)}`,
     }, { throw: true });
     await expectError(() => pushSample(f.dir.absolute, f.publish), 'Sample Dist refused:');
     expect(f.calls).to.eql([]);
   });
 
-  it('refuses artifact filename drift before writing config or calling the uploader', async () => {
+  it('refuses inventory fields before writing config or calling the uploader', async () => {
     await using f = await fixture();
-    await Fs.writeJson(f.dir.join('artifact.json'), {
-      ...f.artifact,
+    await Fs.writeJson(f.dir.join('dist.pin.json'), {
+      ...f.pin,
       files: ['index.html', 'dist.json'],
     }, { throw: true });
     await expectError(
       () => pushSample(f.dir.absolute, f.publish),
-      'Sample artifact filenames do not match the verified Dist.',
+      'Invalid sample Dist pin.',
     );
     expect(f.calls).to.eql([]);
     expect(await Fs.exists(f.dir.join('.tmp/push.yaml'))).to.eql(false);
@@ -108,7 +108,7 @@ async function fixture() {
   try {
     // Select the canonical fixture root before creating its Dist (macOS /var is an alias).
     const dir = Fs.toDir(await Fs.realPath(temp.absolute));
-    await Fs.writeJson(dir.join('config.json'), config, { throw: true });
+    await Fs.writeJson(dir.join('r2.config.json'), config, { throw: true });
     await Fs.write(dir.join('dist/index.html'), '<h1>fixture</h1>', { throw: true });
     await Fs.write(dir.join('dist/app.js'), 'console.info("fixture");', { throw: true });
     await Pkg.Dist.compute({
@@ -118,11 +118,8 @@ async function fixture() {
     });
     const verified = await Pkg.Dist.Local.verify({ dir: dir.join('dist'), limits: DIST_LIMITS });
     if (verified.kind !== 'verified') throw new Error(`Fixture Dist refused: ${verified.kind}.`);
-    const artifact = {
-      integrity: verified.evidence.integrity,
-      files: [...Obj.keys(verified.evidence.dist.hash.parts).map(String), 'dist.json'].sort(),
-    };
-    await Fs.writeJson(dir.join('artifact.json'), artifact, { throw: true });
+    const pin = { 'dist.json': verified.evidence.integrity };
+    await Fs.writeJson(dir.join('dist.pin.json'), pin, { throw: true });
     const calls: DeployTool.PushArgs[] = [];
     const publish: DeployTool.Lib['push'] = (args) => {
       calls.push(args);
@@ -135,7 +132,7 @@ async function fixture() {
     };
     return {
       dir,
-      artifact,
+      pin,
       calls,
       publish,
       async [Symbol.asyncDispose]() {

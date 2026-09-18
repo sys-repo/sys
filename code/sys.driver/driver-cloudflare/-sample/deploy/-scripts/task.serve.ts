@@ -1,14 +1,16 @@
 import { HttpServer } from '@sys/http/server';
-import { main } from '../src/entry.ts';
+import { appFrom } from '../src/entry.ts';
+import { readInputs } from '../src/m.app/u.data.ts';
 import { Env, pkg, ROOT } from './common.ts';
 import { buildStatus } from './u.status.ts';
 
 /**
  * Reuse the existing repository dotenv lookup without exporting secrets into process env.
  */
+const inputs = await readInputs(ROOT);
 const env = await Env.load({ cwd: ROOT, search: 'upward' });
-const app = await main({ targetDir: '.' }, env);
-const build = await buildStatus();
+const app = await appFrom(inputs, env);
+const build = await buildStatus(inputs.pin);
 const server = HttpServer.start(app, {
   name: pkg.name,
   hostname: '127.0.0.1',

@@ -1,8 +1,7 @@
 import { Cli } from '@sys/cli';
 import { Deploy } from '@sys/tools/deploy';
 import { Yaml } from '@sys/yaml';
-import { readData } from '../src/m.app/u.data.ts';
-import { configFrom } from '../src/m.app/u.selection.ts';
+import { readInputs } from '../src/m.app/u.data.ts';
 import { c, Fs, Is, ROOT, type t } from './common.ts';
 import { selectBuild } from './u.selection.ts';
 
@@ -10,12 +9,8 @@ import { selectBuild } from './u.selection.ts';
  * Push the existing selected build. Never rebuild or resolve secrets into a file.
  */
 export async function pushSample(root = ROOT, publish: t.DeployTool.Lib['push'] = Deploy.push) {
-  const configUrl = Fs.Path.toFileUrl(Fs.join(root, 'config.json'));
-  const config = configFrom(await readData(configUrl));
-  const selected = await selectBuild(root);
-  if (selected.kind === 'selection-mismatch') {
-    throw new Error('Sample artifact filenames do not match the verified Dist.');
-  }
+  const { config, pin } = await readInputs(root);
+  const selected = await selectBuild(pin, root);
   if (selected.kind !== 'verified') throw new Error(`Sample Dist refused: ${selected.kind}.`);
 
   const endpoint = {

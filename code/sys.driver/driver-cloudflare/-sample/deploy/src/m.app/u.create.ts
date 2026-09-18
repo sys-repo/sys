@@ -1,22 +1,54 @@
 import { R2 } from '@sys/driver-cloudflare/r2';
 import { HttpServer } from '@sys/http/server';
-import type { t } from './common.ts';
-import { artifactFrom, configFrom, routesFor } from './u.selection.ts';
+import { Pkg, type t } from './common.ts';
+import { DIST_LIMITS, routesFor, selectionFiles, snapshotInputs } from './u.selection.ts';
 
 /**
- * Compose the UI read handler and JSON endpoint without opening a listener.
+ * Admit the remote manifest before constructing any application route or API.
  */
-export function createApp(options: t.AppOptions): t.HttpServer.App {
-  const config = configFrom(options.config);
-  const artifact = artifactFrom(options.artifact);
-  if (options.bucket.name !== config.bucket) {
+export async function createApp(options: t.AppOptions): Promise<t.HttpServer.App> {
+  const { config, pin } = snapshotInputs(options.config, options.pin);
+  const source = options.bucket;
+  const bucket = Object.freeze({
+    name: source.name,
+    presignGet: source.presignGet?.bind(source),
+  });
+  const signal = options.signal;
+  if (bucket.name !== config.bucket) {
     throw new Error('Sample bucket does not match configuration.');
   }
-
+  const storageOrigin = R2.Service.storageUrl(config.accountId);
+  const bootstrap = R2.ReadRoute.create({
+    bucket,
+    storageOrigin,
+    routes: { '/dist.json': `${config.prefix}/dist.json` },
+    authorize: () => true,
+    limits: {
+      maxBytes: DIST_LIMITS.manifestBytes,
+      timeout: config.limits.timeout,
+      maxConcurrent: 1,
+    },
+  });
+  const response = await bootstrap(new Request('https://sample.invalid/dist.json', { signal }));
+  if (!response.ok) {
+    await response.body?.cancel();
+    throw new Error(`Sample manifest read refused: HTTP ${response.status}.`);
+  }
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  const admitted = await Pkg.Dist.Pinned.admitManifest({
+    bytes,
+    integrity: pin['dist.json'],
+    limits: DIST_LIMITS,
+    until: signal,
+  });
+  if (admitted.kind !== 'manifest-admitted') {
+    throw new Error(`Sample manifest refused: ${admitted.kind}.`);
+  }
+  const files = selectionFiles(admitted.evidence.dist);
   const read = R2.ReadRoute.create({
-    bucket: options.bucket,
-    storageOrigin: R2.Service.storageUrl(config.accountId),
-    routes: routesFor(config, artifact),
+    bucket,
+    storageOrigin,
+    routes: routesFor(config, files),
     authorize: () => true,
     limits: config.limits,
   });

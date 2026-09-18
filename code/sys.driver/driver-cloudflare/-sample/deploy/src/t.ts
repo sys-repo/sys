@@ -12,15 +12,14 @@ export type Config = {
 /** Credential lookup shared by dotenv readers and the hosted process environment. */
 export type EnvReader = Pick<typeof Deno.env, 'get'>;
 
-/** Exact manifest checksum and filenames selected from a verified local build. */
-export type Artifact = {
-  readonly integrity: string;
-  readonly files: readonly string[];
+/** Captured target and expected manifest identity for one application instance. */
+export type AppInputs = {
+  readonly config: Config;
+  readonly pin: t.DistPin;
 };
 
 /** Application inputs; the signing bucket is the storage test seam. */
-export type AppOptions = {
-  config: Config;
-  artifact: Artifact;
-  bucket: Pick<t.R2.Bucket, 'name' | 'presignGet'>;
+export type AppOptions = AppInputs & {
+  readonly bucket: Pick<t.R2.Bucket, 'name' | 'presignGet'>;
+  readonly signal?: AbortSignal;
 };

@@ -9,8 +9,8 @@ type BuildStatus = {
 /**
  * Describe the selected local build without making local output a serving prerequisite.
  */
-export async function buildStatus(root = ROOT): Promise<BuildStatus> {
-  const selected = await selectBuild(root);
+export async function buildStatus(pin: t.DistPin, root = ROOT): Promise<BuildStatus> {
+  const selected = await selectBuild(pin, root);
   if (selected.kind !== 'verified') {
     return { detail: { label: 'build', value: `dist/ (unavailable: ${selected.kind})` } };
   }

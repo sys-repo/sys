@@ -1,30 +1,16 @@
-import { R2 } from '@sys/driver-cloudflare/r2';
-import { describe, expect, it, type t, Time, WebFixture } from '../-test.ts';
+import { describe, expect, expectError, it, Time } from '../-test.ts';
 import { createApp } from '../m.app/mod.ts';
-import { artifactFrom, configFrom, LIMITS } from '../m.app/u.selection.ts';
-
-const config: t.Config = {
-  accountId: '0'.repeat(32),
-  bucket: 'sample',
-  prefix: 'sample/ui',
-  credentials: {
-    accessKeyId: 'R2_SAMPLE_ACCESS_KEY_ID',
-    secretAccessKey: 'R2_SAMPLE_SECRET_ACCESS_KEY',
-  },
-  limits: LIMITS,
-};
-const artifact: t.Artifact = {
-  integrity: `sha256-${'0'.repeat(64)}`,
-  files: ['index.html', 'pkg/file.js', 'dist.json'],
-};
+import { configFrom } from '../m.app/u.selection.ts';
+import { remoteFixture } from './u.fixture.ts';
 
 describe('R2 deployment sample: app', () => {
-  it('serves the selected index and asset, including HEAD', async () => {
-    using f = fixture();
+  it('serves admitted index and asset bytes, including HEAD', async () => {
+    using f = await fixture();
     for (const [path, key] of [['/ui/', 'index.html'], ['/ui/pkg/file.js', 'pkg/file.js']]) {
       const res = await f.request(path);
       expect(res.status).to.eql(200);
-      expect(await res.text()).to.eql('selected bytes');
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      expect(bytes).to.eql(f.content.get(key));
       expect(f.signed.at(-1)).to.eql(`sample/ui/${key}`);
     }
     const head = await f.request('/ui/pkg/file.js', { method: 'HEAD' });
@@ -32,8 +18,8 @@ describe('R2 deployment sample: app', () => {
     expect(await head.text()).to.eql('');
   });
 
-  it('redirects / and /ui → /ui/ without storage', async () => {
-    using f = fixture();
+  it('redirects / and /ui → /ui/ without further storage reads', async () => {
+    using f = await fixture();
     for (const path of ['/', '/ui']) {
       const res = await f.request(path);
       expect(res.status).to.eql(308);
@@ -42,8 +28,8 @@ describe('R2 deployment sample: app', () => {
     expect(f.fetched).to.eql([]);
   });
 
-  it('answers the API with shared headers and no storage', async () => {
-    using f = fixture();
+  it('answers the API with shared headers and no further storage reads', async () => {
+    using f = await fixture();
     for (const path of ['/api/hello', '/api/hello?msg=foo']) {
       const res = await f.request(path);
       expect(res.status).to.eql(200);
@@ -55,8 +41,8 @@ describe('R2 deployment sample: app', () => {
     expect(f.fetched).to.eql([]);
   });
 
-  it('refuses invalid queries, encoded aliases and unselected paths before storage', async () => {
-    using f = fixture();
+  it('refuses invalid queries, encoded aliases and unadmitted paths before storage', async () => {
+    using f = await fixture();
     const cases = [
       ['/?q=1', 400],
       ['/ui/?q=1', 400],
@@ -76,7 +62,7 @@ describe('R2 deployment sample: app', () => {
   });
 
   it('rejects writes on declared routes and keeps unknown routes as 404', async () => {
-    using f = fixture();
+    using f = await fixture();
     for (const path of ['/', '/ui', '/api/hello', '/ui/pkg/file.js']) {
       const res = await f.request(path, { method: 'POST' });
       expect(res.status, path).to.eql(405);
@@ -91,7 +77,7 @@ describe('R2 deployment sample: app', () => {
 
   it('passes cancellation through the UI mount', async () => {
     const started = Promise.withResolvers<AbortSignal>();
-    using f = fixture((req) => {
+    using f = await fixture((req) => {
       started.resolve(req.signal);
       return new Promise((_resolve, reject) => {
         req.signal.addEventListener('abort', () => reject(new Error('fixture aborted')), {
@@ -107,8 +93,10 @@ describe('R2 deployment sample: app', () => {
     try {
       await Promise.race([started.promise, timeout]);
       controller.abort();
-      expect((await response).status).to.eql(499);
-      expect((await started.promise).aborted).to.eql(true);
+      const res = await response;
+      expect(res.status).to.eql(499);
+      const signal = await started.promise;
+      expect(signal.aborted).to.eql(true);
     } finally {
       timeout.cancel();
       controller.abort();
@@ -116,41 +104,38 @@ describe('R2 deployment sample: app', () => {
     }
   });
 
-  it('rejects unsafe configuration, incomplete selection and a mismatched bucket', () => {
-    expect(() => configFrom({ ...config, prefix: '../other' })).to.throw(
+  it('rejects unsafe configuration and a mismatched bucket', async () => {
+    using f = await remoteFixture();
+    expect(() => configFrom({ ...f.config, prefix: '../other' })).to.throw(
       'Invalid sample configuration.',
     );
-    expect(() => artifactFrom({ ...artifact, files: ['dist.json'] })).to.throw(
-      'Invalid sample artifact.',
-    );
-    expect(() => createApp({ config, artifact, bucket: { name: 'other' } })).to.throw(
+    await expectError(
+      () => createApp({ ...f, bucket: { name: 'other' } }),
       'Sample bucket does not match configuration.',
     );
+    expect(f.fetched).to.eql([]);
   });
 });
 
-/**
- * Helpers:
- */
-function fixture(read?: (req: Request) => Promise<Response>) {
-  const signed: string[] = [];
-  const fetched: Request[] = [];
-  const bucket = {
-    name: config.bucket,
-    presignGet(key: string) {
-      signed.push(key);
-      return Promise.resolve(
-        `${R2.Service.storageUrl(config.accountId)}/${config.bucket}/${key}?signature=fixture`,
-      );
-    },
-  };
-  const app = createApp({ config, artifact, bucket });
-  const mock = WebFixture.Fetch.mock((input, init) => {
-    const req = new Request(input, init);
-    fetched.push(req);
-    return read ? read(req) : Promise.resolve(new Response('selected bytes'));
-  });
-  const request = (path: string, init?: RequestInit) =>
-    app.fetch(new Request(`http://sample.test${path}`, init));
-  return { request, signed, fetched, [Symbol.dispose]: mock.dispose };
+/** Count request-time reads separately from the required bootstrap read. */
+async function fixture(read?: (req: Request) => Promise<Response>) {
+  const f = await remoteFixture();
+  try {
+    const ordinary = f.read;
+    if (read) {
+      f.read = (req) => {
+        const isManifest = new URL(req.url).pathname.endsWith('/dist.json');
+        return isManifest ? ordinary(req) : read(req);
+      };
+    }
+    const app = await createApp(f);
+    f.signed.length = 0;
+    f.fetched.length = 0;
+    const request = (path: string, init?: RequestInit) =>
+      app.fetch(new Request(`http://sample.test${path}`, init));
+    return { ...f, request };
+  } catch (error) {
+    f[Symbol.dispose]();
+    throw error;
+  }
 }

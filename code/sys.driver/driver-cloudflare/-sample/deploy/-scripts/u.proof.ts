@@ -1,28 +1,23 @@
 import { Fetch } from '@sys/http/client';
 import { HttpServer } from '@sys/http/server';
-import { main } from '../src/entry.ts';
-import { readData } from '../src/m.app/u.data.ts';
-import { configFrom, DIST_LIMITS } from '../src/m.app/u.selection.ts';
-import { Arr, Env, Fs, Hash, Is, Json, MediaType, Pkg, ROOT } from './common.ts';
+import { appFrom } from '../src/entry.ts';
+import { readInputs } from '../src/m.app/u.data.ts';
+import { DIST_LIMITS } from '../src/m.app/u.selection.ts';
+import { Arr, Env, Fs, Hash, Is, Json, MediaType, Pkg, ROOT, type t } from './common.ts';
 import { selectBuild } from './u.selection.ts';
 
 const ORIGIN = 'http://127.0.0.1:8080';
 
 /** Select one local build and retain its verified expectations before any live work. */
 export async function prepareProof(root = ROOT) {
-  const configUrl = Fs.Path.toFileUrl(Fs.join(root, 'config.json'));
-  const config = configFrom(await readData(configUrl));
-  const selected = await selectBuild(root);
-  require(
-    selected.kind !== 'selection-mismatch',
-    'Artifact filename selection differs from the verified Dist.',
-  );
+  const inputs = await readInputs(root);
+  const selected = await selectBuild(inputs.pin, root);
   require(selected.kind === 'verified', `Local Dist refused: ${selected.kind}.`);
-  const { artifact, dir, evidence, verify } = selected;
-  const { integrity } = artifact;
+  const { files, dir, evidence, verify } = selected;
+  const integrity = inputs.pin['dist.json'];
 
   const expected = new Map<string, Uint8Array>();
-  for (const path of artifact.files) {
+  for (const path of files) {
     const snapshot = await Fs.Snapshot.file({
       root: dir,
       path: Fs.join(dir, path),
@@ -38,32 +33,36 @@ export async function prepareProof(root = ROOT) {
     );
     expected.set(path, snapshot.bytes);
   }
-  require((await verify()).kind === 'verified', 'Local Dist changed during expectation capture.');
-  return { config, artifact, expected, verify };
+  const rechecked = await verify();
+  require(rechecked.kind === 'verified', 'Local Dist changed during expectation capture.');
+  return { inputs, files, expected, verify };
 }
 
 /** Read-only proof of the selected local build. Never builds, uploads, or retries. */
-export async function prove() {
-  const { config, artifact, expected, verify } = await prepareProof();
+export async function prove(options: t.ProofOptions = {}) {
+  const root = options.root ?? ROOT;
+  const log = options.log ?? console.info;
+  const { inputs, files, expected, verify } = await prepareProof(root);
+  const { config, pin } = inputs;
+  const integrity = pin['dist.json'];
   const target = { accountId: config.accountId, bucket: config.bucket, prefix: config.prefix };
-  console.info(Json.stringify({
-    result: 'selected',
-    integrity: artifact.integrity,
-    target,
-    files: artifact.files,
-    maxRequests: 2 * expected.size + 6,
-    maxStorageReads: 2 * expected.size + 1,
-  }));
+  const maxRequests = 2 * expected.size + 6;
+  const maxStorageReads = 2 * expected.size + 2;
+  log(
+    Json.stringify({ result: 'selected', integrity, target, files, maxRequests, maxStorageReads }),
+  );
 
-  const env = await Env.load({ cwd: ROOT, search: 'upward' });
-  const app = await main({ targetDir: '.' }, env);
-  const server = HttpServer.start(app, {
-    hostname: '127.0.0.1',
-    port: 8080,
-    strictPort: true,
-    keyboard: false,
-    silent: true,
+  const start = options.start ?? ((app: t.HttpServer.App) => {
+    return HttpServer.start(app, {
+      hostname: '127.0.0.1',
+      port: 8080,
+      strictPort: true,
+      keyboard: false,
+      silent: true,
+    });
   });
+  let server: Pick<t.HttpServer.Started, 'close' | 'finished'> | undefined;
+  let bootstrapAttempts = 0;
   const client = Fetch.make({
     policy: {
       maxBytes: config.limits.maxBytes,
@@ -76,12 +75,16 @@ export async function prove() {
   });
   let requests = 0;
   try {
+    const env = options.env ?? await Env.load({ cwd: root, search: 'upward' });
+    bootstrapAttempts++;
+    const app = await appFrom(inputs, env);
+    server = start(app);
     for (const [path, bytes] of expected) {
       const url = `${ORIGIN}/ui/${path}`;
       requests++;
       const get = await client.blob(url, {}, { checksum: Hash.sha256(bytes) });
       if (!get.ok) {
-        console.info(Json.stringify({
+        log(Json.stringify({
           result: 'refused',
           path,
           requests,
@@ -111,18 +114,15 @@ export async function prove() {
           `HEAD ${name} mismatch: ${path}.`,
         );
       }
-      console.info(
-        Json.stringify({ path, bytes: bytes.length, sha256: Hash.sha256(received), mime }),
-      );
+      log(Json.stringify({ path, bytes: bytes.length, sha256: Hash.sha256(received), mime }));
     }
     requests++;
     const index = await client.blob(`${ORIGIN}/ui/`);
     require(index.ok, `UI index failed: HTTP ${index.status}.`);
-    require(
-      Hash.sha256(new Uint8Array(await index.data.arrayBuffer())) ===
-        Hash.sha256(expected.get('index.html')),
-      'UI index mismatch.',
-    );
+    const indexBytes = new Uint8Array(await index.data.arrayBuffer());
+    const indexHash = Hash.sha256(indexBytes);
+    const expectedIndexHash = Hash.sha256(expected.get('index.html'));
+    require(indexHash === expectedIndexHash, 'UI index mismatch.');
     requests++;
     const api = await client.json<unknown>(`${ORIGIN}/api/hello`);
     require(
@@ -151,25 +151,43 @@ export async function prove() {
         await res.body?.cancel();
       }
     }
+    // Keep the negative probe outside the admitted inventory and storage-read ceiling.
+    let missingPath = 'unselected-proof-file.txt';
+    while (expected.has(missingPath)) missingPath = `_${missingPath}`;
     requests++;
-    const missing = await client.blob(`${ORIGIN}/ui/unselected-proof-file.txt`);
+    const missing = await client.blob(`${ORIGIN}/ui/${missingPath}`);
     require(missing.status === 404, 'Unselected path did not return 404.');
     headers(missing.headers);
-    require((await verify()).kind === 'verified', 'Local Dist changed during live proof.');
-    console.info(Json.stringify({
+    const rechecked = await verify();
+    require(rechecked.kind === 'verified', 'Local Dist changed during live proof.');
+    log(Json.stringify({
       result: 'verified',
-      integrity: artifact.integrity,
+      integrity,
       target,
       requests,
+      bootstrapAttempts,
+      maxStorageReads,
       files: expected.size,
       api: '👋 hello world!',
       browser: 'not exercised',
       bucketPrivacy: 'not attested',
     }));
+  } catch (error) {
+    log(Json.stringify({
+      result: 'refused',
+      integrity,
+      target,
+      requests,
+      bootstrapAttempts,
+      maxStorageReads,
+    }));
+    throw error;
   } finally {
     client.dispose();
-    await server.close();
-    await server.finished;
+    if (server) {
+      await server.close();
+      await server.finished;
+    }
   }
 }
 

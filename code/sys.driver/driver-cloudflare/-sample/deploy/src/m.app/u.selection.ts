@@ -1,4 +1,4 @@
-import { Arr, Is, Obj, type t } from './common.ts';
+import { Is, Obj, Pkg, type t } from './common.ts';
 
 /** Fixed sample budgets, not deployment-wide traffic or memory limits. */
 export const LIMITS = Object.freeze({ maxBytes: 1_048_576, timeout: 5_000, maxConcurrent: 4 });
@@ -22,7 +22,7 @@ export function configFrom(input: unknown): t.Config {
     credentials.accessKeyId === credentials.secretAccessKey || !Is.record(limits) ||
     Obj.entries(LIMITS).some(([key, value]) => limits[key] !== value)
   ) throw new Error('Invalid sample configuration.');
-  return {
+  return Obj.deepFreeze({
     accountId,
     bucket,
     prefix,
@@ -31,27 +31,33 @@ export function configFrom(input: unknown): t.Config {
       secretAccessKey: credentials.secretAccessKey,
     },
     limits: LIMITS,
-  };
+  });
 }
 
-/** Copy a valid local manifest checksum and unique filename selection. */
-export function artifactFrom(input: unknown): t.Artifact {
-  if (!Is.record(input)) throw new Error('Invalid sample artifact.');
-  const { integrity, files } = input;
-  if (
-    !Is.str(integrity) || !/^sha256-[a-f0-9]{64}$/.test(integrity) ||
-    !Is.array(files) || files.length > DIST_LIMITS.entries || !files.every(isPath) ||
-    Arr.uniq(files).length !== files.length ||
-    !files.includes('index.html') || !files.includes('dist.json')
-  ) throw new Error('Invalid sample artifact.');
-  return { integrity, files: [...files] };
+/** Own the target and pin before credential callbacks or storage work. */
+export function snapshotInputs(config: unknown, pin: unknown): t.AppInputs {
+  const target = configFrom(config);
+  if (!Pkg.Is.distPin(pin)) throw new Error('Invalid sample Dist pin.');
+  return Obj.deepFreeze({ config: target, pin: { 'dist.json': pin['dist.json'] } });
 }
 
-/** Exact local selection → exact storage keys. No bucket enumeration or remote manifest. */
-export function routesFor(config: t.Config, artifact: t.Artifact): Record<string, string> {
+/** Apply sample filename policy to an admitted manifest, including `dist.json` once. */
+export function selectionFiles(dist: t.DeepReadonly<t.DistPkg>): readonly string[] {
+  const files = [...Obj.keys(dist.hash.parts).map(String), 'dist.json'].sort();
+  if (!files.includes('index.html') || !files.every(isPath)) {
+    throw new Error('Invalid sample manifest filenames.');
+  }
+  return Object.freeze(files);
+}
+
+/** Bind admitted filenames to one captured storage prefix. */
+export function routesFor(
+  config: t.Config,
+  files: readonly string[],
+): Readonly<Record<string, string>> {
   const routes: Record<string, string> = { '/': `${config.prefix}/index.html` };
-  for (const file of artifact.files) routes[`/${file}`] = `${config.prefix}/${file}`;
-  return routes;
+  for (const file of files) routes[`/${file}`] = `${config.prefix}/${file}`;
+  return Object.freeze(routes);
 }
 
 /** The example admits ordinary Vite filenames, not a general object-key language. */
