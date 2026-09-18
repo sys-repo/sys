@@ -1,47 +1,37 @@
-import type { t } from './common.ts';
-
 /**
- * Library for working with user-agent strings.
- * https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
+ * User-agent contracts.
  */
-export type UserAgentLib = {
+export declare namespace UserAgent {
+  /** User-agent helper library surface. */
+  export type Lib = {
+    /** Reduced semantic data for the current user-agent. */
+    readonly current: Info;
+  };
+
   /**
-   * An object containing detailed information about the current user-agent.
-   * Includes the reduced semantic data that the app consumes.
+   * Reduced semantic user-agent data consumed by the app.
+   *
+   * Ref:
+   *    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
    */
-  readonly current: t.UserAgent;
-};
+  export type Info = {
+    readonly os: OS;
+    readonly is: Flags;
+  };
 
-/**
- * Ref:
- *    https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent
- *
- *    Summary:
- *    "The User-Agent request header is a characteristic string that lets
- *     servers and network peers identify the application, operating system,
- *     vendor, and/or version of the requesting user agent."
- */
-export type UserAgent = {
-  readonly os: UserAgentOS;
-  readonly is: UserAgentFlags;
-};
+  /** Boolean flags derived from a user-agent string. */
+  export type Flags = {
+    readonly apple: boolean;
+    readonly macOS: boolean;
+    readonly iOS: boolean;
+    readonly iPad: boolean;
+    readonly iPhone: boolean;
+    readonly chromium: boolean;
+    readonly firefox: boolean;
+  };
 
-/**
- * Flags (boolean) values derived from the user-agent string.
- */
-export type UserAgentFlags = {
-  readonly apple: boolean;
-  readonly macOS: boolean;
-  readonly iOS: boolean;
-  readonly iPad: boolean;
-  readonly iPhone: boolean;
-  readonly chromium: boolean;
-  readonly firefox: boolean;
-};
-
-/**
- * Details about the user-agent's operating system.
- */
-export type UserAgentOS = {
-  readonly name: string;
-};
+  /** Details about the user-agent operating system. */
+  export type OS = {
+    readonly name: string;
+  };
+}

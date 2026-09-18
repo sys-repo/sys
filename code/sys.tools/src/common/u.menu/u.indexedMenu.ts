@@ -5,12 +5,12 @@ import { type t, Time } from './common.ts';
 type Result = { readonly kind: 'exit' } | { readonly kind: 'selected'; readonly key: string };
 
 export async function indexedMenu<
-  TDoc extends t.JsonFileDoc,
+  TDoc extends t.JsonFile.Doc,
   TScope,
   TEntry extends t.Tools.Recency,
 >(args: {
   scope: TScope;
-  config: t.JsonFile<TDoc>;
+  config: t.JsonFile.Instance<TDoc>;
   adapter: {
     list(doc: TDoc, scope: TScope): readonly TEntry[];
     set(doc: TDoc, scope: TScope, next: readonly TEntry[]): void;
@@ -19,7 +19,7 @@ export async function indexedMenu<
     labelOf(entry: TEntry): t.Tools.Prompt.Dirs.MenuLabel;
     lastUsedAtOf(entry: TEntry): t.UnixTimestamp | undefined;
     withLastUsedAt(entry: TEntry, ts: t.UnixTimestamp): TEntry;
-    add?: (args: { readonly scope: TScope; readonly config: t.JsonFile<TDoc> }) => Promise<void>;
+    add?: (args: { readonly scope: TScope; readonly config: t.JsonFile.Instance<TDoc> }) => Promise<void>;
   };
 
   ui: {

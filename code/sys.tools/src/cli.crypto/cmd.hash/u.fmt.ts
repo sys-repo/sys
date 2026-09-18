@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fmt, Fs, Str, Time } from '../common.ts';
+import { c, Cli, Fmt, Fs, Str, type t, Time } from '../common.ts';
 
 export const HashFmt = {
   dirLabel(path: string) {
@@ -11,12 +11,16 @@ export const HashFmt = {
   },
 
   spinnerProgressText(dir: string, current: number, total: number) {
-    const progress = c.gray(`(${c.white(current.toLocaleString())} of ${total.toLocaleString()} files)`);
+    const progress = c.gray(
+      `(${c.white(current.toLocaleString())} of ${total.toLocaleString()} files)`,
+    );
     return Fmt.spinnerText(`hashing ${c.cyan(HashFmt.dirLabel(dir))} ${progress}`);
   },
 
   preflightSummary(summary: t.HashPreflight) {
-    return `${summary.fileCount.toLocaleString()} ${Str.plural(summary.fileCount, 'file')}, ${Str.bytes(summary.bytesTotal)}`;
+    return `${summary.fileCount.toLocaleString()} ${Str.plural(summary.fileCount, 'file')}, ${
+      Str.bytes(summary.bytesTotal)
+    }`;
   },
 
   preflightWarning(summary: t.HashPreflight) {
@@ -41,6 +45,7 @@ export const HashFmt = {
       elapsed?: string;
       dirLabel?: string;
       dist?: t.HashDistRow;
+      showManifestIntegrity?: boolean;
     } = {},
   ): string {
     const tbl = Cli.table([]);
@@ -49,6 +54,9 @@ export const HashFmt = {
     const dirLabel = opts.dirLabel ?? HashFmt.dirLabel(res.targetDir);
 
     tbl.push([c.gray('  hash'), c.white(digest)]);
+    if (opts.showManifestIntegrity === true) {
+      tbl.push([c.gray('  dist:integrity'), c.white(res.manifest.integrity)]);
+    }
     tbl.push([c.gray('  dir'), c.gray(dirLabel)]);
     if (opts.dist) {
       const path = Fmt.prettyPath(HashFmt.pathLabel(opts.dist.path));
@@ -59,7 +67,11 @@ export const HashFmt = {
     }
     tbl.push([
       c.gray('  dir:files'),
-      c.gray(`${res.fileCount.toLocaleString()} ${Str.plural(res.fileCount, 'file')}, ${Str.bytes(res.bytesTotal)}`),
+      c.gray(
+        `${res.fileCount.toLocaleString()} ${Str.plural(res.fileCount, 'file')}, ${
+          Str.bytes(res.bytesTotal)
+        }`,
+      ),
     ]);
     tbl.push([c.gray('  elapsed'), c.gray(elapsed)]);
 

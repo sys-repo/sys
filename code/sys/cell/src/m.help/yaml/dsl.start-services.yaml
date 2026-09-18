@@ -1,0 +1,111 @@
+id: start-services
+title: Start services
+summary: Start composed Cell services from a Cell folder.
+
+sections:
+  - label: Rule
+    items: |
+      Classify "start the Cell services" as `start services`.
+      Start is an operator operation, not a config mutation.
+      Cell orchestrates services; owner packages own serving behavior and display.
+      Do not write a custom launcher script unless explicitly asked.
+      Do not edit `-config/@sys.cell/cell.yaml` just to start already configured services.
+
+  - label: 'Operator flow'
+    items:
+      - 'Use Cell CLI: `@sys/cell start [dir] --reporter auto`.'
+      - Pass `[dir]` when the Cell root is not the current folder.
+      - >-
+        Reporter `auto` selects the Cell-owned screen only on an interactive terminal and
+        otherwise preserves append-only raw output.
+      - >-
+        Use this chapter to start already-declared services; read `dsl service` before adding
+        or changing variants.
+      - >-
+        Pass `--mode <mode>` only to select complete service variants already declared in the
+        descriptor.
+      - >-
+        For live dev, a common shape is `--mode dev` selecting an owner endpoint such as
+        `jsr:@sys/driver-vite/service` / `ViteService`.
+      - >-
+        Start loads the canonical `-config/@sys.cell/cell.yaml` descriptor, starts declared `services[]`,
+        waits, and closes services.
+      - |-
+        If an old Cell session is blocking restart, use
+        `@sys/cell kill [dir] [--mode <mode>]`.
+      - >-
+        Kill may clear owner-declared TCP listeners for the selected Cell mode, but it is
+        not a generic port killer.
+      - Do not edit declared ports just to dodge a conflict.
+      - >-
+        If startup fails for a named service, inspect that service's owner config and owner
+        `--help`.
+      - If a selected endpoint contract is ambiguous, inspect the published JSR docs/source.
+
+  - label: Command
+    items: |
+      deno run -ERWN jsr:@sys/cell start [dir] --reporter auto
+      deno run -ERWN jsr:@sys/cell start [dir] \
+        --mode <mode> --reporter auto
+      deno run -ERWN jsr:@sys/cell start . \
+        --mode dev --reporter auto
+      deno run -ERW --allow-run jsr:@sys/cell kill [dir] --mode <mode>
+
+  - label: Verification
+    items:
+      - >-
+        After a descriptor edit, prove startup with the exact operator command the human is
+        expected to run.
+      - >-
+        If the final instruction is `deno run -ERWN jsr:@sys/cell start . --reporter auto`,
+        that exact unversioned command must be the proof command.
+      - >-
+        If only `jsr:@sys/cell@<version>` passes, establish effective Deno dependency
+        authority and re-test the unversioned command, or report the versioned command.
+      - >-
+        If unversioned latest is intended, run one targeted `--reload=jsr:@sys/cell` refresh,
+        then prove the final non-`--reload` command.
+      - >-
+        For long-running services, proof means startup reaches the expected ready/running
+        state; it does not require the command to exit.
+
+  - label: 'Project task'
+    items:
+      - Add a project task only when the user asks for a persistent convenience command.
+      - Use the public Cell CLI as the stable primitive.
+      - |-
+        Example `deno.json` task shape:
+        "start": "deno run -ERWN jsr:@sys/cell start . --reporter auto"
+
+  - label: Services
+    items:
+      - >-
+        `@sys/cell start` loads the `-config/@sys.cell/cell.yaml` descriptor,
+        starts selected services, then waits.
+      - >-
+        At start time, `--mode <mode>` selects matching `variants.<mode>` before endpoints
+        are imported.
+      - >-
+        Reporter mode controls only Cell-owned terminal presentation; service owners remain
+        silent and do not receive the reporter option.
+      - >-
+        Mode selection preserves one conceptual service identity; services without the selected
+        variant keep their base binding.
+      - Mode is a Cell selection key, not an owner-service setting. It is not forwarded.
+      - >-
+        Cell chooses the complete binding, then starts that endpoint through the normal
+        lifecycle contract.
+      - '`Cell.Services.wait` waits for started service handles that expose `finished`.'
+      - >-
+        Services that should keep `@sys/cell start` alive should return a started handle
+        with `finished`.
+      - >-
+        Service owners keep config schema, mechanics, ports, URLs, permissions, serving
+        strategy, Vite/HMR behavior, resource declarations, and display.
+      - Cell does not rewrite ports to avoid conflicts.
+      - >-
+        Cell may render the selected mode and endpoint. It does not own Vite, HMR,
+        static-serving, or owner config semantics.
+      - Do not claim full browser HMR unless a browser-backed edit/update proof exists.
+      - Add any extra permissions required by declared owner services.
+      - Cell closes started services when service wait completes or startup fails.

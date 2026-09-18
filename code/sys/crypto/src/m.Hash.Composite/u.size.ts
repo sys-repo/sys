@@ -4,7 +4,7 @@ import { FileHashUri } from './m.Uri.ts';
 /**
  * Sums the total byte-size of the given parts.
  */
-export const size: t.CompositeHashLib['size'] = (parts, filter) => {
+export const size: t.CompositeHash.Lib['size'] = (parts, filter) => {
   const uris = Object.entries(parts)
     .map((value) => ({ path: value[0], uri: FileHashUri.fromUri(value[1]) }))
     .filter((args) => filter?.(args) ?? true)

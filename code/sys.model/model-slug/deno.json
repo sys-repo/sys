@@ -1,6 +1,6 @@
 {
   "name": "@sys/model-slug",
-  "version": "0.0.86",
+  "version": "0.0.156",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -12,7 +12,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./bundle": "./src/m.bundle/mod.ts",
     "./core": "./src/m.core/mod.ts",
     "./client": "./src/m.client/mod.ts",

@@ -17,7 +17,7 @@ export declare namespace WorkspaceUpgrade {
   /** Workspace-facing dependency policy selection. */
   export type Policy = {
     /** Version-selection mode applied during upgrade planning. */
-    readonly mode: t.EsmPolicyMode;
+    readonly mode: t.EsmPolicy.Mode;
     /** Dependency names or aliases excluded from upgrade selection. */
     readonly exclude?: readonly string[];
   };
@@ -74,6 +74,10 @@ export declare namespace WorkspaceUpgrade {
     readonly prerelease?: boolean;
     /** Registries consulted for available package versions. */
     readonly registries?: readonly t.EsmRegistry[];
+    /** Minimum npm publish age required before an upgrade candidate may be selected; 0 disables. */
+    readonly minimumDependencyAge?: t.Msecs;
+    /** Stable Unix timestamp used when evaluating time-sensitive upgrade policy. */
+    readonly evaluatedAt?: t.UnixTimestamp;
     /** Emit orchestration logging to the console. */
     readonly log?: boolean;
     /** Optional progress callback for long-running upgrade phases. */
@@ -88,6 +92,10 @@ export declare namespace WorkspaceUpgrade {
     readonly prerelease: boolean;
     /** Registries consulted for available package versions. */
     readonly registries: readonly t.EsmRegistry[];
+    /** Minimum npm publish age required before an upgrade candidate may be selected; 0 disables. */
+    readonly minimumDependencyAge: t.Msecs;
+    /** Stable Unix timestamp used when evaluating time-sensitive upgrade policy. */
+    readonly evaluatedAt: t.UnixTimestamp;
     /** Whether orchestration logging was enabled. */
     readonly log: boolean;
     /** Optional progress callback for long-running upgrade phases. */
@@ -125,6 +133,26 @@ export declare namespace WorkspaceUpgrade {
     readonly reason: GraphReason;
   };
 
+  /** Version selection eligibility for one visible candidate version. */
+  export type VersionEligibility =
+    | { readonly kind: 'eligible' }
+    | {
+      readonly kind: 'standdown';
+      readonly eligibleAt: t.UnixTimestamp;
+      readonly age: t.Msecs;
+    }
+    | { readonly kind: 'unknown-published-at' };
+
+  /** Registry-backed facts for one visible candidate version. */
+  export type VersionFact = {
+    /** Candidate version being described. */
+    readonly version: t.StringSemver;
+    /** Publish timestamp reported by the registry when known and valid. */
+    readonly publishedAt?: t.StringTimestamp;
+    /** Selection eligibility derived from publish-time policy. */
+    readonly eligibility: VersionEligibility;
+  };
+
   /** One collected dependency candidate. */
   export type Candidate = {
     /** Canonical manifest entry being evaluated. */
@@ -133,10 +161,14 @@ export declare namespace WorkspaceUpgrade {
     readonly registry: t.EsmRegistry;
     /** Normalized current pinned version. */
     readonly current: t.StringSemver;
-    /** Latest version reported by the registry when available. */
+    /** Latest visible version reported by the registry when available. */
     readonly latest?: t.StringSemver;
-    /** Available versions reported by the registry, sorted descending. */
+    /** Visible versions reported by the registry after existing hard filters, sorted descending. */
     readonly available: readonly t.StringSemver[];
+    /** Selectable versions after time-based standdown policy, sorted descending. */
+    readonly eligible: readonly t.StringSemver[];
+    /** Facts for each visible version. */
+    readonly versions: readonly VersionFact[];
   };
 
   /** Canonical non-collection code. */
@@ -186,14 +218,16 @@ export declare namespace WorkspaceUpgrade {
     readonly candidates: readonly Candidate[];
     /** Dependencies not collected into upgrade candidates. */
     readonly uncollected: readonly Uncollected[];
+    /** Parsed package.json resolver policy from the canonical manifest. */
+    readonly packageJson?: t.EsmDeps.PackageJsonPolicy;
   };
 
   /** Derived dependency graph used for ordered upgrade planning. */
   export type Graph = {
     /** Nodes entering ordered planning. */
-    readonly nodes: t.EsmTopologicalInput['nodes'];
+    readonly nodes: t.EsmTopological.Decision.Input['nodes'];
     /** Derived dependency edges between the planned nodes. */
-    readonly edges: t.EsmTopologicalInput['edges'];
+    readonly edges: t.EsmTopological.Decision.Input['edges'];
     /** Dependencies whose graph relationships were not fully derivable. */
     readonly unresolved: readonly GraphUnresolved[];
   };
@@ -207,11 +241,11 @@ export declare namespace WorkspaceUpgrade {
     /** Canonical candidate collection result. */
     readonly collect: CollectResult;
     /** Policy decisions across collected candidates. */
-    readonly policy: t.EsmPolicyResult;
+    readonly policy: t.EsmPolicy.Result;
     /** Derived dependency graph used for topological ordering. */
     readonly graph: Graph;
     /** Topological ordering result across the derived dependency graph. */
-    readonly topological: t.EsmTopologicalResult;
+    readonly topological: t.EsmTopological.Decision.Result;
     /** Aggregate outcome counts. */
     readonly totals: SummaryTotals;
   };

@@ -2,9 +2,8 @@ import { DenoDeps, DenoFile, Err, Path } from './common.ts';
 import { rewriteImport } from './task.prep.u.ts';
 import { syncPublishedFixture } from './task.prep.u.published.ts';
 
-const SPECIFIER_ESBUILD = 'npm:esbuild';
-const PATTERN_ESBUILD = /from 'npm:esbuild@[^']+'/;
-const PATTERN_ESBUILD_VERSION = /const ESBUILD_VERSION = '[^']+'/;
+const SPECIFIER_DENO_LOADER = 'jsr:@deno/loader';
+const PATTERN_DENO_LOADER_VERSION = /const DENO_LOADER_VERSION = '[^']+'/;
 const SPECIFIER_VITE_PLUGIN_WASM = 'npm:vite-plugin-wasm';
 const PATTERN_VITE_PLUGIN_WASM = /import\('npm:vite-plugin-wasm@[^']+'\)/;
 const PACKAGE_DIR = Path.dirname(Path.dirname(Path.fromFileUrl(import.meta.url)));
@@ -14,23 +13,14 @@ export const PUBLISHED_FIXTURE_DIRS = [
   Path.join(PACKAGE_DIR, 'src/-test/vite.sample-published-ui-components'),
 ] as const;
 
-export async function syncTransportLoaderImport(args: { depsPath: string; targetPath: string }) {
-  await syncPinnedImport({
-    depsPath: args.depsPath,
-    targetPath: args.targetPath,
-    specifier: SPECIFIER_ESBUILD,
-    pattern: PATTERN_ESBUILD,
-    replacement: (resolved) => `from '${resolved}'`,
-  });
-}
-
 export async function syncTransportLoaderVersion(args: { depsPath: string; targetPath: string }) {
   await syncPinnedImport({
     depsPath: args.depsPath,
     targetPath: args.targetPath,
-    specifier: SPECIFIER_ESBUILD,
-    pattern: PATTERN_ESBUILD_VERSION,
-    replacement: (resolved) => `const ESBUILD_VERSION = '${wrangle.esbuildVersion(resolved)}'`,
+    specifier: SPECIFIER_DENO_LOADER,
+    pattern: PATTERN_DENO_LOADER_VERSION,
+    replacement: (resolved) =>
+      `const DENO_LOADER_VERSION = '${wrangle.denoLoaderVersion(resolved)}'`,
   });
 }
 
@@ -47,17 +37,13 @@ export async function syncWasmPluginImport(args: { depsPath: string; targetPath:
 export async function main() {
   const ws = await DenoFile.workspace();
   const depsPath = Path.join(ws.dir, 'deps.yaml');
-  await syncTransportLoaderImport({
-    depsPath,
-    targetPath: './src/m.vite.transport/u.load.ts',
-  });
   await syncTransportLoaderVersion({
     depsPath,
-    targetPath: './src/m.vite.transport/u.cache.ts',
+    targetPath: './src/m.vite.transport/u/u.cache.ts',
   });
   await syncWasmPluginImport({
     depsPath,
-    targetPath: './src/m.vite.config/u.plugins.ts',
+    targetPath: './src/m.vite.config/u/u.plugins.ts',
   });
 
   for (const dir of PUBLISHED_FIXTURE_DIRS) {
@@ -93,10 +79,10 @@ async function syncPinnedImport(args: {
 }
 
 const wrangle = {
-  esbuildVersion(specifier: string) {
-    const match = specifier.match(/^npm:esbuild@([^/]+)$/);
+  denoLoaderVersion(specifier: string) {
+    const match = specifier.match(/^jsr:@deno\/loader@([^/]+)$/);
     if (match?.[1]) return match[1];
-    throw Err.std(`Failed to derive esbuild version from canonical import: ${specifier}`);
+    throw Err.std(`Failed to derive @deno/loader version from canonical import: ${specifier}`);
   },
 } as const;
 

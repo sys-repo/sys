@@ -5,7 +5,7 @@ type IMarkerData = t.Monaco.I.IMarkerData;
 /**
  * Spy `monaco.editor.setModelMarkers` and record all calls until restored.
  */
-export const forSetModelMarkers: t.SpyLib['forSetModelMarkers'] = (monaco) => {
+export const forSetModelMarkers: t.MonacoFake.Spy.Lib['forSetModelMarkers'] = (monaco) => {
   // Capture unbound original (no .bind) so restore() passes identity checks.
   const original = monaco.editor.setModelMarkers;
 
@@ -22,7 +22,7 @@ export const forSetModelMarkers: t.SpyLib['forSetModelMarkers'] = (monaco) => {
   const restore = () => (monaco.editor.setModelMarkers = original);
   const getMarkers = (i = calls.length - 1) => (calls[i]?.args[2] ?? []) as readonly IMarkerData[];
 
-  const api: t.SetModelMarkersSpy = {
+  const api: t.MonacoFake.Spy.SetModelMarkers.Handle = {
     get calls() {
       return calls as readonly Call[];
     },

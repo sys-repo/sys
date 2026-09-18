@@ -1,17 +1,15 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { Dispose } from '../../m.Dispose/mod.ts';
 import { Rx } from '../mod.ts';
 
-describe('Rx.disposable', () => {
+describe('Rx.lifecycle', () => {
   it('referenced from Dispose', () => {
-    expect(Rx.disposable).to.equal(Dispose.disposable);
-    expect(Rx.disposableAsync).to.equal(Dispose.disposableAsync);
     expect(Rx.lifecycle).to.equal(Dispose.lifecycle);
     expect(Rx.lifecycleAsync).to.equal(Dispose.lifecycleAsync);
   });
 
   it('method: dispose', () => {
-    const { dispose$, dispose } = Rx.disposable();
+    const { dispose$, dispose } = Rx.lifecycle();
 
     let count = 0;
     dispose$.subscribe(() => count++);
@@ -25,7 +23,7 @@ describe('Rx.disposable', () => {
 
   it('until$', () => {
     const until$ = Rx.subject<number>();
-    const { dispose$ } = Rx.disposable(until$);
+    const { dispose$ } = Rx.lifecycle(until$);
 
     let count = 0;
     dispose$.subscribe(() => count++);

@@ -5,7 +5,7 @@ import { type t } from './common.ts';
  * Purely logical (no media elements); frame-based via RAF or off-thread driver.
  */
 export type UseVirtualPlayback = (
-  resolved?: t.TimecodeCompositionResolved,
+  resolved?: t.Timecode.Composite.Resolve.Result,
   opts?: UseVirtualPlaybackOptions,
 ) => UseVirtualPlaybackReturn;
 
@@ -19,20 +19,22 @@ export type UseVirtualPlaybackOptions = {
   readonly speed?: number; // default 1
   readonly life?: t.LifeLike; // optional lifecycle for scheduling/cleanup
   readonly driver?: 'raf' | 'off';
-  readonly debug?: { onClock?: (c: t.VirtualClock) => void };
+  readonly debug?: { onClock?: (c: t.Timecode.VirtualClock.Instance) => void };
 };
 
 /**
  * Public API surface of the `useVirtualPlayback` hook.
  */
 export type UseVirtualPlaybackReturn = {
-  readonly vtime: t.TimecodeVTime;
+  readonly vtime: t.Timecode.VTime;
   readonly index: number;
-  readonly seg?: t.TimecodeResolvedSegment;
+  readonly seg?: t.Timecode.ResolvedSegment;
   readonly playing: boolean;
   readonly play: () => void;
   readonly pause: () => void;
-  readonly seek: (v: t.TimecodeVTime) => void;
+  readonly seek: (v: t.Timecode.VTime) => void;
   readonly setSpeed: (n: number) => void;
-  readonly mapToSource: (v: t.TimecodeVTime) => ReturnType<t.VirtualClock['mapToSource']>;
+  readonly mapToSource: (
+    v: t.Timecode.VTime,
+  ) => ReturnType<t.Timecode.VirtualClock.Instance['mapToSource']>;
 };

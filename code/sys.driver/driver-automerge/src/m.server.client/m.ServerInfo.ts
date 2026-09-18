@@ -1,6 +1,7 @@
 import { type t } from './common.ts';
 import { get } from './u.get.ts';
 
-export const ServerInfo: t.SyncServerInfoLib = {
+/** Sync-server metadata client. */
+export const ServerInfo: t.ServerInfo.Lib = {
   get,
 };

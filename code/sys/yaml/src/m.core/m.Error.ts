@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-export const Error: t.YamlErrorLib = {
+export const Error: t.YamlErrorLib = Object.freeze({
   synthetic({ message, pos, name, code }) {
     const err = new globalThis.Error(message) as t.Yaml.Error;
 
@@ -16,4 +16,4 @@ export const Error: t.YamlErrorLib = {
 
     return err;
   },
-};
+});

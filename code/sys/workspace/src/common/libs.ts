@@ -24,5 +24,6 @@ export { Pkg } from '@sys/std/pkg';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
 export { Schedule } from '@sys/std/async';
+export { Xml } from '@sys/std/xml';
 export { Rx } from '@sys/std/rx';
 export { Semver } from '@sys/std/semver';

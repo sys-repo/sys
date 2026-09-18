@@ -18,10 +18,10 @@ import { handleSave } from './u.handleSave.ts';
 import { downloadFile, dragdropFile, Fmt } from './u.ts';
 import { DropTarget } from './ui.DropTarget.tsx';
 
-export const BinaryFile: React.FC<t.BinaryFileProps> = (props) => {
+export const BinaryFile: React.FC<t.BinaryFile.Props> = (props) => {
   const { doc, path = ['files'], debug = false } = props;
   const ua = UserAgent.current;
-  const filemap = Obj.Path.get<t.BinaryFileMap>(doc?.current, path, {});
+  const filemap = Obj.Path.get<t.BinaryFile.Map>(doc?.current, path, {});
 
   /**
    * Hooks:

@@ -1,0 +1,409 @@
+# @sys/server
+
+`@sys/server` provides bounded HTTP, WebSocket, and verified file-serving primitives, plus lifecycle
+endpoints for `@sys/cell` composition.
+
+Callers own content, artifact selection, command grammar, authorization, and trusted state. The
+package owns the transport, storage coordination, verification, and lifecycle boundaries declared by
+each primitive.
+
+## Choose a surface
+
+- **`BootstrapStatus`** — show finite caller-owned status, then redirect once.
+- **`Dist.materialize()`** — settle one caller-selected Dist under an exact SHA-256 manifest pin.
+- **`Dist.Generation.open()`** — hold one pinned generation under a shared store lease.
+- **`DistServer.start()`** — host one externally pinned, continuously verified Dist.
+- **`DistServer.Local.start()`** — host one locally observed build, including its exact verified
+  manifest, without claiming external authenticity.
+- **`DistService` / `FilesWebSocketService`** — let `@sys/cell` own configured service lifecycles.
+- **`WebSocketServer`** — bind application-owned command handlers to a managed transport.
+
+## Inspect the package DSL
+
+```sh
+deno run -ER jsr:@sys/server --help
+deno run -ER jsr:@sys/server dsl
+deno run -ER jsr:@sys/server dsl websocket
+deno run -ER jsr:@sys/server dsl websocket.cmd --format skill
+```
+
+## Host inert bootstrap status
+
+`BootstrapStatus` is a temporary, read-only waiting room for application startup. Open its
+unguessable loopback URL immediately; it serves bounded caller-defined status until the trusted
+application origin is ready, then redirects there.
+
+```ts
+import { BootstrapStatus } from 'jsr:@sys/server/bootstrap/status';
+
+type ApplicationHost = {
+  readonly origin: string;
+  readonly finished: Promise<void>;
+};
+
+async function runSession(startApplication: () => Promise<ApplicationHost>): Promise<void> {
+  const bytes = new TextEncoder().encode('<!doctype html><p>Preparing...</p>');
+  let readyOrigin: string | undefined;
+
+  await using status = await BootstrapStatus.start({
+    pages: [{ key: 'preparing', bytes }],
+    resolve() {
+      if (readyOrigin) return { kind: 'redirect', origin: readyOrigin };
+      return { kind: 'page', key: 'preparing' };
+    },
+  });
+
+  console.info(status.url);
+  const application = await startApplication();
+  readyOrigin = application.origin;
+  await application.finished;
+}
+```
+
+`startApplication` is caller-owned and must settle only after the application origin is trusted.
+`resolve` reads the local `readyOrigin` once per admitted request. The initializer's `await` waits
+for status startup; `await using` registers asynchronous disposal at scope exit rather than pausing
+the body. `application.finished` keeps that scope—and therefore the status host—alive for the
+session. On any lexical exit, disposal closes the status host before `runSession` settles.
+
+Startup copies every page before binding:
+
+| Input     |                   Limit |
+| --------- | ----------------------: |
+| Pages     |                    1–16 |
+| Page key  | 1–128 UTF-16 code units |
+| One page  |                 256 KiB |
+| All pages |                   1 MiB |
+
+The HTTP boundary is deliberately inert:
+
+- only the exact random capability URL admits `GET` and `HEAD`;
+- wrong `Host` authority and cross-site Fetch Metadata are rejected before `resolve`;
+- redirects are `303` to one exact, distinct HTTP numeric-loopback origin;
+- invalid projections and resolver failures become fixed sanitized responses;
+- every response is `no-store`, sets no cookies, grants no CORS authority, and denies scripts,
+  workers, frames, forms, and remote resources;
+- requests cannot mutate state, retry work, select a source, or supply redirect authority.
+
+Startup reads required own-data fields and copies accepted bytes into package-owned storage. It
+refuses caller lifecycle or capability fields, accessor-backed required fields, proxies, and shared
+buffers. The returned handle exposes no application or raw listener. Call `close()` explicitly, or
+use `await using` for lexical shutdown.
+
+At module initialization, `BootstrapStatus` captures its Promise and scheduler substrate. Startup
+rejects later Promise drift around listener binding and sanitizes lower lifecycle failures. A thrown
+startup error is never treated as proof that no listener exists: private authority pursues shutdown
+and remains retained for the process lifetime when termination cannot be proved.
+
+## Materialize a checksum-pinned Dist
+
+A Dist is a directory whose `dist.json` declares every payload path, byte length, and checksum.
+`Dist.materialize()` settles one caller-selected manifest as a sealed, verified local generation.
+The caller supplies its URL and exact SHA-256 pin; materialization neither discovers nor advances a
+release.
+
+The target is `<storeDir>/<integrity>`:
+
+```text
+manifest URL + exact dist.json SHA-256 + explicit policy
+  → authenticate manifest bytes
+  → fetch declared assets into a private stage
+  → verify the complete stage
+  → publish without replacing an existing generation
+  → clear write bits
+  → verify the visible generation again
+```
+
+The result states what settled:
+
+- **`existing`** — a valid generation already occupied the target; this attempt claims no
+  publication.
+- **`promoted`** — this attempt published its stage and verified the visible generation.
+- **`failed`** — no usable generation settled; inspect `stage`, `reason`, `cleanup`, and
+  `publication`. The exact manifest checksum-mismatch variant additionally carries bounded
+  `manifestChecksum: { expected, received }` diagnostics.
+
+Every success carries independent `verification` and `seal` evidence. Verification proves the exact
+`dist.json` matched its pin and the visible tree matched the complete manifest. Sealing proves every
+write bit was clear, clearing write bits when necessary. Both describe the returned directory at
+settlement time, not immunity from later direct mutation.
+
+Materialization holds an exclusive Rooted lease while deciding and settling the visible target. An
+absent target releases that lease during network and private-stage work, then reacquires it for
+publication, sealing, and final verification. Coordination extends only to participants using the
+same Rooted protocol; direct filesystem authority remains outside it.
+
+A valid but unsealed existing generation is sealed and verified again without source requests or
+credential callbacks. An invalid occupied generation is retained and refused—not sealed, repaired,
+replaced, or removed. If the host cannot prove the required identity or permission state,
+materialization fails rather than returning an unsealed success.
+
+Failures expose stable sanitized fields, not credentials, absolute paths, source URLs, response
+bytes, headers, or raw host causes. `manifestChecksum` is diagnostic evidence only: it appears for
+one causal manifest-fetch mismatch and does not become success integrity or verification evidence.
+`cleanup` describes private-stage cleanup; `publication` separately records visible target truth. A
+published generation is never described as rolled back because later settlement failed.
+
+Materialization does not select a mutable current version, enforce replay policy, activate files, or
+provide rollback. A seal is point-in-time mode evidence—not a sandbox, ACL guarantee,
+hostile-process boundary, retention lock, or durability claim.
+
+## Own a pinned generation
+
+`Dist.Generation.open()` turns one pinned materialization into an owned session:
+
+```text
+prepare the store root and its ancestry
+  → canonicalize the prepared root
+  → bind that exact root (`create: false`)
+  → admit the root-relative store target
+  → acquire a shared lease without waiting
+  → materialize beneath that target
+```
+
+Materialization never starts without the outer lease.
+
+```ts
+import { Dist } from 'jsr:@sys/server/dist';
+
+const result = await Dist.Generation.open({
+  store: { root: '/srv/example/dist', target: '@sample.app' },
+  manifestUrl: 'https://releases.example/sample/dist.json',
+  integrity: 'sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  policy,
+});
+
+if (result.kind === 'failed') {
+  console.error(result.phase, result.generation?.reason ?? result.reason, result.ownership);
+} else {
+  await using owner = result.owner;
+  console.info(result.generation.dir, owner.store);
+  // Apply caller-owned package policy and start the host before leaving this scope.
+}
+```
+
+On success, `generation` preserves the complete `existing` or `promoted` materialization result. The
+frozen owner holds the shared lease; `owner.store` records the canonical root, normalized target,
+and canonical store directory. Every call to `release()` returns one shared terminal operation. An
+observable `undefined` completion proves release. Rejection, a non-void settlement, or an opaque
+transport yields a sanitized rejection and leaves the owner strongly retained for the process
+lifetime; Server does not invoke the lower release again.
+
+Package-internal filesystem, Rooted, and materialization dependencies are trusted non-Proxy
+callables with exact undecorated native Promise transports; Rooted's all-or-none acquisition-failure
+semantics are part of that trust. Generation validates each transport before awaiting it and never
+assimilates an arbitrary thenable or decorated Promise. Retention does not claim to handle an
+autonomous rejection from a decorated Promise, or hidden work by an arbitrary replacement callable,
+that violates this private contract. Returned settlement evidence remains hostile and is admitted
+independently.
+
+A failed result keeps materialization and ownership truth separate:
+
+- `generation`, when present, is the complete `Dist.Failed` returned by materialization. It appears
+  only with phase `materialization` and has no duplicate Generation reason.
+- Without `generation`, `reason` is `invalid-input`, `cancelled`, `busy`, `filesystem-failure`, or
+  `execution-failure`.
+- `ownership` is `not-acquired`, `released`, or `pending`. A pre-acquisition failure is
+  `not-acquired`; every post-acquisition failure is `released` or `pending`.
+
+`pending` never proves absence of ownership: Server conservatively retains the lower authority for
+the process lifetime when release was not proved. `Dist.Cleanup` remains separate; it describes
+private materialization stages, not the outer lease.
+
+`until` can stop only the opening work. A complete admitted `Dist.Failed` remains the exact lower
+settlement when cancellation becomes observable in the same turn; generic cancellation projection
+applies only to a successful lower settlement before opening commits it. Once committed under the
+lease, cancellation cannot revoke the returned owner. Generation opening does not check package
+identity, choose a workspace or release target, start a listener, or apply browser policy. Those
+remain caller concerns.
+
+## Host a verified Dist
+
+`DistServer` verifies before listening and at the byte boundary. Startup verifies the complete Dist;
+each `GET` or `HEAD` reads the declared byte count, checks its checksum, and returns bytes only when
+both match.
+
+The authority is explicit:
+
+- **`DistServer.start()`** — the caller supplies the exact SHA-256 of `dist.json`.
+- **`DistServer.Local.start()`** — startup derives integrity from local `dist.json`, then verifies
+  the complete tree without claiming external authenticity.
+
+```ts
+import { DistServer } from 'jsr:@sys/server/dist/server';
+
+const integrity = 'sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
+const server = await DistServer.start({
+  dir: `/srv/example/dist/${integrity}`,
+  integrity,
+  limits: {
+    manifestBytes: 1048576,
+    entries: 1000,
+    fileBytes: 16777216,
+    totalBytes: 67108864,
+  },
+});
+
+try {
+  console.info(server.origin);
+} finally {
+  await server.close('example.complete');
+}
+```
+
+The narrow `@sys/server/dist/server` entry exposes hosting without loading Dist acquisition or
+materialization. The aggregate `@sys/server/dist` entry remains available when one caller needs both
+`Dist` and `DistServer`.
+
+Pinned and Local hosting keep separate manifest contracts. `DistServer.start()` is asset-only and
+returns `404` for `/dist.json`. `DistServer.Local.start()` serves the exact manifest bytes admitted
+by Local verification at `/dist.json`, every checksum-matched declared part, and the authenticated
+`index.html` preview at `/`.
+
+The default HTTP boundary is closed:
+
+- the listener accepts only loopback hostnames;
+- `Host` must match an admitted loopback authority, otherwise the response is `421`;
+- only the Local manifest route and manifest-declared files are addressable;
+- `/` maps only to authenticated `index.html`; there is no SPA fallback;
+- unsafe paths and range requests are refused;
+- responses are `no-store`, and no CORS authority is granted.
+
+Verification is not a permanent trust claim. Every admitted read verifies the exact bytes again, so
+post-start mutation cannot silently become a successful response.
+
+### Browser authority
+
+Generic Dist hosting applies no browser-runtime policy. Select `browserPolicy` when verified bytes
+will execute in a browser:
+
+```ts
+browserPolicy: {
+  kind: 'verified-loopback',
+  dedicatedWorkers: [],
+  serviceWorker: { kind: 'deny' },
+}
+```
+
+This mode requires numeric loopback and one exact `Host`. It applies fixed CSP, framing, referrer,
+MIME, cross-origin, and `no-store` headers to success and error responses. Dedicated-worker and
+Service Worker authority are separate and explicit; selected assets must exist in the verified Dist.
+Cross-site Fetch Metadata is rejected when present, while missing metadata remains compatible with
+direct clients.
+
+Browser policy constrains execution of already verified bytes. It does not authenticate a caller,
+make the origin public, or strengthen the artifact pin.
+
+### Compose the Dist lifecycle with `@sys/cell`
+
+Use `DistService` when `@sys/cell` should load strict YAML and own lifecycle:
+
+```yaml
+services:
+  - name: neutral-dist
+    use: DistService
+    from: 'jsr:@sys/server/dist/service'
+    config: ./-config/@sys.server.dist/neutral.yaml
+    timeout: 15000
+```
+
+```yaml
+name: neutral-dist
+dir: ./.dist-store/sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+integrity: sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+limits:
+  manifestBytes: 1048576
+  entries: 1000
+  fileBytes: 16777216
+  totalBytes: 67108864
+hostname: 127.0.0.1
+port: 0
+```
+
+`dir` is confined lexically to the service `cwd`; pinned verification then rejects symlinked or
+changed content. YAML may select the display name, loopback hostname, port, and verification limits.
+Complete verification runs inside the service startup timeout. `@sys/cell` owns that timeout,
+startup output, and shutdown.
+
+## Expose read-only Files over WebSocket
+
+`FilesWebSocketService` gives `@sys/cell` a read-only Files-over-WebSocket lifecycle endpoint. It
+exposes typed Files commands and, when explicitly enabled, live watch observations.
+
+```yaml
+services:
+  - name: sample:files
+    use: FilesWebSocketService
+    from: 'jsr:@sys/server/files/service'
+    config: ./-config/@sys.server.files/shell.yaml
+```
+
+```yaml
+name: sample:files
+root: ./-sample/app
+path: /files
+port: 5050
+watch: true
+policy: '**'
+```
+
+`root` is confined lexically to the service `cwd`. Defaults are `path: /files`, `policy: '**'`, and
+`watch: false`; choose a narrower policy when clients need less. Watch grants observation, not
+mutation.
+
+The endpoint uses `FilesServer.WebSocket.create(...)`, bridges the `@sys/cell` lifecycle through
+`until`, and leaves terminal rendering to `@sys/cell`. Files policy bounds paths and capabilities;
+it does not authenticate callers. Keep the default loopback listener or add authenticated admission
+before wider exposure.
+
+## Serve typed WebSocket commands
+
+`WebSocketServer` binds an `@sys/event/cmd` grammar to WebSocket upgrades. It owns listening,
+transport binding, status, active-socket cleanup, and lifecycle. Applications own commands,
+handlers, admission, and authorization.
+
+```ts
+import { Cmd } from 'jsr:@sys/event/cmd';
+import { WebSocketServer } from 'jsr:@sys/server/websocket';
+
+type Name = 'hello';
+type Payload = { hello: { name: string } };
+type Result = { hello: { message: string } };
+type Event = { hello: never };
+
+const ns = 'docs.example';
+const cmd = Cmd.make<Name, Payload, Result, Event>({ ns });
+const server = WebSocketServer.create<Name, Payload, Result, Event>({
+  path: '/rpc',
+  cmd: {
+    ns,
+    handlers: { hello: ({ name }) => ({ message: `Hello, ${name}.` }) },
+  },
+});
+
+const ws = new WebSocket(server.url);
+try {
+  await new Promise<void>((resolve) => {
+    ws.addEventListener('open', () => resolve(), { once: true });
+  });
+
+  const client = cmd.client(Cmd.Transport.fromWebSocket(ws), { timeout: 1_000 });
+  try {
+    const response = await client.send('hello', { name: 'Ada' });
+    console.info(response.message);
+  } finally {
+    client.dispose();
+  }
+} finally {
+  ws.close();
+  await server.close('example.complete');
+}
+```
+
+`create()` is silent with caller-owned lifecycle. `start()` adds hosted startup reporting and
+optional keyboard controls; process-signal binding is opt-in with `lifecycle: 'process'`. Both
+return the same service-compatible handle.
+
+Typed transport is not authentication. The default server binds to an ephemeral loopback port and
+admits matching WebSocket upgrades. Use `accept` for request admission, enforce command authority in
+application handlers, and never treat TypeScript types as runtime identity or permission proof.

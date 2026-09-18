@@ -1,24 +1,28 @@
 import type { t } from './common.ts';
 
-import { Duration } from './m.Time.Duration.ts';
-import { timer } from './m.Time.Timer.ts';
-import { delay } from './m.Time.delay.ts';
-import { interval } from './m.Time.interval.ts';
-import { until } from './m.Time.until.ts';
-import { utc } from './m.Time.utc.ts';
-import { wait, waitFor } from './m.Time.wait.ts';
+import { Date } from '../m.Time.Date/mod.ts';
+import { Delay } from './m.Delay/mod.ts';
+import { Duration } from './m.Duration/mod.ts';
+import { interval } from './u/u.interval.ts';
+import { timer } from './u/u.timer.ts';
+import { until } from './u/u.until.ts';
+import { utc } from './u/u.utc.ts';
+import { wait, waitFor } from './u/u.wait.ts';
 
 /**
  * Library: Helpers for working with time and timers (delays).
  */
-export const Time: t.TimeLib = {
+export const Time: t.Time.Lib = Object.freeze({
+  Date,
+  Delay,
+
   get now() {
     return utc();
   },
 
   until,
   utc,
-  delay,
+  delay: Delay.create,
   interval,
   wait,
   waitFor,
@@ -27,4 +31,4 @@ export const Time: t.TimeLib = {
   duration: Duration.create,
   elapsed: Duration.elapsed,
   timer,
-};
+});

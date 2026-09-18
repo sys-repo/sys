@@ -68,13 +68,13 @@ const projection = {
   },
 
   async sourceFromPath(path: string) {
-    const loaded = await Fs.readJson<t.DenoFileJson>(path);
+    const loaded = await Fs.readJson<t.DenoFile.Json>(path);
     return loaded.ok && loaded.data
       ? await projection.sourceFromDenoFile(Path.dirname(path), loaded.data)
       : undefined;
   },
 
-  async sourceFromDenoFile(dir: string, file: t.DenoFileJson): Promise<BootstrapSource> {
+  async sourceFromDenoFile(dir: string, file: t.DenoFile.Json): Promise<BootstrapSource> {
     const inlineImports = projection.toStringRecord(file.imports);
     const importMapRef = file.importMap;
     if (!Is.str(importMapRef) || importMapRef.trim().length === 0) {

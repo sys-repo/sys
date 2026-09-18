@@ -1,11 +1,9 @@
 /**
  * @module HttpPull
  *
- * HTTP → FS utilities.
- * Provides functions for pulling remote resources into a local directory:
- *  - IO:   download URLs to a directory, with optional progress events.
- *  - Map:  pure helpers for rebasing/mirroring URL paths into relative POSIX paths.
+ * Materializes checksum-pinned HTTP resources through one finite Rooted operation.
  *
- * Use when you need to "mirror" or "rebase" a set of HTTP assets into the filesystem.
+ * `start` authenticates every body before no-clobber publication. Hot event views are
+ * observation-only; explicit cancellation and `done` own terminal truth.
  */
 export { HttpPull } from './m.HttpPull.ts';

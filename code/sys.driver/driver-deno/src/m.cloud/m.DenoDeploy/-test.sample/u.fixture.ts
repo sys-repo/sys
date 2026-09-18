@@ -163,11 +163,7 @@ async function quietly<T>(run: () => Promise<T>): Promise<T> {
 
 const wrangle = {
   interactive() {
-    try {
-      return Deno.stdin.isTerminal() && Deno.stdout.isTerminal();
-    } catch {
-      return false;
-    }
+    return Cli.Is.interactive();
   },
 
   spinnerText(text: string) {

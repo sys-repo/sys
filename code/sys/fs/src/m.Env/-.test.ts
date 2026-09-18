@@ -29,6 +29,7 @@ describe('Env', () => {
         await Fs.write(Fs.join(parent, '.env'), 'TEST_ENV_SCOPE="parent"\n');
         const env = await Env.load({ cwd: child, search: 'cwd' });
 
+        expect(env.has('TEST_ENV_SCOPE')).to.eql(false);
         expect(env.get('TEST_ENV_SCOPE')).to.eql('');
       } finally {
         await Fs.remove(root);
@@ -47,6 +48,9 @@ describe('Env', () => {
         await Fs.write(Fs.join(child, '.env'), 'SHARED="child"\nCHILD_ONLY="child"\n');
 
         const env = await Env.load({ cwd: child, search: 'cwd' });
+        expect(env.has('SHARED')).to.eql(true);
+        expect(env.has('CHILD_ONLY')).to.eql(true);
+        expect(env.has('PARENT_ONLY')).to.eql(false);
         expect(env.get('SHARED')).to.eql('child');
         expect(env.get('CHILD_ONLY')).to.eql('child');
         expect(env.get('PARENT_ONLY')).to.eql('');
@@ -65,6 +69,7 @@ describe('Env', () => {
 
         await withProcessEnv(async () => {
           const env = await Env.load({ cwd: child, search: 'upward' });
+          expect(env.has(PROCESS_ENV_KEY)).to.eql(true);
           expect(env.get(PROCESS_ENV_KEY)).to.eql(PROCESS_ENV_VALUE);
         });
       } finally {
@@ -83,6 +88,7 @@ describe('Env', () => {
         await Fs.write(Fs.join(parent, '.env'), 'TEST_ENV_SCOPE="parent"\n');
         const env = await Env.load({ cwd: child, search: 'upward' });
 
+        expect(env.has('TEST_ENV_SCOPE')).to.eql(true);
         expect(env.get('TEST_ENV_SCOPE')).to.eql('parent');
       } finally {
         await Fs.remove(root);
@@ -103,6 +109,9 @@ describe('Env', () => {
         await Fs.write(Fs.join(level2, '.env'), 'PACKAGE_ONLY="package"\nSHARED="package"\n');
 
         const env = await Env.load({ cwd: level3, search: 'upward' });
+        expect(env.has('ROOT_ONLY')).to.eql(true);
+        expect(env.has('PACKAGE_ONLY')).to.eql(true);
+        expect(env.has('SHARED')).to.eql(true);
         expect(env.get('ROOT_ONLY')).to.eql('root');
         expect(env.get('PACKAGE_ONLY')).to.eql('package');
         expect(env.get('SHARED')).to.eql('package');
@@ -138,6 +147,7 @@ describe('Env', () => {
 
         await withProcessEnv(async () => {
           const env = await Env.load({ cwd: pkg, search: 'upward' });
+          expect(env.has(PROCESS_ENV_KEY)).to.eql(true);
           expect(env.get(PROCESS_ENV_KEY)).to.eql(PROCESS_ENV_VALUE);
         });
       } finally {
@@ -155,6 +165,7 @@ describe('Env', () => {
 
         await withProcessEnv(async () => {
           const env = await Env.load({ cwd: pkg, search: 'upward' });
+          expect(env.has(PROCESS_ENV_KEY)).to.eql(true);
           expect(env.get(PROCESS_ENV_KEY)).to.eql('');
         });
       } finally {
@@ -166,6 +177,7 @@ describe('Env', () => {
       const root = (await Fs.makeTempDir()).absolute;
       try {
         const env = await Env.load({ cwd: root, search: 'cwd' });
+        expect(env.has('404')).to.eql(false);
         expect(env.get('404')).to.eql('');
       } finally {
         await Fs.remove(root);

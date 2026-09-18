@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 import { Is } from './m.Is.ts';
 
-export const normalize: t.ErrLib['normalize'] = (input) => {
+export const normalize: t.Err.Lib['normalize'] = (input) => {
   // Preserve native Error instances as-is.
   if (input instanceof Error) return input;
 

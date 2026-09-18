@@ -5,7 +5,7 @@
  * Consumes canonical manifest data from `@sys/esm/deps` and projects it onto
  * Deno runtime surfaces such as `deno.json`, import maps, and `package.json`.
  */
-import type { DepsLib } from './t.ts';
+import { type t } from './common.ts';
 
 import { findImport, from, toDep, toYaml } from './m.Deps.ts';
 import { Fmt } from './m.Fmt.ts';
@@ -17,7 +17,7 @@ import { toJson } from './u.toJson.ts';
 import { verifyDeno } from './u.verifyDeno.ts';
 
 /** Deno dependency projection/apply helper library. */
-export const DenoDeps: DepsLib = {
+export const DenoDeps: t.DenoDeps.Lib = {
   Fmt,
   applyDeno,
   applyFiles,

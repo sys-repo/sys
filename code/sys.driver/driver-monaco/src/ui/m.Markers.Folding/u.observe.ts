@@ -5,7 +5,7 @@ import { equalRanges } from './u.ts';
 type IRange = t.Monaco.I.IRange;
 const toSE = RangeUtil.toStartEnd;
 
-export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
+export const observe: t.EditorFolding.Lib['observe'] = (args, until) => {
   const editor = args.editor as t.Monaco.Editor;
   const bus$ = args.bus$ ?? Bus.make();
   const life = Rx.lifecycle(until);
@@ -14,7 +14,7 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   const readAreas = (): IRange[] => (editor.getModel() ? getHiddenAreas(editor) : []);
   let areas = readAreas();
 
-  const emit = (next: IRange[], trigger: t.EventCrdtFolding['trigger']) => {
+  const emit = (next: IRange[], trigger: t.EditorEvent.Crdt.Folding['trigger']) => {
     if (life.disposed) return;
     areas = next; // keep snapshot current
     Bus.emit(bus$, 'micro', { kind: 'editor:crdt:folding', trigger, areas });
@@ -47,7 +47,7 @@ export const observe: t.EditorFoldingLib['observe'] = (args, until) => {
   /**
    * API:
    */
-  return Rx.toLifecycle<t.EditorFoldingAreaObserver>(life, {
+  return Rx.toLifecycle<t.EditorFolding.Observer>(life, {
     get $() {
       return $;
     },

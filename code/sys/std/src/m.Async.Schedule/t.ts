@@ -1,181 +1,141 @@
 import type { t } from './common.ts';
 
 /**
- * Scheduling mode.
- *
- * - "micro": queueMicrotask / Promise.then (runs after current stack, before timers)
- * - "macro": setTimeout(0) (next task tick)
- * - "raf":   requestAnimationFrame (frame-aligned; falls back to ~16ms timeout in non-DOM)
+ * Asynchronous scheduling contracts.
  */
-export type AsyncSchedule = 'micro' | 'macro' | 'raf';
+export namespace Schedule {
+  /**
+   * Defers callbacks and exposes awaitable host-queue hops.
+   */
+  export type Lib = {
+    /**
+     * Create a scheduler for `mode`, defaulting to `micro`.
+     *
+     * A lifecycle suppresses callbacks after disposal. No-argument hops remain awaitable and settle
+     * independently of lifecycle state.
+     */
+    make(life?: t.LifeLike, mode?: AsyncSchedule): ScheduleFn;
+
+    /**
+     * Defer a callback or await one microtask.
+     *
+     * Schedule captures `queueMicrotask` when its module initializes. If that binding is unavailable,
+     * it uses a reaction on a captured Promise instead. Later changes to ambient queue and Promise
+     * bindings, or to Promise constructor and species properties, do not redirect scheduling or
+     * result construction.
+     *
+     * Callback form returns `undefined`. Callback failures are not caught: `queueMicrotask` reports
+     * them as host callback errors, while the fallback rejects the internal Promise created for its
+     * reaction. That Promise is not returned. Awaitable form constructs its result through the
+     * Promise binding captured at initialization.
+     */
+    micro: ScheduleFn;
+
+    /**
+     * Defer a callback or await one zero-delay timer task.
+     *
+     * Schedule uses the `setTimeout` binding captured when its module initializes; later ambient
+     * replacement does not redirect the task. Callback form returns `undefined` and does not catch
+     * failures. Awaitable form constructs its result through the captured Promise binding.
+     */
+    macro: ScheduleFn;
+
+    /**
+     * Defer a callback or await one animation-frame hop.
+     *
+     * Schedule uses the `requestAnimationFrame` binding captured at initialization. If unavailable,
+     * it uses the captured timer with a 16 ms delay. Callback form returns `undefined`; awaitable form
+     * constructs its result through the captured Promise binding.
+     */
+    raf: ScheduleFn;
+
+    /**
+     * Await a normalized number of sequential animation-frame hops.
+     *
+     * Omitted `count` means one hop. Finite values are floored and clamped to zero; non-finite values
+     * produce no hops.
+     */
+    frames(count?: number): Promise<void>;
+
+    /**
+     * Wait for a timer requested with `ms`, then optionally await another scheduling hop.
+     *
+     * `undefined`, `null`, and `false` select no follow-on hop.
+     */
+    sleep(ms: t.Msecs, andThen?: t.AsyncSchedule | null | false): Promise<void>;
+
+    /**
+     * Queue `task` at most once and return its cancellation lifecycle.
+     *
+     * Timer delays normalize to the canonical `Time.Delay.MAX` ceiling. Disposal before
+     * execution suppresses the task. Once admitted, the lifecycle disposes when the task settles,
+     * including rejection; the task's result is not returned.
+     */
+    queue<T = unknown>(task: () => T | Promise<T>, opts?: ScheduleQueueOpts): t.Lifecycle;
+    queue<T = unknown>(
+      task: () => T | Promise<T>,
+      queue?: ScheduleQueueConfig,
+      until?: t.UntilInput,
+    ): t.Lifecycle;
+
+    /**
+     * Await one zero-delay timer task followed by one microtask.
+     *
+     * This is equivalent to `await macro(); await micro();`. It does not claim that unrelated task
+     * sources have run or drained.
+     */
+    tick(): Promise<void>;
+
+    /**
+     * Poll `pred` after successive timer-task → microtask turns.
+     *
+     * The first predicate check follows an initial turn. Polling stops when the predicate returns
+     * `true` or the deadline derived from `timeoutMs` is reached. It does not drain unrelated task
+     * sources.
+     *
+     * @param pred Synchronous completion predicate.
+     * @param timeoutMs Maximum wait in milliseconds; defaults to 1500.
+     * @throws Error when the deadline is reached first.
+     */
+    waitFor(pred: () => boolean, timeoutMs?: number): Promise<void>;
+  };
+}
 
 /**
- * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
- * with lifecycle-aware and static forms.
+ * Host mechanism selected for a scheduling hop.
+ *
+ * - `micro`: captured `queueMicrotask`, with a captured Promise-reaction fallback.
+ * - `macro`: captured `setTimeout` with a zero delay.
+ * - `raf`: captured `requestAnimationFrame`, with a captured 16 ms timer fallback.
  */
-export type SchedulerLib = {
-  /**
-   * Create a lifecycle-aware scheduler in the given mode (default "micro").
-   *
-   * Usage:
-   *   const schedule = scheduler(life)       // default "micro"
-   *   schedule(() => { ... })                // fire & forget
-   *   await schedule()                       // awaitable hop
-   *
-   *   const macro = scheduler(life, "macro") // pick a mode explicitly
-   *   await macro()                          // await a macro hop
-   */
-  make(life?: t.LifeLike, mode?: AsyncSchedule): ScheduleFn;
-
-  /**
-   * Microtask scheduler.
-   *
-   * Fire & forget:
-   *   micro(() => { ... })
-   *
-   * Awaitable hop:
-   *   await micro()
-   */
-  micro: ScheduleFn;
-
-  /**
-   * Macrotask scheduler (next task tick).
-   *
-   * Fire & forget:
-   *   macro(() => { ... })
-   *
-   * Awaitable hop:
-   *   await macro()
-   */
-  macro: ScheduleFn;
-
-  /**
-   * Frame-aligned scheduler (requestAnimationFrame).
-   * Falls back to ~16ms timeout when RAF is unavailable.
-   *
-   * Fire & forget:
-   *   raf(() => { ... })
-   *
-   * Awaitable hop:
-   *   await raf()
-   */
-  raf: ScheduleFn;
-
-  /**
-   * Await N animation frames.
-   *
-   * Semantics:
-   * - Resolves after `count` sequential frame hops from the call site.
-   * - Uses `requestAnimationFrame` when available; otherwise falls back to ~16 ms timers.
-   * - Intended for “paint, then settle” flows where layout/paint must occur before follow-up work.
-   *
-   * Notes:
-   * - `count <= 0` resolves immediately.
-   * - Equivalent to: `for (let i=0; i<count; i++) await raf();`
-   */
-  frames(count?: number): Promise<void>;
-
-  /**
-   * Sleep for N milliseconds (timer-backed).
-   *
-   * Semantics:
-   * - Resolves after at least `ms` have elapsed.
-   * - If `andThen` is provided, performs a hop on that scheduler queue after the timer.
-   * - If `andThen` is omitted/undefined, no extra hop is performed.
-   */
-  sleep(ms: t.Msecs, andThen?: t.AsyncSchedule | null | false): Promise<void>;
-
-  /**
-   * Run a task at most once, scheduled on a queue, tied to lifecycle.
-   *
-   * - If disposed before it runs, it won't fire.
-   * - After it runs (or throws), the returned lifecycle auto-disposes.
-   * - The task's return value is ignored.
-   *
-   * @example
-   *   // Fire once on next microtask:
-   *   Schedule.queue(() => { init(); });
-   *
-   * @example
-   *   // Fire once after 2 frames:
-   *   Schedule.queue(setupLayout, { queue: { frames: 2 } });
-   *
-   * @example
-   *   // Fire once in ~150ms:
-   *   Schedule.queue(() => { warmCaches(); }, { queue: { ms: 150 } });
-   *
-   * @example
-   *   // Tie to a lifecycle:
-   *   const life = Rx.lifecycle();
-   *   Schedule.queue(() => start(), { until: life.dispose$ });
-   *   life.dispose(); // cancels if not yet run
-   */
-  queue<T = unknown>(task: () => T | Promise<T>, opts?: ScheduleQueueOpts): t.Lifecycle;
-  queue<T = unknown>(
-    task: () => T | Promise<T>,
-    queue?: ScheduleQueueConfig,
-    until?: t.UntilInput,
-  ): t.Lifecycle;
-
-  /**
-   * Advance one full asynchronous turn.
-   *
-   * Semantics:
-   * - Performs a macrotask hop, then a microtask hop.
-   * - This mirrors how MessagePort deliveries land: tasks (macro) first,
-   *   followed by any queued microtasks scheduled by those handlers.
-   *
-   * Notes:
-   * - Equivalent to: `await macro(); await micro();`
-   * - Does not use timers (no real-time delay) or requestAnimationFrame
-   *   (no frame alignment); it only advances the task + microtask queues.
-   */
-  tick(): Promise<void>;
-
-  /**
-   * Repeatedly advance asynchronous turns until a predicate succeeds.
-   *
-   * Semantics:
-   * - Calls `tick()` in a loop until `pred()` returns true or the timeout elapses.
-   * - Each cycle advances a full async-turn (macro → micro), ensuring that
-   *   all queued MessagePort deliveries and associated microtasks have been
-   *   flushed before re-checking the predicate.
-   *
-   * Use cases:
-   * - Worker → main thread wire propagation.
-   * - Awaiting eventual consistency without relying on timers.
-   *
-   * @param pred       A synchronous check for the desired condition.
-   * @param timeoutMs  Maximum time to wait before erroring (default: 1500ms).
-   *
-   * @throws Error     If the deadline is exceeded.
-   */
-  waitFor(pred: () => boolean, timeoutMs?: number): Promise<void>;
-};
+export type AsyncSchedule = 'micro' | 'macro' | 'raf';
 
 /** Options for `Schedule.queue` execution. */
 export type ScheduleQueueOpts = { until?: t.UntilInput; queue?: ScheduleQueueConfig };
 
-/** Queue options for scheduled execution. */
+/** Queue selection for scheduled execution. */
 export type ScheduleQueueConfig =
-  | 'micro' //              next microtask (queueMicrotask / Promise.then)
-  | 'raf' //                next animation frame
-  | { frames: number } //   after N animation frames
-  | { ms: t.Msecs }; //     after N milliseconds (timer task via setTimeout)
+  | 'micro'
+  | 'raf'
+  | { frames: number }
+  | { ms: t.Msecs };
 
 /**
- * Curried scheduler function:
+ * Callback and awaitable forms of one scheduling mode.
  *
- * - Fire & forget (no Promise allocation):
- *     schedule(() => { ... })
- *
- * - Await a single hop (no callback):
- *     await schedule()
+ * Callback form queues work and returns `undefined`; the selected host mechanism may allocate its
+ * own job or Promise. No-argument form returns a Promise constructed through the binding captured
+ * when Schedule initializes. Later operations on that Promise retain JavaScript's ordinary Promise
+ * prototype semantics.
  */
 export type ScheduleFn = {
-  /** Schedule a task to run later (no Promise allocation). */
+  /**
+   * Queue `fn` and return `undefined`.
+   */
   (fn: () => void): void;
 
-  /** Await a single hop in the chosen scheduling mode. */
+  /**
+   * Await one hop in the selected mode.
+   */
   (): Promise<void>;
 };

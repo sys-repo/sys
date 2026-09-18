@@ -1,13 +1,13 @@
-import { type t, Lens, Obj, Rx } from './common.ts';
+import { Lens, Obj, Rx, type t } from './common.ts';
 
 type O = Record<string, unknown>;
 
-export const bind: t.PathRefLib['bind'] = (args) => {
+export const bind: t.PathRef.Lib['bind'] = (args) => {
   const { root, initial } = args;
   const path = Obj.Path.joinAll(args.path ?? []);
   const lens = Lens.at(root, path);
 
-  const api: t.PathRef<any, any, any> = {
+  const api: t.PathRef.Instance<any, any, any> = {
     root,
     path,
 

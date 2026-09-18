@@ -1,4 +1,4 @@
-import { type t, c } from '../../-test.ts';
+import { c, type t } from '../../-test.ts';
 export * from '../common.ts';
 export { Crdt } from '../../-exports/-fs/mod.ts';
 
@@ -9,12 +9,12 @@ type H = (event: MessageEvent) => void;
  */
 export const Fixture = {
   /**
-   * Wrap a MessagePort in a CmdEndpoint shape for tests.
+   * Wrap a MessagePort in a Cmd endpoint shape for tests.
    *
    * The endpoint forwards `postMessage` and `message` events directly
    * to the underlying port.
    */
-  makeEndpoint(port: MessagePort): t.CmdEndpoint {
+  makeEndpoint(port: MessagePort): t.Cmd.Endpoint {
     return {
       postMessage: (data: unknown) => port.postMessage(data),
       addEventListener: (type: 'message', handler: H) => port.addEventListener(type, handler),
@@ -32,7 +32,7 @@ export const Fixture = {
     port: MessagePort,
     onClose: () => void,
     debug?: boolean,
-  ): t.CmdEndpoint {
+  ): t.Cmd.Endpoint {
     return {
       postMessage: (data: unknown) => port.postMessage(data),
       addEventListener: (type: 'message', handler: H) => port.addEventListener(type, handler),

@@ -25,7 +25,7 @@ export const toKeyDownEvent = (
     alt: !!event.altKey,
     ctrl: !!event.ctrlKey,
     meta: !!event.metaKey,
-  } satisfies t.KeyboardModifierFlags;
+  } satisfies t.Keyboard.Modifier.Flags;
 
   return {
     event,

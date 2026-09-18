@@ -1,2 +1,2 @@
-export * from './ns.server/common.ts';
-export { describe, expect, it, Testing } from './ns.server/mod.ts';
+export * from './m.server/common.ts';
+export { describe, expect, it, Testing } from './m.server/mod.ts';

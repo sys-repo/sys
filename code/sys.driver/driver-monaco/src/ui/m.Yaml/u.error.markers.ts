@@ -3,11 +3,11 @@ import { type t, RangeUtil } from './common.ts';
 type LinePos = { line: number; col: number };
 type ErrWithTwoLinePos = t.YamlError & { linePos: readonly [LinePos, LinePos] };
 
-export const errorsToMarkers: t.EditorYamlErrorLib['errorsToMarkers'] = (monaco, model, errors) => {
+export const errorsToMarkers: t.EditorYaml.Error.Lib['errorsToMarkers'] = (monaco, model, errors) => {
   return errors.map((err) => errorToMarker(monaco, model, err));
 };
 
-export const errorToMarker: t.EditorYamlErrorLib['errorToMarker'] = (monaco, model, err) => {
+export const errorToMarker: t.EditorYaml.Error.Lib['errorToMarker'] = (monaco, model, err) => {
   let range: t.Monaco.I.IRange;
 
   if (hasTwoLinePos(err)) {

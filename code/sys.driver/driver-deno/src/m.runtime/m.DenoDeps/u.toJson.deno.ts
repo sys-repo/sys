@@ -1,11 +1,11 @@
-import { type t, Esm, isEmptyRecord, Obj } from './common.ts';
+import { Esm, isEmptyRecord, Obj, type t } from './common.ts';
 
 type D = { [key: string]: string };
 
 /**
  * Convert deps to a `deno.json` format.
  */
-export function toDenoJson(deps?: t.Dep[]): t.PkgDenoJson {
+export function toDenoJson(deps?: t.DenoDeps.Dep[]): t.PkgDenoJson {
   const imports: D = {};
   if (deps) {
     deps

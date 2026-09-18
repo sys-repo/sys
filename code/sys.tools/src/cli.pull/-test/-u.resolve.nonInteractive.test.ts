@@ -1,27 +1,17 @@
-import { describe, expect, expectError, it, Fs, Str } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it } from '../../-test.ts';
 import { parseArgs } from '../u.args.ts';
 import { resolveNonInteractive } from '../u.resolve.nonInteractive.ts';
 
 describe('@sys/tools/pull non-interactive resolution', () => {
-  it('resolves --config via PullFs', async () => {
+  it('resolves --config without loading the owner YAML', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.pull.resolve.' })).absolute;
     const yamlRel = '-config/@sys.tools.pull/sample.yaml';
-    await Fs.write(
-      `${cwd}/${yamlRel}`,
-      Str.dedent(`
-      dir: ./workspace
-      bundles:
-        - kind: http
-          dist: https://fs.db.team/dist.json
-          local:
-            dir: ./pulled/sys.fs
-      `).trimStart(),
-    );
 
-    const res = await resolveNonInteractive(cwd, parseArgs(['--non-interactive', '--config', `./${yamlRel}`]));
-    expect(res.yamlPath).to.eql(`${cwd}/${yamlRel}`);
-    expect(res.location.dir).to.eql(`${cwd}/workspace`);
-    expect(res.location.bundles?.[0]?.kind).to.eql('http');
+    const res = await resolveNonInteractive(
+      cwd,
+      parseArgs(['--non-interactive', '--config', `./${yamlRel}`]),
+    );
+    expect(res.config).to.eql(`${cwd}/${yamlRel}`);
   });
 
   it('requires --config with --non-interactive', async () => {
@@ -32,11 +22,12 @@ describe('@sys/tools/pull non-interactive resolution', () => {
     );
   });
 
-  it('fails clearly when the config cannot load', async () => {
+  it('does not validate config existence before Pull.run owns execution', async () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'sys.tools.pull.resolve.' })).absolute;
-    await expectError(
-      () => resolveNonInteractive(cwd, parseArgs(['--non-interactive', '--config', './missing.yaml'])),
-      'Could not load pull config',
+    const res = await resolveNonInteractive(
+      cwd,
+      parseArgs(['--non-interactive', '--config', './missing.yaml']),
     );
+    expect(res.config).to.eql(`${cwd}/missing.yaml`);
   });
 });

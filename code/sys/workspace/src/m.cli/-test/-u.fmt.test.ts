@@ -1,15 +1,99 @@
-import { describe, expect, it, Cli, Esm, c, type t } from '../../-test.ts';
-import { Fmt } from '../u.fmt.ts';
+import { c, Cli, describe, Esm, expect, it, type t, Time } from '../../-test.ts';
+import { WorkspaceHelp } from '../../m.help/mod.ts';
+import { Fmt } from '../u.fmt/u.fmt.ts';
+import { selectionOptionsWith } from '../u.fmt/u.fmt.selection.ts';
+import { FmtHelp } from '../u.fmt/u.fmt.help.ts';
+
+const HOUR = 60 * 60 * 1000;
+const DAY = 24 * HOUR;
+const STANDDOWN_EVALUATED_AT = Time.utc('2026-06-28T00:00:00.000Z').timestamp;
+const STANDDOWN_ELIGIBLE_AT = Time.utc('2026-06-28T14:00:00.000Z').timestamp;
 
 describe('Workspace.Cli.Fmt', () => {
+  it('renders DSL root help and skill projections', async () => {
+    const text = Cli.stripAnsi(await FmtHelp.dslOutput());
+    const guidance = await WorkspaceHelp.Dsl.load();
+
+    expect(text).to.contain('@sys/workspace dsl');
+    expect(text).to.contain('Usage');
+    expect(text).to.contain('Options');
+    expect(text).to.contain('Formats');
+    expectSectionLabels(text, guidance.sections.map(({ label }) => label));
+    guidance.chapters.forEach((chapter) => expect(text).to.contain(chapterCommand(chapter)));
+
+    const skill = await FmtHelp.dslOutput({ format: 'skill' });
+    expect(skill).to.eql(Cli.stripAnsi(skill));
+    expect(skill).to.contain('name: "sys-workspace-dsl"');
+    expect(skill).to.contain(`${chapterCommand(guidance.chapters[0]!)} --format skill`);
+  });
+
+  it('renders the delta DSL chapter without snapshotting prose', async () => {
+    const path = ['delta'] as const;
+    const text = Cli.stripAnsi(await FmtHelp.dslOutput({ path }));
+    const chapter = await WorkspaceHelp.Dsl.load(path);
+    const skill = await FmtHelp.dslOutput({ path, format: 'skill' });
+
+    expect(text).to.contain(dslToolname(chapter));
+    expectSectionLabels(text, chapter.sections.map(({ label }) => label));
+    expect(text).to.not.contain(chapterCommand(chapter));
+    expectMarkdownChapter(skill, chapter);
+  });
+
+  it('renders the test runner DSL chapter without snapshotting prose', async () => {
+    const path = ['test'] as const;
+    const text = Cli.stripAnsi(await FmtHelp.dslOutput({ path }));
+    const chapter = await WorkspaceHelp.Dsl.load(path);
+    const skill = await FmtHelp.dslOutput({ path, format: 'skill' });
+
+    expect(text).to.contain(dslToolname(chapter));
+    expectSectionLabels(text, chapter.sections.map(({ label }) => label));
+    expect(text).to.not.contain(chapterCommand(chapter));
+    expectMarkdownChapter(skill, chapter);
+  });
+
+  it('keeps terminal and Markdown help within their visible-width contracts', async () => {
+    expectMaxVisibleWidth(FmtHelp.output(), 80);
+    expectMaxVisibleWidth(FmtHelp.upgradeOutput(), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput(), 128);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ format: 'skill' }), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'] }), 128);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['delta'], format: 'skill' }), 80);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['test'] }), 128);
+    expectMaxVisibleWidth(await FmtHelp.dslOutput({ path: ['test'], format: 'skill' }), 80);
+  });
+
   it('omits the duplicate candidates table from the interactive plan output', () => {
     const plan = Fmt.plan(upgrade());
     const text = Cli.stripAnsi(plan);
 
-    expect(text).to.include('Policy');
+    expect(text).to.include('Release policy');
     expect(text).to.include('Blocked');
     expect(text).to.include('Already latest');
     expect(text).to.not.include('Dependency   Current');
+  });
+
+  it('shows override policy count when package overrides exist', () => {
+    const plan = Fmt.plan(upgradeWithOverrides());
+    const text = Cli.stripAnsi(plan);
+
+    expect(text).to.include('Overrides');
+    expect(Fmt.overrideCount(upgradeWithOverrides())).to.eql(2);
+  });
+
+  it('omits override policy count when package overrides do not exist', () => {
+    const plan = Fmt.plan(upgrade());
+    const text = Cli.stripAnsi(plan);
+
+    expect(text).to.not.include('Overrides');
+  });
+
+  it('marks direct override-parent candidates in interactive selection rows', () => {
+    const options = Fmt.selectionOptions(upgradeWithOverrides(), cliOptions());
+    const labels = new Map(options.map((option) => [option.value, Cli.stripAnsi(option.name)]));
+
+    expect(labels.get('monaco-editor')).to.include('override parent');
+    expect(labels.get('@automerge/automerge-repo')).to.include('override parent');
+    expect(labels.get('dompurify')).to.not.include('override parent');
   });
 
   it('shows an actionable note when the full interactive upgrade set cannot be ordered', () => {
@@ -24,15 +108,7 @@ describe('Workspace.Cli.Fmt', () => {
 
   it('shows selected versions for allowed rows and latest versions for blocked rows', () => {
     const result = upgrade();
-    const options = Fmt.selectionOptions(result, {
-      include: [],
-      exclude: [],
-      dryRun: false,
-      deps: 'deps.yaml',
-      mode: 'interactive',
-      policy: 'minor',
-      prerelease: false,
-    });
+    const options = Fmt.selectionOptions(result, cliOptions());
     const labels = options.map((option) => option.name);
     const plain = labels.map((label) => Cli.stripAnsi(label));
     const arrows = plain.map((label) => label.indexOf('→'));
@@ -47,39 +123,74 @@ describe('Workspace.Cli.Fmt', () => {
     expect(plain[1]).to.include('blocked by policy');
   });
 
-  it('keeps common scoped npm package names visible before truncating interactive rows', () => {
-    const restore = stubScreenWidth(80);
-    try {
-      const options = Fmt.selectionOptions(upgradeWithLongScopedName(), {
-        include: [],
-        exclude: [],
-        dryRun: false,
-        deps: 'deps.yaml',
-        mode: 'interactive',
-        policy: 'minor',
-        prerelease: false,
-      });
-      const plain = Cli.stripAnsi(options[0]!.name);
+  it('renders standdown diagnostics and relative interactive notes', () => {
+    const result = upgradeWithStanddown();
+    const plan = Cli.stripAnsi(Fmt.plan(result));
+    const options = Fmt.selectionOptions(
+      result,
+      cliOptions({ policy: 'latest', minimumDependencyAge: 2 * DAY }),
+    );
+    const label = Cli.stripAnsi(options[0]!.name);
 
-      expect(plain).to.include('@elevenlabs/elevenlabs-js');
-      expect(plain).to.include('blocked by policy');
-    } finally {
-      restore();
-    }
+    expect(plan).to.include('npm standdown');
+    expect(plan).to.include('released');
+    expect(plan).to.include('eligible in');
+    expect(plan).to.include('2d');
+    expect(plan).to.include('motion');
+    expect(plan).to.include('12.40.0');
+    expect(plan).to.include('12.41.0');
+    expect(plan).to.include('12.42.0');
+    expect(plan).to.include('34h ago');
+    expect(plan).to.include('14h');
+    expect(plan).to.not.include('from now');
+    expect(label).to.include('newer in standdown - upgrade in 14h');
+    expect(options[0]?.disabled).to.eql(false);
+  });
+
+  it('renders unknown publish timestamps as disabled standdown diagnostics', () => {
+    const result = upgradeWithUnknownStanddown();
+    const plan = Cli.stripAnsi(Fmt.plan(result));
+    const options = Fmt.selectionOptions(
+      result,
+      cliOptions({ policy: 'latest', minimumDependencyAge: 2 * DAY }),
+    );
+    const label = Cli.stripAnsi(options[0]!.name);
+
+    expect(plan).to.include('npm standdown');
+    expect(plan).to.include('publish timestamp unavailable');
+    expect(label).to.include('newer in standdown - publish timestamp unavailable');
+    expect(options[0]?.checked).to.eql(false);
+    expect(options[0]?.disabled).to.eql(true);
+  });
+
+  it('keeps common scoped npm package names visible before truncating interactive rows', () => {
+    const options = selectionOptionsWith(
+      { size: () => ({ width: 80, height: 24 }) },
+      upgradeWithLongScopedName(),
+      cliOptions(),
+    );
+    const plain = Cli.stripAnsi(options[0]!.name);
+
+    expect(plain).to.include('@sample/foo');
+    expect(plain).to.include('blocked by policy');
   });
 
   it('pre-checks policy-selected rows and leaves blocked rows unchecked by default', () => {
-    const options = Fmt.selectionOptions(upgrade(), {
-      include: [],
-      exclude: [],
-      dryRun: false,
-      deps: 'deps.yaml',
-      mode: 'interactive',
-      policy: 'minor',
-      prerelease: false,
-    });
+    const options = Fmt.selectionOptions(upgrade(), cliOptions());
 
     expect(options.map((option) => option.checked)).to.eql([true, false]);
+  });
+
+  it('reports registry metadata behind current without rendering a downgrade option', () => {
+    const result = upgradeWithRegistryBehindCurrent();
+    const options = Fmt.selectionOptions(result, cliOptions());
+    const plan = Cli.stripAnsi(Fmt.plan(result));
+
+    expect(options).to.eql([]);
+    expect(plan).to.include('Registry behind current');
+    expect(plan).to.include('@sys/driver-vite');
+    expect(plan).to.include('0.0.432 > 0.0.427');
+    expect(plan).to.not.include('0.0.432 → 0.0.427');
   });
 
   it('formats cumulative registry spinner progress with clipped counts and percent', () => {
@@ -94,10 +205,12 @@ describe('Workspace.Cli.Fmt', () => {
     const plain = Cli.stripAnsi(text);
 
     expect(plain).to.include('checking registry...');
-    expect(plain).to.include('(jsr:2/2 npm:17/18) - 95%');
+    expect(plain).to.include('(jsr:2/2 npm:17/18) • 95%');
     expect(plain).to.include('jsr:2/2');
     expect(plain).to.include('npm:17/18');
     expect(plain).to.include('95%');
+    expect(text).to.include(c.green('jsr:'));
+    expect(text).to.include(c.cyan('npm:'));
   });
 
   it('renders applied output with updated rows instead of planned totals', () => {
@@ -129,6 +242,23 @@ describe('Workspace.Cli.Fmt', () => {
   });
 });
 
+function cliOptions(
+  options: Partial<t.WorkspaceCli.ResolvedOptions> = {},
+): t.WorkspaceCli.ResolvedOptions {
+  return {
+    include: [],
+    exclude: [],
+    dryRun: false,
+    deps: 'deps.yaml',
+    mode: 'interactive',
+    policy: 'minor',
+    prerelease: false,
+    minimumDependencyAge: 0,
+    evaluatedAt: STANDDOWN_EVALUATED_AT,
+    ...options,
+  };
+}
+
 function upgrade(): t.WorkspaceUpgrade.Result {
   const pathDecision = decisionOk(
     '@std/path',
@@ -139,7 +269,7 @@ function upgrade(): t.WorkspaceUpgrade.Result {
   const reactDomDecision = decisionBlocked('react-dom', '18.2.0', ['18.2.0', '19.0.0']);
   const reactDecision = decisionBlocked('react', '18.2.0', ['18.2.0']);
 
-  const nodes: t.EsmTopologicalInput['nodes'] = [
+  const nodes: t.EsmTopological.Decision.Input['nodes'] = [
     {
       key: Fmt.key(pathDecision.input.subject.entry),
       value: pathDecision,
@@ -155,6 +285,8 @@ function upgrade(): t.WorkspaceUpgrade.Result {
       policy: { mode: 'minor' },
       prerelease: false,
       registries: ['jsr', 'npm'],
+      minimumDependencyAge: 0,
+      evaluatedAt: Time.utc('2026-06-28T00:00:00.000Z').timestamp,
       log: false,
     },
     totals: {
@@ -176,6 +308,8 @@ function upgrade(): t.WorkspaceUpgrade.Result {
         policy: { mode: 'minor' },
         prerelease: false,
         registries: ['jsr', 'npm'],
+        minimumDependencyAge: 0,
+        evaluatedAt: Time.utc('2026-06-28T00:00:00.000Z').timestamp,
         log: false,
       },
       candidates: [
@@ -202,17 +336,138 @@ function upgrade(): t.WorkspaceUpgrade.Result {
   };
 }
 
+function upgradeWithOverrides(): t.WorkspaceUpgrade.Result {
+  const monacoDecision = decisionOk(
+    'monaco-editor',
+    '0.55.1',
+    ['0.56.0', '0.55.1'],
+    '0.56.0',
+  );
+  const automergeDecision = decisionBlocked(
+    '@automerge/automerge-repo',
+    '2.5.6',
+    ['2.6.0', '2.5.6'],
+  );
+  const dompurifyDecision = decisionOk(
+    'dompurify',
+    '3.4.0',
+    ['3.5.0', '3.4.0'],
+    '3.5.0',
+  );
+  const decisions = [monacoDecision, automergeDecision, dompurifyDecision];
+  const nodes: t.EsmTopological.Decision.Input['nodes'] = [monacoDecision, dompurifyDecision].map((
+    decision,
+  ) => ({
+    key: Fmt.key(decision.input.subject.entry),
+    value: decision,
+  }));
+  const base = upgrade();
+
+  return {
+    ...base,
+    totals: {
+      dependencies: 3,
+      allowed: 2,
+      blocked: 1,
+      planned: 2,
+    },
+    collect: {
+      ...base.collect,
+      candidates: [
+        candidate('monaco-editor', '0.55.1', '0.56.0'),
+        candidate('@automerge/automerge-repo', '2.5.6', '2.6.0'),
+        candidate('dompurify', '3.4.0', '3.5.0'),
+      ],
+      totals: {
+        dependencies: 3,
+        collected: 3,
+        skipped: 0,
+        failed: 0,
+      },
+      packageJson: {
+        overrides: {
+          '@automerge/automerge-repo': { uuid: '11.1.1' },
+          'monaco-editor': { dompurify: '3.4.0' },
+        },
+      },
+    },
+    graph: {
+      nodes,
+      edges: [],
+      unresolved: [],
+    },
+    topological: {
+      ok: true,
+      items: nodes.map((node, index) => ({ node, index, after: [] })),
+    },
+    policy: { decisions },
+  };
+}
+
 function candidate(
   name: string,
   current: t.StringSemver,
   latest: t.StringSemver,
 ): t.WorkspaceUpgrade.Candidate {
+  const available = [latest, current];
   return {
     entry: entry(name, current),
     registry: registry(name),
     current,
     latest,
-    available: [latest, current],
+    available,
+    eligible: available,
+    versions: available.map((version) => ({
+      version,
+      eligibility: { kind: 'eligible' as const },
+    })),
+  };
+}
+
+function standdownCandidate(): t.WorkspaceUpgrade.Candidate {
+  return {
+    entry: entry('motion', '12.40.0'),
+    registry: 'npm',
+    current: '12.40.0',
+    latest: '12.42.0',
+    available: ['12.42.0', '12.41.0', '12.40.0'],
+    eligible: ['12.41.0', '12.40.0'],
+    versions: [
+      {
+        version: '12.42.0',
+        publishedAt: '2026-06-26T14:00:00.000Z' as t.StringTimestamp,
+        eligibility: {
+          kind: 'standdown',
+          eligibleAt: STANDDOWN_ELIGIBLE_AT,
+          age: 34 * HOUR,
+        },
+      },
+      {
+        version: '12.41.0',
+        publishedAt: '2026-06-25T00:00:00.000Z' as t.StringTimestamp,
+        eligibility: { kind: 'eligible' },
+      },
+      {
+        version: '12.40.0',
+        publishedAt: '2026-06-24T00:00:00.000Z' as t.StringTimestamp,
+        eligibility: { kind: 'eligible' },
+      },
+    ],
+  };
+}
+
+function unknownStanddownCandidate(): t.WorkspaceUpgrade.Candidate {
+  return {
+    entry: entry('some-pkg', '1.2.0'),
+    registry: 'npm',
+    current: '1.2.0',
+    latest: '1.3.0',
+    available: ['1.3.0', '1.2.0'],
+    eligible: ['1.2.0'],
+    versions: [
+      { version: '1.3.0', eligibility: { kind: 'unknown-published-at' } },
+      { version: '1.2.0', eligibility: { kind: 'eligible' } },
+    ],
   };
 }
 
@@ -221,7 +476,7 @@ function decisionOk(
   current: t.StringSemver,
   available: readonly t.StringSemver[],
   selected: t.StringSemver,
-): t.EsmPolicyDecision {
+): t.EsmPolicy.Decision {
   const input = policyInput(name, current, available);
   return {
     ok: true,
@@ -242,7 +497,7 @@ function decisionBlocked(
   name: string,
   current: t.StringSemver,
   available: readonly t.StringSemver[],
-): t.EsmPolicyDecision {
+): t.EsmPolicy.Decision {
   const input = policyInput(name, current, available);
   return {
     ok: false,
@@ -285,6 +540,7 @@ function applied(): t.WorkspaceUpgrade.ApplyResult {
         packageFilePath: '/workspace/package.json',
         dependencies: {},
         devDependencies: {},
+        overrides: {},
       },
     },
   };
@@ -300,7 +556,108 @@ function topologyBlockedUpgrade(): t.WorkspaceUpgrade.Result {
     },
     topological: {
       ok: false,
-      cycle: { keys: ['jsr:@std/path', 'npm:react-dom'] },
+      cycle: {
+        keys: ['jsr:@std/path', 'npm:react-dom'],
+        path: ['jsr:@std/path', 'npm:react-dom', 'jsr:@std/path'],
+      },
+    },
+  };
+}
+
+function upgradeWithStanddown(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  const candidate = standdownCandidate();
+  const decision = decisionOk(
+    'motion',
+    '12.40.0',
+    candidate.eligible,
+    '12.41.0',
+  );
+  const node = { key: Fmt.key(candidate.entry), value: decision };
+  const options = {
+    ...result.options,
+    policy: { mode: 'latest' as const },
+    minimumDependencyAge: 2 * DAY,
+    evaluatedAt: STANDDOWN_EVALUATED_AT,
+  };
+
+  return {
+    ...result,
+    options,
+    totals: {
+      dependencies: 1,
+      allowed: 1,
+      blocked: 0,
+      planned: 1,
+    },
+    collect: {
+      ...result.collect,
+      options,
+      candidates: [candidate],
+      totals: {
+        dependencies: 1,
+        collected: 1,
+        skipped: 0,
+        failed: 0,
+      },
+    },
+    graph: {
+      nodes: [node],
+      edges: [],
+      unresolved: [],
+    },
+    topological: {
+      ok: true,
+      items: [{ node, index: 0, after: [] }],
+    },
+    policy: {
+      decisions: [decision],
+    },
+  };
+}
+
+function upgradeWithUnknownStanddown(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  const candidate = unknownStanddownCandidate();
+  const decision = decisionBlocked('some-pkg', '1.2.0', candidate.eligible);
+  const options = {
+    ...result.options,
+    policy: { mode: 'latest' as const },
+    minimumDependencyAge: 2 * DAY,
+    evaluatedAt: STANDDOWN_EVALUATED_AT,
+  };
+
+  return {
+    ...result,
+    options,
+    totals: {
+      dependencies: 1,
+      allowed: 0,
+      blocked: 1,
+      planned: 0,
+    },
+    collect: {
+      ...result.collect,
+      options,
+      candidates: [candidate],
+      totals: {
+        dependencies: 1,
+        collected: 1,
+        skipped: 0,
+        failed: 0,
+      },
+    },
+    graph: {
+      nodes: [],
+      edges: [],
+      unresolved: [],
+    },
+    topological: {
+      ok: true,
+      items: [],
+    },
+    policy: {
+      decisions: [decision],
     },
   };
 }
@@ -308,9 +665,9 @@ function topologyBlockedUpgrade(): t.WorkspaceUpgrade.Result {
 function upgradeWithLongScopedName(): t.WorkspaceUpgrade.Result {
   const result = upgrade();
   const decision = decisionBlocked(
-    '@elevenlabs/elevenlabs-js',
-    '2.41.1',
-    ['2.42.0', '2.41.1'],
+    '@sample/foo',
+    '1.2.3',
+    ['2.0.0', '1.2.3'],
   );
 
   return {
@@ -323,7 +680,48 @@ function upgradeWithLongScopedName(): t.WorkspaceUpgrade.Result {
     },
     collect: {
       ...result.collect,
-      candidates: [candidate('@elevenlabs/elevenlabs-js', '2.41.1', '2.42.0')],
+      candidates: [candidate('@sample/foo', '1.2.3', '2.0.0')],
+      totals: {
+        dependencies: 1,
+        collected: 1,
+        skipped: 0,
+        failed: 0,
+      },
+    },
+    policy: {
+      decisions: [decision],
+    },
+  };
+}
+
+function upgradeWithRegistryBehindCurrent(): t.WorkspaceUpgrade.Result {
+  const result = upgrade();
+  const available = ['0.0.427' as t.StringSemver];
+  const candidate = {
+    ...result.collect.candidates[0]!,
+    entry: entry('@sys/driver-vite', '0.0.432'),
+    current: '0.0.432' as t.StringSemver,
+    latest: '0.0.427' as t.StringSemver,
+    available,
+    eligible: available,
+    versions: available.map((version) => ({
+      version,
+      eligibility: { kind: 'eligible' as const },
+    })),
+  };
+  const decision = decisionBlocked('@sys/driver-vite', '0.0.432', ['0.0.427']);
+
+  return {
+    ...result,
+    totals: {
+      dependencies: 1,
+      allowed: 0,
+      blocked: 1,
+      planned: 0,
+    },
+    collect: {
+      ...result.collect,
+      candidates: [candidate],
       totals: {
         dependencies: 1,
         collected: 1,
@@ -368,6 +766,7 @@ function appliedWithShorthandVersion(): t.WorkspaceUpgrade.ApplyResult {
         packageFilePath: '/workspace/package.json',
         dependencies: {},
         devDependencies: {},
+        overrides: {},
       },
     },
   };
@@ -400,7 +799,7 @@ function policyInput(
   name: string,
   current: t.StringSemver,
   available: readonly t.StringSemver[],
-): t.EsmPolicyInput {
+): t.EsmPolicy.Input {
   return {
     policy: { mode: 'minor' },
     subject: {
@@ -412,7 +811,7 @@ function policyInput(
 }
 
 function registry(name: string): t.EsmRegistry {
-  return name.startsWith('@std/') ? 'jsr' : 'npm';
+  return name.startsWith('@std/') || name.startsWith('@sys/') ? 'jsr' : 'npm';
 }
 
 function upgradeWithShorthandCurrent(): t.WorkspaceUpgrade.Result {
@@ -452,11 +851,37 @@ function upgradeWithShorthandCurrent(): t.WorkspaceUpgrade.Result {
   };
 }
 
-function stubScreenWidth(width: number): () => void {
-  const screen = Cli.Screen as { size: () => { width: number; height: number } };
-  const prev = screen.size;
-  screen.size = () => ({ width, height: 24 });
-  return () => {
-    screen.size = prev;
-  };
+function expectSectionLabels(text: string, labels: readonly string[]) {
+  const lines = text.split('\n');
+  let previous = -1;
+
+  labels.forEach((label) => {
+    const index = lines.findIndex((line, lineIndex) => {
+      return lineIndex > previous && line.startsWith(label);
+    });
+    expect(index).to.be.greaterThan(previous);
+    previous = index;
+  });
+}
+
+function chapterCommand(chapter: { readonly path: readonly string[] }): string {
+  return ['deno run -ER jsr:@sys/workspace dsl', ...chapter.path].join(' ');
+}
+
+function dslToolname(chapter: { readonly path: readonly string[] }): string {
+  return ['@sys/workspace dsl', ...chapter.path].join(' ');
+}
+
+function expectMarkdownChapter(text: string, chapter: t.WorkspaceHelp.Dsl.Chapter) {
+  expect(text).to.eql(Cli.stripAnsi(text));
+  expect(text).to.contain(`# ${chapter.title}`);
+  chapter.sections.forEach((section) => expect(text).to.contain(`## ${section.label}`));
+}
+
+function expectMaxVisibleWidth(text: string, width: number) {
+  const wide = Cli.stripAnsi(text)
+    .split('\n')
+    .map((line) => line.trimEnd())
+    .filter((line) => line.length > width);
+  expect(wide, wide.join('\n')).to.eql([]);
 }

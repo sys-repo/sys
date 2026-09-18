@@ -7,7 +7,7 @@ import { useSignalEffect } from './u.useEffect.ts';
  * - Dependencies are exactly what the callback reads (no deep walks).
  * - Lifecycle-aware: `e.life` is lazily created if accessed by the callback.
  */
-export const useSignalRedrawEffect: t.UseRedrawEffectListener = (cb) => {
+export const useSignalRedrawEffect: t.Signal.RedrawEffect.Listener = (cb) => {
   const [, bump] = useRev('micro');
   useSignalEffect((e) => {
     const cleanup = cb(e); //   establish reactive deps; user may touch e.life

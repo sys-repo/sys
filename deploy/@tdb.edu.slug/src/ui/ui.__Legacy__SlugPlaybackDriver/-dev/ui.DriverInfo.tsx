@@ -31,7 +31,7 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
   };
 
   const mono = true;
-  const items: t.KeyValueItem[] = [{ kind: 'title', v: title }];
+  const items: t.KeyValue.Item[] = [{ kind: 'title', v: title }];
   const add = (k: string, v: t.ReactNode) => items.push({ k, v, mono });
   const hr = () => items.push({ kind: 'hr' });
 

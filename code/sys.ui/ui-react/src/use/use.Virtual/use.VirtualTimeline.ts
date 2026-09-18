@@ -1,8 +1,8 @@
 import React from 'react';
 import { type t, Timecode } from './common.ts';
 
-type In = t.TimecodeCompositionSpec;
-type Out = t.TimecodeResolved & { readonly rev: number };
+type In = t.Timecode.Composite.Spec;
+type Out = t.Timecode.Resolved & { readonly rev: number };
 
 /**
  * Hook: presentational virtual timeline resolver.
@@ -12,7 +12,7 @@ type Out = t.TimecodeResolved & { readonly rev: number };
  */
 export function useVirtualTimeline(spec?: In): Out {
   const [rev, setRev] = React.useState(0);
-  const prevRef = React.useRef<t.TimecodeResolved | undefined>(undefined);
+  const prevRef = React.useRef<t.Timecode.Resolved | undefined>(undefined);
   const resolved = React.useMemo(() => Timecode.Composite.toVirtualTimeline(spec), [spec]);
 
   React.useEffect(() => {

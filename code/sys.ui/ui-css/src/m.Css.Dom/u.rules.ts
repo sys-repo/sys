@@ -4,20 +4,20 @@ import { toString } from './u.ts';
 
 type StringRule = string;
 
-export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
+export function createRules(args: { sheet: CSSStyleSheet }): t.CssDom.Rules {
   const { sheet } = args;
-  const inserted = new Map<StringRule, t.CssDomInsertedRule>();
+  const inserted = new Map<StringRule, t.CssDom.InsertedRule>();
 
   const insert = (
     selector: string,
-    style: t.CssProps,
+    style: t.Style.Props,
     context?: string,
-  ): t.CssDomInsertedRule | undefined => {
+  ): t.CssDom.InsertedRule | undefined => {
     let rule = `${selector.trim()} { ${toString(style)} }`.trim();
     rule = context ? `${context} { ${rule} }` : rule;
     if (inserted.has(rule)) return undefined;
 
-    const res: t.CssDomInsertedRule = { selector, rule, style };
+    const res: t.CssDom.InsertedRule = { selector, rule, style };
     sheet.insertRule?.(rule, sheet.cssRules.length);
     inserted.set(rule, res);
     return res;
@@ -25,19 +25,19 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
 
   const addRule = (
     selector: string,
-    style: t.CssValue,
+    style: t.Style.Value,
     context?: string,
-  ): t.CssDomInsertedRule[] => {
-    const res: (t.CssDomInsertedRule | undefined)[] = [];
+  ): t.CssDom.InsertedRule[] => {
+    const res: (t.CssDom.InsertedRule | undefined)[] = [];
     res.push(insert(selector, CssTmpl.transform(style), context));
     Object.entries(style)
       .filter(([key]) => CssPseudoClass.isClass(key))
       .filter(([, value]) => isRecord(value))
       .forEach(([key, style]) => res.push(insert(`${selector}${key}`, style, context)));
-    return res.filter(Boolean) as t.CssDomInsertedRule[];
+    return res.filter(Boolean) as t.CssDom.InsertedRule[];
   };
 
-  const api: t.CssDomRules = {
+  const api: t.CssDom.Rules = {
     get length() {
       return inserted.size;
     },
@@ -46,7 +46,7 @@ export function createRules(args: { sheet: CSSStyleSheet }): t.CssDomRules {
     },
 
     add(selector, styles, options = {}) {
-      const res: t.CssDomInsertedRule[] = [];
+      const res: t.CssDom.InsertedRule[] = [];
       const { context } = options;
       const list = Array.isArray(styles) ? styles : [styles];
       list.forEach((style) => {

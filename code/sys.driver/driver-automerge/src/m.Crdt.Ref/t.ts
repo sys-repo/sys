@@ -4,7 +4,7 @@
  *    ↑  @sys/crdt/t
  * (patch = Automerge.Patch, adds deleted$ + path, and source).
  */
-import type { Crdt as G } from '@sys/crdt-t/t';
+import type { Crdt as G } from '@sys/crdt/t';
 import type { t } from './common.ts';
 
 type O = Record<string, unknown>;
@@ -32,7 +32,7 @@ export type CrdtPatchSource = t.Automerge.PatchSource;
  */
 export type CrdtPathEvents<T extends O = O> = G.PathEvents<T, P, CX>;
 
-/** Automerge-specific event surface extensions. */
+/** Automerge-specific event extensions. */
 export type CrdtEventExtras<T extends O = O> = EX<T>;
 
 type EX<T extends O = O> = {

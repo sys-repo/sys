@@ -1,0 +1,15 @@
+# Cell descriptor.
+
+kind: cell
+version: 1
+
+services:
+  - name: view
+    use: Serve
+    from: 'jsr:@sys/tools/serve'
+    config: ./-config/@sys.tools.serve/view.yaml
+    variants:
+      dev:
+        use: ViteService
+        from: 'jsr:@sys/driver-vite/service'
+        config: ./-config/@sys.driver-vite/view.dev.yaml

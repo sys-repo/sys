@@ -1,17 +1,11 @@
-import { describe, expect, it, Fs } from '../../../-test.ts';
-import { type t } from '../../common.ts';
-import { rewriteTags } from '../u.pull.rewriteTags.ts';
+import { describe, expect, Fs, it } from '../../../-test.ts';
+import type { t } from '../../common.ts';
+import { rewriteProjectionTags } from '../u.pull.rewriteTags.ts';
 
-describe('cli.pull/u.bundle → URL + HTML helpers', () => {
-  describe('rewriteTags', () => {
+describe('cli.pull/u.bundle → mutable projection HTML', () => {
+  describe('rewriteProjectionTags', () => {
     it('rewrites root index base from remote host to local mount (/foo/)', async () => {
       await withTmpDir(async (baseDir) => {
-        const bundle: t.PullTool.ConfigYaml.Bundle = {
-          kind: 'http',
-          dist: 'https://example.com/dist.json',
-          local: { dir: 'foo' },
-        };
-
         const remote = `
         <!DOCTYPE html>
         <html lang="en">
@@ -45,7 +39,7 @@ describe('cli.pull/u.bundle → URL + HTML helpers', () => {
         await Fs.ensureDir(dir);
         await Fs.write(indexPath, remote, { force: true });
 
-        await rewriteTags(baseDir, bundle);
+        await rewriteProjectionTags(baseDir, dir);
 
         const res = (await Fs.readText(indexPath)).data;
 
@@ -60,12 +54,6 @@ describe('cli.pull/u.bundle → URL + HTML helpers', () => {
 
     it('rewrites bundle index base and asset URLs for /sys/sys/ui.components/', async () => {
       await withTmpDir(async (baseDir) => {
-        const bundle: t.PullTool.ConfigYaml.Bundle = {
-          kind: 'http',
-          dist: 'https://example.com/dist.json',
-          local: { dir: 'sys' },
-        };
-
         const remote = `
         <!DOCTYPE html>
         <html lang="en">
@@ -87,30 +75,30 @@ describe('cli.pull/u.bundle → URL + HTML helpers', () => {
         </html>
         `;
 
-      // NOTE:
-      //   baseDir       → /.../.tmp/<slug>
-      //   local.dir     → 'sys'
-      //   index path    → <baseDir>/sys/sys/ui.components/index.html
-      //   dirname       → <baseDir>/sys/sys/ui.components
-      //   slice(baseDir.length) → /sys/sys/ui.components
-      //   ensureSlashWrap       → /sys/sys/ui.components/
+        // NOTE:
+        //   baseDir       → /.../.tmp/<slug>
+        //   local.dir     → 'sys'
+        //   index path    → <baseDir>/sys/sys/ui.components/index.html
+        //   dirname       → <baseDir>/sys/sys/ui.components
+        //   slice(baseDir.length) → /sys/sys/ui.components
+        //   ensureSlashWrap       → /sys/sys/ui.components/
         const dir = Fs.join(baseDir, 'sys', 'sys', 'ui.components');
         const indexPath = Fs.join(dir, 'index.html');
 
         await Fs.ensureDir(dir);
         await Fs.write(indexPath, remote, { force: true });
 
-        await rewriteTags(baseDir, bundle);
+        await rewriteProjectionTags(baseDir, Fs.join(baseDir, 'sys'));
 
         const res = (await Fs.readText(indexPath)).data;
 
-      // Base is now the local bundle base, derived from baseDir + local.dir.
+        // Base is now the local projection base.
         expect(res).to.include('<base href="/sys/sys/ui.components/">');
         // Remote host is stripped.
         expect(res).to.not.include('https://example.com');
 
-      // Root-absolute asset URLs under /sys/ui.components/... are normalized
-      // by trimming the '/./' segment to become bundle-relative ./pkg/...:
+        // Root-absolute asset URLs under /sys/ui.components/... are normalized
+        // by trimming the '/./' segment to become bundle-relative ./pkg/...:
         expect(res).to.include(
           '<script type="module" crossorigin src="./pkg/-entry.Vary2Qzy.js"></script>',
         );

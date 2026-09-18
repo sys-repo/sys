@@ -1,6 +1,6 @@
 /**
  * @module
- * The URL end-point strings for the JSR API.
+ * URL helpers for the JSR registry API and package web pages.
  * See: https://jsr.io/docs/api
  */
 export { JsrUrl } from './m.Url.ts';

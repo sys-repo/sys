@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
+import { Json } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
 describe('FileMap: validate', () => {
@@ -23,7 +24,7 @@ describe('FileMap: validate', () => {
 
   describe('validate: string input', () => {
     it('ok: parses valid JSON string', () => {
-      const jsonStr = JSON.stringify({ 'a.txt': 'data:text/plain;base64,QQ==' });
+      const jsonStr = Json.stringify({ 'a.txt': 'data:text/plain;base64,QQ==' });
       const res = FileMap.validate(jsonStr);
       expect(res.error).to.eql(undefined);
       expect(res.fileMap).to.eql({ 'a.txt': 'data:text/plain;base64,QQ==' });

@@ -66,7 +66,7 @@ export function createDebugSignals() {
 
   const signals: P['signals'] = {
     doc: s<t.CrdtRef>(),
-    yaml: s<t.EditorYaml | undefined>(),
+    yaml: s<t.EditorYaml.State | undefined>(),
     editor: s<t.Monaco.Editor | undefined>(),
   };
 
@@ -103,7 +103,7 @@ export function createDebugSignals() {
   const api = {
     props,
     repo: createUiRepo(),
-    bus$: Rx.subject<t.EditorEvent>(),
+    bus$: Rx.subject<t.EditorEvent.Shape>(),
     signals,
     get path() {
       const storeYaml = p.storeParsedYaml.value;

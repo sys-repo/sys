@@ -4,7 +4,7 @@ import { ViteConfig } from '../mod.ts';
 describe('ViteConfig.paths', () => {
   const { brightCyan: cyan, bold } = c;
 
-  describe('[ViteConfigPaths]: data structure', () => {
+  describe('[ViteConfig.Paths]: data structure', () => {
     it('default paths (empty params)', () => {
       const a = ViteConfig.paths();
       const b = ViteConfig.paths();

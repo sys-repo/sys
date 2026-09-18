@@ -13,6 +13,6 @@ export async function applyYaml(
 ): Promise<t.EsmDeps.ApplyYamlResult> {
   const depsFilePath = path ?? DEFAULT_DEPS_PATH;
   const yaml = toYaml(entries ?? [], options);
-  await Fs.write(depsFilePath, yaml.text);
+  await Fs.write(depsFilePath, yaml.text, { throw: true });
   return { depsFilePath, yaml };
 }

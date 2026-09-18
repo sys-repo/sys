@@ -235,11 +235,7 @@ const wrangle = {
   },
 
   interactive() {
-    try {
-      return Deno.stdin.isTerminal() && Deno.stdout.isTerminal();
-    } catch {
-      return false;
-    }
+    return Cli.Is.interactive();
   },
 
   consoleUrl(org?: string) {

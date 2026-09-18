@@ -1,12 +1,12 @@
 import { Fs } from '@sys/fs';
-import { type t, Err, Fetch, Path, Pkg, Rx } from './common.ts';
+import { Err, Fetch, Path, Pkg, Rx, type t } from './common.ts';
 
 /** Create a manifest helper from an existing definition. */
-export const create: t.JsrManifestLib['create'] = (pkg, def) => {
+export const create: t.JsrManifest.Lib['create'] = (pkg, def) => {
   pkg = { ...pkg };
   def = { ...def };
   let _paths: undefined | t.StringPath[];
-  const api: t.JsrManifest = {
+  const api: t.JsrManifest.Instance = {
     pkg,
     get paths() {
       return _paths || (_paths = Object.keys(def).sort());
@@ -17,10 +17,10 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
 
     async pull(input) {
       const options = wrangle.pullOptions(input);
-      const life = Rx.lifecycle(options.dispose$);
+      const life = Rx.lifecycle(options.until);
       const { dispose$ } = life;
 
-      const fetch = Fetch.Pkg.file(pkg.name, pkg.version, { dispose$ });
+      const fetch = Fetch.Pkg.file(pkg.name, pkg.version, { until: dispose$ });
       const baseUrl = Fetch.Url.Pkg.file(pkg.name, pkg.version, '');
       const errors = Err.errors();
 
@@ -40,7 +40,7 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
       /**
        * Write to file-system.
        */
-      let written: t.JsrManifestPullResponse['written'] | undefined;
+      let written: t.JsrManifest.Pull.Response['written'] | undefined;
       if (options.write) {
         const relative = Pkg.toString(pkg);
         const absolute = Path.resolve(options.write, relative);
@@ -53,7 +53,8 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
         };
 
         for (const item of items) {
-          const path = Path.join(absolute, item.url.slice(baseUrl.length));
+          const url = item.ok ? item.finalUrl : item.url;
+          const path = Path.join(absolute, url.slice(baseUrl.length));
           const res = await Fs.write(path, item.data || '');
           if (res.error) errors.push(res.error);
         }
@@ -84,7 +85,7 @@ export const create: t.JsrManifestLib['create'] = (pkg, def) => {
  * Helpers
  */
 const wrangle = {
-  pullOptions(input: Parameters<t.JsrManifest['pull']>[0]): t.JsrManifestPullOptions {
+  pullOptions(input: Parameters<t.JsrManifest.Instance['pull']>[0]): t.JsrManifest.Pull.Options {
     if (!input) return {};
     if (typeof input === 'string') return { write: input };
     return input;

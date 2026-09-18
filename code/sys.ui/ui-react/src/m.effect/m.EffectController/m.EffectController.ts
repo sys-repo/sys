@@ -1,7 +1,8 @@
 import { type t, StdEffectController } from './common.ts';
 import { useEffectController } from './u.useEffectController.ts';
 
-export const EffectController: t.EffectControllerReactLib = {
+/** Effect controller helpers with React hook support. */
+export const EffectController: t.EffectController.Lib = {
   ...StdEffectController,
   useEffectController,
 };

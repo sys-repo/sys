@@ -4,7 +4,7 @@ import { pkg, type t } from './common.ts';
 /**
  * Minimal HTTP handler on the same port as websocket-server
  */
-export function createHttpServer(args: { total: () => t.SyncServerInfo['total'] }) {
+export function createHttpServer(args: { total: () => t.SyncServer.Info['total'] }) {
   return createServer((req: IncomingMessage, res: ServerResponse) => {
     const { method, url } = wrangle.req(req);
 
@@ -29,7 +29,7 @@ export function createHttpServer(args: { total: () => t.SyncServerInfo['total'] 
     const isWellKnown = Is.wellKnown(url, method);
 
     if (isRoot || isWellKnown) {
-      const payload: t.SyncServerInfo = {
+      const payload: t.SyncServer.Info = {
         pkg,
         total: args.total(),
       };

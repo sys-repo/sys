@@ -11,7 +11,7 @@ import { Spy } from './m.Spy.ts';
 import { asEditor, asModel, asMonaco } from './u.as.ts';
 import { ctx } from './u.ts';
 
-export const MonacoFake: t.FakeMonacoLib = {
+export const MonacoFake: t.MonacoFake.Lib = {
   Spy,
 
   ctx,

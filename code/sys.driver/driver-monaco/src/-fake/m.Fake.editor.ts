@@ -1,7 +1,7 @@
 import { type t, Is, RangeUtil } from './common.ts';
 import { fakeModel } from './m.Fake.model.ts';
 
-type F = t.FakeMonacoLib['editor'];
+type F = t.MonacoFake.Lib['editor'];
 type IRange = t.Monaco.I.IRange;
 type IStandalone = t.Monaco.I.IStandaloneCodeEditor;
 type UpdateOptionsArg = Parameters<IStandalone['updateOptions']>[0];
@@ -257,7 +257,7 @@ export const fakeEditor: F = (input) => {
     return true;
   };
 
-  const _fireKeyDown: t.FakeEditor['_fireKeyDown'] = (args) => {
+  const _fireKeyDown: t.MonacoFake.Editor.Shape['_fireKeyDown'] = (args) => {
     const key = args?.key ?? 'Enter';
     const code = args?.code ?? (key === 'Enter' ? 'Enter' : '');
     const shiftKey = !!args?.shiftKey;
@@ -316,7 +316,7 @@ export const fakeEditor: F = (input) => {
   /**
    * API:
    */
-  const api: t.FakeEditor = {
+  const api: t.MonacoFake.Editor.Shape = {
     // Getters:
     getId: () => id,
     getPosition: () => position as t.Monaco.Position,
@@ -353,24 +353,24 @@ export const fakeEditor: F = (input) => {
     _fireKeyDown,
   };
 
-  return api as t.FakeEditorFull;
+  return api as t.MonacoFake.Editor.Full;
 };
 
 /**
  * Helpers:
  */
 const wrangle = {
-  model(input: Parameters<F>[0] = ''): t.FakeTextModel {
+  model(input: Parameters<F>[0] = ''): t.MonacoFake.Model.Shape {
     if (typeof input === 'string') return fakeModel(input);
 
-    // Check if already a FakeTextModel:
-    if ((input as any).__setLanguageId) return input as t.FakeTextModel;
+    // Check if already a fake text-model:
+    if ((input as any).__setLanguageId) return input as t.MonacoFake.Model.Shape;
 
     // Real Monaco model → shim (__setLanguageId no-op for tests):
     const real = input as t.Monaco.TextModel;
     (real as any).__setLanguageId = (_: t.EditorLanguage) => {};
 
     // Finish up.
-    return real as unknown as t.FakeTextModel;
+    return real as unknown as t.MonacoFake.Model.Shape;
   },
 } as const;

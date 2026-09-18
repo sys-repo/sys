@@ -1,12 +1,8 @@
 import type { t } from './common.ts';
 
-/**
- * Type guards.
- */
-export type ErrIsLib = {
-  /**
-   * Determine if the given value is an Error instance.
-   */
+/** Type guards. */
+export type Lib = {
+  /** Determine if the given value is an Error instance. */
   error(input: unknown): input is Error;
 
   /**
@@ -15,9 +11,7 @@ export type ErrIsLib = {
    */
   errorLike(input: unknown): input is t.ErrorLike;
 
-  /**
-   * Determine if the given value conforms to the `StdError` type.
-   */
+  /** Determine if the given value conforms to the `StdError` type. */
   stdError(input: unknown): input is t.StdError;
 
   /**

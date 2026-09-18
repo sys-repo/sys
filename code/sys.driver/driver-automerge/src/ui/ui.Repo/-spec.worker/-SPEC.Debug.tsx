@@ -1,18 +1,18 @@
-import React from 'react';
+import type React from 'react';
 import { spawnUiRepoWorker } from '../../-test.ui.ts';
 import {
-  type t,
   Button,
   Color,
-  Crdt,
   css,
   D,
   Delete,
+  Dispose,
   LocalStorage,
   Obj,
   ObjectView,
   Rx,
   Signal,
+  type t,
 } from '../common.ts';
 import { Repo } from '../mod.ts';
 
@@ -128,10 +128,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
       <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
       <ObjectView
-        name={'repo'}
-        data={Delete.funcs(debug.repo)}
+        name='repo'
+        data={Delete.funcs({ ...Dispose.omitDispose(debug.repo) })}
         style={{ marginTop: 10 }}
         expand={1}
       />

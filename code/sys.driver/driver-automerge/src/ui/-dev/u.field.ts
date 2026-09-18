@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Construct a normalized, display-safe string label for a given object path.
  */
-export const fieldFromPath: t.DevLib['fieldFromPath'] = (path, opts = {}) => {
+export const fieldFromPath: t.Dev.Lib['fieldFromPath'] = (path, opts = {}) => {
   const { prefix = 'doc' } = opts;
   const segs = Array.isArray(path) ? path : undefined;
   const body = segs && segs.length > 0 ? `/${segs.join('/')}` : '(none)';
@@ -13,7 +13,7 @@ export const fieldFromPath: t.DevLib['fieldFromPath'] = (path, opts = {}) => {
 /**
  * Construct an array of `<ObjectView>`-safe expand paths.
  */
-export const expandPaths: t.DevLib['expandPaths'] = (paths, opts = {}) => {
+export const expandPaths: t.Dev.Lib['expandPaths'] = (paths, opts = {}) => {
   const out = ['$'];
   if (!Array.isArray(paths)) return out;
 

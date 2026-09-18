@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { DocumentId } from '@sys/driver-automerge/web/ui';
 import { Monaco } from '../../../m.Monaco/mod.ts';
 
-import { Dev, PathView, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, PathView, Signal, Spec } from '../../-test.ui.ts';
 import { MonacoEditor } from '../../ui.MonacoEditor/mod.ts';
 
 import { type t, Color, Crdt, D, Obj } from '../common.ts';
@@ -15,11 +14,11 @@ export default Spec.describe(D.displayName, async (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
-  function HostDocumentId(props: t.DocumentIdProps) {
+  function HostDocumentId(props: t.Crdt.DocumentId.Props) {
     const doc = p.doc;
     const theme = Color.theme(p.theme.value);
     return (
-      <DocumentId.View
+      <Crdt.UI.DocumentId.View
         background={theme.is.dark ? -0.06 : -0.04}
         theme={theme.name}
         buttonStyle={{ margin: 4 }}
@@ -120,7 +119,7 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

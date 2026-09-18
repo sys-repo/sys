@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { type t, Fs, Pkg } from '../common.ts';
-import { File } from '../m.File.ts';
+import { File } from '../m/m.File.ts';
 
 describe('YamlConfig.File', () => {
   describe('File.create', () => {

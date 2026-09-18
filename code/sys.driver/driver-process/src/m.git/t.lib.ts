@@ -4,6 +4,8 @@ import type { t } from './common.ts';
  * Thin system driver for Git.
  */
 export type GitLib = {
+  /** Read a repository file from a Git object/ref. */
+  readonly fileAtRef: t.GitFileAtRefFn;
   /** Initialize a Git repository. */
   readonly init: t.GitInitFn;
   /** Runtime preflight for Git. */

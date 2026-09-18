@@ -1,5 +1,6 @@
-import { type t, Deps, Err, Is, Semver } from './common.ts';
+import { Arr, Deps, Err, Is, Num, Obj, Semver, type t, Time } from './common.ts';
 import { createSession, Session, type UpgradeSession } from './u.session.ts';
+import { Standdown } from './u.standdown.ts';
 
 type RegistryProgressState = {
   readonly total: t.WorkspaceUpgrade.RegistryProgressCounts;
@@ -86,12 +87,24 @@ export async function collectWithSession(
       versions.data.versions,
       resolved.prerelease,
     );
+    const registry = entry.module.registry as t.EsmRegistry;
+    const standdown = Standdown.evaluate({
+      registry,
+      current,
+      available,
+      versions: versions.data.versions,
+      minimumDependencyAge: resolved.minimumDependencyAge,
+      evaluatedAt: resolved.evaluatedAt,
+    });
+
     candidates.push({
       entry,
-      registry: entry.module.registry as t.EsmRegistry,
+      registry,
       current,
       latest: available[0],
       available,
+      eligible: standdown.eligible,
+      versions: standdown.versions,
     });
   }
 
@@ -106,6 +119,7 @@ export async function collectWithSession(
     },
     candidates,
     uncollected,
+    packageJson: manifest.data.packageJson,
   };
 }
 
@@ -115,9 +129,27 @@ const wrangle = {
       policy: options?.policy ?? { mode: 'minor' },
       prerelease: options?.prerelease ?? false,
       registries: options?.registries ?? ['jsr', 'npm'],
+      minimumDependencyAge: wrangle.minimumDependencyAge(options?.minimumDependencyAge),
+      evaluatedAt: wrangle.evaluatedAt(options?.evaluatedAt),
       log: options?.log ?? false,
       progress: options?.progress,
     };
+  },
+
+  minimumDependencyAge(input?: t.Msecs): t.Msecs {
+    if (input === undefined) return 0;
+    if (!Num.Is.finite(input) || input < 0) {
+      throw Err.std(`Invalid minimumDependencyAge: ${input}`);
+    }
+    return input;
+  },
+
+  evaluatedAt(input?: t.UnixTimestamp): t.UnixTimestamp {
+    if (input === undefined) return Time.now.timestamp;
+    if (!Num.Is.finite(input) || input < 0) {
+      throw Err.std(`Invalid evaluatedAt timestamp: ${input}`);
+    }
+    return input;
   },
 
   current(version: t.StringSemver): t.StringSemver | undefined {
@@ -193,7 +225,7 @@ const wrangle = {
     versions: Record<string, unknown>,
     prerelease: boolean,
   ): readonly t.StringSemver[] {
-    const keys = Object.entries(versions ?? {})
+    const keys = Obj.entries(versions ?? {})
       .filter(([_, meta]) => !wrangle.excluded(registry, meta))
       .map(([version]) => version);
     const clean = keys
@@ -201,13 +233,13 @@ const wrangle = {
       .filter((version): version is t.StringSemver => Is.str(version) && version.length > 0)
       .filter((version) => wrangle.withinLatest(registry, latest, version))
       .filter((version) => prerelease || wrangle.released(version));
-    return Semver.sort([...new Set(clean)], { order: 'desc' });
+    return Semver.sort(Arr.uniq(clean), { order: 'desc' });
   },
 
   excluded(registry: string, meta: unknown): boolean {
     if (registry !== 'npm') return false;
-    if (!meta || typeof meta !== 'object') return false;
-    const deprecated = Reflect.get(meta, 'deprecated');
+    if (!Obj.isRecord(meta)) return false;
+    const deprecated = meta.deprecated;
     return Is.str(deprecated) && deprecated.length > 0;
   },
 

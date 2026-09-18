@@ -1,4 +1,4 @@
-import { type t, Err } from './common.ts';
+import { Err, type t } from './common.ts';
 
 /**
  * Coerces a partial semver string into a complete semver.
@@ -17,7 +17,7 @@ import { type t, Err } from './common.ts';
  *   "2.3-beta.1"      →   "2.3.0-beta.1"
  *   "4.5.6+build.1"   →   "4.5.6+build.1"
  */
-export const coerce: t.SemverLib['coerce'] = (version) => {
+export const coerce: t.Semver.Lib['coerce'] = (version) => {
   const errors = Err.errors();
 
   type T = t.SemverCoerceResponse;

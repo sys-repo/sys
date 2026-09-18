@@ -1,0 +1,14 @@
+# Keep sample Cell descriptors tracked despite the workspace-level `-config` ignore.
+!-sample/-config/
+!-sample/*/-config/
+!-sample/*/-config/**
+
+# Pi runtime state for sample launches is local and generated.
+-sample/.pi/
+
+# Pulled Cell view artifacts, local deploy outputs, and Rooted metadata are managed outputs.
+-sample/*/view/.pulled/
+-sample/*/.tmp/
+-sample/*/.sys.rooted/
+
+-sample/foo/

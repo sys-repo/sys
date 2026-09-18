@@ -2,6 +2,7 @@ import React from 'react';
 import { type t, Timecode } from './common.ts';
 import { startRafClockLoop } from './u.raf.ts';
 
+/** Run a virtual timecode playback clock through React state. */
 export const useVirtualPlayback: t.UseVirtualPlayback = (resolved, opts = {}) => {
   const {
     startAt = 0,
@@ -13,9 +14,9 @@ export const useVirtualPlayback: t.UseVirtualPlayback = (resolved, opts = {}) =>
     debug,
   } = opts;
 
-  const clockRef = React.useRef<t.VirtualClock | null>(null);
+  const clockRef = React.useRef<t.Timecode.VirtualClock.Instance | null>(null);
 
-  const [snap, setSnap] = React.useState<t.VirtualClockState>(() => ({
+  const [snap, setSnap] = React.useState<t.Timecode.VirtualClock.State>(() => ({
     vtime: Timecode.VTime.zero,
     index: -1,
     seg: undefined,
@@ -61,7 +62,7 @@ export const useVirtualPlayback: t.UseVirtualPlayback = (resolved, opts = {}) =>
     return dispose;
   }, [resolved, startAt, autoPlay, loop, speed, life, driver]);
 
-  const apply = React.useCallback((s: t.VirtualClockState) => setSnap(s), []);
+  const apply = React.useCallback((s: t.Timecode.VirtualClock.State) => setSnap(s), []);
 
   const play = React.useCallback(() => {
     const c = clockRef.current;
@@ -74,7 +75,7 @@ export const useVirtualPlayback: t.UseVirtualPlayback = (resolved, opts = {}) =>
   }, [apply]);
 
   const seek = React.useCallback(
-    (v: t.TimecodeVTime) => {
+    (v: t.Timecode.VTime) => {
       const c = clockRef.current;
       if (!c) return;
       apply(c.seek(Timecode.VTime.fromMsecs(v)));
@@ -91,13 +92,13 @@ export const useVirtualPlayback: t.UseVirtualPlayback = (resolved, opts = {}) =>
     [apply],
   );
 
-  const mapToSource = React.useCallback((v: t.TimecodeVTime) => {
+  const mapToSource = React.useCallback((v: t.Timecode.VTime) => {
     const c = clockRef.current;
     if (!c) return null;
     return c.mapToSource(Timecode.VTime.fromMsecs(v));
   }, []);
 
-  const vtime: t.TimecodeVTime = Timecode.VTime.toMsecs(snap.vtime);
+  const vtime: t.Timecode.VTime = Timecode.VTime.toMsecs(snap.vtime);
   return {
     vtime,
     index: snap.index,

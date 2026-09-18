@@ -5,7 +5,7 @@ import { toAutomergeHandle } from '../m.Crdt.Ref/u.toAutomergeHandle.ts';
 
 type O = Record<string, unknown>;
 
-export const CrdtIs: t.CrdtIsLib = {
+export const CrdtIs: t.Crdt.Lib['Is'] = {
   repo(input?: unknown): input is t.CrdtRepo {
     if (input == null || !Obj.isObject(input)) return false;
     const repo = input as t.CrdtRepo;
@@ -21,12 +21,12 @@ export const CrdtIs: t.CrdtIsLib = {
     );
   },
 
-  ref<T extends O>(input?: unknown): input is t.CrdtRef<T> {
+  ref<T extends O>(input?: unknown): input is t.Crdt.Ref<T> {
     if (input == null || !Obj.isObject(input)) return false;
     return !!toAutomergeHandle(input as t.CrdtRef<O>);
   },
 
-  id(input?: unknown): input is t.DocumentId {
+  id(input?: unknown): input is t.Crdt.Id {
     return isValidDocumentId(input);
   },
 

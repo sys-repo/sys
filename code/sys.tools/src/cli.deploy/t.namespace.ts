@@ -4,6 +4,16 @@ import type { t } from './common.ts';
  * Tools for deploying files to a publishing endpoint (CDN).
  */
 export namespace DeployTool {
+  /**
+   * Public Deploy helper API.
+   */
+  export type Lib = {
+    /** Stage endpoint files from owner YAML. */
+    stage(args: StageArgs): Promise<StageResult>;
+    /** Push an already-staged endpoint from owner YAML. */
+    push(args: PushArgs): Promise<PushResult>;
+  };
+
   export const ID = 'deploy' as const;
   export const NAME = 'system/deploy:tools' as const;
   export type Id = typeof ID;
@@ -11,7 +21,7 @@ export namespace DeployTool {
 
   /** Command names. */
   export type Command = 'back' | 'exit';
-  export type MenuOption = { name: string; value: Command };
+  export type MenuOption = { readonly name: string; readonly value: Command };
 
   /** Command line arguments (argv). */
   export type CliAction = 'stage' | 'push' | 'stage+push';
@@ -19,22 +29,107 @@ export namespace DeployTool {
     config?: string;
     action?: CliAction;
     'non-interactive'?: boolean;
+    /** Force push repair mode: rewrite staged publish files even when remote manifests match. */
+    force?: boolean;
   };
   export type CliParsedArgs = t.ParsedArgs<CliArgs> & {
-    interactive: boolean;
+    readonly interactive: boolean;
   };
 
+  /** Inputs accepted by `Deploy.stage`. */
+  export type StageArgs = {
+    cwd?: t.StringDir;
+    /** Cancel staging and settle any owned build child before releasing authority. */
+    until?: t.UntilInput;
+  } & t.Tools.ConfigRefArgs;
+
+  /** Inputs accepted by `Deploy.push`. */
+  export type PushArgs = {
+    cwd?: t.StringDir;
+    /** Rewrite staged publish files even when the remote manifest says they are unchanged. */
+    force?: boolean;
+  } & t.Tools.ConfigRefArgs;
+
+  /** Successful staging result. */
+  export type StageResult = {
+    readonly ok: true;
+    readonly config: t.StringPath;
+    readonly cwd: t.StringDir;
+    readonly stagingRoot: t.StringAbsoluteDir;
+    /** Immutable evidence for the exact root Dist completed by this operation. */
+    readonly verification: t.Pkg.Dist.Local.Verify.Evidence;
+  };
+
+  /** Successful publication result. */
+  export type PushResult = {
+    readonly ok: true;
+    readonly cwd: t.StringDir;
+    readonly config: t.StringPath;
+    readonly targets: number;
+    readonly elapsed?: string;
+    readonly bytes?: number;
+    /** Provider-reported per-file publish details when available. */
+    readonly publish?: t.PushPublishStats;
+    /** Provider-reported stale-file removals when available. */
+    readonly prune?: t.PushPruneStats;
+  };
+
+  /**
+   * Non-throwing staging operation results.
+   */
+  export namespace StageOperation {
+    /** Staging success or expected failure. */
+    export type Result = StageResult | Failure;
+
+    /** Expected staging failure. */
+    export type Failure = {
+      readonly ok: false;
+      readonly config: t.StringPath;
+      readonly cwd: t.StringDir;
+      readonly stagingRoot?: t.StringAbsoluteDir;
+      readonly error?: unknown;
+    };
+  }
+
+  /**
+   * Non-throwing publication operation results.
+   */
+  export namespace PushOperation {
+    /** Publication success or expected failure. */
+    export type Result = PushResult | Failure;
+
+    /** Expected publication failure. */
+    export type Failure = {
+      readonly ok: false;
+      readonly cwd: t.StringDir;
+      readonly config: t.StringPath;
+      readonly reason:
+        | 'yaml-invalid'
+        | 'no-provider'
+        | 'no-push-targets'
+        | 'no-staging-output'
+        | 'failed';
+      readonly hint?: string;
+      readonly target?: t.PushTargetContext;
+      readonly missing?: readonly t.PushMissingTarget[];
+      readonly error?: unknown;
+    };
+  }
+
+  /**
+   * Deploy endpoint configuration contracts.
+   */
   export namespace Config {
-    export type File = t.JsonFile<Doc>;
-    export type Doc = t.JsonFileDoc & {
-      name: string;
+    export type File = t.JsonFile.Instance<Doc>;
+    export type Doc = t.JsonFile.Doc & {
+      readonly name: string;
       /**
        * Thin index:
        * - recency metadata for ordering
        * - stable endpoint name
        * - relative YAML file path (authority lives in YAML)
        */
-      endpoints?: readonly EndpointRef[];
+      readonly endpoints?: readonly EndpointRef[];
     };
 
     /**
@@ -43,9 +138,9 @@ export namespace DeployTool {
      */
     export type EndpointRef = t.Tools.Recency & {
       /** Stable, unique endpoint name (menu key). */
-      name: string;
+      readonly name: string;
       /** Relative path to the YAML file (from the CLI cwd). */
-      file: t.StringPath;
+      readonly file: t.StringPath;
     };
 
     /**
@@ -53,6 +148,21 @@ export namespace DeployTool {
      * (We keep these types here so callers can share the same vocabulary.)
      */
     export namespace EndpointYaml {
+      /** Authoritative endpoint YAML document. */
+      export type Doc = {
+        /** Optional provider adapter config. */
+        provider?: Provider.All;
+
+        /** Source root for this endpoint. */
+        source?: Source;
+
+        /** Required dedicated staging root for this endpoint. */
+        staging: Staging;
+
+        /** Directory mappings assembled into this endpoint. */
+        mappings?: Mapping[];
+      };
+
       /**
        * Canonical per-mapping behavior.
        * - 'build+copy' → build first, then copy output
@@ -61,27 +171,26 @@ export namespace DeployTool {
       export type SourceMode = 'copy' | 'build+copy' | 'index';
 
       /**
-       * Maps an input directory into the generated endpoint staging dir.
-       * (Source may be absolute or relative; resolution rules are handled by runtime.)
+       * Maps one directory into the generated endpoint staging dir.
+       * Copy/build sources resolve from `source.dir`; index sources resolve from `staging.dir`
+       * after standard mappings complete.
        */
       export type Mapping = {
-        dir: { source: t.StringDir; staging: '.' | t.StringPath };
+        dir: {
+          source: t.StringDir;
+          staging: '.' | t.StringPath;
+        };
         mode: SourceMode;
         /**
          * Optional shard expansion for template paths.
          * When provided and templates are present, mappings are expanded per shard.
          */
-        shards?: { total: number; requireAll?: boolean };
-      };
-
-      /**
-       * Singular Deno package-target selection.
-       *
-       * Deno stages one selected target into one staged root, so no mapping
-       * mode discriminator or array fan-in is needed.
-       */
-      export type DenoMapping = {
-        dir: { source: t.StringDir; staging: '.' | t.StringPath };
+        shards?: {
+          /** Positive safe-integer number of template expansions. */
+          total: number;
+          /** Require every expanded source path to exist. */
+          requireAll?: boolean;
+        };
       };
 
       /**
@@ -89,13 +198,11 @@ export namespace DeployTool {
        * All mapping `dir.staging` paths are resolved relative to this directory.
        */
       export type Staging = {
-        /** Root directory for staging (relative to deploy cwd). */
+        /** Dedicated operation-owned root directory relative to deploy cwd. */
         dir: t.StringPath;
-        /** When true, clears staging targets before running mappings. */
-        clear?: boolean;
-        /** Optional local serve configuration for staged endpoint sanity checks. */
+        /** Optional local preview configuration for the verified staged endpoint. */
         serve?: {
-          /** Port used by the local staged static server. */
+          /** Exact port used by the verified local Dist preview. */
           port?: number;
         };
         /** Optional HTML staging policies. */
@@ -107,62 +214,60 @@ export namespace DeployTool {
 
       /**
        * Endpoint source root.
-       * Mapping `dir.source` values are resolved relative to this directory.
+       * Copy/build `dir.source` values are resolved relative to this directory; index sources are
+       * staging-root relative.
        */
       export type Source = {
         /** Root directory for sources (relative to deploy cwd). */
         dir: t.StringPath;
       };
-
-      export type Doc = {
-        /** Optional provider adapter config. */
-        provider?: Provider.All;
-
-        /** Source root for this endpoint. */
-        source?: Source;
-
-        /** Staging root for this endpoint. */
-        staging?: Staging;
-
-        /** Directory mappings assembled into this endpoint. */
-        mappings?: readonly Mapping[];
-
-        /** Singular Deno package-target mapping. */
-        mapping?: DenoMapping;
-      };
     }
 
     /**
-     * Deployment provider configuration.
+     * Strict provider configuration authored inside endpoint YAML.
      *
-     * A DeployProvider describes the *remote system* an endpoint is published to.
-     * It is intentionally a tagged union (`kind`) so:
-     * - schemas can discriminate cleanly
-     * - validation errors are precise
-     * - new providers can be added without breaking existing configs
-     *
-     * Provider objects are authored inside endpoint YAML files and validated
-     * strictly at runtime. Unknown providers should fail validation once the
-     * provider surface is tightened.
-     *
-     * Current providers:
-     * - `orbiter`
-     * - `deno`
-     * - `noop`
+     * Supported providers:
+     * - `noop` → inert, with no publication target
+     * - `r2` → Cloudflare R2 publication
      */
     export namespace Provider {
       /**
        * Tagged union of all supported provider configs.
        * Add new providers here (and in u.providers schemas) as they land.
        */
-      export type All = Orbiter | Deno | t.NoopProvider; // ...S3, etc.
-      export type Orbiter = t.OrbiterProvider; // IPFS
-      export type Deno = t.DenoProvider;
+      export type All = Noop | R2;
+      /** Inert provider configuration. */
       export type Noop = t.NoopProvider;
+      /** Cloudflare R2 provider configuration. */
+      export type R2 = t.R2Provider;
     }
   }
 
+  /**
+   * Deploy endpoint execution contracts.
+   */
   export namespace Endpoint {
+    /** Endpoint actions backed by production execution. */
+    export type RunAction = Extract<Menu.Action, 'stage' | 'push' | 'stage-push' | 'preview'>;
+
+    /** Result of one endpoint action. */
+    export type RunResult = {
+      readonly ok: boolean;
+      /** Finite nested-preview navigation after Server-owned cleanup. */
+      readonly preview?: t.DistServer.Serve.Result;
+      readonly stageOk?: boolean;
+      readonly push?: {
+        readonly ok: boolean;
+        readonly elapsed?: string;
+        readonly bytes?: number;
+        /** Provider-reported per-file publish details when available. */
+        readonly publish?: t.PushPublishStats;
+        /** Provider-reported stale-file removals when available. */
+        readonly prune?: t.PushPruneStats;
+      };
+      readonly error?: unknown;
+    };
+
     /**
      * Filesystem conventions for endpoint YAML storage.
      * - Root dir is relative to the CLI cwd.
@@ -176,43 +281,45 @@ export namespace DeployTool {
         | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
     }
 
+    /**
+     * Interactive endpoint menu contracts.
+     */
     export namespace Menu {
       export type Action =
         | 'stage'
         | 'push'
         | 'stage-push'
-        | 'serve'
+        | 'preview'
         | 'edit'
+        | 'reload'
         | 'fix'
         | 'rename'
         | 'delete'
         | 'back';
       export type Option = { readonly name: string; readonly value: Action };
     }
-
-    export type RunAction = Extract<Menu.Action, 'stage' | 'push' | 'stage-push' | 'serve'>;
-    export type RunResult = {
-      readonly ok: boolean;
-      readonly stageOk?: boolean;
-      readonly push?: {
-        readonly ok: boolean;
-        readonly elapsed?: string;
-        readonly shards?: number;
-        readonly bytes?: number;
-      };
-      readonly error?: unknown;
-    };
   }
 
+  /**
+   * Deterministic staging contracts.
+   */
   export namespace Staging {
+    /** Stable canonical identity captured for one staging directory. */
+    export type DirectoryIdentity = {
+      readonly path: t.StringAbsoluteDir;
+      readonly device: number;
+      readonly inode: number;
+    };
+
     /**
      * Source → staging directory mapping.
-     * - `source` is an absolute or cwd-relative directory
-     * - `staging` is a relative path under the staging root
+     * Copy/build sources resolve from the configured source root; index sources resolve from the
+     * staging root. Destinations are authored staging-root relative. Preflight resolves and admits
+     * every path before execution.
      */
     export type Dir = {
-      readonly source: t.StringDir;
-      readonly staging: t.StringRelativeDir;
+      source: t.StringDir;
+      staging: t.StringRelativeDir;
     };
 
     /**
@@ -221,9 +328,9 @@ export namespace DeployTool {
      * - `build+copy`: build source, then copy build output into staging
      */
     export type Mapping =
-      | { readonly mode: 'copy'; readonly dir: Dir }
-      | { readonly mode: 'build+copy'; readonly dir: Dir }
-      | { readonly mode: 'index'; readonly dir: Dir };
+      | { mode: 'copy'; dir: Dir }
+      | { mode: 'build+copy'; dir: Dir }
+      | { mode: 'index'; dir: Dir };
 
     /** Build progress. */
     export type ProgressKind = 'mapping:start' | 'mapping:step' | 'mapping:done' | 'mapping:fail';

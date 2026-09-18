@@ -1,23 +1,24 @@
 import { cli as tmpl } from '../../../../../-tmpl/src/m.tmpl/mod.ts';
-import { Fs, Str, type t } from '../../-test.ts';
-import { runTask, type TaskRun } from './u.fixture.task.ts';
+import { Fs, Str } from '../../-test.ts';
+import { commandRun, type FixtureRun, operationRun, runTask } from './u.fixture.run.ts';
 
 type GeneratedRepo = {
   readonly rootDir: string;
   readonly fooDir: string;
-  readonly generate: TaskRun;
-  readonly build: TaskRun;
+  readonly generate: FixtureRun;
+  readonly bootstrap: FixtureRun;
+  readonly build: FixtureRun;
 };
 
 type GeneratedWorkspaceRepo = {
   readonly rootDir: string;
   readonly fooDir: string;
   readonly barDir: string;
-  readonly generateFoo: TaskRun;
-  readonly generateBar: TaskRun;
-  readonly patch: TaskRun;
-  readonly bootstrap: TaskRun;
-  readonly build: TaskRun;
+  readonly generateFoo: FixtureRun;
+  readonly generateBar: FixtureRun;
+  readonly patch: FixtureRun;
+  readonly bootstrap: FixtureRun;
+  readonly build: FixtureRun;
 };
 
 export async function buildGeneratedRepo(args: {
@@ -31,19 +32,18 @@ export async function buildGeneratedRepo(args: {
   const projectsDir = Fs.join(rootDir, 'code', 'projects');
   const fooDir = Fs.join(projectsDir, 'foo');
   const generate = await runTmplPkg(projectsDir, 'foo', '@tmp/foo');
-  const build =
-    generate.ok && (await Fs.exists(fooDir))
-      ? await runTask(fooDir, 'build')
-      : {
-          cwd: fooDir,
-          cmd: ['task', 'build'] as const,
-          ok: false,
-          code: 1,
-          stdout: '',
-          stderr: `Skipped build because generated project was unavailable at ${fooDir}`,
-        };
+  const bootstrap = generate.ok && (await Fs.exists(fooDir))
+    ? await runTask(rootDir, 'install')
+    : skippedTask(
+      rootDir,
+      'install',
+      'Skipped bootstrap because generated project was unavailable',
+    );
+  const build = generate.ok && bootstrap.ok && (await Fs.exists(fooDir))
+    ? await runTask(fooDir, 'build')
+    : skippedTask(fooDir, 'build', 'Skipped build because generated repository was unavailable');
 
-  return { rootDir, fooDir, generate, build };
+  return { rootDir, fooDir, generate, bootstrap, build };
 }
 
 export async function buildGeneratedWorkspaceRepo(args: {
@@ -62,21 +62,33 @@ export async function buildGeneratedWorkspaceRepo(args: {
   const patch =
     generateFoo.ok && generateBar.ok && (await Fs.exists(fooDir)) && (await Fs.exists(barDir))
       ? await patchWorkspaceRepo(fooDir, barDir)
-      : skippedTask(fooDir, 'patch', 'Skipped workspace patch because generated packages were unavailable');
-  const bootstrap =
-    generateFoo.ok && generateBar.ok && patch.ok
-      ? await runTask(rootDir, 'install')
-      : skippedTask(rootDir, 'install', 'Skipped workspace bootstrap because generated packages were unavailable');
+      : skippedTask(
+        fooDir,
+        'patch',
+        'Skipped workspace patch because generated packages were unavailable',
+      );
+  const bootstrap = generateFoo.ok && generateBar.ok && patch.ok
+    ? await runTask(rootDir, 'install')
+    : skippedTask(
+      rootDir,
+      'install',
+      'Skipped workspace bootstrap because generated packages were unavailable',
+    );
   const build =
     generateFoo.ok && generateBar.ok && patch.ok && bootstrap.ok && (await Fs.exists(fooDir))
       ? await runTask(fooDir, 'build')
-      : skippedTask(fooDir, 'build', 'Skipped build because generated workspace repo was unavailable');
+      : skippedTask(
+        fooDir,
+        'build',
+        'Skipped build because generated workspace repo was unavailable',
+      );
 
   return { rootDir, fooDir, barDir, generateFoo, generateBar, patch, bootstrap, build };
 }
 
-async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<TaskRun> {
+async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<FixtureRun> {
   const cmd = [
+    'deno',
     'run',
     '-P=integration',
     '@sys/tmpl',
@@ -99,10 +111,10 @@ async function runTmplPkg(cwd: string, dir: string, pkgName: string): Promise<Ta
       dir,
       pkgName,
     });
-    return { cwd, cmd, ok: true, code: 0, stdout: '', stderr: '' };
+    return commandRun({ cwd, cmd, ok: true, code: 0, stdout: '', stderr: '' });
   } catch (error) {
     const stderr = error instanceof Error ? (error.stack ?? error.message) : String(error);
-    return { cwd, cmd, ok: false, code: 1, stdout: '', stderr };
+    return commandRun({ cwd, cmd, ok: false, code: 1, stdout: '', stderr });
   }
 }
 
@@ -118,8 +130,8 @@ async function writeRepoTemplate(cwd: string, dir: string) {
   });
 }
 
-async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<TaskRun> {
-  const cmd = ['patch', 'workspace'] as const;
+async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<FixtureRun> {
+  const operation = 'workspace patch';
 
   try {
     await Fs.write(
@@ -141,20 +153,20 @@ async function patchWorkspaceRepo(fooDir: string, barDir: string): Promise<TaskR
         );
       `),
     );
-    return { cwd: fooDir, cmd, ok: true, code: 0, stdout: '', stderr: '' };
+    return operationRun({ cwd: fooDir, operation, ok: true, code: 0, stdout: '', stderr: '' });
   } catch (error) {
     const stderr = error instanceof Error ? (error.stack ?? error.message) : String(error);
-    return { cwd: fooDir, cmd, ok: false, code: 1, stdout: '', stderr };
+    return operationRun({ cwd: fooDir, operation, ok: false, code: 1, stdout: '', stderr });
   }
 }
 
-function skippedTask(cwd: string, task: string, stderr: string): TaskRun {
-  return {
+function skippedTask(cwd: string, task: string, stderr: string): FixtureRun {
+  return commandRun({
     cwd,
-    cmd: [task] as const,
+    cmd: ['deno', 'task', task],
     ok: false,
     code: 1,
     stdout: '',
     stderr,
-  };
+  });
 }

@@ -28,6 +28,7 @@ export type WireMethod = t.WireRepoMethod | t.WireDocMethod;
  * Keeps `WireCall`/`WireResult` strongly typed without exploding union types.
  */
 export type WireRepoCreateResult = { readonly id: t.StringId };
+/** Result payload for resolving a repository document over the wire. */
 export type WireRepoGetResult<T extends O = O> = {
   readonly doc?: { readonly id: t.StringId };
   readonly error?: t.CrdtRepoError;
@@ -48,6 +49,7 @@ export type WireError = {
   readonly stack?: string;
 };
 
+/** Wire error category shared by repo, worker, and generic failures. */
 export type WireErrorKind = t.CrdtRepoErrorKind | 'NotImplemented' | 'UNKNOWN';
 
 /**
@@ -66,6 +68,7 @@ export type WireResult = t.WireRepoResultOk | t.WireRepoResultErr;
  * - 'crdt:doc:<id>'  → WireDocEventPayload
  */
 export type WireEvent = WireEventRepo | WireEventDoc;
+/** Repo-stream event envelope. */
 export type WireEventRepo = {
   readonly version: typeof WIRE_VERSION;
   readonly type: 'event';
@@ -73,6 +76,7 @@ export type WireEventRepo = {
   readonly event: t.WireRepoEventPayload;
   readonly meta?: WireMeta;
 };
+/** Document-stream event envelope. */
 export type WireEventDoc = {
   readonly version: typeof WIRE_VERSION;
   readonly type: 'event';

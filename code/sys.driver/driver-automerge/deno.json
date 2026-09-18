@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.254",
+  "version": "0.0.334",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/index.html",
@@ -17,7 +17,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./debug": "./src/m.Debug/mod.ts",
     "./fs": "./src/-exports/-fs/mod.ts",
     "./web": "./src/-exports/-web/mod.ts",

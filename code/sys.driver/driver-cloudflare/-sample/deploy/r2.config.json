@@ -1,0 +1,10 @@
+{
+  "accountId": "1e6ec0395407e49eef7ee54f667d61de",
+  "bucket": "sys-test",
+  "prefix": "tmp.sys.driver-cloudflare/r2-proof-ui",
+  "credentials": {
+    "accessKeyId": "SYS_TEST_R2_ACCESS_KEY_ID",
+    "secretAccessKey": "SYS_TEST_R2_SECRET_ACCESS_KEY"
+  },
+  "limits": { "maxBytes": 1048576, "timeout": 5000, "maxConcurrent": 4 }
+}

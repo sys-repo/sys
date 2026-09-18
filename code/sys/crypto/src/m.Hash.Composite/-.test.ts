@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, Pkg, Time } from '../-test.ts';
+import { describe, expect, it, Pkg, type t, Time } from '../-test.ts';
 import { Hash } from '../m.Hash/mod.ts';
 import { FileHashUri } from './m.Uri.ts';
 import { CompositeHash } from './mod.ts';
@@ -208,7 +208,7 @@ describe('hash', () => {
 
       it('verify → NOT valid (different hash algoriths used)', async () => {
         // NB: this test also proves the {hash:algo} parameter works.
-        const test = async (algo: t.HashAlgoInput) => {
+        const test = async (algo: t.CompositeHash.AlgoInput) => {
           const sample = setup();
           const res = await CompositeHash.verify(sample.hash, {
             algo,

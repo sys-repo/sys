@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Time } from '../mod.ts';
 
 describe('waiting', () => {
@@ -46,12 +46,13 @@ describe('waiting', () => {
     });
 
     it('has correct type signature', () => {
-      expectTypeOf(Time.wait).toEqualTypeOf<t.TimeLib['wait']>();
+      expectTypeOf(Time).toEqualTypeOf<t.Time.Lib>();
+      expectTypeOf(Time.wait).toEqualTypeOf<t.Time.Lib['wait']>();
 
       type WaitShape = (
         msecs?: t.Msecs,
         options?: { readonly signal?: AbortSignal } | AbortSignal,
-      ) => t.TimeDelayPromise;
+      ) => t.Time.Delay.Promise;
       expectTypeOf(Time.wait).toEqualTypeOf<WaitShape>();
     });
   });
@@ -86,7 +87,7 @@ describe('waiting', () => {
     });
 
     it('has correct type signature', () => {
-      expectTypeOf(Time.waitFor).toEqualTypeOf<t.TimeLib['waitFor']>();
+      expectTypeOf(Time.waitFor).toEqualTypeOf<t.Time.Lib['waitFor']>();
 
       type WaitForShape = <T>(
         fn: () => T | Promise<T>,

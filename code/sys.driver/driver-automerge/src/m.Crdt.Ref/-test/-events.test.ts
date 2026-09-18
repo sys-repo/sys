@@ -1,12 +1,25 @@
-import { type t, AutomergeRepo, describe, expect, Is, it, Rx, Testing } from '../../-test.ts';
+import {
+  afterAll,
+  AutomergeRepo,
+  describe,
+  expect,
+  Is,
+  it,
+  repoCleanup,
+  Rx,
+  type t,
+  Testing,
+} from '../../-test.ts';
 import { Crdt } from '../../m.server/common.ts';
 import { toRef } from '../mod.ts';
 
-describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps: false }, () => {
+const Repos = repoCleanup(afterAll);
+
+describe('CrdtRef: events (observable)', () => {
   type T = { count: number; foo: string[] };
 
   const sample = () => {
-    const repo = new AutomergeRepo();
+    const repo = Repos.automerge(new AutomergeRepo());
     const handle = repo.create<T>({ count: 0, foo: [] });
     const doc = toRef<T>(handle);
     return { doc, repo } as const;
@@ -39,7 +52,7 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
   });
 
   it('events.deleted$', async () => {
-    const repo = Crdt.repo();
+    const repo = Repos.crdt(Crdt.repo());
     const { doc, error } = await repo.create<T>({ count: 0, foo: [] });
     if (error) throw error;
     expect(doc.deleted).to.eql(false);
@@ -143,13 +156,13 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
 
   describe('dispose', () => {
     it('dispose events (via param)', async () => {
-      const life = Rx.disposable();
-      const repo = new AutomergeRepo();
+      const life = Rx.lifecycle();
+      const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0, foo: [] });
       const doc = toRef(handle);
 
       let fired = 0;
-      doc.events(life).$.subscribe(() => fired++);
+      doc.events(life.dispose$).$.subscribe(() => fired++);
 
       // Trigger one change:
       doc.change((d) => (d.count += 1));
@@ -167,7 +180,7 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
     });
 
     it('dispose events (via method)', async () => {
-      const repo = new AutomergeRepo();
+      const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0, foo: [] });
       const doc = toRef(handle);
       const events = doc.events();
@@ -189,7 +202,7 @@ describe('CrdtRef: events (observable)', { sanitizeResources: false, sanitizeOps
     });
 
     it('dispose events (via doc)', async () => {
-      const repo = new AutomergeRepo();
+      const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0, foo: [] });
       const doc = toRef(handle);
       expect(doc.disposed).to.eql(false);

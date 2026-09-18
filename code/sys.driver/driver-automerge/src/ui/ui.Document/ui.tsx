@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Color, css, KeyValue, Spinners, useDocStats } from './common.ts';
 import { toItems } from './u.toItems.ts';
 
-type P = t.DocumentProps;
+type P = t.Document.Props;
 
 export const Document: React.FC<P> = (props) => {
   const { debug = false, repo, doc } = props;

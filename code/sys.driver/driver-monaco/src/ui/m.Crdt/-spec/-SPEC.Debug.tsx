@@ -52,7 +52,7 @@ export async function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
   const repo = createUiRepo();
-  const bus$ = Rx.subject<t.EditorEvent>();
+  const bus$ = Rx.subject<t.EditorEvent.Shape>();
 
   const props = {
     debug: s(snap.debug),

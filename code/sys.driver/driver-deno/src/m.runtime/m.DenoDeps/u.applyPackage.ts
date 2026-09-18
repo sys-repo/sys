@@ -3,7 +3,7 @@ import { Deps, type t } from './common.ts';
 /**
  * Apply package dependencies onto a target `package.json` file.
  */
-export const applyPackage: t.DepsLib['applyPackage'] = async (
+export const applyPackage: t.DenoDeps.Lib['applyPackage'] = async (
   path: t.StringPath | undefined,
-  deps?: t.Dep[],
-): Promise<t.DenoDeps.ApplyPackageResult | undefined> => await Deps.applyPackage(path, deps);
+  deps?: t.DenoDeps.Dep[],
+): Promise<t.DenoDeps.Apply.PackageResult | undefined> => await Deps.applyPackage(path, deps);

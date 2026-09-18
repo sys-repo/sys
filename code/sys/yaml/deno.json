@@ -1,6 +1,6 @@
 {
   "name": "@sys/yaml",
-  "version": "0.0.140",
+  "version": "0.0.204",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -25,7 +25,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./core": "./src/-exports/-core.ts",
     "./cli": "./src/m.cli/mod.ts"
   }

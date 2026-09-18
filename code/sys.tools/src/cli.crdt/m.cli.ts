@@ -221,7 +221,7 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
           }
 
           menuOptions.push(...[optMenu(c.gray(c.dim('  forget')), 'doc:remove')]);
-          menuOptions.push(optMenu(c.gray(c.dim('← back')), 'back'));
+          menuOptions.push(optMenu(Fmt.back(), 'back'));
 
           const B = (await Cli.Input.Select.prompt<MenuAction>({
             message: `with ${c.gray(docid)}:`,
@@ -334,7 +334,7 @@ async function run(cwd: t.StringDir, options: { log?: t.Logger }): Promise<t.Run
 }
 
 const wrangle = {
-  pluginResult(result: t.MenuResult): t.MenuResultKind {
+  pluginResult(result: t.CliInput.Menu.Result): t.CliInput.Menu.ResultKind {
     if (Is.str(result)) return result;
     if (result && Is.str(result.kind)) return result.kind;
     return 'stay';

@@ -17,7 +17,7 @@ export const RED = '#e21b22';
 export const TRANSPARENT = '#00000000';
 
 /** Canonical color constant map. */
-export const COLORS: t.ColorConstants = {
+export const COLORS: t.Color.Constants = {
   TRANSPARENT,
   BLACK,
   WHITE,

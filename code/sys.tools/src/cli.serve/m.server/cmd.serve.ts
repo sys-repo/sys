@@ -1,56 +1,8 @@
-import { type t, c, Cli, D, Fmt, Http, Net, Open, Str } from '../common.ts';
+import { c, Cli, Fmt, Open, Str, type t } from '../common.ts';
 import { type OpenMenuPick, OpenTargets } from './u.openTargets.ts';
-import { route } from './u.serve.route.ts';
+import { startServer } from './u.startServer.ts';
 
-type Opts = { port?: number; host?: 'local' | 'network'; silent?: boolean };
-export type StartServingContext = {
-  readonly location: t.ServeTool.LocationYaml.Location;
-  readonly host: 'local' | 'network';
-  readonly hostname: '127.0.0.1' | '0.0.0.0';
-  readonly port: number;
-  readonly baseUrl: t.StringUrl;
-  readonly server: Deno.HttpServer<Deno.NetAddr>;
-  readonly abort: AbortController;
-  close(): Promise<void>;
-};
 type ServeResult = { readonly kind: 'back' } | { readonly kind: 'closed' };
-
-/**
- * Start a local HTTP server for the given directory and return the running context.
- */
-export function startServer(
-  location: t.ServeTool.LocationYaml.Location,
-  opts: Opts = {},
-): StartServingContext {
-  const { dir } = location;
-  const app = Http.Server.create({ static: false });
-
-  app.use('*', Http.Server.forceDirSlash(dir));
-  app.use('*', route({ dir }));
-  app.use('*', Http.Server.static({ root: dir }));
-
-  const port = Net.port(opts.port ?? D.port);
-  const baseOptions = Http.Server.options({ port, dir, silent: opts.silent === true });
-  const abort = new AbortController();
-  const host = opts.host ?? 'local';
-  const hostname = host === 'network' ? '0.0.0.0' : '127.0.0.1';
-  const server = Deno.serve({ ...baseOptions, hostname, signal: abort.signal }, app.fetch);
-  const baseUrl = host === 'network' ? `http://0.0.0.0:${port}` : `http://localhost:${port}`;
-
-  return {
-    location,
-    host,
-    hostname,
-    port,
-    baseUrl: baseUrl as t.StringUrl,
-    server,
-    abort,
-    async close() {
-      abort.abort();
-      await server.finished;
-    },
-  };
-}
 
 /**
  * Start a local HTTP server for the given directory and run the interactive menu loop.
@@ -58,15 +10,21 @@ export function startServer(
 export async function startServing(
   cwd: t.StringDir,
   location: t.ServeTool.LocationYaml.Location,
-  opts: Opts = {},
+  opts: t.ServeTool.StartServerOpts = {},
 ): Promise<ServeResult> {
-  const context = startServer(location, { ...opts, silent: false });
+  const context = await startServer(location, { ...opts, silent: false });
   return await runOpenPromptLoop(cwd, context);
 }
 
 type OpenValue = OpenMenuPick | { cmd: 'reload' } | { cmd: 'back' };
 
-async function runOpenPromptLoop(cwd: t.StringDir, context: StartServingContext): Promise<ServeResult> {
+/**
+ * Helpers:
+ */
+async function runOpenPromptLoop(
+  cwd: t.StringDir,
+  context: t.ServeTool.StartServingContext,
+): Promise<ServeResult> {
   const { location, host, port, baseUrl } = context;
   let didBack = false;
   let lastSelection: OpenValue | undefined;
@@ -128,7 +86,7 @@ async function runOpenPromptLoop(cwd: t.StringDir, context: StartServingContext)
     const options = [
       ...openMenu,
       { name: c.dim(c.gray('  ↻ reload')), value: { cmd: 'reload' } },
-      { name: c.dim(c.gray('  ← back')), value: { cmd: 'back' } },
+      { name: Fmt.back({ indent: '  ' }), value: { cmd: 'back' } },
     ];
     console.clear();
     console.info(renderHeader());

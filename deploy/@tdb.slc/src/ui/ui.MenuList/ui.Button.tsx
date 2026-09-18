@@ -65,7 +65,7 @@ export const MenuButton: React.FC<MenuButtonProps> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  color(theme: t.ColorTheme, isSelected: boolean, isOver: boolean) {
+  color(theme: t.Color.Theme, isSelected: boolean, isOver: boolean) {
     let color = isOver ? Color.BLUE : theme.fg;
     if (isSelected) color = Color.BLUE;
     return color;

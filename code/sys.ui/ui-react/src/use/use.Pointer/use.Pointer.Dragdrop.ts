@@ -6,6 +6,7 @@ import { toModifiers } from './use.Pointer.Drag.ts';
 
 type AnimationFrameRequest = number;
 
+/** Track drag-and-drop pointer state for an element. */
 export const usePointerDragdrop: t.UsePointerDragdrop = (props = {}) => {
   const { onDragdrop, dropGuard = true } = props;
   const active = Boolean(onDragdrop);

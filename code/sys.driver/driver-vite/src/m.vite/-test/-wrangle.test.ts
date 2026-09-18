@@ -1,201 +1,169 @@
-import { describe, expect, Fs, it, Path } from '../../-test.ts';
+import { describe, expect, Fs, it, Path, ROOT } from '../../-test.ts';
 import { resolveFromImportMap } from '../../-test/u.importMap.ts';
-import { Wrangle } from '../u.wrangle.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
+import { createConsumer, option, readImportMap } from './u.fixture.wrangle.ts';
+
+const vite8 = { dependencies: { vite: '8.0.2' } };
+const vite7 = { dependencies: { vite: '7.3.1' } };
 
 describe('Vite.Wrangle', () => {
-  it('build: scopes child permissions to esbuild, deno, and localhost dns only', async () => {
-    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.build-' });
-    const root = tmp.absolute;
-    const consumerEsbuild = '0.27.4';
-    const consumerVite = '8.0.2';
-    await Fs.writeJson(`${root}/package.json`, {
-      dependencies: {
-        vite: consumerVite,
-        esbuild: consumerEsbuild,
-        '@vitejs/plugin-react': '6.0.1',
-      },
-    });
-    await Fs.writeJson(`${root}/deno.json`, { imports: { '@sys/http': './src/http.ts' } });
-    const paths = {
-      cwd: root,
-      app: {
-        entry: 'index.html',
-        outDir: 'dist',
-        base: '.',
-      },
-    } as const;
-
-    const res = await Wrangle.command(paths, 'build');
-    const importMapArg = res.args.find((item) => item.startsWith('--import-map='));
-    const importMapPath = importMapArg?.replace('--import-map=', '');
-    const importMap = importMapPath
-      ? await Fs.readJson<{ imports?: Record<string, string> }>(importMapPath)
-      : undefined;
-
-    expect(res.env.ESBUILD_BINARY_PATH).to.include('node_modules/.deno/');
-    expect(res.env.ESBUILD_BINARY_PATH).to.include(`@esbuild/`);
-    expect(
-      res.env.ESBUILD_BINARY_PATH.endsWith('/bin/esbuild') ||
-        res.env.ESBUILD_BINARY_PATH.endsWith('\\esbuild.exe'),
-    ).to.eql(true);
-    expect(importMapArg).to.be.a('string');
-    expect(importMap?.data?.imports?.['vite/internal']).to.eql(`npm:vite@${consumerVite}/internal`);
-    expect(importMap?.data?.imports?.['vite/module-runner']).to.eql(
-      `npm:vite@${consumerVite}/module-runner`,
-    );
-    expect(importMap?.data?.imports?.['#module-sync-enabled']).to.match(
-      /^file:.*module-sync-enabled\.mjs$/,
-    );
-    expect(importMap?.data?.imports?.zlib).to.eql('node:zlib');
-    expect(importMap?.data?.imports?.fs).to.eql(undefined);
-    expect(importMap?.data?.imports?.path).to.eql(undefined);
-    expect(importMap?.data?.imports?.['rolldown/experimental']).to.eql(undefined);
-    expect(importMap?.data?.imports?.tinyglobby).to.eql(undefined);
-    expect(importMap?.data?.imports?.['@rolldown/pluginutils']).to.eql(undefined);
-    expect(resolveFromImportMap(importMapPath ?? '', importMap?.data?.imports?.['@sys/http'])).to.eql(
-      Path.toFileUrl(Path.join(root, 'src/http.ts')).href,
-    );
-    const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
-    expect(allowWrite).to.include(root);
-    expect(allowWrite).to.include(`${root}/node_modules/.vite`);
-    expect(res.args).to.include('--allow-env');
-    expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
-    expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid');
-    expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
-    expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
-    expect(res.args).to.not.include('--allow-run');
-    expect(res.args).to.not.include('-A');
-    expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
-    expect(res.args).to.include(`npm:vite@${consumerVite}`);
-    expect(res.args).to.include('--configLoader=native');
-    expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
-
-    await res.dispose();
-    expect(importMapPath ? await Fs.exists(importMapPath) : false).to.eql(false);
-  });
-
-  it('dev: adds only deno, esbuild, osRelease, homedir, uid, gid, and networkInterfaces exceptions', async () => {
-    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.dev-' });
-    const root = tmp.absolute;
-    const consumerEsbuild = '0.27.4';
-    const consumerVite = '8.0.2';
-    await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: consumerVite, esbuild: consumerEsbuild },
-    });
-    const paths = {
-      cwd: root,
-      app: {
-        entry: 'index.html',
-        outDir: 'dist',
-        base: '.',
-      },
-    } as const;
-
-    const res = await Wrangle.command(paths, 'dev --port=1234 --host');
-
-    const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
-    expect(allowWrite).to.include(root);
-    expect(allowWrite).to.include(`${root}/node_modules/.vite`);
-    expect(res.args).to.include('--allow-env');
-    expect(res.args).to.include('--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]');
-    expect(res.args).to.include('--allow-sys=osRelease,homedir,uid,gid,networkInterfaces');
-    expect(res.args.filter((item) => item.startsWith('--allow-sys=')).length).to.eql(1);
-    expect(res.args).to.include(`--allow-run=${res.env.ESBUILD_BINARY_PATH},${Deno.execPath()}`);
-    expect(res.args.filter((item) => item.startsWith('--allow-run=')).length).to.eql(1);
-    expect(res.args).to.include(`npm:vite@${consumerVite}`);
-    expect(res.args).to.include('--configLoader=native');
-    expect(await Fs.exists(res.env.ESBUILD_BINARY_PATH)).to.eql(true);
-    expect(res.args.find((item) => item.startsWith('--import-map='))).to.be.a('string');
-    await res.dispose();
-  });
-
-  it('scopes vite cache writes to the consumer cwd instead of the broader package anchor', async () => {
-    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.cache-root-' });
-    const root = tmp.absolute;
-    const project = `${root}/code/projects/foo`;
-    await Fs.ensureDir(project);
-    await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '8.0.2', esbuild: '0.27.4' },
+  describe('package authority', () => {
+    it('anchors npm resolution at the nearest consumer package', async () => {
+      await using consumer = await createConsumer({
+        packageJson: { dependencies: {} },
+        project: 'code/projects/foo',
+      });
+      const anchor = await Wrangle.packageAnchor(consumer.cwd);
+      expect(anchor).to.eql(Path.join(consumer.root, 'package.json'));
     });
 
-    const paths = {
-      cwd: project,
-      app: {
-        entry: 'index.html',
-        outDir: 'dist',
-        base: '.',
-      },
-    } as const;
-
-    const res = await Wrangle.command(paths, 'dev --port=1234 --host');
-    const allowWrite = res.args.find((item) => item.startsWith('--allow-write='));
-    expect(allowWrite).to.include(project);
-    expect(allowWrite).to.include(`${project}/node_modules/.vite`);
-    expect(allowWrite).to.not.include(`${root}/node_modules/.vite`);
-    await res.dispose();
+    it('uses the consumer pin when the driver module has an HTTPS origin', async () => {
+      await using consumer = await createConsumer({
+        packageJson: vite7,
+        project: 'code/projects/foo',
+      });
+      const moduleUrl = 'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u/u.wrangle.ts';
+      const specifier = await Wrangle.viteSpecifier(consumer.cwd, moduleUrl);
+      expect(specifier).to.eql('npm:vite@7.3.1');
+    });
   });
 
-  it('anchors npm resolution at the nearest consumer package boundary', async () => {
-    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.anchor-' });
-    const root = tmp.absolute;
-    const project = `${root}/code/projects/foo`;
-    await Fs.ensureDir(project);
-    await Fs.writeJson(`${root}/package.json`, { dependencies: {} });
+  describe('startup configuration', () => {
+    it('Vite 8 → native loader and a disposable map with narrowly scoped runtime additions', async () => {
+      await using consumer = await createConsumer({
+        packageJson: { dependencies: { ...vite8.dependencies, '@vitejs/plugin-react': '6.0.1' } },
+        imports: { '@sys/http': './src/http.ts' },
+      });
+      const command = await consumer.command('build');
+      const { path, imports } = await readImportMap(command.args);
 
-    const res = await Wrangle.packageAnchor(project);
-    expect(res).to.eql(`${root}/package.json`);
-  });
+      expect(command.args.filter((arg) => arg.startsWith('npm:vite@'))).to.eql(['npm:vite@8.0.2']);
+      expect(option(command.args, '--configLoader')).to.eql('native');
+      expect(imports.vite).to.eql('npm:vite@8.0.2');
+      expect(imports['vite/internal']).to.eql('npm:vite@8.0.2/internal');
+      expect(imports['vite/module-runner']).to.eql('npm:vite@8.0.2/module-runner');
+      expect(imports['#module-sync-enabled']).to.match(/^file:.*module-sync-enabled\.mjs$/);
+      expect(imports.zlib).to.eql('node:zlib');
+      const excluded = [
+        'fs',
+        'path',
+        'rolldown/experimental',
+        'tinyglobby',
+        '@rolldown/pluginutils',
+      ];
+      for (const name of excluded) {
+        expect(imports[name], name).to.eql(undefined);
+      }
+      const http = resolveFromImportMap(path, imports['@sys/http']);
+      const expectedHttp = Path.toFileUrl(Path.join(consumer.root, 'src/http.ts')).href;
+      expect(http).to.eql(expectedHttp);
 
-  it('viteSpecifier: uses consumer package authority for published https module origins', async () => {
-    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.consumer-' });
-    const root = tmp.absolute;
-    const project = `${root}/code/projects/foo`;
-    await Fs.ensureDir(project);
-    await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '7.3.1' },
+      // Prove command disposal independently of the fixture's directory cleanup.
+      await command.dispose();
+      expect(await Fs.exists(path)).to.eql(false);
+      expect(await Fs.exists(consumer.root)).to.eql(true);
     });
 
-    const res = await Wrangle.viteSpecifier(
-      project,
-      'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u.wrangle.ts',
-    );
-    expect(res).to.eql('npm:vite@7.3.1');
-  });
+    it('Vite 7 → default loader, no startup map, and a bounded config-cache write grant', async () => {
+      await using consumer = await createConsumer({ packageJson: vite7 });
+      const { args } = await consumer.command('build');
+      const writes = option(args, '--allow-write').split(',');
 
-  it('build: keeps Vite 7 on the default config loader', async () => {
-    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.v7-' });
-    const root = tmp.absolute;
-    await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '7.3.1', esbuild: '0.27.3' },
-    });
-    const paths = {
-      cwd: root,
-      app: {
-        entry: 'index.html',
-        outDir: 'dist',
-        base: '.',
-      },
-    } as const;
-
-    const res = await Wrangle.command(paths, 'build');
-    expect(res.args).to.include('npm:vite@7.3.1');
-    expect(res.args).to.not.include('--configLoader=native');
-    await res.dispose();
-  });
-
-  it('viteSpecifier: does not crash when module origin is https and consumer package pins vite', async () => {
-    const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle.command-' });
-    const root = tmp.absolute;
-    const project = `${root}/code/projects/foo`;
-    await Fs.ensureDir(project);
-    await Fs.writeJson(`${root}/package.json`, {
-      dependencies: { vite: '7.3.1', esbuild: '0.27.3' },
+      expect(args.filter((arg) => arg.startsWith('npm:vite@'))).to.eql(['npm:vite@7.3.1']);
+      expect(args.some((arg) => arg.startsWith('--configLoader='))).to.eql(false);
+      expect(args.some((arg) => arg.startsWith('--import-map='))).to.eql(false);
+      expect(writes).to.include(Path.join(consumer.root, 'dist'));
+      expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite'));
+      expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite-temp'));
+      expect(writes).to.not.include(consumer.root);
+      expect(writes).to.not.include(await Fs.realPath(consumer.root));
     });
 
-    const consumerVite = await Wrangle.viteSpecifier(
-      project,
-      'https://jsr.io/@sys/driver-vite/0.0.317/src/m.vite/u.wrangle.ts',
-    );
-    expect(consumerVite).to.eql('npm:vite@7.3.1');
+    for (const manifest of ['absent', 'without vite'] as const) {
+      describe(`driver fallback: consumer package.json ${manifest}`, () => {
+        for (const mode of ['build', 'dev'] as const) {
+          it(`${mode} → executable, loader, and import map share driver authority`, async () => {
+            const packageJson = manifest === 'absent' ? undefined : { dependencies: {} };
+            await using consumer = await createConsumer({ packageJson });
+            const driverVite = await Wrangle.viteSpecifier(ROOT.dir);
+            const { args } = await consumer.command(mode);
+            const { imports } = await readImportMap(args);
+
+            expect(args.filter((arg) => arg.startsWith('npm:vite@'))).to.eql([driverVite]);
+            expect(option(args, '--configLoader')).to.eql('native');
+            expect(imports.vite).to.eql(driverVite);
+            expect(imports['vite/internal']).to.eql(`${driverVite}/internal`);
+            expect(imports['vite/module-runner']).to.eql(`${driverVite}/module-runner`);
+
+            const writes = option(args, '--allow-write').split(',');
+            expect(args).to.include('--no-prompt');
+            expect(args).to.not.include('-A');
+            expect(writes).to.include(Path.join(consumer.root, 'dist'));
+            expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite'));
+            expect(writes).to.not.include(Path.join(consumer.root, 'node_modules', '.vite-temp'));
+            if (mode === 'build') {
+              expect(writes).to.not.include(consumer.root);
+              expect(writes).to.not.include(await Fs.realPath(consumer.root));
+              expect(option(args, '--allow-net')).to.eql('localhost');
+            }
+          });
+        }
+      });
+    }
+  });
+
+  describe('child permissions', () => {
+    it('build → output/cache writes, localhost DNS, and explicit runtime grants', async () => {
+      await using consumer = await createConsumer({ packageJson: vite8 });
+      const { args } = await consumer.command('build');
+      const writes = option(args, '--allow-write').split(',');
+      const ffi = option(args, '--allow-ffi').split(',');
+
+      expect(writes).to.include(Path.join(consumer.root, 'dist'));
+      expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite'));
+      expect(writes).to.not.include(Path.join(consumer.root, 'node_modules', '.vite-temp'));
+      expect(writes).to.not.include(consumer.root);
+      expect(writes).to.not.include(await Fs.realPath(consumer.root));
+      expect(option(args, '--allow-net')).to.eql('localhost');
+      expect(args.some((arg) => arg.includes('0.0.0.0') || arg.includes('[::]'))).to.eql(false);
+      expect(option(args, '--allow-sys')).to.eql('osRelease,homedir,uid,gid');
+      expect(ffi).to.include(Path.join(consumer.root, 'node_modules', '.deno'));
+      expect(option(args, '--allow-run')).to.eql(Deno.execPath());
+      expect(args).to.include('--no-prompt');
+      expect(args).to.include('--allow-env');
+      expect(args).to.not.include('--allow-ffi');
+      expect(args).to.not.include('--allow-run');
+      expect(args).to.not.include('-A');
+    });
+
+    it('dev → consumer writes and local serving/network-interface grants', async () => {
+      await using consumer = await createConsumer({ packageJson: vite8 });
+      const { args } = await consumer.command('dev --port=1234 --host');
+      const writes = option(args, '--allow-write').split(',');
+
+      expect(writes).to.include(consumer.root);
+      expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite'));
+      expect(args).to.include('--allow-env');
+      expect(option(args, '--allow-net')).to.eql('localhost,127.0.0.1,0.0.0.0,[::1],[::]');
+      expect(option(args, '--allow-sys')).to.eql('osRelease,homedir,uid,gid,networkInterfaces');
+      expect(option(args, '--allow-run')).to.eql(Deno.execPath());
+      expect(args).to.include('npm:vite@8.0.2');
+      expect(option(args, '--configLoader')).to.eql('native');
+      const { path } = await readImportMap(args);
+      expect(await Fs.exists(path)).to.eql(true);
+    });
+
+    it('a nested consumer owns cache writes, not the broader package anchor', async () => {
+      await using consumer = await createConsumer({
+        packageJson: vite8,
+        project: 'code/projects/foo',
+      });
+      const { args } = await consumer.command('dev --port=1234 --host');
+      const writes = option(args, '--allow-write').split(',');
+
+      expect(writes).to.include(consumer.cwd);
+      expect(writes).to.include(Path.join(consumer.cwd, 'node_modules', '.vite'));
+      expect(writes).to.not.include(Path.join(consumer.root, 'node_modules', '.vite'));
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { Testing, describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, Testing } from '../../-test.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Time } from '../mod.ts';
 
@@ -6,7 +6,7 @@ describe('Time Delay/Wait', () => {
   const calcDiff = (a: Date, b: Date = new Date()) => b.getTime() - a.getTime();
 
   describe('Time.delay', () => {
-    it('response structure: <TimeDelayPromise>', () => {
+    it('response structure: <Time.Delay.Promise>', () => {
       const res = Time.delay(0);
       expect(typeof res.cancel).to.eql('function');
       expect(res.is).to.eql({ cancelled: false, completed: false, done: false });
@@ -62,6 +62,20 @@ describe('Time Delay/Wait', () => {
             expect(fired).to.eql(1);
           });
         }
+      });
+
+      it('oversized delay → clamps to the canonical timer domain without firing early', async () => {
+        let fired = 0;
+        const res = Time.delay(Time.Delay.MAX + 1, () => fired++);
+
+        expect(res.timeout).to.eql(Time.Delay.MAX);
+        await Time.wait(0);
+        expect(fired).to.eql(0);
+        expect(res.is.done).to.eql(false);
+
+        res.cancel();
+        await res;
+        expect(res.is.cancelled).to.eql(true);
       });
     });
 
@@ -160,7 +174,7 @@ describe('Time Delay/Wait', () => {
 
       it('race: dispose Time.until right before scheduled run', async () => {
         await Testing.retry(3, async () => {
-          const { dispose, dispose$ } = Rx.disposable();
+          const { dispose, dispose$ } = Rx.lifecycle();
           let fired = 0;
           const time = Time.until(dispose$);
           const res = time.delay(5, () => fired++);
@@ -357,7 +371,7 @@ describe('Time Delay/Wait', () => {
 
     describe('delay', () => {
       it('Time.until: completes ← (aka. not disposed)', async () => {
-        const { dispose$ } = Rx.disposable();
+        const { dispose$ } = Rx.lifecycle();
         const startedAt = now();
 
         let disposeFired = 0;
@@ -375,7 +389,7 @@ describe('Time Delay/Wait', () => {
       });
 
       it('Time.until: does not complete ← (disposed$)', async () => {
-        const { dispose, dispose$ } = Rx.disposable();
+        const { dispose, dispose$ } = Rx.lifecycle();
 
         let disposeFired = 0;
         let count = 0;
@@ -410,8 +424,23 @@ describe('Time Delay/Wait', () => {
         expect(disposeFired).to.eql(1);
       });
 
+      it('Time.until: supports native using', () => {
+        const time = Time.until();
+        let disposed = 0;
+        time.dispose$.subscribe(() => disposed++);
+
+        {
+          using _time = time;
+          expect(time.disposed).to.eql(false);
+        }
+
+        time.dispose();
+        expect(time.disposed).to.eql(true);
+        expect(disposed).to.eql(1);
+      });
+
       it('Time.until: micro path obeys disposal', async () => {
-        const { dispose, dispose$ } = Rx.disposable();
+        const { dispose, dispose$ } = Rx.lifecycle();
         let fired = 0;
         const time = Time.until(dispose$);
         const p = time.delay(() => fired++);

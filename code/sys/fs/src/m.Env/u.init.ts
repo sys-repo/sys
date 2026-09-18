@@ -1,8 +1,8 @@
-import { type t, c } from './common.ts';
+import { c, type t } from './common.ts';
+import { Fs } from '../m.Fs/mod.ts';
 import { Is } from './m.Is.ts';
 
-export const init: t.EnvLib['init'] = async (opts = {}) => {
-  const { Fs } = await import('@sys/fs');
+export const init: t.Env.Lib['init'] = async (opts = {}) => {
   let added = false;
 
   /**

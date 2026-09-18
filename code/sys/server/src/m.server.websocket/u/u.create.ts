@@ -1,0 +1,305 @@
+import { Cli, Cmd, D, Dispose, Is, type t, Time } from '../common.ts';
+import { acceptRequest } from './u.accept.ts';
+import { closeConnections, trackConnection } from './u.lifecycle.ts';
+import { localOrigin, localWebSocketUrl, normalizePath } from './u.origin.ts';
+import { closeSocket } from './u.socket.ts';
+import { type RuntimeStatus, serviceError, serviceStatus } from './u.status.ts';
+
+type ListenAddress = t.WebSocketServer.ListenAddress;
+type AddressInUseError = t.WebSocketServer.AddressInUseError;
+
+export type CreateDependencies = Readonly<{
+  bindKeyboard?: (
+    server: t.WebSocketServer.Started,
+  ) => t.Cli.Keyboard.Bind.Handle | undefined;
+}>;
+
+/** Create a running WebSocket command server with caller-owned lifecycle. */
+export function create<
+  N extends string = t.Cmd.Name,
+  P extends t.Cmd.Payload.Map<N> = t.Cmd.Payload.Map<N>,
+  R extends t.Cmd.Result.Map<N> = t.Cmd.Result.Map<N>,
+  E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
+>(
+  input: t.WebSocketServer.CreateOptions<N, P, R, E>,
+  deps: CreateDependencies = {},
+): t.WebSocketServer.Started {
+  const hostname: t.StringHostname = input.hostname ?? D.serve.hostname;
+  const path = normalizePath(input.path);
+  const controller = new AbortController();
+  const connections = new Set<{ readonly socket: WebSocket; readonly host: t.Cmd.Host.Handle }>();
+  const cmd = Cmd.make<N, P, R, E>({ ns: input.cmd.ns });
+
+  const requestedAddress: ListenAddress = { hostname, port: input.port ?? D.serve.port };
+  const runtime: RuntimeStatus = { state: 'ready' };
+  let server: Deno.HttpServer<Deno.NetAddr> | undefined;
+  let keyboard: t.Cli.Keyboard.Bind.Handle | undefined;
+
+  const life = Dispose.lifecycleAsync(input.until, async (e) => {
+    runtime.state = 'stopping';
+    try {
+      await closeRuntime({
+        server,
+        keyboard,
+        controller,
+        connections,
+        reason: e.reason,
+      });
+      runtime.state = 'stopped';
+    } catch (cause) {
+      runtime.state = 'error';
+      runtime.error = serviceError(cause);
+      throw cause;
+    }
+  });
+
+  try {
+    server = createServer(requestedAddress, async (request) => {
+      const httpResponse = await input.http?.handle(request, controller.signal);
+      if (httpResponse) return httpResponse;
+
+      const accepted = await acceptRequest(request, { path, accept: input.accept });
+      if (!accepted.ok) return accepted.response;
+
+      const { socket, response } = Deno.upgradeWebSocket(request);
+      const endpoint = Cmd.Transport.fromWebSocket(socket);
+      const host = cmd.host(endpoint, input.cmd.handlers);
+      trackConnection(connections, { socket, host });
+
+      callSocketHook(input.onSocket, { request, socket, endpoint, host });
+
+      return response;
+    });
+
+    const activeServer = server;
+    const addr: Deno.NetAddr = activeServer.addr;
+    const port: t.PortNumber = addr.port;
+    const origin = localOrigin({ hostname, port });
+    const url = localWebSocketUrl({ origin, path });
+    const httpUrls = statusHttpUrls(origin, input.http?.urls);
+
+    disposeWhenServerFinishes({ server: activeServer, life, controller });
+
+    const context: t.WebSocketServer.Started = {
+      server: activeServer,
+      addr,
+      hostname,
+      port,
+      origin,
+      url,
+      signal: controller.signal,
+      finished: activeServer.finished,
+
+      status() {
+        return serviceStatus({
+          options: input.status,
+          url,
+          httpUrls,
+          path,
+          ns: input.cmd.ns,
+          connections: connections.size,
+          runtime,
+        });
+      },
+
+      get disposed() {
+        return life.disposed;
+      },
+
+      get dispose$() {
+        return life.dispose$;
+      },
+
+      dispose: life.dispose,
+      [Symbol.asyncDispose]: life[Symbol.asyncDispose],
+      close: life.dispose,
+    };
+
+    keyboard = deps.bindKeyboard?.(context);
+    if (keyboard) closeWhenKeyboardFinishes(keyboard, life);
+    return context;
+  } catch (error) {
+    const rollback = life.dispose(error);
+    void rollback.catch(() => undefined);
+    throw error;
+  }
+}
+
+/**
+ * Helpers:
+ */
+function createServer(address: ListenAddress, handler: Deno.ServeHandler) {
+  try {
+    return Deno.serve(
+      {
+        hostname: address.hostname,
+        port: address.port,
+        onListen() {
+          // Keep the primitive silent by default.
+        },
+      },
+      handler,
+    );
+  } catch (cause) {
+    if (isAddressInUseError(cause)) throw addressInUseError(address, cause);
+    throw cause;
+  }
+}
+
+function isAddressInUseError(input: unknown): input is Deno.errors.AddrInUse {
+  return Is.Native.error(input) &&
+    !Is.Native.proxy(input) &&
+    Object.getPrototypeOf(input) === Deno.errors.AddrInUse.prototype;
+}
+
+function addressInUseError(
+  address: ListenAddress,
+  cause: Deno.errors.AddrInUse,
+): AddressInUseError {
+  const details: Pick<AddressInUseError, 'kind' | 'address' | 'cause'> = {
+    kind: 'WebSocketServerAddressInUse',
+    address,
+    cause,
+  };
+  return Object.assign(
+    new Error(`WebSocketServer.create: address already in use: ${formatListenAddress(address)}.`, {
+      cause,
+    }),
+    details,
+  );
+}
+
+function formatListenAddress(address: ListenAddress) {
+  const hostname = address.hostname.includes(':') && !address.hostname.startsWith('[')
+    ? `[${address.hostname}]`
+    : address.hostname;
+  return `${hostname}:${address.port}`;
+}
+
+function callSocketHook<
+  N extends string,
+  P extends t.Cmd.Payload.Map<N>,
+  R extends t.Cmd.Result.Map<N>,
+  E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
+>(
+  hook:
+    | ((context: t.WebSocketServer.SocketContext<N, P, R, E>) => void | Promise<void>)
+    | undefined,
+  context: t.WebSocketServer.SocketContext<N, P, R, E>,
+) {
+  try {
+    const result = hook?.(context);
+    if (Is.promise(result)) void result.catch((error) => deferSocketHookFailure(context, error));
+  } catch (error) {
+    deferSocketHookFailure(context, error);
+  }
+}
+
+function deferSocketHookFailure<
+  N extends string,
+  P extends t.Cmd.Payload.Map<N>,
+  R extends t.Cmd.Result.Map<N>,
+  E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
+>(context: t.WebSocketServer.SocketContext<N, P, R, E>, error: unknown) {
+  // Deno opens the socket only after the upgrade response is returned.
+  // Defer close so hook failures settle as WebSocket closes, not handler failures.
+  void Time.wait(0).then(() => failSocketHook(context, error));
+}
+
+function failSocketHook<
+  N extends string,
+  P extends t.Cmd.Payload.Map<N>,
+  R extends t.Cmd.Result.Map<N>,
+  E extends t.Cmd.Event.Map<N> = t.Cmd.Event.Map<N>,
+>(context: t.WebSocketServer.SocketContext<N, P, R, E>, error: unknown) {
+  closeSocket(context.socket, D.socketHookFailure);
+  if (!context.host.disposed) context.host.dispose(error);
+}
+
+function statusHttpUrls(
+  origin: t.StringUrl,
+  input: readonly t.WebSocketServer.HttpStatusUrl[] | undefined,
+): readonly t.Service.Url[] {
+  return (input ?? []).map((item) => {
+    const path = Is.str(item) ? item : item.path;
+    const label = Is.str(item) ? undefined : item.label;
+    const href: t.StringUrl = new URL(normalizePath(path), origin).href;
+    return label === undefined ? { href } : { href, label };
+  });
+}
+
+function disposeWhenServerFinishes(args: {
+  readonly server: Deno.HttpServer<Deno.NetAddr>;
+  readonly life: t.LifecycleAsync;
+  readonly controller: AbortController;
+}) {
+  const dispose = (reason: unknown = D.DisposeReason.serverFinished) => {
+    if (args.life.disposed || args.controller.signal.aborted) return;
+    void args.life.dispose(reason).catch(() => {
+      // `server.finished` remains the authoritative completion/error surface.
+    });
+  };
+
+  void args.server.finished.then(() => dispose(), dispose);
+}
+
+function closeWhenKeyboardFinishes(
+  keyboard: t.Cli.Keyboard.Bind.Handle,
+  life: t.LifecycleAsync,
+) {
+  const close = () => {
+    const completion = life.dispose('keyboard.finished');
+    void completion.catch(() => undefined);
+  };
+  const observation = keyboard.finished.then(close, close);
+  void observation.then(undefined, () => undefined);
+}
+
+async function closeRuntime(args: {
+  readonly server?: Deno.HttpServer<Deno.NetAddr>;
+  readonly keyboard?: t.Cli.Keyboard.Bind.Handle;
+  readonly controller: AbortController;
+  readonly connections: Set<{ readonly socket: WebSocket; readonly host: t.Cmd.Host.Handle }>;
+  readonly reason?: unknown;
+}) {
+  let failed = false;
+  let failure: unknown;
+
+  if (args.server) {
+    try {
+      await closeServer({
+        server: args.server,
+        controller: args.controller,
+        connections: args.connections,
+        reason: args.reason,
+      });
+    } catch (cause) {
+      failed = true;
+      failure = cause;
+    }
+  }
+  if (args.keyboard) {
+    try {
+      await Cli.Keyboard.shutdown(args.keyboard);
+    } catch (cause) {
+      if (!failed) {
+        failed = true;
+        failure = cause;
+      }
+    }
+  }
+
+  if (failed) throw failure;
+}
+
+async function closeServer(args: {
+  readonly server: Deno.HttpServer<Deno.NetAddr>;
+  readonly controller: AbortController;
+  readonly connections: Set<{ readonly socket: WebSocket; readonly host: t.Cmd.Host.Handle }>;
+  readonly reason?: unknown;
+}) {
+  if (!args.controller.signal.aborted) args.controller.abort(args.reason);
+  closeConnections(args.connections, args.reason);
+  await args.server.shutdown();
+  await args.server.finished;
+}

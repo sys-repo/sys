@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t } from '../common.ts';
+import { Rx, type t } from '../common.ts';
 import { Descriptor } from '../m.Descriptor.ts';
 import { withVideoShardRewrite } from '../u.withVideoShardRewrite.ts';
 
@@ -66,36 +66,43 @@ function createClient(args: {
   assets?: readonly t.SpecTimelineAsset[];
 }): t.SlugClientDescriptor {
   const assets = args.assets ?? [];
-  return {
+  return Rx.toLifecycle<t.SlugClientDescriptor>({
     kind: args.kind,
     docid: 'crdt:sample' as t.StringId,
     baseUrl: 'https://cdn.example.com/program/' as t.StringUrl,
     assetBase: 'https://cdn.example.com/program/' as t.StringUrl,
     layout: args.layout,
-    Tree: { load: async () => ({ ok: true, value: {} as t.SlugTreeDoc }) },
+    Tree: {
+      load: () => Promise.resolve({ ok: true, value: {} as t.SlugTreeDoc }),
+    },
     Timeline: {
       Assets: {
-        load: async () => ({
-          ok: true,
-          value: { docid: 'sample' as t.StringId, assets },
-        }),
+        load: () =>
+          Promise.resolve({
+            ok: true,
+            value: { docid: 'sample' as t.StringId, assets },
+          }),
       },
       Playback: {
-        load: async <P = unknown>() =>
-          ({ ok: true, value: {} as t.SpecTimelineManifest<P> }) as t.SlugClientResult<
-            t.SpecTimelineManifest<P>
-          >,
+        load: <P = unknown>() =>
+          Promise.resolve(
+            ({ ok: true, value: {} as t.SpecTimelineManifest<P> }) as t.SlugClientResult<
+              t.SpecTimelineManifest<P>
+            >,
+          ),
       },
       Bundle: {
-        load: async <P = unknown>() =>
-          ({ ok: true, value: {} as t.SpecTimelineBundle<P> }) as t.SlugClientResult<
-            t.SpecTimelineBundle<P>
-          >,
+        load: <P = unknown>() =>
+          Promise.resolve(
+            ({ ok: true, value: {} as t.SpecTimelineBundle<P> }) as t.SlugClientResult<
+              t.SpecTimelineBundle<P>
+            >,
+          ),
       },
     },
     FileContent: {
-      index: async () => ({ ok: true, value: {} as t.SlugFileContentIndex }),
-      get: async () => ({ ok: true, value: {} as t.SlugFileContentDoc }),
+      index: () => Promise.resolve({ ok: true, value: {} as t.SlugFileContentIndex }),
+      get: () => Promise.resolve({ ok: true, value: {} as t.SlugFileContentDoc }),
     },
-  };
+  });
 }

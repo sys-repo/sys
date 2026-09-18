@@ -1,4 +1,5 @@
-import { type t, Delete, Err, Is, Yaml, isEmptyRecord } from './common.ts';
+import { Delete, Err, Is, isEmptyRecord, type t, Yaml } from './common.ts';
+import { PackageJsonPolicy } from './u.packageJson.policy.ts';
 
 type RequiredYamlShape = Required<t.EsmDeps.YamlShape>;
 
@@ -28,6 +29,12 @@ export const toYaml: t.EsmDeps.Lib['toYaml'] = (entries, options = {}) => {
     target('package.json', entry);
   });
 
+  if (options.packageJson?.overrides) {
+    obj['package.json']?.push({
+      overrides: PackageJsonPolicy.cloneOverrides(options.packageJson.overrides),
+    });
+  }
+
   clean(obj);
   dedupeGroups(obj, 'deno.json');
   dedupeGroups(obj, 'package.json');
@@ -56,9 +63,14 @@ function dedupeGroups(obj: t.EsmDeps.YamlShape, target: t.EsmDeps.TargetFile) {
   const groups = o[target]?.filter((entry) => Is.str(entry.group));
   groups.forEach((entry) => {
     const group = o.groups[entry.group!].filter((item) => !!item.import);
-    const imports = group.filter((item) => !!item.import).map((item) => item.import!);
-    const allExist = group.every((item) => o[target].some((cur) => cur.import === item.import));
-    if (allExist) obj[target] = o[target].filter((item) => !imports.includes(item.import!));
+    const allExist = group.every((item) => {
+      return o[target].some((cur) => wrangle.isSameYamlEntry(cur, item));
+    });
+    if (allExist) {
+      obj[target] = o[target].filter((item) => {
+        return !group.some((groupItem) => wrangle.isSameYamlEntry(item, groupItem));
+      });
+    }
   });
 }
 
@@ -66,10 +78,11 @@ function pushEntry(list: t.EsmDeps.YamlEntry[], entry: t.EsmDeps.Entry) {
   const dev = entry.dev || undefined;
   const module = entry.module;
   const importSpecifier = wrangle.importSpecifier(module);
+  const name = module.alias || undefined;
   const subpaths = wrangle.subpaths(entry.subpaths);
-  const existing = list.find((item) => item.import === importSpecifier);
+  const existing = list.find((item) => item.import === importSpecifier && item.name === name);
   if (!existing) {
-    list.push(Delete.undefined({ import: importSpecifier, dev, subpaths }));
+    list.push(Delete.undefined({ import: importSpecifier, name, dev, subpaths }));
   } else {
     if (dev) existing.dev = dev;
     if (subpaths) existing.subpaths = wrangle.mergeSubpaths(existing.subpaths, subpaths);
@@ -106,6 +119,10 @@ function clean(obj: t.EsmDeps.YamlShape) {
  * Helpers:
  */
 const wrangle = {
+  isSameYamlEntry(a: t.EsmDeps.YamlEntry, b: t.EsmDeps.YamlEntry) {
+    return a.import === b.import && a.name === b.name;
+  },
+
   importSpecifier(module: t.EsmParsedImport) {
     if (module.error) throw module.error;
     const value = module.toString().trim();

@@ -1,0 +1,34 @@
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { AppShell } from '../mod.ts';
+import { D } from './common.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+
+export default Spec.describe(D.displayName, async (e) => {
+  const debug = await createDebugSignals();
+  const p = debug.props;
+
+  function Root() {
+    const v = Signal.toObject(p);
+    return <AppShell.UI debug={v.debug} theme={v.theme} />;
+  }
+
+  e.it('init', (e) => {
+    const ctx = Spec.ctx(e);
+
+    update();
+    function update() {
+      debug.listen();
+      ctx.redraw();
+    }
+
+    Signal.effect(update);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
+
+    ctx.subject.size('fill').display('grid').render(() => <Root />);
+  });
+
+  e.it('ui:debug', (e) => {
+    const ctx = Spec.ctx(e);
+    ctx.debug.row(<Debug debug={debug} />);
+  });
+});
