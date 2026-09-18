@@ -174,7 +174,11 @@ export declare namespace Pkg {
       export type Limits = {
         /** Maximum exact `dist.json` bytes. */
         manifestBytes: t.NumberBytes;
-        /** Maximum observed descendants, including files, directories, and `dist.json`. */
+        /**
+         * Maximum declared or observed descendants: files, directories, and `dist.json`.
+         * Before path normalization, the same bound applies separately to the optional signature
+         * hint: `dist.json`, the signature path, and its distinct implied directories.
+         */
         entries: t.NumberTotal;
         /** Maximum bytes in any one declared asset. */
         fileBytes: t.NumberBytes;
@@ -331,11 +335,79 @@ export declare namespace Pkg {
     export namespace Pinned {
       /** Pinned distribution operations. */
       export type Lib = {
+        /** Validate manifest bytes against an expected checksum. */
+        readonly admitManifest: AdmitManifest.Method;
         /** Verify a complete distribution against an expected manifest checksum. */
         readonly verify: Verify.Method;
         /** Read one file only when its path, size, and checksum match. */
         readonly readPart: ReadPart.Method;
       };
+
+      /**
+       * Strict manifest validation against a caller-supplied checksum.
+       *
+       * Performs no filesystem or network I/O.
+       * Admission does not verify assets or establish provenance.
+       */
+      export namespace AdmitManifest {
+        /** Admit manifest bytes against the caller's checksum. */
+        export type Method = (args: Args) => Promise<Result>;
+
+        /** Bytes, checksum, and limits are snapshotted before lifecycle callbacks or awaits. */
+        export type Args = {
+          /** Exact manifest bytes; shared or detached buffers are rejected. */
+          bytes: Uint8Array;
+          /** Expected SHA-256 checksum of the exact manifest bytes. */
+          integrity: t.StringHash;
+          /** Required bounds on manifest bytes and declared assets. */
+          limits: Limits;
+          /** Cancellation observed at cooperative checkpoints. */
+          until?: t.UntilInput;
+        };
+
+        /** Finite limits on manifest bytes and the declared asset tree. */
+        export type Limits = Omit<Dist.Verify.Limits, 'entries'> & {
+          /**
+           * Maximum entries: `dist.json`, declared assets, and distinct implied directories.
+           * The same bound applies separately to the optional signature hint: `dist.json`,
+           * the signature path, and its distinct implied directories.
+           */
+          entries: t.NumberTotal;
+        };
+
+        /** Manifest admission or refusal. */
+        export type Result = Admitted | Failure;
+
+        /** Checksum-matched manifest with validated metadata. */
+        export type Admitted = {
+          readonly kind: 'manifest-admitted';
+          readonly evidence: Evidence;
+        };
+
+        /** Immutable evidence from the manifest bytes alone. */
+        export type Evidence = {
+          /** SHA-256 of the admitted bytes, equal to the caller's expected checksum. */
+          readonly integrity: t.StringHash;
+          /** Manifest byte count, including any BOM and whitespace. */
+          readonly manifestBytes: t.NumberBytes;
+          /** Validated manifest metadata; asset contents are not checked. */
+          readonly dist: t.DeepReadonly<t.DistPkg>;
+        };
+
+        /** Refusal without input values, cancellation reasons, or host errors. */
+        export type Failure = { readonly kind: FailureKind };
+
+        /** The verifier's failure categories that apply to manifest admission. */
+        export type FailureKind = Extract<
+          Dist.Verify.FailureKind,
+          | 'invalid-input'
+          | 'integrity-mismatch'
+          | 'malformed'
+          | 'unsafe-path'
+          | 'limit-exceeded'
+          | 'cancelled'
+        >;
+      }
 
       /**
        * Verification of a complete distribution against an expected manifest checksum.

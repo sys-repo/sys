@@ -1,4 +1,5 @@
 import { Is, Obj, ServerIs, type t } from './common.ts';
+import { isSafeNonNegative, isSafePositive } from './u.pinned.limit.ts';
 
 const arrayPrototype = Array.prototype;
 const freeze = Object.freeze;
@@ -35,6 +36,27 @@ export function snapshotExactDataObject(
   } catch {
     return;
   }
+}
+
+/** Validate finite byte and entry limits and return an immutable snapshot. */
+export function snapshotVerifyLimits(
+  input: unknown,
+): Readonly<t.Pkg.Dist.Verify.Limits> | undefined {
+  const values = snapshotExactDataObject(input, {
+    ALLOWED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'],
+    REQUIRED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'],
+  });
+  if (!values) return;
+  const { manifestBytes, entries, fileBytes, totalBytes } = values;
+  if (
+    !isSafePositive(manifestBytes) ||
+    !isSafePositive(entries) ||
+    !isSafeNonNegative(fileBytes) ||
+    !isSafeNonNegative(totalBytes)
+  ) {
+    return;
+  }
+  return freeze({ manifestBytes, entries, fileBytes, totalBytes });
 }
 
 /** Snapshot lifecycle arrays before validating their permitted getter-bearing leaves. */

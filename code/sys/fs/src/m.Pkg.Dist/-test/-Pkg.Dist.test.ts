@@ -32,7 +32,7 @@ describe('Pkg.Dist', () => {
       expect(VerifyLocal).to.equal(Dist.Local);
       expect(VerifyPinned).to.equal(Dist.Pinned);
       expect(Object.keys(Pkg.Dist.Local).sort()).to.eql(['readPart', 'verify']);
-      expect(Object.keys(Pkg.Dist.Pinned).sort()).to.eql(['readPart', 'verify']);
+      expect(Object.keys(Pkg.Dist.Pinned).sort()).to.eql(['admitManifest', 'readPart', 'verify']);
       expect(Object.isFrozen(Pkg.Dist.Pinned)).to.eql(true);
       expect(Object.isFrozen(Pkg.Dist.Local)).to.eql(true);
     });

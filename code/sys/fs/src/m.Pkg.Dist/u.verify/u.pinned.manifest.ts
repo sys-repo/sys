@@ -1,9 +1,10 @@
 import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
-import { CompositeHash, Ignore, Is, Obj, Path, Pkg, Str, type t } from './common.ts';
+import { CompositeHash, Hash, Ignore, Is, Json, Obj, Path, Pkg, Str, type t } from './common.ts';
 import { failure } from './u.pinned.io.ts';
 import { addBytes, isSafeNonNegative } from './u.pinned.limit.ts';
 
 const compare = Str.Compare.codeUnit();
+const decoder = new TextDecoder('utf-8', { fatal: true });
 
 export type StrictPart = {
   readonly path: t.StringRelativePath;
@@ -16,9 +17,32 @@ export type StrictManifest = {
   readonly parts: readonly StrictPart[];
 };
 
-export async function admitManifest(
+/**
+ * Validate manifest bytes, checking any expected checksum before decoding.
+ * The caller must supply an owned snapshot within `limits.manifestBytes`.
+ */
+export async function admitManifestBytes(
+  bytes: Uint8Array,
+  limits: t.Pkg.Dist.Verify.Limits,
+  expectedIntegrity?: t.StringHash,
+): Promise<StrictManifest & { readonly integrity: t.StringHash }> {
+  const integrity = Hash.sha256(bytes);
+  if (expectedIntegrity !== undefined && integrity !== expectedIntegrity) {
+    throw failure('integrity-mismatch');
+  }
+  let parsed: unknown;
+  try {
+    parsed = Json.parse<unknown>(decoder.decode(bytes));
+  } catch {
+    throw failure('malformed');
+  }
+  const manifest = await admitManifest(parsed, limits);
+  return Object.freeze({ ...manifest, integrity });
+}
+
+async function admitManifest(
   input: unknown,
-  limits: t.Pkg.Dist.Pinned.Verify.Limits,
+  limits: t.Pkg.Dist.Verify.Limits,
 ): Promise<StrictManifest> {
   if (!Is.plainObject(input)) throw failure('malformed');
 
@@ -86,7 +110,14 @@ export async function admitManifest(
     kind: 'file',
     path,
   }));
-  if (sign) targetInputs.push({ kind: 'file', path: sign.path });
+  assertEntryLimit(targetInputs, limits.entries);
+  if (sign) {
+    const signature: t.FsRooted.TargetInput<'file'> = { kind: 'file', path: sign.path };
+    // Bound the hint's normalization work without counting it as an asset.
+    assertEntryLimit([signature], limits.entries);
+    targetInputs.push(signature);
+  }
+  targetInputs.push({ kind: 'file', path: 'dist.json' });
 
   let normalized: readonly { readonly path: t.StringRelativePath }[];
   try {
@@ -130,7 +161,7 @@ export async function admitManifest(
   }
 
   if (sign) {
-    const signPath = normalized[normalized.length - 1].path;
+    const signPath = normalized[entries.length].path;
     if (Path.basename(signPath).toLowerCase() === 'dist.json') throw failure('unsafe-path');
   }
 
@@ -152,6 +183,26 @@ export async function admitManifest(
   });
 }
 
+/** Bound `dist.json`, supplied file paths, and distinct implied directories before normalization. */
+function assertEntryLimit(
+  files: readonly t.FsRooted.TargetInput<'file'>[],
+  limit: number,
+): void {
+  let entries = addBytes(1, files.length, limit); // Includes dist.json.
+  const directories = new Set<string>();
+  for (const { path } of files) {
+    let separator = path.indexOf('/');
+    while (separator >= 0) {
+      const directory = path.slice(0, separator);
+      if (!directories.has(directory)) {
+        entries = addBytes(entries, 1, limit);
+        directories.add(directory);
+      }
+      separator = path.indexOf('/', separator + 1);
+    }
+  }
+}
+
 function validatePkg(pkg: t.DistPkg['pkg']): void {
   if (pkg === undefined) return;
   if (!Is.plainObject(pkg) || !nonEmpty(pkg.name) || !nonEmpty(pkg.version)) {
@@ -165,7 +216,7 @@ function validateSign(sign: t.DistPkg['build']['sign']): void {
   if (sign.key !== undefined && !nonEmpty(sign.key)) throw failure('malformed');
 }
 
-function createMatcher(rules: readonly string[]): ReturnType<typeof Ignore.create> {
+function createMatcher(rules: readonly string[]): t.Ignore {
   try {
     return Ignore.create(rules);
   } catch {

@@ -1,4 +1,4 @@
-import { D, Is, type t } from '../common.ts';
+import { D, Is, Obj, type t } from '../common.ts';
 import { Part } from './m.Dist.Part.ts';
 
 export const PkgIs: t.Pkg.Is.Lib = Object.freeze({
@@ -44,6 +44,19 @@ export const PkgIs: t.Pkg.Is.Lib = Object.freeze({
 
     const values = Object.values(dist.hash.parts);
     return values.every((value) => Part.parse(value) !== undefined);
+  },
+
+  distPin(input: unknown): input is t.DistPin {
+    try {
+      if (!Is.object(input) || Object.getPrototypeOf(input) !== Object.prototype) return false;
+      const keys = Reflect.ownKeys(input);
+      if (keys.length !== 1 || keys[0] !== 'dist.json') return false;
+      const descriptor = Object.getOwnPropertyDescriptor(input, 'dist.json');
+      if (!descriptor || !Obj.hasOwn(descriptor, 'value')) return false;
+      return is.sha256Hash(descriptor.value);
+    } catch {
+      return false;
+    }
   },
 
   distCompat(input: any): input is t.DistPkg | t.DistPkgLegacy {

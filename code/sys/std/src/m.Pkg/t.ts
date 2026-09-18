@@ -8,7 +8,7 @@ export type * from './t.dist.ts';
 /**
  * Package metadata helper contracts.
  */
-export namespace Pkg {
+export declare namespace Pkg {
   /**
    * Tools for working with the standard system
    * `{pkg}` package meta-data structure.
@@ -91,6 +91,12 @@ export namespace Pkg {
 
       /** Determine if the given input is a `DistPkg` */
       dist(input: unknown): input is t.DistPkg;
+
+      /**
+       * Check a plain record with exactly one own data property, `dist.json`, holding a canonical
+       * SHA-256 checksum. Does not read or verify the manifest.
+       */
+      distPin(input: unknown): input is t.DistPin;
 
       /** Determine if the given input is a canonical or legacy `DistPkg` shape. */
       distCompat(input: unknown): input is t.DistPkg | t.DistPkgLegacy;

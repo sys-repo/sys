@@ -1,5 +1,5 @@
-import { Hash, Is, Json, Path, Pkg, Rx, type t } from './common.ts';
-import { snapshotExactDataObject, snapshotUntilInput } from './u.input.ts';
+import { Hash, Is, Path, Pkg, Rx, type t } from './common.ts';
+import { snapshotExactDataObject, snapshotUntilInput, snapshotVerifyLimits } from './u.input.ts';
 import {
   checkCancelled,
   DEFAULT_IO,
@@ -8,8 +8,8 @@ import {
   isFailure,
   type VerifyIo,
 } from './u.pinned.io.ts';
-import { addBytes, isSafeNonNegative, isSafePositive } from './u.pinned.limit.ts';
-import { admitManifest } from './u.pinned.manifest.ts';
+import { addBytes } from './u.pinned.limit.ts';
+import { admitManifestBytes } from './u.pinned.manifest.ts';
 import {
   assertExactTree,
   assertObserved,
@@ -33,8 +33,6 @@ type VerifiedArgs =
   & VerifiedBase
   & ({ readonly mode: 'pinned'; readonly integrity: t.StringHash } | { readonly mode: 'local' });
 
-const decoder = new TextDecoder('utf-8', { fatal: true });
-
 const KEYS = {
   PINNED: {
     ALLOWED: ['dir', 'integrity', 'limits', 'until'],
@@ -43,10 +41,6 @@ const KEYS = {
   LOCAL: {
     ALLOWED: ['dir', 'limits', 'until'],
     REQUIRED: ['dir', 'limits'],
-  },
-  LIMITS: {
-    ALLOWED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'],
-    REQUIRED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'],
   },
 } as const;
 
@@ -97,7 +91,7 @@ async function verifyWithIo(
   args: VerifiedArgs,
   io: VerifyIo,
 ): Promise<t.Pkg.Dist.Verify.Result> {
-  let life: ReturnType<typeof Rx.abortable>;
+  let life: t.Abortable;
   try {
     life = Rx.abortable(args.until);
   } catch {
@@ -121,19 +115,12 @@ async function verifyWithIo(
     );
 
     checkCancelled(life.signal);
-    const manifestIntegrity = Hash.sha256(manifest.bytes);
-    if (args.mode === 'pinned' && manifestIntegrity !== expectedManifestChecksum) {
-      throw failure('integrity-mismatch');
-    }
-
-    let parsed: unknown;
-    try {
-      const text = decoder.decode(manifest.bytes);
-      parsed = Json.parse<unknown>(text);
-    } catch {
-      throw failure('malformed');
-    }
-    const admitted = await admitManifest(parsed, args.limits);
+    const admitted = await admitManifestBytes(
+      manifest.bytes,
+      args.limits,
+      expectedManifestChecksum,
+    );
+    const manifestIntegrity = admitted.integrity;
     checkCancelled(life.signal);
 
     const before = await observeTree(io, root, args.limits.entries, life.signal, {
@@ -253,31 +240,14 @@ function admitBaseArgs(values: Readonly<Record<string, unknown>>): VerifiedBase 
     if (!Is.str(dir) || dir.length === 0 || dir.includes('\0')) return undefined;
     const absoluteDir = Path.resolve(dir) as t.StringAbsoluteDir;
 
-    const admittedLimits = snapshotExactDataObject(limits, KEYS.LIMITS);
+    const admittedLimits = snapshotVerifyLimits(limits);
     if (!admittedLimits) return undefined;
-
-    const { manifestBytes, entries, fileBytes, totalBytes } = admittedLimits;
-    if (
-      !isSafePositive(manifestBytes) ||
-      !isSafePositive(entries) ||
-      !isSafeNonNegative(fileBytes) ||
-      !isSafeNonNegative(totalBytes)
-    ) {
-      return undefined;
-    }
-
-    const admissible = {
-      manifestBytes,
-      entries,
-      fileBytes,
-      totalBytes,
-    };
     const untilSnapshot = snapshotUntilInput(until);
     if (!untilSnapshot) return undefined;
 
     return Object.freeze({
       dir: absoluteDir,
-      limits: Object.freeze(admissible),
+      limits: admittedLimits,
       until: untilSnapshot.value,
     });
   } catch {

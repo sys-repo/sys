@@ -1,6 +1,16 @@
 import type { t } from './common.ts';
 
 /**
+ * Expected SHA-256 checksum of the exact `dist.json` bytes at a caller-selected Dist root.
+ *
+ * Conventionally stored as `dist.pin.json`. A pin records an expectation, not proof of
+ * provenance or verification.
+ */
+export type DistPin = {
+  readonly 'dist.json': t.StringHash;
+};
+
+/**
  * Distribution package metadata (`/dist/dist.json`).
  */
 export type DistPkg = {
@@ -90,5 +100,5 @@ export type DistPkgHashIgnore = {
   /** Effective ordered ignore rules used during compute. */
   rules: string[];
   /** Digest of canonical serialized rules. */
-  readonly "rules:digest": t.StringHash;
+  readonly 'rules:digest': t.StringHash;
 };
