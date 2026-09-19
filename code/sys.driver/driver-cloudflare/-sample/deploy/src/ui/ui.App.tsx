@@ -8,8 +8,8 @@ export function App() {
   const [message, setMessage] = React.useState('Loading…');
   const [digest, setDigest] = React.useState('Loading…');
   const hash = Pkg.Dist.Part.hash(digest);
-  // Keep the sha256- prefix and eight hex digits at each end.
-  const digestLabel = Is.str(hash) ? Hash.shorten(hash, [15, 8], { divider: '…' }) : digest;
+  // Keep the sha256- prefix, eleven leading hex digits, and five trailing hex digits.
+  const digestLabel = Is.str(hash) ? Hash.shorten(hash, [18, 5], { divider: '…' }) : digest;
   React.useEffect(() => startFetches(window.location.origin, setMessage, setDigest), []);
   return (
     <main>
@@ -44,13 +44,13 @@ export function App() {
       <h2>Same-origin fetches</h2>
       <ul className='fetches' aria-live='polite'>
         <li>
-          message:{' '}
+          api.msg:{' '}
           <code>
             "<a href='/api/hello'>{message}</a>"
           </code>
         </li>
         <li>
-          digest:{' '}
+          dist.hash.digest:{' '}
           <code className='digest'>
             "<a href='/ui/dist.json' title={digest} aria-label={digest}>{digestLabel}</a>"
           </code>
