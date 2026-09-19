@@ -1,53 +1,58 @@
-# @sample/r2 — Deno application with R2 assets
+# @sample/r2
+### Deno application with R2 assets
 
-Deno serves the API and delivers UI assets stored in Cloudflare R2. The browser uses one application
-origin; it does not fetch assets directly from R2.
+This `@sys/driver-cloudflare/r2` sample demonstrates how Deno serves an API and UI from one application origin. UI assets are stored in a
+[private R2 bucket](https://developers.cloudflare.com/r2/buckets/public-buckets/).
 
-For each UI asset, Deno uses a
-[short-lived presigned URL](https://developers.cloudflare.com/r2/api/s3/presigned-urls/) to fetch
-the object and return its bytes. The URL and R2 credentials stay server-side.
+The browser fetches `/api/hello` and `/ui/dist.json` from the same origin.
+
+Deno fetches each UI asset from R2 using a
+[short-lived presigned URL](https://developers.cloudflare.com/r2/api/s3/presigned-urls/) and returns
+the bytes to the browser. The presigned URL and R2 credentials stay server-side.
 
 ## Run
 
-Use an existing R2 bucket and a dedicated prefix you control. [r2.config.json](r2.config.json)
-currently selects bucket `sys-test` and prefix `tmp.sys.driver-cloudflare/r2-proof-ui`. If changing
-accounts, also update the matching R2 hostnames in the `push` and `serve` network grants in
-[deno.json](deno.json). The `serve` grant also applies to `proof:local`.
+Use an existing private R2 bucket and a dedicated prefix you control. Keep public access disabled
+for both the bucket’s `r2.dev` URL and any custom domains.
+
+[r2.config.json](r2.config.json) currently selects bucket `sys-test` and prefix
+`tmp.sys.driver-cloudflare/r2-proof-ui`. If changing accounts, also update the matching R2 hostnames
+in the `push` and `serve` network grants in [deno.json](deno.json). The `serve` grant also applies
+to `proof:local`.
 
 Provide the configured credentials in the repository-root `.env` or process environment:
 
 - `SYS_TEST_R2_ACCESS_KEY_ID`
 - `SYS_TEST_R2_SECRET_ACCESS_KEY`
 
-Run tasks from `code/sys.driver/driver-cloudflare/-sample/deploy`:
+### Build → push → serve
 
-- `build` creates and locally verifies `dist/`, then writes its manifest checksum to
-  `dist.pin.json`.
-- `push` completely verifies that pinned local build and publishes it without rebuilding or
-  repinning.
-- `serve` admits the pinned remote manifest before serving on `127.0.0.1:8080`; it does not upload.
-
-For an already-published build, run only `deno task serve`. Valid `dist.pin.json`, `r2.config.json`,
-credentials, and the matching remote manifest are required; local `dist/` is optional for serving.
+Run tasks from `code/sys.driver/driver-cloudflare/-sample/deploy`.
 
 Publishing requires read, list, write, and delete access to the selected target.
-
-**`push` writes to R2 and deletes objects in the configured prefix that are absent from the selected
-build.** Do not use a prefix shared with unrelated files.
 
 Publishing is not atomic. A failed push can leave partial changes, with no automatic rollback. Keep
 `dist/`, `dist.pin.json`, and `r2.config.json` unchanged during publication.
 
-To publish a new build and start the application:
+**`push` writes to R2 and deletes objects in the configured prefix that are absent from the selected
+build.** Do not use a prefix shared with unrelated files.
 
 ```sh
+# Build and verify dist/; write dist.pin.json.
 deno task build
+
+# Verify and publish the pinned build to R2; no rebuild or repin.
 deno task push
+
+# Check the pinned remote manifest; serve the API and UI locally.
 deno task serve
 ```
 
-Open the UI at <http://127.0.0.1:8080/ui/>. It displays the API message and the manifest’s
-`hash.digest`.
+For an already-published build, run only `deno task serve`; it does not upload. Valid
+`dist.pin.json`, `r2.config.json`, credentials, and the matching remote manifest are required;
+local `dist/` is optional for serving.
+
+Open the UI at <http://127.0.0.1:8080/ui/>.
 
 - API: <http://127.0.0.1:8080/api/hello>
 - Asset manifest: <http://127.0.0.1:8080/ui/dist.json>
@@ -118,4 +123,5 @@ delivery, not browser rendering or bucket privacy.
 
 ## Access
 
-Application routes require no login. This sample does not configure bucket privacy.
+Application routes require no login. A private bucket does not make the application private. The
+sample neither configures nor verifies bucket privacy.

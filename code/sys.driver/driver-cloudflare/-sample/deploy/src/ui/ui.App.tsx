@@ -16,8 +16,15 @@ export function App() {
       <h1>{pkg.name}</h1>
       <h2>Runtime: Deno · Asset storage: R2</h2>
       <p>
-        A workspace sample with Deno as the runtime and R2 as asset storage, exposed through one
-        application origin (scheme, host, and port). The browser fetches{' '}
+        This <code>@sys/driver-cloudflare/r2</code>{' '}
+        sample demonstrates how Deno serves an API and UI from one application origin. UI assets are
+        stored in a{' '}
+        <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>
+          private R2 bucket
+        </a>.
+      </p>
+      <p>
+        The browser fetches{' '}
         <code>
           <a href='/api/hello'>/api/hello</a>
         </code>{' '}
@@ -25,15 +32,14 @@ export function App() {
         <code>
           <a href='/ui/dist.json'>/ui/dist.json</a>
         </code>{' '}
-        from that same origin, displaying the API message and the manifest’s{' '}
-        <code>hash.digest</code>.
+        from the same origin.
       </p>
       <p>
         Deno fetches each UI asset from R2 using a{' '}
         <a href='https://developers.cloudflare.com/r2/api/s3/presigned-urls/'>
           short-lived presigned URL
         </a>{' '}
-        and serves its bytes to the browser, keeping both the URL and R2 credentials server-side.
+        and returns the bytes to the browser. The presigned URL and R2 credentials stay server-side.
       </p>
       <h2>Same-origin fetches</h2>
       <ul className='fetches' aria-live='polite'>
