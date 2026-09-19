@@ -10,6 +10,15 @@ Deno fetches each UI asset from R2 using a
 [short-lived presigned URL](https://developers.cloudflare.com/r2/api/s3/presigned-urls/) and returns
 the bytes to the browser. The presigned URL and R2 credentials stay server-side.
 
+## Delivery costs
+
+R2 [does not charge for egress](https://developers.cloudflare.com/r2/pricing/), but this sample
+relays UI assets through Deno. When hosted, delivery to the browser consumes the Deno host’s
+outbound bandwidth; charges depend on its plan and allowances. R2 storage and read operations remain
+metered.
+
+Responses use `Cache-Control: no-store`, so normal browser/CDN caching does not absorb repeat loads.
+
 ## Run
 
 Use an existing private R2 bucket and a dedicated prefix you control. Keep public access disabled
