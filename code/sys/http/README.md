@@ -1,13 +1,13 @@
 # HTTP
 
-Bounded HTTP fetch clients and composable server helpers.
+HTTP fetch clients with explicit response limits, plus helpers for running servers.
 
 ## HTTP client
 
-Every client requires an explicit response policy. These example limits are application
-choices, not library defaults. `sourceOrigins` admits exact HTTP(S) origins;
-`credentialOrigins` selects admitted origins that may receive caller/default headers.
-An empty credential list grants none.
+Every client requires an explicit response policy. The limits below are examples, not defaults.
+`sourceOrigins` lists the exact HTTP(S) origins the client may request. `credentialOrigins` lists
+which of those origins may receive caller-supplied or default headers. An empty `credentialOrigins`
+list permits none of those headers.
 
 ```ts
 import { Http } from 'jsr:@sys/http/client';
@@ -38,20 +38,20 @@ try {
 }
 ```
 
-Aborting `request` cancels that request. Aborting `lifetime`, or disposing the client,
-ends the client lifecycle and aborts its in-flight requests. Bind lifecycle with `until`,
-not `dispose$`.
+Aborting `request` cancels that request. Aborting `lifetime`, or disposing the client, ends the
+client's lifetime and aborts its active requests. Pass the lifetime signal as `until`, not
+`dispose$`.
 
 For integrity checking, pass the expected checksum in the **third** argument:
-`client.text(url, { signal }, { checksum })` (also supported by `json` and `blob`).
-It is not a `RequestInit` field. Narrow `response.ok` before using `response.data`;
-`json<T>` supplies a static type, not runtime schema validation.
+`client.text(url, { signal }, { checksum })` (also supported by `json` and `blob`). It is not a
+`RequestInit` field. Check `response.ok` before reading `response.data`. `json<T>` provides a
+TypeScript type; it does not validate the data against a schema.
 
 ## Managed HTTP server
 
-The `/server/host` leaf creates a bare application and managed listener without
-static-file or CORS helpers. This Deno example requires network permission and
-closes the listener after a local request.
+The `/server/host` entrypoint provides a bare application and a managed listener. It does not
+include static-file or CORS helpers. This Deno example requires network permission and closes the
+listener after a local request.
 
 ```ts
 import { create, start } from 'jsr:@sys/http/server/host';
@@ -74,7 +74,8 @@ try {
 - [`/server/host`](https://jsr.io/@sys/http/doc/server/host/): bare `create` and managed `start`.
 - [`/server`](https://jsr.io/@sys/http/doc/server/): broader `HttpServer` and `Net` helpers.
 - [`/server/static`](https://jsr.io/@sys/http/doc/server/static/) and
-  [`/server/file-bytes`](https://jsr.io/@sys/http/doc/server/file-bytes/): explicit file-serving surfaces.
+  [`/server/file-bytes`](https://jsr.io/@sys/http/doc/server/file-bytes/): explicit file-serving
+  APIs.
 - [`/serve`](https://jsr.io/@sys/http/doc/serve/): command-line file server.
 - [`/t`](https://jsr.io/@sys/http/doc/t/): type contracts.
 

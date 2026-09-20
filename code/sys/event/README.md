@@ -1,6 +1,6 @@
 # Events
 
-Typed event-stream composition and transport-independent command messaging.
+Typed event streams and transport-independent command messaging.
 
 ## Event bus
 
@@ -32,14 +32,14 @@ try {
 }
 ```
 
-`filterFor<T>()` also provides `isKind`, `hasPrefix`, and `ofPrefix` for predicates
-and prefix-based stream filtering.
+`filterFor<T>()` also provides `isKind`, `hasPrefix`, and `ofPrefix` for predicates and prefix-based
+stream filtering.
 
 ## Cmd
 
-`Cmd` provides typed unary requests and streaming events over MessagePort-like
-endpoints. It owns its listeners and pending requests; the caller owns the transport
-unless endpoint closing is explicitly requested.
+`Cmd` sends typed requests and streams events over `MessagePort`-like endpoints. It manages its
+listeners and pending requests. You remain responsible for closing the endpoints unless you
+explicitly ask `Cmd` to close them on disposal.
 
 ```ts
 import { Cmd } from 'jsr:@sys/event/cmd';
@@ -79,14 +79,15 @@ try {
 }
 ```
 
-Independent `send` calls can run concurrently. Responses are correlated by request
-id, not arrival order.
+Independent `send` calls can run concurrently. Responses are matched by request ID, not arrival
+order.
 
-Streaming events are live, not replayed: attach `onEvent` or an async-iterator
-consumer immediately after `stream(...)`. `done` resolves to the terminal result.
-Disposing an active stream cancels it and rejects `done`; breaking out of async
-iteration also cancels the stream. Host disposal terminal-settles active requests
-with remote errors before aborting their cooperative `AbortSignal`.
+Streaming events are live, not replayed. Attach `onEvent` or start async iteration immediately after
+`stream(...)`. `done` resolves to the final result. Disposing an active stream cancels it and
+rejects `done`; breaking out of async iteration also cancels the stream.
+
+On disposal, the host tries to send an error response for each active request before aborting that
+request's signal. Handlers must observe their `AbortSignal` to stop their own work.
 
 ## Entry points
 

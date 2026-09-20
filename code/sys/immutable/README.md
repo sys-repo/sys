@@ -1,8 +1,8 @@
 # Immutable
 
-Immutable state contracts and utilities, with an RFC-6902 JSON Patch implementation.
-`Immutable<T>` exposes `current` and `change(fn)`; `ImmutableRef<T>` adds identity and
-`events()` for observing changes.
+Immutable state contracts and utilities, with an RFC-6902 JSON Patch implementation. `Immutable<T>`
+exposes `current` and `change(fn)`; `ImmutableRef<T>` adds identity and `events()` for observing
+changes.
 
 ## Immutable<T>: read → change → next value
 
@@ -17,9 +17,8 @@ foo.change((d) => d.count = 123);  //   Σ  |               ← safe mutation
 foo.current;                       //  === { count: 123 }  ↓              ..(next instance)
 ```
 
-Mutate the draft inside `change`, not `current`. This cloning implementation is simple,
-but not intended for large objects: each change clones the current value and computes
-JSON patches.
+Mutate the draft inside `change`, not `current`. Each change clones the current value and computes
+JSON patches, so this implementation is not intended for large objects.
 
 ## Observe changes
 
@@ -45,17 +44,16 @@ try {
 }
 ```
 
-Changes without patches do not emit. Dispose the event handle when observation ends;
-this ref does not expose a `dispose()` method.
+A change with no patches emits no event. Dispose the event handle when observation ends; the
+reference itself has no `dispose()` method.
 
 ## Entry points
 
-- [`/core`](https://jsr.io/@sys/immutable/doc/core/): engine-independent lens,
-  path-ref, and object helpers; not a concrete state constructor.
+- [`/core`](https://jsr.io/@sys/immutable/doc/core/): engine-independent lens, path-ref, and object
+  helpers; not a concrete state constructor.
 - [`/rfc6902`](https://jsr.io/@sys/immutable/doc/rfc6902/): `Immutable.cloner`,
   `Immutable.clonerRef`, and JSON Patch helpers.
 - [`/t`](https://jsr.io/@sys/immutable/doc/t/): type contracts.
 
-The shared contracts can describe different state engines; the `/rfc6902`
-implementation specifically uses JSON Patch. See the
+The shared contracts can describe different state engines; `/rfc6902` uses JSON Patch. See the
 [API reference](https://jsr.io/@sys/immutable/doc/) for graph and URL utilities.

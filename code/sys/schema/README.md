@@ -1,7 +1,7 @@
 # Type Schema
 
-Runtime schema construction and validation with inferred TypeScript types, JSON Schema,
-and [Standard Schema](https://standardschema.dev) integration.
+Runtime schema construction and validation with inferred TypeScript types, JSON Schema, and
+[Standard Schema](https://standardschema.dev) integration.
 
 ## Example
 
@@ -28,18 +28,17 @@ if (result.ok) {
 }
 ```
 
-`Value.Clean` removes values outside the schema; clone first to preserve the input.
-`Value.Check` returns a boolean, while `Value.Assert` throws on invalid data.
-`Schema.try` returns `{ ok: true, value }` or `{ ok: false, errors }` for schema
-assertion failures. Unexpected errors are rethrown, not converted into validation results.
+`Value.Clean` removes values outside the schema; clone first to preserve the input. `Value.Check`
+returns a boolean, while `Value.Assert` throws on invalid data. `Schema.try` returns
+`{ ok: true, value }` or `{ ok: false, errors }` for schema assertion failures. Unexpected errors
+are rethrown, not converted into validation results.
 
 ## Entry points
 
-- [Root API](https://jsr.io/@sys/schema/doc/): `Schema`, `Type`, `Value`, and `type t`.
-  Infer schema types with `t.Static<typeof schema>`.
+- [Root API](https://jsr.io/@sys/schema/doc/): `Schema`, `Type`, `Value`, and `type t`. Infer schema
+  types with `t.Static<typeof schema>`.
 - [`/recipe`](https://jsr.io/@sys/schema/doc/recipe/): schema recipes.
 - [`/testing`](https://jsr.io/@sys/schema/doc/testing/): schema testing helpers.
-- [`/t`](https://jsr.io/@sys/schema/doc/t/): type-only surface.
+- [`/t`](https://jsr.io/@sys/schema/doc/t/): type-only exports.
 
-References: [JSON Schema](https://json-schema.org) ·
-[Standard Schema](https://standardschema.dev).
+References: [JSON Schema](https://json-schema.org) · [Standard Schema](https://standardschema.dev).
