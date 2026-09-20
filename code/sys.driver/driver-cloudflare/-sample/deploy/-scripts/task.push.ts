@@ -1,8 +1,7 @@
 import { Cli } from '@sys/cli';
 import { Deploy } from '@sys/tools/deploy';
-import { Yaml } from '@sys/yaml';
 import { readInputs } from '../src/m.app/u.data.ts';
-import { c, Fs, Is, ROOT, type t } from './common.ts';
+import { c, Is, ROOT, type t } from './common.ts';
 import { selectBuild } from './u.selection.ts';
 
 /**
@@ -10,7 +9,8 @@ import { selectBuild } from './u.selection.ts';
  */
 export async function pushSample(
   root = ROOT,
-  publish: (args: t.DeployTool.PushFileArgs) => Promise<t.DeployTool.PushResult> = Deploy.push,
+  publish: (args: t.DeployTool.PushDocumentArgs) => Promise<t.DeployTool.PushDocumentResult> =
+    Deploy.push,
 ) {
   const { config, pin } = await readInputs(root);
   const selected = await selectBuild(pin, root);
@@ -30,13 +30,9 @@ export async function pushSample(
     staging: { dir: './dist' },
     mappings: [],
   } satisfies t.DeployTool.Config.EndpointYaml.Doc;
-  const path = Fs.join(root, '.tmp', 'push.yaml');
-  const yaml = Yaml.stringify(endpoint);
-  if (yaml.error) throw new Error('Sample upload configuration could not be serialized.');
-  await Fs.write(path, yaml.data, { throw: true });
 
   try {
-    return await publish({ cwd: root, config: path });
+    return await publish({ cwd: root, document: endpoint });
   } catch (error) {
     throw pushFailure(error);
   }
