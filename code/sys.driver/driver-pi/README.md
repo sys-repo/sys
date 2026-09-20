@@ -23,88 +23,47 @@ It is:
 - ↑ shell, `bash`
 - ↑ language-model (LLM)
 
-## CLI
+## Usage
+
+The root and `/cli` entries run the same profile launcher. Start with help, then launch from your
+repository to select a profile:
 
 ```sh
-# Profile-driven launcher.
-deno run -A jsr:@sys/driver-pi                     # alias to /cli
-deno run -A jsr:@sys/driver-pi/cli
-deno run -A jsr:@sys/driver-pi/cli --profile canon
-deno run -A jsr:@sys/driver-pi/cli --profile ./profiles/canon.yaml
-
-# Explicit raw upstream Pi boundary.
-deno run -A jsr:@sys/driver-pi/cli/raw -- --help
-
-# Unsafe debugging: grant the launched Pi child full authority.
-deno run -A jsr:@sys/driver-pi/cli --allow-all
+deno run -A jsr:@sys/driver-pi --help
+deno run -A jsr:@sys/driver-pi
 ```
 
-The leading `deno run -A` authorizes the launcher itself. The trailing `--allow-all` is a launcher
-option that grants full authority to the Pi child.
+Use `--profile <name|path>` to select a saved profile without the menu; `--non-interactive` requires
+it. Named profiles live under `-config/@sys.driver-pi/`; an explicit YAML path is also accepted.
+Ordinary arguments after `--` pass through to Pi. Profiles control prompts, context, skills, and
+extensions; competing startup arguments are rejected.
 
-The equivalent `@sys/tools` wrapper delegates to the same launcher:
+The leading `deno run -A` authorizes the launcher itself. Passing `--allow-all` to the launcher also
+grants the Pi child full Deno permissions. This is an unsafe debugging option, not a launch default.
+Neither is a statement about an enclosing process sandbox.
 
-```sh
-deno run -A jsr:@sys/tools pi
-deno run -A jsr:@sys/tools pi --profile canon
-deno run -A jsr:@sys/tools pi --allow-all
-```
-
-## Library
-
-```ts
-import { Pi, pkg } from 'jsr:@sys/driver-pi';
-import { Pi as PiCore } from 'jsr:@sys/driver-pi/core';
-import { Cli, Profiles } from 'jsr:@sys/driver-pi/cli';
-import { Raw } from 'jsr:@sys/driver-pi/cli/raw';
-```
+`deno run -A jsr:@sys/tools pi` delegates to the same launcher. Use `/cli/raw` only for explicit
+upstream debugging without profile YAML, profile context, or the wrapper-owned default prompt. The
+[library API](https://jsr.io/@sys/driver-pi/doc) exposes `Cli`/`Profiles` and `Raw`; the root `Pi`
+namespace is currently empty.
 
 ## Configuration
 
-### Profiles
-
-- `--profile <name|path>` loads a named profile or an explicit profile YAML file.
-- Ordinary arguments after `--` pass through to Pi unchanged; profile mode still owns prompt,
-  context, skill, and extension startup surfaces.
-
-### Pi-Driver DSL
-
-Pi-Driver includes a help-only DSL chapter book for profile, tool, and extension policy. Live
-session tools are the source of callability truth; the DSL describes durable profile edits and
-next-launch configuration.
-
-The direct command uses narrow permissions because it reads only packaged guidance:
+The help-only DSL reads packaged guidance; it does not launch Pi or install dependencies:
 
 ```sh
-deno run -ER jsr:@sys/driver-pi dsl [chapter...] [--format human|skill]
-```
-
-The `@sys/tools` wrapper delegates to the same route:
-
-```sh
-deno run -A jsr:@sys/tools pi dsl [chapter...] [--format human|skill]
-```
-
-Run the root command for the current chapter index. Add `--format skill` to project a chapter as
-agent-facing Markdown.
-
-Profile guidance starts here:
-
-```sh
+deno run -ER jsr:@sys/driver-pi dsl
 deno run -ER jsr:@sys/driver-pi dsl profile
-```
-
-### OCR PDF
-
-PDF OCR is disabled by default. The wrapper-owned `ocr_pdf` tool is advertised only after profile
-policy enables it and startup preflight succeeds.
-
-Use the DSL chapter for enablement YAML, defaults, bounds, dependency preflight, install-consent
-paths, and the live-callability boundary:
-
-```sh
 deno run -ER jsr:@sys/driver-pi dsl tools ocr-pdf
+deno run -ER jsr:@sys/driver-pi dsl tools zip
 ```
+
+Read the root index first, then the smallest matching chapter. Add `--format skill` for agent-facing
+Markdown. Profile edits apply on relaunch; only the live session's registered tools establish
+callability. Generated extensions are launcher-owned artifacts, not policy files to hand-edit.
+
+PDF OCR is disabled by default and advertised only after profile enablement and successful startup
+preflight. Its chapter owns enablement YAML, bounds, dependencies, and install-consent guidance.
 
 ### ZIP
 
@@ -125,10 +84,11 @@ be a new directory beneath an existing parent in a configured writable root. No 
 symlink traversal, shell fallback, or ZIP creation is provided. Only the live tool list establishes
 callability; profile changes require relaunch.
 
-Archive verifies before Fs constructs privately, then Pi requests promotion. Exact destination keys
-share the running host's queue—not subtrees or other processes. This is cooperative filesystem
-safety, not hostile-filesystem confinement or native atomic no-replace publication. The 120-second
-budget cannot hard-preempt queue waiting or native I/O; expired callbacks refuse work on entry.
+The archive is validated before files are written to a private staging directory. Pi then requests
+publication at the destination. Calls targeting the same destination share one host's queue; it does
+not coordinate nested destinations or other processes. These are cooperative safeguards, not
+hostile-filesystem confinement or native atomic no-replace publication. The 120-second budget cannot
+interrupt queue waits or native I/O; an expired queued call refuses work when admitted.
 
 Publication and cleanup are separate facts: a cleanup error can leave a complete destination or
 private residue. Do not infer rollback. Integrity establishes neither provenance nor content safety.
@@ -167,9 +127,9 @@ writes in place. The printed dependency summary is not confirmation that the who
   versus allow-all **Deno API permissions** from process confinement. This launcher supplies no
   shell/process confinement; any enclosing protection is unknown. Native subprocesses do not inherit
   Deno read/write path bounds. Allow-all does not prove an enclosing sandbox is absent.
-- Reports identify launcher version, safe upstream selection, profile, default/custom system prompt,
-  and ordered instruction contributions without recording prompt/context bodies or environment
-  values. Only the known upstream package stem with a numeric release is shown; other specifiers are
+- Reports identify launcher version, upstream selection, profile, default/custom system prompt, and
+  ordered instruction contributions without recording prompt/context bodies or environment values.
+  Only the known upstream package stem with a numeric release is shown; other specifiers are
   redacted, not echoed. Unknown tool/runtime facts remain unknown.
 - A `preview` snapshot skips extension materialization and OCR preflight. A fresh `launch-input`
   report is written after final resolution and before process launch, even when grants are
@@ -241,13 +201,13 @@ cached generation starts offline. A cold start acquires the exact Dist from
 `http://localhost:8080/dist.json`. `start:gui` never builds or starts the local server. The local
 `dist/` is proof input and is excluded from package publication.
 
-For an intentionally selected, already-built candidate, invoke only the narrow binding leaf:
+To bind a specific existing build without rebuilding it:
 
 ```sh
 deno task bind:gui:evidence:local
 ```
 
-The leaf verifies `dist/` and replaces only the launcher evidence file. It never builds, serves, or
+This task verifies `dist/` and replaces only the launcher evidence file. It never builds, serves, or
 contacts `:8080`.
 
 Serve the already-built `dist/` for browser preview and local acquisition:
