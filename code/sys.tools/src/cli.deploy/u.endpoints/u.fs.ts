@@ -54,9 +54,38 @@ export const EndpointsFs = {
     }
 
     const ast = Yaml.parseAst(read.data ?? '');
+    const cwd = options.cwd ?? resolveCwdFromYamlPath(path);
+    return EndpointsFs.validateAst(ast, { cwd });
+  },
+
+  /**
+   * Capture caller data synchronously as an owned AST, before any async resolution.
+   * Serialization is in memory only; all subsequent checks share file-mode admission.
+   */
+  async validateDocument(
+    document: t.DeployTool.Config.EndpointYaml.Doc,
+    options: { cwd: t.StringDir },
+  ): Promise<t.DeployTool.Endpoint.Fs.YamlCheck> {
+    const captured = Yaml.stringify(document);
+    if (captured.error) {
+      const error = Yaml.Error.synthetic({
+        message: 'Unable to capture endpoint document.',
+        code: EndpointYamlErrorCode,
+        pos: [0, 0],
+      });
+      return { ok: false, errors: Schema.Error.fromYaml([error]) };
+    }
+    return await EndpointsFs.validateAst(Yaml.parseAst(captured.data ?? ''), options);
+  },
+
+  /** Shared env, schema, path, and filesystem admission for an operation-owned AST. */
+  async validateAst(
+    ast: t.Yaml.Ast,
+    options: { cwd: t.StringDir },
+  ): Promise<t.DeployTool.Endpoint.Fs.YamlCheck> {
     if (ast.errors?.length) return validateEndpointYamlAst(ast);
 
-    const cwd = options.cwd ?? resolveCwdFromYamlPath(path);
+    const { cwd } = options;
     const resolved = await resolveEndpointEnvRefs(ast, { cwd });
     if (!resolved.ok) return { ok: false, errors: Schema.Error.fromYaml([...resolved.errors]) };
 

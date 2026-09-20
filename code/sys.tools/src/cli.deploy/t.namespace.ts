@@ -10,8 +10,8 @@ export namespace DeployTool {
   export type Lib = {
     /** Stage endpoint files from owner YAML. */
     stage(args: StageArgs): Promise<StageResult>;
-    /** Push an already-staged endpoint from owner YAML. */
-    push(args: PushArgs): Promise<PushResult>;
+    /** Push an already-staged endpoint from a file or a captured document. */
+    push: Push;
   };
 
   export const ID = 'deploy' as const;
@@ -43,12 +43,36 @@ export namespace DeployTool {
     until?: t.UntilInput;
   } & t.Tools.ConfigRefArgs;
 
-  /** Inputs accepted by `Deploy.push`. */
-  export type PushArgs = {
+  /** Inputs accepted by `Deploy.push`; exactly one configuration authority. */
+  export type PushArgs = PushFileArgs | PushDocumentArgs;
+
+  /** Preserve file callers' result contract while admitting document callers. */
+  export type Push = {
+    (args: PushFileArgs): Promise<PushResult>;
+    (args: PushDocumentArgs): Promise<PushDocumentResult>;
+    (args: PushArgs): Promise<PushResult | PushDocumentResult>;
+  };
+
+  /** Invocation options shared by both publication sources. */
+  export type PushOptions = {
     cwd?: t.StringDir;
     /** Rewrite staged publish files even when the remote manifest says they are unchanged. */
     force?: boolean;
-  } & t.Tools.ConfigRefArgs;
+  };
+
+  /** Existing file-backed publication input. */
+  export type PushFileArgs = PushOptions & t.Tools.ConfigRefArgs & { document?: never };
+
+  /**
+   * Captured endpoint data; env refs resolve at the Deploy owner relative to cwd.
+   * Capture is synchronous before resolution, not a snapshot of staged file bytes.
+   * Keep staging and remote namespaces stable for the duration of publication.
+   */
+  export type PushDocumentArgs = PushOptions & {
+    document: Config.EndpointYaml.Doc;
+    config?: never;
+    paths?: never;
+  };
 
   /** Successful staging result. */
   export type StageResult = {
@@ -74,6 +98,11 @@ export namespace DeployTool {
     readonly prune?: t.PushPruneStats;
   };
 
+  /** Successful document publication; no synthetic config pathname. */
+  export type PushDocumentResult = Omit<PushResult, 'config'> & {
+    readonly source: 'document';
+  };
+
   /**
    * Non-throwing staging operation results.
    */
@@ -95,10 +124,18 @@ export namespace DeployTool {
    * Non-throwing publication operation results.
    */
   export namespace PushOperation {
-    /** Publication success or expected failure. */
+    /** File publication success or expected failure. */
     export type Result = PushResult | Failure;
 
-    /** Expected publication failure. */
+    /** Document publication success or expected failure. */
+    export type DocumentResult = PushDocumentResult | DocumentFailure;
+
+    /** Document failure identity, also carried by the thrown error's cause. */
+    export type DocumentFailure = Omit<Failure, 'config'> & {
+      readonly source: 'document';
+    };
+
+    /** Expected file publication failure. */
     export type Failure = {
       readonly ok: false;
       readonly cwd: t.StringDir;

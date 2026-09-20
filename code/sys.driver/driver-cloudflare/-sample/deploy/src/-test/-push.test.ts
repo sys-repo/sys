@@ -120,8 +120,8 @@ async function fixture() {
     if (verified.kind !== 'verified') throw new Error(`Fixture Dist refused: ${verified.kind}.`);
     const pin = { 'dist.json': verified.evidence.integrity };
     await Fs.writeJson(dir.join('dist.pin.json'), pin, { throw: true });
-    const calls: DeployTool.PushArgs[] = [];
-    const publish: DeployTool.Lib['push'] = (args) => {
+    const calls: DeployTool.PushFileArgs[] = [];
+    const publish = (args: DeployTool.PushFileArgs): Promise<DeployTool.PushResult> => {
       calls.push(args);
       return Promise.resolve({
         ok: true,

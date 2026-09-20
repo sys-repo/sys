@@ -8,7 +8,10 @@ import { selectBuild } from './u.selection.ts';
 /**
  * Push the existing selected build. Never rebuild or resolve secrets into a file.
  */
-export async function pushSample(root = ROOT, publish: t.DeployTool.Lib['push'] = Deploy.push) {
+export async function pushSample(
+  root = ROOT,
+  publish: (args: t.DeployTool.PushFileArgs) => Promise<t.DeployTool.PushResult> = Deploy.push,
+) {
   const { config, pin } = await readInputs(root);
   const selected = await selectBuild(pin, root);
   if (selected.kind !== 'verified') throw new Error(`Sample Dist refused: ${selected.kind}.`);

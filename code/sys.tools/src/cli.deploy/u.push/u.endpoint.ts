@@ -13,13 +13,39 @@ type StagingOutputCheck =
     readonly missing: t.PushMissingTarget;
   };
 
-/** Push an already-staged deploy endpoint from owner YAML. Throws when push fails. */
-export async function push(args: t.DeployTool.PushArgs): Promise<t.DeployTool.PushResult> {
-  const cwd = args.cwd ?? Fs.cwd('terminal');
-  const config = ConfigRef.resolve(cwd, args, 'Deploy.push');
-  const result = await pushEndpoint({ cwd, config, force: args.force });
+type PushIdentity =
+  | Pick<t.DeployTool.PushResult, 'config'>
+  | Pick<t.DeployTool.PushDocumentResult, 'source'>;
+type PushOutcome =
+  | Omit<t.DeployTool.PushResult, 'config'>
+  | Omit<t.DeployTool.PushOperation.Failure, 'config'>;
 
-  if (!result.ok) throw pushError(config, result);
+/** Push staged bytes using one file or captured-document authority. */
+export function push(args: t.DeployTool.PushFileArgs): Promise<t.DeployTool.PushResult>;
+export function push(args: t.DeployTool.PushDocumentArgs): Promise<t.DeployTool.PushDocumentResult>;
+export function push(
+  args: t.DeployTool.PushArgs,
+): Promise<t.DeployTool.PushResult | t.DeployTool.PushDocumentResult>;
+export async function push(
+  args: t.DeployTool.PushArgs,
+): Promise<t.DeployTool.PushResult | t.DeployTool.PushDocumentResult> {
+  const cwd = args.cwd ?? Fs.cwd('terminal');
+  const force = args.force;
+
+  if ('document' in args) {
+    if ('config' in args || 'paths' in args) {
+      throw new Error('Deploy.push: document and config references are mutually exclusive.');
+    }
+    const identity = { source: 'document' } as const;
+    const check = await EndpointsFs.validateDocument(args.document!, { cwd });
+    const result = { ...await executePush({ cwd, force, identity, check }), ...identity };
+    if (!result.ok) throw pushError(result);
+    return result;
+  }
+
+  const config = ConfigRef.resolve(cwd, args, 'Deploy.push');
+  const result = await pushEndpoint({ cwd, config, force });
+  if (!result.ok) throw pushError(result);
   return result;
 }
 
@@ -31,23 +57,33 @@ export async function pushEndpoint(args: {
 }): Promise<t.DeployTool.PushOperation.Result> {
   const { cwd } = args;
   const config: t.StringPath = Fs.resolve(cwd, args.config);
+  const force = args.force;
   const check = await EndpointsFs.validateYaml(config, { cwd });
+  return { ...await executePush({ cwd, force, identity: { config }, check }), config };
+}
+
+/** Source admission differs; target checks and provider execution do not. */
+async function executePush(args: {
+  cwd: t.StringDir;
+  force?: boolean;
+  identity: PushIdentity;
+  check: t.DeployTool.Endpoint.Fs.YamlCheck;
+}): Promise<PushOutcome> {
+  const { cwd, identity, check } = args;
+  const fail = (details: Omit<t.DeployTool.PushOperation.Failure, 'ok' | 'cwd' | 'config'>) =>
+    ({ ok: false, cwd, ...details }) as const;
 
   if (!check.ok) {
-    return failure({
-      cwd,
-      config,
+    return fail({
       reason: 'yaml-invalid',
-      error: validationError(config, check),
+      error: validationError(identity, check),
     });
   }
 
   const yaml = check.doc;
   const provider = yaml.provider;
   if (!provider) {
-    return failure({
-      cwd,
-      config,
+    return fail({
       reason: 'no-provider',
       hint: 'No provider configured for this endpoint.',
     });
@@ -57,9 +93,7 @@ export async function pushEndpoint(args: {
   try {
     plan = await resolvePushTargets({ cwd, yaml });
   } catch (error) {
-    return failure({
-      cwd,
-      config,
+    return fail({
       reason: 'failed',
       hint: 'Failed to resolve deploy push targets.',
       error,
@@ -68,9 +102,7 @@ export async function pushEndpoint(args: {
 
   const missing = plan.missing;
   if (missing.length) {
-    return failure({
-      cwd,
-      config,
+    return fail({
       reason: 'no-staging-output',
       hint: 'Run staging first (no staging output found).',
       missing,
@@ -79,9 +111,7 @@ export async function pushEndpoint(args: {
 
   const targets = plan.targets;
   if (!targets.length) {
-    return failure({
-      cwd,
-      config,
+    return fail({
       reason: 'no-push-targets',
       hint: 'No deploy targets resolved for this provider.',
     });
@@ -89,9 +119,7 @@ export async function pushEndpoint(args: {
 
   const stagingOutput = await checkStagingOutputs(targets);
   if (!stagingOutput.ok) {
-    return failure({
-      cwd,
-      config,
+    return fail({
       reason: 'no-staging-output',
       hint: 'Run staging first (no staging output found).',
       target: stagingOutput.target,
@@ -109,9 +137,7 @@ export async function pushEndpoint(args: {
     try {
       const result = await pushTarget({ cwd, target, force: args.force });
       if (!result.ok) {
-        return failure({
-          cwd,
-          config,
+        return fail({
           reason: result.reason,
           hint: result.hint,
           target: context,
@@ -121,9 +147,7 @@ export async function pushEndpoint(args: {
       if (result.publish) publishStats.push(result.publish);
       if (result.prune) pruneStats.push(result.prune);
     } catch (error) {
-      return failure({
-        cwd,
-        config,
+      return fail({
         reason: 'failed',
         hint: 'Provider push failed.',
         target: context,
@@ -138,7 +162,6 @@ export async function pushEndpoint(args: {
   return {
     ok: true,
     cwd,
-    config,
     targets: targets.length,
     elapsed: Time.elapsed(started).toString(),
     bytes,
@@ -150,24 +173,24 @@ export async function pushEndpoint(args: {
 /**
  * Helpers:
  */
-function failure(
-  args: Omit<t.DeployTool.PushOperation.Failure, 'ok'>,
-): t.DeployTool.PushOperation.Failure {
-  return { ok: false, ...args };
+function sourceLabel(identity: PushIdentity): string {
+  return 'config' in identity ? `config: ${Fs.trimCwd(identity.config)}` : 'document';
 }
 
 function validationError(
-  config: t.StringPath,
+  identity: PushIdentity,
   check: t.DeployTool.Endpoint.Fs.YamlCheck,
 ): Error {
   const details = errorMessagesOf(check);
   const suffix = details ? `\n${details}` : '';
-  return new Error(`Could not load deploy config: ${Fs.trimCwd(config)}${suffix}`);
+  return new Error(`Could not load deploy ${sourceLabel(identity)}${suffix}`);
 }
 
-function pushError(config: t.StringPath, result: t.DeployTool.PushOperation.Failure): Error {
+function pushError(
+  result: t.DeployTool.PushOperation.Failure | t.DeployTool.PushOperation.DocumentFailure,
+): Error {
   const b = Str.builder()
-    .line(`Deploy.push: failed to push config: ${Fs.trimCwd(config)}`)
+    .line(`Deploy.push: failed to push ${sourceLabel(result)}`)
     .line(`reason: ${result.reason}`);
 
   const hint = String(result.hint ?? '').trim();
