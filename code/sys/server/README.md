@@ -9,14 +9,20 @@ each primitive.
 
 ## Choose a surface
 
-- **`BootstrapStatus`** — show finite caller-owned status, then redirect once.
+- **`BootstrapStatus`** (`/bootstrap/status`) — show finite caller-owned status, then redirect once.
 - **`Dist.materialize()`** — settle one caller-selected Dist under an exact SHA-256 manifest pin.
 - **`Dist.Generation.open()`** — hold one pinned generation under a shared store lease.
-- **`DistServer.start()`** — host one externally pinned, continuously verified Dist.
+- **`DistServer.start()`** — host an externally pinned Dist; verify before listening and on each
+  read.
 - **`DistServer.Local.start()`** — host one locally observed build, including its exact verified
   manifest, without claiming external authenticity.
 - **`DistService` / `FilesWebSocketService`** — let `@sys/cell` own configured service lifecycles.
-- **`WebSocketServer`** — bind application-owned command handlers to a managed transport.
+- **`WebSocketServer`** (`/websocket`) — bind application-owned command handlers to a managed
+  transport.
+
+Use `/dist` for materialization and generation ownership, `/dist/server` for hosting, and
+`/dist/service` or `/files/service` for Cell lifecycle endpoints. See the
+[API documentation](https://jsr.io/@sys/server/doc) for their types and options.
 
 ## Inspect the package DSL
 
@@ -90,10 +96,14 @@ refuses caller lifecycle or capability fields, accessor-backed required fields, 
 buffers. The returned handle exposes no application or raw listener. Call `close()` explicitly, or
 use `await using` for lexical shutdown.
 
-At module initialization, `BootstrapStatus` captures its Promise and scheduler substrate. Startup
-rejects later Promise drift around listener binding and sanitizes lower lifecycle failures. A thrown
-startup error is never treated as proof that no listener exists: private authority pursues shutdown
-and remains retained for the process lifetime when termination cannot be proved.
+### Startup failure and internal trust
+
+A startup error does not prove that no listener exists. The package attempts shutdown and retains
+its private shutdown authority for the process lifetime when termination cannot be proved.
+
+At module initialization, `BootstrapStatus` captures the Promise implementation and scheduling
+functions it uses. Startup rejects later changes to the Promise bindings it relies on, checking
+before and after listener binding. Lower lifecycle failures are sanitized.
 
 ## Materialize a checksum-pinned Dist
 
@@ -128,10 +138,10 @@ Every success carries independent `verification` and `seal` evidence. Verificati
 write bit was clear, clearing write bits when necessary. Both describe the returned directory at
 settlement time, not immunity from later direct mutation.
 
-Materialization holds an exclusive Rooted lease while deciding and settling the visible target. An
-absent target releases that lease during network and private-stage work, then reacquires it for
-publication, sealing, and final verification. Coordination extends only to participants using the
-same Rooted protocol; direct filesystem authority remains outside it.
+Materialization holds an exclusive Rooted lease while deciding and settling the visible target. If
+the target is absent, it releases that lease during network and private-stage work, then reacquires
+it for publication, sealing, and final verification. Coordination extends only to participants using
+the same Rooted protocol; direct filesystem authority remains outside it.
 
 A valid but unsealed existing generation is sealed and verified again without source requests or
 credential callbacks. An invalid occupied generation is retained and refused—not sealed, repaired,
@@ -165,37 +175,38 @@ Materialization never starts without the outer lease.
 
 ```ts
 import { Dist } from 'jsr:@sys/server/dist';
+import type * as t from 'jsr:@sys/server/t';
 
-const result = await Dist.Generation.open({
-  store: { root: '/srv/example/dist', target: '@sample.app' },
-  manifestUrl: 'https://releases.example/sample/dist.json',
-  integrity: 'sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-  policy,
-});
+async function useGeneration(
+  args: t.Dist.Generation.Open.Args,
+  use: (dir: string) => Promise<void>,
+): Promise<void> {
+  const result = await Dist.Generation.open(args);
+  if (result.kind === 'failed') {
+    console.info(result.phase, result.generation?.reason ?? result.reason, result.ownership);
+    return;
+  }
 
-if (result.kind === 'failed') {
-  console.error(result.phase, result.generation?.reason ?? result.reason, result.ownership);
-} else {
   await using owner = result.owner;
-  console.info(result.generation.dir, owner.store);
-  // Apply caller-owned package policy and start the host before leaving this scope.
+  console.info(owner.store);
+  await use(result.generation.dir);
 }
 ```
 
+The caller supplies `store: { root, target }`, `manifestUrl`, a trusted `integrity` pin, and a
+`policy` with finite `manifest`, `resources`, and `verification` limits. The callback must await all
+work that needs the lease; leaving the scope awaits release, which can fail as described below.
+
 On success, `generation` preserves the complete `existing` or `promoted` materialization result. The
 frozen owner holds the shared lease; `owner.store` records the canonical root, normalized target,
-and canonical store directory. Every call to `release()` returns one shared terminal operation. An
-observable `undefined` completion proves release. Rejection, a non-void settlement, or an opaque
-transport yields a sanitized rejection and leaves the owner strongly retained for the process
-lifetime; Server does not invoke the lower release again.
+and canonical store directory.
 
-Package-internal filesystem, Rooted, and materialization dependencies are trusted non-Proxy
-callables with exact undecorated native Promise transports; Rooted's all-or-none acquisition-failure
-semantics are part of that trust. Generation validates each transport before awaiting it and never
-assimilates an arbitrary thenable or decorated Promise. Retention does not claim to handle an
-autonomous rejection from a decorated Promise, or hidden work by an arbitrary replacement callable,
-that violates this private contract. Returned settlement evidence remains hostile and is admitted
-independently.
+### Release and opening failures
+
+Every call to `release()` returns one shared terminal operation. An observable `undefined`
+completion proves release. Rejection, a non-void settlement, or an opaque transport yields a
+sanitized rejection and leaves the owner strongly retained for the process lifetime; Server does not
+invoke the lower release again.
 
 A failed result keeps materialization and ownership truth separate:
 
@@ -210,12 +221,27 @@ A failed result keeps materialization and ownership truth separate:
 the process lifetime when release was not proved. `Dist.Cleanup` remains separate; it describes
 private materialization stages, not the outer lease.
 
-`until` can stop only the opening work. A complete admitted `Dist.Failed` remains the exact lower
-settlement when cancellation becomes observable in the same turn; generic cancellation projection
-applies only to a successful lower settlement before opening commits it. Once committed under the
-lease, cancellation cannot revoke the returned owner. Generation opening does not check package
-identity, choose a workspace or release target, start a listener, or apply browser policy. Those
-remain caller concerns.
+### Opening cancellation
+
+`until` can stop only the opening work; it does not release a successfully opened owner. A complete
+admitted `Dist.Failed` remains the exact lower settlement when cancellation becomes observable in
+the same turn; generic cancellation projection applies only to a successful lower settlement before
+opening commits it. Once committed under the lease, cancellation cannot revoke the returned owner.
+Generation opening does not check package identity, choose a workspace or release target, start a
+listener, or apply browser policy. Those remain caller concerns.
+
+### Internal trust requirements
+
+Generation relies on trusted package-internal filesystem, Rooted, and materialization functions.
+They must be non-Proxy callables that return exact, undecorated native Promises. Rooted acquisition
+is assumed to be all-or-none: a failed acquisition must leave no lease behind.
+
+Generation checks each returned Promise before awaiting it and never assimilates an arbitrary
+thenable or decorated Promise. It treats the returned settlement evidence as hostile and validates
+it independently.
+
+Process-lifetime retention does not cover autonomous rejection from a decorated Promise or hidden
+work by a replacement callable that violates this private contract.
 
 ## Host a verified Dist
 
@@ -251,6 +277,11 @@ try {
 }
 ```
 
+The example requires a real, complete Dist at the chosen path and its trusted manifest pin; the
+illustrative hash is not release authority. Deno needs filesystem read and loopback network access.
+It closes the host after printing its origin; keep application work inside the `try` scope to serve
+for longer.
+
 The narrow `@sys/server/dist/server` entry exposes hosting without loading Dist acquisition or
 materialization. The aggregate `@sys/server/dist` entry remains available when one caller needs both
 `Dist` and `DistServer`.
@@ -278,18 +309,20 @@ Generic Dist hosting applies no browser-runtime policy. Select `browserPolicy` w
 will execute in a browser:
 
 ```ts
-browserPolicy: {
+import type * as t from 'jsr:@sys/server/t';
+
+const browserPolicy = {
   kind: 'verified-loopback',
   dedicatedWorkers: [],
   serviceWorker: { kind: 'deny' },
-}
+} satisfies t.DistServer.BrowserPolicy.Input;
 ```
 
-This mode requires numeric loopback and one exact `Host`. It applies fixed CSP, framing, referrer,
-MIME, cross-origin, and `no-store` headers to success and error responses. Dedicated-worker and
-Service Worker authority are separate and explicit; selected assets must exist in the verified Dist.
-Cross-site Fetch Metadata is rejected when present, while missing metadata remains compatible with
-direct clients.
+Pass this value as the `browserPolicy` start option. This mode requires numeric loopback and one
+exact `Host`. It applies fixed CSP, framing, referrer, MIME, cross-origin, and `no-store` headers to
+success and error responses. Dedicated-worker and Service Worker authority are separate and
+explicit; selected assets must exist in the verified Dist. Cross-site Fetch Metadata is rejected
+when present, while missing metadata remains compatible with direct clients.
 
 Browser policy constrains execution of already verified bytes. It does not authenticate a caller,
 make the origin public, or strengthen the artifact pin.
