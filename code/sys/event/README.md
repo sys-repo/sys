@@ -1,197 +1,96 @@
 # Events
-Primitives for composition and filtering of event streams.
 
-<p>&nbsp;</p>
+Typed event-stream composition and transport-independent command messaging.
 
-## EventBus
-An **event-bus** is a multicasting, shared `Observable` stream that multiple producers **publish** to and multiple consumers **subscribe** to.
+## Event bus
 
-Message-based event streams are strongly typed, ensuring compile-time safety, precise narrowing, and self-documenting contracts between publishers and subscribers.
+A bus is a shared observable subject. `emitFor<T>()` returns an emitter taking
+`(bus, schedule, event)`; the direct `emit` helper instead takes `(bus, event, schedule?)`.
+Schedules include `micro`, `macro`, and `raf`.
 
 ```ts
-// Example event union:
-type BaseEvent = { readonly kind: 'debug';     msg?: string };
-type AEvent    = { readonly kind: 'debug:a';   count: number };
-type ABEvent   = { readonly kind: 'debug:a.b'; total: number };
+import { Rx } from 'jsr:@sys/std/rx';
+import { emitFor, filterFor } from 'jsr:@sys/event/bus';
 
-type MyEvents = BaseEvent | AEvent | ABEvent;
+type Event =
+  | { kind: 'debug'; msg: string }
+  | { kind: 'debug:count'; count: number };
+
+const bus = Rx.subject<Event>();
+const emit = emitFor<Event>();
+const Filter = filterFor<Event>();
+const subscription = bus.pipe(Filter.ofKind('debug:count')).subscribe((event) => {
+  console.log(event.count); // narrowed to the count event
+});
+
+try {
+  emit(bus, 'micro', { kind: 'debug:count', count: 42 });
+  await Promise.resolve(); // Allow the scheduled microtask to deliver before cleanup.
+} finally {
+  subscription.unsubscribe();
+  bus.complete();
+}
 ```
 
-<p>&nbsp;</p>
+`filterFor<T>()` also provides `isKind`, `hasPrefix`, and `ofPrefix` for predicates
+and prefix-based stream filtering.
 
-### Firing
-An **event-bus** is a plain observable stream. Events are dispatched on a standardized `@sys/std:Schedule` (`micro`, `raf`, `macro`).
+## Cmd
 
-```ts
-import { emitFor } from '@sys/event/bus';
-
-type T = MyEvents
-const bus$ = Rx.subject<T>(); // ← your event bus.
-const emit = emitFor<T>();
-
-// Strongly-typed, scheduled, publishing of an event:
-emitFor<T>(bus$, 'micro', { kind: 'debug:a.b', total: 42 });
-```
-
-<p>&nbsp;</p>
-
-### Filtering
-Strongly-typed predicates and operators for narrowing on event streams by `kind` or a *starts-with* `prefix` matcher.
+`Cmd` provides typed unary requests and streaming events over MessagePort-like
+endpoints. It owns its listeners and pending requests; the caller owns the transport
+unless endpoint closing is explicitly requested.
 
 ```ts
-import { Rx } from '@sys/std/rx';
-import { filterFor } from '@sys/event/bus';
+import { Cmd } from 'jsr:@sys/event/cmd';
 
-type T = MyEvents
-const Filter = filterFor<T>();
+type Name = 'ping';
+type Payload = { ping: { msg: string } };
+type Result = { ping: { reply: string } };
+type Events = { ping: { tick: number } };
 
-// Kind/prefix predicates:
-const isDebug = Filter.isKind('debug');
-const isBase = Filter.isKind('debug');
-const isPrefixed = Filter.hasPrefix('debug:a');
-
-// RxJS operators:
-const bus$ = Rx.subject<T>();
-bus$
-  .pipe(
-    Filter.ofPrefix('debug:a'), // narrow to "debug:a.*"
-    Filter.ofKind('debug:a.b'), // then exact "debug:a.b"
-  )
-  .subscribe((e) => {
-    console.log(e.total); // NB: `e` is narrowed to ABEvent.
-  });
-
-```
-
-<p>&nbsp;</p>
-
-## Cmd (Command)
-
-> *A minimal, transport-agnostic, strongly-typed command algebra for **unary** and **streaming** operations — a small, explicit boundary between semantics and transport.*
-
-`Cmd` provides **typed request/response and streaming events** over any
-`MessagePort`-like endpoint ([Web Worker](https://html.spec.whatwg.org/multipage/workers.html),
-`MessageChannel`, `window.postMessage`, etc). Cmd owns its listeners and
-pending request lifecycles; the underlying transport remains caller-owned unless
-endpoint closing is explicitly requested.
-
-<p>&nbsp;</p>
-
-```ts
-import { Cmd } from '@sys/event/cmd';
-
-/**
- * Command set:
- *   - Name:      union of command names.
- *   - Payload:   per-name request payloads.
- *   - Result:    per-name result payloads.
- *   - Events:    per-name streaming event payloads (optional).
- */
-type Name = 'ping' | 'sum';
-
-type Payload = {
-  ping: { msg: string };
-  sum: { values: number[] };
-};
-
-type Result = {
-  ping: { reply: string };
-  sum: { total: number };
-};
-
-type Events = {
-  ping: { tick: number }; // streaming events for "ping"
-  sum: never;             // unary-only
-};
-
-/**
- * Create a typed command set.
- */
 const cmd = Cmd.make<Name, Payload, Result, Events>();
-
-// Wire it to any MessagePort-like endpoint.
 const { port1, port2 } = new MessageChannel();
-
-// Host: runs on the "service" side.
 const host = cmd.host(port1, {
-  async ping({ msg }, ctx) {
+  ping({ msg }, ctx) {
     ctx.emit({ tick: 1 });
-    ctx.emit({ tick: 2 });
     return { reply: `pong: ${msg}` };
   },
-  sum: ({ values }) => ({ total: values.reduce((n, v) => n + v, 0) }),
 });
-
-// Client: runs on the "caller" side.
 const client = cmd.client(port2, { timeout: 5_000 });
-```
 
-<p>&nbsp;</p>
+try {
+  const result = await client.send('ping', { msg: 'hello' });
+  console.log(result.reply);
 
-### Unary: request / response
-```ts
-// Typed send:
-const res = await client.send('sum', { values: [1, 2, 3] });
-//    res: { total: number }
-
-res.total; // 6
-```
-
-`Cmd` multiplexes concurrent in-flight requests over the same endpoint. Start
-independent commands before awaiting them when you want one latency window rather
-than sequential round-trips:
-
-```ts
-const [a, b, c] = await Promise.all([
-  client.send('sum', { values: [1] }),
-  client.send('sum', { values: [2] }),
-  client.send('sum', { values: [3] }),
-]);
-```
-
-Each result is correlated by request id, so host responses may arrive out of
-order without changing the caller's result association.
-
-<p>&nbsp;</p>
-
-### Streaming: events + terminal result
-`stream` gives you:
-
- - `id` – request id (shared with mid-stream events)
- - `onEvent` – subscribe to typed events
- - `done` – promise for the final result
- - `dispose` – cancel the stream, reject `done`, and detach listeners
-
-Stream events are live. Attach `onEvent` or async-iterator consumers immediately
-after `stream(...)`; late consumers should not expect event replay. Breaking out
-of async iteration cancels the stream. Disposing a host terminal-settles active
-requests with remote errors before aborting their cooperative `AbortSignal`.
-
-```ts
-/**
- * Start a streaming command:
- */
-const stream = client.stream('ping', { msg: 'hello' });
-
-const events: Events['ping'][] = [];
-const sub = stream.onEvent((event) => {
-  // Per-event callback (fires as events arrive)
-  events.push(event);
-});
-
-// Async iteration over the same event stream (alternative to onEvent)
-for await (const ev of stream) {
-  // ev is typed: Events['ping']
+  const stream = client.stream('ping', { msg: 'streaming' });
+  const subscription = stream.onEvent((event) => console.log(event.tick));
+  try {
+    console.log((await stream.done).reply);
+  } finally {
+    subscription.dispose();
+    stream.dispose();
+  }
+} finally {
+  client.dispose();
+  host.dispose();
+  port1.close();
+  port2.close();
 }
-
-// Wait for the terminal result once the stream finishes
-const final = await stream.done;
-// final: { reply: string }
-
-// cleanup:
-sub.dispose();
-client.dispose();
-host.dispose();
-port1.close();
-port2.close();
 ```
+
+Independent `send` calls can run concurrently. Responses are correlated by request
+id, not arrival order.
+
+Streaming events are live, not replayed: attach `onEvent` or an async-iterator
+consumer immediately after `stream(...)`. `done` resolves to the terminal result.
+Disposing an active stream cancels it and rejects `done`; breaking out of async
+iteration also cancels the stream. Host disposal terminal-settles active requests
+with remote errors before aborting their cooperative `AbortSignal`.
+
+## Entry points
+
+- [`/bus`](https://jsr.io/@sys/event/doc/bus/): scheduled emission and typed filtering.
+- [`/cmd`](https://jsr.io/@sys/event/doc/cmd/): command clients, hosts, and streams.
+- [`/cmd/testing`](https://jsr.io/@sys/event/doc/cmd/testing/): command testing helpers.
+- [`/t`](https://jsr.io/@sys/event/doc/t/): type contracts.

@@ -1,89 +1,57 @@
 # HTTP
 
-Tools for working with [HTTP](https://www.w3.org/Protocols/), the foundational protocol of the
-"world wide web."
+Bounded HTTP fetch clients and composable server helpers.
 
-### Simple File Server
+## HTTP client
 
-Standing up an HTTP server directly from the command line.
-
-```bash
-deno run -ERN jsr:@sys/http/serve
-
-# ↑ default options:
-#   --port=8080
-#   --dir=dist  # ← default is "."
-```
-
-### HTTP Client (Programmatic)
-
-Fetch tools:
+Every client requires an explicit response policy. These example limits are application
+choices, not library defaults. `sourceOrigins` admits exact HTTP(S) origins;
+`credentialOrigins` selects admitted origins that may receive caller/default headers.
+An empty credential list grants none.
 
 ```ts
 import { Http } from 'jsr:@sys/http/client';
 
-const fetch = Http.Fetch.make({ accessToken: 'my-jwt' });
-const fetch = Http.fetcher(); // ← shorthand alternative.
+const lifetime = new AbortController();
+const request = new AbortController();
+const client = Http.fetcher({
+  until: lifetime.signal,
+  policy: {
+    maxBytes: 1_000_000,
+    timeout: 5_000,
+    maxRedirects: 0,
+    progressInterval: 100,
+    sourceOrigins: ['https://example.com'],
+    credentialOrigins: [],
+  },
+});
 
-const url = 'https://url.com/api';
-const checksum = 'sha256-01234';
-
-const json = fetch.json(url);
-const text = fetch.text(url, { checksum }); // ← ensure content matches given hash.
+try {
+  const response = await client.text('https://example.com', { signal: request.signal });
+  if (response.ok) {
+    console.log(response.data);
+  } else {
+    console.error(response.error);
+  }
+} finally {
+  client.dispose();
+}
 ```
 
-Fine grained ability to cancel fetch operations.
+Aborting `request` cancels that request. Aborting `lifetime`, or disposing the client,
+ends the client lifecycle and aborts its in-flight requests. Bind lifecycle with `until`,
+not `dispose$`.
 
-```ts
-import { Rx } from '@sys/std/rx';
-import { Http } from 'jsr:@sys/http/client';
+For integrity checking, pass the expected checksum in the **third** argument:
+`client.text(url, { signal }, { checksum })` (also supported by `json` and `blob`).
+It is not a `RequestInit` field. Narrow `response.ok` before using `response.data`;
+`json<T>` supplies a static type, not runtime schema validation.
 
-const { dispose$, dispose } = Rx.lifecycle();
+## Managed HTTP server
 
-// Dispose aborts all in-progress operations.
-const fetch = Http.fetcher({ dispose$ });
-const fetch = Http.fetcher(dispose$); // (alternative)
-
-// Dispose aborts the specific fetch operation.
-const json = fetch.json(url, {}, { dispose$ });
-const text = fetch.json(url, {}, { dispose$, checksum });
-```
-
-### HTTP Server (Programmatic)
-
-Serving tools. A lightweight, highly performant, HTTP server that can run locally or at the "edges"
-([WinterTC](https://wintertc.org/)):
-
-```ts
-import { Net } from 'jsr:@sys/http/server';
-
-// Port helpers.
-const port1 = Net.port();
-const port2 = Net.Port.random();
-```
-
-Standing up an HTTP server programatically:
-
-```ts
-import { HttpServer, Net } from 'jsr:@sys/http/server';
-
-type T = { count: number };
-app.get('/', (c) => c.json({ count: 123 }));
-
-// Stand up an HTTP server.
-const app = HttpServer.create();
-const options = HttpServer.options(1234, pkg);
-const listener = Deno.serve(options, app.fetch);
-
-// HTTP client (calling back into the HTTP server).
-const fetch = Http.fetcher();
-const url = Http.url(listener.addr);
-
-const res = await fetch.json<T>(url.base);
-res.data; // ← { count: 123 }
-```
-
-For a bare application and managed listener without loading static-file helpers:
+The `/server/host` leaf creates a bare application and managed listener without
+static-file or CORS helpers. This Deno example requires network permission and
+closes the listener after a local request.
 
 ```ts
 import { create, start } from 'jsr:@sys/http/server/host';
@@ -91,4 +59,23 @@ import { create, start } from 'jsr:@sys/http/server/host';
 const app = create();
 app.get('/', (c) => c.text('ready'));
 const server = start(app, { hostname: '127.0.0.1', port: 8080, strictPort: true });
+
+try {
+  const response = await fetch(server.origin);
+  console.log(await response.text()); // ready
+} finally {
+  await server.dispose();
+}
 ```
+
+## Entry points
+
+- [`/client`](https://jsr.io/@sys/http/doc/client/): fetch clients and HTTP utilities.
+- [`/server/host`](https://jsr.io/@sys/http/doc/server/host/): bare `create` and managed `start`.
+- [`/server`](https://jsr.io/@sys/http/doc/server/): broader `HttpServer` and `Net` helpers.
+- [`/server/static`](https://jsr.io/@sys/http/doc/server/static/) and
+  [`/server/file-bytes`](https://jsr.io/@sys/http/doc/server/file-bytes/): explicit file-serving surfaces.
+- [`/serve`](https://jsr.io/@sys/http/doc/serve/): command-line file server.
+- [`/t`](https://jsr.io/@sys/http/doc/t/): type contracts.
+
+See the [API reference](https://jsr.io/@sys/http/doc/) for proxy, lifecycle, and command helpers.
