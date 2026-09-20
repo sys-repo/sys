@@ -1,23 +1,45 @@
 # @sys/tools
 
-CLI surface for @sys primitive compositions.
+Command-line tools for local development, artifact delivery, and workspace maintenance.
+
+Start with help:
 
 ```bash
-deno run -A jsr:@sys/tools
 deno run -A jsr:@sys/tools --help
 ```
 
+With no command, the CLI opens an interactive menu. Importing the package root exposes only package
+metadata; it does not launch the CLI. The command above grants full Deno permissions. Run it only
+with code you trust.
+
+## Choose a command
+
+- **Deliver artifacts:** `pull` materializes configured bundles; `serve` serves local files;
+  `deploy` publishes to configured destinations.
+- **Set up a workspace:** `tmpl` creates from templates and `shell` manages shell integration.
+- **Work with documents and media:** `crdt` manages CRDT documents, `video` processes video, and
+  `cp` copies text to the clipboard.
+- **Run and maintain tools:** `pi` launches the agent harness; `upgrade` updates the local
+  `@sys/tools` installation.
+
+Use each command's `--help` for options and `dsl` for operational guidance. See the
+[package API](https://jsr.io/@sys/tools/doc) for programmatic entry points.
+
 ## Checksum-pinned Dist bundles
 
-Pull separates artifact identity from mutable local presentation. A Dist bundle requires an exact
-publisher-provided checksum for the serialized `dist.json`. That pin authenticates the manifest's
-asset checksums and declared sizes; hashing the manifest returned by the same download cannot
-establish that authority. The sealed generation store is keyed by this pin. Here, “sealed” means
-Rooted mode-bit, point-in-time mutation resistance—not an OS sandbox, retention lock,
-hostile-process boundary, ACL guarantee, or sudden-power-loss guarantee. An optional projection is a
-mutable copy and does not inherit verification or sealing evidence.
+Pull verifies a Dist bundle against a trusted, publisher-provided checksum of the exact serialized
+`dist.json`. That pin authenticates the manifest's asset checksums and declared sizes. Hashing the
+downloaded manifest alone cannot establish the publisher's authority.
 
-Create the durable Pull configuration through its owner CLI:
+The store keeps generations by pin. Rooted seals them by clearing filesystem write bits and checking
+the resulting mode state. This is point-in-time resistance to modification—not an OS sandbox,
+retention lock, hostile-process boundary, ACL guarantee, or sudden-power-loss guarantee.
+
+An optional projection is a mutable copy for local use. It inherits neither the generation's
+verification evidence nor its sealing evidence.
+
+Create a saved Pull configuration through the CLI. Replace the example URL and checksum with your
+publisher's values:
 
 ```bash
 deno run -A jsr:@sys/tools pull add \
@@ -29,15 +51,15 @@ deno run -A jsr:@sys/tools pull add \
   --mode replace
 ```
 
-Configuration and materialization are separate operations. Run the saved configuration when its
-files are needed:
+Saving the configuration and making the files available are separate operations. Run the saved
+configuration when you need the files:
 
 ```bash
 deno run -A jsr:@sys/tools pull --non-interactive \
   --config ./-config/@sys.tools.pull/components.yaml
 ```
 
-Automatic root upgrade advisory checks can be disabled with:
+To disable the CLI's automatic upgrade advisory checks:
 
 ```bash
 deno run -A jsr:@sys/tools --no-upgrade-check
