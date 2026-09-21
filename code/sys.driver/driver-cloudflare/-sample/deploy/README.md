@@ -1,28 +1,25 @@
 # @sample/r2
+
 ### Deno application with R2 assets
 
-This `@sys/driver-cloudflare/r2` sample demonstrates how Deno serves an API and UI from one application origin. UI assets are stored in a
-[private R2 bucket](https://developers.cloudflare.com/r2/buckets/public-buckets/).
+This `@sys/driver-cloudflare/r2` sample serves an API and UI from one Deno origin. Deno
+[relays UI assets](../../README.md#application-read-routes) from a private R2 bucket; signed URLs
+and credentials stay server-side.
 
-The browser fetches `/api/hello` and `/ui/dist.json` from the same origin.
-
-Deno fetches each UI asset from R2 using a
-[short-lived presigned URL](https://developers.cloudflare.com/r2/api/s3/presigned-urls/) and returns
-the bytes to the browser. The presigned URL and R2 credentials stay server-side.
+Application routes require no login. A private bucket does not make the application private.
 
 ## Delivery costs
 
-R2 [does not charge for egress](https://developers.cloudflare.com/r2/pricing/), but this sample
-relays UI assets through Deno. When hosted, delivery to the browser consumes the Deno host’s
-outbound bandwidth; charges depend on its plan and allowances. R2 storage and read operations remain
-metered.
-
-Responses use `Cache-Control: no-store`, so normal browser/CDN caching does not absorb repeat loads.
+R2 [does not charge for egress](https://developers.cloudflare.com/r2/pricing/), but this relay
+consumes the Deno host's outbound bandwidth; charges depend on its plan. R2 storage and reads remain
+metered. Responses use `Cache-Control: no-store`, so normal browser/CDN caching does not absorb
+repeat loads.
 
 ## Run
 
 Use an existing private R2 bucket and a dedicated prefix you control. Keep public access disabled
-for both the bucket’s `r2.dev` URL and any custom domains.
+for both the bucket's `r2.dev` URL and any custom domains. The sample does not configure or verify
+bucket privacy.
 
 [r2.config.json](r2.config.json) currently selects bucket `sys-test` and prefix
 `tmp.sys.driver-cloudflare/r2-proof-ui`. If changing accounts, also update the matching R2 hostnames
@@ -38,13 +35,12 @@ Provide the configured credentials in the repository-root `.env` or process envi
 
 Run tasks from `code/sys.driver/driver-cloudflare/-sample/deploy`.
 
-Publishing requires read, list, write, and delete access to the selected target.
-
-Publishing is not atomic. A failed push can leave partial changes, with no automatic rollback. Keep
-`dist/`, `dist.pin.json`, and `r2.config.json` unchanged during publication.
-
 **`push` writes to R2 and deletes objects in the configured prefix that are absent from the selected
-build.** Do not use a prefix shared with unrelated files.
+build.** Do not share that prefix with unrelated files. Publishing requires read, list, write, and
+delete access.
+
+A failed push can leave partial changes; there is no automatic rollback. Keep `dist/`,
+`dist.pin.json`, and `r2.config.json` unchanged during publication.
 
 ```sh
 # Build and verify dist/; write dist.pin.json.
@@ -58,8 +54,8 @@ deno task serve
 ```
 
 For an already-published build, run only `deno task serve`; it does not upload. Valid
-`dist.pin.json`, `r2.config.json`, credentials, and the matching remote manifest are required;
-local `dist/` is optional for serving.
+`dist.pin.json`, `r2.config.json`, credentials, and the matching remote manifest are required; local
+`dist/` is optional for serving.
 
 Open the UI at <http://127.0.0.1:8080/ui/>.
 
@@ -68,69 +64,64 @@ Open the UI at <http://127.0.0.1:8080/ui/>.
 
 ## Build selection
 
-`dist.pin.json` is a `t.DistPin`: one `"dist.json"` key containing the SHA-256 checksum of the exact
-manifest bytes. It has no filename inventory and lives outside `dist/`. There is no `artifact.json`
-reader or fallback.
+`build` verifies `dist/` and writes its manifest checksum to `dist.pin.json`. Startup checks the
+remote manifest against that pin before serving any route, including the API. A refusal prevents the
+whole app from starting; there is no unpinned fallback.
 
-Each application instance captures its configuration and pin once, then acquires
-`<prefix>/dist.json` through `R2.ReadRoute`: at most one storage GET, 65,536 decoded bytes, and a
-five-second deadline, without retries, listing, or redirect following. A signing failure can
-initiate zero GETs; a deadline does not establish that transport cleanup has settled.
+Configuration, pin, and routes are fixed for each running instance. Restart after publishing a new
+build with its matching pin. The [sample limits](src/m.app/u.selection.ts) allow a 64 KiB manifest,
+256 graph entries, 1 MiB per asset, and 4 MiB total declared assets.
 
-Canonical `Pkg.Dist.Pinned.admitManifest` checks those bytes against the pin and admits the manifest
-within fixed bounds: 256 graph entries, 1 MiB per declared asset, and 4 MiB total declared assets.
-The sample then requires `index.html` and sample-safe filenames. Only afterward does it construct
-any routes, including the API. Any bootstrap refusal prevents the whole app from starting; there is
-no local, unpinned, or partial-start fallback.
-
-Routes are derived from admitted `hash.parts` plus `dist.json`, with `/ui/` mapped to `index.html`.
-Their inventory remains fixed for the instance; changes to configuration, pin files, or the remote
-manifest do not refresh it.
-
-- `dist.pin.json` → exact manifest-byte checksum used by startup, push, and local verification.
-- Local `dist/dist.json` → verified `hash.digest` shown in the startup build detail.
-- Served `/ui/dist.json` → `hash.digest` displayed by the browser.
-
-The startup `build` row is a snapshot of the verified local build, not a check of R2. Missing or
-mismatched local output is shown as unavailable; it does not prevent serving.
-
-In supporting terminals, `dist/` links to the local directory and the shortened digest links to its
-`dist.json`.
-
-Manifest admission is not complete asset verification or proof of provenance. Ordinary asset
-responses remain bounded relays: later R2 changes are neither prevented nor verified per response.
-Displaying the manifest’s digest does not verify the downloaded assets.
+Startup build details describe local output; the UI digest comes from the served manifest. These
+displays do not verify delivered assets or prove provenance. R2 objects may change after startup.
 
 ## Verify delivery
 
 `deno task test` runs fixture tests without live R2 requests.
 
-For a read-only check against R2, stop `serve`, then run:
+`proof:local` is a read-only check against live R2 and requires the matching local `dist/`. Stop
+`serve`, keep `dist/`, `dist.pin.json`, and `r2.config.json` unchanged, then run:
 
 ```sh
 deno task proof:local
 ```
 
-Each run captures configuration and `dist.pin.json` once and holds the completely verified local
-bytes fixed for comparison. Before remote acquisition, it prints that retained target, pin, selected
-files, and operation ceilings. Entry bootstrap, local rechecks, and the final receipt use the same
-captured authority; later metadata edits cannot retarget the run.
+The [check](-scripts/u.proof.ts) prints its target, pin, files, and request ceilings before reading
+R2, then compares served bytes and headers with the verified local build. It starts and closes its
+own local server, stopping on failure without rebuilding, uploading, or retrying. It does not test
+browser rendering, hosted deployment, or bucket privacy.
 
-For N selected files, including `dist.json`, the ceilings are `2 * N + 6` application requests and
-`2 * N + 2` storage reads. The storage ceiling includes the initial manifest bootstrap, GET and HEAD
-for each selected file, and the `/ui/` index request. Four selected files therefore require up to
-ten storage reads. Authority for an earlier pin or a proof without bootstrap does not authorize this
-run.
+## Two-bucket setup
 
-After successful bootstrap, the check starts its own strict listener on `127.0.0.1:8080`, compares
-served bytes with the retained expectations, and closes only its own listener. It stops at the first
-failure without rebuilding, uploading, or retrying. A refused receipt includes application-request
-and bootstrap-attempt counts; a bootstrap attempt is not an observed storage-GET count.
+These targets are selected for direct browser delivery; the sample still uses `sys-test` and relays
+all UI assets through Deno.
 
-Keep `dist/`, `dist.pin.json`, and `r2.config.json` unchanged during the check. This checks HTTP
-delivery, not browser rendering or bucket privacy.
+```text
+Public bucket:   sys-test-public
+Private bucket:  sys-test-private
+Prefix in both:  tmp.sys.driver-cloudflare/r2-proof-ui/
+```
 
-## Access
+Public bucket URL: <https://pub-72d4e716dcae492f9e174c58866d5533.r2.dev>
 
-Application routes require no login. A private bucket does not make the application private. The
-sample neither configures nor verifies bucket privacy.
+In the public bucket's **Settings**:
+
+1. Enable **Public Development URL** (`r2.dev`).
+2. Open **CORS Policy**, paste the following, and save:
+
+```json
+[
+  {
+    "AllowedOrigins": ["*"],
+    "AllowedMethods": ["GET", "HEAD"]
+  }
+]
+```
+
+This policy lets pages on any origin read the public assets; it grants no write access. Store only
+public assets in this bucket.
+
+Keep the private bucket's public URL and custom domains disabled. Deno reads it server-side, so it
+needs no CORS policy.
+
+`r2.dev` is rate-limited and intended for development. Use a custom domain for production delivery.
