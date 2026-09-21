@@ -1,175 +1,181 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it, Str, type t } from '../../-test.ts';
 import { Yaml } from '../mod.ts';
 
-const docOf = <T = Record<string, unknown>>(ast: t.YamlAst): T => {
-  const res = Yaml.toJS<T>(ast);
-  expect(res.ok).to.eql(true);
-  return res.data as T;
-};
-
 describe('Yaml.EnvRef', () => {
-  it('inspects refs without resolving or mutating the AST', () => {
-    const ast = Yaml.parseAst(`
-plain: value
-secret: \${env:SECRET_VALUE}
-`);
-
-    const res = Yaml.EnvRef.inspectAst(ast);
-
-    expect(res.ok).to.eql(true);
-    expect(res.refs).to.eql<t.Yaml.EnvRef.Ref[]>([
-      { path: ['secret'], name: 'SECRET_VALUE' },
-    ]);
-    expect(docOf<{ plain: string; secret: string }>(ast)).to.eql({
-      plain: 'value',
-      secret: '${env:SECRET_VALUE}',
-    });
-  });
-
-  it('reports malformed refs during inspection without resolving values', () => {
-    const ast = Yaml.parseAst('url: https://${env:HOST}/path\n');
-
-    const res = Yaml.EnvRef.inspectAst(ast);
-
-    expect(res.ok).to.eql(false);
-    if (!res.ok) {
-      expect(res.errors[0]?.message).to.eql(
-        'url contains unsupported env ref syntax: https://${env:HOST}/path',
-      );
-    }
-    expect(docOf<{ url: string }>(ast)).to.eql({ url: 'https://${env:HOST}/path' });
-  });
-
-  it('resolves whole-scalar `${env:NAME}` values with an injected resolver', () => {
-    const ast = Yaml.parseAst(`
-provider:
-  siteId: \${env:SYS_SITE_ID}
-  domain: example.com
-`);
-
-    const res = Yaml.EnvRef.resolveAst(ast, {
-      get: (name) => name === 'SYS_SITE_ID' ? 'site-123' : undefined,
+  describe('reference syntax', () => {
+    it('inspection → names and paths without resolving or mutating values', () => {
+      const ast = Yaml.parseAst(Str.dedent(`
+        plain: value
+        secret: \${env:SECRET_VALUE}
+      `));
+      const result = Yaml.EnvRef.inspectAst(ast);
+      expect(result).to.deep.include({
+        ok: true,
+        refs: [{ path: ['secret'], name: 'SECRET_VALUE' }],
+      });
+      expect(docOf(ast)).to.eql({ plain: 'value', secret: '${env:SECRET_VALUE}' });
     });
 
-    expect(res.ok).to.eql(true);
-    expect(res.refs).to.eql<t.Yaml.EnvRef.Ref[]>([
-      { path: ['provider', 'siteId'], name: 'SYS_SITE_ID' },
-    ]);
-    expect(docOf<{ provider: { siteId: string; domain: string } }>(ast)).to.eql({
-      provider: { siteId: 'site-123', domain: 'example.com' },
-    });
-  });
-
-  it('treats empty resolver values as present', () => {
-    const ast = Yaml.parseAst('value: ${env:EMPTY_VALUE}\n');
-
-    const res = Yaml.EnvRef.resolveAst(ast, { get: () => '' });
-
-    expect(res.ok).to.eql(true);
-    expect(docOf<{ value: string }>(ast)).to.eql({ value: '' });
-  });
-
-  it('rejects missing env keys without mutating the AST', () => {
-    const ast = Yaml.parseAst('value: ${env:MISSING_VALUE}\n');
-
-    const res = Yaml.EnvRef.resolveAst(ast, { get: () => undefined });
-
-    expect(res.ok).to.eql(false);
-    if (!res.ok) {
-      expect(res.errors[0]?.message).to.eql('value references missing env var: MISSING_VALUE');
-    }
-    expect(res.refs).to.eql<t.Yaml.EnvRef.Ref[]>([{ path: ['value'], name: 'MISSING_VALUE' }]);
-    expect(docOf<{ value: string }>(ast)).to.eql({ value: '${env:MISSING_VALUE}' });
-  });
-
-  it('rejects invalid env var names', () => {
-    const ast = Yaml.parseAst('value: ${env:site_id}\n');
-
-    const res = Yaml.EnvRef.resolveAst(ast, { get: () => 'ignored' });
-
-    expect(res.ok).to.eql(false);
-    if (!res.ok) {
-      expect(res.errors[0]?.message).to.eql('value references invalid env var name: site_id');
-    }
-    expect(docOf<{ value: string }>(ast)).to.eql({ value: '${env:site_id}' });
-  });
-
-  it('rejects partial interpolation and unsupported env-ref syntax', () => {
-    const ast = Yaml.parseAst('url: https://${env:HOST}/path\n');
-
-    const res = Yaml.EnvRef.resolveAst(ast, { get: () => 'example.com' });
-
-    expect(res.ok).to.eql(false);
-    if (!res.ok) {
-      expect(res.errors[0]?.message).to.eql(
-        'url contains unsupported env ref syntax: https://${env:HOST}/path',
-      );
-    }
-    expect(docOf<{ url: string }>(ast)).to.eql({ url: 'https://${env:HOST}/path' });
-  });
-
-  it('ignores non-string scalars', () => {
-    const ast = Yaml.parseAst(`
-count: 1
-flag: true
-empty:
-`);
-
-    const res = Yaml.EnvRef.resolveAst(ast, {
-      get: () => {
-        throw new Error('resolver should not be called');
+    const invalid = [
+      { value: '${env:site_id}', error: 'value references invalid env var name: site_id' },
+      {
+        value: 'https://${env:HOST}/path',
+        error: 'value contains unsupported env ref syntax: https://${env:HOST}/path',
       },
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.refs).to.eql([]);
-    expect(docOf(ast)).to.eql({ count: 1, flag: true, empty: null });
-  });
-
-  it('does not resolve map keys', () => {
-    const ast = Yaml.parseAst('${env:KEY}: literal\n');
-
-    const res = Yaml.EnvRef.resolveAst(ast, { get: () => 'resolved-key' });
-
-    expect(res.ok).to.eql(true);
-    expect(res.refs).to.eql([]);
-    expect(docOf(ast)).to.eql({ '${env:KEY}': 'literal' });
-  });
-
-  it('does not partially mutate the AST when any ref fails', () => {
-    const ast = Yaml.parseAst(`
-ok: \${env:OK_VALUE}
-missing: \${env:MISSING_VALUE}
-`);
-
-    const res = Yaml.EnvRef.resolveAst(ast, {
-      get: (name) => name === 'OK_VALUE' ? 'resolved' : undefined,
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.refs).to.eql<t.Yaml.EnvRef.Ref[]>([
-      { path: ['ok'], name: 'OK_VALUE' },
-      { path: ['missing'], name: 'MISSING_VALUE' },
-    ]);
-    expect(docOf<{ ok: string; missing: string }>(ast)).to.eql({
-      ok: '${env:OK_VALUE}',
-      missing: '${env:MISSING_VALUE}',
-    });
-  });
-
-  it('returns resolver failures as YAML errors', () => {
-    const ast = Yaml.parseAst('value: ${env:FAILS}\n');
-
-    const res = Yaml.EnvRef.resolveAst(ast, {
-      get: () => {
-        throw new Error('boom');
-      },
-    });
-
-    expect(res.ok).to.eql(false);
-    if (!res.ok) {
-      expect(res.errors[0]?.message).to.eql('value env var resolver failed for FAILS: boom');
+    ];
+    for (const { value, error } of invalid) {
+      it(`${value} → inspection and resolution refuse before consulting the resolver`, () => {
+        const ast = Yaml.parseAst(`value: ${value}`);
+        let calls = 0;
+        const options = {
+          get() {
+            calls++;
+            return 'must not resolve';
+          },
+        };
+        for (const result of [Yaml.EnvRef.inspectAst(ast), Yaml.EnvRef.resolveAst(ast, options)]) {
+          expect(result.ok).to.eql(false);
+          if (!result.ok) expect(result.errors[0]?.message).to.eql(error);
+          expect(result).not.to.have.property('unavailable');
+        }
+        expect(calls).to.eql(0);
+        expect(docOf(ast)).to.eql({ value });
+      });
     }
-    expect(docOf<{ value: string }>(ast)).to.eql({ value: '${env:FAILS}' });
+
+    it('non-string scalars and map keys → literal data, not resolver input', () => {
+      const ast = Yaml.parseAst(Str.dedent(`
+        count: 1
+        flag: true
+        empty:
+        \${env:KEY}: literal
+      `));
+      const result = Yaml.EnvRef.resolveAst(ast, {
+        get() {
+          throw new Error('Literal data must not consult the resolver.');
+        },
+      });
+      expect(result).to.deep.include({ ok: true, refs: [] });
+      expect(docOf(ast)).to.eql({ count: 1, flag: true, empty: null, '${env:KEY}': 'literal' });
+    });
+  });
+
+  describe('value policy', () => {
+    it('whole-scalar reference → resolved value beside unchanged literal data', () => {
+      const ast = Yaml.parseAst(Str.dedent(`
+        provider:
+          siteId: \${env:SYS_SITE_ID}
+          domain: example.com
+      `));
+      const result = Yaml.EnvRef.resolveAst(ast, {
+        get: (name) => name === 'SYS_SITE_ID' ? 'site-123' : undefined,
+      });
+      expect(result).to.deep.include({
+        ok: true,
+        refs: [{ path: ['provider', 'siteId'], name: 'SYS_SITE_ID' }],
+      });
+      expect(docOf(ast)).to.eql({ provider: { siteId: 'site-123', domain: 'example.com' } });
+    });
+
+    it('default policy → an empty string is accepted', () => {
+      const ast = Yaml.parseAst('value: ${env:EMPTY_VALUE}');
+      const result = Yaml.EnvRef.resolveAst(ast, { get: () => '' });
+      expect(result.ok).to.eql(true);
+      expect(docOf(ast)).to.eql({ value: '' });
+    });
+
+    it('nonEmpty policy → accepted values retain their exact whitespace', () => {
+      const value = '  preserved-value\t';
+      const ast = Yaml.parseAst('value: ${env:PRESENT_VALUE}');
+      const result = Yaml.EnvRef.resolveAst(ast, { get: () => value, nonEmpty: true });
+      expect(result.ok).to.eql(true);
+      expect(docOf(ast)).to.eql({ value });
+    });
+
+    const unavailable = [
+      { name: 'missing', value: undefined, message: 'missing' },
+      { name: 'empty', value: '', message: 'empty' },
+      { name: 'whitespace-only', value: ' \t ', message: 'empty' },
+    ];
+    for (const { name, value, message } of unavailable) {
+      it(`${name} under nonEmpty → unavailable reference metadata and unchanged AST`, () => {
+        const ast = Yaml.parseAst('value: ${env:REQUIRED_VALUE}');
+        const result = Yaml.EnvRef.resolveAst(ast, { get: () => value, nonEmpty: true });
+        expect(result).to.deep.include({
+          ok: false,
+          unavailable: [{ path: ['value'], name: 'REQUIRED_VALUE' }],
+        });
+        if (!result.ok) {
+          expect(result.errors[0]?.message).to.eql(
+            `value references ${message} env var: REQUIRED_VALUE`,
+          );
+        }
+        expect(docOf(ast)).to.eql({ value: '${env:REQUIRED_VALUE}' });
+      });
+    }
+  });
+
+  describe('all-or-nothing resolution', () => {
+    it('a missing reference → no partial substitution of otherwise valid values', () => {
+      const ast = Yaml.parseAst(Str.dedent(`
+        ok: \${env:OK_VALUE}
+        missing: \${env:MISSING_VALUE}
+      `));
+      const result = Yaml.EnvRef.resolveAst(ast, {
+        get: (name) => name === 'OK_VALUE' ? 'resolved' : undefined,
+      });
+      expect(result).to.deep.include({
+        ok: false,
+        refs: [
+          { path: ['ok'], name: 'OK_VALUE' },
+          { path: ['missing'], name: 'MISSING_VALUE' },
+        ],
+        unavailable: [{ path: ['missing'], name: 'MISSING_VALUE' }],
+      });
+      expect(docOf(ast)).to.eql({ ok: '${env:OK_VALUE}', missing: '${env:MISSING_VALUE}' });
+    });
+
+    it('missing plus resolver failure → unavailable metadata omitted; AST unchanged', () => {
+      const ast = Yaml.parseAst(Str.dedent(`
+        ok: \${env:OK_VALUE}
+        missing: \${env:MISSING}
+        failed: \${env:FAILS}
+      `));
+      const result = Yaml.EnvRef.resolveAst(ast, {
+        get(name) {
+          if (name === 'OK_VALUE') return 'resolved';
+          if (name === 'MISSING') return undefined;
+          throw new Error('resolver failed');
+        },
+      });
+      expect(result.ok).to.eql(false);
+      expect(result).not.to.have.property('unavailable');
+      expect(docOf(ast)).to.eql({
+        ok: '${env:OK_VALUE}',
+        missing: '${env:MISSING}',
+        failed: '${env:FAILS}',
+      });
+    });
+
+    it('resolver exception → YAML diagnostic, not unavailable-value metadata', () => {
+      const ast = Yaml.parseAst('value: ${env:FAILS}');
+      const result = Yaml.EnvRef.resolveAst(ast, {
+        get() {
+          throw new Error('boom');
+        },
+      });
+      expect(result.ok).to.eql(false);
+      if (!result.ok) {
+        expect(result.errors[0]?.message).to.eql('value env var resolver failed for FAILS: boom');
+      }
+      expect(result).not.to.have.property('unavailable');
+      expect(docOf(ast)).to.eql({ value: '${env:FAILS}' });
+    });
   });
 });
+
+function docOf(ast: t.YamlAst) {
+  const result = Yaml.toJS(ast);
+  expect(result.ok).to.eql(true);
+  return result.data;
+}

@@ -17,7 +17,9 @@ type ResolvedRef = FoundRef & {
   readonly value: string;
 };
 
-/** Pure YAML env-ref helpers. */
+/**
+ * Inspect and resolve whole-scalar YAML environment references using a caller-supplied lookup.
+ */
 export const EnvRef: t.Yaml.EnvRef.Lib = Object.freeze({
   inspectAst(ast) {
     const inspected = scanAst(ast);
@@ -32,10 +34,11 @@ export const EnvRef: t.Yaml.EnvRef.Lib = Object.freeze({
     const inspected = scanAst(ast);
     const { errors } = inspected;
     const resolved: ResolvedRef[] = [];
+    const unavailable: t.Yaml.EnvRef.Ref[] = [];
 
     if (errors.length === 0) {
       for (const item of inspected.refs) {
-        const value = resolveValue(item, options, errors);
+        const value = resolveValue(item, options, errors, unavailable);
         if (value === undefined) continue;
         resolved.push({ ...item, value });
       }
@@ -43,7 +46,8 @@ export const EnvRef: t.Yaml.EnvRef.Lib = Object.freeze({
 
     const refs = inspected.refs.map((item) => item.ref);
     if (errors.length > 0) {
-      return { ok: false, ast, errors, refs };
+      const setup = unavailable.length === errors.length ? { unavailable } : {};
+      return { ok: false, ast, errors, refs, ...setup };
     }
 
     for (const item of resolved) {
@@ -93,11 +97,19 @@ function resolveValue(
   item: FoundRef,
   options: t.Yaml.EnvRef.Resolve.Options,
   errors: t.Yaml.Error[],
+  unavailable: t.Yaml.EnvRef.Ref[],
 ): string | undefined {
   try {
     const value = options.get(item.ref.name);
     if (value === undefined) {
       errors.push(missingError(item.ref, item.node));
+      unavailable.push(item.ref);
+      return undefined;
+    }
+    if (options.nonEmpty && !value.trim()) {
+      const err = synthetic(item.ref.path, item.node, `references empty env var: ${item.ref.name}`);
+      errors.push(err);
+      unavailable.push(item.ref);
       return undefined;
     }
     return value;
