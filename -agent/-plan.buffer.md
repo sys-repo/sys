@@ -4,7 +4,14 @@ r2-files-delivery.plan.md
 - [x] efdd7cdde docs(deploy): record Files-backed R2 upload and readback
 
 
-@sys.driver.cloudflare
+r2-public-delivery.plan.md
+- [ ] feat(tools): admit captured endpoint inputs for Deploy.push
+- [ ] refactor(driver-cloudflare): remove temporary sample push configuration
+- [ ] GATE Phil confirms the public R2 target, custom-domain base, and owned prefix
+- [ ] feat(driver-cloudflare): demonstrate public Vite assets with private R2 shell delivery
+
+
+@sys.driver-cloudflare
 r2-web-exposure.plan.md
 - [x] 07a0a8028 chore(tmpl:pkg): scaffold @sys/web package
 - [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
@@ -33,11 +40,14 @@ r2-web-exposure.plan.md
 - [x] 0169c2c20 feat(pkg): add canonical Dist pin contracts
 - [x] 73c59650d refactor(driver-cloudflare): bootstrap sample routes from a pinned manifest
 - [x] e210dc608 test(driver-cloudflare): verify local R2 application delivery
+- [ ] [r2-public-delivery.plan.md](../@sys.driver-cloudflare/r2-public-delivery.plan.md)
 - [ ] GATE owner authorizes the first R2-backed app hostname and bounded deployment/exposure operations
 - [ ] test(driver-cloudflare): verify hosted R2 application delivery
 
 
-@sys.driver.cloudflare
+
+
+@sys.driver-cloudflare
 r2-files-enumeration-bounds.plan.md
 - [x] 2d4e9d2ce fix(driver-cloudflare): bound R2 Files enumeration work
 
@@ -48,7 +58,7 @@ start-ui-release-evidence.plan.md
 - [x] c39511c15 [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
 - [ ] GATE release owner selects versioned artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
 - [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
-- [ ] [r2-web-exposure.plan.md](../@sys.driver.cloudflare/r2-web-exposure.plan.md)
+- [ ] [r2-web-exposure.plan.md](../@sys.driver-cloudflare/r2-web-exposure.plan.md)
 - [ ] feat(driver-pi): bind published GUI Dist evidence for release
 
 
@@ -89,8 +99,8 @@ type-export-path-cleanup.plan.md
 - [ ] refactor(exports)!: standardize package type entrypoints on /t
 
 jsr-readme-quality.plan.md
-- [ ] docs(jsr): correct foundational README contracts
-- [ ] docs(jsr): correct adapter and application README contracts
+- [x] docs(jsr): correct foundational README contracts
+- [x] docs(jsr): correct adapter and application README contracts
 - [ ] docs(jsr): orient platform package README surfaces
 - [ ] docs(jsr): orient UI and model README surfaces
 - [ ] docs(jsr): reduce package README reference sprawl
