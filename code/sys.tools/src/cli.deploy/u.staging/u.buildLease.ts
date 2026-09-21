@@ -1,42 +1,47 @@
 import { Fs, Path, Str, type t } from '../common.ts';
+import { assertDirectoryIdentity, ensureStagingDirectory } from './u.identity.ts';
 import type { PreparedStagingMapping } from './u.prepare.ts';
 
 export type StagingBuildLease = Pick<t.FsRooted.Lease, 'release'>;
 
-type LeaseGroup = {
-  readonly parent: t.StringAbsoluteDir;
-  readonly sources: readonly t.StringAbsoluteDir[];
-};
+// Persistent coordination is source-owned, outside disposable .tmp/dist and namespace parents.
+const STATE_DIR = '-dev/deploy';
+const BUILD_TARGET = 'build';
 
 /**
  * Exclusively retain every canonical build source across cooperating processes.
- * Each source is admitted beneath its canonical parent so callers with different Deploy cwd roots
- * still converge on the same stable Rooted lock identity.
+ * Each source owns its dev-state root, independently of the caller's Deploy cwd. The private
+ * lease target denotes build coordination only; it never grants source-tree mutation authority.
  */
 export async function acquireStagingBuildLease(args: {
   mappings: readonly PreparedStagingMapping[];
   signal: AbortSignal;
 }): Promise<StagingBuildLease | undefined> {
-  const groups = buildLeaseGroups(args.mappings);
-  if (groups.length === 0) return undefined;
+  const sources = buildSources(args.mappings);
+  if (sources.length === 0) return undefined;
 
   const leases: t.FsRooted.Lease[] = [];
   try {
-    for (const group of groups) {
+    for (const source of sources) {
+      await assertDirectoryIdentity(source, 'Deploy staging build source', args.signal);
+      const state = await ensureStagingDirectory({
+        root: source,
+        path: Path.join(source.path, STATE_DIR),
+        label: 'Deploy build coordination directory',
+        signal: args.signal,
+      });
       const rooted = await Fs.Capability.Rooted.create({
-        root: group.parent,
+        root: state.path,
         create: false,
         until: args.signal,
       });
-      if (rooted.path !== group.parent) {
-        throw new Error(`Deploy staging build-source parent is not canonical: ${group.parent}`);
+      if (rooted.path !== state.path) {
+        throw new Error(`Deploy build coordination directory is not canonical: ${state.path}`);
       }
+      await assertDirectoryIdentity(state, 'Deploy build coordination directory', args.signal);
 
       const admission = await rooted.Target.admit(
-        group.sources.map((source) => ({
-          kind: 'directory' as const,
-          path: Path.basename(source),
-        })),
+        [{ kind: 'directory', path: BUILD_TARGET }],
         { until: args.signal },
       );
       const acquired = await rooted.Lease.acquire(admission.targets, {
@@ -45,12 +50,13 @@ export async function acquireStagingBuildLease(args: {
         until: args.signal,
       });
       if (acquired.kind === 'busy') {
-        const source = Path.join(group.parent, acquired.target.path);
         throw new Error(
-          `Deploy staging build source is already owned by another operation: ${source}`,
+          `Deploy staging build source is already owned by another operation: ${source.path}`,
         );
       }
       leases.push(acquired.lease);
+      await assertDirectoryIdentity(source, 'Deploy staging build source', args.signal);
+      await assertDirectoryIdentity(state, 'Deploy build coordination directory', args.signal);
     }
   } catch (error) {
     await releaseAfterAcquisitionFailure(leases, error);
@@ -83,34 +89,16 @@ export function combineStagingLeases(
   });
 }
 
-function buildLeaseGroups(
+/** Helpers: */
+function buildSources(
   mappings: readonly PreparedStagingMapping[],
-): readonly LeaseGroup[] {
-  const sources = [
-    ...new Set(
-      mappings
-        .filter((mapping) => mapping.mode === 'build+copy')
-        .map((mapping) => mapping.source),
-    ),
-  ].toSorted(Str.Compare.codeUnit());
-  const grouped = new Map<t.StringAbsoluteDir, t.StringAbsoluteDir[]>();
-  for (const source of sources) {
-    const parent: t.StringAbsoluteDir = Path.dirname(source);
-    const current = grouped.get(parent) ?? [];
-    current.push(source);
-    grouped.set(parent, current);
+): readonly t.DeployTool.Staging.DirectoryIdentity[] {
+  const sources = new Map<string, t.DeployTool.Staging.DirectoryIdentity>();
+  for (const mapping of mappings) {
+    if (mapping.mode === 'build+copy') sources.set(mapping.source, mapping.sourceIdentity);
   }
-
-  return Object.freeze(
-    [...grouped.entries()]
-      .toSorted(([left], [right]) => Str.Compare.codeUnit()(left, right))
-      .map(([parent, values]) =>
-        Object.freeze({
-          parent,
-          sources: Object.freeze(values.toSorted(Str.Compare.codeUnit())),
-        })
-      ),
-  );
+  const compare = Str.Compare.codeUnit();
+  return [...sources.values()].toSorted((a, b) => compare(a.path, b.path));
 }
 
 async function releaseAfterAcquisitionFailure(
