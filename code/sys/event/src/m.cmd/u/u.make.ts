@@ -1,5 +1,5 @@
-import { type t } from './common.ts';
-import { makeClient } from './u.client.ts';
+import type { t } from './common.ts';
+import { makeClient } from '../u.client/mod.ts';
 import { makeHost } from './u.host.ts';
 
 /**

@@ -1,8 +1,10 @@
 import { Rx, type t, Time } from './common.ts';
 import { CmdIs } from '../m/m.Is.ts';
 import { snapshotErrorDetail } from '../m/m.Error.ts';
-import { createId } from './u.id.ts';
-import { sameNamespace } from './u.namespace.ts';
+import { createId } from '../u/u.id.ts';
+import { sameNamespace } from '../u/u.namespace.ts';
+import { makeError } from './u.error.ts';
+import { createAsyncIterator, createClosedAsyncIterator } from './u.iterator.ts';
 
 type ClientRuntimeOptions = t.Cmd.Client.Options & {
   readonly ns?: t.Cmd.Namespace;
@@ -17,12 +19,6 @@ type PendingEntry = {
 
 // Internal: handle type for timeout timers.
 type TimeoutHandle = t.Time.Delay.Promise;
-
-type StreamTerminal =
-  | { readonly ok: true }
-  | { readonly ok: false; readonly error: unknown };
-
-type StreamTerminalHandler = (terminal: StreamTerminal) => void;
 
 /**
  * Create a command client bound to the given endpoint.
@@ -43,20 +39,7 @@ export function makeClient<
   const timers = new Map<t.Cmd.ReqId, TimeoutHandle>();
   const eventHandlers = new Map<t.Cmd.ReqId, Set<(event: unknown) => void>>();
   const eventSubscriptions = new Map<t.Cmd.ReqId, Set<t.Lifecycle>>();
-  const terminalHandlers = new Map<t.Cmd.ReqId, Set<StreamTerminalHandler>>();
-
-  /**
-   * ---------------------------------------------------------------------------
-   * Client wire-protocol operations
-   *
-   *  • onMessage — inbound routing for result + event envelopes.
-   *  • send      — unary request/response command.
-   *  • stream    — request that opens an event stream until final result.
-   *
-   * These three form the client-side command lifecycle:
-   *    send/stream → pending registry → inbound dispatch → completion/disposal
-   * ---------------------------------------------------------------------------
-   */
+  const terminalHandlers = new Map<t.Cmd.ReqId, Set<t.StreamTerminalHandler>>();
 
   /**
    * Handles inbound messages and routes them to result or event listeners.
@@ -176,7 +159,7 @@ export function makeClient<
     if (life.disposed) return closedStream<K>(id, makeClientDisposedError(name, id));
 
     const envelope: t.Cmd.Wire.Request = { kind: 'cmd', ns, id, name, payload };
-    let terminal: StreamTerminal | undefined;
+    let terminal: t.StreamTerminal | undefined;
 
     addTerminalHandler(id, (next) => {
       terminal = next;
@@ -284,7 +267,7 @@ export function makeClient<
     error: t.Cmd.Error.Instance,
   ): t.Cmd.Stream.Handle<N, R, E, K> {
     const done = Promise.reject(error) as Promise<R[K]>;
-    const terminal: StreamTerminal = { ok: false, error };
+    const terminal: t.StreamTerminal = { ok: false, error };
 
     return {
       id,
@@ -350,7 +333,7 @@ export function makeClient<
     entry.reject(error);
   }
 
-  function cleanupPending(id: t.Cmd.ReqId, terminal: StreamTerminal) {
+  function cleanupPending(id: t.Cmd.ReqId, terminal: t.StreamTerminal) {
     pending.delete(id);
     clearTimer(id);
     disposeEventSubscriptions(id);
@@ -410,7 +393,7 @@ export function makeClient<
     }
   }
 
-  function addTerminalHandler(id: t.Cmd.ReqId, handler: StreamTerminalHandler) {
+  function addTerminalHandler(id: t.Cmd.ReqId, handler: t.StreamTerminalHandler) {
     let handlers = terminalHandlers.get(id);
     if (!handlers) {
       handlers = new Set();
@@ -427,7 +410,7 @@ export function makeClient<
     };
   }
 
-  function notifyTerminal(id: t.Cmd.ReqId, terminal: StreamTerminal) {
+  function notifyTerminal(id: t.Cmd.ReqId, terminal: t.StreamTerminal) {
     const handlers = terminalHandlers.get(id);
     terminalHandlers.delete(id);
     if (!handlers) return;
@@ -437,113 +420,3 @@ export function makeClient<
     }
   }
 }
-
-/**
- * Helpers:
- */
-function createClosedAsyncIterator<T>(terminal: StreamTerminal): AsyncIterator<T> {
-  return {
-    next: () => (terminal.ok ? done<T>() : Promise.reject(terminal.error)),
-    return: () => done<T>(),
-    throw: (error?: unknown) => Promise.reject(error),
-  };
-}
-
-function createAsyncIterator<T>(args: {
-  readonly id: t.Cmd.ReqId;
-  readonly onEvent: (fn: (event: T) => void) => t.Lifecycle;
-  readonly dispose: () => void;
-  readonly terminal: () => StreamTerminal | undefined;
-  readonly addTerminalHandler: (
-    id: t.Cmd.ReqId,
-    handler: StreamTerminalHandler,
-  ) => () => void;
-}): AsyncIterator<T> {
-  const queue: T[] = [];
-  let closed: StreamTerminal | undefined;
-  let pendingNext: {
-    readonly resolve: (result: IteratorResult<T>) => void;
-    readonly reject: (error: unknown) => void;
-  } | undefined;
-
-  const subscription = args.onEvent((event) => {
-    if (closed) return;
-
-    if (pendingNext) {
-      const next = pendingNext;
-      pendingNext = undefined;
-      next.resolve({ done: false, value: event });
-    } else {
-      queue.push(event);
-    }
-  });
-
-  const removeTerminalHandler = args.addTerminalHandler(args.id, finish);
-  const terminal = args.terminal();
-  if (terminal) finish(terminal);
-
-  return {
-    next() {
-      if (queue.length > 0) {
-        const value = queue.shift() as T;
-        return Promise.resolve({ done: false, value });
-      }
-
-      if (closed) return closed.ok ? done<T>() : Promise.reject(closed.error);
-
-      return new Promise<IteratorResult<T>>((resolve, reject) => {
-        pendingNext = { resolve, reject };
-      });
-    },
-
-    return() {
-      if (!closed) finish({ ok: true });
-      args.dispose();
-      return done<T>();
-    },
-
-    throw(error?: unknown) {
-      if (!closed) finish({ ok: false, error });
-      args.dispose();
-      return Promise.reject(error);
-    },
-  };
-
-  function finish(terminal: StreamTerminal) {
-    if (closed) return;
-
-    closed = terminal;
-    subscription.dispose();
-    removeTerminalHandler();
-
-    if (!pendingNext) return;
-
-    const next = pendingNext;
-    pendingNext = undefined;
-    if (terminal.ok) next.resolve({ done: true, value: undefined });
-    else next.reject(terminal.error);
-  }
-}
-
-function done<T>() {
-  return Promise.resolve<IteratorResult<T>>({ done: true, value: undefined });
-}
-
-const makeError = (args: {
-  readonly kind: t.Cmd.Error.Kind;
-  readonly message: string;
-  readonly meta?: t.Cmd.Error.Meta;
-  readonly cause?: t.Cmd.Error.Detail;
-}): t.Cmd.Error.Instance => {
-  const { kind, message, meta, cause } = args;
-
-  const inner = cause ? { cause } : undefined;
-  const err = new Error(message, inner) as t.DeepMutable<t.Cmd.Error.Instance>;
-  err.name = kind;
-  if (meta) {
-    err.cmd = meta;
-    err.ns = meta.ns;
-  }
-
-  return err;
-};
