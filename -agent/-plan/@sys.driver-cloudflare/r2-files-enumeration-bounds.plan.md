@@ -1,19 +1,31 @@
 r2-files-enumeration-bounds.plan.md
-- [ ] fix(driver-cloudflare): bound R2 Files enumeration work
+- [x] 2d4e9d2ce fix(driver-cloudflare): bound R2 Files enumeration work
+
+## Closeout
+
+The bounded enumeration correction is complete. The opening item reconciles to its reachable
+implementation commit, including driver/transport tests and the Deploy fixture adjustment. The
+implementation decisions and recorded package/consumer verification below establish the delivered
+scope; no required implementation or proof remains.
+
+Pagination, raw-key projection, public HTTP delivery, and larger-namespace scalability remain
+separately owned concerns, not unfinished obligations here. Preserve this completion snapshot in
+history before archiving the plan; retain its exact filename and recovery identity in references.
+The remaining sections preserve the delivered contract and historical proof, not a new work queue.
 
 ## Purpose and scheduling
 
 Harden the already-landed R2 Files backing without changing its Files/Cmd grammar or pretending
-result pagination bounds provider work. This is one independently useful driver fix, not a new
-publication layer or a prerequisite for the conditional R2 harness, generation publisher, or direct
-public HTTPS delivery. Those paths do not use the whole-prefix Files index.
+result pagination bounds provider work. This remains one independently useful driver fix, not a new
+publication layer or a prerequisite for the small, controlled first R2 upload and HTTPS delivery.
 
-Keep the delivery sequence in
-[r2-dist-generation-publication.plan.md](../@sys.tools/r2-dist-generation-publication.plan.md) and
-[r2-web-exposure.plan.md](r2-web-exposure.plan.md) unchanged. This separate ledger records the
-accepted enumeration work without falsely inserting it into either protocol's dependency chain. Do
-not use the current adapter over an arbitrarily large or untrusted namespace on the assumption that
-a small Files page limit makes the operation cheap.
+[r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md) used the existing Files backing
+and its whole-prefix upload/list/prune index in a small, controlled, reused namespace. That
+completed storage proof is independent of this completed enumeration fix.
+[r2-web-exposure.plan.md](r2-web-exposure.plan.md) owns subsequent private-R2-backed application
+serving. Exact-key bucket reads and presigned object delivery do not traverse the Files index. This
+separate ledger does not enter either opening arc as a prerequisite. Do not use a small Files page
+limit as evidence that an arbitrarily large or untrusted namespace is cheap or safe.
 
 ## Evidence and owner
 
@@ -21,7 +33,7 @@ The backing landed in `28faad7b4 feat(driver-cloudflare): add R2 Files backing`.
 former plan is recoverable at `bd7d0e6c7` and was removed by `dd5bd2450`; this correction does not
 reopen it.
 
-Current owners under `code/sys.driver/driver-cloudflare/src/m.r2/`:
+Original behavior and owners under `code/sys.driver/driver-cloudflare/src/m.r2/`:
 
 - `m.Files/u/runtime.ts`: `readIndex` collects the complete backing prefix; `descendantObjects`
   collects descendants unless supplied a limit.
@@ -32,7 +44,7 @@ Current owners under `code/sys.driver/driver-cloudflare/src/m.r2/`:
 - `m.Files/u.cmd/remove.ts`: enumerates descendants and validates every target's removal policy
   before deletion; preserve that preflight ordering.
 - `u/u.transport.s3.ts`: delegates listing to the pinned S3 client with `maxResults` and `pageSize`.
-  The bucket currently exposes an async iterable, not page/request-budget accounting.
+  The original bucket interface exposed an async iterable without request-budget accounting.
 
 The correction belongs in this driver, including the smallest transport support actually needed to
 bound its effects. Generic Files capabilities, Cmd transport, and Deploy publication policy do not
@@ -110,6 +122,56 @@ deno task check
 deno task test
 ```
 
+## Implementation decisions and verification evidence
+
+- `m.Files/u/enumeration.ts` owns complete finite policy validation, frozen defaults/ceilings, and
+  sticky operation-local counters. `m.Files/m.create.ts` creates one budget per command and shares
+  it through runtime helpers; no result-page option enlarges it.
+- An operation-local S3 client overrides only the pinned client's public `makeRequest` seam to
+  invoke the bucket's `beforeRequest` hook. Signing and parsing remain upstream-owned. Full-index
+  scans omit `maxResults`; a successful uncapped iterator end establishes completion under the
+  pinned parser's existing semantics. Existence probes retain their explicit one-record cap.
+- Records and UTF-8 keys are charged before retention, including duplicates and discarded records.
+  Index admission charges root, synthetic directories, files, and duplicated logical path slots.
+  Removal also reserves target/result paths before retention and completes collision/policy
+  preflight before mutation. Manifest content-reference paths share the same budget.
+- Limit errors use `Err.normalize` so existing Cmd transports the redacted message rather than
+  `[object Object]`. The driver recognizes both native and standard R2 errors locally; no generic
+  Files error union or Cmd wire contract changes.
+- Custom buckets must honor request accounting and uncapped exhaustion. The Deploy R2 test fixture
+  was adjusted to call the hook; no Deploy production code or publication policy changed.
+- `README.md` documents defaults, ceilings, logical accounting, and excluded guarantees: upstream
+  XML/page buffering, arbitrary-key/parser correctness, process RSS, redirects, output metadata/URL
+  bytes, elapsed time, atomic deletion, and concurrent-writer snapshots are not bounded by this fix.
+
+Executed from `code/sys.driver/driver-cloudflare`:
+
+```text
+deno task test
+deno task check
+deno task dry
+```
+
+Results: 9 suites / 76 steps passed; package type-check and publication dry run passed. The two new
+focused suites contain 29 steps covering default/explicit limits, hidden empty/short continuations,
+terminal-page request cost at exact object capacity, operation isolation, filters, UTF-8/index/path
+admission, deletion preflight/partial failure, probe closure, and direct/Cmd refusal. Driver
+changed-file format checks and TypeScript lint passed. These deterministic tests use fake objects
+and scoped Fetch fixtures, not live R2 credentials or operations.
+
+Consumer regression, executed from `code/sys.tools`:
+
+```text
+deno task test:deploy --filter='R2 Provider: push'
+```
+
+Result: 1 suite / 25 steps passed; 33 other suites filtered out. This includes unchanged publishing,
+API-reading a remote manifest without `readOrigin`, missing-file repair, and stale pruning using
+injected storage. No live upload/readback or independent blind/MAX review is established by these
+checks. The consumer fixture passes formatting; its separate lint run reports three pre-existing
+`require-await` findings in unchanged `send`, `list`, and `remove` methods. Those unrelated fixture
+methods were left unchanged. No dependency or permission change is part of the fix.
+
 ## Limits and stop conditions
 
 Finite budgets provide safe refusal, not scalable pagination. Truly incremental enumeration is a
@@ -120,5 +182,6 @@ continuation design must preserve those semantics and remain honest under dynami
 Stop and narrow/replan under the driver owner if the budget cannot reach the actual dispatch/index
 boundary, removal would mutate before complete admission, or the fix needs generic Files/Cmd
 changes, a dependency upgrade, or a broad pagination framework. None of those uncertainties becomes
-a new gate on the independent conditional experiment. Planning grants no implementation or remote
-authority.
+a new gate on the separately bounded first delivery. Enumeration budgets do not by themselves fix
+raw-key/Files-path projection aliases; that remains a separately owned driver concern, not an added
+implementation item here. Planning grants no implementation or remote authority.
