@@ -25,6 +25,29 @@ with code you trust.
 Use each command's `--help` for options and `dsl` for operational guidance. See the
 [package API](https://jsr.io/@sys/tools/doc) for programmatic entry points.
 
+## Deploy local state
+
+For `build+copy`, every canonical source owns persistent build coordination at
+`<source>/-dev/deploy/.sys.rooted/locks/`. Different endpoint workspaces building the same source
+share that ownership. Aliases resolve to the canonical source; its namespace parent is not a state
+owner. Deploy refuses unavailable write authority, symlinks, and invalid directory identities rather
+than falling back to another location.
+
+These lock files survive release so cooperating processes keep using the same inode. Do not put them
+in disposable `.tmp` or `dist` directories, or remove/replace the coordination directory during a
+build. Build staging copies the source's `dist`, not its development state. Package publication must
+also exclude the coordination metadata; this workspace's `.gitignore` contains `.sys.rooted/`.
+
+Staging ownership is separate: its metadata belongs to the caller's cwd. Run operational endpoints
+from a dedicated development/deployment workspace, not a library namespace. Copy-only mappings do
+not create build-source coordination state.
+
+**Cutover from older Deploy versions:** stop all cooperating builds before switching from the old
+source-parent lock namespace to the source-owned one. Old and new versions must not build the same
+source concurrently: their locks do not interoperate. Retire only attributed obsolete metadata after
+confirmed quiescence and explicit cleanup approval. File age or an empty lock file is not evidence
+that deletion is safe. Deploy does not automatically migrate or delete old metadata.
+
 ## Checksum-pinned Dist bundles
 
 Pull verifies a Dist bundle against a trusted, publisher-provided checksum of the exact serialized

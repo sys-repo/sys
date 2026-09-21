@@ -1,10 +1,13 @@
-import { describe, expect, expectError, Fs, it, Path, Str } from '../../../-test.ts';
+import { Cli, describe, expect, expectError, Fs, it, Json, Path, Str } from '../../../-test.ts';
 import { withTmpDir } from '../../-test/u.fixture.ts';
 import { acquireStagingBuildLease, type StagingBuildLease } from '../u.buildLease.ts';
 import { type PreparedStagingMapping, prepareStagingPlan } from '../u.prepare.ts';
 import { stageMappings } from '../u.stageMappings.ts';
 
 const compare = Str.Compare.codeUnit();
+const DENIED_BUILD_CHILD = Path.fromFileUrl(
+  new URL('./-u.buildLease.denied.process.ts', import.meta.url),
+);
 
 describe('Deploy build coordination containment', () => {
   it('leases source-owned dev state → leaves namespace parents unchanged', async () => {
@@ -40,6 +43,44 @@ describe('Deploy build coordination containment', () => {
     });
   });
 
+  it('denied dev-state writes → refusal without source-parent metadata or fallback', async () => {
+    await withTmpDir(async (tmp) => {
+      const parent = Fs.join(tmp, 'library');
+      const source = Fs.join(parent, 'builder');
+      await Fs.ensureDir(source);
+      const output = await new Deno.Command(Deno.execPath(), {
+        args: [
+          'run',
+          '--check',
+          '--quiet',
+          '--cached-only',
+          '--frozen',
+          '--no-prompt',
+          `--allow-read=${tmp}`,
+          '--deny-write',
+          DENIED_BUILD_CHILD,
+          source,
+        ],
+        cwd: Fs.cwd(),
+        stdin: 'null',
+        stdout: 'piped',
+        stderr: 'piped',
+      }).output();
+      const decoder = new TextDecoder();
+      const stderr = decoder.decode(output.stderr);
+      if (!output.success || stderr !== '') {
+        throw new Error(`Build ownership child failed (${output.code}).\n${stderr}`);
+      }
+      const report = Json.parse<{ ok: boolean; error?: string }>(decoder.decode(output.stdout));
+      expect(report?.ok).to.eql(false);
+      expect(report?.error).to.include('Requires write access');
+      expect(report?.error).to.include(Fs.join(source, '-dev'));
+      expect(await children(source)).to.eql([]);
+      expect(await children(parent)).to.eql(['builder']);
+      expect(await children(tmp)).to.eql(['library']);
+    });
+  });
+
   it('scratch cleanup preserves the held build lock across endpoint roots', async () => {
     await withTmpDir(async (tmp) => {
       const source = Fs.join(tmp, 'library/builder');
@@ -72,7 +113,10 @@ describe('Deploy build coordination containment', () => {
       const reversed = await prepare(cwd, [sourceB, sourceA]);
       const heldB = await acquire(b);
       try {
-        await expectError(() => acquire(reversed), `already owned by another operation: ${sourceB}`);
+        await expectError(
+          () => acquire(reversed),
+          `already owned by another operation: ${sourceB}`,
+        );
         // A was visited first despite the mapping order, and its partial lease was released.
         expect(await Fs.exists(Fs.join(sourceA, '-dev/deploy/.sys.rooted/locks'))).to.eql(true);
         await (await acquire(a)).release();
@@ -230,15 +274,74 @@ describe('Deploy build coordination containment', () => {
       const copy = mappings.map((mapping): PreparedStagingMapping =>
         mapping.mode === 'index' ? mapping : { ...mapping, mode: 'copy' }
       );
-      expect(await acquireStagingBuildLease({
-        mappings: copy,
-        signal: new AbortController().signal,
-      })).to.eql(undefined);
+      expect(
+        await acquireStagingBuildLease({
+          mappings: copy,
+          signal: new AbortController().signal,
+        }),
+      ).to.eql(undefined);
       expect(await children(source)).to.eql([]);
       expect(await children(Fs.join(tmp, 'library'))).to.eql(['builder']);
     });
   });
 });
+
+describe('Deploy build coordination publication selection', () => {
+  it('workspace ignore policy excludes live coordination files from package publication', async () => {
+    await withTmpDir(async (tmp) => {
+      const source = Fs.join(tmp, 'builder');
+      const policyPath = Path.fromFileUrl(new URL('../../../../../../.gitignore', import.meta.url));
+      const policy = (await Fs.readText(policyPath)).data;
+      if (!policy) throw new Error('Expected the workspace publication ignore policy.');
+      const fixturePolicy = Fs.join(tmp, '.gitignore');
+      await Fs.write(fixturePolicy, policy);
+      await Fs.writeJson(Fs.join(source, 'deno.json'), {
+        name: '@sys/deploy-coordination-fixture',
+        version: '0.0.0',
+        license: 'MIT',
+        exports: './mod.ts',
+      });
+      await Fs.write(Fs.join(source, 'mod.ts'), 'export const value: number = 1;\n');
+      const held = await acquire(await prepare(Fs.join(tmp, 'endpoint'), [source]));
+      try {
+        const locks = Fs.join(source, '-dev/deploy/.sys.rooted/locks');
+        const files = await children(locks);
+        expect(files.length).to.eql(1);
+        const lockUrl = Path.toFileUrl(Fs.join(locks, files[0]!)).href;
+        const selected = await dryRunPackage(source);
+        expect(selected).to.include(Path.toFileUrl(Fs.join(source, 'mod.ts')).href);
+        expect(selected).to.include(Path.toFileUrl(Fs.join(source, 'deno.json')).href);
+        expect(selected).not.to.include('/-dev/');
+        expect(selected).not.to.include('/.sys.rooted/');
+
+        // Positive control: the same live lock enters the file set without the fixture's policy.
+        // This changes only a disposable fixture, never the workspace's real ignore rules.
+        await Fs.write(fixturePolicy, '');
+        expect(await dryRunPackage(source)).to.include(lockUrl);
+        expect(await children(locks)).to.eql(files);
+      } finally {
+        await held.release();
+      }
+    });
+  });
+});
+
+/** Ask Deno for its actual package file set, without uploading anything. */
+async function dryRunPackage(cwd: string): Promise<string> {
+  const output = await new Deno.Command(Deno.execPath(), {
+    args: ['publish', '--dry-run'],
+    cwd,
+    stdin: 'null',
+    stdout: 'piped',
+    stderr: 'piped',
+  }).output();
+  const decoder = new TextDecoder();
+  const text = Cli.stripAnsi(decoder.decode(output.stdout) + decoder.decode(output.stderr));
+  if (!output.success) throw new Error(`Package selection failed (${output.code}).\n${text}`);
+  expect(text).to.include('Simulating publish');
+  expect(text).to.include('Dry run complete');
+  return text;
+}
 
 /** Prepare real canonical source identities without running a build task. */
 async function prepare(

@@ -1,4 +1,15 @@
-import { describe, expect, expectError, Fs, it, Json, Obj, Path, Str, type t } from '../../-test.ts';
+import {
+  describe,
+  expect,
+  expectError,
+  Fs,
+  it,
+  Json,
+  Obj,
+  Path,
+  Str,
+  type t,
+} from '../../-test.ts';
 import { Deploy } from '../mod.ts';
 import { withTmpDir } from './u.fixture.ts';
 
@@ -103,42 +114,6 @@ describe('@sys/tools/deploy public staging lifecycle', () => {
       expect(await Fs.exists(`${cwdA}/stage/.sys.rooted`)).to.eql(false);
       const manifest = (await Fs.readJson<t.DistPkg>(`${cwdA}/stage/dist.json`)).data;
       expect(Obj.keys(manifest?.hash.parts ?? {}).toSorted()).to.eql(['index.html', 'variant.txt']);
-    });
-  });
-
-  it('refuses denied dev-state writes without falling back to source-parent metadata', async () => {
-    await withTmpDir(async (tmp) => {
-      const cwd = Fs.join(tmp, 'endpoint');
-      const builder = Fs.join(tmp, 'builder');
-      const config = Fs.join(cwd, '-config/@sys.tools.deploy/stage.yaml');
-      await Fs.ensureDir(builder);
-      await Fs.write(config, buildEndpointYaml('./stage', tmp));
-      const output = await new Deno.Command(Deno.execPath(), {
-        args: [
-          'run',
-          '--quiet',
-          '--cached-only',
-          '--frozen',
-          '--no-prompt',
-          `--allow-read=${tmp}`,
-          '--deny-write',
-          CONCURRENT_STAGE_CHILD,
-          cwd,
-          config,
-        ],
-        cwd: Fs.cwd(),
-        stdin: 'null',
-        stdout: 'piped',
-        stderr: 'piped',
-      }).output();
-      const report = concurrentStageReport(output);
-      expect(report.ok).to.eql(false);
-      if (report.ok) throw new Error('Expected dev-state permission refusal.');
-      expect(report.error).to.include('Requires write access');
-      expect(report.error).to.include(Fs.join(builder, '-dev'));
-      expect(await Fs.exists(Fs.join(builder, '-dev'))).to.eql(false);
-      expect(await Fs.exists(Fs.join(tmp, '.sys.rooted'))).to.eql(false);
-      expect(await Fs.exists(Fs.join(cwd, '.sys.rooted'))).to.eql(false);
     });
   });
 

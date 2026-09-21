@@ -1,4 +1,4 @@
-import { Fs, Path, Str, type t } from '../common.ts';
+import { Fs, Path, Str, type t } from './common.ts';
 import { assertDirectoryIdentity, ensureStagingDirectory } from './u.identity.ts';
 import type { PreparedStagingMapping } from './u.prepare.ts';
 

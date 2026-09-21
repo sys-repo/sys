@@ -1,4 +1,4 @@
-import { Fs, Num, Path, type t } from '../common.ts';
+import { Fs, Num, Path, type t } from './common.ts';
 import { throwIfStagingCancelled } from './u.cancel.ts';
 
 /** Capture one canonical directory identity for later replacement checks. */
