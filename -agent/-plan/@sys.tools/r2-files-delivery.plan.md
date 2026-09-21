@@ -1,10 +1,24 @@
 r2-files-delivery.plan.md
 - [x] GATE owner authorizes one bounded R2 upload and authenticated readback
-- [ ] docs(deploy): record Files-backed R2 upload and readback
+- [x] efdd7cdde docs(deploy): record Files-backed R2 upload and readback
+
+## Closeout
+
+The authorized storage proof is complete and recorded in the reachable opening commit: three
+objects / 1,253 decoded bytes matched retained local bytes and SHA-256 values. The authorization,
+failed attempts, final successful readback, and proof limits below remain historical evidence.
+No upload, readback, implementation, or required proof remains in this plan.
+
+The later application journey changed candidate and prefix. Its
+[r2-web-exposure.plan.md](../@sys.driver-cloudflare/r2-web-exposure.plan.md#owner-selected-application-prefix)
+records the owner's retirement of `tmp.sys.tools/`, including this proof prefix. Earlier instructions
+to retain those remote objects describe the original handoff, not a claim that they still exist or
+an obligation to recreate them. Public/hosted delivery and Pi release remain independently owned.
+Closeout performs no live storage operation and transfers no old authorization to a new candidate.
 
 ## Purpose and stopping point
 
-Prove one concrete delivery through the already-landed integration:
+This completed plan records one concrete delivery through the existing integration:
 
 ```text
 selected local files in one frozen, verified Dist
@@ -14,10 +28,10 @@ selected local files in one frozen, verified Dist
 ```
 
 This plan ends at authenticated storage readback. The independently cohesive
-[r2-web-exposure.plan.md](../@sys.driver.cloudflare/r2-web-exposure.plan.md) consumes that evidence
-and proves those same bytes at the intended public URLs. No public hostname, Pi release, or exposure
-implementation is a prerequisite for this storage proof. A small public-by-design non-release Dist
-is sufficient; it must not be presented as product-release evidence.
+[r2-web-exposure.plan.md](../@sys.driver-cloudflare/r2-web-exposure.plan.md) consumes this evidence
+as a historical foundation; its later candidate and delivery proof have their own authority. No
+public hostname, Pi release, or exposure implementation is a prerequisite for this storage proof.
+The small public-by-design non-release Dist is not product-release evidence.
 
 ## Revision and current evidence
 
@@ -57,11 +71,15 @@ The owner authorized reuse of the disposable sample target: `sys-test` bucket,
 sample objects pruned. After two stopped readback attempts exposed temporary-probe defects, the
 separately approved final read-only pass verified all three objects byte-for-byte and by SHA-256.
 The final listing contained exactly those objects; pinned local verification passed before and
-after. Authenticated storage proof is complete. Public delivery remains unverified. The detailed
-history and completed evidence below distinguish upload acknowledgement from verified bytes.
+after. Authenticated storage proof is complete. Public delivery is not verified by this proof.
+The detailed history and completed evidence below distinguish upload acknowledgement from verified
+bytes.
 Planning itself grants no live operation or Git mutation.
 
-## Concrete proof procedure
+## Recorded proof procedure
+
+The procedure below governed the completed run. It preserves its constraints and verification
+boundary for future readers; it is not pending work or authorization for another run.
 
 ### Select and prepare locally
 
@@ -160,16 +178,15 @@ denial.
 
 ## `docs(deploy): record Files-backed R2 upload and readback`
 
-Record the completed operator procedure and redacted storage evidence here and in the existing
-Deploy guidance where needed: exact code/client identity, candidate manifest integrity and package,
-key/count/byte expectations, admitted target, commands, actual results, per-object readback
-comparison, and retained or uncertain residue. Separate local verification, upload acknowledgement,
-authenticated readback, and unverified public locations. Keep credentials and signed requests out of
-evidence.
+The completed operator procedure and redacted storage evidence are recorded below: code/client
+identity, candidate manifest integrity and package, key/count/byte expectations, admitted target,
+commands, actual results, per-object readback comparison, and retained objects. Local verification,
+upload acknowledgement, authenticated readback, and candidate public locations remain distinct.
+Credentials and signed requests are excluded.
 
-This is a proof/documentation item over existing code, not permission to declare live success in
-advance. If a concrete implementation gap prevents the procedure, resolve its ownership and revise
-this small arc explicitly rather than burying a feature inside a documentation commit.
+The proof used existing product code. The diagnosed defects and corrections belonged to disposable
+probes, not a new uploader, SDK, product feature, or permanent integration harness. All required
+storage comparisons passed; no storage implementation or verification work remains in this item.
 
 ## Observed local preflight
 
@@ -441,12 +458,13 @@ sample key remained in that observed listing. The selected local artifact passed
 verification before credential resolution and again after readback and listing, against
 `sha256-73704507e5faf41c0df7b4bb59a475be7eddde019f047c7e363b327fbec670c3`.
 
-### Handoff to HTTPS exposure
+### Historical handoff to HTTPS exposure
 
-Retain `code/sys.tools/.tmp/staging/r2-files-delivery` and the three remote objects unchanged.
-The selected manifest integrity, per-file hashes, exact keys, representation metadata and final
-observation above are the authority for the companion
-[r2-web-exposure.plan.md](../@sys.driver.cloudflare/r2-web-exposure.plan.md).
+The original handoff required retaining `code/sys.tools/.tmp/staging/r2-files-delivery` and the
+three remote objects unchanged. The selected manifest integrity, per-file hashes, exact keys,
+representation metadata, and final observation above bound that candidate. The companion
+[r2-web-exposure.plan.md](../@sys.driver-cloudflare/r2-web-exposure.plan.md) later records a different
+application candidate and the owner's retirement of the old remote prefix; see Closeout.
 
 The original sample configuration contains a `readOrigin` hint. These concrete candidate public
 locations are **not fetched or verified by this storage proof**:
@@ -455,10 +473,11 @@ locations are **not fetched or verified by this storage proof**:
 - `https://pub-8bd1da0f59614c7bbc75f21d60db6a9c.r2.dev/tmp.sys.tools/r2-proof/index.html`
 - `https://pub-8bd1da0f59614c7bbc75f21d60db6a9c.r2.dev/tmp.sys.tools/r2-proof/dist.json`
 
-The exposure owner must establish the intended route and fetch the same retained bytes; a URL
-hint, authenticated storage success, or a matching ETag is not public-delivery evidence. This
-result proves the selected object bytes at the observed time, not atomic publication, physical
-wire-byte identity, indefinite retention, competing-writer safety, or a Pi product release.
+Public proof of that candidate would have required establishing the intended route and fetching
+those same retained bytes; a URL hint, authenticated storage success, or a matching ETag is not
+public-delivery evidence. This storage result proves the selected object bytes at the observed
+time, not atomic publication, physical wire-byte identity, indefinite retention, competing-writer
+safety, or a Pi product release.
 
 ## Known limits and independent work
 
@@ -469,7 +488,7 @@ wire-byte identity, indefinite retention, competing-writer safety, or a Pi produ
   separators (`m.r2/m.Files/u/path.ts` and `u/entry.ts`). A small controlled canonical namespace
   avoids deliberately introducing that case; it does not fix it or establish hostile-namespace
   safety.
-- [r2-files-enumeration-bounds.plan.md](../@sys.driver.cloudflare/r2-files-enumeration-bounds.plan.md)
+- [r2-files-enumeration-bounds.plan.md](../@sys.driver-cloudflare/r2-files-enumeration-bounds.plan.md)
   independently owns whole-prefix scan/index budgets. This journey DOES use the existing Files
   index, including write probes and prune/list work. Small result pages do not bound provider work;
   keep the selected namespace small and controlled. Its hardening is not a prerequisite for this
@@ -483,8 +502,18 @@ wire-byte identity, indefinite retention, competing-writer safety, or a Pi produ
   policy, cold/warm acquisition, and published evidence remain in its release plan. A non-release
   proof neither waits for nor completes those obligations.
 
-## Next action
+## Retention and plan retirement
 
-Storage proof is complete. Preserve the selected local artifact and remote objects for the
-separately owned HTTPS exposure proof. Do not rerun upload or readback under this consumed
-one-shot authorization. No Git mutation or public-host configuration was performed.
+This plan's storage outcome and evidence are complete. HTTPS exposure, enumeration hardening, and
+Pi release evidence are separately owned work, not unfinished obligations in this plan.
+
+Preserve the historical receipt and its candidate identity. The old remote prefix was subsequently
+retired by the owner; no current remote-object retention or availability is claimed. Plan retirement
+does not authorize deleting any remaining local artifacts, recreating remote objects, rerunning the
+proof, changing public-host configuration, or treating the sample as a product release.
+
+The final completion snapshot is prepared for `plan(done): r2-files-delivery.plan.md`. After that
+snapshot is committed and recoverable from reachable history, the live plan may be removed under
+`plan(archived): r2-files-delivery.plan.md`. Preserve its exact filename and historical evidence
+identity for downstream references. Snapshot commit and archival remain separate human-authorized
+Git actions; this update neither commits nor removes the plan.
