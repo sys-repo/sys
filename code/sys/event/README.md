@@ -89,6 +89,34 @@ rejects `done`; breaking out of async iteration also cancels the stream.
 On disposal, the host tries to send an error response for each active request before aborting that
 request's signal. Handlers must observe their `AbortSignal` to stop their own work.
 
+### Error transport
+
+Native errors and error-like objects send their readable message; other thrown values are
+stringified. Unreadable messages or failed string conversion produce a generic failure, not a
+successful result. Causes and extra fields are not serialized automatically. A handler can
+explicitly approve a structured public diagnostic:
+
+```ts
+throw Cmd.Error.expose({
+  name: 'StorageFailure',
+  message: 'Storage write refused.',
+  data: { operation: 'write', status: 403 },
+});
+```
+
+`expose` captures the supplied name, message, and optional flat string/finite-number/boolean data.
+The client still rejects with `CmdError.Remote`; its `cause` contains that projection. Old clients
+retain the error string. Invalid or unreadable optional wire detail is ignored without losing the
+rejection.
+
+Exposure belongs to the exact Error returned by this module instance. Rethrowing it preserves the
+projection; wrapping, cloning, or converting it to a standard error object does not. Received detail
+is not automatically approved for another outbound boundary.
+
+This is an exposure API, **not a redactor**. Approve every field before calling it; never pass raw
+provider errors, secrets, URLs, or response bodies. Received diagnostics are untrusted information,
+not authority to retry or widen permissions.
+
 ## Entry points
 
 - [`/bus`](https://jsr.io/@sys/event/doc/bus/): scheduled emission and typed filtering.

@@ -1,4 +1,5 @@
-import { Rx, type t } from './common.ts';
+import { Is, Rx, type t } from './common.ts';
+import { exposedError } from './m.Error.ts';
 import { CmdIs } from './m.Is.ts';
 import { sameNamespace } from './u.namespace.ts';
 
@@ -48,6 +49,7 @@ export function makeHost<
 
     let payload: unknown;
     let error: string | undefined;
+    let errorCause: t.Cmd.Error.Detail | undefined;
 
     try {
       if (!handler) throw new Error(`No handler registered for command "${name}".`);
@@ -74,7 +76,8 @@ export function makeHost<
 
       payload = await handler(msg.payload as P[N], ctx);
     } catch (err) {
-      error = err instanceof Error ? err.message : String(err);
+      errorCause = exposedError(err);
+      error = errorCause?.message ?? failureMessage(err);
     }
 
     const current = active.get(id);
@@ -89,6 +92,7 @@ export function makeHost<
       name,
       payload,
       error,
+      ...(errorCause ? { errorCause } : {}),
     };
     endpoint.postMessage(envelope);
   };
@@ -141,5 +145,19 @@ export function makeHost<
     } catch {
       // Host disposal is terminal locally; remote settlement is best-effort if transport is failing.
     }
+  }
+}
+
+/** Extract a failure string without letting property access or coercion escape the host. */
+function failureMessage(error: unknown): string {
+  try {
+    if (Is.record(error)) {
+      // Read once: a getter may change between validation and return.
+      const message = error.message;
+      if (Is.str(message)) return message;
+    }
+    return String(error);
+  } catch {
+    return 'Command handler failed.';
   }
 }

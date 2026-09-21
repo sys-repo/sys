@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { CmdIs } from '../m.Is.ts';
 
 describe('Cmd.Is', () => {
@@ -69,6 +69,20 @@ describe('Cmd.Is', () => {
       };
 
       expect(CmdIs.response(msg)).to.eql(true);
+    });
+
+    it('optional diagnostic detail → remains unknown after envelope narrowing', () => {
+      const input: unknown = {
+        kind: 'cmd:result',
+        id: 'req-detail',
+        name: 'fail',
+        error: 'refused',
+        errorCause: { name: 7, message: 'malformed detail' },
+      };
+      expect(CmdIs.response(input)).to.eql(true);
+      if (CmdIs.response(input)) {
+        expectTypeOf(input.errorCause).toEqualTypeOf<unknown>();
+      }
     });
 
     it('rejects invalid result envelopes', () => {

@@ -1,5 +1,6 @@
-import { Rx, Time, type t } from './common.ts';
+import { Rx, type t, Time } from './common.ts';
 import { CmdIs } from './m.Is.ts';
+import { snapshotErrorDetail } from './m.Error.ts';
 import { createId } from './u.id.ts';
 import { sameNamespace } from './u.namespace.ts';
 
@@ -82,9 +83,16 @@ export function makeClient<
       }
 
       if (msg.error !== undefined) {
+        let cause: t.Cmd.Error.Detail | undefined;
+        try {
+          cause = snapshotErrorDetail(msg.errorCause);
+        } catch {
+          // Optional diagnostics must not prevent the legacy rejection.
+        }
         const error = makeError({
           kind: 'CmdError.Remote',
           message: msg.error,
+          cause,
           meta: { name: msg.name, id: msg.id, ns },
         });
         rejectPending(msg.id, error);
@@ -525,12 +533,13 @@ const makeError = (args: {
   readonly kind: t.Cmd.Error.Kind;
   readonly message: string;
   readonly meta?: t.Cmd.Error.Meta;
+  readonly cause?: t.Cmd.Error.Detail;
 }): t.Cmd.Error.Instance => {
-  const { kind, message, meta } = args;
+  const { kind, message, meta, cause } = args;
 
-  const err = new Error(message) as t.DeepMutable<t.Cmd.Error.Instance>;
+  const inner = cause ? { cause } : undefined;
+  const err = new Error(message, inner) as t.DeepMutable<t.Cmd.Error.Instance>;
   err.name = kind;
-
   if (meta) {
     err.cmd = meta;
     err.ns = meta.ns;

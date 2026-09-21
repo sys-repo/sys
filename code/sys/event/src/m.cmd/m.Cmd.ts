@@ -2,6 +2,7 @@ import type { t } from './common.ts';
 import { make } from './u.make.ts';
 import { CmdIs as Is } from './m.Is.ts';
 import { Transport } from './transport/mod.ts';
+import { CmdError as Error } from './m.Error.ts';
 
 /**
  * Small, transport-agnostic command bus providing typed
@@ -9,6 +10,7 @@ import { Transport } from './transport/mod.ts';
  */
 export const Cmd: t.Cmd.Lib = Object.freeze({
   Is,
+  Error,
   make,
   Transport,
 });

@@ -9,6 +9,9 @@ export declare namespace Cmd {
     /** Type guards for command wire messages and command errors. */
     readonly Is: Is.Lib;
 
+    /** Explicitly approved error projections for command transport. */
+    readonly Error: Error.Lib;
+
     /** Transport adapters for wiring Cmd to message endpoints. */
     readonly Transport: Transport.Lib;
 
@@ -188,6 +191,8 @@ export declare namespace Cmd {
       readonly ns?: Namespace;
       readonly payload?: unknown;
       readonly error?: string;
+      /** Unvalidated optional diagnostic; clients must validate it without losing the error string. */
+      readonly errorCause?: unknown;
     };
 
     /** Wire envelope sent from client → host to cancel an active request. */
@@ -200,8 +205,23 @@ export declare namespace Cmd {
     };
   }
 
-  /** Command-client error contract. */
+  /**
+   * Command errors and explicit diagnostic exposure.
+   */
   export namespace Error {
+    /** Opt-in transport exposure. This is not a redactor; producers must approve every field. */
+    export type Lib = {
+      /** Capture a public projection in a native Error. No raw cause, stack, or extras cross. */
+      expose(detail: Detail): globalThis.Error;
+    };
+
+    /** Flat, serializable diagnostic. Receivers must treat it as untrusted information. */
+    export type Detail = {
+      readonly name: string;
+      readonly message: string;
+      readonly data?: Readonly<Record<string, string | number | boolean>>;
+    };
+
     /** Classification for command-client errors. */
     export type Kind =
       | 'CmdError.Timeout'
