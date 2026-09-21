@@ -1,4 +1,4 @@
-import { Cmd } from '../m.Cmd.ts';
+import { Cmd } from '../m/m.Cmd.ts';
 import type { t } from './common.ts';
 
 /** Create a local Cmd<T> host bound to one side of a MessageChannel. */

@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
-import { CmdIs } from '../m.Is.ts';
+import { CmdIs } from '../m/m.Is.ts';
 import { Cmd } from '../mod.ts';
-import { fromWebSocket, local } from '../transport/mod.ts';
+import { fromWebSocket, local } from '../m.transport/mod.ts';
 
 describe(`Cmd: Command (Bus)`, () => {
   it('API', async () => {

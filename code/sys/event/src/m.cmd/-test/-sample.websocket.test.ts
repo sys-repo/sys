@@ -1,7 +1,7 @@
 import { Net } from '@sys/net';
 import { describe, expect, it, type t } from '../../-test.ts';
 import { Cmd } from '../mod.ts';
-import { fromWebSocket } from '../transport/mod.ts';
+import { fromWebSocket } from '../m.transport/mod.ts';
 import { WebSocketFixture } from './u.fixture.websocket.ts';
 
 describe('Cmd over WebSocket', () => {

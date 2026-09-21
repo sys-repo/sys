@@ -13,7 +13,7 @@
     "./t": "./src/types.ts",
     "./bus": "./src/-exports/-bus.ts",
     "./cmd": "./src/-exports/-cmd.ts",
-    "./cmd/testing": "./src/m.cmd/testing/mod.ts"
+    "./cmd/testing": "./src/m.cmd/m.testing/mod.ts"
   },
   "permissions": {
     "clean": {
@@ -29,4 +29,3 @@
     }
   }
 }
-

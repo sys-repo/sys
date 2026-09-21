@@ -1,6 +1,6 @@
 import { Rx, type t, Time } from './common.ts';
-import { CmdIs } from './m.Is.ts';
-import { snapshotErrorDetail } from './m.Error.ts';
+import { CmdIs } from '../m/m.Is.ts';
+import { snapshotErrorDetail } from '../m/m.Error.ts';
 import { createId } from './u.id.ts';
 import { sameNamespace } from './u.namespace.ts';
 

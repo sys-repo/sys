@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
-import { CmdIs } from '../m.Is.ts';
+import { CmdIs } from '../m/m.Is.ts';
 
 describe('Cmd.Is', () => {
   describe('Cmd.Is.request', () => {

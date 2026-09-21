@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
-import { make } from './u.make.ts';
+import { make } from '../u/u.make.ts';
 import { CmdIs as Is } from './m.Is.ts';
-import { Transport } from './transport/mod.ts';
+import { Transport } from '../m.transport/mod.ts';
 import { CmdError as Error } from './m.Error.ts';
 
 /**
@@ -11,6 +11,6 @@ import { CmdError as Error } from './m.Error.ts';
 export const Cmd: t.Cmd.Lib = Object.freeze({
   Is,
   Error,
-  make,
   Transport,
+  make,
 });

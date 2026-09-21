@@ -1,6 +1,6 @@
 import { Is, Rx, type t } from './common.ts';
-import { exposedError } from './m.Error.ts';
-import { CmdIs } from './m.Is.ts';
+import { exposedError } from '../m/m.Error.ts';
+import { CmdIs } from '../m/m.Is.ts';
 import { sameNamespace } from './u.namespace.ts';
 
 type HostRuntimeOptions = t.Cmd.Host.Options & {
