@@ -82,7 +82,10 @@ export declare namespace Browser {
         steps: readonly Step[];
         /** Canonical regular browser executable path. Defaults to CHROME_BIN or platform discovery. */
         executablePath?: t.StringAbsolutePath;
-        /** Default action/load timeout. */
+        /**
+         * Default action/load and polling timeout. Also bounds each observe snapshot command and
+         * subsequent origin-guard settlement independently of the polling deadline.
+         */
         timeout?: t.Msecs;
         /** Delay before each settled action snapshot. */
         settle?: t.Msecs;
@@ -128,6 +131,12 @@ export declare namespace Browser {
       export type Observe = {
         kind: 'observe';
         expect: Expectation;
+        /**
+         * Polling window; defaults to Scenario.Options.timeout. Always takes one snapshot, then
+         * starts further polls only before this deadline. An in-flight snapshot may finish and
+         * match afterward; its command and origin-guard settlement use Scenario.Options.timeout.
+         * Command failures still reject rather than becoming unmatched evidence.
+         */
         timeout?: t.Msecs;
         interval?: t.Msecs;
       };

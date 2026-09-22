@@ -1,4 +1,5 @@
-import { describe, expect, it, Testing, Time } from '../../-test.ts';
+import { describe, expect, it, Testing } from '../../-test.ts';
+import { Str } from '../common.ts';
 import { Browser } from '../mod.ts';
 import { browserProofExecutable } from './u.browser.proof.ts';
 
@@ -307,10 +308,36 @@ describe('Browser.ServiceWorker.scenario', () => {
     }
   });
 
+  it('slow matching snapshot → settles the origin guard after the polling deadline', async () => {
+    const server = Testing.Http.server(() => {
+      return html(Str.dedent(`
+        <script>
+          const getRegistrations = navigator.serviceWorker.getRegistrations.bind(navigator.serviceWorker);
+          navigator.serviceWorker.getRegistrations = async () => {
+            await new Promise((resolve) => setTimeout(resolve, 75));
+            return getRegistrations();
+          };
+        </script>
+      `));
+    });
+    try {
+      const result = await scenario({
+        steps: [
+          { kind: 'navigate', url: server.url.raw },
+          { kind: 'observe', expect: { kind: 'registrations', count: 0 }, timeout: 50 },
+        ],
+      });
+
+      expect(result.ok).to.eql(true);
+      expect(result.steps[1].outcome).to.eql({ kind: 'observed', matched: true, attempts: 1 });
+    } finally {
+      await server.dispose();
+    }
+  });
+
   it('unmatched observation → settles as bounded result evidence', async () => {
     const server = startPageServer();
     try {
-      const started = Time.now.timestamp;
       const result = await scenario({
         steps: [
           { kind: 'navigate', url: server.url.raw },
@@ -326,7 +353,8 @@ describe('Browser.ServiceWorker.scenario', () => {
       expect(result.ok).to.eql(false);
       expect(result.steps[1].outcome.kind).to.eql('observed');
       expect(result.steps[1].outcome).to.include({ matched: false });
-      expect(Time.now.timestamp - started < 5_000).to.eql(true);
+      // Poll/command bounds are proven with a deterministic clock in -internal.test.ts.
+      expect(result.steps.length).to.eql(2);
     } finally {
       await server.dispose();
     }

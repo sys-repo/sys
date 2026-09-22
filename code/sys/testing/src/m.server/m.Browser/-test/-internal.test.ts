@@ -12,6 +12,13 @@ import {
   combinePrimaryAndCleanup,
   connectCdpWithRetry,
 } from '../u.chrome.session.ts';
+import { pollObservation } from '../u.service-worker.ts';
+
+type ObservationSample = {
+  duration: number;
+  value?: Partial<t.Browser.ServiceWorker.Observation>;
+  error?: Error;
+};
 
 const sandboxBypasses = ['--no-sandbox', '--disable-setuid-sandbox', '--no-zygote'] as const;
 
@@ -579,6 +586,138 @@ describe('Browser Chrome lifecycle policy', () => {
     expect(processClose).to.eql(1);
   });
 });
+
+describe('Browser Service Worker observation deadlines', () => {
+  it('slow first snapshot → returns unmatched evidence without shrinking the command budget', async () => {
+    const fixture = observationFixture([{ duration: 60 }]);
+    const result = await fixture.poll();
+
+    expect(result).to.include({ matched: false, attempts: 1 });
+    expect(result.observation.registrations).to.eql([]);
+    expect(fixture.calls).to.eql([{ started: 0, timeout: 1_000 }]);
+    expect(fixture.waits).to.eql([]);
+  });
+
+  it('final snapshot → keeps its command budget when only 1ms remains for polling', async () => {
+    const fixture = observationFixture([
+      { duration: 39 },
+      { duration: 20, value: { cacheNames: ['last-snapshot'] } },
+    ]);
+    const result = await fixture.poll();
+
+    expect(result).to.include({ matched: false, attempts: 2 });
+    expect(result.observation.cacheNames).to.eql(['last-snapshot']);
+    expect(fixture.calls).to.eql([
+      { started: 0, timeout: 1_000 },
+      { started: 49, timeout: 1_000 },
+    ]);
+    expect(fixture.waits).to.eql([10]);
+  });
+
+  it('polling deadline reached during wait → retains the last snapshot without another command', async () => {
+    const fixture = observationFixture([{ duration: 45 }]);
+    const result = await fixture.poll();
+
+    expect(result).to.include({ matched: false, attempts: 1 });
+    expect(fixture.calls).to.eql([{ started: 0, timeout: 1_000 }]);
+    expect(fixture.waits).to.eql([5]);
+  });
+
+  it('in-flight snapshot matches after polling deadline → accepts the completed evidence', async () => {
+    const fixture = observationFixture([{ duration: 60 }]);
+    const result = await fixture.poll({ kind: 'registrations', count: 0 });
+
+    expect(result).to.include({ matched: true, attempts: 1 });
+    expect(fixture.calls).to.eql([{ started: 0, timeout: 1_000 }]);
+    expect(fixture.waits).to.eql([]);
+  });
+
+  it('CDP failure after a successful snapshot → rejects rather than returning stale evidence', async () => {
+    const error = new Error('Chrome DevTools Protocol connection closed.');
+    const fixture = observationFixture([{ duration: 39 }, { duration: 0, error }]);
+    let caught: unknown;
+    try {
+      await fixture.poll();
+    } catch (cause) {
+      caught = cause;
+    }
+
+    expect(caught).to.equal(error);
+    expect(fixture.calls.length).to.eql(2);
+  });
+
+  it('snapshot exceeds command budget → still rejects with the transport timeout', async () => {
+    const fixture = observationFixture([{ duration: 1_001 }]);
+    let caught: unknown;
+    try {
+      await fixture.poll();
+    } catch (cause) {
+      caught = cause;
+    }
+
+    expect(caught).to.be.instanceOf(Error);
+    expect((caught as Error).message).to.eql('Timed out waiting for CDP command: Runtime.evaluate');
+    expect(fixture.calls).to.eql([{ started: 0, timeout: 1_000 }]);
+  });
+});
+
+function observationFixture(samples: readonly ObservationSample[]) {
+  const origin = 'http://127.0.0.1';
+  const calls: { started: number; timeout: number | undefined }[] = [];
+  const waits: number[] = [];
+  let now = 0;
+  const cdp = protocolStub({
+    send<T = Record<string, unknown>>(
+      method: string,
+      _params?: Record<string, unknown>,
+      _sessionId?: string,
+      timeout?: number,
+    ) {
+      expect(method).to.eql('Runtime.evaluate');
+      const sample = samples[calls.length];
+      if (!sample) throw new Error('Unexpected additional observation command.');
+      calls.push({ started: now, timeout });
+      now += sample.duration;
+      if (sample.duration > (timeout ?? 0)) {
+        return Promise.reject(new Error('Timed out waiting for CDP command: Runtime.evaluate'));
+      }
+      if (sample.error) return Promise.reject(sample.error);
+      const value: t.Browser.ServiceWorker.Observation = {
+        href: `${origin}/`,
+        origin,
+        available: { serviceWorker: true, cacheStorage: true },
+        registrations: [],
+        cacheNames: [],
+        truncated: { registrations: false, cacheNames: false, strings: false },
+        ...sample.value,
+      };
+      return Promise.resolve({ result: { value } } as T);
+    },
+  });
+  const clock = {
+    now: () => now,
+    wait(msecs: number) {
+      waits.push(msecs);
+      now += msecs;
+      return Promise.resolve();
+    },
+  };
+  return {
+    calls,
+    waits,
+    poll(expectation: t.Browser.ServiceWorker.Expectation = { kind: 'registrations', count: 1 }) {
+      return pollObservation(
+        cdp,
+        'session',
+        origin,
+        { kind: 'observe', expect: expectation },
+        { timeout: 1_000, pollInterval: 10 },
+        50,
+        clock,
+      );
+    },
+  };
+}
 
 function processStub(
   overrides: Partial<Pick<TProcess.Handle, 'dispose' | 'onStdErr' | 'onStdOut'>> = {},

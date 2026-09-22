@@ -10,6 +10,11 @@ import {
 } from './u.chrome.protocol.ts';
 import { openChromeSession } from './u.chrome.session.ts';
 
+type ObservationClock = {
+  now: () => number;
+  wait: (msecs: t.Msecs) => Promise<unknown>;
+};
+
 const DEFAULT_TIMEOUT = 15_000;
 const DEFAULT_SETTLE = 100;
 const DEFAULT_POLL_INTERVAL = 100;
@@ -220,7 +225,8 @@ async function runScenario(session: t.Browser.Chrome.Session, input: Input) {
           input,
           actionDeadline,
         );
-        if (observed.matched) await settleOriginGuard(actionDeadline);
+        // A completed snapshot may outlive the polling deadline; guard checks remain mandatory.
+        if (observed.matched) await originGuard?.settle(input.timeout);
         outcome = Object.freeze({
           kind: 'observed',
           matched: observed.matched,
@@ -309,13 +315,15 @@ async function runScenario(session: t.Browser.Chrome.Session, input: Input) {
   return result;
 }
 
-async function pollObservation(
-  cdp: t.Browser.Chrome.Cdp.Client,
+/** Internal observation seam; the injectable clock keeps deadline regression tests deterministic. */
+export async function pollObservation(
+  cdp: t.Browser.Chrome.Cdp.ProtocolClient,
   sessionId: string,
   origin: string,
   step: t.Browser.ServiceWorker.Step.Observe,
-  input: Input,
+  input: Pick<Input, 'timeout' | 'pollInterval'>,
   deadline: number,
+  clock: ObservationClock = { now: () => Time.now.timestamp, wait: Time.wait },
 ) {
   const interval = positiveInt(
     step.interval,
@@ -324,24 +332,25 @@ async function pollObservation(
     HARD_MAX_POLL_INTERVAL,
   );
   let attempts = 0;
-  let observation = await snapshot(cdp, sessionId, origin, remaining(deadline, 'observation'));
+  // Always collect one snapshot. The polling deadline gates retries, not in-flight CDP work.
+  let observation = await snapshot(cdp, sessionId, origin, input.timeout);
 
   while (true) {
     attempts += 1;
     if (matchesExpectation(observation, step.expect, origin)) {
       return { matched: true, attempts, observation } as const;
     }
-    const budget = deadline - Time.now.timestamp;
+    const budget = deadline - clock.now();
     if (budget < 1) return { matched: false, attempts, observation } as const;
-    await Time.wait(Math.min(interval, budget));
-    const afterWait = deadline - Time.now.timestamp;
+    await clock.wait(Math.min(interval, budget));
+    const afterWait = deadline - clock.now();
     if (afterWait < 1) return { matched: false, attempts, observation } as const;
-    observation = await snapshot(cdp, sessionId, origin, afterWait);
+    observation = await snapshot(cdp, sessionId, origin, input.timeout);
   }
 }
 
 async function snapshot(
-  cdp: t.Browser.Chrome.Cdp.Client,
+  cdp: t.Browser.Chrome.Cdp.ProtocolClient,
   sessionId: string,
   expectedOrigin: string,
   timeout: t.Msecs,
