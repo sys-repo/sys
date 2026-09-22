@@ -3,15 +3,13 @@ import { Fs, Path, type t } from '../common.ts';
 import { Bootstrap } from './u.bootstrap.ts';
 import { pathsFromConfigfile } from './u.pathsFromConfigfile.ts';
 
-/**
- * Helpers
- */
+/** Resolve Vite and prepare child-process commands. */
 export const Wrangle = {
   async command(paths: t.ViteConfig.Paths, arg: string) {
     const end = Perf.section('wrangle.command', { cwd: paths.cwd, cmd: arg }, { level: 2 });
     const config = 'vite.config.ts';
     const env = wrangle.env(paths.cwd);
-    // Resolve once so bootstrap, executable, and config loader share the same authority.
+    // Use the same Vite package for the executable, config loader, and import map.
     const vite = await wrangle.viteSpecifier(paths.cwd);
     const bootstrap = await Bootstrap.create(paths.cwd, vite);
     const args = await wrangle.args(paths, arg, config, vite, bootstrap?.path);
@@ -50,6 +48,7 @@ const wrangle = {
     const configLoader = wrangle.configLoaderArg(vite);
     const permissions = await wrangle.permissions(paths, cmd ?? '', configLoader);
     const outDir = cmd === 'build' ? `--outDir=${Path.resolve(paths.cwd, paths.app.outDir)}` : '';
+    const base = cmd === 'build' ? `--base=${paths.app.base}` : '';
     return [
       'run',
       '--no-prompt',
@@ -61,6 +60,7 @@ const wrangle = {
       ...rest,
       configLoader,
       outDir,
+      base,
       `--config=${config}`,
     ].filter(Boolean);
   },

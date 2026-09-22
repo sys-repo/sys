@@ -48,7 +48,11 @@ describe('Vite.build', () => {
     console.info();
   };
 
-  const testBuild = async (sample: t.StringDir, outputKind: 'relative' | 'absolute') => {
+  const testBuild = async (
+    sample: t.StringDir,
+    outputKind: 'relative' | 'absolute',
+    base = './',
+  ) => {
     const fs = await SAMPLE.fs('Vite.build');
     const cwd = fs.join('fixture');
     await Fs.copy(sample, cwd);
@@ -62,7 +66,7 @@ describe('Vite.build', () => {
         app: {
           entry: 'index.html',
           outDir: expectedOutput,
-          base: './',
+          base,
         },
       } as const;
       const callerPaths = { cwd: expectedPaths.cwd, app: { ...expectedPaths.app } };
@@ -78,8 +82,10 @@ describe('Vite.build', () => {
         exitOnError: false, // Never terminate the whole test process on a transient build failure.
       });
       callerPaths.app.outDir = mutatedDuringBuild;
+      callerPaths.app.base = 'https://mutated.example.test/during/';
       const res = await pending;
       callerPaths.app.outDir = mutatedAfterBuild;
+      callerPaths.app.base = 'https://mutated.example.test/after/';
       if (!res.ok) console.warn(res.toString());
 
       expect(res.ok).to.eql(true);
@@ -152,7 +158,8 @@ describe('Vite.build', () => {
       )?.[1];
       expect(hashedEntry?.startsWith('sha256-')).to.eql(true);
 
-      expect(Object.keys(res.dist.hash.parts)).to.not.include('sw.js'); // NB: not specified in vite.json (see: sample-3).
+      // Unlike sample-3, this fixture's vite.config.ts has no service-worker entry.
+      expect(Object.keys(res.dist.hash.parts)).to.not.include('sw.js');
     });
   });
 
@@ -173,6 +180,32 @@ describe('Vite.build', () => {
       expect(text.some(hasExplicitResourceManagementSyntax)).to.eql(false);
       expect(text.some((source) => source.includes('Object is not disposable.'))).to.eql(true);
     });
+  });
+
+  it('explicit base → overrides config and survives caller mutation', async () => {
+    const base = 'https://assets.example.test/release/';
+    const mutations: string[] = [];
+    const set = Deno.env.set;
+    const remove = Deno.env.delete;
+    // Record environment writes without reading values; call the original methods.
+    Deno.env.set = (name, value) => {
+      mutations.push(name);
+      return set.call(Deno.env, name, value);
+    };
+    Deno.env.delete = (name) => {
+      mutations.push(name);
+      return remove.call(Deno.env, name);
+    };
+    try {
+      const { files } = await testBuild(SAMPLE.Dirs.sample1, 'relative', base);
+      expect(files.html).to.include(`src="${base}pkg/-entry.`);
+      expect(files.html).to.include(`href="${base}pkg/`);
+      expect(files.html).not.to.include('mutated.example.test');
+      expect(mutations, 'parent environment writes').to.eql([]);
+    } finally {
+      Deno.env.set = set;
+      Deno.env.delete = remove;
+    }
   });
 
   it('keeps a retained build digest unlinked after its output is replaced', async () => {

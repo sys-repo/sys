@@ -112,6 +112,21 @@ describe('Vite.Wrangle', () => {
     }
   });
 
+  it('build → passes app.base once as --base (Vite 7 and 8)', async () => {
+    for (const packageJson of [vite7, vite8]) {
+      await using consumer = await createConsumer({ packageJson });
+      for (const base of ['', './', '/assets/', 'https://assets.example.test/release/']) {
+        const paths = { ...consumer.paths, app: { ...consumer.paths.app, base } };
+        const command = await Wrangle.command(paths, 'build');
+        try {
+          expect(option(command.args, '--base')).to.eql(base);
+        } finally {
+          await command.dispose();
+        }
+      }
+    }
+  });
+
   describe('child permissions', () => {
     it('build → output/cache writes, localhost DNS, and explicit runtime grants', async () => {
       await using consumer = await createConsumer({ packageJson: vite8 });
@@ -148,6 +163,7 @@ describe('Vite.Wrangle', () => {
       expect(option(args, '--allow-sys')).to.eql('osRelease,homedir,uid,gid,networkInterfaces');
       expect(option(args, '--allow-run')).to.eql(Deno.execPath());
       expect(args).to.include('npm:vite@8.0.2');
+      expect(args.some((arg) => arg.startsWith('--base='))).to.eql(false);
       expect(option(args, '--configLoader')).to.eql('native');
       const { path } = await readImportMap(args);
       expect(await Fs.exists(path)).to.eql(true);

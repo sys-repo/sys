@@ -10,7 +10,7 @@ export declare namespace Vite {
     readonly Config: t.ViteConfig.Lib;
     readonly Startup: t.ViteStartup.Lib;
 
-    /** Run the Vite `build` command to produce an output `/dist` bundle. */
+    /** Build the application into its configured output directory. */
     build(args: Build.Args): Promise<Build.Response>;
 
     /**
@@ -36,17 +36,22 @@ export declare namespace Vite {
   export namespace Build {
     /** Arguments passed to the [Vite.build] method. */
     export type Args = {
-      /** Override the current-working-directory path */
+      /** Directory containing `vite.config.ts`; used only when `paths` is omitted. */
       cwd?: t.StringAbsoluteDir;
-      /** Explicit path authority, bypassing config file discovery when known. */
+      /**
+       * Build paths. If omitted, read from `vite.config.ts`.
+       * Supplied paths are copied before asynchronous work begins.
+       * Vite still loads `vite.config.ts`; only `app.outDir` and `app.base` override its settings.
+       * Entry points, workers, and plugins remain configured in that file.
+       */
       paths?: t.ViteConfig.Paths;
       /** Consuming module being built. */
       pkg?: t.Pkg;
-      /** Suppress all log output. */
+      /** Hide build progress. Errors are still logged. */
       silent?: boolean;
-      /** Show wait spinner. */
+      /** Show a progress spinner unless `silent` is set (default: true). */
       spinner?: boolean;
-      /** Exit the process with a non-zero code on failure (default: false). */
+      /** Exit with code 1 on a failed build (default: true). */
       exitOnError?: boolean;
     };
 
@@ -55,7 +60,7 @@ export declare namespace Vite {
       readonly ok: boolean;
       readonly paths: t.ViteConfig.Paths;
       readonly dist: t.DistPkg;
-      /** Exact publisher-generated serialization evidence for the computed `dist.json`. */
+      /** SHA-256 checksum of the generated `dist.json` bytes. */
       readonly manifest: Manifest;
       readonly cmd: { readonly input: string; readonly output: t.Process.Output };
       readonly elapsed: t.Msecs;
@@ -63,9 +68,11 @@ export declare namespace Vite {
     };
 
     /**
-     * Exact publisher-generated serialization evidence for this build response. Successful builds
-     * save those exact `dist.json` bytes. Integrity becomes artifact authority only when distributed
-     * independently from artifact fetch.
+     * SHA-256 checksum of the generated `dist.json` bytes.
+     * A successful build saves those exact bytes.
+     *
+     * For verification, obtain the expected checksum from a trusted source
+     * independent of the manifest download.
      */
     export type Manifest = FsPkg.Dist.Compute.Manifest;
 
