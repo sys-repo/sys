@@ -1,4 +1,5 @@
 import type { Files as TFiles } from '@sys/model/files/t';
+import type { t } from './common.ts';
 
 /**
  * Cloudflare R2 integration.
@@ -241,7 +242,73 @@ export declare namespace R2 {
        * limits, callback, and signer; invalid configuration throws.
        */
       create(options: CreateOptions): Handler;
+      /** Fetch and verify a pinned `dist.json`, then construct a read handler. */
+      fromDist(args: FromDist.Args): Promise<FromDist.Result>;
     };
+
+    /**
+     * Verify `dist.json` against its expected checksum, then construct read routes.
+     * Files served by the handler are not checked against the manifest's file hashes.
+     */
+    export namespace FromDist {
+      /**
+       * Inputs for fetching a pinned manifest and constructing its read handler.
+       * Storage settings, limits, and callbacks are captured before signing or route selection.
+       */
+      export type Args = Omit<CreateOptions, 'routes'> & {
+        /** Unchanged object-key prefix; use an empty string for the bucket root. */
+        prefix: string;
+        /**
+         * Expected SHA-256 of the complete `dist.json` bytes, not its embedded `hash.digest`.
+         * Obtain this pin independently of the manifest download.
+         */
+        pin: t.DistPin;
+        /** Limits for downloading and validating the manifest, separate from response limits. */
+        manifestLimits: t.FsPkg.Dist.Pinned.AdmitManifest.Limits;
+        routes: Routes;
+        /**
+         * Cancel handler construction. After `ready`, each request uses its own signal.
+         * Requires a native AbortSignal; duck-typed signals and proxies are invalid input.
+         */
+        signal?: AbortSignal;
+      };
+
+      /**
+       * Select routes synchronously, without IO, from immutable verified metadata.
+       * Map encoded URL paths → filenames in `dist.hash.parts`, without adding `prefix`.
+       * `dist.json` may also be selected. Return a plain data map; unknown filenames,
+       * accessors, and async results are refused. One invalid entry rejects the whole map.
+       *
+       * For async results, the driver attaches a rejection handler only to same-realm
+       * base Promises with no own properties and unchanged native constructor/species.
+       * The callback must handle rejections for all other async results. The driver does not
+       * call their `then` methods, invoke their getters, or modify them to attach a handler.
+       */
+      export type Routes = (dist: t.DeepReadonly<t.DistPkg>) => Readonly<Record<string, string>>;
+
+      /** Only `ready` exposes a handler; failures contain no provider or callback details. */
+      export type Result = Ready | Failure;
+      export type Ready = { readonly kind: 'ready'; readonly handler: Handler };
+
+      /**
+       * No handler is returned. Cancellation covers the entire construction call.
+       * Timeout covers signing and reading the manifest, not verification or route selection.
+       * The call may return before pending work and cleanup finish.
+       */
+      export type Failure =
+        | { readonly kind: 'invalid-input' }
+        /** Driver status: 404 not found, 413 too large, 502 signing or upstream failure. */
+        | { readonly kind: 'read-refused'; readonly status: 404 | 413 | 502 }
+        /** Manifest verification failed; `reason` identifies the failed check. */
+        | {
+          readonly kind: 'manifest-refused';
+          readonly reason: Exclude<t.FsPkg.Dist.Pinned.AdmitManifest.FailureKind, 'cancelled'>;
+        }
+        /** The route policy threw or returned an invalid map. */
+        | { readonly kind: 'policy-refused' }
+        | { readonly kind: 'cancelled' }
+        | { readonly kind: 'timeout' };
+    }
 
     /**
      * Serve a mapped object after authorization.
@@ -297,7 +364,7 @@ export declare namespace R2 {
     export type Limits = {
       /** Maximum decoded object size in bytes. */
       maxBytes: number;
-      /** Milliseconds from admission through response creation; at most seven days. */
+      /** Milliseconds from request admission through response creation; at most seven days. */
       timeout: number;
       /**
        * Maximum active operations, from authorization through response creation.

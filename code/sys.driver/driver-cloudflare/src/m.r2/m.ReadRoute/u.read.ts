@@ -1,15 +1,16 @@
-import { Is, Num, type t } from './common.ts';
+import { Is, Num } from './common.ts';
+import type { RouteOperation, RouteReadConfig } from './t.internal.ts';
 import { signedUrl } from './u.input.ts';
 
 type Result = { readonly bytes: Uint8Array } | { readonly status: number };
 
-/** Acquire bytes with an abortable fetch and retain ownership through body cancellation. */
+/** Read one signed object within the byte limit, awaiting any required body cleanup. */
 export async function readObject(
-  config: t.RouteConfig,
+  config: RouteReadConfig,
   key: string,
-  operation: t.RouteOperation,
+  operation: RouteOperation,
 ): Promise<Result> {
-  const href = await config.sign(key);
+  const href = await config.sign(key, config.limits.timeout);
   operation.check();
   const url = signedUrl(config, key, href);
   const response = await fetch(url, {
@@ -22,7 +23,7 @@ export async function readObject(
     referrerPolicy: 'no-referrer',
   });
 
-  // A fetch that ignores abort can still return a body. Close it before releasing the slot.
+  // A fetch may ignore abort and still return a body. Await its cancellation before finishing.
   if (operation.signal.aborted) {
     await cancelBody(response);
     operation.check();
@@ -57,7 +58,7 @@ export async function readObject(
 async function readBody(
   response: Response,
   maxBytes: number,
-  operation: t.RouteOperation,
+  operation: RouteOperation,
 ): Promise<Result> {
   const body = response.body;
   if (!body) return { bytes: new Uint8Array() };
@@ -109,7 +110,7 @@ async function cancelReader(reader: ReadableStreamDefaultReader<Uint8Array>): Pr
   try {
     await reader.cancel();
   } catch {
-    // Cancellation rejection still settles ownership.
+    // A failed cancellation attempt must not replace the read outcome.
   }
 }
 
@@ -117,6 +118,6 @@ async function cancelBody(response: Response): Promise<void> {
   try {
     await response.body?.cancel();
   } catch {
-    // Cancellation rejection still settles ownership.
+    // A failed cancellation attempt must not replace the read outcome.
   }
 }

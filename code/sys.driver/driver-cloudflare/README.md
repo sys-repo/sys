@@ -34,12 +34,22 @@ object exists.
 
 ## Application read routes
 
-`R2.ReadRoute.create` serves selected objects without making the bucket public. It returns a
-`Request → Promise<Response>` handler; the application owns the server and caller policy.
+`R2.ReadRoute` serves selected objects without making the bucket public. Its handlers have the shape
+`Request → Promise<Response>`; the application owns the server, routes, and authorization policy.
 
-For an `@sys/driver-vite` application, upload the contents of `dist/` without changing their
-relative paths. Using the service and bucket above, this map serves one sample build at `/` from
-objects stored under `sample/`:
+Choose a constructor:
+
+- `create` takes an explicit path-to-object map and returns a handler. Invalid configuration throws.
+- `fromDist` fetches and verifies a pinned `dist.json`, then runs the route-selection callback. It
+  returns a `ready` result containing a handler, or a failure result.
+
+Both require a bucket with `presignGet` support and the private S3 origin from `service.storageUrl`,
+not the bucket's public `readOrigin`. Signed URLs stay server-side: callers receive bytes, not
+download redirects.
+
+### Explicit routes
+
+Using the service and bucket above, map application paths to complete object keys:
 
 ```ts
 const handler = R2.ReadRoute.create({
@@ -47,10 +57,7 @@ const handler = R2.ReadRoute.create({
   storageOrigin: service.storageUrl,
   routes: {
     '/': 'sample/index.html',
-    '/pkg/-entry.BCez1vdb.js': 'sample/pkg/-entry.BCez1vdb.js',
-    '/pkg/m.Cl5h3wvc.js': 'sample/pkg/m.Cl5h3wvc.js',
-    '/pkg/m.D9-fqq9M.js': 'sample/pkg/m.D9-fqq9M.js',
-    '/pkg/m.Ntdn-fxD.js': 'sample/pkg/m.Ntdn-fxD.js',
+    '/assets/app.js': 'sample/assets/app.js',
   },
   // Deliberately allow anonymous reads of only these mapped objects.
   authorize: () => true,
@@ -58,36 +65,86 @@ const handler = R2.ReadRoute.create({
 });
 ```
 
-Use the exact hashed filenames from your build and map every asset it loads; the handler does not
-discover files automatically. Here `sample/` is an object-key prefix, not a URL mount.
+Here `sample/` is an object-key prefix, not a URL mount. For a built application, preserve its
+relative file paths, use its actual filenames—including hashes—and map every asset it loads. The
+handler does not discover files automatically. See the
+[deployment sample](https://github.com/sys-repo/sys/tree/main/code/sys.driver/driver-cloudflare/-sample/deploy).
+
+### Routes from a pinned Dist manifest
+
+`fromDist` downloads `prefix/dist.json` once, checks its checksum, and validates its metadata before
+constructing a handler. Supply a trusted `DistPin` with the shape `{ 'dist.json': checksum }`: the
+checksum is SHA-256 of the **complete file bytes**, not the manifest's embedded `hash.digest`.
+Obtain the pin independently of this download.
+
+Using that `pin` and the service and bucket above, set separate manifest and response limits:
+
+```ts
+const result = await R2.ReadRoute.fromDist({
+  bucket,
+  storageOrigin: service.storageUrl,
+  prefix: 'sample',
+  pin,
+  manifestLimits: {
+    manifestBytes: 65_536,
+    entries: 256,
+    fileBytes: 1_048_576,
+    totalBytes: 4_194_304,
+  },
+  limits: { maxBytes: 1_048_576, timeout: 5_000, maxConcurrent: 4 },
+  routes: () => ({ '/': 'index.html', '/dist.json': 'dist.json' }),
+  // Deliberately allow anonymous reads of only these mapped objects.
+  authorize: () => true,
+});
+if (result.kind !== 'ready') throw new Error(`Manifest routes refused: ${result.kind}`);
+const handler = result.handler;
+```
+
+The `routes` callback runs once, after verification, with immutable manifest metadata. Return a map
+from URL paths to filenames in `dist.hash.parts`, without prepending `prefix`. You may also route
+`dist.json`. Use `prefix: ''` for the bucket root.
+
+The callback must be synchronous and IO-free, returning a plain data map. Accessors and async
+results are refused; one invalid entry rejects the entire map. The
+[public contracts](./src/m.r2/t.ts) specify callback-result and signal handling in full.
+
+Construction does not invoke `authorize`; each later mapped request authorizes before signing. Only
+`ready` contains a handler. Refusals are `invalid-input`, `read-refused`, `manifest-refused`,
+`policy-refused`, `cancelled`, or `timeout`, with no provider or callback details.
+
+An optional native `AbortSignal` cancels construction, not the returned handler. During
+construction, `limits.timeout` covers signing and reading the manifest, not manifest verification or
+route selection. The call can return on cancellation or timeout before pending work and cleanup
+finish.
+
+These checks do not establish who produced the manifest or whether its listed files exist. The
+handler does not compare served file bytes with the manifest's file hashes. An explicitly routed
+`dist.json` is fetched again, not cached.
+
+### Authorization and read limits
 
 The authorization callback receives the request, selected object key, and a signal for cancellation
 or timeout. Only `true` permits storage work. Identity checks belong to the application.
 
-Paths match the parsed `Request` URL, not its original wire spelling. Encode each segment with
-`encodeURIComponent`; query strings and alternate encodings are refused. `/` requires an explicit
-mapping, and missing assets never fall back to HTML. Requests select a mapped key; they cannot
-supply one.
+Requests can access only mapped objects. `/` needs an explicit mapping; missing assets never fall
+back to HTML. Paths must use the encoding described in
+[path matching](./src/m.r2/README.md#path-matching).
 
-The bucket must support `presignGet`. Signed URLs stay server-side: the caller receives bytes, not a
-download redirect.
+GET and HEAD share the same bounded, buffered storage GET; HEAD still reads the object but omits the
+response body. Responses use `no-store` and `nosniff`, without provider headers or error details.
+See the [HTTP contract](./src/m.r2/README.md#storage-requests-and-responses) for response behavior.
 
-GET and HEAD share the same bounded, buffered read; HEAD omits the body. Responses use `no-store`
-and `nosniff`. Provider headers and error details are not forwarded. Range requests are refused;
-conditional headers do not produce a 304 response.
-
-### Read limits
-
-Set all three limits for each handler:
+Set all three limits for each handler as positive safe integers:
 
 | Limit           | Meaning                                                        |
 | --------------- | -------------------------------------------------------------- |
 | `maxBytes`      | Maximum decoded bytes per object                               |
-| `timeout`       | Milliseconds from admission through response creation          |
+| `timeout`       | Milliseconds from request admission through response creation  |
 | `maxConcurrent` | Maximum active operations, including authorization and signing |
 
-Excess requests are refused, not queued. Timeout or cancellation does not release a slot while work
-or cleanup remains pending. A dependency that never settles can exhaust capacity.
+The timeout ceiling is seven days. Excess requests are refused, not queued. Timeout or cancellation
+does not release a slot while work or cleanup remains pending; a dependency that never settles can
+exhaust capacity.
 
 These limits do not cap deployment-wide traffic, spending, or total memory. Allow headroom for
 transport buffers, byte copies, and responses retained by consumers.
@@ -121,20 +178,14 @@ try {
 Files policy denies operations unless allowed. It governs the Files interface, not direct calls to
 `bucket`; R2 credentials remain responsible for provider access.
 
-### Files enumeration limits
-
 List and manifest scan the whole backing prefix before filtering, sorting, and paging. Each result
-page rebuilds that index: a cursor is neither a provider continuation nor a snapshot. Small result
-pages do not make a large namespace cheap; choose a backing prefix whose contents fit the budget.
+page repeats the scan; a cursor is not a snapshot. Small pages do not make a large namespace cheap.
+Choose a prefix whose contents fit the finite per-command
+[enumeration limits](./src/m.r2/m.Files/README.md). Exceeding a limit rejects the command rather
+than returning an incomplete tree.
 
-Every Files command has fresh, finite enumeration limits, separate from result-page and inline
-read/write limits. Exceeding a limit rejects the command rather than returning an incomplete tree.
-Omit `enumeration` for defaults, or supply all five limits within their ceilings. These bound
-logical enumeration and index growth, not total process memory, response buffering, or elapsed time.
-
-Recursive removal completes enumeration and checks every target's policy before the first delete. A
-later provider failure can leave partial deletion; removal is neither atomic nor isolated from
-concurrent writers.
+Recursive removal checks all targets before deleting, but is not atomic: a later provider failure
+can leave partial deletion. Preflight does not isolate removal from concurrent writers.
 
 ## Error diagnostics
 

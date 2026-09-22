@@ -1,7 +1,8 @@
-import { type t, Time } from './common.ts';
+import { Time } from './common.ts';
+import type { RouteOperation } from './t.internal.ts';
 
-/** Abort promptly, but let the worker retain ownership until its cleanup settles. */
-export function createOperation(caller: AbortSignal, timeout: number): t.RouteOperation {
+/** Signal cancellation or timeout; the worker disposes this operation after cleanup. */
+export function createOperation(caller: AbortSignal, timeout: number): RouteOperation {
   const controller = new AbortController();
   const deadline = performance.now() + timeout;
   let status: number | undefined;
