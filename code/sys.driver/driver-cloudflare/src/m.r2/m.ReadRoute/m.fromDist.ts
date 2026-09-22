@@ -1,9 +1,9 @@
 import { Pinned, type t } from './common.ts';
 import type { DistInput, RouteOperation } from './t.internal.ts';
-import { objectKey, snapshotDist, snapshotDistRoutes } from './u.dist.ts';
-import { createHandler } from './u.handler.ts';
-import { createOperation } from './u.operation.ts';
-import { readObject } from './u.read.ts';
+import { objectKey, snapshotDist, snapshotDistRoutes } from './u/u.dist.ts';
+import { createHandler } from './u/u.handler.ts';
+import { createOperation } from './u/u.operation.ts';
+import { readObject } from './u/u.read.ts';
 
 type ManifestRead = { readonly bytes: Uint8Array } | t.R2.ReadRoute.FromDist.Failure;
 

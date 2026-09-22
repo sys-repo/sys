@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
-import { createHandler } from './u.handler.ts';
-import { snapshot } from './u.input.ts';
+import { createHandler } from './u/u.handler.ts';
+import { snapshot } from './u/u.input.ts';
 
 /**
  * Create a GET/HEAD handler for explicitly authorized R2 object reads.

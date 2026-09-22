@@ -1,5 +1,5 @@
-import { Is, Num } from './common.ts';
-import type { RouteOperation, RouteReadConfig } from './t.internal.ts';
+import { Is, Num } from '../common.ts';
+import type { RouteOperation, RouteReadConfig } from '../t.internal.ts';
 import { signedUrl } from './u.input.ts';
 
 type Result = { readonly bytes: Uint8Array } | { readonly status: number };

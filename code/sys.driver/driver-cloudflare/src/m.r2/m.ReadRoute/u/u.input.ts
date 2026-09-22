@@ -1,6 +1,6 @@
-import { Is, Num, Obj, type t } from './common.ts';
-import type { RouteConfig, RouteSource } from './t.internal.ts';
-import { toPresignKey } from '../m.Service/u.presign.ts';
+import { Is, Num, Obj, type t } from '../common.ts';
+import type { RouteConfig, RouteSource } from '../t.internal.ts';
+import { toPresignKey } from '../../m.Service/u.presign.ts';
 
 /** Capture configuration before accepting requests. */
 export function snapshot(options: t.R2.ReadRoute.CreateOptions): RouteConfig {

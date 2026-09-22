@@ -1,5 +1,5 @@
-import { Time } from './common.ts';
-import type { RouteOperation } from './t.internal.ts';
+import { Time } from '../common.ts';
+import type { RouteOperation } from '../t.internal.ts';
 
 /** Signal cancellation or timeout; the worker disposes this operation after cleanup. */
 export function createOperation(caller: AbortSignal, timeout: number): RouteOperation {

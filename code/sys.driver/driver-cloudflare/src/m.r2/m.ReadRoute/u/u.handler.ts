@@ -1,5 +1,5 @@
-import { serveFileBytes, type t } from './common.ts';
-import type { RouteConfig, RouteOperation } from './t.internal.ts';
+import { serveFileBytes, type t } from '../common.ts';
+import type { RouteConfig, RouteOperation } from '../t.internal.ts';
 import { isRoutePath } from './u.input.ts';
 import { createOperation } from './u.operation.ts';
 import { readObject } from './u.read.ts';

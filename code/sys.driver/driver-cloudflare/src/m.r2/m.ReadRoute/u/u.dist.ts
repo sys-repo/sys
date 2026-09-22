@@ -1,6 +1,6 @@
-import { Is, Num, Obj, Pkg, ServerIs, type t } from './common.ts';
-import { toPresignKey } from '../m.Service/u.presign.ts';
-import type { DistInput } from './t.internal.ts';
+import { Is, Num, Obj, Pkg, ServerIs, type t } from '../common.ts';
+import { toPresignKey } from '../../m.Service/u.presign.ts';
+import type { DistInput } from '../t.internal.ts';
 import { isRoutePath, snapshotLimits, snapshotSource } from './u.input.ts';
 
 const NativePromise = Promise;
