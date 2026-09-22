@@ -1,7 +1,7 @@
-import { DIST_LIMITS, selectionFiles, selectionFrom } from '../src/m.app/u.selection.ts';
+import { DIST_BATCH_LIMITS, DIST_LIMITS, selectionFiles } from '../src/m.app/u.selection.ts';
 import { Fs, Pkg, ROOT, type t } from './common.ts';
 
-/** Verify local bytes against the captured pin; never reload metadata or select a new build. */
+/** Verify one audience against its saved manifest pin. */
 export async function selectBuild(
   pin: t.DistPin,
   root = ROOT,
@@ -17,16 +17,20 @@ export async function selectBuild(
   return { ...verified, files, dir, verify };
 }
 
-/** Both projections must match one captured selection before either target may publish. */
-export async function selectPublication(input: t.Selection, root = ROOT) {
-  const selection = selectionFrom(input);
-  const privateBuild = await selectBuild(selection.private, root, 'private');
-  if (privateBuild.kind !== 'verified') {
-    throw new Error(`Sample private Dist refused: ${privateBuild.kind}.`);
+/** Check both local distributions and their filenames before a push. */
+export async function selectPublication(input: t.DistPins<t.Audience>, root = ROOT) {
+  const checked = await Pkg.Dist.Pins.verify({
+    root,
+    selection: input,
+    dirs: { private: 'dist.private', public: 'dist.public' },
+    limits: DIST_LIMITS,
+    batch: DIST_BATCH_LIMITS,
+  });
+  if (checked.kind !== 'verified') {
+    throw new Error(`Sample ${checked.name ?? 'selection'} Dist refused: ${checked.kind}.`);
   }
-  const publicBuild = await selectBuild(selection.public, root, 'public');
-  if (publicBuild.kind !== 'verified') {
-    throw new Error(`Sample public Dist refused: ${publicBuild.kind}.`);
-  }
-  return { private: privateBuild, public: publicBuild } as const;
+  return {
+    private: selectionFiles(checked.evidence.private.dist, 'private'),
+    public: selectionFiles(checked.evidence.public.dist, 'public'),
+  } as const;
 }

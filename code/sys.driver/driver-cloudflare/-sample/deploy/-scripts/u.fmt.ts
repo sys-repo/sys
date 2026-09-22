@@ -1,15 +1,16 @@
 import { Code } from '@sys/cli/fmt/code';
 import { R2 } from '@sys/driver-cloudflare/r2';
 import { c, Fmt, Str, type t, Text } from './common.ts';
+import { BUILD_RECORD_FILENAME } from '../src/m.app/u.selection.ts';
 
 /** Format the selected manifest pins and the next publication command. */
 export function formatBuildSelection(
-  selection: t.Selection,
+  selection: t.DistPins<t.Audience>,
   options: { width?: number } = {},
 ): string {
   const rows = (['public', 'private'] as const).map((audience) => ({
     label: `${audience}:`,
-    checksum: selection[audience]['dist.json'],
+    checksum: selection.pins[audience]['dist.json'],
   }));
   const labelWidth = Text.Width.max(rows.map((row) => row.label));
   const pins = rows.map(({ label, checksum }) =>
@@ -22,14 +23,14 @@ export function formatBuildSelection(
     ${Code.block('deno task push', { indent: 2 })}
   `);
   return Str.builder()
-    .line('Selected dist.selection.json')
+    .line(`Selected ${BUILD_RECORD_FILENAME}`)
     .lines(pins)
     .empty()
     .line(next)
     .toString();
 }
 
-/** Render copyable setup assignments from admitted names, never credential values or errors. */
+/** Format setup instructions from previously validated credential variable names. */
 export function formatMissingCredentials(
   task: t.CredentialTask,
   names: readonly string[],
@@ -58,7 +59,7 @@ export function formatMissingCredentials(
   }, options);
 }
 
-/** Render only R2-owned diagnostic fields, never an upstream error message or stack. */
+/** Format an R2 diagnostic without provider messages or stack traces. */
 export function formatR2Failure(
   task: t.CredentialTask,
   detail: t.R2.Error.Diagnostic,
@@ -82,7 +83,7 @@ export function formatR2Failure(
   }, options);
 }
 
-/** Shared failure layout; callers supply the admitted content and recovery instruction. */
+/** Render the task error, recovery advice, and rerun command. */
 function formatFailure(
   task: t.CredentialTask,
   content: {

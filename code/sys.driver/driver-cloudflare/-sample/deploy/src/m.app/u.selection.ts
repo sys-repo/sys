@@ -1,8 +1,11 @@
 import { Is, Obj, Pkg, type t } from './common.ts';
 
-/** Fixed sample budgets, not deployment-wide traffic or memory limits. */
+/** Sample-owned build record, outside both distribution roots. */
+export const BUILD_RECORD_FILENAME = 'dist.pins.json';
+
+/** Response size, deadline, and concurrent-request limits. */
 export const LIMITS = Object.freeze({ maxBytes: 1_048_576, timeout: 5_000, maxConcurrent: 4 });
-/** Finite admission bounds for the production build and each projection. */
+/** Verification limits for each distribution. */
 export const DIST_LIMITS: Readonly<t.FsPkg.Dist.Verify.Limits> = Object.freeze({
   manifestBytes: 65_536,
   entries: 256,
@@ -10,7 +13,13 @@ export const DIST_LIMITS: Readonly<t.FsPkg.Dist.Verify.Limits> = Object.freeze({
   totalBytes: 4_194_304,
 });
 
-/** Capture configuration, not secrets. Public URL and object prefix are one mapping. */
+/** Combined limit for the private and public distributions. */
+export const DIST_BATCH_LIMITS: Readonly<t.FsPkg.Dist.BatchLimits> = Object.freeze({
+  inventories: 2,
+  totalBytes: 4_194_304,
+});
+
+/** Validate and copy configuration, including the public URL-to-prefix mapping. */
 export function configFrom(input: unknown): t.Config {
   if (!hasKeys(input, ['accountId', 'targets', 'publicAssetBase', 'credentials', 'limits'])) {
     throw new Error('Invalid sample configuration.');
@@ -41,31 +50,47 @@ export function configFrom(input: unknown): t.Config {
   });
 }
 
-/** Strict sample wrapper; canonical Dist pins remain owned by Pkg. */
-export function selectionFrom(input: unknown): t.Selection {
-  if (
-    !hasKeys(input, ['private', 'public', 'publicAssetBase']) ||
-    !Pkg.Is.distPin(input.private) || !Pkg.Is.distPin(input.public) ||
-    !isPublicBase(input.publicAssetBase)
-  ) throw new Error('Invalid sample build selection.');
-  return Obj.deepFreeze({
-    private: { 'dist.json': input.private['dist.json'] },
-    public: { 'dist.json': input.public['dist.json'] },
-    publicAssetBase: input.publicAssetBase,
-  });
-}
-
-/** Own both targets and pins before credential callbacks or storage work. */
-export function snapshotInputs(config: unknown, selection: unknown): t.AppInputs {
+/** Capture configuration, named pins, and the matching recorded build base before IO. */
+export function snapshotInputs(config: unknown, buildRecord: unknown): t.AppInputs {
   const capturedConfig = configFrom(config);
-  const capturedSelection = selectionFrom(selection);
-  if (capturedConfig.publicAssetBase !== capturedSelection.publicAssetBase) {
-    throw new Error('Sample public asset base changed. Rebuild before publication or serving.');
+  try {
+    if (
+      !hasKeys(buildRecord, ['selection', 'publicAssetBase']) ||
+      Object.getPrototypeOf(buildRecord) !== Object.prototype ||
+      Reflect.ownKeys(buildRecord).length !== 2
+    ) throw new Error();
+    const fields = Object.getOwnPropertyDescriptors(buildRecord);
+    if (
+      !Obj.hasOwn(fields.selection, 'value') || !Obj.hasOwn(fields.publicAssetBase, 'value')
+    ) throw new Error();
+    const publicAssetBase = fields.publicAssetBase.value;
+    if (!isPublicBase(publicAssetBase) || publicAssetBase !== capturedConfig.publicAssetBase) {
+      throw new Error();
+    }
+    const selection = Pkg.Dist.Pins.capture(fields.selection.value, {
+      names: { private: true, public: true },
+    });
+    return Object.freeze({
+      config: capturedConfig,
+      buildRecord: Object.freeze({ selection, publicAssetBase }),
+    });
+  } catch {
+    throw new Error(
+      'Invalid sample build record. Run deno task build with the current public asset base.',
+    );
   }
-  return Obj.deepFreeze({ config: capturedConfig, selection: capturedSelection });
 }
 
-/** Apply output-role policy to an admitted manifest, including `dist.json` once. */
+/** Put `index.html` in the private distribution and frontend assets in the public one. */
+export function partitionBuild(dist: t.DeepReadonly<t.DistPkg>) {
+  const files = selectionFiles(dist, 'build');
+  return {
+    private: ['index.html'],
+    public: files.filter((path) => path !== 'dist.json' && path !== 'index.html'),
+  };
+}
+
+/** Check filenames for the requested role and include `dist.json` in the result. */
 export function selectionFiles(
   dist: t.DeepReadonly<t.DistPkg>,
   role: 'build' | t.Audience = 'private',
@@ -83,7 +108,7 @@ export function selectionFiles(
   return Object.freeze([...payloads, 'dist.json'].sort());
 }
 
-/** Bind only the admitted shell inventory; there are no public-asset relay fallbacks. */
+/** Map selected files to private storage keys; `/` serves `index.html`. */
 export function routesFor(
   config: t.Config,
   files: readonly string[],
@@ -94,7 +119,7 @@ export function routesFor(
   return Object.freeze(routes);
 }
 
-/** Public bases are literal HTTPS directory URLs, never signed or origin-relative URLs. */
+/** Accept an HTTPS directory URL without credentials, query parameters, or a fragment. */
 export function isPublicBase(value: unknown): value is string {
   if (!Is.str(value)) return false;
   try {
@@ -106,7 +131,7 @@ export function isPublicBase(value: unknown): value is string {
   }
 }
 
-/** The example admits ordinary Vite filenames, not a general object-key language. */
+/** Restrict filenames to simple ASCII path segments. */
 function isPath(value: unknown): value is string {
   return Is.str(value) && value.length <= 512 &&
     /^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)*$/.test(value) &&
@@ -114,7 +139,7 @@ function isPath(value: unknown): value is string {
 }
 
 function isPublicAsset(path: string): boolean {
-  // Extra documents, source files, maps, keys, and worker entrypoints need an explicit new role.
+  // Worker scripts require a separate delivery route.
   return /\.(?:js|css|json|svg|png|jpg|jpeg|gif|webp|avif|ico|woff|woff2|ttf|otf)$/.test(path) &&
     !/(?:^|\/)(?:sw|worker|service-worker)(?:[.-]|$)/i.test(path);
 }

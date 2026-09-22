@@ -4,7 +4,7 @@ import { Fs, Obj, Pkg } from './common.ts';
 
 type Assets = Record<string, string | Uint8Array>;
 
-/** Real projection/selection owners; only the Vite invocation is synthetic. */
+/** Build a real Dist fixture with a stub Vite build. */
 export async function localFixture() {
   const temp = await Fs.makeTempDir({ prefix: 'sample-r2-build-' });
   try {
@@ -17,22 +17,22 @@ export async function localFixture() {
       for (const [path, value] of Obj.entries(files)) {
         await Fs.write(dir.join('dist', path), value, { throw: true });
       }
-      await Pkg.Dist.compute({
+      const computed = await Pkg.Dist.compute({
         dir: dir.join('dist'),
         pkg: { name: '@test/r2', version: '0.0.0' },
         save: true,
       });
-      return { ok: true, toString: () => 'fixture Vite build' };
+      return { ok: true, manifest: computed.manifest, toString: () => 'fixture Vite build' };
     };
     const build = async (html = 'first', assets: Assets = {}) => {
       const result = await buildSample(config, dir.absolute, () => emit(html, assets));
-      return result.selection;
+      return result.buildRecord;
     };
-    const selection = await build();
+    const buildRecord = await build();
     return {
       dir,
       config,
-      selection,
+      buildRecord,
       emit,
       build,
       async [Symbol.asyncDispose]() {

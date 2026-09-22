@@ -108,8 +108,15 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
     ];
     for (const pin of pins) {
       await expectError(
-        () => createApp({ ...f, selection: { ...f.selection, private: pin as t.DistPin } }),
-        'Invalid sample build selection.',
+        () =>
+          createApp({
+            ...f,
+            buildRecord: {
+              ...f.buildRecord,
+              selection: { pins: { ...f.buildRecord.selection.pins, private: pin as t.DistPin } },
+            },
+          }),
+        'Invalid sample build record.',
       );
     }
     await expectError(() => createApp({ ...f, bucket: { name: 'other' } }), 'bucket');
@@ -136,7 +143,10 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
     };
     const app = await createApp({
       config,
-      selection: { ...f.selection, private: pin },
+      buildRecord: {
+        ...f.buildRecord,
+        selection: { pins: { ...f.buildRecord.selection.pins, private: pin } },
+      },
       bucket: f.bucket,
     });
     f.content.set('dist.json', encoder.encode('{}'));
@@ -148,7 +158,27 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
     expect(f.signed).to.eql(['sample/ui/dist.json', 'sample/ui/index.html']);
   });
 
-  it('credential callbacks → entry retains target, pin, and credential names', async () => {
+  it('changed recorded base → no credential lookup or storage at either startup boundary', async () => {
+    using f = await remoteFixture();
+    const inputs = {
+      ...f,
+      buildRecord: { ...f.buildRecord, publicAssetBase: 'https://other.example.test/sample/ui/' },
+    };
+    const names: string[] = [];
+    await expectError(() =>
+      appFrom(inputs, {
+        get(name) {
+          names.push(name);
+          return 'fixture-only-credential';
+        },
+      }), 'Run deno task build');
+    await expectError(() => createApp(inputs), 'Run deno task build');
+    expect(names).to.eql([]);
+    expect(f.signed).to.eql([]);
+    expect(f.fetched).to.eql([]);
+  });
+
+  it('credential callbacks → entry retains target, base, pins, and credential names', async () => {
     using f = await remoteFixture();
     const config = {
       ...f.config,
@@ -156,12 +186,19 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
       credentials: { ...f.config.credentials, serve: { ...f.config.credentials.serve } },
     };
     const pin = { ...f.pin };
+    const buildRecord = {
+      ...f.buildRecord,
+      selection: { pins: { ...f.buildRecord.selection.pins, private: pin } },
+    };
     const names: string[] = [];
-    const app = await appFrom({ config, selection: { ...f.selection, private: pin } }, {
+    const app = await appFrom({ config, buildRecord }, {
       get(name) {
         names.push(name);
         config.targets.private.prefix = 'other/ui';
         config.credentials.serve.secretAccessKey = 'OTHER_SECRET';
+        config.publicAssetBase = 'https://other.example.test/sample/ui/';
+        buildRecord.publicAssetBase = config.publicAssetBase;
+        buildRecord.selection.pins.public['dist.json'] = 'invalid after capture';
         pin['dist.json'] = Hash.sha256('other');
         return 'fixture-only-credential';
       },

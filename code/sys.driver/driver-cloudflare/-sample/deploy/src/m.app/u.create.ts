@@ -4,10 +4,10 @@ import { Pkg, type t } from './common.ts';
 import { DIST_LIMITS, routesFor, selectionFiles, snapshotInputs } from './u.selection.ts';
 
 /**
- * Admit the remote manifest before constructing any application route or API.
+ * Verify the private manifest before creating the application's routes.
  */
 export async function createApp(options: t.AppOptions): Promise<t.HttpServer.App> {
-  const { config, selection } = snapshotInputs(options.config, options.selection);
+  const { config, buildRecord } = snapshotInputs(options.config, options.buildRecord);
   const target = config.targets.private;
   const source = options.bucket;
   const bucket = Object.freeze({
@@ -38,7 +38,7 @@ export async function createApp(options: t.AppOptions): Promise<t.HttpServer.App
   const bytes = new Uint8Array(await response.arrayBuffer());
   const admitted = await Pkg.Dist.Pinned.admitManifest({
     bytes,
-    integrity: selection.private['dist.json'],
+    integrity: buildRecord.selection.pins.private['dist.json'],
     limits: DIST_LIMITS,
     until: signal,
   });
@@ -54,7 +54,7 @@ export async function createApp(options: t.AppOptions): Promise<t.HttpServer.App
     limits: config.limits,
   });
 
-  // Keep routing and mount stripping literal; Hono's default path reader decodes aliases.
+  // Do not decode percent-encoded paths before routing or stripping the mount prefix.
   const app = new HttpServer.Hono({ getPath: (req) => new URL(req.url).pathname });
   app.use(responseHeaders);
   app.all('/', readOnly, redirectUi);

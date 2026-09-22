@@ -22,5 +22,5 @@ const result = await buildSample(config, ROOT, async ({ root, publicAssetBase })
 });
 console.info(result.build.toString());
 console.info();
-console.info(formatBuildSelection(result.selection));
+console.info(formatBuildSelection(result.buildRecord.selection));
 console.info();

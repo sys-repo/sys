@@ -65,13 +65,18 @@ describe('R2 deployment sample: publication admission', () => {
   it('different manifest pins or missing partner output → no automatic repin or one-target fallback', async () => {
     for (const audience of audiences) {
       await using f = await fixture();
-      await Fs.writeJson(f.dir.join('dist.selection.json'), {
-        ...f.selection,
-        [audience]: { 'dist.json': `sha256-${'0'.repeat(64)}` },
+      await Fs.writeJson(f.dir.join('dist.pins.json'), {
+        ...f.buildRecord,
+        selection: {
+          pins: {
+            ...f.buildRecord.selection.pins,
+            [audience]: { 'dist.json': `sha256-${'0'.repeat(64)}` },
+          },
+        },
       }, { throw: true });
       await expectError(() => pushSample(audience, f.dir.absolute, f.publish), 'Dist refused:');
       expect(f.calls).to.eql([]);
-      await Fs.writeJson(f.dir.join('dist.selection.json'), f.selection, { throw: true });
+      await Fs.writeJson(f.dir.join('dist.pins.json'), f.buildRecord, { throw: true });
       await Fs.remove(f.dir.join(`dist.${audience === 'private' ? 'public' : 'private'}`));
       await expectError(
         () => pushSample(audience, f.dir.absolute, f.publish),
@@ -85,12 +90,15 @@ describe('R2 deployment sample: publication admission', () => {
     for (const audience of audiences) {
       await using f = await fixture();
       const variants = [
-        { private: f.selection.private },
-        { ...f.selection, files: ['index.html', 'dist.json'] },
-        { ...f.selection, publicAssetBase: 'https://other.example.test/sample/ui/' },
+        {
+          ...f.buildRecord,
+          selection: { pins: { private: f.buildRecord.selection.pins.private } },
+        },
+        { ...f.buildRecord, files: ['index.html', 'dist.json'] },
+        { ...f.buildRecord, publicAssetBase: 'https://other.example.test/sample/ui/' },
       ];
       for (const selection of variants) {
-        await Fs.writeJson(f.dir.join('dist.selection.json'), selection, { throw: true });
+        await Fs.writeJson(f.dir.join('dist.pins.json'), selection, { throw: true });
         await expectError(() => pushSample(audience, f.dir.absolute, f.publish));
         expect(f.calls).to.eql([]);
       }
@@ -106,9 +114,15 @@ describe('R2 deployment sample: publication admission', () => {
 
   it('selection absent → a legacy pin is not a fallback', async () => {
     await using f = await fixture();
-    await Fs.writeJson(f.dir.join('dist.pin.json'), f.selection.private, { throw: true });
-    await Fs.remove(f.dir.join('dist.selection.json'));
-    await expectError(() => pushSample('private', f.dir.absolute, f.publish));
+    await Fs.writeJson(f.dir.join('dist.pin.json'), f.buildRecord.selection.pins.private, {
+      throw: true,
+    });
+    await Fs.writeJson(f.dir.join('dist.selection.json'), f.buildRecord, { throw: true });
+    await Fs.remove(f.dir.join('dist.pins.json'));
+    await expectError(
+      () => pushSample('private', f.dir.absolute, f.publish),
+      'Run deno task build',
+    );
     expect(f.calls).to.eql([]);
   });
 
@@ -126,7 +140,7 @@ describe('R2 deployment sample: publication admission', () => {
     await using f = await fixture();
     await pushSample('public', f.dir.absolute, async (args) => {
       await Fs.writeJson(f.dir.join('r2.config.json'), {}, { throw: true });
-      await Fs.writeJson(f.dir.join('dist.selection.json'), {}, { throw: true });
+      await Fs.writeJson(f.dir.join('dist.pins.json'), {}, { throw: true });
       return await f.publish(args);
     });
     expect(f.calls.length).to.eql(1);

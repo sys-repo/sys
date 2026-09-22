@@ -12,13 +12,13 @@ type RefusedGet =
 
 const ORIGIN = 'http://127.0.0.1:8080';
 
-/** Select one local build and retain its verified expectations before any live work. */
+/** Verify and snapshot the local private files for comparison with HTTP responses. */
 export async function prepareProof(root = ROOT) {
   const inputs = await readInputs(root);
-  const selected = await selectBuild(inputs.selection.private, root);
+  const selected = await selectBuild(inputs.buildRecord.selection.pins.private, root);
   require(selected.kind === 'verified', `Local Dist refused: ${selected.kind}.`);
   const { files, dir, evidence, verify } = selected;
-  const integrity = inputs.selection.private['dist.json'];
+  const integrity = inputs.buildRecord.selection.pins.private['dist.json'];
 
   const expected = new Map<string, Uint8Array>();
   for (const path of files) {
@@ -42,7 +42,7 @@ export async function prepareProof(root = ROOT) {
   return { inputs, files, expected, verify };
 }
 
-/** Read-only proof of the selected local build. Never builds, uploads, or retries. */
+/** Check live private HTTP responses against the selected local files. */
 export async function prove(options: t.ProofOptions = {}) {
   const root = options.root ?? ROOT;
   const log = options.log ?? console.info;
@@ -57,12 +57,12 @@ export async function prove(options: t.ProofOptions = {}) {
   }
 
   const { inputs, files, expected, verify } = await prepareProof(root);
-  const { config, selection } = inputs;
-  const integrity = selection.private['dist.json'];
+  const { config, buildRecord } = inputs;
+  const integrity = buildRecord.selection.pins.private['dist.json'];
   const target = { accountId: config.accountId, ...config.targets.private };
   const maxRequests = 2 * expected.size + 6;
   const maxStorageReads = 2 * expected.size + 2;
-  // Finish the announcement before credentials, storage, or listener ownership is acquired.
+  // Wait for the announcement before reading credentials or contacting storage.
   await report({
     result: 'selected',
     scope: 'private-shell',
@@ -103,7 +103,7 @@ export async function prove(options: t.ProofOptions = {}) {
     bootstrapAttempts++;
     const app = await appFrom(inputs, env);
     server = start(app);
-    // Observe rejection immediately; retain the outcome for cleanup even if close later rejects.
+    // Handle early rejection now; inspect the result after closing the server.
     finished = server.finished.then(
       () => ({ status: 'fulfilled', value: undefined }),
       (reason) => ({ status: 'rejected', reason }),
@@ -172,7 +172,7 @@ export async function prove(options: t.ProofOptions = {}) {
         await res.body?.cancel();
       }
     }
-    // Keep the negative probe outside the admitted inventory and storage-read ceiling.
+    // Choose a path outside the manifest; a 404 must not require an R2 read.
     let missingPath = 'unselected-proof-file.txt';
     while (expected.has(missingPath)) missingPath = `_${missingPath}`;
     requests++;
@@ -197,7 +197,7 @@ export async function prove(options: t.ProofOptions = {}) {
     });
   } catch (error) {
     failures.push(error);
-    // Do not report a broken reporter back through itself or lose an earlier proof failure.
+    // If logging failed, preserve that error instead of calling the logger again.
     if (!reportingFailed) {
       try {
         await report({

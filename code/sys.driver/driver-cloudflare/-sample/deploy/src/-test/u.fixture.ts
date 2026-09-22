@@ -32,9 +32,10 @@ export async function remoteFixture() {
   content.set('dist.json', manifest);
   const pin = { 'dist.json': Hash.sha256(manifest) };
   const config = fixtureConfig();
-  const selection = {
-    private: pin,
-    public: { 'dist.json': Hash.sha256('fixture-public-manifest') },
+  const buildRecord = {
+    selection: {
+      pins: { private: pin, public: { 'dist.json': Hash.sha256('fixture-public-manifest') } },
+    },
     publicAssetBase: config.publicAssetBase,
   };
   // Even if these public keys also exist privately, Deno must never relay them.
@@ -55,7 +56,7 @@ export async function remoteFixture() {
   const fixture = {
     config,
     pin,
-    selection,
+    buildRecord,
     dist,
     manifest,
     content,

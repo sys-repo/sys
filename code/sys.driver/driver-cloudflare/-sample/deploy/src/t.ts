@@ -1,11 +1,11 @@
 import type { t } from './common.ts';
 
-/** A separately published audience, not a separate application. */
+/** The private HTML shell or public frontend assets. */
 export type Audience = 'private' | 'public';
 export type Target = { readonly bucket: string; readonly prefix: string };
 export type CredentialNames = { readonly accessKeyId: string; readonly secretAccessKey: string };
 
-/** Two storage targets, browser URL mapping, and credentials named by operation. */
+/** Bucket locations, public asset URL, credential variable names, and response limits. */
 export type Config = {
   readonly accountId: string;
   readonly targets: Readonly<Record<Audience, Target>>;
@@ -18,23 +18,22 @@ export type Config = {
   readonly limits: Readonly<t.R2.ReadRoute.Limits>;
 };
 
-/** One build's two exact manifests and the public base embedded in its bytes. */
-export type Selection = {
-  readonly private: t.DistPin;
-  readonly public: t.DistPin;
+/** Shared manifest pins and the sample's recorded build base. */
+export type BuildRecord = {
+  readonly selection: t.DistPins<Audience>;
   readonly publicAssetBase: string;
 };
 
 /** Credential lookup shared by dotenv readers and the hosted process environment. */
 export type EnvReader = Pick<typeof Deno.env, 'get'>;
 
-/** Captured configuration and build identity for one application instance. */
+/** Configuration and build record for one application instance. */
 export type AppInputs = {
   readonly config: Config;
-  readonly selection: Selection;
+  readonly buildRecord: BuildRecord;
 };
 
-/** Application inputs; the signing bucket is the storage test seam. */
+/** Application inputs and the bucket used to sign private reads. */
 export type AppOptions = AppInputs & {
   readonly bucket: Pick<t.R2.Bucket, 'name' | 'presignGet'>;
   readonly signal?: AbortSignal;

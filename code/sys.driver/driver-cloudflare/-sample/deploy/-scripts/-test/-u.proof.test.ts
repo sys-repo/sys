@@ -6,15 +6,40 @@ import { describe, Err, expect, expectError, Fs, it, Json, Obj, type t, Time } f
 import { localFixture as fixture } from './u.fixture.ts';
 
 describe('R2 deployment sample: proof selection', () => {
+  it('old-file-only input → rebuild guidance before credential or live-work callbacks', async () => {
+    await using f = await fixture();
+    await Fs.writeJson(f.dir.join('dist.selection.json'), f.buildRecord, { throw: true });
+    await Fs.remove(f.dir.join('dist.pins.json'));
+    const calls: string[] = [];
+    await expectError(() =>
+      prove({
+        root: f.dir.absolute,
+        env: {
+          get(name) {
+            calls.push(name);
+            throw new Error('Unexpected credential read.');
+          },
+        },
+        start() {
+          calls.push('start');
+          throw new Error('Unexpected listener start.');
+        },
+        log() {
+          calls.push('log');
+        },
+      }), 'Missing sample build record. Run deno task build');
+    expect(calls).to.eql([]);
+  });
+
   it('new build → new selection without broadening the private proof inventory', async () => {
     await using f = await fixture();
     const first = await prepareProof(f.dir.absolute);
     const rebuilt = await f.build('second', { 'extra.svg': '<svg />' });
     const second = await prepareProof(f.dir.absolute);
     expect(first.inputs.config).to.eql(f.config);
-    expect(first.inputs.selection).to.eql(f.selection);
-    expect(second.inputs.selection).to.eql(rebuilt);
-    expect(second.inputs.selection).not.to.eql(first.inputs.selection);
+    expect(first.inputs.buildRecord).to.eql(f.buildRecord);
+    expect(second.inputs.buildRecord).to.eql(rebuilt);
+    expect(second.inputs.buildRecord).not.to.eql(first.inputs.buildRecord);
     expect([...first.expected.keys()]).to.eql(['dist.json', 'index.html']);
     expect([...second.expected.keys()]).to.eql(['dist.json', 'index.html']);
     expect(new TextDecoder().decode(first.expected.get('index.html'))).to.eql('first');
@@ -26,17 +51,17 @@ describe('R2 deployment sample: proof selection', () => {
   it('later selection/config edits → rechecks retain captured inputs and bytes', async () => {
     await using f = await fixture();
     const selected = await prepareProof(f.dir.absolute);
-    await Fs.writeJson(f.dir.join('dist.selection.json'), {}, { throw: true });
+    await Fs.writeJson(f.dir.join('dist.pins.json'), {}, { throw: true });
     await Fs.writeJson(f.dir.join('r2.config.json'), {}, { throw: true });
     expect((await selected.verify()).kind).to.eql('verified');
-    expect(selected.inputs).to.eql({ config: f.config, selection: f.selection });
+    expect(selected.inputs).to.eql({ config: f.config, buildRecord: f.buildRecord });
     expect(selected.files).to.eql(['dist.json', 'index.html']);
   });
 
   it('rebuilt shell with the old selection → refusal, not automatic repinning', async () => {
     await using f = await fixture();
     await f.build('second');
-    await Fs.writeJson(f.dir.join('dist.selection.json'), f.selection, { throw: true });
+    await Fs.writeJson(f.dir.join('dist.pins.json'), f.buildRecord, { throw: true });
     await expectError(
       () => prepareProof(f.dir.absolute),
       'Local Dist refused: integrity-mismatch.',
@@ -51,11 +76,16 @@ describe('R2 deployment sample: proof selection', () => {
 
   it('persisted inventory fields → selection refusal', async () => {
     await using f = await fixture();
-    await Fs.writeJson(f.dir.join('dist.selection.json'), {
-      ...f.selection,
-      private: { ...f.selection.private, files: ['index.html'] },
+    await Fs.writeJson(f.dir.join('dist.pins.json'), {
+      ...f.buildRecord,
+      selection: {
+        pins: {
+          ...f.buildRecord.selection.pins,
+          private: { ...f.buildRecord.selection.pins.private, files: ['index.html'] },
+        },
+      },
     }, { throw: true });
-    await expectError(() => prepareProof(f.dir.absolute), 'Invalid sample build selection.');
+    await expectError(() => prepareProof(f.dir.absolute), 'Invalid sample build record.');
   });
 });
 
@@ -102,7 +132,7 @@ describe('R2 deployment sample: bootstrap-inclusive private delivery proof', () 
         f.options.log?.(text);
         if (Json.parse<{ result?: string }>(text)?.result !== 'selected') return;
         await Fs.writeJson(f.dir.join('r2.config.json'), {}, { throw: true });
-        await Fs.writeJson(f.dir.join('dist.selection.json'), {}, { throw: true });
+        await Fs.writeJson(f.dir.join('dist.pins.json'), {}, { throw: true });
         replaced = true;
         await release.promise;
       },
@@ -121,7 +151,7 @@ describe('R2 deployment sample: bootstrap-inclusive private delivery proof', () 
     }
     expect(f.events.at(-1)).to.include({
       result: 'verified',
-      integrity: f.selection.private['dist.json'],
+      integrity: f.buildRecord.selection.pins.private['dist.json'],
     });
     expect(f.events.at(-1)?.target).to.eql({
       accountId: f.config.accountId,
@@ -350,7 +380,7 @@ describe('R2 deployment sample: proof cleanup', () => {
   }
 });
 
-/** Real entry, signer, app, and Fetch client; only transport and listener ownership are fixtures. */
+/** Exercise the real app, signer, and client with an in-memory server and storage transport. */
 async function deliveryFixture() {
   const f = await fixture();
   try {

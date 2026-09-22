@@ -98,7 +98,7 @@ describe('R2 deployment sample: private-read setup', () => {
         throw new Error('Setup failure must not start a listener.');
       };
       const run = task === 'serve'
-        ? () => appFrom({ config: f.config, selection: f.selection }, env)
+        ? () => appFrom({ config: f.config, buildRecord: f.buildRecord }, env)
         : () => prove({ root: f.dir.absolute, env, log: () => {}, start });
       const logs: string[] = [];
       expect(await runTask(task, run, (text) => logs.push(text))).to.eql(1);

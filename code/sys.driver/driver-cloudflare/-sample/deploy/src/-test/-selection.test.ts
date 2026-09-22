@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it } from '../-test.ts';
-import { configFrom, selectionFrom, snapshotInputs } from '../m.app/u.selection.ts';
+import { configFrom, snapshotInputs } from '../m.app/u.selection.ts';
 import { fixtureConfig } from './u.config.ts';
 
 describe('R2 deployment sample: target configuration', () => {
@@ -46,48 +46,84 @@ describe('R2 deployment sample: target configuration', () => {
 });
 
 describe('R2 deployment sample: build selection', () => {
-  it('caller mutation → captured pins, public base, and configuration remain unchanged', () => {
+  it('sample build record → shared pins and recorded base captured together', () => {
     const config = fixtureConfig();
-    const selection = {
-      private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
-      public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+    const pin = { 'dist.json': `sha256-${'a'.repeat(64)}` };
+    const buildRecord = {
+      selection: { pins: { private: pin, public: pin } },
       publicAssetBase: config.publicAssetBase,
     };
-    const captured = snapshotInputs(config, selection);
+    expect(snapshotInputs(config, buildRecord)).to.eql({ config, buildRecord });
+  });
+
+  it('caller mutation → captured pins, public base, and configuration remain unchanged', () => {
+    const config = fixtureConfig();
+    const buildRecord = {
+      selection: {
+        pins: {
+          private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
+          public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+        },
+      },
+      publicAssetBase: config.publicAssetBase,
+    };
+    const captured = snapshotInputs(config, buildRecord);
     config.targets.public.prefix = 'other';
+    config.publicAssetBase = 'https://other.example.test/other/';
     config.credentials.serve.secretAccessKey = 'OTHER_SECRET';
-    selection.private['dist.json'] = `sha256-${'c'.repeat(64)}`;
-    selection.public['dist.json'] = `sha256-${'d'.repeat(64)}`;
-    selection.publicAssetBase = 'https://other.example.test/other/';
+    buildRecord.selection.pins.private['dist.json'] = `sha256-${'c'.repeat(64)}`;
+    buildRecord.selection.pins.public['dist.json'] = `sha256-${'d'.repeat(64)}`;
+    buildRecord.publicAssetBase = 'https://other.example.test/other/';
     expect(captured.config).to.eql(fixtureConfig());
-    expect(captured.selection).to.eql({
-      private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
-      public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+    expect(captured.buildRecord).to.eql({
+      selection: {
+        pins: {
+          private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
+          public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+        },
+      },
       publicAssetBase: fixtureConfig().publicAssetBase,
     });
-    expect(Object.isFrozen(captured.selection.private)).to.eql(true);
+    expect(Object.isFrozen(captured.buildRecord)).to.eql(true);
+    expect(Object.isFrozen(captured.buildRecord.selection.pins.private)).to.eql(true);
     expect(Object.isFrozen(captured.config.credentials.serve)).to.eql(true);
   });
 
-  it('refuses partial wrappers, inventories, noncanonical pins, and configured-base changes', () => {
+  it('old formats, missing or extra fields, or changed base → explicit rebuild guidance', () => {
     const config = fixtureConfig();
     const pin = { 'dist.json': `sha256-${'a'.repeat(64)}` };
-    const selection = { private: pin, public: pin, publicAssetBase: config.publicAssetBase };
+    const selection = { pins: { private: pin, public: pin } };
+    const buildRecord = { selection, publicAssetBase: config.publicAssetBase };
     const invalid = [
-      pin,
-      { private: pin, publicAssetBase: config.publicAssetBase },
-      { ...selection, files: ['index.html'] },
-      { ...selection, public: { ...pin, files: [] } },
-      { ...selection, private: { 'dist.json': `${pin['dist.json']}:size=1` } },
+      { private: pin, public: pin, publicAssetBase: config.publicAssetBase },
+      { ...selection, bindings: { publicAssetBase: config.publicAssetBase } },
+      { ...buildRecord, selection: { ...selection, bindings: {} } },
+      { ...buildRecord, selection: { pins: { private: pin } } },
+      { ...buildRecord, selection: { pins: { ...selection.pins, extra: pin } } },
+      { selection },
+      { ...buildRecord, publicAssetBase: undefined },
+      { ...buildRecord, publicAssetBase: 'http://assets.example.test/sample/ui/' },
+      { ...buildRecord, publicAssetBase: 'https://other.example.test/sample/ui/' },
+      { ...buildRecord, extra: 'secret' },
+      { ...buildRecord, [Symbol()]: 'secret' },
     ];
     for (const value of invalid) {
-      expect(() => selectionFrom(value)).to.throw('Invalid sample build selection.');
+      expect(() => snapshotInputs(config, value)).to.throw('Run deno task build');
     }
-    expect(() =>
-      snapshotInputs(config, {
-        ...selection,
-        publicAssetBase: 'https://other.example.test/sample/ui/',
-      })
-    ).to.throw('Sample public asset base changed.');
+    expect(snapshotInputs(config, buildRecord).buildRecord).to.eql(buildRecord);
+  });
+
+  it('build-record accessors → refusal without invoking getters', () => {
+    const config = fixtureConfig();
+    let calls = 0;
+    const buildRecord = {
+      get selection() {
+        calls++;
+        return {};
+      },
+      publicAssetBase: config.publicAssetBase,
+    };
+    expect(() => snapshotInputs(config, buildRecord)).to.throw('Run deno task build');
+    expect(calls).to.eql(0);
   });
 });

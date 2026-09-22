@@ -1,10 +1,11 @@
 import { formatBuildSelection, formatMissingCredentials, formatR2Failure } from '../u.fmt.ts';
 import { c, describe, expect, Fmt, it, Obj, Str, stripAnsi, type t } from './common.ts';
 
-const selection: t.Selection = Obj.deepFreeze({
-  public: { 'dist.json': `sha256-${'1'.repeat(64)}` },
-  private: { 'dist.json': `sha256-${'2'.repeat(64)}` },
-  publicAssetBase: 'https://assets.example.test/ui/',
+const selection: t.DistPins<t.Audience> = Obj.deepFreeze({
+  pins: {
+    public: { 'dist.json': `sha256-${'1'.repeat(64)}` },
+    private: { 'dist.json': `sha256-${'2'.repeat(64)}` },
+  },
 });
 
 describe('R2 deployment sample: credential setup formatting', () => {
@@ -96,9 +97,9 @@ describe('R2 deployment sample: build handoff formatting', () => {
   it('selected pins → aligned full checksums and one combined publication command', () => {
     const actual = formatBuildSelection(selection, { width: 40 });
     expect(stripAnsi(actual)).to.eql(Str.dedent(`
-      Selected dist.selection.json
-      public:  ${selection.public['dist.json']}
-      private: ${selection.private['dist.json']}
+      Selected dist.pins.json
+      public:  ${selection.pins.public['dist.json']}
+      private: ${selection.pins.private['dist.json']}
 
       Next: publish public assets, then the private shell.
       ${Fmt.hr({ width: 40 })}

@@ -2,26 +2,25 @@
 
 ### Deno application with public and private R2 delivery
 
-One UI, one Vite build, two byte paths:
+One UI, built once, served from two places:
 
 - **Deno:** the API, `index.html`, and `dist.json`. The files use a
   [bounded private-R2 relay](../../README.md#application-read-routes). Deno fetches them with
   short-lived presigned GET URLs; the browser receives bytes, not signed URLs or R2 credentials.
-- **Public R2:** the UI's actual JavaScript, CSS, and referenced assets, loaded directly by the
-  browser. Deno has no public-asset relay or backup bundle.
+- **Public R2:** JavaScript, CSS, and referenced assets, loaded directly by the browser. Deno has no
+  public-asset relay or backup bundle.
 
 **Planned next:** serve the `sw.js` service worker from the application origin through the private
 relay. It is not part of the current build; worker outputs are currently refused.
 
-Application routes require no login. Private storage does not make the page confidential. Public
-scripts execute as application code, not in a separate security boundary.
+Application routes require no login. Private storage does not make the page confidential. Scripts
+loaded from public R2 have the same page privileges as scripts served by Deno.
 
 ## Delivery costs
 
 Public asset bodies bypass Deno; HTML, API, and private-manifest responses still consume its
 outbound bandwidth. R2 [does not charge for egress](https://developers.cloudflare.com/r2/pricing/),
-but storage and operations remain metered. Deno charges depend on the hosting plan. This sample does
-not establish measured savings or zero-cost delivery.
+but storage and operations remain metered. Deno charges depend on the hosting plan.
 
 Private responses use `Cache-Control: no-store`. The relay's per-response, time, and concurrency
 limits are not deployment-wide traffic or spending caps.
@@ -117,7 +116,7 @@ selected inventory.** `push` affects both prefixes. Use dedicated prefixes you c
 them with unrelated files.
 
 ```sh
-# One Vite build; verify both projections and write dist.selection.json.
+# One Vite build; verify both projections and write dist.pins.json.
 deno task build
 
 # Publish public assets, then the private shell; stop if the public push fails.
@@ -131,10 +130,10 @@ deno task serve
 verifies both local projections and publishes only its named target. Neither rebuilds nor repins.
 All credentialed tasks use the shared pair above by default.
 
-Keep `dist.private/`, `dist.public/`, `dist.selection.json`, and `r2.config.json` unchanged
-throughout publication. Public-first ordering is not atomic: a failure may leave partial changes,
-without automatic rollback. If private publication fails, the public changes remain. Pruning can
-break older browser sessions; this disposable sample does not promise seamless cached upgrades.
+Keep `dist.private/`, `dist.public/`, `dist.pins.json`, and `r2.config.json` unchanged throughout
+publication. Public-first ordering is not atomic: a failure may leave partial changes, without
+automatic rollback. If private publication fails, the public changes remain. Pruning can break older
+browser sessions; this disposable sample does not promise seamless cached upgrades.
 
 For an already-published candidate, run only `serve`. It requires configuration, selection, the
 configured S3 key pair, and the matching private remote manifest—not local build directories or a
@@ -146,29 +145,56 @@ public network preflight.
 
 ## Build selection
 
-`build` creates and verifies the complete `dist/`, then preserves payload bytes and relative paths
-in two generated inventories:
+`build` runs Vite once into `dist/`. The sample chooses which files belong in each output:
 
 - `dist.private/`: `index.html` and its own `dist.json`.
 - `dist.public/`: frontend assets and their own `dist.json`.
 
-`dist.selection.json` records both exact manifest pins and the public asset base used by Vite. It is
-outside both inventories and contains neither credentials nor a filename list. Changing that base
-requires a new build. A failed build does not select a new candidate; the old `dist.pin.json` is not
-a fallback.
+`Pkg.Dist.project` verifies the source, copies the selected files without changing their bytes or
+relative paths, and generates and verifies each output manifest. It rechecks the source before
+returning the output pins.
 
-Startup admits the private manifest before constructing any route, including the API. Refusal
-prevents the whole app from starting. Configuration, selection, and routes are fixed per instance;
-restart with the matching selection after publication. Public availability is a browser dependency,
-not a condition that triggers fallback delivery through Deno.
+### Build record
 
-The [sample limits](src/m.app/u.selection.ts) allow a 64 KiB manifest, 256 graph entries, 1 MiB per
-file, and 4 MiB total declared payloads. Extra documents and workers require an explicit new
-delivery role; this build does not admit them.
+After projection succeeds, the build writes a sample-owned record to `dist.pins.json`:
 
-Startup details and the UI digest identify the **private shell**, not the complete bundle. Manifest
-admission does not verify every delivered response or establish provenance; R2 objects can change
-after startup.
+- `selection`: a shared `DistPins` value containing `pins.private` and `pins.public` manifest
+  checksums.
+- `publicAssetBase`: the asset base URL captured for the build.
+
+The file stays outside the output directories. It contains no credentials or file inventory.
+`Pkg.Dist.Pins.capture` validates the nested pins and requires both audience names. The sample
+checks that the recorded base exactly matches configuration, including for direct startup calls. An
+old record format or a changed base requires `deno task build`; loading a record never updates its
+pins or infers its base from configuration. Readers use only `dist.pins.json`; neither the former
+`dist.selection.json` nor `dist.pin.json` is a fallback. If the new file is missing, rebuild rather
+than renaming an old file into place.
+
+Before either push, `Pkg.Dist.Pins.verify` checks both local distributions against their pins.
+Status and the HTTP proof check only the private distribution.
+
+### Rebuilding and failures
+
+Build invalidates `dist.pins.json` and the obsolete `dist.selection.json` first, then removes only
+`dist/`, `dist.private/`, and `dist.public/`. Any removal failure stops the build. A projection
+failure writes no new selection, but completed output directories remain. Rerun `deno task build` to
+rebuild them. Staging directories left by a cleanup failure are not removed by a later build.
+
+### Limits and startup
+
+The [verification limits](src/m.app/u.selection.ts) apply to each distribution: a 64 KiB manifest,
+256 entries, 1 MiB per payload file, and 4 MiB of payload content. The private/public pair also has
+a combined limit of two distributions and 4 MiB of payload content. Payload totals exclude
+manifests; these totals do not cap memory use or repeated reads. Worker scripts, extra HTML
+documents, and unsupported file types are rejected.
+
+Startup checks the private manifest before creating any route, including the API. If that check
+fails, the app does not start. Configuration, selection, and routes stay fixed until restart; after
+publication, restart with the matching selection. Public assets must remain available to the
+browser; Deno does not serve them as a fallback.
+
+Startup details and the UI digest identify the **private shell**, not the complete bundle. Response
+bodies are not rehashed against the manifest, and stored objects may change after startup.
 
 Both UI table rows refer to `/ui/dist.json`, which describes the private HTML:
 

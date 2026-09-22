@@ -4,7 +4,7 @@ import { startFetches } from '../ui/u.load.ts';
 import { localFixture } from '../../-scripts/-test/u.fixture.ts';
 
 const ORIGIN = 'https://sample.test';
-// A reported sentinel value: this fixture tests extraction, not verified build identity.
+// Deliberately chosen independently of the file checksum: the UI must display both.
 const digest = `sha256-${'a'.repeat(64)}`;
 const dist: t.DistPkg = {
   type: 'https://jsr.io/@sample/r2',
@@ -33,7 +33,7 @@ describe('R2 deployment sample: UI fetches', () => {
     const file = await Fs.readText(f.dir.join('dist.private/dist.json'));
     expect(file.ok).to.eql(true);
     const result = await fetchPair(Response.json({ msg: 'hello' }), new Response(file.data));
-    expect(result.checksum).to.eql(f.selection.private['dist.json']);
+    expect(result.checksum).to.eql(f.buildRecord.selection.pins.private['dist.json']);
     expect(result.digest).not.to.eql(result.checksum);
   });
 
@@ -167,7 +167,7 @@ async function fetchPair(message: Response, manifest: Response) {
   return { message: f.messages[0], digest: f.digests[0], checksum: f.checksums[0], urls: f.urls };
 }
 
-/** Suite-local transport controls; deliberately ignores abort so late replies remain possible. */
+/** Hold responses until the test releases them, even after the request is aborted. */
 function controlledPair() {
   const message = Promise.withResolvers<Response>();
   const manifest = Promise.withResolvers<Response>();

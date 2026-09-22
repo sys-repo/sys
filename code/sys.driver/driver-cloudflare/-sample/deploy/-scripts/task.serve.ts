@@ -6,13 +6,13 @@ import { buildStatus } from './u.status.ts';
 import { runTask } from './u.task.ts';
 
 /**
- * Reuse the existing repository dotenv lookup without exporting secrets into process env.
+ * Start the local server after verifying the private manifest.
  */
 Deno.exitCode = await runTask('serve', async () => {
   const inputs = await readInputs(ROOT);
   const env = await Env.load({ cwd: ROOT, search: 'upward' });
   const app = await appFrom(inputs, env);
-  const build = await buildStatus(inputs.selection.private);
+  const build = await buildStatus(inputs.buildRecord.selection.pins.private);
   const server = HttpServer.start(app, {
     name: pkg.name,
     hostname: '127.0.0.1',

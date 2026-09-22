@@ -19,8 +19,8 @@ export async function pushSample(
   if (audience !== 'public' && audience !== 'private') {
     throw new Error('Invalid sample push target.');
   }
-  const { config, selection } = await readInputs(root);
-  await selectPublication(selection, root);
+  const { config, buildRecord } = await readInputs(root);
+  await selectPublication(buildRecord.selection, root);
   const target = config.targets[audience];
   const names = config.credentials[audience === 'private' ? 'pushPrivate' : 'pushPublic'];
 
