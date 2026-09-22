@@ -1,9 +1,23 @@
+r2-delivery-extraction.plan.md
+- [ ] refactor(pkg): extract verified Dist projections and shared selection
+- [ ] fix(driver-vite): pass captured build base to the Vite child
+- [ ] refactor(driver-cloudflare): construct read routes from pinned Dist manifests
+- [ ] refactor(tools): expose safe Deploy failure diagnostics and simplify the R2 sample
+
 
 r2-public-delivery.plan.md
 - [x] bb6fad039 feat(tools): admit captured endpoint inputs for Deploy.push
-- [ ] refactor(driver-cloudflare): remove temporary sample push configuration
-- [ ] GATE Phil confirms the public R2 target, custom-domain base, and owned prefix
-- [ ] feat(driver-cloudflare): demonstrate public Vite assets with private R2 shell delivery
+- [x] bc0d8e416 refactor(driver-cloudflare): remove temporary sample push configuration
+- [x] GATE Phil confirms the public/private R2 targets, public HTTPS asset base, and owned prefix
+- [x] 0deb22c3c docs(driver-cloudflare): simplify R2 sample setup and verification
+- [x] e8a88471a feat(yaml): add non-empty env resolution and unavailable-ref metadata
+- [x] 2889d1e89 feat(event): transport explicitly exposed command diagnostics
+- [x] fd417a579 refactor(event): organize command implementation by file role
+- [x] ccaf213fd refactor(event): separate command client orchestration from adapters
+- [x] 3c8f9c38e feat(driver-cloudflare): demonstrate public Vite assets with private R2 shell delivery
+- [ ] [r2-delivery-extraction.plan.md](r2-delivery-extraction.plan.md)
+- [ ] feat(driver-cloudflare): integrate the template service worker with mixed R2 delivery
+
 
 
 @sys.driver.cloudflare
@@ -41,10 +55,10 @@ r2-web-exposure.plan.md
 
 
 
-
 @sys.driver.cloudflare
 r2-files-enumeration-bounds.plan.md
 - [x] 2d4e9d2ce fix(driver-cloudflare): bound R2 Files enumeration work
+
 
 
 @sys.driver-pi
@@ -94,3 +108,6 @@ type-export-path-cleanup.plan.md
 - [ ] refactor(exports)!: standardize package type entrypoints on /t
 
 
+deploy-state-containment.plan.md
+- [x] fix(tools): contain build coordination in source-owned dev state
+- [ ] chore(deploy): isolate the fs.db.team development workflow
