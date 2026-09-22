@@ -9,12 +9,14 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
   const [manifest, setManifest] = React.useState({ digest: 'Loading…', checksum: 'Loading…' });
   const digest = Pkg.Dist.Part.hash(manifest.digest);
   const checksum = Pkg.Dist.Part.hash(manifest.checksum);
+
   React.useEffect(() => {
     if (!origin) return;
     return startFetches(origin, setMessage, (digest, checksum) => {
       setManifest({ digest, checksum });
     });
   }, [origin]);
+
   return (
     <main>
       <h1>{pkg.name}</h1>
@@ -48,6 +50,12 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
       <table className='identity-table' aria-live='polite'>
         <caption>
           Private relay — <a href='/ui/dist.json'>/ui/dist.json</a>
+          {Is.str(digest) && (
+            <>
+              {' • '}
+              <code>#{Hash.shorten(digest, [0, 5], { trimPrefix: true })}</code>
+            </>
+          )}
         </caption>
         <thead>
           <tr>

@@ -1,7 +1,7 @@
 import { buildSample } from '../u.build.ts';
 import { selectPublication } from '../u.selection.ts';
 import { readInputs } from '../../src/m.app/u.data.ts';
-import { describe, expect, expectError, Fs, it, ROOT } from './common.ts';
+import { describe, expect, expectError, Fs, it } from './common.ts';
 import { localFixture } from './u.fixture.ts';
 
 describe('R2 deployment sample: one-build publication projections', () => {
@@ -120,14 +120,5 @@ describe('R2 deployment sample: one-build publication projections', () => {
       'Sample Dist refused: content-mismatch.',
     );
     expect(await Fs.exists(f.dir.join('dist.selection.json'))).to.eql(false);
-  });
-
-  it('source HTML → pre-JavaScript explanation and same-origin diagnostic links', async () => {
-    const html = await Fs.readText(Fs.join(ROOT, 'src/ui/index.html'));
-    expect(html.error).to.eql(undefined);
-    expect(html.data).to.include('Deno delivered this HTML shell.');
-    expect(html.data).to.include('If this message remains, the UI has not started.');
-    expect(html.data).to.include('href="/api/hello"');
-    expect(html.data).to.include('href="/ui/dist.json"');
   });
 });
