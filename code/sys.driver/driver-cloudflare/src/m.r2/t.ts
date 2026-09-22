@@ -9,7 +9,43 @@ export declare namespace R2 {
     readonly Service: Service.Lib;
     readonly Files: Files.Lib;
     readonly ReadRoute: ReadRoute.Lib;
+    readonly Error: Error.Lib;
   };
+
+  /** Public diagnostics only; never provider messages, URLs, headers, or credential values. */
+  export namespace Error {
+    export type Lib = {
+      /** Recover and revalidate an R2 diagnostic through standard cause/error wrappers. */
+      diagnostic(error: unknown): Diagnostic | undefined;
+      /** Find a runtime denial without turning it into credential-setup or retry advice. */
+      permission(error: unknown): globalThis.Error | undefined;
+      /** Format only admitted diagnostic fields, not an upstream error message. */
+      format(diagnostic: Diagnostic): string;
+    };
+    export type Operation = 'stat' | 'read' | 'write' | 'remove' | 'list' | 'presign';
+    export type Code =
+      | 'AccessDenied'
+      | 'InvalidAccessKeyId'
+      | 'SignatureDoesNotMatch'
+      | 'NoSuchBucket'
+      | 'NoSuchKey'
+      | 'RequestTimeTooSkewed'
+      | 'ExpiredToken'
+      | 'InvalidToken'
+      | 'SlowDown'
+      | 'InternalError'
+      | 'ServiceUnavailable'
+      | 'InvalidRequest'
+      | 'InvalidArgument'
+      | 'AuthorizationHeaderMalformed'
+      | 'RequestTimeout'
+      | 'NotImplemented';
+    export type Diagnostic = {
+      readonly operation: Operation;
+      readonly status?: number;
+      readonly code?: Code;
+    };
+  }
 
   /** R2 account credentials for signed HTTP access. */
   export type Credentials = {

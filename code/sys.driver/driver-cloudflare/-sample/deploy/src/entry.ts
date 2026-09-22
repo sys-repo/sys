@@ -8,13 +8,13 @@ import { snapshotInputs } from './m.app/u.selection.ts';
 
 /** Resolve credentials for captured inputs, then bootstrap without opening a listener. */
 export function appFrom(inputs: t.AppInputs, env: t.EnvReader = Deno.env, signal?: AbortSignal) {
-  const captured = snapshotInputs(inputs.config, inputs.pin);
+  const captured = snapshotInputs(inputs.config, inputs.selection);
   const { config } = captured;
   const service = R2.Service.create({
     accountId: config.accountId,
-    credentials: credentialsFrom(config.credentials, env),
+    credentials: credentialsFrom(config.credentials.serve, env),
   });
-  return createApp({ ...captured, bucket: service.bucket(config.bucket), signal });
+  return createApp({ ...captured, bucket: service.bucket(config.targets.private.bucket), signal });
 }
 
 /** Load package-local inputs once; hosting uses process env unless a reader is supplied. */

@@ -15,41 +15,52 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
     expect(f.fetched.length).to.eql(1);
 
     const response = await app.fetch(new Request('http://sample.test/api/hello'));
-    const data = await response.json();
-    expect(data).to.eql({ msg: '👋 hello world!' });
+    expect(response.status).to.eql(200);
+    await response.body?.cancel();
     expect(f.fetched.length).to.eql(1);
-
-    for (const path of ['/', '/index.html', '/pkg/file.js', '/dist.json']) {
-      const res = await app.fetch(new Request(`http://sample.test/ui${path}`));
-      expect(res.status).to.eql(200);
-      await res.body?.cancel();
-    }
-    expect(f.signed).to.eql([
-      'sample/ui/dist.json',
-      'sample/ui/index.html',
-      'sample/ui/index.html',
-      'sample/ui/pkg/file.js',
-      'sample/ui/dist.json',
-    ]);
   });
 
-  it('acquisition or admission refusal → no app and no retry', async () => {
+  describe('manifest acquisition and admission', () => {
     const cases = [
-      { bytes: encoder.encode('wrong'), status: 200, expected: 'integrity-mismatch' },
-      { bytes: encoder.encode('{'), status: 200, matched: true, expected: 'malformed' },
-      { bytes: new Uint8Array([0xff]), status: 200, matched: true, expected: 'malformed' },
-      { bytes: new Uint8Array(DIST_LIMITS.manifestBytes + 1), status: 200, expected: 'HTTP 413' },
-      { bytes: null, status: 404, expected: 'HTTP 404' },
-      { bytes: null, status: 500, expected: 'HTTP 502' },
-      { bytes: null, status: 302, expected: 'HTTP 502' },
+      {
+        name: 'wrong checksum',
+        bytes: encoder.encode('wrong'),
+        status: 200,
+        expected: 'integrity-mismatch',
+      },
+      {
+        name: 'invalid JSON',
+        bytes: encoder.encode('{'),
+        status: 200,
+        matched: true,
+        expected: 'malformed',
+      },
+      {
+        name: 'invalid UTF-8',
+        bytes: new Uint8Array([0xff]),
+        status: 200,
+        matched: true,
+        expected: 'malformed',
+      },
+      {
+        name: 'oversized body',
+        bytes: new Uint8Array(DIST_LIMITS.manifestBytes + 1),
+        status: 200,
+        expected: 'HTTP 413',
+      },
+      { name: 'missing object', bytes: null, status: 404, expected: 'HTTP 404' },
+      { name: 'storage failure', bytes: null, status: 500, expected: 'HTTP 502' },
+      { name: 'storage redirect', bytes: null, status: 302, expected: 'HTTP 502' },
     ];
-    for (const value of cases) {
-      using f = await remoteFixture();
-      f.read = () => Promise.resolve(new Response(value.bytes, { status: value.status }));
-      if (value.matched && value.bytes) f.pin['dist.json'] = Hash.sha256(value.bytes);
-      await expectError(() => createApp(f), value.expected);
-      expect(f.signed).to.eql(['sample/ui/dist.json']);
-      expect(f.fetched.length).to.eql(1);
+    for (const item of cases) {
+      it(`${item.name} → no app and no retry`, async () => {
+        using f = await remoteFixture();
+        f.read = () => Promise.resolve(new Response(item.bytes, { status: item.status }));
+        if (item.matched && item.bytes) f.pin['dist.json'] = Hash.sha256(item.bytes);
+        await expectError(() => createApp(f), item.expected);
+        expect(f.signed).to.eql(['sample/ui/dist.json']);
+        expect(f.fetched.length).to.eql(1);
+      });
     }
   });
 
@@ -62,8 +73,8 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
         delete f.dist.hash.parts['index.html'];
       }
       if (variant === 'filename') {
-        f.dist.hash.parts['pkg/é.js'] = f.dist.hash.parts['pkg/file.js'];
-        delete f.dist.hash.parts['pkg/file.js'];
+        f.dist.hash.parts['é.html'] = f.dist.hash.parts['index.html'];
+        delete f.dist.hash.parts['index.html'];
       }
       f.dist.hash.digest = CompositeHash.digest(f.dist.hash.parts);
       const bytes = encoder.encode(Json.stringify(f.dist));
@@ -72,6 +83,20 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
       await expectError(() => createApp(f), variant === 'total' ? 'malformed' : 'filenames');
       expect(f.fetched.length).to.eql(1);
     }
+  });
+
+  it('a checksum-matched private manifest cannot admit public asset relay routes', async () => {
+    using f = await remoteFixture();
+    const asset = f.content.get('pkg/file.js')!;
+    f.dist.hash.parts['pkg/file.js'] = `${Hash.sha256(asset)}:size=${asset.length}`;
+    f.dist.build.size.total += asset.length;
+    f.dist.build.size.pkg += asset.length;
+    f.dist.hash.digest = CompositeHash.digest(f.dist.hash.parts);
+    const bytes = encoder.encode(Json.stringify(f.dist));
+    f.content.set('dist.json', bytes);
+    f.pin['dist.json'] = Hash.sha256(bytes);
+    await expectError(() => createApp(f), 'Invalid sample private manifest filenames.');
+    expect(f.signed).to.eql(['sample/ui/dist.json']);
   });
 
   it('invalid pin or target → refusal before storage', async () => {
@@ -83,8 +108,8 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
     ];
     for (const pin of pins) {
       await expectError(
-        () => createApp({ ...f, pin: pin as t.DistPin }),
-        'Invalid sample Dist pin.',
+        () => createApp({ ...f, selection: { ...f.selection, private: pin as t.DistPin } }),
+        'Invalid sample build selection.',
       );
     }
     await expectError(() => createApp({ ...f, bucket: { name: 'other' } }), 'bucket');
@@ -94,11 +119,14 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
 
   it('mutation during signing → retained config, pin, signer, and route inventory', async () => {
     using f = await remoteFixture();
-    const config = { ...f.config };
+    const config = {
+      ...f.config,
+      targets: { ...f.config.targets, private: { ...f.config.targets.private } },
+    };
     const pin = { ...f.pin };
     const sign = f.bucket.presignGet;
     f.bucket.presignGet = (key) => {
-      config.prefix = 'other/ui';
+      config.targets.private.prefix = 'other/ui';
       pin['dist.json'] = Hash.sha256('other');
       f.bucket.name = 'other';
       f.bucket.presignGet = () => {
@@ -106,36 +134,44 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
       };
       return sign(key);
     };
-    const app = await createApp({ config, pin, bucket: f.bucket });
+    const app = await createApp({
+      config,
+      selection: { ...f.selection, private: pin },
+      bucket: f.bucket,
+    });
     f.content.set('dist.json', encoder.encode('{}'));
-    f.content.set('pkg/file.js', encoder.encode('changed asset'));
-    const asset = await app.fetch(new Request('http://sample.test/ui/pkg/file.js'));
-    expect(await asset.text()).to.eql('changed asset'); // Relay, not per-response asset verification.
-    const missing = await app.fetch(new Request('http://sample.test/ui/new.js'));
+    f.content.set('index.html', encoder.encode('changed shell'));
+    const shell = await app.fetch(new Request('http://sample.test/ui/'));
+    expect(await shell.text()).to.eql('changed shell'); // Relay, not per-response content verification.
+    const missing = await app.fetch(new Request('http://sample.test/ui/pkg/file.js'));
     expect(missing.status).to.eql(404);
-    expect(f.signed).to.eql(['sample/ui/dist.json', 'sample/ui/pkg/file.js']);
+    expect(f.signed).to.eql(['sample/ui/dist.json', 'sample/ui/index.html']);
   });
 
   it('credential callbacks → entry retains target, pin, and credential names', async () => {
     using f = await remoteFixture();
-    const config = { ...f.config, credentials: { ...f.config.credentials } };
+    const config = {
+      ...f.config,
+      targets: { ...f.config.targets, private: { ...f.config.targets.private } },
+      credentials: { ...f.config.credentials, serve: { ...f.config.credentials.serve } },
+    };
     const pin = { ...f.pin };
     const names: string[] = [];
-    const app = await appFrom({ config, pin }, {
+    const app = await appFrom({ config, selection: { ...f.selection, private: pin } }, {
       get(name) {
         names.push(name);
-        config.prefix = 'other/ui';
-        config.credentials.secretAccessKey = 'OTHER_SECRET';
+        config.targets.private.prefix = 'other/ui';
+        config.credentials.serve.secretAccessKey = 'OTHER_SECRET';
         pin['dist.json'] = Hash.sha256('other');
         return 'fixture-only-credential';
       },
     });
     expect(names).to.eql([
-      f.config.credentials.accessKeyId,
-      f.config.credentials.secretAccessKey,
+      f.config.credentials.serve.accessKeyId,
+      f.config.credentials.serve.secretAccessKey,
     ]);
     const paths = f.fetched.map((req) => new URL(req.url).pathname);
-    expect(paths).to.eql(['/sample/sample/ui/dist.json']);
+    expect(paths).to.eql(['/sample-private/sample/ui/dist.json']);
 
     const response = await app.fetch(new Request('http://sample.test/api/hello'));
     expect(response.status).to.eql(200);

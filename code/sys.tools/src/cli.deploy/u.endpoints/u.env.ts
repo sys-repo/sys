@@ -15,5 +15,6 @@ export async function resolveEndpointEnvRefs(
   if (!inspected.ok || inspected.refs.length === 0) return inspected;
 
   const resolve = options.resolve ?? YamlConfig.Env.resolveAst;
-  return await resolve(ast, { cwd: options.cwd, search: 'upward' });
+  // Endpoint string fields require non-blank values; preserve names before schema conversion.
+  return await resolve(ast, { cwd: options.cwd, search: 'upward', nonEmpty: true });
 }

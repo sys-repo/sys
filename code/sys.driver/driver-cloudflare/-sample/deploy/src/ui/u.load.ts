@@ -1,12 +1,12 @@
-import { Fetch, Is, Pkg } from './common.ts';
+import { Fetch, Hash, Is, Json, Pkg } from './common.ts';
 
 /**
- * Load the API message and Dist digest independently through one bounded same-origin client.
+ * Load the API and private manifest independently through one bounded same-origin client.
  */
 export function startFetches(
   origin: string,
   onMessage: (value: string) => void,
-  onDigest: (value: string) => void,
+  onManifest: (digest: string, checksum: string) => void,
 ): () => void {
   const client = Fetch.make({
     policy: {
@@ -31,17 +31,22 @@ export function startFetches(
     if (!client.disposed) onMessage(data.msg);
   }
 
-  async function loadDigest() {
-    const data = await json('/ui/dist.json');
+  async function loadManifest() {
+    const response = await client.blob(new URL('/ui/dist.json', origin));
+    if (!response.ok) throw new Error('Request failed.');
+    const bytes = new Uint8Array(await response.data.arrayBuffer());
+    const data = Json.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     if (!Pkg.Is.dist(data)) throw new Error('Invalid Dist.');
-    if (!client.disposed) onDigest(data.hash.digest);
+    // Hash the received bytes, not reserialized JSON or the manifest's reported payload digest.
+    if (!client.disposed) onManifest(data.hash.digest, Hash.sha256(bytes));
   }
 
   loadMessage().catch(() => {
     if (!client.disposed) onMessage('Could not load the message.');
   });
-  loadDigest().catch(() => {
-    if (!client.disposed) onDigest('Could not load the Dist digest.');
+  loadManifest().catch(() => {
+    const message = 'Could not load the private manifest.';
+    if (!client.disposed) onManifest(message, message);
   });
 
   return () => client.dispose();

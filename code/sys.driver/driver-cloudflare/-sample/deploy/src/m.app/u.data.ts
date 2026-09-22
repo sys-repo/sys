@@ -6,8 +6,8 @@ export async function readInputs(
   root = Fs.Path.fromFileUrl(new URL('../../', import.meta.url)),
 ): Promise<t.AppInputs> {
   const config = await readData(Fs.Path.toFileUrl(Fs.join(root, 'r2.config.json')));
-  const pin = await readData(Fs.Path.toFileUrl(Fs.join(root, 'dist.pin.json')));
-  return snapshotInputs(config, pin);
+  const selection = await readData(Fs.Path.toFileUrl(Fs.join(root, 'dist.selection.json')));
+  return snapshotInputs(config, selection);
 }
 
 /** Read bounded JSON from one explicit local file URL. */

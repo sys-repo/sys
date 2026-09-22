@@ -1,21 +1,39 @@
-import { describe, expect, expectError, it, Time } from '../-test.ts';
+import { describe, expect, it, Time } from '../-test.ts';
 import { createApp } from '../m.app/mod.ts';
-import { configFrom } from '../m.app/u.selection.ts';
 import { remoteFixture } from './u.fixture.ts';
 
 describe('R2 deployment sample: app', () => {
-  it('serves admitted index and asset bytes, including HEAD', async () => {
+  it('serves only admitted shell and manifest bytes, including HEAD', async () => {
     using f = await fixture();
-    for (const [path, key] of [['/ui/', 'index.html'], ['/ui/pkg/file.js', 'pkg/file.js']]) {
+    const routes = [
+      ['/ui/', 'index.html'],
+      ['/ui/index.html', 'index.html'],
+      ['/ui/dist.json', 'dist.json'],
+    ];
+    for (const [path, key] of routes) {
       const res = await f.request(path);
       expect(res.status).to.eql(200);
       const bytes = new Uint8Array(await res.arrayBuffer());
       expect(bytes).to.eql(f.content.get(key));
       expect(f.signed.at(-1)).to.eql(`sample/ui/${key}`);
     }
-    const head = await f.request('/ui/pkg/file.js', { method: 'HEAD' });
+    const head = await f.request('/ui/', { method: 'HEAD' });
     expect(head.status).to.eql(200);
     expect(await head.text()).to.eql('');
+  });
+
+  it('never relays public assets, even when those keys exist in private storage', async () => {
+    using f = await fixture();
+    for (const path of ['/ui/pkg/file.js', '/ui/pkg/file.css']) {
+      for (const method of ['GET', 'HEAD']) {
+        const res = await f.request(path, { method });
+        expect(res.status).to.eql(404);
+        expect(await res.text()).to.eql('');
+        expect(res.headers.has('location')).to.eql(false);
+      }
+    }
+    expect(f.signed).to.eql([]);
+    expect(f.fetched).to.eql([]);
   });
 
   it('redirects / and /ui → /ui/ without further storage reads', async () => {
@@ -63,7 +81,7 @@ describe('R2 deployment sample: app', () => {
 
   it('rejects writes on declared routes and keeps unknown routes as 404', async () => {
     using f = await fixture();
-    for (const path of ['/', '/ui', '/api/hello', '/ui/pkg/file.js']) {
+    for (const path of ['/', '/ui', '/api/hello', '/ui/']) {
       const res = await f.request(path, { method: 'POST' });
       expect(res.status, path).to.eql(405);
       expect(res.headers.get('allow')).to.eql('GET, HEAD');
@@ -86,7 +104,7 @@ describe('R2 deployment sample: app', () => {
       });
     });
     const controller = new AbortController();
-    const response = f.request('/ui/pkg/file.js', { signal: controller.signal });
+    const response = f.request('/ui/', { signal: controller.signal });
     const timeout = Time.delay(1_000, () => {
       throw new Error('Storage fetch did not start.');
     });
@@ -102,18 +120,6 @@ describe('R2 deployment sample: app', () => {
       controller.abort();
       await response;
     }
-  });
-
-  it('rejects unsafe configuration and a mismatched bucket', async () => {
-    using f = await remoteFixture();
-    expect(() => configFrom({ ...f.config, prefix: '../other' })).to.throw(
-      'Invalid sample configuration.',
-    );
-    await expectError(
-      () => createApp({ ...f, bucket: { name: 'other' } }),
-      'Sample bucket does not match configuration.',
-    );
-    expect(f.fetched).to.eql([]);
   });
 });
 

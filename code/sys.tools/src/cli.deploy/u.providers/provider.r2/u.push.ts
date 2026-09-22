@@ -194,21 +194,34 @@ async function loadDist(stagingDir: t.StringDir) {
 }
 
 async function readRemoteDist(files: t.Files.Client.Handle): Promise<RemoteDist | undefined> {
+  let result: t.Files.Cmd.Read.Result;
   try {
-    const result = await files.cmd.send(Files.Cmd.Name.read, { path: DIST_PATH });
-    if (result.kind === 'inline' && result.truncated) return undefined;
-    const bytes = result.kind === 'inline'
-      ? new TextEncoder().encode(result.content)
-      : await Files.ContentRef.bytes(result.contentRef);
-    const parsed = Json.safeParse<unknown>(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
-    if (!parsed.ok || !Pkg.Is.dist(parsed.data)) return undefined;
-    // R2's fatal UTF-8 decoder can strip a BOM. Require the round-trip size before trusting
-    // inline text as byte identity; unknown/lossy identity must republish the manifest.
-    const exact = result.kind === 'ref' || result.file.size === bytes.byteLength;
-    return { dist: parsed.data, integrity: exact ? Hash.sha256(bytes) : undefined };
+    result = await files.cmd.send(Files.Cmd.Name.read, { path: DIST_PATH });
+  } catch (error) {
+    // A storage/runtime refusal takes precedence over any nested absence detail.
+    if (R2.Error.diagnostic(error) || R2.Error.permission(error)) throw error;
+    // Only explicit Files/R2 absence permits cold-start publication. Unknown failures stop too.
+    if (Err.std(error).cause?.name === 'FilesR2Error.NotFound') return undefined;
+    throw error;
+  }
+  if (result.kind === 'inline' && result.truncated) return undefined;
+  const bytes = result.kind === 'inline'
+    ? new TextEncoder().encode(result.content)
+    : await Files.ContentRef.bytes(result.contentRef);
+
+  // Acquisition has succeeded. Unusable metadata is an optimization miss, not a storage failure.
+  let text: string;
+  try {
+    text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   } catch {
     return undefined;
   }
+  const parsed = Json.safeParse<unknown>(text);
+  if (!parsed.ok || !Pkg.Is.dist(parsed.data)) return undefined;
+  // R2's fatal UTF-8 decoder can strip a BOM. Require the round-trip size before trusting
+  // inline text as byte identity; unknown/lossy identity must republish the manifest.
+  const exact = result.kind === 'ref' || result.file.size === bytes.byteLength;
+  return { dist: parsed.data, integrity: exact ? Hash.sha256(bytes) : undefined };
 }
 
 function publishFiles(

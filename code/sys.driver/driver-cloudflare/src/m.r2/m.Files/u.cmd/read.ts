@@ -1,6 +1,7 @@
 import { MediaType, Num, type t } from '../common.ts';
 import { fileEntryFromMeta } from '../u/entry.ts';
-import { fail, provider } from '../u/error.ts';
+import { fail, isFilesR2Error, provider } from '../u/error.ts';
+import { requestFailure } from '../../u/u.diagnostic.ts';
 import { ENCODING, isFilesText } from '../u/metadata.ts';
 import { objectKey, requiredVisiblePath } from '../u/path.ts';
 import { hasDescendants, type Runtime, urlRef } from '../u/runtime.ts';
@@ -60,7 +61,11 @@ export async function read(
       }
 
       const response = await runtime.bucket.read(key);
-      const bytes = await readResponseBytes(response, path, limit);
+      const bytes = await readResponseBytes(response, path, limit).catch((error: unknown) => {
+        // Keep the local size refusal; body acquisition failures carry only safe read diagnostics.
+        if (isFilesR2Error(error) && error.name === 'FilesR2Error.ReadTooLarge') throw error;
+        throw requestFailure('read', error);
+      });
       const content = decodeUtf8Text(bytes, path);
 
       return { kind: 'inline', file, encoding: ENCODING, content };

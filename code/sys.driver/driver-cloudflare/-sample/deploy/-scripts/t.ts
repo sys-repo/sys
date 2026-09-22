@@ -2,13 +2,18 @@ import type { t } from '../src/common.ts';
 
 export type * from '../src/common/t.ts';
 export type { DeployTool } from '@sys/tools/t';
+export type { HttpFetch } from '@sys/http/t';
 
-/** Fixture seams for the same proof orchestration used by the executable task. */
+/** Executable tasks that consume one configured credential pair. */
+export type CredentialTask = 'push:public' | 'push:private' | 'serve' | 'proof:local';
+
+/** IO boundaries for the same proof orchestration used by the executable task. */
 export type ProofOptions = {
   readonly root?: t.StringDir;
   readonly env?: t.EnvReader;
   readonly start?: (app: t.HttpServer.App) => Pick<t.HttpServer.Started, 'close' | 'finished'>;
-  readonly log?: (message: string) => void;
+  /** Await each report before continuing. Return values are ignored; failures stop the proof. */
+  readonly log?: (message: string) => t.IgnoredResult;
 };
 
 /** Script-local admission of the recorded build; callers own refusal policy. */

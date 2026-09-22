@@ -6,15 +6,19 @@ import { DIST_LIMITS } from '../src/m.app/u.selection.ts';
 import { Arr, Env, Fs, Hash, Is, Json, MediaType, Pkg, ROOT, type t } from './common.ts';
 import { selectBuild } from './u.selection.ts';
 
+type RefusedGet =
+  & { readonly path: string }
+  & Pick<t.HttpFetch.ResponseFailure, 'status' | 'checksum'>;
+
 const ORIGIN = 'http://127.0.0.1:8080';
 
 /** Select one local build and retain its verified expectations before any live work. */
 export async function prepareProof(root = ROOT) {
   const inputs = await readInputs(root);
-  const selected = await selectBuild(inputs.pin, root);
+  const selected = await selectBuild(inputs.selection.private, root);
   require(selected.kind === 'verified', `Local Dist refused: ${selected.kind}.`);
   const { files, dir, evidence, verify } = selected;
-  const integrity = inputs.pin['dist.json'];
+  const integrity = inputs.selection.private['dist.json'];
 
   const expected = new Map<string, Uint8Array>();
   for (const path of files) {
@@ -42,15 +46,32 @@ export async function prepareProof(root = ROOT) {
 export async function prove(options: t.ProofOptions = {}) {
   const root = options.root ?? ROOT;
   const log = options.log ?? console.info;
+  let reportingFailed = false;
+  async function report(event: unknown) {
+    try {
+      await log(Json.stringify(event));
+    } catch (error) {
+      reportingFailed = true;
+      throw error;
+    }
+  }
+
   const { inputs, files, expected, verify } = await prepareProof(root);
-  const { config, pin } = inputs;
-  const integrity = pin['dist.json'];
-  const target = { accountId: config.accountId, bucket: config.bucket, prefix: config.prefix };
+  const { config, selection } = inputs;
+  const integrity = selection.private['dist.json'];
+  const target = { accountId: config.accountId, ...config.targets.private };
   const maxRequests = 2 * expected.size + 6;
   const maxStorageReads = 2 * expected.size + 2;
-  log(
-    Json.stringify({ result: 'selected', integrity, target, files, maxRequests, maxStorageReads }),
-  );
+  // Finish the announcement before credentials, storage, or listener ownership is acquired.
+  await report({
+    result: 'selected',
+    scope: 'private-shell',
+    integrity,
+    target,
+    files,
+    maxRequests,
+    maxStorageReads,
+  });
 
   const start = options.start ?? ((app: t.HttpServer.App) => {
     return HttpServer.start(app, {
@@ -62,6 +83,8 @@ export async function prove(options: t.ProofOptions = {}) {
     });
   });
   let server: Pick<t.HttpServer.Started, 'close' | 'finished'> | undefined;
+  let finished: Promise<PromiseSettledResult<void>> | undefined;
+  const failures: unknown[] = [];
   let bootstrapAttempts = 0;
   const client = Fetch.make({
     policy: {
@@ -74,24 +97,22 @@ export async function prove(options: t.ProofOptions = {}) {
     },
   });
   let requests = 0;
+  let refusedGet: RefusedGet | undefined;
   try {
     const env = options.env ?? await Env.load({ cwd: root, search: 'upward' });
     bootstrapAttempts++;
     const app = await appFrom(inputs, env);
     server = start(app);
+    // Observe rejection immediately; retain the outcome for cleanup even if close later rejects.
+    finished = server.finished.then(
+      () => ({ status: 'fulfilled', value: undefined }),
+      (reason) => ({ status: 'rejected', reason }),
+    );
     for (const [path, bytes] of expected) {
       const url = `${ORIGIN}/ui/${path}`;
       requests++;
       const get = await client.blob(url, {}, { checksum: Hash.sha256(bytes) });
-      if (!get.ok) {
-        log(Json.stringify({
-          result: 'refused',
-          path,
-          requests,
-          status: get.status,
-          checksum: get.checksum,
-        }));
-      }
+      if (!get.ok) refusedGet = { path, status: get.status, checksum: get.checksum };
       require(get.ok, `GET ${path} refused: Fetch status ${get.status}.`);
       const received = new Uint8Array(await get.data.arrayBuffer());
       require(Arr.equal([...received], [...bytes]), `Byte mismatch: ${path}.`);
@@ -114,7 +135,7 @@ export async function prove(options: t.ProofOptions = {}) {
           `HEAD ${name} mismatch: ${path}.`,
         );
       }
-      log(Json.stringify({ path, bytes: bytes.length, sha256: Hash.sha256(received), mime }));
+      await report({ path, bytes: bytes.length, sha256: Hash.sha256(received), mime });
     }
     requests++;
     const index = await client.blob(`${ORIGIN}/ui/`);
@@ -160,8 +181,10 @@ export async function prove(options: t.ProofOptions = {}) {
     headers(missing.headers);
     const rechecked = await verify();
     require(rechecked.kind === 'verified', 'Local Dist changed during live proof.');
-    log(Json.stringify({
+    await report({
       result: 'verified',
+      scope: 'private-shell',
+      publicDelivery: 'not exercised',
       integrity,
       target,
       requests,
@@ -171,23 +194,46 @@ export async function prove(options: t.ProofOptions = {}) {
       api: '👋 hello world!',
       browser: 'not exercised',
       bucketPrivacy: 'not attested',
-    }));
+    });
   } catch (error) {
-    log(Json.stringify({
-      result: 'refused',
-      integrity,
-      target,
-      requests,
-      bootstrapAttempts,
-      maxStorageReads,
-    }));
-    throw error;
-  } finally {
-    client.dispose();
-    if (server) {
-      await server.close();
-      await server.finished;
+    failures.push(error);
+    // Do not report a broken reporter back through itself or lose an earlier proof failure.
+    if (!reportingFailed) {
+      try {
+        await report({
+          ...refusedGet,
+          result: 'refused',
+          integrity,
+          target,
+          requests,
+          bootstrapAttempts,
+          maxStorageReads,
+        });
+      } catch (reportError) {
+        failures.push(reportError);
+      }
     }
+  } finally {
+    try {
+      client.dispose();
+    } catch (error) {
+      failures.push(error);
+    }
+    if (server) {
+      try {
+        await server.close();
+      } catch (error) {
+        failures.push(error);
+      }
+      const completion = await finished;
+      if (completion?.status === 'rejected') failures.push(completion.reason);
+    }
+  }
+  if (failures.length === 1) throw failures[0];
+  if (failures.length > 1) {
+    throw new AggregateError(failures, 'Private proof encountered multiple failures.', {
+      cause: failures[0],
+    });
   }
 }
 

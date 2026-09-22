@@ -87,7 +87,14 @@ export const EndpointsFs = {
 
     const { cwd } = options;
     const resolved = await resolveEndpointEnvRefs(ast, { cwd });
-    if (!resolved.ok) return { ok: false, errors: Schema.Error.fromYaml([...resolved.errors]) };
+    if (!resolved.ok) {
+      const missingEnv = resolved.unavailable?.map((ref) => ref.name);
+      return {
+        ok: false,
+        errors: Schema.Error.fromYaml([...resolved.errors]),
+        ...(missingEnv?.length ? { missingEnv: [...new Set(missingEnv)] } : {}),
+      };
+    }
 
     const checked = validateEndpointYamlAst(ast);
     if (!checked.ok) return checked;

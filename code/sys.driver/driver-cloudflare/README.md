@@ -69,30 +69,28 @@ Paths match the parsed `Request` URL, not its original wire spelling. Encode eac
 mapping, and missing assets never fall back to HTML. Requests select a mapped key; they cannot
 supply one.
 
-The bucket must support `presignGet`. The handler verifies the signed target's origin, bucket, and
-key, then fetches without redirects or forwarded browser credentials. Signed URLs stay server-side:
-the caller receives bytes, not a download redirect.
+The bucket must support `presignGet`. Signed URLs stay server-side: the caller receives bytes, not a
+download redirect.
 
-GET and HEAD share the same bounded, buffered read; HEAD omits the body. MIME comes from the object
-filename and length from decoded bytes. The handler relies on native Fetch for gzip, deflate, and
-Brotli decoding; unsupported or stacked encodings are refused.
-
-Responses use `no-store` and `nosniff`. Provider headers and error details are not forwarded. Range
-requests are refused; conditional headers do not produce a 304 response.
+GET and HEAD share the same bounded, buffered read; HEAD omits the body. Responses use `no-store`
+and `nosniff`. Provider headers and error details are not forwarded. Range requests are refused;
+conditional headers do not produce a 304 response.
 
 ### Read limits
 
-Set all three limits: `maxBytes` per decoded object, `timeout` in milliseconds from admission
-through response creation, and `maxConcurrent` per handler. Active operations include authorization
-and signing. Excess requests are refused, not queued.
+Set all three limits for each handler:
 
-Timeout or cancellation settles the caller's response and signals abort, but the operation keeps its
-slot until pending work and body cleanup settle. A dependency that never settles can exhaust
-capacity.
+| Limit           | Meaning                                                        |
+| --------------- | -------------------------------------------------------------- |
+| `maxBytes`      | Maximum decoded bytes per object                               |
+| `timeout`       | Milliseconds from admission through response creation          |
+| `maxConcurrent` | Maximum active operations, including authorization and signing |
 
-These are not deployment-wide rate, spending, or memory limits. Allow headroom for transport
-buffers, byte copies, and responses retained by consumers. See the [API contracts](./src/m.r2/t.ts)
-for validation rules and response statuses.
+Excess requests are refused, not queued. Timeout or cancellation does not release a slot while work
+or cleanup remains pending. A dependency that never settles can exhaust capacity.
+
+These limits do not cap deployment-wide traffic, spending, or total memory. Allow headroom for
+transport buffers, byte copies, and responses retained by consumers.
 
 ## Files adapter
 
@@ -138,6 +136,23 @@ Recursive removal completes enumeration and checks every target's policy before 
 later provider failure can leave partial deletion; removal is neither atomic nor isolated from
 concurrent writers.
 
-See the [enumeration reference](./src/m.r2/m.Files/README.md) for defaults, exact accounting, error
-behavior, and custom-transport requirements. API reference: [source types](./src/m.r2/t.ts) and
-[published R2 docs](https://jsr.io/@sys/driver-cloudflare/doc/r2/).
+## Error diagnostics
+
+Use `R2.Error.diagnostic(error)` to inspect a failure from the built-in S3 transport. A diagnostic
+names the failed operation and includes the HTTP status and a recognized S3 code when available.
+`R2.Error.format(detail)` formats only those fields, excluding provider messages, URLs, headers,
+response bodies, and credentials.
+
+`R2.Error.permission(error)` identifies runtime permission denials separately from S3 request
+failures.
+
+A failed request, body read, or enumeration is not evidence that an object is missing. The adapter
+adds no automatic retries.
+
+## Reference
+
+- [Read-route contracts](./src/m.r2/README.md#read-routes) — paths, responses, and cancellation.
+- [Error contracts](./src/m.r2/README.md#errors) — diagnostic fields and errors through Files.
+- [Files enumeration](./src/m.r2/m.Files/README.md) — defaults, accounting, and custom transports.
+- [Source types](./src/m.r2/t.ts).
+- [Published R2 API](https://jsr.io/@sys/driver-cloudflare/doc/r2).

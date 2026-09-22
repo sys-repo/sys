@@ -1,5 +1,7 @@
-import { describe, expect, it, Json, type t, Testing, Time, WebFixture } from '../-test.ts';
+import { Hash } from '@sys/crypto/hash';
+import { describe, expect, Fs, it, Json, type t, Testing, Time, WebFixture } from '../-test.ts';
 import { startFetches } from '../ui/u.load.ts';
+import { localFixture } from '../../-scripts/-test/u.fixture.ts';
 
 const ORIGIN = 'https://sample.test';
 // A reported sentinel value: this fixture tests extraction, not verified build identity.
@@ -18,10 +20,31 @@ const dist: t.DistPkg = {
 
 describe('R2 deployment sample: UI fetches', () => {
   it('same-origin JSON → API message and reported manifest digest', async () => {
-    const result = await fetchPair(Response.json({ msg: '👋 hello world!' }), Response.json(dist));
-    expect(result.message).to.eql('👋 hello world!');
+    const bytes = new TextEncoder().encode(Json.stringify(dist));
+    const result = await fetchPair(Response.json({ msg: 'message from API' }), new Response(bytes));
+    expect(result.message).to.eql('message from API');
     expect(result.digest).to.eql(digest);
+    expect(result.checksum).to.eql(Hash.sha256(bytes));
     expect(result.urls.sort()).to.eql([`${ORIGIN}/api/hello`, `${ORIGIN}/ui/dist.json`]);
+  });
+
+  it('served projection bytes → checksum matches the build-selected private manifest pin', async () => {
+    await using f = await localFixture();
+    const file = await Fs.readText(f.dir.join('dist.private/dist.json'));
+    expect(file.ok).to.eql(true);
+    const result = await fetchPair(Response.json({ msg: 'hello' }), new Response(file.data));
+    expect(result.checksum).to.eql(f.selection.private['dist.json']);
+    expect(result.digest).not.to.eql(result.checksum);
+  });
+
+  it('whitespace and UTF-8 BOM → hash exact response bytes, not parsed or reserialized JSON', async () => {
+    for (const prefix of ['  \n', '\uFEFF']) {
+      const bytes = new TextEncoder().encode(`${prefix}${Json.stringify(dist)}\n`);
+      const result = await fetchPair(Response.json({ msg: 'hello' }), new Response(bytes));
+      expect(result.digest).to.eql(digest);
+      expect(result.checksum).to.eql(Hash.sha256(bytes));
+      expect(result.checksum).not.to.eql(Hash.sha256(Json.stringify(dist)));
+    }
   });
 
   it('API completes first → message updates while the manifest remains pending', async () => {
@@ -84,11 +107,14 @@ describe('R2 deployment sample: UI fetches', () => {
       new Response('{broken'),
       Response.json({ hash: { digest } }),
       Response.json({ ...dist, hash: { digest: 'not-a-hash', parts: {} } }),
+      new Response(new Uint8Array([255, 255])),
+      new Response(' '.repeat(65_537)),
     ];
     for (const response of responses) {
       const result = await fetchPair(Response.json({ msg: 'hello' }), response);
       expect(result.message).to.eql('hello');
-      expect(result.digest).to.eql('Could not load the Dist digest.');
+      expect(result.digest).to.eql('Could not load the private manifest.');
+      expect(result.checksum).to.eql('Could not load the private manifest.');
     }
   });
 
@@ -99,20 +125,24 @@ describe('R2 deployment sample: UI fetches', () => {
   });
 
   it('disposal → both requests abort without updating the view', async () => {
-    const started = Promise.withResolvers<void>();
     const signals: AbortSignal[] = [];
     const updates: string[] = [];
-    using mock = WebFixture.Fetch.mock((input, init) => {
+    using _mock = WebFixture.Fetch.mock((input, init) => {
       const { signal } = new Request(input, init);
       signals.push(signal);
-      if (signals.length === 2) started.resolve();
       return new Promise((_resolve, reject) => {
         signal.addEventListener('abort', () => reject(signal.reason), { once: true });
       });
     });
-    const stop = startFetches(ORIGIN, (value) => updates.push(value), (value) => updates.push(value));
+    const stop = startFetches(
+      ORIGIN,
+      (value) => updates.push(value),
+      (value) => updates.push(value),
+    );
     try {
-      await started.promise;
+      await Testing.retry(1_000, { silent: true, delay: 10 }, () => {
+        expect(signals.length).to.eql(2);
+      });
       stop();
       // Allow the aborted request continuations to settle before checking for late updates.
       await Time.wait(0);
@@ -133,7 +163,8 @@ async function fetchPair(message: Response, manifest: Response) {
     expect(f.messages.length).to.eql(1);
     expect(f.digests.length).to.eql(1);
   });
-  return { message: f.messages[0], digest: f.digests[0], urls: f.urls };
+  expect(f.checksums.length).to.eql(1);
+  return { message: f.messages[0], digest: f.digests[0], checksum: f.checksums[0], urls: f.urls };
 }
 
 /** Suite-local transport controls; deliberately ignores abort so late replies remain possible. */
@@ -143,6 +174,7 @@ function controlledPair() {
   const urls: string[] = [];
   const messages: string[] = [];
   const digests: string[] = [];
+  const checksums: string[] = [];
   const mock = WebFixture.Fetch.mock((input, init) => {
     const req = new Request(input, init);
     urls.push(req.url);
@@ -150,13 +182,21 @@ function controlledPair() {
     if (req.url === `${ORIGIN}/ui/dist.json`) return manifest.promise;
     throw new Error(`Unexpected fixture request: ${req.url}`);
   });
-  const stop = startFetches(ORIGIN, (value) => messages.push(value), (value) => digests.push(value));
+  const stop = startFetches(
+    ORIGIN,
+    (value) => messages.push(value),
+    (value, checksum) => {
+      digests.push(value);
+      checksums.push(checksum);
+    },
+  );
   return {
     message,
     manifest,
     urls,
     messages,
     digests,
+    checksums,
     stop,
     async [Symbol.asyncDispose]() {
       using _restoreFetch = mock;

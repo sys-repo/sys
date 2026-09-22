@@ -104,7 +104,12 @@ export function filesHandle(args: {
             },
           });
         }
-        return Promise.reject(new Error('remote dist unavailable'));
+        // Model the explicit absence detail received from Files/R2 over Cmd, not an unknown failure.
+        return Promise.reject(
+          new Error('File not found: dist.json', {
+            cause: { name: 'FilesR2Error.NotFound', message: 'File not found: dist.json' },
+          }),
+        );
       },
     },
     list() {

@@ -1,7 +1,7 @@
 import { describe, expect, it, type t, Yaml } from '../../../-test.ts';
 import { resolveEndpointEnvRefs } from '../u.env.ts';
 
-const cwd = '/tmp/sys.tools.deploy.env' as t.StringDir;
+const cwd: t.StringDir = '/tmp/sys.tools.deploy.env';
 
 describe('resolveEndpointEnvRefs', () => {
   it('does not enter dotenv resolution when the AST has no env refs', async () => {
@@ -10,9 +10,9 @@ describe('resolveEndpointEnvRefs', () => {
 
     const res = await resolveEndpointEnvRefs(ast, {
       cwd,
-      resolve: async () => {
+      resolve() {
         calls += 1;
-        throw new Error('dotenv resolver should not run');
+        return Promise.reject(new Error('dotenv resolver should not run'));
       },
     });
 
@@ -27,9 +27,9 @@ describe('resolveEndpointEnvRefs', () => {
 
     const res = await resolveEndpointEnvRefs(ast, {
       cwd,
-      resolve: async () => {
+      resolve() {
         calls += 1;
-        throw new Error('dotenv resolver should not run');
+        return Promise.reject(new Error('dotenv resolver should not run'));
       },
     });
 
@@ -48,14 +48,19 @@ describe('resolveEndpointEnvRefs', () => {
 
     const res = await resolveEndpointEnvRefs(ast, {
       cwd,
-      resolve: async (target) => {
+      resolve(target, options) {
         calls += 1;
-        return Yaml.EnvRef.resolveAst(target, { get: () => 'resolved' });
+        expect(options).to.eql({ cwd, search: 'upward', nonEmpty: true });
+        return Promise.resolve(Yaml.EnvRef.resolveAst(target, {
+          get: () => 'resolved',
+          nonEmpty: options.nonEmpty,
+        }));
       },
     });
 
     expect(res.ok).to.eql(true);
     expect(res.refs).to.eql<t.Yaml.EnvRef.Ref[]>([{ path: ['value'], name: 'VALUE' }]);
+    expect(Yaml.toJS(ast).data).to.eql({ value: 'resolved' });
     expect(calls).to.eql(1);
   });
 });

@@ -13,9 +13,13 @@ h2 {
   font-size: 1.125rem;
 }
 
+h2 ~ h2 {
+  margin-block-start: calc(0.83em + 20px);
+}
+
 p {
   margin-inline-start: 1rem;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
 }
 
 code {
@@ -27,10 +31,27 @@ code a {
   color: inherit;
 }
 
-.fetches {
-  overflow-x: auto;
+.identity-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.875rem;
 }
 
-.fetches .digest {
-  white-space: nowrap;
+.identity-table caption {
+  text-align: left;
+  margin-bottom: 0.5rem;
+}
+
+.identity-table th,
+.identity-table td {
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.identity-table th:nth-child(2) {
+  width: 32%;
 }

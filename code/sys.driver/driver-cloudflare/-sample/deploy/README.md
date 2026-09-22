@@ -1,100 +1,34 @@
 # @sample/r2
 
-### Deno application with R2 assets
+### Deno application with public and private R2 delivery
 
-This `@sys/driver-cloudflare/r2` sample serves an API and UI from one Deno origin. Deno
-[relays UI assets](../../README.md#application-read-routes) from a private R2 bucket; signed URLs
-and credentials stay server-side.
+One UI, one Vite build, two byte paths:
 
-Application routes require no login. A private bucket does not make the application private.
+- **Deno:** the API, `index.html`, and `dist.json`. The files use a
+  [bounded private-R2 relay](../../README.md#application-read-routes). Deno fetches them with
+  short-lived presigned GET URLs; the browser receives bytes, not signed URLs or R2 credentials.
+- **Public R2:** the UI's actual JavaScript, CSS, and referenced assets, loaded directly by the
+  browser. Deno has no public-asset relay or backup bundle.
+
+**Planned next:** serve the `sw.js` service worker from the application origin through the private
+relay. It is not part of the current build; worker outputs are currently refused.
+
+Application routes require no login. Private storage does not make the page confidential. Public
+scripts execute as application code, not in a separate security boundary.
 
 ## Delivery costs
 
-R2 [does not charge for egress](https://developers.cloudflare.com/r2/pricing/), but this relay
-consumes the Deno host's outbound bandwidth; charges depend on its plan. R2 storage and reads remain
-metered. Responses use `Cache-Control: no-store`, so normal browser/CDN caching does not absorb
-repeat loads.
+Public asset bodies bypass Deno; HTML, API, and private-manifest responses still consume its
+outbound bandwidth. R2 [does not charge for egress](https://developers.cloudflare.com/r2/pricing/),
+but storage and operations remain metered. Deno charges depend on the hosting plan. This sample does
+not establish measured savings or zero-cost delivery.
 
-## Run
+Private responses use `Cache-Control: no-store`. The relay's per-response, time, and concurrency
+limits are not deployment-wide traffic or spending caps.
 
-Use an existing private R2 bucket and a dedicated prefix you control. Keep public access disabled
-for both the bucket's `r2.dev` URL and any custom domains. The sample does not configure or verify
-bucket privacy.
+## Bucket setup
 
-[r2.config.json](r2.config.json) currently selects bucket `sys-test` and prefix
-`tmp.sys.driver-cloudflare/r2-proof-ui`. If changing accounts, also update the matching R2 hostnames
-in the `push` and `serve` network grants in [deno.json](deno.json). The `serve` grant also applies
-to `proof:local`.
-
-Provide the configured credentials in the repository-root `.env` or process environment:
-
-- `SYS_TEST_R2_ACCESS_KEY_ID`
-- `SYS_TEST_R2_SECRET_ACCESS_KEY`
-
-### Build → push → serve
-
-Run tasks from `code/sys.driver/driver-cloudflare/-sample/deploy`.
-
-**`push` writes to R2 and deletes objects in the configured prefix that are absent from the selected
-build.** Do not share that prefix with unrelated files. Publishing requires read, list, write, and
-delete access.
-
-A failed push can leave partial changes; there is no automatic rollback. Keep `dist/`,
-`dist.pin.json`, and `r2.config.json` unchanged during publication.
-
-```sh
-# Build and verify dist/; write dist.pin.json.
-deno task build
-
-# Verify and publish the pinned build to R2; no rebuild or repin.
-deno task push
-
-# Check the pinned remote manifest; serve the API and UI locally.
-deno task serve
-```
-
-For an already-published build, run only `deno task serve`; it does not upload. Valid
-`dist.pin.json`, `r2.config.json`, credentials, and the matching remote manifest are required; local
-`dist/` is optional for serving.
-
-Open the UI at <http://127.0.0.1:8080/ui/>.
-
-- API: <http://127.0.0.1:8080/api/hello>
-- Asset manifest: <http://127.0.0.1:8080/ui/dist.json>
-
-## Build selection
-
-`build` verifies `dist/` and writes its manifest checksum to `dist.pin.json`. Startup checks the
-remote manifest against that pin before serving any route, including the API. A refusal prevents the
-whole app from starting; there is no unpinned fallback.
-
-Configuration, pin, and routes are fixed for each running instance. Restart after publishing a new
-build with its matching pin. The [sample limits](src/m.app/u.selection.ts) allow a 64 KiB manifest,
-256 graph entries, 1 MiB per asset, and 4 MiB total declared assets.
-
-Startup build details describe local output; the UI digest comes from the served manifest. These
-displays do not verify delivered assets or prove provenance. R2 objects may change after startup.
-
-## Verify delivery
-
-`deno task test` runs fixture tests without live R2 requests.
-
-`proof:local` is a read-only check against live R2 and requires the matching local `dist/`. Stop
-`serve`, keep `dist/`, `dist.pin.json`, and `r2.config.json` unchanged, then run:
-
-```sh
-deno task proof:local
-```
-
-The [check](-scripts/u.proof.ts) prints its target, pin, files, and request ceilings before reading
-R2, then compares served bytes and headers with the verified local build. It starts and closes its
-own local server, stopping on failure without rebuilding, uploading, or retrying. It does not test
-browser rendering, hosted deployment, or bucket privacy.
-
-## Two-bucket setup
-
-These targets are selected for direct browser delivery; the sample still uses `sys-test` and relays
-all UI assets through Deno.
+[r2.config.json](r2.config.json) selects:
 
 ```text
 Public bucket:   sys-test-public
@@ -103,6 +37,11 @@ Prefix in both:  tmp.sys.driver-cloudflare/r2-proof-ui/
 ```
 
 Public bucket URL: <https://pub-72d4e716dcae492f9e174c58866d5533.r2.dev>
+
+The configured `publicAssetBase` appends the public key prefix to that URL. An authenticated S3
+endpoint is not a browser asset URL. If changing accounts, also update the matching R2 hostnames in
+the `push` and `serve` network grants in [deno.json](deno.json). These grants also cover
+`push:public` / `push:private` and `proof:local`, respectively.
 
 In the public bucket's **Settings**:
 
@@ -118,10 +57,169 @@ In the public bucket's **Settings**:
 ]
 ```
 
-This policy lets pages on any origin read the public assets; it grants no write access. Store only
-public assets in this bucket.
-
+This permits pages on any origin to read intentionally public assets; it grants no write access.
 Keep the private bucket's public URL and custom domains disabled. Deno reads it server-side, so it
-needs no CORS policy.
+needs no CORS policy. The sample neither configures nor verifies bucket exposure.
 
-`r2.dev` is rate-limited and intended for development. Use a custom domain for production delivery.
+`r2.dev` is rate-limited development infrastructure. A custom domain is not required for this
+sample.
+
+## Credentials
+
+This sample uses **one S3 key pair** for `push:public`, `push:private`, `serve`, and `proof:local`.
+Create one R2 token with **Object Read & Write** access scoped to both `sys-test-public` and
+`sys-test-private`. Publishing includes listing and deleting objects.
+
+Set its **Access Key ID** and **Secret Access Key** in the repository-root `.env` or process
+environment—not the separate API Token value:
+
+```dotenv
+SYS_TEST_R2_KEY_ID="..."
+SYS_TEST_R2_KEY_SECRET="..."
+```
+
+Keep values untracked; never put them in `r2.config.json` or the frontend. Existing credentials are
+not assumed to cover these buckets.
+
+Serving and proof perform only private-bucket reads, but the shared credential can write to both
+buckets. For stricter deployments, the existing `credentials.serve`, `credentials.pushPrivate`, and
+`credentials.pushPublic` mappings in `r2.config.json` can reference different environment-variable
+pairs; the libraries do not require sharing. No additional credential pair is needed for this
+sample. Publishing passes credential references to `Deploy.push`, which resolves them and owns
+publication.
+
+Missing or blank resolved credentials stop the affected task before R2 access. Its output provides
+copyable `NAME="..."` assignments for the missing names and explains setup without a stack trace.
+Replace `...` with real, non-empty credentials; the output never includes credential values.
+Commented `.env` lines are ignored; active entries override exported values, including empty
+entries. Fix the values and rerun the task; `build` needs no credentials. This is a setup check, not
+verification of R2 access permissions.
+
+Recognized R2 push failures use the same stack-free layout and failure exit as missing credentials.
+They report the operation, available HTTP status, and recognized S3 code without raw provider text.
+HTTP 401/403 guidance asks you to check the S3 key pair, account, and bucket permissions; it does
+not diagnose the exact token mistake. Unexpected errors and runtime permission denials still escape
+rather than becoming credential advice.
+
+Failed remote-manifest acquisition—including body reads, content references, enumeration refusals,
+and unclassified errors—stops publication rather than becoming a cache miss. Explicit Files/R2
+absence permits a first publication. After a successful Files read and any referenced-byte fetch,
+Deploy may fall back to a full upload if it cannot decode or validate the metadata. Invalid UTF-8 on
+the inline Files path is a read refusal, not this fallback. Later failures can still leave partial
+writes; no rollback, retry, or cleanup is implied.
+
+## Build → push → serve
+
+Run tasks from `code/sys.driver/driver-cloudflare/-sample/deploy`.
+
+**Publication writes to each selected R2 prefix and deletes objects there that are absent from its
+selected inventory.** `push` affects both prefixes. Use dedicated prefixes you control; do not share
+them with unrelated files.
+
+```sh
+# One Vite build; verify both projections and write dist.selection.json.
+deno task build
+
+# Publish public assets, then the private shell; stop if the public push fails.
+deno task push
+
+# Admit the pinned private remote manifest; serve the API and UI locally.
+deno task serve
+```
+
+`push` runs `push:public && push:private`. Both tasks are also available independently; each
+verifies both local projections and publishes only its named target. Neither rebuilds nor repins.
+All credentialed tasks use the shared pair above by default.
+
+Keep `dist.private/`, `dist.public/`, `dist.selection.json`, and `r2.config.json` unchanged
+throughout publication. Public-first ordering is not atomic: a failure may leave partial changes,
+without automatic rollback. If private publication fails, the public changes remain. Pruning can
+break older browser sessions; this disposable sample does not promise seamless cached upgrades.
+
+For an already-published candidate, run only `serve`. It requires configuration, selection, the
+configured S3 key pair, and the matching private remote manifest—not local build directories or a
+public network preflight.
+
+- UI: <http://127.0.0.1:8080/ui/>
+- API: <http://127.0.0.1:8080/api/hello>
+- Private shell manifest: <http://127.0.0.1:8080/ui/dist.json>
+
+## Build selection
+
+`build` creates and verifies the complete `dist/`, then preserves payload bytes and relative paths
+in two generated inventories:
+
+- `dist.private/`: `index.html` and its own `dist.json`.
+- `dist.public/`: frontend assets and their own `dist.json`.
+
+`dist.selection.json` records both exact manifest pins and the public asset base used by Vite. It is
+outside both inventories and contains neither credentials nor a filename list. Changing that base
+requires a new build. A failed build does not select a new candidate; the old `dist.pin.json` is not
+a fallback.
+
+Startup admits the private manifest before constructing any route, including the API. Refusal
+prevents the whole app from starting. Configuration, selection, and routes are fixed per instance;
+restart with the matching selection after publication. Public availability is a browser dependency,
+not a condition that triggers fallback delivery through Deno.
+
+The [sample limits](src/m.app/u.selection.ts) allow a 64 KiB manifest, 256 graph entries, 1 MiB per
+file, and 4 MiB total declared payloads. Extra documents and workers require an explicit new
+delivery role; this build does not admit them.
+
+Startup details and the UI digest identify the **private shell**, not the complete bundle. Manifest
+admission does not verify every delivered response or establish provenance; R2 objects can change
+after startup.
+
+Both UI table rows refer to `/ui/dist.json`, which describes the private HTML:
+
+- `dist.json → hash.digest`: the value stored inside the file, linked to that file for inspection.
+  Its last five hex digits match serve's `shell` digest suffix.
+- `Checksum of dist.json`: calculated from the whole response file, not stored in a JSON field.
+  Compare it with build's selected `private:` pin.
+
+Displaying these values does not verify downloaded files. Compare the same published build;
+rebuilding locally does not update R2. The complete Vite build digest and public manifest checksum
+describe different inventories, not this shell.
+
+## Verify delivery
+
+`deno task test` uses synthetic credentials and fixture storage, without live R2 requests.
+
+### Private HTTP proof
+
+After publication, `proof:local` performs read-only live R2 requests. Stop `serve`, retain the
+matching `dist.private/`, and keep its bytes, configuration, and selection unchanged:
+
+```sh
+deno task proof:local
+```
+
+The [check](-scripts/u.proof.ts) announces its private target, pin, inventory, and request ceilings
+before storage work. It starts and closes its own local server and compares served private bytes and
+headers with the verified projection, stopping on failure without upload or retry. Its receipt
+covers neither public assets, browser rendering, bucket privacy, nor hosted execution.
+
+Programmatic log callbacks may be synchronous or asynchronous. The proof awaits each report,
+including the initial announcement before credential or storage access. Reporting failure stops work
+and attempts to close any started server without retrying the logger. Server completion is observed
+even if close rejects. A single failure retains its identity; multiple proof, reporting, or cleanup
+failures are retained in an `AggregateError`, with the primary failure as its cause. The verified
+receipt precedes cleanup and does not itself attest to successful shutdown.
+
+### Browser check
+
+After both pushes succeed, retain the selected candidate and check one cold load:
+
+1. Use an empty browser cache with no controlling service worker. The document stays at the Deno
+   origin; API and private-manifest requests go there too.
+2. In the network panel, inspect the entry module, preloads, styles, imports, and referenced assets
+   actually loaded. Their final URLs must use the configured public base, with working CORS and
+   appropriate MIME/content encoding. Correlate them with the build inventory and Deno route policy;
+   a cache hit or displayed digest alone is not evidence of the byte path.
+3. Block the public entry and reload. The plain HTML explanation should remain visible; React cannot
+   render its own failure UI before loading. Request a public asset path under `/ui/` and expect
+   refusal, not a relay or signed-URL fallback.
+
+Record this separately from the private HTTP proof. Deno Deploy remains the intended hosting target;
+packaged configuration/selection availability and actual hosted browser delivery still require
+separate verification before claiming deployed support.

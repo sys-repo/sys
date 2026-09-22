@@ -1,4 +1,17 @@
-import { describe, expect, expectTypeOf, Fs, it, Path, Pkg, type t, Yaml } from '../../-test.ts';
+import {
+  describe,
+  expect,
+  expectError,
+  expectTypeOf,
+  Fs,
+  Is,
+  it,
+  Path,
+  Pkg,
+  Str,
+  type t,
+  Yaml,
+} from '../../-test.ts';
 import { Deploy } from '../mod.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { R2Provider } from '../u.providers/mod.ts';
@@ -74,10 +87,10 @@ describe('@sys/tools/deploy captured document push', () => {
         const pending = Deploy.push(args);
         args.cwd = '/not-the-selected-cwd';
         args.force = false;
-        document.provider!.bucket = 'changed';
-        document.provider!.credentials.accessKeyId = 'changed';
+        document.provider.bucket = 'changed';
+        document.provider.credentials.accessKeyId = 'changed';
         document.staging.dir = './missing';
-        document.mappings![0].dir.source = './missing';
+        document.mappings[0].dir.source = './missing';
         await pending;
         expect(calls).to.eql(1);
       });
@@ -89,12 +102,11 @@ describe('@sys/tools/deploy captured document push', () => {
       await stage(cwd);
       const before = await files(cwd);
       const seen: string[] = [];
-      let release!: () => void;
-      const both = new Promise<void>((resolve) => release = resolve);
+      const both = Promise.withResolvers<void>();
       await withProvider(async ({ target }) => {
         seen.push(target.provider.bucket);
-        if (seen.length === 2) release();
-        await both;
+        if (seen.length === 2) both.resolve();
+        await both.promise;
         return { ok: true };
       }, async () => {
         const a = endpoint('bucket-a');
@@ -111,7 +123,7 @@ describe('@sys/tools/deploy captured document push', () => {
     });
   });
 
-  it('resolves credential refs at the owner without mutating the caller or persisting secrets', async () => {
+  it('credential refs → owner resolution without changing caller inputs or adding files', async () => {
     await withTmpDir(async (cwd) => {
       await stage(cwd);
       const document = endpoint();
@@ -127,6 +139,73 @@ describe('@sys/tools/deploy captured document push', () => {
       expect(await files(cwd)).to.eql(before);
       expect((await Fs.readText(Path.join(cwd, '.env'))).data).to.eql(env);
     });
+  });
+
+  describe('unavailable environment references', () => {
+    const key = 'DEPLOY_DIAGNOSTIC_KEY';
+    const secret = 'DEPLOY_DIAGNOSTIC_SECRET';
+    const cases = [
+      { name: 'absent pair', env: '', missing: [key, secret] },
+      {
+        name: 'commented pair',
+        env: Str.dedent(`
+          # ${key}=unused
+          # ${secret}=unused
+        `),
+        missing: [key, secret],
+      },
+      { name: 'partial pair', env: `${key}=present-fixture-value`, missing: [secret] },
+      {
+        name: 'blank pair',
+        env: Str.dedent(`
+          ${key}=""
+          ${secret}=" \t "
+        `),
+        missing: [key, secret],
+      },
+    ];
+    for (const item of cases) {
+      it(`${item.name} → deduplicated names and no provider calls, for file or document input`, async () => {
+        const before = [Deno.env.get(key), Deno.env.get(secret)];
+        try {
+          Deno.env.delete(key);
+          Deno.env.delete(secret);
+          await withTmpDir(async (cwd) => {
+            await Fs.write(Path.join(cwd, '.env'), item.env, { throw: true });
+            const document = endpoint();
+            // The same unavailable name in two fields must appear only once in diagnostics.
+            document.provider.accountId = `\${env:${key}}`;
+            document.provider.credentials = {
+              accessKeyId: `\${env:${key}}`,
+              secretAccessKey: `\${env:${secret}}`,
+            };
+            const config = Path.join(cwd, 'endpoint.yaml');
+            await Fs.write(config, Yaml.stringify(document).data!, { throw: true });
+            let calls = 0;
+            await withProvider(() => {
+              calls++;
+              return Promise.resolve({ ok: true });
+            }, async () => {
+              for (const input of [{ cwd, document }, { cwd, config }]) {
+                const error = await expectError(() => Deploy.push(input));
+                expect(error.cause).to.deep.include({
+                  ok: false,
+                  reason: 'yaml-invalid',
+                  missingEnv: item.missing,
+                });
+                expect(String(error)).not.to.include('present-fixture-value');
+              }
+              expect(calls).to.eql(0);
+            });
+          });
+        } finally {
+          if (before[0] === undefined) Deno.env.delete(key);
+          else Deno.env.set(key, before[0]);
+          if (before[1] === undefined) Deno.env.delete(secret);
+          else Deno.env.set(secret, before[1]);
+        }
+      });
+    }
   });
 
   it('refuses mixed sources before admission or provider work', async () => {
@@ -149,7 +228,7 @@ describe('@sys/tools/deploy captured document push', () => {
             const document = endpoint();
             document.provider.credentials.accessKeyId = '${env:DEPLOY_CAPTURE_KEY}';
             const input = { cwd, document, ...ref } as unknown as t.DeployTool.PushArgs;
-            const error = await rejected(() => Deploy.push(input));
+            const error = await expectError(() => Deploy.push(input));
             expect(String(error)).to.include(
               'document and config references are mutually exclusive',
             );
@@ -179,11 +258,14 @@ describe('@sys/tools/deploy captured document push', () => {
         for (const document of cases) {
           const config = Path.join(cwd, 'invalid.yaml');
           await Fs.write(config, Yaml.stringify(document).data!);
-          const file = await rejected(() => Deploy.push({ cwd, config }));
+          const file = await expectError(() => Deploy.push({ cwd, config }));
           const input = { cwd, document } as t.DeployTool.PushDocumentArgs;
-          const captured = await rejected(() => Deploy.push(input));
-          const a = file.cause as t.DeployTool.PushOperation.Failure;
-          const b = captured.cause as t.DeployTool.PushOperation.DocumentFailure;
+          const captured = await expectError(() => Deploy.push(input));
+          const a = file.cause;
+          const b = captured.cause;
+          if (!Is.record(a) || !Is.record(b)) {
+            throw new Error('Expected structured admission failures.');
+          }
           expect(a.reason).to.eql('yaml-invalid');
           expect(b.reason).to.eql(a.reason);
           expect(b.source).to.eql('document');
@@ -207,8 +289,8 @@ describe('@sys/tools/deploy captured document push', () => {
       const denial = new Deno.errors.NotCapable('fixture admission denial');
       fs.validateAst = () => Promise.reject(denial);
       try {
-        expect(await rejected(() => Deploy.push({ cwd, document }))).to.equal(denial);
-        expect(await rejected(() => Deploy.push({ cwd, config }))).to.equal(denial);
+        expect(await expectError(() => Deploy.push({ cwd, document }))).to.equal(denial);
+        expect(await expectError(() => Deploy.push({ cwd, config }))).to.equal(denial);
         expect(await files(cwd)).to.eql(before);
       } finally {
         fs.validateAst = original;
@@ -231,13 +313,13 @@ describe('@sys/tools/deploy captured document push', () => {
             error: diagnostic,
           });
         }, async () => {
-          const error = await rejected(() => Deploy.push({ cwd, document: endpoint() }));
-          const cause = error.cause as t.DeployTool.PushOperation.DocumentFailure;
-          expect(cause.reason).to.eql('failed');
-          expect(cause.source).to.eql('document');
+          const error = await expectError(() => Deploy.push({ cwd, document: endpoint() }));
+          const cause = error.cause;
+          if (!Is.record(cause)) throw new Error('Expected a structured provider failure.');
+          expect(cause).to.deep.include({ reason: 'failed', source: 'document' });
           expect(cause.error).to.equal(diagnostic);
-          expect(cause.target?.bucket).to.eql('bucket-a');
-          expect('config' in cause).to.eql(false);
+          expect(cause.target).to.include({ bucket: 'bucket-a' });
+          expect(cause).not.to.have.property('config');
           expect(await files(cwd)).to.eql(before);
         });
       }
@@ -268,15 +350,6 @@ async function stage(cwd: string): Promise<void> {
 async function files(cwd: string): Promise<readonly string[]> {
   const entries = await Fs.glob(cwd, { includeDirs: false }).find('**/*');
   return entries.map((entry) => entry.path).sort();
-}
-
-async function rejected(fn: () => Promise<unknown>): Promise<Error> {
-  try {
-    await fn();
-  } catch (error) {
-    return error as Error;
-  }
-  throw new Error('expected rejection');
 }
 
 async function withProvider<T>(push: typeof R2Provider.push, fn: () => Promise<T>): Promise<T> {

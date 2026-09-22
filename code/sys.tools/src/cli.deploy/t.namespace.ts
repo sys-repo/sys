@@ -149,6 +149,8 @@ export namespace DeployTool {
       readonly hint?: string;
       readonly target?: t.PushTargetContext;
       readonly missing?: readonly t.PushMissingTarget[];
+      /** Missing/blank env names from input admission only; no values or provider diagnostics. */
+      readonly missingEnv?: readonly string[];
       readonly error?: unknown;
     };
   }
@@ -315,7 +317,12 @@ export namespace DeployTool {
       export type Ext = '.yaml';
       export type YamlCheck =
         | { readonly ok: true; readonly doc: t.DeployTool.Config.EndpointYaml.Doc }
-        | { readonly ok: false; readonly errors: readonly t.Schema.Error[] };
+        | {
+          readonly ok: false;
+          readonly errors: readonly t.Schema.Error[];
+          /** Present only when resolution failed solely for missing/blank env values. */
+          readonly missingEnv?: readonly string[];
+        };
     }
 
     /**

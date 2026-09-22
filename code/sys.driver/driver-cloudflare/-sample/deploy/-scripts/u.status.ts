@@ -12,7 +12,12 @@ type BuildStatus = {
 export async function buildStatus(pin: t.DistPin, root = ROOT): Promise<BuildStatus> {
   const selected = await selectBuild(pin, root);
   if (selected.kind !== 'verified') {
-    return { detail: { label: 'build', value: `dist/ (unavailable: ${selected.kind})` } };
+    return {
+      detail: {
+        label: 'shell',
+        value: `dist.private/ (unavailable: ${selected.kind})`,
+      },
+    };
   }
 
   const dist = selected.evidence.dist;
@@ -20,7 +25,7 @@ export async function buildStatus(pin: t.DistPin, root = ROOT): Promise<BuildSta
   const directoryUrl = new URL('./', manifestUrl);
 
   function formatValue(maxWidth?: number) {
-    const path = Fmt.Path.tty('dist/', {
+    const path = Fmt.Path.tty('dist.private/', {
       relative: 'bare',
       highlightBasename: false,
       terminal: maxWidth !== undefined,
@@ -39,7 +44,7 @@ export async function buildStatus(pin: t.DistPin, root = ROOT): Promise<BuildSta
   }
 
   // Keep terminal presentation separate from renderer-neutral service facts.
-  const detail: t.Service.Detail = { label: 'build', value: stripAnsi(formatValue()) };
+  const detail: t.Service.Detail = { label: 'shell', value: stripAnsi(formatValue()) };
   return {
     detail,
     formatDetail(args) {

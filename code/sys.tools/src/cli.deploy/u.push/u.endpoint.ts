@@ -77,6 +77,7 @@ async function executePush(args: {
     return fail({
       reason: 'yaml-invalid',
       error: validationError(identity, check),
+      ...(check.missingEnv?.length ? { missingEnv: check.missingEnv } : {}),
     });
   }
 

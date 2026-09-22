@@ -1,4 +1,5 @@
 export { Files } from '@sys/model/files';
+export { Cmd } from '@sys/event/cmd';
 export { Arr } from '@sys/std/arr';
 export { Bytes } from '@sys/std/bytes';
 export { Err } from '@sys/std/error';

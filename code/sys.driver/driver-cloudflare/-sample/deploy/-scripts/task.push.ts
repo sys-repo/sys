@@ -1,62 +1,66 @@
 import { Cli } from '@sys/cli';
 import { Deploy } from '@sys/tools/deploy';
+import { R2 } from '@sys/driver-cloudflare/r2';
 import { readInputs } from '../src/m.app/u.data.ts';
+import { missingCredentialsError } from '../src/m.app/u.credentials.ts';
 import { c, Is, ROOT, type t } from './common.ts';
-import { selectBuild } from './u.selection.ts';
+import { selectPublication } from './u.selection.ts';
+import { r2Failure, runTask } from './u.task.ts';
 
 /**
  * Push the existing selected build. Never rebuild or resolve secrets into a file.
  */
 export async function pushSample(
+  audience: t.Audience,
   root = ROOT,
   publish: (args: t.DeployTool.PushDocumentArgs) => Promise<t.DeployTool.PushDocumentResult> =
     Deploy.push,
 ) {
-  const { config, pin } = await readInputs(root);
-  const selected = await selectBuild(pin, root);
-  if (selected.kind !== 'verified') throw new Error(`Sample Dist refused: ${selected.kind}.`);
+  if (audience !== 'public' && audience !== 'private') {
+    throw new Error('Invalid sample push target.');
+  }
+  const { config, selection } = await readInputs(root);
+  await selectPublication(selection, root);
+  const target = config.targets[audience];
+  const names = config.credentials[audience === 'private' ? 'pushPrivate' : 'pushPublic'];
 
   const endpoint = {
     provider: {
       kind: 'r2',
       accountId: config.accountId,
-      bucket: config.bucket,
-      prefix: config.prefix,
+      bucket: target.bucket,
+      prefix: target.prefix,
       credentials: {
-        accessKeyId: `\${env:${config.credentials.accessKeyId}}`,
-        secretAccessKey: `\${env:${config.credentials.secretAccessKey}}`,
+        accessKeyId: `\${env:${names.accessKeyId}}`,
+        secretAccessKey: `\${env:${names.secretAccessKey}}`,
       },
     },
-    staging: { dir: './dist' },
+    staging: { dir: `./dist.${audience}` },
     mappings: [],
   } satisfies t.DeployTool.Config.EndpointYaml.Doc;
 
   try {
     return await publish({ cwd: root, document: endpoint });
   } catch (error) {
-    throw pushFailure(error);
+    throw pushFailure(error, names);
   }
 }
 
-/** Keep permission denials visible through Deploy's wrappers, but redact provider diagnostics. */
-function pushFailure(error: unknown): Error {
-  const pending = [error];
-  const seen = new Set<unknown>();
-  while (pending.length) {
-    const value = pending.pop();
-    if (seen.has(value) || (!Is.error(value) && !Is.record(value))) continue;
-    seen.add(value);
-    if (
-      (value.name === 'NotCapable' || value.name === 'PermissionDenied') && Is.str(value.message)
-    ) {
-      if (Is.error(value)) return value;
-      const denial = new Error(value.message);
-      denial.name = value.name;
-      return denial;
-    }
-    if ('cause' in value) pending.push(value.cause);
-    if ('error' in value) pending.push(value.error);
-  }
+/** Preserve runtime denials and safe R2 summaries; never forward raw provider diagnostics. */
+function pushFailure(error: unknown, names: t.CredentialNames): Error {
+  const denial = R2.Error.permission(error);
+  if (denial) return denial;
+  // Only input-admission metadata from Deploy can become a setup message. Provider failures
+  // stay redacted, and reported names must belong to this captured operation's credential pair.
+  const failure = Is.error(error) && Is.record(error.cause) ? error.cause : undefined;
+  const missing = failure?.missingEnv;
+  if (
+    failure?.ok === false && failure.source === 'document' && failure.reason === 'yaml-invalid' &&
+    Is.array(missing) && missing.length > 0 && missing.every(Is.str) &&
+    missing.every((name) => name === names.accessKeyId || name === names.secretAccessKey)
+  ) return missingCredentialsError(missing);
+  const detail = R2.Error.diagnostic(error);
+  if (detail) return r2Failure(detail);
   return new Error('Sample R2 push failed. No automatic retry or cleanup was performed.');
 }
 
@@ -64,14 +68,22 @@ function pushFailure(error: unknown): Error {
  * Main
  */
 if (import.meta.main) {
-  const result = await Cli.Spinner.with(
-    Cli.Fmt.spinnerText('pushing to R2…', false),
-    () => pushSample(),
-  );
-  const files = result.publish?.files ?? [];
-  const written = files.filter((file) => file.status === 'written').length;
-  const skipped = files.filter((file) => file.status === 'skipped').length;
-  const removed = result.prune?.files.length ?? 0;
-  const prefix = c.cyan('R2 push:');
-  console.info(`${prefix} ${written} written, ${skipped} skipped, ${removed} removed.`);
+  const [audience] = Deno.args;
+  if (Deno.args.length !== 1 || (audience !== 'public' && audience !== 'private')) {
+    throw new Error('Use deno task push, deno task push:public, or deno task push:private.');
+  }
+  const exitCode = await runTask(`push:${audience}`, async () => {
+    const result = await Cli.Spinner.with(
+      Cli.Fmt.spinnerText(`pushing ${c.cyan(audience)} inventory to R2…`, false),
+      () => pushSample(audience),
+    );
+    const files = result.publish?.files ?? [];
+    const written = files.filter((file) => file.status === 'written').length;
+    const skipped = files.filter((file) => file.status === 'skipped').length;
+    const removed = result.prune?.files.length ?? 0;
+    const prefix = c.cyan(`R2 ${audience} push:`);
+    console.info(`${prefix} ${written} written, ${skipped} skipped, ${removed} removed.`);
+  });
+  // Failure output and spinner cleanup have completed before terminating the command.
+  if (exitCode !== 0) Deno.exit(exitCode);
 }

@@ -1,65 +1,100 @@
-import { createRoot, Hash, Is, Pkg, pkg, React } from './common.ts';
+import { Hash, Is, Pkg, pkg, React } from './common.ts';
 import { startFetches } from './u.load.ts';
 
 /**
  * Application Root
  */
-export function App() {
+export function App({ origin = globalThis.location?.origin }: { origin?: string } = {}) {
   const [message, setMessage] = React.useState('Loading…');
-  const [digest, setDigest] = React.useState('Loading…');
-  const hash = Pkg.Dist.Part.hash(digest);
-  // Keep the sha256- prefix, eleven leading hex digits, and five trailing hex digits.
-  const digestLabel = Is.str(hash) ? Hash.shorten(hash, [18, 5], { divider: '…' }) : digest;
-  React.useEffect(() => startFetches(window.location.origin, setMessage, setDigest), []);
+  const [manifest, setManifest] = React.useState({ digest: 'Loading…', checksum: 'Loading…' });
+  const digest = Pkg.Dist.Part.hash(manifest.digest);
+  const checksum = Pkg.Dist.Part.hash(manifest.checksum);
+  React.useEffect(() => {
+    if (!origin) return;
+    return startFetches(origin, setMessage, (digest, checksum) => {
+      setManifest({ digest, checksum });
+    });
+  }, [origin]);
   return (
     <main>
       <h1>{pkg.name}</h1>
-      <h2>Runtime: Deno · Asset storage: R2</h2>
+      <h2>Deno HTML and API · R2 assets</h2>
       <p>
-        This <code>@sys/driver-cloudflare/r2</code>{' '}
-        sample demonstrates how Deno serves an API and UI from one application origin. UI assets are
-        stored in a{' '}
-        <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>
-          private R2 bucket
-        </a>.
+        Deno serves this page and <a href='/api/hello'>/api</a> from the application origin
+        {origin && (
+          <>
+            {' '}(<a href={origin}>{new URL(origin).host}</a>)
+          </>
+        )}. UI scripts and styles load directly from{' '}
+        <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2</a>,
+        avoiding Deno egress for those assets.
       </p>
       <p>
-        The browser fetches{' '}
-        <code>
-          <a href='/api/hello'>/api/hello</a>
-        </code>{' '}
-        and{' '}
-        <code>
-          <a href='/ui/dist.json'>/ui/dist.json</a>
-        </code>{' '}
-        from the same origin.
-      </p>
-      <p>
-        Deno fetches each UI asset from R2 using a{' '}
+        <code>index.html</code> and <code>dist.json</code> are stored in{' '}
+        <a href='https://developers.cloudflare.com/r2/api/tokens/'>private R2</a>{' '}
+        and served through a bounded relay. Deno fetches them with{' '}
         <a href='https://developers.cloudflare.com/r2/api/s3/presigned-urls/'>
-          short-lived presigned URL
-        </a>{' '}
-        and returns the bytes to the browser. The presigned URL and R2 credentials stay server-side.
+          short-lived presigned GET URLs
+        </a>; the browser receives bytes, not signed URLs or R2 credentials.
       </p>
       <h2>Same-origin fetches</h2>
-      <ul className='fetches' aria-live='polite'>
-        <li>
-          api.msg:{' '}
-          <code>
-            "<a href='/api/hello'>{message}</a>"
-          </code>
-        </li>
-        <li>
-          dist.hash.digest:{' '}
-          <code className='digest'>
-            "<a href='/ui/dist.json' title={digest} aria-label={digest}>{digestLabel}</a>"
-          </code>
-        </li>
-      </ul>
-      <p>
-        <strong>Note:</strong>{' '}
-        Displaying the manifest’s digest does not verify the downloaded assets.
+      <p aria-live='polite'>
+        api.msg:{' '}
+        <code>
+          "<a href='/api/hello'>{message}</a>"
+        </code>
       </p>
+      <h2>Compare build and serve</h2>
+      <table className='identity-table' aria-live='polite'>
+        <caption>
+          Private relay — <a href='/ui/dist.json'>/ui/dist.json</a>
+        </caption>
+        <thead>
+          <tr>
+            <th scope='col'>What</th>
+            <th scope='col'>SHA-256</th>
+            <th scope='col'>Find in terminal</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope='row'>
+              <a href='/ui/dist.json'>
+                <code>dist.json → hash.digest</code>
+              </a>
+            </th>
+            <td>
+              <code>
+                {Is.str(digest)
+                  ? (
+                    <a href='/ui/dist.json' title={manifest.digest}>
+                      {Hash.shorten(digest, [12, 5], { trimPrefix: true, divider: '…' })}
+                    </a>
+                  )
+                  : manifest.digest}
+              </code>
+            </td>
+            <td>
+              <code>deno task serve</code> → <code>shell</code>
+            </td>
+          </tr>
+          <tr>
+            <th scope='row'>
+              Checksum of <code>dist.json</code>
+            </th>
+            <td>
+              <code title={manifest.checksum}>
+                {Is.str(checksum)
+                  ? Hash.shorten(checksum, [12, 5], { trimPrefix: true, divider: '…' })
+                  : manifest.checksum}
+              </code>
+            </td>
+            <td>
+              <code>deno task build</code> → <code>private:</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </main>
   );
 }

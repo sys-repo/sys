@@ -1,4 +1,5 @@
-import { Err, Is, type t } from '../common.ts';
+import { Cmd, Err, Is, type t } from '../common.ts';
+import { exposeDiagnostic, R2Error } from '../../u/u.diagnostic.ts';
 
 /** Create a named Files/R2 backing error. */
 export function fail(kind: t.R2.Files.Error.Kind, message: string, cause?: unknown): Error {
@@ -14,7 +15,21 @@ export async function provider<T>(args: {
   try {
     return await args.run();
   } catch (cause) {
-    if (isFilesR2Error(cause)) throw cause;
+    if (isFilesR2Error(cause)) {
+      // Absence is a Files outcome, not a generic provider failure or a message to parse.
+      if (cause.name === 'FilesR2Error.NotFound') {
+        throw Cmd.Error.expose({ name: cause.name, message: cause.message });
+      }
+      throw cause;
+    }
+    const detail = R2Error.diagnostic(cause);
+    if (detail) throw exposeDiagnostic(detail);
+    if (Is.record(cause) && (cause.name === 'NotCapable' || cause.name === 'PermissionDenied')) {
+      throw Cmd.Error.expose({
+        name: cause.name,
+        message: `R2 ${args.action} blocked by runtime permissions.`,
+      });
+    }
     const suffix = args.path === undefined ? '' : `: ${args.path}`;
     throw fail('FilesR2Error.Unsupported', `${args.action} failed${suffix}`, cause);
   }

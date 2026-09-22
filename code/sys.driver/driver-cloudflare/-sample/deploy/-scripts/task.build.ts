@@ -1,28 +1,26 @@
 import { Vite } from '@sys/driver-vite';
-import { c, Fmt, Fs, Pkg, pkg, ROOT, type t } from './common.ts';
-import { DIST_LIMITS, selectionFiles } from '../src/m.app/u.selection.ts';
+import { BUILD_BASE_ENV } from '../vite.config.ts';
+import { readData } from '../src/m.app/u.data.ts';
+import { configFrom } from '../src/m.app/u.selection.ts';
+import { Fs, pkg, ROOT } from './common.ts';
+import { buildSample } from './u.build.ts';
+import { formatBuildSelection } from './u.fmt.ts';
 
-/** Build and verify the UI, then explicitly select its exact manifest bytes. */
-const build = await Vite.build({ cwd: ROOT, pkg, exitOnError: false });
-if (!build.ok) throw new Error('Sample UI build failed.');
-
-const verified = await Pkg.Dist.Local.verify({
-  dir: Fs.join(ROOT, 'dist'),
-  limits: DIST_LIMITS,
+/** Build once, then select the two verified publication inventories. No credentials are resolved. */
+const config = configFrom(await readData(Fs.Path.toFileUrl(Fs.join(ROOT, 'r2.config.json'))));
+const result = await buildSample(config, ROOT, async ({ root, publicAssetBase }) => {
+  // This executable owns its process environment. Both Vite config evaluations read one capture,
+  // not r2.config.json again; no generated configuration file or alternate builder is involved.
+  const previous = Deno.env.get(BUILD_BASE_ENV);
+  Deno.env.set(BUILD_BASE_ENV, publicAssetBase);
+  try {
+    return await Vite.build({ cwd: root, pkg, exitOnError: false });
+  } finally {
+    if (previous === undefined) Deno.env.delete(BUILD_BASE_ENV);
+    else Deno.env.set(BUILD_BASE_ENV, previous);
+  }
 });
-if (verified.kind !== 'verified') throw new Error(`Sample Dist refused: ${verified.kind}.`);
-const files = selectionFiles(verified.evidence.dist);
-const pin: t.DistPin = { 'dist.json': verified.evidence.integrity };
-const pinPath = Fs.join(ROOT, 'dist.pin.json');
-await Fs.writeJson(pinPath, pin, { throw: true });
-
-const pinLink = Fmt.hyperlink(
-  c.gray('dist.pin.json'),
-  Fs.Path.toFileUrl(pinPath),
-  { underline: true },
-);
-console.info(build.toString());
+console.info(result.build.toString());
 console.info();
-console.info(`Admitted ${files.length} files`);
-console.info(`${c.gray(Fmt.Tree.branch(true))} manifest checksum ${c.gray(`(${pinLink})`)}`);
-console.info(`   ${c.gray(pin['dist.json'])}`);
+console.info(formatBuildSelection(result.selection));
+console.info();

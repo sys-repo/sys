@@ -27,18 +27,18 @@ describe('R2 deployment sample: credential reader', () => {
 
   it('reports missing or empty names without disclosing the available value', () => {
     expect(() => credentialsFrom(names, { get: () => undefined })).to.throw(
-      `Sample serving credentials are missing: ${names.accessKeyId}, ${names.secretAccessKey}.`,
+      `Sample credentials are missing: ${names.accessKeyId}, ${names.secretAccessKey}.`,
     );
     expect(() =>
       credentialsFrom(names, {
         get: (key) => key === names.accessKeyId ? credentials.accessKeyId : '',
       })
-    ).to.throw(`Sample serving credentials are missing: ${names.secretAccessKey}.`);
+    ).to.throw(`Sample credentials are missing: ${names.secretAccessKey}.`);
     expect(() =>
       credentialsFrom(names, {
         get: (key) => key === names.secretAccessKey ? credentials.secretAccessKey : '',
       })
-    ).to.throw(`Sample serving credentials are missing: ${names.accessKeyId}.`);
+    ).to.throw(`Sample credentials are missing: ${names.accessKeyId}.`);
   });
 
   it('consumes a real Env reader without requiring process-environment exports', async () => {

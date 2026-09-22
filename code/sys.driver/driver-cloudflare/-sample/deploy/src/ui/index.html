@@ -8,7 +8,14 @@
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main>
+        <h1>R2 + Deno</h1>
+        <p>Deno delivered this HTML shell. The interactive UI needs scripts and styles from public R2.</p>
+        <p>If this message remains, the UI has not started. There is no Deno-hosted backup bundle.</p>
+        <p><a href="/api/hello">API</a> · <a href="/ui/dist.json">Private shell manifest</a></p>
+      </main>
+    </div>
     <script type="module" src="./entry.tsx"></script>
   </body>
 </html>

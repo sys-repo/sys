@@ -1,5 +1,6 @@
 import { S3Client, type t } from './common.ts';
 import { isNotFound } from './u.error.ts';
+import { requestFailure } from './u.diagnostic.ts';
 import { toObjectMeta, toS3Metadata } from './u.metadata.ts';
 
 /** Private adapter from the R2-shaped bucket transport to signed S3-compatible HTTP. */
@@ -24,26 +25,30 @@ export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.B
         return toObjectMeta(object);
       } catch (error) {
         if (isNotFound(error)) return undefined;
-        throw error;
+        throw requestFailure('stat', error);
       }
     },
-    read: (key) => client.getObject(key, { bucketName }),
+    read: (key) => request('read', () => client.getObject(key, { bucketName })),
     presignGet(key, options) {
       const expirySeconds = options.expirySeconds;
-      return client.getPresignedUrl('GET', key, { bucketName, expirySeconds });
+      return request(
+        'presign',
+        () => client.getPresignedUrl('GET', key, { bucketName, expirySeconds }),
+      );
     },
     async write(key, data, options) {
-      const res = await client.putObject(key, data, {
-        bucketName,
-        size: options?.size,
-        metadata: toS3Metadata(options),
-      });
+      const res = await request('write', () =>
+        client.putObject(key, data, {
+          bucketName,
+          size: options?.size,
+          metadata: toS3Metadata(options),
+        }));
       return {
         etag: res.etag,
         version: res.versionId ?? undefined,
       };
     },
-    remove: (key) => client.deleteObject(key, { bucketName }),
+    remove: (key) => request('remove', () => client.deleteObject(key, { bucketName })),
     async *list(options) {
       if (options?.limit === 0) return;
       // A listing owns its client: concurrent operations cannot replace each other's guard.
@@ -52,7 +57,7 @@ export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.B
       const listing = new class extends S3Client {
         override makeRequest(...args: Parameters<S3Client['makeRequest']>) {
           beforeRequest?.();
-          return super.makeRequest(...args);
+          return request('list', () => super.makeRequest(...args));
         }
       }(clientOptions);
       const objects = listing.listObjects({
@@ -71,4 +76,12 @@ export function createS3Transport(context: t.R2.Bucket.TransportContext): t.R2.B
       }
     },
   };
+}
+
+async function request<T>(operation: t.R2.Error.Operation, run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    throw requestFailure(operation, error);
+  }
 }

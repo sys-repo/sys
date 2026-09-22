@@ -7,21 +7,22 @@ import { DIST_LIMITS, routesFor, selectionFiles, snapshotInputs } from './u.sele
  * Admit the remote manifest before constructing any application route or API.
  */
 export async function createApp(options: t.AppOptions): Promise<t.HttpServer.App> {
-  const { config, pin } = snapshotInputs(options.config, options.pin);
+  const { config, selection } = snapshotInputs(options.config, options.selection);
+  const target = config.targets.private;
   const source = options.bucket;
   const bucket = Object.freeze({
     name: source.name,
     presignGet: source.presignGet?.bind(source),
   });
   const signal = options.signal;
-  if (bucket.name !== config.bucket) {
+  if (bucket.name !== target.bucket) {
     throw new Error('Sample bucket does not match configuration.');
   }
   const storageOrigin = R2.Service.storageUrl(config.accountId);
   const bootstrap = R2.ReadRoute.create({
     bucket,
     storageOrigin,
-    routes: { '/dist.json': `${config.prefix}/dist.json` },
+    routes: { '/dist.json': `${target.prefix}/dist.json` },
     authorize: () => true,
     limits: {
       maxBytes: DIST_LIMITS.manifestBytes,
@@ -37,7 +38,7 @@ export async function createApp(options: t.AppOptions): Promise<t.HttpServer.App
   const bytes = new Uint8Array(await response.arrayBuffer());
   const admitted = await Pkg.Dist.Pinned.admitManifest({
     bytes,
-    integrity: pin['dist.json'],
+    integrity: selection.private['dist.json'],
     limits: DIST_LIMITS,
     until: signal,
   });
