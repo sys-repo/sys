@@ -41,7 +41,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -219,7 +219,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -403,7 +403,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -581,7 +581,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -750,7 +750,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -919,7 +919,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1088,7 +1088,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1269,7 +1269,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1447,7 +1447,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1625,7 +1625,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1806,7 +1806,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -1978,7 +1978,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -2168,7 +2168,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
@@ -2346,7 +2346,7 @@ jobs:
       - name: 'Install ESM Runtime: Deno 2.x'
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.9.6
+          deno-version: v2.9.7
       - name: Install Dependencies
         run: |
           max_attempts=3
