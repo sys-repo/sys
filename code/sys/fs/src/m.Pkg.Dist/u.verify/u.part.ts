@@ -1,14 +1,8 @@
 import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
 import { Hash, Is, Path, Pkg, Rx, type t } from './common.ts';
 import { snapshotExactDataObject, snapshotUntilInput } from './u.input.ts';
-import {
-  checkCancelled,
-  DEFAULT_IO,
-  failure,
-  ioFailure,
-  isFailure,
-  type VerifyIo,
-} from './u.io.ts';
+import type { VerifyIo } from '../t.internal.ts';
+import { checkCancelled, DEFAULT_IO, failure, ioFailure, isFailure } from './u.io.ts';
 import { isSafeNonNegative } from './u.limit.ts';
 import { observePartAncestors, readRegularFile, resolveLocalRoot, resolveRoot } from './u.tree.ts';
 

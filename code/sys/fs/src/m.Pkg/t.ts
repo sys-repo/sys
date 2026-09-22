@@ -4,17 +4,17 @@ import type { t } from '../common.ts';
 export type Pkg = StdPkg;
 
 /**
- * Filesystem-extended package metadata helper contracts.
+ * Package metadata and filesystem operations.
  */
 export declare namespace Pkg {
-  /** Filesystem-extended package metadata helper library. */
+  /** Package metadata with filesystem support. */
   export type Lib = StdPkg.Lib & {
     /** Tools for working with distribution packages on the filesystem. */
     readonly Dist: Dist.Lib;
   };
 
   /**
-   * Distribution metadata and integrity contracts.
+   * Distribution manifests, hashing, and verification.
    */
   export namespace Dist {
     /** Filesystem tools for distribution metadata and integrity. */
@@ -24,6 +24,12 @@ export declare namespace Pkg {
 
       /** Compute distribution-package metadata. */
       compute: Compute.Method;
+
+      /** Copy selected source files into new, verified distributions. */
+      project: Project.Method;
+
+      /** Validate named pins and verify their local files. */
+      readonly Pins: Pins.Lib;
 
       /** Check a directory against the checksum claims in its own manifest. */
       checkSelfReported: CheckSelfReported.Method;
@@ -38,7 +44,93 @@ export declare namespace Pkg {
       readonly Log: Log.Lib;
     };
     /**
-     * Distribution-package logging contracts.
+     * Limits for projection outputs or selected distributions.
+     * Payload bytes count once per distribution; manifests are excluded.
+     * `inventories` must be a positive safe integer; `totalBytes` a nonnegative safe integer.
+     */
+    export type BatchLimits = { inventories: number; totalBytes: number };
+
+    /**
+     * Copy selected files from one pinned distribution, preserving their bytes and relative paths.
+     */
+    export namespace Project {
+      /**
+       * Verify the source, write outputs in code-unit name order, then recheck the source.
+       * Return pins only if every step succeeds. Completed outputs remain after a later failure.
+       */
+      export type Method = <N extends string>(args: Args<N>) => Promise<Result<N>>;
+
+      /** Paths are relative to `root`. The root and output parents must already exist. */
+      export type Args<N extends string> = {
+        root: string;
+        source: { dir: string; integrity: t.StringHash };
+        /** Nonempty name-to-directory map. Output directories must not already exist. */
+        outputs: Record<N, string>;
+        limits: Verify.Limits;
+        batch: BatchLimits;
+        /**
+         * Select at least one source-relative payload path for each output name.
+         * Return exactly the output names; exclude `dist.json` and duplicate paths within an output.
+         */
+        select: (dist: t.DeepReadonly<t.DistPkg>) => Readonly<Record<N, readonly string[]>>;
+        pkg?: StdPkg;
+        builder?: StdPkg;
+        until?: t.UntilInput;
+      };
+
+      /** All output pins on success, or a failure with no pins. */
+      export type Result<N extends string> =
+        | { readonly kind: 'projected'; readonly pins: Readonly<Record<N, t.DistPin>> }
+        | Failure<N>;
+
+      /** The failed step and any cleanup error, reported without paths or underlying exceptions. */
+      export type Failure<N extends string> = {
+        readonly kind: 'failed';
+        readonly phase: 'input' | 'source' | 'select' | 'output' | 'recheck' | 'cleanup';
+        readonly output?: N;
+        readonly reason:
+          | Verify.FailureKind
+          | t.FsRooted.FailureKind
+          | 'policy-failure'
+          | 'compute-failure';
+        /** Outputs this call may have left on disk, either published or still staged. */
+        readonly remaining: readonly N[];
+        /** First cleanup failure, when separate from `reason`. */
+        readonly cleanup?: t.FsRooted.FailureKind;
+      };
+    }
+
+    /**
+     * Verify each named distribution against its manifest pin.
+     */
+    export namespace Pins {
+      /** Named pin validation and local file verification. */
+      export type Lib = StdPkg.Dist.Pins.Lib & { readonly verify: Verify };
+
+      /** Copy inputs before asynchronous work; return evidence only if every distribution verifies. */
+      export type Verify = <N extends string>(args: Args<N>) => Promise<Result<N>>;
+
+      /** One root-relative directory for each pin, with exactly the same names. */
+      export type Args<N extends string> = {
+        root: string;
+        selection: t.DistPins<N>;
+        dirs: Record<N, string>;
+        limits: Dist.Verify.Limits;
+        batch: BatchLimits;
+        until?: t.UntilInput;
+      };
+
+      /** Evidence for all distributions, or the first failure and its distribution name when known. */
+      export type Result<N extends string> =
+        | {
+          readonly kind: 'verified';
+          readonly evidence: Readonly<Record<N, Dist.Verify.Evidence>>;
+        }
+        | { readonly kind: Dist.Verify.FailureKind; readonly name?: N };
+    }
+
+    /**
+     * Format distribution metadata for logging.
      */
     export namespace Log {
       /** Logging helper library. */
@@ -59,7 +151,7 @@ export declare namespace Pkg {
     }
 
     /**
-     * Distribution-package compute contracts.
+     * Generate distribution manifests.
      */
     export namespace Compute {
       /** Compute distribution-package metadata. */
@@ -111,7 +203,7 @@ export declare namespace Pkg {
     }
 
     /**
-     * Distribution-package load contracts.
+     * Read distribution manifests.
      */
     export namespace Load {
       /** Load a `dist.json` file. */
@@ -132,7 +224,7 @@ export declare namespace Pkg {
     }
 
     /**
-     * Self-reported distribution-package consistency contracts.
+     * Check files against the hashes in their own manifest.
      */
     export namespace CheckSelfReported {
       /** Check a folder against its own distribution-package hash definitions. */

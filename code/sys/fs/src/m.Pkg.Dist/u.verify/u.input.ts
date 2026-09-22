@@ -9,7 +9,7 @@ const objectPrototype = Object.prototype;
 const ownKeys = Reflect.ownKeys;
 const INVALID_UNTIL = Symbol('invalid-until');
 
-/** Snapshot one exact plain-data object without invoking accessors or Proxy traps. */
+/** Copy allowed own data properties from a plain object; reject accessors and proxies. */
 export function snapshotExactDataObject(
   input: unknown,
   keys: Readonly<{
@@ -27,7 +27,7 @@ export function snapshotExactDataObject(
       if (!Is.str(key) || !includes(keys.ALLOWED, key)) return;
       const descriptor = getOwnPropertyDescriptor(input, key);
       if (!descriptor || !Obj.hasOwn(descriptor, 'value')) return;
-      snapshot[key] = descriptor.value;
+      Object.defineProperty(snapshot, key, { value: descriptor.value, enumerable: true });
     }
     for (const key of keys.REQUIRED) {
       if (!Obj.hasOwn(snapshot, key)) return;
@@ -38,7 +38,7 @@ export function snapshotExactDataObject(
   }
 }
 
-/** Validate finite byte and entry limits and return an immutable snapshot. */
+/** Validate the limits and return a frozen copy. */
 export function snapshotVerifyLimits(
   input: unknown,
 ): Readonly<t.Pkg.Dist.Verify.Limits> | undefined {
@@ -59,7 +59,7 @@ export function snapshotVerifyLimits(
   return freeze({ manifestBytes, entries, fileBytes, totalBytes });
 }
 
-/** Snapshot lifecycle arrays before validating their permitted getter-bearing leaves. */
+/** Copy lifecycle arrays before validating any elements that may have getters. */
 export function snapshotUntilInput(
   input: unknown,
 ): Readonly<{ value: t.UntilInput }> | undefined {

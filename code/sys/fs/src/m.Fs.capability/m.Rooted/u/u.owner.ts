@@ -1,7 +1,7 @@
 import { Is, Num, StdPath, type t } from '../common.ts';
 import { activityIo } from './u.activity.ts';
 import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
-import type { Io } from './u.io.ts';
+import type { Identity, Io } from '../t.internal.ts';
 import {
   assertLeaseBorrow,
   borrowLease,
@@ -13,7 +13,6 @@ import {
 } from './u.lease.ts';
 import { acquireLock, type LockState, releaseLock } from './u.lock.ts';
 import {
-  type Identity,
   identityRequired,
   lstatMaybe,
   observeTarget,

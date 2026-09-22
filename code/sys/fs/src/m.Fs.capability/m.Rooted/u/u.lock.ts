@@ -1,9 +1,8 @@
 import { Hash, Is, StdPath, type t } from '../common.ts';
 import { checkCancelled, cleanupFailure, failure, ioFailure, isFailure } from './u.error.ts';
-import type { FileHandle, Io } from './u.io.ts';
+import type { FileHandle, Identity, Io } from '../t.internal.ts';
 import {
   ensureDescendantDirectory,
-  type Identity,
   identityRequired,
   INTERNAL_NAME,
   lstatMaybe,

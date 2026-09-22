@@ -31,6 +31,104 @@ describe('Fs.Capability.Rooted failure settlement', () => {
     expect(cleanupFailure('promote-stage', settled, first).committed).to.eql(true);
   });
 
+  for (const boundary of ['link', 'write', 'sync', 'close', 'write-close'] as const) {
+    it(`file ${boundary} and cleanup fail → retains the primary and first cleanup failure`, async () => {
+      const fixture = await setup();
+      try {
+        const primary = new Deno.errors.NotSupported(boundary);
+        const firstCleanup = new Error('first cleanup');
+        const laterCleanup = new Error('later removal');
+        let temp = '';
+        let closed = 0;
+        let removals = 0;
+        const io = withIo({
+          async open(path, options) {
+            const file = await DEFAULT_IO.open(path, options);
+            if (!Fs.basename(path).startsWith('.sys.rooted-tmp-')) return file;
+            temp = path;
+            return wrapFile(file, {
+              async write(data) {
+                if (boundary === 'write' || boundary === 'write-close') throw primary;
+                return await file.write(data);
+              },
+              async sync() {
+                if (boundary === 'sync') throw primary;
+                await file.sync();
+              },
+              close() {
+                file.close();
+                closed++;
+                if (boundary === 'close') throw primary;
+                if (boundary === 'write-close') throw firstCleanup;
+              },
+            });
+          },
+          async link(from, to) {
+            if (boundary === 'link') throw primary;
+            await DEFAULT_IO.link(from, to);
+          },
+          async remove(path, options) {
+            if (path === temp) {
+              removals++;
+              throw boundary === 'write-close' ? laterCleanup : firstCleanup;
+            }
+            await DEFAULT_IO.remove(path, options);
+          },
+        });
+        const rooted = await createRooted({ root: fixture.root }, io);
+        const { targets: [target] } = await rooted.Target.admit([{ kind: 'file', path: 'out' }]);
+        const error = await expectFailure(
+          () => rooted.File.publish(target, new Uint8Array([1, 2, 3])),
+          'unsupported',
+        );
+        expect(error.operation).to.eql('publish-file');
+        expect(error.cause).to.equal(primary);
+        expect(error.cleanupError?.kind).to.eql('io-failure');
+        expect(error.cleanupError?.cause).to.equal(firstCleanup);
+        expect(closed).to.eql(1);
+        expect(removals).to.eql(1);
+        expect(await Fs.exists(temp)).to.eql(true);
+        expect(await Fs.exists(Fs.join(rooted.path, 'out'))).to.eql(false);
+      } finally {
+        await teardown(fixture);
+      }
+    });
+  }
+
+  it('file publication commitment upgrade → retains an existing cleanup failure', async () => {
+    const fixture = await setup();
+    try {
+      const primary = new Deno.errors.NotSupported('post-publication observation');
+      const cleanup = new Error('nested cleanup');
+      const combined = cleanupFailure('publish-file', primary, cleanup);
+      let published = '';
+      let temp = '';
+      const io = withIo({
+        async link(from, to) {
+          await DEFAULT_IO.link(from, to);
+          temp = from;
+          published = to;
+        },
+        async lstat(path) {
+          if (path === published) throw combined;
+          return await DEFAULT_IO.lstat(path);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+      const { targets: [target] } = await rooted.Target.admit([{ kind: 'file', path: 'out' }]);
+      const error = await expectFailure(
+        () => rooted.File.publish(target, new Uint8Array([1, 2, 3])),
+        'unsupported',
+        true,
+      );
+      expect(error.cleanupError).to.equal(combined.cleanupError);
+      expect(await Deno.readFile(published)).to.eql(new Uint8Array([1, 2, 3]));
+      expect(await Fs.exists(temp)).to.eql(false);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('partial promotion cleanup → observation failure retains known removal and the rename cause', async () => {
     const fixture = await setup();
     try {

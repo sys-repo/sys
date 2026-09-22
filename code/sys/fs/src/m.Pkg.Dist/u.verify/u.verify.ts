@@ -1,13 +1,7 @@
 import { Hash, Is, Path, Pkg, Rx, type t } from './common.ts';
 import { snapshotExactDataObject, snapshotUntilInput, snapshotVerifyLimits } from './u.input.ts';
-import {
-  checkCancelled,
-  DEFAULT_IO,
-  failure,
-  ioFailure,
-  isFailure,
-  type VerifyIo,
-} from './u.io.ts';
+import type { VerifyIo } from '../t.internal.ts';
+import { checkCancelled, DEFAULT_IO, failure, ioFailure, isFailure } from './u.io.ts';
 import { addBytes } from './u.limit.ts';
 import { admitManifestBytes } from './u.manifest.ts';
 import {

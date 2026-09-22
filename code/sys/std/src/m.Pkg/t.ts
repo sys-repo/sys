@@ -6,15 +6,12 @@ export type Pkg = PkgValue;
 export type * from './t.dist.ts';
 
 /**
- * Package metadata helper contracts.
+ * Package names, versions, and distribution metadata.
  */
 export declare namespace Pkg {
-  /**
-   * Tools for working with the standard system
-   * `{pkg}` package meta-data structure.
-   */
+  /** Parse, format, and validate package metadata. */
   export type Lib = {
-    /** Boolean flag tests related to the {pkg} meta-data. */
+    /** Package metadata type guards. */
     readonly Is: Is.Lib;
 
     /** Canonical package-subpath parsing. */
@@ -59,7 +56,7 @@ export declare namespace Pkg {
   };
 
   /**
-   * Package-subpath contracts.
+   * Parse package subpaths.
    */
   export namespace Subpath {
     /** Canonical package-subpath parsing operations. */
@@ -76,7 +73,7 @@ export declare namespace Pkg {
   }
 
   /**
-   * Package type-guard contracts.
+   * Package metadata type guards.
    */
   export namespace Is {
     /**
@@ -104,16 +101,16 @@ export declare namespace Pkg {
   }
 
   /**
-   * Distribution package helper contracts.
+   * Distribution manifests.
    */
   export namespace Dist {
-    /**
-     * Tools for working with "distribution-package"
-     * ie. an ESM output typically written to a `/dist` folder.
-     */
+    /** Parse distribution metadata and validate named pins. */
     export type Lib = {
       /** Type guards. */
       readonly Is: Is.Lib;
+
+      /** Validate and copy named distribution pins. */
+      readonly Pins: Pins.Lib;
 
       /** Legacy-compatibility helpers for dist schema evolution. */
       readonly Compat: Compat.Lib;
@@ -125,6 +122,29 @@ export declare namespace Pkg {
        */
       readonly Part: Part.Lib;
     };
+
+    /**
+     * Named distribution pin validation.
+     */
+    export namespace Pins {
+      /** Validate pins without reading their files. */
+      export type Lib = { readonly capture: Capture };
+
+      /**
+       * Return frozen copies of a nonempty pins-only record.
+       * When requirements are supplied, pin names must match them exactly.
+       * Invalid input throws `TypeError('Invalid Dist pins.')`.
+       */
+      export type Capture = {
+        (input: unknown): t.DistPins;
+        <const N extends string>(input: unknown, requirements: Requirements<N>): t.DistPins<N>;
+      };
+
+      /** An exhaustive, nonempty witness of the exact distribution names required by the consumer. */
+      export type Requirements<N extends string> = {
+        readonly names: Readonly<Record<N, true>>;
+      };
+    }
 
     /**
      * Type-guard contracts.
@@ -140,7 +160,7 @@ export declare namespace Pkg {
     }
 
     /**
-     * Dist hash-part helper contracts.
+     * File hashes and sizes recorded in a distribution manifest.
      */
     export namespace Part {
       /**
@@ -159,7 +179,7 @@ export declare namespace Pkg {
     }
 
     /**
-     * Distribution package compatibility helper contracts.
+     * Read and convert legacy distribution metadata.
      */
     export namespace Compat {
       /**

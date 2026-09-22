@@ -1,8 +1,8 @@
 import { Is, Num, Obj, Schedule, ServerIs, StdPath, type t } from '../common.ts';
 import { claimWriter } from './u.activity.ts';
 import { failure, isFailure } from './u.error.ts';
-import type { FileHandle, Io } from './u.io.ts';
-import { type Identity, identityRequired, lstatMaybe, sameIdentity } from './u.path.ts';
+import type { FileHandle, Identity, Io } from '../t.internal.ts';
+import { identityRequired, lstatMaybe, sameIdentity } from './u.path.ts';
 import { type StageState, validateActive } from './u.stage.ts';
 import { byteLengthOf, copyTreeChunk, treeChunkTail } from './u.write.bytes.ts';
 import { treeWriteInput } from './u.write.input.ts';

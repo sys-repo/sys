@@ -1,16 +1,10 @@
 import { Is, Num, StdPath, type t } from '../common.ts';
 import { checkCancelled, failure, ioFailure } from './u.error.ts';
-import type { Io } from './u.io.ts';
+import type { Identity, Io } from '../t.internal.ts';
 import { INTERNAL_NAME, type NormalizedTarget } from './u.target.ts';
 
 export { INTERNAL_NAME };
 export const TEMP_PREFIX = `${INTERNAL_NAME}-tmp-`;
-
-/** Filesystem identity represented by non-negative safe integers. */
-export type Identity = {
-  readonly dev: number;
-  readonly ino: number;
-};
 
 type IdentityInfo = {
   readonly dev: number | null;

@@ -1,8 +1,7 @@
 import { Is, StdPath, type t } from '../common.ts';
-import { checkCancelled, failure, ioFailure, isFailure } from './u.error.ts';
-import type { FileHandle, Io } from './u.io.ts';
+import { checkCancelled, cleanupFailure, failure, ioFailure, isFailure } from './u.error.ts';
+import type { FileHandle, Identity, Io } from '../t.internal.ts';
 import {
-  type Identity,
   identityRequired,
   lstatMaybe,
   observeTarget,
@@ -76,15 +75,13 @@ export async function publishFile(
       bytes: content.byteLength as t.NumberBytes,
     });
   } catch (cause) {
-    let cleanupCause: unknown;
     if (temp) {
       try {
         await removeOwnedFile(io, temp.path, temp.identity, operation, committed);
-      } catch (error) {
-        cleanupCause = error;
+      } catch (cleanupCause) {
+        throw cleanupFailure(operation, cause, cleanupCause, committed);
       }
     }
-    if (cleanupCause) throw committedFailure(operation, cleanupCause, committed);
     throw committedFailure(operation, cause, committed);
   }
 }
@@ -114,7 +111,7 @@ async function writeTemp(
   if (!file) throw failure(operation, 'io-failure');
 
   let identity: Identity | undefined;
-  let cause: unknown;
+  let pending: t.FsRooted.Failure | undefined;
   try {
     const opened = await file.stat();
     if (!opened.isFile) throw failure(operation, 'unsafe-filesystem');
@@ -135,25 +132,26 @@ async function writeTemp(
     if (!info.isFile || info.size !== bytes.byteLength || !sameIdentity(identity, info)) {
       throw failure(operation, 'unsafe-filesystem');
     }
-  } catch (error) {
-    cause = error;
+  } catch (cause) {
+    pending = ioFailure(operation, cause);
   } finally {
     try {
       file.close();
-    } catch (error) {
-      cause ??= error;
+    } catch (cause) {
+      pending = pending ? cleanupFailure(operation, pending, cause) : ioFailure(operation, cause);
     }
   }
 
-  if (cause || !identity) {
+  if (pending || !identity) {
+    const primary = pending ?? failure(operation, 'io-failure');
     if (identity) {
       try {
         await removeOwnedFile(io, path, identity, operation, false);
       } catch (cleanupCause) {
-        throw committedFailure(operation, cleanupCause, false);
+        throw cleanupFailure(operation, primary, cleanupCause);
       }
     }
-    throw committedFailure(operation, cause ?? failure(operation, 'io-failure'), false);
+    throw primary;
   }
   return { path, identity };
 }
@@ -196,7 +194,11 @@ function committedFailure(
 ): t.FsRooted.Failure {
   if (isFailure(cause)) {
     if (!committed || cause.committed) return cause;
-    return failure(operation, cause.kind, { cause, committed: true });
+    return failure(operation, cause.kind, {
+      cause,
+      committed: true,
+      cleanupError: cause.cleanupError,
+    });
   }
   return ioFailure(operation, cause, committed);
 }

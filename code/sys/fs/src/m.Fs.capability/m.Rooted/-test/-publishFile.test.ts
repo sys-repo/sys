@@ -293,10 +293,11 @@ describe('Fs.Capability.Rooted.publishFile', () => {
       const rooted = await createRooted({ root: fixture.root }, io);
       const target = await fileTarget(rooted, 'identity-loss.txt');
 
-      await expectFailure(
+      const error = await expectFailure(
         () => rooted.File.publish(target, bytes('owned')),
-        'ownership-lost',
+        'io-failure',
       );
+      expect(error.cleanupError?.kind).to.eql('ownership-lost');
       expect(await Deno.readTextFile(temp)).to.eql('foreign');
       expect(await Fs.exists(Fs.join(fixture.root, target.path))).to.eql(false);
     } finally {

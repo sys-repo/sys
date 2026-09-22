@@ -7,7 +7,6 @@ import {
   expect,
   expectFailure,
   expectWriteFailure,
-  type FileHandle,
   Fs,
   it,
   OPTIONS,
@@ -18,6 +17,7 @@ import {
   withIo,
   wrapFile,
 } from './u.fixture.writer.ts';
+import type { FileHandle } from '../t.internal.ts';
 
 describe('Fs.Capability.Rooted writer filesystem settlement', () => {
   it('rejects a non-pristine stage after claiming it, including metadata left by a released lease', async () => {

@@ -1,7 +1,7 @@
 import { Is, Num, StdPath, Str, type t } from '../common.ts';
 import { checkCancelled, cleanupFailure, failure, ioFailure, isFailure } from './u.error.ts';
-import type { Io, ModeHandle, ModeInfo } from './u.io.ts';
-import { type Identity, identityRequired, lstatMaybe, sameIdentity } from './u.path.ts';
+import type { Identity, Io, ModeHandle, ModeInfo } from '../t.internal.ts';
+import { identityRequired, lstatMaybe, sameIdentity } from './u.path.ts';
 
 const compare = Str.Compare.codeUnit();
 const WRITE_BITS = 0o222;

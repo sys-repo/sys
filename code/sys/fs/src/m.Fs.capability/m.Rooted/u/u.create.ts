@@ -4,7 +4,8 @@ import { Is, Rx, StdPath, type t } from '../common.ts';
 import { activityIo, guardRooted } from './u.activity.ts';
 import { checkCancelled, failure, ioFailure, isFailure, runOperation } from './u.error.ts';
 import { publishFile } from './u.file.ts';
-import { DEFAULT_IO, type Io } from './u.io.ts';
+import type { Io } from '../t.internal.ts';
+import { DEFAULT_IO } from './u.io.ts';
 import {
   acquireLease as acquireTargetLease,
   leaseInput,

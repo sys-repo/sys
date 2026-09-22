@@ -6,7 +6,6 @@ import {
   expectFailure,
   expectTypeOf,
   Fs,
-  type Io,
   it,
   Num,
   setup,
@@ -15,6 +14,7 @@ import {
   withIo,
 } from './u.fixture.ts';
 import { Rooted } from '../mod.ts';
+import type { Io } from '../t.internal.ts';
 
 describe('Fs.Capability.Rooted: public surface', () => {
   it('exports the frozen public capability surface', async () => {

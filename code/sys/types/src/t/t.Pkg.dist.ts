@@ -1,13 +1,13 @@
 import type { t } from './common.ts';
 
-/**
- * Expected SHA-256 checksum of the exact `dist.json` bytes at a caller-selected Dist root.
- *
- * Conventionally stored as `dist.pin.json`. A pin records an expectation, not proof of
- * provenance or verification.
- */
+/** Expected SHA-256 checksum of the complete `dist.json` file. */
 export type DistPin = {
   readonly 'dist.json': t.StringHash;
+};
+
+/** Manifest pins for a set of named distributions. */
+export type DistPins<N extends string = string> = {
+  readonly pins: Readonly<Record<N, t.DistPin>>;
 };
 
 /**

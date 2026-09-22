@@ -1,7 +1,7 @@
 import { Is, Num, StdPath, type t } from '../common.ts';
 import { activityIo, drainActivity, stageActivity } from './u.activity.ts';
 import { checkCancelled, cleanupFailure, failure, ioFailure, isFailure } from './u.error.ts';
-import type { Io } from './u.io.ts';
+import type { Identity, Io } from '../t.internal.ts';
 import {
   borrowLease,
   hasLocalLease,
@@ -20,7 +20,6 @@ import {
 } from './u.tree.ts';
 import {
   ensureDescendantDirectory,
-  type Identity,
   identityRequired,
   INTERNAL_NAME,
   lstatMaybe,

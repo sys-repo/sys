@@ -1,10 +1,11 @@
 import { describe, expect, expectTypeOf, it, Num, type t, Time } from '../../../-test.ts';
 import { Fs } from '../../../mod.ts';
 import { createRooted } from '../u/u.create.ts';
-import { DEFAULT_IO, type FileHandle, type Io, type ModeHandle, withIo } from '../u/u.io.ts';
+import type { FileHandle, ModeHandle } from '../t.internal.ts';
+import { DEFAULT_IO, withIo } from '../u/u.io.ts';
 
 export { createRooted, DEFAULT_IO, describe, expect, expectTypeOf, Fs, it, Num, Time, withIo };
-export type { FileHandle, Io, ModeHandle, t };
+export type { t };
 
 export type Fixture = {
   readonly workspace: t.StringAbsoluteDir;

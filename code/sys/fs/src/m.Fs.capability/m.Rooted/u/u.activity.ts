@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 import { failure } from './u.error.ts';
-import type { Io } from './u.io.ts';
+import type { Io } from '../t.internal.ts';
 
 /** Create the one private admission token inherited by a stage's descendants. */
 export function stageActivity(ancestors: readonly t.RootedActivity[]): t.RootedActivity {

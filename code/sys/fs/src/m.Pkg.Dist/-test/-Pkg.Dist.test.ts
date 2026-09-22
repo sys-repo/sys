@@ -48,14 +48,17 @@ describe('Pkg.Dist', () => {
           'Local',
           'Pinned',
           'compute',
+          'project',
           'load',
           'checkSelfReported',
         ].sort(),
       );
 
-      // Shares all of the base interface methods.
+      // Pins adds filesystem verification but reuses std's capture function.
+      expect(Pkg.Dist.Pins.capture).to.equal(Base.Dist.Pins.capture);
+      expect(Object.keys(Base.Dist)).not.to.include('Selection');
       for (const key of Object.keys(Base.Dist) as Array<keyof typeof Base.Dist>) {
-        expect(Pkg.Dist[key]).to.equal(Base.Dist[key]);
+        if (key !== 'Pins') expect(Pkg.Dist[key]).to.equal(Base.Dist[key]);
       }
     });
   });
