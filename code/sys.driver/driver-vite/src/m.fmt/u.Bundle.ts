@@ -1,4 +1,4 @@
-import { c, Cli, Path, Semver, Str, type t } from './common.ts';
+import { c, Cli, Path, Str, type t } from './common.ts';
 import {
   clipLine,
   clipText,
@@ -36,7 +36,8 @@ export const Bundle: t.ViteLog.Bundle.Lib = {
         label: 'out:',
         value: wrangle.manifest(clean(outDir), manifestUrl),
         width,
-        labelWidth: 10,
+        indent: 2,
+        labelWidth: 8,
         suffix: (maxWidth) => digest(hash, { maxWidth }),
       }),
     ];
@@ -61,7 +62,7 @@ const wrangle = {
   },
 
   row(label: string, value: string, width: number) {
-    const prefix = c.gray(label.padEnd(10, ' '));
+    const prefix = c.gray(`  ${label.padEnd(8, ' ')}`);
     const text = `${prefix}${wrangle.clip(value, wrangle.valueWidth(width))}`.trimEnd();
     return clipLine(text, width);
   },
@@ -73,9 +74,9 @@ const wrangle = {
   pkg(pkg: t.Pkg, pkgSize: t.NumberBytes | undefined, width: number) {
     const valueWidth = wrangle.valueWidth(width);
     const pkgBytes = pkgSize ? ` /pkg:${c.white(Str.bytes(pkgSize))}` : '';
-    const version = Semver.Fmt.colorize(pkg.version);
+    const version = c.gray(`@${pkg.version}`);
     const name = c.white(c.bold(pkg.name));
-    const module = `${name}${c.dim('@')}${version}`;
+    const module = `${name}${version}`;
     const nameOnly = c.white(c.bold(pkg.name));
     const unscoped = wrangle.unscoped(pkg.name);
     const candidates = [

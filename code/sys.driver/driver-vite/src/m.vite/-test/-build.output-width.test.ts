@@ -1,4 +1,4 @@
-import { c, Cli, describe, expect, HashFmt, it, Path, stripAnsi } from '../../-test/common.ts';
+import { c, Cli, describe, expect, HashFmt, it, Path, Str, stripAnsi } from '../../-test/common.ts';
 import { ViteLog } from '../../m.fmt/mod.ts';
 import { Log } from '../u/u.log.ts';
 
@@ -9,6 +9,26 @@ function expectBounded(text: string, width: number) {
 }
 
 describe('Vite.build output formatting', () => {
+  it('bundle metadata → indented labels and one aligned value column', () => {
+    const text = ViteLog.Bundle.toString({
+      ok: true,
+      dirs: { in: './src/ui/index.html', out: './dist' },
+      totalSize: 490_000,
+      pkg: { name: '@sample/app', version: '0.0.2' },
+      pkgSize: 489_000,
+      hash,
+      elapsed: 4_000,
+      width: 100,
+    });
+    expect(stripAnsi(text)).to.eql(Str.dedent(`
+      Bundle    490 kB (4s)
+        pkg:    @sample/app@0.0.2 /pkg:489 kB
+        in:     src/ui/index.html
+        out:    dist/dist.json ← digest:sha256:#ccd11
+                ${hash}
+    `));
+  });
+
   it('keeps the build paths prelude within the requested width', () => {
     const text = Log.Build.paths({
       cwd: '/sample/workspace/with/a/very/long/path/to/ui-components',
