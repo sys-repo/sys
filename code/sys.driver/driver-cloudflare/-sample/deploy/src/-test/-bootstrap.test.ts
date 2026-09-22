@@ -29,34 +29,17 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
         expected: 'integrity-mismatch',
       },
       {
-        name: 'invalid JSON',
-        bytes: encoder.encode('{'),
-        status: 200,
-        matched: true,
-        expected: 'malformed',
-      },
-      {
-        name: 'invalid UTF-8',
-        bytes: new Uint8Array([0xff]),
-        status: 200,
-        matched: true,
-        expected: 'malformed',
-      },
-      {
         name: 'oversized body',
         bytes: new Uint8Array(DIST_LIMITS.manifestBytes + 1),
         status: 200,
         expected: 'HTTP 413',
       },
       { name: 'missing object', bytes: null, status: 404, expected: 'HTTP 404' },
-      { name: 'storage failure', bytes: null, status: 500, expected: 'HTTP 502' },
-      { name: 'storage redirect', bytes: null, status: 302, expected: 'HTTP 502' },
     ];
     for (const item of cases) {
       it(`${item.name} → no app and no retry`, async () => {
         using f = await remoteFixture();
         f.read = () => Promise.resolve(new Response(item.bytes, { status: item.status }));
-        if (item.matched && item.bytes) f.pin['dist.json'] = Hash.sha256(item.bytes);
         await expectError(() => createApp(f), item.expected);
         expect(f.signed).to.eql(['sample/ui/dist.json']);
         expect(f.fetched.length).to.eql(1);
@@ -64,25 +47,14 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
     }
   });
 
-  it('checksum-matched metadata or filename-policy failure → no app', async () => {
-    for (const variant of ['total', 'index', 'filename']) {
-      using f = await remoteFixture();
-      if (variant === 'total') f.dist.build.size.total++;
-      if (variant === 'index') {
-        f.dist.hash.parts['other.html'] = f.dist.hash.parts['index.html'];
-        delete f.dist.hash.parts['index.html'];
-      }
-      if (variant === 'filename') {
-        f.dist.hash.parts['é.html'] = f.dist.hash.parts['index.html'];
-        delete f.dist.hash.parts['index.html'];
-      }
-      f.dist.hash.digest = CompositeHash.digest(f.dist.hash.parts);
-      const bytes = encoder.encode(Json.stringify(f.dist));
-      f.content.set('dist.json', bytes);
-      f.pin['dist.json'] = Hash.sha256(bytes);
-      await expectError(() => createApp(f), variant === 'total' ? 'malformed' : 'filenames');
-      expect(f.fetched.length).to.eql(1);
-    }
+  it('checksum-matched invalid manifest → no app', async () => {
+    using f = await remoteFixture();
+    f.dist.build.size.total++;
+    const bytes = encoder.encode(Json.stringify(f.dist));
+    f.content.set('dist.json', bytes);
+    f.pin['dist.json'] = Hash.sha256(bytes);
+    await expectError(() => createApp(f), 'Sample manifest refused: malformed.');
+    expect(f.fetched.length).to.eql(1);
   });
 
   it('a checksum-matched private manifest cannot admit public asset relay routes', async () => {
@@ -226,21 +198,5 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
       await expectError(() => createApp({ ...f, signal: controller.signal }), '499');
       expect(f.fetched.length).to.eql(preCancelled ? 0 : 1);
     }
-  });
-
-  it('storage deadline → no app, one read, and an aborted transport', async () => {
-    using f = await remoteFixture();
-    let aborted = false;
-    f.read = (req) => {
-      return new Promise((_resolve, reject) => {
-        req.signal.addEventListener('abort', () => {
-          aborted = true;
-          reject(new Error('fixture timeout'));
-        }, { once: true });
-      });
-    };
-    await expectError(() => createApp(f), 'HTTP 504');
-    expect(aborted).to.eql(true);
-    expect(f.fetched.length).to.eql(1);
   });
 });

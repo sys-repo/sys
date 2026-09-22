@@ -1,6 +1,6 @@
 import { describe, expect, expectError, Fs, it, Json } from '../-test.ts';
 import { readData, readInputs } from '../m.app/u.data.ts';
-import { localFixture } from '../../-scripts/-test/u.fixture.ts';
+import { fixtureInputs } from './u.config.ts';
 import { DIST_LIMITS } from '../m.app/u.selection.ts';
 
 describe('R2 deployment sample: bounded package data', () => {
@@ -33,13 +33,13 @@ describe('R2 deployment sample: bounded package data', () => {
 
 describe('R2 deployment sample: build-record filename admission', () => {
   it('both filenames exist → only the new record is authoritative', async () => {
-    await using f = await localFixture();
+    await using f = await recordFixture();
     await Fs.writeJson(f.dir.join('dist.selection.json'), {}, { throw: true });
     expect((await readInputs(f.dir.absolute)).buildRecord).to.eql(f.buildRecord);
   });
 
   it('invalid or absent new record → no fallback to either legacy filename', async () => {
-    await using f = await localFixture();
+    await using f = await recordFixture();
     await Fs.writeJson(f.dir.join('dist.selection.json'), f.buildRecord, { throw: true });
     await Fs.writeJson(f.dir.join('dist.pin.json'), f.buildRecord.selection.pins.private, {
       throw: true,
@@ -57,7 +57,7 @@ describe('R2 deployment sample: build-record filename admission', () => {
   });
 
   it('non-missing read failures keep their classification rather than becoming rebuild advice', async () => {
-    await using f = await localFixture();
+    await using f = await recordFixture();
     const path = f.dir.join('dist.pins.json');
     await Fs.write(path, '{broken', { throw: true });
     await expectError(() => readInputs(f.dir.absolute), 'Sample data must be valid JSON.');
@@ -68,13 +68,25 @@ describe('R2 deployment sample: build-record filename admission', () => {
   });
 });
 
-/**
- * Helpers:
- */
+/** Config and saved pins are sufficient: readInputs must not require distribution output. */
+async function recordFixture() {
+  const f = await fixture();
+  try {
+    const inputs = fixtureInputs();
+    await Fs.writeJson(f.dir.join('r2.config.json'), inputs.config, { throw: true });
+    await Fs.writeJson(f.dir.join('dist.pins.json'), inputs.buildRecord, { throw: true });
+    return { ...f, ...inputs };
+  } catch (error) {
+    await f[Symbol.asyncDispose]();
+    throw error;
+  }
+}
+
 async function fixture() {
   const dir = await Fs.makeTempDir({ prefix: 'sample-r2-data-' });
   const path = dir.join('data.json');
   return {
+    dir,
     url: Fs.Path.toFileUrl(path),
     write: (content: string | Uint8Array) => Fs.write(path, content, { throw: true }),
     async [Symbol.asyncDispose]() {

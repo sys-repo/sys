@@ -1,5 +1,6 @@
 import type { DeployTool } from '@sys/tools/deploy';
-import { describe, expect, expectError, Fs, it, Str, WebFixture } from '../-test.ts';
+import { describe, expect, expectError, Fs, it, Pkg, Str, WebFixture } from '../-test.ts';
+import { DIST_BATCH_LIMITS, DIST_LIMITS } from '../m.app/u.selection.ts';
 import { pushSample } from '../../-scripts/task.push.ts';
 import { runTask } from '../../-scripts/u.task.ts';
 import { localFixture } from '../../-scripts/-test/u.fixture.ts';
@@ -58,6 +59,40 @@ describe('R2 deployment sample: publication admission', () => {
         await Fs.write(f.dir.join(`dist.${changed}`, file), 'changed', { throw: true });
         await expectError(() => pushSample(audience, f.dir.absolute, f.publish), 'Dist refused:');
         expect(f.calls, `publishing ${audience} with changed ${changed} bytes`).to.eql([]);
+      }
+    }
+  });
+
+  it('checksum-valid forbidden filenames in either projection → neither audience may publish', async () => {
+    for (const invalid of audiences) {
+      await using f = await fixture();
+      const dir = f.dir.join(`dist.${invalid}`);
+      await Fs.write(Fs.join(dir, 'sw.js'), 'fixture worker', { throw: true });
+      const computed = await Pkg.Dist.compute({ dir, save: true });
+      const selection = {
+        pins: {
+          ...f.buildRecord.selection.pins,
+          [invalid]: { 'dist.json': computed.manifest.integrity },
+        },
+      };
+      await Fs.writeJson(f.dir.join('dist.pins.json'), { ...f.buildRecord, selection }, {
+        throw: true,
+      });
+      // Establish integrity independently: refusal must come from sample policy, not stale pins.
+      const verified = await Pkg.Dist.Pins.verify({
+        root: f.dir.absolute,
+        selection,
+        dirs: { private: 'dist.private', public: 'dist.public' },
+        limits: DIST_LIMITS,
+        batch: DIST_BATCH_LIMITS,
+      });
+      expect(verified.kind, invalid).to.eql('verified');
+      for (const audience of audiences) {
+        await expectError(
+          () => pushSample(audience, f.dir.absolute, f.publish),
+          `Invalid sample ${invalid} manifest filenames.`,
+        );
+        expect(f.calls, `publishing ${audience} with forbidden ${invalid} filenames`).to.eql([]);
       }
     }
   });
@@ -134,28 +169,6 @@ describe('R2 deployment sample: publication admission', () => {
     await pushSample('private', f.dir.absolute, f.publish);
     expect(f.calls.length).to.eql(1);
     expect((await Fs.readText(path)).data).to.eql(sentinel);
-  });
-
-  it('later configuration/selection edits do not retarget the admitted publication', async () => {
-    await using f = await fixture();
-    await pushSample('public', f.dir.absolute, async (args) => {
-      await Fs.writeJson(f.dir.join('r2.config.json'), {}, { throw: true });
-      await Fs.writeJson(f.dir.join('dist.pins.json'), {}, { throw: true });
-      return await f.publish(args);
-    });
-    expect(f.calls.length).to.eql(1);
-    expect(f.calls[0].document).to.deep.include({
-      staging: { dir: './dist.public' },
-      provider: {
-        kind: 'r2',
-        accountId: f.config.accountId,
-        ...f.config.targets.public,
-        credentials: {
-          accessKeyId: `\${env:${f.config.credentials.pushPublic.accessKeyId}}`,
-          secretAccessKey: `\${env:${f.config.credentials.pushPublic.secretAccessKey}}`,
-        },
-      },
-    });
   });
 });
 

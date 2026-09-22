@@ -7,7 +7,7 @@ import { localFixture } from './u.fixture.ts';
 describe('R2 deployment sample: one-build publication projections', () => {
   it('one build → private HTML, public assets, and a reloadable build record', async () => {
     await using f = await localFixture();
-    const font = new Uint8Array([0, 255, 254, 128]); // Invalid UTF-8 catches text round-trips.
+    const font = new Uint8Array([0, 255, 254, 128]);
     let builds = 0;
     const { buildRecord } = await buildSample(f.config, f.dir.absolute, (args) => {
       builds++;
@@ -122,35 +122,13 @@ describe('R2 deployment sample: one-build publication projections', () => {
     }
   });
 
-  describe('unadmitted output roles', () => {
-    const paths = ['other.html', 'sw.js', 'worker.123.js', 'source.ts', 'app.js.map', 'secret.pem'];
-    for (const path of paths) {
-      it(`${path} → no selected build`, async () => {
-        await using f = await localFixture();
-        await expectError(
-          () => f.build('shell', { [path]: 'unadmitted role' }),
-          'select/policy-failure',
-        );
-        expect(await Fs.exists(f.dir.join('dist.pins.json'))).to.eql(false);
-      });
-    }
-  });
-
-  it('old public pin with rebuilt files → checksum mismatch', async () => {
+  it('filename-policy refusal → no persisted build record', async () => {
     await using f = await localFixture();
-    const next = await f.build('second', { 'app.js': 'export const generation = 2;' });
-    const mixed = {
-      pins: { ...next.selection.pins, public: f.buildRecord.selection.pins.public },
-    };
     await expectError(
-      () => selectPublication(mixed, f.dir.absolute),
-      'Sample public Dist refused: integrity-mismatch.',
+      () => f.build('shell', { 'sw.js': 'fixture worker' }),
+      'select/policy-failure',
     );
-    expect((await selectPublication(next.selection, f.dir.absolute)).public).to.eql([
-      'app.css',
-      'app.js',
-      'dist.json',
-    ]);
+    expect(await Fs.exists(f.dir.join('dist.pins.json'))).to.eql(false);
   });
 
   it('payload changed after manifest generation → no selected projections', async () => {

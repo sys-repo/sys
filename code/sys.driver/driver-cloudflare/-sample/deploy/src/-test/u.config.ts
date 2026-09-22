@@ -1,4 +1,22 @@
+import type { t } from '../common.ts';
 import { LIMITS } from '../m.app/u.selection.ts';
+
+/** Structurally valid records only; these pins do not refer to local or remote output. */
+export function fixtureInputs(): t.AppInputs {
+  const config = fixtureConfig();
+  return {
+    config,
+    buildRecord: {
+      publicAssetBase: config.publicAssetBase,
+      selection: {
+        pins: {
+          private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
+          public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+        },
+      },
+    },
+  };
+}
 
 /** Synthetic names only; no fixture resolves a repository credential. */
 export function fixtureConfig() {

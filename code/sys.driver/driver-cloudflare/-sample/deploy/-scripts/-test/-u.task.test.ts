@@ -1,5 +1,6 @@
 import { WebFixture } from '@sys/testing/web';
 import { appFrom } from '../../src/entry.ts';
+import { fixtureInputs } from '../../src/-test/u.config.ts';
 import { missingCredentialsError } from '../../src/m.app/u.credentials.ts';
 import { formatMissingCredentials, formatR2Failure } from '../u.fmt.ts';
 import { prove } from '../u.proof.ts';
@@ -81,7 +82,8 @@ describe('R2 deployment sample: task outcomes', () => {
 describe('R2 deployment sample: private-read setup', () => {
   for (const task of ['serve', 'proof:local'] as const) {
     it(`${task} caller → missing read credentials stop bootstrap before network access`, async () => {
-      await using f = await localFixture();
+      await using f = task === 'proof:local' ? await localFixture() : undefined;
+      const inputs = f ?? fixtureInputs();
       const seen: string[] = [];
       const env = {
         get(name: string) {
@@ -97,12 +99,12 @@ describe('R2 deployment sample: private-read setup', () => {
       const start = () => {
         throw new Error('Setup failure must not start a listener.');
       };
-      const run = task === 'serve'
-        ? () => appFrom({ config: f.config, buildRecord: f.buildRecord }, env)
-        : () => prove({ root: f.dir.absolute, env, log: () => {}, start });
+      const run = f
+        ? () => prove({ root: f.dir.absolute, env, log: () => {}, start })
+        : () => appFrom(inputs, env);
       const logs: string[] = [];
       expect(await runTask(task, run, (text) => logs.push(text))).to.eql(1);
-      const names = f.config.credentials.serve;
+      const names = inputs.config.credentials.serve;
       expect(seen).to.eql([names.accessKeyId, names.secretAccessKey]);
       expect(requests).to.eql([]);
       expect(logs).to.eql([
