@@ -5,7 +5,9 @@ import { Log } from '../u/u.log.ts';
 const hash = `sha256-${'88f8e3e041df504c3177b35ad742f4aebf99951a0c832fb64c1e1b2edef'}ccd11`;
 
 function expectBounded(text: string, width: number) {
-  stripAnsi(text).split('\n').forEach((line) => expect(line.length <= width).to.eql(true));
+  text.split('\n').forEach((line) => {
+    expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width);
+  });
 }
 
 describe('Vite.build output formatting', () => {
@@ -29,6 +31,85 @@ describe('Vite.build output formatting', () => {
     `));
   });
 
+  it('build paths → directory with aligned tree children', () => {
+    const cwd = '/sample/project';
+    const text = Log.Build.paths({
+      cwd,
+      paths: {
+        cwd,
+        app: { entry: './src/index.html', outDir: './dist', base: './' },
+      },
+      width: 80,
+    });
+    expect(stripAnsi(text)).to.eql(Str.dedent(`
+      directory:   /sample/project/
+       ├─ entry:   src/index.html
+       ├─ outDir:  dist/
+       └─ base:    ./
+    `));
+  });
+
+  it('output directory → folder link resolved against the build directory', () => {
+    const cwd = Path.resolve('/sample/project');
+    const target = Path.toFileUrl(Path.resolve(cwd, 'build output #1'));
+    const outputs = ['./build output #1', Path.resolve(cwd, 'build output #1')];
+    for (const outDir of outputs) {
+      for (const width of [24, 100]) {
+        const text = Log.Build.paths({
+          cwd,
+          paths: { cwd, app: { entry: './src/index.html', outDir, base: './' } },
+          width,
+        });
+        const row = text.split('\n')[2];
+        expect(row).to.include(`${target.href}/`);
+        expectBounded(text, width);
+        if (width === 24) expect(stripAnsi(row)).to.include('…');
+        else expect(stripAnsi(row)).to.include('build output #1/');
+      }
+    }
+  });
+
+  it('HTTP bases → full link targets even when their labels are clipped', () => {
+    const cwd = '/sample/project/資料/with/a/long/directory/name';
+    for (const protocol of ['http:', 'https:']) {
+      const base = `${protocol}//assets.example.test/a%20b/long/path?mode=sample#section`;
+      for (const width of [0, 8, 13, 14, 48, 100]) {
+        const text = Log.Build.paths({
+          cwd,
+          paths: {
+            cwd,
+            app: { entry: './src/資料/index.html', outDir: './dist', base },
+          },
+          width,
+        });
+        expectBounded(text, width);
+        if (width <= 13) {
+          expect(text).not.to.include('\x1b]8;;');
+        } else {
+          expect(text).to.include(base);
+          const plain = stripAnsi(text);
+          if (width < 100) expect(plain).not.to.include(base);
+          else expect(plain).to.include(` └─ base:    ${base}`);
+        }
+      }
+    }
+  });
+
+  it('non-HTTP bases → unchanged plain text without an invented link', () => {
+    const cwd = '/sample/project';
+    const bases = ['', './', '/', '/assets/', '//cdn.test/app/', 'https://', 'file:///app/'];
+    for (const base of bases) {
+      const text = Log.Build.paths({
+        cwd,
+        paths: { cwd, app: { entry: './src/index.html', outDir: './dist', base } },
+        width: 100,
+      });
+      const lastLine = text.split('\n').at(-1) ?? '';
+      expect(lastLine).not.to.include('\x1b]8;;');
+      expect(stripAnsi(lastLine).trimEnd()).to.eql(` └─ base:    ${base}`.trimEnd());
+    }
+  });
+
   it('keeps the build paths prelude within the requested width', () => {
     const text = Log.Build.paths({
       cwd: '/sample/workspace/with/a/very/long/path/to/ui-components',
@@ -40,10 +121,10 @@ describe('Vite.build output formatting', () => {
     });
     const plain = stripAnsi(text);
 
-    const directoryLine = plain.split('\n').find((line) => line.includes('Directory:')) ?? '';
+    const directoryLine = plain.split('\n').find((line) => line.includes('directory:')) ?? '';
 
     expectBounded(text, 48);
-    expect(plain).to.include('Paths');
+    expect(plain.startsWith('directory:')).to.eql(true);
     expect(plain).to.include('src/index.html');
     expect(directoryLine).to.include('…');
     expect(directoryLine).to.include('ui-components/');

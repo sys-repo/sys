@@ -112,6 +112,7 @@ export const build: B = async (input) => {
    * Logging (paths):
    */
   if (!silent) {
+    console.info();
     console.info(Log.Build.paths({ cwd, paths }));
     console.info();
   }

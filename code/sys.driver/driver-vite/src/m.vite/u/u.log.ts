@@ -1,6 +1,6 @@
 import { ViteLog } from '../../m.fmt/mod.ts';
-import { clipLine, outputWidth, reserveWidth } from '../../m.fmt/u.ts';
-import { c, Cli, Path, type t } from '../common.ts';
+import { clipLine, metadataRow, outputWidth } from '../../m.fmt/u.ts';
+import { c, Cli, Path, type t, Url } from '../common.ts';
 
 type BuildArgs = t.ViteLog.Bundle.Args & {
   stdio: string;
@@ -43,12 +43,21 @@ ${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
 
     paths(args: BuildPathsArgs) {
       const width = wrangle.width(args.width);
+      const { app } = args.paths;
+      const outDirUrl = Path.toFileUrl(Path.resolve(args.cwd, app.outDir));
+      if (!outDirUrl.pathname.endsWith('/')) outDirUrl.pathname += '/';
+      const rows = [
+        { label: 'entry:', value: wrangle.cleanPath(app.entry) },
+        { label: 'outDir:', value: `${wrangle.cleanPath(app.outDir)}/`, valueUrl: outDirUrl },
+        { label: 'base:', value: app.base, valueUrl: wrangle.baseUrl(app.base) },
+      ];
+      const children = rows.map(({ label, value, valueUrl }, index) => {
+        const branch = Cli.Fmt.Tree.branch([index, rows]);
+        return wrangle.row(` ${branch} ${label}`, value, width, valueUrl);
+      });
       return [
-        clipLine(c.bold(c.brightGreen('Paths')), width),
-        wrangle.row('Directory:', `${args.cwd.replace(/\/$/, '')}/`, width),
-        wrangle.row('  • entry:', wrangle.cleanPath(args.paths.app.entry), width),
-        wrangle.row('  • outDir:', `${wrangle.cleanPath(args.paths.app.outDir)}/`, width),
-        wrangle.row('  • base:', `${wrangle.cleanPath(args.paths.app.base)}/`, width),
+        wrangle.row('directory:', `${args.cwd.replace(/\/$/, '')}/`, width),
+        ...children,
       ].join('\n').trimEnd();
     },
     toString(args: BuildArgs) {
@@ -89,11 +98,15 @@ const wrangle = {
       .replace(/\/+$/, '');
   },
 
-  row(label: string, value: string, width: number) {
-    const prefix = c.gray(label.padEnd(14, ' '));
-    const valueWidth = reserveWidth(width, Cli.Fmt.Text.Width.measure(prefix));
-    const text = `${prefix}${clipLine(c.gray(value), valueWidth)}`.trimEnd();
-    return clipLine(text, width);
+  baseUrl(base: string): URL | undefined {
+    const parsed = Url.parse(base);
+    if (!parsed.ok) return undefined;
+    const url = parsed.toURL();
+    return url.protocol === 'http:' || url.protocol === 'https:' ? url : undefined;
+  },
+
+  row(label: string, value: string, width: number, valueUrl?: URL) {
+    return metadataRow({ label, value, valueUrl, width, labelWidth: 13, valueColor: c.gray });
   },
 
   width: outputWidth,
