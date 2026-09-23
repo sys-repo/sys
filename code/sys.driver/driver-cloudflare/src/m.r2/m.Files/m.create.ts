@@ -41,10 +41,10 @@ export function create(options: t.R2.Files.CreateOptions): t.R2.Files.Writable {
     'files:read': (payload) => read(operation(), payload),
     'files:write': (payload) => write(operation(), payload),
     'files:remove': async (payload) => (await remove(operation(), payload)).result,
-    'files:watch': () => {
+    'files:manifest': (payload) => manifest(operation(), payload),
+    'files:watch'() {
       throw fail('FilesR2Error.Unsupported', 'Watch unsupported');
     },
-    'files:manifest': (payload) => manifest(operation(), payload),
   });
 
   return Object.freeze({
