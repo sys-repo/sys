@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/ui-css',
-  version: '0.0.313',
+  version: '0.0.314',
 });
