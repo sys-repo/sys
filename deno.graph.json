@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1790041617632,
+    "createdAt": 1790118413687,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-20db44e3428e446b69d3c9dc465207df79e3e9eb8417cd9a21f4510900631323",
+      "/graph": "sha256-1af6fe75fed606fd505665f7ff51b8458267ab591b93dd62ab40261e396d0308",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.157/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.157/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1790041617638
+    "modifiedAt": 1790118413693
   },
   "graph": {
     "orderedPaths": [
@@ -751,6 +751,10 @@
       {
         "from": "code/sys/fs",
         "to": "code/sys.driver/driver-automerge"
+      },
+      {
+        "from": "code/sys/fs",
+        "to": "code/sys.driver/driver-cloudflare"
       },
       {
         "from": "code/sys/fs",
