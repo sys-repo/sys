@@ -1,21 +1,17 @@
 # HTTP
 
-HTTP fetch clients with explicit response limits, plus helpers for running servers.
+`@sys/http` provides GET/HEAD clients with explicit limits and Hono-based servers.
 
-## HTTP client
+## Read data
 
-Every client requires an explicit response policy. The limits below are examples, not defaults.
-`sourceOrigins` lists the exact HTTP(S) origins the client may request. `credentialOrigins` lists
-which of those origins may receive caller-supplied or default headers. An empty `credentialOrigins`
-list permits none of those headers.
+Create a reusable client with `Http.fetcher` and an explicit response policy. `sourceOrigins` lists
+where it may fetch; `credentialOrigins` lists which of those origins may receive your headers. The
+limits below are examples, not defaults.
 
 ```ts
 import { Http } from 'jsr:@sys/http/client';
 
-const lifetime = new AbortController();
-const request = new AbortController();
 const client = Http.fetcher({
-  until: lifetime.signal,
   policy: {
     maxBytes: 1_000_000,
     timeout: 5_000,
@@ -27,7 +23,7 @@ const client = Http.fetcher({
 });
 
 try {
-  const response = await client.text('https://example.com', { signal: request.signal });
+  const response = await client.text('https://example.com');
   if (response.ok) {
     console.log(response.data);
   } else {
@@ -38,27 +34,23 @@ try {
 }
 ```
 
-Aborting `request` cancels that request. Aborting `lifetime`, or disposing the client, ends the
-client's lifetime and aborts its active requests. Pass the lifetime signal as `until`, not
-`dispose$`.
+`json<T>`, `blob`, and `head` follow the same result pattern as `text`. Check `ok` before using
+`data`, and dispose of the client when you no longer need it.
 
-For integrity checking, pass the expected checksum in the **third** argument:
-`client.text(url, { signal }, { checksum })` (also supported by `json` and `blob`). It is not a
-`RequestInit` field. Check `response.ok` before reading `response.data`. `json<T>` provides a
-TypeScript type; it does not validate the data against a schema.
+See the [client reference](https://jsr.io/@sys/http/doc/client/) for policy options, cancellation,
+checksums, and progress reporting.
 
-## Managed HTTP server
+## Run a server
 
-The `/server/host` entrypoint provides a bare application and a managed listener. It does not
-include static-file or CORS helpers. This Deno example requires network permission and closes the
-listener after a local request.
+`create()` builds a bare Hono application; `start()` runs it on Deno and returns a managed server
+handle. This example makes one local request, then closes the listener.
 
 ```ts
 import { create, start } from 'jsr:@sys/http/server/host';
 
 const app = create();
 app.get('/', (c) => c.text('ready'));
-const server = start(app, { hostname: '127.0.0.1', port: 8080, strictPort: true });
+const server = start(app);
 
 try {
   const response = await fetch(server.origin);
@@ -68,15 +60,14 @@ try {
 }
 ```
 
-## Entry points
+For a long-running service, keep the handle and await `server.dispose()` at shutdown. See the
+[server reference](https://jsr.io/@sys/http/doc/server/host/) for listener and lifecycle options.
 
-- [`/client`](https://jsr.io/@sys/http/doc/client/): fetch clients and HTTP utilities.
-- [`/server/host`](https://jsr.io/@sys/http/doc/server/host/): bare `create` and managed `start`.
-- [`/server`](https://jsr.io/@sys/http/doc/server/): broader `HttpServer` and `Net` helpers.
-- [`/server/static`](https://jsr.io/@sys/http/doc/server/static/) and
-  [`/server/file-bytes`](https://jsr.io/@sys/http/doc/server/file-bytes/): explicit file-serving
-  APIs.
-- [`/serve`](https://jsr.io/@sys/http/doc/serve/): command-line file server.
-- [`/t`](https://jsr.io/@sys/http/doc/t/): type contracts.
+## Serve files or proxy requests
 
-See the [API reference](https://jsr.io/@sys/http/doc/) for proxy, lifecycle, and command helpers.
+- [Serve a directory](https://jsr.io/@sys/http/doc/server/static/) with `HttpStatic.start`.
+- [Serve supplied bytes](https://jsr.io/@sys/http/doc/server/file-bytes/) with `serveFileBytes`.
+- [Run a reverse proxy](https://jsr.io/@sys/http/doc/server/proxy/) with `HttpProxy`.
+- [Start a file server from the command line](https://jsr.io/@sys/http/doc/serve/).
+
+[API reference](https://jsr.io/@sys/http/doc/) · [Type contracts](https://jsr.io/@sys/http/doc/t/)
