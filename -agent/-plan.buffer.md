@@ -1,10 +1,17 @@
+@sys.driver-cloudflare
 r2-delivery-extraction.plan.md
-- [ ] refactor(pkg): extract verified Dist projections and shared selection
-- [ ] fix(driver-vite): pass captured build base to the Vite child
-- [ ] refactor(driver-cloudflare): construct read routes from pinned Dist manifests
-- [ ] refactor(tools): expose safe Deploy failure diagnostics and simplify the R2 sample
+- [x] ff24c6d98 refactor(pkg): extract verified Dist projections and shared selection
+- [x] df5f3c67e refactor(driver-cloudflare): adopt shared Dist projections and pins in the sample
+- [x] 626c8c5ce test(driver-cloudflare): right-size R2 sample coverage
+- [x] 1cac22d67 fix(driver-vite): pass captured build base to the Vite child
+- [x] 9c569c13e refactor(driver-cloudflare): construct read routes from pinned Dist manifests
+- [x] cc074d82a refactor(driver-cloudflare): move ReadRoute helpers into u/
+- [x] a1e8be68d refactor(tools): expose safe Deploy failure diagnostics
+- [x] 652d1daa7 fix(http): settle server shutdown and completion failures together
+- [x] b3f14a5ee refactor(driver-cloudflare): reduce the R2 sample to policy and library calls
 
 
+@sys.driver-cloudflare
 r2-public-delivery.plan.md
 - [x] bb6fad039 feat(tools): admit captured endpoint inputs for Deploy.push
 - [x] bc0d8e416 refactor(driver-cloudflare): remove temporary sample push configuration
@@ -15,7 +22,7 @@ r2-public-delivery.plan.md
 - [x] fd417a579 refactor(event): organize command implementation by file role
 - [x] ccaf213fd refactor(event): separate command client orchestration from adapters
 - [x] 3c8f9c38e feat(driver-cloudflare): demonstrate public Vite assets with private R2 shell delivery
-- [ ] [r2-delivery-extraction.plan.md](r2-delivery-extraction.plan.md)
+- [x] [r2-delivery-extraction.plan.md](r2-delivery-extraction.plan.md)
 - [ ] feat(driver-cloudflare): integrate the template service worker with mixed R2 delivery
 
 
