@@ -232,6 +232,7 @@ describe('HttpServer.start', () => {
     const app = HttpServer.create({ static: false });
     const server = HttpServer.start(app, { silent: true });
     const shutdown = server.server.shutdown.bind(server.server);
+    let nativeShutdown: Promise<void> | undefined;
     const normalizationFailure = new Error('HttpServer.start:test:normalization-failure');
     const failure = {
       get message(): string {
@@ -251,19 +252,17 @@ describe('HttpServer.start', () => {
       expect(server.dispose('direct:later')).to.equal(completion);
       expect(server.close('close:later')).to.equal(completion);
 
-      let caught: unknown;
-      try {
-        await completion;
-      } catch (error) {
-        caught = error;
-      }
-
-      expect(caught).to.equal(failure);
+      const outcomes = Promise.allSettled([completion]);
+      // The injected rejection does not stop the native listener; release it independently.
+      nativeShutdown = shutdown();
+      const [result] = await outcomes;
+      if (result.status !== 'rejected') throw new Error('Expected shutdown rejection.');
+      expect(result.reason).to.equal(failure);
       expect(server.disposed).to.eql(true);
       expect(server.status().state).to.eql('error');
       expect(fired.map((event) => event.payload.reason)).to.eql([undefined, undefined]);
     } finally {
-      await shutdown();
+      await (nativeShutdown ?? shutdown());
       await server.finished;
     }
   });

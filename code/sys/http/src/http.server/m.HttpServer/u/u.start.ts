@@ -7,8 +7,13 @@ import { statusUrls } from './u.status.url.ts';
 
 export type StartDependencies = {
   readonly bindKeyboard: typeof bindKeyboard;
+  readonly serve?: (
+    options: Deno.ServeOptions<Deno.NetAddr> & { hostname: string; port?: number },
+    handler: Deno.ServeHandler<Deno.NetAddr>,
+  ) => Deno.HttpServer<Deno.NetAddr>;
 };
 
+type Completion = Promise<PromiseSettledResult<void>>;
 type KeyboardOptions = { readonly print: boolean; readonly exit: boolean } | undefined;
 type StartValues = {
   readonly port?: t.PortNumber;
@@ -29,6 +34,9 @@ const DEFAULT_DEPS: StartDependencies = { bindKeyboard };
 
 /**
  * Start a Hono app as a managed HTTP server lifecycle.
+ *
+ * Disposal joins server shutdown, native completion, and keyboard cleanup. A synchronous
+ * startup failure requests cleanup but cannot attest that asynchronous rollback has completed.
  */
 export const start: t.HttpServer.Lib['start'] = (app, input = {}) => {
   return startWith(DEFAULT_DEPS, app, input);
@@ -59,6 +67,7 @@ export function startWith(
   });
 
   let server: Deno.HttpServer<Deno.NetAddr> | undefined;
+  let serverCompletion: Completion | undefined;
   let keyboardOwner: ReturnType<typeof bindKeyboard>;
   let state: t.Service.State = 'ready';
   let error: t.StdError | undefined;
@@ -68,6 +77,7 @@ export function startWith(
     try {
       await closeRuntime({
         server,
+        finished: serverCompletion,
         keyboard: keyboardOwner,
         controller,
         reason: e.reason,
@@ -81,8 +91,11 @@ export function startWith(
   });
 
   try {
-    server = Deno.serve({ ...baseOptions, hostname }, app.fetch);
+    const serve = deps.serve ?? Deno.serve;
+    server = serve({ ...baseOptions, hostname }, app.fetch);
     const activeServer = server;
+    const finished = activeServer.finished;
+    serverCompletion = settle(() => finished);
     const addr: Deno.NetAddr = activeServer.addr;
     const port: t.PortNumber = addr.port;
     const origin = listenerOrigin({ hostname, port, mode: originMode });
@@ -95,7 +108,7 @@ export function startWith(
       port,
       origin,
       signal: controller.signal,
-      finished: activeServer.finished,
+      finished,
 
       status() {
         return wrangle.status(values, values.status, { origin, state, error });
@@ -114,7 +127,8 @@ export function startWith(
       close: life.dispose,
     };
 
-    wrangle.serverFinished(activeServer, life);
+    // This observer may request disposal, but disposal joins only the captured native outcome.
+    void closeAfterSettlement(serverCompletion, life, 'server.finished');
     keyboardOwner = wrangle.keyboard(
       deps.bindKeyboard,
       keyboardOptions,
@@ -147,7 +161,7 @@ async function ownCompletion(input: unknown): Promise<void> {
 }
 
 async function closeAfterSettlement(
-  completion: Promise<void>,
+  completion: Promise<unknown>,
   life: t.LifecycleAsync,
   reason: string,
 ): Promise<void> {
@@ -162,43 +176,39 @@ async function closeAfterSettlement(
 
 async function closeRuntime(args: {
   readonly server?: Deno.HttpServer<Deno.NetAddr>;
+  readonly finished?: Completion;
   readonly keyboard?: ReturnType<typeof bindKeyboard>;
   readonly controller: AbortController;
   readonly reason?: unknown;
 }) {
-  let failed = false;
-  let failure: unknown;
+  const shutdown = settle(() => {
+    if (!args.server) return;
+    if (!args.controller.signal.aborted) args.controller.abort(args.reason);
+    return args.server.shutdown();
+  });
+  const keyboard = settle(() => args.keyboard && Cli.Keyboard.shutdown(args.keyboard));
+  const outcomes = await Promise.all([shutdown, args.finished, keyboard]);
 
-  if (args.server) {
-    try {
-      await closeServer({ server: args.server, controller: args.controller, reason: args.reason });
-    } catch (cause) {
-      failed = true;
-      failure = cause;
-    }
+  // Stable owner order; Object.is deduplicates observations without normalizing -0 or NaN.
+  const errors: unknown[] = [];
+  for (const outcome of outcomes) {
+    if (outcome?.status !== 'rejected') continue;
+    if (!errors.some((error) => Object.is(error, outcome.reason))) errors.push(outcome.reason);
   }
-  if (args.keyboard) {
-    try {
-      await Cli.Keyboard.shutdown(args.keyboard);
-    } catch (cause) {
-      if (!failed) {
-        failed = true;
-        failure = cause;
-      }
-    }
+  if (errors.length === 1) throw errors[0];
+  if (errors.length > 1) {
+    throw new AggregateError(errors, 'HTTP server shutdown failed.', { cause: errors[0] });
   }
-
-  if (failed) throw failure;
 }
 
-async function closeServer(args: {
-  readonly server: Deno.HttpServer<Deno.NetAddr>;
-  readonly controller: AbortController;
-  readonly reason?: unknown;
-}) {
-  if (!args.controller.signal.aborted) args.controller.abort(args.reason);
-  await args.server.shutdown();
-  await args.server.finished;
+/** Observe immediately, including synchronous throws, without rejecting the observation itself. */
+async function settle(run: () => void | Promise<void>): Completion {
+  try {
+    await run();
+    return { status: 'fulfilled', value: undefined };
+  } catch (reason) {
+    return { status: 'rejected', reason };
+  }
 }
 
 const wrangle = {
@@ -237,10 +247,6 @@ const wrangle = {
     } catch {
       return { name: 'Error', message: 'HTTP server shutdown failed' };
     }
-  },
-
-  serverFinished(server: Deno.HttpServer<Deno.NetAddr>, life: t.LifecycleAsync) {
-    void closeAfterSettlement(server.finished, life, 'server.finished');
   },
 
   keyboard(

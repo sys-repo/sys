@@ -29,7 +29,11 @@ export declare namespace HttpServer {
   /** Server application instance. */
   export type App = Hono.App;
 
-  /** Running server returned by `HttpServer.start`. */
+  /**
+   * Running server returned by `HttpServer.start`.
+   * Disposal joins shutdown, native completion, and keyboard cleanup through one shared promise.
+   * Status remains `stopping` until all three settle; a nonsettling runtime keeps disposal pending.
+   */
   export type Started = t.LifecycleAsync & {
     readonly app: App;
     readonly server: Deno.HttpServer<Deno.NetAddr>;
@@ -43,13 +47,18 @@ export declare namespace HttpServer {
     /** Server lifecycle signal; aborted when this context is disposed or closed. */
     readonly signal: AbortSignal;
 
-    /** Resolves when the underlying Deno server has finished. */
+    /** Native Deno server completion; does not include managed keyboard cleanup or shutdown errors. */
     readonly finished: Promise<void>;
 
     /** Renderer-neutral service status snapshot. */
     status(): t.Service.Status;
 
-    /** HTTP/domain alias for `dispose()`. */
+    /**
+     * Alias for `dispose()` and `[Symbol.asyncDispose]()`; attempts server shutdown once.
+     * A lone rejection retains its exact value. Distinct failures form an `AggregateError` in
+     * shutdown → native completion → keyboard order, with the first failure as `cause`.
+     * Repeated rejection values are deduplicated by `Object.is`; nested errors are not flattened.
+     */
     close(reason?: unknown): Promise<void>;
   };
 
