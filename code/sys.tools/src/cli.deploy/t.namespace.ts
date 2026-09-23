@@ -1,17 +1,17 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for deploying files to a publishing endpoint (CDN).
+ * Endpoint staging, publication, and failure observation contracts.
  */
 export namespace DeployTool {
-  /**
-   * Public Deploy helper API.
-   */
+  /** Programmatic deployment API. */
   export type Lib = {
     /** Stage endpoint files from owner YAML. */
     stage(args: StageArgs): Promise<StageResult>;
     /** Push an already-staged endpoint from a file or a captured document. */
     push: Push;
+    /** Captured failure facts; does not sanitize the thrown exception. */
+    readonly Error: Error.Lib;
   };
 
   export const ID = 'deploy' as const;
@@ -46,7 +46,7 @@ export namespace DeployTool {
   /** Inputs accepted by `Deploy.push`; exactly one configuration authority. */
   export type PushArgs = PushFileArgs | PushDocumentArgs;
 
-  /** Preserve file callers' result contract while admitting document callers. */
+  /** Publication overloads for file-backed and captured-document inputs. */
   export type Push = {
     (args: PushFileArgs): Promise<PushResult>;
     (args: PushDocumentArgs): Promise<PushDocumentResult>;
@@ -60,7 +60,7 @@ export namespace DeployTool {
     force?: boolean;
   };
 
-  /** Existing file-backed publication input. */
+  /** File-backed publication input. */
   export type PushFileArgs = PushOptions & t.Tools.ConfigRefArgs & { document?: never };
 
   /**
@@ -102,6 +102,38 @@ export namespace DeployTool {
   export type PushDocumentResult = Omit<PushResult, 'config'> & {
     readonly source: 'document';
   };
+
+  /**
+   * Captured facts for object exceptions thrown by this instance of `Deploy.push`.
+   */
+  export declare namespace Error {
+    /** Identity-only lookups; neither accessor inspects properties or traverses causes. */
+    export type Lib = {
+      /**
+       * Copied, frozen facts, or undefined for an unrecognized error identity.
+       * A defined result means recognized, even when permission(error) is undefined.
+       * Caller-created wrappers and primitive throws are unrecognized.
+       * Detailed thrown messages and causes may contain sensitive data.
+       */
+      diagnostic(error: unknown): Diagnostic | undefined;
+      /**
+       * Supported runtime permission denial captured at the boundary, if any.
+       * Preserves the observed Error identity, not necessarily the original transport exception.
+       * The denial is not sanitized; use diagnostic to distinguish absence from non-recognition.
+       */
+      permission(error: unknown): globalThis.Error | undefined;
+    };
+
+    /** Closed serializable facts: no provider text, paths, URLs, headers, or credential values. */
+    export type Diagnostic = {
+      /** Operation failure category; `failed` for exceptions not returned as structured results. */
+      readonly reason: PushOperation.Failure['reason'];
+      /** Missing or blank environment names from admission; never provider-supplied advice. */
+      readonly missingEnv?: readonly string[];
+      /** Transport-owned safe classification, copied at the Deploy boundary. */
+      readonly r2?: t.R2.Error.Diagnostic;
+    };
+  }
 
   /**
    * Non-throwing staging operation results.
@@ -183,8 +215,7 @@ export namespace DeployTool {
     };
 
     /**
-     * YAML-authored endpoint configuration (authoritative).
-     * (We keep these types here so callers can share the same vocabulary.)
+     * Authoritative endpoint configuration authored in YAML.
      */
     export namespace EndpointYaml {
       /** Authoritative endpoint YAML document. */
@@ -203,9 +234,10 @@ export namespace DeployTool {
       };
 
       /**
-       * Canonical per-mapping behavior.
-       * - 'build+copy' → build first, then copy output
-       * - 'copy'       → copy as-is
+       * Per-mapping staging behavior.
+       * - `copy` → copy source files into staging
+       * - `build+copy` → build the source, then copy its output into staging
+       * - `index` → generate an HTML directory index from staged content
        */
       export type SourceMode = 'copy' | 'build+copy' | 'index';
 
@@ -270,10 +302,7 @@ export namespace DeployTool {
      * - `r2` → Cloudflare R2 publication
      */
     export namespace Provider {
-      /**
-       * Tagged union of all supported provider configs.
-       * Add new providers here (and in u.providers schemas) as they land.
-       */
+      /** Supported provider configurations, discriminated by `kind`. */
       export type All = Noop | R2;
       /** Inert provider configuration. */
       export type Noop = t.NoopProvider;
@@ -366,11 +395,7 @@ export namespace DeployTool {
       staging: t.StringRelativeDir;
     };
 
-    /**
-     * Staging operation.
-     * - `copy`: copy source directly into staging
-     * - `build+copy`: build source, then copy build output into staging
-     */
+    /** Resolved staging mapping; mode semantics follow `Config.EndpointYaml.SourceMode`. */
     export type Mapping =
       | { mode: 'copy'; dir: Dir }
       | { mode: 'build+copy'; dir: Dir }

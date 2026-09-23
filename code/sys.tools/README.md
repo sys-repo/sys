@@ -25,6 +25,30 @@ with code you trust.
 Use each command's `--help` for options and `dsl` for operational guidance. See the
 [package API](https://jsr.io/@sys/tools/doc) for programmatic entry points.
 
+## Deploy failure observations
+
+`Deploy` from `@sys/tools/deploy` exposes two lookups for exceptions escaping either `Deploy.push`
+overload:
+
+- `Deploy.Error.diagnostic(error)` returns copied, frozen failure facts, or `undefined` for an
+  unrecognized identity.
+- `Deploy.Error.permission(error)` returns the captured runtime permission denial, if any. Use
+  `diagnostic` to distinguish an unrecognized error from a recognized failure without a denial.
+
+Both accessors use the exact object recorded by this module instance. They do not inspect properties
+or causes, accept matching shapes, or unwrap caller-created errors. Primitive rejections pass
+through unchanged and are not recognized.
+
+A diagnostic contains a closed `reason`, optional `missingEnv` names supplied only by input
+admission, and optional safe `r2` classification. Provider metadata cannot supply missing-name
+advice. Reused provider errors receive separate outer exceptions; directly rethrown admission
+exceptions retain their first observation without call-specific facts.
+
+These accessors do not sanitize exceptions. Detailed thrown messages and causes can contain
+sensitive data; callers own redaction, configured-name checks, and presentation. The permission
+result preserves the denial observed at the Deploy boundary, not necessarily the original exception
+before transport-layer transformations.
+
 ## Deploy local state
 
 For `build+copy`, every canonical source owns persistent build coordination at

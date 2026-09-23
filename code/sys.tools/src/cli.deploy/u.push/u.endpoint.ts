@@ -1,5 +1,6 @@
 import { ConfigRef, Err, Fs, Is, Pkg, Str, type t, Time } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
+import { capturePushError, capturePushException } from '../u.error.ts';
 import { PushPublishStats } from './u.publishStats.ts';
 import { PushPruneStats } from './u.pruneStats.ts';
 import { pushTarget } from './u.push.ts';
@@ -20,7 +21,9 @@ type PushOutcome =
   | Omit<t.DeployTool.PushResult, 'config'>
   | Omit<t.DeployTool.PushOperation.Failure, 'config'>;
 
-/** Push staged bytes using one file or captured-document authority. */
+/**
+ * Push staged bytes using one file or captured-document authority.
+ */
 export function push(args: t.DeployTool.PushFileArgs): Promise<t.DeployTool.PushResult>;
 export function push(args: t.DeployTool.PushDocumentArgs): Promise<t.DeployTool.PushDocumentResult>;
 export function push(
@@ -29,24 +32,30 @@ export function push(
 export async function push(
   args: t.DeployTool.PushArgs,
 ): Promise<t.DeployTool.PushResult | t.DeployTool.PushDocumentResult> {
-  const cwd = args.cwd ?? Fs.cwd('terminal');
-  const force = args.force;
+  try {
+    const cwd = args.cwd ?? Fs.cwd('terminal');
+    const force = args.force;
 
-  if ('document' in args) {
-    if ('config' in args || 'paths' in args) {
-      throw new Error('Deploy.push: document and config references are mutually exclusive.');
+    if ('document' in args) {
+      if ('config' in args || 'paths' in args) {
+        throw new Error('Deploy.push: document and config references are mutually exclusive.');
+      }
+      const identity = { source: 'document' } as const;
+      const check = await EndpointsFs.validateDocument(args.document!, { cwd });
+      const result = { ...await executePush({ cwd, force, identity, check }), ...identity };
+      if (!result.ok) throw pushError(result);
+      return result;
     }
-    const identity = { source: 'document' } as const;
-    const check = await EndpointsFs.validateDocument(args.document!, { cwd });
-    const result = { ...await executePush({ cwd, force, identity, check }), ...identity };
+
+    const config = ConfigRef.resolve(cwd, args, 'Deploy.push');
+    const result = await pushEndpoint({ cwd, config, force });
     if (!result.ok) throw pushError(result);
     return result;
+  } catch (error) {
+    // Capture admission failures too, without replacing directly thrown exceptions.
+    capturePushException(error);
+    throw error;
   }
-
-  const config = ConfigRef.resolve(cwd, args, 'Deploy.push');
-  const result = await pushEndpoint({ cwd, config, force });
-  if (!result.ok) throw pushError(result);
-  return result;
 }
 
 /** Push an already-staged deploy endpoint from owner YAML without throwing on expected failures. */
@@ -190,6 +199,7 @@ function validationError(
 function pushError(
   result: t.DeployTool.PushOperation.Failure | t.DeployTool.PushOperation.DocumentFailure,
 ): Error {
+  const error = capturePushError(result);
   const b = Str.builder()
     .line(`Deploy.push: failed to push ${sourceLabel(result)}`)
     .line(`reason: ${result.reason}`);
@@ -209,7 +219,8 @@ function pushError(
   const detail = result.error ? Err.summary(result.error, { cause: true, stack: false }) : '';
   if (detail) b.line(detail);
 
-  return new Error(String(b), { cause: result });
+  error.message = String(b);
+  return error;
 }
 
 function errorMessagesOf(check: t.DeployTool.Endpoint.Fs.YamlCheck): string {

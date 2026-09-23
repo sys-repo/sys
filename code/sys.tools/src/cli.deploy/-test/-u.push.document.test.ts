@@ -193,6 +193,20 @@ describe('@sys/tools/deploy captured document push', () => {
                   reason: 'yaml-invalid',
                   missingEnv: item.missing,
                 });
+                const detail = Deploy.Error.diagnostic(error);
+                expect(detail).to.eql({ reason: 'yaml-invalid', missingEnv: item.missing });
+                expect(Object.isFrozen(detail)).to.eql(true);
+                expect(Object.isFrozen(detail?.missingEnv)).to.eql(true);
+                expect(Deploy.Error.permission(error)).to.eql(undefined);
+
+                // Mutating the detailed cause must not change the captured facts.
+                const cause = error.cause;
+                if (!Is.record(cause)) throw new Error('Expected admission cause.');
+                expect(detail?.missingEnv).not.to.equal(cause.missingEnv);
+                cause.missingEnv = ['FORGED_NAME'];
+                cause.reason = 'failed';
+                expect(Deploy.Error.diagnostic(error)).to.equal(detail);
+                expect(detail?.missingEnv).to.eql(item.missing);
                 expect(String(error)).not.to.include('present-fixture-value');
               }
               expect(calls).to.eql(0);
@@ -222,14 +236,13 @@ describe('@sys/tools/deploy captured document push', () => {
         await withProvider(() => {
           return Promise.reject(new Error('must not publish'));
         }, async () => {
-          for (
-            const ref of [{ config: './missing.yaml' }, { paths: { config: './missing.yaml' } }]
-          ) {
+          const refs = [{ config: './missing.yaml' }, { paths: { config: './missing.yaml' } }];
+          for (const ref of refs) {
             const document = endpoint();
             document.provider.credentials.accessKeyId = '${env:DEPLOY_CAPTURE_KEY}';
             const input = { cwd, document, ...ref } as unknown as t.DeployTool.PushArgs;
             const error = await expectError(() => Deploy.push(input));
-            expect(String(error)).to.include(
+            expect(error.message).to.include(
               'document and config references are mutually exclusive',
             );
           }
@@ -261,17 +274,22 @@ describe('@sys/tools/deploy captured document push', () => {
           const file = await expectError(() => Deploy.push({ cwd, config }));
           const input = { cwd, document } as t.DeployTool.PushDocumentArgs;
           const captured = await expectError(() => Deploy.push(input));
-          const a = file.cause;
-          const b = captured.cause;
-          if (!Is.record(a) || !Is.record(b)) {
+          const fileFailure = file.cause;
+          const documentFailure = captured.cause;
+          if (!Is.record(fileFailure) || !Is.record(documentFailure)) {
             throw new Error('Expected structured admission failures.');
           }
-          expect(a.reason).to.eql('yaml-invalid');
-          expect(b.reason).to.eql(a.reason);
-          expect(b.source).to.eql('document');
-          expect('config' in b).to.eql(false);
-          // Diagnostics retain the same content checks, with different source labels.
-          expect(String(b.error).split('\n').slice(1)).to.eql(String(a.error).split('\n').slice(1));
+          expect(fileFailure.reason).to.eql('yaml-invalid');
+          expect(documentFailure.reason).to.eql(fileFailure.reason);
+          expect(Deploy.Error.diagnostic(file)).to.eql({ reason: 'yaml-invalid' });
+          expect(Deploy.Error.diagnostic(captured)).to.eql({ reason: 'yaml-invalid' });
+          expect(documentFailure.source).to.eql('document');
+          expect('config' in documentFailure).to.eql(false);
+
+          // Validation messages match after the source-specific first line.
+          const fileDetails = String(fileFailure.error).split('\n').slice(1);
+          const documentDetails = String(documentFailure.error).split('\n').slice(1);
+          expect(documentDetails).to.eql(fileDetails);
         }
         expect(calls).to.eql(0);
       });
@@ -287,10 +305,29 @@ describe('@sys/tools/deploy captured document push', () => {
       const original = EndpointsFs.validateAst;
       const fs = EndpointsFs as { validateAst: typeof original };
       const denial = new Deno.errors.NotCapable('fixture admission denial');
+      // An unreadable cause must not prevent independent permission capture.
+      Object.defineProperty(denial, 'cause', {
+        get() {
+          throw new Error('unreadable cause');
+        },
+      });
       fs.validateAst = () => Promise.reject(denial);
       try {
-        expect(await expectError(() => Deploy.push({ cwd, document }))).to.equal(denial);
-        expect(await expectError(() => Deploy.push({ cwd, config }))).to.equal(denial);
+        const first = await expectError(() => Deploy.push({ cwd, document }));
+        expect(first).to.equal(denial);
+        const detail = Deploy.Error.diagnostic(denial);
+        expect(detail).to.eql({ reason: 'failed' });
+        expect(Object.isFrozen(detail)).to.eql(true);
+        expect(Deploy.Error.permission(denial)).to.equal(denial);
+
+        // Reuse across overloads and concurrent calls must preserve the first observation.
+        const reused = await Promise.all([
+          expectError(() => Deploy.push({ cwd, config })),
+          expectError(() => Deploy.push({ cwd, document })),
+        ]);
+        expect(reused.every((error) => error === denial)).to.eql(true);
+        expect(Deploy.Error.diagnostic(denial)).to.equal(detail);
+        expect(Deploy.Error.permission(denial)).to.equal(denial);
         expect(await files(cwd)).to.eql(before);
       } finally {
         fs.validateAst = original;
@@ -302,22 +339,22 @@ describe('@sys/tools/deploy captured document push', () => {
     await withTmpDir(async (cwd) => {
       await stage(cwd);
       const before = await files(cwd);
-      const diagnostic = new Error('fixture provider failure');
-      for (const throws of [false, true]) {
+      const providerError = new Error('fixture provider failure');
+      for (const rejects of [false, true]) {
         await withProvider(() => {
-          if (throws) return Promise.reject(diagnostic);
+          if (rejects) return Promise.reject(providerError);
           return Promise.resolve({
             ok: false,
             reason: 'failed',
             hint: 'fixture down',
-            error: diagnostic,
+            error: providerError,
           });
         }, async () => {
           const error = await expectError(() => Deploy.push({ cwd, document: endpoint() }));
           const cause = error.cause;
           if (!Is.record(cause)) throw new Error('Expected a structured provider failure.');
           expect(cause).to.deep.include({ reason: 'failed', source: 'document' });
-          expect(cause.error).to.equal(diagnostic);
+          expect(cause.error).to.equal(providerError);
           expect(cause.target).to.include({ bucket: 'bucket-a' });
           expect(cause).not.to.have.property('config');
           expect(await files(cwd)).to.eql(before);
