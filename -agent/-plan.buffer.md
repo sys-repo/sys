@@ -1,3 +1,12 @@
+
+service-rendering.plan.md
+- [ ] feat(cli): share service rendering with HTTP startup
+- [ ] feat(cell): retain owner presentation in shared service rendering
+- [ ] refactor(sample-r2): share one service endpoint across direct and Cell startup
+
+
+
+
 @sys.driver-cloudflare
 r2-delivery-extraction.plan.md
 - [x] ff24c6d98 refactor(pkg): extract verified Dist projections and shared selection
