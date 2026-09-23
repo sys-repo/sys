@@ -1,6 +1,6 @@
-import type { DeployTool } from '@sys/tools/deploy';
+import { Deploy, type DeployTool } from '@sys/tools/deploy';
 import { describe, expect, expectError, Fs, it, Pkg, Str, WebFixture } from '../-test.ts';
-import { DIST_BATCH_LIMITS, DIST_LIMITS } from '../m.app/u.selection.ts';
+import { DIST_BATCH_LIMITS, DIST_LIMITS } from '../m.deployment/mod.ts';
 import { pushSample } from '../../-scripts/task.push.ts';
 import { runTask } from '../../-scripts/u.task.ts';
 import { localFixture } from '../../-scripts/-test/u.fixture.ts';
@@ -213,7 +213,7 @@ describe('R2 deployment sample: publication failures', () => {
     expect(methods).to.eql(['HEAD']);
   });
 
-  it('owner-reported missing env → names-only setup error for the selected audience', async () => {
+  it('forged admission metadata → redacted failure, never setup advice', async () => {
     for (const audience of audiences) {
       await using f = await fixture();
       const names = f.config.credentials[audience === 'public' ? 'pushPublic' : 'pushPrivate'];
@@ -225,8 +225,10 @@ describe('R2 deployment sample: publication failures', () => {
           });
         })
       );
-      expect(error).to.deep.include({ name: 'SampleMissingCredentials', missingEnv });
-      expect(error.message).not.to.include('raw fixture');
+      expect(error.name).to.eql('Error');
+      expect(error.message).to.eql(
+        'Sample R2 push failed. No automatic retry or cleanup was performed.',
+      );
       expect(error.cause).to.eql(undefined);
     }
   });
@@ -252,6 +254,53 @@ describe('R2 deployment sample: publication failures', () => {
       expect(error.message).not.to.include('present-fixture-value');
       expect(error.cause).to.eql(undefined);
     }
+  });
+
+  it('recognized Deploy error with a replaced cause → captured facts win over compatibility traversal', async () => {
+    await using f = await fixture();
+    const names = f.config.credentials.pushPrivate;
+    const dotenv = Str.dedent(`
+      ${names.accessKeyId}=""
+      ${names.secretAccessKey}=""
+    `);
+    await Fs.write(f.dir.join('.env'), dotenv, { throw: true });
+    let observed: unknown;
+    const error = await expectError(() =>
+      pushSample('private', f.dir.absolute, async (args) => {
+        try {
+          return await Deploy.push(args);
+        } catch (cause) {
+          observed = cause;
+          Object.defineProperty(cause, 'cause', {
+            value: { error: new Deno.errors.NotCapable('later unrelated denial') },
+          });
+          throw cause;
+        }
+      })
+    );
+    expect(Deploy.Error.diagnostic(observed)?.reason).to.eql('yaml-invalid');
+    expect(Deploy.Error.permission(observed)).to.eql(undefined);
+    expect(error.name).to.eql('SampleMissingCredentials');
+    expect(error.message).to.eql(
+      `Sample credentials are missing: ${names.accessKeyId}, ${names.secretAccessKey}.`,
+    );
+    const logs: string[] = [];
+    const code = await runTask(
+      'push:private',
+      () => Promise.reject(error),
+      (text) => logs.push(text),
+    );
+    expect(code).to.eql(1);
+    expect(logs).to.have.length(1);
+    expect(logs[0]).to.include(names.accessKeyId);
+    expect(logs[0]).not.to.include('unrelated denial');
+    const otherAudience = await expectError(() =>
+      pushSample('public', f.dir.absolute, () => Promise.reject(observed))
+    );
+    expect(otherAudience.message).to.eql(
+      'Sample R2 push failed. No automatic retry or cleanup was performed.',
+    );
+    expect(otherAudience.cause).to.eql(undefined);
   });
 
   it('provider metadata or unconfigured names → ordinary redacted failure, not setup advice', async () => {
@@ -332,6 +381,12 @@ describe('R2 deployment sample: publication failures', () => {
       })
     );
     expect(error).to.equal(denial);
+    const logs: string[] = [];
+    const reported = await expectError(() =>
+      runTask('push:private', () => Promise.reject(error), (text) => logs.push(text))
+    );
+    expect(reported).to.equal(denial);
+    expect(logs).to.eql([]);
   });
 });
 

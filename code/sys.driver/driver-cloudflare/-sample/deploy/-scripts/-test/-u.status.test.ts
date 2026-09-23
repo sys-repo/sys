@@ -1,5 +1,5 @@
 import { buildStatus } from '../u.status.ts';
-import { DIST_LIMITS } from '../../src/m.app/u.selection.ts';
+import { DIST_LIMITS } from '../../src/m.deployment/mod.ts';
 import { describe, expect, expectError, Fs, HashFmt, it, Pkg, stripAnsi, Text } from './common.ts';
 
 const PATH = 'dist.private/';

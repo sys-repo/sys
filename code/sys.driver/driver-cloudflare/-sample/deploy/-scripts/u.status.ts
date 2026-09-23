@@ -1,5 +1,5 @@
 import { Fmt, Fs, HashFmt, ROOT, stripAnsi, type t, Text } from './common.ts';
-import { selectBuild } from './u.selection.ts';
+import { selectBuild } from '../src/m.deployment/mod.ts';
 
 type BuildStatus = {
   readonly detail: t.Service.Detail;

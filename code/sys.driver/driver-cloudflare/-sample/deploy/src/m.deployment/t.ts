@@ -5,7 +5,7 @@ export type Audience = 'private' | 'public';
 export type Target = { readonly bucket: string; readonly prefix: string };
 export type CredentialNames = { readonly accessKeyId: string; readonly secretAccessKey: string };
 
-/** Bucket locations, public asset URL, credential variable names, and response limits. */
+/** Bucket locations, public asset URL, and credential variable names. */
 export type Config = {
   readonly accountId: string;
   readonly targets: Readonly<Record<Audience, Target>>;
@@ -15,14 +15,22 @@ export type Config = {
     readonly pushPrivate: CredentialNames;
     readonly pushPublic: CredentialNames;
   };
-  readonly limits: Readonly<t.R2.ReadRoute.Limits>;
 };
 
 /** Shared manifest pins and the sample's recorded build base. */
 export type BuildRecord = {
-  readonly selection: t.DistPins<Audience>;
   readonly publicAssetBase: string;
+  readonly selection: t.DistPins<Audience>;
 };
+
+/** Verified local audience and its captured recheck; callers own refusal policy. */
+export type BuildSelection =
+  | t.FsPkg.Dist.Pinned.Verify.Failure
+  | (t.FsPkg.Dist.Pinned.Verify.Verified & {
+    readonly files: readonly string[];
+    readonly dir: t.StringDir;
+    readonly verify: () => Promise<t.FsPkg.Dist.Pinned.Verify.Result>;
+  });
 
 /** Credential lookup shared by dotenv readers and the hosted process environment. */
 export type EnvReader = Pick<typeof Deno.env, 'get'>;
@@ -31,10 +39,4 @@ export type EnvReader = Pick<typeof Deno.env, 'get'>;
 export type AppInputs = {
   readonly config: Config;
   readonly buildRecord: BuildRecord;
-};
-
-/** Application inputs and the bucket used to sign private reads. */
-export type AppOptions = AppInputs & {
-  readonly bucket: Pick<t.R2.Bucket, 'name' | 'presignGet'>;
-  readonly signal?: AbortSignal;
 };

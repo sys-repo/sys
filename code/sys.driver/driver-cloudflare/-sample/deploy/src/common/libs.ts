@@ -6,4 +6,3 @@ export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Json } from '@sys/std/json';
-export { Fs, Pkg } from '@sys/fs';

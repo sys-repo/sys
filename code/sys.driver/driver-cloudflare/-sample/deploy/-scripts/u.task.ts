@@ -1,5 +1,5 @@
 import { R2 } from '@sys/driver-cloudflare/r2';
-import { missingCredentialsOf } from '../src/m.app/u.credentials.ts';
+import { missingCredentialsOf } from '../src/m.deployment/mod.ts';
 import { Is, type t } from './common.ts';
 import { formatMissingCredentials, formatR2Failure } from './u.fmt.ts';
 

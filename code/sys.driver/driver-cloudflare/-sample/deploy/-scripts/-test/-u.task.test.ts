@@ -1,9 +1,8 @@
 import { WebFixture } from '@sys/testing/web';
-import { appFrom } from '../../src/entry.ts';
-import { fixtureInputs } from '../../src/-test/u.config.ts';
-import { missingCredentialsError } from '../../src/m.app/u.credentials.ts';
+import { fixtureInputs } from '../../src/-test/u.fixture.ts';
+import { appFrom, missingCredentialsError } from '../../src/m.deployment/mod.ts';
 import { formatMissingCredentials, formatR2Failure } from '../u.fmt.ts';
-import { prove } from '../u.proof.ts';
+import { prove } from '../task.proof.local.ts';
 import { r2Failure, runTask } from '../u.task.ts';
 import { describe, expect, expectError, it } from './common.ts';
 import { localFixture } from './u.fixture.ts';

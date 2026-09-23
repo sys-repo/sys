@@ -1,10 +1,8 @@
 import { Cli } from '@sys/cli';
 import { Deploy } from '@sys/tools/deploy';
 import { R2 } from '@sys/driver-cloudflare/r2';
-import { readInputs } from '../src/m.app/u.data.ts';
-import { missingCredentialsError } from '../src/m.app/u.credentials.ts';
-import { c, Is, ROOT, type t } from './common.ts';
-import { selectPublication } from './u.selection.ts';
+import { missingCredentialsError, readInputs, selectPublication } from '../src/m.deployment/mod.ts';
+import { c, ROOT, type t } from './common.ts';
 import { r2Failure, runTask } from './u.task.ts';
 
 /**
@@ -48,19 +46,16 @@ export async function pushSample(
 
 /** Preserve runtime denials and safe R2 summaries; never forward raw provider diagnostics. */
 function pushFailure(error: unknown, names: t.CredentialNames): Error {
-  const denial = R2.Error.permission(error);
+  const observed = Deploy.Error.diagnostic(error);
+  // Only unrecognized injected publishers use R2's permission compatibility path.
+  const denial = observed ? Deploy.Error.permission(error) : R2.Error.permission(error);
   if (denial) return denial;
-  // Only input-admission metadata from Deploy can become a setup message. Provider failures
-  // stay redacted, and reported names must belong to this captured operation's credential pair.
-  const failure = Is.error(error) && Is.record(error.cause) ? error.cause : undefined;
-  const missing = failure?.missingEnv;
+  const missing = observed?.missingEnv;
   if (
-    failure?.ok === false && failure.source === 'document' && failure.reason === 'yaml-invalid' &&
-    Is.array(missing) && missing.length > 0 && missing.every(Is.str) &&
+    missing?.length &&
     missing.every((name) => name === names.accessKeyId || name === names.secretAccessKey)
   ) return missingCredentialsError(missing);
-  const detail = R2.Error.diagnostic(error);
-  if (detail) return r2Failure(detail);
+  if (observed?.r2) return r2Failure(observed.r2);
   return new Error('Sample R2 push failed. No automatic retry or cleanup was performed.');
 }
 

@@ -1,15 +1,15 @@
-import { Is, Obj, Pkg, type t } from './common.ts';
+import { Fs, Is, Obj, Pkg, type t } from './common.ts';
 
 /** Sample-owned build record, outside both distribution roots. */
 export const BUILD_RECORD_FILENAME = 'dist.pins.json';
 
 /** Response size, deadline, and concurrent-request limits. */
-export const LIMITS = Object.freeze({ maxBytes: 1_048_576, timeout: 5_000, maxConcurrent: 4 });
+export const READ_LIMITS = Object.freeze({ maxBytes: 1_048_576, timeout: 5_000, maxConcurrent: 4 });
 /** Verification limits for each distribution. */
 export const DIST_LIMITS: Readonly<t.FsPkg.Dist.Verify.Limits> = Object.freeze({
   manifestBytes: 65_536,
   entries: 256,
-  fileBytes: LIMITS.maxBytes,
+  fileBytes: READ_LIMITS.maxBytes,
   totalBytes: 4_194_304,
 });
 
@@ -21,10 +21,10 @@ export const DIST_BATCH_LIMITS: Readonly<t.FsPkg.Dist.BatchLimits> = Object.free
 
 /** Validate and copy configuration, including the public URL-to-prefix mapping. */
 export function configFrom(input: unknown): t.Config {
-  if (!hasKeys(input, ['accountId', 'targets', 'publicAssetBase', 'credentials', 'limits'])) {
+  if (!hasKeys(input, ['accountId', 'targets', 'publicAssetBase', 'credentials'])) {
     throw new Error('Invalid sample configuration.');
   }
-  const { accountId, targets, publicAssetBase, credentials, limits } = input;
+  const { accountId, targets, publicAssetBase, credentials } = input;
   if (
     !Is.str(accountId) || !/^[a-f0-9]{32}$/.test(accountId) ||
     !hasKeys(targets, ['private', 'public']) ||
@@ -34,8 +34,7 @@ export function configFrom(input: unknown): t.Config {
     new URL(publicAssetBase).pathname !== `/${targets.public.prefix}/` ||
     !hasKeys(credentials, ['serve', 'pushPrivate', 'pushPublic']) ||
     !isCredentials(credentials.serve) || !isCredentials(credentials.pushPrivate) ||
-    !isCredentials(credentials.pushPublic) || !hasKeys(limits, Obj.keys(LIMITS)) ||
-    Obj.entries(LIMITS).some(([key, value]) => limits[key] !== value)
+    !isCredentials(credentials.pushPublic)
   ) throw new Error('Invalid sample configuration.');
   return Obj.deepFreeze({
     accountId,
@@ -46,7 +45,6 @@ export function configFrom(input: unknown): t.Config {
       pushPrivate: { ...credentials.pushPrivate },
       pushPublic: { ...credentials.pushPublic },
     },
-    limits: LIMITS,
   });
 }
 
@@ -72,7 +70,7 @@ export function snapshotInputs(config: unknown, buildRecord: unknown): t.AppInpu
     });
     return Object.freeze({
       config: capturedConfig,
-      buildRecord: Object.freeze({ selection, publicAssetBase }),
+      buildRecord: Object.freeze({ publicAssetBase, selection }),
     });
   } catch {
     throw new Error(
@@ -108,19 +106,42 @@ export function selectionFiles(
   return Object.freeze([...payloads, 'dist.json'].sort());
 }
 
-/** Map selected files to private storage keys; `/` serves `index.html`. */
-export function routesFor(
-  config: t.Config,
-  files: readonly string[],
-): Readonly<Record<string, string>> {
-  const prefix = config.targets.private.prefix;
-  const routes: Record<string, string> = { '/': `${prefix}/index.html` };
-  for (const file of files) routes[`/${file}`] = `${prefix}/${file}`;
-  return Object.freeze(routes);
+/** Verify one local audience against its recorded pin and filename policy. */
+export async function selectBuild(
+  pin: t.DistPin,
+  root: string,
+  audience: t.Audience = 'private',
+): Promise<t.BuildSelection> {
+  if (!Pkg.Is.distPin(pin)) throw new Error('Invalid sample Dist pin.');
+  const integrity = pin['dist.json'];
+  const dir = Fs.resolve(root, `dist.${audience}`);
+  const verify = () => Pkg.Dist.Pinned.verify({ dir, integrity, limits: DIST_LIMITS });
+  const verified = await verify();
+  if (verified.kind !== 'verified') return verified;
+  const files = selectionFiles(verified.evidence.dist, audience);
+  return { ...verified, files, dir, verify };
+}
+
+/** Check both distributions and their filenames before publishing either audience. */
+export async function selectPublication(input: t.DistPins<t.Audience>, root: string) {
+  const checked = await Pkg.Dist.Pins.verify({
+    root,
+    selection: input,
+    dirs: { private: 'dist.private', public: 'dist.public' },
+    limits: DIST_LIMITS,
+    batch: DIST_BATCH_LIMITS,
+  });
+  if (checked.kind !== 'verified') {
+    throw new Error(`Sample ${checked.name ?? 'selection'} Dist refused: ${checked.kind}.`);
+  }
+  return {
+    private: selectionFiles(checked.evidence.private.dist, 'private'),
+    public: selectionFiles(checked.evidence.public.dist, 'public'),
+  } as const;
 }
 
 /** Accept an HTTPS directory URL without credentials, query parameters, or a fragment. */
-export function isPublicBase(value: unknown): value is string {
+function isPublicBase(value: unknown): value is string {
   if (!Is.str(value)) return false;
   try {
     const url = new URL(value);

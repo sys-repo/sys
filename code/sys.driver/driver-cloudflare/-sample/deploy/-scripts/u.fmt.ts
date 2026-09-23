@@ -1,7 +1,7 @@
 import { Code } from '@sys/cli/fmt/code';
 import { R2 } from '@sys/driver-cloudflare/r2';
-import { c, Fmt, Str, type t, Text } from './common.ts';
-import { BUILD_RECORD_FILENAME } from '../src/m.app/u.selection.ts';
+import { c, Fmt, Fs, ROOT, Str, type t, Text } from './common.ts';
+import { BUILD_RECORD_FILENAME } from '../src/m.deployment/mod.ts';
 
 /** Format the selected manifest pins and the next publication command. */
 export function formatBuildSelection(
@@ -13,17 +13,25 @@ export function formatBuildSelection(
     checksum: selection.pins[audience]['dist.json'],
   }));
   const labelWidth = Text.Width.max(rows.map((row) => row.label));
-  const pins = rows.map(({ label, checksum }) =>
-    `${Text.Width.padEnd(label, labelWidth)} ${c.gray(checksum)}`
-  );
+  const pins = rows.map(({ label, checksum }) => {
+    const paddedLabel = Text.Width.padEnd(label, labelWidth);
+    const body = c.gray(checksum.slice(0, -5));
+    const suffix = c.green(checksum.slice(-5));
+    return `  ${paddedLabel} ${body}${suffix}`;
+  });
+
+  const heading = Text.Width.padEnd('Manifest', labelWidth + 2);
+  const recordUrl = Fs.Path.toFileUrl(Fs.join(ROOT, BUILD_RECORD_FILENAME));
+  const recordLink = Fmt.hyperlink(BUILD_RECORD_FILENAME, recordUrl, { underline: true });
+  const instruction = 'Next: publish to R2';
   const next = Str.dedent(`
-    ${c.cyan('Next: publish public assets, then the private shell.')}
+    ${c.dim(c.cyan(c.italic(instruction)))}
     ${Fmt.hr({ width: options.width, color: 'cyan' })}
 
-    ${Code.block('deno task push', { indent: 2 })}
+    ${Code.block(c.cyan('deno task push'), { indent: 4 })}
   `);
   return Str.builder()
-    .line(`Selected ${BUILD_RECORD_FILENAME}`)
+    .line(`${heading} ${recordLink}`)
     .lines(pins)
     .empty()
     .line(next)

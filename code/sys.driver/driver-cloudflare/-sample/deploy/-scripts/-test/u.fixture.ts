@@ -1,5 +1,5 @@
-import { fixtureConfig } from '../../src/-test/u.config.ts';
-import { buildSample } from '../u.build.ts';
+import { fixtureConfig } from '../../src/-test/u.fixture.ts';
+import { buildSample } from '../task.build.ts';
 import { Fs, Obj, Pkg } from './common.ts';
 
 type Assets = Record<string, string | Uint8Array>;

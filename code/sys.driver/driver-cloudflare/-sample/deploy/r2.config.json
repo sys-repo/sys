@@ -1,7 +1,6 @@
 {
   "accountId": "1e6ec0395407e49eef7ee54f667d61de",
   "publicAssetBase": "https://pub-72d4e716dcae492f9e174c58866d5533.r2.dev/tmp.sys.driver-cloudflare/r2-proof-ui/",
-  "limits": { "maxBytes": 1048576, "timeout": 5000, "maxConcurrent": 4 },
   "targets": {
     "private": {
       "bucket": "sys-test-private",

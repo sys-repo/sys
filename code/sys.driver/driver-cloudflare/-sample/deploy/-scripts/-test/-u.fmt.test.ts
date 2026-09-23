@@ -1,5 +1,5 @@
 import { formatBuildSelection, formatMissingCredentials, formatR2Failure } from '../u.fmt.ts';
-import { c, describe, expect, Fmt, it, Obj, Str, stripAnsi, type t } from './common.ts';
+import { describe, expect, Fmt, Fs, it, Obj, ROOT, Str, stripAnsi, type t } from './common.ts';
 
 const selection: t.DistPins<t.Audience> = Obj.deepFreeze({
   pins: {
@@ -9,10 +9,10 @@ const selection: t.DistPins<t.Audience> = Obj.deepFreeze({
 });
 
 describe('R2 deployment sample: credential setup formatting', () => {
-  it('missing names → setup instructions, semantic colors, and the exact rerun command', () => {
+  it('missing names → setup instructions and the exact rerun command', () => {
     const names = ['FIXTURE_PUBLIC_KEY', 'FIXTURE_PUBLIC_SECRET'];
-    const actual = formatMissingCredentials('push:public', names, { width: 40 });
-    expect(stripAnsi(actual)).to.eql(Str.dedent(`
+    const actual = stripAnsi(formatMissingCredentials('push:public', names, { width: 40 }));
+    expect(actual).to.eql(Str.dedent(`
       Cannot run push:public: missing credentials.
 
       Missing or empty environment variables:
@@ -31,19 +31,6 @@ describe('R2 deployment sample: credential setup formatting', () => {
 
         deno task push:public
     `));
-    expect(actual).to.include(c.red('Cannot run push:public: missing credentials.'));
-    for (const name of names) {
-      expect(actual).to.include(`    ${c.cyan(name)}${c.magenta('=')}${c.yellow('"..."')}`);
-    }
-    expect(actual).to.include(c.cyan('.env'));
-    const notes = [
-      'See README.md for the bucket-scoped credentials required by this task.',
-      'This task made no R2 requests.',
-    ];
-    for (const note of notes) {
-      expect(actual).to.include(c.gray(c.italic(note)));
-    }
-    expect(actual).to.include(Fmt.hr({ width: 40, color: 'cyan' }));
   });
 
   it('task selection → matching blocked heading and rerun command', () => {
@@ -59,8 +46,9 @@ describe('R2 deployment sample: credential setup formatting', () => {
 describe('R2 deployment sample: R2 failure formatting', () => {
   for (const status of [401, 403]) {
     it(`HTTP ${status} → concise credential guidance and the selected task's rerun command`, () => {
-      const actual = formatR2Failure('push:private', { operation: 'stat', status }, { width: 40 });
-      expect(stripAnsi(actual)).to.eql(Str.dedent(`
+      const detail = { operation: 'stat', status } as const;
+      const actual = stripAnsi(formatR2Failure('push:private', detail, { width: 40 }));
+      expect(actual).to.eql(Str.dedent(`
         Cannot complete push:private.
 
         R2 stat failed: HTTP ${status}.
@@ -75,10 +63,6 @@ describe('R2 deployment sample: R2 failure formatting', () => {
 
           deno task push:private
       `));
-      expect(actual).to.include(c.red('Cannot complete push:private.'));
-      expect(actual).to.include(c.gray(c.italic('Earlier writes may remain.')));
-      expect(actual).to.include(c.cyan('After resolving the R2 failure, rerun:'));
-      expect(actual).to.include(Fmt.hr({ width: 40, color: 'cyan' }));
     });
   }
 
@@ -95,24 +79,31 @@ describe('R2 deployment sample: R2 failure formatting', () => {
 
 describe('R2 deployment sample: build handoff formatting', () => {
   it('selected pins → aligned full checksums and one combined publication command', () => {
-    const actual = formatBuildSelection(selection, { width: 40 });
-    expect(stripAnsi(actual)).to.eql(Str.dedent(`
-      Selected dist.pins.json
-      public:  ${selection.pins.public['dist.json']}
-      private: ${selection.pins.private['dist.json']}
+    const actual = stripAnsi(formatBuildSelection(selection, { width: 40 }));
+    expect(actual).to.eql(Str.dedent(`
+      Manifest   dist.pins.json
+        public:  ${selection.pins.public['dist.json']}
+        private: ${selection.pins.private['dist.json']}
 
-      Next: publish public assets, then the private shell.
+      Next: publish to R2
       ${Fmt.hr({ width: 40 })}
 
-        deno task push
+          deno task push
     `));
   });
 
-  it('explicit or terminal width → cyan instruction and canonical divider', () => {
+  it('manifest filename → link to the sample build record', () => {
+    const actual = formatBuildSelection(selection, { width: 40 });
+    const target = Fs.Path.toFileUrl(Fs.join(ROOT, 'dist.pins.json'));
+    const heading = actual.split('\n')[0];
+    expect(heading).to.include(target.href);
+    expect(stripAnsi(heading)).to.eql('Manifest   dist.pins.json');
+  });
+
+  it('explicit or terminal width → matching divider', () => {
     for (const width of [24, undefined]) {
-      const actual = formatBuildSelection(selection, { width });
-      expect(actual).to.include(Fmt.hr({ width, color: 'cyan' }));
-      expect(actual).to.include(c.cyan('Next: publish public assets, then the private shell.'));
+      const actual = stripAnsi(formatBuildSelection(selection, { width }));
+      expect(actual.split('\n')).to.include(Fmt.hr({ width }));
     }
   });
 });

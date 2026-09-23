@@ -1,6 +1,5 @@
-import { buildSample } from '../u.build.ts';
-import { selectPublication } from '../u.selection.ts';
-import { readInputs } from '../../src/m.app/u.data.ts';
+import { buildSample } from '../task.build.ts';
+import { readInputs, selectPublication } from '../../src/m.deployment/mod.ts';
 import { describe, expect, expectError, Fs, it } from './common.ts';
 import { localFixture } from './u.fixture.ts';
 

@@ -1,4 +1,5 @@
-import { Fs } from '../src/common.ts';
+import { Fs } from '@sys/fs';
+export { Fs, Pkg } from '@sys/fs';
 export * from '../src/common.ts';
 export type * as t from './t.ts';
 

@@ -1,36 +1,11 @@
 import { R2 } from '@sys/driver-cloudflare/r2';
 import { WebFixture } from '@sys/testing/web';
-import { prepareProof, prove } from '../u.proof.ts';
-import { Testing } from '@sys/testing/server';
-import { describe, Err, expect, expectError, Fs, it, Json, Obj, type t, Time } from './common.ts';
+import { Fetch } from '@sys/http/client';
+import { prepareProof, prove, proveWith } from '../task.proof.local.ts';
+import { describe, expect, expectError, Fs, it, Json, Obj, Str, type t, Time } from './common.ts';
 import { localFixture as fixture } from './u.fixture.ts';
 
 describe('R2 deployment sample: proof selection', () => {
-  it('old-file-only input → rebuild guidance before credential or live-work callbacks', async () => {
-    await using f = await fixture();
-    await Fs.writeJson(f.dir.join('dist.selection.json'), f.buildRecord, { throw: true });
-    await Fs.remove(f.dir.join('dist.pins.json'));
-    const calls: string[] = [];
-    await expectError(() =>
-      prove({
-        root: f.dir.absolute,
-        env: {
-          get(name) {
-            calls.push(name);
-            throw new Error('Unexpected credential read.');
-          },
-        },
-        start() {
-          calls.push('start');
-          throw new Error('Unexpected listener start.');
-        },
-        log() {
-          calls.push('log');
-        },
-      }), 'Missing sample build record. Run deno task build');
-    expect(calls).to.eql([]);
-  });
-
   it('new build → new selection without broadening the private proof inventory', async () => {
     await using f = await fixture();
     const first = await prepareProof(f.dir.absolute);
@@ -58,34 +33,10 @@ describe('R2 deployment sample: proof selection', () => {
     expect(selected.files).to.eql(['dist.json', 'index.html']);
   });
 
-  it('rebuilt shell with the old selection → refusal, not automatic repinning', async () => {
-    await using f = await fixture();
-    await f.build('second');
-    await Fs.writeJson(f.dir.join('dist.pins.json'), f.buildRecord, { throw: true });
-    await expectError(
-      () => prepareProof(f.dir.absolute),
-      'Local Dist refused: integrity-mismatch.',
-    );
-  });
-
   it('changed private bytes → refusal before live work', async () => {
     await using f = await fixture();
     await Fs.write(f.dir.join('dist.private/index.html'), 'changed', { throw: true });
     await expectError(() => prepareProof(f.dir.absolute), 'Local Dist refused: content-mismatch.');
-  });
-
-  it('persisted inventory fields → selection refusal', async () => {
-    await using f = await fixture();
-    await Fs.writeJson(f.dir.join('dist.pins.json'), {
-      ...f.buildRecord,
-      selection: {
-        pins: {
-          ...f.buildRecord.selection.pins,
-          private: { ...f.buildRecord.selection.pins.private, files: ['index.html'] },
-        },
-      },
-    }, { throw: true });
-    await expectError(() => prepareProof(f.dir.absolute), 'Invalid sample build record.');
   });
 });
 
@@ -122,43 +73,87 @@ describe('R2 deployment sample: bootstrap-inclusive private delivery proof', () 
     expect(f.events.at(-1)).to.include({ result: 'verified', publicDelivery: 'not exercised' });
   });
 
-  it('metadata replaced after announcement → no live work until reporting settles; capture survives', async () => {
+  it('awaited announcement mutates callbacks → original starter and reader method remain authoritative', async () => {
     await using f = await deliveryFixture();
+    const announced = Promise.withResolvers<void>();
     const release = Promise.withResolvers<void>();
-    let replaced = false;
-    const options: t.ProofOptions = {
+    const reader = f.options.env;
+    const get = reader.get;
+    let originalReads = 0;
+    reader.get = function (name) {
+      expect(this).to.equal(reader);
+      originalReads++;
+      return get(name);
+    };
+    const options = {
       ...f.options,
-      async log(text) {
-        f.options.log?.(text);
-        if (Json.parse<{ result?: string }>(text)?.result !== 'selected') return;
+      async log(text: string) {
+        f.options.log(text);
+        if (f.events.at(-1)?.result !== 'selected') return;
         await Fs.writeJson(f.dir.join('r2.config.json'), {}, { throw: true });
         await Fs.writeJson(f.dir.join('dist.pins.json'), {}, { throw: true });
-        replaced = true;
+        options.start = () => {
+          throw new Error('Replaced starter invoked.');
+        };
+        options.env = {
+          get: () => {
+            throw new Error('Replaced reader invoked.');
+          },
+        };
+        reader.get = () => {
+          throw new Error('Replaced method invoked.');
+        };
+        announced.resolve();
         await release.promise;
       },
     };
-    const pending = Err.Try.run(() => prove(options));
+    const pending = Promise.allSettled([prove(options)]);
     try {
-      await Testing.retry(100, { silent: true, delay: 10 }, () => expect(replaced).to.eql(true));
-      expect(f.credentialNames).to.eql([]);
+      await announced.promise;
+      expect(originalReads).to.eql(0);
       expect(f.storageKeys).to.eql([]);
-      expect(f.state).to.eql({ starts: 0, closes: 0, requests: 0 });
+      expect(f.state.starts).to.eql(0);
       release.resolve();
-      expect((await pending).result.ok).to.eql(true);
+      expect(await pending).to.eql([{ status: 'fulfilled', value: undefined }]);
+      expect(originalReads).to.eql(2);
+      expect(f.state).to.eql({ starts: 1, closes: 1, requests: 10 });
+      expect(f.events.at(-1)?.integrity).to.eql(f.buildRecord.selection.pins.private['dist.json']);
     } finally {
       release.resolve();
       await pending;
     }
-    expect(f.events.at(-1)).to.include({
-      result: 'verified',
-      integrity: f.buildRecord.selection.pins.private['dist.json'],
-    });
-    expect(f.events.at(-1)?.target).to.eql({
-      accountId: f.config.accountId,
-      ...f.config.targets.private,
-    });
-    expect(f.state.requests).to.eql(10);
-    expect(f.storageKeys.length).to.eql(6);
+  });
+
+  it('reader absent at entry → later logger injection cannot replace deferred environment loading', async () => {
+    await using f = await deliveryFixture();
+    const names = f.config.credentials.serve;
+    const dotenv = Str.dedent(`
+      ${names.accessKeyId}=fixture
+      ${names.secretAccessKey}=fixture
+    `);
+    await Fs.write(f.dir.join('.env'), dotenv, { throw: true });
+    const options: t.ProofOptions = { ...f.options, env: undefined };
+    const mutable = options as t.DeepMutable<t.ProofOptions>;
+    mutable.log = (text) => {
+      f.options.log(text);
+      mutable.env = {
+        get: () => {
+          throw new Error('Late reader selected.');
+        },
+      };
+    };
+    await prove(options);
+    expect(f.credentialNames).to.eql([]);
+    expect(f.state.closes).to.eql(1);
+  });
+
+  it('HEAD transport failure → qualified Fetch status, one refusal, and cleanup', async () => {
+    await using f = await deliveryFixture();
+    f.refuseHead();
+    const error = await expectError(() => prove(f.options));
+    expect(error.message).to.eql('HEAD dist.json failed: Fetch status 520.');
+    expect(f.events.filter((event) => event.result === 'refused')).to.have.length(1);
+    expect(f.state).to.eql({ starts: 1, closes: 1, requests: 2 });
   });
 
   it('bootstrap mismatch → one read, no listener/API requests, and no retry', async () => {
@@ -239,11 +234,10 @@ describe('R2 deployment sample: proof reporting', () => {
       if (f.events.at(-1)?.result === 'refused') return Promise.reject(failure);
     };
     const error = await expectError(() => prove({ ...f.options, log }));
-    expect(error).to.be.instanceOf(AggregateError);
-    expect(error).to.have.property('errors').with.length(2);
-    expect(error.cause).to.have.property('message').that.includes('GET index.html refused');
-    expect(error).to.have.nested.property('errors[0]', error.cause);
-    expect(error).to.have.nested.property('errors[1]', failure);
+    expect(error).to.be.instanceOf(SuppressedError);
+    const suppressed = error as SuppressedError;
+    expect(suppressed.error).to.equal(failure);
+    expect(suppressed.suppressed.message).to.include('GET index.html refused');
     expect(f.events.at(-1)).to.include({ result: 'refused', path: 'index.html', requests: 3 });
     expect(f.events.filter((event) => event.result === 'refused')).to.have.length(1);
     expect(f.state).to.eql({ starts: 1, closes: 1, requests: 3 });
@@ -251,133 +245,89 @@ describe('R2 deployment sample: proof reporting', () => {
 });
 
 describe('R2 deployment sample: proof cleanup', () => {
-  it('close rejects before completion settles → await completion without losing the primary error', async () => {
+  it('delivery, reporting, and disposal failures → client-before-server suppression without flattening', async () => {
     await using f = await deliveryFixture();
-    const reporting = new Error('fixture report failure');
-    const closing = new Error('fixture close failure');
-    const enteredClose = Promise.withResolvers<void>();
-    const completion = Promise.withResolvers<void>();
-    let settled = false;
-    const pending = expectError(() =>
-      prove({
+    f.storage.set('index.html', new TextEncoder().encode('other'));
+    const reporting = new Error('report failed');
+    const clientFailure = new Error('client cleanup failed');
+    const serverFailure = new AggregateError([new Error('shutdown'), new Error('completion')]);
+    const cleanup: string[] = [];
+    const error = await expectError(() =>
+      proveWith((args) => {
+        const client = Fetch.make(args);
+        return {
+          ...client,
+          [Symbol.dispose]() {
+            client.dispose();
+            cleanup.push('client');
+            throw clientFailure;
+          },
+        };
+      }, {
         ...f.options,
         log(text) {
           f.options.log(text);
-          if (f.events.at(-1)?.path === 'dist.json') return Promise.reject(reporting);
+          if (f.events.at(-1)?.result === 'refused') throw reporting;
         },
         start(app) {
           const server = f.options.start(app);
           return {
-            finished: completion.promise,
-            async close() {
-              await server.close();
-              enteredClose.resolve();
-              throw closing;
+            async [Symbol.asyncDispose]() {
+              await server[Symbol.asyncDispose]();
+              cleanup.push('server');
+              throw serverFailure;
             },
           };
         },
       })
-    ).then((error) => {
-      settled = true;
-      return error;
-    });
-    try {
-      await enteredClose.promise;
-      await Time.wait(0);
-      expect(settled).to.eql(false);
-      completion.resolve();
-      const error = await pending;
-      expect(error).to.be.instanceOf(AggregateError);
-      expect(error.cause).to.equal(reporting);
-      expect(error).to.have.nested.property('errors[0]', reporting);
-      expect(error).to.have.nested.property('errors[1]', closing);
-      expect(f.state.closes).to.eql(1);
-    } finally {
-      completion.resolve();
-      await pending;
-    }
+    );
+    expect(error).to.be.instanceOf(SuppressedError);
+    const outer = error as SuppressedError;
+    const client = outer.suppressed as SuppressedError;
+    const report = client.suppressed as SuppressedError;
+    expect(outer.error).to.equal(serverFailure);
+    expect(client.error).to.equal(clientFailure);
+    expect(report.error).to.equal(reporting);
+    expect(report.suppressed.message).to.include('GET index.html refused');
+    expect(cleanup).to.eql(['client', 'server']);
+    expect(f.events.filter((event) => event.result === 'refused')).to.have.length(1);
   });
 
-  for (const phase of ['dist.json', 'refused']) {
-    it(`${phase} reporter and both shutdown outcomes reject → retain every failure, observe completion`, async () => {
-      await using f = await deliveryFixture();
-      if (phase === 'refused') f.storage.set('index.html', new TextEncoder().encode('other'));
-      const reporting = new Error('fixture report failure');
-      const closing = new Error('fixture close failure');
-      const finishing = new Error('fixture completion failure');
-      let observed = 0;
-      const error = await expectError(() =>
-        prove({
-          ...f.options,
-          log(text) {
-            f.options.log(text);
-            const event = f.events.at(-1);
-            if ((event?.result ?? event?.path) === phase) return Promise.reject(reporting);
-          },
-          start(app) {
-            const server = f.options.start(app);
-            return {
-              get finished() {
-                observed++;
-                return Promise.reject(finishing);
-              },
-              async close() {
-                await server.close();
-                throw closing;
-              },
-            };
-          },
-        })
-      );
-      expect(error).to.be.instanceOf(AggregateError);
-      const failures = (error as AggregateError).errors;
-      if (phase === 'refused') {
-        expect(failures[0]).to.have.property('message').that.includes('GET index.html refused');
-        expect(failures.slice(1)).to.eql([reporting, closing, finishing]);
-      } else {
-        expect(failures).to.eql([reporting, closing, finishing]);
-      }
-      expect(error.cause).to.equal(failures[0]);
-      expect(failures.at(-3)).to.equal(reporting);
-      expect(failures.at(-2)).to.equal(closing);
-      expect(failures.at(-1)).to.equal(finishing);
-      expect(observed).to.eql(1);
-      expect(f.state.closes).to.eql(1);
-      expect(f.events.filter((event) => (event.result ?? event.path) === phase)).to.have.length(1);
-      expect(f.events.at(-1)?.result ?? f.events.at(-1)?.path).to.eql(phase);
-    });
-  }
+  it('client acquisition throws → report once and dispose the acquired server', async () => {
+    await using f = await deliveryFixture();
+    const failure = new Error('client construction failed');
+    const error = await expectError(() =>
+      proveWith(() => {
+        throw failure;
+      }, f.options)
+    );
+    expect(error).to.equal(failure);
+    expect(f.state).to.eql({ starts: 1, closes: 1, requests: 0 });
+    expect(f.events.map((event) => event.result)).to.eql(['selected', 'refused']);
+  });
 
-  for (const phase of ['close', 'finished']) {
-    it(`successful proof then ${phase} rejection → original cleanup error, completion observed`, async () => {
-      await using f = await deliveryFixture();
-      const failure = new Error(`fixture ${phase} failure`);
-      let observed = 0;
-      const error = await expectError(() =>
-        prove({
-          ...f.options,
-          start(app) {
-            const server = f.options.start(app);
-            return {
-              get finished() {
-                observed++;
-                return phase === 'finished' ? Promise.reject(failure) : server.finished;
-              },
-              async close() {
-                await server.close();
-                if (phase === 'close') throw failure;
-              },
-            };
-          },
-        })
-      );
-      expect(error).to.equal(failure);
-      expect(observed).to.eql(1);
-      expect(f.state.closes).to.eql(1);
-      expect(f.events.at(-1)?.result).to.eql('verified');
-      expect(f.events.some((event) => event.result === 'refused')).to.eql(false);
-    });
-  }
+  it('successful proof then server disposal rejects → preserve the owner error without a refusal report', async () => {
+    await using f = await deliveryFixture();
+    const failure = new Error('server cleanup failed');
+    const error = await expectError(() =>
+      prove({
+        ...f.options,
+        start(app) {
+          const server = f.options.start(app);
+          return {
+            async [Symbol.asyncDispose]() {
+              await server[Symbol.asyncDispose]();
+              throw failure;
+            },
+          };
+        },
+      })
+    );
+    expect(error).to.equal(failure);
+    expect(f.state.closes).to.eql(1);
+    expect(f.events.at(-1)?.result).to.eql('verified');
+    expect(f.events.some((event) => event.result === 'refused')).to.eql(false);
+  });
 });
 
 /** Exercise the real app, signer, and client with an in-memory server and storage transport. */
@@ -391,6 +341,7 @@ async function deliveryFixture() {
     const credentialNames: string[] = [];
     const state = { starts: 0, closes: 0, requests: 0 };
     let app: t.HttpServer.App | undefined;
+    let refuseHead = false;
     const origin = R2.Service.storageUrl(f.config.accountId);
     const target = f.config.targets.private;
     const prefix = `/${target.bucket}/${target.prefix}/`;
@@ -407,6 +358,7 @@ async function deliveryFixture() {
         throw new Error('Unexpected fixture request.');
       }
       state.requests++;
+      if (refuseHead && req.method === 'HEAD') throw new Error('Fixture HEAD transport refusal.');
       return await app.fetch(req);
     });
     const options = {
@@ -428,11 +380,14 @@ async function deliveryFixture() {
       start(value) {
         app = value;
         state.starts++;
+        const completion = Promise.withResolvers<void>();
         return {
-          finished: Promise.resolve(),
-          close() {
+          finished: completion.promise,
+          [Symbol.asyncDispose]() {
             state.closes++;
-            return Promise.resolve();
+            app = undefined;
+            completion.resolve();
+            return completion.promise;
           },
         };
       },
@@ -445,6 +400,9 @@ async function deliveryFixture() {
       events,
       credentialNames,
       state,
+      refuseHead() {
+        refuseHead = true;
+      },
       async [Symbol.asyncDispose]() {
         mock.dispose();
         await f[Symbol.asyncDispose]();

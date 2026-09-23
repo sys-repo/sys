@@ -2,7 +2,52 @@ import { CompositeHash, Hash } from '@sys/crypto/hash';
 import { Ignore } from '@sys/std/ignore';
 import { R2 } from '@sys/driver-cloudflare/r2';
 import { Json, type t, WebFixture } from '../-test.ts';
-import { fixtureConfig } from './u.config.ts';
+
+/** Structurally valid inputs; these pins do not refer to local or remote output. */
+export function fixtureInputs(): t.AppInputs {
+  const config = fixtureConfig();
+  return {
+    config,
+    buildRecord: {
+      publicAssetBase: config.publicAssetBase,
+      selection: {
+        pins: {
+          private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
+          public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+        },
+      },
+    },
+  };
+}
+
+/** Synthetic names only; no fixture resolves a repository credential. */
+export function fixtureConfig() {
+  return {
+    accountId: '0'.repeat(32),
+    targets: {
+      private: { bucket: 'sample-private', prefix: 'sample/ui' },
+      public: { bucket: 'sample-public', prefix: 'sample/ui' },
+    },
+    publicAssetBase: 'https://assets.example.test/sample/ui/',
+    credentials: {
+      serve: {
+        accessKeyId: 'FIXTURE_PRIVATE_READ_KEY_ID',
+        secretAccessKey: 'FIXTURE_PRIVATE_READ_KEY_SECRET',
+      },
+      pushPrivate: {
+        accessKeyId: 'FIXTURE_PRIVATE_WRITE_KEY_ID',
+        secretAccessKey: 'FIXTURE_PRIVATE_WRITE_KEY_SECRET',
+      },
+      pushPublic: {
+        accessKeyId: 'FIXTURE_PUBLIC_WRITE_KEY_ID',
+        secretAccessKey: 'FIXTURE_PUBLIC_WRITE_KEY_SECRET',
+      },
+    },
+  };
+}
+
+/** Synthetic credentials for the real presigner; never consult process environment. */
+export const fixtureEnv: t.EnvReader = { get: () => 'fixture-only-credential' };
 
 /** Manifest and storage bytes owned entirely by the fixture. */
 export async function remoteFixture() {
@@ -42,17 +87,7 @@ export async function remoteFixture() {
   content.set('pkg/file.js', encoder.encode('export {};'));
   content.set('pkg/file.css', encoder.encode('body {}'));
   const target = config.targets.private;
-  const signed: string[] = [];
   const fetched: Request[] = [];
-  const bucket = {
-    name: target.bucket,
-    presignGet(key: string) {
-      signed.push(key);
-      return Promise.resolve(
-        `${R2.Service.storageUrl(config.accountId)}/${target.bucket}/${key}?signature=fixture`,
-      );
-    },
-  };
   const fixture = {
     config,
     pin,
@@ -60,9 +95,8 @@ export async function remoteFixture() {
     dist,
     manifest,
     content,
-    bucket,
-    signed,
     fetched,
+    keys: () => fetched.map((req) => new URL(req.url).pathname.slice(`/${target.bucket}/`.length)),
     read(req: Request): Promise<Response> {
       const path = new URL(req.url).pathname.slice(`/${target.bucket}/${target.prefix}/`.length);
       const bytes = content.get(path);

@@ -1,12 +1,7 @@
 import { CompositeHash, Hash } from '@sys/crypto/hash';
 import { describe, expect, Fs, it, type t } from '../-test.ts';
-import {
-  configFrom,
-  partitionBuild,
-  selectionFiles,
-  snapshotInputs,
-} from '../m.app/u.selection.ts';
-import { fixtureConfig } from './u.config.ts';
+import { configFrom, partitionBuild, selectionFiles, snapshotInputs } from '../m.deployment/mod.ts';
+import { fixtureConfig } from './u.fixture.ts';
 
 describe('R2 deployment sample: target configuration', () => {
   it('sample defaults → one environment pair for serving and both publishing roles', async () => {
