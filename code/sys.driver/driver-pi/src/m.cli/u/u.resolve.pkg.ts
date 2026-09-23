@@ -4,7 +4,7 @@ import { DenoDeps, Fs, type t } from '../common.ts';
  * Release fallback version, auto-updated from workspace `deps.yaml`.
  * Maintained by `-scripts/-prep.u.ts`; edit the manifest instead.
  */
-const PI_AGENT_IMPORT_VERSION = '0.86.1' as const;
+const PI_AGENT_IMPORT_VERSION = '0.85.1' as const;
 
 export const PI_AGENT_IMPORT_BASE = 'npm:@earendil-works/pi-coding-agent' as const;
 export const PI_AGENT_IMPORT = `${PI_AGENT_IMPORT_BASE}@${PI_AGENT_IMPORT_VERSION}` as const;
