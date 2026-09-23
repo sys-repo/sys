@@ -1,5 +1,6 @@
 import { c, describe, expect, it, Path } from '../../../-test.ts';
 import { Fmt, stripAnsi } from '../../mod.ts';
+import { hyperlinkCodeUnits } from '../u/u.hyperlink.ts';
 
 const OSC_8 = '\x1b]8;;';
 const STRING_TERMINATOR = '\x1b\\';
@@ -18,7 +19,12 @@ describe('Cli.Fmt.hyperlink', () => {
 
   it('preserves styled labels and targets with default, false, and true decoration', () => {
     const label = c.cyan('sandbox-report.log.md');
-    for (const href of ['file:///tmp/sandbox-report.log.md', 'https://example.test/report']) {
+    const targets = [
+      'file:///tmp/sandbox-report.log.md',
+      'https://example.test/report',
+      'https://example.test/é space?q=界#résumé',
+    ];
+    for (const href of targets) {
       const url = new URL(href);
       for (const options of [undefined, {}, { underline: false }, { underline: true }]) {
         const result = Fmt.hyperlink(label, url, options);
@@ -27,6 +33,7 @@ describe('Cli.Fmt.hyperlink', () => {
         expect(result).to.eql(
           `${OSC_8}${url.href}${STRING_TERMINATOR}${display}${OSC_8}${STRING_TERMINATOR}`,
         );
+        expect(hyperlinkCodeUnits(display, url.href)).to.eql(result.length);
         expect(stripAnsi(result)).to.eql('sandbox-report.log.md');
         expect(Fmt.Text.Width.measure(result)).to.eql(Fmt.Text.Width.measure(label));
       }

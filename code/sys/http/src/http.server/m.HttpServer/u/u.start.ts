@@ -33,16 +33,16 @@ type StartValues = {
 const DEFAULT_DEPS: StartDependencies = { bindKeyboard };
 
 /**
- * Start a Hono app as a managed HTTP server lifecycle.
+ * Start a Hono app and return a handle for its status and shutdown.
  *
- * Disposal joins server shutdown, native completion, and keyboard cleanup. A synchronous
- * startup failure requests cleanup but cannot attest that asynchronous rollback has completed.
+ * Disposal waits for server shutdown, Deno's completion promise, and keyboard cleanup.
+ * If startup throws, cleanup is requested but may still be running when the error reaches the caller.
  */
 export const start: t.HttpServer.Lib['start'] = (app, input = {}) => {
   return startWith(DEFAULT_DEPS, app, input);
 };
 
-/** Package-internal HTTP server start dependency seam. */
+/** Start with supplied keyboard bindings and an optional server factory. */
 export function startWith(
   deps: StartDependencies,
   app: t.HttpServer.App,
@@ -109,6 +109,9 @@ export function startWith(
       origin,
       signal: controller.signal,
       finished,
+      ...(values.formatDetail === undefined
+        ? {}
+        : { servicePresentation: Object.freeze({ formatDetail: values.formatDetail }) }),
 
       status() {
         return wrangle.status(values, values.status, { origin, state, error });
@@ -127,7 +130,7 @@ export function startWith(
       close: life.dispose,
     };
 
-    // This observer may request disposal, but disposal joins only the captured native outcome.
+    // Wait for Deno's completion promise, not this observer, to avoid a shutdown wait cycle.
     void closeAfterSettlement(serverCompletion, life, 'server.finished');
     keyboardOwner = wrangle.keyboard(
       deps.bindKeyboard,
@@ -143,7 +146,7 @@ export function startWith(
     try {
       void ownCompletion(life.dispose(cause));
     } catch {
-      // Preserve the startup failure; upper owners may retain direct listener authority.
+      // Preserve the original startup error if requesting cleanup also throws.
     }
     throw cause;
   }
@@ -156,7 +159,7 @@ async function ownCompletion(input: unknown): Promise<void> {
   try {
     await input;
   } catch {
-    // Package-owned lifecycle observation cannot create an unhandled rejection.
+    // Observe failures without creating another unhandled rejection.
   }
 }
 
@@ -170,7 +173,7 @@ async function closeAfterSettlement(
   try {
     await life.dispose(reason);
   } catch {
-    // The lifecycle retains its own sanitized shutdown error state.
+    // Disposal records the shutdown error in the service status.
   }
 }
 
@@ -189,7 +192,7 @@ async function closeRuntime(args: {
   const keyboard = settle(() => args.keyboard && Cli.Keyboard.shutdown(args.keyboard));
   const outcomes = await Promise.all([shutdown, args.finished, keyboard]);
 
-  // Stable owner order; Object.is deduplicates observations without normalizing -0 or NaN.
+  // Keep shutdown, completion, and keyboard order; deduplicate without merging 0 and -0.
   const errors: unknown[] = [];
   for (const outcome of outcomes) {
     if (outcome?.status !== 'rejected') continue;
@@ -201,7 +204,7 @@ async function closeRuntime(args: {
   }
 }
 
-/** Observe immediately, including synchronous throws, without rejecting the observation itself. */
+/** Capture success, rejection, or a synchronous throw as a settled result. */
 async function settle(run: () => void | Promise<void>): Completion {
   try {
     await run();

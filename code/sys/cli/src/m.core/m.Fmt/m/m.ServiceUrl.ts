@@ -1,7 +1,9 @@
 import { c, type t } from '../common.ts';
-import { displayHostname, parts, prepare } from '../u/u.serviceUrl.prepare.ts';
+import { displayHostname, parts, prepare } from '../u.service/u.url.prepare.ts';
 
-/** CLI formatting helpers for service URLs. */
+/**
+ * Format service URLs, highlighting each origin's first appearance in a list.
+ */
 export const ServiceUrl: t.CliFormat.ServiceUrl.Lib = Object.freeze({
   displayHostname,
 
@@ -24,6 +26,9 @@ export const ServiceUrl: t.CliFormat.ServiceUrl.Lib = Object.freeze({
   },
 });
 
+/**
+ * Helpers:
+ */
 function formatPart(part: t.CliFormat.ServiceUrl.Part): string {
   const origin = part.highlightOrigin ? highlightOriginText(part) : c.gray(part.origin);
   const suffix = part.highlightOrigin && part.suffix === '/'

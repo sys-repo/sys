@@ -1,30 +1,49 @@
 /**
  * @module
- * Formatting helpers, ANSI color tools, and ANSI stripping helpers for CLI output.
+ * Terminal text layout, styling, and ANSI utilities.
  *
- * Default system foreground grammar:
+ * Default foreground colors:
  * - white → primary; gray → secondary.
  * - green → affirmative; cyan → informational.
- * - magenta → awareness of a valid non-default state; yellow → caution.
+ * - magenta → valid, non-default state; yellow → caution.
  * - red → failure, hard block, or destructive change.
  *
- * ANSI-stripped output remains semantically complete. Identity accents do not establish status;
- * bold and dim change emphasis, not severity. Formatter-inserted omission markers are dim gray
- * structural context and do not inherit the foreground of retained content.
+ * Output must remain understandable without color. Decorative colors do not indicate status;
+ * bold and dim change emphasis, not severity. Omission markers use dim gray, independent of
+ * the surrounding text.
  */
 
-/** Shared command-line formatting helper library. */
+/**
+ * Format text for command-line output.
+ */
 export { Fmt } from './m/m.Fmt.ts';
 
-/** ANSI color formatter functions. */
+/**
+ * Apply ANSI colors and text styles.
+ */
 export { c } from '../common.ts';
-/** ANSI color helper library. */
+
+/**
+ * ANSI color utilities.
+ */
 export { Color } from '../common.ts';
-/** Remove ANSI escape codes from a string. */
+
+/**
+ * Remove ANSI escape codes from a string.
+ */
 export { stripAnsi } from '../common.ts';
-/** Terminal text measurement, fitting, wrapping, and clipping operations. */
+
+/**
+ * Measure, fit, wrap, and clip terminal text.
+ */
 export { Text } from '../m.Fmt.Text/mod.ts';
-/** Navigable help chapter formatting and tree helpers. */
+
+/**
+ * Format navigable help chapters.
+ */
 export { Chapters } from '../m.Fmt.Chapters/mod.ts';
-/** Terminal table formatter. */
+
+/**
+ * Format terminal tables.
+ */
 export { Table } from '../m.Table/mod.ts';

@@ -6,6 +6,7 @@ import { Header } from './m.Header.ts';
 import { Help } from './m.Help.ts';
 import { Keyboard } from './m.Keyboard.ts';
 import { Path } from './m.Path.ts';
+import { Service } from './m.Service.ts';
 import { ServiceUrl } from './m.ServiceUrl.ts';
 import { Tree } from './m.Tree.ts';
 import { isPresentationAuthorityReady as isReady } from '../u/u.authority.ts';
@@ -14,7 +15,9 @@ import { hyperlink } from '../u/u.hyperlink.ts';
 import { omission } from '../u/u.omission.ts';
 import { spinnerRaw, spinnerText } from '../u/u.spinner.ts';
 
-/** Shared command-line formatting helper library. */
+/**
+ * Format text for command-line output.
+ */
 export const Fmt: t.CliFormat.Lib = Object.freeze({
   isReady,
   Header,
@@ -25,6 +28,7 @@ export const Fmt: t.CliFormat.Lib = Object.freeze({
   Chapters,
   Tree,
   Path,
+  Service,
   ServiceUrl,
   hr,
   hyperlink,

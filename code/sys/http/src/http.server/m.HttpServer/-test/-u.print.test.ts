@@ -3,484 +3,268 @@ import { c, Cli, describe, expect, it, pkg, Str, type t } from '../../../-test.t
 import { HttpServer } from '../mod.ts';
 import { printWith } from '../u.print/u.print.ts';
 
-const SAMPLE_ROOT =
-  '/test/fixtures/fake-workspace/.pi/@sys/dist/@sys.driver-pi/sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' as t.StringDir;
+type PrintDependencies = Parameters<typeof printWith>[0];
+type DetailCall = Parameters<t.HttpServer.Print.FormatDetail>[0] & { readonly receiver: unknown };
+
+const ADDR: Deno.NetAddr = { hostname: '127.0.0.1', port: 8080, transport: 'tcp' };
+const NON_TTY: PrintDependencies = {
+  isTerminal: () => false,
+  screenSize() {
+    throw new Error('Redirected output must not measure the terminal.');
+  },
+};
 
 describe('HttpServer.print', () => {
-  it('prints no first rule and uses a subtle separator between blocks', () => {
-    const lines = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        name: 'one',
-      });
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 9090, transport: 'tcp' },
-        name: 'two',
-      });
-    });
+  it('adds outer newlines and separates blocks only within the same output sink', () => {
+    const printPair = () => {
+      printWith(NON_TTY, { addr: ADDR, name: 'one' });
+      printWith(NON_TTY, { addr: ADDR, name: 'two' });
+    };
+    const lines = capturePrint(printPair);
+    const [first, rule, second] = lines;
 
     expect(lines.length).to.eql(3);
-    expect(lines[0]).to.contain('one');
-    expect(lines[0]?.startsWith('\n')).to.eql(true);
-    expect(lines[0]?.endsWith('\n')).to.eql(true);
-    expect(lines[1]).to.contain(c.dim(c.gray(Cli.Fmt.hr())));
-    expect(Cli.stripAnsi(lines[1] ?? '')).to.match(/^━+$/);
-    expect(lines[2]).to.contain('two');
-    expect(lines[2]?.startsWith('\n')).to.eql(true);
-    expect(lines[2]?.endsWith('\n')).to.eql(true);
+    expect(first).to.contain('one');
+    expect(second).to.contain('two');
+    // Edge newlines are part of the printed output contract.
+    for (const block of [first, second]) {
+      expect(block.startsWith('\n')).to.eql(true);
+      expect(block.endsWith('\n')).to.eql(true);
+    }
+    expect(rule).to.eql(c.dim(c.gray(Cli.Fmt.hr())));
+    expect(capturePrint(printPair)).to.eql(lines);
   });
 
-  it('prints service before module provenance', () => {
-    const lines = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        name: 'svc',
-        pkg,
-      });
-    });
+  it('passes HTTP context to the shared service formatter without changing status details', () => {
+    const status: t.HttpServer.Status.Options = {
+      kind: 'static',
+      root: `${Deno.cwd()}/dist`,
+      details: [{ label: 'owner', value: 'fact' }],
+      urlPaths: ['/', '/ui/'],
+    };
+    const options: t.HttpServer.Print.Options = {
+      addr: ADDR,
+      name: 'selected',
+      pkg,
+      hash: 'sha256-short',
+      requestedPort: 8090,
+      dir: '/ignored',
+      info: { ignored: 'legacy' },
+      status,
+      keyboard: { open: 'O', quit: 'Ctrl+C or Q' },
+    };
+    const service: t.Cli.Fmt.Service.Input = {
+      name: 'selected',
+      module: `${pkg.name} ${pkg.version}`,
+      status: {
+        state: 'ready',
+        root: 'dist',
+        details: [
+          { label: 'owner', value: 'fact' },
+          { label: 'dist', value: 'sha256-short ← dist/dist.json' },
+          { label: 'port', value: '8090 already in use; using 8080' },
+        ],
+        urls: [{ href: 'http://localhost:8080/' }, { href: 'http://localhost:8080/ui/' }],
+      },
+      keyboard: { open: 'O', quit: 'Ctrl+C or Q' },
+    };
+    const output = capturePrint(() => printWith(NON_TTY, options));
+    const expected = Cli.Fmt.Service.format(service, { terminal: false });
 
-    const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output.indexOf('service')).to.be.lessThan(output.indexOf('module'));
-    expect(output).to.not.contain('service:');
-    expect(output).to.not.contain('module:');
+    expect(output).to.eql([`\n${expected}\n`]);
+    expect(status.details).to.eql([{ label: 'owner', value: 'fact' }]);
   });
 
-  it('owner details → identity, build, then requestable URLs', () => {
-    const output = capturePrint(() => {
-      printWith(
-        { isTerminal: () => false, screenSize: () => ({ width: 80, height: 24 }) },
-        {
-          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-          name: '@sample/r2',
-          status: {
-            details: [{ label: 'build', value: 'dist/ ← digest:sha256:#e1743' }],
-            urlPaths: ['/', '/ui/'],
-          },
-        },
-      );
-    }).join('\n');
-
-    const lines = Cli.stripAnsi(output).trim().split('\n');
-    const text = lines.map((line) => line.trimEnd()).join('\n');
-    expect(text).to.eql(Str.dedent(`
-      service   @sample/r2
-        build   dist/ ← digest:sha256:#e1743
-        url     http://localhost:8080/
-                http://localhost:8080/ui/
-    `));
+  it('uses explicit empty details instead of legacy info', () => {
+    const output = render({ info: { legacy: 'not shown' }, status: { details: [] } });
+    expect(output).not.to.contain('legacy');
+    expect(output).not.to.contain('not shown');
   });
 
-  it('linked detail → compact rows without hyperlink-sized trailing padding', () => {
+  it('preserves an empty name and defaults missing names to kind, then http', () => {
+    const output = render({ name: '', status: { kind: 'static' } });
+    expect(output.split('\n')[1].trimEnd()).to.eql('service');
+    expect(output).not.to.contain('static');
+    expect(render({ status: { kind: 'static' } })).to.contain('static');
+    expect(render({})).to.contain('http');
+  });
+
+  it('prints legacy info as details without inferring URLs', () => {
+    const output = render({ info: { view: '/foo/bar/' } });
+    expect(output).to.contain('view     /foo/bar/');
+    expect(output).to.contain('http://localhost:8080/');
+    expect(output).not.to.contain('http://localhost:8080/foo/bar/');
+  });
+
+  it('formats supplied details unbound, but not identical generated rows', () => {
+    const detail = { label: 'dist', value: 'short ← dist/dist.json' };
+    const calls: DetailCall[] = [];
+    const options: t.HttpServer.Print.Options = {
+      addr: ADDR,
+      pkg,
+      hash: 'short',
+      requestedPort: 8090,
+      status: { details: [detail] },
+      formatDetail(this: unknown, args) {
+        calls.push({ receiver: this, ...args });
+        return 'custom detail';
+      },
+    };
+    const output = render(options);
+
+    expect(calls).to.eql([{ receiver: undefined, detail, maxWidth: undefined }]);
+    expect(calls[0].detail).to.equal(detail);
+    expect(output).to.contain('custom detail');
+    expect(output).to.contain('short ← dist/dist.json');
+    expect(output).to.contain('8090 already in use; using 8080');
+  });
+
+  it('also formats details supplied through legacy info', () => {
+    const output = render({ info: { mode: 'dev' }, formatDetail: () => 'custom info' });
+    expect(output).to.contain('mode     custom info');
+  });
+
+  it('preserves file links when they fit and falls back to the plain value when they do not', () => {
     const directory = new URL(`file:///fixture/${'long-directory/'.repeat(12)}dist/`);
     const manifest = new URL('dist.json', directory);
     const hash = `sha256-${'0'.repeat(59)}91492`;
     const linkedPath = Cli.Fmt.hyperlink(c.gray('dist/'), directory, { underline: true });
     const linkedDigest = HashFmt.digest(hash, { arrow: true, url: manifest });
-    const detail = { label: 'build', value: 'dist/ ← digest:sha256:#91492' };
-
-    const output = capturePrint(() => {
-      printWith(
-        { isTerminal: () => true, screenSize: () => ({ width: 80, height: 24 }) },
-        {
-          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-          name: '@sample/r2',
-          status: { details: [detail], urlPaths: ['/', '/ui/', '/api/hello', '/ui/dist.json'] },
-          formatDetail: () => `${linkedPath} ${linkedDigest}`,
-        },
-      );
-    }).join('\n');
+    const detail = { label: 'build', value: 'fallback' };
+    const options: t.HttpServer.Print.Options = {
+      addr: ADDR,
+      name: '@sample/r2',
+      status: { details: [detail], urlPaths: ['/', '/ui/'] },
+      formatDetail: () => `${linkedPath} ${linkedDigest}`,
+    };
+    const wide = terminal(80);
+    const narrow = terminal(24);
+    const output = capturePrint(() => printWith(wide, options)).join('\n');
+    const clipped = capturePrint(() => printWith(narrow, options)).join('\n');
 
     expect(output).to.contain(linkedPath);
     expect(output).to.contain(linkedDigest);
-    for (const line of output.split('\n')) {
-      expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(80);
-    }
     expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
       service   @sample/r2
-        build   dist/ ← digest:sha256:#91492
-        url     http://localhost:8080/
+       build    dist/ ← digest:sha256:#91492
+       url      http://localhost:8080/
                 http://localhost:8080/ui/
-                http://localhost:8080/api/hello
-                http://localhost:8080/ui/dist.json
     `));
-    expect(detail).to.eql({ label: 'build', value: 'dist/ ← digest:sha256:#91492' });
-  });
-
-  it('undefined or over-width detail presentation → the plain fact', () => {
-    const detail = { label: 'build', value: 'plain' };
-    for (const formatted of [undefined, 'x'.repeat(71), `short\n${'x'.repeat(71)}`]) {
-      const output = capturePrint(() => {
-        printWith(
-          { isTerminal: () => true, screenSize: () => ({ width: 80, height: 24 }) },
-          {
-            addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-            name: 'example',
-            status: { details: [detail] },
-            formatDetail: (args) => {
-              expect(args.detail).to.eql(detail);
-              expect(args.maxWidth).to.eql(70);
-              return formatted;
-            },
-          },
-        );
-      }).join('\n');
-      expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
-        service   example
-          build   plain
-          url     http://localhost:8080/
-      `));
+    // OSC 8 bytes matter here: neither file link may survive the plain-value fallback.
+    expect(clipped).not.to.contain('\x1b]8;;');
+    expect(Cli.stripAnsi(clipped)).to.contain('build    fallback');
+    expect(detail).to.eql({ label: 'build', value: 'fallback' });
+    for (const row of output.split('\n')) {
+      expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(80);
+    }
+    for (const row of clipped.split('\n')) {
+      expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(24);
     }
   });
 
-  it('multiline label → budget comes from the widest physical line', () => {
-    const formatted = c.cyan('x'.repeat(65));
-    for (const terminal of [true, false]) {
-      let maxWidth: number | undefined;
-      const output = capturePrint(() => {
-        printWith(
-          { isTerminal: () => terminal, screenSize: () => ({ width: 80, height: 24 }) },
-          {
-            addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-            name: 'example',
-            status: { details: [{ label: 'local\nremote', value: 'plain' }] },
-            formatDetail: (args) => {
-              maxWidth = args.maxWidth;
-              return formatted;
-            },
-          },
-        );
-      }).join('\n');
+  it('prefers status.root to dir and shortens roots beneath cwd', () => {
+    const fallback = render({ dir: `${Deno.cwd()}/dist` });
+    const explicit = render({ dir: '/ignored', status: { root: './served' } });
+    const empty = render({ dir: '/ignored', status: { root: '' } });
 
-      expect(maxWidth).to.eql(terminal ? 70 : undefined);
-      expect(output).to.contain(formatted);
-      expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
-        service   example
-          local   ${'x'.repeat(65)}
-        remote${' '.repeat(4)}
-          url     http://localhost:8080/
-      `));
-      for (const line of output.split('\n')) {
-        expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(80);
-      }
+    expect(fallback).to.contain('root     dist');
+    expect(fallback).not.to.contain(Deno.cwd());
+    expect(explicit).to.contain('root     served');
+    expect(explicit).not.to.contain('/ignored');
+    expect(empty).not.to.contain('root');
+  });
+
+  it('prints a shortened hash only when both hash and package are supplied', () => {
+    const hash = `sha256-${'0123456789abcdef'.repeat(4)}`;
+    const expected = 'sha256-01234…abcdef ← dist/dist.json';
+
+    expect(render({ hash })).not.to.contain('dist.json');
+    expect(render({ pkg })).not.to.contain('dist.json');
+    expect(render({ pkg, hash })).to.contain(expected);
+  });
+
+  it('explains a port fallback only when a different nonzero port was requested', () => {
+    for (const requestedPort of [undefined, 0, 8080]) {
+      expect(render({ requestedPort })).not.to.contain('already in use');
+    }
+    expect(render({ requestedPort: 8090 })).to.contain('8090 already in use; using 8080');
+  });
+
+  it('uses browser-safe origins when no settled origin is supplied', () => {
+    const wildcard = render({ addr: { ...ADDR, hostname: '0.0.0.0' } });
+    const network = render({ addr: { ...ADDR, hostname: '192.0.2.10' } });
+    expect(wildcard).to.contain('http://localhost:8080/');
+    expect(network).to.contain('http://192.0.2.10:8080/');
+  });
+
+  it('preserves exact settled IPv4 and IPv6 origins', () => {
+    const options: t.HttpServer.Print.Options = {
+      addr: ADDR,
+      status: { urlPaths: ['/health'] },
+    };
+    for (const origin of ['http://127.0.0.1:8080', 'http://[::1]:8080']) {
+      const output = render(options, NON_TTY, origin);
+      expect(output).to.contain(`${origin}/health`);
+      expect(output).not.to.contain('localhost');
     }
   });
 
-  it('narrow terminal → each label line is fitted and styled independently', () => {
-    const cases = [
-      { width: 24, first: c.gray('  local'), last: c.gray('remote'), lastGap: 4 },
-      {
-        width: 12,
-        first: `${c.gray('  ')}${Cli.Fmt.omission()}${c.gray('l')}`,
-        last: `${c.gray('re')}${Cli.Fmt.omission()}${c.gray('e')}`,
-        lastGap: 3,
+  it('measures once per print and fits both blocks and separators to that width', () => {
+    const options: t.HttpServer.Print.Options = {
+      addr: ADDR,
+      name: 'long-name-'.repeat(20),
+      status: { details: [{ label: 'detail', value: '東京'.repeat(30) }] },
+    };
+    let probes = 0;
+    let measures = 0;
+    const deps: PrintDependencies = {
+      isTerminal() {
+        probes += 1;
+        return true;
       },
-    ];
-    for (const { width, first, last, lastGap } of cases) {
-      const output = capturePrint(() => {
-        printWith(
-          { isTerminal: () => true, screenSize: () => ({ width, height: 24 }) },
-          {
-            addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-            name: 'example',
-            status: { details: [{ label: 'local\nremote', value: 'one\ntwo' }] },
-          },
-        );
-      }).join('\n');
-
-      // Each line's style closes before pair padding and the independently styled value.
-      const rows = output.trim().split('\n').slice(1, 3);
-      expect(rows[0]).to.eql(`${first}   ${c.gray('one')}`);
-      expect(rows[1]).to.eql(`${last}${' '.repeat(lastGap)}${c.gray('two')}`);
-      for (const line of output.split('\n')) {
-        expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width);
-      }
-    }
-  });
-
-  it('multiline presentation → fits each display line, not their combined width', () => {
-    const first = 'a'.repeat(40);
-    const last = '東京'.repeat(10);
-    const linked = Cli.Fmt.hyperlink(c.cyan(last), new URL('file:///fixture/manifest.json'));
-    const detail = { label: 'notes', value: 'plain' };
-    const output = capturePrint(() => {
-      printWith(
-        { isTerminal: () => true, screenSize: () => ({ width: 80, height: 24 }) },
-        {
-          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-          name: 'example',
-          status: { details: [detail] },
-          formatDetail: () => `${c.green(first)}\n\n${linked}`,
-        },
-      );
-    }).join('\n');
-
-    expect(output).to.contain(linked);
-    expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
-      service   example
-        notes   ${first}
-      ${' '.repeat(10)}
-      ${' '.repeat(10)}${last}
-        url     http://localhost:8080/
-    `));
-    for (const line of output.split('\n')) {
-      expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(80);
-    }
-    expect(detail).to.eql({ label: 'notes', value: 'plain' });
-  });
-
-  it('plain multiline detail → each line fits independently, including formatter fallback', () => {
-    const first = 'a'.repeat(40);
-    const last = 'b'.repeat(40);
-    for (const formatted of [undefined, 'x'.repeat(71)]) {
-      const output = capturePrint(() => {
-        printWith(
-          { isTerminal: () => true, screenSize: () => ({ width: 80, height: 24 }) },
-          {
-            addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-            name: 'example',
-            status: { details: [{ label: 'notes', value: `${first}\n\n${last}` }] },
-            formatDetail: () => formatted,
-          },
-        );
-      }).join('\n');
-      expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
-        service   example
-          notes   ${first}
-        ${' '.repeat(10)}
-        ${' '.repeat(10)}${last}
-          url     http://localhost:8080/
-      `));
-    }
-  });
-
-  it('non-TTY multiline detail → preserves blank continuation rows', () => {
-    const output = capturePrint(() => {
-      printWith(
-        { isTerminal: () => false, screenSize: () => ({ width: 80, height: 24 }) },
-        {
-          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-          name: 'example',
-          status: { details: [{ label: 'notes', value: 'first\n\nlast' }] },
-        },
-      );
-    }).join('\n');
-    expect(Cli.stripAnsi(output).trim()).to.eql(Str.dedent(`
-      service   example
-        notes   first
-      ${' '.repeat(10)}
-      ${' '.repeat(10)}last
-        url     http://localhost:8080/
-    `));
-  });
-
-  it('prints a stable service fallback when no display name is provided', () => {
-    const lines = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        status: { kind: 'static' },
-      });
-    });
-
-    const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output).to.contain('service');
-    expect(output).to.contain('static');
-  });
-
-  it('keeps roots beneath the current directory relative in startup output', () => {
-    const lines = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        status: { root: `${Deno.cwd()}/dist` as t.StringDir },
-      });
-    });
-
-    const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output).to.contain('dist');
-    expect(output).to.not.contain(Deno.cwd());
-  });
-
-  it('keeps service identity and module provenance readable without bold weight', () => {
-    const raw = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        name: 'stripe:dev:fixture',
-        pkg,
-      });
-    }).join('\n');
-
-    expect(raw).to.contain(c.white('stripe:dev:fixture'));
-    expect(raw).to.not.contain(c.bold(c.white('stripe:dev:fixture')));
-    expect(raw).to.not.contain(c.bold(c.white(pkg.name)));
-  });
-
-  it('renders keyboard affordances inside the service-status block', () => {
-    const lines = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        name: 'svc',
-        keyboard: { open: 'O', quit: 'Ctrl+C or Q' },
-      });
-    });
-
-    const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output).to.contain('service');
-    expect(output).to.contain('  open');
-    expect(output).to.contain('O');
-    expect(output).to.contain('  quit');
-    expect(output).to.contain('Ctrl+C or Q');
-    expect(output).to.not.contain('keyboard:');
-  });
-
-  it('prints info as details and uses explicit owner URL paths for URLs', () => {
-    const lines = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        pkg,
-        hash: 'sha256-0391f000000000000000000000000000000000000000000000000000b313a8',
-        info: { static: 'dist/', view: '/foo/bar/' },
-        status: { urlPaths: ['/foo/bar/'] },
-      });
-    });
-
-    const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output).to.contain('module');
-    expect(output).to.contain('static   dist/');
-    expect(output).to.contain('view     /foo/bar/');
-    expect(output).to.contain('dist');
-    expect(output).to.contain('url      http://localhost:8080/foo/bar/');
-    expect(output).not.to.contain('view:');
-  });
-
-  it('does not infer URL rows from path-like info values', () => {
-    const lines = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        info: { view: '/foo/bar/' },
-      });
-    });
-
-    const output = Cli.stripAnsi(lines.join('\n'));
-    expect(output).to.contain('view');
-    expect(output).to.contain('/foo/bar/');
-    expect(output).to.contain('url');
-    expect(output).to.contain('http://localhost:8080/');
-    expect(output).not.to.contain('http://localhost:8080/foo/bar/');
-  });
-
-  it('keeps the first URL origin cyan and renders later URLs gray', () => {
-    const raw = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-        status: { urlPaths: ['/', '/payments/', '/view/'] },
-      });
-    }).join('\n');
-
-    const firstOrigin = `${c.cyan('http://localhost:')}${c.bold(c.cyan('8080'))}`;
-    const repeatedOrigin = c.gray('http://localhost:8080');
-    expect(raw).to.contain(firstOrigin);
-    expect(raw).to.contain(repeatedOrigin);
-    expect(raw).to.not.contain(c.dim(c.gray('http://localhost:8080')));
-    expect(raw.indexOf(firstOrigin)).to.be.lessThan(raw.indexOf(repeatedOrigin));
-
-    const output = Cli.stripAnsi(raw);
-    expect(output).to.contain('url');
-    expect(output).to.contain('http://localhost:8080/');
-    expect(output).to.contain('http://localhost:8080/payments/');
-    expect(output).to.contain('http://localhost:8080/view/');
-  });
-
-  it('prints a browser-safe local origin from the listener address', () => {
-    const wildcard = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '0.0.0.0', port: 8080, transport: 'tcp' },
-      });
-    }).join('\n');
-    const network = capturePrint(() => {
-      HttpServer.print({
-        addr: { hostname: '192.0.2.10', port: 9090, transport: 'tcp' },
-      });
-    }).join('\n');
-
-    expect(Cli.stripAnsi(wildcard)).to.contain('http://localhost:8080/');
-    expect(Cli.stripAnsi(network)).to.contain('http://192.0.2.10:9090/');
-  });
-
-  it('fits direct startup rows and dividers to terminal cells without changing non-TTY output', () => {
-    const detail = '東京 café e\u0301 — retained startup detail for a narrow terminal';
-    const input = {
-      addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' as const },
-      name: '🧪 direct startup service with a long terminal identity',
-      pkg,
-      hash: 'sha256-0391f000000000000000000000000000000000000000000000000000b313a8',
-      requestedPort: 8090,
-      keyboard: { open: 'Open the application in a browser', quit: 'Ctrl+C or Q to stop service' },
-      status: {
-        kind: 'dist',
-        root: SAMPLE_ROOT,
-        urlPaths: ['/東京/café/e\u0301/long/startup/path/' as t.StringUrlRoute],
-        details: [{ label: 'capabilities-東京-e\u0301-with-a-long-name', value: detail }],
+      screenSize() {
+        measures += 1;
+        return { width: 24, height: 24 };
       },
     };
-    const render = (isTerminal: boolean, width: number) =>
-      capturePrint(() => {
-        printWith(
-          {
-            isTerminal: () => isTerminal,
-            screenSize: () => ({ width, height: 24 }),
-          },
-          input,
-        );
-        printWith(
-          {
-            isTerminal: () => isTerminal,
-            screenSize: () => ({ width, height: 24 }),
-          },
-          input,
-        );
-      }).join('\n');
+    const lines = capturePrint(() => {
+      printWith(deps, options);
+      printWith(deps, options);
+    });
 
-    for (const width of [48, 24, 8]) {
-      const terminal = render(true, width);
-      const terminalRows = Cli.stripAnsi(terminal).split('\n').filter((row) => row !== '');
-      expect(terminal).to.contain('\u001b[');
-      expect(Cli.stripAnsi(terminal)).to.contain('…');
-      for (const row of terminalRows) {
-        expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width);
-      }
+    expect({ probes, measures }).to.eql({ probes: 2, measures: 2 });
+    expect(lines.length).to.eql(3);
+    expect(Cli.stripAnsi(lines[1])).to.eql('━'.repeat(24));
+    for (const row of lines.join('\n').split('\n')) {
+      expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(24);
     }
-
-    const narrowNonTty = render(false, 24);
-    expect(narrowNonTty).to.eql(render(false, 120));
-    expect(Cli.stripAnsi(narrowNonTty)).to.contain(SAMPLE_ROOT);
-    expect(Cli.stripAnsi(narrowNonTty)).to.contain(detail);
+    expect(render(options)).to.contain('東京'.repeat(30));
   });
 
-  it('fits root paths against the widest table label', () => {
-    const output = capturePrint(() => {
-      printWith(
-        {
-          isTerminal: () => true,
-          screenSize: () => ({ width: 48, height: 24 }),
-        },
-        {
-          addr: { hostname: '127.0.0.1', port: 8080, transport: 'tcp' },
-          status: {
-            kind: 'dist',
-            root: SAMPLE_ROOT,
-            details: [{ label: 'capabilities', value: 'read, watch' }],
-          },
-        },
-      );
-    }).join('\n');
-    const lines = Cli.stripAnsi(output).split('\n');
-    const root = lines.find((line) => line.trimStart().startsWith('root')) ?? '';
-
-    expect(root).to.contain('9abcdef');
-    expect(Cli.Fmt.Text.Width.measure(root)).to.be.at.most(48);
+  it('prints service output through the public entry point', () => {
+    const options = { addr: ADDR, name: 'public' };
+    const output = capturePrint(() => HttpServer.print(options)).join('\n');
+    expect(Cli.stripAnsi(output)).to.contain('service   public');
   });
 });
 
-function capturePrint(fn: () => void): string[] {
+/**
+ * Helpers:
+ */
+function terminal(width: number): PrintDependencies {
+  return { isTerminal: () => true, screenSize: () => ({ width, height: 24 }) };
+}
+
+function render(
+  options: Partial<t.HttpServer.Print.Options>,
+  deps = NON_TTY,
+  origin?: t.StringUrl,
+): string {
+  const output = capturePrint(() => printWith(deps, { addr: ADDR, ...options }, origin));
+  return Cli.stripAnsi(output.join('\n'));
+}
+
+function capturePrint(fn: () => void): readonly string[] {
   const lines: string[] = [];
   const original = console.info;
   console.info = (...args: unknown[]) => lines.push(args.map(String).join(' '));

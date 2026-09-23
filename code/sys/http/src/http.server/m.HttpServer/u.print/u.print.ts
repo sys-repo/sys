@@ -1,12 +1,6 @@
 import { c, Cli, Path, Str, type t } from '../common.host.ts';
-import {
-  fittedLabel,
-  fittedValue,
-  labelReserve,
-  labelWidth,
-  valueWidth,
-} from './u.print.layout.ts';
-import { formatPrintUrls, urlValue } from './u.print.url.ts';
+import { localOrigin } from '../u/u.origin.ts';
+import { statusUrls } from '../u/u.status.url.ts';
 
 type PrintDependencies = {
   readonly isTerminal: t.Cli.Is.Lib['terminal'];
@@ -19,150 +13,86 @@ const DEFAULT_DEPS: PrintDependencies = {
 };
 
 /**
- * Outputs HTTP-owner startup information for direct server use.
+ * Print the server's startup details, URLs, and supplied keyboard hints.
  */
 export const print: t.HttpServer.Lib['print'] = (options) => printWithOrigin(options);
 
-/** Internal startup-output path for an already settled listener origin. */
-export function printWithOrigin(
-  options: t.HttpServer.Print.Options,
-  settledOrigin?: t.StringUrl,
-) {
+/** Print startup details, optionally preserving an origin resolved during startup. */
+export function printWithOrigin(options: t.HttpServer.Print.Options, settledOrigin?: t.StringUrl) {
   printWith(DEFAULT_DEPS, options, settledOrigin);
 }
 
-/** Package-internal terminal dependency seam. */
+/** Print startup details with supplied terminal detection and sizing. */
 export function printWith(
   deps: PrintDependencies,
   options: t.HttpServer.Print.Options,
   settledOrigin?: t.StringUrl,
 ) {
-  const { addr, pkg, hash, name, requestedPort } = options;
+  const { addr, pkg, hash, name, requestedPort, formatDetail } = options;
   const root = options.status?.root ?? options.dir;
-  const details = options.status?.details ?? infoDetails(options.info);
-  const urls = formatPrintUrls({ addr, paths: options.status?.urlPaths, settledOrigin });
-  const fallback = formatPortFallback({ requestedPort, actualPort: addr.port });
-  const hx = pkg ? wrangle.hashDigest(hash) : '';
-  const reserve = tableValueReserve(deps, {
-    pkg: pkg !== undefined,
-    urls: urls.length > 0,
+  const ownerDetails = options.status?.details ?? infoDetails(options.info);
+  const details = [...ownerDetails];
+  const portFallback = formatPortFallback({ requestedPort, actualPort: addr.port });
+  const digest = pkg ? wrangle.hashDigest(hash) : '';
+  if (digest) details.push({ label: 'dist', value: `${digest} ← dist/dist.json` });
+  if (portFallback) details.push({ label: 'port', value: portFallback });
+
+  const presentation = ownerPresentation(ownerDetails, formatDetail);
+  const terminal = deps.isTerminal('stdout');
+  const width = terminal ? deps.screenSize().width : undefined;
+
+  const serviceName = name ?? options.status?.kind ?? 'http';
+  const module = moduleLabel(pkg);
+  const status: t.Service.Status = {
+    state: 'ready',
+    ...(root ? { root: trimCwd(root) } : {}),
     details,
-    dist: Boolean(hx),
-    port: Boolean(fallback),
+    urls: statusUrls(settledOrigin ?? localOrigin(addr), options.status?.urlPaths),
+  };
+  const input: t.Cli.Fmt.Service.Input = {
+    name: serviceName,
+    module,
+    status,
+    presentation,
     keyboard: options.keyboard,
-  });
+    urlDisplay: { ipv4Loopback: settledOrigin ? 'exact' : 'localhost' },
+  };
+  const output = Cli.Fmt.Service.format(input, { terminal, width });
 
-  const table: t.Cli.Table.Pair[] = [];
-
-  table.push([
-    label(deps, 'service'),
-    serviceName(deps, name ?? options.status?.kind ?? 'http', reserve),
-  ]);
-
-  if (pkg) {
-    const pkgName = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
-    const pkgVersion = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
-    table.push([childLabel(deps, 'module'), value(deps, `${pkgName} ${pkgVersion}`, reserve)]);
+  if (wrangle.shouldPrintDivider()) {
+    const rule = width === undefined ? Cli.Fmt.hr() : Cli.Fmt.hr({ width });
+    console.info(c.dim(c.gray(rule)));
   }
-  for (const detail of details) {
-    table.push([
-      childLabel(deps, detail.label),
-      detailValue(deps, detail, reserve, options.formatDetail),
-    ]);
-  }
-  pushUrls(deps, table, urls, reserve);
-  if (root) table.push([childLabel(deps, 'root'), path(deps, root, reserve)]);
-  if (hx) table.push([childLabel(deps, 'dist'), value(deps, `${hx} ← dist/dist.json`, reserve)]);
-  if (fallback) table.push([childLabel(deps, 'port'), value(deps, fallback, reserve)]);
-  pushKeyboard(deps, table, options.keyboard, reserve);
-
-  const output = Cli.Table.pairs(table, reserve);
-  if (wrangle.shouldPrintDivider()) console.info(formatDivider(deps));
   console.info(`\n${Str.trimEdgeNewlines(output)}\n`);
 }
 
 /**
  * Helpers:
  */
+function moduleLabel(pkg: t.Pkg | undefined): string | undefined {
+  if (!pkg) return;
+  const name = pkg.name ?? '<🐷 deno.json:name Not Found 🐷>';
+  const version = pkg.version ?? '<🐷 deno.json:version Not Found 🐷>';
+  return `${name} ${version}`;
+}
+
+function ownerPresentation(
+  details: readonly t.Service.Detail[],
+  format: t.HttpServer.Print.FormatDetail | undefined,
+): t.Cli.Fmt.Service.Presentation | undefined {
+  const ownerFacts = new Set(details);
+  if (format === undefined) return;
+  return {
+    formatDetail(args) {
+      // Generated rows may have identical text; only caller-supplied details use the callback.
+      if (!ownerFacts.has(args.detail)) return;
+      return format(args);
+    },
+  };
+}
+
 function infoDetails(info: Record<string, string> | undefined): readonly t.Service.Detail[] {
   return Object.entries(info ?? {}).map(([label, value]) => ({ label, value }));
-}
-
-function detailValue(
-  deps: PrintDependencies,
-  detail: t.Service.Detail,
-  reserve: number,
-  format?: t.HttpServer.Print.FormatDetail,
-) {
-  const maxWidth = terminalValueWidth(deps, reserve);
-  const formatted = format?.({ detail, maxWidth });
-  if (formatted !== undefined) {
-    if (maxWidth === undefined) return formatted;
-    const lines = formatted.split('\n');
-    const fits = lines.every((line) => Cli.Fmt.Text.Width.measure(line) <= maxWidth);
-    if (fits) return formatted;
-  }
-
-  return detail.value.split('\n').map((line) => value(deps, line, reserve)).join('\n');
-}
-
-function pushUrls(
-  deps: PrintDependencies,
-  table: t.Cli.Table.Pair[],
-  urls: readonly t.Cli.Fmt.ServiceUrl.Part[],
-  reserve: number,
-) {
-  urls.forEach((url, index) => {
-    const title = index === 0 ? childLabel(deps, 'url') : '';
-    const width = terminalValueWidth(deps, reserve);
-    table.push([title, urlValue(url, width)]);
-  });
-}
-
-function pushKeyboard(
-  deps: PrintDependencies,
-  table: t.Cli.Table.Pair[],
-  keyboard: t.HttpServer.Print.Keyboard.Options | undefined,
-  reserve: number,
-) {
-  if (keyboard?.open) {
-    table.push([keyboardLabel(deps, 'open'), keyboardValue(deps, keyboard.open, reserve)]);
-  }
-  if (keyboard?.quit) {
-    table.push([keyboardLabel(deps, 'quit'), keyboardValue(deps, keyboard.quit, reserve)]);
-  }
-}
-
-function label(deps: PrintDependencies, input: string, color = c.gray) {
-  const width = deps.isTerminal('stdout') ? labelWidth(deps.screenSize().width) : undefined;
-  return fittedLabel(input, width, color);
-}
-
-function childLabel(deps: PrintDependencies, input: string) {
-  return label(deps, `  ${input}`);
-}
-
-function keyboardLabel(deps: PrintDependencies, input: string) {
-  return label(deps, `  ${input}`, (text) => c.dim(c.gray(text)));
-}
-
-function serviceName(deps: PrintDependencies, input: string, reserve: number) {
-  return value(deps, input, reserve, c.white);
-}
-
-function value(deps: PrintDependencies, input: string, reserve: number, color = c.gray) {
-  return fittedValue(input, terminalValueWidth(deps, reserve), color);
-}
-
-function path(deps: PrintDependencies, input: string, reserve: number) {
-  if (deps.isTerminal('stdout') && valueWidth(deps.screenSize().width, reserve) === 0) return '';
-  return Cli.Fmt.Path.tty(trimCwd(input), {
-    reserve,
-    terminal: deps.isTerminal('stdout'),
-    width: deps.screenSize().width,
-    highlightBasename: false,
-    min: 1,
-  });
 }
 
 function trimCwd(input: string): string {
@@ -171,40 +101,6 @@ function trimCwd(input: string): string {
   const prefix = cwd.endsWith('/') ? cwd : `${cwd}/`;
   if (input === cwd) return '';
   return input.startsWith(prefix) ? input.slice(prefix.length) : input;
-}
-
-function keyboardValue(deps: PrintDependencies, input: string, reserve: number) {
-  return value(deps, input, reserve, (text) => c.dim(c.gray(text)));
-}
-
-function terminalValueWidth(deps: PrintDependencies, reserve: number) {
-  if (!deps.isTerminal('stdout')) return undefined;
-  return valueWidth(deps.screenSize().width, reserve);
-}
-
-function tableValueReserve(deps: PrintDependencies, input: {
-  readonly pkg: boolean;
-  readonly urls: boolean;
-  readonly details: readonly t.Service.Detail[];
-  readonly dist: boolean;
-  readonly port: boolean;
-  readonly keyboard: t.HttpServer.Print.Keyboard.Options | undefined;
-}) {
-  const labels = [label(deps, 'service'), childLabel(deps, 'root')];
-  if (input.pkg) labels.push(childLabel(deps, 'module'));
-  if (input.urls) labels.push(childLabel(deps, 'url'));
-  for (const detail of input.details) labels.push(childLabel(deps, detail.label));
-  if (input.dist) labels.push(childLabel(deps, 'dist'));
-  if (input.port) labels.push(childLabel(deps, 'port'));
-  if (input.keyboard?.open) labels.push(keyboardLabel(deps, 'open'));
-  if (input.keyboard?.quit) labels.push(keyboardLabel(deps, 'quit'));
-  return labelReserve(labels);
-}
-
-function formatDivider(deps: PrintDependencies) {
-  const width = deps.isTerminal('stdout') ? deps.screenSize().width : undefined;
-  const rule = width === undefined ? Cli.Fmt.hr() : Cli.Fmt.hr({ width });
-  return c.dim(c.gray(rule));
 }
 
 function formatPortFallback(input: { requestedPort?: number; actualPort: number }) {
@@ -223,7 +119,6 @@ const wrangle = {
       printSink = sink;
       hasPrintedToSink = false;
     }
-
     const shouldPrint = hasPrintedToSink;
     hasPrintedToSink = true;
     return shouldPrint;

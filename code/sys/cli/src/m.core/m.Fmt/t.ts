@@ -16,18 +16,14 @@ export type * from './t.keyboard.ts';
 export type * from '../m.Fmt.Text/t.ts';
 
 /**
- * Contracts for terminal presentation shared across CLI surfaces.
- *
- * Focused formatter modules remain canonical owners of their own contracts.
+ * Text and layout formatting for command-line output.
  */
 export declare namespace CliFormat {
-  /**
-   * Aggregates the base CLI formatting libraries and functions.
-   */
+  /** Terminal text and layout formatters. */
   export type Lib = {
     /**
-     * Whether the shared synchronous formatter substrate still matches its trusted
-     * module-initialization baseline. This does not authenticate a realm poisoned before import.
+     * Whether monitored formatter dependencies still match their state at import.
+     * The initial state is trusted, not verified.
      */
     readonly isReady: () => boolean;
 
@@ -52,7 +48,7 @@ export declare namespace CliFormat {
     /** Keyboard command and adaptive-row formatting. */
     readonly Keyboard: CliFormatKeyboard.Lib;
 
-    /** Format a formatter-inserted omission marker as dim gray structural context. Defaults to `…`. */
+    /** Format an omission marker in dim gray. Defaults to `…`. */
     readonly omission: (text?: string) => string;
 
     /** Terminal text measurement, fitting, wrapping, and clipping operations. */
@@ -70,7 +66,10 @@ export declare namespace CliFormat {
     /** Pretty path formatting helpers. */
     readonly Path: Path.Lib;
 
-    /** Service URL formatting and presentation ordering helpers. */
+    /** Format one service or a list with aligned columns. */
+    readonly Service: Service.Lib;
+
+    /** Format service URLs in caller-supplied order. */
     readonly ServiceUrl: ServiceUrl.Lib;
 
     /** Glyphs and helpers for rendering a tree hierarchy. */
@@ -78,14 +77,14 @@ export declare namespace CliFormat {
   };
 
   /**
-   * Contracts for OSC 8 terminal hyperlink formatting.
+   * OSC 8 terminal hyperlinks.
    */
   export namespace Hyperlink {
     /**
      * Wrap terminal presentation text in an OSC 8 hyperlink.
      *
-     * Existing ANSI styling survives inside the label. The URL supplies the serialized absolute href.
-     * Callers own label trust, URL scheme policy, and terminal/fallback selection.
+     * Preserve ANSI styles in the label and use the URL's absolute href.
+     * The caller must trust the label and choose which URL schemes and terminals receive links.
      */
     export type Fn = (label: string, href: URL, options?: Options) => string;
 
@@ -97,12 +96,10 @@ export declare namespace CliFormat {
   }
 
   /**
-   * Contracts for path display and terminal-aware shortening.
+   * Path display and shortening to fit the terminal.
    */
   export namespace Path {
-    /**
-     * Formats paths for general and terminal-constrained presentation.
-     */
+    /** Format paths, with optional shortening to fit the terminal. */
     export type Lib = {
       /** Format a path for display. */
       str: (path: string, options?: FormatOptions) => string;
@@ -140,16 +137,86 @@ export declare namespace CliFormat {
   }
 
   /**
-   * Service URL presentation contracts.
+   * Format service status as text without printing or managing the service.
+   */
+  export namespace Service {
+    /** Service text formatting; no added leading or trailing newlines. */
+    export type Lib = {
+      readonly format: (input: Input, options?: Options) => string;
+      /** Align columns across services, with dashed rules between them. */
+      readonly formatList: (inputs: readonly Input[], options?: Options) => string;
+    };
+
+    /** Service name, status, and display settings; `status.name` is ignored. */
+    export type Input = {
+      name: string;
+      module?: string;
+      /** Text styled separately after the name, e.g. `--mode=dev`. */
+      annotation?: string;
+      status?: t.Service.Status;
+      presentation?: Presentation;
+      keyboard?: Keyboard;
+      urlDisplay?: ServiceUrl.Parts.Options;
+    };
+
+    /** Terminal width and automatic URL links; links in custom detail values are unchanged. */
+    export type Options = {
+      /**
+       * Override terminal width in cells. Rounded down; non-finite values or results outside
+       * 1..65,535 render nothing.
+       */
+      width?: number;
+      /** Override stdout terminal detection. Without width, non-terminal output has no width limit. */
+      terminal?: boolean;
+      /**
+       * Link HTTP(S)/WS(S) URLs to their original addresses. Defaults to false.
+       * URLs containing credentials or control characters display as `invalid URL`,
+       * with or without links.
+       */
+      urlHyperlinks?: boolean;
+    };
+
+    /** Custom detail formatting; the callback is captured once per service render. */
+    export type Presentation = { readonly formatDetail?: FormatDetail };
+
+    /**
+     * Called synchronously without `this`, once per detail after columns are measured.
+     * Not called when rendering is skipped.
+     *
+     * Return `undefined` to use `detail.value`; `''` leaves the value blank. If any LF-delimited
+     * line exceeds `maxWidth`, the whole result falls back to `detail.value`.
+     * Custom text is not clipped, sanitized, or repaired.
+     * Close ANSI styles and OSC links on each line.
+     *
+     * Throws propagate unchanged unless formatter integrity checks fail. Other return types
+     * throw TypeError. The callback is neither awaited nor retried and has no timeout.
+     * Integrity and total size limits still apply when no width limit is set.
+     */
+    export type FormatDetail = (args: {
+      readonly detail: t.Service.Detail;
+      /** Available terminal cells; undefined means no width limit. */
+      readonly maxWidth?: number;
+    }) => string | undefined;
+
+    /** Detail formatting on a local service handle, not in status or serialized data. */
+    export type PresentationProvider = { readonly servicePresentation?: Presentation };
+
+    /** Open and quit key hints; the caller binds the keys. */
+    export type Keyboard = {
+      readonly open?: string;
+      readonly quit?: string;
+    };
+  }
+
+  /**
+   * Service URLs formatted for terminal output.
    */
   export namespace ServiceUrl {
-    /**
-     * Service URL presentation library.
-     */
+    /** Format URLs, highlighting each origin's first appearance in a list. */
     export type Lib = {
-      /** Apply service URL display policy to one hostname without parsing a URL. */
+      /** Choose how a hostname appears without parsing a full URL. */
       readonly displayHostname: DisplayHostname.Method;
-      /** Prepare service URLs as ordered display parts. */
+      /** Prepare URL display parts in caller-supplied order. */
       readonly parts: Parts.Method;
       /** Format one service URL or prepared part. */
       readonly format: Format.Method;
@@ -157,7 +224,7 @@ export declare namespace CliFormat {
       readonly formatList: FormatList.Method;
     };
 
-    /** One service URL prepared for terminal presentation. */
+    /** A URL split into display text and its original address. */
     export type Part = {
       /** Whether the source parsed as a URL. */
       readonly ok: boolean;
@@ -169,17 +236,17 @@ export declare namespace CliFormat {
       readonly suffix: string;
       /** Complete display text. */
       readonly display: string;
-      /** Explicit port, when present. */
+      /** Port shown in the origin, if any. */
       readonly port?: string;
-      /** Whether presentation should emphasize the origin. */
+      /** Whether to highlight the origin in the output. */
       readonly highlightOrigin: boolean;
     };
 
     /**
-     * Hostname display policy contracts.
+     * Hostname display, including IPv4 loopback spelling.
      */
     export namespace DisplayHostname {
-      /** Apply service URL display policy to one hostname without parsing a URL. */
+      /** Choose how a hostname appears without parsing a full URL. */
       export type Method = (hostname: t.StringHostname, options?: Options) => t.StringHostname;
 
       /** Service hostname display options. */
@@ -190,18 +257,18 @@ export declare namespace CliFormat {
     }
 
     /**
-     * Ordered service URL preparation contracts.
+     * URL display parts in caller-supplied order.
      */
     export namespace Parts {
       /** Prepare service URLs in caller-supplied order. */
       export type Method = (urls: Iterable<t.Service.Url>, options?: Options) => readonly Part[];
 
-      /** Service URL display preparation options. */
+      /** Hostname spelling used in URL display text. */
       export type Options = DisplayHostname.Options;
     }
 
     /**
-     * Single service URL formatting contracts.
+     * Formatting for one service URL.
      */
     export namespace Format {
       /** Format one service URL or prepared part. */
@@ -212,13 +279,13 @@ export declare namespace CliFormat {
 
       /** Single service URL formatting options. */
       export type Options = Parts.Options & {
-        /** Origin presentation treatment. */
+        /** Highlight or mute the displayed origin. */
         origin?: 'highlight' | 'muted';
       };
     }
 
     /**
-     * Service URL list formatting contracts.
+     * Formatting for a list of service URLs.
      */
     export namespace FormatList {
       /** Format service URLs in caller-supplied order. */
@@ -230,12 +297,10 @@ export declare namespace CliFormat {
   }
 
   /**
-   * Contracts for terminal tree glyphs and branch rendering.
+   * Tree glyphs and branch prefixes for terminal output.
    */
   export namespace Tree {
-    /**
-     * Supplies canonical tree glyphs and renders branch prefixes.
-     */
+    /** Tree glyphs and branch-prefix formatting. */
     export type Lib = {
       /** Vertical continuation glyph. */
       readonly vert: '│';
@@ -251,7 +316,7 @@ export declare namespace CliFormat {
   }
 
   /**
-   * Contracts for spinner label formatting and spacing.
+   * Spinner labels and spacing.
    */
   export namespace Spinner {
     /** Spacing input accepted by spinner text helpers. */
@@ -265,7 +330,7 @@ export declare namespace CliFormat {
   }
 
   /**
-   * Contracts for horizontal rules and progress-rule presentation.
+   * Horizontal rules and progress indicators.
    */
   export namespace Hr {
     /** Foreground color name accepted by the horizontal rule formatter. */
@@ -287,7 +352,7 @@ export declare namespace CliFormat {
     };
 
     /**
-     * Contracts for splitting a rule into completed and remaining segments.
+     * Split a rule into completed and remaining segments.
      */
     export namespace Progress {
       /** Progress shorthand or expanded options. */

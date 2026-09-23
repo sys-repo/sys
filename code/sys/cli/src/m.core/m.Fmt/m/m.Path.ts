@@ -39,7 +39,8 @@ export const Path: t.CliFormat.Path.Lib = Object.freeze({
   },
 });
 
-function displayPath(path: string, options: t.CliFormat.Path.FormatOptions = {}): string {
+/** Internal plain projection, also used when service output must admit styling before composition. */
+export function displayPath(path: string, options: t.CliFormat.Path.FormatOptions = {}): string {
   const value = path.trim();
   const relative = options.relative ?? 'prefixed';
 

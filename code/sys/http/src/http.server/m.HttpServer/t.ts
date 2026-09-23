@@ -10,10 +10,10 @@ import * as TFileBytes from '../m.FileBytes/t.ts';
 import type { t } from './common.ts';
 
 /**
- * HTTP server contracts.
+ * HTTP servers built on Hono.
  */
 export declare namespace HttpServer {
-  /** HTTP server helper library. */
+  /** Create, start, and display HTTP servers. */
   export type Lib = {
     readonly Hono: typeof THonoAppBase;
     readonly cors: typeof cors;
@@ -31,8 +31,9 @@ export declare namespace HttpServer {
 
   /**
    * Running server returned by `HttpServer.start`.
-   * Disposal joins shutdown, native completion, and keyboard cleanup through one shared promise.
-   * Status remains `stopping` until all three settle; a nonsettling runtime keeps disposal pending.
+   * Disposal waits for server shutdown, Deno's completion promise, and keyboard cleanup.
+   * All disposal calls share one promise. Status stays `stopping` until all three finish;
+   * if any remain pending, disposal also remains pending.
    */
   export type Started = t.LifecycleAsync & {
     readonly app: App;
@@ -50,23 +51,26 @@ export declare namespace HttpServer {
     /** Native Deno server completion; does not include managed keyboard cleanup or shutdown errors. */
     readonly finished: Promise<void>;
 
-    /** Renderer-neutral service status snapshot. */
+    /** Current service status, without terminal formatting. */
     status(): t.Service.Status;
+
+    /** Detail formatting captured at startup, separate from status and serialized data. */
+    readonly servicePresentation?: t.Cli.Fmt.Service.Presentation;
 
     /**
      * Alias for `dispose()` and `[Symbol.asyncDispose]()`; attempts server shutdown once.
-     * A lone rejection retains its exact value. Distinct failures form an `AggregateError` in
-     * shutdown → native completion → keyboard order, with the first failure as `cause`.
-     * Repeated rejection values are deduplicated by `Object.is`; nested errors are not flattened.
+     * One failure is rethrown unchanged. Multiple distinct failures form an `AggregateError`
+     * in shutdown → Deno completion → keyboard order, with the first failure as `cause`.
+     * Duplicates are removed using `Object.is`; nested errors are not flattened.
      */
     close(reason?: unknown): Promise<void>;
   };
 
   /**
-   * HTTP server creation contracts.
+   * Creating a server application.
    */
   export namespace Create {
-    /** Options passed to the creation of a server. */
+    /** Options for creating a server application. */
     export type Options = {
       pkg?: t.Pkg;
       hash?: t.StringHash;
@@ -76,7 +80,7 @@ export declare namespace HttpServer {
   }
 
   /**
-   * Deno serve-options contracts.
+   * Deno server options.
    */
   export namespace Options {
     /** Arguments passed to `HttpServer.options`. */
@@ -98,7 +102,7 @@ export declare namespace HttpServer {
   }
 
   /**
-   * Keyboard helper contracts.
+   * Keyboard controls for a running server.
    */
   export namespace Keyboard {
     /** Arguments passed to `HttpServer.keyboard`. */
@@ -112,10 +116,10 @@ export declare namespace HttpServer {
   }
 
   /**
-   * HTTP server start contracts.
+   * Starting an HTTP server.
    */
   export namespace Start {
-    /** Exact closed set of listener-origin reporting policies. */
+    /** Report the bound numeric loopback address instead of localhost. */
     export type OriginMode = 'exact-loopback';
 
     /** Arguments passed to `HttpServer.start`. */
@@ -134,28 +138,27 @@ export declare namespace HttpServer {
       silent?: boolean;
       dir?: t.StringDir;
 
-      /** Structured, renderer-neutral status metadata for the running server handle. */
+      /** Service details included in the running server's status. */
       status?: Status.Options;
 
-      /** Optional terminal presentation for detail values; never stored in service status. */
+      /** Format detail values for terminal output; never stored in status. */
       formatDetail?: Print.FormatDetail;
 
       /**
-       * Report the exact numeric loopback listener authority instead of `localhost`.
-       *
-       * Rejects wildcard, hostname, and non-loopback binds. Omit to preserve browser-safe
-       * `localhost` normalization.
+       * Report the bound numeric loopback address instead of `localhost`.
+       * Only `127.0.0.1` and `::1` binds are accepted.
+       * Omit to display local bind addresses as `localhost`.
        */
       origin?: OriginMode;
 
-      /** Canonical @sys lifecycle bridge. */
+      /** Link server disposal to an external lifecycle. */
       until?: t.UntilInput;
 
       keyboard?: boolean | Keyboard.Options;
     };
 
     /**
-     * HTTP server start keyboard contracts.
+     * Keyboard controls enabled during startup.
      */
     export namespace Keyboard {
       /** Keyboard behavior for `HttpServer.start`. */
@@ -165,8 +168,7 @@ export declare namespace HttpServer {
         /**
          * Exit the process after keyboard-triggered server shutdown completes.
          *
-         * Defaults to false. Server shutdown is the primitive behavior;
-         * process exit must be explicit.
+         * Defaults to false: stopping the server does not exit the process.
          */
         exit?: boolean;
       };
@@ -174,15 +176,15 @@ export declare namespace HttpServer {
   }
 
   /**
-   * HTTP server status contracts.
+   * Service status reported by the server.
    */
   export namespace Status {
-    /** Structured status metadata passed to `HttpServer.start`. */
+    /** Service details supplied at startup. */
     export type Options = {
-      /** Owner-local kind, e.g. `http`, `static`, or `proxy`. */
+      /** Service kind, e.g. `http`, `static`, or `proxy`. */
       readonly kind?: string;
 
-      /** Owner config path, if the server was started from one. */
+      /** Configuration path supplied at startup. */
       readonly config?: t.StringPath;
 
       /** Primary served filesystem root, if the server has one. Defaults to `dir`. */
@@ -191,18 +193,18 @@ export declare namespace HttpServer {
       /** URL paths to resolve against the server origin. Defaults to `/`. */
       readonly urlPaths?: readonly UrlPath[];
 
-      /** Extra owner facts that are not URLs and not lifecycle control. */
+      /** Additional label/value details, separate from URLs. */
       readonly details?: readonly t.Service.Detail[];
     };
 
-    /** Server status URL path descriptor. */
+    /** A URL path, optionally labelled. */
     export type UrlPath =
       | t.StringUrlRoute
       | { readonly path: t.StringUrlRoute; readonly label?: string };
   }
 
   /**
-   * HTTP server print contracts.
+   * Startup output for an HTTP server.
    */
   export namespace Print {
     /** Arguments passed to `HttpServer.print`. */
@@ -219,40 +221,25 @@ export declare namespace HttpServer {
       keyboard?: Keyboard.Options;
     };
 
-    /**
-     * Render one detail value with optional ANSI styling and navigation links.
-     * Return undefined for default formatting. If any LF-delimited line exceeds maxWidth,
-     * the whole presentation falls back to the plain fact.
-     *
-     * Each line must contain complete ANSI controls and independently closed styles and OSC 8
-     * links. Controls and their scopes must not span lines; the renderer does not rebalance them.
-     */
-    export type FormatDetail = (args: {
-      readonly detail: t.Service.Detail;
-      /** Available terminal cells; undefined preserves full non-TTY output. */
-      readonly maxWidth?: number;
-    }) => string | undefined;
+    /** Format a service detail value for terminal output. */
+    export type FormatDetail = t.Cli.Fmt.Service.FormatDetail;
 
     /**
-     * HTTP server print keyboard contracts.
+     * Keyboard hints shown in startup output.
      */
     export namespace Keyboard {
-      /** Keyboard affordances rendered in HTTP startup output. */
-      export type Options = {
-        /** Key used to open the primary URL in a browser. */
-        readonly open?: string;
-
-        /** Keys used to stop the server. */
-        readonly quit?: string;
-      };
+      /** Open and quit hints to display; printing does not bind keys. */
+      export type Options = t.Cli.Fmt.Service.Keyboard;
     }
   }
 
-  /** Constrained file-byte response contracts. */
+  /**
+   * Constrained file-byte responses.
+   */
   export import ServeFileBytes = TFileBytes.FileBytes;
 
   /**
-   * Static file-server middleware contracts.
+   * Static file-server middleware.
    */
   export namespace ServeStatic {
     /** Create static file-server middleware. */
@@ -270,7 +257,7 @@ export declare namespace HttpServer {
   }
 
   /**
-   * Hono interop contracts.
+   * Hono applications, requests, and middleware.
    */
   export namespace Hono {
     /** Hono Server application instance. */
@@ -288,7 +275,7 @@ export declare namespace HttpServer {
   }
 
   /**
-   * HTTP route contracts.
+   * HTTP route handlers.
    */
   export namespace Route {
     /** Context passed into route handlers. */

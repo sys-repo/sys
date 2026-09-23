@@ -10,7 +10,7 @@ import {
 const NativeSet = Set;
 const freeze = Object.freeze;
 
-// Text owns the shared language substrate; ordered service-URL formatting additionally owns Set.
+// Text checks the shared built-ins; service URL formatting also needs Set.
 const setSnapshots = freeze(
   [
     snapshotProperty(globalThis, 'Set'),
@@ -25,7 +25,13 @@ const authority = createSynchronousAuthority(
 );
 
 /**
- * Whether the shared synchronous formatter substrate still matches its import-time baseline.
- * This integrity monitor cannot authenticate a realm poisoned before import.
+ * Check whether formatter dependencies still match their state at import.
+ * The initial state is trusted, not verified.
  */
 export const isPresentationAuthorityReady = authority.isReady;
+
+/** Throw if monitored formatter dependencies have changed since import. */
+export const assertPresentationAuthority = authority.assert;
+
+/** Check formatter dependencies before and after a synchronous read or callback. */
+export const runPresentationAuthority = authority.run;

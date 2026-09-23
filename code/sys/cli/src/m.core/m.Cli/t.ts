@@ -201,6 +201,9 @@ export declare namespace Cli {
     export type Event = t.CliScreen.Event;
     /** Pure placement helpers for bounded screen regions. */
     export type Dock = t.CliScreen.Dock.Lib;
+    /**
+     * Layout within bounded terminal regions.
+     */
     export namespace Dock {
       /** Pure bounded vertical layout for an optional bottom footer. */
       export type Bottom = t.CliScreen.Dock.Bottom;
@@ -217,7 +220,9 @@ export declare namespace Cli {
     export type Lib = t.CliSpinner.Lib;
     /** Semantic terminal-output target used by the spinner owner. */
     export type OutputTarget = t.CliSpinner.OutputTarget;
-    /** Spinner creation contracts. */
+    /**
+     * Creating a spinner without starting it.
+     */
     export namespace Create {
       /** Options for creating a spinner without starting it. */
       export type Options = t.CliSpinner.Create.Options;
@@ -245,19 +250,17 @@ export declare namespace Cli {
   }
 
   /**
-   * Consumer-facing projections of the canonical formatter contracts.
-   *
-   * Each leaf aliases its owning formatter module; no shapes are redefined here.
+   * Text and layout formatting for command-line output.
    */
   export namespace Fmt {
-    /** CLI formatting helper library contract. */
+    /** Terminal text and layout formatters. */
     export type Lib = t.CliFormat.Lib;
 
     /**
-     * Application-header contract projections.
+     * Application headers.
      */
     export namespace Header {
-      /** Application-header formatting helper library contract. */
+      /** Format an application header. */
       export type Lib = t.CliFormatHeader.Lib;
       /** Package-backed application identity accepted by the header formatter. */
       export type PackageIdentity = t.CliFormatHeader.PackageIdentity;
@@ -266,14 +269,14 @@ export declare namespace Cli {
     }
 
     /**
-     * Keyboard-hint contract projections.
+     * Keyboard hints.
      */
     export namespace Keyboard {
-      /** Keyboard-hint formatter library contract. */
+      /** Format keyboard hints and rows. */
       export type Lib = t.CliFormatKeyboard.Lib;
 
       /**
-       * Keyboard command formatting contract projections.
+       * Formatting for one keyboard command.
        */
       export namespace Command {
         /** Keyboard command formatting options. */
@@ -281,31 +284,31 @@ export declare namespace Cli {
       }
 
       /**
-       * Keyboard-row formatting contract projections.
+       * Formatting for a row of keyboard hints.
        */
       export namespace Row {
         /** Keyboard-row formatting options. */
         export type Options = t.CliFormatKeyboard.Row.Options;
-        /** Complete keyboard-row presentation candidate. */
+        /** One candidate layout for a row of keyboard hints. */
         export type Candidate = t.CliFormatKeyboard.Row.Candidate;
       }
     }
 
     /**
-     * Help-page contract projections.
+     * Help pages.
      */
     export namespace Help {
-      /** Help page formatting helper library contract. */
+      /** Format help pages. */
       export type Lib = t.CliFormatHelp.Lib;
-      /** Declarative input contract for the shared help page formatter. */
+      /** Content and layout for a help page. */
       export type Input = t.CliFormatHelp.Input;
-      /** Shared top matter for help page inputs. */
+      /** Header content and layout shared by both help page forms. */
       export type InputBase = t.CliFormatHelp.InputBase;
-      /** Help input form using the generalized section model. */
+      /** Help page defined by explicit sections. */
       export type InputSections = t.CliFormatHelp.InputSections;
-      /** Help input form using the standard shorthand fields. */
+      /** Help page defined by shorthand fields. */
       export type InputShorthand = t.CliFormatHelp.InputShorthand;
-      /** Declarative section model for help page rendering. */
+      /** One section of a help page. */
       export type Section = t.CliFormatHelp.Section;
       /** Two-column help row rendered as left/right content. */
       export type Pair = t.CliFormatHelp.Pair;
@@ -318,10 +321,10 @@ export declare namespace Cli {
     }
 
     /**
-     * Commit suggestion contract projections.
+     * Commit message suggestions.
      */
     export namespace Commit {
-      /** Commit suggestion formatter library contract. */
+      /** Format commit message suggestions. */
       export type Lib = t.CliFormatCommit.Lib;
       /** Commit suggestion formatting options. */
       export type Options = t.CliFormatCommit.Options;
@@ -332,7 +335,7 @@ export declare namespace Cli {
     }
 
     /**
-     * Navigable help chapter contract projections.
+     * Navigable help chapters.
      */
     export namespace Chapters {
       /** Navigable chapter formatting and tree utility library. */
@@ -357,10 +360,10 @@ export declare namespace Cli {
       export type Section = t.CliFormatChapters.Section;
 
       /**
-       * Chapter-book loader contract projections.
+       * Loading a book of help chapters.
        */
       export namespace Book {
-        /** Chapter-book loader factory surface. */
+        /** Create a help chapter loader. */
         export type Lib = t.CliFormatChapters.Book.Lib;
         /** Input used to create a chapter-book loader. */
         export type Input<TFile extends string = string> = t.CliFormatChapters.Book.Input<TFile>;
@@ -369,10 +372,10 @@ export declare namespace Cli {
       }
 
       /**
-       * Embedded resource reader contract projections.
+       * Reading embedded chapter resources.
        */
       export namespace Resources {
-        /** Embedded resource reader factory surface. */
+        /** Create an embedded resource reader. */
         export type Lib = t.CliFormatChapters.Resources.Lib;
         /** Input used to create an embedded resource reader. */
         export type Input<TFile extends string = string> = t.CliFormatChapters.Resources.Input<
@@ -385,7 +388,7 @@ export declare namespace Cli {
       }
 
       /**
-       * Chapter link and resource node contract projections.
+       * Chapter links and registered resources.
        */
       export namespace Chapter {
         /** Child chapter shown as a drill-down command link. */
@@ -398,21 +401,21 @@ export declare namespace Cli {
     }
 
     /**
-     * Exact projections of the formatter-owned terminal text contracts.
+     * Terminal text sizing, wrapping, and clipping.
      */
     export namespace Text {
-      /** Exact projection of the terminal text operation library. */
+      /** Measure, fit, wrap, and clip terminal text. */
       export type Lib = t.CliFormatText.Lib;
 
       /**
-       * Exact projections of formatter-owned terminal-cell width contracts.
+       * Text width measured in terminal cells.
        */
       export namespace Width {
-        /** Exact projection of the terminal-cell width operation library. */
+        /** Measure text in terminal cells. */
         export type Lib = t.CliFormatText.Width.Lib;
 
         /**
-         * Usable width fitting policy projections.
+         * Available width for terminal text.
          */
         export namespace Fit {
           /** Width fitting options for terminal-aware text layout. */
@@ -421,10 +424,10 @@ export declare namespace Cli {
       }
 
       /**
-       * Exact projections of formatter-owned prose wrapping contracts.
+       * Wrapping prose to a terminal-cell width.
        */
       export namespace Wrap {
-        /** Exact projection of the prose wrapping operation library. */
+        /** Wrap prose while preserving selected lines. */
         export type Lib = t.CliFormatText.Wrap.Lib;
         /** Prose wrapping options. */
         export type Options = t.CliFormatText.Wrap.Options;
@@ -435,7 +438,7 @@ export declare namespace Cli {
       }
 
       /**
-       * Exact projections of formatter-owned middle-clipping marker and rendering contracts.
+       * Shortening text with a middle ellipsis.
        */
       export namespace Ellipsize {
         /** Options for terminal-cell-aware middle ellipsis. */
@@ -448,7 +451,7 @@ export declare namespace Cli {
     }
 
     /**
-     * OSC 8 terminal hyperlink contract projections.
+     * OSC 8 terminal hyperlinks.
      */
     export namespace Hyperlink {
       /** OSC 8 terminal hyperlink formatter. */
@@ -458,10 +461,10 @@ export declare namespace Cli {
     }
 
     /**
-     * Path display contract projections.
+     * Path display and shortening to fit the terminal.
      */
     export namespace Path {
-      /** Pretty path formatting helper library contract. */
+      /** Format paths, with optional shortening to fit the terminal. */
       export type Lib = t.CliFormat.Path.Lib;
       /** Path presentation options. */
       export type FormatOptions = t.CliFormat.Path.FormatOptions;
@@ -470,16 +473,36 @@ export declare namespace Cli {
     }
 
     /**
-     * Service URL presentation contract projections.
+     * Terminal formatting for service status.
+     */
+    export namespace Service {
+      /** Format one service or a list with aligned columns. */
+      export type Lib = t.CliFormat.Service.Lib;
+      /** Service name, status, and display settings. */
+      export type Input = t.CliFormat.Service.Input;
+      /** Terminal width and automatic URL links. */
+      export type Options = t.CliFormat.Service.Options;
+      /** Custom formatting for service detail values. */
+      export type Presentation = t.CliFormat.Service.Presentation;
+      /** Synchronous detail formatter; return `undefined` to use `detail.value`. */
+      export type FormatDetail = t.CliFormat.Service.FormatDetail;
+      /** Optional detail formatting exposed by a service handle. */
+      export type PresentationProvider = t.CliFormat.Service.PresentationProvider;
+      /** Open and quit key hints; does not bind keys. */
+      export type Keyboard = t.CliFormat.Service.Keyboard;
+    }
+
+    /**
+     * Service URLs formatted for terminal output.
      */
     export namespace ServiceUrl {
-      /** Service URL formatting helper library contract. */
+      /** Format URLs, highlighting each origin's first appearance in a list. */
       export type Lib = t.CliFormat.ServiceUrl.Lib;
-      /** One service URL prepared for terminal presentation. */
+      /** A URL split into display text and its original address. */
       export type Part = t.CliFormat.ServiceUrl.Part;
 
       /**
-       * Hostname display policy contracts.
+       * Hostname display, including IPv4 loopback spelling.
        */
       export namespace DisplayHostname {
         export type Method = t.CliFormat.ServiceUrl.DisplayHostname.Method;
@@ -487,7 +510,7 @@ export declare namespace Cli {
       }
 
       /**
-       * Ordered service URL preparation contracts.
+       * URL display parts in caller-supplied order.
        */
       export namespace Parts {
         export type Method = t.CliFormat.ServiceUrl.Parts.Method;
@@ -495,7 +518,7 @@ export declare namespace Cli {
       }
 
       /**
-       * Single service URL formatting contracts.
+       * Formatting for one service URL.
        */
       export namespace Format {
         export type Method = t.CliFormat.ServiceUrl.Format.Method;
@@ -503,7 +526,7 @@ export declare namespace Cli {
       }
 
       /**
-       * Service URL list formatting contracts.
+       * Formatting for a list of service URLs.
        */
       export namespace FormatList {
         export type Method = t.CliFormat.ServiceUrl.FormatList.Method;
@@ -511,15 +534,15 @@ export declare namespace Cli {
     }
 
     /**
-     * Terminal tree contract projections.
+     * Tree glyphs and branch prefixes for terminal output.
      */
     export namespace Tree {
-      /** Glyph and hierarchy rendering helper library contract. */
+      /** Tree glyphs and branch-prefix formatting. */
       export type Lib = t.CliFormat.Tree.Lib;
     }
 
     /**
-     * Spinner label contract projections.
+     * Spinner labels and spacing.
      */
     export namespace Spinner {
       /** Spacing input accepted by spinner text helpers. */
@@ -529,7 +552,7 @@ export declare namespace Cli {
     }
 
     /**
-     * Horizontal rule contract projections.
+     * Horizontal rules and progress indicators.
      */
     export namespace Hr {
       /** Foreground color name accepted by the horizontal rule formatter. */
