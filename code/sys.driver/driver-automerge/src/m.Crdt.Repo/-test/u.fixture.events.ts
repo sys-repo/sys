@@ -1,3 +1,4 @@
+import type { WebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { Schedule, type t, Time } from '../../-test.ts';
 import { Crdt } from '../../m.server/common.ts';
 import { Server } from '../../m.server/mod.ts';
@@ -44,6 +45,31 @@ export const EventsFixture = {
         await Time.wait(110);
       },
     };
+  },
+
+  /** Join the deferred initial connect call without yielding to network IO. */
+  async connecting(adapter: WebSocketClientAdapter, timeout: t.Msecs = D.timeout) {
+    const started = Promise.withResolvers<void>();
+    const connect = adapter.connect;
+    const deadline = Schedule.queue(() => {
+      started.reject(new Error('Timed out waiting for adapter.connect()'));
+    }, { ms: timeout });
+
+    adapter.connect = (peerId, metadata) => {
+      try {
+        connect.call(adapter, peerId, metadata);
+        started.resolve();
+      } catch (error) {
+        started.reject(error);
+        throw error; // Preserve Automerge's own connection-failure handling too.
+      }
+    };
+    try {
+      await started.promise;
+    } finally {
+      deadline.dispose();
+      adapter.connect = connect;
+    }
   },
 
   waitFor(predicate: () => boolean) {

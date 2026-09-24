@@ -1,4 +1,6 @@
+import { WebSocketClientAdapter } from '@automerge/automerge-repo-network-websocket';
 import { describe, expect, it, Rx, Time } from '../../-test.ts';
+import { toAutomergeRepo } from '../mod.ts';
 import { EventsFixture } from './u.fixture.events.ts';
 
 describe(
@@ -11,6 +13,134 @@ describe(
     sanitizeResources: false,
   },
   () => {
+    it('reconnect → disable while CONNECTING closes without an uncaught error', async () => {
+      const fx = await EventsFixture.network();
+
+      try {
+        const { repo } = fx.createRepo();
+        await repo.whenReady();
+        const adapter = toAutomergeRepo(repo)?.networkSubsystem.adapters[0];
+        if (!(adapter instanceof WebSocketClientAdapter)) throw new Error('Expected WS adapter');
+
+        repo.sync.enable(false);
+        await EventsFixture.waitFor(() => adapter.socket === undefined);
+
+        const connect = adapter.connect.bind(adapter);
+        let connecting = false;
+        let closed = false;
+        adapter.connect = (peerId, metadata) => {
+          connect(peerId, metadata);
+          const socket = adapter.socket;
+          if (!socket) throw new Error('Expected reconnect socket');
+          connecting = socket.readyState === socket.CONNECTING;
+          socket.addEventListener('close', () => (closed = true), { once: true });
+          // Disable before returning control to network IO, not after an arbitrary sleep.
+          repo.sync.enable(false);
+        };
+
+        repo.sync.enable(true);
+        await EventsFixture.waitFor(() => closed);
+        expect(connecting).to.eql(true);
+        expect(adapter.socket).to.eql(undefined);
+        expect(repo.sync.enabled).to.eql(false);
+        expect(repo.sync.peers).to.eql([]);
+      } finally {
+        await fx.dispose();
+      }
+    });
+
+    it('initial connection → dispose closes a CONNECTING socket', async () => {
+      const fx = await EventsFixture.network();
+
+      try {
+        const { repo } = fx.createRepo();
+        const adapter = toAutomergeRepo(repo)?.networkSubsystem.adapters[0];
+        if (!(adapter instanceof WebSocketClientAdapter)) throw new Error('Expected WS adapter');
+        let closed = false;
+        await EventsFixture.connecting(adapter);
+        const socket = adapter.socket;
+        if (!socket) throw new Error('Expected initial socket');
+        expect(socket.readyState).to.eql(socket.CONNECTING);
+        socket.addEventListener('close', () => (closed = true), { once: true });
+
+        await repo.dispose();
+        await EventsFixture.waitFor(() => closed);
+        expect(repo.disposed).to.eql(true);
+        expect(adapter.socket).to.eql(undefined);
+      } finally {
+        await fx.dispose();
+      }
+    });
+
+    it('queued handshake abort → dispose closes a CLOSING socket', async () => {
+      const fx = await EventsFixture.network();
+
+      try {
+        const { repo } = fx.createRepo();
+        const adapter = toAutomergeRepo(repo)?.networkSubsystem.adapters[0];
+        if (!(adapter instanceof WebSocketClientAdapter)) throw new Error('Expected WS adapter');
+        await EventsFixture.connecting(adapter);
+        const socket = adapter.socket;
+        if (!socket) throw new Error('Expected initial socket');
+        expect(socket.readyState).to.eql(socket.CONNECTING);
+        let closed = false;
+        socket.addEventListener('close', () => (closed = true), { once: true });
+
+        socket.close();
+        expect(socket.readyState).to.eql(socket.CLOSING);
+        await repo.dispose();
+        await EventsFixture.waitFor(() => closed);
+        expect(socket.listenerCount('error')).to.eql(0);
+        expect(socket.listenerCount('close')).to.eql(0);
+        expect(repo.disposed).to.eql(true);
+      } finally {
+        await fx.dispose();
+      }
+    });
+
+    it('initial connect failure → rejects with its cause and cleans up the fixture', async () => {
+      const fx = await EventsFixture.network();
+      const { repo } = fx.createRepo();
+      const failure = new Error('test: connect failed');
+      let caught: unknown;
+
+      try {
+        const adapter = toAutomergeRepo(repo)?.networkSubsystem.adapters[0];
+        if (!(adapter instanceof WebSocketClientAdapter)) throw new Error('Expected WS adapter');
+        const failConnect = () => {
+          throw failure;
+        };
+        adapter.connect = failConnect;
+        try {
+          await EventsFixture.connecting(adapter, 100);
+        } catch (error) {
+          caught = error;
+        }
+        expect(adapter.connect).to.equal(failConnect);
+      } finally {
+        await fx.dispose();
+      }
+
+      expect(caught).to.equal(failure);
+      expect(repo.disposed).to.eql(true);
+      expect(fx.server.disposed).to.eql(true);
+    });
+
+    it('missing initial connect → times out and restores the adapter', async () => {
+      const adapter = new WebSocketClientAdapter('ws://localhost');
+      const connect = adapter.connect;
+      let caught: unknown;
+      try {
+        await EventsFixture.connecting(adapter, 10);
+      } catch (error) {
+        caught = error;
+      }
+      expect(caught).to.be.instanceOf(Error);
+      expect(caught).to.have.property('message', 'Timed out waiting for adapter.connect()');
+      expect(adapter.connect).to.equal(connect);
+      expect(adapter.socket).to.eql(undefined);
+    });
+
     it('sync.enabled (toggle)', async () => {
       const fx = await EventsFixture.network();
 

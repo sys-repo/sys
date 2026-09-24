@@ -3,6 +3,7 @@ import { CrdtIs } from '../m.Crdt/m.Is.ts';
 
 import { Delete, Err, Rx, Schedule, slug, type t, Time, toRef, whenReady } from './common.ts';
 import { eventsFactory } from './u.events.ts';
+import { guardConnectAbort } from './u.guardConnectAbort.ts';
 import { monitorNetwork } from './u.monitorNetwork.ts';
 import { silentShutdown } from './u.shutdown.ts';
 import { REF } from './u.toAutomergeRepo.ts';
@@ -94,17 +95,15 @@ export function toRepo(
           if (enabled) {
             adapter.connect(peerId, {});
           } else {
+            guardConnectAbort(adapter);
             // Normalize sync/async disconnect to a single awaitable.
             await Promise.resolve(adapter.disconnect?.());
           }
         } catch {
           /**
-           * Swallow benign races / pre-open teardown errors:
-           * - WebSocket closed before fully open
-           * - whenReady() rejecting due to concurrent dispose
-           *
-           * Domain-level failures are surfaced via repo events; adapter
-           * connect/disconnect should never crash the process or test runner.
+           * Preserve existing handling of synchronous/promise adapter failures, including
+           * whenReady() rejection during disposal. Asynchronous socket errors are outside
+           * this catch; guardConnectAbort owns the expected pre-open close error.
            */
         }
       }
