@@ -1,5 +1,6 @@
 import { Is, type t } from '../common.ts';
 import { delay } from '../m.Delay/u.delay.ts';
+import { createWaitFor } from './u.waitFor.ts';
 
 /**
  * Wait for the specified milliseconds
@@ -11,21 +12,7 @@ export const wait: t.Time.Lib['wait'] = (msecs, options = {}) => {
 };
 
 /**
- * Wait until a predicate resolves truthy or timeout expires.
- * Evaluates `fn` repeatedly using a fixed interval.
+ * Observe a predicate until a truthy result, abort, failure, or monotonic deadline.
+ * Terminating the observation window does not terminate caller-owned predicate work.
  */
-export const waitFor: t.Time.Lib['waitFor'] = async (fn, options = {}) => {
-  const { interval = 30, timeout = 2000, signal } = options;
-  const start = Date.now();
-
-  while (true) {
-    const result = await fn();
-    if (result) return result;
-
-    if (Date.now() - start > timeout) {
-      throw new Error('Time.waitFor: timeout exceeded');
-    }
-
-    await delay(interval, { signal });
-  }
-};
+export const waitFor: t.Time.Lib['waitFor'] = (fn, options) => createWaitFor(fn, options);

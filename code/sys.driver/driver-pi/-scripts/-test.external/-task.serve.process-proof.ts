@@ -8,6 +8,7 @@ import { Is } from '@sys/std/is';
 import { Obj } from '@sys/std/obj';
 import { Str } from '@sys/std/str';
 import { Time } from '@sys/std/time';
+import { pollManifest } from './u.serve.waitFor.ts';
 
 const HOSTNAME = '127.0.0.1';
 const PORT = 8080;
@@ -141,7 +142,7 @@ async function proveLiveServe(candidate: Candidate): Promise<void> {
   let output: Deno.CommandOutput;
   try {
     const manifest = await waitForManifest();
-    assertBytes(new Uint8Array(await manifest.arrayBuffer()), candidate.manifest, 'manifest');
+    assertBytes(manifest, candidate.manifest, 'manifest');
 
     const route = `/${candidate.part.path.split('/').map(encodeURIComponent).join('/')}`;
     const part = await fetch(`${ORIGIN}${route}`, { redirect: 'manual' });
@@ -227,21 +228,9 @@ function spawnServe(): ServeProcess {
   return Object.freeze({ child, output: child.output() });
 }
 
-async function waitForManifest(): Promise<Response> {
+async function waitForManifest(): Promise<Uint8Array> {
   try {
-    const response = await Time.waitFor(
-      async () => {
-        try {
-          const response = await fetch(MANIFEST_URL, { redirect: 'manual' });
-          return response.status === 200 ? response : undefined;
-        } catch {
-          return undefined;
-        }
-      },
-      { interval: 25, timeout: EXIT_TIMEOUT },
-    );
-    if (!response) throw Err.std('Local Dist serve did not return its manifest.');
-    return response;
+    return await pollManifest(MANIFEST_URL, EXIT_TIMEOUT);
   } catch {
     throw Err.std('Timed out waiting for local Dist serve.');
   }

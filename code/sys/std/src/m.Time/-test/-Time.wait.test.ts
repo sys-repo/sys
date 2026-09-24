@@ -1,6 +1,36 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Time } from '../mod.ts';
 
+describe('Time.waitFor admission', () => {
+  it('pre-abort prevents even a truthy predicate', async () => {
+    const ctrl = new AbortController();
+    const reason = new Error('stop');
+    ctrl.abort(reason);
+    let calls = 0;
+    let caught: unknown;
+    try {
+      await Time.waitFor(() => ++calls, { signal: ctrl.signal });
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).to.equal(reason);
+    expect(calls).to.eql(0);
+  });
+
+  it('zero budget prevents predicate admission', async () => {
+    let calls = 0;
+    let caught: unknown;
+    try {
+      await Time.waitFor(() => ++calls, { timeout: 0 });
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).to.be.instanceof(Error);
+    expect(caught).to.have.property('message', 'Time.waitFor: timeout exceeded');
+    expect(calls).to.eql(0);
+  });
+});
+
 describe('waiting', () => {
   describe('Time.wait', () => {
     it('resolves after the given delay', async () => {
@@ -19,6 +49,7 @@ describe('waiting', () => {
       expect(timer.is.cancelled).to.eql(true);
       expect(timer.is.done).to.eql(true);
       expect(timer.is.completed).to.eql(false);
+      await timer;
     });
 
     it('supports AbortSignal via options object', async () => {
@@ -59,15 +90,16 @@ describe('waiting', () => {
 
   describe('Time.waitFor', () => {
     it('resolves once the predicate becomes truthy', async () => {
+      using cleanup = new DisposableStack();
       let value = false;
-      setTimeout(() => (value = true), 50);
+      cleanup.adopt(Time.delay(50, () => (value = true)), (timer) => timer.cancel());
 
       const result = await Time.waitFor(() => value);
       expect(result).to.eql(true);
     });
 
     it('passes through resolved values from async predicates', async () => {
-      const result = await Time.waitFor(async () => 'done');
+      const result = await Time.waitFor(() => Promise.resolve('done'));
       expect(result).to.equal('done');
     });
 
@@ -91,7 +123,7 @@ describe('waiting', () => {
 
       type WaitForShape = <T>(
         fn: () => T | Promise<T>,
-        options?: { readonly interval?: number; readonly timeout?: number },
+        options?: { readonly interval?: number; readonly timeout?: number; signal?: AbortSignal },
       ) => Promise<T>;
 
       expectTypeOf(Time.waitFor).toEqualTypeOf<WaitForShape>();
@@ -105,14 +137,18 @@ describe('waiting', () => {
         return false; // never resolves truthy
       };
 
-      const p = Time.waitFor(fn, { interval: 10, timeout: 2000, signal: ac.signal });
+      const p = Time.waitFor(fn, { interval: 10, timeout: 30, signal: ac.signal });
 
       // Cancel on next tick.
       queueMicrotask(() => ac.abort('stop'));
-      await p; // resolves quietly
-
-      // Ensure the function actually ran at least once.
-      expect(count).to.be.greaterThan(0);
+      let caught: unknown;
+      try {
+        await p;
+      } catch (error) {
+        caught = error;
+      }
+      expect(caught).to.equal('stop');
+      expect(count).to.eql(1);
     });
   });
 });

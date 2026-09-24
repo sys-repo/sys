@@ -65,8 +65,16 @@ export declare namespace Time {
     wait(msecs?: t.Msecs, options?: { signal?: AbortSignal } | AbortSignal): Delay.Promise;
 
     /**
-     * Wait until a predicate resolves truthy or timeout expires.
-     * Evaluates `fn` repeatedly with a fixed interval.
+     * Observe one predicate at a time until a truthy result, failure, abort, or deadline.
+     * Defaults: 30 ms between false results; 2,000 ms total monotonic observation budget.
+     * Interval uses Delay normalization. Timeout must be finite, non-negative, and no greater
+     * than Number.MAX_SAFE_INTEGER (fractions allowed); invalid budgets reject with RangeError.
+     * Zero timeout or pre-abort prevents admission. Observed abort wins over observed expiry;
+     * both win over a predicate outcome at or beyond the deadline. A selected outcome is final.
+     * Rejects with the exact abort reason, the original in-window predicate failure, or
+     * Error('Time.waitFor: timeout exceeded'). Pending predicates cannot postpone termination.
+     * Late outcomes are consumed, not selected. Predicate work and resource values stay caller-owned;
+     * the waiter cannot preempt synchronous code or a blocked event loop.
      */
     waitFor<T>(
       fn: () => T | Promise<T>,

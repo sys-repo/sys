@@ -1,5 +1,6 @@
 import { default as deno } from '../../../deno.json' with { type: 'json' };
 import { Cli, describe, expect, Fs, Is, it, Path, ROOT, Time } from '../../-test.ts';
+import { waitForIndex } from './u.serve.waitFor.ts';
 
 const PACKAGE_DIR = ROOT.resolve('code/sys.driver/driver-vite');
 const WORKSPACE_LOCK = ROOT.resolve('deno.lock');
@@ -210,22 +211,6 @@ function settleStartup(text: string, resolve: (startup: Startup) => void): void 
 
   const port = Number.parseInt(match[2], 10);
   resolve({ origin: `http://${match[1]}:${port}/`, port });
-}
-
-async function waitForIndex(origin: string): Promise<Uint8Array> {
-  const response = await Time.waitFor(
-    async () => {
-      try {
-        const response = await fetch(origin, { redirect: 'manual' });
-        return response.status === 200 ? response : undefined;
-      } catch {
-        return undefined;
-      }
-    },
-    { interval: 25, timeout: 5_000 },
-  );
-  if (!response) throw new Error('Timed out waiting for cached-only serve response.');
-  return new Uint8Array(await response.arrayBuffer());
 }
 
 async function expectRunning(status: Promise<Deno.CommandStatus>): Promise<void> {
