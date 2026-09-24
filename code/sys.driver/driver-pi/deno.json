@@ -9,6 +9,9 @@
     "test:reporting": "deno test -P=test ./-scripts/-test.reporting.ts",
     "test:host": "TMPDIR=./.tmp TMP=./.tmp TEMP=./.tmp deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-host.zip.ts",
     "test:reporting:host": "TMPDIR=./.tmp TMP=./.tmp TEMP=./.tmp deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-host.reporting.ts",
+    "test:compat:unit": "deno test --frozen --cached-only --no-prompt -P=test ./-scripts/-test/-host.compat.test.ts",
+    "test:compat:admit": "deno run --frozen --cached-only --no-prompt -P=test-host ./-scripts/-test.external/-host.admit.ts",
+    "test:compat:host": "deno task test:reporting:host --",
     "test:zip:permissions": "deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-zip.permission.ts",
     "test:reset:process": "deno test --frozen --cached-only --no-prompt -P=test-reset-process --trace-leaks ./-scripts/-test.external/-task.start.gui.reset.process-proof.ts",
     "test:profiles": "deno test -P=test ./src/m.cli/m.profiles/-test && deno task test:profiles:process",
@@ -322,4 +325,3 @@
     }
   }
 }
-
