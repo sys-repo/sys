@@ -1,14 +1,16 @@
 import { Date as TimeDate } from '../../m.Time.Date/mod.ts';
-import { Num, type t } from './common.ts';
+import { Is, Num, type t } from './common.ts';
 
 const { MINUTE, SECOND, DAY, HOUR } = TimeDate;
 
-const To: t.Time.Duration.To = Object.freeze({
-  sec: (msec: number, round?: number) => Num.round(msec / 1000, round),
-  min: (msec: number, round?: number) => Num.round(msec / 1000 / 60, round),
-  hour: (msec: number, round?: number) => Num.round(msec / 1000 / 60 / 60, round),
-  day: (msec: number, round?: number) => Num.round(msec / 1000 / 60 / 60 / 24, round),
-});
+const To = Object.freeze(
+  {
+    sec: (msec: t.Msecs, round?: number): t.Secs => Num.round(msec / 1000, round),
+    min: (msec: t.Msecs, round?: number): t.Mins => Num.round(msec / 1000 / 60, round),
+    hour: (msec: t.Msecs, round?: number): t.Hours => Num.round(msec / 1000 / 60 / 60, round),
+    day: (msec: t.Msecs, round?: number): t.Days => Num.round(msec / 1000 / 60 / 60 / 24, round),
+  } satisfies t.Time.Duration.To,
+);
 
 /**
  * Library: tools for working with an elapsed duration of time.
@@ -21,18 +23,19 @@ export const Duration: t.Time.Duration.Lib = Object.freeze({
    * Create a new duration helper.
    */
   create(input, options = {}) {
-    if (typeof input === 'string') return Duration.parse(input, options);
+    if (Is.str(input)) return Duration.parse(input, options);
 
     const { round = 1 } = options;
-    const msecs = input < 0 ? -1 : input;
+    const ok = Is.numeric(input) && input >= 0;
+    const msecs = ok ? (input === 0 ? 0 : input) : -1;
 
     const api: t.Time.Duration.Instance = {
-      ok: msecs >= 0,
+      ok,
       msec: msecs,
-      sec: To.sec(msecs, round),
-      min: To.min(msecs, round),
-      hour: To.hour(msecs, round),
-      day: To.day(msecs, round),
+      sec: ok ? To.sec(msecs, round) : -1,
+      min: ok ? To.min(msecs, round) : -1,
+      hour: ok ? To.hour(msecs, round) : -1,
+      day: ok ? To.day(msecs, round) : -1,
 
       format(unit) {
         const format = Duration.format;
@@ -66,45 +69,42 @@ export const Duration: t.Time.Duration.Lib = Object.freeze({
   },
 
   /**
-   * Parses a string or a number (eg. "3.5h") into a Duration helper.
+   * Parse a complete decimal amount and optional unit, or numeric milliseconds.
    */
   parse(input, options = {}) {
     const done = (msecs: number) => Duration.create(msecs, options);
-    if (typeof input === 'number') return done(input);
+    if (!Is.str(input)) return done(input);
 
-    // Extract number.
-    input = (input || '').trim();
-    const matchedDigits = input.match(/(\d*\.?)\d*/);
-    const digits = matchedDigits && matchedDigits[0] ? +matchedDigits[0] : -1;
-    if (digits < 0) return done(-1);
+    const pattern = /^(\d+(?:\.\d*)?|\.\d+)\s*(ms|msec|s|sec|m|min|h|hour|d|day)?$/i;
+    const match = input.trim().match(pattern);
+    if (!match) return done(-1);
+    const amount = Number(match[1]);
+    const unit = match[2]?.toLowerCase() ?? '';
 
-    // Extract and multiply by unit (sec, min, hour, day).
-    input = input.substring(digits.toString().length).trim().toLowerCase();
-
-    switch (input) {
+    switch (unit) {
       case '':
       case 'ms':
       case 'msec':
-        return done(digits); // NB: no multiplier (default unit).
+        return done(amount);
 
       case 's':
       case 'sec':
-        return done(digits * SECOND);
+        return done(amount * SECOND);
 
       case 'm':
       case 'min':
-        return done(digits * MINUTE);
+        return done(amount * MINUTE);
 
       case 'h':
       case 'hour':
-        return done(digits * HOUR);
+        return done(amount * HOUR);
 
       case 'd':
       case 'day':
-        return done(digits * DAY);
+        return done(amount * DAY);
 
       default:
-        return done(-1); // NB: Unit is invalid.
+        return done(-1);
     }
   },
 
@@ -143,8 +143,8 @@ export const Duration: t.Time.Duration.Lib = Object.freeze({
  * Helpers:
  */
 const wrangle = {
-  msecs(input: t.Time.Duration.Input): t.Msecs {
-    if (typeof input === 'number') return input as t.Msecs;
+  msecs(input: t.Time.Duration.InstantInput): t.Msecs {
+    if (!Is.str(input)) return input;
 
     // Try a purely numeric string first.
     const asNum = Number(input);

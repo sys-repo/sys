@@ -226,7 +226,13 @@ export declare namespace Time {
     /** Tools for working with an elapsed duration of time. */
     export type Lib = TDuration.Lib;
 
-    /** Input for time-duration helpers. */
+    /** Milliseconds or a complete decimal amount with an optional unit. */
+    export type AmountInput = TDuration.AmountInput;
+
+    /** Unix milliseconds, numeric strings, or date strings for elapsed endpoints. */
+    export type InstantInput = TDuration.InstantInput;
+
+    /** Compatibility alias of `AmountInput`; use `InstantInput` for elapsed endpoints. */
     export type Input = TDuration.Input;
 
     /** Options passed to a duration helper. */
