@@ -1,6 +1,6 @@
 import { Cmd } from '@sys/event/cmd';
-import { describe, Err, expect, it } from './-test.ts';
-import { deliveryCheckpoint } from './u.delivery.ts';
+import { describe, Err, expect, it } from '../-test.ts';
+import { deliveryCheckpoint } from '../u/u.delivery.ts';
 
 describe('Delivery fixture | a checkpoint controls one phase, not the command bus', () => {
   it('held handler → independent ping completes while the held effect remains unapplied', async () => {

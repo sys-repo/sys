@@ -1,21 +1,24 @@
 import {
   change,
   emptyChange,
+  free,
   getActorId,
   getChanges,
   getCursor,
   getCursorPosition,
   getHeads,
   getObjectId,
+  load,
   mark,
   marks,
   merge,
+  save,
   splice,
   view,
 } from '@automerge/automerge';
-import { describe, expect, it, Obj } from './-test.ts';
-import { automergePair } from './-fixtures/u.automerge.ts';
-import { initialNote } from './-fixtures/u.note.ts';
+import { describe, expect, Is, it, Obj, type t } from '../-test.ts';
+import { automergePair } from '../-fixtures/u.automerge.ts';
+import { initialNote } from '../-fixtures/u.note.ts';
 
 describe('Automerge control | causal identity is more than equal values', () => {
   it('native clone → shared heads and object identities, independent writer identities', () => {
@@ -107,6 +110,36 @@ describe('Automerge control | causal identity is more than equal values', () => 
     expect(owner.text).to.equal('Xac');
     expect(getCursorPosition(owner, ['text'], anchor)).to.equal(1);
     expect(getCursorPosition(owner, ['text'], focus)).to.equal(2);
+  });
+
+  it('text object identity → splices retain it, equal-value assignment still replaces it', () => {
+    using pair = automergePair();
+    const text = getObjectId(pair.owner, 'text');
+    expect(Is.str(text)).to.equal(true);
+    const inserted = change(pair.owner, (draft) => splice(draft, ['text'], 1, 0, 'b'));
+    expect(inserted.text).to.equal('abc');
+    expect(getObjectId(inserted, 'text')).to.equal(text);
+    const replaced = change(inserted, (draft) => {
+      draft.text = 'abc';
+    });
+    expect(replaced.text).to.equal(inserted.text);
+    expect(getObjectId(replaced, 'text')).not.to.equal(text);
+  });
+
+  it('retained draft → a later write enters serialized history outside the mutation callback', () => {
+    using pair = automergePair();
+    let retained: t.FixtureNote | undefined;
+    const after = change(pair.owner, (draft) => {
+      retained = draft;
+      draft.title = 'In scope';
+    });
+    if (retained) retained.title = 'Escaped';
+    const reloaded = load<t.FixtureNote>(save(after));
+    try {
+      expect(reloaded.title).to.equal('Escaped');
+    } finally {
+      free(reloaded);
+    }
   });
 
   it('throw inside change → document writes roll back, caller-local effects do not', () => {

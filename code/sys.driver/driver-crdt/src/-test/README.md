@@ -1,7 +1,7 @@
 # Contract fixtures
 
-Controls for immutable state, Automerge, Yjs, and Cmd delivery. These tests exercise existing
-libraries; they do not implement a CRDT driver.
+Native controls and test-only mutation-path experiments for immutable state, Automerge, Yjs, and
+Cmd. No public driver API is defined here.
 
 ## Run
 
@@ -20,13 +20,22 @@ processes; parent test flags such as `--cached-only` do not propagate to them.
 
 ## Suites
 
-- [Immutable](-immutable.test.ts): synchronous mutation, event timing, retained values, and lenses.
-- [Automerge](-automerge.test.ts): causal identity, marks, heads, cursors, and callback rollback.
-- [Yjs](-yjs.test.ts): shared types, projection boundaries, relative positions, and transaction
-  failure.
-- [Repo](-repo.test.ts): public existing-document import with concurrent native changes.
-- [Delivery](-delivery.test.ts): controlled pauses over a real Cmd/MessagePort transport.
-- [Isolation](-isolation.test.ts): code/type reachability and fresh-process native initialization.
+Executable suites live in `-spec/`; `-test.ts`, `common.ts`, and `t.ts` remain root-level support.
+Shared test utilities and standalone native probes live in `u/`; fixture constructors live in
+`-fixtures/`. Comparison-only machinery stays in `-compare/u/`. Probe entrypoints are invoked
+separately, never combined in a runtime barrel.
+
+- [Immutable](-spec/-immutable.test.ts): synchronous mutation, event timing, retained values, and
+  lenses.
+- [Automerge](-spec/-automerge.test.ts): causal identity, marks, heads, cursors, and callback
+  rollback.
+- [Yjs](-spec/-yjs.test.ts): shared types, projection boundaries, relative positions, and
+  transaction failure.
+- [Repo](-spec/-repo.test.ts): public existing-document import with concurrent native changes.
+- [Delivery](-spec/-delivery.test.ts): controlled pauses over a real Cmd/MessagePort transport.
+- [Isolation](-spec/-isolation.test.ts): code/type reachability and fresh-process native
+  initialization.
+- [Mutation paths](-compare/README.md): async owner versus caller-native replica over worker Cmd.
 
 ## Constraints
 
@@ -38,9 +47,9 @@ Automerge 3.5.0 retains historical values/heads, but `marks()` reads current sha
 metadata, including through `view()`. The control distinguishes captured marks from later native
 queries.
 
-Repo 2.5.6 leaves a sync-throttle timer pending after `shutdown()`. Its control awaits bounded
-natural child exit, not a fixed sleep. This does not prove in-process shutdown quiescence or native
-heap cleanup.
+Repo 2.5.6 leaves a sync-throttle timer pending after `shutdown()`. Its standalone control awaits
+bounded natural child exit, not a fixed sleep. This does not prove in-process shutdown quiescence or
+native heap cleanup.
 
 Isolation follows resolved code edges, literal dynamic imports, and conservative npm dependency
 closure. Type resolution is reported separately. Poisoned entries test rejection of forbidden

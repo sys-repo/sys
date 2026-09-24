@@ -1,6 +1,6 @@
-import { Json } from './common.ts';
+import { Json } from '../common.ts';
 
-const { yjsPair, projectYjs } = await import('./-fixtures/u.yjs.ts');
+const { yjsPair, projectYjs } = await import('../-fixtures/u.yjs.ts');
 using pair = yjsPair();
 console.info(Json.stringify({
   engine: 'yjs',

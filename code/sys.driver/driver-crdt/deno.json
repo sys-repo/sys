@@ -1,12 +1,12 @@
 {
   "tasks": {
-    "check": "deno check --frozen src/-test/*.ts src/-test/-fixtures/*.ts",
+    "check": "deno check --frozen src/*",
     "test": "deno test -P=test --frozen --trace-leaks",
     "fmt": "deno fmt --check",
     "lint": "deno lint",
-    "probe:automerge": "deno run -P=probe --frozen ./src/-test/u.probe.automerge.ts",
-    "probe:yjs": "deno run -P=probe --frozen ./src/-test/u.probe.yjs.ts",
-    "probe:repo": "deno run -P=probe --frozen ./src/-test/u.probe.repo.ts"
+    "probe:automerge": "deno run -P=probe --frozen ./src/-test/u/u.probe.automerge.ts",
+    "probe:yjs": "deno run -P=probe --frozen ./src/-test/u/u.probe.yjs.ts",
+    "probe:repo": "deno run -P=probe --frozen ./src/-test/u/u.probe.repo.ts"
   },
   "permissions": {
     "test": { "read": true, "env": true, "run": ["deno"] },

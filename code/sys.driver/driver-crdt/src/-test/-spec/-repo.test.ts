@@ -1,6 +1,6 @@
 import { Fs } from '@sys/fs';
 import { Process } from '@sys/process';
-import { describe, Err, expect, it, Json, type t } from './-test.ts';
+import { describe, Err, expect, it, Json, type t } from '../-test.ts';
 
 type Report = {
   readonly engine: string;
@@ -17,7 +17,7 @@ describe('Repo control | supported import is a seam, not an admission protocol',
     // do not claim immediate shutdown quiescence, disable sanitizers, or add a fixed sleep.
     const output = await Process.capture({
       cmd: 'deno',
-      cwd: Fs.resolve(import.meta.dirname ?? '.', '../..'),
+      cwd: Fs.resolve(import.meta.dirname ?? '.', '../../..'),
       args: ['task', 'probe:repo'],
       executionTimeout: 20_000,
       maxStdoutBytes: 16_000,

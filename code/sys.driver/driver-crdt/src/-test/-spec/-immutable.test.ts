@@ -1,7 +1,7 @@
 import { Immutable } from '@sys/immutable/rfc6902';
 import { Lens } from '@sys/immutable/core';
-import { describe, expect, expectTypeOf, it, type t } from './-test.ts';
-import { initialNote } from './-fixtures/u.note.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../-test.ts';
+import { initialNote } from '../-fixtures/u.note.ts';
 
 describe('Immutable control | caller timing and retained values', () => {
   it('change → caller capture, patches and current are available before return', () => {

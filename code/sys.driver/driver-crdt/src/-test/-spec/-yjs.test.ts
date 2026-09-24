@@ -7,9 +7,9 @@ import {
   equalSnapshots,
   snapshot,
 } from 'yjs';
-import { describe, expect, it } from './-test.ts';
-import { initialNote } from './-fixtures/u.note.ts';
-import { projectYjs, yjsPair } from './-fixtures/u.yjs.ts';
+import { describe, expect, it } from '../-test.ts';
+import { initialNote } from '../-fixtures/u.note.ts';
+import { projectYjs, yjsPair } from '../-fixtures/u.yjs.ts';
 
 describe('Yjs control | shared types, projections and transaction limits', () => {
   it('native update seed → shared insertion history, independent writer identities', () => {

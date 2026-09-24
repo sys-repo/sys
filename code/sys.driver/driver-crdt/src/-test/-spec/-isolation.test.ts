@@ -1,7 +1,7 @@
 import { Fs } from '@sys/fs';
 import { Process } from '@sys/process';
-import { describe, Err, expect, Is, it, Json } from './-test.ts';
-import { initialNote } from './-fixtures/u.note.ts';
+import { describe, Err, expect, Is, it, Json } from '../-test.ts';
+import { initialNote } from '../-fixtures/u.note.ts';
 
 // Deliberately local to this executable spec: only the consumed Deno info v1 fields.
 // EsmAssert's lexical local-file scan cannot resolve bare imports or separate code/type edges;
@@ -33,7 +33,7 @@ type Probe = {
   readonly wasmAfterFirstUse?: boolean;
 };
 
-const cwd = Fs.resolve(import.meta.dirname ?? '.', '../..');
+const cwd = Fs.resolve(import.meta.dirname ?? '.', '../../..');
 const fixture = (name: string) => `./src/-test/-fixtures/${name}.ts`;
 
 describe('Isolation evidence | resolved reachability is not native initialization', () => {
@@ -46,21 +46,51 @@ describe('Isolation evidence | resolved reachability is not native initializatio
     },
     {
       name: 'Automerge',
-      entry: './src/-test/u.probe.automerge.ts',
+      entry: './src/-test/u/u.probe.automerge.ts',
       owned: '@automerge/automerge@3.5.0',
       forbidden: ['yjs@'],
     },
     {
       name: 'Yjs',
-      entry: './src/-test/u.probe.yjs.ts',
+      entry: './src/-test/u/u.probe.yjs.ts',
       owned: 'yjs@13.6.33',
       forbidden: ['@automerge/'],
     },
     {
       name: 'Automerge/Repo control',
-      entry: './src/-test/u.probe.repo.ts',
+      entry: './src/-test/u/u.probe.repo.ts',
       owned: '@automerge/automerge-repo@2.5.6',
       forbidden: ['yjs@'],
+    },
+    {
+      name: 'comparison client',
+      entry: './src/-test/-compare/u/u.client.ts',
+      owned: '',
+      forbidden: ['@automerge/', 'yjs@'],
+    },
+    {
+      name: 'Automerge caller replica',
+      entry: './src/-test/-compare/u/u.automerge.ts',
+      owned: '@automerge/automerge@3.5.0',
+      forbidden: ['yjs@', '@automerge/automerge-repo@'],
+    },
+    {
+      name: 'Yjs caller replica',
+      entry: './src/-test/-compare/u/u.yjs.ts',
+      owned: 'yjs@13.6.33',
+      forbidden: ['@automerge/'],
+    },
+    {
+      name: 'Automerge worker owner',
+      entry: './src/-test/-compare/u/u.worker.automerge.ts',
+      owned: '@automerge/automerge-repo@2.5.6',
+      forbidden: ['yjs@'],
+    },
+    {
+      name: 'Yjs worker owner',
+      entry: './src/-test/-compare/u/u.worker.yjs.ts',
+      owned: 'yjs@13.6.33',
+      forbidden: ['@automerge/'],
     },
   ];
   for (const specimen of specimens) {
