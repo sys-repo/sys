@@ -1,8 +1,8 @@
 import { describe, expect, it, type t } from '../../-test.ts';
 import { Schedule } from '../../m.Async.Schedule/mod.ts';
 import { runWorkerFixture } from '../../m.Async.Schedule/-test/u.fixture.worker.ts';
-import { Is } from '../common.ts';
 import { Time } from '../mod.ts';
+import { abortProbe } from './u.fixture.abort.ts';
 
 type Queue = 'micro' | 'macro';
 
@@ -163,54 +163,4 @@ function start(queue: Queue, callback: t.Time.Delay.Callback, signal?: AbortSign
   return queue === 'micro'
     ? Time.Delay.create(callback, { signal })
     : Time.delay(0, callback, { signal });
-}
-
-/** Observe real listener attachment, removal, and delivery on one native signal. */
-function abortProbe() {
-  const ctrl = new AbortController();
-  const signal = ctrl.signal;
-  const add = signal.addEventListener.bind(signal);
-  const remove = signal.removeEventListener.bind(signal);
-  const listeners = new Map<EventListenerOrEventListenerObject, EventListener>();
-  let added = 0;
-  let removed = 0;
-  let calls = 0;
-  Object.defineProperties(signal, {
-    addEventListener: {
-      value: (...[type, listener, options]: Parameters<AbortSignal['addEventListener']>) => {
-        if (type !== 'abort' || !listener) return add(type, listener, options);
-        added += 1;
-        const observed: EventListener = (event) => {
-          calls += 1;
-          if (Is.func(listener)) Reflect.apply(listener, signal, [event]);
-          else listener.handleEvent(event);
-        };
-        listeners.set(listener, observed);
-        add(type, observed, options);
-      },
-    },
-    removeEventListener: {
-      value: (...[type, listener, options]: Parameters<AbortSignal['removeEventListener']>) => {
-        if (type !== 'abort' || !listener) return remove(type, listener, options);
-        const observed = listeners.get(listener);
-        if (observed) {
-          removed += 1;
-          listeners.delete(listener);
-          remove(type, observed, options);
-        }
-      },
-    },
-  });
-  return {
-    ctrl,
-    get added() {
-      return added;
-    },
-    get removed() {
-      return removed;
-    },
-    get calls() {
-      return calls;
-    },
-  };
 }

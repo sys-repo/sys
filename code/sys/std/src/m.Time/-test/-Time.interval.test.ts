@@ -13,10 +13,10 @@ describe('Time.interval', () => {
 
     expect(typeof res.cancel).to.eql('function');
     expect(res.interval).to.eql(10);
-    expect(res.is).to.eql({ cancelled: false, done: false, running: true });
+    expect(res.is).to.eql({ cancelled: false, failed: false, done: false, running: true });
 
     res.cancel();
-    expect(res.is).to.eql({ cancelled: true, done: true, running: false });
+    expect(res.is).to.eql({ cancelled: true, failed: false, done: true, running: false });
   });
 
   it('fires repeatedly until cancelled', async () => {
@@ -63,7 +63,7 @@ describe('Time.interval', () => {
     await waitFor(() => tick.is.cancelled === true);
 
     expect(count).to.eql(0);
-    expect(tick.is).to.eql({ cancelled: true, done: true, running: false });
+    expect(tick.is).to.eql({ cancelled: true, failed: false, done: true, running: false });
   });
 
   it('supports the overload with options before the callback', async () => {

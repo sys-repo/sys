@@ -7,7 +7,12 @@ type IntervalInput =
   | AbortController
   | t.Time.Interval.Options;
 
-/** Run a recurring timer after normalizing its duration into 0..`Time.Delay.MAX`. */
+type State = 'active' | 'cancelled' | 'failed';
+type Then = (resolve: (value: unknown) => void, reject: (reason: unknown) => void) => unknown;
+
+/**
+ * Run a synchronous callback on a fixed interval, stopping before reporting its first failure.
+ */
 export function interval(
   msecs: t.Msecs,
   fnOrOptions: IntervalInput,
@@ -16,63 +21,115 @@ export function interval(
   const every = wrangle.normalizeMsecs(msecs);
   const { fn, signal, immediate } = wrangle.input(fnOrOptions, optionsOrFn);
 
-  const is: t.DeepMutable<t.Time.Interval.Handle['is']> = {
-    cancelled: false,
-    done: false,
-    running: false,
+  let state: State = 'active';
+  let timer: ReturnType<typeof setInterval> | undefined;
+  let abortCleanup: (() => void) | undefined;
+  const active = () => state === 'active';
+  const is: t.Time.Interval.Handle['is'] = {
+    get cancelled() {
+      return state === 'cancelled';
+    },
+    get failed() {
+      return state === 'failed';
+    },
+    get done() {
+      return !active();
+    },
+    get running() {
+      return active();
+    },
   };
 
-  let timer: number | undefined;
-  let stopped = false;
-  let abortCleanup: (() => void) | undefined;
-
-  const stop = () => {
-    if (stopped) return;
-    stopped = true;
-    is.cancelled = true;
-    is.done = true;
-    is.running = false;
-    if (timer !== undefined) clearInterval(timer);
+  const cleanup = () => {
+    const scheduled = timer;
+    const detach = abortCleanup;
+    timer = undefined;
+    abortCleanup = undefined;
+    // Attempt both releases without replacing the callback's failure with a teardown failure.
     try {
-      abortCleanup?.();
-    } catch {
-      /* no-op */
+      if (scheduled !== undefined) clearInterval(scheduled);
+    } catch { /* Best-effort timer teardown. */ }
+    try {
+      detach?.();
+    } catch { /* Best-effort listener teardown. */ }
+  };
+
+  const stop = (next: 'cancelled' | 'failed') => {
+    if (state === 'failed' || state === next) return;
+    // An admitted callback's failure still wins if it cancelled or aborted its own interval.
+    state = next;
+    cleanup();
+  };
+  const cancel = () => stop('cancelled');
+
+  const tick = () => {
+    if (!active()) return;
+    try {
+      const result: unknown = fn();
+      if (Is.object(result) || Is.func(result)) {
+        const then: unknown = Reflect.get(result, 'then');
+        if (Is.func(then)) {
+          stop('failed');
+          // Read `then` once and preserve its receiver while consuming unsupported async work.
+          consumeThenable((resolve, reject) => Reflect.apply(then, result, [resolve, reject]));
+          throw new TypeError(
+            'Time.interval callbacks must be synchronous; thenables are unsupported',
+          );
+        }
+      }
+    } catch (error) {
+      stop('failed');
+      throw error;
     }
   };
 
-  if (signal?.aborted) {
-    stop();
-    return {
-      cancel: stop,
-      interval: every,
-      is,
-    };
+  try {
+    if (signal?.aborted) {
+      cancel();
+    } else {
+      if (signal) {
+        try {
+          signal.addEventListener('abort', cancel, { once: true });
+        } finally {
+          // Registration may notify before acquiring its listener, or throw after acquiring it.
+          abortCleanup = () => signal.removeEventListener('abort', cancel);
+          if (!active()) cleanup();
+        }
+        if (signal.aborted) cancel();
+      }
+      if (active() && immediate) tick();
+      if (active()) {
+        timer = setInterval(tick, every);
+        // Registration may cancel before its timer handle has been assigned.
+        if (!active()) cleanup();
+      }
+    }
+  } catch (error) {
+    stop('failed');
+    throw error;
   }
 
-  const tick = () => {
-    if (stopped) return;
-    fn();
+  return { cancel, interval: every, is };
+}
+
+/**
+ * Helpers:
+ */
+
+/** Observe resolver-driven settlement and any work returned by the invoked method. */
+function consumeThenable(then: Then): void {
+  const observe: Then = (resolve, reject) => {
+    void consumeResult(then(resolve, reject));
   };
+  void consumeResult({ then: observe });
+}
 
-  if (signal) {
-    const onAbort = () => stop();
-    signal.addEventListener('abort', onAbort, { once: true });
-    abortCleanup = () => signal.removeEventListener('abort', onAbort);
-    if (signal.aborted) stop();
+async function consumeResult(result: unknown): Promise<void> {
+  try {
+    await result;
+  } catch {
+    // The synchronous contract TypeError is the sole report for unsupported async work.
   }
-
-  if (!stopped && immediate) tick();
-
-  if (!stopped) {
-    timer = setInterval(tick, every) as unknown as number;
-    is.running = true;
-  }
-
-  return {
-    cancel: stop,
-    interval: every,
-    is,
-  };
 }
 
 const wrangle = {

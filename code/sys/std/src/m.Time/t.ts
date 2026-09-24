@@ -47,7 +47,7 @@ export declare namespace Time {
     delay: Delay.Fn;
 
     /**
-     * Run a function repeatedly on a fixed interval until cancelled.
+     * Run a synchronous callback on a fixed interval until cancellation or failure.
      *
      * Notes:
      *  • `interval(msecs, fn, options?)` → repeating timer; cancellable via `.cancel()`.
@@ -135,9 +135,20 @@ export declare namespace Time {
     export type Handle = TDelay.Handle;
   }
 
-  /** Interval timer types. */
+  /**
+   * Interval timer types.
+   */
   export namespace Interval {
-    /** Overloaded interval. */
+    /**
+     * Run a synchronous callback repeatedly until cancelled or failed.
+     * A callback throw stops the interval and releases its timer and abort listener before the
+     * original value is rethrown: to the host for scheduled ticks, or synchronously from this call
+     * for an immediate tick. A throwing immediate tick returns no handle.
+     *
+     * Returning a thenable is unsupported: stop and report one TypeError through the same channel.
+     * Its settlement and any Promise returned by its `then` method are consumed to prevent additional
+     * rejection reports, not to schedule more ticks.
+     */
     export type Fn =
       & ((
         msecs: t.Msecs,
@@ -158,7 +169,10 @@ export declare namespace Time {
       readonly immediate?: boolean;
     };
 
-    /** One callback invoked on each interval tick. */
+    /**
+     * One synchronous callback per tick. Ordinary return values are ignored; thenables are unsupported.
+     * Cancelling or aborting inside the callback does not suppress a subsequent callback failure.
+     */
     export type Callback = () => void;
 
     /** Handle for one running interval. */
@@ -167,9 +181,11 @@ export declare namespace Time {
       readonly interval: t.Msecs;
       /** Boolean status flags. */
       readonly is: {
-        /** True if the interval has been cancelled. */
+        /** True after cancellation or abort, unless an admitted callback subsequently fails. */
         readonly cancelled: boolean;
-        /** True if the interval is no longer running. */
+        /** True after callback failure or an unsupported thenable return; cancellation cannot clear it. */
+        readonly failed: boolean;
+        /** True after cancellation or failure. */
         readonly done: boolean;
         /** True while the interval is still active. */
         readonly running: boolean;
