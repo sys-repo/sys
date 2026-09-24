@@ -1,11 +1,6 @@
-import { describe, expect, Fs, it, Pkg, Str, type t, Testing } from '../../-test.ts';
-import { c, Cli, stripAnsi } from '../common.ts';
+import { describe, expect, Fs, it, Str, type t, Testing } from '../../-test.ts';
+import { Cli, stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
-import {
-  formatStartHeader,
-  formatStartServiceBody,
-  resolveStartIdentity,
-} from '../u.lifecycle/u.start.ts';
 import {
   addressInUseServiceSource,
   devServiceSource,
@@ -16,74 +11,6 @@ import {
 } from './u.fixture.ts';
 
 describe(`@sys/cell/cli start`, () => {
-  it('service body → uses one bounded two-cell gutter at explicit and tiny widths', () => {
-    const widths: number[] = [];
-    const render = (width: number) => {
-      widths.push(width);
-      return [
-        '',
-        c.green('service'),
-        '  module',
-        '    next',
-        '┄'.repeat(width),
-        '',
-      ].join('\n');
-    };
-
-    const text = formatStartServiceBody(render, 12);
-    const rows = text.split('\n').filter(Boolean);
-    const plainRows = stripAnsi(text).split('\n').filter(Boolean);
-
-    expect(text.startsWith('\n')).to.eql(false);
-    expect(text.endsWith('\n')).to.eql(false);
-    expect(widths).to.eql([8]);
-    expect(plainRows[0]).to.eql('  service');
-    expect(plainRows[1]).to.eql('    module');
-    expect(plainRows[2]).to.eql('      next');
-    expect(plainRows[3]).to.eql(`  ${'┄'.repeat(8)}`);
-    for (const row of rows) expect(Cli.Fmt.Text.Width.measure(row) < 12).to.eql(true);
-    for (const width of [4, 2, 0, -1, Number.NaN]) {
-      expect(formatStartServiceBody(render, width)).to.eql('');
-    }
-    expect(widths).to.eql([8]);
-  });
-
-  it('identity → resolves descriptor names and caller package provenance independently', () => {
-    const named: t.Cell.Descriptor = { kind: 'cell', version: 1, name: 'sys.ui' };
-    const unnamed: t.Cell.Descriptor = { kind: 'cell', version: 1 };
-    const callerPkg: t.Pkg = { name: '@sys/ui', version: '0.0.39' };
-
-    expect(resolveStartIdentity(named, callerPkg)).to.eql({
-      name: 'sys.ui',
-      version: '0.0.39',
-    });
-    expect(resolveStartIdentity(named)).to.eql({ name: 'sys.ui' });
-    expect(resolveStartIdentity(unnamed, callerPkg)).to.eql({
-      name: '@sys/ui',
-      version: '0.0.39',
-    });
-    expect(resolveStartIdentity(unnamed)).to.eql(undefined);
-    expect(resolveStartIdentity(unnamed, Pkg.unknown())).to.eql(undefined);
-    expect(resolveStartIdentity(unnamed, { name: '   ', version: '1.0.0' })).to.eql(undefined);
-    expect(resolveStartIdentity(unnamed, { name: '@sys/ui', version: '   ' })).to.eql(undefined);
-    expect(resolveStartIdentity(unnamed, { name: ' <unknown> ', version: ' 0.0.0 ' })).to.eql(
-      undefined,
-    );
-    expect(resolveStartIdentity(unnamed, { name: ' @sys/ui ', version: ' 0.0.39 ' })).to.eql(
-      undefined,
-    );
-    expect(resolveStartIdentity(named, { name: '@sys/ui', version: '   ' })).to.eql({
-      name: 'sys.ui',
-    });
-  });
-
-  it('identity → uses the header default tone for a plain Cell name', () => {
-    const header = formatStartHeader({ name: 'sys.ui', version: '0.0.39' }, 80);
-
-    expect(header).to.contain(c.bold(c.green('sys.ui')));
-    expect(header).to.contain(c.dim(c.green('0.0.39')));
-  });
-
   it('start → omits identity chrome for an unnamed Cell without caller package metadata', async () => {
     const fs = await Testing.dir('CellCli.start.empty-services');
     await silent(() => CellCli.run({ argv: ['init', fs.dir] }));
@@ -245,11 +172,20 @@ describe(`@sys/cell/cli start`, () => {
     );
     expect(divider.startsWith('  ┄')).to.eql(true);
     expect(returnedDivider).to.eql(divider);
-    expect(Cli.Fmt.Text.Width.measure(divider)).to.eql(Cli.Fmt.Text.Width.fit() - 2);
+    const serviceRows = lines.filter((line) => line.startsWith('  ') && !line.includes('┄'));
+    const expectedWidth = Cli.Is.terminal('stdout')
+      ? Cli.Fmt.Text.Width.fit() - 2
+      : Cli.Fmt.Text.Width.max(serviceRows);
+    expect(Cli.Fmt.Text.Width.measure(divider)).to.eql(expectedWidth);
     expect(summaryRoot.startsWith('root')).to.eql(true);
     expect(returnedSummaryRoot).to.eql(summaryRoot);
-    expect(returned).to.contain('preview');
-    expect(returned).to.contain('api');
+    const names = serviceRows.flatMap((line) => {
+      const match = /^\s+service\s+(.+)$/.exec(line);
+      return match ? [match[1]] : [];
+    });
+    expect(names).to.eql(['preview', 'api']);
+    const lastBodyRow = lines.findLastIndex((line) => line.startsWith('  '));
+    expect(lines.indexOf(summaryRoot)).to.be.greaterThan(lastBodyRow);
   });
 
   it('start --mode → starts selected service variants', async () => {

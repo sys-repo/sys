@@ -1,7 +1,7 @@
-import { describe, expect, Fs, it, Time } from '../../-test.ts';
-import type { StartedServiceStatus } from '../../m.cell/u.services/u.status.ts';
+import { describe, expect, Fs, it, Str } from '../../-test.ts';
 import { c, Cli, stripAnsi, type t } from '../common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
+import { serviceInput } from './u.fixture.services.ts';
 
 const OSC_8 = '\x1b]8;;';
 const STRING_TERMINATOR = '\x1b\\';
@@ -9,51 +9,61 @@ const STRING_TERMINATOR = '\x1b\\';
 describe(`@sys/cell/cli service status formatter`, () => {
   describe('service hierarchy', () => {
     it('renders service identity, mode, and nested facts as one hierarchy', () => {
-      const cwd = Fs.cwd();
-      const root = Fs.join(cwd, 'view') as t.StringDir;
-      const rendered = Fmt.Services.started({
-        services: [serviceStatus({
-          from: 'jsr:@sys/driver-vite/service',
-          variant: 'dev' as t.Cell.Id,
-          owner: { state: 'ready', root },
-        })],
+      const root = Fs.join(Fs.cwd(), 'view');
+      const input = serviceInput({
+        from: 'jsr:@sys/driver-vite/service',
+        variant: 'dev',
+        owner: { state: 'ready', root },
       });
-      const text = stripAnsi(rendered);
-      const lines = text.split('\n');
-      const serviceLine = lines.find((line) => line.trimStart().startsWith('service')) ?? '';
-      const moduleLine = lines.find((line) => line.trimStart().startsWith('module')) ?? '';
-      const rootLine = lines.find((line) => line.trimStart().startsWith('root')) ?? '';
+      const rendered = Fmt.Services.started({ services: [input], terminal: false });
 
+      expect(stripAnsi(rendered)).to.eql(Str.dedent(`
+        service   view --mode=dev
+         module   jsr:@sys/driver-vite/service
+         root     ./view
+      `));
       expect(rendered).to.contain(c.green('service'));
       expect(rendered).to.contain(c.white('view'));
-      expect(text).to.contain('service');
-      expect(text).to.contain('view --mode=dev');
-      expect(text).to.contain('jsr:@sys/driver-vite/service');
-      expect(indentOf(moduleLine)).to.eql(indentOf(serviceLine) + 1);
-      expect(indentOf(rootLine)).to.eql(indentOf(serviceLine) + 1);
-      expect(text).to.contain('./view');
     });
   });
 
   describe('responsive fitting', () => {
+    it('aligns wide and multiline labels across the whole service list', () => {
+      const services = [
+        serviceInput({
+          owner: { state: 'ready', details: [{ label: '界'.repeat(8), value: 'FIRST' }] },
+        }),
+        serviceInput({
+          owner: { state: 'ready', details: [{ label: 'é\n🧪', value: 'SECOND\nTHIRD' }] },
+        }),
+      ];
+      for (const width of [undefined, 48]) {
+        const rendered = Fmt.Services.started({ services, width, terminal: false });
+        const lines = stripAnsi(rendered).split('\n');
+        const columns = ['FIRST', 'SECOND', 'THIRD'].map((value) => {
+          const line = lines.find((line) => line.includes(value));
+          if (!line) throw new Error(`Expected rendered value: ${value}`);
+          return Cli.Fmt.Text.Width.measure(line.slice(0, line.indexOf(value)));
+        });
+        expect(columns).to.eql([20, 20, 20]);
+      }
+    });
+
     it('underlines full and clipped root paths without underlining service URLs', () => {
-      const root = Fs.join(Fs.cwd(), '-sample/files') as t.StringDir;
+      const root = Fs.join(Fs.cwd(), '-sample/files');
+      const input = serviceInput({
+        owner: {
+          state: 'ready',
+          root,
+          urls: [
+            { href: 'ws://localhost:5050/files' },
+            { href: 'http://localhost:5050/files/manifest' },
+          ],
+        },
+      });
       for (const width of [24, 100]) {
         for (const hyperlinks of [false, true]) {
-          const rendered = Fmt.Services.started({
-            width,
-            hyperlinks,
-            services: [serviceStatus({
-              owner: {
-                state: 'ready',
-                root,
-                urls: [
-                  { href: 'ws://localhost:5050/files' },
-                  { href: 'http://localhost:5050/files/manifest' },
-                ],
-              },
-            })],
-          });
+          const rendered = Fmt.Services.started({ services: [input], width, hyperlinks });
           const path = Cli.Fmt.Path.tty('./-sample/files', {
             reserve: 10,
             terminal: true,
@@ -68,23 +78,21 @@ describe(`@sys/cell/cli service status formatter`, () => {
           expect(rootLine).to.contain(c.underline(path));
           expect(stripAnsi(rootLine).trim()).to.eql(`root     ${stripAnsi(path)}`);
           expect(Cli.Fmt.Text.Width.measure(rootLine) <= width).to.eql(true);
-          for (const line of urlLines(rendered)) {
-            expect(line).not.to.contain('\x1b[4m');
-          }
+          const urls = urlLines(rendered);
+          expect(urls).to.have.length(2);
+          for (const line of urls) expect(line).not.to.contain('\x1b[4m');
         }
       }
     });
 
     it('ellipsizes root paths against terminal width', () => {
-      const text = stripAnsi(Fmt.Services.started({
-        width: 48,
-        services: [serviceStatus({
-          owner: {
-            state: 'ready',
-            root: '/sample/workspace/with/a/very/long/path/to/ui-components/dist',
-          },
-        })],
-      }));
+      const input = serviceInput({
+        owner: {
+          state: 'ready',
+          root: '/sample/workspace/with/a/very/long/path/to/ui-components/dist',
+        },
+      });
+      const text = stripAnsi(Fmt.Services.started({ services: [input], width: 48 }));
       const rootLine = text.split('\n').find((line) => line.trimStart().startsWith('root')) ?? '';
 
       expect(rootLine.includes('…')).to.eql(true);
@@ -94,20 +102,18 @@ describe(`@sys/cell/cli service status formatter`, () => {
     });
 
     it('collapses long service-board values instead of terminal-wrapping', () => {
-      const rendered = Fmt.Services.started({
-        width: 42,
-        services: [serviceStatus({
-          name: 'very-long-static-view-service-name' as t.Cell.Id,
-          from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
-          owner: {
-            state: 'ready',
-            root: '/sample/workspace/cell.stripe/view',
-            urls: [{
-              href: 'http://127.0.0.1:8080/payments/customer/session/that/should/not/wrap',
-            }],
-          },
-        })],
+      const input = serviceInput({
+        name: 'very-long-static-view-service-name',
+        from: 'jsr:@sys/http/server/static/surfaces/that/should/not/wrap',
+        owner: {
+          state: 'ready',
+          root: '/sample/workspace/cell.stripe/view',
+          urls: [{
+            href: 'http://127.0.0.1:8080/payments/customer/session/that/should/not/wrap',
+          }],
+        },
       });
+      const rendered = Fmt.Services.started({ services: [input], width: 42 });
       const text = stripAnsi(rendered);
       const lines = text.split('\n').filter(Boolean);
 
@@ -123,7 +129,7 @@ describe(`@sys/cell/cli service status formatter`, () => {
 
   describe('URL presentation', () => {
     it('preserves complete targets behind full and clipped linked labels', () => {
-      const href = 'http://127.0.0.1:8080/services/manifest?mode=dev#top' as t.StringUrl;
+      const href = 'http://127.0.0.1:8080/services/manifest?mode=dev#top';
       const services = [serviceWithUrls([{ href }])];
       const plain = Fmt.Services.started({ width: 42, services });
       const linked = Fmt.Services.started({ width: 42, hyperlinks: true, services });
@@ -148,31 +154,13 @@ describe(`@sys/cell/cli service status formatter`, () => {
       );
     });
 
-    it('preserves origin and path styling through clipped linked labels', () => {
-      const href = 'http://127.0.0.1:8080/files/manifest' as t.StringUrl;
-      const rendered = Fmt.Services.started({
-        width: 42,
-        hyperlinks: true,
-        services: [serviceWithUrls([{ href }])],
-      });
-      const line = urlLine(rendered);
-      const target = `${OSC_8}${new URL(href).href}${STRING_TERMINATOR}`;
-
-      expect(stripAnsi(line)).to.contain('http://localhost…/files/manifest');
-      expect(line).to.contain(c.cyan('http://localhost'));
-      expect(line).to.contain(Cli.Fmt.omission('…'));
-      expect(line).to.contain(c.gray('/files/manifest'));
-      expect(line).to.not.contain(c.cyan('/files/manifest'));
-      expect(line).to.contain(target);
-    });
-
     it('keeps repeated origins gray through clipped linked labels', () => {
-      const href = 'http://127.0.0.1:8080/files/manifest' as t.StringUrl;
+      const href = 'http://127.0.0.1:8080/files/manifest';
       const rendered = Fmt.Services.started({
         width: 42,
         hyperlinks: true,
         services: [serviceWithUrls([
-          { href: 'http://127.0.0.1:8080/files' as t.StringUrl },
+          { href: 'http://127.0.0.1:8080/files' },
           { href },
         ])],
       });
@@ -184,101 +172,46 @@ describe(`@sys/cell/cli service status formatter`, () => {
       expect(line).to.not.contain(c.cyan('http://localhost'));
     });
 
-    it('preserves clipped port and suffix style boundaries', () => {
-      const cases = [
-        {
-          href: 'http://127.0.0.1:8080/x' as t.StringUrl,
-          text: 'http://…8080/x',
-          suffix: c.gray('/x'),
-        },
-        {
-          href: 'http://very-long-service-hostname.example:8080/' as t.StringUrl,
-          text: 'http://…:8080/',
-          suffix: c.cyan('/'),
-        },
-      ] as const;
-
-      for (const item of cases) {
-        const rendered = Fmt.Services.started({
-          width: 24,
-          hyperlinks: true,
-          services: [serviceWithUrls([{ href: item.href }])],
-        });
-        const line = urlLine(rendered);
-
-        expect(stripAnsi(line)).to.contain(item.text);
-        expect(line).to.contain(c.bold(c.cyan('8080')));
-        expect(line).to.contain(item.suffix);
-        expect(line).to.contain(`${OSC_8}${new URL(item.href).href}${STRING_TERMINATOR}`);
-      }
-    });
-
     it('leaves omission-only URL labels unlinked', () => {
+      const width = 4; // Shared half-column allocation leaves one value cell.
       const rendered = Fmt.Services.started({
-        width: 8,
+        width,
         hyperlinks: true,
         services: [serviceWithUrls([{ href: 'http://127.0.0.1:8080/payments/' }])],
       });
       const text = stripAnsi(rendered);
 
+      const rows = text.split('\n');
+      expect(rows).to.have.length(3); // Service, module, and URL all remain visible.
+      expect(rows[2]).to.eql('   …'); // The URL value retains its three-cell column inset.
       expect(rendered).not.to.contain(OSC_8);
-      for (const line of text.split('\n').filter(Boolean)) expect(line.length <= 8).to.eql(true);
+      for (const line of rows) expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width);
     });
   });
 
-  describe('URL admission', () => {
-    it('links credential-free HTTP(S) and WS(S) targets', () => {
-      for (const protocol of ['http', 'https', 'ws', 'wss']) {
-        const href = `${protocol}://127.0.0.1:8080/path?a=b#top` as t.StringUrl;
-        const rendered = Fmt.Services.started({
-          width: 100,
-          hyperlinks: true,
-          services: [serviceWithUrls([{ href }])],
-        });
+  describe('URL policy', () => {
+    it('preserves shared URL validation with automatic links both off and on', () => {
+      // The full scheme/control-character matrix belongs to Cli.Fmt.Service's tests.
+      const href = 'http://127.0.0.1:8080/public';
+      const plain = 'ftp://example.test/archive';
+      const input = serviceWithUrls([
+        { href },
+        { href: 'http://user:secret@127.0.0.1:8080/private' },
+        { href: plain },
+      ]);
+      const target = `${OSC_8}${href}${STRING_TERMINATOR}`;
 
-        expect(rendered).to.contain(`${OSC_8}${new URL(href).href}${STRING_TERMINATOR}`);
-        expect(rendered).not.to.contain('\x1b[4m');
-      }
-    });
+      for (const hyperlinks of [false, true]) {
+        const rendered = Fmt.Services.started({ services: [input], terminal: false, hyperlinks });
+        const text = stripAnsi(rendered);
 
-    it('keeps safe unsupported schemes plain', () => {
-      const href = 'ftp://example.com/archive' as t.StringUrl;
-      const rendered = Fmt.Services.started({
-        width: 100,
-        hyperlinks: true,
-        services: [serviceWithUrls([{ href }])],
-      });
-
-      expect(rendered).not.to.contain(OSC_8);
-      expect(stripAnsi(rendered)).to.contain(href);
-    });
-
-    it('rejects malformed, local, credentialed, and control-bearing targets', () => {
-      const cases: readonly { href: t.StringUrl; hidden?: string }[] = [
-        { href: 'relative/path' as t.StringUrl },
-        { href: 'file:///tmp/secret' as t.StringUrl },
-        {
-          href: 'http://user:secret@127.0.0.1:8080/private' as t.StringUrl,
-          hidden: 'user:secret',
-        },
-        {
-          href: '\x1b]8;;https://evil.example/\x1b\\click-me' as t.StringUrl,
-          hidden: 'evil.example',
-        },
-        { href: 'http://example.com/\x7fhidden' as t.StringUrl },
-        { href: 'http://example.com/\x85hidden' as t.StringUrl },
-      ];
-
-      for (const item of cases) {
-        const rendered = Fmt.Services.started({
-          width: 100,
-          hyperlinks: true,
-          services: [serviceWithUrls([{ href: item.href }])],
-        });
-
-        expect(rendered).not.to.contain(OSC_8);
-        expect(stripAnsi(rendered)).to.contain('invalid URL');
-        if (item.hidden) expect(rendered).not.to.contain(item.hidden);
+        expect(text).to.contain('http://localhost:8080/public');
+        expect(text).to.contain('invalid URL');
+        expect(text).to.contain(plain);
+        expect(rendered).not.to.contain('user:secret');
+        expect(rendered).not.to.contain(`${OSC_8}${plain}`);
+        expect(rendered.includes(target)).to.eql(hyperlinks);
+        if (!hyperlinks) expect(rendered).not.to.contain(OSC_8);
       }
     });
   });
@@ -289,10 +222,11 @@ describe(`@sys/cell/cli service status formatter`, () => {
       const websocketHref = 'ws://127.0.0.1:5175/files';
       const manifestHref = 'http://127.0.0.1:5175/files/manifest';
       const rendered = Fmt.Services.started({
+        terminal: false,
         hyperlinks: true,
-        services: [serviceStatus({
+        services: [serviceInput({
           from: 'jsr:@sys/driver-vite/service',
-          variant: 'dev' as t.Cell.Id,
+          variant: 'dev',
           owner: {
             state: 'ready',
             root: cwd,
@@ -369,39 +303,6 @@ function urlLines(text: string): readonly string[] {
   return text.split('\n').filter((line) => stripAnsi(line).includes('://'));
 }
 
-type ServiceStatusOptions = {
-  readonly name?: t.Cell.Id;
-  readonly from?: string;
-  readonly variant?: t.Cell.Id;
-  readonly owner?: t.Service.Status;
-};
-
-function serviceStatus(options: ServiceStatusOptions = {}): StartedServiceStatus {
-  const now = Time.now.timestamp;
-  const name = options.name ?? ('view' as t.Cell.Id);
-  const variant = options.variant;
-  const service: StartedServiceStatus['service'] = {
-    name,
-    use: 'Serve',
-    from: options.from ?? 'jsr:@sys/tools/serve',
-    config: './-config/view.yaml' as t.Cell.Path,
-  };
-
-  return {
-    service,
-    selection: {
-      name,
-      mode: variant ?? 'default',
-      ...(variant ? { variant } : {}),
-      descriptor: service,
-      binding: service,
-    },
-    paths: { config: '/tmp/view.yaml' as t.StringPath },
-    metrics: { start: { startedAt: now, resolvedAt: now } },
-    ...(options.owner ? { owner: options.owner } : {}),
-  };
-}
-
-function serviceWithUrls(urls: readonly t.Service.Url[]): StartedServiceStatus {
-  return serviceStatus({ owner: { state: 'ready', urls } });
+function serviceWithUrls(urls: readonly t.Service.Url[]): t.Cli.Fmt.Service.Input {
+  return serviceInput({ owner: { state: 'ready', urls } });
 }

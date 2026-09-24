@@ -1,5 +1,4 @@
 import { Cell } from '../../m.cell/mod.ts';
-import { serviceStatusesOf } from '../../m.cell/u.services/u.status.ts';
 import { c, Cli, CliTable, Is, Num, Pkg, Str, type t, Time } from '../common.ts';
 import { smallCountText } from '../u.fmt/u.count.ts';
 import { elapsedSuffix } from '../u.fmt/u.elapsed.ts';
@@ -90,15 +89,14 @@ export async function startCell(
     started = await Cell.start(cell, { until: shutdown.signal, mode });
     await session.ready();
 
-    const services = serviceStatusesOf(started);
+    const services = Fmt.Services.capture(started.services);
+    const terminal = Cli.Is.terminal('stdout');
     const render = (options: StartCellRenderOptions = {}) => {
-      const renderServices = (width: number) =>
-        Fmt.Services.started({
-          services,
-          width,
-          hyperlinks: options.hyperlinks,
-        });
-      return formatStartServiceBody(renderServices, options.width);
+      const { hyperlinks } = options;
+      const renderServices = (width: number | undefined) => {
+        return Fmt.Services.started({ services, width, terminal: false, hyperlinks });
+      };
+      return formatStartServiceBody(renderServices, options.width, terminal);
     };
     serviceText = render();
     const completion = waitForStartOutcome(started, shutdown);
@@ -260,20 +258,23 @@ export function formatStartHeader(
 /**
  * Renders service content inside the Cell start frame's two-cell gutter.
  *
- * The renderer receives the inner width; visible rows retain two cells at each frame edge. The
- * returned body has no outer blank rows because reporters own spacing between sections.
+ * The renderer receives the inner width, or undefined for unbounded non-terminal output.
+ * Add no outer blank rows; preserve authored rows and leave section spacing to the reporter.
  */
 export function formatStartServiceBody(
-  render: (width: number) => string,
+  render: (width: number | undefined) => string,
   width?: number,
+  terminal = Cli.Is.terminal('stdout'),
 ): string {
-  const frameWidth = width !== undefined && (!Num.Is.finite(width) || width <= 0)
-    ? 0
-    : Cli.Fmt.Text.Width.fit({ width });
   const gutter = 2;
-  const innerWidth = Math.max(0, frameWidth - gutter * 2);
-  if (innerWidth === 0) return '';
-  const text = Str.trimEdgeNewlines(render(innerWidth));
+  let innerWidth: number | undefined;
+  if (width !== undefined || terminal) {
+    const frameWidth = width ?? Cli.Screen.size().width;
+    if (!Num.Is.finite(frameWidth)) return '';
+    innerWidth = Math.max(0, Math.floor(frameWidth) - gutter * 2);
+    if (innerWidth === 0) return '';
+  }
+  const text = render(innerWidth);
   if (!text) return '';
   const inset = ' '.repeat(gutter);
   return text.split('\n').map((row) => row ? `${inset}${row}` : row).join('\n');

@@ -270,6 +270,52 @@ describe('Cli.Fmt.Service', () => {
     expect(plain({ ...service, urlDisplay: { ipv4Loopback: 'exact' } })).to.contain(href);
   });
 
+  it('preserves origin and path styling through clipped linked labels', () => {
+    const href = 'http://127.0.0.1:8080/files/manifest';
+    const service: t.CliFormat.Service.Input = {
+      name: 'urls',
+      status: { state: 'ready', urls: [{ href }] },
+    };
+    const rendered = Fmt.Service.format(service, { width: 42, urlHyperlinks: true });
+    const line = rendered.split('\n').find((line) => stripAnsi(line).includes('http://')) ?? '';
+
+    expect(stripAnsi(line)).to.contain('http://localhost…/files/manifest');
+    expect(line).to.contain(c.cyan('http://localhost'));
+    expect(line).to.contain(Fmt.omission('…'));
+    expect(line).to.contain(c.gray('/files/manifest'));
+    expect(line).not.to.contain(c.cyan('/files/manifest'));
+    expect(line).to.contain(`\x1b]8;;${new URL(href).href}\x1b\\`);
+  });
+
+  it('preserves clipped port and suffix style boundaries', () => {
+    const cases = [
+      {
+        href: 'http://127.0.0.1:8080/x',
+        text: 'http://…8080/x',
+        suffix: c.gray('/x'),
+      },
+      {
+        href: 'http://very-long-service-hostname.example:8080/',
+        text: 'http://…:8080/',
+        suffix: c.cyan('/'),
+      },
+    ] as const;
+
+    for (const item of cases) {
+      const service: t.CliFormat.Service.Input = {
+        name: 'urls',
+        status: { state: 'ready', urls: [{ href: item.href }] },
+      };
+      const rendered = Fmt.Service.format(service, { width: 24, urlHyperlinks: true });
+      const line = rendered.split('\n').find((line) => stripAnsi(line).includes('http://')) ?? '';
+
+      expect(stripAnsi(line)).to.contain(item.text);
+      expect(line).to.contain(c.bold(c.cyan('8080')));
+      expect(line).to.contain(item.suffix);
+      expect(line).to.contain(`\x1b]8;;${new URL(item.href).href}\x1b\\`);
+    }
+  });
+
   it('resets origin emphasis per service and keeps HTTP and WS distinct', () => {
     const service: t.CliFormat.Service.Input = {
       name: 'urls',
