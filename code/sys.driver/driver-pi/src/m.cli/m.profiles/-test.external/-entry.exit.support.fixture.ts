@@ -1,17 +1,4 @@
-export declare namespace t {
-  export namespace PiCliProfiles {
-    export type Input = Readonly<{ argv?: readonly string[] }>;
-    export type Result = Readonly<{
-      kind: string;
-      outcome?: string;
-    }>;
-    export type Lib = Readonly<{
-      main(input?: Input): Promise<Result>;
-      run(): Promise<never>;
-      menu(): Promise<never>;
-    }>;
-  }
-}
+export type * as t from '../../../common/t.ts';
 
 export const Pi = Object.freeze({});
 export const pkg = Object.freeze({});

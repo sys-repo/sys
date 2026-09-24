@@ -1,6 +1,6 @@
 import { Process } from '@sys/process';
 import { describe, expect, it } from '../../../-test.ts';
-import { Path, Str } from '../common.ts';
+import { Is, Path, Str, type t } from '../common.ts';
 
 type Scenario = 'source-q' | 'source-ctrl-c' | 'repair-q' | 'ready-q' | 'unowned';
 type Boundary = Readonly<{ name: string; entry: string }>;
@@ -24,6 +24,14 @@ const BOUNDARIES: readonly Boundary[] = Object.freeze([
     entry: Path.join(PACKAGE_ROOT, '-scripts/task.cli.ts'),
   }),
 ]);
+const RUN_BOUNDARIES: readonly Boundary[] = [
+  ...BOUNDARIES,
+  {
+    name: '/cli/raw (also cli:raw task)',
+    entry: Path.fromFileUrl(new URL('../../m.raw/mod.ts', import.meta.url)),
+  },
+];
+const CHILD_FIXTURE = Path.fromFileUrl(new URL('./-entry.exit.child.fixture.ts', import.meta.url));
 const FAILURE_CASES = [
   { scenario: 'source-q', state: 'failed:source-unavailable' },
   { scenario: 'source-ctrl-c', state: 'failed:source-unavailable' },
@@ -88,18 +96,120 @@ describe('driver-pi start:gui process exit settlement', () => {
   }
 });
 
+describe('driver-pi child status at executable boundaries', () => {
+  it('preserves settled GUI quits and cancellation through profile aliases', async () => {
+    for (const boundary of BOUNDARIES) {
+      for (const scenario of ['gui-quit', 'gui-cancel']) {
+        const output = await runBoundary(boundary, scenario);
+        expect(output.outcome).to.eql('exited');
+        expect(output.code).to.eql(0);
+        expect(output.text.stdout).to.eql('');
+        expect(output.text.stderr).to.eql('');
+      }
+    }
+  });
+
+  for (const scenario of ['success', 'failure']) {
+    it(`preserves the process owner's ${scenario} code`, async () => {
+      const status = await Process.inherit({
+        cmd: Deno.execPath(),
+        args: ['run', '--quiet', '--no-config', CHILD_FIXTURE, scenario],
+      });
+      expect(status.code).to.eql(scenario === 'failure' ? 37 : 0);
+      expect(status.success).to.eql(scenario === 'success');
+      expect(status.signal).to.eql(null);
+      await assertRunBoundaries(status);
+    });
+  }
+
+  it('preserves a real signal-derived code without translating the signal', async () => {
+    // Capture owns termination and settlement. Its native status fields share the
+    // Deno status contract passed through unchanged by Process.inherit.
+    const child = await Process.capture({
+      cmd: Deno.execPath(),
+      args: ['run', '--quiet', '--no-config', CHILD_FIXTURE, 'wait'],
+      maxStdoutBytes: 1_024,
+      maxStderrBytes: 1_024,
+      executionTimeout: 1_000,
+    });
+    expect(child.outcome).to.eql('timed-out');
+    if (child.outcome !== 'timed-out') throw new Error('Expected settled child timeout.');
+    if (!Is.number(child.code)) throw new Error('Missing settled child code.');
+    expect(child.code).not.to.eql(0);
+    expect(child.signal).not.to.eql(null);
+    expect(child.text.stdout).to.contain('fixture child ready');
+    expect(child.text.stderr).to.eql('');
+    await assertRunBoundaries({ code: child.code, success: false, signal: child.signal });
+  });
+
+  it('keeps failed-to-start rejection distinct from a returned child status', async () => {
+    const error = await Process.inherit({
+      cmd: Deno.execPath(),
+      args: [],
+      cwd: Path.join(PACKAGE_ROOT, '-missing-exit-working-directory'),
+    }).then(() => undefined, (error: unknown) => error);
+    expect(error).to.be.instanceof(Deno.errors.NotFound);
+
+    for (const boundary of RUN_BOUNDARIES) {
+      const output = await runBoundary(boundary, 'spawn-failure');
+      expect(output.outcome).to.eql('exited');
+      expect(output.code).to.eql(1);
+      expect(output.text.stdout).to.eql('');
+      expect(output.text.stderr).to.contain('NotFound: fixture spawn failure');
+      expect(output.text.stderr).to.contain('Uncaught');
+    }
+  });
+
+  for (const boundary of RUN_BOUNDARIES) {
+    it(`${boundary.name} preserves help/quit and unexpected failures`, async () => {
+      for (const scenario of ['help', 'exit']) {
+        const output = await runBoundary(boundary, scenario);
+        expect(output.outcome).to.eql('exited');
+        expect(output.code).to.eql(0);
+        expect(output.text.stdout).to.eql('');
+        expect(output.text.stderr).to.eql('');
+      }
+      const output = await runBoundary(boundary, 'unexpected-rejection');
+      expect(output.outcome).to.eql('exited');
+      expect(output.code).to.eql(1);
+      expect(output.text.stderr).to.contain(UNOWNED_ERROR);
+    });
+  }
+});
+
+async function assertRunBoundaries(status: t.Process.InheritOutput) {
+  for (const boundary of RUN_BOUNDARIES) {
+    const output = await runBoundary(boundary, 'run', [JSON.stringify(status)]);
+    expect(output.outcome, boundary.name).to.eql('exited');
+    expect(output.text.stderr, `${boundary.name}: ${output.text.stderr}`).to.eql('');
+    expect(output.code, boundary.name).to.eql(status.code);
+    expect(output.signal, boundary.name).to.eql(null);
+    expect(Str.trimEdgeNewlines(output.text.stdout), boundary.name).to.eql(
+      `fixture run ${JSON.stringify(status)}`,
+    );
+    expect(output.stdoutTruncated).to.eql(false);
+    expect(output.stderrTruncated).to.eql(false);
+  }
+}
+
 function run(scenario: Scenario) {
   return capture(FIXTURE_PATH, scenario);
 }
 
 function runBoundary(
   boundary: Boundary,
-  scenario: 'presented-failure' | 'unexpected-rejection',
+  scenario: string,
+  argv: readonly string[] = [],
 ) {
-  return capture(boundary.entry, scenario, [`--import-map=${ENTRY_IMPORT_MAP}`]);
+  return capture(boundary.entry, scenario, [`--import-map=${ENTRY_IMPORT_MAP}`], argv);
 }
 
-function capture(entry: string, scenario: string, options: readonly string[] = []) {
+function capture(
+  entry: string,
+  scenario: string,
+  options: readonly string[] = [],
+  argv: readonly string[] = [],
+) {
   return Process.capture({
     cmd: Deno.execPath(),
     args: [
@@ -111,6 +221,7 @@ function capture(entry: string, scenario: string, options: readonly string[] = [
       ...options,
       entry,
       scenario,
+      ...argv,
     ],
     cwd: PACKAGE_ROOT,
     maxStdoutBytes: CAPTURE_LIMITS.bytes.stdout,

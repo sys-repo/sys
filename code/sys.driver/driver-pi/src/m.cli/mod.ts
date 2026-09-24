@@ -19,9 +19,10 @@ export { Profiles };
 export const main: t.PiCliProfiles.Lib['main'] = Profiles.main;
 
 /**
- * Map only one fully presented GUI failure to a deliberate process status.
+ * Preserve the process owner's child code and the presented GUI failure status.
  */
-export function exitCode(result: t.PiCliProfiles.Result): 0 | 1 {
+export function exitCode(result: t.PiCliProfiles.Result): number {
+  if (result.kind === 'run') return result.output.code;
   return result.kind === 'gui' && result.outcome === 'failed' ? 1 : 0;
 }
 

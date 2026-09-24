@@ -27,5 +27,6 @@ export const Raw: t.PiCli.Lib = { main, run };
  * CLI entry-point:
  */
 if (import.meta.main) {
-  await main({ argv: Deno.args });
+  const result = await main({ argv: Deno.args });
+  if (result.kind === 'run' && result.output.code !== 0) Deno.exitCode = result.output.code;
 }
