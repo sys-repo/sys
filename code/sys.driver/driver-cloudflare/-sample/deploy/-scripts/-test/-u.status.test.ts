@@ -1,12 +1,12 @@
 import { buildStatus } from '../u.status.ts';
-import { DIST_LIMITS } from '../../src/m.deployment/mod.ts';
-import { describe, expect, expectError, Fs, HashFmt, it, Pkg, stripAnsi, Text } from './common.ts';
+import { describe, expect, expectError, Fs, HashFmt, it, stripAnsi, Text } from './common.ts';
+import { shellFixture } from './u.fixture.status.ts';
 
 const PATH = 'dist.private/';
 
 describe('R2 deployment sample: local shell status', () => {
   it('verified projection → renderer-neutral shell digest, not the manifest checksum', async () => {
-    await using f = await fixture();
+    await using f = await shellFixture();
     expect(f.digest).not.to.eql(f.pin['dist.json']);
     const { detail } = await buildStatus(f.pin, f.dir.absolute);
     expect(detail).to.eql({
@@ -16,7 +16,7 @@ describe('R2 deployment sample: local shell status', () => {
   });
 
   it('caller mutates the pin after invocation → status retains the captured selection', async () => {
-    await using f = await fixture();
+    await using f = await shellFixture();
     const pin = { ...f.pin };
     const pending = buildStatus(pin, f.dir.absolute);
     pin['dist.json'] = `sha256-${'0'.repeat(64)}`;
@@ -26,7 +26,7 @@ describe('R2 deployment sample: local shell status', () => {
   });
 
   it('terminal presentation → correct file links within the supplied width', async () => {
-    await using f = await fixture();
+    await using f = await shellFixture();
     const { detail, formatDetail } = await buildStatus(f.pin, f.dir.absolute);
     if (!formatDetail) throw new Error('Verified status must provide terminal presentation.');
     const manifest = Fs.Path.toFileUrl(f.dir.join(PATH, 'dist.json'));
@@ -53,7 +53,7 @@ describe('R2 deployment sample: local shell status', () => {
   describe('unavailable local output', () => {
     for (const kind of ['missing', 'integrity-mismatch', 'content-mismatch']) {
       it(`${kind} → unavailable status rather than a digest`, async () => {
-        await using f = await fixture();
+        await using f = await shellFixture();
         const pin = kind === 'integrity-mismatch'
           ? { 'dist.json': `sha256-${'0'.repeat(64)}` }
           : f.pin;
@@ -68,7 +68,7 @@ describe('R2 deployment sample: local shell status', () => {
     }
 
     it('invalid pin → refusal even without local output', async () => {
-      await using f = await fixture();
+      await using f = await shellFixture();
       await Fs.remove(f.dir.join(PATH));
       await expectError(
         () => buildStatus({ ...f.pin, 'dist.json': 'invalid' }, f.dir.absolute),
@@ -77,30 +77,3 @@ describe('R2 deployment sample: local shell status', () => {
     });
   });
 });
-
-/** Only private output is needed for this presentation fixture. */
-async function fixture() {
-  const temp = await Fs.makeTempDir({ prefix: 'sample-r2-status-' });
-  try {
-    const dir = Fs.toDir(await Fs.realPath(temp.absolute));
-    await Fs.write(dir.join(PATH, 'index.html'), 'fixture', { throw: true });
-    await Pkg.Dist.compute({
-      dir: dir.join(PATH),
-      pkg: { name: '@test/r2', version: '0.0.0' },
-      save: true,
-    });
-    const verified = await Pkg.Dist.Local.verify({ dir: dir.join(PATH), limits: DIST_LIMITS });
-    if (verified.kind !== 'verified') throw new Error(`Fixture Dist refused: ${verified.kind}.`);
-    return {
-      dir,
-      pin: { 'dist.json': verified.evidence.integrity },
-      digest: verified.evidence.dist.hash.digest,
-      async [Symbol.asyncDispose]() {
-        await Fs.remove(dir.absolute);
-      },
-    };
-  } catch (error) {
-    await Fs.remove(temp.absolute);
-    throw error;
-  }
-}
