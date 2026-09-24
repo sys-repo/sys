@@ -19,10 +19,21 @@ export declare namespace Time {
     /** Tools for working with an elapsed duration of time. */
     readonly Duration: Duration.Lib;
 
-    /** Retrieve the current datetime. */
+    /** A fresh snapshot of the current time, with local-zone formatting. */
     readonly now: t.DateTime;
 
-    /** Generate a new UTC datetime instance. */
+    /**
+     * Create a date-time snapshot. Despite the name, formatting uses the local time zone,
+     * with 'yyyy-MM-dd' as the default template.
+     *
+     * Omitted input means now. Numbers are Unix milliseconds, not calendar dates.
+     * ISO strings use their stated offset, or local time when none is given.
+     * Native Date range and millisecond precision apply.
+     *
+     * Input and returned Dates are copies: changing either cannot change the snapshot.
+     * Invalid input does not throw during construction; its timestamp is NaN and
+     * format() throws RangeError('Time.utc: invalid date').
+     */
     utc(input?: t.DateTimeInput): t.DateTime;
 
     /** Create a new duration helper. */
@@ -31,7 +42,7 @@ export declare namespace Time {
     /** Time elapsed between two instants. */
     elapsed: Duration.Lib['elapsed'];
 
-    /** Generates a new timer. */
+    /** Create a wall-clock timer; copy the supplied start, or use the current time. */
     timer(start?: Date, options?: { round?: number }): Timer;
 
     /**
@@ -113,16 +124,17 @@ export declare namespace Time {
   };
 
   /**
-   * A timer that records the elapsed time since a start date.
+   * A wall-clock timer, not a monotonic stopwatch. System clock changes affect elapsed time.
+   * Supplied and returned Dates are independent copies.
    */
   export type Timer = {
-    /** The starting datetime. */
+    /** A fresh Date copy of the start time from creation or the latest reset. */
     readonly startedAt: Date;
 
-    /** The duration elapsed. */
+    /** Elapsed wall-clock time; invalid if the current time is earlier than the start. */
     readonly elapsed: Duration.Instance;
 
-    /** Reset the timer. */
+    /** Start again from the current time and return this timer. */
     reset: () => Timer;
   };
 

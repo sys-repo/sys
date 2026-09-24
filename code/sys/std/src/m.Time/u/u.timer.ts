@@ -2,14 +2,16 @@ import type { t } from '../common.ts';
 import { Duration } from '../m.Duration/mod.ts';
 
 /**
- * Starts a timer.
+ * Measure elapsed wall-clock time; system clock changes affect the result.
  */
 export function timer(start?: Date, options: { round?: number } = {}) {
-  let startedAt = start || new Date();
+  let startedAt = new Date(start ?? Date.now());
   const api: t.Time.Timer = {
-    startedAt,
+    get startedAt() {
+      return new Date(startedAt);
+    },
     reset() {
-      startedAt = new Date();
+      startedAt = new Date(Date.now());
       return api;
     },
     get elapsed() {

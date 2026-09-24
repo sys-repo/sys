@@ -16,7 +16,7 @@ export declare namespace Date {
     /** Tools for formatting dates into "pretty" strings. */
     readonly Format: Format.Lib;
 
-    /** Format date string in the given "pretty" string. The result may vary by locale. */
+    /** Format using the host's local zone by default; the result may also vary by locale. */
     format: Format.Lib['toString'];
 
     /** Parses a date string using the specified format string. */
@@ -65,7 +65,7 @@ export declare namespace Date {
   export namespace Format {
     /** Date formatting helper library surface. */
     export type Lib = {
-      /** Format date string in the given "pretty" string. The result may vary by locale. */
+      /** Format using the host's local zone by default; the result may also vary by locale. */
       toString: typeof format;
 
       /** Return the distance between the given dates in words. */
@@ -80,19 +80,20 @@ export declare namespace Date {
   }
 }
 
-/**
- * Represents an Date/Time value.
- */
+/** A date-time snapshot; an invalid value has a NaN timestamp. */
 export type DateTime = {
-  /** The date value represented by the object. */
+  /** A fresh Date copy; mutating it cannot change this instance. */
   readonly date: Date;
 
-  /** Retrieve the current higher-precision UnixEpoch by including milliseconds since January 1, 1970, 00:00:00 UTC. */
+  /** Unix milliseconds since 1970-01-01T00:00:00Z, or NaN for an invalid value. */
   readonly timestamp: t.UnixTimestamp;
 
-  /** Formats the date with the the template */
+  /**
+   * Format in the host's local zone, defaulting to 'yyyy-MM-dd'.
+   * Invalid dates throw RangeError('Time.utc: invalid date'); template errors propagate.
+   */
   format(template?: string): string;
 };
 
-/** Input values for generating a DateTime instance. */
+/** Unix milliseconds, an ISO string, or a Date copied when creating the instance. */
 export type DateTimeInput = number | string | Date;

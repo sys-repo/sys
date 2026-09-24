@@ -1,20 +1,21 @@
 import { parseISO } from 'date-fns';
 import { Format } from '../../m.Time.Date/m.Date.Format.ts';
-import type { t } from '../common.ts';
+import { Is, type t } from '../common.ts';
 
 /**
- * Generate a new UTC datetime instance:
+ * Create a date-time snapshot. Despite the name, formatting uses the local time zone.
  */
 export function utc(input?: t.DateTimeInput) {
   const date = wrangle.date(input);
   const res: t.DateTime = {
     get date() {
-      return date;
+      return new Date(date);
     },
     get timestamp() {
       return date.getTime();
     },
     format(template?: string) {
+      if (!Is.num(date.getTime())) throw new RangeError('Time.utc: invalid date');
       return Format.toString(date, template ?? 'yyyy-MM-dd');
     },
   };
@@ -26,8 +27,8 @@ export function utc(input?: t.DateTimeInput) {
  */
 const wrangle = {
   date(input?: t.DateTimeInput) {
-    if (!input) return new Date();
-    if (input instanceof Date) return input;
-    return parseISO(String(input));
+    if (input === undefined) return new Date();
+    if (Is.str(input)) return parseISO(input);
+    return new Date(input);
   },
 } as const;
