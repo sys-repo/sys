@@ -4,7 +4,12 @@ import { makeScheduleFn } from './u.scheduleFunction.ts';
 
 type F = t.Schedule.Lib['queue'];
 
-/** Queue one lifecycle-bound task through the selected scheduling mode. */
+// Failure reports outlive task disposal and always use the captured host timer.
+const reportFailure = makeScheduleFn('macro');
+
+/**
+ * Queue one lifecycle-bound task through the selected scheduling mode.
+ */
 export const queue: F = (...args) => {
   const { task, options } = wrangle.args(args);
   const life = Rx.lifecycle(options.until);
@@ -15,10 +20,19 @@ export const queue: F = (...args) => {
     fired = true;
     try {
       await task();
-    } finally {
-      // Auto-complete after first execution.
-      life.dispose();
+    } catch (error) {
+      try {
+        life.dispose();
+      } finally {
+        // A disposal-origin throw must not suppress the task's separate failure report.
+        reportFailure(() => {
+          throw error;
+        });
+      }
+      return;
     }
+    // Keep disposal outside the task catch: cleanup failure is not task failure.
+    life.dispose();
   };
 
   const q = options.queue ?? 'micro';

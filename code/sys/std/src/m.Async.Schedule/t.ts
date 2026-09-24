@@ -3,10 +3,8 @@ import type { t } from './common.ts';
 /**
  * Asynchronous scheduling contracts.
  */
-export namespace Schedule {
-  /**
-   * Defers callbacks and exposes awaitable host-queue hops.
-   */
+export declare namespace Schedule {
+  /** Defers callbacks and exposes awaitable host-queue hops. */
   export type Lib = {
     /**
      * Create a scheduler for `mode`, defaulting to `micro`.
@@ -65,11 +63,22 @@ export namespace Schedule {
     sleep(ms: t.Msecs, andThen?: t.AsyncSchedule | null | false): Promise<void>;
 
     /**
-     * Queue `task` at most once and return its cancellation lifecycle.
+     * Queue `task` at most once; return its cancellation lifecycle, not a result Promise.
      *
-     * Timer delays normalize to the canonical `Time.Delay.MAX` ceiling. Disposal before
-     * execution suppresses the task. Once admitted, the lifecycle disposes when the task settles,
-     * including rejection; the task's result is not returned.
+     * Disposal before execution prevents the task from starting. Once started, the task remains
+     * observed through fulfillment or rejection; disposal does not stop its work.
+     *
+     * Settlement requests lifecycle disposal. Task failure is then reported once as an uncaught
+     * host callback error: a separate macrotask throws the original value. The report uses the
+     * host timer captured at initialization, even without `queueMicrotask`. Neither disposal nor
+     * a disposal throw cancels dispatch. Task failure does not also reject the internal observer.
+     *
+     * Disposal failures remain separate: observer callback throws use Rx's host-error channel;
+     * subscription teardown throwing out of automatic disposal may reject the internal observer
+     * with Rx's `UnsubscriptionError`. Queue does not convert either into a task failure.
+     *
+     * Timer delays normalize to the canonical `Time.Delay.MAX` ceiling. Report delivery requires
+     * a functioning host timer.
      */
     queue<T = unknown>(task: () => T | Promise<T>, opts?: ScheduleQueueOpts): t.Lifecycle;
     queue<T = unknown>(
@@ -129,13 +138,9 @@ export type ScheduleQueueConfig =
  * prototype semantics.
  */
 export type ScheduleFn = {
-  /**
-   * Queue `fn` and return `undefined`.
-   */
+  /** Queue `fn` and return `undefined`. */
   (fn: () => void): void;
 
-  /**
-   * Await one hop in the selected mode.
-   */
+  /** Await one hop in the selected mode. */
   (): Promise<void>;
 };

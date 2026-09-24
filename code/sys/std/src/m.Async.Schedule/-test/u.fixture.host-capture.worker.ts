@@ -1,3 +1,4 @@
+import type { t } from '../common.ts';
 import {
   errorText,
   replaceOptionalValue,
@@ -15,7 +16,12 @@ type Scenario =
   | 'capturedRafFallback'
   | 'hostCallbackErrors'
   | 'fallbackCallbackError'
-  | 'eventTimeoutCleanup';
+  | 'eventTimeoutCleanup'
+  | 'queueFailures'
+  | 'queueFallbackFailures'
+  | 'queueCapturedTimerFailures'
+  | 'queueFallbackCapturedTimerFailures'
+  | 'queueCleanupFailure';
 
 type AsyncModule = typeof import('@sys/std/async');
 type CleanupState = { listenerActive: boolean; timerActive: boolean };
@@ -45,6 +51,16 @@ async function run(scenario: Scenario): Promise<unknown> {
       return await fallbackCallbackError();
     case 'eventTimeoutCleanup':
       return await eventTimeoutCleanup();
+    case 'queueFailures':
+      return await queueFailures(false, false);
+    case 'queueFallbackFailures':
+      return await queueFailures(true, false);
+    case 'queueCapturedTimerFailures':
+      return await queueFailures(false, true);
+    case 'queueFallbackCapturedTimerFailures':
+      return await queueFailures(true, true);
+    case 'queueCleanupFailure':
+      return await queueCleanupFailure();
   }
 }
 
@@ -521,6 +537,256 @@ async function eventTimeoutCleanup() {
     timedOut,
     timerActiveAfterCleanup: cleanup.timerActive,
   };
+}
+
+async function queueFailures(fallback: boolean, replaceTimer: boolean) {
+  const hostTimer = globalThis.setTimeout;
+  const timerDescriptor = requiredDescriptor(globalThis, 'setTimeout');
+  const queueDescriptor = requiredDescriptor(globalThis, 'queueMicrotask');
+  const Schedule = fallback
+    ? await loadWithoutQueueMicrotask(queueDescriptor)
+    : (await import('@sys/std/async')).Schedule;
+  const { Is } = await import('../common.ts');
+  const queues: readonly { name: string; config: t.ScheduleQueueConfig }[] = [
+    { name: 'micro', config: 'micro' },
+    { name: 'raf', config: 'raf' },
+    { name: 'zero-frames', config: { frames: 0 } },
+    { name: 'frames', config: { frames: 2 } },
+    { name: 'ms', config: { ms: 0 } },
+  ];
+  const outcomes = [
+    'throw',
+    'reject',
+    'dispose-during',
+    'self-dispose',
+    'throw-value',
+    'reject-undefined',
+    'observer-throw',
+    'observer-reject',
+    'teardown-throw',
+    'teardown-reject',
+  ] as const;
+  let ambientTimerCalls = 0;
+  const results = [];
+
+  try {
+    if (replaceTimer) {
+      replaceValue(
+        globalThis,
+        'setTimeout',
+        timerDescriptor,
+        ((...args: Parameters<typeof setTimeout>) => {
+          ambientTimerCalls += 1;
+          return Reflect.apply(hostTimer, globalThis, args);
+        }) as typeof setTimeout,
+      );
+    }
+
+    for (const queue of queues) {
+      for (const outcome of outcomes) {
+        const throws = outcome === 'throw' || outcome === 'throw-value' ||
+          outcome === 'observer-throw' || outcome === 'teardown-throw';
+        const observerFails = outcome === 'observer-throw' || outcome === 'observer-reject';
+        const teardownFails = outcome === 'teardown-throw' || outcome === 'teardown-reject';
+        const disposalFailure = new Error('disposal failure');
+        const failure = outcome === 'throw-value'
+          ? { kind: 'queue.failure' }
+          : outcome === 'reject-undefined'
+          ? undefined
+          : new Error(`${queue.name}: ${outcome}`);
+        const admitted = Promise.withResolvers<void>();
+        const completion = Promise.withResolvers<void>();
+        const errors: unknown[] = [];
+        const rejections: unknown[] = [];
+        const disposalAtError: boolean[] = [];
+        const turnAtError: boolean[] = [];
+        const timers = new Set<ReturnType<typeof setTimeout>>();
+        let taskCalls = 0;
+        let disposeCalls = 0;
+        let disposalTurn = false;
+        let pendingFixtureTimers = 0;
+        let life: t.Lifecycle | undefined;
+
+        // Independent host turns keep both observers alive beyond report dispatch.
+        const enqueue = (callback: () => void) => {
+          const timer = hostTimer(() => {
+            timers.delete(timer);
+            callback();
+          }, 0);
+          timers.add(timer);
+        };
+        const nextTurn = () => new Promise<void>((resolve) => enqueue(resolve));
+        const onError = (event: ErrorEvent) => {
+          event.preventDefault();
+          errors.push(event.error);
+          if (event.error === failure) {
+            disposalAtError.push(life?.disposed === true && disposeCalls === 1);
+            turnAtError.push(disposalTurn);
+          }
+        };
+        const onRejection = (event: PromiseRejectionEvent) => {
+          event.preventDefault();
+          rejections.push(event.reason);
+        };
+
+        try {
+          globalThis.addEventListener('error', onError);
+          globalThis.addEventListener('unhandledrejection', onRejection);
+          life = Schedule.queue(() => {
+            taskCalls += 1;
+            admitted.resolve();
+            if (outcome === 'self-dispose') life?.dispose();
+            if (throws) throw failure;
+            return completion.promise;
+          }, queue.config);
+          life.dispose$.subscribe(() => {
+            disposeCalls += 1;
+            enqueue(() => disposalTurn = true);
+          });
+          if (observerFails) {
+            life.dispose$.subscribe(() => {
+              throw disposalFailure;
+            });
+          }
+          if (teardownFails) {
+            life.dispose$.subscribe().add(() => {
+              throw disposalFailure;
+            });
+          }
+
+          await admitted.promise;
+          if (outcome === 'dispose-during') {
+            life.dispose();
+            life.dispose();
+          }
+          if (!throws) completion.reject(failure);
+          await Promise.resolve();
+          // Assert settlement before the fixture can supply disposal itself.
+          if (!life.disposed || disposeCalls !== 1) {
+            throw new Error(`${queue.name}: ${outcome}: Queue did not dispose once at settlement.`);
+          }
+          life.dispose();
+          life.dispose();
+          await nextTurn();
+          await nextTurn();
+        } finally {
+          pendingFixtureTimers = timers.size;
+          cleanupQueueFixture(life, onError, onRejection, timers);
+        }
+
+        // Synthetic sentinels test removal without creating another real host failure.
+        const observedCount = errors.length + rejections.length;
+        const errorDetached = globalThis.dispatchEvent(new Event('error', { cancelable: true }));
+        const rejectionDetached = globalThis.dispatchEvent(
+          new Event('unhandledrejection', { cancelable: true }),
+        );
+        const listenersDetached = errorDetached && rejectionDetached &&
+          errors.length + rejections.length === observedCount;
+        const rejection = rejections[0];
+        const disposalRejectionPreserved = rejections.length === 1 && Is.record(rejection) &&
+          rejection.name === 'UnsubscriptionError' && Is.array(rejection.errors) &&
+          rejection.errors.length === 1 && rejection.errors[0] === disposalFailure;
+
+        results.push({
+          queue: queue.name,
+          outcome,
+          taskCalls,
+          disposeCalls,
+          errorCount: errors.length,
+          rejectionCount: rejections.length,
+          originalFailure: errors.filter((error) => error === failure).length === 1,
+          disposalErrorCount: errors.filter((error) => error === disposalFailure).length,
+          disposalRejectionPreserved,
+          disposedBeforeError: disposalAtError.length === 1 && disposalAtError[0],
+          reportAfterDisposalTurn: turnAtError.length === 1 && turnAtError[0],
+          listenersDetached,
+          pendingFixtureTimers,
+        });
+      }
+    }
+  } finally {
+    Object.defineProperty(globalThis, 'setTimeout', timerDescriptor);
+    Object.defineProperty(globalThis, 'queueMicrotask', queueDescriptor);
+  }
+
+  return {
+    results,
+    ambientTimerCalls,
+    descriptorsRestored:
+      sameDescriptor(Object.getOwnPropertyDescriptor(globalThis, 'setTimeout'), timerDescriptor) &&
+      sameDescriptor(
+        Object.getOwnPropertyDescriptor(globalThis, 'queueMicrotask'),
+        queueDescriptor,
+      ),
+  };
+}
+
+async function queueCleanupFailure() {
+  const { Schedule } = await import('@sys/std/async');
+  const { Is } = await import('../common.ts');
+  const failure = new Error('fixture teardown failure');
+  const timers = new Set<ReturnType<typeof setTimeout>>();
+  let taskCalls = 0;
+  let timerCalls = 0;
+  let eventCalls = 0;
+  let disposalFailurePreserved = false;
+  const onEvent = (event: Event) => {
+    event.preventDefault();
+    eventCalls += 1;
+  };
+  const enqueue = () => timers.add(setTimeout(() => timerCalls += 1, 0));
+  const life = Schedule.queue(() => taskCalls += 1);
+  life.dispose$.subscribe(enqueue).add(() => {
+    throw failure;
+  });
+
+  try {
+    globalThis.addEventListener('error', onEvent);
+    globalThis.addEventListener('unhandledrejection', onEvent);
+    enqueue();
+    try {
+      cleanupQueueFixture(life, onEvent, onEvent, timers);
+    } catch (error) {
+      disposalFailurePreserved = Is.record(error) && error.name === 'UnsubscriptionError' &&
+        Is.array(error.errors) && error.errors.length === 1 && error.errors[0] === failure;
+    }
+
+    const errorDetached = globalThis.dispatchEvent(new Event('error', { cancelable: true }));
+    const rejectionDetached = globalThis.dispatchEvent(
+      new Event('unhandledrejection', { cancelable: true }),
+    );
+    // Both the existing timer and the timer acquired during disposal must be cancelled.
+    await Schedule.macro();
+    return {
+      disposed: life.disposed,
+      disposalFailurePreserved,
+      listenersDetached: errorDetached && rejectionDetached && eventCalls === 0,
+      taskCalls,
+      timerCalls,
+      pendingFixtureTimers: timers.size,
+    };
+  } finally {
+    globalThis.removeEventListener('error', onEvent);
+    globalThis.removeEventListener('unhandledrejection', onEvent);
+    for (const timer of timers) clearTimeout(timer);
+  }
+}
+
+/** Release fixture listeners and timers even when lifecycle disposal throws. */
+function cleanupQueueFixture(
+  life: t.Lifecycle | undefined,
+  onError: (event: ErrorEvent) => void,
+  onRejection: (event: PromiseRejectionEvent) => void,
+  timers: Set<ReturnType<typeof setTimeout>>,
+) {
+  try {
+    life?.dispose();
+  } finally {
+    globalThis.removeEventListener('error', onError);
+    globalThis.removeEventListener('unhandledrejection', onRejection);
+    for (const timer of timers) clearTimeout(timer);
+    timers.clear();
+  }
 }
 
 async function observeValues<T>(
