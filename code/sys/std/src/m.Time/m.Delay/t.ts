@@ -9,7 +9,16 @@ export type Lib = {
   readonly create: Fn;
 };
 
-/** Overloaded delay. */
+/**
+ * Schedule a callback and await its outcome.
+ *
+ * Omitted milliseconds select a microtask; numeric delays select a host timer and normalize
+ * to the `Time.Delay.MAX` domain. Callback return values are ignored, but returned asynchronous
+ * work must settle before the delay completes.
+ *
+ * Cancellation or abort before invocation resolves quietly without invoking the callback.
+ * Once invoked, the callback's outcome owns settlement; later cancellation has no effect.
+ */
 export type Fn =
   & ((
     msecs: t.Msecs,
@@ -21,27 +30,36 @@ export type Fn =
 
 /** Options for `Time.Delay.create` and its `Time.delay` alias. */
 export type Options = {
-  /** Abort to cancel the pending delay. */
+  /** Abort before callback invocation to cancel quietly; ignored once the callback starts. */
   readonly signal?: AbortSignal;
 };
 
-/** A function called at the completion of a delay timer. */
-export type Callback = () => void;
+/** A callback whose synchronous or asynchronous completion is observed; values are ignored. */
+export type Callback = () => unknown;
 
-/** An extended Promise API that represents a running timer. */
+/**
+ * Caller-owned completion of the delay and its callback.
+ * Resolves with `undefined` on success or pre-invocation cancellation; rejects with the original
+ * callback throw or rejection reason. Callers must observe rejection, as with any Promise.
+ * A callback that never settles keeps this Promise pending, even after cancellation or abort.
+ */
 export type Promise = globalThis.Promise<void> & Handle;
 
-/** Extended properties on a delay Promise that represent a running timer. */
+/** Cancellation and live status for a delay and its callback. */
 export type Handle = t.Cancellable & {
-  /** Duration of the delay. */
+  /** Cancel only before callback invocation. Quiet, resolving, and idempotent. */
+  readonly cancel: () => void;
+
+  /** Normalized scheduling delay, or zero for a microtask; not a callback-execution deadline. */
   readonly timeout: t.Msecs;
-  /** Boolean status flags. */
+
+  /** Terminal outcome flags; all remain false while scheduled or while the callback is running. */
   readonly is: {
-    /** True if the timer was cancelled. */
+    /** True only when cancellation prevented callback invocation. */
     readonly cancelled: boolean;
-    /** True if the timer completed successfully. */
+    /** True only when the callback completed successfully, or no callback was supplied. */
     readonly completed: boolean;
-    /** True if the timer is done (completed OR failed). */
+    /** True after completion, cancellation, or failure. */
     readonly done: boolean;
   };
 };

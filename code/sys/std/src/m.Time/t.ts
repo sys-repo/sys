@@ -40,7 +40,9 @@ export declare namespace Time {
      * Notes:
      *  • `delay(msecs, fn?)` → macrotask timer; cancellable via `.cancel()`.
      *  • Timer delays normalize to the `Time.Delay.MAX` domain ceiling.
-     *  • `delay(fn?)`        → microtask tick (queues on Promise microtask).
+     *  • `delay(fn?)` → microtask tick.
+     *  • Callback completion settles the returned Promise; callback failures reject it.
+     *  • Cancellation resolves quietly only before callback invocation.
      */
     delay: Delay.Fn;
 
@@ -123,13 +125,13 @@ export declare namespace Time {
     /** Options for `Time.Delay.create` and its `Time.delay` alias. */
     export type Options = TDelay.Options;
 
-    /** A function called at the completion of a delay timer. */
+    /** A callback whose synchronous or asynchronous completion is observed; values are ignored. */
     export type Callback = TDelay.Callback;
 
-    /** An extended Promise API that represents a running timer. */
+    /** Caller-owned completion of the delay and its callback; callback failures reject it. */
     export type Promise = TDelay.Promise;
 
-    /** Extended properties on a delay Promise that represent a running timer. */
+    /** Cancellation and live status for a delay and its callback. */
     export type Handle = TDelay.Handle;
   }
 

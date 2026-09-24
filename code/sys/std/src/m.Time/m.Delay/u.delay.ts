@@ -2,157 +2,101 @@ import { Schedule } from '../../m.Async.Schedule/mod.ts';
 import { Is, type t } from './common.ts';
 import { timerMsecs } from './u.timerMsecs.ts';
 
+type Terminal = 'completed' | 'cancelled' | 'failed';
+type State = 'pending' | 'running' | Terminal;
+
 /**
- * Delay for a specified amount of time.
- *
- * Semantics:
- * - `delay()` with no number → microtask "tick".
- * - `delay(ms)` with a number ≥ 0 → macrotask via setTimeout(ms).
- * - Timer-backed inputs normalize into 0..`Time.Delay.MAX`; oversized integers clamp.
- *
- * Cancellation:
- * - Works for both micro and macro variants.
- * - If cancelled (or aborted) before the scheduled task runs, the promise resolves immediately,
- *   `is.cancelled` becomes true, and any callback will NOT be invoked.
- *
- * Errors:
- * - If the callback throws, the promise rejects with that error, and `is.done` is set.
+ * Schedule one callback and settle from its synchronous or asynchronous outcome.
+ * Cancellation resolves quietly only before the callback starts.
  */
-export function delay(...args: any[]): t.Time.Delay.Promise {
+export function delay(...args: unknown[]): t.Time.Delay.Promise {
   const { msecs, fn, options } = Wrangle.delayArgs(args);
   const timeout = Wrangle.normalizeMsecs(msecs);
   const { signal } = Wrangle.delayOptions(options);
-
-  // Mutable runtime state to satisfy the extended API.
-  const is: t.DeepMutable<t.Time.Delay.Handle['is']> = {
-    done: false,
-    completed: false,
-    cancelled: false,
-  };
-
-  let settled = false;
-  let cancelled = false;
-  let resolvePromise!: () => void;
-  let rejectPromise!: (err: unknown) => void;
-
-  // Abort listener cleanup (if a signal is provided).
+  const completion = Promise.withResolvers<void>();
+  let state: State = 'pending';
   let abortCleanup: (() => void) | undefined;
-
-  // Lifecycle for the scheduled task (used for cancellation).
   let life: t.Lifecycle | undefined;
 
-  const finish = (kind: 'completed' | 'cancelled' | 'error', err?: unknown) => {
-    if (settled) return;
-    settled = true;
-    is.done = true;
-
-    try {
-      abortCleanup?.();
-    } catch {
-      /* no-op */
-    }
-
-    if (kind === 'completed') {
-      is.completed = true;
-      resolvePromise();
-      return;
-    }
-    if (kind === 'cancelled') {
-      is.cancelled = true;
-      resolvePromise();
-      return;
-    }
-    rejectPromise(err);
+  const done = () => state !== 'pending' && state !== 'running';
+  const is: t.Time.Delay.Handle['is'] = {
+    get done() {
+      return done();
+    },
+    get completed() {
+      return state === 'completed';
+    },
+    get cancelled() {
+      return state === 'cancelled';
+    },
   };
 
-  const settleCancelled = () => {
-    if (settled) return;
-    cancelled = true;
-    is.cancelled = true;
-    is.done = true;
-    settled = true;
-
+  const cleanup = () => {
+    const detach = abortCleanup;
+    const scheduled = life;
+    abortCleanup = undefined;
+    life = undefined;
+    // Preserve the selected outcome even if best-effort teardown fails.
     try {
-      abortCleanup?.();
-    } catch {
-      /* no-op */
-    }
-
-    resolvePromise();
+      detach?.();
+    } catch { /* Abort listener teardown must not replace callback settlement. */ }
+    try {
+      scheduled?.dispose();
+    } catch { /* Scheduling teardown must not create a second rejection channel. */ }
   };
 
-  const p = new Promise<void>((resolve, reject) => {
-    resolvePromise = resolve;
-    rejectPromise = reject;
+  const finish = (next: Terminal, error?: unknown) => {
+    if (done()) return;
+    state = next;
+    cleanup();
+    if (next === 'failed') completion.reject(error);
+    else completion.resolve();
+  };
 
-    // If already aborted: short-circuit immediately.
-    if (signal?.aborted) {
-      settleCancelled();
-      return;
-    }
-
-    // Choose queue strategy via Schedule (micro vs macro).
-    const queueConfig = timeout === undefined ? 'micro' : ({ ms: timeout } as const);
-
-    // Schedule the work once, lifecycle-aware.
-    life = Schedule.queue(
-      () => {
-        if (cancelled) {
-          finish('cancelled');
-          return;
-        }
-        try {
-          fn?.();
-          finish('completed');
-        } catch (err) {
-          finish('error', err);
-        }
-      },
-      { queue: queueConfig },
-    );
-
-    // Wire abort listener (if provided).
-    if (signal) {
-      const onAbort = () => {
-        cancelled = true;
-        try {
-          life?.dispose(); // prevent execution if not yet run
-        } catch {
-          /* no-op */
-        }
-        settleCancelled();
-      };
-      signal.addEventListener('abort', onAbort, { once: true });
-      abortCleanup = () => signal.removeEventListener('abort', onAbort);
-
-      // Handle edge where signal aborts between checks.
-      if (signal.aborted) onAbort();
-    }
-  }) as t.Time.Delay.Promise;
-
-  /**
-   * Cancel function:
-   * - Disposes the scheduled lifecycle so the task never runs.
-   * - Never invokes the callback.
-   * - Always resolves the promise (does not reject).
-   */
   const cancel = () => {
-    if (settled) return;
-    cancelled = true;
-    try {
-      life?.dispose();
-    } catch {
-      /* no-op */
-    }
-    settleCancelled();
+    if (state === 'pending') finish('cancelled');
   };
 
-  // Decorate the promise with the extended API fields.
-  (p as any).cancel = cancel;
-  (p as any).is = is;
-  (p as any).timeout = timeout ?? 0;
+  // The adapter always fulfills: callback failure belongs only to the public Promise.
+  const run = async () => {
+    if (state !== 'pending') return;
+    // Select running before caller code can re-enter through cancel or abort.
+    state = 'running';
+    try {
+      await fn?.();
+    } catch (error) {
+      finish('failed', error);
+      return;
+    }
+    finish('completed');
+  };
 
-  return p;
+  const result: t.Time.Delay.Promise = Object.assign(completion.promise, {
+    cancel,
+    is,
+    timeout: timeout ?? 0,
+  });
+
+  try {
+    if (signal?.aborted) {
+      cancel();
+    } else {
+      if (signal) {
+        abortCleanup = () => signal.removeEventListener('abort', cancel);
+        signal.addEventListener('abort', cancel, { once: true });
+        if (signal.aborted) cancel();
+      }
+      if (state === 'pending') {
+        life = Schedule.queue(run, { queue: timeout === undefined ? 'micro' : { ms: timeout } });
+        // Registration may re-enter cancellation before the lifecycle has been assigned.
+        if (done()) cleanup();
+      }
+    }
+  } catch (error) {
+    finish('failed', error);
+  }
+
+  return result;
 }
 
 /**
