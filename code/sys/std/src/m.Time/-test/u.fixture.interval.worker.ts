@@ -6,12 +6,15 @@ import {
 } from '../../m.Async.Schedule/-test/u.fixture.worker.ts';
 import { Is, type t } from '../common.ts';
 import { abortProbe } from './u.fixture.abort.ts';
+import { scopeProbe } from './u.fixture.scope.ts';
 
 type Outcome =
   | 'throw'
   | 'throw-value'
   | 'throw-undefined'
   | 'abort-throw'
+  | 'parent-throw'
+  | 'parent-thenable'
   | 'cancel-throw'
   | 'resolve-promise'
   | 'reject-promise'
@@ -30,7 +33,7 @@ type Outcome =
   | 'async-then-late-reject'
   | 'async-then-resolve-late-reject'
   | 'async-then-reject-late-reject';
-type Input = { immediate: boolean; outcome: Outcome };
+type Input = { immediate: boolean; outcome: Outcome; scoped?: boolean };
 type Then = (
   this: unknown,
   resolve: (value: unknown) => void,
@@ -44,7 +47,8 @@ self.onmessage = (event: MessageEvent<Input>) => {
   );
 };
 
-async function run({ immediate, outcome }: Input) {
+async function run({ immediate, outcome, scoped }: Input) {
+  using cleanup = new DisposableStack();
   const setDescriptor = requiredDescriptor(globalThis, 'setInterval');
   const clearDescriptor = requiredDescriptor(globalThis, 'clearInterval');
   const nativeSet = globalThis.setInterval.bind(globalThis);
@@ -70,7 +74,8 @@ async function run({ immediate, outcome }: Input) {
   let thenReads = 0;
   let thenCalls = 0;
   let receiverPreserved = true;
-  const clean = () => timers.size === 0 && probe.removed === probe.added;
+  const clean = () =>
+    timers.size === 0 && probe.removed === probe.added && (!parent || parent.active === 0);
   const snapshot = () => ({
     is: handle ? { ...handle.is } : null,
     callbackCalls,
@@ -78,6 +83,7 @@ async function run({ immediate, outcome }: Input) {
     pendingTimers: timers.size,
     listenersAdded: probe.added,
     listenersRemoved: probe.removed,
+    ...parent ? { parentSubscriptions: parent.active } : {},
   });
   const onError = (event: ErrorEvent) => {
     event.preventDefault();
@@ -96,6 +102,7 @@ async function run({ immediate, outcome }: Input) {
       timerCalls += 1;
       Reflect.apply(handler, globalThis, args);
     }, delay);
+    cleanup.defer(() => nativeClear(id));
     timers.add(id);
     timersCreated += 1;
     return id;
@@ -140,91 +147,91 @@ async function run({ immediate, outcome }: Input) {
     return value;
   };
 
-  let result;
-  try {
-    replaceValue(globalThis, 'setInterval', setDescriptor, trackedSet);
-    replaceValue(globalThis, 'clearInterval', clearDescriptor, trackedClear);
-    globalThis.addEventListener('error', onError);
-    globalThis.addEventListener('unhandledrejection', onRejection);
-    const { Time } = await import('../mod.ts');
-    const callback = () => {
-      callbackCalls += 1;
-      admitted.resolve();
-      if (outcome === 'abort-throw') probe.ctrl.abort();
-      if (outcome === 'cancel-throw' || outcome === 'cancel-thenable') handle?.cancel();
-      switch (outcome) {
-        case 'throw':
-        case 'throw-value':
-        case 'throw-undefined':
-        case 'abort-throw':
-        case 'cancel-throw':
-          throw failure;
-        case 'resolve-promise':
-          return Promise.resolve(42);
-        case 'reject-promise':
-          return Promise.reject(failure);
-        case 'late-reject':
-          return completion.promise;
-        default:
-          return thenable();
-      }
-    };
-    try {
-      handle = Time.interval(1, callback, { immediate, signal: probe.ctrl.signal });
-    } catch (error) {
-      synchronous.push(error);
-      cleanAtReport.push(clean());
-      flagsAtReport.push(handle ? { ...handle.is } : null);
-    }
-    await admitted.promise;
-    await new Promise<void>((resolve) => setTimeout(resolve, 0));
-    // Capture terminal truth before any fixture cancellation or borrowed-work settlement.
-    const beforeRelease = snapshot();
-    if (outcome === 'late-reject') completion.reject(failure);
-    else completion.resolve();
-    await new Promise<void>((resolve) => setTimeout(resolve, 20));
-    const afterWindow = snapshot();
-    const callsBeforeSentinel = probe.calls;
-    probe.ctrl.signal.dispatchEvent(new Event('abort'));
-    const listenerDetached = probe.calls === callsBeforeSentinel;
-    handle?.cancel();
-    handle?.cancel();
-    probe.ctrl.abort();
-    const reported = [...synchronous, ...errors];
-    result = {
-      synchronousErrors: synchronous.length,
-      hostErrors: errors.length,
-      hostRejections: rejections.length,
-      originalFailure: reported.length === 1 && reported[0] === failure,
-      contractTypeError: reported.length === 1 && reported[0] instanceof TypeError,
-      cleanAtReport,
-      flagsAtReport,
-      beforeRelease,
-      afterWindow,
-      afterCancel: handle ? { ...handle.is } : null,
-      listenerDetached,
-      timersCreated,
-      thenReads,
-      thenCalls,
-      receiverPreserved,
-    };
-  } finally {
-    try {
-      handle?.cancel();
-    } finally {
-      try {
-        probe.ctrl.abort();
-      } finally {
-        completion.resolve();
-        for (const id of timers) nativeClear(id);
-        restoreDescriptor(globalThis, 'setInterval', setDescriptor);
-        restoreDescriptor(globalThis, 'clearInterval', clearDescriptor);
-        globalThis.removeEventListener('error', onError);
-        globalThis.removeEventListener('unhandledrejection', onRejection);
-      }
-    }
-  }
+  // Register each restoration before replacing its global; later failures cannot skip earlier cleanup.
+  cleanup.defer(() => restoreDescriptor(globalThis, 'setInterval', setDescriptor));
+  replaceValue(globalThis, 'setInterval', setDescriptor, trackedSet);
+  cleanup.defer(() => restoreDescriptor(globalThis, 'clearInterval', clearDescriptor));
+  replaceValue(globalThis, 'clearInterval', clearDescriptor, trackedClear);
+  globalThis.addEventListener('error', onError);
+  cleanup.defer(() => globalThis.removeEventListener('error', onError));
+  globalThis.addEventListener('unhandledrejection', onRejection);
+  cleanup.defer(() => globalThis.removeEventListener('unhandledrejection', onRejection));
+  const parent = cleanup.use(scoped ? scopeProbe() : undefined);
+  cleanup.defer(() => completion.resolve());
+  cleanup.defer(() => probe.ctrl.abort());
+  cleanup.defer(() => handle?.cancel());
 
+  const { Time } = await import('../mod.ts');
+  const callback = () => {
+    callbackCalls += 1;
+    admitted.resolve();
+    if (outcome === 'abort-throw') probe.ctrl.abort();
+    if (outcome === 'parent-throw' || outcome === 'parent-thenable') parent?.scope.dispose();
+    if (outcome === 'cancel-throw' || outcome === 'cancel-thenable') handle?.cancel();
+    switch (outcome) {
+      case 'throw':
+      case 'throw-value':
+      case 'throw-undefined':
+      case 'abort-throw':
+      case 'parent-throw':
+      case 'cancel-throw':
+        throw failure;
+      case 'resolve-promise':
+        return Promise.resolve(42);
+      case 'reject-promise':
+        return Promise.reject(failure);
+      case 'late-reject':
+        return completion.promise;
+      default:
+        return thenable();
+    }
+  };
+  try {
+    handle = (parent?.scope ?? Time).interval(1, callback, {
+      immediate,
+      signal: probe.ctrl.signal,
+    });
+  } catch (error) {
+    synchronous.push(error);
+    cleanAtReport.push(clean());
+    flagsAtReport.push(handle ? { ...handle.is } : null);
+  }
+  await admitted.promise;
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  // Capture terminal truth before any fixture cancellation or borrowed-work settlement.
+  const beforeRelease = snapshot();
+  if (outcome === 'late-reject') completion.reject(failure);
+  else completion.resolve();
+  await new Promise<void>((resolve) => setTimeout(resolve, 20));
+  const afterWindow = snapshot();
+  const callsBeforeSentinel = probe.calls;
+  probe.ctrl.signal.dispatchEvent(new Event('abort'));
+  const listenerDetached = probe.calls === callsBeforeSentinel;
+  handle?.cancel();
+  handle?.cancel();
+  probe.ctrl.abort();
+  const reported = [...synchronous, ...errors];
+  const result = {
+    synchronousErrors: synchronous.length,
+    hostErrors: errors.length,
+    hostRejections: rejections.length,
+    originalFailure: reported.length === 1 && reported[0] === failure,
+    contractTypeError: reported.length === 1 && reported[0] instanceof TypeError,
+    cleanAtReport,
+    flagsAtReport,
+    beforeRelease,
+    afterWindow,
+    afterCancel: handle ? { ...handle.is } : null,
+    listenerDetached,
+    timersCreated,
+    thenReads,
+    thenCalls,
+    receiverPreserved,
+    ...parent ? { parentDisposed: parent.scope.disposed } : {},
+  };
+
+  // Fixture repair is deliberately later than every resource snapshot above.
+  cleanup.dispose();
   const observedCount = errors.length + rejections.length;
   const errorDetached = globalThis.dispatchEvent(new Event('error', { cancelable: true }));
   const rejectionDetached = globalThis.dispatchEvent(

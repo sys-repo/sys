@@ -73,7 +73,7 @@ export declare namespace Time {
       options?: { readonly interval?: t.Msecs; readonly timeout?: t.Msecs; signal?: AbortSignal },
     ): Promise<T>;
 
-    /** A Time helper that runs only until it has been disposed. */
+    /** Create a timer scope whose disposal cancels pending delays and active intervals. */
     until(until?: t.UntilInput): Until;
   };
 
@@ -85,16 +85,22 @@ export declare namespace Time {
   export type FrameOptions = { readonly signal?: AbortSignal };
 
   /**
-   * Exposes timer functions that cease after a dispose signal is received.
+   * Root timer overloads with an additional parent cancellation lifetime.
+   * Caller signals remain effective. Disposal prevents new callback admission, but an admitted
+   * Delay callback still owns its outcome. Children release their parent subscriptions at termination
+   * without disposing the scope or changing the root error channels.
+   *
+   * Already-disposed lifecycle views and aborted lifetime signals prevent immediate admission too.
+   * Observable-only lifetime inputs retain Dispose's emission semantics; they carry no past state.
    */
   export type Until = t.Lifecycle & {
-    /** Delay for the specified milliseconds. */
+    /** Root Delay contract, also cancelled by scope disposal before callback admission. */
     delay: Lib['delay'];
 
-    /** Repeat on an interval until disposed. */
+    /** Root interval contract, also stopped by scope disposal. */
     interval: Lib['interval'];
 
-    /** Wait for the specified milliseconds to pass. */
+    /** Root wait contract, also cancelled by scope disposal. */
     wait: Lib['wait'];
   };
 

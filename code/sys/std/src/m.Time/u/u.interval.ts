@@ -18,12 +18,23 @@ export function interval(
   fnOrOptions: IntervalInput,
   optionsOrFn?: IntervalInput,
 ): t.Time.Interval.Handle {
+  return createInterval(msecs, fnOrOptions, optionsOrFn);
+}
+
+/** Package-private owner shared by root and scoped intervals. */
+export function createInterval(
+  msecs: t.Msecs,
+  fnOrOptions: IntervalInput,
+  optionsOrFn?: IntervalInput,
+  parent?: t.LifecycleView,
+): t.Time.Interval.Handle {
   const every = wrangle.normalizeMsecs(msecs);
   const { fn, signal, immediate } = wrangle.input(fnOrOptions, optionsOrFn);
 
   let state: State = 'active';
   let timer: ReturnType<typeof setInterval> | undefined;
   let abortCleanup: (() => void) | undefined;
+  let parentBridge: ReturnType<t.DisposeObservable['subscribe']> | undefined;
   const active = () => state === 'active';
   const is: t.Time.Interval.Handle['is'] = {
     get cancelled() {
@@ -43,15 +54,20 @@ export function interval(
   const cleanup = () => {
     const scheduled = timer;
     const detach = abortCleanup;
+    const bridge = parentBridge;
     timer = undefined;
     abortCleanup = undefined;
-    // Attempt both releases without replacing the callback's failure with a teardown failure.
+    parentBridge = undefined;
+    // Attempt every release without replacing the callback's failure with a teardown failure.
     try {
       if (scheduled !== undefined) clearInterval(scheduled);
     } catch { /* Best-effort timer teardown. */ }
     try {
       detach?.();
     } catch { /* Best-effort listener teardown. */ }
+    try {
+      bridge?.unsubscribe();
+    } catch { /* Parent teardown must not replace the callback's failure. */ }
   };
 
   const stop = (next: 'cancelled' | 'failed') => {
@@ -84,10 +100,16 @@ export function interval(
   };
 
   try {
-    if (signal?.aborted) {
+    if (parent?.disposed || signal?.aborted) {
       cancel();
     } else {
-      if (signal) {
+      if (parent) {
+        parentBridge = parent.dispose$.subscribe(cancel);
+        if (parent.disposed) cancel();
+        // A synchronous disposal can precede assignment of the acquired subscription.
+        if (!active()) cleanup();
+      }
+      if (active() && signal) {
         try {
           signal.addEventListener('abort', cancel, { once: true });
         } finally {

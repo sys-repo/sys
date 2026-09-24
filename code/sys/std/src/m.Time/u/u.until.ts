@@ -1,49 +1,34 @@
 import { Dispose } from '../../m.Dispose/mod.ts';
-import { Rx } from '../../m.Rx/mod.ts';
-
-import type { t } from '../common.ts';
-import { delay, Wrangle } from '../m.Delay/u.delay.ts';
-import { interval } from './u.interval.ts';
+import { Is, type t } from '../common.ts';
+import { createDelay } from '../m.Delay/u.delay.ts';
+import { createInterval } from './u.interval.ts';
 
 /**
- * Exposes timer functions that cease after a dispose signal is received.
+ * Root timer contracts with an additional parent cancellation lifetime.
  */
-export function until(until?: t.UntilInput) {
+export function until(until?: t.UntilInput): t.Time.Until {
   const life = Dispose.lifecycle(until);
+  try {
+    // Dispose queues already-terminal input notifications; immediate timers must not outrun them.
+    if (wrangle.terminated(until)) life.dispose();
+  } catch (error) {
+    life.dispose();
+    throw error;
+  }
 
-  const api: t.Time.Until = {
-    delay(...args: any[]): t.Time.Delay.Promise {
-      const { msecs, fn } = Wrangle.delayArgs(args);
-
-      const done$ = Rx.subject<void>();
-      const res = delay(msecs, () => {
-        done$.next();
-        return fn?.();
-      });
-
-      life.dispose$.pipe(Rx.takeUntil(done$), Rx.take(1)).subscribe(() => res.cancel());
-      return res;
+  return {
+    delay(...args: unknown[]) {
+      return createDelay(args, life);
     },
 
-    interval(msecs, fn, options) {
-      const signal = wrangle.signal(options);
-      const ctrl = new AbortController();
-      const res = interval(msecs, fn, {
-        signal: signal ? AbortSignal.any([ctrl.signal, signal]) : ctrl.signal,
-        immediate: wrangle.immediate(options),
-      });
-
-      life.dispose$.pipe(Rx.take(1)).subscribe(() => ctrl.abort());
-      return res;
+    interval(msecs, fnOrOptions, optionsOrFn) {
+      return createInterval(msecs, fnOrOptions, optionsOrFn, life);
     },
 
-    wait(msecs) {
-      return typeof msecs === 'number' ? api.delay(msecs) : api.delay();
+    wait(msecs, options) {
+      return createDelay([msecs, undefined, options], life);
     },
 
-    /**
-     * Lifecycle:
-     */
     dispose: life.dispose,
     [Symbol.dispose]: life[Symbol.dispose],
     get dispose$() {
@@ -53,22 +38,14 @@ export function until(until?: t.UntilInput) {
       return life.disposed;
     },
   };
-
-  return api;
 }
 
 const wrangle = {
-  signal(input: unknown) {
-    if (!input) return undefined;
-    if (input instanceof AbortController) return input.signal;
-    if (input instanceof AbortSignal) return input;
-    if (typeof input !== 'object') return undefined;
-    const signal = Reflect.get(input, 'signal');
-    return signal instanceof AbortSignal ? signal : undefined;
-  },
-
-  immediate(input: unknown) {
-    if (!input || typeof input !== 'object') return false;
-    return (input as t.Time.Interval.Options).immediate === true;
+  terminated(input: t.UntilInput): boolean {
+    if (Is.array<t.UntilInput>(input)) return input.some(wrangle.terminated);
+    if (Is.lifecycleView(input)) return input.disposed;
+    if (Is.abortSignal(input)) return input.aborted;
+    // Observable-only inputs contribute emissions, not a retroactive disposal state.
+    return false;
   },
 } as const;

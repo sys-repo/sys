@@ -10,6 +10,14 @@ type State = 'pending' | 'running' | Terminal;
  * Cancellation resolves quietly only before the callback starts.
  */
 export function delay(...args: unknown[]): t.Time.Delay.Promise {
+  return createDelay(args);
+}
+
+/** Package-private owner shared by root and scoped delays. */
+export function createDelay(
+  args: unknown[],
+  parent?: t.LifecycleView,
+): t.Time.Delay.Promise {
   const { msecs, fn, options } = Wrangle.delayArgs(args);
   const timeout = Wrangle.normalizeMsecs(msecs);
   const { signal } = Wrangle.delayOptions(options);
@@ -17,6 +25,7 @@ export function delay(...args: unknown[]): t.Time.Delay.Promise {
   let state: State = 'pending';
   let abortCleanup: (() => void) | undefined;
   let life: t.Lifecycle | undefined;
+  let parentBridge: ReturnType<t.DisposeObservable['subscribe']> | undefined;
 
   const done = () => state !== 'pending' && state !== 'running';
   const is: t.Time.Delay.Handle['is'] = {
@@ -34,8 +43,10 @@ export function delay(...args: unknown[]): t.Time.Delay.Promise {
   const cleanup = () => {
     const detach = abortCleanup;
     const scheduled = life;
+    const bridge = parentBridge;
     abortCleanup = undefined;
     life = undefined;
+    parentBridge = undefined;
     // Preserve the selected outcome even if best-effort teardown fails.
     try {
       detach?.();
@@ -43,6 +54,9 @@ export function delay(...args: unknown[]): t.Time.Delay.Promise {
     try {
       scheduled?.dispose();
     } catch { /* Scheduling teardown must not create a second rejection channel. */ }
+    try {
+      bridge?.unsubscribe();
+    } catch { /* Parent teardown must not replace callback settlement. */ }
   };
 
   const finish = (next: Terminal, error?: unknown) => {
@@ -78,12 +92,22 @@ export function delay(...args: unknown[]): t.Time.Delay.Promise {
   });
 
   try {
-    if (signal?.aborted) {
+    if (parent?.disposed || signal?.aborted) {
       cancel();
     } else {
-      if (signal) {
-        abortCleanup = () => signal.removeEventListener('abort', cancel);
-        signal.addEventListener('abort', cancel, { once: true });
+      if (parent) {
+        parentBridge = parent.dispose$.subscribe(cancel);
+        if (parent.disposed) cancel();
+        // A synchronous disposal can precede assignment of the acquired subscription.
+        if (done()) cleanup();
+      }
+      if (!done() && signal) {
+        try {
+          signal.addEventListener('abort', cancel, { once: true });
+        } finally {
+          abortCleanup = () => signal.removeEventListener('abort', cancel);
+          if (done()) cleanup();
+        }
         if (signal.aborted) cancel();
       }
       if (state === 'pending') {
@@ -102,7 +126,7 @@ export function delay(...args: unknown[]): t.Time.Delay.Promise {
 /**
  * Helpers:
  */
-export const Wrangle = Object.freeze({
+const Wrangle = Object.freeze({
   /**
    * Parse input into (msecs, fn, options).
    * Supports:
@@ -110,18 +134,18 @@ export const Wrangle = Object.freeze({
    *   - delay(fn?, options?)
    *   - delay(options)
    */
-  delayArgs(input: any[]) {
+  delayArgs(input: unknown[]) {
     let msecs: number | undefined = undefined;
     let fn: t.Time.Delay.Callback | undefined;
     let options: unknown;
 
     // First param:
     if (typeof input[0] === 'number') msecs = input[0];
-    else if (typeof input[0] === 'function') fn = input[0];
+    else if (Is.func(input[0])) fn = input[0] as t.Time.Delay.Callback;
     else if (input[0] !== undefined) options = input[0];
 
     // Second param:
-    if (typeof input[1] === 'function') fn = input[1];
+    if (Is.func(input[1])) fn = input[1] as t.Time.Delay.Callback;
     else if (input[1] !== undefined) options = input[1] ?? options;
 
     // Third param (only relevant for ms-first shape):
