@@ -79,6 +79,23 @@ Then open:
 
 Restart `serve` after publishing a new build.
 
+## Clean local outputs
+
+Stop `build`, `push`, and `serve` before cleaning. From this sample directory:
+
+```sh
+deno task clean
+```
+
+This removes `dist/`, `dist.private/`, `dist.public/`, `dist.pins.json`, legacy
+`dist.selection.json`, and `.tmp/`. It leaves source files, configuration, credentials,
+`.sys.rooted` lease metadata, and remote R2 objects untouched. Workspace `clean` also invokes this
+task.
+
+The build records are removed first. A deletion failure stops the task and may leave partial
+cleanup. Fix the cause, then rerun `clean`; missing paths are harmless. Run `deno task build` before
+the next `push` or `serve`.
+
 ## Check delivery
 
 `deno task test` runs local tests without contacting R2.

@@ -7,6 +7,7 @@
     "test": "deno test -P=test ./src/-test/ ./-scripts/-test/",
     "proof:local": "deno run --no-prompt --unstable-no-legacy-abort -P=serve ./-scripts/task.proof.local.ts",
     "build": "deno run --no-prompt -P=build ./-scripts/task.build.ts",
+    "clean": "deno run --no-prompt -P=clean ./-scripts/task.clean.ts",
     "push": "deno task push:public && deno task push:private",
     "push:public": "deno run --no-prompt -P=push ./-scripts/task.push.ts public",
     "push:private": "deno run --no-prompt -P=push ./-scripts/task.push.ts private",
@@ -17,6 +18,7 @@
     "./t": "./src/types.ts"
   },
   "permissions": {
+    "clean": { "read": true, "write": true, "env": true },
     "test": {
       "read": true,
       "write": true,
@@ -52,4 +54,3 @@
     }
   }
 }
-
