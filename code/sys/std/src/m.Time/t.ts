@@ -1,22 +1,35 @@
-import type * as TDelay from './m.Delay/t.ts';
-import type * as TDuration from './m.Duration/t.ts';
+import type {
+  Callback as DelayCallback,
+  Fn as DelayFn,
+  Handle as DelayHandle,
+  Lib as DelayLib,
+  Options as DelayOptions,
+  Promise as DelayPromise,
+} from './m.Delay/t.ts';
+import type {
+  AmountInput as DurationAmountInput,
+  Input as DurationInput,
+  Instance as DurationInstance,
+  InstantInput as DurationInstantInput,
+  Lib as DurationLib,
+  Options as DurationOptions,
+  To as DurationTo,
+} from './m.Duration/t.ts';
 import type { t } from './common.ts';
 
 /**
- * Type namespace for the `Time` runtime surface.
+ * Clock snapshots, duration amounts, and cancellable scheduling.
  */
 export declare namespace Time {
-  /**
-   * Helpers for working with time.
-   */
+  /** Time operations with shared calendar, delay, and duration helpers. */
   export type Lib = {
-    /** Tools for working with calendar dates. */
+    /** Calendar queries and date labels. */
     readonly Date: t.Date.Lib;
 
-    /** Policy and behavior for creating timer-backed delays. */
+    /** One-shot scheduling and timer-delay normalization. */
     readonly Delay: Delay.Lib;
 
-    /** Tools for working with an elapsed duration of time. */
+    /** Duration parsing, unit conversion, and elapsed-time calculations. */
     readonly Duration: Duration.Lib;
 
     /** A fresh snapshot of the current time, with local-zone formatting. */
@@ -34,93 +47,82 @@ export declare namespace Time {
      * Invalid input does not throw during construction; its timestamp is NaN and
      * format() throws RangeError('Time.utc: invalid date').
      */
-    utc(input?: t.DateTimeInput): t.DateTime;
+    readonly utc: (input?: t.DateTimeInput) => t.DateTime;
 
-    /** Create a new duration helper. */
-    duration: Duration.Lib['create'];
+    /** Compatibility alias of `Time.Duration.create`; accepts milliseconds or an amount string. */
+    readonly duration: Duration.Lib['create'];
 
-    /** Time elapsed between two instants. */
-    elapsed: Duration.Lib['elapsed'];
+    /** Compatibility alias of `Time.Duration.elapsed`; measures between instants. */
+    readonly elapsed: Duration.Lib['elapsed'];
 
     /** Create a wall-clock timer; copy the supplied start, or use the current time. */
-    timer(start?: Date, options?: { round?: number }): Timer;
+    readonly timer: (start?: Date, options?: Duration.Options) => Timer;
 
     /**
-     * Convenience alias of `Time.Delay.create`.
+     * Schedule a callback and observe its completion; alias of `Time.Delay.create`.
+     * Omitting milliseconds queues a microtask; otherwise, the delay follows the host-timer policy.
+     * Cancellation resolves quietly before the callback starts; afterward, its outcome determines
+     * whether the promise resolves or rejects.
+     */
+    readonly delay: Delay.Fn;
+
+    /**
+     * Run a synchronous callback at a fixed cadence until cancellation or failure.
+     * Accepts `interval(msecs, fn, options?)` or `interval(msecs, options, fn)`.
+     * With `immediate: true`, the first callback runs synchronously before the repeating timer starts.
+     * Milliseconds follow the same normalization policy as `Time.Delay`.
+     */
+    readonly interval: Interval.Fn;
+
+    /** A callback-free delay; cancellation before the delay elapses resolves quietly. */
+    readonly wait: (
+      msecs?: t.Msecs,
+      options?: Delay.Options | AbortSignal | AbortController,
+    ) => Delay.Promise;
+
+    /**
+     * Wait for a truthy predicate result, with at most one invocation in progress.
+     * Defaults to 30 ms between falsy results and a 2,000 ms monotonic timeout budget.
      *
-     * Notes:
-     *  • `delay(msecs, fn?)` → macrotask timer; cancellable via `.cancel()`.
-     *  • Timer delays normalize to the `Time.Delay.MAX` domain ceiling.
-     *  • `delay(fn?)` → microtask tick.
-     *  • Callback completion settles the returned Promise; callback failures reject it.
-     *  • Cancellation resolves quietly only before callback invocation.
-     */
-    delay: Delay.Fn;
-
-    /**
-     * Run a synchronous callback on a fixed interval until cancellation or failure.
+     * The interval follows Delay normalization. The timeout must be finite, non-negative, and no
+     * greater than Number.MAX_SAFE_INTEGER; fractions are allowed. Invalid budgets reject with
+     * RangeError. A zero timeout or already-aborted signal prevents the first invocation.
      *
-     * Notes:
-     *  • `interval(msecs, fn, options?)` → repeating timer; cancellable via `.cancel()`.
-     *  • Timer intervals normalize to the `Time.Delay.MAX` domain ceiling.
-     *  • `interval(msecs, options, fn)` → same, with options before the callback.
-     *  • Use `options.immediate` to run once before the first scheduled tick.
+     * An observed abort takes precedence over expiry; both take precedence over a predicate outcome
+     * at or beyond the deadline. Rejection preserves the abort reason or in-window predicate failure;
+     * expiry rejects with Error('Time.waitFor: timeout exceeded'). A settled result never changes.
+     *
+     * Abort and expiry end observation even while a predicate is pending. Late outcomes are consumed
+     * without affecting the result. Predicate work and its resources remain caller-owned; this waiter
+     * neither cancels that work nor preempts synchronous code or a blocked event loop.
      */
-    interval: Interval.Fn;
-
-    /**
-     * Wait for the specified milliseconds
-     * (NB: use with `await`.)
-     * @param msecs: delay in milliseconds.
-     */
-    wait(msecs?: t.Msecs, options?: { signal?: AbortSignal } | AbortSignal): Delay.Promise;
-
-    /**
-     * Observe one predicate at a time until a truthy result, failure, abort, or deadline.
-     * Defaults: 30 ms between false results; 2,000 ms total monotonic observation budget.
-     * Interval uses Delay normalization. Timeout must be finite, non-negative, and no greater
-     * than Number.MAX_SAFE_INTEGER (fractions allowed); invalid budgets reject with RangeError.
-     * Zero timeout or pre-abort prevents admission. Observed abort wins over observed expiry;
-     * both win over a predicate outcome at or beyond the deadline. A selected outcome is final.
-     * Rejects with the exact abort reason, the original in-window predicate failure, or
-     * Error('Time.waitFor: timeout exceeded'). Pending predicates cannot postpone termination.
-     * Late outcomes are consumed, not selected. Predicate work and resource values stay caller-owned;
-     * the waiter cannot preempt synchronous code or a blocked event loop.
-     */
-    waitFor<T>(
+    readonly waitFor: <T>(
       fn: () => T | Promise<T>,
-      options?: { readonly interval?: t.Msecs; readonly timeout?: t.Msecs; signal?: AbortSignal },
-    ): Promise<T>;
+      options?: { interval?: t.Msecs; timeout?: t.Msecs; signal?: AbortSignal },
+    ) => Promise<T>;
 
     /** Create a timer scope whose disposal cancels pending delays and active intervals. */
-    until(until?: t.UntilInput): Until;
+    readonly until: (until?: t.UntilInput) => Until;
   };
 
   /**
-   * Options for frame-yield primitives.
-   * - If provided, an aborted signal should prevent the callback from running
-   *   and cause the promise to reject with an AbortError.
-   */
-  export type FrameOptions = { readonly signal?: AbortSignal };
-
-  /**
-   * Root timer overloads with an additional parent cancellation lifetime.
-   * Caller signals remain effective. Disposal prevents new callback admission, but an admitted
-   * Delay callback still owns its outcome. Children release their parent subscriptions at termination
-   * without disposing the scope or changing the root error channels.
+   * A cancellation scope for delays, waits, and intervals, retaining the root overloads.
+   * Caller signals remain effective. Disposal prevents new callbacks from starting; a delay callback
+   * already in progress still determines its promise's outcome. Finished children detach from the
+   * scope without disposing it or changing how failures are reported.
    *
-   * Already-disposed lifecycle views and aborted lifetime signals prevent immediate admission too.
-   * Observable-only lifetime inputs retain Dispose's emission semantics; they carry no past state.
+   * Already-disposed lifecycle views and aborted signals prevent even immediate callbacks.
+   * Observable-only inputs cancel on emission; no separate disposal state is inferred.
    */
   export type Until = t.Lifecycle & {
-    /** Root Delay contract, also cancelled by scope disposal before callback admission. */
-    delay: Lib['delay'];
+    /** Delay a callback within this scope; disposal cancels it only before it starts. */
+    readonly delay: Lib['delay'];
 
-    /** Root interval contract, also stopped by scope disposal. */
-    interval: Lib['interval'];
+    /** Repeat a synchronous callback until it fails, is cancelled, or this scope is disposed. */
+    readonly interval: Lib['interval'];
 
-    /** Root wait contract, also cancelled by scope disposal. */
-    wait: Lib['wait'];
+    /** Wait within this scope; disposal resolves a pending wait quietly. */
+    readonly wait: Lib['wait'];
   };
 
   /**
@@ -135,34 +137,34 @@ export declare namespace Time {
     readonly elapsed: Duration.Instance;
 
     /** Start again from the current time and return this timer. */
-    reset: () => Timer;
+    readonly reset: () => Timer;
   };
 
   /**
-   * Delay timer types.
+   * One-shot scheduling with cancellation before callback execution.
    */
   export namespace Delay {
-    /** Policy and behavior for creating delays backed by host timer queues. */
-    export type Lib = TDelay.Lib;
+    /** Cancellable delays and their shared host-timer range. */
+    export type Lib = DelayLib;
 
-    /** Overloaded delay. */
-    export type Fn = TDelay.Fn;
+    /** Schedule a callback with optional milliseconds and cancellation. */
+    export type Fn = DelayFn;
 
     /** Options for `Time.Delay.create` and its `Time.delay` alias. */
-    export type Options = TDelay.Options;
+    export type Options = DelayOptions;
 
     /** A callback whose synchronous or asynchronous completion is observed; values are ignored. */
-    export type Callback = TDelay.Callback;
+    export type Callback = DelayCallback;
 
     /** Caller-owned completion of the delay and its callback; callback failures reject it. */
-    export type Promise = TDelay.Promise;
+    export type Promise = DelayPromise;
 
     /** Cancellation and live status for a delay and its callback. */
-    export type Handle = TDelay.Handle;
+    export type Handle = DelayHandle;
   }
 
   /**
-   * Interval timer types.
+   * Fixed-cadence scheduling for synchronous callbacks.
    */
   export namespace Interval {
     /**
@@ -190,9 +192,9 @@ export declare namespace Time {
     /** Options for `Time.interval`. */
     export type Options = {
       /** Abort to cancel the running interval. */
-      readonly signal?: AbortSignal;
+      signal?: AbortSignal;
       /** Run the callback once immediately before scheduling the repeating interval. */
-      readonly immediate?: boolean;
+      immediate?: boolean;
     };
 
     /**
@@ -203,9 +205,9 @@ export declare namespace Time {
 
     /** Handle for one running interval. */
     export type Handle = t.Cancellable & {
-      /** Configured interval duration. */
+      /** Normalized interval in milliseconds, not a callback-execution deadline. */
       readonly interval: t.Msecs;
-      /** Boolean status flags. */
+      /** Live state; cancellation never hides a callback failure. */
       readonly is: {
         /** True after cancellation or abort, unless an admitted callback subsequently fails. */
         readonly cancelled: boolean;
@@ -220,28 +222,28 @@ export declare namespace Time {
   }
 
   /**
-   * Duration helper types.
+   * Non-negative duration amounts and differences between instants.
    */
   export namespace Duration {
-    /** Tools for working with an elapsed duration of time. */
-    export type Lib = TDuration.Lib;
+    /** Duration parsing, conversion, and elapsed-time calculations. */
+    export type Lib = DurationLib;
 
     /** Milliseconds or a complete decimal amount with an optional unit. */
-    export type AmountInput = TDuration.AmountInput;
+    export type AmountInput = DurationAmountInput;
 
     /** Unix milliseconds, numeric strings, or date strings for elapsed endpoints. */
-    export type InstantInput = TDuration.InstantInput;
+    export type InstantInput = DurationInstantInput;
 
     /** Compatibility alias of `AmountInput`; use `InstantInput` for elapsed endpoints. */
-    export type Input = TDuration.Input;
+    export type Input = DurationInput;
 
-    /** Options passed to a duration helper. */
-    export type Options = TDuration.Options;
+    /** Rounding for derived duration values. */
+    export type Options = DurationOptions;
 
-    /** Time duration conversions. */
-    export type To = TDuration.To;
+    /** Fixed-unit arithmetic with optional rounding. */
+    export type To = DurationTo;
 
-    /** Represents an elapsed duration of time. */
-    export type Instance = TDuration.Instance;
+    /** A duration amount, or an invalid result with `ok: false`. */
+    export type Instance = DurationInstance;
   }
 }

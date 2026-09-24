@@ -159,14 +159,14 @@ const wrangle = {
     fnOrOptions: IntervalInput,
     optionsOrFn?: IntervalInput,
   ): { fn: t.Time.Interval.Callback; signal?: AbortSignal; immediate: boolean } {
-    if (typeof fnOrOptions === 'function') {
+    if (Is.func(fnOrOptions)) {
       return {
         fn: fnOrOptions,
         ...wrangle.options(optionsOrFn),
       };
     }
 
-    if (typeof optionsOrFn === 'function') {
+    if (Is.func(optionsOrFn)) {
       return {
         fn: optionsOrFn,
         ...wrangle.options(fnOrOptions),
@@ -178,13 +178,13 @@ const wrangle = {
 
   options(input: unknown): { signal?: AbortSignal; immediate: boolean } {
     if (!input) return { immediate: false };
-    if (Is.abortSignal(input)) return { signal: input as AbortSignal, immediate: false };
+    if (Is.abortSignal(input)) return { signal: input, immediate: false };
     if (Is.abortController(input)) {
-      return { signal: (input as AbortController).signal, immediate: false };
+      return { signal: input.signal, immediate: false };
     }
-    if (typeof input !== 'object') return { immediate: false };
+    if (!Is.object(input)) return { immediate: false };
 
-    const options = input as t.Time.Interval.Options;
+    const options: { signal?: unknown; immediate?: unknown } = input;
     return {
       signal: Is.abortSignal(options.signal) ? options.signal : undefined,
       immediate: options.immediate === true,

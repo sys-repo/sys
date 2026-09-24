@@ -15,6 +15,40 @@ Runtime requirements vary by leaf. Pure value helpers do not imply that IndexedD
 helpers, or all other exports work in every browser or server runtime. See the
 [API documentation](https://jsr.io/@sys/std/doc) for individual contracts and the full entry map.
 
+## Time contracts (pre-1.0 migration)
+
+`/time` retains `Time`, `Date`, `Duration`, and the separate `Timecode` composition. Compatibility
+aliases share their canonical owners: `Time.delay` is `Time.Delay.create`, `Time.duration` is
+`Time.Duration.create`, and `Date.format` is `Date.Format.toString`.
+
+The Date formatting types now expose a small system-owned contract:
+
+- `Date.format(date, pattern)` and `Date.Format.toString(date, pattern)`.
+- `Date.Format.distance(date, baseDate, options?)`, with only `addSuffix?: boolean` in its options.
+- `Date.Format.relative(date, baseDate)`.
+- `Date.Format.subDays(date, amount)`, returning `Date` without preserving the input subtype.
+
+These accept Dates, Unix-millisecond numbers, and strings interpreted by native Date construction.
+Date subclass inputs remain accepted, but their subtype is not promised on return. Calendar-day
+subtraction follows the local calendar, not a fixed number of elapsed hours.
+
+Existing date-fns format tokens and local-zone defaults remain. Locale/context extension objects,
+`includeSeconds`, week-rule options, and additional-token flags are no longer supported by these
+types. Use date-fns directly when those extensions are required. This pre-1.0 source-compatibility
+change does not validate JavaScript arguments, strip extra options, or isolate calls from
+dependency-wide defaults. `Time.FrameOptions` has also been removed; it had no runtime counterpart.
+
+`Time.utc` keeps its compatibility name: it constructs an instant but formats in the local zone. Its
+ISO-string parsing is distinct from Date formatting's native string interpretation. Mutable Dates
+are copied in and out; invalid instances expose `timestamp: NaN` and throw on formatting.
+`Time.timer` measures wall-clock time, not monotonic time. Duration amounts are finite and
+non-negative; invalid durations expose `ok: false` and `-1` in every numeric field.
+
+Timer-backed delays and intervals instead normalize negative, fractional, non-finite, and
+unsafe-integer milliseconds to zero, and clamp larger safe integers to `Time.Delay.MAX`.
+`Time.waitFor` has a separate finite, non-negative monotonic timeout budget and rejects on abort or
+expiry; terminating observation does not cancel caller-owned predicate work.
+
 ## Disposal capabilities
 
 The shared contracts in `@sys/types` separate the authority to stop a resource from observing that

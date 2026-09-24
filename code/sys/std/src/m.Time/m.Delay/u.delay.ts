@@ -127,64 +127,42 @@ export function createDelay(
  * Helpers:
  */
 const Wrangle = Object.freeze({
-  /**
-   * Parse input into (msecs, fn, options).
-   * Supports:
-   *   - delay(ms, fn?, options?)
-   *   - delay(fn?, options?)
-   *   - delay(options)
-   */
+  /** Resolve the milliseconds-first, callback-first, and options-only overloads in one place. */
   delayArgs(input: unknown[]) {
     let msecs: number | undefined = undefined;
     let fn: t.Time.Delay.Callback | undefined;
     let options: unknown;
 
-    // First param:
+    // Keep NaN on the numeric path: normalization selects a zero-delay timer, not a microtask.
     if (typeof input[0] === 'number') msecs = input[0];
     else if (Is.func(input[0])) fn = input[0] as t.Time.Delay.Callback;
     else if (input[0] !== undefined) options = input[0];
 
-    // Second param:
     if (Is.func(input[1])) fn = input[1] as t.Time.Delay.Callback;
     else if (input[1] !== undefined) options = input[1] ?? options;
 
-    // Third param (only relevant for ms-first shape):
     if (input[2] !== undefined) options = input[2];
 
     return { fn, msecs, options } as const;
   },
 
-  /**
-   * Normalize options to a consistent shape { signal? }.
-   * Accepts:
-   *   - Time.Delay.Options
-   *   - AbortSignal
-   *   - AbortController
-   *   - undefined / anything else → {}
-   */
+  /** Accept signal/controller shortcuts, ignoring unrecognized option fields. */
   delayOptions(input: unknown): { signal?: AbortSignal } {
     if (!input) return {};
+    if (Is.abortSignal(input)) return { signal: input };
+    if (Is.abortController(input)) return { signal: input.signal };
 
-    // AbortSignal directly
-    if (Is.abortSignal(input)) return { signal: input as AbortSignal };
-
-    // AbortController directly
-    if (Is.abortController(input)) return { signal: (input as AbortController).signal };
-
-    // Options object shape
-    if (typeof input === 'object') {
-      const o = input as t.Time.Delay.Options & { signal?: unknown };
-      if (Is.abortSignal(o.signal)) return { signal: o.signal as AbortSignal };
+    if (Is.object(input)) {
+      const options: { signal?: unknown } = input;
+      if (Is.abortSignal(options.signal)) return { signal: options.signal };
     }
 
     return {};
   },
 
-  /**
-   * Normalize milliseconds.
-   */
+  /** Preserve the microtask choice; all numeric delays share the timer policy. */
   normalizeMsecs(msecs?: number): number | undefined {
-    if (msecs === undefined) return undefined; // micro hop (tick)
+    if (msecs === undefined) return undefined;
     return timerMsecs(msecs);
   },
 });
