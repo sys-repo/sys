@@ -1,8 +1,16 @@
 
-service-rendering.plan.md
-- [ ] feat(cli): share service rendering with HTTP startup
-- [ ] feat(cell): retain owner presentation in shared service rendering
-- [ ] refactor(sample-r2): share one service endpoint across direct and Cell startup
+
+
+
+@sys.driver-pi
+upstream-runtime-compatibility.plan.md
+- [x] test(driver-pi): verify upstream CLI compatibility in isolation
+- [x] fix(driver-pi): preserve Pi child exit status
+- [ ] fix(driver-pi): adopt current Pi with verified Deno compatibility
+
+
+
+
 
 
 
@@ -107,23 +115,25 @@ system-owned-spinner.plan.md
 - [ ] chore(deps): remove Ora from the workspace graph
 
 
-@sys.std
-time-canon.plan.md
-- [ ] fix(std): settle rejected Schedule queue tasks
-- [ ] fix(std): own delayed callback settlement
-- [ ] fix(std): terminate failed intervals
-- [ ] fix(std): align scoped timers with root lifecycle contracts
-- [ ] fix(std): enforce Time polling deadlines and cancellation
-- [ ] fix(std): correct Time instant and timer ownership
-- [ ] fix(std): normalize duration parsing and validity
-- [ ] refactor(std): tighten Time type-plane contracts
 
 @sys
 type-export-path-cleanup.plan.md
 - [ ] GATE sys.canon owner adopts the /t-only package type export policy
 - [ ] refactor(exports)!: standardize package type entrypoints on /t
 
-
+@sys.tools
 deploy-state-containment.plan.md
 - [x] fix(tools): contain build coordination in source-owned dev state
 - [ ] chore(deploy): isolate the fs.db.team development workflow
+
+
+@sys.std
+time-canon.plan.md
+- [x] fix(std): settle rejected Schedule queue tasks
+- [x] fix(std): own delayed callback settlement
+- [x] fix(std): terminate failed intervals
+- [x] fix(std): align scoped timers with root lifecycle contracts
+- [x] fix(std): enforce Time polling deadlines and cancellation
+- [x] fix(std): correct Time instant and timer ownership
+- [ ] fix(std): normalize duration parsing and validity
+- [ ] refactor(std): tighten Time type-plane contracts

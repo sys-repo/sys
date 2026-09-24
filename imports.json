@@ -107,7 +107,8 @@
     "vite": "npm:vite@8.3.0",
     "vite-plugin-wasm": "npm:vite-plugin-wasm@3.6.0",
     "ws": "npm:ws@8.21.3",
-    "yaml": "npm:yaml@2.9.1"
+    "yaml": "npm:yaml@2.9.1",
+    "yjs": "npm:yjs@13.6.33"
   }
 }
 

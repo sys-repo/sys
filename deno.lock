@@ -110,7 +110,8 @@
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.3.0_yaml@2.9.1",
     "npm:vite@8.3.0": "8.3.0_yaml@2.9.1",
     "npm:ws@8.21.3": "8.21.3",
-    "npm:yaml@2.9.1": "2.9.1"
+    "npm:yaml@2.9.1": "2.9.1",
+    "npm:yjs@13.6.33": "13.6.33"
   },
   "jsr": {
     "@bradenmacdonald/s3-lite-client@0.9.6": {
@@ -2080,6 +2081,9 @@
         "ws"
       ]
     },
+    "isomorphic.js@0.2.5": {
+      "integrity": "sha512-PIeMbHqMt4DnUP3MA/Flc0HElYjMXArsw1qwJZcm9sqR8mq3l8NYizFMty0pWwE/tzIGH3EKK5+jes5mAr85yw=="
+    },
     "jackspeak@3.4.3": {
       "integrity": "sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==",
       "dependencies": [
@@ -2123,6 +2127,13 @@
         "jwa",
         "safe-buffer"
       ]
+    },
+    "lib0@0.2.117": {
+      "integrity": "sha512-DeXj9X5xDCjgKLU/7RR+/HQEVzuuEUiwldwOGsHK/sfAfELGWEyTcf0x+uOvCvK3O2zPmZePXWL85vtia6GyZw==",
+      "dependencies": [
+        "isomorphic.js"
+      ],
+      "bin": true
     },
     "lightningcss-android-arm64@1.33.0": {
       "integrity": "sha512-gEpRTalKdosp4Bb8qWtc2iOgE5SeIHlpS1up9bFq2wAyYhl1UdTObYiHe98zEM9SQvSoqQZ1IQD0JNpg3Ml5pg==",
@@ -3468,6 +3479,12 @@
         "yargs-parser"
       ]
     },
+    "yjs@13.6.33": {
+      "integrity": "sha512-q/UYvr1gOk4XII+Cu1CW2dINjYqJJFifTzogEaIARznrvX7uOlHsdTEXcnOBMuIsrCGEEKdNxi74kyMLZlKVfw==",
+      "dependencies": [
+        "lib0"
+      ]
+    },
     "yoctocolors@2.2.0": {
       "integrity": "sha512-xYqdZFUK/VYazNl/oCDYN+3WloWQwMfZxBoiNt6qNyk+xfOdi598muWE42rNZFp1kNOiqW936q5RhUdnpqElSg=="
     },
@@ -3559,7 +3576,8 @@
       "npm:vite-plugin-wasm@3.6.0",
       "npm:vite@8.3.0",
       "npm:ws@8.21.3",
-      "npm:yaml@2.9.1"
+      "npm:yaml@2.9.1",
+      "npm:yjs@13.6.33"
     ],
     "packageJson": {
       "dependencies": [
