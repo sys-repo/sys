@@ -1,5 +1,6 @@
 import { sha1 as toSha1 } from '@noble/hashes/legacy.js';
 import { sha256 as toSha256 } from '@noble/hashes/sha2.js';
+import { encodeBase64 } from '@std/encoding';
 
 import { Is, Json, type t } from './common.ts';
 
@@ -9,7 +10,7 @@ import { Is, Json, type t } from './common.ts';
 export const sha1: t.Hash.Lib['sha1'] = (input, options = {}) => {
   const { prefix = true } = options;
   const bytes = toBytes(input, options);
-  const hash = toHex(toSha1(bytes));
+  const hash = encodeDigest(toSha1(bytes), options.encoding);
   return hash && prefix ? `sha1-${hash}` : hash;
 };
 
@@ -19,7 +20,7 @@ export const sha1: t.Hash.Lib['sha1'] = (input, options = {}) => {
 export const sha256: t.Hash.Lib['sha256'] = (input, options = {}) => {
   const { prefix = true } = options;
   const bytes = toBytes(input, options);
-  const hash = toHex(toSha256(bytes));
+  const hash = encodeDigest(toSha256(bytes), options.encoding);
   return hash && prefix ? `sha256-${hash}` : hash;
 };
 
@@ -46,3 +47,8 @@ export const toHex: t.Hash.Lib['toHex'] = (bytes) => {
   }
   return output;
 };
+
+/** Encode raw digest bytes; input conversion and algorithm prefixes belong to the caller. */
+function encodeDigest(bytes: Uint8Array, encoding: t.Hash.Options['encoding'] = 'hex'): string {
+  return encoding === 'base64' ? encodeBase64(bytes) : toHex(bytes);
+}

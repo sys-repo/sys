@@ -41,7 +41,10 @@ export declare namespace Hash {
   /** Options passed to hash methods. */
   export type Options = {
     asString?: (input?: unknown) => string;
+    /** Include the algorithm prefix (default: true), independently of encoding. */
     prefix?: boolean;
+    /** Digest encoding (default: 'hex'); 'base64' uses standard Base64 with padding. */
+    encoding?: 'hex' | 'base64';
   };
 
   /**
