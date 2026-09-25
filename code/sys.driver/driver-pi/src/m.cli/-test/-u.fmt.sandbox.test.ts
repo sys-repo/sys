@@ -7,6 +7,48 @@ type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
 };
 
 describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
+  describe('menu boundary', () => {
+    it('migration notice → wraps above the closing rule without adding a gap', () => {
+      const notice = 'Migrated 2 Pi config/runtime items.';
+      for (const width of [24, 80]) {
+        const raw = PiSandboxFmt.header('scoped', { width, notice }).join('\n');
+        const output = lines(Cli.stripAnsi(raw));
+        const noticeStart = output.findIndex((line) => line.startsWith('Migrated'));
+        expect(noticeStart).to.be.greaterThan(0);
+        expect(output[noticeStart - 1]).to.match(/subprocesses\.$/);
+        expect(output.slice(noticeStart, -1).join(' ')).to.eql(notice);
+        expect(output.at(-1)).to.eql('┄'.repeat(width - 1));
+        expect(output.filter((line) => line === '┄'.repeat(width - 1))).to.have.length(1);
+        for (const line of output) {
+          expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width - 1);
+        }
+      }
+    });
+
+    it('header and sheet → one closing rule within the same terminal width, without a trailing gap', () => {
+      for (const permissions of ['scoped', 'allow-all'] as const) {
+        for (const width of [24, 36, 60, 80, 120]) {
+          const sandbox = { permissions, cwd: { invoked: '/tmp/report', root: '/tmp/report' } };
+          const surfaces = [
+            PiSandboxFmt.header(permissions, { width }).join('\n'),
+            PiSandboxFmt.table(sandbox, { width, terminal: false }),
+          ];
+          for (const raw of surfaces) {
+            const output = lines(Cli.stripAnsi(raw));
+            const rule = '┄'.repeat(width - 1);
+            expect(output[1]).to.eql('━'.repeat(width - 1));
+            expect(output.at(-1)).to.eql(rule);
+            expect(output.filter((line) => line === rule)).to.have.length(1);
+            expect(output.at(-2)).to.match(/subprocesses\.$/);
+            for (const line of output) {
+              expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width - 1);
+            }
+          }
+        }
+      }
+    });
+  });
+
   describe('authority claims', () => {
     for (const permissions of ['scoped', 'allow-all'] as const) {
       it(`${permissions} → states confinement limits across surfaces, widths, and ANSI stripping`, () => {
@@ -14,7 +56,7 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
         const report = '/tmp/report/.pi/@sys/log/@sys.driver-pi/1.fixture.sandbox.log.md';
         for (const width of [24, 36, 60, 80, 120]) {
           const surfaces = [
-            { name: 'header', raw: PiSandboxFmt.header(permissions, width - 1).join('\n') },
+            { name: 'header', raw: PiSandboxFmt.header(permissions, { width }).join('\n') },
             {
               name: 'detailed sheet',
               raw: PiSandboxFmt.table(sandbox, { width, terminal: false }),
@@ -61,7 +103,7 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
       expect(text).to.match(/read\s+all/);
       expect(text).to.match(/write\s+all/);
       expect(text).not.to.contain('write:cwd');
-      const header = PiSandboxFmt.header('allow-all', 79, tools);
+      const header = PiSandboxFmt.header('allow-all', { width: 80, tools });
       expect(lines(raw).slice(0, 2)).to.eql(header.slice(0, 2));
       expect(lines(raw)[0]).to.contain(c.bold(c.yellow('sys:pi')));
       expect(text).to.contain('Deno permissions   allow-all');
@@ -114,7 +156,7 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
     }
 
     it('unknown enclosure → dim gray, not caution or success', () => {
-      const raw = PiSandboxFmt.header('scoped', 79).join('\n');
+      const raw = PiSandboxFmt.header('scoped', { width: 80 }).join('\n');
       const row = lines(raw).find((line) => Cli.stripAnsi(line).startsWith('Outer sandbox')) ?? '';
       expect(Cli.stripAnsi(row).trimEnd()).to.eql('Outer sandbox      <unknown>');
       expect(row).to.contain(c.dim(c.gray('<unknown>')));
@@ -136,7 +178,7 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
       const rawLines = lines(raw);
       const text = Cli.stripAnsi(raw);
 
-      const header = PiSandboxFmt.header('scoped', width - 1, tools);
+      const header = PiSandboxFmt.header('scoped', { width, tools });
       expect(rawLines.slice(0, 2)).to.eql(header.slice(0, 2));
       expect(rawLines[0]).to.contain(c.bold(c.cyan('sys:pi')));
       expect(rawLines[0]).not.to.contain('scoped');
@@ -178,8 +220,12 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
 
       const full = `sys:pi tools:none · ${pkg.version}`;
       const fullWidth = Cli.Fmt.Text.Width.measure(full);
-      const exact = Cli.stripAnsi(PiSandboxFmt.header('scoped', fullWidth, [])[0]);
-      const narrow = Cli.stripAnsi(PiSandboxFmt.header('scoped', fullWidth - 1, [])[0]);
+      const exact = Cli.stripAnsi(
+        PiSandboxFmt.header('scoped', { width: fullWidth + 1, tools: [] })[0],
+      );
+      const narrow = Cli.stripAnsi(
+        PiSandboxFmt.header('scoped', { width: fullWidth, tools: [] })[0],
+      );
       expect(exact).to.eql(full);
       expect(narrow).not.to.contain('tools:');
       expect(narrow).not.to.contain(' · ');

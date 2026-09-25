@@ -3,7 +3,6 @@ import { Cli as CliOwner, Fs, Is, Obj, type t } from '../common.ts';
 import { menuWith } from '../u/u.menu.ts';
 import { MenuState } from '../u/u.menu.state.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
-import { PiSandboxFmt } from '../../u/u.fmt.sandbox.ts';
 import { Ocr } from '../../../m.core/m.extension/m.ocr/mod.ts';
 
 const Cli = {
@@ -61,7 +60,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const prevInfo = console.info;
     const oldConfig = Fs.join(cwd, '-config/@sys.driver-pi.pi/default.yaml');
     const newConfig = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
-    const calls: string[] = [];
+    const output = captureMenuOutput();
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(oldConfig));
@@ -69,24 +68,22 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectInput) => {
+        const frame = output.take();
+        expectMenuBoundary(frame, Cli.Screen.size().width);
+        expect(frame.split('\n').join(' ')).to.contain('Migrated 2 Pi config/runtime items.');
         const values = (input.options ?? []).map((item) => item.value);
         expect(values).to.include(newConfig);
         expect(values).not.to.include(oldConfig);
         return Promise.resolve('exit');
       },
     });
-    console.info = (value?: unknown) => calls.push(String(value ?? ''));
+    console.info = output.info;
 
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
       expect(await Fs.exists(oldConfig)).to.eql(false);
       expect(await Fs.exists(newConfig)).to.eql(true);
-      expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
-        expectedProfileHeader('scoped'),
-        'Migrated 2 Pi config/runtime items.',
-        '',
-      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -100,16 +97,21 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const original = Cli.Input.Select.prompt;
     const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
-    const calls: string[] = [];
+    const output = captureMenuOutput();
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));
     await Fs.write(config, 'sandbox:\n  context:\n    include: []\n');
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: () => Promise.resolve('exit'),
+      value: () => {
+        const frame = output.take();
+        expectMenuBoundary(frame, Cli.Screen.size().width);
+        expect(frame.split('\n').join(' ')).to.contain('Migrated 1 Pi config/runtime item.');
+        return Promise.resolve('exit');
+      },
     });
-    console.info = (value?: unknown) => calls.push(String(value ?? ''));
+    console.info = output.info;
 
     try {
       const res = await menu({ cwd: testCwd(cwd) });
@@ -117,11 +119,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(res).to.eql({ kind: 'exit' });
       expect(text).to.contain('append: []');
       expect(text).not.to.contain('include:');
-      expect(calls.map((value) => Cli.stripAnsi(value))).to.eql([
-        expectedProfileHeader('scoped'),
-        'Migrated 1 Pi config/runtime item.',
-        '',
-      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -330,6 +327,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const reportDir = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi') as t.StringDir;
 
     const events: string[] = [];
+    const output = captureMenuOutput();
     let rootCount = 0;
     let actionCount = 0;
 
@@ -340,12 +338,16 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
       Object.defineProperty(Cli.Input.Select, 'prompt', {
         value: (input: SelectInput) => {
+          const frame = output.take();
+          expectMenuBoundary(frame, 80);
           if (isRootMenu(input)) {
+            expect(frame).not.to.contain('.sandbox.log.md');
             events.push('prompt:root');
             rootCount += 1;
             return Promise.resolve(rootCount === 1 ? config : 'exit');
           }
           if (isSelectedProfileMenu(input)) {
+            expect(frame).to.contain('.sandbox.log.md');
             events.push('prompt:action');
             actionCount += 1;
             if (actionCount === 1) {
@@ -358,6 +360,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
             return Promise.resolve('back');
           }
           if (isProfileSubmenu(input)) {
+            expect(frame).to.contain('.sandbox.log.md');
             events.push('prompt:submenu');
             return Promise.resolve('back');
           }
@@ -370,23 +373,11 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
         writable: true,
       });
       screen.size = () => ({ width: 80, height: 24 });
-      console.clear = () => events.push('clear');
-      console.info = (value?: unknown) => {
-        const text = Cli.stripAnsi(String(value ?? ''));
-        if (text.includes('.sandbox.log.md')) {
-          events.push('screen:sandbox');
-          return;
-        }
-        if (text === expectedProfileHeader('scoped')) {
-          events.push('screen:root');
-          return;
-        }
-        if (text === '') {
-          events.push('screen:gap');
-          return;
-        }
-        throw new Error(`Unexpected screen output:\n${text}`);
+      console.clear = () => {
+        output.clear();
+        events.push('clear');
       };
+      console.info = output.info;
 
       const res = await menu({ cwd: testCwd(cwd) });
       const reports = (await Fs.ls(reportDir)).filter((path) => path.endsWith('.sandbox.log.md'));
@@ -395,21 +386,14 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(reports).to.have.length(1);
       expect(events).to.eql([
         'clear',
-        'screen:root',
-        'screen:gap',
         'prompt:root',
         'clear',
-        'screen:sandbox',
         'prompt:action',
         'clear',
-        'screen:sandbox',
         'prompt:submenu',
         'clear',
-        'screen:sandbox',
         'prompt:action',
         'clear',
-        'screen:root',
-        'screen:gap',
         'prompt:root',
       ]);
     } finally {
@@ -433,7 +417,7 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const prevInfo = console.info;
     const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
     const hasMessages: boolean[] = [];
-    const prints: string[] = [];
+    const output = captureMenuOutput();
     let topLevelCount = 0;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -442,6 +426,10 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectInput) => {
+        const frame = output.take();
+        expectMenuBoundary(frame, Cli.Screen.size().width);
+        expect(frame).to.match(/Deno permissions\s+scoped/);
+        expect(frame).not.to.contain('.sandbox.log.md');
         hasMessages.push(Obj.hasOwn(input, 'message'));
         if (isRootMenu(input)) {
           topLevelCount += 1;
@@ -452,19 +440,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
-    console.info = (value?: unknown) => prints.push(String(value ?? ''));
+    console.info = output.info;
 
     try {
       const res = await menu({ cwd: testCwd(cwd) });
       expect(res).to.eql({ kind: 'exit' });
       expect(hasMessages).to.eql([false, false, false]);
-      expect(prints.map((value) => Cli.stripAnsi(value))).to.eql([
-        expectedProfileHeader('scoped'),
-        '',
-        expectedProfileHeader('scoped'),
-        expectedProfileHeader('scoped'),
-        '',
-      ]);
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
       console.info = prevInfo;
@@ -481,12 +462,16 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     const reportDir = Fs.join(cwd, '.pi/@sys/log/@sys.driver-pi') as t.StringDir;
 
     await Fs.ensureDir(Fs.join(cwd, '.git'));
-    const prints: string[] = [];
+    const output = captureMenuOutput();
+    const frames: string[] = [];
     let topLevelCount = 0;
     let actionObservedPersistedReport = false;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: async (input: SelectInput) => {
+        const frame = output.take();
+        expectMenuBoundary(frame, Cli.Screen.size().width);
+        frames.push(frame);
         if (isRootMenu(input)) {
           topLevelCount += 1;
           if (topLevelCount === 1) return config;
@@ -500,18 +485,17 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
-    console.info = (value?: unknown) => prints.push(String(value ?? ''));
+    console.info = output.info;
 
     try {
       const res = await menu({ cwd: testCwd(cwd), gitRootExplicit: true });
-      const printed = Cli.stripAnsi(prints.join('\n'));
+      const printed = frames.join('\n');
       const reportFiles = (await Fs.ls(reportDir)).filter((path) =>
         path.endsWith('.sandbox.log.md')
       );
       const report = reportFiles[0] ? await Fs.readText(reportFiles[0]) : undefined;
       expect(res).to.eql({ kind: 'exit' });
-      expect(prints.filter((value) => value === '')).to.have.length(2);
-      expect(prints.filter((value) => value.includes('.sandbox.log.md'))).to.have.length(1);
+      expect(frames.filter((value) => value.includes('.sandbox.log.md'))).to.have.length(1);
       expect(printed).to.contain('sys:pi');
       expect(printed).to.match(/Deno permissions\s+scoped/);
       expect(printed).to.match(/Report\s+.*\.sandbox\.log\.md/);
@@ -525,82 +509,6 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
       expect(printed).not.to.contain('write:cwd');
     } finally {
       Object.defineProperty(Cli.Input.Select, 'prompt', { value: original });
-      console.info = prevInfo;
-      await Fs.remove(cwd);
-    }
-  });
-
-  it('menu → clears and restores the root header initially and after back on TTY', async () => {
-    const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.profiles.u.menu.test.' }))
-      .absolute as t.StringDir;
-    const originalPrompt = Cli.Input.Select.prompt;
-    const prevInfo = console.info;
-    const prevClear = console.clear;
-    const prevTerminal = Cli.Is.terminal;
-    const screen = Cli.Screen as { size: () => { width: number; height: number } };
-    const prevScreenSize = screen.size;
-    const config = Fs.join(cwd, '-config/@sys.driver-pi/default.yaml');
-
-    await Fs.ensureDir(Fs.join(cwd, '.git'));
-    await Fs.ensureDir(Fs.dirname(config));
-    await Fs.write(config, 'sandbox: {}\n');
-    const events: string[] = [];
-    let topLevelCount = 0;
-
-    Object.defineProperty(Cli.Input.Select, 'prompt', {
-      value: (input: SelectInput) => {
-        if (isRootMenu(input)) {
-          events.push('root:prompt');
-          topLevelCount += 1;
-          if (topLevelCount === 1) return Promise.resolve(config);
-          return Promise.resolve('exit');
-        }
-        if (isActionMenu(input)) {
-          events.push('action:prompt');
-          return Promise.resolve('back');
-        }
-        throw new Error(`Unexpected prompt: ${input.message}`);
-      },
-    });
-    Object.defineProperty(Cli.Is, 'terminal', {
-      value: (stream: t.StdioName) => stream === 'stdout',
-      configurable: true,
-      writable: true,
-    });
-    screen.size = () => ({ width: 80, height: 24 });
-    console.clear = () => events.push('clear');
-    console.info = (value?: unknown) => {
-      const text = Cli.stripAnsi(String(value ?? ''));
-      if (text === expectedProfileHeader('scoped')) events.push('root:header');
-      if (text === '') events.push('root:gap');
-      if (text.includes('.sandbox.log.md')) events.push('sandbox:sheet');
-    };
-
-    try {
-      const res = await menu({ cwd: testCwd(cwd) });
-      expect(res).to.eql({ kind: 'exit' });
-      expect(events).to.eql([
-        'clear',
-        'root:header',
-        'root:gap',
-        'root:prompt',
-        'clear',
-        'sandbox:sheet',
-        'action:prompt',
-        'clear',
-        'root:header',
-        'root:gap',
-        'root:prompt',
-      ]);
-    } finally {
-      Object.defineProperty(Cli.Input.Select, 'prompt', { value: originalPrompt });
-      Object.defineProperty(Cli.Is, 'terminal', {
-        value: prevTerminal,
-        configurable: true,
-        writable: true,
-      });
-      screen.size = prevScreenSize;
-      console.clear = prevClear;
       console.info = prevInfo;
       await Fs.remove(cwd);
     }
@@ -718,13 +626,17 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
     screen.size = () => ({ width: 80, height: 24 });
     await Fs.ensureDir(Fs.join(cwd, '.git'));
     await Fs.ensureDir(Fs.dirname(config));
-    await Fs.write(config, 'sandbox: {}\n');
-    const prints: string[] = [];
+    await Fs.write(config, ProfilesFs.initialYaml());
+    const output = captureMenuOutput();
+    const frames: string[] = [];
     const harnessOptions: string[] = [];
     let topLevelCount = 0;
 
     Object.defineProperty(Cli.Input.Select, 'prompt', {
       value: (input: SelectInput) => {
+        const frame = output.take();
+        expectMenuBoundary(frame, 80);
+        frames.push(frame);
         if (isRootMenu(input)) {
           topLevelCount += 1;
           if (topLevelCount === 1) return Promise.resolve(config);
@@ -737,14 +649,13 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
         throw new Error(`Unexpected prompt: ${input.message}`);
       },
     });
-    console.info = (value?: unknown) => prints.push(String(value ?? ''));
+    console.info = output.info;
 
     try {
       const res = await menu({ cwd: testCwd(cwd), allowAll: true });
-      const printed = Cli.stripAnsi(prints.join('\n'));
-      const rootHeader = Cli.stripAnsi(prints[0] ?? '');
+      const printed = frames.join('\n');
+      const rootHeader = frames[0] ?? '';
       expect(res).to.eql({ kind: 'exit' });
-      expect(rootHeader).to.eql(expectedProfileHeader('allow-all'));
       expect(rootHeader).to.contain('sys:pi');
       expect(rootHeader).to.match(/Deno permissions\s+allow-all/);
       expect(rootHeader).not.to.contain('read');
@@ -768,8 +679,28 @@ type SelectInput = {
   readonly options?: readonly { readonly name: string; readonly value: unknown }[];
 };
 
-function expectedProfileHeader(permissions: t.PiCli.PermissionMode) {
-  return Cli.stripAnsi(PiSandboxFmt.header(permissions, Cli.Screen.size().width).join('\n'));
+/** Capture visible rows until a clear or prompt boundary, independent of logging batches. */
+function captureMenuOutput() {
+  const output: string[] = [];
+  return {
+    info(value?: unknown) {
+      output.push(String(value ?? ''));
+    },
+    clear() {
+      output.length = 0;
+    },
+    take: () => Cli.stripAnsi(output.splice(0).join('\n')),
+  };
+}
+
+/** Assert rendered framing independently of the production formatter. */
+function expectMenuBoundary(text: string, width: number) {
+  const lines = Cli.stripAnsi(text).split('\n');
+  const rule = '┄'.repeat(width - 1);
+  expect(lines[1]).to.eql('━'.repeat(width - 1));
+  expect(lines.at(-1)).to.eql(rule);
+  expect(lines.filter((line) => line === rule)).to.have.length(1);
+  expect(lines.at(-2)?.trim()).not.to.eql('');
 }
 
 function testCwd(cwd: t.StringDir): t.PiCli.Cwd {

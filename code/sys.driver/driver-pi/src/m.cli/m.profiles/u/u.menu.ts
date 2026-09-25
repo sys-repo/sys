@@ -149,14 +149,12 @@ function printProfileRoot(
   deps: MenuDependencies,
 ) {
   clearInteractiveScreen(deps.isTerminal);
-  printProfileHeader(input.allowAll, deps.screenSize().width);
-  if (input.notice) console.info(input.notice);
-  console.info('');
+  printProfileHeader(input.allowAll, deps.screenSize().width, input.notice);
 }
 
-function printProfileHeader(allowAll?: boolean, width?: number) {
+function printProfileHeader(allowAll?: boolean, width?: number, notice?: string) {
   const permissions = allowAll === true ? 'allow-all' : 'scoped';
-  console.info(PiSandboxFmt.header(permissions, width).join('\n'));
+  console.info(PiSandboxFmt.header(permissions, { width, notice }).join('\n'));
 }
 
 function menuArgs(cwd: t.StringDir) {

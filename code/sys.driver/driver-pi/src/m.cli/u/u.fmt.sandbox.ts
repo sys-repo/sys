@@ -2,6 +2,13 @@ import { c, Cli, Fs, Is, Num, Path, pkg, Str, type t } from '../common.ts';
 import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
 import { PiAuthority } from './u.authority.ts';
 
+type PiSandboxHeaderOptions = {
+  /** Terminal width, including the reserved edge margin. */
+  readonly width?: number;
+  readonly tools?: readonly string[];
+  readonly notice?: string;
+};
+
 type PiSandboxTableOptions = {
   readonly width?: number;
   readonly gitRootExplicit?: boolean;
@@ -64,14 +71,13 @@ export const PiSandboxFmt = {
   /** Render application identity and safety facts before a profile is resolved. */
   header(
     permissions: t.PiCli.PermissionMode,
-    renderWidth = sandboxRenderWidth(),
-    tools?: readonly string[],
+    opts: PiSandboxHeaderOptions = {},
   ): readonly string[] {
+    const renderWidth = sandboxRenderWidth(opts.width);
     return [
-      ...identityRows(permissions, renderWidth, tools),
+      ...identityRows(permissions, renderWidth, opts.tools),
       ...renderRows(authorityRows(permissions), renderWidth).split('\n'),
-      '',
-      ...limitationRows(renderWidth),
+      ...closingRows(renderWidth, opts.notice),
     ];
   },
 
@@ -114,9 +120,6 @@ export const PiSandboxFmt = {
       renderWidth,
       opts.tools,
     );
-    const bodyHr = c.dim(
-      Cli.Fmt.hr({ width: renderWidth, color: 'gray', weight: 'dashed' }),
-    );
     const tableText = renderRows(rows, renderWidth);
     const body = reportLink
       ? tableText.replace(
@@ -128,9 +131,7 @@ export const PiSandboxFmt = {
     return Str.builder()
       .line(header.join('\n'))
       .line(body)
-      .line('')
-      .line(limitationRows(renderWidth).join('\n'))
-      .line(bodyHr)
+      .lines(closingRows(renderWidth))
       .toString();
   },
 } as const;
@@ -164,6 +165,16 @@ function formatSnapshot(stage?: t.PiCli.LaunchIdentity['stage']) {
   if (stage === 'preview') return c.gray('preview settings');
   if (stage === 'launch-input') return c.gray('launch settings');
   return c.dim(c.gray('<unknown>'));
+}
+
+/** The closing rule occupies the separator row; callers must not append a blank row. */
+function closingRows(width: number, notice?: string): readonly string[] {
+  return [
+    '',
+    ...limitationRows(width),
+    ...(notice ? Cli.Fmt.Text.Wrap.lines(notice, { width, preserve: 'none' }) : []),
+    c.dim(Cli.Fmt.hr({ width, color: 'gray', weight: 'dashed' })),
+  ];
 }
 
 function limitationRows(width: number): readonly string[] {
