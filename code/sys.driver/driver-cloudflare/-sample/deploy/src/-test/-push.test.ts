@@ -8,13 +8,14 @@ import { localFixture } from '../../-scripts/-test/u.fixture.ts';
 const audiences = ['public', 'private'] as const;
 
 describe('R2 deployment sample: publication wiring', () => {
-  it('task declarations → explicit public then private commands joined with &&', async () => {
+  it('task declarations → next step runs only after both audience pushes succeed', async () => {
     const path = Fs.Path.fromFileUrl(new URL('../../deno.json', import.meta.url));
     const { data } = await Fs.readJson<{ tasks: Record<string, string> }>(path);
     expect(data?.tasks).to.include({
-      push: 'deno task push:public && deno task push:private',
+      push: 'deno task push:public && deno task push:private && deno task push:next',
       'push:public': 'deno run --no-prompt -P=push ./-scripts/task.push.ts public',
       'push:private': 'deno run --no-prompt -P=push ./-scripts/task.push.ts private',
+      'push:next': 'deno run --no-prompt -P=push ./-scripts/task.push.next.ts',
     });
   });
 

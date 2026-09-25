@@ -8,9 +8,10 @@
     "proof:local": "deno run --no-prompt --unstable-no-legacy-abort -P=serve ./-scripts/task.proof.local.ts",
     "build": "deno run --no-prompt -P=build ./-scripts/task.build.ts",
     "clean": "deno run --no-prompt -P=clean ./-scripts/task.clean.ts",
-    "push": "deno task push:public && deno task push:private",
+    "push": "deno task push:public && deno task push:private && deno task push:next",
     "push:public": "deno run --no-prompt -P=push ./-scripts/task.push.ts public",
     "push:private": "deno run --no-prompt -P=push ./-scripts/task.push.ts private",
+    "push:next": "deno run --no-prompt -P=push ./-scripts/task.push.next.ts",
     "serve": "deno run --no-prompt --unstable-no-legacy-abort -P=serve ./-scripts/task.serve.ts"
   },
   "exports": {

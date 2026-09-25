@@ -1,4 +1,9 @@
-import { formatBuildSelection, formatMissingCredentials, formatR2Failure } from '../u.fmt.ts';
+import {
+  formatBuildSelection,
+  formatMissingCredentials,
+  formatNextStep,
+  formatR2Failure,
+} from '../u.fmt.ts';
 import { describe, expect, Fmt, Fs, it, Obj, ROOT, Str, stripAnsi, type t } from './common.ts';
 
 const selection: t.DistPins<t.Audience> = Obj.deepFreeze({
@@ -74,6 +79,18 @@ describe('R2 deployment sample: R2 failure formatting', () => {
     expect(actual).not.to.include('Check the S3 key pair');
     expect(actual).not.to.include('This task made no R2 requests.');
     expect(actual.endsWith('  deno task push:public')).to.eql(true);
+  });
+});
+
+describe('R2 deployment sample: next step formatting', () => {
+  it('formats the next action', () => {
+    const text = formatNextStep('serve the published build', 'deno task serve', { width: 40 });
+    expect(stripAnsi(text)).to.eql(Str.dedent(`
+      Next: serve the published build
+      ${Fmt.hr({ width: 40 })}
+
+          deno task serve
+    `));
   });
 });
 

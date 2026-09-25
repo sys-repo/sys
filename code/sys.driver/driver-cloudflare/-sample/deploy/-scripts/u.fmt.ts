@@ -3,6 +3,20 @@ import { R2 } from '@sys/driver-cloudflare/r2';
 import { c, Fmt, Fs, ROOT, Str, type t, Text } from './common.ts';
 import { BUILD_RECORD_FILENAME } from '../src/m.deployment/mod.ts';
 
+/** Format one next action in the sample walkthrough. */
+export function formatNextStep(
+  title: string,
+  command: string,
+  options: { width?: number } = {},
+): string {
+  return Str.dedent(`
+    ${c.dim(c.cyan(c.italic(`Next: ${title}`)))}
+    ${Fmt.hr({ width: options.width, color: 'cyan' })}
+
+    ${Code.block(c.cyan(command), { indent: 4 })}
+  `);
+}
+
 /** Format the selected manifest pins and the next publication command. */
 export function formatBuildSelection(
   selection: t.DistPins<t.Audience>,
@@ -23,13 +37,7 @@ export function formatBuildSelection(
   const heading = Text.Width.padEnd('Manifest', labelWidth + 2);
   const recordUrl = Fs.Path.toFileUrl(Fs.join(ROOT, BUILD_RECORD_FILENAME));
   const recordLink = Fmt.hyperlink(BUILD_RECORD_FILENAME, recordUrl, { underline: true });
-  const instruction = 'Next: publish to R2';
-  const next = Str.dedent(`
-    ${c.dim(c.cyan(c.italic(instruction)))}
-    ${Fmt.hr({ width: options.width, color: 'cyan' })}
-
-    ${Code.block(c.cyan('deno task push'), { indent: 4 })}
-  `);
+  const next = formatNextStep('publish to R2', 'deno task push', options);
   return Str.builder()
     .line(`${heading} ${recordLink}`)
     .lines(pins)
