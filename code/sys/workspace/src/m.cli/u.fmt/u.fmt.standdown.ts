@@ -32,7 +32,6 @@ export const FmtStanddown = Object.freeze(
     latestFact(
       candidate: t.WorkspaceUpgrade.Candidate,
     ): t.WorkspaceUpgrade.VersionFact | undefined {
-      if (candidate.registry !== 'npm') return undefined;
       if (!candidate.latest) return undefined;
       if (!Semver.Is.greaterThan(candidate.latest, candidate.current)) return undefined;
       const fact = candidate.versions.find((item) => item.version === candidate.latest);
@@ -47,6 +46,7 @@ export const FmtStanddown = Object.freeze(
     },
 
     disabled(candidate: t.WorkspaceUpgrade.Candidate, decision?: t.EsmPolicy.Decision): boolean {
+      if (candidate.available.length === 0) return true;
       if (!FmtStanddown.latestFact(candidate)) return false;
       if (decision?.ok) return false;
       return !FmtStanddown.hasSelectableUpgrade(candidate);
@@ -61,8 +61,8 @@ export const FmtStanddown = Object.freeze(
       if (fact.eligibility.kind !== 'standdown' || evaluatedAt === undefined) {
         return 'newer in standdown';
       }
-      return `newer in standdown - upgrade in ${
-        FmtStanddown.duration(fact.eligibility.eligibleAt - evaluatedAt)
+      return `newer in standdown - age eligible in ${
+        FmtStanddown.countdown(fact.eligibility.eligibleAt - evaluatedAt)
       }`;
     },
 
@@ -78,7 +78,16 @@ export const FmtStanddown = Object.freeze(
       if (fact.eligibility.kind !== 'standdown') return c.gray('-');
       const remaining = fact.eligibility.eligibleAt - evaluatedAt;
       if (remaining <= 0) return c.green('now');
-      return FmtStanddown.duration(remaining);
+      return FmtStanddown.countdown(remaining);
+    },
+
+    countdown(input: t.Msecs): string {
+      if (input <= 0) return 'now';
+      if (input < 1000) return '<1s';
+      if (input < MINUTE) return `${Math.ceil(input / 1000)}s`;
+      if (input < HOUR) return `${Math.ceil(input / MINUTE)}m`;
+      if (input < 2 * DAY) return `${Math.ceil(input / HOUR)}h`;
+      return `${Math.ceil(input / DAY)}d`;
     },
 
     duration(input: t.Msecs): string {

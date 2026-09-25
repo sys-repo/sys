@@ -4,6 +4,7 @@ import { WorkspaceDelta } from '../m.delta/mod.ts';
 import { WorkspaceUpgrade } from '../m.upgrade/mod.ts';
 import { commandOf, parseArgs, parseDslArgs, wantsHelp } from './u/u.args.ts';
 import { runInteractive } from './u/u.interactive.ts';
+import { UpgradeSelection } from './u/u.selection.ts';
 import { Fmt } from './u.fmt/u.fmt.ts';
 import { FmtHelp } from './u.fmt/u.fmt.help.ts';
 
@@ -93,7 +94,7 @@ async function runUpgrade(deps: WorkspaceCliDependencies, input: {
     };
   }
 
-  const selection = await wrangle.selection(deps, upgradeInput, options);
+  const selection = await UpgradeSelection.nonInteractive(upgradeInput, options);
 
   const upgrade = await Cli.Spinner.with(
     Fmt.spinnerProgress({ kind: 'plan' }),
@@ -287,37 +288,5 @@ const wrangle = {
     if (!Is.str(value)) return { ok: false, message: 'Option requires a value: --format' };
     if (value === 'human' || value === 'skill') return { ok: true, value };
     return { ok: false, message: `Unsupported dsl format: ${value} (expected: human, skill)` };
-  },
-
-  async selection(
-    deps: WorkspaceCliDependencies,
-    input: t.WorkspaceUpgrade.Input,
-    options: t.WorkspaceCli.ResolvedOptions,
-  ): Promise<t.WorkspaceCli.Selection> {
-    if (options.include.length === 0) {
-      return { include: [], exclude: options.exclude };
-    }
-
-    const collected = await deps.upgrade.collect(input, {
-      policy: { mode: options.policy, exclude: options.exclude },
-      prerelease: options.prerelease,
-      minimumDependencyAge: options.minimumDependencyAge,
-      evaluatedAt: options.evaluatedAt,
-    });
-
-    const include = options.include;
-    const exclude = new Set(options.exclude);
-
-    for (const candidate of collected.candidates) {
-      const alias = candidate.entry.module.alias;
-      const name = candidate.entry.module.name;
-      const picked = include.includes(name) || (!!alias && include.includes(alias));
-      if (!picked) exclude.add(name);
-    }
-
-    return {
-      include,
-      exclude: [...exclude].sort((a, b) => a.localeCompare(b)),
-    };
   },
 } as const;

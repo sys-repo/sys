@@ -130,7 +130,7 @@ describe('Workspace.Upgrade.collect', () => {
     ]);
   });
 
-  it('leaves jsr versions eligible when npm standdown is enabled', async () => {
+  it('keeps recent JSR versions visible but in standdown', async () => {
     const fs = await Testing.dir('WorkspaceUpgrade.collect.standdown.jsr');
     await writeDepsYaml(
       fs,
@@ -142,7 +142,12 @@ describe('Workspace.Upgrade.collect', () => {
 
     const registry = createRegistry({
       versions: {
-        jsr: { '@sys/std': versionsJsr('@sys/std', '0.0.3', { '0.0.1': {}, '0.0.3': {} }) },
+        jsr: {
+          '@sys/std': versionsJsr('@sys/std', '0.0.3', {
+            '0.0.1': { createdAt: T.current },
+            '0.0.3': { createdAt: T.tooNew },
+          }),
+        },
         npm: {},
       },
     });
@@ -154,11 +159,12 @@ describe('Workspace.Upgrade.collect', () => {
     const candidate = result.candidates[0]!;
 
     expect(candidate.available).to.eql(['0.0.3', '0.0.1']);
-    expect(candidate.eligible).to.eql(['0.0.3', '0.0.1']);
-    expect(candidate.versions.map((item) => item.eligibility)).to.eql([
-      { kind: 'eligible' },
-      { kind: 'eligible' },
-    ]);
+    expect(candidate.versions[0]).to.eql({
+      version: '0.0.3',
+      publishedAt: T.tooNew,
+      eligibility: { kind: 'standdown', eligibleAt: T.eligibleAt, age: DAY / 2 },
+    });
+    expect(candidate.eligible).to.eql(['0.0.1']);
   });
 
   it('carries package override policy from deps.yaml', async () => {

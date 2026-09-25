@@ -45,7 +45,7 @@ export async function writeDepsYaml(fs: TestDir, text: string) {
 export function versionsJsr(
   pkgName: string,
   latest: string,
-  published: Record<string, { yanked?: boolean }> = {},
+  published: Record<string, { yanked?: boolean; createdAt?: t.StringTimestamp }> = {},
 ): t.Registry.Jsr.Fetch.Pkg.VersionsResponse {
   const [scope, name] = pkgName.slice(1).split('/');
   const url = Jsr.Url.Pkg.metadata(pkgName);

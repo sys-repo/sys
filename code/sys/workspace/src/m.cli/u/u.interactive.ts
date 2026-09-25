@@ -3,6 +3,7 @@ import { applyWithSession } from '../../m.upgrade/u.apply.ts';
 import { createSession, type UpgradeSession } from '../../m.upgrade/u.session.ts';
 import { upgradeWithSession } from '../../m.upgrade/u.upgrade.ts';
 import { Fmt } from '../u.fmt/u.fmt.ts';
+import { UpgradeSelection } from './u.selection.ts';
 
 type InteractiveResult = {
   readonly selection: t.WorkspaceCli.Selection;
@@ -33,6 +34,7 @@ export async function runInteractiveWith(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceCli.ResolvedOptions,
 ): Promise<InteractiveResult> {
+  const entries = await UpgradeSelection.interactive(input);
   const session = deps.createSession();
   const initial = await Cli.Spinner.with(
     Fmt.spinnerProgress({ kind: 'plan' }),
@@ -55,7 +57,7 @@ export async function runInteractiveWith(
   console.info(Fmt.plan(initial));
   console.info();
 
-  const selection = await wrangle.selection(deps, initial, options);
+  const selection = await wrangle.selection(deps, initial, options, entries);
   const policy = wrangle.policy(initial, selection, options.policy);
   if (policy !== options.policy) {
     console.info(Fmt.overrideNotice(options.policy));
@@ -155,6 +157,7 @@ const wrangle = {
     deps: InteractiveDependencies,
     upgrade: t.WorkspaceUpgrade.Result,
     options: t.WorkspaceCli.ResolvedOptions,
+    entries: readonly t.EsmDeps.Entry[],
   ): Promise<t.WorkspaceCli.Selection> {
     const promptOptions = Fmt.selectionOptions(upgrade, options);
     if (promptOptions.length === 0) return { include: [], exclude: options.exclude };
@@ -164,22 +167,13 @@ const wrangle = {
       options: [...promptOptions],
       maxRows: Math.min(50, promptOptions.length),
     })) ?? [];
-    const disabled = new Set(
-      promptOptions.filter((option) => option.disabled).map((option) => option.value),
+    const enabled = new Set(
+      promptOptions.filter((option) => !option.disabled).map((option) => option.value),
     );
-    const picked = rawPicked.filter((value) => !disabled.has(value));
-
-    const pickedSet = new Set(picked);
-    const exclude = new Set(options.exclude);
-
-    for (const option of promptOptions) {
-      if (option.disabled) continue;
-      if (!pickedSet.has(option.value)) exclude.add(option.value);
-    }
-
+    const picked = [...new Set(rawPicked.filter((value) => enabled.has(value)))].toSorted();
     return {
-      include: [...pickedSet].sort((a, b) => a.localeCompare(b)),
-      exclude: [...exclude].sort((a, b) => a.localeCompare(b)),
+      include: picked,
+      exclude: UpgradeSelection.exclusions(entries, picked, options.exclude),
     };
   },
 

@@ -132,7 +132,7 @@ describe('Workspace.Cli.Fmt', () => {
     );
     const label = Cli.stripAnsi(options[0]!.name);
 
-    expect(plan).to.include('npm standdown');
+    expect(plan).to.include('Dependency standdown');
     expect(plan).to.include('released');
     expect(plan).to.include('eligible in');
     expect(plan).to.include('2d');
@@ -143,7 +143,7 @@ describe('Workspace.Cli.Fmt', () => {
     expect(plan).to.include('34h ago');
     expect(plan).to.include('14h');
     expect(plan).to.not.include('from now');
-    expect(label).to.include('newer in standdown - upgrade in 14h');
+    expect(label).to.include('newer in standdown - age eligible in 14h');
     expect(options[0]?.disabled).to.eql(false);
   });
 
@@ -156,7 +156,7 @@ describe('Workspace.Cli.Fmt', () => {
     );
     const label = Cli.stripAnsi(options[0]!.name);
 
-    expect(plan).to.include('npm standdown');
+    expect(plan).to.include('Dependency standdown');
     expect(plan).to.include('publish timestamp unavailable');
     expect(label).to.include('newer in standdown - publish timestamp unavailable');
     expect(options[0]?.checked).to.eql(false);

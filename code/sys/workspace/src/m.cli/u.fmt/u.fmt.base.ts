@@ -1,10 +1,9 @@
 import { c, Cli, Semver, type t } from '../common.ts';
+import { entryKey } from '../../m.upgrade/u.entry.ts';
 
 export const FmtBase = Object.freeze(
   {
-    key(entry: t.EsmDeps.Entry): string {
-      return `${entry.module.registry}:${entry.module.name}`;
-    },
+    key: entryKey,
 
     name(entry: t.EsmDeps.Entry): string {
       const alias = entry.module.alias ? c.gray(` (${entry.module.alias})`) : '';

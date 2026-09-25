@@ -174,7 +174,10 @@ describe('Workspace.Cli.run', () => {
     const registry = fixture.registry({
       versions: {
         jsr: {
-          '@std/path': fixture.versionsJsr('@std/path', '1.0.8', { '1.0.7': {}, '1.0.8': {} }),
+          '@std/path': fixture.versionsJsr('@std/path', '1.0.8', {
+            '1.0.7': {},
+            '1.0.8': { createdAt: fixture.standdownTime.older },
+          }),
         },
         npm: {
           react: fixture.versionsNpm('react', '19.0.0', {
@@ -242,7 +245,10 @@ describe('Workspace.Cli.run', () => {
     const registry = fixture.registry({
       versions: {
         jsr: {
-          '@std/path': fixture.versionsJsr('@std/path', '1.0.8', { '1.0.7': {}, '1.0.8': {} }),
+          '@std/path': fixture.versionsJsr('@std/path', '1.0.8', {
+            '1.0.7': {},
+            '1.0.8': { createdAt: fixture.standdownTime.older },
+          }),
         },
         npm: {
           react: fixture.versionsNpm('react', '19.0.0', {
@@ -281,6 +287,12 @@ describe('Workspace.Cli.run', () => {
       });
       expect(Num.Is.finite(result.options.evaluatedAt)).to.eql(true);
       expect(result.selection).to.eql({ include: [], exclude: [] });
+      expect(result.upgrade.totals).to.eql({
+        dependencies: 2,
+        allowed: 2,
+        blocked: 0,
+        planned: 2,
+      });
     }
     expect(afterDeps.data).to.eql(beforeDeps.data);
     expect(afterDeno.data).to.eql(beforeDeno.data);

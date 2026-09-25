@@ -1,6 +1,7 @@
-import { Arr, Deps, Err, Is, Num, Obj, Semver, type t, Time } from './common.ts';
+import { Arr, Deps, Err, Is, Obj, Semver, type t } from './common.ts';
 import { createSession, Session, type UpgradeSession } from './u.session.ts';
 import { Standdown } from './u.standdown.ts';
+import { StanddownTime } from './u.standdown.time.ts';
 
 type RegistryProgressState = {
   readonly total: t.WorkspaceUpgrade.RegistryProgressCounts;
@@ -9,13 +10,15 @@ type RegistryProgressState = {
   readonly dependencies: number;
 };
 
+/**
+ * Read manifest pins and published versions without changing dependency files.
+ * Releases withheld by the age policy remain visible, with reasons.
+ */
 export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options) => {
   return await collectWithSession(input, options, createSession());
 };
 
-/**
- * Internal session-aware collection helper for multi-phase upgrade orchestration.
- */
+/** Collect with shared registry lookups so aliases use the same publication evidence. */
 export async function collectWithSession(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceUpgrade.Options | undefined,
@@ -129,27 +132,11 @@ const wrangle = {
       policy: options?.policy ?? { mode: 'minor' },
       prerelease: options?.prerelease ?? false,
       registries: options?.registries ?? ['jsr', 'npm'],
-      minimumDependencyAge: wrangle.minimumDependencyAge(options?.minimumDependencyAge),
-      evaluatedAt: wrangle.evaluatedAt(options?.evaluatedAt),
+      minimumDependencyAge: StanddownTime.minimumAge(options?.minimumDependencyAge),
+      evaluatedAt: StanddownTime.evaluatedAt(options?.evaluatedAt),
       log: options?.log ?? false,
       progress: options?.progress,
     };
-  },
-
-  minimumDependencyAge(input?: t.Msecs): t.Msecs {
-    if (input === undefined) return 0;
-    if (!Num.Is.finite(input) || input < 0) {
-      throw Err.std(`Invalid minimumDependencyAge: ${input}`);
-    }
-    return input;
-  },
-
-  evaluatedAt(input?: t.UnixTimestamp): t.UnixTimestamp {
-    if (input === undefined) return Time.now.timestamp;
-    if (!Num.Is.finite(input) || input < 0) {
-      throw Err.std(`Invalid evaluatedAt timestamp: ${input}`);
-    }
-    return input;
   },
 
   current(version: t.StringSemver): t.StringSemver | undefined {

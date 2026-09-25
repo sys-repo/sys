@@ -35,7 +35,7 @@ export declare namespace WorkspaceCli {
     readonly 'dry-run'?: boolean;
     /** Upgrade policy override. */
     readonly policy?: t.EsmPolicy.Mode;
-    /** Minimum npm publish age before a dependency upgrade can be selected. */
+    /** Minimum npm/JSR publication age; exact whole-millisecond duration or UTC cutoff; defaults to 48 hours. */
     readonly 'minimum-dependency-age'?: string | boolean | readonly (string | boolean)[];
     /** Canonical dependency manifest path override. */
     readonly deps?: string;
@@ -73,7 +73,7 @@ export declare namespace WorkspaceCli {
     readonly policy: t.EsmPolicy.Mode;
     /** Whether prerelease versions are considered during collection and planning. */
     readonly prerelease: boolean;
-    /** Minimum npm publish age before a dependency upgrade can be selected; 0 disables. */
+    /** Minimum npm/JSR publication age in nonnegative safe-integer milliseconds; 0 disables age filtering. */
     readonly minimumDependencyAge: t.Msecs;
     /** Stable Unix timestamp used when evaluating time-sensitive upgrade policy. */
     readonly evaluatedAt: t.UnixTimestamp;

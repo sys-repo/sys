@@ -1,4 +1,5 @@
-import { Is, Num, Obj, Semver, type t, Time } from './common.ts';
+import { Err, Is, Num, Obj, Semver, type t } from './common.ts';
+import { StanddownTime } from './u.standdown.time.ts';
 
 export type StanddownInput = {
   readonly registry: t.EsmRegistry;
@@ -15,19 +16,30 @@ export type StanddownResult = {
 };
 
 /**
- * Derive selection eligibility from visible registry facts.
- *
- * Standdown is deliberately a workspace planning concern: registry clients expose
- * publish-time facts; policy selection receives only eligible versions.
+ * Publication age limits selection, not visibility.
+ * Keep each release's evidence so callers can explain why it was withheld.
  */
 export const Standdown = Object.freeze(
   {
     evaluate(input: StanddownInput): StanddownResult {
+      StanddownTime.minimumAge(input.minimumDependencyAge);
+      StanddownTime.evaluatedAt(input.evaluatedAt);
       const meta = wrangle.metaByVersion(input.versions);
 
       const versions = input.available.map((version) => {
-        const publishedAt = wrangle.publishedAt(meta.get(version));
-        const eligibility = wrangle.eligibility({ ...input, publishedAt, version });
+        const evidence = meta.get(version);
+        const source = Obj.isRecord(evidence)
+          ? evidence[input.registry === 'jsr' ? 'createdAt' : 'publishedAt']
+          : undefined;
+        const timestamp = StanddownTime.publication(source);
+        const publishedAt = Is.str(source) && timestamp !== undefined ? source : undefined;
+        const eligibility = wrangle.eligibility({
+          current: input.current,
+          minimumDependencyAge: input.minimumDependencyAge,
+          evaluatedAt: input.evaluatedAt,
+          timestamp,
+          version,
+        });
         return publishedAt ? { version, publishedAt, eligibility } : { version, eligibility };
       });
 
@@ -56,32 +68,25 @@ const wrangle = {
     return Is.str(version) && version.length > 0 ? (version as t.StringSemver) : undefined;
   },
 
-  publishedAt(meta: unknown): t.StringTimestamp | undefined {
-    if (!Obj.isRecord(meta)) return undefined;
-    const publishedAt = meta.publishedAt;
-    if (!Is.str(publishedAt)) return undefined;
-    return Num.Is.finite(wrangle.timestamp(publishedAt))
-      ? (publishedAt as t.StringTimestamp)
-      : undefined;
-  },
-
   eligibility(
-    input: Omit<StanddownInput, 'evaluatedAt'> & {
+    input: Pick<StanddownInput, 'current' | 'minimumDependencyAge' | 'evaluatedAt'> & {
       readonly version: t.StringSemver;
-      readonly publishedAt?: t.StringTimestamp;
-      readonly evaluatedAt: t.UnixTimestamp;
+      readonly timestamp?: t.UnixTimestamp;
     },
   ): t.WorkspaceUpgrade.VersionEligibility {
     if (input.minimumDependencyAge === 0) return { kind: 'eligible' };
-    if (input.registry !== 'npm') return { kind: 'eligible' };
     if (input.version === input.current) return { kind: 'eligible' };
 
-    if (!input.publishedAt) return { kind: 'unknown-published-at' };
-    const publishedAt = wrangle.timestamp(input.publishedAt);
-    if (!Num.Is.finite(publishedAt)) return { kind: 'unknown-published-at' };
+    const publishedAt = input.timestamp;
+    if (publishedAt === undefined) return { kind: 'unknown-published-at' };
     if (publishedAt > input.evaluatedAt) return { kind: 'unknown-published-at' };
 
     const eligibleAt = publishedAt + input.minimumDependencyAge;
+    if (!Num.Is.safeInt(eligibleAt) || Math.abs(eligibleAt) > StanddownTime.maxTimestamp) {
+      throw Err.std(
+        `Unsupported dependency standdown deadline: ${publishedAt} + ${input.minimumDependencyAge}`,
+      );
+    }
     if (eligibleAt <= input.evaluatedAt) return { kind: 'eligible' };
 
     return {
@@ -89,9 +94,5 @@ const wrangle = {
       eligibleAt,
       age: input.evaluatedAt - publishedAt,
     };
-  },
-
-  timestamp(input: t.StringTimestamp): t.UnixTimestamp {
-    return Time.utc(input).timestamp;
   },
 } as const;

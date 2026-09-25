@@ -58,13 +58,17 @@ export const FmtHelp = Object.freeze(
       return {
         tool: toolname,
         summary: 'Upgrade workspace dependencies from canonical deps.yaml.',
-        note: 'Interactive by default; use --dry-run to preview without writing.',
+        note: Str.dedent(`
+          npm and JSR default to 48-hour standdown. Interactive by default.
+          Age: minutes, ISO duration (whole milliseconds), or UTC date/offset timestamp.
+          Use --dry-run to preview without writing.
+        `),
         usage: [`${toolname} [options]`],
         options: [
           ['-h, --help', 'show help'],
           ['--non-interactive', 'run without prompts'],
           ['--policy <none|patch|minor|latest>', 'set the upgrade policy'],
-          ['--minimum-dependency-age <age>', 'minimum age (0 disables)'],
+          ['--minimum-dependency-age <age>', 'npm/JSR age; 0 disables'],
           ['--dry-run', 'preview result without writing'],
           ['--prerelease', 'include prerelease versions'],
           ['--deps <path>', 'override deps.yaml path'],

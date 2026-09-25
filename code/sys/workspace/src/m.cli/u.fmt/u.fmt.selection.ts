@@ -156,6 +156,7 @@ export const FmtSelection = Object.freeze(
       candidate: t.WorkspaceUpgrade.Candidate,
       decision?: t.EsmPolicy.Decision,
     ): SelectionState {
+      if (candidate.available.length === 0) return 'pin-retained';
       if (decision?.ok && decision.selection.selected?.version) return 'selected';
       if (candidate.latest && Semver.Is.greaterThan(candidate.latest, candidate.current)) {
         return 'blocked';
@@ -184,6 +185,9 @@ export const FmtSelection = Object.freeze(
       evaluatedAt?: t.UnixTimestamp,
     ): string {
       const override = FmtSelection.selectionOverrideHint(candidate, overrideParents);
+      if (state === 'pin-retained') {
+        return `${FmtStanddown.note('pin retained; no visible candidate')}${override}`;
+      }
       const standdown = FmtStanddown.selectionNote(candidate, evaluatedAt);
       if (
         standdown && state === 'blocked' && decision && !decision.ok &&
@@ -263,9 +267,17 @@ export const FmtSelection = Object.freeze(
             current: acc.current + (state === 'current' ? 1 : 0),
             registryBehindCurrent: acc.registryBehindCurrent +
               (state === 'registry-behind-current' ? 1 : 0),
+            pinRetained: acc.pinRetained + (state === 'pin-retained' ? 1 : 0),
           };
         },
-        { dependencies: 0, blocked: 0, standdown: 0, current: 0, registryBehindCurrent: 0 },
+        {
+          dependencies: 0,
+          blocked: 0,
+          standdown: 0,
+          current: 0,
+          registryBehindCurrent: 0,
+          pinRetained: 0,
+        },
       );
     },
 

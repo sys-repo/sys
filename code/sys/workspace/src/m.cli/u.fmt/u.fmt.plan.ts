@@ -44,6 +44,12 @@ export const FmtPlan = Object.freeze(
         c.gray('Already latest'),
         counts.current > 0 ? c.gray(String(counts.current)) : '0',
       ]);
+      if (counts.pinRetained > 0) {
+        table.push([
+          c.gray('Pin retained; no visible candidate'),
+          c.yellow(String(counts.pinRetained)),
+        ]);
+      }
       if (counts.registryBehindCurrent > 0) {
         table.push([
           c.gray('Registry behind current'),

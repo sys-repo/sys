@@ -1,14 +1,17 @@
 import { Deps, Err, Esm, Fs, Path, type t } from './common.ts';
 import { createSession, type UpgradeSession } from './u.session.ts';
 import { upgradeWithSession } from './u.upgrade.ts';
+import { entryKey } from './u.entry.ts';
 
+/**
+ * Compute a fresh upgrade plan and write the manifest and its dependency files.
+ * Writes may occur without version changes; a failed write does not roll back earlier writes.
+ */
 export const apply: t.WorkspaceUpgrade.Lib['apply'] = async (input, options) => {
   return await applyWithSession(input, options, createSession());
 };
 
-/**
- * Internal session-aware apply helper for multi-phase upgrade orchestration.
- */
+/** Apply with shared registry lookups; manifest reads and planning still run on each call. */
 export async function applyWithSession(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceUpgrade.Options | undefined,
@@ -72,21 +75,17 @@ const wrangle = {
         .filter((decision): decision is t.EsmPolicy.Decision & { ok: true } => decision.ok)
         .flatMap((decision) => {
           const version = decision.selection.selected?.version;
-          return version ? [[wrangle.key(decision.input.subject.entry), version] as const] : [];
+          return version ? [[entryKey(decision.input.subject.entry), version] as const] : [];
         }),
     );
 
     return entries.map((entry) => {
-      const version = selectedByKey.get(wrangle.key(entry));
+      const version = selectedByKey.get(entryKey(entry));
       if (!version) return entry;
       const input = Esm.toString(entry.module, { version });
       const module = Esm.parse(input, entry.module.alias);
       return { ...entry, module };
     });
-  },
-
-  key(entry: t.EsmDeps.Entry): string {
-    return `${entry.module.registry}:${entry.module.name}`;
   },
 
   topologyError(result: Exclude<t.EsmTopological.Decision.Result, { ok: true }>): t.StdError {
