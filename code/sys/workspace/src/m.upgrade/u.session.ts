@@ -8,6 +8,7 @@ export type UpgradeRegistryDependencies = {
   readonly npm: NpmPackageRegistry;
 };
 
+/** Registry responses shared within a pass; separate public calls receive separate sessions. */
 export type UpgradeSession = {
   readonly registry: UpgradeRegistryDependencies;
   readonly versions: Map<
@@ -35,6 +36,7 @@ export function createSession(
   };
 }
 
+/** Reuse in-flight and completed lookups across phases, including failed responses. */
 export const Session = Object.freeze(
   {
     versions(

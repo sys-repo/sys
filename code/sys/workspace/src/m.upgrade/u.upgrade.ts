@@ -2,13 +2,15 @@ import { Esm, Obj, type t } from './common.ts';
 import { collectWithSession } from './u.collect.ts';
 import { createSession, Session, type UpgradeSession } from './u.session.ts';
 
+/**
+ * Choose newer versions and order their known dependencies without changing files.
+ * Collection failures and missing graph evidence remain in the result for review.
+ */
 export const upgrade: t.WorkspaceUpgrade.Lib['upgrade'] = async (input, options) => {
   return await upgradeWithSession(input, options, createSession());
 };
 
-/**
- * Internal session-aware planning helper for multi-phase upgrade orchestration.
- */
+/** Plan with registry lookups shared across collection and dependency-graph discovery. */
 export async function upgradeWithSession(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceUpgrade.Options | undefined,
@@ -42,7 +44,7 @@ const wrangle = {
         subject: {
           entry: candidate.entry,
           current: candidate.current,
-          // Esm.Policy names these `available`; workspace has already reduced visible versions to selectable versions.
+          // Version policy must not reintroduce releases withheld by the age check.
           available: selectable,
         },
       };
