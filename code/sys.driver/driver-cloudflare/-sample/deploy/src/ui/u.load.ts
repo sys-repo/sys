@@ -1,12 +1,13 @@
-import { Fetch, Hash, Is, Json, Pkg } from './common.ts';
+import { Fetch, Hash, Is, Json, Pkg, type t } from './common.ts';
 
 /**
- * Load the message, bundle total, and private manifest through one bounded same-origin client.
+ * Load the API, bundle total, and both manifests independently, without credentials or redirects.
  */
 export function startFetches(
   origin: string,
+  publicManifestUrl: string,
   onMessage: (value: string) => void,
-  onManifest: (digest: string, checksum: string) => void,
+  onManifest: (audience: t.Audience, digest: string, checksum: string, size?: number) => void,
   onBundleSize: (size?: number) => void,
 ): () => void {
   const client = Fetch.make({
@@ -15,7 +16,7 @@ export function startFetches(
       timeout: 5_000,
       maxRedirects: 0,
       progressInterval: 100,
-      sourceOrigins: [origin],
+      sourceOrigins: [origin, new URL(publicManifestUrl).origin],
       credentialOrigins: [],
     },
   });
@@ -42,14 +43,19 @@ export function startFetches(
     if (!client.disposed) onBundleSize(data.size);
   }
 
-  async function loadManifest() {
-    const response = await client.blob(new URL('/ui/dist.json', origin));
+  async function loadManifest(audience: t.Audience) {
+    const url = audience === 'private' ? new URL('/ui/dist.json', origin) : publicManifestUrl;
+    const response = await client.blob(url);
     if (!response.ok) throw new Error('Request failed.');
     const bytes = new Uint8Array(await response.data.arrayBuffer());
     const data = Json.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     if (!Pkg.Is.dist(data)) throw new Error('Invalid Dist.');
-    // Hash the received bytes, not reserialized JSON.
-    if (!client.disposed) onManifest(data.hash.digest, Hash.sha256(bytes));
+    const size = data.build.size?.total;
+    if (!Is.num(size) || !Number.isSafeInteger(size) || size < 0) {
+      throw new Error('Invalid Dist size.');
+    }
+    // Hash the received bytes, not reserialized JSON; size describes the distribution payload.
+    if (!client.disposed) onManifest(audience, data.hash.digest, Hash.sha256(bytes), size);
   }
 
   loadMessage().catch(() => {
@@ -58,10 +64,12 @@ export function startFetches(
   loadBundleSize().catch(() => {
     if (!client.disposed) onBundleSize();
   });
-  loadManifest().catch(() => {
-    const message = 'Could not load the private manifest.';
-    if (!client.disposed) onManifest(message, message);
-  });
+  for (const audience of ['private', 'public'] as const) {
+    loadManifest(audience).catch(() => {
+      const message = `Could not load the ${audience} manifest.`;
+      if (!client.disposed) onManifest(audience, message, message);
+    });
+  }
 
   return () => client.dispose();
 }

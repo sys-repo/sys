@@ -22,6 +22,19 @@ p {
   font-size: 0.875rem;
 }
 
+a {
+  text-decoration: underline dashed;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration-style: solid;
+  text-decoration-color: currentColor;
+}
+
 code {
   color: #b90063;
   overflow-wrap: anywhere;
@@ -31,23 +44,42 @@ code a {
   color: inherit;
 }
 
+.bundle-size {
+  margin: 0 0 0.375rem;
+}
+
+.manifest-table-scroll {
+  overflow-x: auto;
+}
+
 .identity-table {
   width: calc(100% - 1rem);
+  min-width: 40rem;
   margin-inline-start: 1rem;
   border-collapse: collapse;
-  table-layout: auto;
+  table-layout: fixed;
   font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+.manifest-table-scroll + .manifest-table-scroll {
+  margin-block-start: 1.25rem;
 }
 
 .identity-table caption {
   text-align: left;
-  margin-bottom: 0.5rem;
+  margin-inline-start: -1rem;
+  margin-bottom: 0.25rem;
+}
+
+.identity-table tbody {
+  font-size: 0.8125rem;
 }
 
 .identity-table th,
 .identity-table td {
-  padding: 0.75rem 0.5rem;
-  border-bottom: 1px solid #ddd;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 2px solid rgb(0 0 0 / 5%);
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
@@ -62,7 +94,9 @@ code a {
   width: 32%;
 }
 
+.identity-table th:last-child,
 .identity-table td:last-child {
+  width: 15rem;
   white-space: nowrap;
 }
 

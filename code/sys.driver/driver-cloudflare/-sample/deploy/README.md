@@ -79,8 +79,15 @@ Then open:
 
 Restart `serve` after publishing a new build.
 
-The manifest caption shows the private distribution's digest and the full Bundle size reported by
-`deno task build`, not the size of `dist.json`.
+The manifest tables show **private relay** and **public R2** separately. Each caption shows that
+manifest's distribution digest and payload size, not the size of `dist.json`. The **total bundle**
+above both tables is the full Bundle size reported by `deno task build`.
+
+Each table also hashes the exact manifest bytes received. Compare those checksums with the
+`private:` and `public:` pins printed by `deno task build`. Compare the private distribution digest
+with `deno task serve` → `shell`, and the public digest with `hash.digest` in
+`dist.public/dist.json`. These are observed hashes for comparison, not browser-side verification
+against trusted pins. Each fetch can fail independently without hiding the other results.
 
 ## Public image
 
@@ -144,8 +151,10 @@ Start `serve` again, then check one cold load:
 
 1. Open the UI with an empty browser cache and no controlling service worker. Confirm it renders.
 2. In the network panel, confirm that the document, API, and private manifest load from the
-   application origin. JavaScript, CSS, and referenced assets should load successfully, with final
-   URLs under the configured `publicAssetBase`.
+   application origin. The public manifest, JavaScript, CSS, and referenced assets should load
+   successfully, with final URLs under the configured `publicAssetBase`. Check both manifest tables
+   at desktop and narrow widths: columns should align, links should reach the corresponding
+   manifests, and payload sizes should remain distinct from the total bundle.
 3. Confirm a separate request for `images/wax-seal.v1.png` succeeds under `publicAssetBase`, with
    `Content-Type: image/png`. Record its actual cache headers. The caption's "image" link should
    resolve to the same public object; "public R2" should open the public-bucket documentation. No
@@ -157,6 +166,9 @@ Start `serve` again, then check one cold load:
 6. Temporarily block only the public entry module and reload. The HTML notice and independently
    loaded image should remain visible, but the full UI should not load. Remove the block when
    finished.
+7. Temporarily block only the public `dist.json` request and reload. Its table should report a
+   public manifest error while the private table, API message, and total bundle remain available.
+   Remove the block when finished.
 
 [Private delivery API](../../README.md#application-read-routes) ·
 [R2 pricing](https://developers.cloudflare.com/r2/pricing/)

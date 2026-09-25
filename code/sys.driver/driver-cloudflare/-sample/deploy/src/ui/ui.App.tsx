@@ -1,28 +1,46 @@
-import { Hash, Is, Pkg, pkg, React, Str } from './common.ts';
+import { Hash, Is, Pkg, pkg, React, Str, type t } from './common.ts';
 import { startFetches } from './u.load.ts';
 
 type Manifest = {
   readonly digest: string;
   readonly checksum: string;
+  readonly size?: number;
 };
+
+const PENDING: Manifest = { digest: 'Loading…', checksum: 'Loading…' };
 
 /**
  * Application Root
  */
-export function App({ origin = globalThis.location?.origin }: { origin?: string } = {}) {
+export function App(
+  { origin = globalThis.location?.origin, publicAssetBase }: {
+    origin?: string;
+    publicAssetBase: string;
+  },
+) {
+  const publicManifestUrl = new URL('dist.json', publicAssetBase).href;
   const [message, setMessage] = React.useState('Loading…');
-  const [bundleSize, setBundleSize] = React.useState<number>();
-  const [manifest, setManifest] = React.useState<Manifest>({
-    digest: 'Loading…',
-    checksum: 'Loading…',
+  const [bundleSize, setBundleSize] = React.useState<number | string>('Loading…');
+  const [manifests, setManifests] = React.useState<Readonly<Record<t.Audience, Manifest>>>({
+    private: PENDING,
+    public: PENDING,
   });
 
   React.useEffect(() => {
     if (!origin) return;
-    return startFetches(origin, setMessage, (digest, checksum) => {
-      setManifest({ digest, checksum });
-    }, setBundleSize);
-  }, [origin]);
+    setMessage('Loading…');
+    setBundleSize('Loading…');
+    setManifests({ private: PENDING, public: PENDING });
+    return startFetches(
+      origin,
+      publicManifestUrl,
+      setMessage,
+      (audience, digest, checksum, size) => {
+        setManifests((current) => ({ ...current, [audience]: { digest, checksum, size } }));
+      },
+      (size) => setBundleSize(size ?? 'Could not load bundle size.'),
+    );
+  }, [origin, publicManifestUrl]);
 
   return (
     <main>
@@ -55,8 +73,12 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
           "<a href='/api/hello'>{message}</a>"
         </code>
       </p>
-      <h2>Manifest hashes</h2>
-      {renderManifestTable(manifest, bundleSize)}
+      <h2>Manifest</h2>
+      <p className='bundle-size' aria-live='polite'>
+        total bundle • {Is.num(bundleSize) ? Str.bytes(bundleSize) : bundleSize}
+      </p>
+      {renderManifestTable('private', manifests.private, '/ui/dist.json')}
+      {renderManifestTable('public', manifests.public, publicManifestUrl)}
     </main>
   );
 }
@@ -67,18 +89,22 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
 function renderOrigin(origin?: string) {
   if (!Is.str(origin) || origin === '') return null;
   return (
-    <span>
-      {' '}(<a href={origin}>{new URL(origin).host}</a>)
-    </span>
+    <>
+      {' '}
+      <span>
+        (<a href={origin}>{new URL(origin).host}</a>)
+      </span>
+    </>
   );
 }
 
-function renderManifestTable(manifest: Manifest, bundleSize: number | undefined) {
+function renderManifestTable(audience: t.Audience, manifest: Manifest, href: string) {
+  const isPrivate = audience === 'private';
   const digest = Pkg.Dist.Part.hash(manifest.digest);
   const checksum = Pkg.Dist.Part.hash(manifest.checksum);
   const elDigest = Is.str(digest)
     ? (
-      <a href='/ui/dist.json' title={manifest.digest}>
+      <a href={href} title={manifest.digest}>
         {Hash.shorten(digest, [12, 5], { trimPrefix: true, divider: '…' })}
       </a>
     )
@@ -88,60 +114,69 @@ function renderManifestTable(manifest: Manifest, bundleSize: number | undefined)
     : manifest.checksum;
 
   return (
-    <table className='identity-table' aria-live='polite'>
-      {renderManifestCaption(digest, bundleSize)}
-      <thead>
-        <tr>
-          <th scope='col'>What</th>
-          <th scope='col'>SHA-256</th>
-          <th scope='col'>Compare in terminal</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope='row'>
-            <a href='/ui/dist.json'>
-              <code>dist.json → hash.digest</code>
-            </a>
-          </th>
-          <td>
-            <code>{elDigest}</code>
-          </td>
-          <td>
-            <code>deno task serve</code> → <code>shell</code>
-          </td>
-        </tr>
-        <tr>
-          <th scope='row'>
-            Checksum of <code>dist.json</code>
-          </th>
-          <td>
-            <code title={manifest.checksum}>{checksumLabel}</code>
-          </td>
-          <td>
-            <code>deno task build</code> → <code>private:</code>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  );
-}
-
-function renderManifestCaption(digest: string | undefined, bundleSize: number | undefined) {
-  const elDigest = Is.str(digest)
-    ? <code>#{Hash.shorten(digest, [0, 5], { trimPrefix: true })}</code>
-    : null;
-  const elSize = Is.num(bundleSize)
-    ? <span title='Total bundle size'>{Str.bytes(bundleSize)}</span>
-    : null;
-
-  return (
-    <caption>
-      Private relay — <a href='/ui/dist.json'>/ui/dist.json</a>
-      {elDigest && ' • '}
-      {elDigest}
-      {elSize && ' • '}
-      {elSize}
-    </caption>
+    <div
+      className='manifest-table-scroll'
+      role='region'
+      aria-label={`${audience} manifest hashes`}
+      tabIndex={0}
+    >
+      <table className='identity-table' aria-live='polite'>
+        <caption>
+          {isPrivate ? 'private relay' : 'public R2'} —{' '}
+          <a href={href}>{isPrivate ? '/ui/dist.json' : 'dist.json ↗'}</a>
+          {Is.str(digest) && (
+            <>
+              {' • '}
+              <code>#{Hash.shorten(digest, [0, 5], { trimPrefix: true })}</code>
+            </>
+          )}
+          {Is.num(manifest.size) && (
+            <>
+              {' • '}
+              <span title='Distribution payload size'>{Str.bytes(manifest.size)}</span>
+            </>
+          )}
+        </caption>
+        <thead>
+          <tr>
+            <th scope='col'>What</th>
+            <th scope='col'>SHA-256</th>
+            <th scope='col'>Compare locally</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope='row'>
+              <a href={href}>
+                <code>dist.json → hash.digest</code>
+              </a>
+            </th>
+            <td>
+              <code>{elDigest}</code>
+            </td>
+            <td>
+              {isPrivate
+                ? (
+                  <>
+                    <code>deno task serve</code> → <code>shell</code>
+                  </>
+                )
+                : <code>dist.public/dist.json</code>}
+            </td>
+          </tr>
+          <tr>
+            <th scope='row'>
+              checksum of <code>dist.json</code>
+            </th>
+            <td>
+              <code title={manifest.checksum}>{checksumLabel}</code>
+            </td>
+            <td>
+              <code>deno task build</code> → <code>{audience}:</code>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 }
