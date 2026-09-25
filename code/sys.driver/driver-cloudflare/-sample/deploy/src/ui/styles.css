@@ -35,7 +35,7 @@ code a {
   width: calc(100% - 1rem);
   margin-inline-start: 1rem;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
   font-size: 0.875rem;
 }
 
@@ -60,6 +60,10 @@ code a {
 
 .identity-table th:nth-child(2) {
   width: 32%;
+}
+
+.identity-table td:last-child {
+  white-space: nowrap;
 }
 
 .public-image {

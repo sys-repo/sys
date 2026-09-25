@@ -52,7 +52,7 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
           "<a href='/api/hello'>{message}</a>"
         </code>
       </p>
-      <h2>Private manifest hashes</h2>
+      <h2>Manifest hashes</h2>
       <table className='identity-table' aria-live='polite'>
         <caption>
           Private relay — <a href='/ui/dist.json'>/ui/dist.json</a>
