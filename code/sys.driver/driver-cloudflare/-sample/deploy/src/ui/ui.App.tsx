@@ -32,8 +32,14 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
         avoiding Deno egress for those assets.
       </p>
       <p>
-        <code>index.html</code> and <code>dist.json</code> are stored in{' '}
-        <a href='https://developers.cloudflare.com/r2/api/tokens/'>private R2</a>{' '}
+        <code>
+          <a href='/ui/index.html'>index.html</a>
+        </code>{' '}
+        and{' '}
+        <code>
+          <a href='/ui/dist.json'>dist.json</a>
+        </code>{' '}
+        are stored in <a href='https://developers.cloudflare.com/r2/api/tokens/'>private R2</a>{' '}
         and served through a bounded relay. Deno fetches them with{' '}
         <a href='https://developers.cloudflare.com/r2/api/s3/presigned-urls/'>
           short-lived presigned GET URLs
@@ -46,7 +52,7 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
           "<a href='/api/hello'>{message}</a>"
         </code>
       </p>
-      <h2>Compare build and serve</h2>
+      <h2>Private manifest hashes</h2>
       <table className='identity-table' aria-live='polite'>
         <caption>
           Private relay — <a href='/ui/dist.json'>/ui/dist.json</a>
@@ -61,7 +67,7 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
           <tr>
             <th scope='col'>What</th>
             <th scope='col'>SHA-256</th>
-            <th scope='col'>Find in terminal</th>
+            <th scope='col'>Compare in terminal</th>
           </tr>
         </thead>
         <tbody>

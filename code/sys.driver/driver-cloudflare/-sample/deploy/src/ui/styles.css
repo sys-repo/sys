@@ -32,7 +32,8 @@ code a {
 }
 
 .identity-table {
-  width: 100%;
+  width: calc(100% - 1rem);
+  margin-inline-start: 1rem;
   border-collapse: collapse;
   table-layout: fixed;
   font-size: 0.875rem;
@@ -50,6 +51,11 @@ code a {
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
+}
+
+.identity-table th:first-child,
+.identity-table td:first-child {
+  padding-inline-start: 0;
 }
 
 .identity-table th:nth-child(2) {
