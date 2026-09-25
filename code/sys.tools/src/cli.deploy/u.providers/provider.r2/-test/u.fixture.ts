@@ -1,4 +1,4 @@
-import { Err, Files, Fs, Hash, Pkg, R2, type t } from '../../common.ts';
+import { Err, Files, Fs, Hash, Obj, Pkg, R2, type t } from '../../common.ts';
 
 export type Write = { path: string; bytes: readonly number[]; mediaType?: string };
 export type Remove = { path: string };
@@ -14,11 +14,18 @@ export type StoredObject = {
   readonly modifiedAt: Date;
 };
 
-export async function stageDist(cwd: t.StringDir): Promise<t.StringDir> {
+export async function stageDist(
+  cwd: t.StringDir,
+  files: Readonly<Record<string, string | Uint8Array>> = {
+    'index.html': '<!doctype html><html>r2</html>\n',
+    'asset.bin': new Uint8Array([0, 1, 2, 3]),
+  },
+): Promise<t.StringDir> {
   const stagingDir = Fs.join(cwd, 'stage') as t.StringDir;
   await Fs.ensureDir(stagingDir);
-  await Fs.write(Fs.join(stagingDir, 'index.html'), '<!doctype html><html>r2</html>\n');
-  await Fs.write(Fs.join(stagingDir, 'asset.bin'), new Uint8Array([0, 1, 2, 3]));
+  for (const [path, bytes] of Obj.entries(files)) {
+    await Fs.write(Fs.join(stagingDir, path), bytes);
+  }
   await Pkg.Dist.compute({ dir: stagingDir, save: true });
   return stagingDir;
 }
@@ -52,8 +59,9 @@ export function r2Target(cwd: t.StringDir, stagingDir: t.StringDir): t.R2PushTar
 export function localR2FilesHandle(args: {
   readonly store: Map<string, StoredObject>;
   readonly prefix?: string;
+  readonly events?: Event[];
 }): t.Files.Client.Handle {
-  const bucket = localBucket(args.store);
+  const bucket = localBucket(args.store, args.events);
   const backing = R2.Files.create({
     bucket,
     prefix: args.prefix ?? 'deploy/site',
@@ -156,7 +164,7 @@ function dataUrl(text: string): t.StringUrl {
   return `data:application/json;charset=utf-8,${encodeURIComponent(text)}` as t.StringUrl;
 }
 
-function localBucket(store: Map<string, StoredObject>): t.R2.Bucket {
+function localBucket(store: Map<string, StoredObject>, events?: Event[]): t.R2.Bucket {
   return {
     name: 'deploy-bucket',
     stat(key) {
@@ -171,6 +179,7 @@ function localBucket(store: Map<string, StoredObject>): t.R2.Bucket {
       return Promise.resolve(new Response(body));
     },
     write(key, data, options) {
+      events?.push(`write:${key}`);
       const body = data instanceof Uint8Array
         ? new Uint8Array(data)
         : new TextEncoder().encode(String(data));
@@ -183,6 +192,7 @@ function localBucket(store: Map<string, StoredObject>): t.R2.Bucket {
       return Promise.resolve({ etag: 'etag' });
     },
     remove(key) {
+      events?.push(`remove:${key}`);
       store.delete(key);
       return Promise.resolve();
     },

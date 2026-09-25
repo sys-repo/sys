@@ -85,11 +85,220 @@ describe('R2 Provider: push', () => {
     });
   });
 
+  describe('exact publication identity', () => {
+    it('equal root digests with renamed paths → publish the bytes selected at each exact path', async () => {
+      await withTmpDir(async (cwd) => {
+        const remoteDir = await stageDist(Fs.join(cwd, 'remote'), { 'a.js': 'A', 'b.js': 'B' });
+        const localDir = await stageDist(Fs.join(cwd, 'local'), { 'b.js': 'A', 'c.js': 'B' });
+        const remote = await loadStagedDist(remoteDir);
+        const local = await loadStagedDist(localDir);
+        expect(remote.hash.digest).to.eql(local.hash.digest);
+        expect(remote.hash.parts['b.js']).not.to.eql(local.hash.parts['b.js']);
+        const manifest = (await Fs.read(Fs.join(localDir, 'dist.json'))).data!;
+        const store = new Map<string, StoredObject>();
+        const events: Event[] = [];
+        const createFiles = () => localR2FilesHandle({ store, events });
+        const initial = await R2Provider.push({
+          cwd,
+          target: r2Target(cwd, remoteDir),
+          createFiles,
+        });
+        expect(initial.ok).to.eql(true);
+        events.length = 0;
+
+        const result = await R2Provider.push({ cwd, target: r2Target(cwd, localDir), createFiles });
+        expect(result.ok).to.eql(true);
+        expect(store.get('deploy/site/b.js')?.body).to.eql(new TextEncoder().encode('A'));
+        expect(store.get('deploy/site/c.js')?.body).to.eql(new TextEncoder().encode('B'));
+        expect(store.get('deploy/site/dist.json')?.body).to.eql(manifest);
+        expect([...store.keys()].sort()).to.eql([
+          'deploy/site/b.js',
+          'deploy/site/c.js',
+          'deploy/site/dist.json',
+        ]);
+        expect(publishFileStatuses(result)).to.eql([
+          { path: 'b.js', status: 'written' },
+          { path: 'c.js', status: 'written' },
+          { path: 'dist.json', status: 'written' },
+        ]);
+        expect(pruneFileStatuses(result)).to.eql([{ path: 'a.js', status: 'removed' }]);
+        for (const path of ['b.js', 'c.js']) {
+          expectWriteEventBefore(
+            events,
+            `write:deploy/site/${path}`,
+            'write:deploy/site/dist.json',
+          );
+        }
+        expectWriteEventBefore(events, 'write:deploy/site/dist.json', 'remove:deploy/site/a.js');
+      });
+    });
+
+    it('equal root digest with a changed part size → rewrite that exact asset', async () => {
+      await withTmpDir(async (cwd) => {
+        const stagingDir = await stageDist(cwd);
+        const local = await loadStagedDist(stagingDir);
+        const part = Pkg.Dist.Part.parse(local.hash.parts['asset.bin'])!;
+        // Intentionally inconsistent remote metadata: hash equality must not hide a size change.
+        const remote = {
+          ...local,
+          hash: {
+            ...local.hash,
+            parts: { ...local.hash.parts, 'asset.bin': `${part.hash}:size=${part.size! + 1}` },
+          },
+        };
+        const writes: Write[] = [];
+        const result = await R2Provider.push({
+          cwd,
+          target: r2Target(cwd, stagingDir),
+          createFiles: () =>
+            filesHandle({ writes, remoteText: Json.stringify(remote), entries: expectedEntries() }),
+        });
+        expect(result.ok).to.eql(true);
+        expect(publishFileStatuses(result)).to.eql([
+          { path: 'asset.bin', status: 'written' },
+          { path: 'index.html', status: 'skipped' },
+          { path: 'dist.json', status: 'written' },
+        ]);
+        expectWritesWithDistLast(writes, ['asset.bin']);
+        expect(writes[0].bytes).to.eql([0, 1, 2, 3]);
+      });
+    });
+
+    for (const warm of [false, true]) {
+      it(`${warm ? 'warm' : 'cold'} store with spaced and unspaced names → preserve both exact keys`, async () => {
+        await withTmpDir(async (cwd) => {
+          const stagingDir = await stageDist(Fs.join(cwd, 'local'), { ' a.js': 'A', 'a.js': 'B' });
+          const manifest = (await Fs.read(Fs.join(stagingDir, 'dist.json'))).data!;
+          const store = new Map<string, StoredObject>();
+          if (warm) {
+            const remoteDir = await stageDist(Fs.join(cwd, 'remote'), {
+              ' a.js': 'A',
+              'a.js': 'old B',
+            });
+            // Seed exact remote keys independently of the publisher being tested.
+            for (const path of [' a.js', 'a.js', 'dist.json']) {
+              store.set(`deploy/site/${path}`, {
+                ...storedObject(''),
+                body: (await Fs.read(Fs.join(remoteDir, path))).data!,
+              });
+            }
+          }
+          store.set('deploy/site/stale.txt', storedObject('stale'));
+          const events: Event[] = [];
+          const createFiles = () => localR2FilesHandle({ store, events });
+          const push = () =>
+            R2Provider.push({ cwd, target: r2Target(cwd, stagingDir), createFiles });
+          const result = await push();
+          expect(result.ok).to.eql(true);
+          expect(store.get('deploy/site/ a.js')?.body).to.eql(new TextEncoder().encode('A'));
+          expect(store.get('deploy/site/a.js')?.body).to.eql(new TextEncoder().encode('B'));
+          expect(store.get('deploy/site/dist.json')?.body).to.eql(manifest);
+          expect([...store.keys()].sort()).to.eql([
+            'deploy/site/ a.js',
+            'deploy/site/a.js',
+            'deploy/site/dist.json',
+          ]);
+          expect(publishFileStatuses(result)).to.eql([
+            { path: ' a.js', status: warm ? 'skipped' : 'written' },
+            { path: 'a.js', status: 'written' },
+            { path: 'dist.json', status: 'written' },
+          ]);
+          expect(pruneFileStatuses(result)).to.eql([{ path: 'stale.txt', status: 'removed' }]);
+          const written = warm ? ['a.js'] : [' a.js', 'a.js'];
+          expect(events.filter((event) => event.startsWith('write:')).sort()).to.eql(
+            [...written, 'dist.json'].map((path) => `write:deploy/site/${path}`).sort(),
+          );
+          for (const path of written) {
+            expectWriteEventBefore(
+              events,
+              `write:deploy/site/${path}`,
+              'write:deploy/site/dist.json',
+            );
+          }
+          expectWriteEventBefore(
+            events,
+            'write:deploy/site/dist.json',
+            'remove:deploy/site/stale.txt',
+          );
+
+          events.length = 0;
+          const repeated = await push();
+          expect(repeated.ok).to.eql(true);
+          expect(publishFileStatuses(repeated)).to.eql([
+            { path: ' a.js', status: 'skipped' },
+            { path: 'a.js', status: 'skipped' },
+            { path: 'dist.json', status: 'skipped' },
+          ]);
+          expect(pruneFileStatuses(repeated)).to.eql([]);
+          expect(events).to.eql([]);
+        });
+      });
+    }
+
+    for (
+      const path of [
+        '',
+        '.',
+        '..',
+        '../index.html',
+        './index.html',
+        '/index.html',
+        'C:/index.html',
+        'index.html/',
+        'nested//file.js',
+        'nested/./file.js',
+        'nested/../index.html',
+        'nested\\file.js',
+        'index.html\\',
+        './dist.json',
+        'dist.json/',
+        'dist.json\\',
+        'bad\u0000.js',
+      ]
+    ) {
+      it(`noncanonical key ${Json.stringify(path)} → refuse before writes or pruning`, async () => {
+        await withTmpDir(async (cwd) => {
+          const stagingDir = await stageDist(cwd);
+          await addStagedFiles(stagingDir, ['nested/file.js']);
+          const store = new Map<string, StoredObject>();
+          const events: Event[] = [];
+          const createFiles = () => localR2FilesHandle({ store, events });
+          const target = r2Target(cwd, stagingDir);
+          const initial = await R2Provider.push({ cwd, target, createFiles });
+          expect(initial.ok).to.eql(true);
+          store.set('deploy/site/stale.txt', storedObject('must remain'));
+          const before = [...store];
+          // A valid changed asset comes before the invalid key: lazy validation must not upload it.
+          await Fs.write(Fs.join(stagingDir, 'asset.bin'), new Uint8Array([9, 8, 7]));
+          await Pkg.Dist.compute({ dir: stagingDir, save: true });
+          const local = await loadStagedDist(stagingDir);
+          await Fs.write(
+            Fs.join(stagingDir, 'dist.json'),
+            Json.stringify({
+              ...local,
+              hash: {
+                ...local.hash,
+                parts: { ...local.hash.parts, [path]: local.hash.parts['index.html'] },
+              },
+            }),
+          );
+          for (const force of [false, true]) {
+            events.length = 0;
+            const result = await R2Provider.push({ cwd, target, createFiles, force });
+            expect(result.ok).to.eql(false);
+            expect(events).to.eql([]);
+            expect([...store]).to.eql(before);
+          }
+        });
+      });
+    }
+  });
+
   describe('bounded publish concurrency', () => {
     it('writes changed assets in parallel but publishes dist.json after assets finish', async () => {
       await withTmpDir(async (cwd) => {
         const stagingDir = await stageDist(cwd);
-        await addStagedFiles(stagingDir, [
+        const extra = [
           'extra-01.txt',
           'extra-02.txt',
           'extra-03.txt',
@@ -102,7 +311,9 @@ describe('R2 Provider: push', () => {
           'extra-10.txt',
           'extra-11.txt',
           'extra-12.txt',
-        ]);
+        ];
+        await addStagedFiles(stagingDir, extra);
+        const assets = ['asset.bin', 'index.html', ...extra];
         const writes: Write[] = [];
         const lifecycle: string[] = [];
         let active = 0;
@@ -132,7 +343,7 @@ describe('R2 Provider: push', () => {
         expect(res.ok).to.eql(true);
         expect(maxActive > 1).to.eql(true);
         expect(maxActive <= 8).to.eql(true);
-        expect(writes[writes.length - 1]?.path).to.eql('dist.json');
+        expectWritesWithDistLast(writes, assets);
         expect(publishFileStatuses(res)[publishFileStatuses(res).length - 1]).to.eql({
           path: 'dist.json',
           status: 'written',
@@ -143,7 +354,7 @@ describe('R2 Provider: push', () => {
         const assetFinishes = lifecycle.filter((event) =>
           event.startsWith('finish:') && event !== 'finish:dist.json'
         );
-        expect(assetFinishes.length > 0).to.eql(true);
+        expect(assetFinishes.slice().sort()).to.eql(assets.map((path) => `finish:${path}`).sort());
         for (const event of assetFinishes) {
           expect(lifecycle.indexOf(event) < distStart).to.eql(true);
         }
@@ -180,40 +391,31 @@ describe('R2 Provider: push', () => {
   });
 
   describe('missing expected file repair', () => {
-    it('repairs a missing expected asset and republishes dist.json last', async () => {
+    it('matching manifest with a missing spaced key → repair that key and republish dist.json last', async () => {
       await withTmpDir(async (cwd) => {
-        const stagingDir = await stageDist(cwd);
-        const dist = await loadStagedDist(stagingDir);
-        const writes: Write[] = [];
+        const stagingDir = await stageDist(cwd, { ' a.js': 'A', 'a.js': 'B' });
+        const manifest = (await Fs.read(Fs.join(stagingDir, 'dist.json'))).data!;
+        const store = new Map<string, StoredObject>();
         const events: Event[] = [];
+        const createFiles = () => localR2FilesHandle({ store, events });
+        const push = () => R2Provider.push({ cwd, target: r2Target(cwd, stagingDir), createFiles });
+        const initial = await push();
+        expect(initial.ok).to.eql(true);
+        expect(store.delete('deploy/site/ a.js')).to.eql(true);
+        events.length = 0;
 
-        const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
-          target: r2Target(cwd, stagingDir),
-          createFiles: () =>
-            filesHandle({
-              writes,
-              events,
-              remoteText: Json.stringify(dist),
-              entries: [fileEntry('index.html'), fileEntry('dist.json')],
-            }),
-        });
-
-        expect(res.ok).to.eql(true);
-        expect(res.ok ? PushPublishStats.summary(res.publish) : undefined).to.eql({
-          total: 3,
-          written: 2,
-          skipped: 1,
-        });
-        expect(publishFileStatuses(res)).to.eql([
-          { path: 'asset.bin', status: 'written' },
-          { path: 'index.html', status: 'skipped' },
+        const result = await push();
+        expect(result.ok).to.eql(true);
+        expect(publishFileStatuses(result)).to.eql([
+          { path: ' a.js', status: 'written' },
+          { path: 'a.js', status: 'skipped' },
           { path: 'dist.json', status: 'written' },
         ]);
-        expectWritesWithDistLast(writes, ['asset.bin']);
-        expect(events.filter((event) => event === 'list').length).to.eql(1);
-        expectWriteEventBefore(events, 'list', 'write:asset.bin');
-        expectWriteEventBefore(events, 'write:asset.bin', 'write:dist.json');
+        expect(events).to.eql(['write:deploy/site/ a.js', 'write:deploy/site/dist.json']);
+        expect(store.get('deploy/site/ a.js')?.body).to.eql(new TextEncoder().encode('A'));
+        expect(store.get('deploy/site/a.js')?.body).to.eql(new TextEncoder().encode('B'));
+        expect(store.get('deploy/site/dist.json')?.body).to.eql(manifest);
+        expect(pruneFileStatuses(result)).to.eql([]);
       });
     });
 

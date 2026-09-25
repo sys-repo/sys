@@ -11,7 +11,6 @@ import {
   Path,
   Pkg,
   R2,
-  Str,
   type t,
 } from '../common.ts';
 
@@ -241,7 +240,7 @@ function publishFiles(
     .filter((file) => file.path !== DIST_PATH)
     .sort((a, b) => a.path.localeCompare(b.path))
     .map((file): t.PushPublishFile => {
-      const digestMatches = remoteMatchesDist || remoteParts[file.path] === file.digest;
+      const digestMatches = remoteParts[file.path] === file.digest;
       const exists = actual === undefined || actual.has(file.path);
       return {
         ...file,
@@ -297,15 +296,10 @@ async function listRemoteFiles(files: t.Files.Client.Handle): Promise<readonly t
 }
 
 function toFilesPath(input: string): t.Files.String.Path {
-  const raw = String(input ?? '').trim();
-  if (!raw || raw.includes('\u0000')) throw Err.std(`Invalid deploy publish path: ${input}`);
-  if (Path.Is.absolute(raw)) throw Err.std(`Invalid absolute deploy publish path: ${input}`);
-
-  const segments = Str.splitPathSegments(raw);
-  if (!segments.length || segments.some((segment) => segment === '.' || segment === '..')) {
-    throw Err.std(`Invalid deploy publish path: ${input}`);
-  }
-  return segments.join('/') as t.Files.String.Path;
+  const path = Path.Bounded.visible(Path.Bounded.posix(), input);
+  // Validation may normalize; publication must preserve the selected manifest key exactly.
+  if (!path || path !== input) throw Err.std(`Invalid deploy publish path: ${input}`);
+  return path as t.Files.String.Path;
 }
 
 function absoluteStagedFile(stagingDir: t.StringDir, path: t.Files.String.Path): t.StringPath {
