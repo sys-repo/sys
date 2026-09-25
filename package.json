@@ -15,8 +15,8 @@
     "@oxc-project/runtime": "0.150.0",
     "@vitejs/plugin-react": "6.1.1",
     "magic-string": "1.4.1",
-    "prettier": "3.9.8",
-    "rollup": "4.63.4",
+    "prettier": "3.9.6",
+    "rollup": "4.63.3",
     "rollup-plugin-visualizer": "7.1.1",
     "vite": "8.3.0",
     "vite-plugin-wasm": "3.6.0"
