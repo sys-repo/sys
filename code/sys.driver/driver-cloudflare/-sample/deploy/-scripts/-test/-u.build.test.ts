@@ -1,6 +1,6 @@
 import { buildSample } from '../task.build.ts';
 import { readInputs, selectPublication } from '../../src/m.deployment/mod.ts';
-import { describe, expect, expectError, Fs, it } from './common.ts';
+import { describe, expect, expectError, Fs, Hash, it, ROOT } from './common.ts';
 import { localFixture } from './u.fixture.ts';
 
 describe('R2 deployment sample: one-build publication projections', () => {
@@ -28,6 +28,26 @@ describe('R2 deployment sample: one-build publication projections', () => {
     expect(await Fs.exists(f.dir.join('dist.selection.json'))).to.eql(false);
     expect(Object.keys(buildRecord)).to.eql(['publicAssetBase', 'selection']);
     expect(Object.keys(buildRecord.selection)).to.eql(['pins']);
+  });
+
+  it('wax seal PNG → byte-preserving public inventory, never a private payload', async () => {
+    const path = 'images/wax-seal.v1.png';
+    const png = await Fs.read(Fs.join(ROOT, 'public', path));
+    if (!png.ok || !png.data) throw new Error('The versioned sample PNG must be readable.');
+    // The v1 filename denotes these accepted bytes; changed artwork needs a new revision.
+    expect(Hash.sha256(png.data)).to.eql(
+      'sha256-9a110325ca0d22eb23c6c88d60960fdd3c9d9b9c5ccaa331b0ac27679239d83a',
+    );
+
+    await using f = await localFixture();
+    const buildRecord = await f.build('shell', { [path]: png.data });
+    const selected = await selectPublication(buildRecord.selection, f.dir.absolute);
+    expect(selected.private).to.eql(['dist.json', 'index.html']);
+    expect(selected.public).to.eql(['app.css', 'app.js', 'dist.json', path]);
+    const published = await Fs.read(f.dir.join('dist.public', path));
+    expect(published.ok).to.eql(true);
+    expect(published.data).to.eql(png.data);
+    expect(await Fs.exists(f.dir.join('dist.private', path))).to.eql(false);
   });
 
   it('captures the public base before the builder yields; later config cannot retarget old HTML', async () => {

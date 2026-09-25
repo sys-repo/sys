@@ -79,6 +79,29 @@ Then open:
 
 Restart `serve` after publishing a new build.
 
+## Public image
+
+[public/images/wax-seal.v1.png](public/images/wax-seal.v1.png) is the sample's transparent 200 × 200
+PNG export, displayed at 64 × 64 CSS pixels. Keep editable artwork outside `public/`. Vite copies
+this file into the build, and the build includes it in the public asset inventory. Do not upload it
+separately or modify generated output after inventory capture.
+
+The native `<img>` and its caption live in the HTML footer outside React's root. The caption's
+"image" link points to the PNG; "public R2" links to Cloudflare's public-bucket documentation. The
+image `src` and PNG link both use `%BASE_URL%images/wax-seal.v1.png`. Vite replaces `%BASE_URL%`
+with its configured `base`, which this sample sets from `publicAssetBase`. The image loads without
+the entry module and has no Deno-hosted fallback. The seal is artwork, not proof of authenticity or
+integrity.
+
+Files in `public/` are not automatically fingerprinted. Once published, keep `v1` bytes unchanged;
+use a new filename and update both HTML references for a changed export. Versioned filenames do not
+prevent overwrites or set cache headers. Inspect the actual response headers when checking delivery.
+Revisioned filenames do not retain old assets: the push task still prunes objects absent from the
+selected inventory.
+
+Direct image delivery avoids Deno egress for the PNG; it does not imply zero storage or operation
+costs. The `r2.dev` URL is for this demo, not a production-domain setup.
+
 ## Clean local outputs
 
 Stop `build`, `push`, and `serve` before cleaning. From this sample directory:
@@ -120,8 +143,17 @@ Start `serve` again, then check one cold load:
 2. In the network panel, confirm that the document, API, and private manifest load from the
    application origin. JavaScript, CSS, and referenced assets should load successfully, with final
    URLs under the configured `publicAssetBase`.
-3. Temporarily block the public entry module and reload. The HTML notice should remain visible, but
-   the full UI should not load. Remove the block when finished.
+3. Confirm a separate request for `images/wax-seal.v1.png` succeeds under `publicAssetBase`, with
+   `Content-Type: image/png`. Record its actual cache headers. The caption's "image" link should
+   resolve to the same public object; "public R2" should open the public-bucket documentation. No
+   PNG request should be served by the application origin.
+4. Check the centered 64 × 64 image and readable caption at a narrow viewport. Tab to both caption
+   links and confirm their focus remains visible.
+5. Temporarily block only the PNG request and reload. The UI and API should still work, with the
+   image's descriptive alternative text and caption remaining meaningful. Remove the block.
+6. Temporarily block only the public entry module and reload. The HTML notice and independently
+   loaded image should remain visible, but the full UI should not load. Remove the block when
+   finished.
 
 [Private delivery API](../../README.md#application-read-routes) ·
 [R2 pricing](https://developers.cloudflare.com/r2/pricing/)

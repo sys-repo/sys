@@ -27,7 +27,7 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
           <>
             {' '}(<a href={origin}>{new URL(origin).host}</a>)
           </>
-        )}. UI scripts and styles load directly from{' '}
+        )}. UI scripts, styles, and the image load directly from{' '}
         <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2</a>,
         avoiding Deno egress for those assets.
       </p>

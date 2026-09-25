@@ -55,3 +55,12 @@ code a {
 .identity-table th:nth-child(2) {
   width: 32%;
 }
+
+.public-image {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  margin: 2rem 0 0;
+  text-align: center;
+  font-size: 0.75rem;
+}
