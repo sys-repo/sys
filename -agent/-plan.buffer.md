@@ -1,5 +1,15 @@
 
 
+@sample.r2
+public-image-delivery.plan.md
+- [x] 1b9d2ece9 feat(sample.r2): demonstrate direct public R2 image delivery
+
+
+
+@sys.driver-vite
+html-subresource-integrity.plan.md
+- [ ] feat(driver-vite): add opt-in integrity for HTML-linked assets
+- [ ] feat(driver-cloudflare): enable subresource integrity in the R2 sample
 
 
 @sys.driver-pi
@@ -8,8 +18,10 @@ upstream-runtime-compatibility.plan.md
 - [x] fix(driver-pi): preserve Pi child exit status
 - [ ] fix(driver-pi): adopt current Pi with verified Deno compatibility
 
-
-
+pi-compile-cache-pr.plan.md
+- [ ] fix(coding-agent): make compile cache initialization optional
+- [ ] GATE Pi maintainers approve contributor PR submission
+- [ ] GATE Human approves final PR wording and submission
 
 
 
@@ -116,10 +128,6 @@ system-owned-spinner.plan.md
 
 
 
-@sys
-type-export-path-cleanup.plan.md
-- [ ] GATE sys.canon owner adopts the /t-only package type export policy
-- [ ] refactor(exports)!: standardize package type entrypoints on /t
 
 @sys.tools
 deploy-state-containment.plan.md
@@ -127,13 +135,16 @@ deploy-state-containment.plan.md
 - [ ] chore(deploy): isolate the fs.db.team development workflow
 
 
-@sys.std
-time-canon.plan.md
-- [x] fix(std): settle rejected Schedule queue tasks
-- [x] fix(std): own delayed callback settlement
-- [x] fix(std): terminate failed intervals
-- [x] fix(std): align scoped timers with root lifecycle contracts
-- [x] fix(std): enforce Time polling deadlines and cancellation
-- [x] fix(std): correct Time instant and timer ownership
-- [ ] fix(std): normalize duration parsing and validity
-- [ ] refactor(std): tighten Time type-plane contracts
+
+
+@sys.driver-crdt
+cmd-first-kernels.plan.md
+- [x] test(driver-crdt): establish isolated native and immutable contract fixtures
+- [ ] test(driver-crdt): compare async-owner and native-replica mutation paths
+- [ ] test(driver-crdt): prove editor reconciliation and boundary failure behavior
+- [ ] docs(driver-crdt): specify draft-one contracts from topology evidence
+
+@sys.workspace
+dependency-standdown-parity.plan.md
+- [ ] fix(workspace): unify npm and JSR dependency standdown
+
