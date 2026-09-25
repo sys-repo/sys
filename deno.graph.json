@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1790137328637,
+    "createdAt": 1790294960270,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-1af6fe75fed606fd505665f7ff51b8458267ab591b93dd62ab40261e396d0308",
+      "/graph": "sha256-f326f371aa55fee71c33f777a97448be072d9b8f5409c16f85c168ff3aa30a24",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.158/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,10 +15,11 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.158/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1790137328643
+    "modifiedAt": 1790294960275
   },
   "graph": {
     "orderedPaths": [
+      "code/sys.driver/driver-crdt",
       "code/sys/types",
       "code/sys.dev",
       "code/sys/crdt",
