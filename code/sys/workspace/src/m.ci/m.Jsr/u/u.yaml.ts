@@ -7,9 +7,9 @@ export function toModuleYaml(module: Pick<Module, 'path' | 'name' | 'version'>) 
   const path = WorkflowSafe.scalar(module.path, 'package path');
   const version = WorkflowSafe.scalar(module.version, 'package version');
   return JSR_BODY_TEMPLATE
-    .replaceAll('__NAME__', name)
-    .replaceAll('__PATH__', path)
-    .replaceAll('__VERSION__', version);
+    .replaceAll('__NAME__', () => name)
+    .replaceAll('__PATH__', () => path)
+    .replaceAll('__VERSION__', () => version);
 }
 
 export function toMatrixEntryYaml(module: Pick<Module, 'path' | 'name' | 'version'>) {

@@ -13,7 +13,7 @@ export async function loadModule(cwd: t.StringDir, path: t.StringPath) {
 export function toMatrixItemYaml(module: { path: t.StringPath; name: string }) {
   const name = WorkflowSafe.scalar(module.name, 'matrix name');
   const path = WorkflowSafe.scalar(module.path, 'matrix path');
-  return BUILD_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, name).replace(/PATH/g, path);
+  return BUILD_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, () => name).replace(/PATH/g, () => path);
 }
 
 async function loadJson(path: string) {

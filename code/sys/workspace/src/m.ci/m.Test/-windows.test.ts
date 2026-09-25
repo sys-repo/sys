@@ -308,6 +308,11 @@ describe('WorkspaceCi.Test.Windows', () => {
       '...',
       '*alias',
       '!tag',
+      // Literal replacement tokens cross the separate Windows template boundary.
+      'feature/$$',
+      'feature/$&',
+      'feature/$`',
+      "feature/$'",
     ];
     const yaml = await WorkspaceCi.Test.Windows.text({
       cwd: fs.dir,

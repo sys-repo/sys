@@ -179,7 +179,7 @@ jobs:
             if command -v "$bin" >/dev/null 2>&1; then
               path="$(realpath -- "$(command -v "$bin")")"
               case "$path" in
-                *','*|*\r'*|*\n'*)
+                *','*|*$'\r'*|*$'\n'*)
                   echo "::error::Chrome executable path is unsafe for Deno permission transport"
                   exit 1
                   ;;

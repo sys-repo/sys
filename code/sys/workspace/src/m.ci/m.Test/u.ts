@@ -21,7 +21,7 @@ export async function loadLinuxModule(cwd: t.StringDir, path: t.StringPath) {
 export function toMatrixItemYaml(module: { path: t.StringPath; name: string; browser?: boolean }) {
   const name = WorkflowSafe.scalar(module.name, 'matrix name');
   const path = WorkflowSafe.scalar(module.path, 'matrix path');
-  const yaml = TEST_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, name).replace(/PATH/g, path);
+  const yaml = TEST_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, () => name).replace(/PATH/g, () => path);
   return module.browser ? `${yaml}\n  browser: true` : yaml;
 }
 

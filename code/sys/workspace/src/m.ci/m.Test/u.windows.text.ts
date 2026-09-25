@@ -14,8 +14,8 @@ export async function text(args: t.WorkspaceCi.Test.Windows.Args) {
 
   return `${
     WINDOWS_TEST_WORKFLOW_TEMPLATE
-      .replace('__ON__', wrangle.on(args.on))
-      .replace('__MATRIX_ITEMS__', items)
-      .replace('__DENO_VERSION__', CI_DENO_VERSION)
+      .replace('__ON__', () => wrangle.on(args.on))
+      .replace('__MATRIX_ITEMS__', () => items)
+      .replace('__DENO_VERSION__', () => CI_DENO_VERSION)
   }\n`;
 }

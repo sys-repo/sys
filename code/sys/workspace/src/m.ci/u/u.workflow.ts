@@ -85,6 +85,7 @@ export function workflowTemplate(args: WorkflowArgs) {
   `,
   ).trim();
 
+  // Callbacks keep replacement tokens in YAML and shell text literal.
   return Str.dedent(
     `
     name: ${args.name}
@@ -105,17 +106,16 @@ export function workflowTemplate(args: WorkflowArgs) {
         __BODY__
   `,
   )
-    .replace(/^\s*__ON__$/m, on)
-    .replace(/^\s*__BEFORE_DENO_JOB__\n/m, beforeDenoJob)
-    .replace(/^\s*__PERMISSIONS__$/m, permissions)
-    .replace(/^\s*__ENV__$/m, env.trimEnd())
-    .replace(/^\s*__JOB_CONFIG__$/m, jobConfig.trimEnd())
-    .replace(
-      /^\s*__STEPS__$/m,
-      wrangle.indent(steps, 4).replace(
+    .replace(/^\s*__ON__$/m, () => on)
+    .replace(/^\s*__BEFORE_DENO_JOB__\n/m, () => beforeDenoJob)
+    .replace(/^\s*__PERMISSIONS__$/m, () => permissions)
+    .replace(/^\s*__ENV__$/m, () => env.trimEnd())
+    .replace(/^\s*__JOB_CONFIG__$/m, () => jobConfig.trimEnd())
+    .replace(/^\s*__STEPS__$/m, () => {
+      return wrangle.indent(steps, 4).replace(
         /\n\s*__VERIFY_CLEAN_INSTALL__\n/m,
-        verifyCleanInstall ? `\n${verifyCleanInstall}\n` : '\n',
-      ),
-    )
-    .replace(/^\s*__BODY__$/m, args.body);
+        () => verifyCleanInstall ? `\n${verifyCleanInstall}\n` : '\n',
+      );
+    })
+    .replace(/^\s*__BODY__$/m, () => args.body);
 }

@@ -16,8 +16,8 @@ export async function text(args: t.WorkspaceCi.Test.Linux.Args) {
       permissions: { contents: 'read' },
       on: args.on,
       env: args.env,
-      beforeDenoJob: TEST_GRAPH_JOB_TEMPLATE.replace('__DENO_VERSION__', CI_DENO_VERSION),
-      jobConfig: TEST_JOB_CONFIG_TEMPLATE.replace('__MATRIX_ITEMS__', items),
+      beforeDenoJob: TEST_GRAPH_JOB_TEMPLATE.replace('__DENO_VERSION__', () => CI_DENO_VERSION),
+      jobConfig: TEST_JOB_CONFIG_TEMPLATE.replace('__MATRIX_ITEMS__', () => items),
       body: TEST_BODY_TEMPLATE,
     })
   }\n`;

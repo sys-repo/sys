@@ -1,5 +1,5 @@
 import { Yaml } from '@sys/yaml';
-import { describe, Err, expect, expectError, Fs, it, Testing } from '../../-test.ts';
+import { describe, Err, expect, expectError, Fs, it, Process, Str, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 import { CI_DENO_VERSION } from '../u.deno.ts';
 
@@ -80,6 +80,42 @@ describe('WorkspaceCi.Test.Linux', () => {
     expect(incl('push:')).to.be.true;
     expect(incl('- main')).to.be.true;
     expect(incl('pull_request:')).to.be.false;
+  });
+
+  it('rendered Chrome path guard → accepts spaces and rejects unsafe delimiters', async () => {
+    const yaml = await WorkspaceCi.Test.Linux.text({ paths: [] });
+    const parsed = Yaml.parse<WorkflowDoc>(yaml);
+    expect(parsed.error).to.eql(undefined);
+    const step = parsed.data?.jobs.deno.steps.find((step) =>
+      step.name === 'Configure Browser Runtime: Chrome'
+    );
+    // Execute the emitted guard, without depending on an installed browser.
+    const guard = step?.run?.match(/case "\$path" in[\s\S]*?esac/)?.[0];
+    if (!guard) throw Err.std('Expected rendered browser path guard');
+    const script = Str.dedent(`
+      path="$1"
+      ${guard}
+    `);
+
+    const cases = [
+      { label: 'plain path', path: '/opt/chrome', exitCode: 0 },
+      { label: 'spaces', path: '/opt/Google Chrome/chrome', exitCode: 0 },
+      { label: 'comma', path: '/opt/chrome,stable', exitCode: 1 },
+      { label: 'carriage return', path: '/opt/chrome\rstable', exitCode: 1 },
+      { label: 'line feed', path: '/opt/chrome\nstable', exitCode: 1 },
+    ];
+    for (const { label, path, exitCode } of cases) {
+      const result = await Process.invoke({
+        cmd: 'bash',
+        args: ['-c', script, 'browser-path-guard', path],
+        clearEnv: true,
+        silent: true,
+      });
+      expect(result.code, label).to.eql(exitCode);
+      expect(result.text.stderr, label).to.eql('');
+      if (exitCode === 0) expect(result.text.stdout, label).to.eql('');
+      else expect(result.text.stdout, label).to.include('Chrome executable path is unsafe');
+    }
   });
 
   it('browser marker without an explicit browser task → fails closed', async () => {
