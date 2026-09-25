@@ -33,7 +33,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "code/sys.driver/driver-crdt"
+          - name: "@sys/driver-crdt"
             path: code/sys.driver/driver-crdt
           - name: "@sys/types"
             path: code/sys/types
