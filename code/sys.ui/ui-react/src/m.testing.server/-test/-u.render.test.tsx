@@ -1,7 +1,9 @@
-import { describe, expect, it } from '../../-test.ts';
-import { TestReact } from '../mod.ts';
+import { afterEach, describe, expect, it } from '../../-test.ts';
+import { DomMock, TestReact } from '../mod.ts';
 
-describe('render', { sanitizeOps: false, sanitizeResources: false }, () => {
+afterEach(DomMock.unpolyfill);
+
+describe('render', () => {
   it('renders into DOM', async () => {
     const el = (
       <div>
@@ -10,8 +12,12 @@ describe('render', { sanitizeOps: false, sanitizeResources: false }, () => {
     );
 
     const res = await TestReact.render(el);
-    const span = res.container.querySelector('span')!;
-    expect(span.innerText).to.eql('Hello');
+    try {
+      const span = res.container.querySelector('span')!;
+      expect(span.innerText).to.eql('Hello');
+    } finally {
+      res.dispose();
+    }
   });
 
   it('lifecycle', async () => {
@@ -23,14 +29,18 @@ describe('render', { sanitizeOps: false, sanitizeResources: false }, () => {
     let count = 0;
     res.dispose$.subscribe(() => count++);
 
-    expect(res.disposed).to.eql(false);
-    expect(res.container.querySelector('span')!.innerText).to.eql('Hello');
+    try {
+      expect(res.disposed).to.eql(false);
+      expect(res.container.querySelector('span')!.innerText).to.eql('Hello');
 
-    res.dispose();
-    expect(res.disposed).to.eql(true);
-    expect(count).to.eql(1);
+      res.dispose();
+      expect(res.disposed).to.eql(true);
+      expect(count).to.eql(1);
 
-    // NB: should not find.
-    expect(res.container.querySelector('span')).to.eql(null);
+      // NB: should not find.
+      expect(res.container.querySelector('span')).to.eql(null);
+    } finally {
+      res.dispose();
+    }
   });
 });

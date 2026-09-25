@@ -1,5 +1,15 @@
 import type { t } from './common.ts';
 
+/** Expected SHA-256 checksum of the complete `dist.json` file. */
+export type DistPin = {
+  readonly 'dist.json': t.StringHash;
+};
+
+/** Manifest pins for a set of named distributions. */
+export type DistPins<N extends string = string> = {
+  readonly pins: Readonly<Record<N, t.DistPin>>;
+};
+
 /**
  * Distribution package metadata (`/dist/dist.json`).
  */
@@ -90,5 +100,5 @@ export type DistPkgHashIgnore = {
   /** Effective ordered ignore rules used during compute. */
   rules: string[];
   /** Digest of canonical serialized rules. */
-  readonly "rules:digest": t.StringHash;
+  readonly 'rules:digest': t.StringHash;
 };

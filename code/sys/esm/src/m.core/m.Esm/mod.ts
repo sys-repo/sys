@@ -2,7 +2,7 @@
  * @module
  * Core ESM import and dependency helpers.
  */
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 import { Topological } from '../m.Topological/mod.ts';
 import { Policy } from '../m.Policy/mod.ts';
@@ -15,7 +15,7 @@ import { toString } from './u.toString.ts';
 /**
  * Core ESM import and dependency helpers.
  */
-export const Esm: t.EsmLib = {
+export const Esm: t.EsmLib = Object.freeze({
   Topological,
   Policy,
   Modules,
@@ -24,4 +24,4 @@ export const Esm: t.EsmLib = {
   parse,
   toString,
   hasDefaultExport,
-};
+});

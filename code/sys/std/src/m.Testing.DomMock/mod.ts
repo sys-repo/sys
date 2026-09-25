@@ -1,42 +1,44 @@
 /**
  * @module
- * Mocking helpers for working with the DOM in unit-tests on the server.
+ * Mocking helpers for server-side DOM unit tests.
  *
  * @example
- * For granular controler before/after each.
+ * For granular setup and teardown around each test:
  * ```ts
- * import { DomMock, beforeEach, afterEach } from '@sys/std/testing/server';
+ * import { afterEach, beforeEach } from '@sys/std/testing/server';
+ * import { DomMock } from '@sys/std/testing/server/dom';
  *
  * beforeEach(DomMock.polyfill);
  * afterEach(DomMock.unpolyfill);
  * ```
  *
- * Or more commonly before/after all tests in the suite:
+ * Or, more commonly, register one suite lifecycle:
  * ```ts
- * import { DomMock, beforeEach, beforeAll, afterAll } from '@sys/std/testing/server';
+ * import { afterAll, beforeAll } from '@sys/std/testing/server';
+ * import { DomMock } from '@sys/std/testing/server/dom';
  *
  * DomMock.init({ beforeAll, afterAll });
  * ```
- *
- *
  */
 import type { t } from './common.ts';
 
 import { Fake } from './m.Fake.ts';
 import { Keyboard } from './m.Keyboard.ts';
+import { Mouse } from './m.Mouse.ts';
 import { polyfill, unpolyfill } from './u.polyfill.ts';
 import { init } from './u.init.ts';
 
 /**
- * Helpers for testing DOM related action in unit-tests.
+ * Helpers for DOM-related actions in server-side unit tests.
  */
-export const DomMock: t.DomMockLib = {
+export const DomMock: t.DomMock.Lib = Object.freeze({
   Fake,
   Keyboard,
+  Mouse,
   init,
   polyfill,
   unpolyfill,
   get isPolyfilled() {
     return (globalThis as any).__SYS_BROWSER_MOCK__ === true;
   },
-};
+});

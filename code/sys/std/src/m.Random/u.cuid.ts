@@ -9,7 +9,7 @@ import { base36 } from './u.base36.ts';
  *               If not provided, a default length is used.
  * @returns A collision-resistant string of the specified length.
  */
-export const cuid: t.RandomLib['cuid'] = (length = Length.cuid) => {
+export const cuid: t.Random.Lib['cuid'] = (length = Length.cuid) => {
   // 1. Capture the current time in milliseconds and convert to base-36.
   const now = Date.now();
   const timePart = now.toString(36);

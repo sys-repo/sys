@@ -1,10 +1,4 @@
 /**
- * @typebox
- */
-export { Type } from '@sinclair/typebox';
-export { Value } from '@sinclair/typebox/value';
-
-/**
  * @system
  */
 export { Immutable } from '@sys/immutable/rfc6902';

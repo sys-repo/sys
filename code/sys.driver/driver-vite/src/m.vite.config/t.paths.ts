@@ -1,17 +1,13 @@
 import type { t } from './common.ts';
 
-/**
- * Representation of paths for a Vite configuration.
- */
-export type ViteConfigPaths = {
+/** Representation of paths for a Vite configuration. */
+export type Paths = {
   readonly cwd: t.StringDir;
-  readonly app: t.ViteConfigPathsApp;
+  readonly app: App;
 };
 
-/**
- * Paths for "application" bundles.
- */
-export type ViteConfigPathsApp = {
+/** Paths for "application" bundles. */
+export type App = {
   /** The main entry path to an HTML file. */
   readonly entry: t.StringPath;
 

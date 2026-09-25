@@ -1,0 +1,8 @@
+kind: cell
+version: 1
+
+services:
+  - name: r2
+    use: SampleService
+    from: ./-scripts/service.ts
+    config: ./r2.config.json

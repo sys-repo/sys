@@ -1,7 +1,8 @@
 import { describe, expect, it, Testing, Time } from '../../../-test.ts';
-import { Fs, Http } from '../common.ts';
+import { Fs } from '../common.ts';
+import { Http } from '../../../http.client/mod.ts';
 import { HttpServer } from '../mod.ts';
-import { usingServer } from './fixture.usingServer.ts';
+import { testFetcher, usingServer } from './u.fixture.usingServer.ts';
 
 /**
  * Invariant:
@@ -25,10 +26,28 @@ describe('HttpServer: serve static', () => {
         const res = await fetch.json<T>(url.join(filename));
 
         expect(res.status).to.eql(200);
-        expect(res.headers.get('Content-Type')).to.include('application/json');
+        expect(res.headers.get('Content-Type')).to.eql('application/json; charset=UTF-8');
         expect(res.data).to.eql(foo);
       },
     });
+  });
+
+  it('200: canonical known and unknown Content-Type values', async () => {
+    const fs = await Testing.dir('HttpServer');
+    await Fs.write(Fs.join(fs.dir, 'config.yaml'), 'enabled: true');
+    await Fs.write(Fs.join(fs.dir, 'value.unknown'), new Uint8Array([1, 2, 3]));
+
+    const app = HttpServer.create({ static: ['/*', fs.dir] });
+    const known = await app.fetch(new Request('http://local/config.yaml'));
+    const unknown = await app.fetch(new Request('http://local/value.unknown'));
+
+    expect(known.status).to.eql(200);
+    expect(known.headers.get('content-type')).to.eql('text/yaml; charset=UTF-8');
+    expect(await known.text()).to.eql('enabled: true');
+
+    expect(unknown.status).to.eql(200);
+    expect(unknown.headers.get('content-type')).to.eql('application/octet-stream');
+    expect(new Uint8Array(await unknown.arrayBuffer())).to.eql(new Uint8Array([1, 2, 3]));
   });
 
   it('200/404: HTML/Blob(Binary)/404', async () => {
@@ -51,19 +70,19 @@ describe('HttpServer: serve static', () => {
         const f = await fetch.json(url.join('/foo'));
 
         expect(a.status).to.eql(200);
-        expect(a.headers.get('content-type')).to.include('application/octet-stream');
+        expect(a.headers.get('content-type')).to.eql('application/octet-stream');
         expect(await Http.toUint8Array(a.data)).to.eql(data);
 
         expect(b.status).to.eql(200);
-        expect(b.headers.get('content-type')).to.include('text/html');
+        expect(b.headers.get('content-type')).to.eql('text/html; charset=UTF-8');
         expect(b.data).to.eql('<h1>🐷</h1>');
 
         expect(c.status).to.eql(200);
-        expect(c.headers.get('content-type')).to.include('text/html');
+        expect(c.headers.get('content-type')).to.eql('text/html; charset=UTF-8');
         expect(c.data).to.eql('<h1>🐷</h1>');
 
         expect(d.status).to.eql(200);
-        expect(d.headers.get('content-type')).to.include('text/html');
+        expect(d.headers.get('content-type')).to.eql('text/html; charset=UTF-8');
         expect(d.data).to.eql('<h1>🌳</h1>');
 
         expect(e.status).to.eql(404);
@@ -96,7 +115,11 @@ describe('HttpServer: serve static', () => {
 
     await usingServer({
       app,
-      mkFetch: () => Http.fetcher({ headers: (e) => e.set('range', 'bytes=0-') }),
+      mkFetch: (origin) =>
+        testFetcher(origin, {
+          policy: { credentialOrigins: [origin] },
+          headers: (event) => event.set('range', 'bytes=0-'),
+        }),
       fn: async ({ url, fetch }) => {
         const res = await fetch.blob(url.join(filename));
 

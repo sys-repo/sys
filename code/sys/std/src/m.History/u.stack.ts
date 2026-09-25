@@ -1,6 +1,6 @@
 import { type t } from './common.ts';
 
-type Options = Parameters<t.HistoryLib['stack']>[0];
+type Options = Parameters<t.History.Lib['stack']>[0];
 
 export function stack(options: Options = {}): t.HistoryStack {
   const { max = Number.POSITIVE_INFINITY } = options;

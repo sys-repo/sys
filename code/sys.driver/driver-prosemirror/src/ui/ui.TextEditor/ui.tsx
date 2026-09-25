@@ -4,6 +4,7 @@ import { type t, Color, css, D } from './common.ts';
 import { EditorStyles } from './u.styles.ts';
 import { useProsemirror } from './use.Prosemirror.ts';
 
+/** CRDT-backed ProseMirror text editor component. */
 export const TextEditor: React.FC<t.TextEditorProps> = (props) => {
   const {
     readOnly = D.readOnly,

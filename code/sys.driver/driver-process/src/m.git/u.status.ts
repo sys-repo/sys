@@ -1,4 +1,5 @@
-import { type t, Process, isMissingBinaryError } from './common.ts';
+import { isMissingBinaryError, type t } from './common.ts';
+import { invoke } from '../u.invoke.ts';
 
 const VALID_CODES = new Set<t.GitStatusCode>([' ', 'M', 'A', 'D', 'R', 'C', 'U', '?']);
 
@@ -11,7 +12,7 @@ export const status: t.GitStatusFn = async (opts = {}) => {
 
   let res: t.Process.Output;
   try {
-    res = await Process.invoke({
+    res = await invoke({
       cmd: git,
       args,
       cwd: opts.cwd,

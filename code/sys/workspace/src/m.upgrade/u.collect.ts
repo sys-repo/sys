@@ -1,5 +1,7 @@
-import { type t, Deps, Err, Is, Semver } from './common.ts';
+import { Arr, Deps, Err, Is, Obj, Semver, type t } from './common.ts';
 import { createSession, Session, type UpgradeSession } from './u.session.ts';
+import { Standdown } from './u.standdown.ts';
+import { StanddownTime } from './u.standdown.time.ts';
 
 type RegistryProgressState = {
   readonly total: t.WorkspaceUpgrade.RegistryProgressCounts;
@@ -8,13 +10,15 @@ type RegistryProgressState = {
   readonly dependencies: number;
 };
 
+/**
+ * Read manifest pins and published versions without changing dependency files.
+ * Releases withheld by the age policy remain visible, with reasons.
+ */
 export const collect: t.WorkspaceUpgrade.Lib['collect'] = async (input, options) => {
   return await collectWithSession(input, options, createSession());
 };
 
-/**
- * Internal session-aware collection helper for multi-phase upgrade orchestration.
- */
+/** Collect with shared registry lookups so aliases use the same publication evidence. */
 export async function collectWithSession(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceUpgrade.Options | undefined,
@@ -86,12 +90,24 @@ export async function collectWithSession(
       versions.data.versions,
       resolved.prerelease,
     );
+    const registry = entry.module.registry as t.EsmRegistry;
+    const standdown = Standdown.evaluate({
+      registry,
+      current,
+      available,
+      versions: versions.data.versions,
+      minimumDependencyAge: resolved.minimumDependencyAge,
+      evaluatedAt: resolved.evaluatedAt,
+    });
+
     candidates.push({
       entry,
-      registry: entry.module.registry as t.EsmRegistry,
+      registry,
       current,
       latest: available[0],
       available,
+      eligible: standdown.eligible,
+      versions: standdown.versions,
     });
   }
 
@@ -106,6 +122,7 @@ export async function collectWithSession(
     },
     candidates,
     uncollected,
+    packageJson: manifest.data.packageJson,
   };
 }
 
@@ -115,6 +132,8 @@ const wrangle = {
       policy: options?.policy ?? { mode: 'minor' },
       prerelease: options?.prerelease ?? false,
       registries: options?.registries ?? ['jsr', 'npm'],
+      minimumDependencyAge: StanddownTime.minimumAge(options?.minimumDependencyAge),
+      evaluatedAt: StanddownTime.evaluatedAt(options?.evaluatedAt),
       log: options?.log ?? false,
       progress: options?.progress,
     };
@@ -193,7 +212,7 @@ const wrangle = {
     versions: Record<string, unknown>,
     prerelease: boolean,
   ): readonly t.StringSemver[] {
-    const keys = Object.entries(versions ?? {})
+    const keys = Obj.entries(versions ?? {})
       .filter(([_, meta]) => !wrangle.excluded(registry, meta))
       .map(([version]) => version);
     const clean = keys
@@ -201,13 +220,13 @@ const wrangle = {
       .filter((version): version is t.StringSemver => Is.str(version) && version.length > 0)
       .filter((version) => wrangle.withinLatest(registry, latest, version))
       .filter((version) => prerelease || wrangle.released(version));
-    return Semver.sort([...new Set(clean)], { order: 'desc' });
+    return Semver.sort(Arr.uniq(clean), { order: 'desc' });
   },
 
   excluded(registry: string, meta: unknown): boolean {
     if (registry !== 'npm') return false;
-    if (!meta || typeof meta !== 'object') return false;
-    const deprecated = Reflect.get(meta, 'deprecated');
+    if (!Obj.isRecord(meta)) return false;
+    const deprecated = meta.deprecated;
     return Is.str(deprecated) && deprecated.length > 0;
   },
 

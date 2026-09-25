@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { CurriedPath } from '../m.CurriedPath.ts';
 import { Path } from '../mod.ts';
 
@@ -116,7 +116,7 @@ describe('Obj.Path.Curried', () => {
       const op = p.set(subject, 123);
 
       expect(subject.foo).to.eql(123);
-      expect(op).to.eql<t.ObjDiffOp>({
+      expect(op).to.eql<t.Obj.Path.Mutate.Op>({
         type: 'add',
         path: ['foo'],
         value: 123,
@@ -128,7 +128,7 @@ describe('Obj.Path.Curried', () => {
       const op = p.set(subject, 2);
 
       expect(subject.foo).to.eql(2);
-      expect(op).to.eql<t.ObjDiffOp>({
+      expect(op).to.eql<t.Obj.Path.Mutate.Op>({
         type: 'update',
         path: ['foo'],
         prev: 1,
@@ -147,7 +147,7 @@ describe('Obj.Path.Curried', () => {
       const op = p.set(subject, undefined);
 
       expect('foo' in subject).to.be.false;
-      expect(op).to.eql<t.ObjDiffOp>({
+      expect(op).to.eql<t.Obj.Path.Mutate.Op>({
         type: 'remove',
         path: ['foo'],
         prev: 99,
@@ -184,7 +184,7 @@ describe('Obj.Path.Curried', () => {
       const op = p.delete(subject);
 
       expect('foo' in subject).to.be.false;
-      expect(op).to.eql<t.ObjDiffOp>({
+      expect(op).to.eql<t.Obj.Path.Mutate.Op>({
         type: 'remove',
         path: ['foo'],
         prev: 7,

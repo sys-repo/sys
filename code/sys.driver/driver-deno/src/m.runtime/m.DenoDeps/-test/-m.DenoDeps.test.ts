@@ -11,7 +11,7 @@ describe('DenoDeps methods', () => {
     it('adapts the pure manifest methods from @sys/esm/deps', async () => {
       const input = `
         deno.json:
-          - import: npm:esbuild@0.27.3
+          - import: npm:left-pad@1.3.0
       `;
 
       const esm = await Deps.from(input);
@@ -38,8 +38,8 @@ describe('DenoDeps methods', () => {
       expect(DenoDeps.toYaml(deno.data?.deps ?? []).text).to.eql(
         Deps.toYaml(esm.data?.entries ?? []).text,
       );
-      expect(DenoDeps.findImport(deno.data?.deps, 'npm:esbuild')).to.eql(
-        Deps.findImport(esm.data?.entries, 'npm:esbuild'),
+      expect(DenoDeps.findImport(deno.data?.deps, 'npm:left-pad')).to.eql(
+        Deps.findImport(esm.data?.entries, 'npm:left-pad'),
       );
     });
   });

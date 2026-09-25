@@ -1,4 +1,5 @@
-import { type t, Type as T } from '../common.ts';
+import type { t } from '../common.ts';
+import { Type as T } from '../m.core.schema/m.Type.ts';
 
 export const toSchema: t.RecipeToSchema = (r) => {
   switch (r.kind) {

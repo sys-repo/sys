@@ -1,7 +1,7 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { App, D } from '../common.ts';
 import { Programme } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.name, async (e) => {
   const debug = createDebugSignals();
@@ -9,7 +9,7 @@ export default Spec.describe(D.name, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
     App.Render.preloadTimestamps(debug.content);
-    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
+    Harness.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

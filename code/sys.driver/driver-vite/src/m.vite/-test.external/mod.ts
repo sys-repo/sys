@@ -6,7 +6,10 @@
  * - narrow external consumer regression probes that are best proven here
  */
 import './-baseline.ts';
-import './-published-minimal-crutch.ts';
+import './-browser-syntax.runtime.ts';
+import './-browser-syntax.chromium.ts';
+import './-dispose-protocol-compat.runtime.ts';
+import './-published-pure-jsr-authority.ts';
 import './-repo-generated.ts';
 import './-repo-generated.workspace.ts';
 import './-std-try.runtime.ts';

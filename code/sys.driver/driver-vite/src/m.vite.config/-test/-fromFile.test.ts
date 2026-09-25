@@ -5,9 +5,9 @@ import { ViteConfig } from '../mod.ts';
 describe('ViteConfig.fromFile', () => {
   const { brightCyan: cyan } = c;
 
-  const print = (res: t.ViteConfigFromFile) => {
+  const print = (res: t.ViteConfig.FromFile) => {
     console.info();
-    console.info(cyan(`↓ Type: ${c.bold('ViteConfigFromFile')}`));
+    console.info(cyan(`↓ Type: ${c.bold('ViteConfig.FromFile')}`));
     console.info(res);
     console.info();
   };

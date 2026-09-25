@@ -1,39 +1,39 @@
-import { describe, expect, it, Cli, Str } from '../../-test.ts';
+import { c, Cli, describe, expect, it, Str } from '../../-test.ts';
 import { menuMessage, optionLines, optionName } from '../u.menu.ts';
 
 describe('Root Menu', () => {
   it('drops leading whitespace-only table rows', () => {
     const lines = optionLines([
       '                                                         ',
-      '├─ @sys/tools pi             (← alias agent)             ',
-      '└─ @sys/tools update         (← alias up, info)          ',
+      '├─ @sys/tools pi             (← aliases agent, harness)  ',
+      '└─ @sys/tools upgrade        (← alias up)                ',
       '  (exit)                                                 ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools pi             (← alias agent)             ',
-      '└─ @sys/tools update         (← alias up, info)          ',
+      '├─ @sys/tools pi             (← aliases agent, harness)  ',
+      '└─ @sys/tools upgrade        (← alias up)                ',
       '  (exit)                                                 ',
     ]);
   });
 
   it('drops ansi-only rows when building visible options', () => {
     const lines = optionLines([
-      '\x1b[90m                                                         \x1b[39m',
-      '├─ @sys/tools pi             (← alias agent)                 ',
+      c.gray('                                                         '),
+      '├─ @sys/tools pi             (← aliases agent, harness)      ',
     ].join('\n'));
 
     expect(lines).to.eql([
-      '├─ @sys/tools pi             (← alias agent)                 ',
+      '├─ @sys/tools pi             (← aliases agent, harness)      ',
     ]);
   });
 
   it('falls back when a rendered line is visibly blank', () => {
-    expect(optionName('\x1b[90m   \x1b[39m', 'fallback')).to.eql('fallback');
+    expect(optionName(c.gray('   '), 'fallback')).to.eql('fallback');
   });
 
   it('keeps more rows visibly non-empty', () => {
-    const res = optionName(undefined, '\x1b[3m\x1b[90mmore...\x1b[39m\x1b[23m');
+    const res = optionName(undefined, c.italic(c.gray('more...')));
     expect(Cli.stripAnsi(res).trim()).to.eql('more...');
   });
 
@@ -56,7 +56,7 @@ describe('Root Menu', () => {
       Str.dedent([
         '├─ @sys/tools deploy',
         '│     more...',
-        '└─ @sys/tools update',
+        '└─ @sys/tools upgrade',
         '  (exit)',
       ].join('\n')),
     );
@@ -67,6 +67,6 @@ describe('Root Menu', () => {
   it('renders the root menu header without inline advisory detail', () => {
     const text = Cli.stripAnsi(menuMessage());
     expect(text).to.contain('system:tools@');
-    expect(text).to.not.contain('Update available:');
+    expect(text).to.not.contain('Upgrade available:');
   });
 });

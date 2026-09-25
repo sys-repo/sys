@@ -8,7 +8,7 @@ export type DevRepo = ReturnType<typeof createDevRepo>;
  */
 export function createDevRepo() {
   const { qs, isDev } = browserEnvironment();
-  const network: t.CrdtWebNetworkArg[] = [];
+  const network: t.CrdtWeb.Network.Arg[] = [];
   if (qs) network.push({ ws: qs });
   if (!qs && isDev) network.push({ ws: 'localhost:3030' });
   if (!qs && !isDev) network.push({ ws: 'waiheke.sync.db.team' });

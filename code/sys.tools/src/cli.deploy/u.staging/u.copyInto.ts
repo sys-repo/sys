@@ -1,101 +1,190 @@
-import { Fs, Path } from '../common.ts';
+import { Fs, Path, type t } from '../common.ts';
 import { shouldExclude } from '../u.exclude.ts';
+import { reservedGeneratedNameOf } from '../u.endpoints/u.pathPolicy.ts';
+import { throwIfStagingCancelled } from './u.cancel.ts';
+import { assertDirectoryIdentity, ensureStagingDirectory } from './u.identity.ts';
+import {
+  retainStagingManifest,
+  stagingManifestIntegrity,
+  type StagingManifestLedger,
+  validateStagingManifest,
+} from './u.manifest.ts';
 
 /**
- * Copy `src` into `dst` (destination) using staging merge semantics.
- *
- * Semantics:
- * - Directories are always merged (never replaced).
- * - Files:
- *   - overwrite=false (default): existing files are preserved (skipped).
- *   - overwrite=true: last write wins.
- *
- * Note:
- *   Fs.copyDir cannot be used here:
- *   - force=false refuses existing targets
- *   - force=true deletes targets
- *   Staging requires merge semantics.
+ * Copy one admitted source directory into one retained, disjoint staging destination.
+ * Root identities detect cooperative replacement; pathname descendants do not claim hostile
+ * same-user isolation.
  */
 export async function copyInto(args: {
-  readonly src: string;
-  readonly dst: string;
-  readonly overwrite: boolean;
-  readonly sync?: boolean;
+  src: string;
+  dst: string;
+  sourceIdentity: t.DeployTool.Staging.DirectoryIdentity;
+  destinationIdentity: t.DeployTool.Staging.DirectoryIdentity;
+  manifestLedger: StagingManifestLedger;
+  signal?: AbortSignal;
 }): Promise<void> {
-  const { src, dst, overwrite, sync = false } = args;
+  await assertCopyRoots(args);
 
-  const copyFile = async (from: string, to: string): Promise<void> => {
-    if (shouldExclude(Path.basename(from))) return;
-    if (!overwrite && (await Fs.exists(to))) return;
-
-    const res = await Fs.copyFile(from, to, { force: overwrite, throw: true });
-    if (res?.error) throw res.error;
-  };
-
-  const mergeDir = async (fromDir: string, toDir: string): Promise<void> => {
-    await Fs.ensureDir(toDir);
-
-    for await (const entry of Deno.readDir(fromDir)) {
-      if (shouldExclude(entry.name)) continue;
-      const from = Fs.join(fromDir, entry.name);
-      const to = Fs.join(toDir, entry.name);
-
-      if (entry.isDirectory) {
-        await mergeDir(from, to);
-        continue;
-      }
-
-      if (entry.isFile) {
-        await copyFile(from, to);
-        continue;
-      }
-
-      // Ignore symlinks/others for now (keep staging deterministic).
+  for await (
+    const entry of Fs.walk(args.sourceIdentity.path, {
+      includeDirs: true,
+      includeFiles: true,
+      includeSymlinks: true,
+      followSymlinks: false,
+    })
+  ) {
+    throwIfStagingCancelled(args.signal);
+    const relative = Path.relative(args.sourceIdentity.path, entry.path);
+    if (
+      Path.Is.absolute(relative) ||
+      !Path.Is.within(args.sourceIdentity.path, entry.path)
+    ) {
+      throw unsupportedSource(entry.path);
     }
-  };
+    if (!relative || shouldExclude(entry.path)) continue;
 
-  const info = await Deno.stat(src);
-  if (info.isDirectory) {
-    await mergeDir(src, dst);
-    if (sync) await pruneExtraFiles(src, dst);
-    return;
+    const target = Fs.join(args.destinationIdentity.path, relative);
+    const sourceInfo = await Fs.lstat(entry.path);
+    if (entry.isSymlink || sourceInfo?.isSymlink) throw unsupportedSource(entry.path);
+    const basename = Path.basename(entry.path);
+    const reservedName = reservedGeneratedNameOf(basename);
+    if (reservedName && (basename !== reservedName || !sourceInfo?.isFile)) {
+      throw unsupportedSource(entry.path);
+    }
+
+    if (entry.isDirectory && sourceInfo?.isDirectory) {
+      await ensureStagingDirectory({
+        root: args.destinationIdentity,
+        path: target,
+        label: 'Deploy staging copy destination',
+        signal: args.signal,
+      });
+      continue;
+    }
+
+    if (entry.isFile && sourceInfo?.isFile) {
+      await copyFile(args, entry.path, target);
+      continue;
+    }
+    throw unsupportedSource(entry.path);
   }
 
-  await copyFile(src, dst);
+  await assertCopyRoots(args);
 }
 
-async function pruneExtraFiles(srcDir: string, dstDir: string): Promise<void> {
-  const srcFiles = await collectFiles(srcDir);
-  const dstFiles = await collectFiles(dstDir);
-  const srcSet = new Set(srcFiles.map((rel) => Fs.join(srcDir, rel)));
+async function copyFile(
+  args: {
+    src: string;
+    dst: string;
+    sourceIdentity: t.DeployTool.Staging.DirectoryIdentity;
+    destinationIdentity: t.DeployTool.Staging.DirectoryIdentity;
+    manifestLedger: StagingManifestLedger;
+    signal?: AbortSignal;
+  },
+  source: string,
+  target: string,
+): Promise<void> {
+  if (shouldExclude(source)) return;
+  await assertCopyRoots(args);
+  const parentIdentity = await ensureStagingDirectory({
+    root: args.destinationIdentity,
+    path: Path.dirname(target),
+    label: 'Deploy staging copy destination parent',
+    signal: args.signal,
+  });
 
-  for (const rel of dstFiles) {
-    const abs = Fs.join(dstDir, rel);
-    const srcAbs = Fs.join(srcDir, rel);
-    if (srcSet.has(srcAbs)) continue;
-    if (shouldExclude(Path.basename(abs))) continue;
-    await Fs.remove(abs, { log: false });
+  if (await Fs.lstat(target)) {
+    throw new Error(`Deploy staging destination collision: ${target}`);
   }
+
+  const basename = Path.basename(source);
+  const reservedName = reservedGeneratedNameOf(basename);
+  if (reservedName && basename !== reservedName) throw unsupportedSource(source);
+  const isManifest = reservedName === 'dist.json';
+  const copied = await Fs.copyFile(source, target, {
+    ensureParent: false,
+    force: false,
+    throw: true,
+  }).catch((error) =>
+    rethrowCopyFailure(args.manifestLedger, parentIdentity, target, isManifest, error)
+  );
+  if (copied.error) {
+    await rethrowCopyFailure(
+      args.manifestLedger,
+      parentIdentity,
+      target,
+      isManifest,
+      copied.error,
+    );
+  }
+
+  const manifestIntegrity = isManifest
+    ? await stagingManifestIntegrity(Path.resolve(target, '.'))
+    : undefined;
+  const manifest = manifestIntegrity
+    ? retainStagingManifest({
+      ledger: args.manifestLedger,
+      directoryIdentity: parentIdentity,
+      integrity: manifestIntegrity,
+    })
+    : undefined;
+  const observed = await Fs.lstat(target);
+  if (!observed?.isFile || observed.isSymlink) {
+    throw new Error(`Deploy staging copied file is unsafe: ${target}`);
+  }
+  if (manifest) await validateStagingManifest(manifest);
+  await assertCopyRoots(args);
 }
 
-async function collectFiles(baseDir: string): Promise<string[]> {
-  const files: string[] = [];
-
-  const walk = async (dir: string): Promise<void> => {
-    for await (const entry of Deno.readDir(dir)) {
-      if (shouldExclude(entry.name)) continue;
-      const abs = Fs.join(dir, entry.name);
-
-      if (entry.isDirectory) {
-        await walk(abs);
-        continue;
-      }
-
-      if (!entry.isFile) continue;
-      files.push(Path.relative(baseDir, abs));
+async function rethrowCopyFailure(
+  ledger: StagingManifestLedger,
+  directoryIdentity: t.DeployTool.Staging.DirectoryIdentity,
+  target: t.StringAbsolutePath,
+  isManifest: boolean,
+  failure: unknown,
+): Promise<never> {
+  if (isManifest && await Fs.lstat(target)) {
+    try {
+      const integrity = await stagingManifestIntegrity(target);
+      retainStagingManifest({ ledger, directoryIdentity, integrity });
+    } catch (retentionError) {
+      throw new AggregateError(
+        [failure, retentionError],
+        'Deploy staging manifest copy failed and its resulting bytes could not be retained.',
+        { cause: failure },
+      );
     }
-  };
+  }
+  throw failure;
+}
 
-  await walk(baseDir);
-  return files;
+async function assertCopyRoots(args: {
+  src: string;
+  dst: string;
+  sourceIdentity: t.DeployTool.Staging.DirectoryIdentity;
+  destinationIdentity: t.DeployTool.Staging.DirectoryIdentity;
+  manifestLedger: StagingManifestLedger;
+  signal?: AbortSignal;
+}): Promise<void> {
+  throwIfStagingCancelled(args.signal);
+  if (Path.resolve(args.src, '.') !== args.sourceIdentity.path) {
+    throw new Error(`Deploy staging copy source identity does not match: ${args.src}`);
+  }
+  if (Path.resolve(args.dst, '.') !== args.destinationIdentity.path) {
+    throw new Error(`Deploy staging copy destination identity does not match: ${args.dst}`);
+  }
+  await assertDirectoryIdentity(
+    args.sourceIdentity,
+    'Deploy staging mapping source',
+    args.signal,
+  );
+  await assertDirectoryIdentity(
+    args.destinationIdentity,
+    'Deploy staging mapping destination',
+    args.signal,
+  );
+}
+
+function unsupportedSource(path: string): Error {
+  return new Error(`Deploy staging source contains an unsupported entry: ${path}`);
 }

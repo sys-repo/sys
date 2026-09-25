@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Tiny promise semaphore for concurrency control.
  */
-export const semaphore: t.AwaitLib['semaphore'] = (max: number) => {
+export const semaphore: t.Await.Lib['semaphore'] = (max: number) => {
   if (!Number.isFinite(max) || max < 1) {
     throw new RangeError(`semaphore: "max" must be a finite number >= 1 (got ${max})`);
   }

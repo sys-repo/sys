@@ -87,7 +87,7 @@ describe('Immutable', () => {
     });
 
     it('events', () => {
-      const life = Rx.disposable();
+      const life = Rx.lifecycle();
       const initial = { count: 0 };
       const obj = Immutable.clonerRef<D>(initial);
       const events1 = obj.events(life.dispose$);

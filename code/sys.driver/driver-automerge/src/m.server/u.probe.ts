@@ -1,11 +1,11 @@
 import { type t, Err, Pkg, WS, elapsedSince } from './common.ts';
 
-type R = t.ProbeHandshakeResponse;
+type R = t.SyncServer.Probe.Response;
 
 /**
  * Probe a sync server by performing a WebSocket handshake and returning response headers.
  */
-export const probe: t.ProbeHandshake = async (url, options = {}) => {
+export const probe: t.SyncServer.Probe.Fn = async (url, options = {}) => {
   const timeout = options.timeout ?? (5_000 as t.Msecs);
   const t0 = performance.now();
   const errors: t.StdError[] = [];
@@ -78,7 +78,7 @@ export const probe: t.ProbeHandshake = async (url, options = {}) => {
     /* noop */
   }
 
-  const headers = headersRaw as t.SyncServerHandsakeHeaders;
+  const headers = headersRaw as t.SyncServer.Handshake.Headers;
   const result: R = {
     url,
     pkg: Pkg.toPkg(headers['sys-pkg']),
@@ -106,7 +106,7 @@ function validateWsUrl(u: string): { ok: true } | { ok: false; error: unknown } 
   }
 }
 
-function emptyHeaders(): t.SyncServerHandsakeHeaders {
+function emptyHeaders(): t.SyncServer.Handshake.Headers {
   // Return a typed-empty shape; callers/tests assert fields they care about.
-  return {} as unknown as t.SyncServerHandsakeHeaders;
+  return {} as unknown as t.SyncServer.Handshake.Headers;
 }

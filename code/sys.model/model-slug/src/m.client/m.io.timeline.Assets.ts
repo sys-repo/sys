@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
-import { D, Http, SlugSchema, SlugUrl } from './common.ts';
+import { D, SlugSchema, SlugUrl } from './common.ts';
+import { fetchJson } from './u.fetch.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
 export const Assets: t.SlugClientAssetsLib = {
@@ -9,9 +10,8 @@ export const Assets: t.SlugClientAssetsLib = {
 async function load(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  options?: t.SlugLoadOptions,
+  options: t.SlugLoadOptions,
 ): Promise<t.SlugClientResult<t.SpecTimelineAssetsManifest>> {
-  const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.Util.cleanDocid(docid);
   const manifests = SlugUrl.Composition.manifestsLocation(baseUrl, options);
   const url = SlugUrl.Composition.manifests({
@@ -19,10 +19,10 @@ async function load(
     manifestsDir: manifests.manifestsDir,
     filename: SlugUrl.assetsFilename(cleanedDocid),
   });
-  const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
+  const req: t.HttpFetch.Init = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 
-  const res = await fetch.json<unknown>(url, req);
+  const res = await fetchJson<unknown>(url, req, options);
   if (!res.ok) {
     const msg = (msg: string) => `${msg} ${res.status} ${res.statusText} @ ${res.url ?? url}`;
 
@@ -68,7 +68,8 @@ async function load(
       ok: false,
       error: {
         kind: 'schema',
-        message: `Assets manifest docid mismatch. Expected: ${cleanedDocid}. Got: ${manifest.docid}`,
+        message:
+          `Assets manifest docid mismatch. Expected: ${cleanedDocid}. Got: ${manifest.docid}`,
       },
     };
   }

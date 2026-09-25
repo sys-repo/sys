@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "../../../common.ts": "./-entry.exit.support.fixture.ts",
+    "../../common.ts": "./-entry.exit.support.fixture.ts",
+    "../../../m.core/mod.ts": "./-entry.exit.support.fixture.ts",
+    "../../../pkg.ts": "./-entry.exit.support.fixture.ts",
+    "../../../types.ts": "./-entry.exit.support.fixture.ts",
+    "../../mod.ts": "./-entry.exit.alias.fixture.ts",
+    "../mod.ts": "./-entry.exit.profiles.fixture.ts",
+    "../../m.main.ts": "./-entry.exit.raw.fixture.ts",
+    "../../m.run.ts": "./-entry.exit.raw.fixture.ts",
+    "../../../../-scripts/task.cli.u.ts": "./-entry.exit.support.fixture.ts",
+    "@sys/driver-pi/cli": "./-entry.exit.alias.fixture.ts"
+  }
+}

@@ -2,11 +2,12 @@ import { describe, expect, it } from '../../-test.ts';
 import { Fs } from '../mod.ts';
 
 describe('Fs: info/meta-data operations on the file-system', () => {
-  describe('Fs.stat', () => {
+  describe('Fs.stat / Fs.lstat / Fs.rename', () => {
     it('file does not exist → <undefined>', async () => {
       const path = Fs.resolve('./404.json');
       const res = await Fs.stat(path);
       expect(res).to.eql(undefined);
+      expect(await Fs.lstat(path)).to.eql(undefined);
     });
 
     it('file exists', async () => {
@@ -16,6 +17,40 @@ describe('Fs: info/meta-data operations on the file-system', () => {
       expect(a?.isFile).to.eql(true);
       expect(a?.size).to.be.greaterThan(10);
       expect(a).to.eql(b); // NB: auto-resolves path internally.
+    });
+
+    it('lstat → classifies final symlink without following it', async () => {
+      const dir = (await Fs.makeTempDir({ prefix: 'sys.fs.meta.test.' })).absolute;
+      const target = Fs.join(dir, 'target.txt');
+      const link = Fs.join(dir, 'link.txt');
+      try {
+        await Fs.write(target, 'target');
+        await Fs.ensureSymlink(target, link);
+
+        expect((await Fs.stat(link))?.isFile).to.eql(true);
+        expect((await Fs.lstat(link))?.isSymlink).to.eql(true);
+
+        await Fs.remove(target);
+        expect(await Fs.stat(link)).to.eql(undefined);
+        expect((await Fs.lstat(link))?.isSymlink).to.eql(true);
+      } finally {
+        await Fs.remove(dir);
+      }
+    });
+
+    it('rename → moves a path without copy/delete fallback surface', async () => {
+      const dir = (await Fs.makeTempDir({ prefix: 'sys.fs.meta.test.' })).absolute;
+      const from = Fs.join(dir, 'from.txt');
+      const to = Fs.join(dir, 'to.txt');
+      try {
+        await Fs.write(from, 'rename');
+        await Fs.rename(from, to);
+
+        expect(await Fs.exists(from)).to.eql(false);
+        expect((await Fs.readText(to)).data).to.eql('rename');
+      } finally {
+        await Fs.remove(dir);
+      }
     });
   });
 

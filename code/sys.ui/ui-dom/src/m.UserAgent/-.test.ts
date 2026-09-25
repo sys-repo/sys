@@ -56,11 +56,11 @@ describe('UserAgent', () => {
   });
 
   describe('flags', () => {
-    const assertIs = (res: t.UserAgent, expectedIs: Partial<t.UserAgentFlags>) => {
+    const assertIs = (res: t.UserAgent.Info, expectedIs: Partial<t.UserAgent.Flags>) => {
       const flags = ['apple', 'macOS', 'iOS', 'iPad', 'iPhone', 'chromium', 'firefox'] as const;
       flags.forEach((key) => {
-        const expected = (expectedIs as any)[key] ?? false;
-        const actual = (res.is as any)[key];
+        const expected = expectedIs[key] ?? false;
+        const actual = res.is[key];
         expect(actual).to.eql(expected, `key:"${key}" should be ${expected}`);
       });
     };
@@ -81,7 +81,7 @@ describe('UserAgent', () => {
     });
 
     it('is: apple/ipad', () => {
-      const test = (input: string, expectedIs: Partial<t.UserAgentFlags>) => {
+      const test = (input: string, expectedIs: Partial<t.UserAgent.Flags>) => {
         const ua = parseUserAgent(input);
         expect(ua.os.name).to.eql('iOS');
         assertIs(ua, { apple: true, macOS: false, iOS: true, iPad: true, ...expectedIs });
@@ -103,7 +103,7 @@ describe('UserAgent', () => {
     });
 
     it('is: android/mobile', () => {
-      const test = (input: string, expectedIs: Partial<t.UserAgentFlags>) => {
+      const test = (input: string, expectedIs: Partial<t.UserAgent.Flags>) => {
         const ua = parseUserAgent(input);
         expect(ua.os.name).to.eql('Android');
         assertIs(ua, expectedIs);

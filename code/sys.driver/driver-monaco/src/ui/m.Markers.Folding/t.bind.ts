@@ -1,14 +1,12 @@
 import type { t } from './common.ts';
 
-/**
- * React hook that keeps Monaco fold regions ⇄ CRDT "fold" marks in sync.
- */
-export type UseFoldMarks = (args: UseFoldMarksArgs) => void;
+/** React hook that keeps Monaco fold regions ⇄ CRDT `fold` marks in sync. */
+export type Use = (args: UseArgs) => void;
 
 /** Arguments passed to the `useFoldMarks` hook. */
-export type UseFoldMarksArgs = {
-  /** Unifiying shared event bus. */
-  bus$: t.EditorEventBus;
+export type UseArgs = {
+  /** Unifying shared event bus. */
+  bus$: t.EditorBus.Subject;
   /** The code-editor being bound to. */
   editor?: t.Monaco.Editor;
   /** The CRDT document being bound to. */
@@ -19,13 +17,12 @@ export type UseFoldMarksArgs = {
   enabled?: boolean;
 };
 
-/**
- * Pure CRDT ⇄ Monaco fold-mark synchronizer (lifecycle-based, React-free).
- */
-export type BindFoldMarks = (args: t.BindFoldMarksArgs) => EditorFoldBinding;
+/** Pure CRDT ⇄ Monaco fold-mark synchronizer. */
+export type Bind = (args: BindArgs) => BindingInstance;
+
 /** Arguments passed to the pure code-folding binder function. */
-export type BindFoldMarksArgs = {
-  bus$: t.EditorEventBus;
+export type BindArgs = {
+  bus$: t.EditorBus.Subject;
   editor: t.Monaco.Editor;
   doc: t.CrdtRef<any>;
   path: t.ObjectPath;
@@ -33,9 +30,7 @@ export type BindFoldMarksArgs = {
   until?: t.UntilInput;
 };
 
-/**
- * An instance of an editor fold-marks binding.
- */
-export type EditorFoldBinding = t.Lifecycle & {
-  readonly $: t.Observable<t.EventCrdtMarks>;
+/** An instance of an editor fold-marks binding. */
+export type BindingInstance = t.Lifecycle & {
+  readonly $: t.Observable<t.EditorEvent.Crdt.Marks>;
 };

@@ -3,9 +3,9 @@ import { MonacoFake } from '../mod.ts';
 
 describe('TestFake: Monaco (global API)', () => {
   describe('make - overloaded', () => {
-    it('returns FakeMonacoGlobal by default', () => {
+    it('returns fake Monaco global by default', () => {
       const monaco = MonacoFake.monaco();
-      expectTypeOf(monaco).toEqualTypeOf<t.FakeMonacoGlobal>();
+      expectTypeOf(monaco).toEqualTypeOf<t.MonacoFake.Global.Shape>();
     });
 
     it('returns Monaco.Monaco when { cast:true }', () => {
@@ -13,9 +13,9 @@ describe('TestFake: Monaco (global API)', () => {
       expectTypeOf(monaco).toEqualTypeOf<t.Monaco.Monaco>();
     });
 
-    it('returns FakeMonacoGlobal when { cast:false }', () => {
+    it('returns fake Monaco global when { cast:false }', () => {
       const monaco = MonacoFake.monaco({ cast: false });
-      expectTypeOf(monaco).toEqualTypeOf<t.FakeMonacoGlobal>();
+      expectTypeOf(monaco).toEqualTypeOf<t.MonacoFake.Global.Shape>();
     });
   });
 

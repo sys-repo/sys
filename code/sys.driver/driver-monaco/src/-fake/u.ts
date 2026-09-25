@@ -3,7 +3,7 @@ import { fakeEditor } from './m.Fake.editor.ts';
 import { fakeModel } from './m.Fake.model.ts';
 import { fakeMonaco } from './m.Fake.monaco.ts';
 
-export const ctx: t.FakeMonacoLib['ctx'] = (modelInput?, monaco = fakeMonaco()) => {
+export const ctx: t.MonacoFake.Lib['ctx'] = (modelInput?, monaco = fakeMonaco()) => {
   const model = Is.string(modelInput) ? fakeModel(modelInput) : (modelInput ?? fakeModel(''));
   const editor = fakeEditor(model);
   return {

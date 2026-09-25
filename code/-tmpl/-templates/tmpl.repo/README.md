@@ -3,7 +3,7 @@ Starter workspace for programmatic multi-package repositories managed by people 
 
 This template produces a **"system workspace"** for multi-package composition.
 
-Create: `deno run -A jsr:@sys/tmpl/repo`
+Create: `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <repo-dir> repo`
 
 <p>&nbsp;</p>
 
@@ -49,7 +49,7 @@ To run the canonical workspace upgrade flow through the same task surface:
 
 Generators:
 - `deno task tmpl` → launches `@sys/tmpl` (all templates, interactive or `--params`)
-- `deno task tmpl:project` → launches `@sys/tmpl` narrowed to `pkg`
+- `deno task tmpl:pkg` → launches `@sys/tmpl` narrowed to `pkg`
 
 
 <p>&nbsp;</p>
@@ -66,10 +66,10 @@ git push --force origin baseline-0
 
 <p>&nbsp;</p>
 
-## /packages
+## Packages (`code/packages/`)
 New packages:
-- via interactive CLI: `deno task tmpl:project`
-- via non-interactive/agent flow: `deno run -A jsr:@sys/tmpl --non-interactive --dir code/packages/foo pkg --pkgName @acme/foo`
+- via interactive CLI: `deno task tmpl:pkg`
+- via non-interactive/agent flow: `deno run -ERW jsr:@sys/tmpl --non-interactive --dir code/packages/foo pkg --pkgName @acme/foo`
 - after adding/removing workspace packages with `deno.json` tasks, refresh workflows with `deno task prep`
 
 <p>&nbsp;</p>

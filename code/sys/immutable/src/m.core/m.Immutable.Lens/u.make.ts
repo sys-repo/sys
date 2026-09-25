@@ -1,11 +1,11 @@
-import { type t, Path } from './common.ts';
+import { Path, type t } from './common.ts';
 
 type O = Record<string, unknown>;
 
 export function makeLens<T, P, V>(
   doc: t.Immutable<T, P>,
   path: t.ObjectPath,
-): t.ImmutableLens<T, P, V> {
+): t.ImmutableLens.Instance<T, P, V> {
   function get(): V | undefined {
     return Path.get<V>(doc.current as unknown as O, path);
   }

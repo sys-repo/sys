@@ -1,34 +1,51 @@
-import type { afterAll, afterEach, beforeAll, beforeEach, describe, it } from '@std/testing/bdd';
+import type { Bdd as BddRunner } from '@sys/types/testing';
 import type { t } from './common.ts';
 
 /**
- * Testing helpers.
+ * Testing helper contracts.
  */
-export type TestingLib = {
-  readonly FALSY: t.Falsy[];
-  readonly Bdd: BddLib;
-  slug: t.RandomLib['slug'];
+export namespace Testing {
+  /**
+   * Testing helpers.
+   */
+  export type Lib = {
+    readonly FALSY: t.Falsy[];
+    slug: t.Random.Lib['slug'];
 
-  /** Wait for n-milliseconds, or a "tick" (micrso-task queue) if no delay specified. */
-  wait(delay?: t.Msecs): Promise<void>;
+    /** Wait for n-milliseconds, or a "tick" (micrso-task queue) if no delay specified. */
+    wait(delay?: t.Msecs): Promise<void>;
 
-  /** Generate a random (unused) port number. */
-  randomPort(): number;
+    /** Generate a random (unused) port number. */
+    randomPort(): number;
 
-  /** Attempt to run the test function <n>-times before throwing. */
-  retry(times: number, fn?: TestRetryRunner): Promise<void>;
-  retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
+    /** Attempt to run the test function <n>-times before throwing. */
+    retry(times: number, fn?: TestRetryRunner): Promise<void>;
+    retry(times: number, options: TestRetryOptions, fn?: TestRetryRunner): Promise<void>;
+
+    /**
+     * Poll until `pred()` returns true. Uses retry under the hood.
+     * @param pred    Synchronous or async predicate.
+     * @param options times: max attempts (default 50), delay: ms between (default 5)
+     */
+    until(
+      pred: () => boolean | Promise<boolean>,
+      options?: { times?: number; delay?: t.Msecs },
+    ): Promise<void>;
+  };
 
   /**
-   * Poll until `pred()` returns true. Uses retry under the hood.
-   * @param pred    Synchronous or async predicate.
-   * @param options times: max attempts (default 50), delay: ms between (default 5)
+   * HTTP server testing helper contracts.
    */
-  until(
-    pred: () => boolean | Promise<boolean>,
-    options?: { times?: number; delay?: t.Msecs },
-  ): Promise<void>;
-};
+  export namespace Server {
+    /**
+     * Library: HTTP testing helpers.
+     */
+    export type Lib = Testing.Lib & {
+      /** Helpers for working with an HTTP server. */
+      readonly Http: t.TestHttpServer;
+    };
+  }
+}
 
 export type TestRetryRunner = () => t.IgnoredResult;
 export type TestRetryOptions = {
@@ -38,10 +55,10 @@ export type TestRetryOptions = {
 };
 
 /** Describes a test suite. */
-export type Describe = typeof describe;
+export type Describe = BddRunner.Describe;
 
 /** Defines a single BDD test. */
-export type It = typeof it;
+export type It = BddRunner.It;
 
 /** Assertion library (BDD). */
 export type Expect = typeof import('chai').expect;
@@ -54,28 +71,11 @@ export type Expect = typeof import('chai').expect;
 export type ExpectError = (fn: () => Promise<any> | any, message?: string) => Promise<any>;
 
 /** Run some shared setup before all of the tests in the group.  */
-export type BeforeAll = typeof beforeAll;
+export type BeforeAll = BddRunner.HookRegistration;
 /** Run some shared setup before each test in the suite. */
-export type BeforeEach = typeof beforeEach;
+export type BeforeEach = BddRunner.HookRegistration;
 
 /** Run some shared teardown after all of the tests in the suite. */
-export type AfterAll = typeof afterAll;
+export type AfterAll = BddRunner.HookRegistration;
 /** Run some shared teardown after each test in the suite. */
-export type AfterEach = typeof afterEach;
-
-/**
- * BDD semantics ("Behavior Driven Development") helpers.
- */
-export type BddLib = {
-  readonly describe: Describe;
-  readonly it: It;
-
-  readonly beforeAll: BeforeAll;
-  readonly afterAll: AfterAll;
-
-  readonly beforeEach: BeforeEach;
-  readonly afterEach: AfterEach;
-
-  readonly expect: Expect;
-  readonly expectError: t.ExpectError;
-};
+export type AfterEach = BddRunner.HookRegistration;

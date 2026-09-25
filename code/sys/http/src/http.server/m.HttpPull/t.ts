@@ -1,205 +1,270 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
- * Pull (HTTP → local FS).
+ * Contracts for bounded checksum-pinned HTTP-to-filesystem materialization.
  */
-export type HttpPullLib = {
-  /** Pure mapping helpers (no IO). */
-  readonly Map: HttpPullMapLib;
+export declare namespace HttpPull {
+  /**
+   * Checksum-pinned HTTP-to-filesystem materialization API.
+   */
+  export type Lib = {
+    /**
+     * Start one bounded Rooted materialization operation.
+     *
+     * The returned handle separates explicit cancellation, observation-only events, and terminal
+     * settlement through `done`.
+     */
+    start(options: StartOptions): ResourceOperation.Instance;
+  };
+
+  /** One checksum-pinned resource with an explicit root-relative destination. */
+  export type Resource = {
+    /** Absolute HTTP(S) source admitted by the response policy. */
+    readonly source: t.StringUrl;
+    /** Destination submitted to the Rooted capability for admission. */
+    readonly target: t.StringRelativePath;
+    /** Caller-supplied canonical SHA-256; its provenance defines artifact authority. */
+    readonly checksum: t.StringHash;
+    /** Optional caller-supplied exact byte length authenticated before publication. */
+    readonly expectedBytes?: t.NumberBytes;
+  };
+
+  /** Finite authority for one checksum-pinned Pull operation. */
+  export type ResourcePolicy = {
+    /** Canonical per-attempt Fetch authority, including the per-file body bound. */
+    readonly response: t.HttpFetch.ResponsePolicy;
+    /** Maximum resources accepted in one batch. */
+    readonly maxResources: number;
+    /** Maximum in-flight resource workers. */
+    readonly concurrency: number;
+    /** Maximum attempts per resource, including the first; batch accounting stays safe-integer. */
+    readonly maxAttempts: number;
+    /** Fixed delay between retry attempts; zero yields through the microtask scheduler. */
+    readonly retryDelay: t.Msecs;
+    /** Retry window after the first attempt; each attempt remains bounded by `response.timeout`. */
+    readonly maxRetryElapsed: t.Msecs;
+    /** Aggregate transfer bound with safe-integer headroom for concurrent overrun evidence. */
+    readonly maxTotalBytes: t.NumberBytes;
+    /** Maximum elapsed time for the complete operation. */
+    readonly totalTimeout: t.Msecs;
+  };
+
+  /** Optional credential construction data snapshotted before admission or transport. */
+  export type ResourceCredentials = t.HttpFetch.DefaultHeaders.Options;
+
+  /** Input to `HttpPull.start`. */
+  export type StartOptions = {
+    readonly resources: readonly Resource[];
+    readonly rooted: t.FsRooted.Instance;
+    readonly policy: ResourcePolicy;
+    readonly credentials?: ResourceCredentials;
+    readonly until?: t.UntilInput;
+  };
+
+  /** Stable checksum evidence for one checksum-pinned resource. */
+  export type ResourceChecksumEvidence = {
+    readonly expected: t.StringHash;
+    readonly received?: t.StringHash;
+    readonly valid?: boolean;
+  };
+
+  /** Stable committed publication evidence. */
+  export type ResourcePublicationEvidence = {
+    readonly operation: 'publish-file';
+    readonly committed: true;
+  };
+
+  /** Stable Rooted failure evidence. */
+  export type RootedFailureEvidence = {
+    readonly operation: t.FsRooted.Operation;
+    readonly kind: t.FsRooted.FailureKind;
+    readonly committed: boolean;
+  };
+
+  /** Stable failure classification for checksum-pinned Pull. */
+  export type ResourceFailureKind =
+    | 'invalid-input'
+    | 'invalid-policy'
+    | 'invalid-resource'
+    | 'source-denied'
+    | 'resource-limit'
+    | 'file-limit'
+    | 'aggregate-limit'
+    | 'target-admission'
+    | 'request-failure'
+    | 'checksum-mismatch'
+    | 'size-mismatch'
+    | 'retry-limit'
+    | 'total-timeout'
+    | 'publication-failure'
+    | 'cancelled'
+    | 'execution-failure';
+
+  /** Identity and bounded transfer evidence shared by checksum-pinned records. */
+  type ResourceRecordCommon = {
+    /** Stable zero-based input identity. */
+    readonly index: t.Index;
+    /** Sanitized configured source and admitted root-relative destination. */
+    readonly path: {
+      readonly source: t.StringUrl;
+      readonly target: t.StringRelativePath | '';
+    };
+    /** Attempts started for this resource. */
+    readonly attempts: number;
+    /** Bytes transferred across all attempts, including failed attempts. */
+    readonly transferredBytes: t.NumberBytes;
+    /** Caller checksum and any digest observed over received bytes. */
+    readonly checksum?: ResourceChecksumEvidence;
+    /** Optional caller-supplied exact size. */
+    readonly expectedBytes?: t.NumberBytes;
+    /** Actual body size when one complete transfer was received. */
+    readonly actualBytes?: t.NumberBytes;
+    /** Sanitized source evidence when a failed body transfer observed it. */
+    readonly requestedUrl?: t.StringUrl;
+    /** Sanitized terminal source evidence when a failed body transfer observed it. */
+    readonly finalUrl?: t.StringUrl;
+  };
+
+  /** Terminal result for one checksum-pinned input. */
+  export type ResourceRecord = ResourceRecordSuccess | ResourceRecordFailure;
+
+  /** Authenticated and committed checksum-pinned resource. */
+  export type ResourceRecordSuccess =
+    & Omit<
+      ResourceRecordCommon,
+      'actualBytes' | 'checksum' | 'finalUrl' | 'requestedUrl'
+    >
+    & t.HttpFetch.ResponsePolicy.SourceEvidence
+    & {
+      readonly ok: true;
+      readonly status: t.HttpStatusCode;
+      readonly bytes: t.NumberBytes;
+      readonly actualBytes: t.NumberBytes;
+      readonly checksum: t.HttpFetch.ResponseChecksum & { readonly valid: true };
+      readonly filesystem: ResourcePublicationEvidence;
+      readonly error?: undefined;
+      readonly kind?: undefined;
+      readonly cancelled?: undefined;
+    };
+
+  /** Failed checksum-pinned resource without publication byte evidence. */
+  export type ResourceRecordFailure = ResourceRecordError | ResourceRecordCancelled;
+
+  /** Policy, transport, authentication, or filesystem failure. */
+  export type ResourceRecordError = ResourceRecordCommon & {
+    readonly ok: false;
+    readonly kind: Exclude<ResourceFailureKind, 'cancelled'>;
+    readonly status?: t.HttpStatusCode;
+    readonly bytes?: undefined;
+    readonly error: string;
+    readonly cancelled?: undefined;
+    readonly filesystem?: RootedFailureEvidence;
+  };
+
+  /** Caller or lifecycle cancellation before an input reached a committed outcome. */
+  export type ResourceRecordCancelled = ResourceRecordCommon & {
+    readonly ok: false;
+    readonly kind: 'cancelled';
+    readonly status: 499;
+    readonly bytes?: undefined;
+    readonly error: 'Pull operation cancelled';
+    readonly cancelled: true;
+    readonly filesystem?: undefined;
+  };
+
+  /** Aggregate evidence for a checksum-pinned operation. */
+  export type ResourceTotals = {
+    readonly resources: number;
+    readonly attempts: number;
+    readonly transferredBytes: t.NumberBytes;
+    readonly publishedBytes: t.NumberBytes;
+  };
+
+  /** One operation-level first terminal cause. */
+  export type ResourceTerminalFailure = {
+    readonly kind: ResourceFailureKind;
+    readonly status?: t.HttpStatusCode;
+    readonly error: string;
+    readonly cancelled?: true;
+  };
+
+  /** Terminal checksum-pinned operation result. */
+  export type Result = ResultSuccess | ResultFailure;
+
+  /** Every resource authenticated and published successfully. */
+  export type ResultSuccess = {
+    readonly ok: true;
+    readonly ops: readonly ResourceRecordSuccess[];
+    readonly totals: ResourceTotals;
+    readonly terminal?: undefined;
+  };
+
+  /** At least one resource failed or the operation reached a terminal bound/cancellation. */
+  export type ResultFailure = {
+    readonly ok: false;
+    readonly ops: readonly ResourceRecord[];
+    readonly totals: ResourceTotals;
+    readonly terminal?: ResourceTerminalFailure;
+  };
 
   /**
-   * Download a list of URLs into `dir`.
-   * Path mapping uses `Map.urlToPath` with `options.map` rules.
+   * Checksum-pinned Pull operation contracts.
    */
-  toDir(
-    urls: readonly string[],
-    dir: t.StringDir,
-    options?: HttpPullOptions,
-  ): Promise<t.HttpPullToDirResult>;
+  export namespace ResourceOperation {
+    /** Explicit operation control and observation. */
+    export type Instance = {
+      /**
+       * Create an independently disposable hot, non-replaying event view.
+       *
+       * Disposing a view never cancels the operation or sibling views.
+       */
+      readonly events: (until?: t.UntilInput) => Events;
+      /**
+       * Cancel queued and in-flight work without exposing abort-controller authority.
+       *
+       * Committed publication truth remains terminal evidence.
+       */
+      readonly cancel: (reason?: unknown) => void;
+      /** Resolve only after complete worker quiescence and terminal accounting. */
+      readonly done: Promise<Result>;
+    };
+
+    /** Independently disposable event view. */
+    export type Events = t.Lifecycle & {
+      readonly $: t.Observable<t.HttpPull.ResourceEvent.Any>;
+    };
+  }
 
   /**
-   * Same as `toDir`, but yields progress events.
-   * Emission order is not guaranteed to be request order.
+   * Checksum-pinned operation events.
    */
-  stream(urls: readonly string[], dir: t.StringDir, options?: HttpPullOptions): HttpPullStream;
-};
+  export namespace ResourceEvent {
+    export type Any = Start | Progress | Done | Error;
 
-/** Response from `HttpPull.toDir` method */
-export type HttpPullToDirResult = {
-  readonly ok: boolean;
-  readonly ops: readonly t.HttpPullRecord[];
-};
+    export type Start = { readonly kind: 'start' } & Common;
 
-/**
- * Result per URL.
- */
-export type HttpPullRecord = {
-  readonly path: { readonly source: t.StringUrl; readonly target: t.StringPath };
-  readonly ok: boolean;
-  readonly status?: t.HttpStatusCode;
-  readonly bytes?: t.NumberBytes;
-  readonly error?: string;
-};
+    export type Progress = {
+      readonly kind: 'progress';
+      readonly attempt: number;
+      readonly loaded: t.NumberBytes;
+      readonly bytes?: t.NumberBytes;
+      readonly transferredBytes: t.NumberBytes;
+    } & Common;
 
-/**
- * Pull options.
- */
-export type HttpPullOptions = {
-  /** Late-bound client. Default: `Http.client()` */
-  readonly client?: t.HttpFetch;
+    export type Done = {
+      readonly kind: 'done';
+      readonly record: t.HttpPull.ResourceRecordSuccess;
+    } & Common;
 
-  /** URL → path mapping rules used by `Map.urlToPath`. */
-  readonly map?: HttpPullMapOptions;
+    export type Error = {
+      readonly kind: 'error';
+      readonly record: t.HttpPull.ResourceRecordFailure;
+    } & Common;
 
-  /** Concurrency limiter. Default: 8 */
-  readonly concurrency?: number;
-
-  /** Cancel pull operation. */
-  readonly until?: t.UntilInput;
-
-  /** Retry options */
-  readonly retry?: HttpPullRetry | boolean;
-};
-
-/** Retry options */
-export type HttpPullRetry = {
-  readonly attempts?: number;
-  readonly base?: t.Msecs;
-  readonly factor?: number;
-  readonly jitter?: boolean;
-};
-
-/**
- * API to a pull-stream of HTTP downloads.
- *
- * Features:
- * - Async iterable of progress events (`for await ... of stream`).
- * - `events()` exposes an observable that completes on finish or cancel.
- * - `done` resolves with the aggregated `HttpPullToDirResult`.
- * - `cancel()` aborts in-flight work and completes the stream.
- */
-export type HttpPullStream = {
-  /** Async iteration over progress events. */
-  readonly [Symbol.asyncIterator]: () => AsyncIterator<t.HttpPullEvent>;
-
-  /**
-   * Observable view of progress events.
-   * Completes when the stream finishes or is cancelled.
-   */
-  readonly events: (until?: t.UntilInput) => HttpPullStreamEvents;
-
-  /**
-   * Abort in-flight requests, stop emitting events,
-   * and complete the stream.
-   */
-  readonly cancel: (reason?: unknown) => void;
-
-  /**
-   * Aggregated result of the pull.
-   *
-   * Resolves when the stream finishes or is cancelled.
-   * - `ok` is `true` only if all completed records succeeded.
-   * - `ops` contains one `HttpPullRecord` per attempted URL.
-   */
-  readonly done: Promise<HttpPullToDirResult>;
-};
-
-/**
- * Observable events from a pull-stream.
- * (completes on finish/cancel).
- */
-export type HttpPullStreamEvents = t.Lifecycle & {
-  /** Observable of pull events. */
-  readonly $: t.Observable<t.HttpPullEvent>;
-};
-
-/**
- * Mapping rules.
- */
-export type HttpPullMapOptions = {
-  /**
-   * Rebase rule: strip this prefix from the URL’s *pathname* (segment-aware),
-   * then write whatever remains.
-   *
-   * Examples:
-   *   relativeTo: "/path/sample"
-   *   relativeTo: "https://domain.com/path/sample/"
-   */
-  readonly relativeTo?: string | URL;
-
-  /**
-   * If true, prefix the mapped path with the host (eg "domain.com/...").
-   * Includes port if present. Default: false.
-   */
-  readonly includeHost?: boolean;
-
-  /**
-   * Escape hatch for total control.
-   * If provided, wins over `relativeTo/includeHost`.
-   * Must return a POSIX *relative* path (no leading slash).
-   */
-  readonly mapPath?: (u: URL) => t.StringPath;
-
-  /**
-   * When rebasing yields an empty path (eg pathname === relativeTo),
-   * use this basename instead (default: "index").
-   */
-  readonly emptyBasename?: string;
-};
-
-/**
- * HTTP-pull progress events.
- */
-export type HttpPullEvent =
-  | ({ readonly kind: 'start' } & EventCommon)
-  | ({ readonly kind: 'progress'; readonly loaded?: number; readonly bytes?: number } & EventCommon)
-  | ({ readonly kind: 'done'; readonly record: HttpPullRecord } & EventCommon)
-  | ({ readonly kind: 'error'; readonly record: HttpPullRecord } & EventCommon);
-
-type EventCommon = {
-  readonly index: t.Index;
-  readonly total: number;
-  readonly url: t.StringUrl;
-};
-
-/**
- * Pure mapping helpers.
- */
-export type HttpPullMapLib = {
-  /**
-   * URL → relative POSIX path, given `HttpPullMapOptions`.
-   *
-   * Algorithm:
-   *   1) Start with URL.pathname
-   *   2) `rebase(pathname, baseFrom(relativeTo))`
-   *   3) If `includeHost`, prefix with `url.host` (host[:port])
-   *   4) If empty → use `emptyBasename` (default "index")
-   *
-   * Guarantees:
-   *   - No leading slash.
-   *   - Backslashes converted to "/".
-   *   - Never returns empty string.
-   */
-  urlToPath(u: URL, options?: HttpPullMapOptions): t.StringPath;
-
-  /**
-   * Rebase `pathname` by stripping `base` iff it matches on a segment boundary.
-   * Returns the remaining relative path (may be empty string).
-   *
-   * Examples:
-   *   rebase("a/b/c", "a/b")  →  "c"
-   *   rebase("a/b",   "a/b")  →  ""      (exact match)
-   *   rebase("a/bc",  "a/b")  →  "a/bc"  (no-op: not a boundary)
-   */
-  rebase(pathname: string, base: string | ''): string;
-
-  /**
-   * Derive a normalized "base" from `relativeTo`:
-   *   - If URL: uses its `.pathname`
-   *   - Else: uses the string as-is
-   * Then `toRelPosix(...)` for normalization.
-   *
-   * Returns a string with no leading slash (or "").
-   */
-  baseFrom(relativeTo?: string | URL): string | '';
-};
+    export type Common = {
+      readonly index: t.Index;
+      readonly total: number;
+      readonly url: t.StringUrl;
+    };
+  }
+}

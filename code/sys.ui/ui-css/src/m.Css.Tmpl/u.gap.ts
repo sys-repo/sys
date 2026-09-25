@@ -3,8 +3,8 @@ import { Is, type t } from './common.ts';
 /**
  * Ensure numbers are converted to pixels.
  */
-export function formatGap(style: t.CssValue) {
-  const updates: Partial<t.CssProps> = {};
+export function formatGap(style: t.Style.Value) {
+  const updates: Partial<t.Style.Props> = {};
 
   for (const key of ['gap', 'columnGap', 'rowGap'] as const) {
     const v = style[key];

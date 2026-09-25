@@ -17,6 +17,7 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     const Str = await import('@sys/std/str');
     const Time = await import('@sys/std/time');
     const Try = await import('@sys/std/try');
+    const Xml = await import('@sys/std/xml');
 
     expect('Arr' in Std).to.eql(false);
     expect('Dispose' in Std).to.eql(false);
@@ -31,6 +32,7 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     expect('Str' in Std).to.eql(false);
     expect('Time' in Std).to.eql(false);
     expect('Try' in Std).to.eql(false);
+    expect('Xml' in Std).to.eql(false);
 
     expect(Dispose.Dispose).to.be.an('object');
     expect(Fn.Fn).to.be.an('object');
@@ -47,6 +49,7 @@ describe(`module: ${Pkg.toString(pkg)}`, () => {
     expect(ObjPath.Path).to.equal(Obj.Obj.Path);
     expect(Time.Time).to.be.an('object');
     expect(Log.Log).to.be.an('object');
+    expect(Xml.Xml).to.be.an('object');
   });
 
   it('API: ANSI stays on the dedicated subpath', async () => {

@@ -1,4 +1,4 @@
-import { type t, Fs, pkg, Yaml } from '../common.ts';
+import { Fs, pkg, type t, Yaml } from '../common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 import { CrdtDocSchema } from './u.schema.ts';
 import { CrdtDocYamlErrorCode, validateDocumentYamlText } from './u.validate.ts';
@@ -23,13 +23,10 @@ export const CrdtDocsFs = {
   async list(cwd: t.StringDir): Promise<t.StringFile[]> {
     const dir = Fs.join(cwd, DOCS_DIR);
     if (!(await Fs.exists(dir))) return [];
-    const files: t.StringFile[] = [];
-    for await (const entry of Deno.readDir(dir)) {
-      if (!entry.isFile) continue;
-      if (!entry.name.endsWith(DOCS_EXT)) continue;
-      files.push(Fs.join(dir, entry.name));
-    }
-    return files;
+    const entries = await Fs.glob(dir).find(`*${DOCS_EXT}`);
+    return entries
+      .filter((entry) => entry.isFile)
+      .map((entry) => entry.path as t.StringFile);
   },
 
   async readYaml(path: t.StringPath): Promise<t.CrdtTool.DocumentYaml.YamlCheck> {

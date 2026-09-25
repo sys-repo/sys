@@ -1,4 +1,4 @@
-import { type t, c, Crdt, Fs } from '../common.ts';
+import { c, Crdt, Fmt, Fs, type t } from '../common.ts';
 import { YamlConfig } from '@sys/yaml/cli';
 import { CrdtDocSchema } from './u.schema.ts';
 import { CrdtDocsFs } from './u.fs.ts';
@@ -6,10 +6,10 @@ import { CrdtDocsFs } from './u.fs.ts';
 export type CrdtDocMenuPick =
   | { readonly kind: 'exit' }
   | {
-      readonly kind: 'selected';
-      readonly path: t.StringFile;
-      readonly doc: t.CrdtTool.DocumentYaml.Doc;
-    };
+    readonly kind: 'selected';
+    readonly path: t.StringFile;
+    readonly doc: t.CrdtTool.DocumentYaml.Doc;
+  };
 
 type Action = 'select';
 
@@ -34,7 +34,7 @@ export async function selectDocumentMenu(
     itemLabel: 'with',
     addLabel: 'add: <document>',
     indent: '  ',
-    exitLabel: '← back',
+    exitLabel: Fmt.back(),
     itemValue: ({ name, doc }) => {
       const id = String(doc?.id ?? name);
       const pad = ' '.repeat(Math.max(0, maxIdLen - id.length));

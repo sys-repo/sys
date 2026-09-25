@@ -1,5 +1,5 @@
 import type { TestingDir } from '@sys/testing/t';
-import { type t, c, describe, expect, Fs, Is, it, pkg, slug, Testing } from '../../-test.ts';
+import { c, describe, expect, Fs, Is, it, pkg, slug, type t, Testing } from '../../-test.ts';
 import { DenoFile } from './mod.ts';
 
 describe('DenoFile', () => {
@@ -93,7 +93,7 @@ describe('DenoFile', () => {
       const b = await DenoFile.nearest(fs.dir, (e) => Array.isArray(e.file.workspace));
 
       console.info();
-      console.info(c.bold(c.brightCyan('T:DenoFileNearestResult')));
+      console.info(c.bold(c.brightCyan('T:DenoFile.NearestResult')));
       console.info();
       console.info(c.green('path:'), Fs.trimCwd(a?.path ?? ''));
       console.info(a);
@@ -109,7 +109,7 @@ describe('DenoFile', () => {
         start: t.StringPath,
         expected?: t.StringPath,
         workspace?: boolean,
-        shouldStop?: t.DenoFileNearestStop,
+        shouldStop?: t.DenoFile.Path.NearestStop,
       ) => {
         start = fs.join(start);
         if (Is.str(expected)) expected = fs.join(expected);
@@ -174,7 +174,7 @@ describe('DenoFile', () => {
         const test = async (
           start: t.StringPath,
           expected?: t.StringPath,
-          shouldStop?: t.DenoFileNearestStop,
+          shouldStop?: t.DenoFile.Path.NearestStop,
         ) => {
           start = fs.join(start);
           if (Is.str(expected)) expected = fs.join(expected);
@@ -202,7 +202,7 @@ describe('DenoFile', () => {
       });
 
       it('from path: <undefined>  ←  (↑ first-ancestor-workspace ↑)  ←  ./deno.json', async () => {
-        const root = await Fs.readJson<t.DenoFileJson>(rootPath);
+        const root = await Fs.readJson<t.DenoFile.Json>(rootPath);
         const a = await DenoFile.workspace();
         const b = await DenoFile.workspace(undefined, { walkup: false });
         const dirs = root.data?.workspace?.map((p) => p.replace(/^\.\//, ''));

@@ -1,7 +1,8 @@
 import { DESCRIPTOR } from '../-CONST.ts';
 import { selectOrFirst } from './-u.selection.ts';
 import { renderTreePlaybackAssetsCard } from './-ui.tree+playback-assets.card.tsx';
-import { type t, PlaybackDriver } from './common.ts';
+import { PlaybackDriver, type t } from './common.ts';
+import { slugTransport } from './u.fixture.ts';
 
 type Params = { kind: t.BundleDescriptorKind };
 const ENSURE_IDS = ['2esGLgD5SoQkeucytmGeadm9cC7y'] as const;
@@ -38,7 +39,8 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
       });
     }
 
-    const docids = await DESCRIPTOR.media.docids(e.origin.cdn.default);
+    const transport = slugTransport(e.origin.cdn.default);
+    const docids = await DESCRIPTOR.media.docids(e.origin.cdn.default, transport);
     if (!docids.ok) return e.result(docids);
     const ids = docids.value;
     e.probe?.treePlayback?.onRefsChange?.(ids);
@@ -59,49 +61,52 @@ export const TreePlaybackAssets: t.ActionProbe.ProbeSpec<t.TEnv, Params> = {
     const client = await DESCRIPTOR.media.client({
       origin: e.origin,
       docid: selectedDocid,
+      ...transport,
     });
     if (!client.ok) return e.result(client);
 
-    const assets = await client.value.Timeline.Assets.load();
-    if (!assets.ok) return e.result(assets);
+    try {
+      const assets = await client.value.Timeline.Assets.load();
+      if (!assets.ok) return e.result(assets);
 
-    const playback = await client.value.Timeline.Playback.load();
-    if (!playback.ok) return e.result(playback);
+      const playback = await client.value.Timeline.Playback.load();
+      if (!playback.ok) return e.result(playback);
 
-    /** Sample (Proof): first video URL. */
-    const firstBeatUrl = toFirstBeatVideoHref({
-      playback: playback.value,
-      assets: assets.value.assets,
-    });
-    console.info('firstBeatUrl:', firstBeatUrl);
-
-    e.item({ k: 'origin', v: e.origin.cdn.default });
-    e.item({ k: 'basePath', v: DESCRIPTOR.TARGET.media.basePath });
-    e.item({ k: 'docid', v: client.value.docid });
-    e.hr();
-    e.item({ k: 'descriptor: loaded', v: 'yes' });
-    e.item({ k: 'assets', v: assets.value.assets.length });
-    e.item({ k: 'playback: beats', v: playback.value.beats.length });
-    e.item({
-      k: 'first-beat:video',
-      v: firstBeatUrl || '(none: unresolved)',
-      href: firstBeatUrl ? { v: { infer: true, display: 'trim-http' } } : undefined,
-    });
-    e.item({ k: 'tree / bundle', v: 'skipped (manifest-only proof)' });
-
-    return e.result({
-      ok: true,
-      value: {
-        kind,
-        docid: client.value.docid,
-        descriptor: { docids: ids.length },
-        assets: assets.value,
+      /** Sample (Proof): first video URL. */
+      const firstBeatUrl = toFirstBeatVideoHref({
         playback: playback.value,
-      },
-      'value:descriptor': { docids: ids.length },
-      [`value:assets:docid:${last(client.value.docid, 5)}`]: assets.value.assets,
-      [`value:playback:docid:${last(client.value.docid, 5)}`]: playback.value,
-    });
+        assets: assets.value.assets,
+      });
+      e.item({ k: 'origin', v: e.origin.cdn.default });
+      e.item({ k: 'basePath', v: DESCRIPTOR.TARGET.media.basePath });
+      e.item({ k: 'docid', v: client.value.docid });
+      e.hr();
+      e.item({ k: 'descriptor: loaded', v: 'yes' });
+      e.item({ k: 'assets', v: assets.value.assets.length });
+      e.item({ k: 'playback: beats', v: playback.value.beats.length });
+      e.item({
+        k: 'first-beat:video',
+        v: firstBeatUrl || '(none: unresolved)',
+        href: firstBeatUrl ? { v: { infer: true, display: 'trim-http' } } : undefined,
+      });
+      e.item({ k: 'tree / bundle', v: 'skipped (manifest-only proof)' });
+
+      return e.result({
+        ok: true,
+        value: {
+          kind,
+          docid: client.value.docid,
+          descriptor: { docids: ids.length },
+          assets: assets.value,
+          playback: playback.value,
+        },
+        'value:descriptor': { docids: ids.length },
+        [`value:assets:docid:${last(client.value.docid, 5)}`]: assets.value.assets,
+        [`value:playback:docid:${last(client.value.docid, 5)}`]: playback.value,
+      });
+    } finally {
+      client.value.dispose();
+    }
   },
 };
 

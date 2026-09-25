@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc-std",
-  "version": "0.0.80",
+  "version": "0.0.161",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -P=dev ./-scripts/-vite.ts --cmd=dev --in=./src/index.html",
@@ -16,7 +16,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./ui": "./src/ui/mod.ts"
   },
   "permissions": {

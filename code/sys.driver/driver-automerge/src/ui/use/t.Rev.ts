@@ -8,6 +8,7 @@ export type UseCrdtRev = <T extends O = O>(
   options?: t.UseCrdtRevOptions<T> | t.CrdtRevChangeHandler<T> | (t.ObjectPath | t.ObjectPath[]),
 ) => CrdtRev;
 
+/** Options for subscribing a redraw hook to CRDT document changes. */
 export type UseCrdtRevOptions<T extends O> = {
   path?: t.ObjectPath | t.ObjectPath[];
   onRedraw?: t.CrdtRevChangeHandler<T>;

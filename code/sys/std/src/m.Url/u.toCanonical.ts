@@ -1,7 +1,7 @@
 import { type t } from './common.ts';
 import { parse } from './u.parse.ts';
 
-export const toCanonical: t.UrlLib['toCanonical'] = (input) => {
+export const toCanonical: t.Url.Lib['toCanonical'] = (input) => {
   let href = '';
 
   if (typeof input === 'string') {

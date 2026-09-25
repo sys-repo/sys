@@ -1,10 +1,8 @@
 import type { t } from './common.ts';
 
-/**
- * Options passed to the `Vite.Config.app` method.
- */
-export type ViteConfigAppOptions = {
-  paths?: t.ViteConfigPaths;
+/** Options passed to the `Vite.Config.app` method. */
+export type Options = {
+  paths?: t.ViteConfig.Paths;
 
   /**
    * Enabled deno workspace support.
@@ -13,7 +11,7 @@ export type ViteConfigAppOptions = {
    * - pass a specific `deno.json` file string if in a non-standard place.
    * - pass `false` to disable workspace {alias} mapping.
    */
-  workspace?: boolean | t.DenoFilePath;
+  workspace?: boolean | t.DenoFile.FilePath;
 
   /**
    * ƒ(🌳): Filter to apply to the workspace modules
@@ -21,10 +19,8 @@ export type ViteConfigAppOptions = {
    */
   filter?: t.WorkspaceFilter;
 
-  /**
-   * Chuck a named module into it's own bundle.
-   */
-  chunks?: t.ViteModuleChunks;
+  /** Place a named module in its own bundle. */
+  chunks?: t.ViteConfig.Chunks;
 
   /**
    * Flag indicating if the output should be minified.
@@ -33,10 +29,8 @@ export type ViteConfigAppOptions = {
    */
   minify?: boolean;
 
-  /**
-   * Common plugins to include (default true).
-   */
-  plugins?: t.ViteConfigCommonPlugins;
+  /** Common plugins to include (default true). */
+  plugins?: t.ViteConfig.CommonPlugins;
 
   /**
    * Additional caller-supplied Vite plugins.
@@ -44,6 +38,14 @@ export type ViteConfigAppOptions = {
    * managed by the driver (for example the visualizer).
    */
   vitePlugins?: t.VitePluginOption[];
+
+  /**
+   * Vite OXC transform configuration.
+   *
+   * The driver supplies its browser syntax target by default. An explicit target is preserved;
+   * pass `false` only when intentionally disabling Vite's OXC transform path.
+   */
+  oxc?: t.ViteUserConfig['oxc'];
 
   /**
    * Canonical pass-through for Vite dependency-optimizer configuration.

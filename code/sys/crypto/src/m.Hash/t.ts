@@ -1,60 +1,77 @@
 import type { t } from '../common.ts';
-export type * from './t.Is.ts';
-
-type TrimPrefix = boolean;
-
-/** Function that converts an input into a hash. */
-export type ToHash = (input: any) => string;
 
 /**
- * Tools for generating and manipulating Hash's.
+ * Hash helper contracts.
  */
-export type HashLib = {
-  /** Boolean flag helpers for evaulating hash values.. */
-  readonly Is: t.HashIsLib;
+export declare namespace Hash {
+  /** Tools for generating and manipulating hashes. */
+  export type Lib = {
+    /** Boolean flag helpers for evaluating hash values. */
+    readonly Is: Is.Lib;
+
+    /** Generate a self-describing SHA1 hash of the given input. */
+    sha1(input: unknown, options?: Options): string;
+
+    /** Generate a self-describing SHA256 hash of the given input. */
+    sha256(input: unknown, options?: Options): string;
+
+    /** Convert an input for hashing to a `Uint8Array`. */
+    toBytes(input: unknown, options?: Options): Uint8Array;
+
+    /** Convert a bytes array to a hex string. */
+    toHex(bytes: Uint8Array): string;
+
+    /** Shorten a hash for display, format: `left .. right`. */
+    shorten(
+      hash: string,
+      length: number | [number, number],
+      options?: Shorten.OptionsInput,
+    ): string;
+
+    /** Resolve the various hash inputs into a single top-level hash value. */
+    toString(input?: t.HashInput): string;
+
+    /** Extract the prefix of the hash value, eg: `sha256-0x000` → `sha256`. */
+    prefix(input?: t.StringHash): string;
+  };
+
+  /** Function that converts an input into a hash. */
+  export type ToHash = (input: any) => string;
+
+  /** Options passed to hash methods. */
+  export type Options = {
+    asString?: (input?: unknown) => string;
+    prefix?: boolean;
+  };
 
   /**
-   * Generate a self-describing SHA1 hash of the given input.
-   *
-   * NOTE:
-   *    This is not cryptographically secure.
-   *    It is however useful for generating hashes on files that for
-   *    de-duping where cryptographic security is not required.
-   *
+   * Hash shortening contracts.
    */
-  sha1(input: unknown, options?: t.HashOptions): string;
+  export namespace Shorten {
+    /** Options passed to the `Hash.shorten` method. */
+    export type Options = {
+      trimPrefix?: boolean | string | string[];
+      divider?: string;
+    };
 
-  /** Generate a self-describing SHA256 hash of the given input. */
-  sha256(input: unknown, options?: t.HashOptions): string;
+    /** Flexible options accepted by `Hash.shorten`. */
+    export type OptionsInput = Options | boolean;
+  }
 
-  /** Convert an input for hashing to a [Uint8Array]. */
-  toBytes(input: unknown, options?: t.HashOptions): Uint8Array;
+  /**
+   * Hash predicate contracts.
+   */
+  export namespace Is {
+    /** Boolean flag helpers for evaluating hash values. */
+    export type Lib = {
+      /** Determine if the given object represents a composite hash. */
+      composite(input: unknown): input is t.CompositeHash;
 
-  /** Convert a bytes array to a hex string. */
-  toHex(bytes: Uint8Array): string;
+      /** Determine if the given object is a composite-hash builder. */
+      compositeBuilder(input: unknown): input is t.CompositeHash.Builder;
 
-  /** Shorten a hash for display, format: "left .. right". */
-  shorten(
-    hash: string,
-    length: number | [number, number],
-    options?: t.ShortenHashOptions | TrimPrefix,
-  ): string;
-
-  /** Resolve the various hash inputs into a single top-level hash value. */
-  toString(input?: t.HashInput): string;
-
-  /** Extract the prefix of the hash value, eg: "sha256-0x000" → "sha256" */
-  prefix(input?: t.StringHash): string;
-};
-
-/** Options passed to Hash methods. */
-export type HashOptions = {
-  asString?: (input?: unknown) => string;
-  prefix?: boolean;
-};
-
-/** Options passed to the Hash.shorten method. */
-export type ShortenHashOptions = {
-  trimPrefix?: boolean | string | string[];
-  divider?: string;
-};
+      /** Determine if the hash input is empty. */
+      empty(input: t.HashInput): boolean;
+    };
+  }
+}

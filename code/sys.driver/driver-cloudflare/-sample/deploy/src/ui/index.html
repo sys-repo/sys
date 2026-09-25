@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>R2 + Deno</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="root">
+      <main>
+        <h1>R2 + Deno</h1>
+        <p>Deno delivered this HTML shell. The interactive UI needs scripts and styles from public R2.</p>
+        <p>If this message remains, the UI has not started. There is no Deno-hosted backup bundle.</p>
+        <p><a href="/api/hello">API</a> · <a href="/ui/dist.json">Private shell manifest</a></p>
+      </main>
+    </div>
+    <footer>
+      <figure class="public-image">
+        <img
+          src="%BASE_URL%images/wax-seal.v1.png"
+          width="64"
+          height="64"
+          alt="Red wax seal"
+        />
+        <figcaption>
+          <a href="%BASE_URL%images/wax-seal.v1.png">image</a> delivered directly from
+          <a href="https://developers.cloudflare.com/r2/buckets/public-buckets/">public R2</a>
+        </figcaption>
+      </figure>
+    </footer>
+    <script type="module" src="./-entry.tsx"></script>
+  </body>
+</html>

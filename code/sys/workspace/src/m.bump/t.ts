@@ -22,9 +22,9 @@ export declare namespace WorkspaceBump {
 
   /** One package-level dependency edge in the local workspace graph. */
   export type PackageEdge = {
-    /** Package path that depends on `to`. */
+    /** Dependency package path that must be ordered first. */
     readonly from: t.StringPath;
-    /** Package path required by `from`. */
+    /** Dependent package path that requires `from`. */
     readonly to: t.StringPath;
   };
 
@@ -179,10 +179,14 @@ export declare namespace WorkspaceBump {
   export type RunArgs = {
     /** Working directory used to resolve the local workspace. */
     readonly cwd?: t.StringDir;
+    /** Optional precomputed workspace package data. */
+    readonly collect?: CollectResult;
     /** Release type used to derive next versions. Defaults to `patch`. */
     readonly release?: t.SemverReleaseType;
     /** Optional preselected bump roots by package name or package path. */
     readonly from?: readonly string[];
+    /** Optional bump roots, by package name or package path, checked by default in the prompt. */
+    readonly suggestedRoots?: readonly string[];
     /** Render the plan without writing any files. */
     readonly dryRun?: boolean;
     /** Emit orchestration logging to the console. */
@@ -211,15 +215,24 @@ export declare namespace WorkspaceBump {
     export type Parsed = {
       readonly help?: boolean;
       readonly from?: readonly string[];
+      readonly since?: string;
       readonly release?: string;
       readonly dryRun: boolean;
       readonly nonInteractive: boolean;
+      readonly explainDelta: boolean;
     };
 
     /** Optional run-argument overrides from a script edge. */
-    export type RunOptions = Partial<
-      Pick<RunArgs, 'cwd' | 'release' | 'from' | 'dryRun' | 'nonInteractive'>
-    >;
+    export type RunOptions =
+      & Partial<
+        Pick<RunArgs, 'cwd' | 'release' | 'from' | 'suggestedRoots' | 'dryRun' | 'nonInteractive'>
+      >
+      & {
+        /** Optional git baseline ref supplied by a script edge. */
+        readonly since?: string;
+        /** Render changed-file evidence when deriving roots from `since`. */
+        readonly explainDelta?: boolean;
+      };
 
     /** Inputs for resolving one canonical bump run invocation. */
     export type RunInput = {
@@ -237,8 +250,22 @@ export declare namespace WorkspaceBump {
       readonly help: boolean;
       /** Invalid raw release string from argv, when one was supplied. */
       readonly invalidRelease?: string;
+      /** Optional git baseline ref supplied by the script edge. */
+      readonly since?: string;
+      /** Whether to render changed-file evidence for git-derived root selection. */
+      readonly explainDelta: boolean;
+      /** Parsed conflict that should stop execution after help handling. */
+      readonly conflict?: Conflict;
       /** Canonical args for `Workspace.Bump.run(...)`. */
       readonly run: RunArgs;
+    };
+
+    /** Parsed argument conflict. */
+    export type Conflict = {
+      /** Stable conflict code. */
+      readonly code: 'since-and-from' | 'explain-delta-without-since';
+      /** Human-readable conflict message. */
+      readonly message: string;
     };
   }
 
@@ -247,7 +274,7 @@ export declare namespace WorkspaceBump {
     /** Console output formatting surface for workspace bumps. */
     export type Lib = {
       /** Render canonical help for the bump task surface. */
-      help(): void;
+      help(toolname?: string): string;
       /** Format one unsupported release warning for script edges. */
       invalidRelease(input: string): string;
       /** Format one canonical spinner label for bump orchestration. */
@@ -261,7 +288,7 @@ export declare namespace WorkspaceBump {
       /** Format the planned bump summary lines. */
       planSummary(args: PlanSummaryArgs): readonly string[];
       /** Format the canonical dry-run notice. */
-      dryRun(): string;
+      dryRun(args?: DryRunArgs): string;
     };
 
     /** Selection-label layout widths derived from bump candidates. */
@@ -286,6 +313,8 @@ export declare namespace WorkspaceBump {
     export type PreflightRowArgs = {
       /** Candidate being rendered in the table. */
       readonly candidate: Candidate;
+      /** Root package paths explicitly selected for the bump. */
+      readonly rootPaths: ReadonlySet<string>;
       /** Selected package paths affected by the bump. */
       readonly selectedPaths: ReadonlySet<string>;
       /** Release type highlighted in the next-version column. */
@@ -296,6 +325,14 @@ export declare namespace WorkspaceBump {
     export type PlanSummaryArgs = {
       /** Planned bump to summarize. */
       readonly plan: PlanResult;
+    };
+
+    /** Arguments for formatting a dry-run footer. */
+    export type DryRunArgs = {
+      /** Planned bump used to render an optional copyable apply command. */
+      readonly plan?: PlanResult;
+      /** Release kind used to render the copyable apply command. Omitted for default patch bumps. */
+      readonly release?: t.SemverReleaseType;
     };
 
     /** Arguments for formatting one bump phase label. */

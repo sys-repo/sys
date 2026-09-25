@@ -3,8 +3,8 @@ import { c, Cli, Pkg, Str } from './libs.ts';
 import * as t from './t.ts';
 
 type HelpInput =
-  | Omit<t.CliFormatHelpInputSections, 'tool'>
-  | Omit<t.CliFormatHelpInputShorthand, 'tool'>;
+  | Omit<t.Cli.Fmt.Help.InputSections, 'tool'>
+  | Omit<t.Cli.Fmt.Help.InputShorthand, 'tool'>;
 
 export const Fmt = {
   Tree: Cli.Fmt.Tree,
@@ -39,11 +39,11 @@ export const Fmt = {
   helpInput(
     toolname: string,
     input: HelpInput = {},
-  ): t.CliFormatHelpInput {
+  ): t.Cli.Fmt.Help.Input {
     if ('sections' in input && input.sections) {
       return {
         tool: toolname,
-        summary: `${pkg.name} v${pkg.version}`,
+        summary: input.summary ?? `${pkg.name} v${pkg.version}`,
         note: input.note,
         sections: input.sections,
       };
@@ -51,7 +51,7 @@ export const Fmt = {
 
     return {
       tool: toolname,
-      summary: `${pkg.name} v${pkg.version}`,
+      summary: input.summary ?? `${pkg.name} v${pkg.version}`,
       note: input.note,
       usage: input.usage,
       options: input.options,
@@ -100,6 +100,14 @@ export const Fmt = {
    */
   spinnerText(text: string) {
     return c.italic(c.gray(text));
+  },
+
+  /**
+   * Common back affordance for interactive menus.
+   */
+  back(opts: { readonly indent?: string; readonly label?: string } = {}) {
+    const { indent = '', label = 'back' } = opts;
+    return `${indent}${c.cyan('←')} ${c.gray(c.dim(label))}`;
   },
 
   /**

@@ -83,7 +83,7 @@ export function monitorPeers(
    * API:
    */
   const api = {
-    get total(): t.SyncServerInfo['total'] {
+    get total(): t.SyncServer.Info['total'] {
       return {
         connections: peers.size,
         idle: {

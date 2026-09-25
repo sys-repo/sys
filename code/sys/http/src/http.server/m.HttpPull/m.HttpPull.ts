@@ -1,11 +1,7 @@
 import type { t } from './common.ts';
+import { start } from './u/u.start.ts';
 
-import { toDir } from './u.dir.ts';
-import { PullMap as Map } from './u.map.ts';
-import { stream } from './u.stream.ts';
-
-export const HttpPull: t.HttpPullLib = {
-  Map,
-  toDir,
-  stream,
-};
+/**
+ * Materialize checksum-pinned resources through one bounded Rooted operation.
+ */
+export const HttpPull: t.HttpPull.Lib = Object.freeze({ start });

@@ -1,4 +1,4 @@
-import { type t, Path } from './common.ts';
+import { MediaType, Path, type t } from './common.ts';
 
 export function deriveAssetsPath(path: t.StringPath): t.StringFile | undefined {
   const ext = Path.extname(path).toLowerCase();
@@ -13,8 +13,6 @@ export function normalizeFilePath(path: t.StringPath): t.StringPath {
   return (raw.startsWith('./') ? raw.slice(2) : raw) as t.StringPath;
 }
 
-export function toContentType(name: string): string {
-  const ext = Path.extname(name).toLowerCase();
-  if (ext === '.md') return 'text/markdown';
-  return 'application/octet-stream';
+export function mediaTypeFromPath(path: t.StringPath): t.StringMimeType {
+  return MediaType.fromPath(path) ?? MediaType.Fallback.binary;
 }

@@ -5,11 +5,11 @@ import { normalizePath } from './u.normalizePath.ts';
 /**
  * Load the config file from the canonical location.
  */
-export async function get<Doc extends t.JsonFileDoc>(
+export async function get<Doc extends t.JsonFile.Doc>(
   cwd: t.StringDir,
   filename: string,
   initial: Doc,
-): Promise<t.JsonFile<Doc>> {
+): Promise<t.JsonFile.Instance<Doc>> {
   const path = getPath(cwd, filename);
   await Fs.ensureDir(Fs.dirname(path));
   await normalizePath(cwd, filename);

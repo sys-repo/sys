@@ -12,7 +12,7 @@ export { Repo } from '../ui.Repo/mod.ts';
  */
 const name = 'Crdt.Layout';
 
-export const defaults: NonNullable<t.LayoutDefaults> = {
+export const defaults: NonNullable<t.Layout.Defaults> = {
   get header() {
     return { visible: true, readOnly: false };
   },

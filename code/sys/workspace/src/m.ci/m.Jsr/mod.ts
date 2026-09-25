@@ -2,4 +2,4 @@
  * @module
  * JSR publish workflow helpers for workspace CI.
  */
-export { Jsr } from './mod.Jsr.ts';
+export { Jsr } from './m.Jsr.ts';

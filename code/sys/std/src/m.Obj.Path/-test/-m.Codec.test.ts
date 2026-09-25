@@ -1,11 +1,11 @@
-import { type t, c, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { c, describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Str } from '../../m.Str/mod.ts';
 import { Codec } from '../m.Codec.ts';
 import { Path } from '../mod.ts';
 
 describe('Path.Codec', () => {
   describe('print', () => {
-    const printCodec = (codec: t.ObjPathCodec, example: (string | number)[]) => {
+    const printCodec = (codec: t.Obj.Path.Codec.Definition, example: (string | number)[]) => {
       console.info(Str.SPACE);
       console.info(c.cyan(`Obj.Path.Codec.${c.bold(codec.kind)}:`));
       console.info(codec);
@@ -355,7 +355,7 @@ describe('Path.Codec', () => {
       });
 
       it('accepts codec instance objects', () => {
-        const customPointer: t.ObjPathCodec = {
+        const customPointer: t.Obj.Path.Codec.Definition = {
           kind: 'pointer',
           encode: (p) => Path.Codec.pointer.encode(p),
           decode: (s) => Path.Codec.pointer.decode(s),
@@ -376,20 +376,20 @@ describe('Path.Codec', () => {
         const out = Path.tryDecode('/ok');
         expectTypeOf(out).toMatchTypeOf<
           | {
-              readonly ok: true;
-              readonly path: t.ObjectPath;
-              readonly fixes: readonly t.ObjPathFix[];
-            }
+            readonly ok: true;
+            readonly path: t.ObjectPath;
+            readonly fixes: readonly t.Obj.Path.Fix[];
+          }
           | {
-              readonly ok: false;
-              readonly path: t.ObjectPath;
-              readonly fixes: readonly t.ObjPathFix[];
-              readonly error: Error;
-            }
+            readonly ok: false;
+            readonly path: t.ObjectPath;
+            readonly fixes: readonly t.Obj.Path.Fix[];
+            readonly error: Error;
+          }
         >();
         // common fields
         expectTypeOf(out.path).toEqualTypeOf<t.ObjectPath>();
-        expectTypeOf(out.fixes).toEqualTypeOf<t.ObjPathFix[]>();
+        expectTypeOf(out.fixes).toEqualTypeOf<t.Obj.Path.Fix[]>();
       });
     });
   });

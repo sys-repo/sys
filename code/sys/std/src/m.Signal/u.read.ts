@@ -8,7 +8,7 @@ import { type t } from './common.ts';
  *  - Objects with a `.value` field (including Preact Signal<T>)
  * Returns `undefined` if input is undefined.
  */
-export const read: t.SignalValueHelpersLib['read'] = <T>(
+export const read: t.Signal.Value.Lib['read'] = <T>(
   input?: t.ReadableSignal<T>,
 ): T | undefined => {
   if (input === undefined) return undefined;

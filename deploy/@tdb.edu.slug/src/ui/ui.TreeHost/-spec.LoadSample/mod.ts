@@ -1,5 +1,5 @@
 import { TreeHost } from '../mod.ts';
-import { type t, SAMPLES } from './common.ts';
+import { SAMPLES, type t } from './common.ts';
 import { loadHttp } from './u.http.ts';
 import { LoadSampleButtons as UI } from './ui.tsx';
 
@@ -13,7 +13,7 @@ export const LoadSample = {
   async load(
     tree: t.Signal<t.TreeHostProps['tree']>,
     action: t.SampleLoadAction | undefined,
-    opts: { baseUrl: t.StringUrl; docid: t.StringId },
+    opts: { baseUrl: t.StringUrl; docid: t.StringId } & t.SlugLoadTransport,
   ) {
     if (!action) return void (tree.value = undefined);
     if (action === 'esm:import') {
@@ -21,7 +21,7 @@ export const LoadSample = {
       return;
     }
     if (action === 'http') {
-      await loadHttp(tree, { baseUrl: opts.baseUrl, docid: opts.docid });
+      await loadHttp(tree, opts);
       return;
     }
   },

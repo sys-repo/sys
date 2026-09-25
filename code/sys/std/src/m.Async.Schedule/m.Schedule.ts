@@ -1,14 +1,16 @@
 import type { t } from './common.ts';
-import { queue } from './u.queue.ts';
-import { makeScheduleFn } from './u.scheduleFunction.ts';
-import { sleep } from './u.sleep.ts';
-import { tick, waitFor } from './u.turn.ts';
+import { frames as waitFrames } from './u/u.frames.ts';
+import { queue } from './u/u.queue.ts';
+import { makeScheduleFn } from './u/u.scheduleFunction.ts';
+import { sleep } from './u/u.sleep.ts';
+import { tick, waitFor } from './u/u.turn.ts';
+
+const raf = makeScheduleFn('raf');
 
 /**
- * Minimal, consistent API for deferring work (microtask, macrotask, or frame),
- * with lifecycle-aware and static forms.
+ * Defers callbacks and exposes awaitable host-queue hops.
  */
-export const Schedule: t.SchedulerLib = {
+export const Schedule: t.Schedule.Lib = Object.freeze({
   make: (life, mode = 'micro') => makeScheduleFn(mode, life),
   queue,
   sleep,
@@ -16,12 +18,11 @@ export const Schedule: t.SchedulerLib = {
   waitFor,
 
   async frames(count = 1) {
-    const n = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 0;
-    for (let i = 0; i < n; i += 1) await Schedule.raf();
+    await waitFrames(count, raf);
   },
 
   // Static schedulers (no lifecycle):
   micro: makeScheduleFn('micro'),
   macro: makeScheduleFn('macro'),
-  raf: makeScheduleFn('raf'),
-};
+  raf,
+});

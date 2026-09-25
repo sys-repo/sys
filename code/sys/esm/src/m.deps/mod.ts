@@ -12,7 +12,7 @@ import { from } from './u.from.ts';
 import { toEntry } from './u.toEntry.ts';
 import { toYaml } from './u.toYaml.ts';
 
-export const Deps: t.EsmDeps.Lib = {
+export const Deps: t.EsmDeps.Lib = Object.freeze({
   applyDeno,
   applyFiles,
   applyPackage,
@@ -21,4 +21,4 @@ export const Deps: t.EsmDeps.Lib = {
   toYaml,
   toEntry,
   findImport,
-};
+});

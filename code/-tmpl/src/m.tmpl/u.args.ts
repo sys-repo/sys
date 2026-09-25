@@ -10,11 +10,11 @@ export type CliArgs = {
   pkgName?: string;
   help?: boolean;
   'non-interactive'?: boolean;
+  format?: string | boolean | (string | boolean)[];
 };
 
-export type CliParsedArgs = {
+export type CliParsedArgs = CliArgs & {
   _: string[];
-} & CliArgs & {
   tmpl?: string;
   interactive: boolean;
   dryRun: boolean;
@@ -26,7 +26,7 @@ export function parseArgs(argv: string[] = []): CliParsedArgs {
   const args = Args.parse<CliArgs>(argv, {
     alias: { h: 'help', 'dry-run': 'dryRun' },
     boolean: ['bundle', 'dryRun', 'dry-run', 'force', 'help', 'non-interactive'],
-    string: ['dir', 'name', 'pkgName'],
+    string: ['dir', 'name', 'pkgName', 'format'],
     default: { bundle: false, dryRun: false, 'dry-run': false, force: false, help: false },
   });
 

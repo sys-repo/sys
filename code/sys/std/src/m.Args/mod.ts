@@ -95,8 +95,8 @@ export { parseArgs };
 /**
  * Command-line argument parsing.
  */
-export const Args: t.ArgsLib = {
+export const Args: t.Args.Lib = Object.freeze({
   parse: parseArgs,
   normalizeCommand,
   toAliasLookup,
-};
+});

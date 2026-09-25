@@ -1,4 +1,4 @@
-import { type t, Fs, Str } from '../common.ts';
+import { Fs, Str, type t } from '../common.ts';
 
 /**
  * Canonical starting YAML for a new endpoint.
@@ -11,32 +11,13 @@ export function initialYaml(): string {
       # - provider     → publish target
       # - source.dir   → optional source base
       # - staging.dir  → local staging root
-      # - mappings     → orbiter/shared staged filesystem layout
-      # - mapping      → singular deno package target
-
-      # provider:
-      #   kind: orbiter
-      #   siteId: SITE_ID_HERE
-      #   domain: foo
-
-      # provider:
-      #   kind: deno
-      #   app: APP_NAME_HERE
-      #   org: ORG_NAME_HERE
-      #   tokenEnv: TOKEN_ENV_HERE
-      #   verifyPreview: true
-      #
-      # mapping:
-      #   dir:
-      #     source: ./my-app
-      #     staging: .
+      # - mappings     → staged filesystem layout
 
       # source:
       #   dir: .
 
       staging:
         dir: ./staging
-        # clear: false
 
       mappings: []
       # mappings:
@@ -56,7 +37,7 @@ export function initialYaml(): string {
 /**
  * Convenience helper that ensures the initial YAML is present at the given path.
  */
-export async function ensureInitialYaml(path: t.StringPath) {
+export async function ensureInitialYaml(path: t.StringPath): Promise<void> {
   await Fs.ensureDir(Fs.dirname(path));
   if (await Fs.exists(path)) return;
   await Fs.write(path, initialYaml(), { force: false });

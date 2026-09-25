@@ -1,4 +1,5 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { Yaml } from '@sys/yaml';
+import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 
 describe('WorkspaceCi.Build', () => {
@@ -17,6 +18,9 @@ describe('WorkspaceCi.Build', () => {
     });
 
     const yaml = await WorkspaceCi.Build.text({ paths: [a, b] });
+    const parsed = Yaml.parse<{ jobs: { deno: { 'runs-on': string } } }>(yaml);
+    expect(parsed.error).to.eql(undefined);
+    expect(parsed.data?.jobs.deno['runs-on']).to.eql('ubuntu-24.04');
     expect(yaml.includes('name: build')).to.eql(true);
     expect(yaml.includes('build module → "${{ matrix.name }}"')).to.eql(true);
     expect(yaml.includes('name: ${{ matrix.name }}')).to.eql(true);
@@ -51,6 +55,21 @@ describe('WorkspaceCi.Build', () => {
     expect(text).to.eql(res.yaml);
   });
 
+  it('fails closed before rendering unsafe matrix values into build workflow YAML', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Build.safe');
+    const moduleDir = fs.join('code/sys/bad;echo');
+
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha',
+      tasks: { build: 'deno task info' },
+    });
+
+    await expectError(
+      async () => await WorkspaceCi.Build.text({ paths: [moduleDir] }),
+      'Unsafe workflow matrix path',
+    );
+  });
+
   it('returns unchanged when the rendered workflow already matches disk', async () => {
     const fs = await Testing.dir('WorkspaceCi.Build.sync.unchanged');
     const moduleDir = fs.join('code/sys/alpha');
@@ -61,7 +80,11 @@ describe('WorkspaceCi.Build', () => {
       tasks: { build: 'deno task info' },
     });
 
-    const first = await WorkspaceCi.Build.sync({ cwd: fs.dir, source: { paths: [moduleDir] }, target });
+    const first = await WorkspaceCi.Build.sync({
+      cwd: fs.dir,
+      source: { paths: [moduleDir] },
+      target,
+    });
     expect(first.kind).to.eql('written');
 
     const second = await WorkspaceCi.Build.sync({

@@ -14,7 +14,7 @@ export type DropTargetProps = {
 
 export type DropTargetPasteHandler = (e: DropTargetPaste) => void;
 export type DropTargetPaste = {
-  readonly files: t.BinaryFile[];
+  readonly files: t.BinaryFile.File[];
   readonly clipboardData: DataTransfer;
 };
 

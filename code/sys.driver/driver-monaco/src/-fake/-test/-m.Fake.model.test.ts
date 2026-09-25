@@ -431,7 +431,7 @@ describe('TestFake: Model', () => {
 
     describe('onDidChangeModel', () => {
       function getEmit(editor: unknown) {
-        const ed = editor as t.FakeEditorFull;
+        const ed = editor as t.MonacoFake.Editor.Full;
         const fn = ed._emitDidChangeModel;
         expect(typeof fn).to.eql('function', 'fake editor missing emit hook');
         return fn as (evt?: Partial<t.Monaco.I.IModelChangedEvent>) => void;

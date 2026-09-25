@@ -1,10 +1,11 @@
-import { type t, DEFAULT, Process, Json, Is, Msecs } from './common.ts';
+import { DEFAULT, Is, Json, Msecs, type t } from './common.ts';
+import { invoke } from '../u.invoke.ts';
 
 export const duration: t.MediaDurationFn = async (path, opts = {}) => {
   const ffprobe = opts.bin?.ffprobe ?? DEFAULT.bin.ffprobe;
 
   try {
-    const res = await Process.invoke({
+    const res = await invoke({
       cmd: ffprobe,
       args: ['-v', 'error', '-show_entries', 'format=duration', '-of', 'json', String(path)],
       silent: true,

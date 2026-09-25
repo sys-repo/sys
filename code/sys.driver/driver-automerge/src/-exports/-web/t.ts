@@ -9,28 +9,43 @@ import type { t } from './common.ts';
 type StringDatabaseName = string;
 
 /**
- * API for CRDT's on IndexedDB (browser):
+ * Browser-backed CRDT contracts.
  */
-export type CrdtWebLib = t.CrdtLib & {
-  readonly kind: 'crdt:web';
-  repo(args?: CrdtWebRepoArgs): t.CrdtRepo;
-};
+export declare namespace CrdtWeb {
+  /** API for CRDTs on IndexedDB in a browser. */
+  export type Lib = t.Crdt.Lib & {
+    readonly kind: 'crdt:web';
+    repo(args?: RepoArgs): t.Crdt.Repo;
+  };
 
-/** Arguments for browser `Crdt.repo` method. */
-export type CrdtWebRepoArgs = {
-  storage?: CrdtWebStorageArgInput;
-  network?: CrdtWebNetworkArgInput | CrdtWebNetworkArgInput[];
-  sharePolicy?: SharePolicy;
-  denylist?: AutomergeUrl[];
-  until?: t.UntilInput;
-};
+  /** Arguments for browser `Crdt.repo`. */
+  export type RepoArgs = {
+    storage?: Storage.Input;
+    network?: Network.Input | Network.Input[];
+    sharePolicy?: SharePolicy;
+    denylist?: AutomergeUrl[];
+    until?: t.UntilInput;
+  };
 
-/** Storage argument. */
-export type CrdtWebStorageArg = 'IndexedDb' | { database?: StringDatabaseName } | boolean;
-/** Looser input args taking specific CRDT args, and general storage interface types. */
-export type CrdtWebStorageArgInput = CrdtWebStorageArg | StorageAdapterInterface;
+  /**
+   * Browser CRDT storage contracts.
+   */
+  export namespace Storage {
+    /** Storage argument. */
+    export type Arg = 'IndexedDb' | { database?: StringDatabaseName } | boolean;
 
-/** Network connection argument. */
-export type CrdtWebNetworkArg = t.CrdtWebsocketNetworkArg;
-/** Looser input args taking specific CRDT args, and general network interface types. */
-export type CrdtWebNetworkArgInput = CrdtWebNetworkArg | NetworkAdapterInterface | t.Falsy;
+    /** Loose storage input accepted by browser repos. */
+    export type Input = Arg | StorageAdapterInterface;
+  }
+
+  /**
+   * Browser CRDT network contracts.
+   */
+  export namespace Network {
+    /** Network connection argument. */
+    export type Arg = t.Crdt.Network.WebsocketArg;
+
+    /** Loose network input accepted by browser repos. */
+    export type Input = Arg | NetworkAdapterInterface | t.Falsy;
+  }
+}

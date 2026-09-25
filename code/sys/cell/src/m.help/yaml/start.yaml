@@ -1,0 +1,47 @@
+summary: |
+  Start Cell services from a Cell folder.
+  Loads canonical `-config/@sys.cell/cell.yaml`, starts declared services,
+  and waits for service completion.
+
+usage:
+  - deno run -ERWN jsr:@sys/cell start [dir]
+  - deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
+  - deno run -ERWN jsr:@sys/cell start [dir] --reporter <auto|screen|raw>
+  - deno run -ERWN jsr:@sys/cell start [dir] --help
+
+options:
+  - name: -h, --help
+    text: show start help
+  - name: --mode <mode>
+    text: >-
+      select declared service variants for this start;
+      omit or use `default` for base bindings
+  - name: --reporter <auto|screen|raw>
+    text: >-
+      select adaptive screen or append-only output;
+      defaults to `auto`
+
+services:
+  - Cell loads `[dir]` or `.` as the Cell root.
+  - Cell starts services declared in `services[]`.
+  - >-
+    `--reporter auto` uses the Cell-owned screen on interactive terminals and raw output otherwise;
+    `screen` requires an interactive terminal.
+  - '`--mode <mode>` selects complete service variant bindings declared by that mode.'
+  - |-
+    Live-dev modes are ordinary service variants, for example `dev` selecting
+    `jsr:@sys/driver-vite/service` / `ViteService`.
+  - |-
+    Mode selection is not passed to owner services;
+    selected endpoints receive only normal lifecycle start args.
+  - Service owners keep their own config schema, mechanics, ports, URLs, and display.
+  - >-
+    Configured port conflicts are not auto-fixed;
+    clear an old session/listener with `@sys/cell kill`
+    or fix the owner config.
+  - Add any extra permissions required by declared owner services.
+  - Cell calls `Cell.Services.wait` for started service handles that expose `finished`.
+  - |-
+    Services that should keep `@sys/cell start` alive
+    should return a started handle with `finished`.
+  - Cell closes started services when service wait completes or startup fails.

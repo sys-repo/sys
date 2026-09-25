@@ -1,0 +1,27 @@
+{
+  "type": "https://jsr.io/@sys/types/0.0.301/src/t/t.Pkg.dist.ts",
+  "pkg": {
+    "name": "@sys/driver-vite-entry-proof",
+    "version": "0.0.0"
+  },
+  "build": {
+    "time": 0,
+    "size": { "total": 76, "pkg": 0 },
+    "builder": "@sys/driver-vite@0.0.474",
+    "runtime": "cached-only-test",
+    "hash": {
+      "policy": "https://jsr.io/@sys/fs/0.0.347/src/m.Pkg.Dist/m.Dist.ts",
+      "ignore": {
+        "format": "gitignore",
+        "rules": ["dist.json", "dist.json.sig"],
+        "rules:digest": "sha256-b1f048d646057e897c8f53dd4f36b3dbf983c5b7c2d42d51ce4f732dd078766d"
+      }
+    }
+  },
+  "hash": {
+    "digest": "sha256-b24d5611ce40be13c1ca301a54613a42f7f2f4cafe7d371560683caeb23feb8d",
+    "parts": {
+      "index.html": "sha256-b99dc1e0c0a87c50153a446dc196d999cb077774ecc1355dda4b34bd090bdf72:size=76"
+    }
+  }
+}

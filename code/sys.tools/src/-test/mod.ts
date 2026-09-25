@@ -1,6 +1,4 @@
 export {
-  DomMock,
-  Testing,
   afterAll,
   afterEach,
   beforeAll,
@@ -11,5 +9,8 @@ export {
   expectError,
   expectTypeOf,
   it,
+  Testing,
 } from '@sys/testing/server';
+export { FakeSpinner } from '@sys/cli/testing';
+export { WebFixture } from '@sys/testing/web';
 export * from '../common.ts';

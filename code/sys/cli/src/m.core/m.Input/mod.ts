@@ -1,16 +1,32 @@
-import { type t, c } from '../common.ts';
+import { c, type t } from '../common.ts';
 import { Prompt } from '../m.Prompt/mod.ts';
+import { promptSelect } from './u.select.ts';
+import { startSelect } from './u.select.start.ts';
 
-export const Input: t.CliInputLib = {
-  Text: { prompt: Prompt.Input.prompt.bind(Prompt.Input) },
-  Confirm: { prompt: Prompt.Confirm.prompt.bind(Prompt.Confirm) },
-  Number: { prompt: Prompt.Number.prompt.bind(Prompt.Number) },
-  Secret: { prompt: Prompt.Secret.prompt.bind(Prompt.Secret) },
-  Toggle: { prompt: Prompt.Toggle.prompt.bind(Prompt.Toggle) },
-  MultiText: { prompt: Prompt.List.prompt.bind(Prompt.List) },
-  Select: { prompt: Prompt.Select.prompt.bind(Prompt.Select) },
-
-  Checkbox: {
+/**
+ * Stable, opinionated helpers for requesting human input.
+ */
+export const Input: t.CliInput.Lib = Object.freeze({
+  Text: Object.freeze<t.CliInput.Lib['Text']>({
+    prompt: Prompt.Input.prompt.bind(Prompt.Input),
+  }),
+  Confirm: Object.freeze<t.CliInput.Lib['Confirm']>({
+    prompt: Prompt.Confirm.prompt.bind(Prompt.Confirm),
+  }),
+  Number: Object.freeze<t.CliInput.Lib['Number']>({
+    prompt: Prompt.Number.prompt.bind(Prompt.Number),
+  }),
+  Secret: Object.freeze<t.CliInput.Lib['Secret']>({
+    prompt: Prompt.Secret.prompt.bind(Prompt.Secret),
+  }),
+  Toggle: Object.freeze<t.CliInput.Lib['Toggle']>({
+    prompt: Prompt.Toggle.prompt.bind(Prompt.Toggle),
+  }),
+  MultiText: Object.freeze<t.CliInput.Lib['MultiText']>({
+    prompt: Prompt.List.prompt.bind(Prompt.List),
+  }),
+  Select: Object.freeze<t.CliInput.Lib['Select']>({ prompt: promptSelect, start: startSelect }),
+  Checkbox: Object.freeze<t.CliInput.Lib['Checkbox']>({
     prompt(args) {
       return Prompt.Checkbox.prompt({
         check: c.green('●'),
@@ -18,5 +34,5 @@ export const Input: t.CliInputLib = {
         ...args,
       });
     },
-  },
-};
+  }),
+});

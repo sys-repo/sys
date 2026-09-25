@@ -462,6 +462,36 @@ describe('Str (String)', () => {
       const res = Str.dedent(input);
       expect(res).to.eql(`one\n  two`);
     });
+
+    it('normalizes CRLF and lone CR line endings', () => {
+      const input = '\r\n  alpha\r\n  beta\r  gamma\r\n';
+      expect(Str.dedent(input)).to.eql('alpha\nbeta\ngamma');
+    });
+
+    it('removes one whitespace-only template edge line regardless of its indentation', () => {
+      const input = '    \n  alpha\n      ';
+      expect(Str.dedent(input)).to.eql('alpha');
+    });
+
+    it('preserves additional edge blank lines and interior relative indentation', () => {
+      const input = '\n\n  alpha\n    \n    beta\n\n';
+      expect(Str.dedent(input)).to.eql('\nalpha\n  \n  beta\n');
+    });
+
+    it('treats tabs as indentation units', () => {
+      const input = '\n\t\talpha\n\t\t  beta\n\t\tgamma\n';
+      expect(Str.dedent(input)).to.eql('alpha\n  beta\ngamma');
+    });
+
+    it('handles large generated documents without argument-spread limits', () => {
+      const total = 200_000;
+      const input = Array.from({ length: total }, () => '  value').join('\n');
+      const result = Str.dedent(input);
+
+      expect(Str.count(result, 'value')).to.eql(total);
+      expect(result.startsWith('value\n')).to.eql(true);
+      expect(result.endsWith('\nvalue')).to.eql(true);
+    });
   });
 
   describe('Str.count', () => {

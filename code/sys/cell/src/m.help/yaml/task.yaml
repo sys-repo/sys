@@ -1,0 +1,29 @@
+summary: |
+  Run a named trusted Cell task from a finite `tasks[]` graph.
+  Loads canonical `-config/@sys.cell/cell.yaml`, verifies the requested task closure, and executes the
+  named root task.
+
+usage:
+  - deno run -ERWN jsr:@sys/cell task <name> [dir]
+  - deno run -ERWN jsr:@sys/cell task <name> [dir] --plan
+  - deno run -ERWN jsr:@sys/cell task <name> [dir] --help
+
+options:
+  - name: -h, --help
+    text: show task help
+  - name: --plan
+    text: print the requested task closure without importing or running endpoints
+
+task:
+  - Cell loads `[dir]` or `.` as the Cell root.
+  - |-
+    Cell validates the `tasks[]` graph, then verifies only the requested task closure before
+    execution.
+  - Use `--plan` to inspect the requested task closure before Cell imports endpoint modules.
+  - Root tasks are runnable by name.
+  - Leaf tasks resolve Cell-local or trusted package endpoints with `run(args)`.
+  - Composite tasks run referenced root tasks in declared order.
+  - 'Leaf tasks receive structured config-ref args: `{ cwd, paths: { config? } }`.'
+  - Cell does not prove leaf endpoint termination; owner task code controls its own execution.
+  - Cell does not print owner task results, to avoid leaking secrets or bulky payloads.
+  - Add any extra permissions required by declared owner tasks.

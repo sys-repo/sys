@@ -1,4 +1,4 @@
-import type { DenoFileLib } from './t.ts';
+import { type t } from './common.ts';
 
 import { Is } from './m.DenoFile.Is.ts';
 import { Path } from './m.DenoFile.Path.ts';
@@ -8,7 +8,7 @@ import { workspace } from './u.workspace.ts';
 import { workspaceVersion } from './u.workspaceVersion.ts';
 
 /** `deno.json` file helper library. */
-export const DenoFile: DenoFileLib = {
+export const DenoFile: t.DenoFile.Lib = {
   Is,
   Path,
   load,

@@ -1,0 +1,39 @@
+id: dsl
+title: Workspace DSL
+summary: |
+  Workspace DSL: operating contract for agents changing workspace
+  dependency, graph, delta, test-runner, and package-version workflows.
+  Read root layer before changing workspace tooling; then read
+  the matching chapter from the chapter index.
+
+sections:
+  - label: Reading protocol
+    items:
+      - Agents MUST read root DSL before workspace edits.
+      - 'Command: `deno run -ER jsr:@sys/workspace dsl`.'
+      - Agents MUST NOT read every chapter by default.
+      - Agents MUST identify the target workspace boundary.
+      - Agents MUST identify the target command surface.
+      - Agents MUST read each matching chapter before editing.
+      - 'Form: `deno run -ER jsr:@sys/workspace dsl <chapter>`.'
+      - If no chapter index entry matches, stop and ask.
+
+  - label: Rule
+    items:
+      - |-
+          Use `@sys/workspace` as the public authority for:
+          dependency upgrades, graph facts, delta derivation,
+          package-version bump planning, and task helpers.
+      - Let CLI/API derive paths; do not infer manually.
+      - Read command help before changing command behavior.
+      - Prefer deterministic inputs over ambient reasoning.
+
+  - label: Command surfaces
+    items: |
+      DSL       `deno run -ER   jsr:@sys/workspace dsl`
+      Test      `deno task test`
+      Bump      `deno run -ERW  jsr:@sys/workspace bump -h`
+      Upgrade   `deno run -ERWN jsr:@sys/workspace upgrade -h`
+      For test-runner strategy or flag behavior, read `test` first.
+      For `--since` or `--explain-delta`, read `delta`
+      before changing behavior.

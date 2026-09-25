@@ -1,7 +1,7 @@
 import { type t, DEFAULT, Is, isRecord, Str } from './common.ts';
 import { CssPseudoClass } from './m.CssPseudoClass.ts';
 
-export const toString: t.StyleLib['toString'] = (style) => {
+export const toString: t.Style.Lib['toString'] = (style) => {
   if (!isRecord(style)) return '';
   return Object.entries(style)
     .filter(([prop]) => !CssPseudoClass.isClass(prop))

@@ -9,7 +9,7 @@ import { useSignalRedrawEffect as useRedrawEffect } from './u.useRedrawEffect.ts
  *    https://preactjs.com/blog/introducing-signals/
  *    https://preactjs.com/guide/v10/signals
  */
-export const Signal: t.SignalReactLib = {
+export const Signal: t.Signal.Lib = {
   ...StdSignal,
   useSignal,
   useEffect,

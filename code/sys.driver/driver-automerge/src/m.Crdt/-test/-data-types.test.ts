@@ -1,15 +1,30 @@
 import { Crdt } from '../../-exports/-fs/mod.ts';
-import { describe, expect, it, Obj } from '../../-test.ts';
+import {
+  afterAll,
+  beforeAll,
+  describe,
+  expect,
+  it,
+  Obj,
+  repoCleanup,
+  type t,
+} from '../../-test.ts';
 
 /**
  * REF:
  * - https://automerge.org/docs/reference/documents/
  */
-describe('CRDT: Data Types (Automerge)', { sanitizeResources: false, sanitizeOps: false }, () => {
+const Repos = repoCleanup(afterAll);
+
+describe('CRDT: Data Types (Automerge)', () => {
   describe('text:', () => {
     type T = { foo?: { bar?: { text?: string | null } } };
     const path = ['foo', 'bar', 'text'];
-    const repo = Crdt.repo();
+    let repo!: t.CrdtRepo;
+
+    beforeAll(() => {
+      repo = Repos.crdt(Crdt.repo());
+    });
 
     it('assign text (deep)', async () => {
       const { doc, error } = await repo.create<T>({});
