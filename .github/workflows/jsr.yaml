@@ -18,7 +18,7 @@ concurrency:
 jobs:
   publish_0:
     name: "jsr-1/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       id-token: write # The OIDC/ID token is used for authentication with JSR.
@@ -186,7 +186,7 @@ jobs:
           exit 1
   publish_1:
     name: "jsr-2/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_0
     permissions:
       contents: read
@@ -370,7 +370,7 @@ jobs:
           exit 1
   publish_2:
     name: "jsr-3/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_1
     permissions:
       contents: read
@@ -548,7 +548,7 @@ jobs:
           exit 1
   publish_3:
     name: "jsr-4/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_2
     permissions:
       contents: read
@@ -717,7 +717,7 @@ jobs:
           exit 1
   publish_4:
     name: "jsr-5/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_3
     permissions:
       contents: read
@@ -886,7 +886,7 @@ jobs:
           exit 1
   publish_5:
     name: "jsr-6/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_4
     permissions:
       contents: read
@@ -1055,7 +1055,7 @@ jobs:
           exit 1
   publish_6:
     name: "jsr-7/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_5
     permissions:
       contents: read
@@ -1236,7 +1236,7 @@ jobs:
           exit 1
   publish_7:
     name: "jsr-8/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_6
     permissions:
       contents: read
@@ -1414,7 +1414,7 @@ jobs:
           exit 1
   publish_8:
     name: "jsr-9/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_7
     permissions:
       contents: read
@@ -1592,7 +1592,7 @@ jobs:
           exit 1
   publish_9:
     name: "jsr-10/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_8
     permissions:
       contents: read
@@ -1773,7 +1773,7 @@ jobs:
           exit 1
   publish_10:
     name: "jsr-11/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_9
     permissions:
       contents: read
@@ -1945,7 +1945,7 @@ jobs:
           exit 1
   publish_11:
     name: "jsr-12/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_10
     permissions:
       contents: read
@@ -2135,7 +2135,7 @@ jobs:
           exit 1
   publish_12:
     name: "jsr-13/13: ${{ matrix.name }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: publish_11
     permissions:
       contents: read

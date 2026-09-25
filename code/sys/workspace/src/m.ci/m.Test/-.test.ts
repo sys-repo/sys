@@ -27,7 +27,8 @@ describe('WorkspaceCi.Test.Linux', () => {
 
     const graph = doc.jobs.graph;
     const deno = doc.jobs.deno;
-    expect(graph['runs-on']).to.eql('ubuntu-latest');
+    expect(graph['runs-on']).to.eql('ubuntu-24.04');
+    expect(deno['runs-on']).to.eql('ubuntu-24.04');
     expect(graph.permissions).to.eql({ contents: 'read' });
     expect(graph.environment).to.eql(undefined);
     expect(graph.env).to.eql(undefined);

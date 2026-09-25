@@ -9,7 +9,7 @@ on:
 
 jobs:
   graph:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -23,7 +23,7 @@ jobs:
       - name: Verify workspace graph
         run: deno task check:graph
   deno:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     environment: dev

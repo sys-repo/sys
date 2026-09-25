@@ -1,3 +1,4 @@
+import { Yaml } from '@sys/yaml';
 import { describe, expect, expectError, Fs, it, type Jsr, type t, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 import { textWith } from './u/u.text.ts';
@@ -115,6 +116,10 @@ describe('WorkspaceCi.Jsr', () => {
     });
 
     const yaml = await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths: [alpha, beta, gamma] });
+    const parsed = Yaml.parse<{ jobs: Record<string, { 'runs-on': string }> }>(yaml);
+    expect(parsed.error).to.eql(undefined);
+    expect(parsed.data?.jobs.publish_0['runs-on']).to.eql('ubuntu-24.04');
+    expect(parsed.data?.jobs.publish_1['runs-on']).to.eql('ubuntu-24.04');
 
     expect(yaml.includes('publish_0:')).to.eql(true);
     expect(yaml.includes('publish_1:')).to.eql(true);

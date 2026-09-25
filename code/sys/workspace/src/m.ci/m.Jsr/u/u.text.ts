@@ -1,5 +1,6 @@
 import { Err, Fs, Jsr, Str, type t } from '../../common.ts';
 import { CI_DENO_VERSION } from '../../u.deno.ts';
+import { CI_UBUNTU_RUNNER } from '../../u.runner.ts';
 import { wrangle } from '../../u/u.workflow.ts';
 import { filterModulesWith, type ModuleFilterDependencies } from './u.filter.ts';
 import { deriveStrata, type ModuleStratum, parsePersistedGraph } from './u.graph.ts';
@@ -96,7 +97,7 @@ function renderPublishJob(
   return [
     `publish_${stratum.index}:`,
     `  name: "jsr-${stratum.index + 1}/${args.total}: \${{ matrix.name }}"`,
-    '  runs-on: ubuntu-latest',
+    `  runs-on: ${CI_UBUNTU_RUNNER}`,
     ...(args.needs ? [`  needs: publish_${stratum.index - 1}`] : []),
     '  permissions:',
     wrangle.map(PERMISSIONS, 4),

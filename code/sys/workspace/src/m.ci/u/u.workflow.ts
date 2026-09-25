@@ -1,5 +1,6 @@
 import { Str, type t } from '../common.ts';
 import { CI_DENO_VERSION } from '../u.deno.ts';
+import { CI_UBUNTU_RUNNER } from '../u.runner.ts';
 import { wrangle } from './u.yaml.ts';
 
 export { wrangle } from './u.yaml.ts';
@@ -93,7 +94,7 @@ export function workflowTemplate(args: WorkflowArgs) {
     jobs:
       __BEFORE_DENO_JOB__
       deno:
-        runs-on: ubuntu-latest
+        runs-on: ${CI_UBUNTU_RUNNER}
         permissions:
         __PERMISSIONS__
         environment: dev

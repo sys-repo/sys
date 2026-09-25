@@ -1,5 +1,7 @@
+import { CI_UBUNTU_RUNNER } from '../u.runner.ts';
+
 export const TEST_GRAPH_JOB_TEMPLATE = `graph:
-  runs-on: ubuntu-latest
+  runs-on: ${CI_UBUNTU_RUNNER}
   permissions:
     contents: read
   steps:

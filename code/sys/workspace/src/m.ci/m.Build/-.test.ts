@@ -1,3 +1,4 @@
+import { Yaml } from '@sys/yaml';
 import { describe, expect, expectError, Fs, it, Testing } from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 
@@ -17,6 +18,9 @@ describe('WorkspaceCi.Build', () => {
     });
 
     const yaml = await WorkspaceCi.Build.text({ paths: [a, b] });
+    const parsed = Yaml.parse<{ jobs: { deno: { 'runs-on': string } } }>(yaml);
+    expect(parsed.error).to.eql(undefined);
+    expect(parsed.data?.jobs.deno['runs-on']).to.eql('ubuntu-24.04');
     expect(yaml.includes('name: build')).to.eql(true);
     expect(yaml.includes('build module → "${{ matrix.name }}"')).to.eql(true);
     expect(yaml.includes('name: ${{ matrix.name }}')).to.eql(true);
