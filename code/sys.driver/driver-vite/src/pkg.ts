@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/driver-vite',
-  version: '0.0.479',
+  version: '0.0.480',
 });

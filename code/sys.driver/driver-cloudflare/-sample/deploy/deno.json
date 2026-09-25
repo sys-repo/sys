@@ -1,6 +1,6 @@
 {
   "name": "@sample/r2",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "private": true,
   "tasks": {
@@ -19,7 +19,11 @@
     "./t": "./src/types.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "test": {
       "read": true,
       "write": true,
@@ -55,3 +59,4 @@
     }
   }
 }
+
