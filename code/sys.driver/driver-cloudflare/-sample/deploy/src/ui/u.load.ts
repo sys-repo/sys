@@ -6,7 +6,7 @@ import { Fetch, Hash, Is, Json, Pkg } from './common.ts';
 export function startFetches(
   origin: string,
   onMessage: (value: string) => void,
-  onManifest: (digest: string, checksum: string) => void,
+  onManifest: (digest: string, checksum: string, size?: number) => void,
 ): () => void {
   const client = Fetch.make({
     policy: {
@@ -37,8 +37,8 @@ export function startFetches(
     const bytes = new Uint8Array(await response.data.arrayBuffer());
     const data = Json.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
     if (!Pkg.Is.dist(data)) throw new Error('Invalid Dist.');
-    // Hash the received bytes, not reserialized JSON or the manifest's reported payload digest.
-    if (!client.disposed) onManifest(data.hash.digest, Hash.sha256(bytes));
+    // Hash and measure the received bytes, not reserialized JSON or reported build metadata.
+    if (!client.disposed) onManifest(data.hash.digest, Hash.sha256(bytes), bytes.byteLength);
   }
 
   loadMessage().catch(() => {

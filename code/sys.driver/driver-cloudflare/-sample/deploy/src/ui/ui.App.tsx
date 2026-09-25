@@ -1,19 +1,26 @@
-import { Hash, Is, Pkg, pkg, React } from './common.ts';
+import { Hash, Is, Pkg, pkg, React, Str } from './common.ts';
 import { startFetches } from './u.load.ts';
+
+type Manifest = {
+  readonly digest: string;
+  readonly checksum: string;
+  readonly size?: number;
+};
 
 /**
  * Application Root
  */
 export function App({ origin = globalThis.location?.origin }: { origin?: string } = {}) {
   const [message, setMessage] = React.useState('Loading…');
-  const [manifest, setManifest] = React.useState({ digest: 'Loading…', checksum: 'Loading…' });
-  const digest = Pkg.Dist.Part.hash(manifest.digest);
-  const checksum = Pkg.Dist.Part.hash(manifest.checksum);
+  const [manifest, setManifest] = React.useState<Manifest>({
+    digest: 'Loading…',
+    checksum: 'Loading…',
+  });
 
   React.useEffect(() => {
     if (!origin) return;
-    return startFetches(origin, setMessage, (digest, checksum) => {
-      setManifest({ digest, checksum });
+    return startFetches(origin, setMessage, (digest, checksum, size) => {
+      setManifest({ digest, checksum, size });
     });
   }, [origin]);
 
@@ -23,11 +30,7 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
       <h2>Deno HTML and API · R2 assets</h2>
       <p>
         Deno serves this page and <a href='/api/hello'>/api</a> from the application origin
-        {origin && (
-          <>
-            {' '}(<a href={origin}>{new URL(origin).host}</a>)
-          </>
-        )}. UI scripts, styles, and the image load directly from{' '}
+        {renderOrigin(origin)}. UI scripts, styles, and the image load directly from{' '}
         <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2</a>,
         avoiding Deno egress for those assets.
       </p>
@@ -53,62 +56,89 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
         </code>
       </p>
       <h2>Manifest hashes</h2>
-      <table className='identity-table' aria-live='polite'>
-        <caption>
-          Private relay — <a href='/ui/dist.json'>/ui/dist.json</a>
-          {Is.str(digest) && (
-            <>
-              {' • '}
-              <code>#{Hash.shorten(digest, [0, 5], { trimPrefix: true })}</code>
-            </>
-          )}
-        </caption>
-        <thead>
-          <tr>
-            <th scope='col'>What</th>
-            <th scope='col'>SHA-256</th>
-            <th scope='col'>Compare in terminal</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope='row'>
-              <a href='/ui/dist.json'>
-                <code>dist.json → hash.digest</code>
-              </a>
-            </th>
-            <td>
-              <code>
-                {Is.str(digest)
-                  ? (
-                    <a href='/ui/dist.json' title={manifest.digest}>
-                      {Hash.shorten(digest, [12, 5], { trimPrefix: true, divider: '…' })}
-                    </a>
-                  )
-                  : manifest.digest}
-              </code>
-            </td>
-            <td>
-              <code>deno task serve</code> → <code>shell</code>
-            </td>
-          </tr>
-          <tr>
-            <th scope='row'>
-              Checksum of <code>dist.json</code>
-            </th>
-            <td>
-              <code title={manifest.checksum}>
-                {Is.str(checksum)
-                  ? Hash.shorten(checksum, [12, 5], { trimPrefix: true, divider: '…' })
-                  : manifest.checksum}
-              </code>
-            </td>
-            <td>
-              <code>deno task build</code> → <code>private:</code>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      {renderManifestTable(manifest)}
     </main>
+  );
+}
+
+/**
+ * Helpers:
+ */
+function renderOrigin(origin?: string) {
+  if (!Is.str(origin) || origin === '') return null;
+  return (
+    <span>
+      {' '}(<a href={origin}>{new URL(origin).host}</a>)
+    </span>
+  );
+}
+
+function renderManifestTable(manifest: Manifest) {
+  const digest = Pkg.Dist.Part.hash(manifest.digest);
+  const checksum = Pkg.Dist.Part.hash(manifest.checksum);
+  const elDigest = Is.str(digest)
+    ? (
+      <a href='/ui/dist.json' title={manifest.digest}>
+        {Hash.shorten(digest, [12, 5], { trimPrefix: true, divider: '…' })}
+      </a>
+    )
+    : manifest.digest;
+  const checksumLabel = Is.str(checksum)
+    ? Hash.shorten(checksum, [12, 5], { trimPrefix: true, divider: '…' })
+    : manifest.checksum;
+
+  return (
+    <table className='identity-table' aria-live='polite'>
+      {renderManifestCaption(digest, manifest.size)}
+      <thead>
+        <tr>
+          <th scope='col'>What</th>
+          <th scope='col'>SHA-256</th>
+          <th scope='col'>Compare in terminal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope='row'>
+            <a href='/ui/dist.json'>
+              <code>dist.json → hash.digest</code>
+            </a>
+          </th>
+          <td>
+            <code>{elDigest}</code>
+          </td>
+          <td>
+            <code>deno task serve</code> → <code>shell</code>
+          </td>
+        </tr>
+        <tr>
+          <th scope='row'>
+            Checksum of <code>dist.json</code>
+          </th>
+          <td>
+            <code title={manifest.checksum}>{checksumLabel}</code>
+          </td>
+          <td>
+            <code>deno task build</code> → <code>private:</code>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
+function renderManifestCaption(digest: string | undefined, size: number | undefined) {
+  const sizeLabel = Is.num(size) ? ` • ${Str.bytes(size)}` : null;
+  const elDigest = Is.str(digest)
+    ? <code>#{Hash.shorten(digest, [0, 5], { trimPrefix: true })}</code>
+    : null;
+
+  return (
+    <caption>
+      Private relay — <a href='/ui/dist.json'>/ui/dist.json</a>
+      {sizeLabel}
+      {elDigest && ' • '}
+      {elDigest}
+    </caption>
   );
 }

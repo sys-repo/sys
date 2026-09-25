@@ -25,6 +25,8 @@ describe('R2 deployment sample: UI fetches', () => {
     expect(result.message).to.eql('message from API');
     expect(result.digest).to.eql(digest);
     expect(result.checksum).to.eql(Hash.sha256(bytes));
+    expect(result.size).to.eql(bytes.byteLength);
+    expect(result.size).not.to.eql(dist.build.size.total);
     expect(result.urls.sort()).to.eql([`${ORIGIN}/api/hello`, `${ORIGIN}/ui/dist.json`]);
   });
 
@@ -37,13 +39,15 @@ describe('R2 deployment sample: UI fetches', () => {
     expect(result.digest).not.to.eql(result.checksum);
   });
 
-  it('whitespace and UTF-8 BOM → hash exact response bytes, not parsed or reserialized JSON', async () => {
+  it('whitespace and UTF-8 BOM → hash and size use exact response bytes, not reserialized JSON', async () => {
     for (const prefix of ['  \n', '\uFEFF']) {
       const bytes = new TextEncoder().encode(`${prefix}${Json.stringify(dist)}\n`);
       const result = await fetchPair(Response.json({ msg: 'hello' }), new Response(bytes));
       expect(result.digest).to.eql(digest);
       expect(result.checksum).to.eql(Hash.sha256(bytes));
       expect(result.checksum).not.to.eql(Hash.sha256(Json.stringify(dist)));
+      expect(result.size).to.eql(bytes.byteLength);
+      expect(result.size).not.to.eql(new TextEncoder().encode(Json.stringify(dist)).byteLength);
     }
   });
 
@@ -55,6 +59,7 @@ describe('R2 deployment sample: UI fetches', () => {
       expect(f.messages).to.eql(['hello']);
     });
     expect(f.digests).to.eql([]);
+    expect(f.sizes).to.eql([]);
 
     f.manifest.resolve(Response.json(dist));
     await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.digests).to.eql([digest]));
@@ -99,6 +104,7 @@ describe('R2 deployment sample: UI fetches', () => {
     await Time.wait(0);
     expect(f.messages).to.eql(['hello']);
     expect(f.digests).to.eql([]);
+    expect(f.sizes).to.eql([]);
   });
 
   it('invalid or failed manifest → digest error without losing the API message', async () => {
@@ -115,6 +121,7 @@ describe('R2 deployment sample: UI fetches', () => {
       expect(result.message).to.eql('hello');
       expect(result.digest).to.eql('Could not load the private manifest.');
       expect(result.checksum).to.eql('Could not load the private manifest.');
+      expect(result.size).to.eql(undefined);
     }
   });
 
@@ -164,7 +171,14 @@ async function fetchPair(message: Response, manifest: Response) {
     expect(f.digests.length).to.eql(1);
   });
   expect(f.checksums.length).to.eql(1);
-  return { message: f.messages[0], digest: f.digests[0], checksum: f.checksums[0], urls: f.urls };
+  expect(f.sizes.length).to.eql(1);
+  return {
+    message: f.messages[0],
+    digest: f.digests[0],
+    checksum: f.checksums[0],
+    size: f.sizes[0],
+    urls: f.urls,
+  };
 }
 
 /** Hold responses until the test releases them, even after the request is aborted. */
@@ -175,6 +189,7 @@ function controlledPair() {
   const messages: string[] = [];
   const digests: string[] = [];
   const checksums: string[] = [];
+  const sizes: (number | undefined)[] = [];
   const mock = WebFixture.Fetch.mock((input, init) => {
     const req = new Request(input, init);
     urls.push(req.url);
@@ -185,9 +200,10 @@ function controlledPair() {
   const stop = startFetches(
     ORIGIN,
     (value) => messages.push(value),
-    (value, checksum) => {
+    (value, checksum, size?: number) => {
       digests.push(value);
       checksums.push(checksum);
+      sizes.push(size);
     },
   );
   return {
@@ -197,6 +213,7 @@ function controlledPair() {
     messages,
     digests,
     checksums,
+    sizes,
     stop,
     async [Symbol.asyncDispose]() {
       using _restoreFetch = mock;
