@@ -17,9 +17,11 @@ export type Config = {
   };
 };
 
-/** Shared manifest pins and the sample's recorded build base. */
+/** Shared manifest pins, original bundle size, and recorded build base. */
 export type BuildRecord = {
   readonly publicAssetBase: string;
+  /** Original Vite Bundle total in bytes, before private/public projection. */
+  readonly bundleSize: number;
   readonly selection: t.DistPins<Audience>;
 };
 

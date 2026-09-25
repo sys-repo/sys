@@ -6,7 +6,7 @@ import {
   partitionBuild,
   readData,
 } from '../src/m.deployment/mod.ts';
-import { Fs, Pkg, pkg, ROOT, type t } from './common.ts';
+import { Fs, Is, Pkg, pkg, ROOT, type t } from './common.ts';
 import { formatBuildSelection } from './u.fmt.ts';
 
 type Build = (args: {
@@ -18,7 +18,9 @@ type Build = (args: {
   toString(): string;
 }>;
 
-/** Build once, project private/public files, and save their manifest pins. */
+/**
+ * Build once, project private/public files, and record the bundle total and manifest pins.
+ */
 export async function buildSample(input: t.Config, root: string, build: Build) {
   const config = configFrom(input);
   const buildRecordPath = Fs.join(root, BUILD_RECORD_FILENAME);
@@ -28,11 +30,16 @@ export async function buildSample(input: t.Config, root: string, build: Build) {
   for (const dir of ['dist', 'dist.private', 'dist.public']) await Fs.remove(Fs.join(root, dir));
   const built = await build(Object.freeze({ root, publicAssetBase: config.publicAssetBase }));
   if (!built.ok || !built.manifest) throw new Error('Sample UI build failed.');
+  let bundleSize: number | undefined;
   const projected = await Pkg.Dist.project({
     root,
     source: { dir: 'dist', integrity: built.manifest.integrity },
     outputs: { private: 'dist.private', public: 'dist.public' },
-    select: partitionBuild,
+    select(dist) {
+      const selection = partitionBuild(dist);
+      bundleSize = dist.build.size.total;
+      return selection;
+    },
     limits: DIST_LIMITS,
     batch: DIST_BATCH_LIMITS,
     pkg,
@@ -50,8 +57,10 @@ export async function buildSample(input: t.Config, root: string, build: Build) {
   const selection = Pkg.Dist.Pins.capture({ pins: projected.pins }, {
     names: { private: true, public: true },
   });
+  if (!Is.num(bundleSize)) throw new Error('Sample bundle size was not captured.');
   const buildRecord: t.BuildRecord = Object.freeze({
     publicAssetBase: config.publicAssetBase,
+    bundleSize,
     selection,
   });
   await Fs.writeJson(buildRecordPath, buildRecord, { throw: true });

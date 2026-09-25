@@ -4,7 +4,6 @@ import { startFetches } from './u.load.ts';
 type Manifest = {
   readonly digest: string;
   readonly checksum: string;
-  readonly size?: number;
 };
 
 /**
@@ -12,6 +11,7 @@ type Manifest = {
  */
 export function App({ origin = globalThis.location?.origin }: { origin?: string } = {}) {
   const [message, setMessage] = React.useState('Loading…');
+  const [bundleSize, setBundleSize] = React.useState<number>();
   const [manifest, setManifest] = React.useState<Manifest>({
     digest: 'Loading…',
     checksum: 'Loading…',
@@ -19,9 +19,9 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
 
   React.useEffect(() => {
     if (!origin) return;
-    return startFetches(origin, setMessage, (digest, checksum, size) => {
-      setManifest({ digest, checksum, size });
-    });
+    return startFetches(origin, setMessage, (digest, checksum) => {
+      setManifest({ digest, checksum });
+    }, setBundleSize);
   }, [origin]);
 
   return (
@@ -56,7 +56,7 @@ export function App({ origin = globalThis.location?.origin }: { origin?: string 
         </code>
       </p>
       <h2>Manifest hashes</h2>
-      {renderManifestTable(manifest)}
+      {renderManifestTable(manifest, bundleSize)}
     </main>
   );
 }
@@ -73,7 +73,7 @@ function renderOrigin(origin?: string) {
   );
 }
 
-function renderManifestTable(manifest: Manifest) {
+function renderManifestTable(manifest: Manifest, bundleSize: number | undefined) {
   const digest = Pkg.Dist.Part.hash(manifest.digest);
   const checksum = Pkg.Dist.Part.hash(manifest.checksum);
   const elDigest = Is.str(digest)
@@ -89,7 +89,7 @@ function renderManifestTable(manifest: Manifest) {
 
   return (
     <table className='identity-table' aria-live='polite'>
-      {renderManifestCaption(digest, manifest.size)}
+      {renderManifestCaption(digest, bundleSize)}
       <thead>
         <tr>
           <th scope='col'>What</th>
@@ -127,18 +127,21 @@ function renderManifestTable(manifest: Manifest) {
   );
 }
 
-function renderManifestCaption(digest: string | undefined, size: number | undefined) {
-  const sizeLabel = Is.num(size) ? ` • ${Str.bytes(size)}` : null;
+function renderManifestCaption(digest: string | undefined, bundleSize: number | undefined) {
   const elDigest = Is.str(digest)
     ? <code>#{Hash.shorten(digest, [0, 5], { trimPrefix: true })}</code>
+    : null;
+  const elSize = Is.num(bundleSize)
+    ? <span title='Total bundle size'>{Str.bytes(bundleSize)}</span>
     : null;
 
   return (
     <caption>
       Private relay — <a href='/ui/dist.json'>/ui/dist.json</a>
-      {sizeLabel}
       {elDigest && ' • '}
       {elDigest}
+      {elSize && ' • '}
+      {elSize}
     </caption>
   );
 }

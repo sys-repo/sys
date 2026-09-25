@@ -115,6 +115,7 @@ describe('R2 deployment sample: build selection', () => {
     const pin = { 'dist.json': `sha256-${'a'.repeat(64)}` };
     const buildRecord = {
       selection: { pins: { private: pin, public: pin } },
+      bundleSize: 551_353,
       publicAssetBase: config.publicAssetBase,
     };
     expect(snapshotInputs(config, buildRecord)).to.eql({ config, buildRecord });
@@ -130,6 +131,7 @@ describe('R2 deployment sample: build selection', () => {
         },
       },
       publicAssetBase: config.publicAssetBase,
+      bundleSize: 551_353,
     };
     const captured = snapshotInputs(config, buildRecord);
     config.targets.public.prefix = 'other';
@@ -138,6 +140,7 @@ describe('R2 deployment sample: build selection', () => {
     buildRecord.selection.pins.private['dist.json'] = `sha256-${'c'.repeat(64)}`;
     buildRecord.selection.pins.public['dist.json'] = `sha256-${'d'.repeat(64)}`;
     buildRecord.publicAssetBase = 'https://other.example.test/other/';
+    buildRecord.bundleSize = 898;
     expect(captured.config).to.eql(fixtureConfig());
     expect(captured.buildRecord).to.eql({
       selection: {
@@ -147,6 +150,7 @@ describe('R2 deployment sample: build selection', () => {
         },
       },
       publicAssetBase: fixtureConfig().publicAssetBase,
+      bundleSize: 551_353,
     });
     expect(Object.isFrozen(captured.buildRecord)).to.eql(true);
     expect(Object.isFrozen(captured.buildRecord.selection.pins.private)).to.eql(true);
@@ -157,7 +161,7 @@ describe('R2 deployment sample: build selection', () => {
     const config = fixtureConfig();
     const pin = { 'dist.json': `sha256-${'a'.repeat(64)}` };
     const selection = { pins: { private: pin, public: pin } };
-    const buildRecord = { selection, publicAssetBase: config.publicAssetBase };
+    const buildRecord = { selection, publicAssetBase: config.publicAssetBase, bundleSize: 551_353 };
     const invalid = [
       { private: pin, public: pin, publicAssetBase: config.publicAssetBase },
       { ...selection, bindings: { publicAssetBase: config.publicAssetBase } },
@@ -165,6 +169,10 @@ describe('R2 deployment sample: build selection', () => {
       { ...buildRecord, selection: { pins: { private: pin } } },
       { ...buildRecord, selection: { pins: { ...selection.pins, extra: pin } } },
       { selection },
+      { selection, publicAssetBase: config.publicAssetBase },
+      ...[undefined, null, '551353', -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1].map(
+        (bundleSize) => ({ ...buildRecord, bundleSize }),
+      ),
       { ...buildRecord, publicAssetBase: undefined },
       { ...buildRecord, publicAssetBase: 'http://assets.example.test/sample/ui/' },
       { ...buildRecord, publicAssetBase: 'https://other.example.test/sample/ui/' },
@@ -186,6 +194,7 @@ describe('R2 deployment sample: build selection', () => {
         return {};
       },
       publicAssetBase: config.publicAssetBase,
+      bundleSize: 551_353,
     };
     expect(() => snapshotInputs(config, buildRecord)).to.throw('Run deno task build');
     expect(calls).to.eql(0);

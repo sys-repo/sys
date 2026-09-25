@@ -7,6 +7,7 @@ describe('R2 deployment sample: HTTP app', () => {
   it('redirects, API, method restrictions, and unknown routes do not invoke the shell', async () => {
     let calls = 0;
     const app = createApp({
+      bundleSize: 551_353,
       shell: () => {
         calls++;
         return Promise.resolve(new Response('shell'));
@@ -28,7 +29,15 @@ describe('R2 deployment sample: HTTP app', () => {
       expect(response.headers.get('cache-control')).to.eql('no-store');
       expect(response.headers.get('x-content-type-options')).to.eql('nosniff');
     }
-    for (const path of ['/', '/ui', '/api/hello', '/ui/']) {
+    const bundle = await app.request('/api/bundle');
+    expect(bundle.status).to.eql(200);
+    expect(await bundle.json()).to.eql({ size: 551_353 });
+    expect(bundle.headers.get('cache-control')).to.eql('no-store');
+    expect(bundle.headers.get('x-content-type-options')).to.eql('nosniff');
+    const bundleHead = await app.request('/api/bundle', { method: 'HEAD' });
+    expect(bundleHead.status).to.eql(200);
+    expect(await bundleHead.text()).to.eql('');
+    for (const path of ['/', '/ui', '/api/hello', '/api/bundle', '/ui/']) {
       const response = await app.request(path, { method: 'POST' });
       expect(response.status).to.eql(405);
       expect(response.headers.get('allow')).to.eql('GET, HEAD');
@@ -52,6 +61,7 @@ describe('R2 deployment sample: HTTP app', () => {
     });
     const seen: string[] = [];
     const app = createApp({
+      bundleSize: 551_353,
       shell: (req) => {
         const url = new URL(req.url);
         seen.push(`${req.method} ${url.pathname}${url.search}`);
@@ -70,6 +80,10 @@ describe('R2 deployment sample: HTTP adapter integration', () => {
     using f = await remoteFixture();
     const app = await appFrom(f, fixtureEnv);
     f.fetched.length = 0;
+    const bundle = await app.request('/api/bundle');
+    expect(await bundle.json()).to.eql({ size: f.buildRecord.bundleSize });
+    expect(f.buildRecord.bundleSize).not.to.eql(f.dist.build.size.total);
+    expect(f.fetched).to.eql([]);
     for (
       const [path, key] of [['/ui/', 'index.html'], ['/ui/index.html', 'index.html'], [
         '/ui/dist.json',

@@ -10,6 +10,7 @@ export function fixtureInputs(): t.AppInputs {
     config,
     buildRecord: {
       publicAssetBase: config.publicAssetBase,
+      bundleSize: 551_353,
       selection: {
         pins: {
           private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
@@ -78,6 +79,7 @@ export async function remoteFixture() {
   const pin = { 'dist.json': Hash.sha256(manifest) };
   const config = fixtureConfig();
   const buildRecord = {
+    bundleSize: 551_353,
     selection: {
       pins: { private: pin, public: { 'dist.json': Hash.sha256('fixture-public-manifest') } },
     },

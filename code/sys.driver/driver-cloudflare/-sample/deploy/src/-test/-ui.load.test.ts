@@ -4,6 +4,7 @@ import { startFetches } from '../ui/u.load.ts';
 import { localFixture } from '../../-scripts/-test/u.fixture.ts';
 
 const ORIGIN = 'https://sample.test';
+const bundleSize = 551_353;
 // Deliberately chosen independently of the file checksum: the UI must display both.
 const digest = `sha256-${'a'.repeat(64)}`;
 const dist: t.DistPkg = {
@@ -21,39 +22,47 @@ const dist: t.DistPkg = {
 describe('R2 deployment sample: UI fetches', () => {
   it('same-origin JSON → API message and reported manifest digest', async () => {
     const bytes = new TextEncoder().encode(Json.stringify(dist));
-    const result = await fetchPair(Response.json({ msg: 'message from API' }), new Response(bytes));
+    const result = await fetchResponses(
+      Response.json({ msg: 'message from API' }),
+      new Response(bytes),
+    );
     expect(result.message).to.eql('message from API');
     expect(result.digest).to.eql(digest);
     expect(result.checksum).to.eql(Hash.sha256(bytes));
-    expect(result.size).to.eql(bytes.byteLength);
+    expect(result.size).to.eql(bundleSize);
+    expect(result.size).not.to.eql(bytes.byteLength);
     expect(result.size).not.to.eql(dist.build.size.total);
-    expect(result.urls.sort()).to.eql([`${ORIGIN}/api/hello`, `${ORIGIN}/ui/dist.json`]);
+    expect(result.urls.sort()).to.eql([
+      `${ORIGIN}/api/bundle`,
+      `${ORIGIN}/api/hello`,
+      `${ORIGIN}/ui/dist.json`,
+    ]);
   });
 
   it('served projection bytes → checksum matches the build-selected private manifest pin', async () => {
     await using f = await localFixture();
     const file = await Fs.readText(f.dir.join('dist.private/dist.json'));
     expect(file.ok).to.eql(true);
-    const result = await fetchPair(Response.json({ msg: 'hello' }), new Response(file.data));
+    const result = await fetchResponses(Response.json({ msg: 'hello' }), new Response(file.data));
     expect(result.checksum).to.eql(f.buildRecord.selection.pins.private['dist.json']);
     expect(result.digest).not.to.eql(result.checksum);
   });
 
-  it('whitespace and UTF-8 BOM → hash and size use exact response bytes, not reserialized JSON', async () => {
+  it('whitespace and UTF-8 BOM → checksum uses exact bytes while size remains the Bundle total', async () => {
     for (const prefix of ['  \n', '\uFEFF']) {
       const bytes = new TextEncoder().encode(`${prefix}${Json.stringify(dist)}\n`);
-      const result = await fetchPair(Response.json({ msg: 'hello' }), new Response(bytes));
+      const result = await fetchResponses(Response.json({ msg: 'hello' }), new Response(bytes));
       expect(result.digest).to.eql(digest);
       expect(result.checksum).to.eql(Hash.sha256(bytes));
       expect(result.checksum).not.to.eql(Hash.sha256(Json.stringify(dist)));
-      expect(result.size).to.eql(bytes.byteLength);
-      expect(result.size).not.to.eql(new TextEncoder().encode(Json.stringify(dist)).byteLength);
+      expect(result.size).to.eql(bundleSize);
+      expect(result.size).not.to.eql(bytes.byteLength);
     }
   });
 
   it('API completes first → message updates while the manifest remains pending', async () => {
-    await using f = controlledPair();
-    await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.urls.length).to.eql(2));
+    await using f = controlledFetches();
+    await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.urls.length).to.eql(3));
     f.message.resolve(Response.json({ msg: 'hello' }));
     await Testing.retry(100, { silent: true, delay: 10 }, () => {
       expect(f.messages).to.eql(['hello']);
@@ -67,8 +76,8 @@ describe('R2 deployment sample: UI fetches', () => {
   });
 
   it('manifest completes first → digest updates while the API remains pending', async () => {
-    await using f = controlledPair();
-    await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.urls.length).to.eql(2));
+    await using f = controlledFetches();
+    await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.urls.length).to.eql(3));
     f.manifest.resolve(Response.json(dist));
     await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.digests).to.eql([digest]));
     expect(f.messages).to.eql([]);
@@ -81,8 +90,8 @@ describe('R2 deployment sample: UI fetches', () => {
   });
 
   it('message delivered → disposal suppresses a late manifest response', async () => {
-    await using f = controlledPair();
-    await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.urls.length).to.eql(2));
+    await using f = controlledFetches();
+    await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.urls.length).to.eql(3));
     f.message.resolve(Response.json({ msg: 'hello' }));
     await Testing.retry(100, { silent: true, delay: 10 }, () => {
       expect(f.messages).to.eql(['hello']);
@@ -117,21 +126,65 @@ describe('R2 deployment sample: UI fetches', () => {
       new Response(' '.repeat(65_537)),
     ];
     for (const response of responses) {
-      const result = await fetchPair(Response.json({ msg: 'hello' }), response);
+      const result = await fetchResponses(Response.json({ msg: 'hello' }), response);
       expect(result.message).to.eql('hello');
       expect(result.digest).to.eql('Could not load the private manifest.');
       expect(result.checksum).to.eql('Could not load the private manifest.');
-      expect(result.size).to.eql(undefined);
+      expect(result.size).to.eql(bundleSize);
     }
   });
 
+  it('invalid or failed bundle total → no fallback to manifest bytes or private build size', async () => {
+    const responses = [
+      new Response(null, { status: 404 }),
+      new Response('{broken'),
+      ...[undefined, null, '551353', -1, 1.5, Number.MAX_SAFE_INTEGER + 1].map(
+        (size) => Response.json({ size }),
+      ),
+    ];
+    for (const response of responses) {
+      const result = await fetchResponses(
+        Response.json({ msg: 'hello' }),
+        Response.json(dist),
+        response,
+      );
+      expect(result.size).to.eql(undefined);
+      expect(result.digest).to.eql(digest);
+      expect(result.message).to.eql('hello');
+    }
+    const empty = await fetchResponses(
+      Response.json({ msg: 'hello' }),
+      Response.json(dist),
+      Response.json({ size: 0 }),
+    );
+    expect(empty.size).to.eql(0);
+  });
+
   it('invalid API reply → message error without losing the Dist digest', async () => {
-    const result = await fetchPair(Response.json({ msg: 123 }), Response.json(dist));
+    const result = await fetchResponses(Response.json({ msg: 123 }), Response.json(dist));
     expect(result.message).to.eql('Could not load the message.');
     expect(result.digest).to.eql(digest);
   });
 
-  it('disposal → both requests abort without updating the view', async () => {
+  it('bundle completes first → size updates independently; disposal suppresses a late total', async () => {
+    for (const disposed of [false, true]) {
+      await using f = controlledFetches();
+      await Testing.retry(100, { silent: true, delay: 10 }, () => expect(f.urls.length).to.eql(3));
+      if (disposed) f.stop();
+      f.bundle.resolve(Response.json({ size: bundleSize }));
+      if (disposed) await Time.wait(0);
+      else {
+        await Testing.retry(100, { silent: true, delay: 10 }, () => {
+          expect(f.sizes).to.eql([bundleSize]);
+        });
+      }
+      expect(f.sizes).to.eql(disposed ? [] : [bundleSize]);
+      expect(f.digests).to.eql([]);
+      expect(f.messages).to.eql([]);
+    }
+  });
+
+  it('disposal → all requests abort without updating the view', async () => {
     const signals: AbortSignal[] = [];
     const updates: string[] = [];
     using _mock = WebFixture.Fetch.mock((input, init) => {
@@ -145,15 +198,16 @@ describe('R2 deployment sample: UI fetches', () => {
       ORIGIN,
       (value) => updates.push(value),
       (value) => updates.push(value),
+      (value) => updates.push(String(value)),
     );
     try {
       await Testing.retry(1_000, { silent: true, delay: 10 }, () => {
-        expect(signals.length).to.eql(2);
+        expect(signals.length).to.eql(3);
       });
       stop();
       // Allow the aborted request continuations to settle before checking for late updates.
       await Time.wait(0);
-      expect(signals.map((signal) => signal.aborted)).to.eql([true, true]);
+      expect(signals.map((signal) => signal.aborted)).to.eql([true, true, true]);
       expect(updates).to.eql([]);
     } finally {
       stop();
@@ -162,16 +216,21 @@ describe('R2 deployment sample: UI fetches', () => {
 });
 
 /** Exercise the real Fetch and Pkg helpers with immediate HTTP responses. */
-async function fetchPair(message: Response, manifest: Response) {
-  await using f = controlledPair();
+async function fetchResponses(
+  message: Response,
+  manifest: Response,
+  bundle = Response.json({ size: bundleSize }),
+) {
+  await using f = controlledFetches();
   f.message.resolve(message);
   f.manifest.resolve(manifest);
+  f.bundle.resolve(bundle);
   await Testing.retry(100, { silent: true, delay: 10 }, () => {
     expect(f.messages.length).to.eql(1);
     expect(f.digests.length).to.eql(1);
+    expect(f.sizes.length).to.eql(1);
   });
   expect(f.checksums.length).to.eql(1);
-  expect(f.sizes.length).to.eql(1);
   return {
     message: f.messages[0],
     digest: f.digests[0],
@@ -182,9 +241,10 @@ async function fetchPair(message: Response, manifest: Response) {
 }
 
 /** Hold responses until the test releases them, even after the request is aborted. */
-function controlledPair() {
+function controlledFetches() {
   const message = Promise.withResolvers<Response>();
   const manifest = Promise.withResolvers<Response>();
+  const bundle = Promise.withResolvers<Response>();
   const urls: string[] = [];
   const messages: string[] = [];
   const digests: string[] = [];
@@ -194,21 +254,23 @@ function controlledPair() {
     const req = new Request(input, init);
     urls.push(req.url);
     if (req.url === `${ORIGIN}/api/hello`) return message.promise;
+    if (req.url === `${ORIGIN}/api/bundle`) return bundle.promise;
     if (req.url === `${ORIGIN}/ui/dist.json`) return manifest.promise;
     throw new Error(`Unexpected fixture request: ${req.url}`);
   });
   const stop = startFetches(
     ORIGIN,
     (value) => messages.push(value),
-    (value, checksum, size?: number) => {
+    (value, checksum) => {
       digests.push(value);
       checksums.push(checksum);
-      sizes.push(size);
     },
+    (size) => sizes.push(size),
   );
   return {
     message,
     manifest,
+    bundle,
     urls,
     messages,
     digests,
@@ -221,6 +283,7 @@ function controlledPair() {
       // Release withheld responses, then let cancellation settle before restoring fetch.
       message.resolve(new Response(null, { status: 204 }));
       manifest.resolve(new Response(null, { status: 204 }));
+      bundle.resolve(new Response(null, { status: 204 }));
       await Time.wait(0);
     },
   };

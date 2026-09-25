@@ -4,13 +4,14 @@ import type { t } from './common.ts';
 /**
  * Construct HTTP routes around an already-admitted shell handler.
  */
-export function createApp({ shell }: t.AppOptions): t.HttpServer.App {
+export function createApp({ shell, bundleSize }: t.AppOptions): t.HttpServer.App {
   // Do not decode percent-encoded paths before routing or stripping the mount prefix.
   const app = new Hono({ getPath: (req) => new URL(req.url).pathname });
   app.use(responseHeaders);
   app.all('/', readOnly, redirectUi);
   app.all('/ui', readOnly, redirectUi);
   app.all('/api/hello', readOnly, hello);
+  app.all('/api/bundle', readOnly, (c) => c.json({ size: bundleSize }));
   app.all('/ui/*', readOnly);
   app.mount('/ui', shell);
   app.notFound((c) => c.body(null, 404));

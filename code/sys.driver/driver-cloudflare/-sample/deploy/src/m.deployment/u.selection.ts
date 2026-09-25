@@ -48,19 +48,24 @@ export function configFrom(input: unknown): t.Config {
   });
 }
 
-/** Capture configuration, named pins, and the matching recorded build base before IO. */
+/** Capture configuration, named pins, bundle size, and matching recorded build base before IO. */
 export function snapshotInputs(config: unknown, buildRecord: unknown): t.AppInputs {
   const capturedConfig = configFrom(config);
   try {
     if (
-      !hasKeys(buildRecord, ['selection', 'publicAssetBase']) ||
+      !hasKeys(buildRecord, ['selection', 'publicAssetBase', 'bundleSize']) ||
       Object.getPrototypeOf(buildRecord) !== Object.prototype ||
-      Reflect.ownKeys(buildRecord).length !== 2
+      Reflect.ownKeys(buildRecord).length !== 3
     ) throw new Error();
     const fields = Object.getOwnPropertyDescriptors(buildRecord);
     if (
-      !Obj.hasOwn(fields.selection, 'value') || !Obj.hasOwn(fields.publicAssetBase, 'value')
+      !Obj.hasOwn(fields.selection, 'value') || !Obj.hasOwn(fields.publicAssetBase, 'value') ||
+      !Obj.hasOwn(fields.bundleSize, 'value')
     ) throw new Error();
+    const bundleSize = fields.bundleSize.value;
+    if (!Is.num(bundleSize) || !Number.isSafeInteger(bundleSize) || bundleSize < 0) {
+      throw new Error();
+    }
     const publicAssetBase = fields.publicAssetBase.value;
     if (!isPublicBase(publicAssetBase) || publicAssetBase !== capturedConfig.publicAssetBase) {
       throw new Error();
@@ -70,7 +75,7 @@ export function snapshotInputs(config: unknown, buildRecord: unknown): t.AppInpu
     });
     return Object.freeze({
       config: capturedConfig,
-      buildRecord: Object.freeze({ publicAssetBase, selection }),
+      buildRecord: Object.freeze({ publicAssetBase, bundleSize, selection }),
     });
   } catch {
     throw new Error(

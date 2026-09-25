@@ -79,6 +79,9 @@ Then open:
 
 Restart `serve` after publishing a new build.
 
+The manifest caption shows the private distribution's digest and the full Bundle size reported by
+`deno task build`, not the size of `dist.json`.
+
 ## Public image
 
 [public/images/wax-seal.v1.png](public/images/wax-seal.v1.png) is the sample's transparent 200 × 200

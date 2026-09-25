@@ -30,7 +30,7 @@ export async function appFrom(
     signal,
   });
   if (shell.kind !== 'ready') throw bootstrapError(shell);
-  return createApp({ shell: shell.handler });
+  return createApp({ shell: shell.handler, bundleSize: buildRecord.bundleSize });
 }
 
 /** Translate only the constructor's closed refusal fields, never provider or callback causes. */

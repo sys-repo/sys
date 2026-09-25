@@ -23,6 +23,7 @@ export async function shellFixture() {
       config: base.config,
       buildRecord: {
         publicAssetBase: base.buildRecord.publicAssetBase,
+        bundleSize: base.buildRecord.bundleSize,
         selection: { pins: { ...base.buildRecord.selection.pins, private: pin } },
       },
     };

@@ -5,12 +5,13 @@ import { describe, expect, it, Json, Str, type t, Time, WebFixture } from '../-t
 import { App } from '../ui/ui.App.tsx';
 
 const ORIGIN = 'https://sample.test';
+const bundleSize = 551_353;
 const digest = `sha256-${'a'.repeat(64)}`;
 const dist: t.DistPkg = {
   type: 'https://jsr.io/@sample/r2',
   build: {
     time: 0,
-    size: { total: 551_000, pkg: 551_000 },
+    size: { total: 1_575, pkg: 0 },
     builder: '@sys/driver-vite',
     runtime: 'deno',
     hash: { policy: 'https://jsr.io/@sys/crypto' },
@@ -21,8 +22,9 @@ const dist: t.DistPkg = {
 describe('R2 deployment sample: UI rendering', () => {
   DomMock.init({ beforeEach, afterEach });
 
-  it('pending → loaded caption preserves path, file size, bullet separators, and digest order', async () => {
+  it('pending → caption orders path, private digest, then original Bundle total', async () => {
     const manifest = Promise.withResolvers<Response>();
+    const bundle = Promise.withResolvers<Response>();
     const bytes = new TextEncoder().encode(`\uFEFF${Json.stringify(dist)}\n`);
     using _mock = WebFixture.Fetch.mock((input, init) => {
       const req = new Request(input, init);
@@ -30,6 +32,7 @@ describe('R2 deployment sample: UI rendering', () => {
         return Promise.resolve(Response.json({ msg: 'hello' }));
       }
       if (req.url === `${ORIGIN}/ui/dist.json`) return manifest.promise;
+      if (req.url === `${ORIGIN}/api/bundle`) return bundle.promise;
       throw new Error(`Unexpected fixture request: ${req.url}`);
     });
     const res = await TestReact.render(<App origin={ORIGIN} />, { strict: false });
@@ -46,9 +49,16 @@ describe('R2 deployment sample: UI rendering', () => {
         await Time.wait(0);
       });
 
+      expect(caption?.textContent).to.eql('Private relay — /ui/dist.json • #aaaaa');
+      await TestReact.act(async () => {
+        bundle.resolve(Response.json({ size: bundleSize }));
+        await Time.wait(0);
+      });
       expect(caption?.textContent).to.eql(
-        `Private relay — /ui/dist.json • ${Str.bytes(bytes.byteLength)} • #aaaaa`,
+        `Private relay — /ui/dist.json • #aaaaa • ${Str.bytes(bundleSize)}`,
       );
+      expect(caption?.textContent).not.to.include(Str.bytes(bytes.byteLength));
+      expect(caption?.textContent).not.to.include(Str.bytes(dist.build.size.total));
       expect(caption?.querySelector('a')?.getAttribute('href')).to.eql('/ui/dist.json');
       expect(caption?.querySelector('code')?.textContent).to.eql('#aaaaa');
       expect(res.container.querySelector('tbody td a')?.getAttribute('title')).to.eql(digest);
@@ -57,17 +67,18 @@ describe('R2 deployment sample: UI rendering', () => {
     } finally {
       res.dispose();
       manifest.resolve(new Response(null, { status: 204 }));
+      bundle.resolve(new Response(null, { status: 204 }));
       await Time.wait(0);
     }
   });
 
-  it('failed manifest → caption has no size, digest, or dangling separator', async () => {
+  it('failed manifest and bundle → caption has no size, digest, or dangling separator', async () => {
     using _mock = WebFixture.Fetch.mock((input, init) => {
       const req = new Request(input, init);
       if (req.url === `${ORIGIN}/api/hello`) {
         return Promise.resolve(Response.json({ msg: 'hello' }));
       }
-      if (req.url === `${ORIGIN}/ui/dist.json`) {
+      if (req.url === `${ORIGIN}/ui/dist.json` || req.url === `${ORIGIN}/api/bundle`) {
         return Promise.resolve(new Response(null, { status: 404 }));
       }
       throw new Error(`Unexpected fixture request: ${req.url}`);

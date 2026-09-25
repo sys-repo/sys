@@ -1,6 +1,6 @@
 import { buildSample } from '../task.build.ts';
 import { readInputs, selectPublication } from '../../src/m.deployment/mod.ts';
-import { describe, expect, expectError, Fs, Hash, it, ROOT } from './common.ts';
+import { describe, expect, expectError, Fs, Hash, it, ROOT, type t } from './common.ts';
 import { localFixture } from './u.fixture.ts';
 
 describe('R2 deployment sample: one-build publication projections', () => {
@@ -26,7 +26,11 @@ describe('R2 deployment sample: one-build publication projections', () => {
     expect((await readInputs(f.dir.absolute)).buildRecord).to.eql(buildRecord);
     expect((await Fs.readJson(f.dir.join('dist.pins.json'))).data).to.eql(buildRecord);
     expect(await Fs.exists(f.dir.join('dist.selection.json'))).to.eql(false);
-    expect(Object.keys(buildRecord)).to.eql(['publicAssetBase', 'selection']);
+    const source = (await Fs.readJson<t.DistPkg>(f.dir.join('dist/dist.json'))).data!;
+    const privateDist = (await Fs.readJson<t.DistPkg>(f.dir.join('dist.private/dist.json'))).data!;
+    expect(source.build.size.total).not.to.eql(privateDist.build.size.total);
+    expect(buildRecord).to.include({ bundleSize: source.build.size.total });
+    expect(Object.keys(buildRecord)).to.eql(['publicAssetBase', 'bundleSize', 'selection']);
     expect(Object.keys(buildRecord.selection)).to.eql(['pins']);
   });
 
