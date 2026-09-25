@@ -1,3 +1,4 @@
+@sys.driver-cloudflare
 r2-web-exposure.plan.md
 - [x] 07a0a8028 chore(tmpl:pkg): scaffold @sys/web package
 - [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
@@ -26,101 +27,112 @@ r2-web-exposure.plan.md
 - [x] 0169c2c20 feat(pkg): add canonical Dist pin contracts
 - [x] 73c59650d refactor(driver-cloudflare): bootstrap sample routes from a pinned manifest
 - [x] e210dc608 test(driver-cloudflare): verify local R2 application delivery
+- [x] [r2-delivery-extraction.plan.md](r2-delivery-extraction.plan.md)
+- [ ] fix(driver-cloudflare): align the R2 sample with the Deno entry contract
+- [ ] feat(driver-deno): prepare explicit mixed-delivery deployment artifacts
 - [ ] GATE owner authorizes the first R2-backed app hostname and bounded deployment/exposure operations
 - [ ] test(driver-cloudflare): verify hosted R2 application delivery
 
-## Reconciliation boundary
+## Purpose and reconciliation boundary
 
-Reconciled against reachable history through `73c59650d`. The opening arc records the sample changes
-and supporting export, CLI, HTTP, and publisher commits with their exact landed subjects and hashes;
-unrelated workspace changes are outside this arc. Publication/readback evidence below remains bound
-to its historical candidate, independently of later source commits. Plan edits grant no live-operation
-or Git-mutation authority; the owner's explicit approvals are recorded below.
+Own the first hosted mixed-delivery sample: native Deno Deploy production execution, then
+`https://db.team` through Cloudflare, with public assets at `https://cdn.db.team`. Keep the existing
+application and library owners. No competing roadmap, new application copy, or proxy runtime.
+Read the active architecture and two preparation items first; then [rollout](#rollout-order),
+[security/cache](#security-and-cache-contract), and [acceptance](#acceptance-evidence). The long
+middle section is retained historical proof, not another execution sequence.
 
-The working sample is **build → push → serve**. After the manifest-identity correction, the
-existing push wrote one file and skipped three; all four selected files then matched independently
-retained local bytes and SHA-256 hashes through the real application. The 14-request HTTP probe
-also passed API, redirects, HEAD metadata, MIME, cache, encoding/length, and unselected-path checks.
-The original manifest mismatch was resolved for that four-file candidate without rebuilding or
-repinning it. Its manifest pin was
-`sha256-11b1ce74a71fa46fc4516456218f97ae6b249c59f05856f4833407ce0091ac93`.
-This is historical delivery evidence, not proof of a replacement selection or the later UI source.
-Any replacement candidate needs explicit confirmation and its own delivery evidence; neither a
-contract refactor nor a source commit transfers the old proof. The failure history remains below
-rather than being overwritten by the passing run.
+Phil requested this plan reconciliation after the local sample and extracted components landed,
+and proposed `cdn.db.team` instead of `assets.db.team`. This selects the planned public delivery
+hostname, not its bucket binding or any remote mutation. `db.team` is canonical; no `www` or further
+subdomains. No source, credential, build artifact, DNS, bucket, or deployment change is authorized
+by this plan edit.
 
-The latest candidate is
-`sha256-4301a43c82c53788da07677e68db086a16bece153162b3a58e10e9a2fbebbf8d`.
-After the owner disabled public access and republished it under the driver-owned prefix, the agent
-verified all six files through signed R2 delivery: 18 application requests, one bootstrap attempt,
-and a 14-storage-read ceiling. The owner-provided Settings view showed no custom domains and the
-Public Development URL disabled; the post-publication Objects view also showed Public Access disabled.
-Owner-observed rendering of this same build is separate from that automated HTTP run and predates
-the prefix/privacy change. No screenshots are stored with this plan. Hosted execution and owned
-HTTPS exposure remain separately gated; commit checkboxes record landing, not proof execution.
+Reconciliation inspected reachable history at `1c6941f50` and live sample/deployment source. The
+opening arc preserves the original landed items and adds the completed extraction prerequisite
+plus two bounded preparation items before the existing live-operation gate. Completed extraction
+items remain solely in their own arc; this plan does not wait for the public-delivery plan's
+unfinished service worker.
+
+Current consumer context, not additional work to repeat:
+
+- `3c8f9c38e` introduced public Vite assets with private shell delivery; the mixed-delivery plan
+  owns that landing and its proof record.
+- The extraction prerequisite owns reusable Dist, Vite, R2, Deploy, and HTTP mechanisms and their
+  immediate adoption. Its evidence is candidate-bound, not hosted proof.
+- `be4edd54c` shares `SampleService` between local direct and Cell startup; `c25e7ed06` adds clean;
+  `c4ecc15e8` shares walkthrough handoffs. Inspected changes remain local service/task concerns,
+  not a Deno Deploy adapter, hosted configuration, or refreshed provider proof.
+- Phil's current `serve` output establishes reported local startup with a private-shell digest
+  display. That abbreviated content digest is not a full manifest pin or hosted delivery receipt.
+
+The original four-/six-file single-origin receipts remain below as historical evidence, including
+the failed manifest attempts and later successful readback. They must not supply current pins,
+bucket choices, budgets, or instructions for the mixed release. No tests or live application/provider
+requests were run in this reconciliation; public documentation was consulted separately.
 
 ## Owner-selected application prefix
 
-Use `sys-test/tmp.sys.driver-cloudflare/r2-proof-ui` for the application sample. Account, bucket,
-credential references, and Deno network grants are unchanged. The owner manually retired
-`tmp.sys.tools/` (including both old proof prefixes), then cleared and republished the new sample
-prefix without rebuilding. Earlier receipts remain historical observations, not claims of retained
-old remote objects. The private-target readback below covers the new location.
+The old private-only receipt used `sys-test/tmp.sys.driver-cloudflare/r2-proof-ui`; the owner later
+retired earlier `tmp.sys.tools/` proof prefixes. Do not restore those objects or use that old target.
+
+Live `r2.config.json` now selects account `1e6ec0395407e49eef7ee54f667d61de`, buckets
+`sys-test-private` and `sys-test-public`, each at `tmp.sys.driver-cloudflare/r2-proof-ui`, with a
+public `r2.dev` base. These are development configuration facts, not approval for production reuse.
+Phil must confirm the hosted buckets/prefixes and that the `db.team` zone and selected public bucket
+are in the same Cloudflare account. No new bucket or prefix is invented here. The final
+`https://cdn.db.team/` base must include the exact confirmed public key prefix and trailing slash.
 
 ## Selected architecture
 
-The non-release application sample lives at
-`code/sys.driver/driver-cloudflare/-sample/deploy`, owned by `@sys/driver-cloudflare`, using existing
-`@sys` primitives. It is a private nested application member of the existing workspace, not a
-published driver library, sibling package, or root `deploy/` application. Its
-`@sys/driver-vite` production build becomes a `dist/` artifact stored in R2; a Deno
-application serves those bytes under `/ui/` and answers one small JSON request under `/api/hello`.
-The UI calls that API and renders its reply. The intended proof covers static bundle delivery and
-Deno request handling on one origin, not a product router, identity system, or transparent reverse
-proxy.
+The application remains the private workspace member at
+`code/sys.driver/driver-cloudflare/-sample/deploy`. It is not a new root `deploy/` app or published
+driver export. R2 is already a required dependency of this selected sample; do not add another
+persistence service.
 
 ```text
-@sys/driver-vite → dist/ → separately authorized existing upload → private R2
-                                                                    ↑ reads
-browser → owned HTTPS hostname → Cloudflare edge → Deno HttpServer/Hono
-                                                  ├─ /ui/ → R2.ReadRoute
-                                                  └─ /api/hello
-                                                     → { "msg": "👋 hello world!" }
+one Vite build → verified Dist projections + dist.pins.json
+                 ├─ dist.private/ → private R2: index.html + dist.json
+                 └─ dist.public/  → public R2: JS/CSS/assets + dist.json
+
+browser → https://db.team → Cloudflare → HTTPS → Deno Deploy
+                                                ├─ /api/hello → JSON
+                                                └─ /ui/ + /ui/dist.json
+                                                     → signed private R2 reads
+
+browser → https://cdn.db.team/<confirmed-prefix>/<public-file>
+          → Cloudflare security/cache → public R2
 ```
 
-The diagram's owned HTTPS hostname and Cloudflare edge are the future exposure target, not the
-current local runtime. Today the listener is `127.0.0.1:8080`. The same application is tested with
-storage fixtures and used locally by the owner; hosted delivery is a separate next boundary.
-Private origin storage remains the intended posture, not a verified property of `sys-test`.
-Application access is explicitly anonymous over only the selected build files. No sign-in or
-entitlement proof belongs to this sample. Browser requests never receive storage credentials or
-presigned URLs.
+This is the production target, not a claim that either binding exists. Use current Deno Deploy at
+`console.deno.com`, not Deploy Classic. The local listener remains `127.0.0.1:8080`; its dotenv,
+terminal presentation, and Cell lifecycle are not hosted runtime configuration.
 
-Deno is the current local runtime; Deno Deploy is the initially selected future hosting target.
-Keep the Web handler separate from listener startup and runtime secret lookup. The unused sample
-`stage` task, its script, and its README instructions were deliberately removed; do not restore
-staging as a step in the local workflow. Existing driver deployment capabilities remain available
-when hosted work is explicitly selected. Cloudflare Workers, browser workers, and adapter
-registries are not implementation requirements. Their possible future use must not dictate this
-sample's shape.
+Preserve `appFrom` as the shared bootstrap: captured package configuration and pins, runtime secret
+lookup, `R2.ReadRoute.fromDist` admission, then HTTP application construction. Missing or mismatched
+private manifests refuse the whole application before serving. The private manifest pins admission
+and routes, not every later payload read. No public-only, local-static, unpinned, or signed-browser-URL
+fallback. Application access stays explicitly anonymous; private storage is not a login boundary.
+
+Keep HTML, API, and private-manifest requests at the application origin. Public JS/CSS/assets must
+arrive directly from the CDN origin, without Deno proxying or an HTTP redirect hop. A failed public
+bundle leaves the static HTML notice; it must not activate a Deno asset fallback. No Cloudflare
+Worker or service worker is required for first hosting.
 
 ### Vite URL closure
 
-Use the small React example shape in `code/sys.driver/driver-vite/src/-test/vite.sample-1`, with
-only the API call and rendering of its returned message added. Give the sample its own source;
-do not depend on another package's excluded test directory at runtime. Build with the normal
-`@sys/driver-vite` pipeline, not raw Vite output or the development/HMR server.
+Use the existing Vite build, audience policy, Dist projections, and shared pins. Capture the exact
+public base before build; emit final absolute CDN URLs in the HTML/module graph. Changing from
+`r2.dev` to `cdn.db.team` selects a new candidate: rebuild, retain both new pins, publish and prove
+that candidate. Never rewrite selected HTML, relabel old pins, or infer expectations from storage.
 
-`code/sys.driver/driver-vite/src/common/u.paths.ts` defaults to `base: './'`.
-`src/m.vite.config/u/u.app.ts` emits `pkg/-entry.[hash].js`, `pkg/m.[hash].js`,
-`pkg/a.[hash].[ext]`, and optional `sw.js`. Serve the actual selected build's relative URL graph
-unchanged beneath `/ui/`; redirect `/ui` to `/ui/` so HTML-relative URLs resolve there. The API
-call uses the same-origin absolute path `/api/hello`, not a path relative to the UI directory.
-
-The build determines the admitted filenames; do not hand-maintain hashed names, assume `pkg/` is
-the whole artifact, discover keys by listing R2, or add SPA fallback HTML. Missing files remain
-missing. Exercise every resource the selected example actually loads. Do not add lazy chunks,
-CSS/assets, or workers solely to enlarge the demonstration; absent features are not proved by it.
+Keep `/` and `/ui` redirects to `/ui/`, same-origin `/api/hello` and `/ui/dist.json`, and exact
+private route admission. The build determines public filenames; do not assume `pkg/` is the entire
+inventory or discover expectations by listing R2. Exercise the emitted imports, preloads, CSS,
+fonts, and images actually used. Verify CDN CORS/MIME and decoded bytes. CORS is not authentication;
+server-side private R2 reads need no bucket CORS. Missing paths remain missing, never SPA fallback.
+The service-worker follow-up remains in the public-delivery plan and cannot silently alter this
+candidate's inventory or cache policy.
 
 ### Retained capability and cost boundaries
 
@@ -157,23 +169,22 @@ perimeter or protection that was never configured. Never weaken an existing secu
 proof succeed.
 
 Private origin storage and caller authorization are separate. This sample deliberately permits
-anonymous reads of its admitted UI objects without requiring a public bucket. The sample does not
-configure or attest bucket privacy. Retain the read handler's explicit authorization callback;
-it returns `true` for this fixed selection. Do not add
-identity integration. Storage credentials are not browser credentials, Files policy is not caller
-authentication, and anonymity does not grant arbitrary bucket reads.
+anonymous reads of its admitted private shell and manifest; its separate public bucket contains
+only intentionally public assets. Retain `authorize: () => true` as explicit sample policy, not a
+primitive default or confidentiality claim. Bucket exposure requires provider/owner evidence.
+Storage credentials are not browser credentials, Files policy is not caller authentication, and
+anonymity does not grant arbitrary bucket reads.
 
 ## Revision and retained evidence
 
-This revision replaces the pending direct-R2 custom-domain journey with the selected Deno-hosted
-application journey. Direct public R2 hosting is outside the selected private-origin design. An
-explicitly anonymous application route still reads a private bucket; it does not require making that
-bucket public. The broader exposure vocabulary in the earlier plan at `8f2826881` is historical
-context, not a reason to restore its entire model/verify/plan/apply programme.
+The earlier single-origin design led to the bounded private read route and local proof. The landed
+mixed-delivery sample now supersedes that topology: private shell/API through Deno, public assets
+direct from R2 through a Cloudflare custom domain. Preserve the earlier work as evidence, not an
+instruction to relay all assets or prohibit a public asset binding. The broader exposure vocabulary
+at `8f2826881` remains historical; do not restore its model/verify/plan/apply programme.
 
-The selected sample is now the minimal Vite UI plus JSON API described above. This narrows the
-remaining composition and local/hosted proofs: no independent-download route, sign-in proof, or
-mandatory worker/lazy-loading showcase. It does not reopen or remove the landed driver capabilities.
+The selected sample remains one Vite UI plus JSON API. No independent-download route, sign-in proof,
+or mandatory worker/lazy-loading showcase is added. No landed library capability is reopened.
 
 Preserve the completed foundation:
 
@@ -190,22 +201,22 @@ Preserve the completed foundation:
   execution policy remain unchanged. This non-release application proof does not complete Pi's
   product release.
 
-The storage proof does not establish that `sys-test` is a private production origin. Its recorded
-`r2.dev` locations are unverified hints, not the selected application route. Before claiming
-private-origin proof, resolve the actual bucket's configuration through owner evidence. If another bucket
-or copied artifact is required, name and authorize that operation; do not silently move, republish,
-or make stored objects public.
+The storage proof does not establish either current bucket's production configuration. The completed
+`r2-files-delivery.plan.md` snapshot is retained at `0687bc053` and was removed by `67466fed9`;
+preserve its checked relative reference for recovery. The actual hosted buckets, exposure, and
+credential roles require current owner evidence. Replacement, copy, publication, or public access
+is never implied by a historical receipt.
 
 Dependency direction:
 
 ```text
-completed upload/readback evidence
-→ native presigned-read capability and bounded inline read routes
-→ thin Deno application composition with fixture tests and owner-observed local browser use
-→ separately authorized upload and retained-build byte readback through the application
-→ authorized hosted packaging/execution and owned HTTPS configuration
-→ complete selected-object delivery proof
-→ independently gated Pi/product adoption
+completed storage/private-route foundation
+→ landed mixed-delivery sample + completed reusable-owner extraction
+→ hosted entry compatibility + explicit candidate packaging/publication workflow
+→ owner-authorized native Deno proof
+→ CDN binding + final-base candidate proof
+→ db.team TLS/proxy/security configuration + mixed-delivery acceptance
+→ independent product adoption; service-worker work remains separately owned
 ```
 
 ## Existing primitives and ownership
@@ -214,10 +225,9 @@ completed upload/readback evidence
   storage transport. The R2-backed route integration belongs with that owner; the application
   supplies route selection and caller-authorization policy. Do not put an identity system or product
   router inside the storage driver.
-- `@sys/http/server` supplies `HttpServer`, the existing Hono application wrapper. Use it for
-  application routes and `HttpServer.start` for owned local listener lifecycle. Construct a bare
-  `new HttpServer.Hono({ getPath: (req) => new URL(req.url).pathname })`, install explicit routes,
-  and mount the R2 handler. No filesystem static middleware, CORS middleware, or `HttpProxy` is used.
+- `src/m.app/u.http.ts` composes Hono with literal URL paths and explicit routes; `m.app/u.routes.ts`
+  maps only the private inventory. `@sys/http/server` owns local listener settlement. Preserve these
+  existing owners, not a new filesystem-static host, transparent proxy, or routing framework.
 - `@sys/server` owns verified Dist hosting with a deliberate loopback boundary. Do not widen or
   route around that boundary. This application neither uses that host nor needs a new server
   primitive; `HttpServer` plus `R2.ReadRoute` supplies the selected serving composition.
@@ -226,10 +236,9 @@ completed upload/readback evidence
   `deploy/sample.proxy/src/entry.ts` demonstrates application composition through this entry seam;
   it is a reference, not a production R2 app or a command to redeploy that sample.
 - `code/sys.driver/driver-cloudflare/-sample/deploy` owns the sample's UI/API paths, explicit
-  anonymous policy, configured bucket/key mapping, limits, and response policy. Use the same sample
-  entry locally and in deployment. Keep sample routes out of the reusable R2 and Deno driver APIs;
-  register the nested private application in the existing root workspace, without adding a root
-  `deploy/` application or a sample subpath to the driver's public exports.
+  anonymous policy, configured bucket/key mapping, limits, and response policy. Share `appFrom`
+  between local and hosted adapters. The nested application is already registered in the workspace;
+  do not add a root `deploy/` application or sample routes/exports to reusable driver APIs.
 - `@sys/tools` remains the existing upload/operator-workflow consumer, not a Cloudflare control
   plane or application authorization owner.
 - `@sys/web` retains its scaffold. A provider-neutral exposure model is not mandatory for this
@@ -238,60 +247,131 @@ completed upload/readback evidence
 The security audit at `-agent/-plan/@sys.security/audit.plan.md` is an input for relevant selected
 HTTP/proxy boundaries, not proof of current source and not a prerequisite to fix unrelated systems.
 
-## Working-file set and consolidation boundary
+## Plan ownership and recovery
 
-This plan is the single live design/composition and first-exposure anchor. The R2 → Deno → Pi journey
-has four governing/evidence plans: this file and the three immediately below. Work top-down through
-unchecked arc items; completed storage and enumeration are retained evidence, not work to repeat.
-Standing references and the overview are separated below from active work. This inventory covers the
-selected journey and retired Deno notes, not the repository-wide backlog.
+Keep the three existing plan identities; their boundaries are independently useful:
 
-- [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md): completed upload/readback
-  evidence and artifact handoff. Preserve its completed arc and exact proof; do not merge it into
-  application hosting or treat its old live-operation approval as reusable permission.
-- [r2-files-enumeration-bounds.plan.md](r2-files-enumeration-bounds.plan.md): completed driver
-  enumeration safety. Keep it independent; exact-key HTTP reads do not consume a Files index.
-- [start-ui-release-evidence.plan.md](../@sys.driver-pi/start-ui-release-evidence.plan.md):
-  downstream product release, retained manifest/package authority, public/browser proof, and
-  cold/warm acquisition. Keep separate; sample delivery does not complete product acceptance.
+- This file owns hosted preparation, first deployment, `db.team` ingress, `cdn.db.team` delivery,
+  and the sole hosted acceptance record.
+- [r2-public-delivery.plan.md](r2-public-delivery.plan.md) owns the landed mixed-delivery contract,
+  local/provider/browser evidence, credential closeout, and its unfinished service-worker follow-up.
+  This plan consumes its existing source, not completion of its entire arc.
+- [r2-delivery-extraction.plan.md](r2-delivery-extraction.plan.md) is the completed owner-contract
+  and extraction record. Both consumers retain checked references through later archival; record a
+  final committed snapshot before removal. Neither consumer is a prerequisite of extraction.
 
-Supporting references:
+The source commits are reachable; the public-delivery and extraction plan files are untracked at
+this reconciliation. Do not confuse source landing with a committed plan snapshot. This edit
+preserves all three plans and migrates their identity headers; it neither commits nor archives them.
 
-- [Package README](../../../code/sys.driver/driver-deno/README.md#deployment-contract): the enduring
-  deployment/entry contract, current CLI ownership, and proof limits. Reference documentation, not an
-  active-work ledger. This plan retains selected-object readback and future hosted proof obligations;
-  external packaging/entry proof belongs to hosted work, not an extra sample task.
-- [start-ui.design.md](../@sys.driver-pi/start-ui.design.md): completed Pi runtime/design reference,
-  already a checked prerequisite of the release plan; no additional pending journey here.
-- `-agent/-plan.buffer.md`: convenience projection, not another ledger. It was not reconciled by
-  this single-file update; consult this opening arc rather than assuming that projection is current.
+The checked archived storage reference remains recoverable through `0687bc053` / `67466fed9`.
+Enumeration's completed record was archived by `3b1f8c758`; exact-key serving is not another
+whole-bucket enumeration project. Pi's
+[start-ui-release-evidence.plan.md](../@sys.driver-pi/start-ui-release-evidence.plan.md) remains an
+independent product boundary, not a hosting prerequisite. The buffer and unrelated plans are not
+changed by this reconciliation. Withdrawn generation/CAS publication work is not revived.
 
-Other related plans are inputs or independent maintenance, not omitted journey prerequisites:
+The Deno [deployment contract](../../../code/sys.driver/driver-deno/README.md#deployment-contract)
+and live implementation constrain the next work. Historic source-local planning notes, old preview
+successes, and generic security audits do not prove this target or authorize a broader campaign.
 
-- [transport-fidelity-hardening.plan.md](../@sys.model.files/transport-fidelity-hardening.plan.md):
-  separate unresolved Files/Cmd wire, binary-read, watch, and remote-error work. This HTTP journey
-  uses the bucket capability, not remote Files/Cmd, so those tasks are not prerequisites.
-- [audit.plan.md](../@sys.security/audit.plan.md) and
-  [deno-audit-remediation.plan.md](../@sys.security/deno-audit-remediation.plan.md): independent
-  first-party/security maintenance inputs. Recheck a finding only when it reaches the selected
-  deployed graph; do not inherit their verdicts or import all remediation as this plan's scope.
-- [proof-fidelity.plan.md](../@sys/proof-fidelity.plan.md): historical exposure-plan naming repair
-  and independent proof maintenance. Its old five-item exposure arc is not a competing current
-  architecture. Its external Vite proof obligation remains with that owner.
-- `r2-dist-generation-publication.plan.md` is withdrawn and absent from the live tree; its prior
-  tracked snapshot is recoverable at `0f16065f4`. Absence is not completion. Do not restore it as an
-  active prerequisite or create a replacement publication roadmap.
+## `fix(driver-cloudflare): align the R2 sample with the Deno entry contract`
 
-The three source-local Deno planning notes are retired, not relocated wholesale. Package-closure
-pruning is anchored by `22efdb1aa`, with deployment-contract consolidation at `83ae0d4d3` and
-`849176888`. The obsolete whole-workspace/missing-snapshot prescription is not an outstanding
-sample task. App-specific external-entry parity belongs to future hosted proof, not the local
-build → push → serve workflow. API-backed logs without a demonstrated need, shared URL helpers,
-a Tools Deno provider, and app deletion are not carried forward as requirements. Historical
-deployment claims do not prove this selected app or a current host.
+Observed seam: sample `src/-entry.ts` exports `main`, while
+`code/sys.driver/driver-deno/src/m.cloud/m.DenoEntry/u.path.ts` selects only `src/entry.ts`. Its
+absence invokes the static Dist fallback. The current sample bootstrap tests call `appFrom`, not
+the actual Deno entry resolver, so their passing history does not cover this seam.
 
-Preserve distinct completion/recovery anchors. Legacy shape issues in independent maintenance notes
-do not authorize a blanket plan rewrite here.
+Scope:
+
+- Align the sample's single hosted adapter with the existing `DenoEntry.Main` contract. Prefer
+  the established `src/entry.ts` convention over a configurable discovery API or changing every
+  Deno consumer. Preserve shared `appFrom`; do not copy bootstrap into a second application.
+- Keep process-environment lookup for hosting distinct from local dotenv/Cell startup. Do not point
+  Deploy at the loopback `serve` task or include its CLI UI as the production lifecycle.
+- Prove the real `DenoEntry.serve` path with the sample composition and fixture storage. Missing
+  credentials/configuration/build record, wrong pins, and refused storage must reject application
+  startup; no static fallback may masquerade as success. An admitted fixture must expose the API
+  and private shell, and refuse public-asset relay paths even when full local Dist bytes exist.
+- Preserve static fallback for its existing unrelated consumers. Tests target this sample's explicit
+  entry and fail-closed behavior, not a blanket driver redesign.
+
+Use red → green coverage at the narrowest sample/entry seam, then owning checks. No retained UI
+rebuild, repin, live R2 read, upload, deployment, or provider operation belongs to this item.
+
+## `feat(driver-deno): prepare explicit mixed-delivery deployment artifacts`
+
+Own the reusable deployment-artifact boundary in `@sys/driver-deno`, with immediate thin sample
+adoption and an operator runbook. Keep R2 audience policy, resource selection, and publication in
+existing sample/Deploy owners. This is not a general release coordinator or new uploader.
+
+Source-derived gaps to close:
+
+1. `m.stage/u.executeStage.ts` runs the target build before copying. Sample `task.build.ts` removes
+   earlier outputs and records and generates two new pins. Preparation is therefore candidate
+   creation, not pass-through of the already-proven local release.
+2. `m.stage/u.materializeWorkspace.ts` copies a retained closure and excludes `.env`; the sample's
+   `.gitignore` excludes `dist.pins.json` and all Dist roots. Presence in a local stage does not
+   prove inclusion by the native uploader. Inspect the actual supported upload selection and prove
+   required non-secret files reach the runtime without uploading dotenv/credentials or unrelated
+   workspace material. Do not solve this by committing generated pins or disabling ignore/security
+   boundaries wholesale.
+3. `m.pipeline/u.prepare.ts` removes root workspace membership, writes flat
+   `deploy.entrypoint`/`deploy.cwd`, and adds inclusion rules only for the full `dist/` root.
+   Current provider docs describe `deploy.runtime` configuration. Verify the actual native CLI and
+   provider contract before changing this owner; neither the README nor old pipeline success proves
+   current runtime configuration, dependency closure, or mixed-record inclusion.
+4. `m.pipeline/m.execute.ts` stages/prepares/deploys without an intervening R2 publication boundary.
+   Do not run it over a selected/published candidate. Reuse separate existing stage/deploy surfaces;
+   expose only a proven missing preparation capability if public composition cannot express the
+   required sequence. Avoid a duplicated sample-local packager or private deep imports.
+5. Local `serve` selects `--unstable-no-legacy-abort`; the hosted runtime does not accept custom
+   runtime flags. Establish its actual runtime version, generated-entry execution mode, startup,
+   abort/disposal behavior, and required dependency compatibility. Do not infer parity from local
+   flags or weaken cancellation/permission/integrity checks to get a successful boot.
+
+Required lifecycle, with each remote action separately authorized:
+
+```text
+confirm targets/base/configuration
+→ stage/build once through existing owners
+→ finish runtime/upload configuration and verify retained dependency/data closure
+→ capture both pins, expected bytes, final asset base, source identity, and staged app
+→ publish public projection, then private projection, from that same retained candidate
+→ verify selected remote delivery against independent retained expectations
+→ deploy the same prepared app/configuration/pins without another build
+→ prove native runtime, then final custom-domain paths
+```
+
+No second frontend build may run in the remote builder. Pin metadata may include build time; this
+plan promises one retained candidate through the workflow, not bit-identical independent rebuilds.
+Final runtime packaging must include configuration and `dist.pins.json` even though startup does not
+need local Dist bodies. Public/private projections remain the publication and proof authority,
+not an alternative runtime static host. Inspect dependency resolution outside the development
+workspace, including any preparation rewrite and import cache behavior; no fallback to source-tree
+paths. Unrelated closure optimization is not an acceptance criterion.
+
+Verification:
+
+- Prove required-file inclusion and secret exclusion with synthetic data, not real `.env` contents.
+- Exercise the actual generated external entry with fixture storage and no development-workspace
+  dependency. A file inventory or typecheck alone is insufficient.
+- Prove no hidden rebuild between candidate capture, the two publications, and deployment; mismatched
+  bases/pins and changed staged inputs stop before remote work. Retained-file checks are not locks
+  or atomic publication; keep competing writers and local build/clean tasks out of the operation.
+- Keep local preparation credential-free; do not require real Deno or R2 secrets to test packaging.
+  Hosted runtime tests and candidate delivery are evidence in the later live-proof item, not facts
+  established by these fixtures. Missing provider compatibility evidence remains an explicit stop.
+- Use existing module tasks after inspecting their permissions/help. Any new task must be narrowly
+  scoped and non-interactive where invoked by automation; no live push/deploy in ordinary tests.
+
+## Historical foundation and local proof record
+
+The following completed design/proof sections retain their original candidate, filenames, and
+operations. Their old `artifact.json`/`dist.pin.json`, all-assets-through-Deno topology, targets,
+commands, and authorization budgets are historical, not the current runbook. Active mixed delivery
+and the preparation items above supersede them. No work or live authority is recreated by retaining
+these receipts. The current hosted gate and acceptance contract resume after this record.
 
 ## `feat(driver-cloudflare): expose presigned object reads`
 
@@ -1050,10 +1130,10 @@ retained-candidate build, repin, publication, live R2 read, or application liste
 
 ## `test(driver-cloudflare): verify local R2 application delivery`
 
-The manifest-skip defect was identified and corrected. Earlier receipts remain historical evidence;
-the latest owner-selected candidate has both the manual rendering observation and separate all-file
-HTTP proof below. Neither transfers to a later candidate or lifecycle. Owner/provider evidence of
-bucket privacy remains missing; do not infer it from signed reads or claim this local item complete.
+The manifest-skip defect was identified and corrected. The historical owner-selected candidate has
+both manual rendering observation and separate all-file HTTP proof below; later private-target
+verification records the owner's privacy evidence. This item landed as recorded in the opening
+arc. None of those receipts transfers to a later candidate, current bucket, or hosted lifecycle.
 
 ### Authorized six-file bootstrap-inclusive HTTP proof
 
@@ -1207,74 +1287,164 @@ selected build, not hosted runtime, public DNS/TLS, or Cloudflare edge behavior.
 
 ## GATE owner authorizes the first R2-backed app hostname and bounded deployment/exposure operations
 
-Resolver: the human controlling the selected hostname, Cloudflare account/R2 bucket, Deno hosting
-application, and served data. The human has selected the architecture and authorized this plan
-revision, not live deployment or provider configuration changes. This gate controls hosted setup and
-observations for `test(driver-cloudflare): verify hosted R2 application delivery`. It is separate
-from the local live-R2 read authorization above. The local sample's implementation authority is
-not deployment or provider-mutation authority.
+Resolver: Phil, as owner of the hostname, Cloudflare resources, Deno application, and served data.
+This is a finite authorization decision for the remote rollout and observations required by
+`test(driver-cloudflare): verify hosted R2 application delivery`, not a review/test completion gate.
+The local preparation items do not require it; any live operation does. The old local-read grant
+above is consumed historical authority, not permission for this run.
 
-Pass evidence names the exact hostname, Deno app/deployment, private R2 origin, retained Vite
-artifact and admitted object set, anonymous `/ui/` and `/api/hello` behavior, selected edge/TLS/cache
-controls, serving credential references and permitted access, retention policy, and finite
-request/byte/retry bounds. Identify each approved setup mutation and target, or select
-verification-only against existing configuration. This may include deployment, Deno hostname binding,
-Cloudflare DNS/proxy/TLS settings, or bucket access configuration; none is implicitly authorized by
-the diagram. The hosting owner also records the
-selected host plan/operational controls and acceptance of residual aggregate traffic and cost; local
-limits alone do not establish a spending cap.
+Selected planning facts: `db.team` is canonical; `cdn.db.team` is the public asset hostname;
+Cloudflare is public ingress, current Deno Deploy is compute, and R2 is storage. Production mail
+(ImprovMX inbound, Resend outbound, DMARC policy/reporting) is immutable. The handoff reports
+`donna.ns.cloudflare.com` and `ruben.ns.cloudflare.com`; no live DNS verification is claimed.
 
-Manual provider setup is acceptable when the intended configuration and verification are repeatable
-and documented. Verify the current provider-specific custom-domain and secret-delivery mechanics
-before giving runnable instructions. Existing historical deployment evidence is not current account
-configuration proof. Do not invent an automated apply layer just to pass this gate.
+Before checking this gate, record Phil's explicit decision and the approved scope:
 
-Missing selections or authority leave the gate unchecked. Never purchase/delegate domains, create
-credentials, deploy code, change provider settings, copy/upload objects, or clean up resources
-without the corresponding explicit authority. Preserve normal TLS, signing, authentication,
-permission, and provider checks. No universal alternative-origin audit or origin-lockdown project is
-required by this gate.
+- Exact Deno organization/app, native production hostname, intended final public base,
+  buckets/prefixes, and ownership of each resource. Bind the first authorized phase to its retained
+  source/staged candidate and both full pins. Any later base-change candidate needs its own exact
+  selection and budget confirmation before remote work, not automatic approval from this checkbox.
+  Confirm whether development buckets may be reused and that the CDN zone and public bucket share
+  a Cloudflare account.
+- Each permitted deployment, R2 publication/replacement/pruning, domain binding, DNS/proxy/TLS,
+  public-access, cache/security, and secret-configuration action, or verification-only against
+  owner-configured state. No unlisted action follows from a diagram or a checked gate.
+- Serving credential names, scope, and runtime contexts. Recommend a distinct Object Read-only
+  credential for the private bucket in Deno secrets; the shared write-capable local sample default
+  remains unchanged. Phil decides the hosted role and records any retained write authority honestly.
+  Build/publishing secrets must not enter browser assets or the uploaded runtime artifact. Do not
+  read or paste secret values into evidence. Provision only required Production/Development
+  contexts; provider preview warmup may need runtime secrets independently of the Build context.
+- One frozen candidate per proof phase; finite request, decoded-byte, time, and retry bounds,
+  including bootstrap, native/production/preview warmup where observable, and browser asset loads.
+  Provider-managed starts cannot be claimed bounded by the local proof counter. No load/attack test.
+- Hosting plan, operational controls, resource owner, and accepted residual aggregate traffic/cost.
+  Local concurrency limits, Free WAF, and a CDN are not deployment-wide spending caps.
+- Retention and failure response: no concurrent publisher; keep selected local/staged artifacts and
+  remote objects through proof. Existing push may prune and leave partial writes. Stop on mismatch
+  or failure, record residue, and obtain authority before retry/repair/cleanup. No rollback claim.
+
+A rejected or incomplete decision leaves the gate unchecked and blocks live rollout, not offline
+fixture work. Manual console setup is acceptable; record exact provider-generated records and
+redacted configuration evidence. Do not build a control plane merely to automate the checklist.
+Before execution, recheck provider mechanics and the exact operation authority. This plan update
+neither resolves the gate nor grants Git mutation, resource creation, or a live request budget.
 
 ## `test(driver-cloudflare): verify hosted R2 application delivery`
 
-Use the retained Vite artifact and matching application configuration from the local live proof.
-Prepare the hosting package through the existing driver contract after hosted authorization, and
-execute its actual external entry without a development-workspace fallback. This is hosted proof,
-not restoration of the removed sample `stage` task. If preparation regenerates the build, stop and
-reselect/reprove that candidate; do not claim continuity from a prior artifact. Never obtain
-expected hashes from the serving target.
+Execute the prepared application, not a replacement probe server. Publish and deploy only the
+candidate selected after preparation; no historical local build is implicitly reused. This item owns
+bounded live verification and its durable receipt, not hidden implementation of entry/configuration
+or packaging changes. If a source defect is exposed, stop and scope its correction separately.
 
-1. Record the chosen application deployment identity and intended Cloudflare → Deno → private R2
-   configuration using authorized observations or owner-provided evidence. An HTTPS response alone
-   does not establish which deployment or storage origin served it.
-2. Repeat the local browser journey at the deployed application: `/ui` redirects to `/ui/`, the
-   built UI loads its assets from that origin, calls `/api/hello`, and renders the JSON
-   reply. This requires browser execution, not the existing pipeline's HTML/one-JavaScript probe.
-3. Fetch `/ui/dist.json` and every admitted build file; compare complete decoded bytes, lengths,
-   hashes, and identity with retained local authority. Verify GET/HEAD, MIME/encoding/length/cache
-   projection, missing-key behavior, and no credential or signed-URL disclosure. Use ordinary
-   requests and a bounded repeat, not cache-busting tricks. No browser asset redirects to R2.
-4. Keep response consumption, request counts including browser loads, retries, and request lifetimes
-   within the approved bounds. Record commands, code/runtime/artifact identities, actual results,
-   unavailable checks, and failures. No credentials or raw private provider responses enter evidence.
-5. Retain the selected objects and matching staged application; document ownership of retention and
-   later replacement. One successful proof establishes observed delivery, not perpetual
-   availability, atomic publication, a competing-writer guarantee, or a particular CDN hit rate.
+### Rollout order
 
-The result is an owned HTTPS Deno application serving the selected R2-backed material through an
-explicit maintained route contract. Pi remains a separate consumer of its selected artifact URLs and
-independently retained manifest pin/package. Browser CORS, executable URL closure, Service Worker
-scope/cache migration, and browser/filesystem support floors remain product-owned where required;
-this sample does not claim a product release.
+1. Prove the native Deno production hostname before assigning `db.team`. Record the organization,
+   app, revision, runtime version/configuration, both pins, targets, and secret contexts without
+   values. Verify startup admission, `/`, `/ui`, `/ui/`, `/ui/dist.json`, and `/api/hello` using
+   the same composition as local. A preview URL alone is not the native production acceptance.
+   The development `r2.dev` base may be used for this bounded compatibility milestone only; record
+   that candidate separately and make no production-CDN claim.
+2. Bind the confirmed public bucket to `cdn.db.team` through R2's custom-domain surface, not a CNAME
+   to `r2.dev`. Binding exposes the bucket, not just the configured prefix: establish that its whole
+   contents are intentionally public before approval. Keep the private bucket's development URL
+   and custom domains disabled. Verify the CDN certificate, final key mapping, CORS, MIME, and
+   eligible cache behavior. Once the custom-domain candidate is working and known consumers are
+   accounted for, disable that public bucket's `r2.dev` URL under the approved migration scope so
+   it is not an alternate unprotected delivery path.
+3. Set the confirmed CDN asset base before a new stage/build, publish public then private projections,
+   and deploy the same new candidate. Reprove it on the native Deno hostname. No old pin or
+   local receipt transfers across the base change. Explicitly end the development-candidate proof
+   and agree its retirement/maintenance or retention before replacing shared prefixes; do not claim
+   uninterrupted operation of that earlier app. If the final CDN base was already selected for step
+   1, reuse that unchanged proven candidate instead of manufacturing another rebuild.
+4. Add/assign only `db.team` in Deno. Use exactly its ownership, routing, and certificate records.
+   Choose a supported apex method that coexists with existing mail; never replace MX/TXT/mail
+   records to fit an ordinary apex CNAME. Keep ACME verification DNS-only, obtain a valid Deno
+   certificate first, then proxy only application routing through Cloudflare with Full (strict).
+   No Flexible mode or plaintext origin leg. Leave ongoing ACME/renewal records intact.
+5. Verify the restrained Cloudflare baseline and final mixed-delivery journey below. Preserve the
+   native hostname as evidence, but document that requests directly to it do not pass through this
+   Cloudflare zone. No exclusive perimeter or universal origin-lockdown claim is made.
+
+### Security and cache contract
+
+- Confirm DDoS protection, Free Managed WAF Ruleset, Browser Integrity Check, and Universal SSL
+  for the selected surfaces; provider documentation is not proof of account settings. Exercise
+  legitimate API/machine requests as well as browser loads for false-positive compatibility.
+- Bot Fight Mode remains off for the initial mixed API/browser proof unless Phil explicitly selects
+  a browser-only policy after compatibility evidence. The Free mode cannot be skipped per API path
+  with WAF custom rules. No blanket bot challenge, invented allowlist, or extra proxy layer.
+- Reserve the Free rate-limit rule for an actual named abuse-sensitive endpoint. No arbitrary limit
+  on the hello endpoint. Turnstile requires a real interaction boundary, absent in this read-only
+  sample. Do not add either merely to fill a security checklist.
+- Preserve `no-store` for the application/private relay, API, redirects, and refusals. No Cache
+  Everything or edge-TTL override on `db.team` may turn those responses into shared cached content.
+  Private bucket storage does not by itself establish private response caching or caller auth.
+- On `cdn.db.team`, cache deliberately public assets only. Long-lived `immutable` policy requires
+  non-overwritten versioned/content-addressed keys and retention covering their promised lifetime.
+  Stable names such as `dist.json` and `pkg/-pkg.json` are not immutable merely because other files
+  are hashed. Record actual cache metadata/rules; ordinary publishing has not been shown to set the
+  desired production cache policy. Do not add blanket caching to conceal missing metadata.
+- CORS must admit the actual credential-free module/font requests from `db.team` and the native
+  proof origin. An intentionally public wildcard policy is valid if selected; never combine it
+  with credentialed access or confuse it with authorization. Keep browser credentials and signed
+  R2 URLs out of public requests and responses.
+- Preserve selected executable/document bytes through the edge. Compression may change wire
+  representation; compare decoded bytes and metadata correctly. Unexpected rewriting/injection
+  fails byte proof; record it and resolve the precise provider configuration without weakening an
+  existing security check or silently accepting a new artifact.
+
+### Release retention and stopping point
+
+First acceptance is one frozen hosted sample, not routine production-release safety. Both current
+private shell keys and public manifests/metadata are mutable; startup pin admission does not freeze
+later private reads. Republishing into the same prefixes can mix old running instances with new
+HTML/manifest bytes, and pruning public assets can break old browser sessions. Hashed JS alone
+solves neither problem. Keep both targets unchanged during the proof and retained operation.
+
+Before a subsequent release, Phil selects the required retention/rollback or maintenance-window
+behavior. Prefer a simple owned versioned namespace when actual retained-client/rollback needs
+require it; do not invent its name now or revive a generation/CAS/GC framework. Retain the matching
+application, configuration, pins, private shell, and public assets together. Deno rollback alone
+cannot recover overwritten/deleted R2 objects. No second release is implicitly authorized here.
+Credential closeout stays owned by the public-delivery plan; first hosting does not mark it complete.
+
+### Acceptance evidence
+
+- Native and final custom-domain observations identify the exact app/revision, actual runtime, two
+  manifest pins, full public asset base, buckets/prefixes, and owner-confirmed exposure. An HTTPS
+  response or digest display alone does not establish that mapping.
+- At `db.team`, GET/HEAD the admitted private HTML/manifest against independently retained bytes,
+  hashes, and lengths; verify MIME, decoded/wire length distinction, no-store/nosniff, API response,
+  redirects, method refusal, and an unadmitted path. No signed URLs or credentials may escape.
+- At `cdn.db.team`, compare both the public manifest and every selected public payload with its
+  retained projection, then verify the real cold-browser resource graph: entry, imports/preloads,
+  CSS, fonts/images actually exercised. Record CORS/MIME, compression and cache headers, and a
+  bounded repeat for eligible cache behavior. A cache hit is not byte identity; a miss is not by
+  itself failure. Public data bypasses Deno, rather than taking a hidden proxy/redirect fallback.
+- Use an empty browser cache and no controlling service worker. Render the UI/API greeting and
+  private manifest status. Browser-block the public entry to confirm a readable static notice and
+  no Deno fallback; do not break live objects for a negative test. Human-run browser evidence is
+  acceptable when attributed. The driver preview verifier is not a browser execution substitute.
+- Verify DNS NS/MX and the web-specific records against retained pre-change owner evidence. Preserve
+  ImprovMX/Resend/DMARC records exactly. Verify Deno TLS issuance and Cloudflare Full (strict), not
+  merely the public edge certificate. Keep exact DNS values in the operation receipt, never guesses.
+- Stay within the approved per-phase request/byte/time/retry budget; report observed counts separately
+  from ceilings, provider-managed starts, and unavailable checks. Stop on the first failed invariant;
+  no automatic repin, upload retry, exposure expansion, cleanup, or fault-hiding fallback.
+
+The result is this sample's observed end-to-end hosted delivery, not a Pi/product release, spending
+cap, authentication system, perpetual availability, atomic publication, or service-worker proof.
 
 ## Non-goals and stop conditions
 
-No public-origin R2 binding, transparent proxy as the application design, Cloudflare Worker
-implementation in the initial arc, new uploader, owned SDK/signer, single-use token system,
-conditional settlement, CAS/receipt protocol, generic cloud ontology, universal security audit, or
-blanket verify/plan/apply framework. No sign-in proof, independent-download sample, client-side
-router, SPA fallback, forced CSS/lazy-chunk/worker showcase, or browser-control framework belongs
-to the selected UI/API composition.
+No public binding for the private bucket, transparent proxy application, Cloudflare Worker, new
+uploader, owned SDK/signer, single-use token system, conditional settlement, CAS/receipt protocol,
+generic cloud ontology, universal security audit, or blanket verify/plan/apply framework. Public
+R2 through `cdn.db.team` is intentional and confined to the selected public bucket. No sign-in proof,
+independent-download sample, client-side router, SPA fallback, forced worker showcase, new browser
+control framework, or mail configuration change belongs to this composition.
 
 Do not exclude future Workers hosting by coupling the route contract to Deno entry or environment
 APIs. Conversely, do not add an adapter registry, multiple implementations, or Workers proof before
@@ -1287,7 +1457,28 @@ requirement, not expand the security posture for its own sake.
 
 ## External evidence and unresolved provider details
 
-Public documentation consulted for the design, not live account proof:
+Public official documents fetched during the 2026-09-25 planning session, not live account proof:
+
+- [Deno domains](https://docs.deno.com/deploy/reference/domains/): native organization/app domains,
+  exact provider-generated ownership/routing records, automatic TLS, and DNS-only ACME CNAME when
+  Cloudflare is the DNS provider. Do not guess this app's records or introduce `www`.
+- [Deno builds](https://docs.deno.com/deploy/reference/builds/): current app-directory/runtime
+  configuration, source configuration precedence, `deploy.runtime`, and preview warmup.
+- [Deno environments](https://docs.deno.com/deploy/reference/env_vars_and_contexts/): separate
+  Build, Production, and Development contexts; secrets are runtime-accessible values, not a reason
+  to package `.env`.
+- [Deno runtime](https://docs.deno.com/deploy/reference/runtime/): isolated instances and fixed
+  runtime flags; custom `--unstable-*` flags are unavailable. The page's reported runtime version
+  is not an observation of the eventual app; record actual hosted compatibility independently.
+- [R2 public buckets](https://developers.cloudflare.com/r2/buckets/public-buckets/): custom-domain
+  security/cache integration, same-account zone requirement, whole-bucket exposure, independently
+  enabled `r2.dev`, and unsupported CNAME-to-`r2.dev` routing.
+- [Full (strict)](https://developers.cloudflare.com/ssl/origin-configuration/ssl-modes/full-strict/):
+  encrypted origin traffic and valid matching origin-certificate validation.
+- [Bot Fight Mode](https://developers.cloudflare.com/bots/get-started/bot-fight-mode/): domain-wide
+  effects, API compatibility risks, and no WAF-rule skip for the Free mode.
+
+Historical sources below preserve the earlier design evidence; they were not all re-fetched:
 
 - [R2 presigned URLs](https://developers.cloudflare.com/r2/api/s3/presigned-urls/):
   object/operation/expiry grants, bearer reuse, server-side signing without an R2 request, and
@@ -1308,6 +1499,8 @@ Public documentation consulted for the design, not live account proof:
 - [Deno Deploy pricing](https://deno.com/deploy/pricing): exact rates/allowances remain unverified
   in this evidence. The selected account's deployment/domain/configuration also remains unresolved.
 
-These external sources were not re-fetched for this source/history reconciliation. Recheck material
-provider claims before runnable setup or cost commitments. Public examples are not instructions to
-change dependencies, deploy example code, grant permissions, or configure accounts.
+Recheck material provider claims before runnable setup or cost commitments. The Deno org/app,
+hosted bucket/prefix choices, serving-role decision, finite live budgets, and actual account settings
+remain owner inputs. Public examples are evidence, never instructions to change dependencies, deploy
+example code, grant permissions, or configure accounts. No live hostname, storage, secret, or control
+plane was inspected during this reconciliation.
