@@ -1,107 +1,138 @@
 # Mutation-path comparison
 
-Test-only specimens, not public driver contracts or a selected topology. The shared
-[scenarios](u/u.spec.ts) run separately for [Automerge](../-spec/-compare.automerge.test.ts) and
-[Yjs](../-spec/-compare.yjs.test.ts).
+Where does a mutation run, and when can a caller observe it?
 
-From the module directory:
+These fixtures compare two paths over a real worker and Cmd transport:
+
+- **A: async owner.** The caller sends data. An installed worker handler performs the native edit.
+- **B: caller-native replica.** A synchronous caller callback edits a local native replica. Its
+  history is then submitted to the worker.
+
+The shared [scenarios](u/u.spec.ts) run for [Automerge](../-spec/-compare.automerge.test.ts) and
+[Yjs](../-spec/-compare.yjs.test.ts). Neither path is a public driver contract or a selected
+production topology.
+
+From `code/sys.driver/driver-crdt`:
 
 ```sh
-deno task test --cached-only src/-test/-spec/-compare.automerge.test.ts src/-test/-spec/-compare.yjs.test.ts
+deno task test \
+  src/-test/-spec/-compare.automerge.test.ts \
+  src/-test/-spec/-compare.yjs.test.ts
 ```
 
-## Contract matrix
+## Authoring location
 
-| Property                | A: async owner, either engine         | B: Automerge replica              | B: Yjs replica                 |
-| ----------------------- | ------------------------------------- | --------------------------------- | ------------------------------ |
-| Caller callback         | No; installed owner handler           | Synchronous native draft          | Synchronous scoped author      |
-| Caller-local values     | Explicit command data                 | Closure capture                   | Closure capture                |
-| Immediate `current`     | Last applied observation              | Local native projection           | Local native projection        |
-| Writable immutable ref  | No                                    | Restricted draft/lens behavior    | No general object mapping      |
-| Native extension        | Installed fixture handler             | Native `mark()` in draft callback | Shared-text formatting         |
-| Stale list target       | Reject index/basis; accept fixture ID | Preserve native B                 | Preserve native B              |
-| Mutation callback throw | Not exercised here                    | Native rollback                   | Earlier writes may commit      |
-| Rejected local history  | No local native author                | Re-enters through dependent E2    | Re-enters through dependent E2 |
+| Property            | A: async owner                               | B: caller-native replica      |
+| ------------------- | -------------------------------------------- | ----------------------------- |
+| Mutation callback   | Installed worker handler                     | Synchronous caller callback   |
+| Caller-local data   | Explicit command payload                     | Closure capture               |
+| Immediate `current` | Last applied observation                     | Local native projection       |
+| Stale list target   | Reject stale index/basis; resolve fixture ID | Preserve native item identity |
 
-A's data handlers are fixture-specific witnesses, not an application command catalogue proposal.
-Rejecting stale positional intent retains its input but does not reconcile it. B's local authoring
-does not first execute at the worker Cmd host; it is incompatible with that stricter boundary.
-Neither an async-only surface nor the Yjs schema author impersonates `change(fn): void`.
+A exposes only the fixture's installed commands, not a transported callback or a general command
+catalogue. Rejecting a stale positional command preserves its input but does not reconcile it. B
+preserves local authoring semantics, but cannot satisfy a requirement that every edit first execute
+at the worker.
 
-Both variants expose stable captured values and native context through independently disposable
-immutable event views. RFC6902 patches and path subscriptions describe **value changes only**.
-Formatting-only and heads-only observations may have no value patches. Metadata is captured at its
-basis, not queried later through retained native handles. Selection checks cover the fixture's
-anchored range, not a general editor-selection policy or arbitrary document replacement.
+## Mutation, receipt, and observation
 
-B publishes local patches/events synchronously before returning. A publishes when its observation
-arrives. Receipt means **worker application**, not persistence, peer convergence, or client
-observation: tests hold client application while still receiving the receipt. Local mutation, patch
-callback, events, receipt, and observation application are traced separately. Reentrant mutation
-scopes are explicitly rejected.
+B publishes local value patches and events before the mutation call returns. A updates its client
+view when an observation is applied.
 
-### Automerge writable-ref restriction
+An **accepted receipt confirms worker application**. It does not establish persistence, peer
+convergence, or client observation. Tests exercise both orders: an observation may be applied before
+the receipt, or client application may remain held after the receipt arrives. Local mutation, patch
+callbacks, events, receipts, and observation application are traced separately.
 
-The fixture's anchored selection belongs to its original native text object. B rejects replacing
-that object **before merging the authored fork**, discarding all changes in that fork. This includes
-`draft.text = replacement` and a text-lens setter when it changes the value. Direct native
-assignment of an equal string still replaces the object and is rejected; the existing lens skips
-equal-value writes, which remain no-ops. Title/list edits and native `splice()`/formatting remain
-available. This is restricted fixture behavior, not complete writable `ImmutableRef<T>` parity or a
-text-replacement selection policy.
+Both paths expose retained snapshots and independently disposable event views. RFC6902 patches and
+path subscriptions describe **plain-value changes only**. Formatting and native history can change
+without value patches. Native context carries the captured basis, metadata, and resolved selection;
+it is not reconstructed by querying retained native handles later. Selection tests cover the
+fixture's anchored range, not a general editor-selection policy.
 
-[Automerge regressions](../-spec/-compare.automerge.test.ts) check unchanged values, heads,
-metadata, selection, events, and submissions after rejection, independently reload saved native
-history, and prove that the next supported edit still reaches the worker.
+## Caller-native authoring
 
-## Ownership and representation costs
+The fixtures preserve each engine's mutation and failure semantics rather than forcing API parity.
 
-A real worker receives a transferred MessagePort; thereafter the existing Cmd runtime carries all
-fixture traffic. Automerge's worker owns one Repo/handle and uses public existing-document
-`Repo.import`; Yjs's worker owns one shared-type document. No storage or network provider is wired.
-An independent native peer advances the owner while submission is held. All replicas originate from
-shared native history, with independent writer identities.
+- **Automerge replica.** The fixture exposes a restricted writable `ImmutableRef`, usable with
+  existing lenses and native draft operations such as `mark()` and `splice()`. A throwing callback
+  rolls back document writes, not caller-local effects.
+- **Yjs replica.** The fixture exposes transaction-scoped methods for its schema, not a plain-object
+  draft or writable `ImmutableRef`. No mutable `Y.Doc` escapes. Earlier writes can survive a
+  throwing callback; the client still publishes and submits the resulting native state.
 
-A client retains a plain snapshot. Both engines explicitly project the fixture's scalar, object, and
-list fields; a general object clone is not a substitute for projecting a native document. Current
-and retained event values are tested separately from native saved history. B additionally retains a
-native document/history. The Automerge replica lends a **native fork per mutation**, validates its
-text-object identity before merging, then frees the fork even on rejection:
-[the native control](../-spec/-automerge.test.ts) demonstrates that a raw retained Automerge 3.5.0
-draft can otherwise write into subsequently serialized history. Forks preserve the replica's actor
-and are never authored concurrently. This is additional native allocation/merge work, not
-plain-value reconstruction. Yjs lends only transaction-scoped fixture methods; no mutable `Y.Doc`
-escapes.
+Reentrant mutation is rejected. A's worker-handler failure behavior is not exercised here.
 
-Transport carries complete native saved history/updates plus captured values and metadata, not an
-optimized incremental protocol. Projection cloning/diffing adds materialization work. Each test owns
-its submission promises; held observation application is bounded to eight frames and throws on
-overflow. This is a test barrier, not backpressure on Cmd's stream queue. Cmd requests use a
-20-second timeout; mutation commands are not retried. No payload-size or production capacity claim
-is made.
+### Automerge: preserve the original text object
+
+The fixture's selection anchors belong to its original native text object. Each mutation receives a
+native fork. The fixture checks text-object identity before merging and discards the whole fork if
+that identity changed.
+
+Direct `draft.text = value` replaces the text object even when the string is equal. A text-lens
+setter is also rejected when it changes the value; the existing lens skips equal-value writes. Title
+and list edits, native text splices, and formatting remain available. This is a deliberate
+restriction, not complete writable-ref parity or a policy for reanchoring selections after text
+replacement.
+
+Forks retain the replica's writer identity and are never authored concurrently. Each fork is freed
+on success or failure. This adds native allocation and merge work to contain an upstream hazard:
+[the native control](../-spec/-automerge.test.ts) shows that a retained raw draft can write into
+subsequently serialized history.
+
+[Automerge regressions](../-spec/-compare.automerge.test.ts) verify that a rejected fork changes no
+values, heads, metadata, selection, events, or submissions. They reload saved native history and
+check that the next supported edit reaches the worker.
+
+## Rejecting a submission does not remove its history
+
+B intentionally demonstrates this failure:
+
+1. The caller authors E1; the owner rejects its submission.
+2. The caller authors E2 using state created by E1.
+3. The owner accepts the next full-history submission, which includes E1 as well as E2.
+
+B therefore cannot guarantee that owner-rejected edits stay out of the owner's history. No recovery
+or history removal is implemented. This differs from local Automerge validation, which discards a
+fork before it is merged into the caller's retained history.
+
+Plain-proxy controls expose related losses: replaying a stale numeric position edits the wrong item;
+resetting to owner state discards dependent input; a value-only view cannot represent formatting.
+These cases do not prove every richer proxy impossible. They identify information that such a proxy
+would have to preserve.
+
+## Ownership and cost
+
+The worker receives a transferred MessagePort; Cmd carries subsequent control and data messages.
+Automerge's worker owns one Repo/handle and applies native history through public `Repo.import`.
+Yjs's worker owns one shared-type document. No storage or network provider is wired.
+
+An independent native peer can advance the owner while a client submission is held. Owner, peer, and
+caller replicas share native history but have independent writer identities.
+
+Both clients retain plain snapshots. B also retains a native document and its history. Projections
+copy the fixture's scalar, object, and list fields; cloning a native document is not a substitute.
+Transport carries complete saved history or full-state updates, plus captured values and metadata,
+not an incremental protocol. Projection copying and diffing add materialization work.
+
+The fixture owns submission promises until settlement. Held observation application is bounded to
+eight frames and throws on overflow; this is a test barrier, not Cmd stream backpressure. Requests
+have a 20-second timeout and mutations are not retried. No production capacity claim follows.
+
+## Proof limits
 
 Disposal settles submissions, cancels observation streams, disposes client-native state and the
-peer, calls owner shutdown, closes the port and **terminates the owned worker**. Tests also retain a
-second observer and the owner while disposing one client. Parent leak sanitizers and worker
-termination do not establish surviving-worker heap cleanup or immediate Repo throttle settlement.
+peer, calls owner shutdown, closes the port, and terminates the owned worker. Separate tests verify
+that disposing one event view or client leaves another observer and the owner usable. Parent leak
+checks and worker termination do not prove heap cleanup inside a surviving worker or immediate Repo
+throttle settlement.
 
 [Isolation checks](../-spec/-isolation.test.ts) inspect client, replica, and worker code/type
-closures separately. The test peer itself loads an engine in the parent realm; these checks do not
+closures separately. The test peer itself loads an engine in the parent realm. These checks do not
 prove an engine-free browser bundle or compare cold-start costs.
 
-## Explicit limits
-
-B's permissive full-history admission is **not valid for rejected-history non-admission**: E2
-reintroduces rejected E1. No recovery or history removal for owner-rejected edits is implemented.
-This is separate from discarding an unmerged Automerge fork. Disconnection/reconnect recovery, owner
-restart, exactly-once delivery, field-level authorization, malformed-input protection, and
-persistence are also unimplemented. The Cmd control plane is trusted, document-local test machinery,
-not a security API.
-
-The bounded plain-proxy controls reproduce wrong-target numeric replay, loss of dependent input on
-reset, and invisible formatting. They do not prove every richer proxy impossible; preserving those
-semantics would require additional identity/history/reconciliation machinery.
-
-Only the named fixture interactions are covered. These suites do not supply browser/editor,
-postcommit observation-failure, cancellation, initialization-race, performance-distribution, or
-production lifecycle evidence.
+The Cmd control plane is trusted, document-local test machinery, not a security API. Reconnect
+recovery, owner restart, exactly-once delivery, authorization, malformed-input protection, and
+persistence are unimplemented. Browser/editor integration, postcommit observation failures,
+cancellation, initialization races, performance distributions, and production lifecycle behavior
+remain outside the evidence.

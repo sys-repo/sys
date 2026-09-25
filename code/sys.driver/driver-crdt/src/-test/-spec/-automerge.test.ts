@@ -53,7 +53,7 @@ describe('Automerge control | causal identity is more than equal values', () => 
     expect(marks(peer, ['text'])).to.eql([]);
   });
 
-  it('retained document/view → marks reads current backend state in Automerge 3.5.0', () => {
+  it('retained document/view → marks reads current shared-backend state', () => {
     using pair = automergePair();
     const { owner, peer } = pair;
     const basis = getHeads(owner);

@@ -1,7 +1,7 @@
 import { getActorId, getCursor, save } from '@automerge/automerge';
 import { Repo } from '@automerge/automerge-repo';
 import { initialNote } from '../../-fixtures/u.note.ts';
-import { type t } from '../common.ts';
+import type { t } from '../common.ts';
 import { authorAutomerge, captureAutomerge } from './u.automerge.ts';
 import { serve } from './u.host.ts';
 

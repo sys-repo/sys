@@ -37,6 +37,20 @@ const cwd = Fs.resolve(import.meta.dirname ?? '.', '../../..');
 const fixture = (name: string) => `./src/-test/-fixtures/${name}.ts`;
 
 describe('Isolation evidence | resolved reachability is not native initialization', () => {
+  it('package identity matcher → ignores versions but rejects absent and similarly named packages', () => {
+    // Synthetic resolver IDs, not a native-engine compatibility matrix.
+    for (const name of ['fixture-engine', '@fixture/engine']) {
+      for (const version of ['1.0.0', '2.0.0']) {
+        assertIncludes({ modules: [], packages: [`${name}@${version}`] }, name);
+      }
+      for (const packages of [[], [`${name}-extra@1.0.0`]]) {
+        expect(() => assertIncludes({ modules: [], packages }, name)).to.throw(
+          `Missing reachability: ${name}`,
+        );
+      }
+    }
+  });
+
   const specimens = [
     {
       name: 'neutral values',
@@ -47,19 +61,19 @@ describe('Isolation evidence | resolved reachability is not native initializatio
     {
       name: 'Automerge',
       entry: './src/-test/u/u.probe.automerge.ts',
-      owned: '@automerge/automerge@3.5.0',
+      owned: '@automerge/automerge',
       forbidden: ['yjs@'],
     },
     {
       name: 'Yjs',
       entry: './src/-test/u/u.probe.yjs.ts',
-      owned: 'yjs@13.6.33',
+      owned: 'yjs',
       forbidden: ['@automerge/'],
     },
     {
       name: 'Automerge/Repo control',
       entry: './src/-test/u/u.probe.repo.ts',
-      owned: '@automerge/automerge-repo@2.5.6',
+      owned: '@automerge/automerge-repo',
       forbidden: ['yjs@'],
     },
     {
@@ -71,25 +85,25 @@ describe('Isolation evidence | resolved reachability is not native initializatio
     {
       name: 'Automerge caller replica',
       entry: './src/-test/-compare/u/u.automerge.ts',
-      owned: '@automerge/automerge@3.5.0',
+      owned: '@automerge/automerge',
       forbidden: ['yjs@', '@automerge/automerge-repo@'],
     },
     {
       name: 'Yjs caller replica',
       entry: './src/-test/-compare/u/u.yjs.ts',
-      owned: 'yjs@13.6.33',
+      owned: 'yjs',
       forbidden: ['@automerge/'],
     },
     {
       name: 'Automerge worker owner',
       entry: './src/-test/-compare/u/u.worker.automerge.ts',
-      owned: '@automerge/automerge-repo@2.5.6',
+      owned: '@automerge/automerge-repo',
       forbidden: ['yjs@'],
     },
     {
       name: 'Yjs worker owner',
       entry: './src/-test/-compare/u/u.worker.yjs.ts',
-      owned: 'yjs@13.6.33',
+      owned: 'yjs',
       forbidden: ['@automerge/'],
     },
   ];
@@ -102,8 +116,8 @@ describe('Isolation evidence | resolved reachability is not native initializatio
       assertExcludes(runtime, forbidden);
       assertExcludes(resolution, forbidden);
       if (specimen.owned) {
-        expect(runtime.packages).to.include(specimen.owned);
-        expect(resolution.packages).to.include(specimen.owned);
+        assertIncludes(runtime, specimen.owned);
+        assertIncludes(resolution, specimen.owned);
       }
       console.info(
         `${specimen.name}: code=${runtime.modules.length}, with-types=${resolution.modules.length}, runtime npm=${runtime.packages.length}`,
@@ -114,7 +128,7 @@ describe('Isolation evidence | resolved reachability is not native initializatio
   it('type-only Yjs import → resolution reaches the engine without a runtime edge', async () => {
     const info = await collectInfo(fixture('u.type-only-yjs'));
     assertExcludes(reachable(info, false), ['yjs@']);
-    expect(reachable(info, true).packages).to.include('yjs@13.6.33');
+    assertIncludes(reachable(info, true), 'yjs');
   });
 
   it('indirect engine re-export → the exclusion assertion fails rather than reporting false isolation', async () => {
@@ -213,6 +227,12 @@ function reachable(info: Info, includeTypes: boolean): Reachability {
     for (const dependency of pkg.dependencies) packages.add(dependency);
   }
   return { modules: [...seen], packages: [...packages] };
+}
+
+/** Engine identity belongs here; exact versions belong to deps.yaml and the frozen lockfile. */
+function assertIncludes(graph: Reachability, name: string) {
+  const found = graph.packages.some((id) => id.startsWith(`${name}@`));
+  if (!found) throw Err.std(`Missing reachability: ${name}`);
 }
 
 /** Apply the same assertion to valid entries and deliberately poisoned negative controls. */

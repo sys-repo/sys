@@ -1,4 +1,8 @@
 {
+  "name": "@sys/driver-crdt",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {},
   "tasks": {
     "check": "deno check --frozen src/*",
     "test": "deno test -P=test --frozen --trace-leaks",

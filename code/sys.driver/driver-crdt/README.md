@@ -1,5 +1,10 @@
-# CRDT fixtures
+# CRDT contract fixtures
 
-Native CRDT and immutable-state contract tests.
+Tests for immutable state, Automerge, Yjs, and Cmd. They distinguish plain values from native
+history, and local mutation from worker application and client observation.
 
-See the [fixture guide](./src/-test/README.md) for execution and constraints.
+This is a private test workspace, not a public CRDT driver.
+
+- [Fixture guide](./src/-test/README.md): execution, native controls, and evidence limits.
+- [Mutation-path comparison](./src/-test/-compare/README.md): async owner versus caller-native
+  replica.

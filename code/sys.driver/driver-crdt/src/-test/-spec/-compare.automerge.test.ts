@@ -14,7 +14,7 @@ import { Lens } from '@sys/immutable/core';
 import { describe, Err, expect, it, Json, Obj } from '../-test.ts';
 import { automergePair } from '../-fixtures/u.automerge.ts';
 import { initialNote } from '../-fixtures/u.note.ts';
-import { type t } from '../-compare/common.ts';
+import type { t } from '../-compare/common.ts';
 import { automergeReplica } from '../-compare/u/u.automerge.ts';
 import { openComparison } from '../-compare/u/u.client.ts';
 import { comparison } from '../-compare/u/u.spec.ts';
