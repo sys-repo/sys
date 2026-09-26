@@ -29,9 +29,9 @@ describe('Deploy: staged artifact and standard Dist serving parity', () => {
         await assertCheckedResponse(
           started.origin,
           '/',
-          staged.verification.dist.hash.parts['index.html'],
+          staged.verification.content.parts['index.html'],
         );
-        await assertCheckedResponse(started.origin, '/dist.json', staged.verification.integrity);
+        await assertCheckedResponse(started.origin, '/dist.json', staged.verification.manifestChecksum);
         await assertRefusedResponse(started.origin, '/unknown');
       } finally {
         await started.close('test.complete');
@@ -89,7 +89,7 @@ async function writeFixture(cwd: string): Promise<void> {
 
 async function assertExactStagedTree(staged: t.DeployTool.StageResult): Promise<void> {
   const actual = await regularFiles(staged.stagingRoot);
-  const declared = Object.keys(staged.verification.dist.hash.parts).toSorted();
+  const declared = Object.keys(staged.verification.content.parts).toSorted();
   expect(actual).to.eql([...declared, 'dist.json'].toSorted());
 }
 
@@ -97,9 +97,8 @@ function assertEvidenceParity(
   staged: t.Pkg.Dist.Local.Verify.Evidence,
   preview: t.Pkg.Dist.Local.Verify.Evidence,
 ): void {
-  expect(preview.integrity).to.eql(staged.integrity);
-  expect(preview.dist.hash.digest).to.eql(staged.dist.hash.digest);
-  expect(preview.dist.hash.parts).to.eql(staged.dist.hash.parts);
+  expect(preview.manifestChecksum).to.eql(staged.manifestChecksum);
+  expect(preview.content).to.eql(staged.content);
   expect(preview.manifestBytes).to.eql(staged.manifestBytes);
   expect(preview.assets).to.eql(staged.assets);
 }

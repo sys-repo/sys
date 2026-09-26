@@ -197,7 +197,7 @@ describe('@sys/tools/deploy public staging lifecycle', () => {
 
       await Fs.write(release, 'release');
       const retried = await Deploy.stage({ cwd, config });
-      expect(retried.verification.dist.hash.parts['value.txt']).to.not.eql(undefined);
+      expect(retried.verification.content.parts['value.txt']).to.not.eql(undefined);
     });
   });
 });

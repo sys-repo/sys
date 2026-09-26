@@ -35,7 +35,7 @@ type IndexedPublishFile = {
 
 type RemoteDist = {
   readonly dist: t.DistPkg;
-  readonly integrity?: t.StringHash;
+  readonly manifestChecksum?: t.StringHash;
 };
 
 type PublishFilesOptions = {
@@ -84,7 +84,7 @@ async function publish(
     const plan = publishFiles(local.dist, {
       remote: remote?.dist,
       remoteFiles,
-      manifestMatches: remote?.integrity === local.integrity,
+      manifestMatches: remote?.manifestChecksum === local.manifestChecksum,
     });
     const resultFiles = await writePublishPlan(files, stagingDir, plan, local.bytes);
 
@@ -189,7 +189,7 @@ async function loadDist(stagingDir: t.StringDir) {
     throw Err.std(`Missing staged dist metadata: ${Fs.trimCwd(stagingDir)}`);
   }
   // Retain the same bytes for comparison and manifest-last publication; do not reserialize JSON.
-  return { dist: parsed.data, bytes, integrity: Hash.sha256(bytes) };
+  return { dist: parsed.data, bytes, manifestChecksum: Hash.sha256(bytes) };
 }
 
 async function readRemoteDist(files: t.Files.Client.Handle): Promise<RemoteDist | undefined> {
@@ -220,7 +220,7 @@ async function readRemoteDist(files: t.Files.Client.Handle): Promise<RemoteDist 
   // R2's fatal UTF-8 decoder can strip a BOM. Require the round-trip size before trusting
   // inline text as byte identity; unknown/lossy identity must republish the manifest.
   const exact = result.kind === 'ref' || result.file.size === bytes.byteLength;
-  return { dist: parsed.data, integrity: exact ? Hash.sha256(bytes) : undefined };
+  return { dist: parsed.data, manifestChecksum: exact ? Hash.sha256(bytes) : undefined };
 }
 
 function publishFiles(

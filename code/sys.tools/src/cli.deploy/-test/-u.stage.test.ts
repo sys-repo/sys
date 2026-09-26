@@ -21,7 +21,7 @@ describe('@sys/tools/deploy programmatic stage', () => {
       expect(result.cwd).to.eql(cwd);
       expect(result.config).to.eql(config);
       expect(result.stagingRoot).to.eql(stagingRoot);
-      expect(result.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+      expect(result.verification.content.parts['index.html']).to.not.eql(undefined);
       expect(Object.isFrozen(result)).to.eql(true);
       assertDeepFrozen(result.verification);
 

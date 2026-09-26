@@ -85,13 +85,11 @@ export async function endpointMenuWith(
       }))
       : undefined;
     const verification = preview?.kind === 'verified' ? preview.evidence : undefined;
-    const digest = verification?.dist.hash.digest;
+    const digest = verification?.content.digest;
     const hashSuffix = digest ? String(digest).slice(-5) : undefined;
     const hashPrefix = formatHashPrefix(hashSuffix);
-    const buildTime = verification?.dist.build.time;
-    const stageAge = Is.num(buildTime) && digest
-      ? formatStageAge(Time.elapsed(buildTime).msec)
-      : undefined;
+    // Content verification carries no authenticated build timestamp.
+    const stageAge = undefined;
     const stageSize = verification ? Str.bytes(verification.assets.totalBytes) : undefined;
     const hasStageMeta = verification !== undefined;
     const previewPort = Is.num(yaml?.staging.serve?.port)

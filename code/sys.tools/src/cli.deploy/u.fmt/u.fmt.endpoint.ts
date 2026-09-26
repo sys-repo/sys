@@ -191,7 +191,7 @@ function mappingCoverage(
   if (!evidence) return '';
   const relative = destination === '.' ? '' : Str.trimLeadingDotSlash(destination);
   const prefix = relative ? `${relative}/` : '';
-  const parts = Obj.entries(evidence.dist.hash.parts).filter(([path]) =>
+  const parts = Obj.entries(evidence.content.parts).filter(([path]) =>
     !prefix || String(path).startsWith(prefix)
   );
   const totalBytes = parts.reduce((total, [, part]) => {

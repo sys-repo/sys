@@ -26,7 +26,8 @@ export async function stageDist(
   for (const [path, bytes] of Obj.entries(files)) {
     await Fs.write(Fs.join(stagingDir, path), bytes);
   }
-  await Pkg.Dist.compute({ dir: stagingDir, save: true });
+  const computed = await Pkg.Dist.compute({ dir: stagingDir, save: true });
+  if (computed.kind !== 'computed') throw computed.error;
   return stagingDir;
 }
 
