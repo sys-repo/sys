@@ -100,11 +100,34 @@ code a {
   white-space: nowrap;
 }
 
-.public-image {
-  display: grid;
-  justify-items: center;
-  gap: 0.75rem;
-  margin: 2rem 0 0;
+.image-comparison {
+  margin-block-start: 2rem;
   text-align: center;
   font-size: 0.75rem;
+}
+
+.image-examples {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem 3rem;
+}
+
+.image-example {
+  display: grid;
+  flex: 0 1 14rem;
+  justify-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  margin: 0;
+}
+
+.image-example figcaption {
+  display: grid;
+  gap: 0.125rem;
+}
+
+.image-comparison p {
+  margin: 1rem 0 0;
+  font-size: inherit;
 }

@@ -34,24 +34,35 @@ describe('R2 deployment sample: one-build publication projections', () => {
     expect(Object.keys(buildRecord.selection)).to.eql(['pins']);
   });
 
-  it('wax seal PNG → byte-preserving public inventory, never a private payload', async () => {
-    const path = 'images/wax-seal.v1.png';
-    const png = await Fs.read(Fs.join(ROOT, 'public', path));
-    if (!png.ok || !png.data) throw new Error('The versioned sample PNG must be readable.');
-    // The v1 filename denotes these accepted bytes; changed artwork needs a new revision.
+  it('two wax seal paths → identical public bytes, never private payloads', async () => {
+    const publicPath = 'images/wax-seal.v1.png';
+    const png = await Fs.read(Fs.join(ROOT, 'public', publicPath));
+    const managed = await Fs.read(Fs.join(ROOT, 'src/ui', publicPath));
+    if (!png.ok || !png.data || !managed.ok || !managed.data) {
+      throw new Error('Both versioned sample PNGs must be readable.');
+    }
+    // Same artwork and revision: only build treatment differs between the two examples.
+    expect(managed.data).to.eql(png.data);
     expect(Hash.sha256(png.data)).to.eql(
       'sha256-9a110325ca0d22eb23c6c88d60960fdd3c9d9b9c5ccaa331b0ac27679239d83a',
     );
 
+    // This fixture proves projection, not Vite's fingerprint generation or HTML rewriting.
+    const managedPath = 'pkg/a.fixture.png';
     await using f = await localFixture();
-    const buildRecord = await f.build('shell', { [path]: png.data });
+    const buildRecord = await f.build('shell', {
+      [publicPath]: png.data,
+      [managedPath]: managed.data,
+    });
     const selected = await selectPublication(buildRecord.selection, f.dir.absolute);
     expect(selected.private).to.eql(['dist.json', 'index.html']);
-    expect(selected.public).to.eql(['app.css', 'app.js', 'dist.json', path]);
-    const published = await Fs.read(f.dir.join('dist.public', path));
-    expect(published.ok).to.eql(true);
-    expect(published.data).to.eql(png.data);
-    expect(await Fs.exists(f.dir.join('dist.private', path))).to.eql(false);
+    expect(selected.public).to.eql(['app.css', 'app.js', 'dist.json', publicPath, managedPath]);
+    for (const path of [publicPath, managedPath]) {
+      const published = await Fs.read(f.dir.join('dist.public', path));
+      expect(published.ok).to.eql(true);
+      expect(published.data).to.eql(png.data);
+      expect(await Fs.exists(f.dir.join('dist.private', path))).to.eql(false);
+    }
   });
 
   it('captures the public base before the builder yields; later config cannot retarget old HTML', async () => {

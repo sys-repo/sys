@@ -105,6 +105,8 @@ describe('R2 deployment sample: HTTP adapter integration', () => {
         ['/ui/pkg/file.css', 404],
         ['/images/wax-seal.v1.png', 404],
         ['/ui/images/wax-seal.v1.png', 404],
+        ['/pkg/a.fixture.png', 404],
+        ['/ui/pkg/a.fixture.png', 404],
         ['/ui/unselected.js', 404],
         ['/ui/?q=1', 400],
         ['/ui/pkg/%66ile.js', 400],

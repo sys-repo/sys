@@ -89,28 +89,44 @@ with `deno task serve` → `shell`, and the public digest with `hash.digest` in
 `dist.public/dist.json`. These are observed hashes for comparison, not browser-side verification
 against trusted pins. Each fetch can fail independently without hiding the other results.
 
-## Public image
+## Same image, two build paths
 
-[public/images/wax-seal.v1.png](public/images/wax-seal.v1.png) is the sample's transparent 200 × 200
-PNG export, displayed at 64 × 64 CSS pixels. Keep editable artwork outside `public/`. Vite copies
-this file into the build, and the build includes it in the public asset inventory. Do not upload it
-separately or modify generated output after inventory capture.
+The footer compares two byte-identical copies of the transparent 200 × 200 wax seal, each displayed
+at 64 × 64 CSS pixels. The artwork and revision stay the same; only Vite's build treatment differs.
 
-The native `<img>` and its caption live in the HTML footer outside React's root. The caption's
-"image" link points to the PNG; "public R2" links to Cloudflare's public-bucket documentation. The
-image `src` and PNG link both use `%BASE_URL%images/wax-seal.v1.png`. Vite replaces `%BASE_URL%`
-with its configured `base`, which this sample sets from `publicAssetBase`. The image loads without
-the entry module and has no Deno-hosted fallback. The seal is artwork, not proof of authenticity or
-integrity.
+| Example            | Source                                                         | Public output            |
+| ------------------ | -------------------------------------------------------------- | ------------------------ |
+| Vite-managed image | [src/ui/images/wax-seal.v1.png](src/ui/images/wax-seal.v1.png) | `pkg/a.[hash].png`       |
+| Public file        | [public/images/wax-seal.v1.png](public/images/wax-seal.v1.png) | `images/wax-seal.v1.png` |
 
-Files in `public/` are not automatically fingerprinted. Once published, keep `v1` bytes unchanged;
-use a new filename and update both HTML references for a changed export. Versioned filenames do not
-prevent overwrites or set cache headers. Inspect the actual response headers when checking delivery.
-Revisioned filenames do not retain old assets: the push task still prunes objects absent from the
-selected inventory.
+Use source-managed assets when Vite should own output naming and references. Use `public/` when
+preserving a specific filename is a requirement. Both examples enter `dist.public`; the source
+location does not decide which server delivers the image.
 
-Direct image delivery avoids Deno egress for the PNG; it does not imply zero storage or operation
-costs. The `r2.dev` URL is for this demo, not a production-domain setup.
+The native `<img>` elements live outside React's root. The managed reference is
+`./images/wax-seal.v1.png?no-inline`: Vite emits a fingerprinted PNG rather than embedding its bytes
+in private HTML. The public reference is `/images/wax-seal.v1.png`: Vite copies the file and
+preserves its name. Vite rewrites both references using its resolved `base`, which this sample sets
+from `publicAssetBase`. No runtime URL assembly or HTML environment substitution is needed.
+
+Both images load independently of the entry module, directly from public R2, bypassing the
+application server with no fallback through it. Captions show the output naming patterns; the shared
+"public R2" link opens Cloudflare's public-bucket documentation.
+
+Filenames are not integrity checks.
+[Subresource Integrity (SRI)](https://www.w3.org/TR/2016/REC-SRI-20160623/) lets browsers verify
+scripts and stylesheets—not these images. The seal artwork is not proof of authenticity.
+
+The duplicated PNG bytes are intentional and checked by a regression test. Keep editable artwork
+outside publishable inputs. Do not upload either PNG separately or modify generated output after
+inventory capture. Once published, keep `v1` bytes unchanged; use a new revision in both source
+locations and HTML references for changed artwork. Versioned or fingerprinted filenames do not
+prevent overwrites or set cache headers. Inspect actual response headers when checking delivery.
+Neither naming strategy retains old assets: push still prunes objects absent from the selected
+inventory.
+
+Direct image delivery avoids application-server egress fees for the PNG bodies; it does not imply
+zero storage or operation costs. The `r2.dev` URL is for this demo, not a production-domain setup.
 
 ## Clean local outputs
 
@@ -155,16 +171,17 @@ Start `serve` again, then check one cold load:
    successfully, with final URLs under the configured `publicAssetBase`. Check both manifest tables
    at desktop and narrow widths: columns should align, links should reach the corresponding
    manifests, and payload sizes should remain distinct from the total bundle.
-3. Confirm a separate request for `images/wax-seal.v1.png` succeeds under `publicAssetBase`, with
-   `Content-Type: image/png`. Record its actual cache headers. The caption's "image" link should
-   resolve to the same public object; "public R2" should open the public-bucket documentation. No
-   PNG request should be served by the application origin.
-4. Check the centered 64 × 64 image and readable caption at a narrow viewport. Tab to both caption
-   links and confirm their focus remains visible.
-5. Temporarily block only the PNG request and reload. The UI and API should still work, with the
-   image's descriptive alternative text and caption remaining meaningful. Remove the block.
-6. Temporarily block only the public entry module and reload. The HTML notice and independently
-   loaded image should remain visible, but the full UI should not load. Remove the block when
+3. Confirm two separate PNG requests succeed under `publicAssetBase`: the managed `pkg/a.[hash].png`
+   and the preserved `images/wax-seal.v1.png`. Both should have `Content-Type: image/png`; record
+   their actual cache headers. Neither image may be a data URL or served by the application origin.
+4. Check both 64 × 64 images and their labels side by side at a wide viewport and wrapped at a
+   narrow viewport. Tab to the shared "public R2" link; confirm visible focus and the documentation
+   target.
+5. Temporarily block each PNG request independently and reload. The other image, UI, and API should
+   still work, with the blocked image's alternative text and caption remaining meaningful. Remove
+   each block after checking it.
+6. Temporarily block only the public entry module and reload. The HTML notice and both independently
+   loaded images should remain visible, but the full UI should not load. Remove the block when
    finished.
 7. Temporarily block only the public `dist.json` request and reload. Its table should report a
    public manifest error while the private table, API message, and total bundle remain available.

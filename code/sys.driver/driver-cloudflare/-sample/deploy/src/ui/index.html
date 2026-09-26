@@ -16,19 +16,35 @@
         <p><a href="/api/hello">API</a> · <a href="/ui/dist.json">Private shell manifest</a></p>
       </main>
     </div>
-    <footer>
-      <figure class="public-image">
-        <img
-          src="%BASE_URL%images/wax-seal.v1.png"
-          width="64"
-          height="64"
-          alt="Red wax seal"
-        />
-        <figcaption>
-          <a href="%BASE_URL%images/wax-seal.v1.png">image</a> delivered directly from
-          <a href="https://developers.cloudflare.com/r2/buckets/public-buckets/">public R2</a>
-        </figcaption>
-      </figure>
+    <footer class="image-comparison">
+      <div class="image-examples">
+        <figure class="image-example">
+          <img
+            src="./images/wax-seal.v1.png?no-inline"
+            width="64"
+            height="64"
+            alt="Red wax seal"
+          />
+          <figcaption>
+            <strong>Vite-managed image</strong>
+            <span>Fingerprinted filename</span>
+            <code>pkg/a.[hash].png</code>
+          </figcaption>
+        </figure>
+        <figure class="image-example">
+          <img src="/images/wax-seal.v1.png" width="64" height="64" alt="Red wax seal" />
+          <figcaption>
+            <strong>Public file</strong>
+            <span>Filename is preserved</span>
+            <code>images/wax-seal.v1.png</code>
+          </figcaption>
+        </figure>
+      </div>
+      <p>
+        Both images load directly from
+        <a href="https://developers.cloudflare.com/r2/buckets/public-buckets/">public R2</a>, avoiding
+        application-server egress fees for image delivery.
+      </p>
     </footer>
     <script type="module" src="./-entry.tsx"></script>
   </body>

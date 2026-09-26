@@ -67,7 +67,7 @@ describe('R2 deployment sample: UI rendering', () => {
       expect(publicCaption?.textContent).to.eql('public R2 — dist.json ↗');
       expect(total?.textContent).to.eql('total bundle • Loading…');
       expect(res.container.querySelector('p')?.textContent).to.include(
-        'from the application origin (sample.test). UI scripts',
+        'from the application origin (sample.test). UI scripts, styles, and images load directly from public R2',
       );
       for (const table of tables) {
         expect([...table.querySelectorAll('thead th')].map((cell) => cell.textContent)).to.eql([

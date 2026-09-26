@@ -48,7 +48,7 @@ export function App(
       <h2>Deno HTML and API · R2 assets</h2>
       <p>
         Deno serves this page and <a href='/api/hello'>/api</a> from the application origin
-        {renderOrigin(origin)}. UI scripts, styles, and the image load directly from{' '}
+        {renderOrigin(origin)}. UI scripts, styles, and images load directly from{' '}
         <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2</a>,
         avoiding Deno egress for those assets.
       </p>
