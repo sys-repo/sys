@@ -12,6 +12,7 @@
     "test:entry:process": "deno test --node-modules-dir=auto -P=test --trace-leaks ./src/-entry/-test.external/-graph.process.ts ./src/-entry/-test.external/-serve.cached.process.ts",
     "test:candidate": "deno task test:unit --trace-leaks ./src/m.vite/-test.external/-candidate-consumer.ts",
     "test:external": "deno task test:unit --trace-leaks ./src/m.vite/-test.external/mod.ts",
+    "test:integrity": "deno task test:unit --trace-leaks ./src/m.vite.plugins/-test ./src/m.vite.plugins/m.HtmlIntegrity/-test ./src/m.vite/-test.external/-html-integrity.chromium.ts",
     "perf": "deno run -P=dev ./-scripts/task.perf.ts",
     "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
@@ -109,4 +110,3 @@
     }
   }
 }
-

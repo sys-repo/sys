@@ -70,6 +70,7 @@
     "micromark-extension-gfm": "npm:micromark-extension-gfm@3.0.0",
     "monaco-editor": "npm:monaco-editor@0.56.0",
     "ora": "npm:ora@9.4.1",
+    "parse5": "npm:parse5@8.0.1",
     "pretty-bytes": "npm:pretty-bytes@7.1.3",
     "prosemirror-example-setup": "npm:prosemirror-example-setup@1.2.3",
     "prosemirror-model": "npm:prosemirror-model@1.25.12",

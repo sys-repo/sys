@@ -9,6 +9,7 @@ import './-baseline.ts';
 import './-browser-syntax.runtime.ts';
 import './-browser-syntax.chromium.ts';
 import './-dispose-protocol-compat.runtime.ts';
+import './-html-integrity.chromium.ts';
 import './-published-pure-jsr-authority.ts';
 import './-repo-generated.ts';
 import './-repo-generated.workspace.ts';

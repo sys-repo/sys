@@ -6,6 +6,7 @@
  * driver to keep Vite behavior explicit and consistent across adopting apps.
  */
 import type { t } from './common.ts';
+import { HtmlIntegrity } from './m.HtmlIntegrity/mod.ts';
 import { DisposeProtocolCompatPlugin as DisposeProtocolCompat } from './m.DisposeProtocolCompat/mod.ts';
 import { OptimizeImportsPlugin as OptimizeImports } from './m.OptimizeImports/mod.ts';
 
@@ -13,4 +14,5 @@ import { OptimizeImportsPlugin as OptimizeImports } from './m.OptimizeImports/mo
 export const VitePlugins: t.VitePlugins.Lib = {
   DisposeProtocolCompat,
   OptimizeImports,
+  HtmlIntegrity,
 };

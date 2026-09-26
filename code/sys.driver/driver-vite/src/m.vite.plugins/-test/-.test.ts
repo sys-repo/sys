@@ -1,5 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { VitePlugins } from '../mod.ts';
+import { HtmlIntegrity } from '../m.HtmlIntegrity/mod.ts';
 import { DisposeProtocolCompatPlugin } from '../m.DisposeProtocolCompat/mod.ts';
 import { OptimizeImportsPlugin } from '../m.OptimizeImports/mod.ts';
 
@@ -9,5 +10,6 @@ describe('VitePlugins', () => {
     expect(m.VitePlugins).to.equal(VitePlugins);
     expect(m.VitePlugins.DisposeProtocolCompat).to.equal(DisposeProtocolCompatPlugin);
     expect(m.VitePlugins.OptimizeImports).to.equal(OptimizeImportsPlugin);
+    expect(m.VitePlugins.HtmlIntegrity).to.equal(HtmlIntegrity);
   });
 });
