@@ -1,4 +1,4 @@
-import { type t, Err, Fs, FsPkg, Json } from './common.ts';
+import { Err, Fs, FsPkg, Is, Json, Obj, type t } from './common.ts';
 import { fail } from './u.result.ts';
 import { readBytes } from './u.run.io.ts';
 
@@ -157,14 +157,11 @@ function signatureDescriptorPath(
 }
 
 function canonicalizeJson(input: unknown): unknown {
-  if (Array.isArray(input)) return input.map(canonicalizeJson);
-  if (input === null) return null;
-  if (typeof input !== 'object') return input;
+  if (Is.array(input)) return input.map(canonicalizeJson);
+  if (!Is.record(input)) return input;
 
-  const src = input as Record<string, unknown>;
-  const out: Record<string, unknown> = {};
-  for (const key of Object.keys(src).sort()) {
-    out[key] = canonicalizeJson(src[key]);
-  }
-  return out;
+  // Create own data properties; assignment can dispatch inherited setters (including __proto__).
+  return Object.fromEntries(
+    Obj.keys(input).sort().map((key) => [key, canonicalizeJson(input[key])]),
+  );
 }

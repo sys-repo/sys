@@ -1,5 +1,5 @@
 import { c, describe, expect, it } from '../../-test.ts';
-import { type t, Fs, Pkg, Json, SignEd25519 } from '../common.ts';
+import { Fs, Hash, Is, Json, Obj, Pkg, SignEd25519, Str, type t } from '../common.ts';
 import { DistSigner } from '../mod.ts';
 
 describe(`DistSigner`, () => {
@@ -180,8 +180,9 @@ describe(`DistSigner`, () => {
 
       const sigRead = await Fs.read(signature);
       expect(sigRead.ok).to.eql(true);
-      if (!sigRead.ok || !sigRead.data)
+      if (!sigRead.ok || !sigRead.data) {
         throw new Error('Expected detached signature sidecar to exist.');
+      }
 
       const verified = await DistSigner.run({
         mode: 'verify',
@@ -209,6 +210,104 @@ describe(`DistSigner`, () => {
   });
 
   describe('dist.json semantics and canonicalization invariants', () => {
+    const ownKeyCases = [
+      { name: 'own keys with default writeback', key: '__proto__', writeBack: true },
+      { name: 'own keys without writeback', key: '__proto__', writeBack: false },
+      { name: 'ordinary-key canonical byte control', key: '_own', writeBack: true },
+      { name: 'own keys over inherited setters', key: '_signerOwnKey', writeBack: true },
+    ] as const;
+
+    for (const test of ownKeyCases) {
+      it(`sign → preserves ${test.name}`, async () => {
+        const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.own-keys.' });
+        const inherited = Object.getOwnPropertyDescriptor(Object.prototype, test.key);
+        let setterCalls = 0;
+        try {
+          // Exercise setter dispatch even on runtimes that special-case __proto__ assignment.
+          if (test.key === '_signerOwnKey') {
+            Object.defineProperty(Object.prototype, test.key, {
+              configurable: true,
+              set() {
+                setterCalls += 1;
+                throw new Error('Canonical reconstruction invoked an inherited setter.');
+              },
+            });
+          }
+          const artifact = Fs.join(dir, 'dist.json');
+          const signature = Fs.join(dir, 'dist.json.sig');
+          // Replacing the key preserves its sort position, giving a pre-fix positive control.
+          const canonical = canonicalOwnKeyFixture().replaceAll('"__proto__"', `"${test.key}"`);
+          const parsed = Json.parse<Record<string, unknown>>(canonical);
+          if (!Is.record(parsed)) throw new Error('Expected canonical JSON fixture.');
+          const { type, hash, ...rest } = parsed;
+          const source = Json.stringify({ type, hash, ...rest }, 0);
+          expect(Obj.hasOwn(parsed, test.key)).to.eql(true);
+          await Fs.write(artifact, source, { throw: true });
+
+          const keys = await SignEd25519.generateKeyPair();
+          const signed = await DistSigner.run({
+            mode: 'sign',
+            artifact: { path: artifact, kind: 'dist.json' },
+            signature: { path: signature },
+            privateKey: keys.privateKey,
+            ...(test.writeBack ? {} : { writeBack: { distSignDescriptor: false } }),
+          });
+          expect(setterCalls).to.eql(0);
+          expect(signed.ok).to.eql(true);
+
+          const written = await Fs.readText(artifact);
+          if (!written.ok || !written.data) throw new Error('Expected signed Dist document.');
+          expect(written.data).to.eql(test.writeBack ? canonical : source);
+          const loaded = await Pkg.Dist.load(artifact);
+          expect(loaded.kind).to.eql('canonical');
+          if (!loaded.dist) throw new Error('Expected canonical Dist document.');
+          for (const key of [test.key, 'constructor', 'toString']) {
+            expect(Obj.hasOwn(loaded.dist, key)).to.eql(true);
+            expect(Obj.hasOwn(loaded.dist.hash.parts, key)).to.eql(true);
+          }
+          expect(Object.keys(loaded.dist.hash.parts).length).to.eql(4);
+
+          // Verify against independently ordered literal bytes, not the signer's canonicalizer.
+          const expectedBytes = new TextEncoder().encode(canonical);
+          const detached = await Fs.read(signature);
+          if (!detached.ok || !detached.data) throw new Error('Expected detached signature.');
+          expect(runData(signed).artifactHash).to.eql(Hash.sha256(expectedBytes));
+          expect(
+            await SignEd25519.verify({
+              bytes: expectedBytes,
+              signature: detached.data,
+              publicKey: keys.publicKey,
+            }),
+          ).to.eql(true);
+
+          const verify = () =>
+            DistSigner.run({
+              mode: 'verify',
+              artifact: { path: artifact, kind: 'dist.json' },
+              signature: { path: signature },
+              publicKey: keys.publicKey,
+            });
+          expect((await verify()).ok).to.eql(true);
+
+          // This nested descriptive member must be signed even though it is not inventory.
+          const changed = written.data.replace('"before"', '"after"');
+          expect(changed).not.to.eql(written.data);
+          await Fs.write(artifact, changed, { throw: true });
+          const rejected = await verify();
+          expect(rejected.ok).to.eql(false);
+          if (rejected.ok) throw new Error('Expected own-member mutation to invalidate signature.');
+          expect(rejected.code).to.eql('E_VERIFY');
+          expect(rejected.stage).to.eql('verify');
+        } finally {
+          if (test.key === '_signerOwnKey') {
+            if (inherited) Object.defineProperty(Object.prototype, test.key, inherited);
+            else Reflect.deleteProperty(Object.prototype, test.key);
+          }
+          await Fs.remove(dir, { log: false });
+        }
+      });
+    }
+
     it('sign → writes detached signature descriptor into canonical dist.json and preserves Dist.compute hash', async () => {
       const dir = await Deno.makeTempDir({ prefix: 'driver-signer.dist.' });
       await Fs.write(Fs.join(dir, 'a.txt'), new TextEncoder().encode('hello\n'), { throw: true });
@@ -452,3 +551,56 @@ describe(`DistSigner`, () => {
     });
   });
 });
+
+/** Independently ordered canonical document, including nested own-property JSON data. */
+function canonicalOwnKeyFixture(): string {
+  const hash = 'sha256-0000000000000000000000000000000000000000000000000000000000000000';
+  const json = Str.dedent(`
+    {
+      "__proto__": {
+        "a": true,
+        "nested": [
+          {
+            "__proto__": "before",
+            "constructor": 7,
+            "toString": null
+          },
+          false,
+          0,
+          "text"
+        ],
+        "z": false
+      },
+      "build": {
+        "builder": "fixture",
+        "hash": {
+          "policy": "fixture"
+        },
+        "runtime": "fixture",
+        "sign": {
+          "path": "./dist.json.sig",
+          "scheme": "Ed25519"
+        },
+        "size": {
+          "pkg": 0,
+          "total": 4
+        },
+        "time": 0
+      },
+      "constructor": "metadata",
+      "hash": {
+        "digest": "${hash}",
+        "parts": {
+          "__proto__": "${hash}:size=1",
+          "a.txt": "${hash}:size=1",
+          "constructor": "${hash}:size=1",
+          "toString": "${hash}:size=1"
+        }
+      },
+      "toString": "metadata",
+      "type": "fixture"
+    }
+  `);
+  // Existing Dist signing uses indented JSON followed by two LF bytes; keep that exact contract.
+  return `${json}\n\n`;
+}
