@@ -7,7 +7,8 @@ type Parts = t.DeepMutable<t.CompositeHashParts>;
 
 export const builder: t.CompositeHash.Lib['builder'] = (input = {}) => {
   const options = wrangle.options(input);
-  const parts: Parts = {};
+  // Private dictionary: every key is data, never an inherited setter (including __proto__).
+  const parts: Parts = Object.create(null);
   let _digest: string | undefined;
   const reset = () => (_digest = undefined);
 

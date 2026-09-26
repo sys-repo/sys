@@ -64,6 +64,59 @@ describe('Pkg.Dist', () => {
   });
 
   describe('Dist.compute (save)', () => {
+    it('selected prototype-sensitive filenames → survive collection and saved Dist JSON', async () => {
+      const dir = (await Fs.makeTempDir({ prefix: 'Fs.Pkg.own-keys.' })).absolute;
+      try {
+        // Explicit key order supplies an independent generic-digest preimage.
+        const files = [
+          { path: '__proto__', bytes: new Uint8Array([1]) },
+          { path: 'constructor', bytes: new Uint8Array([2, 3]) },
+          { path: 'toString', bytes: new Uint8Array([4, 5, 6]) },
+          { path: 'z.txt', bytes: new Uint8Array([7, 8, 9, 10]) },
+        ];
+        for (const file of files) {
+          await Fs.write(Fs.join(dir, file.path), file.bytes, { throw: true });
+        }
+        await Fs.write(Fs.join(dir, 'skip.txt'), 'not selected', { throw: true });
+        const filter = (path: string) => Path.basename(path) !== 'skip.txt';
+        const parts = Object.fromEntries(files.map(({ path, bytes }) => [
+          path,
+          `${Hash.sha256(bytes)}:size=${bytes.byteLength}`,
+        ]));
+        const digest = Hash.sha256(files.map(({ bytes }) => Hash.sha256(bytes)).join('\n'));
+        const collected = await Dir.Hash.compute(dir, { filter });
+        const computed = await Pkg.Dist.compute({ dir, filter, save: true });
+        const loaded = await Pkg.Dist.load(dir);
+        expect(collected.error).to.eql(undefined);
+        expect(computed.error).to.eql(undefined);
+        expect(loaded.error).to.eql(undefined);
+        expect(loaded.kind).to.eql('canonical');
+        if (!loaded.dist) throw new Error('Expected saved Dist fixture.');
+
+        for (const hash of [collected.hash, computed.dist.hash, loaded.dist.hash]) {
+          expect(hash).to.eql({ digest, parts });
+          expect(Obj.keys(hash.parts).sort()).to.eql(files.map(({ path }) => path));
+          for (const { path } of files) expect(Obj.hasOwn(hash.parts, path)).to.eql(true);
+        }
+        expect(computed.dist.build.size.total).to.eql(10);
+        const text = await Fs.readText(Fs.join(dir, 'dist.json'));
+        expect(text.error).to.eql(undefined);
+        expect(text.data).to.eql(Json.stringify(computed.dist, 2));
+        expect(computed.manifest.integrity).to.eql(Hash.sha256(text.data));
+
+        const changedBytes = new Uint8Array([11]);
+        await Fs.write(Fs.join(dir, '__proto__'), changedBytes, { throw: true });
+        const changed = await Pkg.Dist.compute({ dir, filter });
+        expect(changed.error).to.eql(undefined);
+        expect(Obj.hasOwn(changed.dist.hash.parts, '__proto__')).to.eql(true);
+        expect(changed.dist.hash.parts['__proto__']).to.eql(`${Hash.sha256(changedBytes)}:size=1`);
+        expect(changed.dist.hash.digest).not.to.eql(digest);
+        expect(loaded.dist.hash.parts['__proto__']).to.eql(parts['__proto__']);
+      } finally {
+        await Fs.remove(dir);
+      }
+    });
+
     it('Dist.compute(): → success', async () => {
       const sample = await Sample.init();
       const { dir } = sample.path;
