@@ -1,15 +1,34 @@
+prepare STIER review prompt - blind! Make it count.
+ along with -canon level code-qualiyt sweep
+ PLUS - we have a ton of surace area changed:
+ <paths> open git tree
+ ENSURE we have pure essence here not needless sprawl.
+
+ AND high end TUFTE documetnation langauge - STIER? Not just unreadable "code as prose" slop! Strong terse, beautiufl human
+ elegnat pls
+ And TMIND ensure this all at high level BMIND reads like elegant API - we got the "pin" API shape clean, elegant and 100yr STIER?
+
+ This is securrty posture sturf HAS to be strong review! STIER security posture. TMIND.
+ Create the Review Plan please. STIER (solid)!
 
 
-@sample.r2
-public-image-delivery.plan.md
-- [x] 1b9d2ece9 feat(sample.r2): demonstrate direct public R2 image delivery
+
+
+@sys.fs
+dist-content-identity.plan.md
+- [x] fix(driver-signer): preserve own keys in canonical Dist documents
+- [x] fix(crypto): preserve every selected key in composite hash builders
+- [ ] feat(dist)!: unify build pins and verification on canonical content identity
 
 
 
 @sys.driver-vite
 html-subresource-integrity.plan.md
-- [ ] feat(driver-vite): add opt-in integrity for HTML-linked assets
+- [x] d449229f6 feat(crypto): add Base64 digest output to Hash
+- [x] e29b7c596 feat(driver-vite): add opt-in integrity for HTML-linked assets
+- [x] 2ea133e7c feat(driver-cloudflare): compare image asset paths in the R2 sample
 - [ ] feat(driver-cloudflare): enable subresource integrity in the R2 sample
+
 
 
 @sys.driver-pi
@@ -127,14 +146,10 @@ system-owned-spinner.plan.md
 - [ ] chore(deps): remove Ora from the workspace graph
 
 
-
-
 @sys.tools
 deploy-state-containment.plan.md
 - [x] fix(tools): contain build coordination in source-owned dev state
 - [ ] chore(deploy): isolate the fs.db.team development workflow
-
-
 
 
 @sys.driver-crdt
@@ -144,7 +159,8 @@ cmd-first-kernels.plan.md
 - [ ] test(driver-crdt): prove editor reconciliation and boundary failure behavior
 - [ ] docs(driver-crdt): specify draft-one contracts from topology evidence
 
-@sys.workspace
-dependency-standdown-parity.plan.md
-- [ ] fix(workspace): unify npm and JSR dependency standdown
-
+@sys.html
+html-capability.plan.md
+- [ ] GATE Human approves the HTML capability design in the actual /sys context
+- [ ] chore(html): scaffold the HTML package
+- [ ] feat(html): expose HTML parsing contracts and migrate Vite consumers
