@@ -1,5 +1,5 @@
 import { Is, Obj, type t } from '../common.ts';
-import { PkgIs } from './m.Is.ts';
+import { PkgIs } from '../m.Is/mod.ts';
 
 type Data = Readonly<Record<string, unknown>>;
 
@@ -24,7 +24,7 @@ function capture(input: unknown, requirements?: unknown): t.DistPins {
       // Validate the copy, not the caller's object.
       const pin = data(rawPins[name]);
       if (!PkgIs.distPin(pin)) throw invalid();
-      return [name, Object.freeze({ 'dist.json': pin['dist.json'] })] as const;
+      return [name, Object.freeze({ scheme: pin.scheme, digest: pin.digest })] as const;
     }));
     if (requirements !== undefined) {
       const required = data(requirements);

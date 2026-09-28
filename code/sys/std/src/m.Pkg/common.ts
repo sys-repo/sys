@@ -3,6 +3,7 @@ import type { t } from '../common.ts';
 export * from '../common.ts';
 export { Err } from '../m.Err/mod.ts';
 export { Is } from '../m.Is/mod.ts';
+export { Json } from '../m.Json/mod.ts';
 export { Num } from '../m.Num/mod.ts';
 export { Obj } from '../m.Obj/mod.ts';
 export { Path } from '../m.Path/mod.ts';

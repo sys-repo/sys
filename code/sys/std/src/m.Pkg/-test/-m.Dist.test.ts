@@ -1,4 +1,4 @@
-import { describe, expect, it, type t } from '../../-test.ts';
+import { describe, expect, it } from '../../-test.ts';
 import { Dist, Pkg } from '../mod.ts';
 
 describe('Pkg.Dist', () => {
@@ -6,60 +6,11 @@ describe('Pkg.Dist', () => {
     expect(Pkg.Dist).to.equal(Dist);
   });
 
-  describe('Dist.Compat', () => {
-    it('toCanonical: legacy requires explicit policy', () => {
-      const legacy: t.DistPkgLegacy = {
-        type: 'https://jsr.io/@sample/foo',
-        pkg: { name: '@ns/foo', version: '1.2.3' },
-        build: {
-          time: 1746520471244,
-          size: { total: 1234, pkg: 1234 },
-          builder: '@scope/sample@0.0.0',
-          runtime: '<runtime-uri>',
-        },
-        hash: {
-          digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-          parts: {
-            './index.html':
-              'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-          },
-        },
-      };
-
-      expect(Pkg.Dist.Compat.legacy(legacy)).to.eql(true);
-      expect(Pkg.Dist.Compat.toCanonical(legacy)).to.eql(undefined);
-
-      const policy = 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts';
-      const canonical = Pkg.Dist.Compat.toCanonical(legacy, { policy });
-      expect(canonical?.build.hash.policy).to.eql(policy);
-      expect(Pkg.Is.dist(canonical)).to.eql(true);
-    });
-
-    it('toCanonical: preserves omitted root pkg', () => {
-      const legacy: t.DistPkgLegacy = {
-        type: 'https://jsr.io/@sample/foo',
-        build: {
-          time: 1746520471244,
-          size: { total: 1234, pkg: 1234 },
-          builder: '@scope/sample@0.0.0',
-          runtime: '<runtime-uri>',
-        },
-        hash: {
-          digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-          parts: {
-            './index.html':
-              'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-          },
-        },
-      };
-
-      const canonical = Pkg.Dist.Compat.toCanonical(legacy, {
-        policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts',
-      });
-
-      expect(canonical?.pkg).to.eql(undefined);
-      expect(Pkg.Is.dist(canonical)).to.eql(true);
-    });
+  it('has one content contract and no conversion surface', () => {
+    expect(Object.keys(Pkg.Dist).sort()).to.eql(['Content', 'Is', 'Part', 'Pins']);
+    expect('Compat' in Pkg.Dist).to.eql(false);
+    expect('distCompat' in Pkg.Is).to.eql(false);
+    expect(Object.isFrozen(Pkg.Dist.Content)).to.eql(true);
   });
 
   describe('Dist.Is', () => {
@@ -90,7 +41,7 @@ describe('Pkg.Dist', () => {
       expect(Pkg.Dist.Part).to.equal(Dist.Part);
     });
 
-    it('parse: canonical hash-only compatibility', () => {
+    it('parse: canonical hash-only checksums (not complete Dist parts)', () => {
       expect(Pkg.Dist.Part.parse(HASH)).to.eql({ hash: HASH });
     });
 

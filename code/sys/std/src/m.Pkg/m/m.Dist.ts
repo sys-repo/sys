@@ -1,12 +1,12 @@
-import { type t } from '../common.ts';
-import { Compat } from './m.Compat.ts';
+import type { t } from '../common.ts';
+import { Content } from './m.Dist.Content.ts';
 import { Part } from './m.Dist.Part.ts';
 import { Pins } from './m.Dist.Pins.ts';
 
 export const Dist: t.Pkg.Dist.Lib = Object.freeze<t.Pkg.Dist.Lib>({
   Part,
   Pins,
-  Compat,
+  Content,
   Is: Object.freeze({
     codePath(path) {
       if (typeof path !== 'string') return false;

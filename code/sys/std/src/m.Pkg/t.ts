@@ -14,26 +14,32 @@ export declare namespace Pkg {
     /** Package metadata type guards. */
     readonly Is: Is.Lib;
 
-    /** Canonical package-subpath parsing. */
+    /** Normalize package subpaths without granting filesystem authority. */
     readonly Subpath: Subpath.Lib;
 
     /** Tools for working with distribution packages. */
     readonly Dist: Dist.Lib;
 
-    /** Convert a {pkg} into a display string. */
+    /** Format `name@version` with an optional `:suffix`; the version can be omitted. */
     toString(input?: t.Pkg, suffix?: string, options?: t.PkgToStringOptions | boolean): string;
 
-    /** Convert a package name, optionally with subpath, to a filesystem namespace segment. */
+    /**
+     * Convert a name and optional subpath to a dotted namespace, e.g. `@sys/model/files` →
+     * `@sys.model.files`. Throws for invalid names or invalid string subpaths.
+     */
     toFileNamespace(input: t.Pkg, options?: t.PkgToFileNamespaceOptions): t.StringName;
 
     /**
-     * Extracts the name/version from the given object if found,
-     * otherwise returns standard <Unknown> package.
+     * Copy string `name` and `version` fields from an object, or parse a `name@version` string
+     * (including scoped names). Returns `Pkg.unknown()` when either field cannot be obtained.
+     * Does not validate package-name or semantic-version syntax.
      */
     toPkg(input?: Record<string, unknown> | string): t.Pkg;
 
     /**
-     * Convert a JSON import to a simple <Pkg> structure.
+     * Read `name` and `version` from an object, filling missing or non-string fields individually.
+     * Each field uses its supplied default, then the corresponding `Pkg.unknown()` value.
+     * Non-record input returns `Pkg.unknown()` without applying supplied defaults.
      * @example
      *
      * ```ts
@@ -49,9 +55,7 @@ export declare namespace Pkg {
       defaultVersion?: t.StringSemver,
     ): t.Pkg;
 
-    /**
-     * Generate a new { \<unknown\>@0.0.0 } package object.
-     */
+    /** Return a fresh `{ name: '<unknown>', version: '0.0.0' }` object. */
     unknown(): t.Pkg;
   };
 
@@ -59,13 +63,19 @@ export declare namespace Pkg {
    * Parse package subpaths.
    */
   export namespace Subpath {
-    /** Canonical package-subpath parsing operations. */
+    /** Package-subpath normalization and classification. */
     export type Lib = {
-      /** Classify and normalize an optional package subpath without throwing. */
+      /**
+       * Normalize without throwing: ` //ui///admin// ` → `ui/admin`.
+       * Control/format characters, lone surrogates and Unicode line/paragraph separators are
+       * invalid, even in otherwise empty input. Non-strings other than `undefined` are invalid.
+       * `undefined` or text that normalizes to no segments is absent; other accepted text is valid.
+       * Validity does not establish filesystem safety: `./ui/../admin` and `ui\admin` are accepted.
+       */
       readonly parse: (input?: unknown) => ParseResult;
     };
 
-    /** Canonical package-subpath parse result. */
+    /** Absence, invalid input, or a normalized nonempty subpath. */
     export type ParseResult =
       | { readonly kind: 'absent' }
       | { readonly kind: 'invalid' }
@@ -76,27 +86,25 @@ export declare namespace Pkg {
    * Package metadata type guards.
    */
   export namespace Is {
-    /**
-     * Boolean tests on a {pkg} structure.
-     */
+    /** Package metadata and distribution shape checks. */
     export type Lib = {
-      /** Determines if the input is a string of the default "unknown" */
+      /**
+       * Recognize `<unknown>@0.0.0`, its package object, or missing/non-string package metadata.
+       * Other strings return false; this is not a package-validity check.
+       */
       unknown(input?: string | t.Pkg): boolean;
 
-      /** Determine if the given input is a `Pkg` */
+      /** Check for string `name` and `version` fields. */
       pkg(input: unknown): input is t.Pkg;
 
-      /** Determine if the given input is a `DistPkg` */
+      /** Recognize supported manifest shape; does not recompute identity or verify payload bytes. */
       dist(input: unknown): input is t.DistPkg;
 
       /**
-       * Check a plain record with exactly one own data property, `dist.json`, holding a canonical
-       * SHA-256 checksum. Does not read or verify the manifest.
+       * Check exactly two own data properties: the supported `scheme` and canonical SHA-256
+       * `digest`. Validating this shape does not establish that the digest came from a trusted source.
        */
       distPin(input: unknown): input is t.DistPin;
-
-      /** Determine if the given input is a canonical or legacy `DistPkg` shape. */
-      distCompat(input: unknown): input is t.DistPkg | t.DistPkgLegacy;
     };
   }
 
@@ -112,14 +120,10 @@ export declare namespace Pkg {
       /** Validate and copy named distribution pins. */
       readonly Pins: Pins.Lib;
 
-      /** Legacy-compatibility helpers for dist schema evolution. */
-      readonly Compat: Compat.Lib;
+      /** Encode the file inventory for the distribution content hash. */
+      readonly Content: Content.Lib;
 
-      /**
-       * Helpers for parsing `dist.hash.parts` values, eg:
-       *   "sha256-<hex>:size=<bytes>"
-       *   "sha256-<hex>"
-       */
+      /** Parse file checksums and optional byte sizes from `dist.hash.parts` values. */
       readonly Part: Part.Lib;
     };
 
@@ -131,8 +135,9 @@ export declare namespace Pkg {
       export type Lib = { readonly capture: Capture };
 
       /**
-       * Return frozen copies of a nonempty pins-only record.
-       * When requirements are supplied, pin names must match them exactly.
+       * Accept `{ pins: { [name]: pin } }` with nonempty pins and no other top-level fields.
+       * When supplied, `requirements.names` must match the pin names exactly.
+       * Return frozen copies unaffected by subsequent caller mutation.
        * Invalid input throws `TypeError('Invalid Dist pins.')`.
        */
       export type Capture = {
@@ -140,7 +145,7 @@ export declare namespace Pkg {
         <const N extends string>(input: unknown, requirements: Requirements<N>): t.DistPins<N>;
       };
 
-      /** An exhaustive, nonempty witness of the exact distribution names required by the consumer. */
+      /** Exact, nonempty set of required distribution names. */
       export type Requirements<N extends string> = {
         readonly names: Readonly<Record<N, true>>;
       };
@@ -150,11 +155,9 @@ export declare namespace Pkg {
      * Type-guard contracts.
      */
     export namespace Is {
-      /**
-       * Type guards.
-       */
+      /** Path-shape checks. */
       export type Lib = {
-        /** Determine if the given path represents a commonly known /pkg/ path pattern. */
+        /** Check for a `pkg/` directory segment at the start or after `/`; `pkg` alone is false. */
         codePath(path: t.StringPath): boolean;
       };
     }
@@ -163,40 +166,56 @@ export declare namespace Pkg {
      * File hashes and sizes recorded in a distribution manifest.
      */
     export namespace Part {
-      /**
-       * Helpers for working with `dist.hash.parts`.
-       */
+      /** File-checksum and byte-size parsing. */
       export type Lib = {
-        /** Parse a parts value into `{ hash, size }` if possible. */
+        /**
+         * Parse `sha256-<64 lowercase hex digits>` with an optional `:size=<bytes>` suffix.
+         * Sizes must be nonnegative safe integers in canonical decimal notation (`0` or no leading
+         * zeros). The whole input must match; otherwise returns `undefined`.
+         * Hash-only values are accepted here but are insufficient for `Content.encode`.
+         */
         parse(value: unknown): PkgDistPartInfo | undefined;
 
-        /** Extract only the hash (if any). */
+        /** Return the parsed hash; malformed sizes invalidate the whole input, including its hash. */
         hash(value: unknown): t.StringHash | undefined;
 
-        /** Extract only the size (bytes) (if any). */
+        /** Return the parsed byte size, or `undefined` for invalid input or an absent size. */
         size(value: unknown): number | undefined;
       };
     }
 
     /**
-     * Read and convert legacy distribution metadata.
+     * Encode the file inventory for the distribution content hash.
      */
-    export namespace Compat {
-      /**
-       * Compatibility helpers for legacy `dist.json` shapes.
-       */
+    export namespace Content {
+      /** Supported scheme, input limits and inventory encoding. */
       export type Lib = {
-        /** Determine if the given input is legacy (compat) shape (not canonical). */
-        legacy(input: unknown): input is t.DistPkgLegacy;
-
+        readonly scheme: t.DistScheme;
+        readonly limits: Readonly<Limits>;
         /**
-         * Convert legacy/canonical input to canonical `DistPkg`.
-         * Legacy input requires explicit `policy`.
+         * Requires a nonempty file inventory with nonempty Unicode scalar paths and canonical
+         * SHA-256 parts with byte sizes (see `Part.parse`).
+         *
+         * Returns compact JSON `[scheme, [[path, sha256, size], ...]]`, sorted by exact UTF-16
+         * code units. Uses native JSON escaping, with no normalization or trailing newline.
+         * The returned string's UTF-8 bytes are the input to the content hash.
+         *
+         * Throws `TypeError` for malformed input and `RangeError` when `limits` are exceeded.
+         * Does not hash or read files, validate portable paths, or verify a claimed digest.
          */
-        toCanonical(
-          input: unknown,
-          options?: { policy?: t.StringUri },
-        ): t.DistPkg | undefined;
+        encode(parts: t.DistContent['parts']): string;
+      };
+
+      /** Limits checked before sorting and serialization; callers may impose lower limits. */
+      export type Limits = {
+        /** Maximum number of file entries. */
+        readonly entries: number;
+        /** Maximum UTF-16 code units per exact path. */
+        readonly pathLength: number;
+        /** Maximum aggregate UTF-16 path code units. */
+        readonly pathTotal: number;
+        /** Maximum conservative estimate of UTF-8 output size; not a runtime memory-allocation cap. */
+        readonly encodedBytes: number;
       };
     }
   }
@@ -204,7 +223,7 @@ export declare namespace Pkg {
 
 /** Options passed to the `Pkg.toString` method. */
 export type PkgToStringOptions = {
-  /** Include the version in the display string - @default true */
+  /** Include the version in the display string. Defaults to `true`. */
   version?: boolean;
 };
 

@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Pkg } from '../mod.ts';
 
-const pin = { 'dist.json': `sha256-${'a'.repeat(64)}` };
+const pin = { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` };
 
 describe('Pkg.Dist.Pins.capture', () => {
   it('widened name arrays cannot promise an absent member of their element union', () => {
@@ -45,7 +45,8 @@ describe('Pkg.Dist.Pins.capture', () => {
     const names: Record<string, true> = { shell: true };
     const requirements = { names };
     const result = Pkg.Dist.Pins.capture(input, requirements);
-    input.pins.shell['dist.json'] = 'changed';
+    input.pins.shell.digest = 'changed';
+    input.pins.shell.scheme = 'changed';
     delete names.shell;
     names.other = true;
     expect(result).to.eql({ pins: { shell: pin } });
@@ -72,7 +73,9 @@ describe('Pkg.Dist.Pins.capture', () => {
       { ...valid, pins: { '': pin } },
       { ...valid, pins: { [Symbol()]: pin } },
       { ...valid, pins: { shell: { ...pin, extra: 1 } } },
-      { ...valid, pins: { shell: { 'dist.json': `${pin['dist.json']}:size=1` } } },
+      { ...valid, pins: { shell: { ...pin, digest: `${pin.digest}:size=1` } } },
+      { ...valid, pins: { shell: { 'dist.json': pin.digest } } },
+      { ...valid, pins: { shell: { ...pin, 'dist.json': pin.digest } } },
       { ...valid, pins: accessor },
       { ...valid, pins: Object.create({ shell: pin }) },
     ];

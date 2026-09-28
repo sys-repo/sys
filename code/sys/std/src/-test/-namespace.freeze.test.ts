@@ -49,7 +49,7 @@ import { Join } from '../m.Path/m/m.Join.ts';
 import { Path as PathValue } from '../m.Path/m/m.Path.ts';
 import { Part } from '../m.Pkg/m/m.Dist.Part.ts';
 import { Dist } from '../m.Pkg/m/m.Dist.ts';
-import { PkgIs } from '../m.Pkg/m/m.Is.ts';
+import { PkgIs } from '../m.Pkg/m.Is/mod.ts';
 import { Pkg } from '../m.Pkg/m/m.Pkg.ts';
 import { Subpath } from '../m.Pkg/m/m.Subpath.ts';
 import { Length } from '../m.Random/common.ts';
@@ -149,7 +149,7 @@ describe('namespace freeze', () => {
       ['Path.Is', PathValueIs],
       ['Path.Join', Join],
       ['Pkg.Dist.Part', Part],
-      ['Pkg.Dist.Compat', Dist.Compat],
+      ['Pkg.Dist.Content', Dist.Content],
       ['Pkg.Dist.Is', Dist.Is],
       ['Pkg.Is', PkgIs],
       ['Pkg.Subpath', Subpath],
