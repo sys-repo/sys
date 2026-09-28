@@ -146,6 +146,10 @@ independent closure follows the owning boundaries; there is no additional all-so
 - **Completion:** one supported scheme and pin shape, bounded literal encoding vectors, exact
   Part/Unicode/order semantics, old-input refusal and retired exports. Std gains no crypto or FS
   dependency. S2 owns digest composition and filesystem admission proof.
+- **Candidate evidence:**
+  [S1 exact cut and owner verification](./dist-content-identity.plan/landing/S1.landing.md)
+  records the exact source/test cut, dependency context, blind-review adjudication and subsequent
+  mechanical-extraction checks.
 
 ### S2 — FS production, admission, projection and pins
 

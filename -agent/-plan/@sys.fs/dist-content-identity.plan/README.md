@@ -3,6 +3,7 @@
 The [primary plan](../dist-content-identity.plan.md) remains the governing contract and sole landing
 ledger. This folder organizes supporting evidence; it adds no work, review gate or execution authority.
 
+- [Landing records](./landing/README.md): exact source-unit cuts and verification receipts.
 - [Adjacent findings](./adjacent-findings.md): separately scoped observations, not automatic work.
 - [Review records](./reviews/README.md): retained prompts, reports, adjudications and execution notes
   for rounds [01](./reviews/01/), [02](./reviews/02/) and [03](./reviews/03/).
