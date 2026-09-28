@@ -6,7 +6,7 @@ import { checkCancelled, DEFAULT_IO, failure, ioFailure } from './u.verify/u.io.
 import { verifyPinnedWithIo } from './u.verify/u.verify.ts';
 
 /**
- * Verify all distributions in a selection against their manifest pins.
+ * Verify all distributions in a selection against their independent content pins.
  */
 export const Pins: t.Pkg.Dist.Pins.Lib = Object.freeze({
   ...Pkg.Dist.Pins,
@@ -62,7 +62,7 @@ export async function verifyPinsWithIo<N extends string>(
       name = key;
       const result = await verifyPinnedWithIo({
         dir: dirs.get(key),
-        integrity: selection.pins[key]['dist.json'],
+        pin: selection.pins[key],
         limits: { ...limits, totalBytes: Math.min(limits.totalBytes, remaining) },
         until: life.signal,
       }, io);

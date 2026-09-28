@@ -22,7 +22,7 @@ export declare namespace Pkg {
       /** Load a `dist.json` file. */
       load: Load.Method;
 
-      /** Compute distribution-package metadata. */
+      /** Compute a distribution manifest and content pin. */
       compute: Compute.Method;
 
       /** Copy selected source files into new, verified distributions. */
@@ -31,13 +31,10 @@ export declare namespace Pkg {
       /** Validate named pins and verify their local files. */
       readonly Pins: Pins.Lib;
 
-      /** Check a directory against the checksum claims in its own manifest. */
-      checkSelfReported: CheckSelfReported.Method;
-
       /** Check a local distribution from its own manifest and read checksum-matched files. */
       readonly Local: Local.Lib;
 
-      /** Check against an external manifest checksum and read checksum-matched files. */
+      /** Check against an independent content pin and read checksum-matched files. */
       readonly Pinned: Pinned.Lib;
 
       /** Logging helpers for distribution-package metadata. */
@@ -63,7 +60,7 @@ export declare namespace Pkg {
       /** Paths are relative to `root`. The root and output parents must already exist. */
       export type Args<N extends string> = {
         root: string;
-        source: { dir: string; integrity: t.StringHash };
+        source: { dir: string; pin: t.DistPin };
         /** Nonempty name-to-directory map. Output directories must not already exist. */
         outputs: Record<N, string>;
         limits: Verify.Limits;
@@ -72,7 +69,7 @@ export declare namespace Pkg {
          * Select at least one source-relative payload path for each output name.
          * Return exactly the output names; exclude `dist.json` and duplicate paths within an output.
          */
-        select: (dist: t.DeepReadonly<t.DistPkg>) => Readonly<Record<N, readonly string[]>>;
+        select: (content: t.DistContent) => Readonly<Record<N, readonly string[]>>;
         pkg?: StdPkg;
         builder?: StdPkg;
         until?: t.UntilInput;
@@ -101,7 +98,7 @@ export declare namespace Pkg {
     }
 
     /**
-     * Verify each named distribution against its manifest pin.
+     * Verify each named distribution against its independent content pin.
      */
     export namespace Pins {
       /** Named pin validation and local file verification. */
@@ -133,7 +130,7 @@ export declare namespace Pkg {
      * Format distribution metadata for logging.
      */
     export namespace Log {
-      /** Logging helper library. */
+      /** Format one manifest or summarize child distributions. */
       export type Lib = {
         /** Convert a `DistPkg` to a string for logging. */
         dist(dist?: t.DistPkg, options?: Options): string;
@@ -151,54 +148,61 @@ export declare namespace Pkg {
     }
 
     /**
-     * Generate distribution manifests.
+     * Generate a distribution manifest and content pin.
+     *
+     * Payload selection excludes `dist.json` and `dist.json.sig` at every depth in both modes.
+     * Changes to root or child manifest metadata therefore do not change the content pin.
      */
     export namespace Compute {
-      /** Compute distribution-package metadata. */
+      /** Hash selected payload files and optionally save the generated manifest. */
       export type Method = (args: Args) => Promise<Response>;
 
-      /** Arguments passed to `Pkg.Dist.compute`. */
+      /** Select payload files and supply descriptive package and builder labels. */
       export type Args = {
         dir: t.StringPath;
         pkg?: StdPkg;
         builder?: StdPkg;
         ignore?: string | string[];
+        /** Write `dist.json` to `dir`. Defaults to `false`. */
         save?: boolean;
         filter?(path: t.StringPath): boolean;
         onHashProgress?(e: t.Dir.Hash.Compute.ProgressEvent): t.Awaitable<void>;
 
         /**
-         * Reuse child `dist.hash.parts` to avoid re-hashing nested bundles.
-         *
-         * Behavior:
-         * - Child content hash parts are merged into the parent hash tree.
-         * - Child `dist.json` file bytes are intentionally NOT included in the parent hash.
-         *
-         * Rationale:
-         * - Keeps parent digest content-stable across rebuilds where only child metadata
-         *   (for example `build.time`) changes.
+         * Reuse child manifests' recorded hashes and sizes without rereading their payload files.
+         * Defaults to `false`.
          */
         trustChildDist?: boolean;
       };
 
-      /** Response from `Pkg.Dist.compute`. */
-      export type Response = {
-        exists: boolean;
-        dir: t.StringDir;
-        dist: t.DistPkg;
-        /** Checksum for the exact `dist.json` bytes produced by this computation. */
-        manifest: Manifest;
-        error?: t.StdError;
+      /** Successful computation or failure without a manifest or pin. */
+      export type Response = Computed | Failed;
+
+      /** Generated manifest with its content pin and exact-byte checksum. */
+      export type Computed = {
+        readonly kind: 'computed';
+        readonly exists: true;
+        readonly dir: t.StringDir;
+        readonly dist: t.DistPkg;
+        /** The same content identity as `dist.hash`, captured for independent recording. */
+        readonly pin: t.DistPin;
+        /**
+         * SHA-256 of the generated `dist.json` bytes, whether saved or not.
+         * Use it to detect byte changes, not as a content pin or to authenticate manifest metadata.
+         */
+        readonly manifestChecksum: t.StringHash;
+        readonly error?: never;
       };
 
       /**
-       * Checksum of the exact `dist.json` bytes produced by the publisher.
-       *
-       * This checksum identifies an artifact only when obtained independently of the artifact itself.
+       * Failed computation with no returned manifest or pin.
+       * A failed save does not guarantee rollback of filesystem changes.
        */
-      export type Manifest = {
-        /** SHA-256 of the exact serialized bytes produced by this computation. */
-        readonly integrity: t.StringHash;
+      export type Failed = {
+        readonly kind: 'failed';
+        readonly exists: boolean;
+        readonly dir: t.StringDir;
+        readonly error: t.StdError;
       };
     }
 
@@ -210,33 +214,17 @@ export declare namespace Pkg {
       export type Method = (dir: t.StringPath) => Promise<Response>;
 
       /** Classification of a loaded distribution-package file. */
-      export type Kind = 'canonical' | 'legacy' | 'invalid' | 'missing';
+      export type Kind = 'canonical' | 'invalid' | 'missing';
 
       /** Response from `Pkg.Dist.load`. */
       export type Response = {
         exists: boolean;
         path: t.StringPath;
         kind: Kind;
-        dist?: t.DistPkg;
-        legacy?: t.DistPkgLegacy;
-        error?: t.StdError;
-      };
-    }
-
-    /**
-     * Check files against the hashes in their own manifest.
-     */
-    export namespace CheckSelfReported {
-      /** Check a folder against its own distribution-package hash definitions. */
-      export type Method = (
-        dir: t.StringPath,
-        hash?: t.Dir.Hash.Verify.Input,
-      ) => Promise<Response>;
-
-      /** Response from `Pkg.Dist.checkSelfReported`. */
-      export type Response = {
-        is: t.CompositeHash.Verify.Response['is'];
-        exists: boolean;
+        /**
+         * Parsed manifest with a checked inventory digest.
+         * Payload files are not verified, and descriptive metadata is not authenticated.
+         */
         dist?: t.DistPkg;
         error?: t.StdError;
       };
@@ -262,20 +250,30 @@ export declare namespace Pkg {
         until?: t.UntilInput;
       };
 
-      /** Required resource limits. No unlimited defaults are applied. */
+      /** Required finite resource limits; fixed protocol ceilings may be stricter. */
       export type Limits = {
-        /** Maximum exact `dist.json` bytes. */
+        /** Maximum exact `dist.json` bytes; the implementation also caps this at 16 MiB. */
         manifestBytes: t.NumberBytes;
         /**
          * Maximum declared or observed descendants: files, directories, and `dist.json`.
-         * Before path normalization, the same bound applies separately to the optional signature
-         * hint: `dist.json`, the signature path, and its distinct implied directories.
+         * Capped at `Pkg.Dist.Content.limits.entries`. Signature and ignore hints add no targets.
          */
         entries: t.NumberTotal;
         /** Maximum bytes in any one declared asset. */
         fileBytes: t.NumberBytes;
         /** Maximum aggregate declared asset bytes, excluding `dist.json`. */
         totalBytes: t.NumberBytes;
+        /**
+         * UTF-16 code units per path; defaults to `Pkg.Dist.Content.limits.pathLength` (4,096)
+         * and cannot exceed it.
+         */
+        pathLength?: number;
+        /**
+         * Aggregate UTF-16 path code units, and separately all implied-directory prefix code units
+         * (including repeated prefixes). Defaults to `Pkg.Dist.Content.limits.pathTotal`
+         * (4,194,304 UTF-16 code units) and cannot exceed it.
+         */
+        pathTotal?: number;
       };
 
       /** Result of checking a complete distribution. Only `verified` is success. */
@@ -283,18 +281,20 @@ export declare namespace Pkg {
 
       /** Successful verification with immutable evidence derived from observed bytes. */
       export type Verified = {
-        /** Verification succeeded. */
         readonly kind: 'verified';
-        /** Integrity, manifest, and asset totals derived from the verified bytes. */
+        /** Verified inventory and byte totals; excludes descriptive manifest metadata. */
         readonly evidence: Evidence;
       };
 
       /** Immutable evidence produced by the verifier. */
       export type Evidence = {
-        /** Canonical SHA-256 of the exact manifest bytes used by this verification. */
-        readonly integrity: t.StringHash;
-        /** Manifest checked against the complete distribution tree. */
-        readonly dist: t.DeepReadonly<t.DistPkg>;
+        /** Verified file inventory and its content identity: scheme and digest. */
+        readonly content: t.DistContent;
+        /**
+         * SHA-256 of the exact `dist.json` bytes read, for detecting changes to those bytes.
+         * This is not a content pin and does not authenticate manifest metadata.
+         */
+        readonly manifestChecksum: t.StringHash;
         /** Number of exact `dist.json` bytes observed. */
         readonly manifestBytes: t.NumberBytes;
         /** Counts and byte totals derived from files read by the verifier. */
@@ -303,7 +303,7 @@ export declare namespace Pkg {
           readonly files: t.NumberTotal;
           /** Aggregate bytes read from declared files. */
           readonly totalBytes: t.NumberBytes;
-          /** Bytes whose admitted paths satisfy the Dist package-code policy. */
+          /** Bytes in verified files beneath a directory named `pkg`, at any depth. */
           readonly packageBytes: t.NumberBytes;
         };
       };
@@ -319,13 +319,13 @@ export declare namespace Pkg {
        *
        * - `invalid-input`: the caller input, limits, or lifecycle input is invalid.
        * - `missing`: the root or manifest was not found.
-       * - `malformed`: the manifest structure, policy, or self-report is invalid.
-       * - `integrity-mismatch`: the manifest bytes do not match the caller's pin.
+       * - `malformed`: the content descriptor or its self-reported digest is invalid.
+       * - `pin-mismatch`: recomputed content identity does not match the independent pin.
        * - `content-mismatch`: the root, manifest, or a declared entry has unexpected content.
        * - `unsafe-path`: the selected root, ancestry, or target fails required path checks.
        * - `symlink`: a symbolic link appeared where a real directory or file was required.
        * - `unexpected-entry`: the tree contains an undeclared or special entry.
-       * - `limit-exceeded`: the operation would exceed a caller-supplied bound.
+       * - `limit-exceeded`: the operation would exceed a caller bound or protocol ceiling.
        * - `changed`: the tree changed while it was being checked.
        * - `unsupported`: the host cannot provide the filesystem evidence required for safety.
        * - `io-failure`: another host filesystem operation failed.
@@ -335,7 +335,7 @@ export declare namespace Pkg {
         | 'invalid-input'
         | 'missing'
         | 'malformed'
-        | 'integrity-mismatch'
+        | 'pin-mismatch'
         | 'content-mismatch'
         | 'unsafe-path'
         | 'symlink'
@@ -348,12 +348,13 @@ export declare namespace Pkg {
     }
 
     /**
-     * Verify and read a distribution using the manifest found in its directory.
+     * Check local file consistency without an independent content pin.
      *
-     * Local verification derives the manifest checksum from the bytes it reads; the caller does not
-     * supply an expected checksum. Each call captures `dir` synchronously and resolves it
-     * independently. These operations authenticate observed bytes, not filesystem location against
-     * hostile path replacement.
+     * `verify` checks the complete tree against its own manifest; it does not establish provenance.
+     * `readPart` checks one file against the caller's checksum and size without reading the manifest.
+     *
+     * Each call captures `dir` synchronously and resolves it independently. Neither operation
+     * guarantees a stable filesystem location against hostile path replacement.
      */
     export namespace Local {
       /** Local distribution operations. */
@@ -393,7 +394,7 @@ export declare namespace Pkg {
         export type Failure = { readonly kind: FailureKind };
 
         /** Stable local failure category. Local verification has no caller pin to mismatch. */
-        export type FailureKind = Exclude<Dist.Verify.FailureKind, 'integrity-mismatch'>;
+        export type FailureKind = Exclude<Dist.Verify.FailureKind, 'pin-mismatch'>;
       }
 
       /**
@@ -419,38 +420,42 @@ export declare namespace Pkg {
     }
 
     /**
-     * Verify and read a distribution against an expected manifest checksum.
+     * Check distributions against an independent content pin, or read checksum-matched files.
      *
-     * The caller obtains that checksum elsewhere, connecting local bytes to an independently chosen
-     * distribution identity.
+     * `admitManifest` checks a supplied manifest's inventory against the pin; `verify` also checks
+     * the complete filesystem tree. The pin records the scheme/digest chosen elsewhere, never
+     * discovered from the candidate manifest. `readPart` instead checks caller-supplied file
+     * expectations without reading a manifest or accepting a content pin.
+     *
+     * Filesystem checks do not guarantee a stable location against hostile path replacement.
      */
     export namespace Pinned {
       /** Pinned distribution operations. */
       export type Lib = {
-        /** Validate manifest bytes against an expected checksum. */
+        /** Bound and parse manifest bytes, then recompute the inventory against a content pin. */
         readonly admitManifest: AdmitManifest.Method;
-        /** Verify a complete distribution against an expected manifest checksum. */
+        /** Verify a complete distribution against an independent content pin. */
         readonly verify: Verify.Method;
         /** Read one file only when its path, size, and checksum match. */
         readonly readPart: ReadPart.Method;
       };
 
       /**
-       * Strict manifest validation against a caller-supplied checksum.
+       * Strict inventory admission against a caller-supplied content pin.
        *
        * Performs no filesystem or network I/O.
        * Admission does not verify assets or establish provenance.
        */
       export namespace AdmitManifest {
-        /** Admit manifest bytes against the caller's checksum. */
+        /** Admit manifest inventory against the caller's independently supplied pin. */
         export type Method = (args: Args) => Promise<Result>;
 
-        /** Bytes, checksum, and limits are snapshotted before lifecycle callbacks or awaits. */
+        /** Bytes, pin, and limits are snapshotted before lifecycle callbacks or awaits. */
         export type Args = {
           /** Exact manifest bytes; shared or detached buffers are rejected. */
           bytes: Uint8Array;
-          /** Expected SHA-256 checksum of the exact manifest bytes. */
-          integrity: t.StringHash;
+          /** Independent supported scheme and expected canonical content digest. */
+          pin: t.DistPin;
           /** Required bounds on manifest bytes and declared assets. */
           limits: Limits;
           /** Cancellation observed at cooperative checkpoints. */
@@ -461,8 +466,7 @@ export declare namespace Pkg {
         export type Limits = Omit<Dist.Verify.Limits, 'entries'> & {
           /**
            * Maximum entries: `dist.json`, declared assets, and distinct implied directories.
-           * The same bound applies separately to the optional signature hint: `dist.json`,
-           * the signature path, and its distinct implied directories.
+           * Excluded metadata cannot expand the admitted tree.
            */
           entries: t.NumberTotal;
         };
@@ -470,7 +474,7 @@ export declare namespace Pkg {
         /** Manifest admission or refusal. */
         export type Result = Admitted | Failure;
 
-        /** Checksum-matched manifest with validated metadata. */
+        /** Pin-matched inventory; payload bytes and excluded metadata are not authenticated here. */
         export type Admitted = {
           readonly kind: 'manifest-admitted';
           readonly evidence: Evidence;
@@ -478,12 +482,15 @@ export declare namespace Pkg {
 
         /** Immutable evidence from the manifest bytes alone. */
         export type Evidence = {
-          /** SHA-256 of the admitted bytes, equal to the caller's expected checksum. */
-          readonly integrity: t.StringHash;
+          /** Pin-matched file inventory and its scheme/digest; payload bytes are not checked. */
+          readonly content: t.DistContent;
+          /**
+           * SHA-256 of the exact supplied manifest bytes, for detecting changes to those bytes.
+           * This is not a content pin and does not authenticate manifest metadata.
+           */
+          readonly manifestChecksum: t.StringHash;
           /** Manifest byte count, including any BOM and whitespace. */
           readonly manifestBytes: t.NumberBytes;
-          /** Validated manifest metadata; asset contents are not checked. */
-          readonly dist: t.DeepReadonly<t.DistPkg>;
         };
 
         /** Refusal without input values, cancellation reasons, or host errors. */
@@ -493,7 +500,7 @@ export declare namespace Pkg {
         export type FailureKind = Extract<
           Dist.Verify.FailureKind,
           | 'invalid-input'
-          | 'integrity-mismatch'
+          | 'pin-mismatch'
           | 'malformed'
           | 'unsafe-path'
           | 'limit-exceeded'
@@ -502,7 +509,7 @@ export declare namespace Pkg {
       }
 
       /**
-       * Verification of a complete distribution against an expected manifest checksum.
+       * Verification of a complete distribution against an independent content pin.
        */
       export namespace Verify {
         /** Verify one pinned distribution. */
@@ -515,8 +522,8 @@ export declare namespace Pkg {
            * Relative spelling resolves synchronously against the process CWD at invocation.
            */
           dir: t.StringPath;
-          /** Canonical SHA-256 of the exact `dist.json` bytes. */
-          integrity: t.StringHash;
+          /** Independent supported scheme and expected canonical content digest. */
+          pin: t.DistPin;
         };
 
         /** Required resource limits. */
@@ -541,11 +548,11 @@ export declare namespace Pkg {
       /**
        * One-file reads checked against a caller-supplied path, checksum, and size.
        *
-       * This operation does not verify the complete distribution or return reusable verification
-       * evidence.
+       * Does not read a manifest, accept a content pin, or check inventory membership.
+       * It neither verifies the complete distribution nor returns reusable verification evidence.
        */
       export namespace ReadPart {
-        /** Read one checksum-matched file from a pinned distribution. */
+        /** Read one file matching the caller's checksum and size. */
         export type Method = (args: Args) => Promise<Result>;
 
         /** Arguments passed to `Pkg.Dist.Pinned.readPart`. */
@@ -555,7 +562,7 @@ export declare namespace Pkg {
            * Relative spelling resolves synchronously against the process CWD at invocation.
            */
           dir: t.StringPath;
-          /** Canonical Rooted-compatible root-relative part path. */
+          /** File path relative to `dir`; must already satisfy Rooted's `Target.admit` path rules. */
           path: t.StringPath;
           /** Canonical SHA-256 expected for the exact returned bytes. */
           checksum: t.StringHash;

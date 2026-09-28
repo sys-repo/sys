@@ -4,7 +4,7 @@ import type { Identity, Io as RootedIo } from '../../m.Fs.capability/m.Rooted/t.
 import { DEFAULT_IO as ROOTED_IO } from '../../m.Fs.capability/m.Rooted/u/u.io.ts';
 import { identityRequired, sameIdentity } from '../../m.Fs.capability/m.Rooted/u/u.path.ts';
 import { Arr, Is, Json, Obj, Path, Pkg, Rx, ServerIs, type t } from '../common.ts';
-import { snapshotExactDataObject } from '../u.verify/u.input.ts';
+import { snapshotExactDataObject, snapshotPin } from '../u.verify/u.input.ts';
 import type { VerifyIo } from '../t.internal.ts';
 import { checkCancelled, DEFAULT_IO, failure, ioFailure } from '../u.verify/u.io.ts';
 import { addBytes } from '../u.verify/u.limit.ts';
@@ -62,17 +62,18 @@ export async function projectWithIo<N extends string>(
     const sourceRoot = await resolveRoot(io, sourceArgs.dir, life.signal);
     const verified = await verifyPinnedWithIo(sourceArgs, io);
     if (verified.kind !== 'verified') throw failure(verified.kind);
-    const sourceDist = verified.evidence.dist;
+    const sourceContent = verified.evidence.content;
+    const sourceDocument = verified.evidence.manifestChecksum;
 
     phase = 'select';
     let selected: unknown;
     try {
-      selected = select(sourceDist);
+      selected = select(sourceContent);
     } catch {
       reason = 'policy-failure';
       throw failure('invalid-input');
     }
-    const projections = captureSelection(outputs, selected, sourceDist, batch.totalBytes);
+    const projections = captureSelection(outputs, selected, sourceContent, batch.totalBytes);
     checkCancelled(life.signal);
 
     phase = 'output';
@@ -140,15 +141,16 @@ export async function projectWithIo<N extends string>(
       await stage.files.File.publish(files.targets[parts.length], bytes, { until: life.signal });
       const checked = await verifyPinnedWithIo({
         dir: stage.path,
-        integrity: computed.manifest.integrity,
+        pin: computed.pin,
         limits,
         until: life.signal,
       }, io);
       if (checked.kind !== 'verified') throw failure(checked.kind);
-      const actual = checked.evidence.dist.hash.parts;
+      if (checked.evidence.manifestChecksum !== computed.manifestChecksum) throw failure('changed');
+      const actual = checked.evidence.content.parts;
       if (
         Object.keys(actual).length !== parts.length ||
-        parts.some(({ path }) => actual[path] !== sourceDist.hash.parts[path])
+        parts.some(({ path }) => actual[path] !== sourceContent.parts[path])
       ) throw failure('content-mismatch');
 
       try {
@@ -169,7 +171,13 @@ export async function projectWithIo<N extends string>(
         if (Rooted.Is.failure(cause) && cause.committed) active.mayBePublished = true;
         throw cause;
       }
-      pins.push([name, Object.freeze({ 'dist.json': checked.evidence.integrity })]);
+      pins.push([
+        name,
+        Object.freeze({
+          scheme: checked.evidence.content.scheme,
+          digest: checked.evidence.content.digest,
+        }),
+      ]);
       active = undefined;
     }
 
@@ -177,6 +185,7 @@ export async function projectWithIo<N extends string>(
     phase = 'recheck';
     const rechecked = await verifyPinnedWithIo(sourceArgs, io);
     if (rechecked.kind !== 'verified') throw failure(rechecked.kind);
+    if (rechecked.evidence.manifestChecksum !== sourceDocument) throw failure('changed');
     checkCancelled(life.signal);
     return Object.freeze({
       kind: 'projected',
@@ -218,12 +227,11 @@ function captureInput<N extends string>(args: t.Pkg.Dist.Project.Args<N>) {
   });
   if (!values) throw failure('invalid-input');
   const source = snapshotExactDataObject(values.source, {
-    ALLOWED: ['dir', 'integrity'],
-    REQUIRED: ['dir', 'integrity'],
+    ALLOWED: ['dir', 'pin'],
+    REQUIRED: ['dir', 'pin'],
   });
-  if (!source || !Pkg.Is.distPin({ 'dist.json': source.integrity }) || !Is.str(source.integrity)) {
-    throw failure('invalid-input');
-  }
+  const pin = source && snapshotPin(source.pin);
+  if (!source || !pin) throw failure('invalid-input');
   const sourceDir = memberDir(source.dir);
   const rawOutputs = namedData(values.outputs);
   const names = Object.keys(rawOutputs).sort() as N[];
@@ -240,7 +248,7 @@ function captureInput<N extends string>(args: t.Pkg.Dist.Project.Args<N>) {
   const until = batchUntil(values.until);
   return {
     root,
-    source: { dir: sourcePath, integrity: source.integrity },
+    source: { dir: sourcePath, pin },
     outputs: Object.freeze(outputs),
     limits,
     batch,
@@ -255,7 +263,7 @@ function captureInput<N extends string>(args: t.Pkg.Dist.Project.Args<N>) {
 function captureSelection<N extends string>(
   outputs: readonly Output<N>[],
   selected: unknown,
-  dist: t.DeepReadonly<t.DistPkg>,
+  content: t.DistContent,
   totalBytes: number,
 ): readonly Projection<N>[] {
   const selections = namedData(selected);
@@ -268,7 +276,7 @@ function captureSelection<N extends string>(
     if (
       ServerIs.Native.proxy(paths) || !Is.array(paths) ||
       Object.getPrototypeOf(paths) !== Array.prototype || paths.length === 0 ||
-      paths.length > Object.keys(dist.hash.parts).length ||
+      paths.length > Object.keys(content.parts).length ||
       Reflect.ownKeys(paths).length !== paths.length + 1
     ) throw failure('invalid-input');
     const parts: Part[] = [];
@@ -280,10 +288,10 @@ function captureSelection<N extends string>(
       const path = property.value;
       if (
         !Is.str(path) || path === 'dist.json' || seen.has(path) ||
-        !Obj.hasOwn(dist.hash.parts, path)
+        !Obj.hasOwn(content.parts, path)
       ) throw failure('invalid-input');
       seen.add(path);
-      const part = Pkg.Dist.Part.parse(dist.hash.parts[path]);
+      const part = Pkg.Dist.Part.parse(content.parts[path]);
       if (!part || part.size === undefined) throw failure('malformed');
       total = addBytes(total, part.size, totalBytes);
       parts.push(Object.freeze({ path, checksum: part.hash, size: part.size }));

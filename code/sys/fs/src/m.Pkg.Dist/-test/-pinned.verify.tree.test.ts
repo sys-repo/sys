@@ -27,7 +27,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
 
         const result = await Pkg.Dist.Pinned.verify({
           dir: fixture.dir,
-          integrity: fixture.integrity,
+          pin: fixture.pin,
           limits,
         });
         expect(result).to.eql({ kind: 'content-mismatch' });
@@ -44,7 +44,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       await Deno.mkdir(`${fileFixture.dir}/assets/app.js`);
       const file = await Pkg.Dist.Pinned.verify({
         dir: fileFixture.dir,
-        integrity: fileFixture.integrity,
+        pin: fileFixture.pin,
         limits,
       });
       expect(file).to.eql({ kind: 'content-mismatch' });
@@ -58,7 +58,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       await Deno.writeTextFile(`${directoryFixture.dir}/assets`, 'not a directory');
       const directory = await Pkg.Dist.Pinned.verify({
         dir: directoryFixture.dir,
-        integrity: directoryFixture.integrity,
+        pin: directoryFixture.pin,
         limits,
       });
       expect(directory).to.eql({ kind: 'content-mismatch' });
@@ -84,7 +84,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
 
         const result = await Pkg.Dist.Pinned.verify({
           dir: fixture.dir,
-          integrity: fixture.integrity,
+          pin: fixture.pin,
           limits,
         });
         expect(result).to.eql({ kind: 'unexpected-entry' });
@@ -109,7 +109,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       });
 
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'unexpected-entry' });
@@ -118,7 +118,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
     }
   });
 
-  it('rejects a filesystem entry explicitly ignored by the authenticated policy', async () => {
+  it('descriptive ignore rules → no permission for undeclared filesystem entries', async () => {
     const fixture = await setup();
     try {
       const dist = cloneDist(fixture.dist);
@@ -128,12 +128,12 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
         rules: [...rules],
         'rules:digest': await Ignore.digest(rules),
       };
-      const manifest = await writeManifest(fixture.dir, dist);
-      await Deno.writeTextFile(`${fixture.dir}/.DS_Store`, 'authenticated as ignored');
+      await writeManifest(fixture.dir, dist);
+      await Deno.writeTextFile(`${fixture.dir}/.DS_Store`, 'described as ignored');
 
       const result = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
-        integrity: manifest.integrity,
+        pin: fixture.pin,
         limits,
       });
       expect(result).to.eql({ kind: 'unexpected-entry' });
@@ -151,7 +151,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       await Deno.symlink(outside, `${fileFixture.dir}/assets/app.js`);
       const file = await Pkg.Dist.Pinned.verify({
         dir: fileFixture.dir,
-        integrity: fileFixture.integrity,
+        pin: fileFixture.pin,
         limits,
       });
       expect(file).to.eql({ kind: 'symlink' });
@@ -166,7 +166,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       await Deno.symlink(directoryFixture.dir, `${directoryFixture.dir}/assets`);
       const directory = await Pkg.Dist.Pinned.verify({
         dir: directoryFixture.dir,
-        integrity: directoryFixture.integrity,
+        pin: directoryFixture.pin,
         limits,
       });
       expect(directory).to.eql({ kind: 'symlink' });
@@ -183,7 +183,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       try {
         const root = await Pkg.Dist.Pinned.verify({
           dir: alias,
-          integrity: rootFixture.integrity,
+          pin: rootFixture.pin,
           limits,
         });
         expect(root).to.eql({ kind: 'symlink' });
@@ -209,7 +209,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
 
       const ancestor = await Pkg.Dist.Pinned.verify({
         dir: throughAncestor,
-        integrity: ancestorFixture.integrity,
+        pin: ancestorFixture.pin,
         limits,
       });
       expect(ancestor).to.eql({ kind: 'symlink' });
@@ -224,7 +224,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
     try {
       const root = await Pkg.Dist.Pinned.verify({
         dir: `${fixture.dir}/missing`,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         limits,
       });
       expect(root).to.eql({ kind: 'missing' });
@@ -232,7 +232,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       await Deno.remove(`${fixture.dir}/dist.json`);
       const manifest = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         limits,
       });
       expect(manifest).to.eql({ kind: 'missing' });
@@ -248,7 +248,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       await Deno.mkdir(`${fixture.dir}/dist.json`);
       const manifest = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         limits,
       });
       expect(manifest).to.eql({ kind: 'content-mismatch' });
@@ -260,7 +260,7 @@ describe('Pkg.Dist.Pinned.verify exact tree and content', () => {
       try {
         const root = await Pkg.Dist.Pinned.verify({
           dir: fileRoot,
-          integrity: fixture.integrity,
+          pin: fixture.pin,
           limits,
         });
         expect(root).to.eql({ kind: 'content-mismatch' });

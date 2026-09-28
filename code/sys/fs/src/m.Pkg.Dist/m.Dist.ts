@@ -1,6 +1,5 @@
 import { Pkg } from '@sys/std/pkg';
 import type { t } from './common.ts';
-import { checkSelfReported } from './u/u.checkSelfReported.ts';
 import { compute } from './u/u.compute.ts';
 import { load } from './u/u.load.ts';
 import { Local } from './m.Local.ts';
@@ -21,5 +20,4 @@ export const Dist: t.Pkg.Dist.Lib = Object.freeze({
   project,
   compute,
   load,
-  checkSelfReported,
 });

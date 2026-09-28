@@ -1,5 +1,10 @@
 import { Hash, Is, Path, Pkg, Rx, type t } from './common.ts';
-import { snapshotExactDataObject, snapshotUntilInput, snapshotVerifyLimits } from './u.input.ts';
+import {
+  snapshotExactDataObject,
+  snapshotPin,
+  snapshotUntilInput,
+  snapshotVerifyLimits,
+} from './u.input.ts';
 import type { VerifyIo } from '../t.internal.ts';
 import { checkCancelled, DEFAULT_IO, failure, ioFailure, isFailure } from './u.io.ts';
 import { addBytes } from './u.limit.ts';
@@ -25,12 +30,12 @@ type VerifiedBase = {
 
 type VerifiedArgs =
   & VerifiedBase
-  & ({ readonly mode: 'pinned'; readonly integrity: t.StringHash } | { readonly mode: 'local' });
+  & ({ readonly mode: 'pinned'; readonly pin: t.DistPin } | { readonly mode: 'local' });
 
 const KEYS = {
   PINNED: {
-    ALLOWED: ['dir', 'integrity', 'limits', 'until'],
-    REQUIRED: ['dir', 'integrity', 'limits'],
+    ALLOWED: ['dir', 'pin', 'limits', 'until'],
+    REQUIRED: ['dir', 'pin', 'limits'],
   },
   LOCAL: {
     ALLOWED: ['dir', 'limits', 'until'],
@@ -74,7 +79,7 @@ export async function verifyLocalWithIo(
   const result = await verifyWithIo(input, io);
   if (result.kind === 'verified') return result;
   // Local mode has no caller pin; fail closed if the shared kernel ever violates that grammar.
-  if (result.kind === 'integrity-mismatch') return localFailed('io-failure');
+  if (result.kind === 'pin-mismatch') return localFailed('io-failure');
   return localFailed(result.kind);
 }
 
@@ -92,7 +97,7 @@ async function verifyWithIo(
     return failed('invalid-input');
   }
 
-  const expectedManifestChecksum = args.mode === 'pinned' ? args.integrity : undefined;
+  const expected = args.mode === 'pinned' ? args.pin : undefined;
 
   try {
     // Pre-ended lifecycle bridges settle asynchronously; observe them before any host operation.
@@ -109,12 +114,7 @@ async function verifyWithIo(
     );
 
     checkCancelled(life.signal);
-    const admitted = await admitManifestBytes(
-      manifest.bytes,
-      args.limits,
-      expectedManifestChecksum,
-    );
-    const manifestIntegrity = admitted.integrity;
+    const admitted = admitManifestBytes(manifest.bytes, args.limits, expected);
     checkCancelled(life.signal);
 
     const before = await observeTree(io, root, args.limits.entries, life.signal, {
@@ -148,8 +148,8 @@ async function verifyWithIo(
     }
 
     if (
-      totalBytes !== admitted.dist.build.size.total ||
-      packageBytes !== admitted.dist.build.size.pkg
+      totalBytes !== admitted.totalBytes ||
+      packageBytes !== admitted.packageBytes
     ) {
       throw failure('content-mismatch');
     }
@@ -168,9 +168,7 @@ async function verifyWithIo(
     );
     if (!bytesEqual(manifest.bytes, finalManifest.bytes)) throw failure('changed');
     checkCancelled(life.signal);
-    if (
-      Hash.sha256(finalManifest.bytes) !== (expectedManifestChecksum ?? manifestIntegrity)
-    ) {
+    if (Hash.sha256(finalManifest.bytes) !== admitted.manifestChecksum) {
       throw failure('changed');
     }
     checkCancelled(life.signal);
@@ -181,8 +179,8 @@ async function verifyWithIo(
       packageBytes,
     });
     const evidence: t.Pkg.Dist.Verify.Evidence = Object.freeze({
-      integrity: expectedManifestChecksum ?? manifestIntegrity,
-      dist: admitted.dist,
+      content: admitted.content,
+      manifestChecksum: admitted.manifestChecksum,
       manifestBytes: manifest.bytes.byteLength,
       assets,
     });
@@ -199,18 +197,16 @@ function admitPinnedArgs(input: unknown): VerifiedArgs | undefined {
   const values = snapshotExactDataObject(input, KEYS.PINNED);
   if (!values) return undefined;
 
+  // Lifecycle validation can execute borrowed getters; own the expectation first.
+  const pin = snapshotPin(values.pin);
+  if (!pin) return undefined;
+
   const args = admitBaseArgs(values);
   if (!args) return undefined;
 
-  const rawIntegrity = values.integrity;
-  if (!Is.str(rawIntegrity) || rawIntegrity.length === 0) return undefined;
-
-  const parsed = Pkg.Dist.Part.parse(rawIntegrity);
-  if (!parsed || parsed.hash !== rawIntegrity || parsed.size !== undefined) return undefined;
-
   return Object.freeze({
     ...args,
-    integrity: rawIntegrity,
+    pin,
     mode: 'pinned',
   });
 }
@@ -232,7 +228,7 @@ function admitBaseArgs(values: Readonly<Record<string, unknown>>): VerifiedBase 
   try {
     const { dir, limits, until } = values;
     if (!Is.str(dir) || dir.length === 0 || dir.includes('\0')) return undefined;
-    const absoluteDir = Path.resolve(dir) as t.StringAbsoluteDir;
+    const absoluteDir = Path.resolve(dir);
 
     const admittedLimits = snapshotVerifyLimits(limits);
     if (!admittedLimits) return undefined;

@@ -16,14 +16,14 @@ import {
 } from './-u.pinned.fixture.ts';
 
 describe('Pkg.Dist.Local.verify', () => {
-  it('derives exact local manifest integrity and returns frozen pinned-parity evidence', async () => {
+  it('derives local content identity without an independent pin; observed facts match pinned verification', async () => {
     const fixture = await setup();
     try {
       const exactManifest = new Uint8Array(fixture.manifest.byteLength + 1);
       exactManifest.set(fixture.manifest);
       exactManifest[exactManifest.byteLength - 1] = 0x0a;
       await Deno.writeFile(`${fixture.dir}/dist.json`, exactManifest);
-      const exactIntegrity = Hash.sha256(exactManifest);
+      const manifestChecksum = Hash.sha256(exactManifest);
 
       const local = await Pkg.Dist.Local.verify({
         dir: fixture.dir,
@@ -31,15 +31,16 @@ describe('Pkg.Dist.Local.verify', () => {
       });
       const pinned = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
-        integrity: exactIntegrity,
+        pin: fixture.pin,
         limits,
       });
 
-      type LocalHasPinnedMismatch = 'integrity-mismatch' extends t.Pkg.Dist.Local.Verify.FailureKind
+      type LocalHasPinnedMismatch = 'pin-mismatch' extends t.Pkg.Dist.Local.Verify.FailureKind
         ? true
         : false;
-      type PinnedHasPinnedMismatch = 'integrity-mismatch' extends
-        t.Pkg.Dist.Pinned.Verify.FailureKind ? true : false;
+      type PinnedHasPinnedMismatch = 'pin-mismatch' extends t.Pkg.Dist.Pinned.Verify.FailureKind
+        ? true
+        : false;
       const localHasPinnedMismatch: LocalHasPinnedMismatch = false;
       const pinnedHasPinnedMismatch: PinnedHasPinnedMismatch = true;
       expectTypeOf(local).toEqualTypeOf<t.Pkg.Dist.Local.Verify.Result>();
@@ -51,9 +52,10 @@ describe('Pkg.Dist.Local.verify', () => {
       expect(pinned.kind).to.eql('verified');
       if (pinned.kind !== 'verified') return;
 
-      expect(local.evidence.integrity).to.eql(exactIntegrity);
+      expect(local.evidence.manifestChecksum).to.eql(manifestChecksum);
+      expect(local.evidence.content.digest).to.eql(fixture.pin.digest);
       expect(local.evidence.manifestBytes).to.eql(exactManifest.byteLength);
-      expect(local.evidence.dist).to.eql(pinned.evidence.dist);
+      expect(local.evidence.content).to.eql(pinned.evidence.content);
       expect(local.evidence.assets).to.eql(pinned.evidence.assets);
       expect(local.evidence.manifestBytes).to.eql(pinned.evidence.manifestBytes);
 
@@ -61,15 +63,8 @@ describe('Pkg.Dist.Local.verify', () => {
         local,
         local.evidence,
         local.evidence.assets,
-        local.evidence.dist,
-        local.evidence.dist.pkg!,
-        local.evidence.dist.build,
-        local.evidence.dist.build.size,
-        local.evidence.dist.build.hash,
-        local.evidence.dist.build.hash.ignore!,
-        local.evidence.dist.build.hash.ignore!.rules,
-        local.evidence.dist.hash,
-        local.evidence.dist.hash.parts,
+        local.evidence.content,
+        local.evidence.content.parts,
       ];
       expect(frozen.every(Object.isFrozen)).to.eql(true);
     } finally {
@@ -253,7 +248,8 @@ describe('Pkg.Dist.Local.verify', () => {
     const inheritedArgs = Object.assign(Object.create({ dir }), { limits });
 
     const inputs: unknown[] = [
-      { dir, limits, integrity: 'cross-mode' },
+      { dir, limits, integrity: 'old-input' },
+      { dir, limits, pin: { scheme: 'sys.dist/v2', digest: `sha256-${'0'.repeat(64)}` } },
       { dir, limits: { ...limits, unknown: true } },
       { dir, limits: { ...limits, [symbol]: true } },
       { dir, limits: accessorLimits },

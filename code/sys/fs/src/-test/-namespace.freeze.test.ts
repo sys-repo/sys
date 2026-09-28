@@ -34,7 +34,7 @@ describe('fs namespace freeze contract', () => {
       Pkg.Subpath,
       Pkg.Dist,
       Pkg.Dist.Is,
-      Pkg.Dist.Compat,
+      Pkg.Dist.Content,
       Pkg.Dist.Part,
       Pkg.Dist.Log,
       Pkg.Dist.Local,

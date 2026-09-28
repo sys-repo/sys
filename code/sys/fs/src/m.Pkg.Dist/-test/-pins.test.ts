@@ -26,7 +26,7 @@ describe('Pkg.Dist.Pins.verify', () => {
       lstat(path) {
         if (first) {
           first = false;
-          selection.pins.z['dist.json'] = 'changed';
+          selection.pins.z.digest = 'changed';
           args.root = '/not-selected';
           args.dirs.z = 'source';
           args.limits.totalBytes = 0;
@@ -38,14 +38,14 @@ describe('Pkg.Dist.Pins.verify', () => {
     expect(checked.kind).to.eql('verified');
     if (checked.kind === 'verified') {
       expect(Object.keys(checked.evidence)).to.eql(['a', 'z']);
-      expect(checked.evidence.z.integrity).to.eql(projected.pins.z['dist.json']);
+      expect(checked.evidence.z.content.digest).to.eql(projected.pins.z.digest);
       expect(Object.isFrozen(checked.evidence)).to.eql(true);
     }
   });
 
   it('extra fields, mismatched directories, or too many distributions → failure before IO', async () => {
     await using f = await fixture();
-    const pin = { 'dist.json': f.args.source.integrity };
+    const pin = f.args.source.pin;
     const args = {
       root: f.root,
       selection: { pins: { a: pin, z: pin } },

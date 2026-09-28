@@ -5,8 +5,8 @@ import { pkg } from './u.ts';
 import { unknown } from './u.unknown.ts';
 
 export const PkgIs: t.Pkg.Is.Lib = Object.freeze({
-  unknown,
   pkg,
   dist,
   distPin,
+  unknown,
 });

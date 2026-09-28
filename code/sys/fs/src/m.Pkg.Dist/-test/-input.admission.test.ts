@@ -32,7 +32,7 @@ const operations = [
   {
     name: 'Pinned.verify',
     success: 'verified',
-    input: { dir: '/unused', integrity: checksum, limits },
+    input: { dir: '/unused', pin: { scheme: 'sys.dist/v2', digest: checksum }, limits },
     run: verifyPinnedWithIo,
   },
   {
@@ -84,6 +84,45 @@ describe('Pkg.Dist checked-input admission', () => {
 
     expect(calls).to.eql([]);
   });
+
+  for (const matching of [false, true]) {
+    it(`initial ${matching ? 'matching' : 'wrong'} pin → lifecycle mutation cannot retarget verification`, async () => {
+      const fixture = await setup();
+      const life = Rx.lifecycle();
+      const wrong = Hash.sha256('different independent expectation');
+      const pin = { ...fixture.pin, digest: matching ? fixture.pin.digest : wrong };
+      const calls: IoCall[] = [];
+      let reads = 0;
+      const until = {
+        get disposed() {
+          reads += 1;
+          pin.digest = matching ? wrong : fixture.pin.digest;
+          return false;
+        },
+        get dispose$() {
+          return life.dispose$;
+        },
+      };
+      try {
+        const result = await verifyPinnedWithIo(
+          { dir: fixture.dir, pin, limits, until },
+          traceIo(calls),
+        );
+        expect(reads).to.be.greaterThan(0);
+        expect(result.kind).to.eql(matching ? 'verified' : 'pin-mismatch');
+        if (!matching) {
+          const treeReads = calls.filter((call) => call.operation === 'readDir');
+          expect(treeReads).to.eql([]);
+          const openedPaths = calls.filter((call) => call.operation === 'open')
+            .map((call) => call.path);
+          expect(openedPaths).to.eql([Fs.join(fixture.dir, 'dist.json')]);
+        }
+      } finally {
+        life.dispose();
+        await Fs.remove(fixture.dir);
+      }
+    });
+  }
 
   it('rejects accessors and Proxies without invoking caller code or filesystem IO', async () => {
     const getters: Counter = { current: 0 };
@@ -248,7 +287,7 @@ function fixtureOperations(fixture: Fixture): readonly Operation[] {
     {
       name: 'Pinned.verify',
       success: 'verified',
-      input: { dir, integrity: fixture.integrity, limits },
+      input: { dir, pin: fixture.pin, limits },
       run: verifyPinnedWithIo,
     },
     {

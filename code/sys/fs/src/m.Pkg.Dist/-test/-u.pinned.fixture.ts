@@ -38,12 +38,14 @@ export async function setup(path?: string) {
     builder: { name: '@test/builder', version: '1.0.0' },
     save: true,
   });
+  if (computed.kind !== 'computed') throw computed.error;
   const manifest = await readManifest(dir);
 
   return {
     dir,
     dist: computed.dist,
-    integrity: Hash.sha256(manifest),
+    pin: computed.pin,
+    manifestChecksum: Hash.sha256(manifest),
     manifest,
   };
 }
@@ -59,10 +61,10 @@ export async function readManifest(dir: string): Promise<Uint8Array> {
 export async function writeManifest(
   dir: string,
   dist: t.DistPkg,
-): Promise<{ readonly bytes: Uint8Array; readonly integrity: t.StringHash }> {
+): Promise<{ readonly bytes: Uint8Array; readonly manifestChecksum: t.StringHash }> {
   const bytes = encoder.encode(Json.stringify(dist, 2));
   await Deno.writeFile(StdPath.join(dir, 'dist.json'), bytes);
-  return { bytes, integrity: Hash.sha256(bytes) };
+  return { bytes, manifestChecksum: Hash.sha256(bytes) };
 }
 
 /** Derive one exact file claim from its manifest part value. */

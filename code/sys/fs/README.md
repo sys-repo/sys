@@ -3,10 +3,14 @@
 `@sys/fs` is the Deno-native filesystem layer for `@sys`. It uses Deno's filesystem APIs and
 permission model; it does not abstract other runtimes.
 
-Choose the narrowest surface that owns the guarantee you need. Use `Fs` and `Path` for ordinary file
+Choose the narrowest API that provides the checks you need. Use `Fs` and `Path` for ordinary file
 and path work, `Fs.Snapshot` for bounded single-file reads with explicit stability evidence,
 `Pkg.Dist` for distribution verification and checksum-matched reads, and `Rooted` for coordinated
 publication, use, sealing, and removal beneath one canonical root.
+
+Start with [reading a file](#read-a-file), or go directly to [snapshots](#stable-file-snapshots),
+[distribution verification](#distribution-integrity), [Rooted](#rooted),
+[environment loading](#environment), or [JSON files](#json-files).
 
 ## Primary imports
 
@@ -22,12 +26,30 @@ publication, use, sealing, and removal beneath one canonical root.
 | `@sys/fs/watch`      | `Watch` for directory changes              |
 | `@sys/fs/t`          | Public types                               |
 
+## Read a file
+
+`Fs.readText()` returns the file's text or an error in the result:
+
+```ts
+import { Fs, Path } from '@sys/fs';
+
+const path = Path.join('./data', 'note.txt');
+const result = await Fs.readText(path);
+if (result.error) {
+  console.error(result.error.message);
+} else {
+  console.info(result.data);
+}
+```
+
+This result-based error handling is specific to these ordinary file reads; other APIs below may
+throw or return a different result shape. Use the failure contract of the operation you call.
+
 ## Stable file snapshots
 
 A file snapshot pairs bounded, caller-owned bytes with evidence of the source's observed stability.
 Use it when an ordinary read provides insufficient evidence about concurrent replacement or
-mutation. It gives integrity checks a precise input; it does not establish containment or
-provenance.
+mutation. It does not establish containment or provenance.
 
 `Fs.Snapshot.file()` reads one absolute file selected strictly beneath an absolute root. Supply
 finite `maxBytes` and `timeout` limits, and optionally `until` for cancellation. Symbolic links in
@@ -46,25 +68,26 @@ authority over the path.
 | `bytes`      | Mutable `Uint8Array` with fresh, exact backing storage owned by the caller |
 | `evidence`   | Strength of final-file identity evidence available from the host           |
 
-Both evidence grades require stable size and available modification/change timestamps.
-`device-inode` additionally records consistent device and inode identity across the final-file
-observations. `metadata-only` means complete identity evidence was unavailable, not that checking
-was skipped. The caller decides whether that evidence is sufficient.
+Both evidence grades require matching file sizes. Modification and change times are compared when
+present in both observations. `device-inode` additionally records consistent device and inode
+identity across the final-file observations. `metadata-only` means complete identity evidence was
+unavailable, not that checking was skipped. The caller decides whether that evidence is sufficient.
 
 ### What it does not prove
 
 A snapshot observes change; it does not prevent it. Another actor can replace an ancestor path
 during the read or change file contents without changing the metadata the host reveals. Success
-therefore establishes neither containment, authenticated origin, nor stability after return. Use an
-external sandbox or excluded mutation for stronger location stability, and independent verification
-for intended content or origin.
+therefore establishes neither containment, authenticated origin, nor stability after return. For
+stronger location stability, prevent concurrent changes to files and their ancestor paths, or use an
+external sandbox that enforces the needed containment. Verify intended content or origin
+independently.
 
 ### Limits and failures
 
 `maxBytes` is an acceptance limit: an oversized file rejects rather than returning a prefix.
 `timeout` and `until` request termination; neither can interrupt pending native I/O. Changing
-options or cancellation arrays after invocation does not reconfigure the read; admitted lifecycle
-sources remain live.
+options or cancellation arrays after invocation does not reconfigure the read. The original `until`
+sources can still cancel the operation.
 
 Rejected operations throw frozen `FsSnapshotError` values. Test them with
 `Fs.Snapshot.Is.failure(error)` and inspect their stable `kind`. Messages contain neither paths nor
@@ -72,26 +95,45 @@ host-cause text, and failures do not expose raw host error objects.
 
 ## Distribution integrity
 
-A distribution consists of one `dist.json` manifest and the files it names. The manifest describes
-the expected complete tree, but it travels with that tree. By itself, it can establish internal
-consistency—not that the caller selected the intended artifact.
+A distribution consists of one `dist.json` manifest and the payload files it names. The manifest
+records their paths, checksums, and byte lengths. Because it travels with those files, checking that
+they match proves internal consistency—not that they are the artifact the caller intended.
 
-`Pkg.Dist.Local.verify()` checks the complete tree against the manifest at its root. A successful
-result includes the checksum of those exact manifest bytes. Local verification can run with Deno
-read permission limited to that root.
+### Verify a complete tree
 
-`Pkg.Dist.Pinned.verify()` additionally requires a caller-supplied expected manifest checksum. When
-obtained independently, that value binds successful verification to the distribution selected by the
-caller.
+`Pkg.Dist.Local.verify()` checks the complete tree against the manifest at its root, without an
+independent content expectation. It can run with Deno read permission limited to that root.
 
-`Pkg.Dist.Local.readPart()` and `Pkg.Dist.Pinned.readPart()` are narrower. Given a root-relative
-path, exact byte length, and checksum, each returns one file only when all three match. Neither
-verifies the complete distribution. These reads verify returned bytes against caller-supplied
-values. They provide no stable-location guarantee while another process can replace paths. Use them
-only where mutation is excluded or a separate sandbox provides containment.
+`Pkg.Dist.Pinned.verify()` also requires an independently supplied
+`pin: { scheme: 'sys.dist/v2', digest }`. It recomputes the inventory's digest and compares it with
+the pin. The pin binds exact payload paths, checksums, and byte lengths; root package labels, build
+metadata, and JSON layout do not affect it.
 
-Each call captures its root at invocation; relative roots resolve against the process CWD. A
-long-lived service should resolve one absolute root at startup and reuse it.
+Both verifiers require explicit resource limits. Success returns immutable `evidence.content` and a
+separate `evidence.manifestChecksum`: the checksum of the exact manifest bytes read. Compare this
+checksum to detect changes to the manifest bytes, even when the content pin is unchanged. Neither
+the content pin nor the observed document checksum authenticates the manifest's root metadata.
+
+### Admit a manifest without reading payload files
+
+`Pkg.Dist.Pinned.admitManifest()` bounds and parses supplied manifest bytes, then checks their
+inventory against an independent content pin. It performs no filesystem or network I/O and does not
+verify payload bytes. A successful admission is not proof that a later asset response will match.
+
+Manifest verification accepts `sys.dist/v2`. `Pinned.verify()` and `Pinned.admitManifest()` require
+a content pin, not a checksum of the serialized manifest. Unsupported formats are rejected, not
+converted.
+
+### Read one file
+
+`Pkg.Dist.Local.readPart()` and `Pkg.Dist.Pinned.readPart()` return one file only when its
+root-relative path, exact byte length, and checksum match the caller's expectations. Neither checks
+the complete distribution or guarantees a stable location while another process can replace paths.
+Use them only where concurrent changes to files and their ancestor paths are prevented, or a
+separate sandbox provides containment.
+
+Each verification or part-read call captures its root at invocation; relative roots resolve against
+the process CWD. A long-lived service should resolve one absolute root at startup and reuse it.
 
 ## Rooted
 
@@ -224,8 +266,8 @@ removal, not an all-or-nothing transaction: failure does not undo completed remo
 
 Input-capture errors reject; subsequent operational failures return `failed`. Both `settled` and
 `failed` may carry an independent `releaseError`. Neither implies that lease release succeeded.
-Later edits to the supplied path or cancellation arrays do not change the operation; lifecycle
-sources remain live. An empty batch is a no-op.
+Later edits to the supplied path or cancellation arrays do not change the operation. The original
+`until` sources can still cancel it. An empty batch is a no-op.
 
 For a failed single-target removal, retain the required lease and reconcile partial changes before
 retrying. For a failed batch, use its progress report to distinguish completed work from work that
@@ -265,7 +307,7 @@ Assume `stage` has finished construction and `lease` is an active exclusive leas
 from the same `rooted` instance. Report publication separately from any additional failure:
 
 ```ts
-const publication = await rooted.Stage.promote(stage, target, { seal: true, lease });
+const publication = await rooted.Stage.promote(stage, target, { lease });
 console.info('Publication:', publication.kind);
 if (publication.cleanupError) {
   console.warn('Additional failure:', publication.cleanupError.kind);
@@ -286,7 +328,8 @@ sandbox or account boundary.
 
 ### Load
 
-`Env.load()` reads `.env` files first. The live process environment supplies any missing keys.
+`Env.load()` defaults to the current working directory and `search: 'cwd'`. It reads `.env` files
+first; the live process environment supplies any missing keys.
 
 - `search: 'cwd'` reads only the target directory's `.env` file.
 - `search: 'upward'` reads each ancestor `.env` from the filesystem root to the target directory;

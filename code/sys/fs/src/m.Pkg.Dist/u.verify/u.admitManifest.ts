@@ -4,7 +4,7 @@ import { checkCancelled, isFailure } from './u.io.ts';
 import { admitManifestBytes } from './u.manifest.ts';
 
 /**
- * Admit manifest bytes against an expected checksum, without filesystem or network I/O.
+ * Admit the content inventory against an independent pin, without filesystem or network I/O.
  */
 export const admitPinnedManifest: t.Pkg.Dist.Pinned.AdmitManifest.Method = async (input) => {
   let args: t.Pkg.Dist.Pinned.AdmitManifest.Args;
@@ -20,12 +20,12 @@ export const admitPinnedManifest: t.Pkg.Dist.Pinned.AdmitManifest.Method = async
     // As in complete verification, observe already-ended lifecycle bridges before work.
     await Promise.resolve();
     checkCancelled(life.signal);
-    const admitted = await admitManifestBytes(args.bytes, args.limits, args.integrity);
+    const admitted = admitManifestBytes(args.bytes, args.limits, args.pin);
     checkCancelled(life.signal);
     const evidence: t.Pkg.Dist.Pinned.AdmitManifest.Evidence = Object.freeze({
-      integrity: admitted.integrity,
+      content: admitted.content,
+      manifestChecksum: admitted.manifestChecksum,
       manifestBytes: args.bytes.byteLength,
-      dist: admitted.dist,
     });
     return Object.freeze({ kind: 'manifest-admitted', evidence });
   } catch (cause) {
@@ -41,7 +41,7 @@ function admissionFailureKind(
 ): t.Pkg.Dist.Pinned.AdmitManifest.FailureKind {
   switch (kind) {
     case 'invalid-input':
-    case 'integrity-mismatch':
+    case 'pin-mismatch':
     case 'malformed':
     case 'unsafe-path':
     case 'limit-exceeded':

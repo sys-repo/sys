@@ -53,7 +53,7 @@ async function readPartWithIo(
   const args = admitArgs(input);
   if (!args) return failed('invalid-input');
 
-  let life: ReturnType<typeof Rx.abortable>;
+  let life: t.Abortable;
   try {
     life = Rx.abortable(args.until);
   } catch {
@@ -99,7 +99,7 @@ function admitArgs(input: unknown): ReadArgs | undefined {
     if (!Is.str(path)) return undefined;
     if (!Is.str(checksum)) return undefined;
     if (!isSafeNonNegative(size)) return undefined;
-    const absoluteDir = Path.resolve(dir) as t.StringAbsoluteDir;
+    const absoluteDir = Path.resolve(dir);
 
     const parsed = Pkg.Dist.Part.parse(checksum);
     if (!parsed || parsed.hash !== checksum || parsed.size !== undefined) return undefined;
@@ -129,7 +129,7 @@ function toPartFailureKind(
 ): t.Pkg.Dist.Pinned.ReadPart.FailureKind {
   switch (kind) {
     case 'malformed':
-    case 'integrity-mismatch':
+    case 'pin-mismatch':
     case 'unexpected-entry':
       // Unreachable for admitted part reads; fail closed if the shared kernel ever emits one.
       return 'io-failure';

@@ -1,4 +1,4 @@
-import { describe, expect, it, StdPath } from '../../-test.ts';
+import { describe, expect, it, Json, Num, StdPath } from '../../-test.ts';
 import { Pkg } from '../../m.Pkg/mod.ts';
 import { verifyPinnedWithIo } from '../u.verify/u.verify.ts';
 import { DEFAULT_IO, limits, setup, teardown, withIo } from './-u.pinned.fixture.ts';
@@ -11,7 +11,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
       before.abort('before');
       const cancelled = await Pkg.Dist.Pinned.verify({
         dir: fixture.dir,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         limits,
         until: before.signal,
       });
@@ -32,7 +32,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
       const enumerating = await verifyPinnedWithIo(
         {
           dir: fixture.dir,
-          integrity: fixture.integrity,
+          pin: fixture.pin,
           limits,
           until: during.signal,
         },
@@ -61,7 +61,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
       const finishing = await verifyPinnedWithIo(
         {
           dir: fixture.dir,
-          integrity: fixture.integrity,
+          pin: fixture.pin,
           limits,
           until: final.signal,
         },
@@ -78,7 +78,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
     try {
       const args = {
         dir: fixture.dir,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         limits: { ...limits },
       };
       let mutated = false;
@@ -108,7 +108,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'unsupported' });
@@ -119,7 +119,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
 
   it('rejects invalid numeric filesystem identity and timestamps as unsupported', async () => {
     const variants = [
-      (info: Deno.FileInfo) => ({ ...info, dev: Number.POSITIVE_INFINITY }),
+      (info: Deno.FileInfo) => ({ ...info, dev: Num.INFINITY }),
       (info: Deno.FileInfo) => ({ ...info, ino: 1.5 }),
       (info: Deno.FileInfo) => ({ ...info, mtime: new Date(Number.NaN) }),
     ];
@@ -131,7 +131,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
           lstat: async (path) => mutate(await DEFAULT_IO.lstat(path)),
         });
         const result = await verifyPinnedWithIo(
-          { dir: fixture.dir, integrity: fixture.integrity, limits },
+          { dir: fixture.dir, pin: fixture.pin, limits },
           io,
         );
         expect(result).to.eql({ kind: 'unsupported' });
@@ -163,7 +163,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -191,7 +191,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -217,7 +217,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -250,7 +250,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
           },
         });
         const result = await verifyPinnedWithIo(
-          { dir: fixture.dir, integrity: fixture.integrity, limits },
+          { dir: fixture.dir, pin: fixture.pin, limits },
           io,
         );
         expect(result).to.eql({ kind: 'changed' });
@@ -278,7 +278,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: manifestFixture.dir, integrity: manifestFixture.integrity, limits },
+        { dir: manifestFixture.dir, pin: manifestFixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -297,7 +297,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: assetFixture.dir, integrity: assetFixture.integrity, limits },
+        { dir: assetFixture.dir, pin: assetFixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -315,7 +315,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: openFixture.dir, integrity: openFixture.integrity, limits },
+        { dir: openFixture.dir, pin: openFixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -342,7 +342,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
           },
         });
         const result = await verifyPinnedWithIo(
-          { dir: fixture.dir, integrity: fixture.integrity, limits },
+          { dir: fixture.dir, pin: fixture.pin, limits },
           io,
         );
         expect(result).to.eql({ kind: 'changed' });
@@ -371,7 +371,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
           },
         });
         const result = await verifyPinnedWithIo(
-          { dir: fixture.dir, integrity: fixture.integrity, limits },
+          { dir: fixture.dir, pin: fixture.pin, limits },
           io,
         );
         expect(result).to.eql({ kind: 'changed' });
@@ -395,7 +395,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
           },
         });
         const result = await verifyPinnedWithIo(
-          { dir: fixture.dir, integrity: fixture.integrity, limits },
+          { dir: fixture.dir, pin: fixture.pin, limits },
           io,
         );
         expect(result).to.eql({ kind: 'changed' });
@@ -416,7 +416,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
       try {
         const io = withIo({ realPath: () => Promise.reject(cause) });
         const result = await verifyPinnedWithIo(
-          { dir: fixture.dir, integrity: fixture.integrity, limits },
+          { dir: fixture.dir, pin: fixture.pin, limits },
           io,
         );
         expect(result).to.eql({ kind: 'changed' });
@@ -446,7 +446,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -477,7 +477,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -504,7 +504,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'changed' });
@@ -522,7 +522,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const enumeration = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         enumerationIo,
       );
       expect(enumeration).to.eql({ kind: 'io-failure' });
@@ -542,7 +542,7 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const close = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         closeIo,
       );
       expect(close).to.eql({ kind: 'io-failure' });
@@ -556,12 +556,12 @@ describe('Pkg.Dist.Pinned.verify IO invariants', () => {
         },
       });
       const result = await verifyPinnedWithIo(
-        { dir: fixture.dir, integrity: fixture.integrity, limits },
+        { dir: fixture.dir, pin: fixture.pin, limits },
         io,
       );
       expect(result).to.eql({ kind: 'io-failure' });
       expect(Object.keys(result)).to.eql(['kind']);
-      expect(JSON.stringify(result).includes(fixture.dir)).to.eql(false);
+      expect(Json.stringify(result).includes(fixture.dir)).to.eql(false);
       expect(Object.isFrozen(result)).to.eql(true);
     } finally {
       await teardown(fixture);

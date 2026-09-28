@@ -1,4 +1,4 @@
-import { Is, Obj, ServerIs, type t } from './common.ts';
+import { D, Is, Obj, Pkg, ServerIs, type t } from './common.ts';
 import { isSafeNonNegative, isSafePositive } from './u.limit.ts';
 
 const arrayPrototype = Array.prototype;
@@ -38,25 +38,47 @@ export function snapshotExactDataObject(
   }
 }
 
-/** Validate the limits and return a frozen copy. */
+/** Capture an exact content pin without invoking accessors or proxy traps. */
+export function snapshotPin(input: unknown): t.DistPin | undefined {
+  const value = snapshotExactDataObject(input, {
+    ALLOWED: ['scheme', 'digest'],
+    REQUIRED: ['scheme', 'digest'],
+  });
+  if (!Pkg.Is.distPin(value)) return;
+  return Object.freeze({ scheme: value.scheme, digest: value.digest });
+}
+
+/** Validate the limits and return a frozen copy, applying stricter protocol work ceilings. */
 export function snapshotVerifyLimits(
   input: unknown,
 ): Readonly<t.Pkg.Dist.Verify.Limits> | undefined {
   const values = snapshotExactDataObject(input, {
-    ALLOWED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'],
+    ALLOWED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes', 'pathLength', 'pathTotal'],
     REQUIRED: ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'],
   });
   if (!values) return;
   const { manifestBytes, entries, fileBytes, totalBytes } = values;
+  const ceilings = Pkg.Dist.Content.limits;
+  const pathLength = values.pathLength === undefined ? ceilings.pathLength : values.pathLength;
+  const pathTotal = values.pathTotal === undefined ? ceilings.pathTotal : values.pathTotal;
   if (
     !isSafePositive(manifestBytes) ||
     !isSafePositive(entries) ||
     !isSafeNonNegative(fileBytes) ||
-    !isSafeNonNegative(totalBytes)
+    !isSafeNonNegative(totalBytes) ||
+    !isSafePositive(pathLength) ||
+    !isSafePositive(pathTotal)
   ) {
     return;
   }
-  return freeze({ manifestBytes, entries, fileBytes, totalBytes });
+  return freeze({
+    manifestBytes: Math.min(manifestBytes, D.contentLimits.manifestBytes),
+    entries: Math.min(entries, ceilings.entries),
+    fileBytes,
+    totalBytes,
+    pathLength: Math.min(pathLength, ceilings.pathLength),
+    pathTotal: Math.min(pathTotal, ceilings.pathTotal),
+  });
 }
 
 /** Copy lifecycle arrays before validating any elements that may have getters. */

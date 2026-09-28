@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t } from '../../-test.ts';
 import { Fs } from '../../m.Fs/mod.ts';
 import { Pkg } from '../../m.Pkg/mod.ts';
 import { DEFAULT_IO as ROOTED_IO } from '../../m.Fs.capability/m.Rooted/u/u.io.ts';
@@ -7,7 +7,7 @@ import { projectWithIo } from '../u/u.project.ts';
 import { binary, fixture } from './-u.project.fixture.ts';
 
 describe('Pkg.Dist.project', () => {
-  it('copies the selected files unchanged and returns frozen manifest pins', async () => {
+  it('copies the selected files unchanged and returns their frozen content pins', async () => {
     await using f = await fixture();
     const result = await Pkg.Dist.project(f.args);
     expect(result.kind).to.eql('projected');
@@ -19,12 +19,13 @@ describe('Pkg.Dist.project', () => {
     for (const name of ['a', 'z'] as const) {
       const checked = await Pkg.Dist.Pinned.verify({
         dir: Fs.join(f.root, f.args.outputs[name]),
-        integrity: result.pins[name]['dist.json'],
+        pin: result.pins[name],
         limits: f.args.limits,
       });
       expect(checked.kind).to.eql('verified');
       if (checked.kind === 'verified') {
-        expect(Object.keys(checked.evidence.dist.hash.parts)).to.eql(
+        expect(checked.evidence.content.digest).to.eql(result.pins[name].digest);
+        expect(Object.keys(checked.evidence.content.parts)).to.eql(
           name === 'a' ? ['index.html'] : ['assets/data.bin'],
         );
       }
@@ -36,8 +37,9 @@ describe('Pkg.Dist.project', () => {
     const selected = { a: ['index.html'], z: ['assets/data.bin'] };
     const pkg = { name: '@test/original', version: '1.0.0' };
     f.args.pkg = pkg;
-    f.args.select = (dist) => {
-      expect(Object.isFrozen(dist.hash.parts)).to.eql(true);
+    f.args.select = (content) => {
+      expect(Object.isFrozen(content.parts)).to.eql(true);
+      expect(Object.keys(content).sort()).to.eql(['digest', 'parts', 'scheme']);
       return selected;
     };
     let first = true;
@@ -48,7 +50,7 @@ describe('Pkg.Dist.project', () => {
           first = false;
           f.args.root = '/not-selected';
           f.args.source.dir = 'not-selected';
-          f.args.source.integrity = 'changed';
+          f.args.source.pin = { scheme: 'sys.dist/v2', digest: 'changed' };
           f.args.outputs.a = 'not-selected';
           f.args.limits.totalBytes = 0;
           f.args.batch.totalBytes = 0;
@@ -88,6 +90,78 @@ describe('Pkg.Dist.project', () => {
       remaining: ['a', 'z'],
     });
     expect(await Fs.exists(Fs.join(f.root, 'one/index.html'))).to.eql(true);
+  });
+
+  for (const boundary of ['selection', 'publication'] as const) {
+    it(`content-equal source metadata replacement after ${boundary} → recheck refusal with outputs retained`, async () => {
+      await using f = await fixture();
+      const original = await Fs.readJson<t.DistPkg>(Fs.join(f.source, 'dist.json'));
+      if (!original.data) throw new Error('Expected source document.');
+      const replacement = { ...original.data, pkg: { name: 'changed-label', version: '2.0.0' } };
+      let replaced = false;
+      const mutate = async () => {
+        if (replaced) return;
+        replaced = true;
+        await Fs.writeJson(Fs.join(f.source, 'dist.json'), replacement, { throw: true });
+      };
+      const result = await projectWithIo(f.args, DEFAULT_IO, {
+        ...ROOTED_IO,
+        async mkdir(path, options) {
+          if (boundary === 'selection') await mutate();
+          await ROOTED_IO.mkdir(path, options);
+        },
+        async rename(from, to) {
+          await ROOTED_IO.rename(from, to);
+          if (boundary === 'publication') await mutate();
+        },
+      });
+      expect(replaced).to.eql(true);
+      expect(result).to.eql({
+        kind: 'failed',
+        phase: 'recheck',
+        reason: 'changed',
+        remaining: ['a', 'z'],
+      });
+      expect(await Fs.exists(Fs.join(f.root, 'one/index.html'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(f.root, 'two/assets/data.bin'))).to.eql(true);
+      const contentCheck = await Pkg.Dist.Pinned.verify({
+        dir: f.source,
+        pin: f.args.source.pin,
+        limits: f.args.limits,
+      });
+      expect(contentCheck.kind).to.eql('verified');
+    });
+  }
+
+  it('content-equal stage document replacement → refusal, not permission to publish it', async () => {
+    await using f = await fixture();
+    let replaced = false;
+    const result = await projectWithIo(f.args, {
+      ...DEFAULT_IO,
+      async realPath(path) {
+        if (!replaced && path.includes('/.sys.rooted/stages/')) {
+          const document = Fs.join(path, 'dist.json');
+          const loaded = await Fs.readJson<t.DistPkg>(document);
+          if (loaded.data) {
+            replaced = true;
+            await Fs.writeJson(document, {
+              ...loaded.data,
+              pkg: { name: 'replacement', version: '2' },
+            }, { throw: true });
+          }
+        }
+        return await DEFAULT_IO.realPath(path);
+      },
+    }, ROOTED_IO);
+    expect(replaced).to.eql(true);
+    expect(result).to.eql({
+      kind: 'failed',
+      phase: 'output',
+      output: 'a',
+      reason: 'changed',
+      remaining: [],
+    });
+    expect(await Fs.exists(Fs.join(f.root, 'one'))).to.eql(false);
   });
 
   it('checks output count before IO and combined copy size before staging', async () => {
@@ -188,7 +262,7 @@ describe('Pkg.Dist.project', () => {
       expect(
         (await Pkg.Dist.Pinned.verify({
           dir: f.source,
-          integrity: f.args.source.integrity,
+          pin: f.args.source.pin,
           limits: f.args.limits,
         })).kind,
       ).to.eql('verified');
@@ -417,13 +491,12 @@ Deno.test('Pkg.Dist.project: host filesystem aliases', async (t) => {
           });
           expect(writes).to.eql(0);
           expect(await Fs.exists(Fs.join(f.source, 'assets/subset'))).to.eql(false);
-          expect(
-            (await Pkg.Dist.Pinned.verify({
-              dir: f.source,
-              integrity: f.args.source.integrity,
-              limits: f.args.limits,
-            })).kind,
-          ).to.eql('verified');
+          const sourceCheck = await Pkg.Dist.Pinned.verify({
+            dir: f.source,
+            pin: f.args.source.pin,
+            limits: f.args.limits,
+          });
+          expect(sourceCheck.kind).to.eql('verified');
         }
       },
     });

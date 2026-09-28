@@ -1,198 +1,152 @@
 import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
-import { CompositeHash, Hash, Ignore, Is, Json, Obj, Path, Pkg, Str, type t } from './common.ts';
+import type { StrictManifest, StrictPart } from '../t.internal.ts';
+import { D, Hash, Is, Json, Obj, Path, Pkg, Str, type t } from './common.ts';
 import { failure } from './u.io.ts';
-import { addBytes, isSafeNonNegative } from './u.limit.ts';
+import { addBytes } from './u.limit.ts';
 
 const compare = Str.Compare.codeUnit();
 const decoder = new TextDecoder('utf-8', { fatal: true });
 
-export type StrictPart = {
-  readonly path: t.StringRelativePath;
-  readonly hash: t.StringHash;
-  readonly size: t.NumberBytes;
-};
-
-export type StrictManifest = {
-  readonly dist: t.DeepReadonly<t.DistPkg>;
-  readonly parts: readonly StrictPart[];
-};
-
 /**
- * Validate manifest bytes, checking any expected checksum before decoding.
- * The caller must supply an owned snapshot within `limits.manifestBytes`.
+ * One fatal UTF-8/native JSON interpretation, then bounded descriptor recomputation.
+ * The caller supplies an owned byte snapshot. Excluded metadata is neither traversed nor frozen.
+ * Native parsing is byte-bounded, not interruptible or a promise of a nesting/CPU deadline.
  */
-export async function admitManifestBytes(
+export function admitManifestBytes(
   bytes: Uint8Array,
   limits: t.Pkg.Dist.Verify.Limits,
-  expectedIntegrity?: t.StringHash,
-): Promise<StrictManifest & { readonly integrity: t.StringHash }> {
-  const integrity = Hash.sha256(bytes);
-  if (expectedIntegrity !== undefined && integrity !== expectedIntegrity) {
-    throw failure('integrity-mismatch');
-  }
-  let parsed: unknown;
-  try {
-    parsed = Json.parse<unknown>(decoder.decode(bytes));
-  } catch {
-    throw failure('malformed');
-  }
-  const manifest = await admitManifest(parsed, limits);
-  return Object.freeze({ ...manifest, integrity });
+  expected?: t.DistPin,
+): StrictManifest & { readonly manifestChecksum: t.StringHash } {
+  const parsed = parseManifestBytes(bytes, limits);
+  const admitted = admitManifest(parsed, limits, expected);
+  return Object.freeze({ ...admitted, manifestChecksum: Hash.sha256(bytes) });
 }
 
-async function admitManifest(
+/** Bounded document observation; native last-member-wins, including escaped-equivalent names. */
+export function parseManifestBytes(bytes: Uint8Array, limits: t.Pkg.Dist.Verify.Limits): unknown {
+  if (bytes.byteLength > Math.min(limits.manifestBytes, D.contentLimits.manifestBytes)) {
+    throw failure('limit-exceeded');
+  }
+  try {
+    return Json.parse<unknown>(decoder.decode(bytes));
+  } catch {
+    throw failure('malformed');
+  }
+}
+
+/** Admit the single parsed document; descriptive members are not authenticated or traversed. */
+export function admitManifest(
+  parsed: unknown,
+  limits: t.Pkg.Dist.Verify.Limits,
+  expected?: t.DistPin,
+): StrictManifest {
+  if (!Is.plainObject(parsed) || !Obj.hasOwn(parsed, 'hash')) throw failure('malformed');
+  const hash = parsed.hash;
+  if (!Is.plainObject(hash) || !Obj.hasOwn(hash, 'scheme') || !Obj.hasOwn(hash, 'parts')) {
+    throw failure('malformed');
+  }
+  if (hash.scheme !== Pkg.Dist.Content.scheme || !Obj.hasOwn(hash, 'digest')) {
+    throw failure('malformed');
+  }
+  const admitted = captureContent(hash.parts, limits);
+  if (hash.digest !== admitted.content.digest) throw failure('malformed');
+  if (
+    expected &&
+    (expected.scheme !== admitted.content.scheme || expected.digest !== admitted.content.digest)
+  ) {
+    throw failure('pin-mismatch');
+  }
+  return admitted;
+}
+
+/**
+ * Shared producer/admission owner: exact portable targets, structural bounds, sizes, and encoding.
+ * Callers supply parsed JSON or producer-owned parts, never arbitrary executable object graphs.
+ */
+export function captureContent(
   input: unknown,
   limits: t.Pkg.Dist.Verify.Limits,
-): Promise<StrictManifest> {
+): StrictManifest {
   if (!Is.plainObject(input)) throw failure('malformed');
-
-  const value = input as Record<string, unknown>;
-  if (!Is.plainObject(value.build) || !Is.plainObject(value.hash)) {
-    throw failure('malformed');
-  }
-  const baseBuild = value.build as Record<string, unknown>;
-  if (!Is.plainObject(baseBuild.hash)) throw failure('malformed');
-
-  const baseHash = value.hash as Record<string, unknown>;
-  const rawParts = baseHash.parts;
-  if (!Is.plainObject(rawParts)) throw failure('malformed');
-
-  // Enforce the declared-entry work bound before whole-collection arrays or part-value parsing.
-  let partCount = 0;
-  for (const path in rawParts) {
-    if (!Obj.hasOwn(rawParts, path)) continue;
-    if (partCount >= limits.entries) throw failure('limit-exceeded');
-    partCount++;
-  }
-  if (partCount === 0) throw failure('malformed');
-  if (!Pkg.Is.dist(value)) throw failure('malformed');
-
-  const dist = value as t.DistPkg;
-  const { build, hash } = dist;
-  const entries = Object.entries(rawParts);
-  if (!Is.urlString(dist.type)) throw failure('malformed');
-  validatePkg(dist.pkg);
-
-  if (!isSafeNonNegative(build.time)) throw failure('malformed');
-  if (!Is.plainObject(build.size)) throw failure('malformed');
-  if (!isSafeNonNegative(build.size.total) || !isSafeNonNegative(build.size.pkg)) {
-    throw failure('malformed');
-  }
-  if (build.size.pkg > build.size.total) throw failure('malformed');
-  if (!nonEmpty(build.builder) || !nonEmpty(build.runtime)) throw failure('malformed');
-
-  if (!Is.plainObject(build.hash) || !Is.urlString(build.hash.policy)) {
-    throw failure('malformed');
-  }
-  const ignore = build.hash.ignore;
-  if (!Is.plainObject(ignore) || ignore.format !== 'gitignore') throw failure('malformed');
-  if (!Is.array(ignore.rules) || !ignore.rules.every((rule) => Is.str(rule))) {
-    throw failure('malformed');
-  }
-  const normalizedRules = Ignore.normalize(ignore.rules);
-  if (!Obj.eql(normalizedRules, ignore.rules)) throw failure('malformed');
-  if (!normalizedRules.every(hasBoundedWildcardStructure)) throw failure('malformed');
-  if (!hashOnly(ignore['rules:digest'])) throw failure('malformed');
-  let rulesDigest: t.StringHash;
-  try {
-    rulesDigest = await Ignore.digest(normalizedRules);
-  } catch {
-    throw failure('malformed');
-  }
-  if (rulesDigest !== ignore['rules:digest']) throw failure('malformed');
-
-  if (!hashOnly(hash.digest)) throw failure('malformed');
-
-  const sign = build.sign;
-  if (sign !== undefined) validateSign(sign);
-
-  const targetInputs: t.FsRooted.TargetInput<'file'>[] = entries.map(([path]) => ({
-    kind: 'file',
-    path,
-  }));
-  assertEntryLimit(targetInputs, limits.entries);
-  if (sign) {
-    const signature: t.FsRooted.TargetInput<'file'> = { kind: 'file', path: sign.path };
-    // Bound the hint's normalization work without counting it as an asset.
-    assertEntryLimit([signature], limits.entries);
-    targetInputs.push(signature);
-  }
-  targetInputs.push({ kind: 'file', path: 'dist.json' });
-
-  let normalized: readonly { readonly path: t.StringRelativePath }[];
-  try {
-    normalized = normalizeTargets(targetInputs);
-  } catch {
-    throw failure('unsafe-path');
-  }
-  for (let index = 0; index < targetInputs.length; index++) {
-    if (targetInputs[index].path !== normalized[index].path) throw failure('unsafe-path');
-  }
-
-  const matcher = createMatcher(normalizedRules);
+  const ceilings = Pkg.Dist.Content.limits;
+  const entryLimit = Math.min(limits.entries, ceilings.entries);
+  const pathLimit = Math.min(limits.pathLength ?? ceilings.pathLength, ceilings.pathLength);
+  const pathTotalLimit = Math.min(limits.pathTotal ?? ceilings.pathTotal, ceilings.pathTotal);
   const parts: StrictPart[] = [];
+  let pathTotal = 0;
   let totalBytes = 0;
   let packageBytes = 0;
 
-  for (let index = 0; index < entries.length; index++) {
-    const rawPart = entries[index][1];
-    const path = normalized[index].path;
+  // Bound before whole-collection arrays, sorting, regex parsing, and directory expansion.
+  for (const path in input) {
+    if (!Obj.hasOwn(input, path)) continue;
+    if (parts.length >= entryLimit || path.length > pathLimit) throw failure('limit-exceeded');
+    pathTotal = addBytes(pathTotal, path.length, pathTotalLimit);
+    if (!path.isWellFormed()) throw failure('unsafe-path');
+    const property = Object.getOwnPropertyDescriptor(input, path);
+    if (!property || !Obj.hasOwn(property, 'value')) throw failure('malformed');
+    const value = property.value;
+    if (!Is.str(value) || value.length > 93) throw failure('malformed');
+    const part = Pkg.Dist.Part.parse(value);
+    if (!part || part.size === undefined) throw failure('malformed');
+    if (part.size > limits.fileBytes) throw failure('limit-exceeded');
+    totalBytes = addBytes(totalBytes, part.size, limits.totalBytes);
+    if (Pkg.Dist.Is.codePath(path)) {
+      packageBytes = addBytes(packageBytes, part.size, limits.totalBytes);
+    }
+    parts.push(Object.freeze({ path, hash: part.hash, size: part.size }));
+  }
+  if (!parts.length) throw failure('malformed');
+  assertEntryLimit(parts, entryLimit, pathTotalLimit);
+  const targets: t.FsRooted.TargetInput<'file'>[] = parts.map(({ path }) => ({
+    kind: 'file',
+    path,
+  }));
+  targets.push({ kind: 'file', path: 'dist.json' });
+  try {
+    const normalized = normalizeTargets(targets);
+    for (let index = 0; index < targets.length; index++) {
+      if (targets[index].path !== normalized[index].path) throw failure('unsafe-path');
+    }
+  } catch {
+    throw failure('unsafe-path');
+  }
+  for (const { path } of parts) {
     const name = Path.basename(path).toLowerCase();
     if (name === 'dist.json' || name === 'dist.json.sig') throw failure('unsafe-path');
-
-    const parsed = Pkg.Dist.Part.parse(rawPart);
-    if (!parsed || parsed.size === undefined) throw failure('malformed');
-    if (parsed.size > limits.fileBytes) throw failure('limit-exceeded');
-
-    totalBytes = addBytes(totalBytes, parsed.size, limits.totalBytes);
-    if (Pkg.Dist.Is.codePath(path)) {
-      packageBytes = addBytes(packageBytes, parsed.size, limits.totalBytes);
-    }
-
-    let ignored: boolean;
-    try {
-      ignored = matcher.isIgnored(path);
-    } catch {
-      throw failure('malformed');
-    }
-    if (ignored) throw failure('malformed');
-
-    parts.push(Object.freeze({ path, hash: parsed.hash, size: parsed.size }));
-  }
-
-  if (sign) {
-    const signPath = normalized[entries.length].path;
-    if (Path.basename(signPath).toLowerCase() === 'dist.json') throw failure('unsafe-path');
-  }
-
-  let digest: t.StringHash;
-  try {
-    digest = CompositeHash.digest(hash.parts);
-  } catch {
-    throw failure('malformed');
-  }
-  if (digest !== hash.digest) throw failure('malformed');
-  if (build.size.total !== totalBytes || build.size.pkg !== packageBytes) {
-    throw failure('malformed');
   }
 
   parts.sort((a, b) => compare(a.path, b.path));
-  return Object.freeze({
-    dist: Obj.deepFreeze(dist),
-    parts: Object.freeze(parts),
+  const entries = parts.map(({ path, hash, size }): [string, string] => {
+    return [path, `${hash}:size=${size}`];
   });
+  const inventory = Object.freeze(Object.fromEntries(entries));
+  let encoded: string;
+  try {
+    encoded = Pkg.Dist.Content.encode(inventory);
+  } catch (cause) {
+    throw failure(cause instanceof RangeError ? 'limit-exceeded' : 'malformed');
+  }
+  const content: t.DistContent = Object.freeze({
+    scheme: Pkg.Dist.Content.scheme,
+    digest: Hash.sha256(encoded),
+    parts: inventory,
+  });
+  return Object.freeze({ content, parts: Object.freeze(parts), totalBytes, packageBytes });
 }
 
-/** Bound `dist.json`, supplied file paths, and distinct implied directories before normalization. */
-function assertEntryLimit(
-  files: readonly t.FsRooted.TargetInput<'file'>[],
-  limit: number,
-): void {
-  let entries = addBytes(1, files.length, limit); // Includes dist.json.
+/** Bound the manifest, files, and distinct implied directories before target normalization. */
+function assertEntryLimit(files: readonly StrictPart[], limit: number, stringLimit: number): void {
+  let entries = addBytes(1, files.length, limit);
+  let prefixUnits = 0;
   const directories = new Set<string>();
   for (const { path } of files) {
     let separator = path.indexOf('/');
     while (separator >= 0) {
+      // Charge every prefix before allocation, including repeated shared prefixes. Entry count
+      // alone does not bound this potentially quadratic string work. Rooted repeats only work
+      // admitted here; it remains the sole lexical/structural path-policy owner.
+      prefixUnits = addBytes(prefixUnits, separator, stringLimit);
       const directory = path.slice(0, separator);
       if (!directories.has(directory)) {
         entries = addBytes(entries, 1, limit);
@@ -201,79 +155,4 @@ function assertEntryLimit(
       separator = path.indexOf('/', separator + 1);
     }
   }
-}
-
-function validatePkg(pkg: t.DistPkg['pkg']): void {
-  if (pkg === undefined) return;
-  if (!Is.plainObject(pkg) || !nonEmpty(pkg.name) || !nonEmpty(pkg.version)) {
-    throw failure('malformed');
-  }
-}
-
-function validateSign(sign: t.DistPkg['build']['sign']): void {
-  if (!Is.plainObject(sign)) throw failure('malformed');
-  if (!nonEmpty(sign.path) || sign.scheme !== 'Ed25519') throw failure('malformed');
-  if (sign.key !== undefined && !nonEmpty(sign.key)) throw failure('malformed');
-}
-
-function createMatcher(rules: readonly string[]): t.Ignore {
-  try {
-    return Ignore.create(rules);
-  } catch {
-    throw failure('malformed');
-  }
-}
-
-/** Keep synchronous matching bounded by preventing wildcards from competing for one path region. */
-function hasBoundedWildcardStructure(rule: string): boolean {
-  const start = rule.startsWith('!') ? 1 : 0;
-  let crossDirectory = 0;
-  let starsInSegment = 0;
-  let inRange = false;
-
-  for (let index = start; index < rule.length; index++) {
-    const char = rule[index];
-    if (char === '\\') {
-      if (index + 1 >= rule.length) return false;
-      index++;
-      continue;
-    }
-    if (char === '[' && !inRange) {
-      inRange = true;
-      continue;
-    }
-    if (char === ']' && inRange) {
-      inRange = false;
-      continue;
-    }
-    if (inRange) continue;
-    if (char === '/') {
-      starsInSegment = 0;
-      continue;
-    }
-    if (char !== '*') continue;
-
-    if (rule[index + 1] === '*') {
-      const atSegmentStart = index === start || rule[index - 1] === '/';
-      const after = rule[index + 2];
-      const atSegmentEnd = after === undefined || after === '/';
-      if (!atSegmentStart || !atSegmentEnd || crossDirectory > 0) return false;
-      crossDirectory++;
-      index++;
-      continue;
-    }
-
-    starsInSegment++;
-    if (starsInSegment > 1) return false;
-  }
-  return !inRange;
-}
-
-function hashOnly(input: unknown): input is t.StringHash {
-  const parsed = Pkg.Dist.Part.parse(input);
-  return parsed !== undefined && parsed.hash === input && parsed.size === undefined;
-}
-
-function nonEmpty(input: unknown): input is string {
-  return Is.str(input) && input.length > 0;
 }

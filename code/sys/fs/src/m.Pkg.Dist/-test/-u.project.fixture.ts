@@ -19,9 +19,10 @@ export async function fixture(sourceName = 'source') {
   await Fs.write(Fs.join(source, 'assets/data.bin'), binary, { throw: true });
   await Fs.write(Fs.join(source, 'spare.txt'), 'spare', { throw: true });
   const computed = await Pkg.Dist.compute({ dir: source, save: true });
+  if (computed.kind !== 'computed') throw computed.error;
   const args: t.Pkg.Dist.Project.Args<'a' | 'z'> = {
     root,
-    source: { dir: sourceName, integrity: computed.manifest.integrity },
+    source: { dir: sourceName, pin: computed.pin },
     outputs: { z: 'two', a: 'one' },
     limits: { ...limits },
     batch: { ...batch },

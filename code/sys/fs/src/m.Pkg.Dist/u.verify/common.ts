@@ -1,7 +1,7 @@
 export type * as t from '../../common/t.ts';
+export { D } from '../common.ts';
 
-export { CompositeHash, Hash } from '@sys/crypto/hash';
-export { Ignore } from '@sys/std/ignore';
+export { Hash } from '@sys/crypto/hash';
 export { Is } from '@sys/std/is';
 export { Is as ServerIs } from '@sys/std/is/server';
 export { Json } from '@sys/std/json';

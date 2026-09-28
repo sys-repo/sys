@@ -4,827 +4,400 @@ import { distTypePath as typesDistTypePath } from '@sys/types';
 import { pkg as fsPkg } from '../../pkg.ts';
 import { Dir } from '../../mod.ts';
 import { Sample } from './-u.dist.fixture.ts';
-import { c, D, Fs, Hash, Ignore, Is, Json, JsrUrl, Obj, Path, Str, Time } from '../common.ts';
+import { D, Err, Fs, Hash, Is, Json, JsrUrl, Obj, Path, Str, Time } from '../common.ts';
 import { Dist } from '../m.Dist.ts';
 import { Pkg } from '../../m.Pkg/mod.ts';
+import { limits } from './-u.pinned.fixture.ts';
+
+/** Successful fixture authorship; refusal cases call the public producer directly. */
+async function compute(args: t.Pkg.Dist.Compute.Args) {
+  const result = await Pkg.Dist.compute(args);
+  if (result.kind !== 'computed') throw result.error;
+  return result;
+}
 
 describe('Pkg.Dist', () => {
-  const renderDist = (dist: t.DistPkg) => {
-    console.info();
-    console.info('🌳');
-    console.info(`JSON via ${c.green('Pkg.Dist.compute')}:`);
-    console.info(c.gray(`/dist/dist.json:`));
-    console.info();
-    console.info(dist);
-    console.info();
-  };
-
-  describe('API', () => {
-    it('API refs', () => {
-      expect(Pkg.Dist).to.equal(Dist);
-      expect(Pkg.Dist.checkSelfReported).to.equal(Dist.checkSelfReported);
-      expect(Pkg.Dist.Local).to.equal(Dist.Local);
-      expect(Pkg.Dist.Local.verify).to.equal(Dist.Local.verify);
-      expect(Pkg.Dist.Local.readPart).to.equal(Dist.Local.readPart);
-      expect(Pkg.Dist.Pinned).to.equal(Dist.Pinned);
-      expect(Pkg.Dist.Pinned.verify).to.equal(Dist.Pinned.verify);
-      expect(Pkg.Dist.Pinned.readPart).to.equal(Dist.Pinned.readPart);
-      expect(VerifyLocal).to.equal(Dist.Local);
-      expect(VerifyPinned).to.equal(Dist.Pinned);
-      expect(Object.keys(Pkg.Dist.Local).sort()).to.eql(['readPart', 'verify']);
-      expect(Object.keys(Pkg.Dist.Pinned).sort()).to.eql(['admitManifest', 'readPart', 'verify']);
-      expect(Object.isFrozen(Pkg.Dist.Pinned)).to.eql(true);
-      expect(Object.isFrozen(Pkg.Dist.Local)).to.eql(true);
-    });
-
-    it('is not the [sys.std] client version, but surfaces all the [sys.std] interface', async () => {
-      const { Pkg: Base } = await import('@sys/std/pkg');
-      expect(Pkg.Dist).to.not.equal(Base.Dist); // NB: different instance.
-      expect(Object.isFrozen(Base.Dist)).to.eql(true);
-      expect(Object.keys(Pkg.Dist).sort()).to.eql(
-        [
-          ...Object.keys(Base.Dist),
-          'Log',
-          'Local',
-          'Pinned',
-          'compute',
-          'project',
-          'load',
-          'checkSelfReported',
-        ].sort(),
-      );
-
-      // Pins adds filesystem verification but reuses std's capture function.
-      expect(Pkg.Dist.Pins.capture).to.equal(Base.Dist.Pins.capture);
-      expect(Object.keys(Base.Dist)).not.to.include('Selection');
-      for (const key of Object.keys(Base.Dist) as Array<keyof typeof Base.Dist>) {
-        if (key !== 'Pins') expect(Pkg.Dist[key]).to.equal(Base.Dist[key]);
-      }
-    });
+  it('public surfaces → same owner implementations, no old consistency or conversion API', async () => {
+    const { Pkg: Base } = await import('@sys/std/pkg');
+    expect(Pkg.Dist).to.equal(Dist);
+    expect(Pkg.Dist).not.to.equal(Base.Dist);
+    expect(VerifyLocal).to.equal(Dist.Local);
+    expect(VerifyPinned).to.equal(Dist.Pinned);
+    expect(Object.keys(Pkg.Dist.Local).sort()).to.eql(['readPart', 'verify']);
+    expect(Object.keys(Pkg.Dist.Pinned).sort()).to.eql(['admitManifest', 'readPart', 'verify']);
+    expect([Base.Dist, Dist.Local, Dist.Pinned].every(Object.isFrozen)).to.eql(true);
+    expect(Object.keys(Pkg.Dist).sort()).to.eql([
+      ...Object.keys(Base.Dist),
+      'Log',
+      'Local',
+      'Pinned',
+      'compute',
+      'project',
+      'load',
+    ].sort());
+    expect(Pkg.Dist.Pins.capture).to.equal(Base.Dist.Pins.capture);
+    for (const key of Obj.keys(Base.Dist)) {
+      if (key !== 'Pins') expect(Pkg.Dist[key]).to.equal(Base.Dist[key]);
+    }
+    expect('checkSelfReported' in Dist).to.eql(false);
+    expect('Compat' in Dist).to.eql(false);
   });
 
-  describe('Dist.compute (save)', () => {
-    it('selected prototype-sensitive filenames → survive collection and saved Dist JSON', async () => {
-      const dir = (await Fs.makeTempDir({ prefix: 'Fs.Pkg.own-keys.' })).absolute;
-      try {
-        // Explicit key order supplies an independent generic-digest preimage.
-        const files = [
-          { path: '__proto__', bytes: new Uint8Array([1]) },
-          { path: 'constructor', bytes: new Uint8Array([2, 3]) },
-          { path: 'toString', bytes: new Uint8Array([4, 5, 6]) },
-          { path: 'z.txt', bytes: new Uint8Array([7, 8, 9, 10]) },
-        ];
-        for (const file of files) {
-          await Fs.write(Fs.join(dir, file.path), file.bytes, { throw: true });
-        }
-        await Fs.write(Fs.join(dir, 'skip.txt'), 'not selected', { throw: true });
-        const filter = (path: string) => Path.basename(path) !== 'skip.txt';
-        const parts = Object.fromEntries(files.map(({ path, bytes }) => [
-          path,
-          `${Hash.sha256(bytes)}:size=${bytes.byteLength}`,
-        ]));
-        const digest = Hash.sha256(files.map(({ bytes }) => Hash.sha256(bytes)).join('\n'));
-        const collected = await Dir.Hash.compute(dir, { filter });
-        const computed = await Pkg.Dist.compute({ dir, filter, save: true });
-        const loaded = await Pkg.Dist.load(dir);
-        expect(collected.error).to.eql(undefined);
-        expect(computed.error).to.eql(undefined);
-        expect(loaded.error).to.eql(undefined);
-        expect(loaded.kind).to.eql('canonical');
-        if (!loaded.dist) throw new Error('Expected saved Dist fixture.');
-
-        for (const hash of [collected.hash, computed.dist.hash, loaded.dist.hash]) {
-          expect(hash).to.eql({ digest, parts });
-          expect(Obj.keys(hash.parts).sort()).to.eql(files.map(({ path }) => path));
-          for (const { path } of files) expect(Obj.hasOwn(hash.parts, path)).to.eql(true);
-        }
-        expect(computed.dist.build.size.total).to.eql(10);
-        const text = await Fs.readText(Fs.join(dir, 'dist.json'));
-        expect(text.error).to.eql(undefined);
-        expect(text.data).to.eql(Json.stringify(computed.dist, 2));
-        expect(computed.manifest.integrity).to.eql(Hash.sha256(text.data));
-
-        const changedBytes = new Uint8Array([11]);
-        await Fs.write(Fs.join(dir, '__proto__'), changedBytes, { throw: true });
-        const changed = await Pkg.Dist.compute({ dir, filter });
-        expect(changed.error).to.eql(undefined);
-        expect(Obj.hasOwn(changed.dist.hash.parts, '__proto__')).to.eql(true);
-        expect(changed.dist.hash.parts['__proto__']).to.eql(`${Hash.sha256(changedBytes)}:size=1`);
-        expect(changed.dist.hash.digest).not.to.eql(digest);
-        expect(loaded.dist.hash.parts['__proto__']).to.eql(parts['__proto__']);
-      } finally {
-        await Fs.remove(dir);
+  it('selected own filenames → generic collection and Dist retain identical membership, distinct digests', async () => {
+    const dir = (await Fs.makeTempDir({ prefix: 'Fs.Pkg.own-keys.' })).absolute;
+    try {
+      const files = [
+        { path: '__proto__', bytes: new Uint8Array([1]) },
+        { path: 'constructor', bytes: new Uint8Array([2, 3]) },
+        { path: 'toString', bytes: new Uint8Array([4, 5, 6]) },
+        { path: 'z.txt', bytes: new Uint8Array([7, 8, 9, 10]) },
+      ];
+      for (const file of files) {
+        await Fs.write(Fs.join(dir, file.path), file.bytes, { throw: true });
       }
-    });
-
-    it('Dist.compute(): → success', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-
-      const pkg = { name: 'my-package', version: '0.0.0' };
-      const builder = { name: 'my-builder', version: '0.0.0' };
-
-      const res = await Pkg.Dist.compute({ dir, pkg, builder });
-      renderDist(res.dist);
-
-      expect(res.exists).to.eql(true);
-      expect(res.error).to.eql(undefined);
-      expect(res.manifest.integrity).to.eql(Hash.sha256(Json.stringify(res.dist, 2)));
-
-      const typeUrl = res.dist.type;
-      expect(typeUrl.startsWith('https://jsr.io/@sys/types')).to.eql(true);
-      expect(typeUrl.endsWith(typesDistTypePath)).to.eql(true);
-
-      expect(res.dir).to.eql(Fs.resolve(dir));
-
-      const dist = res.dist;
-      expect(dist.pkg).to.eql(pkg);
-
-      expect(dist.build.time).to.be.closeTo(Time.now.timestamp, 100);
-      expect(dist.build.builder).to.eql(Pkg.toString(builder));
-      expect(dist.build.runtime.includes('deno=')).to.be.true;
-      expect(dist.build.runtime.includes('v8=')).to.be.true;
-      expect(dist.build.runtime.includes('typescript=')).to.be.true;
-
-      const expectedPolicy = JsrUrl.Pkg.file(fsPkg, D.hashPolicy.path);
-      expect(dist.build.hash.policy).to.eql(expectedPolicy);
-
-      const policyPath = Fs.resolve(`./${D.hashPolicy.path}`);
-      expect(await Fs.exists(policyPath)).to.eql(true);
-
-      expect(Is.number(dist.build.size.total)).to.be.true;
-      expect(Is.number(dist.build.size.pkg)).to.be.true;
-
-      const dirhash = await Dir.Hash.compute(dir, (p) => p !== './dist.json');
-      expect(dist.hash.digest).to.eql(dirhash.hash.digest);
-      expect(dist.hash.parts).to.eql(dirhash.hash.parts);
-    });
-
-    it('Dist.compute(): applies custom filter to hash manifest (in addition to dist.json exclusion)', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-
-      const pkg = { name: 'my-package', version: '0.0.0' };
-      const builder = { name: 'my-builder', version: '0.0.0' };
-
-      /**
-       * Prepare an extra file that will be ignored by the filter.
-       */
-      const ignoredFilename = 'ignore.me';
-      const ignoredAbsPath = Path.join(dir, ignoredFilename);
-      await Fs.write(ignoredAbsPath, 'ignore-this-file');
-      const ignoredRelPath = `./${ignoredFilename}`;
-
-      /**
-       * Dist.compute filter:
-       *   - always exclude "./dist.json" (inside Dist implementation)
-       *   - additionally exclude "./ignore.me" (here)
-       */
-      const filter = (p: t.StringPath) => p !== ignoredRelPath;
-      const res = await Pkg.Dist.compute({ dir, pkg, builder, filter });
-      const dist = res.dist;
-
-      expect(res.exists).to.eql(true);
-      expect(res.error).to.eql(undefined);
-
-      /**
-       * Reference hash using the equivalent combined filter:
-       *   - ex: "./dist.json"
-       *   - ex: "./ignore.me"
-       */
-      const dirhash = await Dir.Hash.compute(
-        dir,
-        (p) => p !== './dist.json' && p !== ignoredRelPath,
-      );
-
-      expect(dist.hash.digest).to.eql(dirhash.hash.digest);
-      expect(dist.hash.parts).to.eql(dirhash.hash.parts);
-      expect(Object.prototype.hasOwnProperty.call(dist.hash.parts, ignoredRelPath)).to.eql(false);
-    });
-
-    it('Dist.compute(): forwards onHashProgress during hashing', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      const events: t.Dir.Hash.Compute.ProgressEvent[] = [];
-
-      const res = await Pkg.Dist.compute({
-        dir,
-        pkg,
-        builder: { name: 'my-builder', version: '0.0.0' },
-        onHashProgress: (e) => {
-          events.push(e);
-        },
-      });
-
-      expect(res.error).to.eql(undefined);
-      expect(events.length).to.eql(Object.keys(res.dist.hash.parts).length);
-      expect(events.length).to.be.greaterThan(0);
-      expect(events[0]?.current).to.eql(1);
-      expect(events[events.length - 1]?.current).to.eql(events.length);
-      expect(events.every((e) => e.total === events.length)).to.eql(true);
-    });
-
-    it('Dist.compute(): excludes root dist.json regardless of key style', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      const res = await Pkg.Dist.compute({ dir, pkg, save: true });
-      const keys = Object.keys(res.dist.hash.parts);
-      expect(keys.includes('./dist.json')).to.eql(false);
-      expect(keys.includes('dist.json')).to.eql(false);
-    });
-
-    it('Dist.compute(): excludes root dist.json.sig regardless of key style', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      await Fs.write(Fs.join(dir, 'dist.json.sig'), 'sig-v1');
-
-      const res = await Pkg.Dist.compute({ dir, pkg, save: true });
-      const keys = Object.keys(res.dist.hash.parts);
-      expect(keys.includes('./dist.json.sig')).to.eql(false);
-      expect(keys.includes('dist.json.sig')).to.eql(false);
-    });
-
-    it('Dist.compute(): emits default hash ignore policy metadata', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      const res = await Pkg.Dist.compute({ dir, pkg });
-      const ignore = res.dist.build.hash.ignore;
-
-      expect(ignore?.format).to.eql('gitignore');
-      expect(ignore?.rules).to.eql(['dist.json', 'dist.json.sig']);
-      expect(ignore?.['rules:digest'].startsWith('sha256-')).to.eql(true);
-      expect(ignore?.['rules:digest'].length).to.eql('sha256-'.length + 64);
-    });
-
-    it('Dist.compute(): custom ignore filters files and is captured in policy metadata', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      await Fs.write(Fs.join(dir, '.DS_Store'), 'junk');
-
-      const strict = await Pkg.Dist.compute({ dir, pkg });
-      const scoped = await Pkg.Dist.compute({ dir, pkg, ignore: ['.DS_Store'] });
-
-      expect(strict.dist.hash.parts['.DS_Store']).to.not.eql(undefined);
-      expect(scoped.dist.hash.parts['.DS_Store']).to.eql(undefined);
-      expect(scoped.dist.build.hash.ignore?.rules).to.eql([
-        'dist.json',
-        'dist.json.sig',
-        '.DS_Store',
-      ]);
-      expect(
-        scoped.dist.build.hash.ignore?.['rules:digest'] ===
-          strict.dist.build.hash.ignore?.['rules:digest'],
-      ).to.eql(false);
-    });
-
-    it('Dist.compute(): root hash is idempotent across repeated save runs', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-
-      const first = await Pkg.Dist.compute({ dir, pkg, save: true });
-      const second = await Pkg.Dist.compute({ dir, pkg, save: true });
-
-      expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
-      expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
-      expect(Object.keys(second.dist.hash.parts).includes('./dist.json')).to.eql(false);
-      expect(Object.keys(second.dist.hash.parts).includes('dist.json')).to.eql(false);
-    });
-
-    it('Dist.compute(): root hash is idempotent across repeated save runs when dist.json.sig changes', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      const sig = Fs.join(dir, 'dist.json.sig');
-
-      await Fs.write(sig, 'sig-v1');
-      const first = await Pkg.Dist.compute({ dir, pkg, save: true });
-
-      await Fs.write(sig, 'sig-v2');
-      const second = await Pkg.Dist.compute({ dir, pkg, save: true });
-
-      expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
-      expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
-      expect(Object.keys(second.dist.hash.parts).includes('./dist.json.sig')).to.eql(false);
-      expect(Object.keys(second.dist.hash.parts).includes('dist.json.sig')).to.eql(false);
-    });
-
-    it('{pkg} not passed → omit root pkg metadata', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      const res = await Pkg.Dist.compute({ dir });
-      expect(res.dist.pkg).to.eql(undefined);
-      expect(Pkg.Is.unknown(res.dist.build.builder)).to.eql(true);
-    });
-
-    it('{pkg} not passed + save:true → roundtrips canonical dist with omitted pkg', async () => {
-      const sample = await Sample.init();
-      const { dir, filepath } = sample.path;
-
-      const computed = await Pkg.Dist.compute({ dir, save: true });
-      expect(computed.dist.pkg).to.eql(undefined);
-
-      const json = (await Fs.readJson<unknown>(filepath)).data as Record<string, unknown>;
-      expect(Object.prototype.hasOwnProperty.call(json, 'pkg')).to.eql(false);
-
+      await Fs.write(Fs.join(dir, 'skip.txt'), 'not selected', { throw: true });
+      const filter = (path: string) => Path.basename(path) !== 'skip.txt';
+      const parts = Object.fromEntries(files.map(({ path, bytes }) => [
+        path,
+        `${Hash.sha256(bytes)}:size=${bytes.byteLength}`,
+      ]));
+      const genericDigest = Hash.sha256(files.map(({ bytes }) => Hash.sha256(bytes)).join('\n'));
+      const tuples = files.map(({ path, bytes }) => [path, Hash.sha256(bytes), bytes.byteLength]);
+      const digest = Hash.sha256(Json.stringify(['sys.dist/v2', tuples], 0).trimEnd());
+      const collected = await Dir.Hash.compute(dir, { filter });
+      const computed = await compute({ dir, filter, save: true });
       const loaded = await Pkg.Dist.load(dir);
+      expect(collected.error).to.eql(undefined);
       expect(loaded.kind).to.eql('canonical');
-      expect(loaded.dist?.pkg).to.eql(undefined);
-    });
-
-    it('default: returns exact manifest integrity without saving', async () => {
-      const sample = await Sample.init();
-      const { dir, filepath } = sample.path;
-      const exists = () => Fs.exists(filepath);
-
-      expect(await exists()).to.eql(false);
-      const computed = await Pkg.Dist.compute({ dir, pkg });
-      expect(await exists()).to.eql(false); // NB: never written.
-      expect(computed.manifest.integrity).to.eql(Hash.sha256(Json.stringify(computed.dist, 2)));
-    });
-
-    it('{save:true} → saves to file-system', async () => {
-      const sample = await Sample.init();
-      const { dir, filepath } = sample.path;
-      const exists = () => Fs.exists(filepath);
-      expect(await exists()).to.eql(false);
-
-      const res = await Pkg.Dist.compute({ dir, pkg, save: true });
-      expect(await exists()).to.eql(true);
-
-      const json = (await Fs.readJson(filepath)).data;
-      expect(json).to.eql(res.dist);
-
-      const text = (await Fs.readText(filepath)).data ?? '';
-      const bytes = (await Fs.read(filepath)).data;
-      expect(text.endsWith('\n')).to.eql(true);
-      expect(text.endsWith('\n\n')).to.eql(false);
-      expect(bytes).to.not.eql(undefined);
-      expect(res.manifest.integrity).to.eql(Hash.sha256(bytes));
-    });
-
-    it('error: directory does not exist', async () => {
-      const dir = Fs.resolve('./.tmp/NO_EXIST/');
-      const res = await Pkg.Dist.compute({ dir, pkg });
-      expect(res.exists).to.eql(false);
-      expect(res.error?.message).to.include(dir);
-      expect(res.error?.message).to.include('does not exist');
-      expect(res.dir).to.eql(dir);
-      expect(res.dist.pkg).to.eql(pkg);
-      expect(res.dist.hash).to.eql({ digest: '', parts: {} }); // NB: empty.
-    });
-
-    it('error: path is not a directory', async () => {
-      const dir = Fs.resolve('./deno.json');
-      const res = await Pkg.Dist.compute({ dir, pkg, save: true });
-      expect(res.exists).to.eql(true);
-      expect(res.error?.message).to.include(dir);
-      expect(res.error?.message).to.include('path is not a directory');
-    });
-
-    it('trustChildDist: reuses child content hashes without hashing child dist metadata/signature bytes', async () => {
-      const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist/');
-      await Fs.remove(root);
-      await Fs.ensureDir(root);
-
-      try {
-        const childDir = Fs.join(root, 'child');
-        await Fs.ensureDir(childDir);
-        await Fs.write(Fs.join(childDir, 'a.txt'), 'v1');
-
-        const childRes = await Pkg.Dist.compute({
-          dir: childDir,
-          pkg: { name: '@child/pkg', version: '0.0.0' },
-          builder: { name: '@child/pkg', version: '0.0.0' },
-          save: true,
-        });
-
-        const rootRes = await Pkg.Dist.compute({
-          dir: root,
-          pkg: { name: '@root/pkg', version: '0.0.0' },
-          builder: { name: '@root/pkg', version: '0.0.0' },
-          trustChildDist: true,
-          save: true,
-        });
-
-        const childParts = childRes.dist.hash.parts;
-        const childKey = Object.keys(childParts).find((p) => p.endsWith('a.txt'));
-        expect(childKey).to.not.eql(undefined);
-
-        const childRel = Str.trimLeadingDotSlash(String(childKey));
-        const rootKey = Path.join('child', childRel);
-        expect(rootRes.dist.hash.parts[rootKey]).to.eql(childParts[childKey!]);
-
-        const distKey = Path.join('child', 'dist.json');
-        expect(rootRes.dist.hash.parts[distKey]).to.eql(undefined);
-        const distSigKey = Path.join('child', 'dist.json.sig');
-        expect(rootRes.dist.hash.parts[distSigKey]).to.eql(undefined);
-
-        const checked = await Pkg.Dist.checkSelfReported(root, rootRes.dist.hash);
-        expect(checked.is.valid).to.eql(true);
-      } finally {
-        await Fs.remove(root);
+      if (!loaded.dist) throw new Error('Expected saved Dist fixture.');
+      expect(collected.hash).to.eql({ digest: genericDigest, parts });
+      expect(digest).not.to.eql(genericDigest);
+      for (const hash of [computed.dist.hash, loaded.dist.hash]) {
+        expect(hash).to.eql({ scheme: 'sys.dist/v2', digest, parts });
+        expect(Obj.keys(hash.parts).sort()).to.eql(files.map(({ path }) => path));
+        for (const { path } of files) expect(Obj.hasOwn(hash.parts, path)).to.eql(true);
       }
-    });
-
-    it('trustChildDist: preserves sibling files that share a child directory prefix', async () => {
-      const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist.sibling-prefix/');
-      await Fs.remove(root);
-      await Fs.ensureDir(root);
-
-      try {
-        const childDir = Fs.join(root, 'editor');
-        await Fs.ensureDir(childDir);
-        await Fs.write(Fs.join(childDir, 'worker.js'), 'worker');
-        await Fs.write(Fs.join(root, 'editor.js'), 'editor');
-
-        const child = await Pkg.Dist.compute({ dir: childDir, save: true });
-        const parent = await Pkg.Dist.compute({ dir: root, trustChildDist: true });
-
-        expect(parent.dist.hash.parts['editor/worker.js']).to.eql(
-          child.dist.hash.parts['worker.js'],
-        );
-        expect(parent.dist.hash.parts['editor.js']).to.not.eql(undefined);
-      } finally {
-        await Fs.remove(root);
-      }
-    });
-
-    it('trustChildDist: parent hash is idempotent across repeated save runs (excluding child dist metadata/signature)', async () => {
-      const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist.idempotent/');
-      await Fs.remove(root);
-      await Fs.ensureDir(root);
-
-      try {
-        const childDir = Fs.join(root, 'child');
-        await Fs.ensureDir(childDir);
-        await Fs.write(Fs.join(childDir, 'a.txt'), 'v1');
-
-        await Pkg.Dist.compute({
-          dir: childDir,
-          pkg: { name: '@child/pkg', version: '0.0.0' },
-          builder: { name: '@child/pkg', version: '0.0.0' },
-          save: true,
-        });
-
-        const first = await Pkg.Dist.compute({
-          dir: root,
-          pkg: { name: '@root/pkg', version: '0.0.0' },
-          builder: { name: '@root/pkg', version: '0.0.0' },
-          trustChildDist: true,
-          save: true,
-        });
-
-        const second = await Pkg.Dist.compute({
-          dir: root,
-          pkg: { name: '@root/pkg', version: '0.0.0' },
-          builder: { name: '@root/pkg', version: '0.0.0' },
-          trustChildDist: true,
-          save: true,
-        });
-
-        expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
-        expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
-        expect(Object.keys(second.dist.hash.parts).includes('child/dist.json')).to.eql(false);
-        expect(Object.keys(second.dist.hash.parts).includes('child/dist.json.sig')).to.eql(false);
-
-        const checked = await Pkg.Dist.checkSelfReported(root, second.dist.hash);
-        expect(checked.is.valid).to.eql(true);
-      } finally {
-        await Fs.remove(root);
-      }
-    });
-
-    it('trustChildDist: ignores invalid child dist.json and falls back to file hashing', async () => {
-      const root = Fs.resolve('./.tmp/Pkg.Dist.trustChildDist.invalid-child/');
-      await Fs.remove(root);
-      await Fs.ensureDir(root);
-
-      try {
-        const childDir = Fs.join(root, 'child');
-        await Fs.ensureDir(childDir);
-        await Fs.write(Fs.join(childDir, 'a.txt'), 'v1');
-        await Fs.write(Fs.join(childDir, 'dist.json'), '{"not":"a-dist"}\n');
-
-        const first = await Pkg.Dist.compute({
-          dir: root,
-          pkg: { name: '@root/pkg', version: '0.0.0' },
-          builder: { name: '@root/pkg', version: '0.0.0' },
-          trustChildDist: true,
-          save: true,
-        });
-
-        const second = await Pkg.Dist.compute({
-          dir: root,
-          pkg: { name: '@root/pkg', version: '0.0.0' },
-          builder: { name: '@root/pkg', version: '0.0.0' },
-          trustChildDist: true,
-          save: true,
-        });
-
-        expect(first.dist.hash.digest).to.eql(second.dist.hash.digest);
-        expect(first.dist.hash.parts).to.eql(second.dist.hash.parts);
-        expect(first.dist.hash.parts['child/a.txt']).to.not.eql(undefined);
-        expect(first.dist.hash.parts['child/dist.json']).to.eql(undefined);
-
-        const checked = await Pkg.Dist.checkSelfReported(root, second.dist.hash);
-        expect(checked.is.valid).to.eql(true);
-      } finally {
-        await Fs.remove(root);
-      }
-    });
+      expect(computed.dist.build.size.total).to.eql(10);
+      const text = await Fs.readText(Fs.join(dir, 'dist.json'));
+      expect(text.error).to.eql(undefined);
+      expect(text.data).to.eql(Json.stringify(computed.dist, 2));
+      expect(computed.manifestChecksum).to.eql(Hash.sha256(text.data));
+      const changedBytes = new Uint8Array([11]);
+      await Fs.write(Fs.join(dir, '__proto__'), changedBytes, { throw: true });
+      const changed = await compute({ dir, filter });
+      expect(Obj.hasOwn(changed.dist.hash.parts, '__proto__')).to.eql(true);
+      expect(changed.dist.hash.parts['__proto__']).to.eql(`${Hash.sha256(changedBytes)}:size=1`);
+      expect(changed.pin.digest).not.to.eql(digest);
+      expect(loaded.dist.hash.parts['__proto__']).to.eql(parts['__proto__']);
+    } finally {
+      await Fs.remove(dir);
+    }
   });
 
-  describe('Log', () => {
-    it('Log.children(): does not double-count nested content dirs', async () => {
-      const root = Fs.resolve('./.tmp/Pkg.Dist.Log.children/');
-      await Fs.remove(root);
-      await Fs.ensureDir(root);
+  it('compute → supported descriptor, derived totals and descriptive build metadata', async () => {
+    const sample = await Sample.init();
+    const { dir } = sample.path;
+    const pkg = { name: 'my-package', version: '0.0.0' };
+    const builder = { name: 'my-builder', version: '0.0.0' };
+    const res = await compute({ dir, pkg, builder });
+    const { dist } = res;
+    expect(res.exists).to.eql(true);
+    expect(res.error).to.eql(undefined);
+    expect(res.dir).to.eql(Fs.resolve(dir));
+    expect(res.manifestChecksum).to.eql(Hash.sha256(Json.stringify(dist, 2)));
+    expect(res.pin).to.eql({ scheme: dist.hash.scheme, digest: dist.hash.digest });
+    expect(dist.type.startsWith('https://jsr.io/@sys/types')).to.eql(true);
+    expect(dist.type.endsWith(typesDistTypePath)).to.eql(true);
+    expect(dist.pkg).to.eql(pkg);
+    expect(dist.build.time).to.be.closeTo(Time.now.timestamp, 100);
+    expect(dist.build.builder).to.eql(Pkg.toString(builder));
+    for (const key of ['deno=', 'v8=', 'typescript=']) {
+      expect(dist.build.runtime.includes(key)).to.eql(true);
+    }
+    expect(dist.build.hash.policy).to.eql(JsrUrl.Pkg.file(fsPkg, D.hashPolicy.path));
+    expect(await Fs.exists(Fs.resolve(`./${D.hashPolicy.path}`))).to.eql(true);
+    expect(Is.number(dist.build.size.total)).to.eql(true);
+    expect(Is.number(dist.build.size.pkg)).to.eql(true);
+    const dirhash = await Dir.Hash.compute(dir);
+    expect(dist.hash.parts).to.eql(dirhash.hash.parts);
+    expect(dist.hash.digest).not.to.eql(dirhash.hash.digest);
+  });
 
-      // Child dist package at: ./sys/dev/dist.json
+  it('custom filter → exact parent selection in addition to manifest exclusion', async () => {
+    const { path: { dir } } = await Sample.init();
+    await Fs.write(Fs.join(dir, 'ignore.me'), 'ignored');
+    const filter = (path: string) => Path.basename(path) !== 'ignore.me';
+    const res = await compute({ dir, pkg, filter });
+    const dirhash = await Dir.Hash.compute(dir, { filter });
+    expect(res.dist.hash.parts).to.eql(dirhash.hash.parts);
+    expect(Obj.hasOwn(res.dist.hash.parts, 'ignore.me')).to.eql(false);
+    expect(res.dist.hash.digest).not.to.eql(dirhash.hash.digest);
+  });
+
+  it('hash progress → one ordered event per selected file', async () => {
+    const { path: { dir } } = await Sample.init();
+    const events: t.Dir.Hash.Compute.ProgressEvent[] = [];
+    const res = await compute({
+      dir,
+      onHashProgress(e) {
+        events.push(e);
+      },
+    });
+    expect(events.length).to.eql(Object.keys(res.dist.hash.parts).length);
+    expect(events.length).to.be.greaterThan(0);
+    expect(events[0]?.current).to.eql(1);
+    expect(events[events.length - 1]?.current).to.eql(events.length);
+    expect(events.every((e) => e.total === events.length)).to.eql(true);
+  });
+
+  it('root manifest and signature bytes → excluded across repeated saves', async () => {
+    const { path: { dir } } = await Sample.init();
+    await Fs.write(Fs.join(dir, 'dist.json.sig'), 'sig-v1');
+    const first = await compute({ dir, pkg, save: true });
+    await Fs.write(Fs.join(dir, 'dist.json.sig'), 'sig-v2');
+    const second = await compute({ dir, pkg, save: true });
+    const third = await compute({ dir, pkg, save: true });
+    expect(first.dist.hash).to.eql(second.dist.hash);
+    expect(second.dist.hash).to.eql(third.dist.hash);
+    for (const path of ['dist.json', './dist.json', 'dist.json.sig', './dist.json.sig']) {
+      expect(Obj.hasOwn(second.dist.hash.parts, path)).to.eql(false);
+    }
+  });
+
+  it('ignore policy → selected inventory plus descriptive rules and digest', async () => {
+    const { path: { dir } } = await Sample.init();
+    await Fs.write(Fs.join(dir, '.DS_Store'), 'junk');
+    const strict = await compute({ dir, pkg });
+    const scoped = await compute({ dir, pkg, ignore: ['.DS_Store'] });
+    const defaults = strict.dist.build.hash.ignore;
+    expect(defaults?.format).to.eql('gitignore');
+    expect(defaults?.rules).to.eql(['dist.json', 'dist.json.sig']);
+    expect(defaults?.['rules:digest'].startsWith('sha256-')).to.eql(true);
+    expect(defaults?.['rules:digest'].length).to.eql(71);
+    expect(Obj.hasOwn(strict.dist.hash.parts, '.DS_Store')).to.eql(true);
+    expect(Obj.hasOwn(scoped.dist.hash.parts, '.DS_Store')).to.eql(false);
+    expect(scoped.dist.build.hash.ignore?.rules).to.eql([
+      'dist.json',
+      'dist.json.sig',
+      '.DS_Store',
+    ]);
+    expect(scoped.dist.build.hash.ignore?.['rules:digest']).not.to.eql(defaults?.['rules:digest']);
+  });
+
+  it('omitted root package → supported save/load and unknown descriptive builder', async () => {
+    const { path: { dir, filepath } } = await Sample.init();
+    const res = await compute({ dir, save: true });
+    expect(res.dist.pkg).to.eql(undefined);
+    expect(Pkg.Is.unknown(res.dist.build.builder)).to.eql(true);
+    const json = (await Fs.readJson<Record<string, unknown>>(filepath)).data;
+    if (!json) throw new Error('Expected document.');
+    expect(Obj.hasOwn(json, 'pkg')).to.eql(false);
+    const loaded = await Pkg.Dist.load(dir);
+    expect(loaded.kind).to.eql('canonical');
+    expect(loaded.dist?.pkg).to.eql(undefined);
+  });
+
+  it('save option → exact document bytes or no filesystem write', async () => {
+    const { path: { dir, filepath } } = await Sample.init();
+    expect(await Fs.exists(filepath)).to.eql(false);
+    const observed = await compute({ dir, pkg });
+    expect(await Fs.exists(filepath)).to.eql(false);
+    expect(observed.manifestChecksum).to.eql(Hash.sha256(Json.stringify(observed.dist, 2)));
+    const saved = await compute({ dir, pkg, save: true });
+    expect((await Fs.readJson(filepath)).data).to.eql(saved.dist);
+    const text = (await Fs.readText(filepath)).data ?? '';
+    expect(text.endsWith('\n')).to.eql(true);
+    expect(text.endsWith('\n\n')).to.eql(false);
+    expect(saved.manifestChecksum).to.eql(Hash.sha256((await Fs.read(filepath)).data));
+    expect(saved.pin).to.eql(observed.pin);
+  });
+
+  it('missing directory or regular-file root → truthful failure without a document or pin', async () => {
+    const root = (await Fs.makeTempDir({ prefix: 'Dist.refused-root.' })).absolute;
+    const file = Fs.join(root, 'file');
+    const cases = [
+      { dir: Fs.join(root, 'missing'), exists: false, cause: 'Dist directory does not exist.' },
+      { dir: file, exists: true, cause: 'Dist path is not a directory.' },
+    ];
+    try {
+      await Fs.write(file, 'not a directory', { throw: true });
+      for (const { dir, exists, cause } of cases) {
+        const res = await Pkg.Dist.compute({ dir, pkg, save: true });
+        expect(res.kind).to.eql('failed');
+        if (res.kind !== 'failed') throw new Error('Expected refused Dist root.');
+        expect(res.dir).to.eql(dir);
+        expect(res.exists).to.eql(exists);
+        expect(res.error.message).to.eql('Dist computation failed.');
+        expect(res.error.cause?.message).to.eql(cause);
+        expect(Err.summary(res.error, { cause: true })).to.include(cause);
+        expect('dist' in res).to.eql(false);
+        expect('pin' in res).to.eql(false);
+        expect('manifestChecksum' in res).to.eql(false);
+      }
+      expect(await Fs.exists(cases[0].dir)).to.eql(false);
+      expect((await Fs.readText(file)).data).to.eql('not a directory');
+      const entries = await Fs.glob(root, { includeDirs: true }).find('**/*');
+      expect(entries.map((entry) => Path.basename(entry.path))).to.eql(['file']);
+    } finally {
+      await Fs.remove(root);
+    }
+  });
+
+  it('child reuse → selected content only, stable across child document/signature changes', async () => {
+    const root = (await Fs.makeTempDir({ prefix: 'Dist.child.' })).absolute;
+    try {
+      const childDir = Fs.join(root, 'child');
+      await Fs.ensureDir(childDir);
+      await Fs.write(Fs.join(childDir, 'a.txt'), 'v1');
+      const child = await compute({ dir: childDir, pkg, save: true });
+      const first = await compute({ dir: root, trustChildDist: true, save: true });
+      const direct = await compute({ dir: root });
+      expect(first.dist.hash).to.eql(direct.dist.hash);
+      expect(first.dist.hash.parts['child/a.txt']).to.eql(child.dist.hash.parts['a.txt']);
+      expect(Obj.hasOwn(first.dist.hash.parts, 'child/dist.json')).to.eql(false);
+      expect(Obj.hasOwn(first.dist.hash.parts, 'child/dist.json.sig')).to.eql(false);
+      await compute({ dir: childDir, pkg: { name: 'changed', version: '2' }, save: true });
+      await Fs.write(Fs.join(childDir, 'dist.json.sig'), 'not-payload');
+      const second = await compute({ dir: root, trustChildDist: true, save: true });
+      const third = await compute({ dir: root, trustChildDist: true, save: true });
+      expect(second.dist.hash).to.eql(first.dist.hash);
+      expect(third.pin).to.eql(first.pin);
+      // A producer inventory is not whole-tree proof: excluded child documents remain on disk.
+      const verification = await Pkg.Dist.Pinned.verify({
+        dir: await Deno.realPath(root),
+        pin: first.pin,
+        limits,
+      });
+      expect(verification).to.eql({ kind: 'unexpected-entry' });
+    } finally {
+      await Fs.remove(root);
+    }
+  });
+
+  it('sibling file sharing a child prefix → retained during child reuse', async () => {
+    const root = (await Fs.makeTempDir({ prefix: 'Dist.sibling.' })).absolute;
+    try {
+      await Fs.ensureDir(Fs.join(root, 'editor'));
+      await Fs.write(Fs.join(root, 'editor/worker.js'), 'worker');
+      await Fs.write(Fs.join(root, 'editor.js'), 'editor');
+      const child = await compute({ dir: Fs.join(root, 'editor'), save: true });
+      const parent = await compute({ dir: root, trustChildDist: true });
+      expect(parent.dist.hash.parts['editor/worker.js']).to.eql(child.dist.hash.parts['worker.js']);
+      expect(Obj.hasOwn(parent.dist.hash.parts, 'editor.js')).to.eql(true);
+    } finally {
+      await Fs.remove(root);
+    }
+  });
+
+  it('unsupported child manifest → refusal, no file-hashing fallback or publication', async () => {
+    const root = (await Fs.makeTempDir({ prefix: 'Dist.invalid-child.' })).absolute;
+    try {
+      await Fs.ensureDir(Fs.join(root, 'child'));
+      await Fs.write(Fs.join(root, 'child/a.txt'), 'v1');
+      await Fs.write(Fs.join(root, 'child/dist.json'), '{"not":"a-dist"}\n');
+      const result = await Pkg.Dist.compute({ dir: root, trustChildDist: true, save: true });
+      expect(result.kind).to.eql('failed');
+      expect('pin' in result).to.eql(false);
+      expect(await Fs.exists(Fs.join(root, 'dist.json'))).to.eql(false);
+    } finally {
+      await Fs.remove(root);
+    }
+  });
+
+  it('Log.children → nested content directories are not double-counted', async () => {
+    const root = (await Fs.makeTempDir({ prefix: 'Dist.log.' })).absolute;
+    try {
       const childDir = Fs.join(root, 'sys/dev');
       await Fs.ensureDir(childDir);
       await Fs.write(Fs.join(childDir, 'hello.txt'), 'child');
-      await Pkg.Dist.compute({
-        dir: childDir,
-        pkg: { name: '@child/dev', version: '0.0.0' },
-        builder: { name: '@child/dev', version: '0.0.0' },
-        save: true,
-      });
-
-      // Content files under nested dirs (the old bug could count these twice).
-      const staticDir = Fs.join(root, 'static/runtime');
-      await Fs.ensureDir(staticDir);
+      await compute({ dir: childDir, pkg: { name: '@child/dev', version: '0.0.0' }, save: true });
+      await Fs.ensureDir(Fs.join(root, 'static/runtime'));
       await Fs.write(Fs.join(root, 'static/README.md'), 'readme');
-      await Fs.write(Fs.join(staticDir, 'a.bin'), 'a'.repeat(10));
-      await Fs.write(Fs.join(staticDir, 'b.bin'), 'b'.repeat(20));
-
-      // Root dist (must "see" child content in the hash parts).
-      const computed = await Pkg.Dist.compute({
-        dir: root,
-        pkg: { name: '@root/pkg', version: '0.0.0' },
-        builder: { name: '@root/pkg', version: '0.0.0' },
-      });
-
-      const dist = computed.dist;
-
-      // Be robust to whether DirHash emits "./sys/dev/hello.txt" or "sys/dev/hello.txt".
-      const childContentPath = Object.keys(dist.hash.parts).find((p) => {
-        return (
-          p === './sys/dev/hello.txt' ||
-          p === 'sys/dev/hello.txt' ||
-          p.endsWith('sys/dev/hello.txt')
-        );
-      });
-      expect(childContentPath).to.not.eql(undefined);
-
-      // Render.
+      await Fs.write(Fs.join(root, 'static/runtime/a.bin'), 'a'.repeat(10));
+      await Fs.write(Fs.join(root, 'static/runtime/b.bin'), 'b'.repeat(20));
+      const { dist } = await compute({ dir: root, pkg });
       const text = await Pkg.Dist.Log.children(root, dist);
-
-      // Extract "static content" files size from the rendered table.
-      const contentLine = text
-        .split('\n')
-        .map((l) => l.trim())
-        .find((l) => l.includes('static content'));
-      expect(contentLine).to.not.eql(undefined);
-
-      // Grab the last "<size>" token on the line (matches how the table prints it).
-      const match = contentLine?.match(/(\d+(?:\.\d+)?\s*(?:B|KB|MB|GB))\s*$/);
-      expect(match?.[1]).to.not.eql(undefined);
-
-      // Expected bytes = sum of files NOT inside the child package root(s).
-      const childRoot = Path.dirname(childContentPath ?? './sys/dev/hello.txt');
-      const includedPaths = Object.keys(dist.hash.parts).filter(
-        (p) => !p.startsWith(`${childRoot}/`),
-      );
-
-      let expectedBytes = 0;
-      for (const rel of includedPaths) {
-        const abs = Fs.join(root, rel);
-        const stat = await Fs.stat(abs);
-        expectedBytes += stat?.size ?? 0;
-      }
-
-      const expectedFmt = Str.bytes(expectedBytes);
-      expect(match?.[1]).to.eql(expectedFmt);
-    });
+      const line = text.split('\n').find((line) => line.includes('static content'));
+      expect(line?.match(/(\d+(?:\.\d+)?\s*(?:B|KB|MB|GB))\s*$/)?.[1]).to.eql(Str.bytes(36));
+    } finally {
+      await Fs.remove(root);
+    }
   });
 
-  describe('Dist.load', () => {
-    it('Pkg.Dist.load("path") → success', async () => {
-      const sample = await Sample.init();
-      await sample.file.dist.ensure();
+  it('Log.dist without root package → descriptive builder and content digest', async () => {
+    const { path: { dir } } = await Sample.init();
+    const { dist } = await compute({ dir });
+    const text = Pkg.Dist.Log.dist(dist);
+    expect(text.includes('digest:')).to.eql(true);
+    expect(text.includes('builder:')).to.eql(true);
+  });
 
-      const test = async (path: string) => {
-        const res = await Pkg.Dist.load(path);
-        expect(res.path).to.eql(Fs.resolve(sample.path.filepath));
-        expect(res.exists).to.eql(true);
-        expect(res.kind).to.eql('canonical');
-        expect(res.error).to.eql(undefined);
-        expect(res.dist?.pkg).to.eql(pkg); // NB: loaded, with data.
-      };
+  it('load directory or manifest filepath → same supported observation', async () => {
+    const sample = await Sample.init();
+    await sample.file.dist.ensure();
+    for (const path of [sample.path.dir, sample.path.filepath]) {
+      const res = await Pkg.Dist.load(path);
+      expect(res.path).to.eql(Fs.resolve(sample.path.filepath));
+      expect(res.exists).to.eql(true);
+      expect(res.kind).to.eql('canonical');
+      expect(res.error).to.eql(undefined);
+      expect(res.dist?.pkg).to.eql(pkg);
+    }
+  });
 
-      await test(sample.path.dir); // NB: div ← "/dist.json" appended.
-      await test(sample.path.filepath);
-    });
+  it('missing document → missing observation', async () => {
+    const res = await Pkg.Dist.load('404_foobar');
+    expect(res.exists).to.eql(false);
+    expect(res.kind).to.eql('missing');
+    expect(res.dist).to.eql(undefined);
+    expect(res.error).not.to.eql(undefined);
+  });
 
-    it('404: does not exist', async () => {
-      const res = await Pkg.Dist.load('404_foobar');
-      expect(res.exists).to.eql(false);
-      expect(res.kind).to.eql('missing');
-      expect(res.dist).to.eql(undefined);
-      expect(res.error?.message).to.include('does not exist');
-    });
-
-    it('invalid: classifies partially shaped metadata without throwing', async () => {
-      const sample = await Sample.init();
-      await Fs.write(sample.path.filepath, '{"type":"x","build":{}}\n');
-
+  it('partial or legacy document → invalid, never converted', async () => {
+    const sample = await Sample.init();
+    const legacy = {
+      type: 'https://jsr.io/@sys/types/0.0.100/src/types/t.Pkg.dist.ts',
+      pkg: { name: '@sample/legacy', version: '0.0.1' },
+      build: {
+        time: 1,
+        size: { total: 1, pkg: 1 },
+        builder: '@sample/legacy@0.0.1',
+        runtime: 'old',
+      },
+      hash: { digest: 'sha256-deadbeef', parts: { './index.js': 'sha256-deadbeef' } },
+    };
+    for (const value of [{ type: 'x', build: {} }, legacy]) {
+      await Fs.writeJson(sample.path.filepath, value, { throw: true });
       const res = await Pkg.Dist.load(sample.path.dir);
       expect(res.exists).to.eql(true);
       expect(res.kind).to.eql('invalid');
       expect(res.dist).to.eql(undefined);
-      expect(res.legacy).to.eql(undefined);
-      expect(res.error).to.not.eql(undefined);
-    });
-
-    it('legacy: loads legacy shape as compat (not canonical)', async () => {
-      const sample = await Sample.init();
-      const { filepath } = sample.path;
-      const legacy: t.DistPkgLegacy = {
-        type: 'https://jsr.io/@sys/types/0.0.100/src/types/t.Pkg.dist.ts',
-        pkg: { name: '@sample/legacy', version: '0.0.1' },
-        build: {
-          time: 1746520471244,
-          size: { total: 1, pkg: 1 },
-          builder: '@sample/legacy@0.0.1',
-          runtime: '<runtime-uri>',
-        },
-        hash: { digest: 'sha256-deadbeef', parts: { './index.js': 'sha256-deadbeef' } },
-      };
-
-      await Fs.write(filepath, `${JSON.stringify(legacy, null, '  ')}\n`);
-      const res = await Pkg.Dist.load(sample.path.dir);
-
-      expect(res.exists).to.eql(true);
-      expect(res.kind).to.eql('legacy');
-      expect(res.dist).to.eql(undefined);
-      expect(res.legacy?.pkg).to.eql(legacy.pkg);
-      expect(res.error).to.eql(undefined);
-    });
+      expect('legacy' in res).to.eql(false);
+      expect(res.error).not.to.eql(undefined);
+    }
   });
 
-  describe('Dist.Log', () => {
-    it('dist(): falls back when root pkg metadata omitted', async () => {
-      const sample = await Sample.init();
-      const { dir } = sample.path;
-      const res = await Pkg.Dist.compute({ dir });
-
-      expect(res.dist.pkg).to.eql(undefined);
-
-      const text = Pkg.Dist.Log.dist(res.dist);
-      expect(text.length > 0).to.eql(true);
-      expect(text.includes('digest:')).to.eql(true);
-      expect(text.includes('builder:')).to.eql(true);
-    });
-  });
-
-  describe('Dist.checkSelfReported', () => {
-    it('validate: is valid', async () => {
-      const sample = await Sample.init();
-      await sample.file.dist.reset();
-      await sample.file.dist.ensure();
-
-      const { dir } = sample.path;
-
-      const test = async (hashInput?: t.StringHash | t.CompositeHash) => {
-        const res = await Pkg.Dist.checkSelfReported(dir, hashInput);
-        expect(res.exists).to.eql(true, `exists: ${dir}`);
-        expect(res.is.valid).to.eql(true);
-        expect(res.dist?.pkg).to.eql(pkg);
-      };
-
-      await test();
-      await test('./dist.json');
-
-      const path = Path.join(dir, 'dist.json');
-      await test(Fs.resolve(path)); // absolute path (anywhere).
-      await test((await Dist.load(path)).dist?.hash);
-    });
-
-    it('validate: not valid (pass in "man in the middle" attacked state)', async () => {
-      const sample = await Sample.init();
-      const dir = sample.path.dir;
-      await sample.file.dist.ensure();
-
-      const test = async (
-        expectedValid: boolean,
-        mutate?: (hash: t.DeepMutable<t.CompositeHash>) => void,
-      ) => {
-        const dist = (await Pkg.Dist.compute({ dir })).dist;
-        const hash = Obj.clone(dist.hash);
-        mutate?.(hash); // ← (test manipulation) setup test conditions.
-
-        const verification = await Pkg.Dist.checkSelfReported(dir, hash);
-        expect(verification.is.valid).to.eql(expectedValid);
-      };
-
-      await test(true);
-      await test(false, (hash) => {
-        /**
-         * NB: (test scenario): mutate the hash
-         *
-         *     Simulate a state after a "man-in-the-middle" style attack has
-         *     occured, where the {hash} manifest, and the actual files differ.
-         */
-        hash.digest = `sha🐷-${'0'.repeat(60)}💥`;
-      });
-    });
-
-    it('validate: fails when hash ignore digest is tampered', async () => {
-      const sample = await Sample.init();
-      const dir = sample.path.dir;
-
-      const computed = await Pkg.Dist.compute({ dir, pkg, ignore: ['.DS_Store'], save: true });
-      expect(computed.dist.build.hash.ignore).to.not.eql(undefined);
-
-      const path = Fs.join(dir, 'dist.json');
-      const json = (await Fs.readJson<t.DistPkg>(path)).data;
-      if (!json) throw new Error('Expected dist.json payload');
-      const tampered: t.DistPkg = {
-        ...json,
-        build: {
-          ...json.build,
-          hash: {
-            ...json.build.hash,
-            ignore: {
-              ...json.build.hash.ignore!,
-              'rules:digest':
-                'sha256-0000000000000000000000000000000000000000000000000000000000000000',
-            },
-          },
-        },
-      };
-      await Fs.write(path, `${JSON.stringify(tampered, null, '  ')}\n`);
-
-      const res = await Pkg.Dist.checkSelfReported(dir);
-      expect(res.exists).to.eql(true);
-      expect(res.is.valid).to.eql(false);
-      expect(res.error?.message).to.include('ignore-policy digest mismatch');
-    });
-
-    it('validate: fails when hash ignore rules do not reproduce hash parts', async () => {
-      const sample = await Sample.init();
-      const dir = sample.path.dir;
-      await Fs.write(Fs.join(dir, '.DS_Store'), 'junk');
-
-      const computed = await Pkg.Dist.compute({ dir, pkg, save: true });
-      expect(computed.dist.hash.parts['.DS_Store']).to.not.eql(undefined);
-
-      const path = Fs.join(dir, 'dist.json');
-      const json = (await Fs.readJson<t.DistPkg>(path)).data;
-      if (!json) throw new Error('Expected dist.json payload');
-      const badRules = [...(json.build.hash.ignore?.rules ?? []), '.DS_Store'];
-      const digest = await Ignore.digest(badRules);
-
-      const tampered: t.DistPkg = {
-        ...json,
-        build: {
-          ...json.build,
-          hash: {
-            ...json.build.hash,
-            ignore: {
-              ...json.build.hash.ignore!,
-              rules: badRules,
-              'rules:digest': digest,
-            },
-          },
-        },
-      };
-      await Fs.write(path, `${JSON.stringify(tampered, null, '  ')}\n`);
-
-      const res = await Pkg.Dist.checkSelfReported(dir);
-      expect(res.exists).to.eql(true);
-      expect(res.is.valid).to.eql(false);
-      expect(res.error?.message).to.include('does not reproduce hash.parts');
-    });
-
-    it('404: target dir does not exist', async () => {
-      const res = await Pkg.Dist.checkSelfReported('404_foobar');
-      expect(res.exists).to.eql(false);
-      expect(res.dist).to.eql(undefined);
-      expect(res.error?.message).to.include('does not exist');
-      expect(res.is.valid).to.eql(undefined); // Falsy.
-    });
-
-    it('404: target dir does not contain a {dist.json}', async () => {
-      const sample = await Sample.init();
-      const dir = sample.path.dir;
-      await sample.file.dist.delete();
-
-      const res = await Pkg.Dist.checkSelfReported(dir);
-      expect(res.exists).to.eql(false);
-      expect(res.dist).to.eql(undefined);
-      expect(res.error?.message).to.include('does not exist');
-      expect(res.is.valid).to.eql(undefined); // Falsy.
+  it('Local.verify → supported unpinned consistency, no ignore-policy authority', async () => {
+    const sample = await Sample.init();
+    const dir = await Deno.realPath(sample.path.dir);
+    const computed = await compute({ dir, pkg, save: true });
+    const altered = {
+      ...computed.dist,
+      build: {
+        ...computed.dist.build,
+        hash: { policy: 'ignored', ignore: { rules: ['*'], 'rules:digest': 'bad' } },
+      },
+    };
+    await Fs.writeJson(Fs.join(dir, 'dist.json'), altered, { throw: true });
+    const result = await Pkg.Dist.Local.verify({ dir, limits });
+    if (result.kind !== 'verified') throw new Error(`Expected local consistency: ${result.kind}`);
+    expect(result.evidence.content).to.eql(computed.dist.hash);
+    await Fs.write(Fs.join(dir, 'index.html'), 'changed');
+    expect(await Pkg.Dist.Local.verify({ dir, limits })).to.eql({ kind: 'content-mismatch' });
+    await Fs.remove(Fs.join(dir, 'dist.json'));
+    expect(await Pkg.Dist.Local.verify({ dir, limits })).to.eql({ kind: 'missing' });
+    expect(await Pkg.Dist.Local.verify({ dir: Fs.join(dir, 'missing'), limits })).to.eql({
+      kind: 'missing',
     });
   });
 });

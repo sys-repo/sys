@@ -1,38 +1,30 @@
-import { Err, Fs, Pkg, type t } from '../common.ts';
+import { D, Err, Fs, Pkg, type t } from '../common.ts';
+import { DEFAULT_IO } from '../u.verify/u.io.ts';
+import { admitManifest, parseManifestBytes } from '../u.verify/u.manifest.ts';
+import { readManifest, resolveLocalRoot } from '../u.verify/u.tree.ts';
 import { filepath } from './u.hash.ts';
 
 /**
- * Load a `dist.json` file.
+ * Bounded supported-document observation. No conversion or independent payload authority.
  */
 export const load: t.Pkg.Dist.Load.Method = async (dir) => {
-  dir = Fs.resolve(dir);
-  const path = filepath(dir);
+  const path = filepath(Fs.resolve(dir));
   const exists = await Fs.exists(path);
-  const errors = Err.errors();
-  if (!exists) errors.push(`File at path does not exist: ${path}`);
-
-  let kind: t.Pkg.Dist.Load.Kind = exists ? 'invalid' : 'missing';
-  let dist: t.DistPkg | undefined;
-  let legacy: t.DistPkgLegacy | undefined;
-  if (exists) {
-    const loaded = (await Fs.readJson<unknown>(path)).data;
-    if (Pkg.Is.dist(loaded)) {
-      kind = 'canonical';
-      dist = loaded;
-    } else if (Pkg.Is.distCompat(loaded)) {
-      kind = 'legacy';
-      legacy = loaded;
-    } else {
-      errors.push(`The loaded file is not a valid DistPkg (canonical or legacy): ${path}`);
-    }
+  if (!exists) {
+    return { exists, path, kind: 'missing', error: Err.std('Dist manifest is missing.') };
   }
-
-  return {
-    exists,
-    kind,
-    path,
-    dist,
-    legacy,
-    error: errors.toError('Several errors occured while loading the `dist.json`'),
-  };
+  try {
+    const signal = new AbortController().signal;
+    // Observation accepts ordinary caller root spelling; inventory paths are never repaired.
+    // Verification callers still supply their independently selected canonical root.
+    const canonical = await DEFAULT_IO.realPath(Fs.dirname(path));
+    const root = await resolveLocalRoot(DEFAULT_IO, canonical, signal);
+    const document = await readManifest(DEFAULT_IO, root, D.contentLimits.manifestBytes, signal);
+    const parsed = parseManifestBytes(document.bytes, D.contentLimits);
+    admitManifest(parsed, D.contentLimits);
+    if (!Pkg.Is.dist(parsed)) throw new Error('Unsupported Dist observation shape.');
+    return { exists, path, kind: 'canonical', dist: parsed };
+  } catch {
+    return { exists, path, kind: 'invalid', error: Err.std('Invalid Dist manifest.') };
+  }
 };

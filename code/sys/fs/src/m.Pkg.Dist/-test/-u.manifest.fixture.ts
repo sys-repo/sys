@@ -1,4 +1,5 @@
-import { CompositeHash, Hash, Ignore, Json, type t } from '../../-test.ts';
+import { Hash, Ignore, Json, type t } from '../../-test.ts';
+import { Pkg } from '../../m.Pkg/mod.ts';
 
 /** An in-memory manifest with exact byte and entry limits. */
 export async function manifestFixture() {
@@ -18,7 +19,7 @@ export async function manifestFixture() {
         ignore: { format: 'gitignore', rules: [], 'rules:digest': await Ignore.digest([]) },
       },
     },
-    hash: { digest: CompositeHash.digest(parts), parts },
+    hash: { scheme: 'sys.dist/v2', digest: Hash.sha256(Pkg.Dist.Content.encode(parts)), parts },
   };
   const bytes = encodeManifest(dist);
   const limits: t.Pkg.Dist.Pinned.AdmitManifest.Limits = {
@@ -27,7 +28,8 @@ export async function manifestFixture() {
     fileBytes: 4,
     totalBytes: 7,
   };
-  return { dist, bytes, integrity: Hash.sha256(bytes), limits };
+  const pin: t.DistPin = { scheme: dist.hash.scheme, digest: dist.hash.digest };
+  return { dist, bytes, pin, manifestChecksum: Hash.sha256(bytes), limits };
 }
 
 export function encodeManifest(input: unknown): Uint8Array {

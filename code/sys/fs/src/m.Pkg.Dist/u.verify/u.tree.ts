@@ -1,6 +1,5 @@
 import { Num, Path, Str, type t } from './common.ts';
-import type { StrictPart } from './u.manifest.ts';
-import type { ReadHandle, VerifyIo } from '../t.internal.ts';
+import type { ReadHandle, StrictPart, VerifyIo } from '../t.internal.ts';
 import { checkCancelled, failure, ioFailure } from './u.io.ts';
 
 export type Identity = {
@@ -87,7 +86,7 @@ export async function resolveRoot(
   if (!sameMetadata(selected, metadata)) throw failure('changed');
 
   return Object.freeze({
-    path: canonical as t.StringAbsoluteDir,
+    path: canonical,
     metadata,
   });
 }
@@ -128,7 +127,7 @@ export async function resolveLocalRoot(
   if (!sameMetadata(initial, metadata)) throw failure('changed');
 
   return Object.freeze({
-    path: canonical as t.StringAbsoluteDir,
+    path: canonical,
     metadata,
   });
 }
@@ -253,7 +252,7 @@ export async function observeTree(
       const metadata = entryMetadata(info, transitionKind ?? 'unexpected-entry');
       if (expected && !sameMetadata(expected, metadata)) throw failure('changed');
       const entry = Object.freeze({
-        path: relative as t.StringRelativePath,
+        path: relative,
         ...metadata,
       });
       entries.push(entry);
