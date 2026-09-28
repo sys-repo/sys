@@ -2,8 +2,8 @@
 dist-content-identity.plan.md
 - [x] e6316e80b fix(driver-signer): preserve own keys in canonical Dist documents
 - [x] 872b5a34d fix(crypto): preserve every selected key in composite hash builders
-- [ ] feat(dist)!: define canonical content identity and pin contracts
-- [ ] feat(fs)!: establish canonical Dist production and verification
+- [x] 6c15b0942 feat(dist)!: define canonical content identity and pin contracts
+- [x] a1c9a6939 feat(fs)!: establish canonical Dist production and verification
 - [ ] feat(server)!: serve and materialize canonical Dist evidence
 - [ ] feat(tools)!: preserve canonical Dist staging and publication ownership
 - [ ] feat(tools)!: consume canonical Dist pins in pull and serve
@@ -161,6 +161,12 @@ independent closure follows the owning boundaries; there is no additional all-so
 - **Completion:** literal digests, production refusal truth, bounded admission before effects,
   immutable evidence, exact closed-tree verification, child-selection equivalence, projection
   document continuity and independent pin capture. Retain TS-01's diagnostic controls.
+- **Landing evidence:**
+  [FS exact cut and owner verification](./dist-content-identity.plan/landing/S2.landing.md)
+  records the reviewed 36-path source cut, R-01 correction, independent review with qualified
+  blindness, adjudication and post-correction checks. The landing also included the general README
+  edits and the previously excluded Std property-order edit; the receipt records that scope
+  difference without extending the earlier review's provenance.
 
 ### S3 — Server evidence, generations and hosting
 
