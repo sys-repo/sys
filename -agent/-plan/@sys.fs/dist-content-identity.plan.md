@@ -1,8 +1,21 @@
 @sys.fs
 dist-content-identity.plan.md
-- [ ] fix(driver-signer): preserve own keys in canonical Dist documents
-- [ ] fix(crypto): preserve every selected key in composite hash builders
-- [ ] feat(dist)!: unify build pins and verification on canonical content identity
+- [x] e6316e80b fix(driver-signer): preserve own keys in canonical Dist documents
+- [x] 872b5a34d fix(crypto): preserve every selected key in composite hash builders
+- [ ] feat(dist)!: define canonical content identity and pin contracts
+- [ ] feat(fs)!: establish canonical Dist production and verification
+- [ ] feat(server)!: serve and materialize canonical Dist evidence
+- [ ] feat(tools)!: preserve canonical Dist staging and publication ownership
+- [ ] feat(tools)!: consume canonical Dist pins in pull and serve
+- [ ] feat(dist)!: migrate build and snapshot producers to canonical pins
+- [ ] feat(cell)!: configure Dist services with canonical content pins
+- [ ] feat(driver-pi)!: admit GUI packages through canonical Dist content
+- [ ] feat(cloudflare)!: admit R2 distributions using canonical content pins
+- [ ] feat(dist)!: align observations and signing fixtures with canonical manifests
+- [ ] fix(driver-vite): align frozen build fixtures with their dependency authority
+- [ ] test(dist): prove canonical build projection and serving composition
+- [ ] test(driver-pi): prove canonical Dist isolation across real previews
+- [ ] refactor(dist): consolidate inventory accounting and retain build failure causes
 
 ## Purpose and authority
 
@@ -41,6 +54,558 @@ guarantees identified below without retaining the old Dist protocol.
 Historical plans explain how the implementation arrived here. Their use of words such as canonical,
 locked, or approved is not independent proof that exact-document identity is the correct permanent
 product identity. Do not rewrite those historical records or silently repurpose their pins.
+
+## Landing discipline — bounded replacement, not adjacent hardening
+
+The target remains one coherent breaking contract replacement. The opening arc allocates it to ten
+source units, followed by the three named integration-proof commits and the separate bounded
+refactor. These are planned ownership boundaries, not ten independently supported protocol states or
+claims that exact commit candidates have been assembled. Accepted R3-A01–A06 corrections and
+affected-consumer migrations retain their owner-local obligations. Do not turn nearby weaknesses
+into an expanding implementation mandate. The separately recorded inventory-accounting and
+build-failure refactor remains separate. Preserve observations in the
+[adjacent findings register](./dist-content-identity.plan/adjacent-findings.md), with owner, evidence,
+proposed future commit, and a concrete condition for reconsideration.
+
+**Priority:** core `@sys` libraries, drivers and UI. Repository `deploy/` consumers still require
+the minimal migration, checks and old-input refusal needed to avoid a broken supported path.
+Provisional product hardening, extra features, presentation polish and unrelated cleanup there do
+not belong in this landing. If such work starts driving the schedule, stop and examine the scope
+with the human. This priority does not defer `code/sys.tools/src/cli.deploy` ownership/continuity
+fixes: those are core tooling contracts already accepted in R3.
+
+Classify every further observation before editing:
+
+- **Current correctness obligation:** a concrete failure of the replacement's promised identity,
+  admission, ownership, continuity, consumer or failure-truth contract. Fix at its smallest owner
+  and run the corresponding proof; do not defer a material defect merely because some code predates
+  this change.
+- **Adjacent improvement:** no demonstrated failure of that bounded contract. Record it and its
+  future commit; do not implement it during this landing. Discovery during migration does not
+  establish attribution to migration. This includes general resolver-policy hardening and unrelated
+  fixture lint debt unless a specific necessary proof demonstrates a narrower prerequisite.
+- **Execution prerequisite:** a named required proof cannot run within existing authority. Preserve
+  that coverage gap and keep the affected lane stopped. Seek the smallest supported execution route;
+  if it needs substantive loader/toolchain work, present it as a separate prerequisite decision, not
+  another silently absorbed Dist fix. Deferral never grants permission to bypass checks, weaken
+  proof, fetch missing dependencies or claim unexecuted coverage.
+
+The finite closing sequence is:
+
+1. Resolve each source unit below into exact attributable paths/hunks, including its tests,
+   necessary documentation, generated artifacts and removals. Use current deltas and reachable
+   history, not directory-wide staging or the historical aggregate path count. The unit boundaries
+   are the plan; their concrete cuts still require inspection. A newly discovered seam mismatch
+   requires an explicit plan revision, not a catch-all final commit or peripheral slivers.
+2. Review and verify each source unit against its stated dependency context. Retain the accepted R3
+   counterexamples, positive controls and targeted independent closure at their owning boundaries.
+   Reuse applicable evidence; do not automatically repeat completed reviews or the entire residue
+   pass. Check for attributable drift, actual defects and unrelated hunks, not optional polish.
+3. Land each accepted source unit with explicit human Git authorization and document its evidence
+   limits and intermediate dependencies. **Every intermediate commit passing CI is not a
+   requirement.** A dependent migration state is not an independently releasable tree. Results from
+   the integrated worktree must not be represented as results from an isolated intermediate commit.
+   Do not add compatibility scaffolding merely to make intermediate commits green.
+4. Complete the three deferred proof commits below, in arc order, after their implementation
+   dependencies. Execute build-bearing lanes sequentially through an authorized route. The pipeline
+   item owns the outstanding independent composition evidence; it is not an unnamed final review.
+5. Assess the completed source/proof sequence against the single contract and reconcile its landed
+   history. Source commits do not claim unexecuted composition coverage or release readiness. A
+   concrete newly demonstrated product defect requires a named owner and smallest correction, not
+   an autonomous widening of scope.
+
+The loader/graph investigation is retained as evidence, **not an instruction to launch a new review
+or implement a resolution framework**. Neither adjacent improvements nor the separate
+inventory-accounting/build-failure refactor is a prerequisite to source landing. Existing security,
+permission, signing and evidence-authority boundaries remain unchanged. Historical checkpoints below
+retain their original evidence meaning; their former single-commit/pre-landing-proof sequencing is
+superseded by this landing discipline and the explicit proof tail.
+
+## Source units — ownership, dependencies and completion
+
+S1–S10 name the ten source items in opening-arc order; they are references, not another landing
+ledger. Workstreams A–H below retain the detailed contract and adversarial requirements. A unit is
+coherent when it changes one named contract or assurance boundary with its actual callers and tests,
+not merely because it is small. Isolation means reviewable ownership and explicit dependencies, not
+standalone CI success or independent release support.
+
+For every unit, record its exact cut and dependency snapshot before landing. Include ordinary
+owner-test migrations, negative controls, necessary docs and exports; never defer source correctness
+to a proof commit. Reuse valid owner receipts only for the inputs and assertions they actually cover.
+Run the narrow affected checks after corrections through the current owning tasks. Record integrated
+results as integrated, dependency-incomplete states as such, and blocked proof as blocked. Targeted
+independent closure follows the owning boundaries; there is no additional all-source landing gate.
+
+### S1 — Types and Std contract
+
+- **Owner:** `code/sys/types/src/t/t.Pkg.dist.ts`; attributable `code/sys/std/src/m.Pkg/` types,
+  encoding, guards, Pins and exports, plus `src/-test/-namespace.freeze.test.ts` and owner tests.
+  Includes removal of `m/m.Compat.ts`. Workstream A's pure contract belongs here, not FS IO.
+- **Dependencies:** the two reachable signer/collection corrections remain unchanged. FS and
+  downstream callers intentionally follow; no old/new union is introduced to accommodate the gap.
+- **Completion:** one supported scheme and pin shape, bounded literal encoding vectors, exact
+  Part/Unicode/order semantics, old-input refusal and retired exports. Std gains no crypto or FS
+  dependency. S2 owns digest composition and filesystem admission proof.
+
+### S2 — FS production, admission, projection and pins
+
+- **Owner:** attributable `code/sys/fs/src/m.Pkg.Dist/`, `src/m.Pkg/t.ts`, namespace tests and README;
+  includes the `u/u.checkSelfReported.ts` removal and residue R-01 below. Workstreams A–C meet here:
+  production, manifest-only admission and tree verification share the same canonical contract.
+- **Dependencies:** S1 and the reachable lossless collection correction. Server and producer callers
+  follow; generic `DirHash`/`CompositeHash` contracts are not part of this cut.
+- **Completion:** literal digests, production refusal truth, bounded admission before effects,
+  immutable evidence, exact closed-tree verification, child-selection equivalence, projection
+  document continuity and independent pin capture. Retain TS-01's diagnostic controls.
+
+### S3 — Server evidence, generations and hosting
+
+- **Owner:** attributable `code/sys/server/src/m.server.dist/`, `src/m.server.dist.service/`, shared
+  Dist fixtures, samples and README; `code/sys.model/model/src/m.files.static/`; and
+  `code/sys/http/src/http.cmd/-test/-static-dist-files.test.ts`. Includes residue R-02. FilesStatic
+  is a real hosting dependency, not an observation-UI adapter to postpone. Workstream D applies.
+- **Dependencies:** S1–S2. Tools, Cell and Pi service callers follow.
+- **Completion:** scheme-bound addressing, scalar-first hostile-evidence refusal, exact inventory
+  membership, candidate/winner document continuity, no-clobber, leases and independent release
+  errors; pinned/local hosting and service-config refusal. Preserve terminal lifecycle/resize tests
+  while removing only the obsolete display-clock contract. Real build composition belongs later.
+
+### S4 — Tools staging and publication ownership
+
+- **Owner:** attributable `code/sys.tools/src/cli.deploy/` staging, finalization, preview/menu,
+  provider integration and tests; the staging task in `code/sys.tools/deno.json`. Includes residue
+  R-03. Workstream F's exact-document destructive-operation authority is the cohesive boundary.
+- **Dependencies:** S1–S3; real build-backed execution also requires S6. Review finalization and its
+  production caller together even when the intermediate tree still has unmigrated build callers.
+- **Completion:** explicit publication ownership, no deletion of equal foreign bytes, retained
+  original/independent causes, awaited finalizers, exact-document cleanup refusal, and truthful
+  preview invalidation/digest/size. Include TS-03's reachable Tools changes in attribution, but do
+  not recommit their already-landed hunks. Do not reopen the independent R2 publisher repair.
+
+### S5 — Tools Pull and Serve consumers
+
+- **Owner:** attributable `code/sys.tools/src/cli.pull/` and `src/cli.serve/`, including YAML/CLI
+  parsing, help, fixtures and tests. This is caller expectation/configuration, not staging ownership.
+- **Dependencies:** S1–S3. Cell examples in S7 consume these conventions.
+- **Completion:** old-only and mixed input refusal before acquisition, independent pin propagation,
+  materialization and local/pinned status, mutable-projection non-authority, preserved credentials
+  and caller bounds. No inferred pins, config conversion or checksum aliases. Workstream F applies.
+
+### S6 — Build and snapshot producer success contracts
+
+- **Owner:** Vite `src/m.vite/{t.ts,u/u.build.ts}` and ordinary build tests, help, cached-serve fixture
+  and SRI-fixture response narrowing; Tools `cli.crypto/cmd.hash/` and
+  `cli.crdt/cmd.doc.snapshot/`; `deploy/@tdb.data/src/fs/m.DataPipeline/` and
+  `deploy/@tdb.edu.slug/src/m.slug.compiler/` Dist producers and their fixtures/tests. Include the
+  corresponding snapshot/hash/data test-task deltas, not unrelated deployment work.
+- **Dependencies:** S1–S2. These callers share one success postcondition: canonical computation
+  succeeded and any required document/package writes completed before success is reported. Preserve
+  non-saving hash jobs; do not require every producer to save or expose the same response wrapper.
+- **Completion:** narrowed build responses, copied path authority, required package-file write,
+  retained returned pin/checksum, truthful hash display, and refusal before secondary writes/counts.
+  Ordinary owner tests stay here even where execution awaits frozen-fixture correction. The existing
+  internal `buildWith` fault seam is earned; deferred failure-cause enhancement stays in the final
+  refactor. Dependency-policy support is allocated separately below. Workstreams A/H apply.
+
+### S7 — Cell service configuration and authored help
+
+- **Owner:** attributable `code/sys/cell/` Dist-host/proof fixtures and tests, README/sample README,
+  authored `src/m.help/yaml/` examples, their parity tests, generated `-bundle.json` and task wiring.
+- **Dependencies:** S1–S3 and S5, plus S4 for the provider-neutral Deploy sample/proof.
+  `DeploySampleProof.run` executes the actual sample's `DeployStageTask` → `Deploy.stage` → S4's
+  staging finalizer. Include S4 in the recorded verification context; keep the Cell regression in
+  S7. The opening order already places S4 first, so no reordering or new gate is needed.
+- **Completion:** canonical service/pulled-view expectations, old-input refusal, no two-identity
+  assertions, and generated help matching its authored source. Keep source and generated changes
+  together under the owning generator; do not hand-fix generated formatting or rebind sample pins.
+  The existing Deploy proof scope is Cell's `test:deploy:authority` and
+  `src/m.cell/-test/-u.load.test.ts` through its owning `test` task, against the declared dependency
+  context when execution is authorized. This is S7 owner proof, not an additional deferred item.
+
+### S8 — Pi GUI payload/package admission
+
+- **Owner:** attributable `code/sys.driver/driver-pi/` GUI service/session/presentation, covered
+  `u.pkg.ts`, local-evidence and preview-build response contracts, owner tests/process fixtures and
+  the two ZIP artifact JSON files. Proof-only preview forwarding is split below. Workstream G applies.
+- **Dependencies:** S1–S3 and S6; covered `pkg/-pkg.json` is Pi policy, not a generic Dist requirement.
+- **Completion:** bounded inventoried/checksum-verified package reads at both admission boundaries,
+  captured expected package, cancellation draining and host/Generation ownership, canonical preview
+  handoff and old-evidence refusal. Retain ZIP owner parity evidence; repeat only for changed inputs.
+  Do not edit profiles, retained release evidence or shared outputs. Real preview isolation is later.
+
+### S9 — R2 inventory admission and sample selection
+
+- **Owner:** attributable `code/sys.driver/driver-cloudflare/` ReadRoute types/admission/lifecycle
+  tests and docs; sample build record, selection, status, local-proof code and deterministic tests.
+  Include only the identity-specific App/render-test/README hunks described below.
+- **Dependencies:** S1–S2 and S6; sample serving also uses S3. Workstreams E/H apply.
+- **Completion:** shared bounded inventory admission, zero policy effects before acceptance,
+  canonical per-projection pins, captured document fences, producer refusal and publish-selected-build
+  behavior. The UI distinguishes observed content and document hashes. No promise of later response
+  checksums, browser execution integrity or provider acceptance; no real publication or sample repin.
+
+### S10 — Observation and signing consumer contract closure
+
+- **Owner:** DenoEntry `src/m.cloud/m.DenoEntry/`; React `use/use.Dist/`; UI-components Dist samples
+  and `Http.Origin/`; UI-dev ModuleList regression; Model-slug Dist fixtures; the signer's
+  `src/m.dist/-test/-.test.ts` integrated regression. These are the named observation/signature
+  consumers, not a bucket for residual files or new cleanup.
+- **Dependencies:** S1–S2 and the reachable signer correction. Workstreams B/H apply.
+- **Completion:** local consistency uses the sole verifier but remains unpinned; manifest-only UI
+  observations never imply payload authentication; async replacement/disposal retains its controls;
+  downstream fixture/cache assumptions match the contract. Real-file compute → sign/writeback →
+  load → strict verification preserves own keys. Canonical-document signing remains separate from
+  content identity, and raw-file signature behavior stays unchanged.
+
+### Mixed hunks and exclusions
+
+Path ownership above selects attributable deltas, never every edit under a directory. Resolve these
+known shared files by symbol/behavior, then inspect the actual cut before landing:
+
+- **Vite:** canonical response/production and ordinary build assertions belong to S6. The optional
+  `Build.Args.dependencyPolicy`, its `u.build.ts` forwarding, `u.wrangle.ts` command support, focused
+  command assertions, build-test policy arguments and `u.bridge.fixture.ts` frozen discovery belong
+  to the frozen-fixture proof item. Keep each declaration/caller/test chain together. These flags
+  constrain the immediate child only; neither their presence nor their removal proves containment.
+- **Pipeline:** `-dist.pipeline.ts`, `u.dist.pipeline.cleanup.ts`, its focused cleanup test and
+  `code/sys.driver/driver-vite/deno.json` pipeline task/aggregate-test wiring belong to the pipeline
+  proof item. Preserve R3-A06 settlement behavior; do not move ordinary producer tests there.
+- **Pi preview:** response/source-pin migration and ordinary assertions belong to S8. The optional
+  `PreviewBuildInput.dependencyPolicy` type/import, conditional command forwarding in
+  `-scripts/m.start.gui.preview.build/{mod.ts,u.runtime.ts}`, their focused assertions and
+  `-scripts/-test.external/-task.start.gui.preview.real.ts` belong to the real-preview proof item,
+  depending on Vite's earlier proof support. Preserve ordinary defaults and environment guards.
+- **Tools tasks:** `test:deploy:staging` belongs to S4; `test:crdt:snapshot` and `test:crypto:hash`
+  belong to S6. Task-file proximity does not combine their source units.
+- **Cloudflare sample:** `src/ui/ui.App.tsx`, `src/-test/-ui.render.test.tsx` and README use the
+  [recorded minimal semantic cut](./dist-content-identity.plan/reviews/03/R3.landing-scope.md#tested-minimal-mixed-candidate)
+  as inspected evidence, not a patch to apply blindly against later bytes. Leave presentation,
+  image/exposure work and visualizer changes separate.
+- Preserve the workspace private-publication fix, template source/bundle refresh, plan buffer and
+  all other unrelated deltas. Historical aggregate counts are not a current selection recipe.
+
+### Attributable residue — owner-local completion, not a new cleanup item
+
+These three source-traced leftovers invalidate blanket residue-clear claims. They belong to the
+named source units, not the later accounting refactor or a new all-source review requirement.
+
+- **R-01 → S2:** `code/sys/fs/src/m.Pkg.Dist/u/u.hash.ts::hashes` explicitly computes
+  `CompositeHash.digest(outParts)` after child merging; `u/u.compute.ts` consumes only the parts and
+  obtains canonical identity through `captureContent`. Remove that unused Dist-local computation
+  and any resulting unused import. Preserve generic hashing and direct/reuse selection, exact keys,
+  collisions and literal canonical identity controls. Source inspection must show the dead work is
+  gone; the owning producer tests must still prove those outcomes.
+- **R-02 → S3:** remove `PresentationArgs.renderedAt` in `u.server.screen/t.ts`, its forwarding in
+  `u.runtime.ts`, and `ServeEffects.now` / `effects.now()` in `u.server.start/u.serve.ts` under
+  `code/sys/server/src/m.server.dist/`. The layout no longer consumes it. Include the serve/screen
+  fixtures and tests, including currently unchanged `-test/u.fixture.serve.ts`; remove only the
+  obsolete clock inputs/assertion, not tests of lifecycle, keyboard/browser policy, resize scheduling,
+  output or exactly-once cleanup. Real scheduler use of `Time` remains. Recheck the owner reference
+  closure and run the affected serve/screen/browser-policy tests.
+- **R-03 → S4:** remove `stageAge` and `formatStageAgeText` from
+  `code/sys.tools/src/cli.deploy/u.menu/u/u.promptEndpointAction.ts`; `menu.endpoint.ts` no longer
+  supplies age. Retire the field from `-menu.endpoint.preview.test.ts` capture/expectations and
+  inspect prompt tests. Preserve truthful digest/size, mutation invalidation, action labels and
+  nested-preview cleanup controls; prove their behavior through the menu/prompt owner tests.
+
+## Deferred proof commits — scope and completion
+
+These are bounded implementation/test commits, not review receipts or new `GATE` items. Deferred
+execution does not justify weakening assertions, hiding failed tests, changing dependency versions,
+relaxing guards, rebinding retained evidence or claiming whole-chain offline containment from parent
+flags. Required production fixes and ordinary owner-test migrations stay with their source units.
+Allocate mixed production/proof-support hunks explicitly; a proof item may own only the smallest
+necessary harness, command or forwarding correction. A run is successful only when the named scope
+passes, not when it contains passing subcounts.
+
+### Frozen Vite fixture authority
+
+`fix(driver-vite): align frozen build fixtures with their dependency authority`
+
+- **Owner:** `code/sys.driver/driver-vite/src/m.vite/-test/u.bridge.fixture.ts`, the child-command
+  boundary and its focused tests. The reported refusal is a fixture/command lock-authority mismatch,
+  not established evidence of a Dist identity defect or a dependency upgrade requirement. An
+  unchanged root-lock copy was tried and refused; it is not a validated remedy.
+- **Dependency:** the source migration's canonical build-response and package-output contracts.
+  This correction precedes both build-dependent proof items below.
+- **Completion:** regression coverage for the demonstrated fixture refusal and successful execution
+  of the existing `-build.test.ts` and `-build.workspace-composition.test.ts` through the owning
+  `test:unit` task. Retain sample, worker, workspace, path/base, content-pin and successful-child /
+  failed-package-write assertions. Capture the child diagnostic on failure; do not infer a cause
+  from a boolean assertion alone.
+- **Boundary:** preserve fixed dependency versions, repository lock authority and frozen checks.
+  No general loader/resolver redesign, cache-repair acquisition or permission expansion. If the
+  authorized route is unavailable, report that item-specific blocker without turning it into an
+  all-source landing prerequisite or silently expanding the item.
+
+### Build, projection and serving composition
+
+`test(dist): prove canonical build projection and serving composition`
+
+- **Owner:** `code/sys.driver/driver-vite/src/m.vite/-test.external/-dist.pipeline.ts`,
+  `u.dist.pipeline.cleanup.ts`, its focused cleanup tests and the owning `test:dist:pipeline` task.
+- **Dependencies:** canonical Vite, FS and Server source contracts plus the frozen-fixture correction.
+- **Completion:** two real builds with stable payload pins but distinct manifest checksums; recorded
+  projection pins; materialization and pinned serving of the expected bytes; original-document warm
+  reuse; changed-byte/path and stale-pin refusal. Preserve the existing SRI-byte assertions rather
+  than opening a separate SRI project. Include the already-required independent composition evidence.
+- **Failure settlement:** retain R3-A06 body/cleanup failure arbitration, drained hosts, leases and
+  independent release errors. Refused restoration/removal never authorizes deletion around that
+  refusal. A passing cleanup-only test does not replace the real pipeline proof.
+
+### Real Pi preview isolation
+
+`test(driver-pi): prove canonical Dist isolation across real previews`
+
+- **Owner:** `code/sys.driver/driver-pi/-scripts/-test.external/-task.start.gui.preview.real.ts`,
+  its preview-build fixture/forwarding boundary and the owning `test:preview:real` task.
+- **Dependencies:** canonical Pi package/source admission, Vite and Server contracts plus the
+  frozen-fixture correction. Run after the pipeline item in the recorded execution sequence.
+- **Completion:** two real preview generations with equal payload identity and distinct documents;
+  the first remains verified and served while the second is built and cleaned up; covered package
+  admission accepts the expected package and refuses a conflicting expectation. Preserve original
+  documents, shared-output snapshots, environment sanitization, independent failures and cleanup.
+- **Boundary:** preserve the task's `--deny-write=../../..` guard, retained release evidence and
+  ordinary developer behavior. No shared-output rebuild, GUI reset, release rebinding, provider
+  publication or broader launcher/permission work.
+
+The human-reported ZIP read/extract `prep:zip --check` parity already passed, as recorded in
+[R3 landing evidence](./dist-content-identity.plan/reviews/03/R3.landing-scope.md#subsequent-functional-receipts-and-fixture-lock-diagnosis).
+Do not invent another missing ZIP proof; repeat only if relevant owner inputs change. The proof tail
+has no implicit fourth catch-all audit, upgrade or tooling project. A newly discovered obligation
+must be reported and explicitly scoped before changing arc membership.
+
+## Dist test-signal audit — implementing-thread adjudication
+
+The original source/history adjudication performed no runtime reproduction or source/test edits.
+The human subsequently authorized all four bounded closure steps; the TS-01 proof below records that
+later execution. Observed HEAD remains `8d97fe4088bed6764e804424b767b089ffb13cf3`; that does not
+identify dirty source bytes or author intent. No Git mutation or independent review occurred here.
+
+### TS-01 — accepted: producer failure-truth regression; red → green proof
+
+At adjudication, `code/sys/fs/src/m.Pkg.Dist/u/u.compute.ts::compute` combined missing and
+non-directory roots under `Dist directory does not exist.`. An existing regular file returned
+`kind: 'failed'` and `exists: true`, but carried a false absence cause inside
+`Dist computation failed.`. HEAD distinguished the cases; its two tests in
+`code/sys/fs/src/m.Pkg.Dist/-test/-Pkg.Dist.test.ts` asserted that distinction and path context.
+The replacement test had retained refusal but checked only error presence. This was an attributable
+diagnostic regression, not invalid-content acceptance or evidence of deliberate test suppression.
+
+The authorized two-file correction first added distinct cause assertions against isolated missing
+and regular-file roots. The producer run failed exactly on expected `Dist path is not a directory.`
+versus actual `Dist directory does not exist.`. Splitting the two refusal branches then passed
+1 suite / 19 steps; the full Dist owner scope passed 18 suites / 148 steps. Exact-file format/lint
+passed. Tests check both `StdError.cause.message` and `Err.summary(error, { cause: true })`, truthful
+`exists`/`dir`, failed-kind, absent document/pin/checksum authority, unchanged file bytes and no new
+filesystem output. The generic outer message and failed-result shape remain unchanged; historical
+absolute-path disclosure and success-shaped failure data were not restored. Exact commands are in
+[R3 closure execution](./dist-content-identity.plan/reviews/03/R3.corrections.md#authorized-closure-pass--fs-diagnostic-proof).
+
+The [R1 assertion audit](./dist-content-identity.plan/reviews/01/R1.corrections.md#prior-assertion-audit)
+retired the old shape/path-specific expectations. That disposition does **not** waive truthful
+failure reasons; TS-01 corrects that narrower audit omission. This belongs to the current replacement,
+not the separate inventory-accounting refactor or an adjacent cleanup project.
+
+### TS-02 — already covered: historical greens are not current-byte verification
+
+See [R3 exclusive-slot execution](./dist-content-identity.plan/reviews/03/R3.corrections.md#exclusive-slot-execution--tools-complete):
+Tools exact-root staging passed 1 suite / 45 steps and public lifecycle passed 1 suite / 2 steps
+sequentially after the corrections. The handoff's older description of Tools as unexecuted is
+superseded by that receipt. Fresh post-correction real Vite build/pipeline and Pi preview runs remain
+outstanding under the recorded execution constraints; earlier successes cannot close that gap.
+No duplicate obligation or speculative resolver project is added. General resolver hardening stays
+parked in the [adjacent register](./dist-content-identity.plan/adjacent-findings.md); no bypass, permission
+widening or claim of current composition acceptance follows from deferral.
+
+### TS-03 — accepted: migration attribution includes reachable committed Tools changes
+
+`177d10929f985b45b74c35fae37ff80c6d9e8d0a` is an ancestor of the observed HEAD. Despite its subject,
+`plan(create): html-capability.plan.md`, its actual diff includes seven files under
+`code/sys.tools/src/cli.deploy/`:
+
+- `-test/-u.preview.parity.test.ts`
+- `-test/-u.stage.lifecycle.test.ts`
+- `-test/-u.stage.test.ts`
+- `u.fmt/u.fmt.endpoint.ts`
+- `u.menu/menu.endpoint.ts`
+- `u.providers/provider.r2/-test/u.fixture.ts`
+- `u.providers/provider.r2/u.push.ts`
+
+Those hunks migrate evidence to `content`/`manifestChecksum`, guard fixture compute success and
+remove displayed stage age from content-verification evidence. Review attribution for these files
+must include the `177d10929^` → `177d10929` changes plus subsequent worktree deltas, not just
+`HEAD` → worktree. Its parent is `97cc6977e9308423934836b4567cb5c58219d5ca`; this is a local historical
+comparison point, not an asserted pristine baseline for the entire migration. Commit content, not its
+subject, establishes this scope. No history rewrite, new landing item or inference of intent is needed.
+
+### Audit boundary — reject blanket restoration of retired tests
+
+HEAD's `checkSelfReported` tests replayed ignore-policy rules/digests as verification authority. That
+contract is intentionally removed. Current `u/u.hash.ts::ignore` still awaits descriptive policy
+hashing; the current producer test checks selection/metadata, and `Local.verify` explicitly proves
+that altered policy metadata is inert while changed payload bytes refuse. Restore a test only for a
+surviving invariant, not merely because an async historical test disappeared. These inspected examples
+are not exhaustive assertion-preservation clearance. This handoff is not blind closure and triggers
+no new broad review campaign.
+
+## Prior owner proof — receipts and limits
+
+The [R1 correction/audit record](./dist-content-identity.plan/reviews/01/R1.corrections.md),
+[round 02](./dist-content-identity.plan/reviews/02/) and
+[round 03](./dist-content-identity.plan/reviews/03/README.md) retain historical review and correction
+provenance. R3's four reports were adjudicated; the six accepted corrections have focused proofs in
+[R3 corrections](./dist-content-identity.plan/reviews/03/R3.corrections.md). The
+[targeted closure charter](./dist-content-identity.plan/reviews/03/R3.closure.review.plan.md) is a
+charter, not evidence that its independent review ran. Allocate required closure to source owners;
+the named pipeline proof owns independent composition evidence.
+
+The [R3 semantic verdict](./dist-content-identity.plan/reviews/03/R3.corrections.md#implementer-semantic-verdict)
+identified no unresolved material semantic defect at that checkpoint. It is not a current blanket
+STIER/residue certification: R-01–R-03 above establish remaining attributable cleanup. Preserve the
+accepted corrections, especially explicit Tools publication/deletion ownership and Generation's
+bounded hidden/symbol-member refusal, zero getter effects and exactly-once release. Their tests
+must not be removed to simplify the source split.
+
+Historical, overlapping owner receipts after those corrections include:
+
+| Owner/scope | Suites / steps | Evidence boundary |
+| --- | --- | --- |
+| FS Dist | 18 / 148 | Includes TS-01 truthful producer refusal |
+| Server | 6 / 128 | Includes exact inventory membership and release controls |
+| Tools staging | 7 / 125 | Includes no-clobber publication/deletion ownership |
+| Pi GUI | 5 / 57 | Owner admission/session proof, not real preview/release proof |
+| HTTP | 1 / 1 | Canonical inventory seam with unchanged transport checksum meaning |
+| Cloudflare mixed candidate | 2 / 20 | Minimal semantic cut and restored live files each passed |
+| Cell help | 2 / 13 | Authored/generated source-map parity |
+
+Exact twelve-file format/lint and scoped whitespace checks also passed at that checkpoint. The
+broader lint run retained seventeen unrelated/pre-existing diagnostics; it was not a global green.
+The generated Cell newline remained under its writer's ownership. Commands, earlier non-additive
+receipts and the historical path inventory are in
+[R3 corrections](./dist-content-identity.plan/reviews/03/R3.corrections.md) and
+[R3 landing scope](./dist-content-identity.plan/reviews/03/R3.landing-scope.md). Those aggregate
+counts are not S1–S10 cut manifests. Removed recovery/capture files are not accessible baselines.
+
+The [subsequent human receipts](./dist-content-identity.plan/reviews/03/R3.landing-scope.md#subsequent-functional-receipts-and-fixture-lock-diagnosis)
+supersede missing ZIP parity and record failed Vite runs, the concrete frozen fixture-lock refusal,
+and the unsuccessful/reverted lock-copy attempt. ZIP parity passed; current Vite build/pipeline and
+Pi real-preview closure did not. The proof items above own those gaps. Historical “landing remains
+no-go” wording in linked records describes the former aggregate landing policy, not a veto on
+reviewed source units under this plan. Parent flags still do not prove loader/subprocess containment.
+
+Reuse evidence only within its demonstrated scope. Historical commands are not current launcher
+instructions; prior reports/conclusions must not be supplied as authority to a blind reviewer. This
+plan revision runs no source tests and grants no new execution, mutation or release authority.
+
+## Historical implementation verification checkpoint
+
+The receipts below predate the R1 corrections. See
+[correction and assertion-audit evidence](./dist-content-identity.plan/reviews/01/R1.corrections.md)
+for the subsequent authorized batch, remaining coverage qualifications, and prospective source
+capture. Earlier touched-file audit statements do not attest final post-correction STIER closure.
+
+Implementation began after the human's explicit GO. All A–H obligations apply to the single
+integrated replacement. The opening arc alone records landing; owner greens below establish neither
+whole-pipeline completion nor provider/browser/release evidence.
+
+- Types/Std define `sys.dist/v2`, `{ scheme, digest }` pins, and the bounded payload-tuple encoder.
+  Generic CompositeHash semantics are unchanged; legacy Dist conversion was removed.
+- FS proof covers production, loading, narrow admission/verification evidence, child selection,
+  projections, and named pins. Metadata-only replacement tests retain separate `manifestChecksum`
+  continuity. Full check, unit (80 tests / 736 steps), and process (4 tests / 6 steps) passed.
+- FilesStatic consumes `DistContent`, with descriptive `buildTime` separate. Full Model check and
+  tests (45 tests / 221 steps) passed.
+- Server proof preserves document fences through sealing/publication/settlement, separate-winner
+  provenance, credentials, cancellation, hostile-input refusal, leases, and cleanup. Full check,
+  unit (43 tests / 336 steps), process (4 tests / 10 steps), and HTTP samples (2 tests / 2 steps)
+  passed. Content-pin refusal remains distinct from asset-checksum refusal.
+- Tools full check passed previously. Focused Pull (23 / 97), Deploy (40 / 364), restricted Deploy
+  authority, hash, Serve, and snapshot producer refusal passed. Equal-content replacement documents
+  do not restore temporary-manifest deletion authority. A fresh full run passed with a complete
+  terminal receipt: 126 tests / 791 steps.
+- Cell's pulled-view help and generated bundle require independent `sys.dist/v2` pins; the stale
+  bundle regression failed before the owning help bundler ran and passed afterward (2 / 12).
+  Dist-host services (1 / 9) and provider-neutral Deploy authority passed separately. Full package
+  check passed on rerun. A fresh full run passed with a complete terminal receipt: 41 tests / 333
+  steps. No real sample pin was rebound.
+- DenoEntry's `Local.verify` remains unpinned observation. Focused tests (2 tests / 12 steps) cover
+  cwd-anchor canonicalization while still refusing a selected Dist symlink and changed payload.
+- Vite success narrowing now covers the shared SRI fixture. The cached serve fixture is checked
+  against current FS production; that assertion failed before the v2 fixture correction and then
+  passed without granting build authority to the serve child. Recovered full-task receipts show unit
+  (73 / 603), entry process (2 / 10), and candidate consumers (4 / 4) green. A fresh package check
+  passed without truncated output. The SRI/Chromium lane passed (11 / 186).
+- Vite's new `test:dist:pipeline` passes (1 / 1) and is included in the ordinary `test` task. Two
+  real builds with fixed source/configuration produce equal inventories/pins and different document
+  checksums. Public FS projection and local pin recording feed four cold materializations, pinned
+  hosting, byte/length checks, and emitted JS/CSS SRI checks. Metadata/layout/root-label replacement
+  preserves pins; offline reuse retains the first document. Changed payloads and paths reject stale
+  pins, including manifest-only refusal before materializer asset acquisition. The capstone was
+  added after implementation, not demonstrated red against the old implementation; its initial
+  failures were fixture type/setup errors. It does not claim browser execution. Following the
+  human's dependency-order challenge, this proof uses only public FS/Server contracts and Vite-owned
+  fixtures in `-test.external`, not reverse imports from the Cloudflare sample. Sample build-record,
+  partition, and display contracts remain under the sample's test owner.
+- Signer full tests passed (5 tests / 52 steps), Monaco full tests passed (28 / 354), and Stripe
+  unit tests passed (6 / 14). Fresh Model-slug (55 / 234) and HTTP unit (59 / 456) runs passed with
+  complete terminal receipts. HTTP's denied-authority file-bytes entry process proof passed.
+  Stripe's owning `test:build` also passed; local bundle/browser checks passed (2 / 3). These
+  establish the fixture's browser runtime, not a live Stripe payment/provider transaction.
+- Http.Origin focused tests passed (3 / 11). Its new regression supplies an inconsistent
+  self-reported digest and proves manifest-only acquisition plus explicit unpinned wording; it
+  failed before the wording fix and passed afterward. A fresh full UI-components run passed with a
+  complete terminal receipt: 85 tests / 564 steps.
+- Edu-slug full tests passed (53 tests / 239 steps), including the producer-refusal controls. TDB
+  data producer tests passed separately (2 tests / 4 steps).
+- Cloudflare's sample now consumes structured content pins, narrowed content evidence, and builder
+  success. Its captured verification and local proof retain operation-wide document checksums;
+  metadata-only replacements before/after capture and during proof refuse. Bundle totals come from
+  admitted entries, while browser manifest observations remain explicitly unpinned. The new UI
+  assertions failed before implementation and then passed. Fresh complete receipts: sample (27 /
+  134), parent including the sample (42 / 273). Parent check passed. Exact-file formatting passed
+  for all 21 changed sample files. No destructive real sample build or pin rebinding ran.
+- Pi's full check and unit run passed (77 / 530), as did reset process (1 / 1), profiles process (2
+  / 17), release task contracts (2 / 10), and release launcher process (1 / 1). All 26 changed Pi
+  files passed exact-file formatting. Package policy reads covered `pkg/-pkg.json` bytes at both
+  boundaries; cancellation drains these reads before Generation release. Real cold materialization
+  and offline reuse retain both package checks. The isolated real-preview proof passed (1 / 4),
+  including equal pins across two builds and distinct document checksums. Retained legacy rehearsal
+  evidence remains unchanged and explicitly refuses; none of these tests is real release evidence.
+- The residue scan found stale Dist code in Pi's two prepared ZIP artifacts. The owning
+  `prep:zip --check` failed before regeneration; `prep:zip` regenerated only the two artifact JSON
+  files, and the following parity check passed for both. Focused ZIP tests passed (7 / 61). No
+  profile, tool-permission, or retained release-evidence change was made.
+- Tmpl's fresh full receipt is complete: 24 tests / 94 steps, zero failures (3m6s). This closes the
+  missing full-run receipt; the earlier interrupted run still has no established cause.
+- The touched-file audit now covers attributable authored source, tests, configuration, and docs,
+  including the untracked contract/pipeline/package-policy tests. Exact-file checks cover Types/Std,
+  FS, Server, Tools, Model/Model-slug, Cloudflare/sample, Vite, DenoEntry, Signer, Pi, Cell, HTTP,
+  observation UI, and secondary producers. Generated Cell/ZIP bytes follow their owning generators.
+  The expanded pass corrected layout in 19 files through surgical edits, without formatter writes,
+  test deletion, or intended behavioral changes. Fresh proofs passed: FS (4 / 40), Tools hash (4 /
+  18), snapshot (1 / 2), Deploy (40 / 364), FilesStatic (1 / 13), TDB (2 / 4), edu-slug (1 / 2), and
+  Cloudflare admission/lifecycle (2 / 20).
+- Broader documentation searches found five additional stale surfaces: FS and Server READMEs, the
+  static HTTP sample README, and Pull/DistService module comments. They now distinguish the
+  independent content pin from document checksums, show the actual store namespace and input shapes,
+  and preserve unpinned/manifest-only evidence limits. All five exact-file checks passed.
+- Residue searches leave explicit negative old-input/API controls, DenoEntry's wrapper over the sole
+  Local verifier, Pi's negative launcher-marker scan, and untracked generated browser output.
+  Workspace dependency-manifest pin terminology concerns dependency upgrades, not Dist. Retained Pi
+  rehearsal evidence remains deliberately old and refuses; it was not rebound. The final whitespace
+  check passed. Unrelated sample footer wording and UI visualizer configuration were inspected for
+  attribution and left untouched.
+- The human reported a green workspace test run: 56 packages, 10,679 tests, 45 reports collected, 11
+  not applicable, in 8 minutes. This is human-reported evidence, not an independently inspected
+  report set, and precedes the new pipeline proof and ZIP artifact regeneration.
+
+At that historical checkpoint, the three diagnosis-only handoffs informed serial R2/Vite fixes and
+the implementer reported a completed residue/formatting pass. Its independent-review charters live in
+`dist-content-identity.plan/reviews/01/`; neither that earlier completion statement nor those receipts
+certify the current source units. Later corrections and R-01–R-03 retain their own obligations.
+Neither the owner receipts nor the historical local pipeline establishes publication or Pi release
+evidence. Profile permissions, real evidence binding and publication retain separate authority.
 
 ## Research verdict
 
@@ -591,19 +1156,24 @@ files, collection, and the current Dist manifest serialization; an encoder-only 
 collection completeness. Preserve ordinary generic digest vectors. Do not exclude a supported
 filename to hide the defect. This item neither introduces the new identity nor claims to verify it.
 
-### 3. One integrated breaking Dist replacement
+### 3. One contract across the source sequence
 
-`feat(dist)!: unify build pins and verification on canonical content identity` contains the complete
-producer/consumer replacement and its proof. Workstreams A–H below are the implementation and review
-breakdown **within this one landing unit**, not separately shipped stages or a second commit ledger.
-The existing byte-pin type, strict capture, FS aggregate verification, Server store addressing, and
-consumer arguments are coupled; changing the writer alone would leave its readers incompatible.
+S1–S10 allocate the producer/consumer replacement previously named
+`feat(dist)!: unify build pins and verification on canonical content identity`. That aggregate
+subject is historical, not an additional expected commit. Workstreams A–H below specify the
+contract and proof obligations across those units; they are not another landing ledger. The three
+deferred proof items retain their explicit owners and completion criteria above.
 
-Implement and test by owner, but land the replacement only when all affected first-party paths use
-the one contract. Do not introduce unused encoder-only protocol landings, opt-in switches, temporary
-compatibility adapters, old/new unions, or broken intermediate consumers. The larger integrated diff
-is a deliberate trade-off for removing dual-protocol machinery; keep owner-level reviews and proofs
-narrow without reducing final cross-boundary acceptance.
+The pin type, strict capture, FS verification, Server addressing and consumer arguments are coupled.
+Document those dependencies in the source commit sequence rather than requiring every intermediate
+commit to pass CI. Review each unit's behavior against the intended contract and name the dependency
+snapshot used for its tests. Do not claim isolated-commit or release coverage from an integrated
+worktree run. Intermediate migration dependencies are acceptable; undisclosed defects are not.
+
+The completed source sequence must migrate all affected first-party paths to one contract. Do not
+introduce opt-in switches, temporary compatibility adapters, old/new unions or new protocol machinery
+merely to enable smaller commits. Owner-local correctness remains required; the explicitly deferred
+real-build proofs complete cross-boundary evidence after source landing.
 
 #### A. Canonical contract and producer replacement
 
@@ -797,7 +1367,8 @@ remains.
 
 #### H. Producer/display integration and end-to-end contract
 
-Make first-party FS/Vite builds, readers, and consumers use the sole contract in the same landing.
+Make first-party FS/Vite builds, readers, and consumers use the sole contract across the completed
+source sequence.
 Align Vite build responses, the sample's build record/projections/status/tables, CLI/package UI, and
 first-party fixtures/docs. Remove superseded identity fields, helpers, aliases, examples, and old
 acceptance tests rather than leaving a default-selection switch. `dist.pins.json` remains
@@ -841,12 +1412,14 @@ Short displays are presentation only; pin/copy/comparison boundaries retain the 
 Reconcile observation UI, including `Http.Origin/use.Verify.ts`, so manifest schema recognition or
 self-consistency is not labeled independent payload or execution verification.
 
-Integrated replacement acceptance requires two real normal builds with fixed source/configuration
-and the same admitted payload inventories, through build → projection → recorded pin → materialize →
-serve. Prove changed manifest timestamps/layout/root labels do not churn their content identities.
-Prove path renames and payload edits change identity and refuse stale expectations. Include
-whole-tree and per-read proof, not only encoder equality or refreshed fixtures. No live provider is
-required for this local pipeline proof; real publication still requires separate authority.
+The deferred `test(dist): prove canonical build projection and serving composition` item owns two
+real normal builds with fixed source/configuration and the same admitted payload inventories,
+through build → projection → recorded pin → materialize → serve. Prove changed manifest
+timestamps/layout/root labels do not churn their content identities. Prove path renames and payload
+edits change identity and refuse stale expectations. Include whole-tree and per-read proof, not only
+encoder equality or refreshed fixtures. This remains required composition evidence, but is not a
+prerequisite to each earlier source commit. No live provider is required for this local pipeline
+proof; real publication still requires separate authority.
 
 Re-scan producers/consumers and record the disposition of every remaining identity assumption. The
 residue pass must find no accepted old Dist shape, legacy export, old pin/configuration field,
@@ -859,15 +1432,155 @@ workflows. These are acceptance criteria, not a new `GATE`. Neither a renamed fi
 existing suites establishes the new protocol. Release, provider/browser approval, and real evidence
 rebinding remain independently owned.
 
+### 4. Bounded post-replacement ownership and failure-evidence cleanup
+
+`refactor(dist): consolidate inventory accounting and retain build failure causes` follows the
+integrated replacement. This is one bounded follow-up, not a general cleanup campaign or another
+identity protocol. The TMIND/DMIND design pass inspected live types, implementations, tests, and
+owning tasks; it executed no runtime proof. The opening arc already contains this item once.
+Reinspect the landed predecessor before implementation; these notes do not attest future bytes or
+make this later item current.
+
+#### Design decision: share accounting, not authority
+
+Server's `code/sys/server/src/m.server.dist/u.generation/u.is.ts::isVerification` repeats
+structural-entry, path/prefix-work, and byte-total accounting from FS's
+`code/sys/fs/src/m.Pkg.Dist/u.verify/u.manifest.ts::captureContent` / `assertEntryLimit`. The
+duplication is real, but the surrounding checks have different jobs. Generation admits hostile
+programmatic settlement evidence; FS admits a parsed/producer-owned inventory and then verifies
+paths and files. Do not merge those trust boundaries to remove similar-looking loops.
+
+The strongest case for leaving the accounting duplicated is avoiding a larger public abstraction
+than the duplicated algorithm. Extraction is earned only if it removes the semantic duplication with
+immediate adoption by these two real callers. The proposed smallest surface below is a design for
+this follow-up, not an existing API:
+
+- Extend the existing FS `Pkg.Dist` owner with `Inventory.inspect({ parts, limits })`, a
+  synchronous, no-I/O, one-shot inspection. Add its public types under FS `Pkg.Dist.Inventory` and
+  implement it within the existing `m.Pkg.Dist` area; no new package or directory scaffold.
+  Structural descendants and the reserved manifest entry are FS Dist semantics, not a reason to
+  widen Std's pure encoder.
+- `parts` is an unknown parts dictionary. `Inventory.Limits` uses the existing verification fields
+  `entries`, `fileBytes`, `totalBytes`, `pathLength`, and `pathTotal`; no manifest-byte budget
+  applies to an already structured inventory. Capture/validate limits without borrowed hooks and
+  apply the existing Content hard ceilings. No caller-selectable interpretation or default remote
+  authority.
+- Success is an owned frozen `kind: 'inspected'` result with `files`, `totalBytes`, and
+  `packageBytes`. `files` contains frozen `{ path, hash, size }` records; its length is the
+  payload-file count. Refusal uses `invalid-input`, `malformed`, `unsafe-path`, or `limit-exceeded`
+  as appropriate to the existing owner distinctions. No digest, pin, manifest observation, or
+  `verified` evidence is minted. Preserve enumeration order here; canonical sorting remains with its
+  existing owners.
+- The one bounded traversal owns Part parsing, the pre-parse part-string length ceiling, Unicode
+  scalar checks, safe byte addition, package-byte classification, and inventory/prefix accounting.
+  Count one `dist.json`, every payload file, and each distinct implied directory. Charge every
+  encountered prefix's UTF-16 length, including repeated prefixes, before slicing or Set insertion.
+  `pathTotal` independently bounds full-path units and prefix-work units; never combine those sums.
+- Refuse proxies and accessors without invoking them; preserve selected own enumerable keys,
+  including `__proto__`. Do not allocate a whole key/entry array, sort, normalize, serialize, or
+  copy unbounded caller data before admission. Freeze newly owned results, never caller inputs.
+  Preserve the admitted dictionary/property semantics of the predecessor; any deliberate tightening
+  needs an explicit owner-level contract decision rather than hiding inside a refactor.
+
+Responsibilities remain split:
+
+- **FS:** consume the inspected file records, retain Rooted's exact portable-target/collision
+  checks, reserved-name refusal, and the unchanged Std encoder/Crypto digest composition. Producer
+  and manifest admission use the same accounting; complete verification still reads the actual tree.
+  Inspection alone does not establish path safety, independent expectation, or file-byte truth.
+- **Generation:** retain scalar/envelope refusal before touching parts, native/frozen-data checks,
+  binding to the expected pin, canonical document-checksum shape, and comparison of claimed
+  file/byte totals with the inspection. Preserve the early claimed-file-count bound with a bounded
+  own-key preflight if necessary; do not expand an entire inventory before discovering it exceeds
+  its declared count. This structural preflight is not a second arithmetic implementation. Keep
+  shared encoder/hash recomputation and all source/seal/publication/lease checks. Never treat
+  `inspected` as `verified`.
+- **Std/Crypto:** encoding bytes, tuple ordering, domain token, Part grammar, and SHA-256 behavior
+  remain unchanged. Do not add FS policy or a second encoder there. Independent security decisions
+  remain independent even though their deterministic accounting is shared.
+
+No mode flags, validation callbacks, mutable public accountant, opaque certification token, JSON
+round-trip adapter, reverse dependency, or consumer deep-import of private FS files. Preserve the
+narrow verification dependency closure. If this one-shot surface requires a broader framework,
+changes established admission outcomes, or loses bounded ordering, stop and bring that concrete
+trade-off back; retaining explained duplication is preferable to a dishonest shared primitive.
+
+#### Design decision: failed build results carry their own explanation
+
+`code/sys.driver/driver-vite/src/m.vite/u/u.build.ts::buildWith` drops `written.error` and
+`computed.error`; its failure response and formatter retain only child-process output. A successful
+child followed by failed package publication or Dist computation therefore lacks the returned cause.
+
+- Require `readonly error: t.StdError` on the existing `Vite.Build.Response` failure arm. Keep
+  `ok: true` and its Dist/pin/document fields unchanged; failures expose none of those success
+  fields. Do not invent a second result wrapper or parallel stage/reason taxonomy.
+- Each existing returned failure creates one contextual error through `Err.std`; package-write and
+  Dist-compute failures retain their upstream StdError as `cause`. Child failure and empty-output
+  refusal get their own truthful context. Keep `cmd.output` untouched: the child really may have
+  exited successfully. Do not synthesize an exit code or hide child output to explain driver
+  failure.
+- Pass the same owned error into the build's reporting path and `toString()`. Use `Err.summary` and
+  existing width/ANSI helpers for a useful cause summary without raw object/manifest dumps or
+  unsolicited stacks. This is local build diagnosis, not new remotely safe error disclosure. A log
+  line alone does not satisfy the returned-result contract; silent mode must still return it.
+- Extend only the package-internal `buildWith` fault seam as needed to inject compute failure as
+  well as package-write failure. No public Build.Args testing knobs, global monkey-patching, or
+  re-computation on the failure path. Preserve existing throw/exit/disposal behavior; do not turn a
+  broad catch into success or let diagnostic rendering discard an independent cleanup failure.
+
+#### Implementation sequence and falsification proof
+
+1. Reopen the landed predecessor and the owning `deno.json` files. Confirm the two findings still
+   exist, attribute only their deltas, and write the proposed public types before implementation.
+   Preserve all current migration fixes and unrelated open work; no production edits follow merely
+   from these notes.
+2. Pin accounting behavior with literal owner-level expectations before extraction. For example,
+   `a/b.txt` and `a/c.txt`, sizes 2 and 3, imply four structural entries, 14 path units, two charged
+   prefix units, five total bytes, and zero package bytes. Separately, `a/b/c/d` needs five entries
+   and nine prefix units despite only seven path units. Cover exact limits and one-less limits,
+   repeated shared prefixes, astral names, malformed scalars/parts, safe-integer overflow, empty
+   input, prototype-sensitive keys, and output independence. Preserve literal identity vectors.
+3. Adopt inspection in FS and Generation and delete the duplicated arithmetic. Extend
+   `-content.admission.test.ts` and `-generation.authority.test.ts` at their existing owners. Keep
+   positive real-FS controls, scalar-first refusal with zero inventory work, accessor/proxy hook
+   counts of zero, forged totals/digests, tighter caller limits, and exactly-once release on
+   refusal. Agreement between callers of one helper is not an independent oracle. Test the helper
+   against literal expectations and each trust boundary against its own forbidden effects.
+4. For Vite, first demonstrate loss of returned/rendered cause, then add the failure field and
+   reporting. Extend the existing successful-child/failed-package-write test and add deterministic
+   compute refusal. Assert child success remains true, driver success is false, contextual error and
+   original cause survive, no Dist/pin/checksum escapes, rendered output is width-bounded, and
+   cleanup still occurs. Retain ordinary success and real child-failure controls; test unsupported
+   access to success-only fields after failure narrowing through the existing type-check surface.
+5. Use the declared owner tasks: FS and Server `test:unit` on the named files, then affected owner
+   checks/suites; Vite `test:unit` for scoped build/formatter tests and `test:dist:pipeline` for the
+   final composition proof. Inspect current tasks and child-process containment before execution; no
+   permission widening, fallback dependency fetch, release rebuild, or evidence rebinding. Review
+   the changed owners and their composition, not an automatic repeat of every migration review.
+   Wider proof is warranted only by an actual changed invariant or dependency.
+
+#### Boundary and stop conditions
+
+Identity bytes, scheme, supported formats, filesystem protections, and publication/lease semantics
+stay unchanged. No adjacent workspace, UI, profile, release-evidence, or plan-buffer cleanup. No
+unfinished source-owner obligation is moved into this refactor. The three explicitly deferred
+integration proofs retain their own arc items. A discovered admission, ownership or failure-truth
+defect must be assigned to its affected owner, not hidden as a proof-environment problem or absorbed
+into this refactor. The later implementation must prove the proposed extraction fits; this
+source-based design review is neither S-tier implementation closure nor landing clearance.
+
 ### Dependency and landing boundary
 
-Land the independent signer correction, then the collection correction. Within the single breaking
-replacement, freeze A's contract before B's admission and C/D/E's consumers, then complete F/G and
-H's integrated proof. These dependencies guide implementation, not public rollout or support for two
-contracts. Do not land or publish a partially replaced Dist path; the third arc item requires all
-eight workstreams and cross-owner proof together. If a different landing decomposition becomes
-necessary, revise the plan explicitly rather than introducing compatibility machinery to preserve an
-intermediate state.
+The signer and collection corrections precede the source migration. Freeze A's contract before
+B's admission and C/D/E's consumers, then complete F/G and the source obligations in H. Record actual
+source-unit dependencies without requiring standalone CI-green intermediate commits or inventing
+compatibility machinery. These commits form one migration sequence, not independently supported
+partial Dist products.
+
+The three named proof commits follow their source dependencies. Their execution does not hold all
+reviewed source changes uncommitted; it remains necessary evidence before claiming the corresponding
+composition behavior verified. The inventory-accounting/build-failure refactor follows separately
+and is not a prerequisite to source landing or an extraction of unfinished consumer migration.
 
 The independent R2 repair is outside this chain. This plan revision authorizes no production
 implementation, Git mutation, publication, evidence rebinding, or external operation.
@@ -982,7 +1695,7 @@ Source anchors inspected during research and adjudication (paths within the name
 
 ### Consumer coverage obligations
 
-| Surface                                                  | Required disposition before the breaking replacement lands                                                                            |
+| Surface                                                  | Required disposition across the completed source sequence                                                                            |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Types / Std / Crypto / FS                                | One identity contract and lossless inventory; remove Dist compatibility types/guards/helpers/load results; preserve generic hashing   |
 | FS child reuse                                           | Supported descriptor admission, exact rebasing, collision refusal, parent-selection equivalence; no current-byte assurance from reuse |
@@ -1001,16 +1714,19 @@ Source anchors inspected during research and adjudication (paths within the name
 | Generic directory and Vite caches / Monaco emission      | Keep separate hash/path-map contracts; every actual Dist-consuming path adopts the sole supported shape                               |
 
 Discovery is not a complete audit of every call site. Re-scan source and tests, trace actual
-consumers, and bind every remaining assumption to its owner and acceptance proof before the breaking
-replacement lands. Do not classify an uninspected surface as safe, fabricate full-manifest evidence
-for an old API, or leave a legacy Dist consumer in place as a documented exception. An unrelated
-generic hash or document-signing operation is a different contract, not such an exception.
+consumers, and bind every remaining assumption to its source unit and acceptance proof. Close each
+owner's attributable obligations before its unit lands; complete the migration across the sequence.
+Do not classify an uninspected surface as safe, fabricate full-manifest evidence for an old API, or
+leave a legacy Dist consumer in place as a documented exception. An unrelated generic hash or
+document-signing operation is a different contract, not such an exception.
 
-The workspace has unrelated in-progress Vite SRI, plan, and dependency changes. Preserve them. In
-particular `@sys.driver-vite/html-subresource-integrity.plan.md` owns browser SRI, not this identity
-protocol. Its final asset-byte ordering must remain compatible, but it is not a prerequisite for
-canonical Dist identity. Existing Pi/R2 release gates and plans are not edited or superseded by this
-research file; reconcile overlapping future work explicitly when its owner adopts the replacement.
+[html-subresource-integrity.plan.md](../@sys.driver-vite/html-subresource-integrity.plan.md) owns
+browser SRI and the sample's paired-image comparison, not this identity protocol. Preserve the
+integrity plugin's final asset-byte ordering, the sample's two native image references, and
+public-only PNG projection when replacing Dist identity. The image comparison does not enable SRI;
+completion of that separate plan is not a prerequisite for canonical Dist identity. Preserve
+unrelated work. Existing Pi/R2 release gates and plans are not edited or superseded by this research
+file; reconcile overlapping future work explicitly when its owner adopts the replacement.
 
 The evidence is repository/source/history inspection, not an external standards survey or a live
 provider audit. The proposed tuple is not claimed to implement JCS, OCI, Git trees, or another
@@ -1041,11 +1757,14 @@ execute new counterexample harnesses or prove the replacement. No production beh
 editing this document.
 
 For implementation, inspect each current owning `deno.json` before selecting its declared tests,
-checks, and permission presets. Start with the signer's canonical-document tests, then Crypto
-builder tests and the narrow FS collection regression. The third item starts with Types/Std/FS
-contract work and must finish all affected owners before landing. Do not use the separate Tools
-publication tests as proof of the identity protocol. Run narrow red/green and literal-vector proofs
-before impacted owner suites. Stop on security/permission failures rather than widening grants.
+checks, and permission presets. The signer and collection fixes are reachable prerequisites, not
+work to restart. Reuse their applicable evidence and preserve the integrated own-key controls.
+Source-unit work proceeds from S1's Types/Std contract through the documented dependency sequence.
+Name whether each receipt applies to an isolated commit or an integrated dependency snapshot; do not
+demand per-commit CI green. Do not use separate Tools publication tests as proof of the identity
+protocol. Preserve narrow red/green and literal-vector proof, then impacted owner checks. The three
+named integration items own their
+later execution. Stop on security/permission failures rather than widening grants.
 Never regenerate external expectations, publish artifacts, or alter profiles as a way to obtain a
 green result.
 
@@ -1059,10 +1778,13 @@ old Dist format, compatibility API, conversion helper, old pin/configuration ali
 producer/verifier remains. Internal document observations, generic file checksums, and signatures
 retain truthful, separate meanings without becoming competing Dist identities.
 
-All affected consumers, old-input refusal controls, the residue pass, and real end-to-end proof must
-be covered within the breaking landing unit. Independently owned old evidence may remain only as
-unsupported input awaiting separately authorized rebuilding, never as a functioning compatibility
-lane. Passing a renamed test suite or replacing one field is not completion.
+All affected consumers, old-input refusal controls and attributable residue belong to the source
+sequence; the three explicit proof commits own the deferred real-build/composition evidence. Earlier
+source commits need not wait for those proofs or pass CI in isolation, and they do not claim those
+proofs have passed. Independently owned old evidence may remain only as unsupported input awaiting
+separately authorized rebuilding, never as a functioning compatibility lane. Passing a renamed test
+suite or replacing one field is not completion. Whole-plan completion also requires the separately
+recorded bounded ownership/failure-evidence follow-up; it does not block earlier source landing.
 
 No provenance discovery, arbitrary execution-policy manifest, Merkle-tree framework, generic JSON
 canonicalization framework, browser whole-module-graph integrity, remote deployment, profile change,
