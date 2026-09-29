@@ -4,7 +4,8 @@ dist-content-identity.plan.md
 - [x] 872b5a34d fix(crypto): preserve every selected key in composite hash builders
 - [x] 6c15b0942 feat(dist)!: define canonical content identity and pin contracts
 - [x] a1c9a6939 feat(fs)!: establish canonical Dist production and verification
-- [ ] feat(server)!: serve and materialize canonical Dist evidence
+- [x] d95a79372 fix(fs): preserve narrow Dist verification dependencies
+- [x] 640f81a75 feat(server)!: serve and materialize canonical Dist evidence
 - [ ] feat(tools)!: preserve canonical Dist staging and publication ownership
 - [ ] feat(tools)!: consume canonical Dist pins in pull and serve
 - [ ] feat(dist)!: migrate build and snapshot producers to canonical pins
@@ -58,11 +59,12 @@ product identity. Do not rewrite those historical records or silently repurpose 
 ## Landing discipline — bounded replacement, not adjacent hardening
 
 The target remains one coherent breaking contract replacement. The opening arc allocates it to ten
-source units, followed by the three named integration-proof commits and the separate bounded
-refactor. These are planned ownership boundaries, not ten independently supported protocol states or
-claims that exact commit candidates have been assembled. Accepted R3-A01–A06 corrections and
-affected-consumer migrations retain their owner-local obligations. Do not turn nearby weaknesses
-into an expanding implementation mandate. The separately recorded inventory-accounting and
+migration source units, with a separate FS dependency-boundary correction before Server, followed by
+the three named integration-proof commits and the separate bounded refactor. These are planned
+ownership boundaries, not independently supported protocol states or claims that exact commit
+candidates have been assembled. Accepted R3-A01–A06 corrections and affected-consumer migrations
+retain their owner-local obligations. Do not turn nearby weaknesses into an expanding implementation
+mandate. The separately recorded inventory-accounting and
 build-failure refactor remains separate. Preserve observations in the
 [adjacent findings register](./dist-content-identity.plan/adjacent-findings.md), with owner, evidence,
 proposed future commit, and a concrete condition for reconsideration.
@@ -123,9 +125,10 @@ superseded by this landing discipline and the explicit proof tail.
 
 ## Source units — ownership, dependencies and completion
 
-S1–S10 name the ten source items in opening-arc order; they are references, not another landing
-ledger. Workstreams A–H below retain the detailed contract and adversarial requirements. A unit is
-coherent when it changes one named contract or assurance boundary with its actual callers and tests,
+S1–S10 name the ten migration source units; the FS dependency-boundary follow-up is an unnumbered
+correction between S2 and S3. These are references, not another landing ledger. Workstreams A–H below
+retain the detailed contract and adversarial requirements. A unit is coherent when it changes one
+named contract or assurance boundary with its actual callers and tests,
 not merely because it is small. Isolation means reviewable ownership and explicit dependencies, not
 standalone CI success or independent release support.
 
@@ -168,13 +171,53 @@ independent closure follows the owning boundaries; there is no additional all-so
   edits and the previously excluded Std property-order edit; the receipt records that scope
   difference without extending the earlier review's provenance.
 
+### FS follow-up — narrow verification dependencies
+
+- **Commit:** `fix(fs): preserve narrow Dist verification dependencies`.
+- **Owner:** `code/sys/fs/src/m.Pkg.Dist/common.ts`, `u.defaults.ts`, and `u.verify/common.ts`.
+- **Reason:** the defaults consolidation in `a1c9a6939` re-exported `D` from the producer barrel into
+  the verifier. This made the hosting-only runtime graph load broad FS write and Rooted publication
+  modules, violating workstream D's narrow-closure contract. The unchanged Server process assertion
+  reproduced this static-isolation regression; it did not demonstrate unauthorized writes or a
+  permission escape.
+- **Correction:** define shared defaults in a dependency-light module using narrow Std imports;
+  re-export the same values to producer and verifier consumers without changing limits, admission,
+  public APIs, or graph assertions. This is a human-authorized follow-up before Server, not an
+  amendment to S2 or an expansion of the Server source cut.
+- **Closing proof:** unchanged Server `test:dist:process`, affected FS admission/production and
+  verification tests, and exact-file lint/format checks. Record integrated-worktree evidence only;
+  the independent Server review does not retroactively review this corrective delta.
+- **Executed follow-up receipt:** after the three-file extraction, FS Dist/namespace tests passed
+  **19 suites / 153 steps**; Server process tests passed **4 suites / 10 steps**, including the
+  unchanged previously failing hosting-graph assertion; Server Dist/service/static-sample tests
+  passed **16 suites / 250 steps**. Exact lint and format checks passed for all three FS source
+  files. The corrective diff received implementing-thread inspection, not another independent
+  review. These runs used the integrated worktree based on `a42e34928`, not an isolated FS commit or
+  release reconstruction. No test, permission, dependency-lock, or graph-assertion change was needed.
+
+Executed from `code/sys/fs`:
+
+```sh
+deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --reporter=dot ./src/m.Pkg.Dist ./src/-test/-namespace.freeze.test.ts
+deno lint src/m.Pkg.Dist/common.ts src/m.Pkg.Dist/u.defaults.ts src/m.Pkg.Dist/u.verify/common.ts
+deno fmt --check src/m.Pkg.Dist/common.ts src/m.Pkg.Dist/u.defaults.ts src/m.Pkg.Dist/u.verify/common.ts
+```
+
+Executed from `code/sys/server`:
+
+```sh
+deno task test:dist:process --check --frozen --cached-only --no-prompt --reporter=dot
+deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --reporter=dot ./src/m.server.dist ./src/m.server.dist.service ./-sample/files.http.static/-.test.ts
+```
+
 ### S3 — Server evidence, generations and hosting
 
 - **Owner:** attributable `code/sys/server/src/m.server.dist/`, `src/m.server.dist.service/`, shared
   Dist fixtures, samples and README; `code/sys.model/model/src/m.files.static/`; and
   `code/sys/http/src/http.cmd/-test/-static-dist-files.test.ts`. Includes residue R-02. FilesStatic
   is a real hosting dependency, not an observation-UI adapter to postpone. Workstream D applies.
-- **Dependencies:** S1–S2. Tools, Cell and Pi service callers follow.
+- **Dependencies:** S1–S2 and the narrow-verifier FS follow-up above. Tools, Cell and Pi service
+  callers follow.
 - **Completion:** scheme-bound addressing, scalar-first hostile-evidence refusal, exact inventory
   membership, candidate/winner document continuity, no-clobber, leases and independent release
   errors; pinned/local hosting and service-config refusal. Preserve terminal lifecycle/resize tests
@@ -183,14 +226,22 @@ independent closure follows the owning boundaries; there is no additional all-so
 ### S4 — Tools staging and publication ownership
 
 - **Owner:** attributable `code/sys.tools/src/cli.deploy/` staging, finalization, preview/menu,
-  provider integration and tests; the staging task in `code/sys.tools/deno.json`. Includes residue
-  R-03. Workstream F's exact-document destructive-operation authority is the cohesive boundary.
+  provider integration and tests; the staging task in `code/sys.tools/deno.json`; one Fs-owned Rooted
+  cleanup fault regression. Includes residue R-03. Workstream F's exact-document destructive-operation
+  authority is the cohesive boundary.
 - **Dependencies:** S1–S3; real build-backed execution also requires S6. Review finalization and its
   production caller together even when the intermediate tree still has unmigrated build callers.
 - **Completion:** explicit publication ownership, no deletion of equal foreign bytes, retained
   original/independent causes, awaited finalizers, exact-document cleanup refusal, and truthful
   preview invalidation/digest/size. Include TS-03's reachable Tools changes in attribution, but do
   not recommit their already-landed hunks. Do not reopen the independent R2 publisher repair.
+- **Candidate evidence:**
+  [Tools staging cut and owner verification](./dist-content-identity.plan/landing/S4.landing.md)
+  records the 17-path cut (original 16 Tools paths plus one Fs-owned test), mixed task/menu allocation,
+  historical attribution, R-03 correction, accepted independent ownership review, and bounded
+  documentation/proof corrections, including public-contract test separation. Closing
+  checks include the separately attributable endpoint publication-status fix; they are integrated
+  worktree evidence, not independent re-review of the corrections or deferred build proof.
 
 ### S5 — Tools Pull and Serve consumers
 
