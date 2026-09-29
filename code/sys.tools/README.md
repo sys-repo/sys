@@ -78,6 +78,26 @@ source concurrently: their locks do not interoperate. Retire only attributed obs
 confirmed quiescence and explicit cleanup approval. File age or an empty lock file is not evidence
 that deletion is safe. Deploy does not automatically migrate or delete old metadata.
 
+## Producing a Dist content pin
+
+For a prepared payload directory, `crypto hash ./dist` displays its canonical `sys.dist/v2` content
+pin. Run it through the CLI above:
+
+```bash
+deno run -A jsr:@sys/tools crypto hash ./dist
+```
+
+By default the hash job does not save `dist.json`; add `--save` to write it in the target directory.
+This is not a blanket read-only CLI guarantee: interactive preflight can offer junk-file deletion.
+Computation selects an inventory rather than verifying the complete tree. See the
+[shared producer contract](../sys/fs/README.md#produce-a-content-pin) for selection, child reuse,
+and save-failure limits.
+
+Computing a pin, saving a document, and establishing independent trust are separate acts. Give Pull
+the producer's full scheme/digest through a trusted channel independent of the artifact download,
+not a checksum of `dist.json`. Old manifest-checksum expectations require explicit rebuilding and
+recording of canonical content pins; renaming their fields cannot migrate their meaning.
+
 ## Content-pinned Dist bundles
 
 Pull verifies a Dist bundle against an independently supplied `{ scheme: 'sys.dist/v2', digest }`

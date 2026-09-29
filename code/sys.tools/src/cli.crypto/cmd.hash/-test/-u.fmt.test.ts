@@ -12,29 +12,29 @@ describe('cli.crypto/cmd.hash/u.fmt', () => {
         bytesTotal: 87700000,
         computedAt: 0,
         dist: {} as never,
-        manifest: {
-          integrity: 'sha256-1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        pin: {
+          scheme: 'sys.dist/v2',
+          digest: 'sha256-818e82c98cf3f552f58c7feb87b1ea1f72b3bd31820bb669503bb6c535c74119',
         },
       },
       {
         elapsed: '593ms',
         dirLabel: './',
         dist: { path: Fs.join(Fs.cwd(), 'dist.json'), sizeBytes: 27000, status: 'created' },
-        showManifestIntegrity: true,
       },
     ));
 
-    expect(text.includes('dist:integrity')).to.eql(true);
-    expect(
-      text.includes('sha256-1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef'),
-    ).to.eql(true);
+    expect(text).to.include(
+      'sys.dist/v2 sha256-818e82c98cf3f552f58c7feb87b1ea1f72b3bd31820bb669503bb6c535c74119',
+    );
+    expect(text).to.not.include('dist:integrity');
     expect(text.includes('dir:files')).to.eql(true);
     expect(text.includes('750 files, 87.7 MB')).to.eql(true);
     expect(text.includes('dir:dist')).to.eql(true);
     expect(text.includes('./dist.json #74119 (created), 27 kB')).to.eql(true);
   });
 
-  it('does not present unsaved serialization as published integrity', () => {
+  it('unsaved content pin → no published document claim', () => {
     const text = Cli.stripAnsi(HashFmt.result({
       targetDir: '/tmp/example',
       digest: 'sha256-818e82c98cf3f552f58c7feb87b1ea1f72b3bd31820bb669503bb6c535c74119',
@@ -42,12 +42,15 @@ describe('cli.crypto/cmd.hash/u.fmt', () => {
       bytesTotal: 1,
       computedAt: 0,
       dist: {} as never,
-      manifest: {
-        integrity: 'sha256-1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+      pin: {
+        scheme: 'sys.dist/v2',
+        digest: 'sha256-818e82c98cf3f552f58c7feb87b1ea1f72b3bd31820bb669503bb6c535c74119',
       },
     }));
 
-    expect(text.includes('dist:integrity')).to.eql(false);
+    expect(text).to.include('sys.dist/v2 sha256-818e');
+    expect(text).to.not.include('dist:integrity');
+    expect(text).to.not.include('dir:dist');
   });
 
   it('renders pre-clean junk-file guidance', () => {

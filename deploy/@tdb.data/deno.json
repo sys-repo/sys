@@ -4,6 +4,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts",
+    "test:dist": "deno test -P=test --trace-leaks ./src/fs/m.DataPipeline/-test/-u.dist.test.ts",
     "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
@@ -64,4 +65,3 @@
     }
   }
 }
-

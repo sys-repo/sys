@@ -19,7 +19,8 @@
     }
   },
   "hash": {
-    "digest": "sha256-b24d5611ce40be13c1ca301a54613a42f7f2f4cafe7d371560683caeb23feb8d",
+    "scheme": "sys.dist/v2",
+    "digest": "sha256-d9feea3ced1c5b5675c490e2d840b1c71bd18629548e9412cc751dd178751473",
     "parts": {
       "index.html": "sha256-b99dc1e0c0a87c50153a446dc196d999cb077774ecc1355dda4b34bd090bdf72:size=76"
     }

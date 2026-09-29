@@ -1,4 +1,4 @@
-import { type t, Delete, Err, Fs, Pkg } from '../common.ts';
+import { Delete, Err, Fs, Pkg, type t } from '../common.ts';
 
 export const HashRowDist = {
   async readBefore(dir: t.StringDir): Promise<t.HashDistRowBefore> {
@@ -37,7 +37,10 @@ export const HashRowDist = {
 } as const;
 
 const wrangle = {
-  async sizeBytes(before: t.HashDistRowBefore, saveDist: boolean): Promise<t.NumberBytes | undefined> {
+  async sizeBytes(
+    before: t.HashDistRowBefore,
+    saveDist: boolean,
+  ): Promise<t.NumberBytes | undefined> {
     if (!before.exists && !saveDist) return undefined;
     if (!saveDist) return before.sizeBytes;
     const stat = await wrangle.requireStat(before.path);
@@ -52,7 +55,6 @@ const wrangle = {
 
   kind(kind: string): t.HashDistRowBefore['kind'] {
     if (kind === 'canonical') return 'canonical';
-    if (kind === 'legacy') return 'legacy';
     if (kind === 'missing') return 'missing';
     return 'invalid';
   },

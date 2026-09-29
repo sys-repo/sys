@@ -1,4 +1,3 @@
-import type { Pkg as FsPkg } from '@sys/fs/t';
 import type { t } from './common.ts';
 
 /**
@@ -53,28 +52,32 @@ export declare namespace Vite {
       spinner?: boolean;
       /** Exit with code 1 on a failed build (default: true). */
       exitOnError?: boolean;
+      /**
+       * Add frozen/cache-only flags to the immediate Deno build child; defaults remain unchanged.
+       * This does not constrain in-process loaders or further subprocesses started by plugins.
+       */
+      dependencyPolicy?: 'frozen-cache';
     };
 
     /** Response from a Vite command such as `build`. */
-    export type Response = {
-      readonly ok: boolean;
-      readonly paths: t.ViteConfig.Paths;
-      readonly dist: t.DistPkg;
-      /** SHA-256 checksum of the generated `dist.json` bytes. */
-      readonly manifest: Manifest;
-      readonly cmd: { readonly input: string; readonly output: t.Process.Output };
-      readonly elapsed: t.Msecs;
-      toString(options?: ToStringOptions): string;
-    };
-
-    /**
-     * SHA-256 checksum of the generated `dist.json` bytes.
-     * A successful build saves those exact bytes.
-     *
-     * For verification, obtain the expected checksum from a trusted source
-     * independent of the manifest download.
-     */
-    export type Manifest = FsPkg.Dist.Compute.Manifest;
+    export type Response =
+      & {
+        readonly paths: t.ViteConfig.Paths;
+        readonly cmd: { readonly input: string; readonly output: t.Process.Output };
+        readonly elapsed: t.Msecs;
+        toString(options?: ToStringOptions): string;
+      }
+      & (
+        | {
+          readonly ok: true;
+          readonly dist: t.DistPkg;
+          /** Canonical payload identity produced by this build. */
+          readonly pin: t.DistPin;
+          /** Exact saved document checksum; not a content pin. */
+          readonly manifestChecksum: t.StringHash;
+        }
+        | { readonly ok: false }
+      );
 
     /** Formatting options for command response text. */
     export type ToStringOptions = {

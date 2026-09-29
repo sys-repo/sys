@@ -3,11 +3,15 @@ import {
   c,
   Cli,
   describe,
+  Err,
   expect,
   Fs,
   HashFmt,
   it,
+  Json,
+  Obj,
   Path,
+  Pkg,
   pkg,
   SAMPLE,
   stripAnsi,
@@ -18,6 +22,7 @@ import { extractModulePreloadLinks } from './u.html.ts';
 import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
 import { hasExplicitResourceManagementSyntax } from './u.syntax.ts';
 import { Vite } from '../mod.ts';
+import { buildWith } from '../u/u.build.ts';
 
 describe('Vite.build', () => {
   const { brightCyan: cyan, bold } = c;
@@ -74,6 +79,7 @@ describe('Vite.build', () => {
       const mutatedAfterBuild = fs.join('mutated-after-build');
 
       const pending = Vite.build({
+        dependencyPolicy: 'frozen-cache',
         cwd,
         paths: callerPaths,
         pkg,
@@ -89,7 +95,10 @@ describe('Vite.build', () => {
       if (!res.ok) console.warn(res.toString());
 
       expect(res.ok).to.eql(true);
+      if (!res.ok) throw new Error(res.toString());
       expect(res.cmd.input).to.include('deno run');
+      expect(res.cmd.input).to.include('--frozen');
+      expect(res.cmd.input).to.include('--cached-only');
       expect(res.cmd.input).to.include('--node-modules-dir');
       expect(res.cmd.input).to.include('npm:vite@');
       expect(res.cmd.input).to.include(`--outDir=${expectedOutputAbsolute}`);
@@ -103,10 +112,11 @@ describe('Vite.build', () => {
       expect(await Fs.exists(mutatedAfterBuild)).to.eql(false);
       expectBounded(res.toString({ width: 56 }), 56);
 
-      // Ensure the {pkg:name:version} data is included in the composite <digest> hash.
-      const keys = Object.keys(res.dist.hash.parts);
-      const hasPkg = keys.some((key) => key.startsWith('pkg/-pkg.json'));
-      expect(hasPkg).to.eql(true);
+      // Embedded package declaration bytes are payload, unlike the root manifest labels.
+      expect(Obj.hasOwn(res.dist.hash.parts, 'pkg/-pkg.json')).to.eql(true);
+      expect((await Fs.readJson(Fs.join(expectedOutputAbsolute, 'pkg/-pkg.json'))).data).to.eql(
+        pkg,
+      );
 
       // Load file outputs.
       const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
@@ -116,13 +126,30 @@ describe('Vite.build', () => {
       const manifestUrl = Path.toFileUrl(distPath);
       const digest = HashFmt.digest(res.dist.hash.digest);
       const output = res.toString({ width: 500 });
+      expect(stripAnsi(output)).not.to.include('Bundle failed');
+      expect(stripAnsi(output)).to.include('out:');
       expect(output).to.include(Cli.Fmt.hyperlink('dist.json', manifestUrl, { underline: true }));
       expect(output).to.not.include(Cli.Fmt.hyperlink(digest, manifestUrl, { underline: true }));
       const json = await Fs.readJson<t.DistPkg>(distPath);
       const manifest = await Fs.read(distPath);
       const html = await readFile(Fs.join(outDir, 'index.html'));
       expect(manifest.data).to.not.eql(undefined);
-      expect(res.manifest.integrity).to.eql(Hash.sha256(manifest.data));
+      expect(res.manifestChecksum).to.eql(Hash.sha256(manifest.data));
+      expect(res.pin).to.eql({
+        scheme: 'sys.dist/v2',
+        digest: Hash.sha256(Pkg.Dist.Content.encode(res.dist.hash.parts)),
+      });
+      const verified = await Pkg.Dist.Pinned.verify({
+        dir: await Fs.realPath(outDir),
+        pin: res.pin,
+        limits: {
+          manifestBytes: 16 * 1024 * 1024,
+          entries: 8192,
+          fileBytes: 128 * 1024 * 1024,
+          totalBytes: 1024 * 1024 * 1024,
+        },
+      });
+      expect(verified.kind).to.eql('verified');
       const entryPath = Object.keys(json.data?.hash.parts ?? {}).find((path) =>
         path.startsWith('pkg/-entry.')
       );
@@ -216,6 +243,7 @@ describe('Vite.build', () => {
     const paths = { cwd, app: { entry: 'index.html', outDir: 'dist', base: './' } } as const;
     const build = async () => {
       return await Vite.build({
+        dependencyPolicy: 'frozen-cache',
         cwd,
         paths,
         pkg,
@@ -231,12 +259,13 @@ describe('Vite.build', () => {
       await Fs.write(Fs.join(cwd, 'main.tsx'), `${source}\nconsole.info('revision-b');\n`);
       const second = await build();
       const manifestUrl = Path.toFileUrl(Fs.join(cwd, 'dist', 'dist.json'));
-      const firstDigest = HashFmt.digest(first.dist.hash.digest);
-      const firstOutput = first.toString({ width: 500 });
-
       expect(first.ok).to.eql(true);
       expect(second.ok).to.eql(true);
-      expect(first.dist.hash.digest).to.not.eql(second.dist.hash.digest);
+      if (!first.ok || !second.ok) throw new Error('Expected both builds to succeed.');
+      const firstDigest = HashFmt.digest(first.pin.digest);
+      const firstOutput = first.toString({ width: 500 });
+
+      expect(first.pin.digest).to.not.eql(second.pin.digest);
       expect(firstOutput).to.include(
         Cli.Fmt.hyperlink('dist.json', manifestUrl, { underline: true }),
       );
@@ -244,6 +273,47 @@ describe('Vite.build', () => {
       expect(firstOutput).to.not.include(
         Cli.Fmt.hyperlink(firstDigest, manifestUrl, { underline: true }),
       );
+    } finally {
+      await restore();
+    }
+  });
+
+  it('successful child but failed package write → no successful Dist authority', async () => {
+    const fs = await SAMPLE.fs('Vite.build package write failure');
+    const cwd = fs.join('fixture');
+    await Fs.copy(SAMPLE.Dirs.sample1, cwd);
+    const restore = await writeLocalFixtureImports(cwd);
+    const paths = { cwd, app: { entry: 'index.html', outDir: 'dist', base: './' } } as const;
+    const stale = { name: '@stale/package', version: '0.0.1' };
+    let writes = 0;
+    try {
+      const result = await buildWith({
+        dependencyPolicy: 'frozen-cache',
+        cwd,
+        paths,
+        pkg,
+        silent: true,
+        spinner: false,
+        exitOnError: false,
+      }, async (path) => {
+        writes += 1;
+        // Deterministic write failure with readable stale bytes; no host permission assumptions.
+        await Fs.write(path, Json.stringify(stale), { throw: true });
+        return { overwritten: false, error: Err.std('Fixture package write failed.') };
+      });
+      expect(result.cmd.output.success).to.eql(true);
+      expect(writes).to.eql(1);
+      expect(result.ok).to.eql(false);
+      const text = stripAnsi(result.toString({ width: 500 }));
+      expect(text).to.include('Bundle failed');
+      expect(text).to.include('target: dist');
+      expect(text).not.to.include('out:');
+      expect(text).not.to.include('dist/dist.json');
+      expect('dist' in result).to.eql(false);
+      expect('pin' in result).to.eql(false);
+      expect('manifestChecksum' in result).to.eql(false);
+      expect(await Fs.exists(Fs.join(cwd, 'dist/dist.json'))).to.eql(false);
+      expect((await Fs.readJson(Fs.join(cwd, 'dist/pkg/-pkg.json'))).data).to.eql(stale);
     } finally {
       await restore();
     }
@@ -262,6 +332,7 @@ describe('Vite.build', () => {
         '<script type="module" src="./missing.ts"></script>',
       );
       const res = await Vite.build({
+        dependencyPolicy: 'frozen-cache',
         cwd,
         paths,
         pkg,
@@ -272,9 +343,12 @@ describe('Vite.build', () => {
       const output = res.toString({ width: 80 });
 
       expect(res.ok).to.eql(false);
+      expect('dist' in res).to.eql(false);
+      expect('pin' in res).to.eql(false);
+      expect('manifestChecksum' in res).to.eql(false);
       expectBounded(output, 80);
       expect(output).to.not.include('\x1b]8;;');
-      expect(stripAnsi(output)).to.include('Bundle');
+      expect(stripAnsi(output)).to.include('Bundle failed');
     } finally {
       await restore();
     }

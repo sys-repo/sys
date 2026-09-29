@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { type t, Fs } from '../../common.ts';
+import { Fs, type t } from '../../common.ts';
 import { HashRowDist } from '../mod.ts';
 
 describe('cli.crypto/cmd.hash/u.row.dist', () => {
@@ -36,7 +36,13 @@ describe('cli.crypto/cmd.hash/u.row.dist', () => {
 
   it('marks differs when canonical dist exists and digest differs without save', async () => {
     const res = await HashRowDist.afterRun({
-      before: { path: '/x/dist.json', exists: true, kind: 'canonical', sizeBytes: 128, digest: other },
+      before: {
+        path: '/x/dist.json',
+        exists: true,
+        kind: 'canonical',
+        sizeBytes: 128,
+        digest: other,
+      },
       saveDist: false,
       digest,
     });
@@ -45,7 +51,7 @@ describe('cli.crypto/cmd.hash/u.row.dist', () => {
 
   it('marks invalid when non-canonical dist exists without save', async () => {
     const res = await HashRowDist.afterRun({
-      before: { path: '/x/dist.json', exists: true, kind: 'legacy', sizeBytes: 64 },
+      before: { path: '/x/dist.json', exists: true, kind: 'invalid', sizeBytes: 64 },
       saveDist: false,
       digest,
     });

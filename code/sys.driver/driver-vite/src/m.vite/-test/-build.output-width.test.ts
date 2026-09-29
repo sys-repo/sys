@@ -194,7 +194,7 @@ describe('Vite.build output formatting', () => {
     expect(stripAnsi(text)).to.include('dist/dist.json ← sha256:#ccd11');
   });
 
-  it('does not link a failed bundle manifest', () => {
+  it('failed bundle → explicit status and intended directory, not saved manifest evidence', () => {
     const text = ViteLog.Bundle.toString({
       ok: false,
       dirs: { in: './src/index.html', out: './dist' },
@@ -207,7 +207,34 @@ describe('Vite.build output formatting', () => {
 
     expectBounded(text, 80);
     expect(text).to.not.include('\x1b]8;;');
-    expect(stripAnsi(text)).to.include('dist/dist.json ← digest:sha256:#ccd11');
+    const plain = stripAnsi(text);
+    expect(plain).to.include('Bundle failed');
+    expect(plain).to.include('target: dist');
+    expect(plain).not.to.include('dist.json');
+    expect(plain).not.to.include('sha256');
+    expect(plain).not.to.include('←');
+  });
+
+  it('successful child transcript + producer refusal → retained text states failure', () => {
+    const stdio = '✓ built in 3.59s';
+    const text = Log.Build.toString({
+      ok: false,
+      stdio,
+      dirs: { in: './src/index.html', out: './dist' },
+      totalSize: 0,
+      elapsed: 4_000,
+      width: 80,
+    });
+    expectBounded(text, 80);
+    const plain = stripAnsi(text).split('\n').map((line) => line.trimEnd()).join('\n');
+    expect(plain).to.eql(Str.dedent(`
+      ✓ built in 3.59s
+
+      Bundle failed
+        pkg:
+        in:     src/index.html
+        target: dist
+    `));
   });
 
   it('keeps bundle summary rows within the requested width', () => {

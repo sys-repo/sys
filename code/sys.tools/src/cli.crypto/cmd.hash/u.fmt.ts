@@ -45,7 +45,6 @@ export const HashFmt = {
       elapsed?: string;
       dirLabel?: string;
       dist?: t.HashDistRow;
-      showManifestIntegrity?: boolean;
     } = {},
   ): string {
     const tbl = Cli.table([]);
@@ -53,10 +52,7 @@ export const HashFmt = {
     const elapsed = opts.elapsed ?? String(Time.elapsed(res.computedAt));
     const dirLabel = opts.dirLabel ?? HashFmt.dirLabel(res.targetDir);
 
-    tbl.push([c.gray('  hash'), c.white(digest)]);
-    if (opts.showManifestIntegrity === true) {
-      tbl.push([c.gray('  dist:integrity'), c.white(res.manifest.integrity)]);
-    }
+    tbl.push([c.gray('  pin'), c.white(`${res.pin.scheme} ${digest}`)]);
     tbl.push([c.gray('  dir'), c.gray(dirLabel)]);
     if (opts.dist) {
       const path = Fmt.prettyPath(HashFmt.pathLabel(opts.dist.path));

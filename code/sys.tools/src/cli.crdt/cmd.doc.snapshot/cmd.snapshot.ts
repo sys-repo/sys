@@ -18,7 +18,31 @@ export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
    * Normalise the incoming id (may be "crdt:<id>" or bare).
    */
   const root = Crdt.Id.clean(docid) ?? (docid as t.Crdt.Id);
+  await runSnapshot(root, (onProgress) =>
+    walk({
+      cmd,
+      id: root,
+      base: '-backup',
+      yamlPath: ['slug'],
+      onProgress,
+    }));
+}
 
+type SnapshotWalk = (
+  onProgress: (event: t.CrdtSnapshotProgress) => void,
+) => ReturnType<typeof walk>;
+type SnapshotOutput = {
+  spinner?: (text: string) => { text: string; stop(): void };
+  log?: (text?: string) => void;
+};
+
+/** Command work after client acquisition; Dist computation remains owned here. */
+export async function runSnapshot(
+  root: t.Crdt.Id,
+  walkSnapshot: SnapshotWalk,
+  output: SnapshotOutput = {},
+) {
+  const log = output.log ?? console.info;
   /**
    * Process snapshot/backup request.
    */
@@ -38,27 +62,21 @@ export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
     return String(str);
   };
 
-  const spinner = Cli.spinner(Fmt.spinnerText(tableText()));
   const timer = Time.timer();
   const progress: t.CrdtSnapshotProgress[] = [];
-
-  // Walk the tree:
-  const res = await walk({
-    cmd,
-    id: root,
-    base: '-backup',
-    yamlPath: ['slug'],
-    onProgress(e) {
+  let res: Awaited<ReturnType<typeof walk>>;
+  let info: Awaited<ReturnType<typeof calcAndSaveDist>>;
+  const spinner = (output.spinner ?? Cli.spinner)(Fmt.spinnerText(tableText()));
+  try {
+    res = await walkSnapshot((e) => {
       progress.push(e);
       if (e.kind === 'doc:saved') appendTable(tableProcessed, e);
       spinner.text = Fmt.spinnerText(tableText());
-    },
-  });
-
-  // Save dist.json (meta-data and pkg/file hashes)
-  const info = await calcAndSaveDist(res.dir, root);
-
-  spinner.stop();
+    });
+    info = await calcAndSaveDist(res.dir, root);
+  } finally {
+    spinner.stop();
+  }
 
   /**
    * Print summary:
@@ -73,7 +91,7 @@ export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
   tableProcessed.push([c.gray(`${Tree.branch(true)} ${c.italic(completed)}`)]);
   tableProcessed.push([c.white(`   ${totals}`)]);
   tableProcessed.push([c.gray(`   ${c.italic(summary)}`)]);
-  console.info(String(tableProcessed));
+  log(String(tableProcessed));
 
   /**
    * Warn on missing linked documents.
@@ -91,22 +109,22 @@ export async function snapshotCommand(cwd: t.StringDir, docid: t.Crdt.Id) {
       warnTable.push([c.gray(`${branch} ${Fmt.prettyUri(e.id)}`), skipped]);
     });
 
-    console.info();
-    console.info(c.gray(`${c.yellow('Warning')} the following linked documents were not found:`));
-    console.info(Str.trimEdgeNewlines(String(warnTable)));
+    log();
+    log(c.gray(`${c.yellow('Warning')} the following linked documents were not found:`));
+    log(Str.trimEdgeNewlines(String(warnTable)));
   }
 
   /**
    * Print: snapshot digest/info
    */
   const bundleDir = c.dim(Fs.dirname(Fs.trimCwd(info.path)));
-  let bundlePath = c.gray(`${bundleDir}/${Fs.basename(info.path)}`);
+  const bundlePath = c.gray(`${bundleDir}/${Fs.basename(info.path)}`);
   const digest = info.dist.hash.digest;
-  let hx = `${digest.slice(0, -5)}${c.green(digest.slice(-5))}`;
+  const hx = `${digest.slice(0, -5)}${c.green(digest.slice(-5))}`;
 
   const tblInfo = Cli.table([]);
   tblInfo.push([c.gray(`hash`), c.gray(hx)]);
   tblInfo.push([c.gray(`bundle`), bundlePath]);
-  console.info();
-  console.info(Str.trimEdgeNewlines(String(tblInfo)));
+  log();
+  log(Str.trimEdgeNewlines(String(tblInfo)));
 }

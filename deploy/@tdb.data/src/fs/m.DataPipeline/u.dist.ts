@@ -1,15 +1,16 @@
-import { type t, Fs, Pkg } from './common.ts';
+import { Fs, Pkg, type t } from './common.ts';
 
 /**
  * Refresh the dist metadata for one staged mount directory.
  */
 export async function refreshMountDist(dir: t.StringDir): Promise<t.StringFile> {
-  await Pkg.Dist.compute({
+  const computed = await Pkg.Dist.compute({
     dir,
     save: true,
     trustChildDist: true,
   });
-  return Fs.join(dir, 'dist.json') as t.StringFile;
+  if (computed.kind !== 'computed') throw computed.error;
+  return Fs.join(dir, 'dist.json');
 }
 
 /**
@@ -19,13 +20,14 @@ export async function refreshMountDists(root: t.StringDir): Promise<readonly t.S
   const paths: t.StringFile[] = [];
   if (!(await Fs.exists(root))) return paths;
 
-  for await (const entry of Fs.walk(root, {
+  const entries = Fs.walk(root, {
     includeDirs: true,
     includeFiles: false,
     includeSymlinks: false,
     followSymlinks: false,
     maxDepth: 1,
-  })) {
+  });
+  for await (const entry of entries) {
     if (entry.path === root || !entry.isDirectory) continue;
     if (!(await Fs.exists(Fs.join(entry.path, 'manifests')))) continue;
     paths.push(await refreshMountDist(entry.path as t.StringDir));
@@ -38,10 +40,11 @@ export async function refreshMountDists(root: t.StringDir): Promise<readonly t.S
  * Refresh the root dist metadata for the staged output tree.
  */
 export async function refreshRootDist(root: t.StringDir): Promise<t.StringFile> {
-  await Pkg.Dist.compute({
+  const computed = await Pkg.Dist.compute({
     dir: root,
     save: true,
     trustChildDist: true,
   });
-  return Fs.join(root, 'dist.json') as t.StringFile;
+  if (computed.kind !== 'computed') throw computed.error;
+  return Fs.join(root, 'dist.json');
 }

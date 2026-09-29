@@ -54,6 +54,41 @@ plugins, or compose a broader config through `Vite.Config.define`. See the
 [configuration API](https://jsr.io/@sys/driver-vite/doc/config) for paths, workspace filtering,
 chunking, and plugin options.
 
+## Producing a Dist content pin
+
+In a configured workspace with `@sys/driver-vite` mapped, build programmatically and narrow the
+result before using its content pin:
+
+```ts
+import { Vite } from '@sys/driver-vite';
+
+const result = await Vite.build({
+  paths: Vite.Config.paths({ app: { entry: './src/index.html', outDir: 'dist' } }),
+  pkg: { name: '@example/app', version: '1.0.0' },
+  exitOnError: false,
+});
+if (!result.ok) throw new Error(result.toString());
+console.info(result.pin); // { scheme: 'sys.dist/v2', digest: 'sha256-…' }
+```
+
+Success means the required output writes and canonical computation completed, including saving
+`dist.json`. `result.pin` identifies payload content; `result.manifestChecksum` identifies the saved
+document's exact bytes and is not a content expectation.
+
+When `pkg` is supplied, the build writes `pkg/-pkg.json` into the payload. Those bytes affect the
+pin, unlike descriptive package labels at the root of `dist.json`.
+
+Use `exitOnError: false` to receive a failure result rather than the default process exit. Other
+errors can still reject the promise. The build's `finally` stops the spinner and awaits command
+cleanup during normal return or exception unwinding; `Deno.exit(1)` does not run that cleanup.
+Neither failure form promises rollback of build output.
+
+Computation selects an inventory; it does not establish complete-tree verification or independent
+trust. See the [shared producer contract](../../sys/fs/README.md#produce-a-content-pin). Distribute
+pins through a trusted channel independent of the artifact download. Old manifest-checksum
+expectations require explicit rebuilding and recording of canonical content pins, not field
+renaming.
+
 ## HTML subresource integrity
 
 Use the project setup above, a driver revision that exports `VitePlugins.HtmlIntegrity`, and a

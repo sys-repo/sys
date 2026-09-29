@@ -1,5 +1,18 @@
 import { default as deno } from '../../../deno.json' with { type: 'json' };
-import { Cli, describe, expect, Fs, Is, it, Path, ROOT, Time } from '../../-test.ts';
+import {
+  Cli,
+  describe,
+  expect,
+  Fs,
+  Is,
+  it,
+  Json,
+  Path,
+  Pkg,
+  ROOT,
+  type t,
+  Time,
+} from '../../-test.ts';
 import { waitForIndex } from './u.serve.waitFor.ts';
 
 const PACKAGE_DIR = ROOT.resolve('code/sys.driver/driver-vite');
@@ -29,6 +42,18 @@ type StopResult = {
 };
 
 describe('ViteEntry cached-only serve process', () => {
+  it('static fixture → current producer content without build authority in the serve child', async () => {
+    try {
+      await setupDist();
+      const computed = await Pkg.Dist.compute({ dir: DIST, save: false });
+      if (computed.kind !== 'computed') throw new Error(computed.error.message);
+      const manifest = (await Fs.readJson<t.DistPkg>(Path.join(DIST, 'dist.json'))).data;
+      expect(manifest?.hash, Json.stringify(computed.dist.hash)).to.eql(computed.dist.hash);
+    } finally {
+      await Fs.remove(FIXTURE_ROOT, { log: false });
+    }
+  });
+
   it('serves silently through public CLI dispatch without build-native authority', async () => {
     const permissions = deno.permissions as Record<string, Record<string, unknown> | undefined>;
     expect(permissions['entry-serve-proof']).to.eql({

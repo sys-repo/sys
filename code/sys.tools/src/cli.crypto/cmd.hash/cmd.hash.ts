@@ -99,7 +99,6 @@ export async function hashDir(
       elapsed,
       dirLabel,
       dist: distRow,
-      showManifestIntegrity: saveDist,
     }),
   );
   console.info();

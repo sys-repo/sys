@@ -39,6 +39,7 @@ export async function buildIntegrityFixture(base: string): Promise<IntegrityFixt
     const paths = Vite.Config.paths({ cwd: root, app: { entry: './index.html', base } });
     const built = await Vite.build({ paths, silent: true, spinner: false, exitOnError: false });
     expect(built.ok, built.toString()).to.eql(true);
+    if (!built.ok) throw new Error(built.toString());
 
     const dir = Fs.join(root, 'dist');
     const html = await readAttestedHtml(dir, built.dist);

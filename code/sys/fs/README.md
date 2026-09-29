@@ -99,6 +99,28 @@ A distribution consists of one `dist.json` manifest and the payload files it nam
 records their paths, checksums, and byte lengths. Because it travels with those files, checking that
 they match proves internal consistency—not that they are the artifact the caller intended.
 
+### Produce a content pin
+
+`Pkg.Dist.compute({ dir, save: false })` computes canonical content without writing `dist.json`.
+Narrow on `result.kind === 'computed'` before using `result.dist` or `result.pin`. With
+`save: true`, success also means the manifest write completed. `manifestChecksum` identifies the
+serialized document bytes; without saving, it does not establish that a document was written.
+
+**Computation selects an inventory; verification checks the complete tree.** Filters and ignore
+rules affect selection. With `trustChildDist: true`, computation may reuse child inventories without
+rereading their payload bytes; that option is an explicit trust decision, not fresh verification. A
+computed pin alone therefore does not prove that the source directory will pass Local or Pinned
+verification, which rejects symlinks and undeclared tree entries.
+
+Empty or unsafe selected inventories are refused before the manifest write, leaving a prior manifest
+unchanged. A failure during saving does not promise rollback or preservation of prior bytes. Success
+establishes neither independent producer trust nor stability after return. Distribute expected pins
+separately through a trusted channel; do not derive trust from the artifact download.
+
+Use the canonical content pin, not the document checksum, for Dist expectations. Older
+manifest-checksum expectations require explicit rebuilding and recording of canonical pins—not a
+field rename or automatic conversion.
+
 ### Verify a complete tree
 
 `Pkg.Dist.Local.verify()` checks the complete tree against the manifest at its root, without an

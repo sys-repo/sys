@@ -17,7 +17,8 @@ export const Bundle: t.ViteLog.Bundle.Lib = {
   },
 
   toString(args) {
-    const { ok, dirs, pkg, hash } = args;
+    const { ok, dirs, pkg } = args;
+    const hash = ok ? args.hash : undefined;
     const width = wrangle.width(args.width);
     const size = Str.bytes(args.totalSize);
     const titleColor = ok ? c.brightGreen : c.brightYellow;
@@ -27,14 +28,16 @@ export const Bundle: t.ViteLog.Bundle.Lib = {
     const manifestUrl = ok ? args.manifestUrl : undefined;
     const lines = [
       wrangle.clip(
-        `${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${fmtElapsed})`)}`,
+        ok
+          ? `${titleColor(c.bold('Bundle'))}    ${titleColor(size)} ${c.gray(`(${fmtElapsed})`)}`
+          : titleColor(c.bold('Bundle failed')),
         width,
       ),
       wrangle.row('pkg:', pkg ? wrangle.pkg(pkg, args.pkgSize, width) : '', width),
       wrangle.row('in:', clean(input), width),
       metadataRow({
-        label: 'out:',
-        value: wrangle.manifest(clean(outDir), manifestUrl),
+        label: ok ? 'out:' : 'target:',
+        value: ok ? wrangle.manifest(clean(outDir), manifestUrl) : clean(outDir) || './',
         width,
         indent: 2,
         labelWidth: 8,

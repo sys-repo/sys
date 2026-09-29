@@ -16,15 +16,28 @@ import { Log } from './u.log.ts';
 import { Wrangle } from './u.wrangle.ts';
 
 type B = t.Vite.Lib['build'];
+type R = t.Vite.Build.Response;
+type Success = Extract<R, { ok: true }>;
+type RArgs = {
+  output: t.Process.Output;
+  elapsed: t.Msecs;
+} & ({ ok: false } | Pick<Success, 'ok' | 'dist' | 'pin' | 'manifestChecksum'>);
 
 /**
  * Run the <vite:build> command.
  */
-export const build: B = async (input) => {
+export const build: B = (input) => buildWith(input);
+
+/** Internal seam for the required package write's success/failure contract. */
+export async function buildWith(
+  input: Parameters<B>[0],
+  writePackage: typeof Fs.write = Fs.write,
+): ReturnType<B> {
   const timer = Time.timer();
+  const dependencyPolicy = input.dependencyPolicy;
   const paths = snapshotPaths(input.paths ?? (await Wrangle.pathsFromConfigfile(input.cwd)));
   const { pkg, silent = false, spinner: useSpinner = true, exitOnError = true } = input;
-  const { cmd, args, env, dispose } = await Wrangle.command(paths, 'build');
+  const { cmd, args, env, dispose } = await Wrangle.command(paths, 'build', dependencyPolicy);
   const dir = Fs.resolve(paths.cwd, paths.app.outDir);
   const cwd = paths.cwd;
 
@@ -43,29 +56,28 @@ export const build: B = async (input) => {
     return await Pkg.Dist.compute({ dir, pkg, builder, save });
   };
 
-  type R = t.Vite.Build.Response;
-  type RArgs = {
-    ok: boolean;
-    output: t.Process.Output;
-    elapsed: t.Msecs;
-    dist: t.DistPkg;
-    manifest: t.Vite.Build.Manifest;
-  };
   const response = (args: RArgs): R => {
-    const { ok, output, elapsed, dist, manifest } = args;
+    const { ok, output, elapsed } = args;
+    const dist = args.ok ? args.dist : undefined;
+    const authority = args.ok
+      ? {
+        ok: true as const,
+        dist: args.dist,
+        pin: args.pin,
+        manifestChecksum: args.manifestChecksum,
+      }
+      : { ok: false as const };
     const stdio = output.toString();
     return {
-      ok,
+      ...authority,
       paths,
       elapsed,
-      dist,
-      manifest,
       get cmd() {
         return { input: cmd, output };
       },
-      toString(options = {}) {
+      toString(options: t.Vite.Build.ToStringOptions = {}) {
         const { pad, width } = options;
-        const totalSize = dist?.build?.size?.total ?? { files: 0, bytes: 0 };
+        const totalSize = dist?.build?.size?.total ?? 0;
         const hash = dist?.hash?.digest ?? '';
         return Log.Build.toString({
           ok,
@@ -73,7 +85,9 @@ export const build: B = async (input) => {
           dirs: { in: paths.app.entry, out: paths.app.outDir },
           totalSize,
           pkg,
-          pkgSize: CompositeHash.size(dist.hash.parts, (e) => Pkg.Dist.Is.codePath(e.path)),
+          pkgSize: dist
+            ? CompositeHash.size(dist.hash.parts, (e) => Pkg.Dist.Is.codePath(e.path))
+            : 0,
           hash,
           manifestUrl: ok ? Path.toFileUrl(Fs.join(dir, 'dist.json')) : undefined,
           pad,
@@ -84,21 +98,14 @@ export const build: B = async (input) => {
     };
   };
 
-  const fail = async (message: string, output: t.Process.Output) => {
+  const fail = (message: string, output: t.Process.Output) => {
     const errInfo = {
       cmd,
       code: output.code,
       stderr: output.text.stderr,
       stdout: output.text.stdout,
     };
-    const computed = await computeDist(false);
-    const res = response({
-      ok: false,
-      output,
-      elapsed: timer.elapsed.msec,
-      dist: computed.dist,
-      manifest: computed.manifest,
-    });
+    const res = response({ ok: false, output, elapsed: timer.elapsed.msec });
 
     console.error(message);
     if (errInfo.stderr?.trim()) console.error(errInfo.stderr.trim());
@@ -143,7 +150,10 @@ export const build: B = async (input) => {
     if (pkg) {
       const path = Fs.join(dir, 'pkg', '-pkg.json');
       await Fs.ensureDir(Fs.dirname(path));
-      await Fs.write(path, Json.stringify(pkg, 2));
+      const written = await writePackage(path, Json.stringify(pkg, 2));
+      if (written.error) {
+        return await fail('Vite build failed to write package declaration', output);
+      }
     }
 
     await clean(dir);
@@ -161,7 +171,7 @@ export const build: B = async (input) => {
      */
     const elapsed = timer.elapsed.msec;
     const computed = await computeDist(true);
-    if (computed.error) {
+    if (computed.kind !== 'computed') {
       return await fail('Vite build failed to compute dist metadata', output);
     }
     return response({
@@ -169,13 +179,14 @@ export const build: B = async (input) => {
       output,
       elapsed,
       dist: computed.dist,
-      manifest: computed.manifest,
+      pin: computed.pin,
+      manifestChecksum: computed.manifestChecksum,
     });
   } finally {
     stopSpinner();
     await dispose();
   }
-};
+}
 
 /**
  * Capture one immutable path authority before command construction yields to caller mutation.

@@ -15,9 +15,9 @@ export const Help: t.ViteLog.Help.Lib = {
     console.info();
 
     // Dist bundle.
-    const { dist } = await Pkg.Dist.load(dirs.out);
-    if (dist) {
-      Dist.log(dist, { dirs });
+    const loaded = await Pkg.Dist.load(dirs.out);
+    if (loaded.kind === 'canonical' && loaded.dist) {
+      Dist.log(loaded.dist, { dirs });
     } else {
       // NB: not built yet.
       const buildCmd = c.green(`deno task ${c.bold('build')}`);
