@@ -9,8 +9,8 @@ dist-content-identity.plan.md
 - [x] 29d108d70 feat(tools)!: preserve canonical Dist staging and publication ownership
 - [x] 103b61db8 feat(tools)!: consume canonical Dist pins in pull and serve
 - [x] 1ff973510 feat(dist)!: migrate build and snapshot producers to canonical pins
-- [ ] feat(cell)!: configure Dist services with canonical content pins
-- [ ] feat(driver-pi)!: admit GUI packages through canonical Dist content
+- [x] 65cc8ef7e feat(cell)!: configure Dist services with canonical content pins
+- [x] ae6151a1b feat(driver-pi)!: admit GUI packages through canonical Dist content
 - [ ] feat(cloudflare)!: admit R2 distributions using canonical content pins
 - [ ] feat(dist)!: align observations and signing fixtures with canonical manifests
 - [ ] fix(driver-vite): align frozen build fixtures with their dependency authority
@@ -322,13 +322,24 @@ deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --r
 ### S8 — Pi GUI payload/package admission
 
 - **Owner:** attributable `code/sys.driver/driver-pi/` GUI service/session/presentation, covered
-  `u.pkg.ts`, local-evidence and preview-build response contracts, owner tests/process fixtures and
-  the two ZIP artifact JSON files. Proof-only preview forwarding is split below. Workstream G applies.
+  `u.pkg.ts` and shared admission policy, local-evidence and preview-build response contracts,
+  restricted binding proof/task, owner tests/process fixtures, reset-script JSDoc and
+  the two ZIP artifact JSON files. Includes the supporting facade-comment clarification in
+  `code/sys/fs/src/m.Pkg.Dist/m.Pinned.ts`, not an FS behavior change. Proof-only preview forwarding
+  is split below. Workstream G applies.
 - **Dependencies:** S1–S3 and S6; covered `pkg/-pkg.json` is Pi policy, not a generic Dist requirement.
 - **Completion:** bounded inventoried/checksum-verified package reads at both admission boundaries,
   captured expected package, cancellation draining and host/Generation ownership, canonical preview
   handoff and old-evidence refusal. Retain ZIP owner parity evidence; repeat only for changed inputs.
   Do not edit profiles, retained release evidence or shared outputs. Real preview isolation is later.
+- **Landing:** source commit `ae6151a1bba11c6ab6086b5de4a0a834335e42d6` is reachable at inspected HEAD;
+  all 35 selected whole files landed. The two deferred real-preview files remain outside this cut.
+- **Receipt:**
+  [Pi whole-file handoff and owner verification](./dist-content-identity.plan/landing/S8.landing.md)
+  records the carried preview proof-policy support, blind-review and documentation corrections,
+  restricted five-case binding proof and unit/process checks, retained ZIP parity and explicit
+  non-execution of real build/rebinding lanes. Preserve the integrated-worktree evidence boundary;
+  carried proof support does not complete the later real-preview item.
 
 ### S9 — R2 inventory admission and sample selection
 
