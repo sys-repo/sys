@@ -267,19 +267,32 @@ deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --r
 
 ### S6 — Build and snapshot producer success contracts
 
-- **Owner:** Vite `src/m.vite/{t.ts,u/u.build.ts}` and ordinary build tests, help, cached-serve fixture
-  and SRI-fixture response narrowing; Tools `cli.crypto/cmd.hash/` and
-  `cli.crdt/cmd.doc.snapshot/`; `deploy/@tdb.data/src/fs/m.DataPipeline/` and
+- **Owner:** Vite `src/m.vite/{t.ts,u/u.build.ts}` and ordinary build tests, retained bundle
+  formatting, help, cached-serve fixture and SRI-fixture response narrowing; Tools
+  `cli.crypto/cmd.hash/` and `cli.crdt/cmd.doc.snapshot/`;
+  `deploy/@tdb.data/src/fs/m.DataPipeline/` and
   `deploy/@tdb.edu.slug/src/m.slug.compiler/` Dist producers and their fixtures/tests. Include the
-  corresponding snapshot/hash/data test-task deltas, not unrelated deployment work.
+  corresponding snapshot/hash/data test-task deltas and producer guidance in the Vite, Tools and
+  FS READMEs, not unrelated deployment work.
 - **Dependencies:** S1–S2. These callers share one success postcondition: canonical computation
   succeeded and any required document/package writes completed before success is reported. Preserve
   non-saving hash jobs; do not require every producer to save or expose the same response wrapper.
 - **Completion:** narrowed build responses, copied path authority, required package-file write,
   retained returned pin/checksum, truthful hash display, and refusal before secondary writes/counts.
+  Returned failure text must identify failure without implying a saved manifest. Snapshot command
+  work must stop its spinner on success or rejection before printing success-only summaries.
   Ordinary owner tests stay here even where execution awaits frozen-fixture correction. The existing
   internal `buildWith` fault seam is earned; deferred failure-cause enhancement stays in the final
   refactor. Dependency-policy support is allocated separately below. Workstreams A/H apply.
+  Computation selects inventory; complete-tree verification is separate. Data's `trustChildDist`
+  reuse need not reread child payloads. Empty/unsafe-inventory refusal precedes document writes;
+  failed saves do not promise rollback. Document these limits beside producer success guidance.
+- **Candidate evidence:**
+  [Producer exact cut and owner verification](./dist-content-identity.plan/landing/S6.landing.md)
+  owns the path/hunk selection, commands, counts and documentation/source-review adjudication.
+  Build/SRI entries have type-check evidence only. Preserve the frozen-fixture execution gap,
+  unchanged slug fixture lint debt and test-authoring correction; none establishes isolated-commit
+  or release proof.
 
 ### S7 — Cell service configuration and authored help
 
@@ -881,13 +894,12 @@ optimization, not proof of current file bytes or independent authority.
   marker. A Dist-owned encoding is narrower. Correcting the builder's lost-key storage defect is
   separate from changing its digest algorithm.
 
-## Proposed identity contract
+## Identity contract
 
-The following is proposed new behavior, not an assertion that these APIs or schema fields exist.
-Workstream A of the breaking replacement must freeze the public types, manifest discriminator
-placement, budget contract, and literal vectors before consumer implementation proceeds. These are
-intra-change dependencies, not independently shipped protocol stages. The payload-only subject is
-not deferred to consumers.
+This contract was proposed during the research baseline and is established by S1–S2; the opening
+arc records their landed commits. Workstream A defines the public types, manifest discriminator,
+budgets and literal vectors on which consumers depend. These are intra-change dependencies, not
+independently shipped protocol stages. The payload-only subject is not deferred to consumers.
 
 ### Subject
 
@@ -919,7 +931,7 @@ silently redefine the generic builder's empty string or direct empty-map digest 
 
 ### Canonical representation
 
-Proposed minimal preimage: UTF-8 of one compact JSON tuple with a fixed version/domain token and
+Canonical preimage: UTF-8 of one compact JSON tuple with a fixed version/domain token and
 code-unit-sorted file tuples. There is no package-label slot:
 
 ```text
@@ -1451,21 +1463,23 @@ expectations, and the sample persists them. `dist/`, `dist.private/`, and `dist.
 different inventories using one scheme, not three copies of one digest. Each projection's
 build/pin/verification/display value must agree.
 
-Propagate compute refusal through secondary producers before saving, reporting output paths, or
-incrementing written counts:
+Propagate compute refusal through secondary producers before secondary writes, output-path
+reporting, or written-count increments. The research baseline exposed these failure sequences:
 
-- Tools CRDT `cli.crdt/cmd.doc.snapshot/u.calcAndSaveDist.ts::calcAndSaveDist` currently extracts
-  `.dist` and writes it again without checking `compute.error`.
+- Tools CRDT `cli.crdt/cmd.doc.snapshot/u.calcAndSaveDist.ts::calcAndSaveDist` extracted `.dist`
+  and wrote it again without checking `compute.error`.
 - Data pipeline
-  `deploy/@tdb.data/src/fs/m.DataPipeline/u.dist.ts::{refreshMountDist,refreshRootDist}` currently
-  reports output paths without checking compute failure.
+  `deploy/@tdb.data/src/fs/m.DataPipeline/u.dist.ts::{refreshMountDist,refreshRootDist}` reported
+  output paths without checking compute failure.
 - Slug compiler `deploy/@tdb.edu.slug/src/m.slug.compiler/m.bundle/u.dist.ts::writeDistFiles`
-  currently counts unchecked compute as written.
+  counted unchecked compute as written.
 
-Exercise empty/invalid refusal plus valid-output controls at these callers. The Server sample's
-`code/sys/server/-sample/files.http.cmd/-start.ts::prepareRuntime` already checks `computed.error`;
-update its contract/fixtures without misclassifying that guard as missing. Preserve the R2 sample's
-publish-selected-build behavior; do not silently rebuild or repin when publishing.
+These are baseline motivations, not claims about current source. Acceptance requires narrowing
+`computed.kind` before success and exercising empty/invalid refusals plus valid-output controls.
+The Server sample's `code/sys/server/-sample/files.http.cmd/-start.ts::prepareRuntime` already
+checked `computed.error` at that baseline; migrate its contract/fixtures without misclassifying
+that guard as missing. Preserve the R2 sample's publish-selected-build behavior; do not silently
+rebuild or repin when publishing.
 
 Add the integrated signer regression: create a real root `__proto__` payload file, compute its Dist,
 write the detached signature descriptor, load the result, and strictly verify against the retained
