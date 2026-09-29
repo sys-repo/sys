@@ -1,6 +1,5 @@
-import { isAbsolute as absolute, relative } from '@std/path';
+import { isAbsolute as absolute, relative, SEPARATOR } from '@std/path';
 import { Is, type t } from '../common.ts';
-import { relativePosix } from './rel.ts';
 
 export const within: t.Path.Is.Lib['within'] = (root, candidate) => {
   if (!Is.string(root) || !Is.string(candidate)) return false;
@@ -11,5 +10,6 @@ export const within: t.Path.Is.Lib['within'] = (root, candidate) => {
   // Keep this guard: Windows can return absolute values here for cross-drive/absolute paths.
   if (absolute(rel)) return false;
 
-  return relativePosix(rel).split('/')[0] !== '..';
+  // A backslash is a filename character on POSIX, not a portable path separator.
+  return rel.split(SEPARATOR)[0] !== '..';
 };

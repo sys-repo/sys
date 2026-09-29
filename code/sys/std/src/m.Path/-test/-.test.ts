@@ -1,8 +1,9 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Path } from '../mod.ts';
 
-const platformJoin = Deno.build.os === 'windows' ? Path.Join.windows : Path.Join.posix;
-const platformSeparator = Deno.build.os === 'windows' ? '\\' : '/';
+const isWindows = Deno.build.os === 'windows';
+const platformJoin = isWindows ? Path.Join.windows : Path.Join.posix;
+const platformSeparator = isWindows ? '\\' : '/';
 
 describe('Path', () => {
   describe('join', () => {
@@ -80,10 +81,44 @@ describe('Path', () => {
       expect(Is.within(root, siblingPrefix)).to.eql(false);
       expect(Is.within(root, traversal)).to.eql(false);
       expect(Is.within(root, escaped)).to.eql(false);
-      expect(Is.within(root, 123 as unknown)).to.eql(false);
-      expect(Is.within(root, null as unknown)).to.eql(false);
-      expect(Is.within('./root' as unknown, inside)).to.eql(false);
+      expect(Is.within(root, 123)).to.eql(false);
+      expect(Is.within(root, null)).to.eql(false);
+      expect(Is.within('./root', inside)).to.eql(false);
       expect(Is.within(root, './../outside')).to.eql(false);
+    });
+
+    it('Is.within: POSIX backslashes are filename characters', { ignore: isWindows }, () => {
+      const root = '/site/root';
+      const cases: readonly [string, boolean][] = [
+        ['/site/root/..\\report.txt', true],
+        ['/site/root/name\\part.txt', true],
+        ['/site/root/\\..\\report.txt', true],
+        ['/site/root/..literal.txt', true],
+        ['/site/root/nested/../..\\report.txt', true],
+        ['/site/root/../outside.txt', false],
+        ['/site/root/..\\folder/../../outside.txt', false],
+        ['/site/root-secret/report.txt', false],
+      ];
+      for (const [candidate, expected] of cases) {
+        expect(Is.within(root, candidate), candidate).to.eql(expected);
+      }
+    });
+
+    it('Is.within: Windows separators and drive boundaries', { ignore: !isWindows }, () => {
+      const root = 'C:\\site\\root';
+      const cases: readonly [string, boolean][] = [
+        ['C:\\site\\root', true],
+        ['C:\\site\\root\\folder\\report.txt', true],
+        ['C:/site/root/folder/report.txt', true],
+        ['C:\\site\\root\\..literal.txt', true],
+        ['C:\\site\\root\\..\\outside.txt', false],
+        ['C:/site/root/../outside.txt', false],
+        ['C:\\site\\root-secret\\report.txt', false],
+        ['D:\\site\\root\\report.txt', false],
+      ];
+      for (const [candidate, expected] of cases) {
+        expect(Is.within(root, candidate), candidate).to.eql(expected);
+      }
     });
 
     it('Is.within: never resolves relative root or candidate inputs', () => {
@@ -93,7 +128,7 @@ describe('Path', () => {
       expect(Is.within(cwd, 'sub')).to.eql(false);
       expect(Is.within('sub', inside)).to.eql(false);
       expect(Is.within('', inside)).to.eql(false);
-      expect(Is.within(undefined as unknown, cwd)).to.eql(false);
+      expect(Is.within(undefined, cwd)).to.eql(false);
     });
   });
 
@@ -107,8 +142,11 @@ describe('Path', () => {
     });
 
     it('no extension: non string input', () => {
-      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((v: any) => expect(Path.extname(v)).to.eql(''));
+      const inputs: unknown[] = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+      // Invalid-input probe: deliberately cross the string-only public type boundary.
+      for (const input of inputs) {
+        expect(Path.extname(input as string)).to.eql('');
+      }
     });
   });
 
