@@ -1,23 +1,10 @@
 import { DistServer } from '@sys/server/dist';
 import { PiFs } from '../../../../m.core/u.fs.ts';
-import { Arr, Err, Fs, Is, Num, Obj, Str, type t, Time } from '../common.ts';
+import { Err, Fs, Is, Obj, Pkg, type t } from '../common.ts';
 import type { Start } from './t.ts';
 import { START_GUI_RELEASE_EVIDENCE } from './u.service.evidence.ts';
-
-const AUTHORITY_LIMITS = Object.freeze({
-  manifestUrl: 4096,
-  developmentDir: 4096,
-  integrity: 'sha256-'.length + 64,
-  packageName: 256,
-  packageVersion: 256,
-});
-
-const VERIFY_LIMITS = Object.freeze({
-  manifestBytes: 16 * 1024 * 1024,
-  entries: 4096 * 2 + 1,
-  fileBytes: 128 * 1024 * 1024,
-  totalBytes: 1024 * 1024 * 1024,
-});
+import { readGuiPackage, snapshotGuiPackage } from './u.pkg.ts';
+import { AUTHORITY_LIMITS, VERIFY_LIMITS } from './u.policy.ts';
 
 const BROWSER_POLICY = Object.freeze({
   kind: 'verified-loopback',
@@ -27,8 +14,7 @@ const BROWSER_POLICY = Object.freeze({
 
 const RECOVERY_POLICY: Start.Gui.Recovery.Policy = Object.freeze({
   kind: 'local-evidence-binding',
-  manifestChecksumMismatch:
-    'Intended local build? In Driver Pi run deno task bind:dev, then relaunch.',
+  contentPinRefused: 'See Driver Pi README: Local GUI workflow — source-checkout launcher.',
 });
 
 const STORE_POLICY: Start.Gui.Store.Policy = Object.freeze({
@@ -49,24 +35,20 @@ export const START_GUI_SERVICE = Object.freeze({
   browserPolicy: BROWSER_POLICY,
 });
 
-void Arr;
-void Num;
-void Obj;
-void Str;
-void Time;
-
 /**
  * Snapshot the fixed generated release evidence before acquiring runtime owners.
  */
-export function snapshotReleaseAuthority(): Start.Gui.Authority.Snapshot {
-  return snapshotAuthority(START_GUI_SERVICE.source);
+export function snapshotReleaseAuthority(
+  input: unknown = START_GUI_SERVICE.source,
+): Start.Gui.Authority.Snapshot {
+  return snapshotAuthority(input, 'release');
 }
 
 /**
  * Snapshot one package-internal completed development build.
  */
 export function snapshotDevelopmentAuthority(input: unknown): Start.Gui.Authority.Snapshot {
-  return snapshotAuthority(input);
+  return snapshotAuthority(input, 'development');
 }
 
 /**
@@ -83,7 +65,7 @@ export function generationOpenArgs(
       target: START_GUI_SERVICE.store.target,
     }),
     manifestUrl: authority.source.href,
-    integrity: authority.integrity,
+    pin: authority.pin,
     policy: materializePolicy(authority.source),
     until,
   });
@@ -99,7 +81,7 @@ export function applicationStartArgs(
 ): t.DistServer.Start.Args {
   return Object.freeze({
     dir,
-    integrity: authority.integrity,
+    pin: authority.pin,
     limits: START_GUI_SERVICE.limits,
     hostname: '127.0.0.1',
     port: 0,
@@ -112,27 +94,32 @@ export function applicationStartArgs(
 /**
  * Admit the package identity of a newly opened release Generation.
  */
-export function admitGenerationPkg(
+export async function admitGenerationPkg(
   authority: Start.Gui.Release.Authority,
   generation: t.Dist.Existing | t.Dist.Promoted,
-): t.StringAbsoluteDir | undefined {
-  return samePkg(generation.verification.dist.pkg, authority.expectedPkg)
-    ? generation.dir
-    : undefined;
+  until: AbortSignal,
+  readPart?: Start.Gui.Dependencies['readPart'],
+): Promise<t.StringAbsoluteDir | undefined> {
+  const { dir, verification } = generation;
+  const observed = await readGuiPackage(dir, verification.content, until, readPart);
+  return !until.aborted && samePkg(observed, authority.expectedPkg) ? dir : undefined;
 }
 
 /**
  * Admit the independently verified package identity of a newly started host.
  */
-export function admitApplicationPkg(
+export async function admitApplicationPkg(
   authority: Start.Gui.Authority,
+  dir: t.StringAbsoluteDir,
   started: Pick<t.DistServer.Started, 'origin' | 'verification'>,
-): Readonly<{ origin: t.StringUrl; digest: t.StringHash }> | undefined {
-  if (!samePkg(started.verification.dist.pkg, authority.expectedPkg)) return;
-  return Object.freeze({
-    origin: started.origin,
-    digest: started.verification.dist.hash.digest,
-  });
+  until: AbortSignal,
+  readPart?: Start.Gui.Dependencies['readPart'],
+): Promise<Readonly<{ origin: t.StringUrl; digest: t.StringHash }> | undefined> {
+  const { origin, verification } = started;
+  const { content } = verification;
+  const observed = await readGuiPackage(dir, content, until, readPart);
+  if (until.aborted || !samePkg(observed, authority.expectedPkg)) return;
+  return Object.freeze({ origin, digest: content.digest });
 }
 
 /**
@@ -207,13 +194,13 @@ export function listenerFailure(
 /**
  * Helpers:
  */
-function snapshotAuthority(input: unknown): Start.Gui.Authority.Snapshot {
-  if (!Is.plainObject(input)) return invalidAuthority('package-identity');
-  const source = input;
-  let snapshot: Start.Gui.Configuration.Snapshot<Start.Gui.Authority>;
-  if (source.kind === 'release') snapshot = snapshotRelease(source);
-  else if (source.kind === 'development') snapshot = snapshotDevelopment(source);
-  else return invalidAuthority('package-identity');
+function snapshotAuthority(
+  input: unknown,
+  kind: Start.Gui.Authority['kind'],
+): Start.Gui.Authority.Snapshot {
+  if (!Is.plainObject(input) || input.kind !== kind) return invalidAuthority('package-identity');
+  if (Obj.hasOwn(input, 'integrity')) return invalidAuthority('pin');
+  const snapshot = kind === 'release' ? snapshotRelease(input) : snapshotDevelopment(input);
   return snapshot.ok
     ? Object.freeze({ ok: true, authority: snapshot.value })
     : invalidAuthority(snapshot.reason);
@@ -224,13 +211,13 @@ function snapshotRelease(
 ): Start.Gui.Configuration.Snapshot<Start.Gui.Release.Authority> {
   const source = manifestSource(input.manifestUrl);
   if (!source) return Object.freeze({ ok: false, reason: 'manifest-url' });
-  const integrity = snapshotIntegrity(input.integrity);
-  if (!integrity) return Object.freeze({ ok: false, reason: 'integrity' });
-  const expectedPkg = snapshotPkg(input.expectedPkg);
+  const pin = snapshotPin(input.pin);
+  if (!pin) return Object.freeze({ ok: false, reason: 'pin' });
+  const expectedPkg = snapshotGuiPackage(input.expectedPkg);
   if (!expectedPkg) return Object.freeze({ ok: false, reason: 'package-identity' });
   return Object.freeze({
     ok: true,
-    value: Object.freeze({ kind: 'release', source, integrity, expectedPkg }),
+    value: Object.freeze({ kind: 'release', source, pin, expectedPkg }),
   });
 }
 
@@ -241,43 +228,19 @@ function snapshotDevelopment(
   if (!boundedString(dir, AUTHORITY_LIMITS.developmentDir) || !Fs.Path.Is.absolute(dir)) {
     return Object.freeze({ ok: false, reason: 'development-directory' });
   }
-  const integrity = snapshotIntegrity(input.integrity);
-  if (!integrity) return Object.freeze({ ok: false, reason: 'integrity' });
-  const expectedPkg = snapshotPkg(input.expectedPkg);
+  const pin = snapshotPin(input.pin);
+  if (!pin) return Object.freeze({ ok: false, reason: 'pin' });
+  const expectedPkg = snapshotGuiPackage(input.expectedPkg);
   if (!expectedPkg) return Object.freeze({ ok: false, reason: 'package-identity' });
   return Object.freeze({
     ok: true,
-    value: Object.freeze({
-      kind: 'development',
-      dir,
-      integrity,
-      expectedPkg,
-    }),
+    value: Object.freeze({ kind: 'development', dir, pin, expectedPkg }),
   });
 }
 
-function snapshotPkg(input: unknown): Readonly<t.Pkg> | undefined {
-  if (!Is.plainObject(input)) return;
-  const pkg = input;
-  if (
-    !boundedString(pkg.name, AUTHORITY_LIMITS.packageName) ||
-    !boundedString(pkg.version, AUTHORITY_LIMITS.packageVersion)
-  ) return;
-  return Object.freeze({ name: pkg.name, version: pkg.version });
-}
-
-function snapshotIntegrity(input: unknown): t.StringHash | undefined {
-  const prefix = 'sha256-';
-  if (
-    !Is.string(input) || input.length !== AUTHORITY_LIMITS.integrity ||
-    !input.startsWith(prefix)
-  ) return;
-  // Integrity admission validates every digest code unit without allocating a second string.
-  for (let index = prefix.length; index < input.length; index += 1) {
-    const code = input.charCodeAt(index);
-    if (!((code >= 0x30 && code <= 0x39) || (code >= 0x61 && code <= 0x66))) return;
-  }
-  return input;
+function snapshotPin(input: unknown): t.DistPin | undefined {
+  if (!Pkg.Is.distPin(input)) return;
+  return Object.freeze({ scheme: input.scheme, digest: input.digest });
 }
 
 function manifestSource(input: unknown): Start.Gui.Manifest.Source | undefined {
@@ -300,8 +263,8 @@ function invalidAuthority(
 ): Start.Gui.Authority.Snapshot {
   const message = reason === 'manifest-url'
     ? 'Invalid start:gui manifest URL.'
-    : reason === 'integrity'
-    ? 'Invalid start:gui manifest integrity.'
+    : reason === 'pin'
+    ? 'Invalid start:gui content pin; rebuild and explicitly bind supported evidence.'
     : reason === 'development-directory'
     ? 'Invalid start:gui development directory.'
     : 'Invalid start:gui package identity.';
@@ -343,18 +306,6 @@ function materializePolicy(source: Start.Gui.Manifest.Source): t.Dist.Policy {
 function snapshotMaterialization(
   result: t.Dist.Failed,
 ): Start.Gui.Failure.MaterializationEvidence {
-  if (result.stage === 'manifest-fetch' && result.reason === 'integrity-mismatch') {
-    return Object.freeze({
-      kind: 'materialization',
-      stage: result.stage,
-      reason: result.reason,
-      cleanup: result.cleanup,
-      manifestChecksum: Object.freeze({
-        expected: result.manifestChecksum.expected,
-        received: result.manifestChecksum.received,
-      }),
-    });
-  }
   return Object.freeze({
     kind: 'materialization',
     stage: result.stage,

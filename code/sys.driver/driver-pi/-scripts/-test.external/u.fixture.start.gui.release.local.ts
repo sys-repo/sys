@@ -1,15 +1,23 @@
 import { Dist } from '@sys/server/dist';
-import { DistServer, Fs, FsDist, type t, Time } from '../common.ts';
+import { DistServer, Fs, FsDist, Hash, Json, type t, Time } from '../common.ts';
 import { BootstrapStatus } from '../../src/-test.ts';
 import { startWith } from '../../src/m.cli/m.profiles/u.start/u.gui/mod.ts';
 import type { Start } from '../../src/m.cli/m.profiles/u.start/u.gui/t.ts';
 import { StartGuiPresentation } from '../../src/m.cli/m.profiles/u.start/u.gui/u.presentation.ts';
-import { removeDistStore } from '../../src/m.cli/m.profiles/-test/u.fixture.start.gui.ts';
-import { START_GUI_SERVICE } from '../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
+import {
+  removeDistFixtureRoot,
+  removeDistStore,
+} from '../../src/m.cli/m.profiles/-test/u.fixture.start.gui.ts';
+import {
+  snapshotReleaseAuthority,
+  START_GUI_SERVICE,
+} from '../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
+import { readGuiPackage } from '../../src/m.cli/m.profiles/u.start/u.gui/u.pkg.ts';
 
 type Candidate = Readonly<{
   dir: t.StringAbsoluteDir;
-  dist: t.DeepReadonly<t.DistPkg>;
+  content: t.DistContent;
+  pkg: Readonly<t.Pkg>;
 }>;
 type Session = Readonly<{
   state: Extract<Start.Gui.Presentation.State, { kind: 'ready' | 'failed' }>;
@@ -35,16 +43,36 @@ const STORE_TARGETS = [
   '.pi/@sys/dist/@sys/driver-pi',
 ] as const;
 
+/** Refuse an unrebuilt record; this proof never discovers or rebinds its expected pin. */
+export function canonicalEvidence(): Start.Gui.Release.Evidence {
+  const snapshot = snapshotReleaseAuthority();
+  if (!snapshot.ok) throw snapshot.failure.error;
+  const authority = snapshot.authority;
+  if (authority.kind !== 'release') throw new Error('Expected release authority.');
+  return Object.freeze({
+    kind: 'release',
+    manifestUrl: authority.source.href,
+    pin: authority.pin,
+    expectedPkg: authority.expectedPkg,
+  });
+}
+
 export async function loadCandidate(): Promise<Candidate> {
+  const source = canonicalEvidence();
   const verified = await FsDist.Pinned.verify({
     dir: DIST_DIR,
-    integrity: START_GUI_SERVICE.source.integrity,
+    pin: source.pin,
     limits: START_GUI_SERVICE.limits,
   });
   if (verified.kind !== 'verified') {
     throw new Error(`Driver Pi local release candidate verification failed: ${verified.kind}.`);
   }
-  return Object.freeze({ dir: DIST_DIR, dist: verified.evidence.dist });
+  const observed = await readGuiPackage(DIST_DIR, verified.evidence.content);
+  if (
+    !observed || observed.name !== source.expectedPkg.name ||
+    observed.version !== source.expectedPkg.version
+  ) throw new Error('Driver Pi local release candidate package identity refused.');
+  return Object.freeze({ dir: DIST_DIR, content: verified.evidence.content, pkg: observed });
 }
 
 export function startLocalServe(dir: t.StringAbsoluteDir) {
@@ -60,12 +88,12 @@ export function startLocalServe(dir: t.StringAbsoluteDir) {
 
 export function evidenceAt(origin: t.StringUrl): Start.Gui.Release.Evidence {
   return Object.freeze({
-    ...START_GUI_SERVICE.source,
+    ...canonicalEvidence(),
     manifestUrl: `${numericLoopbackOrigin(origin)}/dist.json`,
   });
 }
 
-export async function startTamperedTransport(kind: 'manifest' | 'asset') {
+export async function startTamperedTransport(kind: 'manifest' | 'metadata' | 'asset') {
   const candidate = await loadCandidate();
   const upstream = await DistServer.Local.start({
     dir: candidate.dir,
@@ -75,7 +103,7 @@ export async function startTamperedTransport(kind: 'manifest' | 'asset') {
     silent: true,
     keyboard: false,
   });
-  const asset = Object.keys(candidate.dist.hash.parts)[0];
+  const asset = Object.keys(candidate.content.parts)[0];
   if (!asset) {
     const cause = new Error('Unable to select candidate asset.');
     try {
@@ -89,9 +117,9 @@ export async function startTamperedTransport(kind: 'manifest' | 'asset') {
     }
     throw cause;
   }
-  const tamperedRoute = kind === 'manifest'
-    ? '/dist.json'
-    : `/${asset.split('/').map(encodeURIComponent).join('/')}`;
+  const tamperedRoute = kind === 'asset'
+    ? `/${asset.split('/').map(encodeURIComponent).join('/')}`
+    : '/dist.json';
   const stop = new AbortController();
   let server: Deno.HttpServer<Deno.NetAddr>;
   try {
@@ -114,9 +142,29 @@ export async function startTamperedTransport(kind: 'manifest' | 'asset') {
         if (url.pathname !== tamperedRoute || request.method !== 'GET') return response;
 
         const current = new Uint8Array(await response.arrayBuffer());
-        const changed = new Uint8Array(current.byteLength + 1);
-        changed.set(current);
-        changed[changed.byteLength - 1] = 0x0a;
+        let changed: Uint8Array<ArrayBuffer>;
+        if (kind === 'manifest') {
+          const document = Json.parse<t.DistPkg>(new TextDecoder().decode(current));
+          const part = FsDist.Part.parse(candidate.content.parts[asset]);
+          if (!part) throw new Error('Expected admitted candidate part.');
+          const parts = {
+            ...candidate.content.parts,
+            [asset]: `${Hash.sha256('substituted inventory')}:size=${part.size}`,
+          };
+          changed = new TextEncoder().encode(Json.stringify({
+            ...document,
+            hash: {
+              ...candidate.content,
+              parts,
+              digest: Hash.sha256(FsDist.Content.encode(parts)),
+            },
+          }));
+        } else {
+          // A newline changes document bytes only for metadata; asset bytes still refuse.
+          changed = new Uint8Array(current.byteLength + 1);
+          changed.set(current);
+          changed[changed.byteLength - 1] = 0x0a;
+        }
         const headers = new Headers(response.headers);
         headers.delete('content-length');
         return new Response(changed, { status: response.status, headers });
@@ -260,19 +308,21 @@ export async function runSession(
     },
   });
   const deps: Start.Gui.Dependencies = Object.freeze({
+    releaseEvidence: canonicalEvidence(),
+    readPart: FsDist.Pinned.readPart,
     runtimeRoot: () => root,
     startStatus: BootstrapStatus.start,
-    openGeneration(input) {
+    openGeneration(input: t.Dist.Generation.Open.Args) {
       assertCanonicalGenerationInput(root, input);
       return Dist.Generation.open(remapGenerationTransport(input, source.manifestUrl));
     },
-    startApplication(input) {
+    startApplication(input: t.DistServer.Start.Args) {
       assertCanonicalApplicationInput(input);
       appStarts += 1;
       return DistServer.start(input);
     },
     isHostError: DistServer.Error.is,
-    openBrowser(_cwd, url) {
+    openBrowser(_cwd: t.StringDir, url: t.StringUrl) {
       capability = url;
     },
     presentation,
@@ -354,10 +404,11 @@ export async function runSession(
 }
 
 function assertCanonicalTransportSource(source: Start.Gui.Release.Evidence): void {
+  const expected = canonicalEvidence();
   if (
-    source.integrity !== START_GUI_SERVICE.source.integrity ||
-    source.expectedPkg.name !== START_GUI_SERVICE.source.expectedPkg.name ||
-    source.expectedPkg.version !== START_GUI_SERVICE.source.expectedPkg.version
+    source.pin.scheme !== expected.pin.scheme || source.pin.digest !== expected.pin.digest ||
+    source.expectedPkg.name !== expected.expectedPkg.name ||
+    source.expectedPkg.version !== expected.expectedPkg.version
   ) throw new Error('Driver Pi local release transport widened canonical authority.');
 }
 
@@ -365,10 +416,11 @@ function assertCanonicalGenerationInput(
   root: t.StringAbsoluteDir,
   input: t.Dist.Generation.Open.Args,
 ): void {
-  const sourceOrigin = new URL(START_GUI_SERVICE.source.manifestUrl).origin;
+  const expected = canonicalEvidence();
+  const sourceOrigin = new URL(expected.manifestUrl).origin;
   if (
-    input.manifestUrl !== START_GUI_SERVICE.source.manifestUrl ||
-    input.integrity !== START_GUI_SERVICE.source.integrity ||
+    input.manifestUrl !== expected.manifestUrl ||
+    input.pin.scheme !== expected.pin.scheme || input.pin.digest !== expected.pin.digest ||
     input.store.root !== Fs.join(root, START_GUI_SERVICE.store.root) ||
     input.store.target !== START_GUI_SERVICE.store.target ||
     input.policy.verification !== START_GUI_SERVICE.limits ||
@@ -380,8 +432,9 @@ function assertCanonicalGenerationInput(
 }
 
 function assertCanonicalApplicationInput(input: t.DistServer.Start.Args): void {
+  const expected = canonicalEvidence();
   if (
-    input.integrity !== START_GUI_SERVICE.source.integrity ||
+    input.pin.scheme !== expected.pin.scheme || input.pin.digest !== expected.pin.digest ||
     input.limits !== START_GUI_SERVICE.limits ||
     input.browserPolicy !== START_GUI_SERVICE.browserPolicy ||
     input.hostname !== '127.0.0.1' || input.port !== 0 || input.silent !== true
@@ -505,18 +558,15 @@ async function settle<T>(operation: () => Promise<T>): Promise<PromiseSettledRes
 }
 
 export async function cleanupRoot(root: t.StringAbsoluteDir): Promise<void> {
-  await cleanupAll(
-    () => resetStore(root),
-    () => Fs.remove(root),
-  );
+  await removeDistFixtureRoot(root, () => resetStore(root));
 }
 
 export async function generationExists(
   root: t.StringAbsoluteDir,
-  integrity: t.StringHash,
+  pin: t.DistPin,
 ): Promise<boolean> {
   for (const target of STORE_TARGETS) {
-    if (await Fs.exists(Fs.join(root, target, integrity))) return true;
+    if (await Fs.exists(Fs.join(root, target, 'sys.dist-v2', pin.digest))) return true;
   }
   return false;
 }

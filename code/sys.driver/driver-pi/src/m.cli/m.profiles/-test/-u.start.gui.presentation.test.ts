@@ -3,7 +3,7 @@ import { Cli, Err, Is } from '../common.ts';
 import type { Start } from '../u.start/u.gui/t.ts';
 import { StartGuiPresentation } from '../u.start/u.gui/u.presentation.ts';
 import { snapshotReleaseAuthority, START_GUI_SERVICE } from '../u.start/u.gui/u.service.ts';
-import { deferred, GENERATION_DIR } from './u.fixture.start.gui.ts';
+import { deferred, GENERATION_DIR, RELEASE_EVIDENCE } from './u.fixture.start.gui.ts';
 
 type PresentationHarnessOptions = Readonly<{
   interactive?: boolean;
@@ -225,7 +225,7 @@ function createPresentationHarness(options: PresentationHarnessOptions = {}) {
   let keyboard: t.Cli.Keyboard.Bind.Options | undefined;
   let resizeListener: ((event: t.Cli.Screen.SizeChanged) => void) | undefined;
 
-  const authority = snapshotReleaseAuthority();
+  const authority = snapshotReleaseAuthority(RELEASE_EVIDENCE);
   if (!authority.ok) throw authority.failure.error;
   const input: Start.Gui.Presentation.Input = Object.freeze({
     authority: authority.authority,

@@ -4,7 +4,8 @@ import { readPinnedPart } from './u.verify/u.part.ts';
 import { verifyPinned } from './u.verify/u.verify.ts';
 
 /**
- * Distribution checks against caller-supplied checksums.
+ * Manifest admission and tree verification against a caller-supplied content pin.
+ * `readPart` instead checks one file's checksum and size; it does not prove inventory membership.
  */
 export const Pinned: t.Pkg.Dist.Pinned.Lib = Object.freeze({
   admitManifest: admitPinnedManifest,

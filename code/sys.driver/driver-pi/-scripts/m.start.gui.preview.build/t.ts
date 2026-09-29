@@ -20,7 +20,7 @@ export type PreviewPackageIdentity = Readonly<t.Pkg>;
 export type PreviewDevelopmentSource = {
   readonly kind: 'development';
   readonly dir: t.StringAbsoluteDir;
-  readonly integrity: t.StringHash;
+  readonly pin: t.DistPin;
   readonly expectedPkg: PreviewPackageIdentity;
 };
 
@@ -45,16 +45,22 @@ export type PreviewBuildInput = {
   readonly paths: PreviewBuildPaths;
   readonly pkg: PreviewPackageIdentity;
   readonly exitOnError: false;
+  /** Optional proof-only child dependency constraint, forwarded into Vite unchanged. */
+  readonly dependencyPolicy?: DriverVite.Build.Args['dependencyPolicy'];
 };
 
 /**
- * Finite result returned from one isolated Vite build worker.
+ * Result of one isolated Vite build worker: success reports saved build output,
+ * not subsequent tree verification. `pin` identifies the selected payload;
+ * `manifestChecksum` identifies only the exact saved manifest bytes.
+ * The GUI host must still verify the tree against the pin before readiness.
  */
-export type PreviewBuildResponse = {
-  readonly ok: boolean;
-  readonly paths: PreviewBuildPaths;
-  readonly manifest: DriverVite.Build.Manifest;
-};
+export type PreviewBuildResponse =
+  & { readonly paths: PreviewBuildPaths }
+  & (
+    | { readonly ok: true; readonly pin: t.DistPin; readonly manifestChecksum: t.StringHash }
+    | { readonly ok: false }
+  );
 
 /**
  * One task-owned temporary generation.

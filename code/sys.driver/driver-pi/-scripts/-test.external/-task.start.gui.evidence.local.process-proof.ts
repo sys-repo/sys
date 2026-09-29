@@ -1,6 +1,6 @@
 import { Fs, Is, Json, stripAnsi, type t } from '../m.start.gui.evidence.local/common.ts';
 import { EVIDENCE, renderEvidenceBoundOutput } from '../m.start.gui.evidence.local/mod.ts';
-import { START_GUI_RELEASE_EVIDENCE } from '../../src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts';
+import { snapshotReleaseAuthority } from '../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
 
 const PACKAGE_ROOT = Fs.resolve(import.meta.dirname ?? '.', '../..') as t.StringAbsoluteDir;
 const EVIDENCE_PATH = Fs.join(
@@ -10,6 +10,18 @@ const EVIDENCE_PATH = Fs.join(
 const TEST_TMP_ROOT = Fs.join(PACKAGE_ROOT, '.tmp');
 const GENERATOR_ARGS = ['task', 'bind:gui:evidence:local'] as const;
 
+// Reject unsupported evidence before running the generator. Supported evidence must already match
+// the selected candidate: this proof compares AFTER writing and attempts restoration on failure.
+// It has no pre-write pin gate; stale supported evidence can be rebound transiently.
+const snapshot = snapshotReleaseAuthority();
+if (!snapshot.ok) throw snapshot.failure.error;
+if (snapshot.authority.kind !== 'release') throw new Error('Expected release authority.');
+const authority = snapshot.authority;
+const boundEvidence = {
+  manifestUrl: authority.source.href,
+  pin: authority.pin,
+  expectedPkg: authority.expectedPkg,
+};
 const expected = await Deno.readFile(EVIDENCE_PATH);
 await Fs.ensureDir(TEST_TMP_ROOT);
 const emptyCache = await Fs.makeTempDir({
@@ -51,7 +63,7 @@ try {
   );
   assert(
     settledOutput.includes(
-      stripAnsi(renderEvidenceBoundOutput(START_GUI_RELEASE_EVIDENCE, { terminal: false })),
+      stripAnsi(renderEvidenceBoundOutput(boundEvidence, { terminal: false })),
     ),
     'The primed-cache generator did not report the bound evidence details.',
   );

@@ -1,17 +1,4 @@
-import {
-  Arr,
-  BootstrapStatus,
-  Dist,
-  DistServer,
-  Err,
-  Is,
-  Num,
-  Obj,
-  Open,
-  Str,
-  type t,
-  Time,
-} from '../common.ts';
+import { BootstrapStatus, Dist, DistServer, Err, FsDist, Is, Open, type t } from '../common.ts';
 import { runtimeRoot } from '../../../u/u.runtime.ts';
 import {
   admitApplicationPkg,
@@ -30,6 +17,8 @@ import { StartGuiPresentation } from './u.presentation.ts';
 import type { Start } from './t.ts';
 
 const DEFAULT_DEPENDENCIES: Start.Gui.Dependencies = Object.freeze({
+  releaseEvidence: START_GUI_SERVICE.source,
+  readPart: FsDist.Pinned.readPart,
   runtimeRoot,
   startStatus: BootstrapStatus.start,
   openGeneration: Dist.Generation.open,
@@ -38,13 +27,6 @@ const DEFAULT_DEPENDENCIES: Start.Gui.Dependencies = Object.freeze({
   openBrowser: Open.invokeDetached,
   presentation: StartGuiPresentation,
 });
-
-// Required common helpers stay available at this package boundary.
-void Arr;
-void Num;
-void Obj;
-void Str;
-void Time;
 
 /**
  * Start the one canonical Driver Pi GUI release.
@@ -62,7 +44,7 @@ export function startWith(
 ): Promise<Start.Gui.Outcome> {
   return compose({
     ...input,
-    authority: snapshotReleaseAuthority(),
+    authority: snapshotReleaseAuthority(deps.releaseEvidence),
     recovery: START_GUI_SERVICE.recovery,
   }, deps);
 }
@@ -338,9 +320,6 @@ async function compose(
       if (generationFirst.kind === 'operation') {
         if (generationFirst.value.kind === 'opened') {
           generation = generationFirst.value;
-          if (!admitGenerationPkg(authority, generation.generation)) {
-            requestFailure(packageRefusal());
-          }
         } else {
           requestFailure(generationOpenFailure(generationFirst.value));
         }
@@ -358,6 +337,14 @@ async function compose(
           recordError(drained.cause, 'start:gui generation opening failed while stopping.');
         }
       }
+    }
+
+    if (!selected && authority?.kind === 'release' && generation) {
+      const opened = generation.generation;
+      const admitted = await admitPackage(() =>
+        admitGenerationPkg(authority, opened, work.signal, deps.readPart)
+      );
+      if (!selected && !admitted) requestFailure(packageRefusal());
     }
 
     if (!selected) {
@@ -381,8 +368,10 @@ async function compose(
       ]);
       if (applicationFirst.kind === 'operation') {
         bindApplication(applicationFirst.value);
-        applicationReady = admitApplicationPkg(authority, applicationFirst.value);
-        if (!applicationReady) requestFailure(packageRefusal());
+        applicationReady = await admitPackage(() =>
+          admitApplicationPkg(authority, dir, applicationFirst.value, work.signal, deps.readPart)
+        );
+        if (!selected && !applicationReady) requestFailure(packageRefusal());
       } else if (applicationFirst.kind === 'operation-error') {
         if (deps.isHostError(applicationFirst.cause)) {
           requestFailure(captureStartGuiFailure(applicationFirst.cause, 'application-host'));
@@ -523,6 +512,28 @@ async function compose(
     return selected;
   } finally {
     input.until?.removeEventListener('abort', onExternalAbort);
+  }
+
+  /** Drain each bounded package read before releasing its directory owner. */
+  async function admitPackage<T>(read: () => Promise<T | undefined>): Promise<T | undefined> {
+    const operation = observeOperation(read);
+    const first = await Promise.race([
+      operation,
+      controlEvent,
+      statusEvent!,
+      presentationEvent!,
+      ...(applicationEvent ? [applicationEvent] : []),
+    ]);
+    if (first.kind === 'operation') return first.value;
+    if (first.kind === 'operation-error') {
+      requestTerminalFailure(first.cause, 'start:gui package admission failed.');
+      return;
+    }
+    handleRuntimeEvent(first);
+    const drained = await operation;
+    if (drained.kind === 'operation-error') {
+      recordError(drained.cause, 'start:gui package admission failed while stopping.');
+    }
   }
 
   function beginGenerationSettlement(): void {

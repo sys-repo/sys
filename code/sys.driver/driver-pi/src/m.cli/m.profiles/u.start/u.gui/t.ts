@@ -1,3 +1,4 @@
+import type { Pkg as FsPkg } from '@sys/fs/t';
 import type { t } from '../common.ts';
 
 /**
@@ -31,6 +32,10 @@ export declare namespace Start {
 
     /** Owner boundaries injected into direct GUI session composition. */
     export type Dependencies = Readonly<{
+      /** Fixed launcher evidence; admitted before acquiring artifact owners. */
+      releaseEvidence: unknown;
+      /** Bounded checksum read; package policy still requires admitted inventory membership. */
+      readPart: FsPkg.Dist.Pinned.ReadPart.Method;
       /** Resolve the canonical runtime store root. */
       runtimeRoot: (cwd: t.PiCli.Cwd, context?: string) => t.StringDir;
       /** Acquire BootstrapStatus ownership. */
@@ -66,11 +71,15 @@ export declare namespace Start {
      * Canonical release authority.
      */
     export namespace Release {
-      /** Released-artifact evidence copied into canonical launcher policy. */
+      /**
+       * Launcher-selected artifact expectation for the acquisition/cache path.
+       * `release` names that path, not publication or publisher provenance;
+       * the checked-in record is local-rehearsal evidence.
+       */
       export type Evidence = Readonly<{
         kind: 'release';
         manifestUrl: t.StringUrl;
-        integrity: t.StringHash;
+        pin: t.DistPin;
         expectedPkg: Readonly<t.Pkg>;
       }>;
 
@@ -78,7 +87,7 @@ export declare namespace Start {
       export type Authority = Readonly<{
         kind: 'release';
         source: Manifest.Source;
-        integrity: t.StringHash;
+        pin: t.DistPin;
         expectedPkg: Readonly<t.Pkg>;
       }>;
     }
@@ -91,7 +100,7 @@ export declare namespace Start {
       export type Evidence = Readonly<{
         kind: 'development';
         dir: t.StringAbsoluteDir;
-        integrity: t.StringHash;
+        pin: t.DistPin;
         expectedPkg: Readonly<t.Pkg>;
       }>;
 
@@ -105,7 +114,7 @@ export declare namespace Start {
       export type Authority = Readonly<{
         kind: 'development';
         dir: t.StringAbsoluteDir;
-        integrity: t.StringHash;
+        pin: t.DistPin;
         expectedPkg: Readonly<t.Pkg>;
       }>;
     }
@@ -127,7 +136,7 @@ export declare namespace Start {
       /** Package-owned recovery copy available only for canonical release evidence. */
       export type Policy = Readonly<{
         kind: 'local-evidence-binding';
-        manifestChecksumMismatch: string;
+        contentPinRefused: string;
       }>;
     }
 
@@ -159,14 +168,13 @@ export declare namespace Start {
         reason: t.Dist.FailureReason;
         cleanup: t.Dist.Cleanup;
         publication?: t.Dist.FailedPublication;
-        manifestChecksum?: t.Dist.ManifestChecksumMismatch;
       }>;
 
       /** Finite safe evidence admitted for product-facing failure presentation. */
       export type Evidence =
         | Readonly<{
           kind: 'configuration';
-          reason: 'manifest-url' | 'integrity' | 'development-directory' | 'package-identity';
+          reason: 'manifest-url' | 'pin' | 'development-directory' | 'package-identity';
         }>
         | Readonly<{ kind: 'identity' }>
         | MaterializationEvidence
@@ -405,10 +413,9 @@ export declare namespace Start {
         /** One semantic value rendered in the service region. */
         export type Value =
           | { readonly kind: 'title' | 'warning'; readonly text: string }
-          | { readonly kind: 'checksum'; readonly text: t.StringHash }
           | { readonly kind: 'evidence'; readonly items: readonly string[] }
           | {
-            readonly kind: 'manifest';
+            readonly kind: 'content';
             readonly hash: t.StringHash;
             readonly directoryHref?: t.StringUrl;
             readonly href?: t.StringUrl;

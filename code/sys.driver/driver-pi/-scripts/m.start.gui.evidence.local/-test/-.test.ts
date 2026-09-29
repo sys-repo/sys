@@ -1,7 +1,15 @@
 import { describe, Err, expect, it } from '../../common.ts';
 import { pkg } from '../../../src/pkg.ts';
 import { START_GUI_RELEASE_EVIDENCE } from '../../../src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts';
-import { START_GUI_SERVICE } from '../../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
+import {
+  snapshotReleaseAuthority,
+  START_GUI_SERVICE,
+} from '../../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
+import {
+  AUTHORITY_LIMITS,
+  VERIFY_LIMITS,
+} from '../../../src/m.cli/m.profiles/u.start/u.gui/u.policy.ts';
+import { RELEASE_EVIDENCE } from '../../../src/m.cli/m.profiles/-test/u.fixture.start.gui.ts';
 import { c, Fmt, Fs, Pkg, stripAnsi } from '../common.ts';
 import { EVIDENCE, renderEvidence, renderEvidenceBoundOutput, writeEvidenceWith } from '../mod.ts';
 
@@ -12,13 +20,13 @@ const EVIDENCE_LEAF = new URL(
 
 const render = (expectedPkg: unknown) =>
   renderEvidence({
-    manifestUrl: START_GUI_RELEASE_EVIDENCE.manifestUrl,
-    integrity: START_GUI_RELEASE_EVIDENCE.integrity,
+    manifestUrl: RELEASE_EVIDENCE.manifestUrl,
+    pin: RELEASE_EVIDENCE.pin,
     expectedPkg,
   });
 
 describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
-  it('binds one frozen generated candidate without coupling its version to current source', () => {
+  it('retains frozen evidence values without coupling their version to current source', () => {
     expect(START_GUI_SERVICE.source).to.equal(START_GUI_RELEASE_EVIDENCE);
     expect(START_GUI_RELEASE_EVIDENCE.manifestUrl).to.eql(
       'http://localhost:8080/dist.json',
@@ -26,6 +34,17 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
     expect(START_GUI_RELEASE_EVIDENCE.expectedPkg.name).to.eql(pkg.name);
     expect(Object.isFrozen(START_GUI_RELEASE_EVIDENCE)).to.eql(true);
     expect(Object.isFrozen(START_GUI_RELEASE_EVIDENCE.expectedPkg)).to.eql(true);
+  });
+
+  it('shares immutable admission bounds with the GUI runtime', () => {
+    expect(START_GUI_SERVICE.authorityLimits).to.equal(AUTHORITY_LIMITS);
+    expect(START_GUI_SERVICE.limits).to.equal(VERIFY_LIMITS);
+    expect(Object.isFrozen(AUTHORITY_LIMITS)).to.eql(true);
+    expect(Object.isFrozen(VERIFY_LIMITS)).to.eql(true);
+    const manifestUrl = `http://localhost/${'a'.repeat(AUTHORITY_LIMITS.manifestUrl)}`;
+    expect(() => renderEvidence({ ...RELEASE_EVIDENCE, manifestUrl })).to.throw(
+      'Driver Pi local GUI evidence manifest URL is invalid.',
+    );
   });
 
   it('targets the colocated evidence leaf without writing it', async () => {
@@ -42,14 +61,27 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
     expect(writes).to.eql([[Fs.Path.fromFileUrl(EVIDENCE_LEAF), 'candidate']]);
   });
 
-  it('renders the checked-in evidence leaf byte-for-byte', async () => {
-    const rendered = new TextEncoder().encode(renderEvidence(START_GUI_RELEASE_EVIDENCE));
-    expect(await Deno.readFile(EVIDENCE_LEAF)).to.eql(rendered);
+  it('renders supported content evidence without rewriting the selected evidence leaf', async () => {
+    const before = await Fs.read(Fs.Path.fromFileUrl(EVIDENCE_LEAF));
+    const source = renderEvidence(RELEASE_EVIDENCE);
+    expect(source).to.contain(`scheme: 'sys.dist/v2'`);
+    expect(source).to.contain(`digest: '${RELEASE_EVIDENCE.pin.digest}'`);
+    expect(source).not.to.contain('integrity:');
+    expect(source).to.contain('verify a local build against the recorded content pin');
+    expect(source).not.to.contain('authenticate one frozen');
+    const rendered = await import(`data:application/typescript,${encodeURIComponent(source)}`);
+    expect(rendered.START_GUI_RELEASE_EVIDENCE).to.eql(RELEASE_EVIDENCE);
+    expect(snapshotReleaseAuthority(rendered.START_GUI_RELEASE_EVIDENCE).ok).to.eql(true);
+    expect(Object.isFrozen(rendered.START_GUI_RELEASE_EVIDENCE.pin)).to.eql(true);
+    expect((await Fs.read(Fs.Path.fromFileUrl(EVIDENCE_LEAF))).data).to.eql(before.data);
+    expect(() => renderEvidence({ ...RELEASE_EVIDENCE, pin: undefined })).to.throw(
+      'Driver Pi local GUI evidence content pin is invalid.',
+    );
   });
 
   it('renders semantic settlement through canonical formatters', () => {
     const width = 120;
-    const rawLines = renderEvidenceBoundOutput(START_GUI_RELEASE_EVIDENCE, {
+    const rawLines = renderEvidenceBoundOutput(RELEASE_EVIDENCE, {
       terminal: false,
       width,
     }).split('\n');
@@ -82,14 +114,13 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
       Fmt.Path.str(EVIDENCE.outputPath, { relative: 'bare' }),
     );
 
-    const manifestIndex = uniqueLineIndex(tableLines, START_GUI_RELEASE_EVIDENCE.manifestUrl);
-    const integrityIndex = uniqueLineIndex(tableLines, START_GUI_RELEASE_EVIDENCE.integrity);
-    const expectsIndex = uniqueLineIndex(
-      tableLines,
-      Pkg.toString(START_GUI_RELEASE_EVIDENCE.expectedPkg),
-    );
+    const manifestIndex = uniqueLineIndex(tableLines, RELEASE_EVIDENCE.manifestUrl);
+    const schemeIndex = uniqueLineIndex(tableLines, RELEASE_EVIDENCE.pin.scheme);
+    const digestIndex = uniqueLineIndex(tableLines, RELEASE_EVIDENCE.pin.digest);
+    const expectsIndex = uniqueLineIndex(tableLines, Pkg.toString(RELEASE_EVIDENCE.expectedPkg));
     expect(rawLines[manifestIndex] ?? '').to.contain(c.gray(Fmt.Tree.branch(false)));
-    expect(rawLines[integrityIndex] ?? '').to.contain(c.gray(Fmt.Tree.branch(false)));
+    expect(rawLines[schemeIndex] ?? '').to.contain(c.gray(Fmt.Tree.branch(false)));
+    expect(rawLines[digestIndex] ?? '').to.contain(c.gray(Fmt.Tree.branch(false)));
     expect(rawLines[expectsIndex] ?? '').to.contain(c.gray(Fmt.Tree.branch(true)));
 
     uniqueLineIndex(lines.slice(ruleIndex + 1), EVIDENCE.commitMessage);
@@ -97,7 +128,7 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
 
   it('fits bound state and output rows to narrow terminals', () => {
     const width = 40;
-    const lines = renderEvidenceBoundOutput(START_GUI_RELEASE_EVIDENCE, {
+    const lines = renderEvidenceBoundOutput(RELEASE_EVIDENCE, {
       terminal: true,
       width,
     }).split('\n');
@@ -134,19 +165,19 @@ describe('driver-pi/scripts/m.start.gui.evidence.local', () => {
     }
   });
 
-  it('rejects malformed URL and integrity authority before rendering', () => {
+  it('rejects malformed URL and content-pin authority before rendering', () => {
     expect(() =>
       renderEvidence({
-        ...START_GUI_RELEASE_EVIDENCE,
+        ...RELEASE_EVIDENCE,
         manifestUrl: 'http://localhost:8080/dist.json?mutable',
       })
     ).to.throw('Driver Pi local GUI evidence manifest URL is invalid.');
     expect(() =>
       renderEvidence({
-        ...START_GUI_RELEASE_EVIDENCE,
-        integrity: `${START_GUI_RELEASE_EVIDENCE.integrity}:size=1`,
+        ...RELEASE_EVIDENCE,
+        pin: { ...RELEASE_EVIDENCE.pin, digest: `${RELEASE_EVIDENCE.pin.digest}:size=1` },
       })
-    ).to.throw('Driver Pi local GUI evidence integrity is invalid.');
+    ).to.throw('Driver Pi local GUI evidence content pin is invalid.');
   });
 
   it('fails closed when the evidence output write rejects', async () => {

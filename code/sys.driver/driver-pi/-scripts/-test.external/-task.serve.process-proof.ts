@@ -85,12 +85,12 @@ async function requirePreparedDist(): Promise<Candidate> {
     );
   }
 
-  const path = Obj.keys(verified.evidence.dist.hash.parts).sort()[0];
+  const path = Obj.keys(verified.evidence.content.parts).sort()[0];
   if (!Is.string(path) || path.length === 0) {
     throw Err.std('The prepared local Dist contains no representative part.');
   }
 
-  const authority = FsDist.Part.parse(verified.evidence.dist.hash.parts[path]);
+  const authority = FsDist.Part.parse(verified.evidence.content.parts[path]);
   if (!authority || authority.size === undefined) {
     throw Err.std(`The representative local Dist part is malformed: ${path}`);
   }
@@ -183,7 +183,7 @@ function printSummary(candidate: Candidate): void {
   const partEvidence = [
     c.cyan(candidate.part.path),
     Str.bytes(candidate.part.bytes.byteLength),
-    'checksum-authenticated exact bytes',
+    'checksum-matched exact bytes',
   ].join(' · ');
   const rows = [
     { check: 'serve vector', evidence: serveEvidence },

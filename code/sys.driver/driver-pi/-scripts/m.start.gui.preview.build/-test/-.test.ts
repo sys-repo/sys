@@ -1,4 +1,16 @@
-import { describe, DistServer, expect, Fs, FsDist, Is, it, Json, Open, Str } from '../../common.ts';
+import {
+  describe,
+  DistServer,
+  expect,
+  Fs,
+  FsDist,
+  Hash,
+  Is,
+  it,
+  Json,
+  Open,
+  Str,
+} from '../../common.ts';
 
 import { default as deno } from '../../../deno.json' with { type: 'json' };
 import { EsmAssert } from '../../../src/-test.ts';
@@ -34,13 +46,13 @@ type StartGuiFixtureOptions = {
 type PreviewDistFixture = {
   readonly root: t.StringAbsoluteDir;
   readonly dir: t.StringAbsoluteDir;
-  readonly integrity: t.StringHash;
+  readonly pin: t.DistPin;
   readonly generation: (disposals?: t.StringAbsoluteDir[]) => t.PreviewGeneration;
   readonly dispose: () => Promise<void>;
 };
 
-const FIRST_PIN: t.StringHash = `sha256-${'1'.repeat(64)}`;
-const SECOND_PIN: t.StringHash = `sha256-${'2'.repeat(64)}`;
+const FIRST_PIN: t.DistPin = { scheme: 'sys.dist/v2', digest: `sha256-${'1'.repeat(64)}` };
+const SECOND_PIN: t.DistPin = { scheme: 'sys.dist/v2', digest: `sha256-${'2'.repeat(64)}` };
 const FIRST_DIR: t.StringAbsoluteDir = Fs.resolve(PACKAGE_ROOT, '.tmp/driver-pi-preview-one');
 const SECOND_DIR: t.StringAbsoluteDir = Fs.resolve(PACKAGE_ROOT, '.tmp/driver-pi-preview-two');
 const INDEX_BODY = '<h1>verified local Driver Pi preview</h1>';
@@ -162,7 +174,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       allocate: () => Promise.resolve(generation(FIRST_DIR, disposals)),
       build(input) {
         builds.push(input);
-        return Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN }));
+        return Promise.resolve(buildResult({ paths: input.paths, pin: FIRST_PIN }));
       },
       startGui(input) {
         starts.push(input);
@@ -189,7 +201,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       source: {
         kind: 'development',
         dir: FIRST_DIR,
-        integrity: FIRST_PIN,
+        pin: FIRST_PIN,
         expectedPkg: { name: pkg.name, version: pkg.version },
       },
     }]);
@@ -208,16 +220,17 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     for (const outcome of outcomes) {
       const result = await mainWith({
         paths: BASE_PATHS,
-        allocate: () =>
-          Promise.resolve(Object.freeze({
+        allocate() {
+          const owner = Object.freeze({
             dir: FIRST_DIR,
             dispose() {
               settled.push(`dispose:${outcome}`);
               return Promise.resolve();
             },
-          })),
-        build: (input) =>
-          Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN })),
+          });
+          return Promise.resolve(owner);
+        },
+        build: (input) => Promise.resolve(buildResult({ paths: input.paths, pin: FIRST_PIN })),
         startGui() {
           settled.push(`outcome:${outcome}`);
           return Promise.resolve(outcome);
@@ -226,10 +239,11 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       expect(result).to.eql(outcome);
     }
 
-    expect(settled).to.eql(outcomes.flatMap((outcome) => [
+    const expectedEvents = outcomes.flatMap((outcome) => [
       `outcome:${outcome}`,
       `dispose:${outcome}`,
-    ]));
+    ]);
+    expect(settled).to.eql(expectedEvents);
   });
 
   it('projects failed preview status only after temporary-generation cleanup', async () => {
@@ -239,16 +253,17 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       Deno.exitCode = 0;
       await main({
         paths: BASE_PATHS,
-        allocate: () =>
-          Promise.resolve(Object.freeze({
+        allocate() {
+          const owner = Object.freeze({
             dir: FIRST_DIR,
             dispose() {
               exitCodeDuringCleanup = Deno.exitCode;
               return Promise.resolve();
             },
-          })),
-        build: (input) =>
-          Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN })),
+          });
+          return Promise.resolve(owner);
+        },
+        build: (input) => Promise.resolve(buildResult({ paths: input.paths, pin: FIRST_PIN })),
         startGui: () => Promise.resolve('failed'),
       });
 
@@ -272,7 +287,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
           'name',
           '@hostile/producer-selected',
         );
-        return Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN }));
+        return Promise.resolve(buildResult({ paths: input.paths, pin: FIRST_PIN }));
       },
       startGui(input) {
         starts.push(input);
@@ -303,9 +318,9 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         return Promise.resolve(generation(owner.dir, disposals));
       },
       build(input) {
-        const integrity = pins.shift();
-        if (!integrity) throw new Error('Unexpected preview build.');
-        return Promise.resolve(buildResult({ paths: input.paths, integrity }));
+        const pin = pins.shift();
+        if (!pin) throw new Error('Unexpected preview build.');
+        return Promise.resolve(buildResult({ paths: input.paths, pin }));
       },
       startGui(input) {
         starts.push(input.source);
@@ -319,13 +334,13 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       {
         kind: 'development',
         dir: FIRST_DIR,
-        integrity: FIRST_PIN,
+        pin: FIRST_PIN,
         expectedPkg: { name: pkg.name, version: pkg.version },
       },
       {
         kind: 'development',
         dir: SECOND_DIR,
-        integrity: SECOND_PIN,
+        pin: SECOND_PIN,
         expectedPkg: { name: pkg.name, version: pkg.version },
       },
     ]);
@@ -342,7 +357,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         build(input) {
           return Promise.resolve(buildResult({
             paths: input.paths,
-            integrity: FIRST_PIN,
+            pin: FIRST_PIN,
             ok: false,
           }));
         },
@@ -365,7 +380,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
         paths: BASE_PATHS,
         allocate: () => Promise.resolve(generation(FIRST_DIR, disposals)),
         build() {
-          return Promise.resolve(buildResult({ paths: BASE_PATHS, integrity: FIRST_PIN }));
+          return Promise.resolve(buildResult({ paths: BASE_PATHS, pin: FIRST_PIN }));
         },
         startGui() {
           starts += 1;
@@ -385,7 +400,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     const run = mainWith({
       paths: BASE_PATHS,
       allocate: () => Promise.resolve(generation(FIRST_DIR, disposals)),
-      build: (input) => Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN })),
+      build: (input) => Promise.resolve(buildResult({ paths: input.paths, pin: FIRST_PIN })),
       async startGui() {
         entered.resolve();
         await release.promise;
@@ -403,7 +418,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
   it('hosts the exact local build directly and refuses post-start mutation without store work', async () => {
     const fixture = await previewDistFixture();
     let generationOpenCalls = 0;
-    const applicationStarts: Pick<t.DistServer.Start.Args, 'dir' | 'integrity'>[] = [];
+    const applicationStarts: Pick<t.DistServer.Start.Args, 'dir' | 'pin'>[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
     let servedStatus = 0;
     let body = '';
@@ -414,15 +429,14 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       await mainWith({
         paths: BASE_PATHS,
         allocate: () => Promise.resolve(fixture.generation(disposals)),
-        build: (input) =>
-          Promise.resolve(buildResult({ paths: input.paths, integrity: fixture.integrity })),
+        build: (input) => Promise.resolve(buildResult({ paths: input.paths, pin: fixture.pin })),
         startGui: startGuiFixture({
           root: fixture.root,
           onOpenGeneration() {
             generationOpenCalls += 1;
           },
           onStart(input) {
-            applicationStarts.push({ dir: input.dir, integrity: input.integrity });
+            applicationStarts.push({ dir: input.dir, pin: input.pin });
           },
           async onReady(origin) {
             expect(await Fs.exists(fixture.dir)).to.eql(true);
@@ -442,7 +456,7 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
 
       expect({ generationOpenCalls, applicationStarts }).to.eql({
         generationOpenCalls: 0,
-        applicationStarts: [{ dir: fixture.dir, integrity: fixture.integrity }],
+        applicationStarts: [{ dir: fixture.dir, pin: fixture.pin }],
       });
       expect({ servedStatus, body }).to.eql({ servedStatus: 200, body: INDEX_BODY });
       expect({ changedStatus, changedBytes }).to.eql({ changedStatus: 412, changedBytes: 0 });
@@ -466,40 +480,40 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
     const wrongPinFixture = await previewDistFixture();
     const changedOutputFixture = await previewDistFixture();
     let generationOpenCalls = 0;
-    const applicationStarts: Pick<t.DistServer.Start.Args, 'dir' | 'integrity'>[] = [];
+    const applicationStarts: Pick<t.DistServer.Start.Args, 'dir' | 'pin'>[] = [];
     const disposals: t.StringAbsoluteDir[] = [];
-    const invoke = (fixture: PreviewDistFixture, integrity: t.StringHash) =>
+    const invoke = (fixture: PreviewDistFixture, pin: t.DistPin) =>
       mainWith({
         paths: BASE_PATHS,
         allocate: () => Promise.resolve(fixture.generation(disposals)),
-        build: (input) => Promise.resolve(buildResult({ paths: input.paths, integrity })),
+        build: (input) => Promise.resolve(buildResult({ paths: input.paths, pin })),
         startGui: startGuiFixture({
           root: fixture.root,
           onOpenGeneration() {
             generationOpenCalls += 1;
           },
           onStart(input) {
-            applicationStarts.push({ dir: input.dir, integrity: input.integrity });
+            applicationStarts.push({ dir: input.dir, pin: input.pin });
           },
           onReady: () => Promise.reject(new Error('Expected preview host refusal.')),
         }),
       });
 
     try {
-      expect(wrongPinFixture.integrity).not.to.eql(FIRST_PIN);
+      expect(wrongPinFixture.pin).not.to.eql(FIRST_PIN);
       expect(await invoke(wrongPinFixture, FIRST_PIN)).to.eql('failed');
 
       await Fs.write(
         Fs.join(changedOutputFixture.dir, 'index.html'),
         MUTATED_INDEX_BODY,
       );
-      expect(await invoke(changedOutputFixture, changedOutputFixture.integrity)).to.eql('failed');
+      expect(await invoke(changedOutputFixture, changedOutputFixture.pin)).to.eql('failed');
 
       expect({ generationOpenCalls, applicationStarts }).to.eql({
         generationOpenCalls: 0,
         applicationStarts: [
-          { dir: wrongPinFixture.dir, integrity: FIRST_PIN },
-          { dir: changedOutputFixture.dir, integrity: changedOutputFixture.integrity },
+          { dir: wrongPinFixture.dir, pin: FIRST_PIN },
+          { dir: changedOutputFixture.dir, pin: changedOutputFixture.pin },
         ],
       });
       expect(disposals).to.eql([wrongPinFixture.dir, changedOutputFixture.dir]);
@@ -515,22 +529,22 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
   it('retains its generation when GUI invocation rejects without proving host settlement', async () => {
     const sessionFailure = new Error('preview session failed');
     let disposals = 0;
-    const error = await rejectionOf(() =>
-      mainWith({
-        paths: BASE_PATHS,
-        allocate: () =>
-          Promise.resolve(Object.freeze({
-            dir: FIRST_DIR,
-            dispose() {
-              disposals += 1;
-              return Promise.resolve();
-            },
-          })),
-        build: (input) =>
-          Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN })),
-        startGui: () => Promise.reject(sessionFailure),
-      })
-    );
+    const deps: t.PreviewDependencies = {
+      paths: BASE_PATHS,
+      allocate() {
+        const owner = Object.freeze({
+          dir: FIRST_DIR,
+          dispose() {
+            disposals += 1;
+            return Promise.resolve();
+          },
+        });
+        return Promise.resolve(owner);
+      },
+      build: (input) => Promise.resolve(buildResult({ paths: input.paths, pin: FIRST_PIN })),
+      startGui: () => Promise.reject(sessionFailure),
+    };
+    const error = await rejectionOf(() => mainWith(deps));
 
     expect(error).to.equal(sessionFailure);
     expect(disposals).to.eql(0);
@@ -538,19 +552,20 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
 
   it('preserves a pre-host build failure when confined cleanup also fails', async () => {
     const cleanupFailure = new Error('preview cleanup failed');
-    const error = await rejectionOf(() =>
-      mainWith({
-        paths: BASE_PATHS,
-        allocate: () =>
-          Promise.resolve(Object.freeze({
-            dir: FIRST_DIR,
-            dispose: () => Promise.reject(cleanupFailure),
-          })),
-        build: (input) =>
-          Promise.resolve(buildResult({ paths: input.paths, integrity: FIRST_PIN, ok: false })),
-        startGui: () => Promise.resolve('quit'),
-      })
-    );
+    const deps: t.PreviewDependencies = {
+      paths: BASE_PATHS,
+      allocate() {
+        const owner = Object.freeze({
+          dir: FIRST_DIR,
+          dispose: () => Promise.reject(cleanupFailure),
+        });
+        return Promise.resolve(owner);
+      },
+      build: (input) =>
+        Promise.resolve(buildResult({ paths: input.paths, pin: FIRST_PIN, ok: false })),
+      startGui: () => Promise.resolve('quit'),
+    };
+    const error = await rejectionOf(() => mainWith(deps));
 
     expect(error).to.be.instanceOf(SuppressedError);
     expect(error.message).to.eql('start:gui:preview preparation and cleanup failed.');
@@ -564,13 +579,14 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
 
 function buildResult(input: {
   readonly paths: t.PreviewBuildPaths;
-  readonly integrity: t.StringHash;
+  readonly pin: t.DistPin;
   readonly ok?: boolean;
 }): t.PreviewBuildResponse {
-  return {
-    ok: input.ok ?? true,
+  return input.ok === false ? { ok: false, paths: input.paths } : {
+    ok: true,
     paths: input.paths,
-    manifest: { integrity: input.integrity },
+    pin: input.pin,
+    manifestChecksum: Hash.sha256('fixture document bytes'),
   };
 }
 
@@ -611,7 +627,7 @@ async function proveRealShutdownOrder(mode: 'clean' | 'fatal'): Promise<void> {
       source: Object.freeze({
         kind: 'development',
         dir: fixture.dir,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         expectedPkg: pkg,
       }),
     });
@@ -689,13 +705,15 @@ function startGuiFixture(options: StartGuiFixtureOptions): t.PreviewGuiStart {
       },
     });
     const deps: Start.Gui.Dependencies = Object.freeze({
+      releaseEvidence: undefined,
+      readPart: FsDist.Pinned.readPart,
       runtimeRoot: () => options.root,
       startStatus: () => Promise.resolve(status),
       openGeneration() {
         options.onOpenGeneration();
         throw new Error('Development preview must not open release evidence.');
       },
-      async startApplication(input) {
+      async startApplication(input: t.DistServer.Start.Args) {
         options.onStart(input);
         if (Is.abortSignal(input.until)) {
           input.until.addEventListener(
@@ -765,12 +783,13 @@ async function previewDistFixture(): Promise<PreviewDistFixture> {
       Fs.join(dir, 'sw.js'),
       `self.addEventListener('install', (event) => event.waitUntil(self.skipWaiting()));`,
     );
+    await Fs.write(Fs.join(dir, 'pkg/-pkg.json'), Json.stringify(pkg));
     const computed = await FsDist.compute({ dir, pkg, builder: pkg, save: true });
-    if (computed.error) throw computed.error;
+    if (computed.kind !== 'computed') throw computed.error;
     return Object.freeze({
       root,
       dir,
-      integrity: computed.manifest.integrity,
+      pin: computed.pin,
       generation(disposals: t.StringAbsoluteDir[] = []) {
         return Object.freeze({
           dir,

@@ -64,7 +64,7 @@ export async function resetGuiReleaseStores(
   return projectGuiReleaseStoreReset(settlement);
 }
 
-/** Admit and project one complete FS-owned reset transaction. */
+/** Admit and project one FS-owned batch-removal settlement, including partial failure. */
 export function projectGuiReleaseStoreReset(input: unknown): readonly GuiReleaseStoreReset[] {
   const settlement = admitBatchSettlement(input);
   if (!settlement) throw invalidBatchSettlement(input);

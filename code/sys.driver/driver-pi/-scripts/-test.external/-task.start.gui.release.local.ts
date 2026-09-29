@@ -1,7 +1,7 @@
 import { describe, expect, Fs, Is, it, type t } from '../common.ts';
 import type { Start } from '../../src/m.cli/m.profiles/u.start/u.gui/t.ts';
-import { START_GUI_SERVICE } from '../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
 import {
+  canonicalEvidence,
   cleanupRoot,
   DIST_DIR,
   evidenceAt,
@@ -59,7 +59,7 @@ describe('driver-pi local GUI release evidence', () => {
 
   it('admits the pinned saved candidate and package identity', async () => {
     const candidate = await loadCandidate();
-    expect(candidate.dist.pkg).to.eql(START_GUI_SERVICE.source.expectedPkg);
+    expect(candidate.pkg).to.eql(canonicalEvidence().expectedPkg);
   });
 
   it('performs cold acquisition, warm offline reuse, and stopped-serve refusal after reset', async () => {
@@ -124,21 +124,39 @@ describe('driver-pi local GUI release evidence', () => {
     );
   });
 
-  it('refuses changed transported manifest bytes without promotion or application-host execution', async () => {
+  it('admits manifest layout changes under the independent content pin', async () => {
+    const root = await temporaryRoot('driver-pi.release-local.metadata.');
+    let transport: Awaited<ReturnType<typeof startTamperedTransport>> | undefined;
+    await runWithCleanup(
+      async () => {
+        transport = await startTamperedTransport('metadata');
+        const session = await runSession(root, transport.source);
+        expect(session.state.kind).to.eql('ready');
+        expect(session.appStarts).to.eql(1);
+        expect(session.bootstrapStatus).to.eql(303);
+        expect(session.applicationStatus).to.eql(200);
+        expect(session.body.length).to.be.greaterThan(0);
+        expect(session.outcome).to.eql('external-cancellation');
+        expect(session.error).to.eql(undefined);
+        expect(await generationExists(root, transport.source.pin)).to.eql(true);
+      },
+      async () => {
+        if (transport) await transport.close();
+      },
+      () => cleanupRoot(root),
+    );
+  });
+
+  it('refuses substituted transported inventory without promotion or application-host execution', async () => {
     const root = await temporaryRoot('driver-pi.release-local.manifest-tamper.');
     let transport: Awaited<ReturnType<typeof startTamperedTransport>> | undefined;
     await runWithCleanup(
       async () => {
         transport = await startTamperedTransport('manifest');
         const session = await runSession(root, transport.source);
-        const safeEvidence = await expectArtifactRefusal(session, root, transport.source.integrity);
-        if (
-          safeEvidence.stage !== 'manifest-fetch' ||
-          safeEvidence.reason !== 'integrity-mismatch' ||
-          !safeEvidence.manifestChecksum
-        ) throw new Error('Expected manifest checksum mismatch evidence.');
-        expect(safeEvidence.manifestChecksum.expected).to.eql(transport.source.integrity);
-        expect(safeEvidence.manifestChecksum.received).not.to.eql(transport.source.integrity);
+        const safeEvidence = await expectArtifactRefusal(session, root, transport.source.pin);
+        expect(safeEvidence.stage).to.eql('manifest-admission');
+        expect(safeEvidence.reason).to.eql('pin-mismatch');
       },
       async () => {
         if (transport) await transport.close();
@@ -154,8 +172,8 @@ describe('driver-pi local GUI release evidence', () => {
       async () => {
         transport = await startTamperedTransport('asset');
         const session = await runSession(root, transport.source);
-        const safeEvidence = await expectArtifactRefusal(session, root, transport.source.integrity);
-        expect(safeEvidence.manifestChecksum).to.eql(undefined);
+        const safeEvidence = await expectArtifactRefusal(session, root, transport.source.pin);
+        expect(safeEvidence.stage).to.eql('resource-pull');
       },
       async () => {
         if (transport) await transport.close();
@@ -168,7 +186,7 @@ describe('driver-pi local GUI release evidence', () => {
 async function expectArtifactRefusal(
   session: ReleaseSession,
   root: t.StringAbsoluteDir,
-  integrity: t.StringHash,
+  pin: t.DistPin,
 ): Promise<Start.Gui.Failure.MaterializationEvidence> {
   expect(session.state.kind).to.eql('failed');
   if (session.state.kind !== 'failed') throw new Error('Expected artifact refusal.');
@@ -183,7 +201,7 @@ async function expectArtifactRefusal(
   expect(session.location).to.eql(undefined);
   expect(session.outcome).to.eql('failed');
   expect(session.error).to.eql(undefined);
-  expect(await generationExists(root, integrity)).to.eql(false);
+  expect(await generationExists(root, pin)).to.eql(false);
   return evidence;
 }
 

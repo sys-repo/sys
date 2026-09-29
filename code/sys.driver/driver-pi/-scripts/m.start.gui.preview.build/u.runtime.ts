@@ -73,7 +73,7 @@ export async function mainWith(deps: t.PreviewDependencies): Promise<t.Start.Gui
     source = Object.freeze({
       kind: 'development',
       dir,
-      integrity: build.manifest.integrity,
+      pin: build.pin,
       expectedPkg: pkg,
     });
   } catch (cause) {
@@ -125,6 +125,7 @@ export async function buildPreviewGeneration(
       args: [
         'run',
         '--frozen',
+        ...(input.dependencyPolicy === 'frozen-cache' ? ['--cached-only'] : []),
         '--no-prompt',
         '-P=preview-build',
         `--allow-write=${exchangeDir}`,

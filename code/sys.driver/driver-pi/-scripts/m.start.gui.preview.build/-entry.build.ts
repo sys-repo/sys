@@ -13,11 +13,14 @@ if (!input) throw new Error('start:gui:preview build child input unavailable.');
 
 const { Vite } = await import('@sys/driver-vite');
 const build = await Vite.build({ ...input, silent: true, spinner: false });
-const output: t.PreviewBuildResponse = Object.freeze({
-  ok: build.ok,
-  paths: build.paths,
-  manifest: build.manifest,
-});
+const output: t.PreviewBuildResponse = build.ok
+  ? Object.freeze({
+    ok: true,
+    paths: build.paths,
+    pin: build.pin,
+    manifestChecksum: build.manifestChecksum,
+  })
+  : Object.freeze({ ok: false, paths: build.paths });
 await Fs.write(outputPath, Json.stringify(output));
 
 function assertSanitizedEnvironment(): void {

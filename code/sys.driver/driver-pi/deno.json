@@ -3,7 +3,7 @@
   "version": "0.0.146",
   "license": "MIT",
   "tasks": {
-    "test": "deno task test:unit && deno task test:reset:process && deno task test:profiles:process && deno task test:preview:real",
+    "test": "deno task test:unit && deno task test:reset:process && deno task test:profiles:process && deno task test:evidence:authority && deno task test:preview:real",
     "test:unit": "deno test -P=test ./src ./-scripts",
     "test:deps": "deno test -P=test ./-scripts/-test/-prep.test.ts",
     "test:reporting": "deno test -P=test ./-scripts/-test.reporting.ts",
@@ -25,6 +25,7 @@
     "test:release:launch": "deno test --no-prompt -P=test-process ./-scripts/-test.external/-test.release.launch.process-proof.ts",
     "test:release:local": "deno task test:release:local:evidence:process && deno task test:release:local:runtime && deno task test:release:local:browser:frozen",
     "test:release:local:evidence:process": "deno run --frozen --cached-only --no-prompt -P=test-evidence-process ./-scripts/-test.external/-task.start.gui.evidence.local.process-proof.ts",
+    "test:evidence:authority": "deno test --frozen --cached-only --no-prompt -P=test-evidence-process --deny-write=./src/m.cli/m.profiles/u.start/u.gui/u.service.evidence.ts --trace-leaks ./-scripts/-test.external/-evidence.authority.process.ts",
     "test:release:local:runtime": "deno run --frozen --cached-only --no-prompt -P=test-release-launch ./-scripts/task.test.release.runtime.ts",
     "test:release:local:browser:admit": "deno run --frozen --cached-only --no-prompt -P=test-browser-admit ./-scripts/-test.browser.admit.ts",
     "test:release:local:browser:frozen": "deno run --frozen --cached-only --no-prompt -P=test-release-launch ./-scripts/task.test.release.browser.ts",
@@ -325,4 +326,3 @@
     }
   }
 }
-

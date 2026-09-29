@@ -1,9 +1,38 @@
-import { Fs, Is, type t } from '../common.ts';
+import { Hash } from '@sys/crypto/hash';
+import { Fs, Is, Json, Pkg, type t } from '../common.ts';
 import type { Start } from '../u.start/u.gui/t.ts';
-import { START_GUI_SERVICE } from '../u.start/u.gui/u.service.ts';
-export const DIST_DIGEST = `sha256-${'d'.repeat(59)}84346` as t.StringHash;
-export const GENERATION_DIR = '/tmp/driver-pi-gui-generation' as t.StringAbsoluteDir;
-export const GENERATION_HREF = Fs.Path.toFileUrl(GENERATION_DIR).href as t.StringUrl;
+
+export const TEST_PACKAGE = Object.freeze({ name: '@sys/driver-pi', version: '1.2.3' });
+export const GENERATION_DIR: t.StringAbsoluteDir = '/tmp/driver-pi-gui-generation';
+export const GENERATION_HREF: t.StringUrl = Fs.Path.toFileUrl(GENERATION_DIR).href;
+const PACKAGE_BYTES = new Map<t.StringHash, Uint8Array>();
+export const RELEASE_EVIDENCE: Start.Gui.Release.Evidence = Object.freeze({
+  kind: 'release',
+  manifestUrl: 'https://example.test/pi/dist.json',
+  pin: fakeGeneration().pin,
+  expectedPkg: TEST_PACKAGE,
+});
+/** Explicit unsupported authority; tests must not depend on the checkout's selected evidence. */
+export const LEGACY_RELEASE_EVIDENCE = Object.freeze({
+  kind: 'release',
+  manifestUrl: RELEASE_EVIDENCE.manifestUrl,
+  integrity: `sha256-${'0'.repeat(64)}`,
+  expectedPkg: TEST_PACKAGE,
+});
+export const DIST_DIGEST = RELEASE_EVIDENCE.pin.digest;
+
+/**
+ * Lifecycle-owner double only; real filesystem package admission has separate coverage.
+ * Keep call-time sampling and asynchronous rejection even with in-memory fixture bytes.
+ */
+// deno-lint-ignore require-await
+export const fixtureReadPart: Start.Gui.Dependencies['readPart'] = async (input) => {
+  const bytes = PACKAGE_BYTES.get(input.checksum);
+  if (Is.abortSignal(input.until) && input.until.aborted) return { kind: 'cancelled' };
+  if (input.path !== 'pkg/-pkg.json' || !bytes) return { kind: 'missing' };
+  if (bytes.length !== input.size) return { kind: 'content-mismatch' };
+  return { kind: 'read', bytes: bytes.slice() };
+};
 
 export function asProfileRoot(root: t.StringDir): t.PiCli.Cwd {
   return {
@@ -14,17 +43,26 @@ export function asProfileRoot(root: t.StringDir): t.PiCli.Cwd {
 }
 
 export function fakeGeneration(
-  pkg: Readonly<t.Pkg> = START_GUI_SERVICE.source.expectedPkg,
+  pkg: Readonly<t.Pkg> = TEST_PACKAGE,
   source: Readonly<{
-    integrity?: t.StringHash;
+    pin?: t.DistPin;
     digest?: t.StringHash;
     manifestUrl?: t.StringUrl;
     cleanup?: t.Dist.Cleanup;
     dir?: t.StringAbsoluteDir;
   }> = {},
 ): t.Dist.Existing {
-  const integrity = source.integrity ?? START_GUI_SERVICE.source.integrity;
-  const manifestUrl = source.manifestUrl ?? START_GUI_SERVICE.source.manifestUrl;
+  const bytes = new TextEncoder().encode(Json.stringify(pkg));
+  const checksum = Hash.sha256(bytes);
+  PACKAGE_BYTES.set(checksum, bytes);
+  const parts = Object.freeze({ 'pkg/-pkg.json': `${checksum}:size=${bytes.length}` });
+  const content = Object.freeze({
+    scheme: 'sys.dist/v2' as const,
+    digest: source.digest ?? Hash.sha256(Pkg.Dist.Content.encode(parts)),
+    parts,
+  });
+  const pin = source.pin ?? Object.freeze({ scheme: content.scheme, digest: content.digest });
+  const manifestUrl = source.manifestUrl ?? 'https://example.test/pi/dist.json';
   const dist = Object.freeze({
     type: 'https://jsr.io/@sample/driver-pi-gui',
     pkg: Object.freeze({ name: pkg.name, version: pkg.version }),
@@ -35,24 +73,25 @@ export function fakeGeneration(
       runtime: '<runtime-uri>',
       hash: Object.freeze({ policy: 'https://jsr.io/@sample/hash/0.0.1/src/hash.ts' }),
     }),
-    hash: Object.freeze({ digest: source.digest ?? DIST_DIGEST, parts: Object.freeze({}) }),
+    hash: content,
   });
+  const manifest = new TextEncoder().encode(Json.stringify(dist));
   const verification = Object.freeze({
-    integrity,
-    dist,
-    manifestBytes: 0,
-    assets: Object.freeze({ files: 0, totalBytes: 0, packageBytes: 0 }),
+    content,
+    manifestChecksum: Hash.sha256(manifest),
+    manifestBytes: manifest.length,
+    assets: Object.freeze({ files: 1, totalBytes: bytes.length, packageBytes: bytes.length }),
   });
 
   return Object.freeze({
     kind: 'existing',
     dir: source.dir ?? GENERATION_DIR,
-    integrity,
+    pin,
     verification,
     source: Object.freeze({ configuredUrl: manifestUrl }),
     seal: Object.freeze({ kind: 'applied', changed: false }),
     cleanup: source.cleanup ?? 'not-needed',
-  }) as t.Dist.Existing;
+  });
 }
 
 /** Create an exact frozen successful Generation-open settlement at the requested store. */
@@ -64,7 +103,7 @@ export function openedGenerationFixture(
   const store = generationStoreFixture(input.store);
   const admittedGeneration = Object.freeze({
     ...generation,
-    dir: Fs.join(store.dir, generation.integrity) as t.StringAbsoluteDir,
+    dir: Fs.join(store.dir, 'sys.dist-v2', generation.pin.digest),
   }) as t.Dist.Existing | t.Dist.Promoted;
   const owner = generationOwnerFixture(store, release);
   return Object.freeze({ kind: 'opened', generation: admittedGeneration, owner });
@@ -199,11 +238,11 @@ export function startedFixture(input: {
   close?: (reason?: unknown) => Promise<void>;
   finished?: Promise<void>;
   pkg?: Readonly<t.Pkg>;
-  integrity?: t.StringHash;
+  pin?: t.DistPin;
   digest?: t.StringHash;
 } = {}): Start.Gui.Application.Owner {
   const generation = fakeGeneration(input.pkg, {
-    integrity: input.integrity,
+    pin: input.pin,
     digest: input.digest,
   });
   const origin = 'http://127.0.0.1:1234' as t.StringUrl;
@@ -234,6 +273,16 @@ export async function rejectionOf(action: () => Promise<unknown>): Promise<Error
     return Is.error(cause) ? cause : new Error(String(cause));
   }
   throw new Error('Expected rejection.');
+}
+
+/** Fixture root cleanup follows its owned-store cleanup; the callbacks are test-only capabilities. */
+export async function removeDistFixtureRoot(
+  root: t.StringDir,
+  removeStores: () => Promise<void>,
+  removeRoot: (root: t.StringDir) => Promise<unknown> = Fs.remove,
+): Promise<void> {
+  await removeStores();
+  await removeRoot(root);
 }
 
 /** Remove a released test Dist store through lower owned-tree cleanup authority. */

@@ -10,9 +10,12 @@ import {
   deferred,
   failedGenerationFixture,
   fakeGeneration,
+  fixtureReadPart,
   GENERATION_DIR,
+  LEGACY_RELEASE_EVIDENCE,
   openedGenerationFixture,
   rejectionOf,
+  RELEASE_EVIDENCE,
   startedFixture,
 } from './u.fixture.start.gui.ts';
 
@@ -21,8 +24,8 @@ const CWD = asProfileRoot(ROOT);
 const DEVELOPMENT: Start.Gui.Development.Evidence = Object.freeze({
   kind: 'development',
   dir: GENERATION_DIR,
-  integrity: START_GUI_SERVICE.source.integrity,
-  expectedPkg: START_GUI_SERVICE.source.expectedPkg,
+  pin: RELEASE_EVIDENCE.pin,
+  expectedPkg: RELEASE_EVIDENCE.expectedPkg,
 });
 
 type Controls = Readonly<{
@@ -43,6 +46,8 @@ const REDRAW: KeyPress = Object.assign(new Event('keydown'), {
 });
 
 type HarnessOptions = Readonly<{
+  releaseEvidence?: unknown;
+  readPart?: Start.Gui.Dependencies['readPart'];
   status?: t.BootstrapStatus.Started;
   startStatus?: Start.Gui.Dependencies['startStatus'];
   openGeneration?: Start.Gui.Dependencies['openGeneration'];
@@ -114,11 +119,11 @@ describe('@sys/driver-pi start:gui direct composition', () => {
       Object.freeze({
         kind: 'release',
         source: Object.freeze({
-          href: START_GUI_SERVICE.source.manifestUrl,
-          origin: new URL(START_GUI_SERVICE.source.manifestUrl).origin,
+          href: RELEASE_EVIDENCE.manifestUrl,
+          origin: new URL(RELEASE_EVIDENCE.manifestUrl).origin,
         }),
-        integrity: START_GUI_SERVICE.source.integrity,
-        expectedPkg: START_GUI_SERVICE.source.expectedPkg,
+        pin: RELEASE_EVIDENCE.pin,
+        expectedPkg: RELEASE_EVIDENCE.expectedPkg,
       }),
       until,
     );
@@ -144,7 +149,7 @@ describe('@sys/driver-pi start:gui direct composition', () => {
     expect(result).to.eql('back');
     expect(harness.generationArgs).to.have.length(0);
     expect(harness.applicationArgs).to.have.length(1);
-    expect(harness.applicationArgs[0].integrity).to.eql(DEVELOPMENT.integrity);
+    expect(harness.applicationArgs[0].pin).to.eql(DEVELOPMENT.pin);
     expect(harness.applicationArgs[0].dir).to.eql(GENERATION_DIR);
     expect(cleanupEvents(harness.events)).to.eql([
       'presentation.shutdown',
@@ -223,6 +228,122 @@ describe('@sys/driver-pi start:gui direct composition', () => {
       'presentation.shutdown',
       'status.close',
     ]);
+  });
+
+  it('legacy release evidence → explicit refusal before artifact acquisition, without preview fallback', async () => {
+    const harness = createHarness({ releaseEvidence: LEGACY_RELEASE_EVIDENCE });
+    expect(await startWith({ cwd: CWD }, harness.deps)).to.eql('failed');
+    expect(harness.generationArgs).to.eql([]);
+    expect(harness.applicationArgs).to.eql([]);
+    expect(harness.failures[0]?.evidence).to.eql({ kind: 'configuration', reason: 'pin' });
+  });
+
+  it('cancellation during either package read → drain before releasing Generation', async () => {
+    for (const boundary of [1, 2]) {
+      const entered = deferred();
+      const aborted = deferred();
+      const drain = deferred();
+      let reads = 0;
+      const harness = createHarness({
+        autoReady: false,
+        async readPart(input) {
+          if (++reads === boundary) {
+            if (!Is.abortSignal(input.until)) {
+              throw new Error('Expected package read cancellation.');
+            }
+            input.until.addEventListener('abort', () => aborted.resolve(), { once: true });
+            entered.resolve();
+            await drain.promise;
+          }
+          return fixtureReadPart(input);
+        },
+      });
+      const run = startWith({ cwd: CWD }, harness.deps);
+      try {
+        await Promise.race([entered.promise, run]);
+        expect(reads).to.eql(boundary);
+        harness.controls.back();
+        await Promise.race([aborted.promise, run]);
+        expect(harness.events).not.to.contain('generation.release');
+        expect(harness.events).not.to.contain('presentation.ready');
+        if (boundary === 1) expect(harness.applicationArgs).to.eql([]);
+        else expect(harness.events).to.contain('application.close');
+      } finally {
+        harness.controls.back();
+        drain.resolve();
+        await run;
+      }
+      expect(await run).to.eql('back');
+      expect(harness.events).to.contain('generation.release');
+      expect(harness.events.at(-1)).to.eql('status.close');
+    }
+  });
+
+  it('host termination during package read → no readiness and no premature Generation release', async () => {
+    const finished = deferred();
+    const entered = deferred();
+    const aborted = deferred();
+    const drain = deferred();
+    let reads = 0;
+    const harness = createHarness({
+      application: startedFixture({ finished: finished.promise }),
+      async readPart(input) {
+        if (++reads === 2) {
+          if (!Is.abortSignal(input.until)) throw new Error('Expected package read cancellation.');
+          input.until.addEventListener('abort', () => aborted.resolve(), { once: true });
+          entered.resolve();
+          await drain.promise;
+        }
+        return fixtureReadPart(input);
+      },
+    });
+    const run = startWith({ cwd: CWD }, harness.deps);
+    try {
+      await Promise.race([entered.promise, run]);
+      expect(reads).to.eql(2);
+      finished.resolve();
+      await Promise.race([aborted.promise, run]);
+      expect(harness.events).to.contain('application.close');
+      expect(harness.events).not.to.contain('generation.release');
+    } finally {
+      finished.resolve();
+      harness.controls.back();
+      drain.resolve();
+      await run;
+    }
+    expect(await run).to.eql('failed');
+    expect(harness.events).not.to.contain('presentation.ready');
+    expect(harness.failures[0]?.evidence).to.eql({
+      kind: 'local',
+      operation: 'application-listener',
+    });
+  });
+
+  it('either package read rejects → preserve the cause and settle acquired owners', async () => {
+    for (const boundary of [1, 2]) {
+      const cause = new Error(`package read ${boundary} failed`);
+      let reads = 0;
+      const harness = createHarness({
+        readPart(input) {
+          if (++reads === boundary) return Promise.reject(cause);
+          return fixtureReadPart(input);
+        },
+      });
+      const error = await rejectionOf(() => startWith({ cwd: CWD }, harness.deps));
+      expect(error).to.equal(cause);
+      expect(reads).to.eql(boundary);
+      expect(harness.events).not.to.contain('presentation.ready');
+      expect(harness.events).to.contain('generation.release');
+      expect(harness.events.at(-1)).to.eql('status.close');
+      if (boundary === 1) expect(harness.applicationArgs).to.eql([]);
+      else {
+        expect(harness.applicationArgs).to.have.length(1);
+        expect(harness.events).to.contain('application.close');
+        expect(harness.events.indexOf('application.close')).to.be.lessThan(
+          harness.events.indexOf('generation.release'),
+        );
+      }
+    }
   });
 
   it('requests presentation shutdown before aborting and draining Generation opening', async () => {
@@ -933,6 +1054,8 @@ function createHarness(options: HarnessOptions = {}): Harness {
     return wrapApplication(started);
   };
   const deps: Start.Gui.Dependencies = Object.freeze({
+    releaseEvidence: options.releaseEvidence ?? RELEASE_EVIDENCE,
+    readPart: options.readPart ?? fixtureReadPart,
     runtimeRoot: () => ROOT,
     startStatus: options.startStatus ?? (() => Promise.resolve(status)),
     openGeneration: options.openGeneration ?? ((args) => {

@@ -1,4 +1,4 @@
-import { c, Cli, Fs, HashFmt, Is, type t } from '../common.ts';
+import { c, Cli, Fs, HashFmt, Is, Pkg, type t } from '../common.ts';
 
 import { START_GUI_SERVICE } from '../u.gui/u.service.ts';
 import type { Start } from '../u.gui/t.ts';
@@ -68,8 +68,9 @@ function serviceFacts(
   pushFact(facts, 'state', { kind: 'state', state: input.state });
 
   if (input.state.kind === 'ready') {
-    pushFact(facts, 'manifest', {
-      kind: 'manifest',
+    pushFact(facts, 'scheme', { kind: 'title', text: Pkg.Dist.Content.scheme });
+    pushFact(facts, 'content', {
+      kind: 'content',
       hash: input.state.digest,
       directoryHref: input.state.directoryHref,
       href: captureManifestUrl(input.manifestUrl),
@@ -83,11 +84,6 @@ function serviceFacts(
       kind: 'evidence',
       items: evidenceItems(input.state.safeEvidence),
     });
-    const manifestChecksum = manifestChecksumOf(input.state.safeEvidence);
-    if (manifestChecksum) {
-      pushFact(facts, 'expected', { kind: 'checksum', text: manifestChecksum.expected });
-      pushFact(facts, 'received', { kind: 'checksum', text: manifestChecksum.received });
-    }
     const guidance = failureGuidance(input.state, input.recovery);
     if (guidance) pushFact(facts, 'guidance', { kind: 'title', text: guidance });
   }
@@ -186,7 +182,7 @@ function serviceValue(
   if (value.kind === 'state') {
     return fitValue(stateText(value.state), width, stateColor(value.state));
   }
-  if (value.kind === 'manifest') {
+  if (value.kind === 'content') {
     const reserve = Cli.Fmt.Text.Width.measure(`${DIST_PATH} `);
     const manifestUrl = value.href === undefined ? undefined : stableNativeUrl(value.href);
     const directoryUrl = value.directoryHref === undefined
@@ -203,7 +199,6 @@ function serviceValue(
     });
     return digest ? `${linkedDirectory} ${digest}` : linkedDirectory;
   }
-  if (value.kind === 'checksum') return fitValue(value.text, width, c.gray);
   if (value.kind === 'warning') return fitValue(value.text, width, c.yellow);
   return fitValue(value.text, width, c.white);
 }
@@ -258,25 +253,17 @@ function failureGuidance(
   state: Extract<Start.Gui.Presentation.State, { readonly kind: 'failed' }>,
   recovery?: Start.Gui.Recovery.Policy,
 ): string | undefined {
-  const canRecoverManifest = recovery === START_GUI_SERVICE.recovery &&
-    manifestChecksumOf(state.safeEvidence) !== undefined;
-  if (canRecoverManifest) return recovery.manifestChecksumMismatch;
+  const evidence = state.safeEvidence;
+  const pinRefused = (evidence.kind === 'configuration' && evidence.reason === 'pin') ||
+    (evidence.kind === 'materialization' && evidence.stage === 'manifest-admission' &&
+      evidence.reason === 'pin-mismatch');
+  if (recovery === START_GUI_SERVICE.recovery && pinRefused) return recovery.contentPinRefused;
   if (state.category === 'repair-required') {
-    return 'The cache was refused and retained. Run deno task reset, then launch a fresh session.';
+    return 'Cache retained. Stop GUI/store owners; see Driver Pi README: Reset (source-checkout only).';
   }
   if (state.category === 'source-unavailable') {
     return 'Check access to the configured source, then launch a fresh session.';
   }
-}
-
-function manifestChecksumOf(
-  evidence: Start.Gui.Failure.Evidence,
-): t.Dist.ManifestChecksumMismatch | undefined {
-  if (
-    evidence.kind !== 'materialization' || evidence.stage !== 'manifest-fetch' ||
-    evidence.reason !== 'integrity-mismatch'
-  ) return;
-  return evidence.manifestChecksum;
 }
 
 function evidenceItems(evidence: Start.Gui.Failure.Evidence): readonly string[] {

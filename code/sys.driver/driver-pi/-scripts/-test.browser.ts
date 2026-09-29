@@ -6,7 +6,7 @@ import {
   expect,
   Fs,
   FsDist,
-  Hash,
+  Is,
   it,
   Json,
   serveFileBytes,
@@ -15,12 +15,16 @@ import {
   Testing,
 } from './common.ts';
 import { pkg } from '../src/pkg.ts';
-import { START_GUI_SERVICE } from '../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
+import {
+  snapshotReleaseAuthority,
+  START_GUI_SERVICE,
+} from '../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
+import { readGuiPackage } from '../src/m.cli/m.profiles/u.start/u.gui/u.pkg.ts';
 
 type Build = {
   readonly dir: t.StringDir;
-  readonly integrity: t.StringHash;
-  readonly dist: t.DeepReadonly<t.DistPkg>;
+  readonly pin: t.DistPin;
+  readonly content: t.DistContent;
 };
 type CandidateSnapshot = Readonly<{
   build: Build;
@@ -109,8 +113,7 @@ describe('Driver Pi verified-loopback Service Worker policy', () => {
     const markers = [
       '@sys/ui-dev',
       'DevHarness',
-      START_GUI_SERVICE.source.manifestUrl,
-      START_GUI_SERVICE.source.integrity,
+      ...launcherAuthorityMarkers(),
     ];
     for (const marker of markers) {
       const assets = new Map([['fixture.bin', encoder.encode(`prefix:${marker}:suffix`)]]);
@@ -141,10 +144,10 @@ function proveProductionGraph(assets: ReadonlyMap<string, Uint8Array>) {
   }));
 
   // Launcher acquisition authority belongs outside emitted browser assets.
-  const launcherAuthorityMarkers = [
-    START_GUI_SERVICE.source.manifestUrl,
-    START_GUI_SERVICE.source.integrity,
-  ].map((value) => ({ value, bytes: encoder.encode(value) }));
+  const authorityMarkers = launcherAuthorityMarkers().map((value) => ({
+    value,
+    bytes: encoder.encode(value),
+  }));
 
   for (const [path, bytes] of assets) {
     for (const marker of developmentOnlyMarkers) {
@@ -154,7 +157,7 @@ function proveProductionGraph(assets: ReadonlyMap<string, Uint8Array>) {
         );
       }
     }
-    for (const marker of launcherAuthorityMarkers) {
+    for (const marker of authorityMarkers) {
       if (includesBytes(bytes, marker.bytes)) {
         throw Err.std(
           `Production Driver Pi Dist embedded launcher-owned acquisition authority ${marker.value}: ${path}`,
@@ -162,6 +165,17 @@ function proveProductionGraph(assets: ReadonlyMap<string, Uint8Array>) {
       }
     }
   }
+}
+
+/** Negative graph scan only: stale configuration strings must not leak either. */
+function launcherAuthorityMarkers(): readonly string[] {
+  const source: Record<string, unknown> = START_GUI_SERVICE.source;
+  const pin = source.pin;
+  return [
+    source.manifestUrl,
+    source.integrity,
+    Is.plainObject(pin) ? pin.digest : undefined,
+  ].filter(Is.string);
 }
 
 function includesBytes(source: Uint8Array, marker: Uint8Array): boolean {
@@ -182,7 +196,7 @@ async function proveFreshVerifiedLoopback(
   requireAsset(assets, '/sw.js');
   const started = await DistServer.start({
     dir: build.dir,
-    integrity: build.integrity,
+    pin: build.pin,
     limits: START_GUI_SERVICE.limits,
     hostname: '127.0.0.1',
     port: 0,
@@ -342,36 +356,31 @@ async function candidateSnapshot(): Promise<CandidateSnapshot> {
 }
 
 async function loadBuild(): Promise<Build> {
-  const manifest = await Fs.read(DIST_MANIFEST);
-  if (!(manifest.ok && manifest.data)) {
-    throw Err.std('Driver Pi browser build is missing dist.json.');
-  }
-
-  const integrity = Hash.sha256(manifest.data);
-  const verified = await FsDist.Pinned.verify({
-    dir: DIST_DIR,
-    integrity,
-    limits: START_GUI_SERVICE.limits,
-  });
+  const release = ASSERT_RELEASE_EVIDENCE ? requireReleaseAuthority() : undefined;
+  const options = { dir: DIST_DIR, limits: START_GUI_SERVICE.limits };
+  // The ordinary task selects its newly built local candidate, not a downloaded expectation.
+  const verified = release
+    ? await FsDist.Pinned.verify({ ...options, pin: release.pin })
+    : await FsDist.Local.verify(options);
   if (verified.kind !== 'verified') {
     throw Err.std(`Driver Pi browser build verification failed: ${verified.kind}`);
   }
-  expect(verified.evidence.dist.pkg).to.eql(
-    ASSERT_RELEASE_EVIDENCE ? START_GUI_SERVICE.source.expectedPkg : pkg,
-  );
-  if (ASSERT_RELEASE_EVIDENCE) {
-    expect(integrity).to.eql(START_GUI_SERVICE.source.integrity);
-  }
-  return {
-    dir: DIST_DIR,
-    integrity,
-    dist: verified.evidence.dist,
-  };
+  const { content } = verified.evidence;
+  expect(await readGuiPackage(DIST_DIR, content)).to.eql(release?.expectedPkg ?? pkg);
+  const pin = release?.pin ?? Object.freeze({ scheme: content.scheme, digest: content.digest });
+  return { dir: DIST_DIR, pin, content };
+}
+
+function requireReleaseAuthority() {
+  const snapshot = snapshotReleaseAuthority();
+  if (!snapshot.ok) throw snapshot.failure.error;
+  if (snapshot.authority.kind !== 'release') throw Err.std('Expected release authority.');
+  return snapshot.authority;
 }
 
 async function readAssets(build: Build): Promise<ReadonlyMap<string, Uint8Array>> {
   const assets = new Map<string, Uint8Array>();
-  for (const [path, value] of Object.entries(build.dist.hash.parts)) {
+  for (const [path, value] of Object.entries(build.content.parts)) {
     const part = FsDist.Part.parse(value);
     if (!part || part.size === undefined) {
       throw Err.std(`Invalid built Driver Pi asset authority: ${path}`);

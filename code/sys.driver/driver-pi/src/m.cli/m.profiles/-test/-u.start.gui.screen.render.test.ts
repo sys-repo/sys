@@ -64,7 +64,9 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     const ready = render(READY);
     const text = Cli.stripAnsi(ready);
 
-    expect(Cli.stripAnsi(preparing)).not.to.contain('manifest');
+    expect(Cli.stripAnsi(preparing)).not.to.contain('content');
+    expect(text).to.contain('content');
+    expect(text).to.contain('sys.dist/v2');
     expect(text).to.contain(`digest:sha256:#${DIST_DIGEST.slice(-5)}`);
     expect(text).to.contain('http://localhost:45001');
     expect(ready).to.contain(`\x1b]8;;${STATUS}\x1b\\`);
@@ -84,18 +86,15 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
     }
   });
 
-  it('renders bounded materialization evidence, mismatch values, and exact recovery copy', () => {
-    const expected = START_GUI_SERVICE.source.integrity;
-    const received: t.StringHash = `sha256-${'b'.repeat(64)}`;
+  it('renders content-pin refusal and exact recovery copy without inventing document checksums', () => {
     const failed: Start.Gui.Presentation.State = Object.freeze({
       kind: 'failed',
       category: 'artifact-refused',
       safeEvidence: Object.freeze({
         kind: 'materialization',
-        stage: 'manifest-fetch',
-        reason: 'integrity-mismatch',
+        stage: 'manifest-admission',
+        reason: 'pin-mismatch',
         cleanup: 'not-needed',
-        manifestChecksum: Object.freeze({ expected, received }),
       }),
     });
     const exact = Cli.stripAnsi(render(failed));
@@ -103,11 +102,25 @@ describe('@sys/driver-pi start:gui screen rendering', () => {
       recovery: Object.freeze({ ...START_GUI_SERVICE.recovery }),
     }));
 
-    expect(exact).to.contain('manifest-fetch · integrity-mismatch · cleanup:not-needed');
-    expect(exact).to.contain(expected);
-    expect(exact).to.contain(received);
-    expect(exact).to.contain(START_GUI_SERVICE.recovery.manifestChecksumMismatch);
-    expect(forged).not.to.contain(START_GUI_SERVICE.recovery.manifestChecksumMismatch);
+    expect(exact).to.contain('manifest-admission · pin-mismatch · cleanup:not-needed');
+    expect(exact).not.to.contain('expected');
+    expect(exact).not.to.contain('received');
+    expect(exact).to.contain(START_GUI_SERVICE.recovery.contentPinRefused);
+    expect(exact).to.contain('Driver Pi README: Local GUI workflow — source-checkout launcher');
+    expect(exact).not.to.contain('then relaunch');
+    expect(forged).not.to.contain(START_GUI_SERVICE.recovery.contentPinRefused);
+  });
+
+  it('repair guidance scopes recovery to the source checkout and stopped owners', () => {
+    const failed: Start.Gui.Presentation.State = {
+      kind: 'failed',
+      category: 'repair-required',
+      safeEvidence: { kind: 'local', operation: 'release-owner' },
+    };
+    const frame = Cli.stripAnsi(render(failed, { viewport: { width: 160, height: 18 } }));
+    expect(frame).not.to.contain('Run deno task reset');
+    expect(frame).to.contain('Stop GUI/store owners');
+    expect(frame).to.contain('Driver Pi README: Reset (source-checkout only)');
   });
 
   it('keeps source failures actionable and browser-open warnings nonfatal', () => {

@@ -8,7 +8,9 @@ import {
   bootstrapStatusFixture,
   failedGenerationFixture,
   fakeGeneration,
+  fixtureReadPart,
   openedGenerationFixture,
+  RELEASE_EVIDENCE,
   startedFixture,
 } from '../-test/u.fixture.start.gui.ts';
 
@@ -107,8 +109,10 @@ async function run(scenario: Scenario, cleanup: CleanupEvent[]) {
   });
   const materialization = scenario === 'unowned' ? undefined : materializationOf(scenario);
   const deps: Start.Gui.Dependencies = Object.freeze({
+    releaseEvidence: RELEASE_EVIDENCE,
+    readPart: fixtureReadPart,
     runtimeRoot: () => ROOT,
-    openGeneration(input) {
+    openGeneration(input: t.Dist.Generation.Open.Args) {
       if (!materialization) return Promise.reject(new Error('unowned programmer failure'));
       return Promise.resolve(
         materialization.kind === 'failed'
@@ -121,7 +125,7 @@ async function run(scenario: Scenario, cleanup: CleanupEvent[]) {
     },
     startStatus: () => Promise.resolve(status),
     startApplication: () => Promise.resolve(application),
-    isHostError: (_): _ is t.DistServer.StartError => false,
+    isHostError: (_: unknown): _ is t.DistServer.StartError => false,
     openBrowser() {},
     presentation,
   });
