@@ -13,13 +13,13 @@ import {
 import { Deploy } from '../mod.ts';
 import { withTmpDir } from './u.fixture.ts';
 
-const CONCURRENT_STAGE_CHILD = Path.fromFileUrl(
-  new URL('./-u.stage.concurrent.process.ts', import.meta.url),
-) as t.StringAbsolutePath;
-
 type ConcurrentStageReport =
   | { readonly ok: true; readonly stagingRoot: t.StringAbsoluteDir }
   | { readonly ok: false; readonly error: string };
+
+const CONCURRENT_STAGE_CHILD: t.StringAbsolutePath = Path.fromFileUrl(
+  new URL('./-u.stage.concurrent.process.ts', import.meta.url),
+);
 
 describe('@sys/tools/deploy public staging lifecycle', () => {
   it('serializes one mutable build source across distinct public cwd roots', async () => {
@@ -108,10 +108,24 @@ describe('@sys/tools/deploy public staging lifecycle', () => {
       expect(await Fs.exists(`${control}/B.built`)).to.eql(false);
       expect((await Fs.readText(`${cwdA}/stage/variant.txt`)).data).to.eql('A');
       expect(await Fs.exists(`${cwdB}/stage/dist.json`)).to.eql(false);
-      expect(await Fs.exists(`${tmp}/.sys.rooted`)).to.eql(false);
-      expect(await Fs.exists(`${builder}/-dev/deploy/.sys.rooted/locks`)).to.eql(true);
-      expect(await Fs.exists(`${cwdA}/stage/-dev`)).to.eql(false);
-      expect(await Fs.exists(`${cwdA}/stage/.sys.rooted`)).to.eql(false);
+      expect(await Fs.exists(`${builder}/-dev/deploy`)).to.eql(true);
+      const inventoryOptions = { maxDepth: 1, includeSymlinks: true, followSymlinks: false };
+      const workspaceEntries: string[] = [];
+      for await (const entry of Fs.walk(tmp, inventoryOptions)) {
+        if (entry.path !== tmp) workspaceEntries.push(entry.name);
+      }
+      expect(workspaceEntries.toSorted()).to.eql([
+        'builder',
+        'control',
+        'endpoint-a',
+        'endpoint-b',
+      ]);
+      const stagedRoot = Fs.join(cwdA, 'stage');
+      const stagedEntries: string[] = [];
+      for await (const entry of Fs.walk(stagedRoot, inventoryOptions)) {
+        if (entry.path !== stagedRoot) stagedEntries.push(entry.name);
+      }
+      expect(stagedEntries.toSorted()).to.eql(['dist.json', 'index.html', 'variant.txt']);
       const manifest = (await Fs.readJson<t.DistPkg>(`${cwdA}/stage/dist.json`)).data;
       expect(Obj.keys(manifest?.hash.parts ?? {}).toSorted()).to.eql(['index.html', 'variant.txt']);
     });
@@ -238,7 +252,17 @@ function concurrentStageCommand(
   variant: 'A' | 'B',
 ): Deno.Command {
   return new Deno.Command(Deno.execPath(), {
-    args: ['run', '-A', '--quiet', CONCURRENT_STAGE_CHILD, cwd, config],
+    args: [
+      'run',
+      '--frozen',
+      '--cached-only',
+      '--no-prompt',
+      '-A',
+      '--quiet',
+      CONCURRENT_STAGE_CHILD,
+      cwd,
+      config,
+    ],
     cwd: Fs.cwd(),
     env: { BUILD_VARIANT: variant },
     stdin: 'null',

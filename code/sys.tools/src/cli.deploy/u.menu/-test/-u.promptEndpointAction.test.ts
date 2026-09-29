@@ -61,6 +61,33 @@ describe('Deploy: promptEndpointAction', () => {
     expect(actions).to.include('preview');
   });
 
+  it('stage actions → retain digest, size and lifecycle labels without a build-age claim', async () => {
+    const labels: string[] = [];
+    for (
+      const state of [
+        { hasStageMeta: false, pushedOk: false },
+        { hasStageMeta: true, pushedOk: false, stageSize: '284 B' },
+        { hasStageMeta: true, pushedOk: true, stageSize: '284 B' },
+      ]
+    ) {
+      const action = await promptEndpointActionWith(
+        { ...ENDPOINT_ACTION_ARGS, ...state },
+        (args) => {
+          const stage = args.options.find((option) => option.value === 'stage');
+          if (!stage) throw new Error('Expected stage action.');
+          labels.push(Cli.stripAnsi(stage.name));
+          return Promise.resolve('stage');
+        },
+      );
+      expect(action).to.eql('stage');
+    }
+    expect(labels).to.eql([
+      '  #81960  stage (build)',
+      '  #81960  staged (rebuild) | 284 B',
+      '  #81960  staged ✔ | 284 B',
+    ]);
+  });
+
   it('formats preview action with the default port label', () => {
     const res = formatPreviewActionName(4040);
     expect(Cli.stripAnsi(res)).to.eql('  preview port:4040');
@@ -92,8 +119,6 @@ describe('Deploy: promptEndpointAction', () => {
       pushUrl: 'https://example.com',
     });
 
-    expect(Cli.stripAnsi(res)).to.eql(
-      '  #81960  pushed ✔ - https://example.com (in 507ms, 284 B)',
-    );
+    expect(Cli.stripAnsi(res)).to.eql('  #81960  pushed ✔ - https://example.com (in 507ms, 284 B)');
   });
 });

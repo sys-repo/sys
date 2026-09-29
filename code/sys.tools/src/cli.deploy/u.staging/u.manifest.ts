@@ -1,11 +1,11 @@
-import { Fs, Hash, Str, type t } from '../common.ts';
+import { Fs, Hash, Path, Str, type t } from '../common.ts';
 import { assertDirectoryIdentity } from './u.identity.ts';
 
 /** One exact manifest written or copied during the active staging generation. */
 export type StagingManifestRecord = Readonly<{
   dir: t.StringAbsoluteDir;
   path: t.StringAbsolutePath;
-  integrity: string;
+  manifestChecksum: t.StringHash;
   directoryIdentity: t.DeployTool.Staging.DirectoryIdentity;
 }>;
 
@@ -21,28 +21,56 @@ export function createStagingManifestLedger(): StagingManifestLedger {
 export function retainStagingManifest(args: {
   ledger: StagingManifestLedger;
   directoryIdentity: t.DeployTool.Staging.DirectoryIdentity;
-  integrity: string;
+  manifestChecksum: t.StringHash;
 }): StagingManifestRecord {
   const dir = args.directoryIdentity.path;
   const path: t.StringAbsolutePath = Fs.join(dir, 'dist.json');
-  if (!args.integrity) {
-    throw new Error(`Deploy staging manifest integrity was not produced: ${dir}`);
+  if (!args.manifestChecksum) {
+    throw new Error(`Deploy staging manifest checksum was not produced: ${dir}`);
   }
 
   const record = Object.freeze({
     dir,
     path,
-    integrity: args.integrity,
+    manifestChecksum: args.manifestChecksum,
     directoryIdentity: args.directoryIdentity,
   });
   args.ledger.set(dir, record);
   return record;
 }
 
-/** Hash one admitted regular file without interpreting its payload. */
-export async function stagingManifestIntegrity(
+/**
+ * Publish complete bytes without clobbering a winner; only a committed write reports ownership.
+ * The factory argument is an internal fault-test seam.
+ */
+export async function publishStagingManifest(
   path: t.StringAbsolutePath,
-): Promise<string> {
+  bytes: Uint8Array,
+  owned: (manifestChecksum: t.StringHash) => void,
+  createRooted: t.FsRooted.Lib['create'] = Fs.Capability.Rooted.create,
+): Promise<void> {
+  const content = bytes.slice();
+  const checksum = Hash.sha256(content);
+  const rooted = await createRooted({ root: Path.dirname(path), create: false });
+  const admission = await rooted.Target.admit([{ kind: 'file', path: Path.basename(path) }]);
+  try {
+    await rooted.File.publish(admission.targets[0], content);
+  } catch (error) {
+    const isCommittedPublish = Fs.Capability.Rooted.Is.failure(error) &&
+      error.operation === 'publish-file' &&
+      error.committed;
+
+    // A committed publish linked the complete file, even if settlement failed.
+    if (isCommittedPublish) {
+      owned(checksum);
+    }
+    throw error;
+  }
+  owned(checksum);
+}
+
+/** Hash one admitted regular file without interpreting its payload. */
+export async function stagingManifestChecksum(path: t.StringAbsolutePath): Promise<t.StringHash> {
   const info = await Fs.lstat(path);
   if (!info?.isFile || info.isSymlink) throw unsafeManifest(path);
 
@@ -53,12 +81,9 @@ export async function stagingManifestIntegrity(
 
 /** Revalidate one retained directory and its exact manifest bytes. */
 export async function validateStagingManifest(record: StagingManifestRecord): Promise<void> {
-  await assertDirectoryIdentity(
-    record.directoryIdentity,
-    'Deploy staging manifest directory',
-  );
-  const integrity = await stagingManifestIntegrity(record.path);
-  if (integrity !== record.integrity) throw unsafeManifest(record.path);
+  await assertDirectoryIdentity(record.directoryIdentity, 'Deploy staging manifest directory');
+  const checksum = await stagingManifestChecksum(record.path);
+  if (checksum !== record.manifestChecksum) throw unsafeManifest(record.path);
 }
 
 /** Remove one unchanged, identity-bound manifest. */

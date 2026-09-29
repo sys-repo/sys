@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Is, Num, Open, Str, type t, Time } from '../common.ts';
+import { c, Cli, Fs, Hash, Is, Json, Open, Str, type t } from '../common.ts';
 import { EndpointsFs } from '../u.endpoints/mod.ts';
 import { DEPLOY_PREVIEW_PORT, runEndpointAction } from '../u.endpointAction.ts';
 import { Fmt } from '../u.fmt.ts';
@@ -10,6 +10,14 @@ import { promptEndpointAction } from './u/u.promptEndpointAction.ts';
 import { pushCapabilityOf } from './u/u.pushCapability.ts';
 import { previewStatus } from './u/u.previewStatus.ts';
 import { renderEndpointScreen } from './u/u.renderEndpointScreen.ts';
+
+/** Menu-local payload publication report, not document authentication or a live remote check. */
+type Publication = Readonly<{
+  configuration: string;
+  contentDigest: string;
+  elapsed?: string;
+  bytes?: number;
+}>;
 
 type EndpointMenuArgs = { cwd: t.StringDir; key: string };
 type EndpointMenuResult =
@@ -23,21 +31,15 @@ export type EndpointMenuDependencies = {
   runAction: typeof runEndpointAction;
 };
 
-const STAGE_JUST_NOW_MSEC = 1000;
 const DEFAULT_DEPENDENCIES: EndpointMenuDependencies = Object.freeze({
   promptAction: promptEndpointAction,
   runAction: runEndpointAction,
 });
 
 /**
- * Interactive menu for configuring a single deploy endpoint.
- *
- * Endpoint configuration is authored in YAML:
- *   ./-config/<pkg.name>.deploy/<name>.yaml
- *
- * This menu owns only:
- * - rename (file)
- * - delete (file)
+ * Manage one endpoint's YAML file and orchestrate staging, publication, and nested preview.
+ * Creates missing configuration, renames/deletes files, and opens an external editor for edits.
+ * Endpoint YAML lives at `./-config/@sys.tools.deploy/<name>.yaml`.
  */
 export function endpointMenu(args: EndpointMenuArgs): Promise<EndpointMenuResult> {
   return endpointMenuWith(args, DEFAULT_DEPENDENCIES);
@@ -53,9 +55,7 @@ export async function endpointMenuWith(
 
   const dim = (s: string) => c.gray(c.dim(s));
 
-  let pushedOk = false;
-  let pushElapsed: string | undefined;
-  let pushBytes: number | undefined;
+  let publication: Publication | undefined;
   let demarkNextRender = false;
 
   while (true) {
@@ -69,6 +69,7 @@ export async function endpointMenuWith(
 
     const check = await EndpointsFs.validateYaml(yamlAbs, { cwd });
     const yaml = check.ok ? check.doc : undefined;
+    const configuration = yaml ? Hash.sha256(Json.stringify(yaml)) : undefined;
 
     const capability = await pushCapabilityOf({
       cwd,
@@ -78,18 +79,24 @@ export async function endpointMenuWith(
     });
 
     const provider = yaml?.provider;
-    const preview = yaml
-      ? await previewStatus(resolveStagingRoot({
+    let preview: Awaited<ReturnType<typeof previewStatus>> | undefined;
+    if (yaml) {
+      const stagingRoot = resolveStagingRoot({
         cwd,
         stagingRootRel: String(yaml.staging.dir),
-      }))
-      : undefined;
+      });
+      preview = await previewStatus(stagingRoot);
+    }
     const verification = preview?.kind === 'verified' ? preview.evidence : undefined;
+    const isStalePublication = publication &&
+      (!capability.show || publication.configuration !== configuration ||
+        publication.contentDigest !== verification?.content.digest);
+    if (isStalePublication) {
+      publication = undefined;
+    }
     const digest = verification?.content.digest;
     const hashSuffix = digest ? String(digest).slice(-5) : undefined;
     const hashPrefix = formatHashPrefix(hashSuffix);
-    // Content verification carries no authenticated build timestamp.
-    const stageAge = undefined;
     const stageSize = verification ? Str.bytes(verification.assets.totalBytes) : undefined;
     const hasStageMeta = verification !== undefined;
     const previewPort = Is.num(yaml?.staging.serve?.port)
@@ -132,11 +139,10 @@ export async function endpointMenuWith(
       showStagePush,
       showPreview: verification !== undefined,
       previewPort,
-      pushedOk,
-      pushElapsed,
-      pushBytes,
+      pushedOk: publication !== undefined,
+      pushElapsed: publication?.elapsed,
+      pushBytes: publication?.bytes,
       hashPrefix,
-      stageAge,
       stageSize,
       pushUrl,
       hasStageMeta,
@@ -156,30 +162,27 @@ export async function endpointMenuWith(
       continue;
     }
 
-    if (picked === 'push') {
-      const res = await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'push' });
-      if (res.push?.ok) {
-        pushedOk = true;
-        pushElapsed = res.push.elapsed;
-        pushBytes = res.push.bytes;
+    if (picked === 'push' || picked === 'stage-push') {
+      publication = undefined;
+      const res = await deps.runAction({ cwd, key, yamlPath: yamlAbs, action: picked });
+      const manifests = res.push?.publish?.files.filter((file) => file.path === 'dist.json') ?? [];
+      const contentDigest = manifests.length === 1 ? manifests[0].digest : undefined;
+      // The manifest report carries payload identity, not a checksum of the manifest document.
+      if (res.ok && res.push?.ok && configuration && contentDigest) {
+        publication = Object.freeze({
+          configuration,
+          contentDigest,
+          elapsed: res.push.elapsed,
+          bytes: res.push.bytes,
+        });
       }
       demarkNextRender = true;
       continue;
     }
 
     if (picked === 'stage') {
-      await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'stage' });
-      demarkNextRender = true;
-      continue;
-    }
-
-    if (picked === 'stage-push') {
-      const res = await runEndpointAction({ cwd, key, yamlPath: yamlAbs, action: 'stage-push' });
-      if (res.push?.ok) {
-        pushedOk = true;
-        pushElapsed = res.push.elapsed;
-        pushBytes = res.push.bytes;
-      }
+      publication = undefined;
+      await deps.runAction({ cwd, key, yamlPath: yamlAbs, action: 'stage' });
       demarkNextRender = true;
       continue;
     }
@@ -227,9 +230,7 @@ export async function endpointMenuWith(
       await Fs.move(yamlAbs, nextAbs);
 
       key = nextName;
-      pushedOk = false;
-      pushElapsed = undefined;
-      pushBytes = undefined;
+      publication = undefined;
       demarkNextRender = true;
       continue;
     }
@@ -249,11 +250,4 @@ export async function endpointMenuWith(
       return { kind: 'deleted', key };
     }
   }
-}
-
-/** Helpers: */
-function formatStageAge(msec: number): string {
-  if (!Num.Is.finite(msec) || msec < 0) return '';
-  if (msec < STAGE_JUST_NOW_MSEC) return 'just now';
-  return Time.Duration.create(msec).toString();
 }

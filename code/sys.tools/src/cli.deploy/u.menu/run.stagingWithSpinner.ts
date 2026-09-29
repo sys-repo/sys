@@ -6,7 +6,7 @@ type RunStagingResult = { readonly ok: true } | { readonly ok: false; readonly e
 
 /**
  * Run endpoint staging with a stable spinner UI.
- * Never throws unless you choose to rethrow based on ok:false.
+ * Reports staging failures as `{ ok: false, error }`; terminal UI failures may still throw.
  */
 export async function runStagingWithSpinner(
   plan: Extract<StagePlan, { kind: 'mappings' }>,
@@ -73,7 +73,7 @@ export async function runStagingWithSpinner(
         },
       });
       if (!staged.ok) throw (staged.error ?? new Error('Staging failed'));
-      const hash = String(staged.verification.dist.hash.digest).trim();
+      const hash = staged.verification.content.digest;
       const suffix = hash ? Fmt.hashSuffix(hash) : '';
       const status = `${c.green('staging complete')}${suffix ? ` → ${suffix}` : ''}`;
       spin.succeed(Fmt.spinnerText(status));

@@ -6,6 +6,7 @@
     "test": "deno test -P=test ./-scripts ./src",
     "test:upgrade": "deno test -P=test --trace-leaks ./src/cli.upgrade",
     "test:deploy": "deno test -P=test --trace-leaks ./src/cli.deploy",
+    "test:deploy:staging": "deno test -P=test --trace-leaks ./src/cli.deploy/u.staging",
     "test:deploy:authority": "deno test -P=test-deploy-authority-owner --cached-only --frozen --no-prompt --trace-leaks ./src/cli.deploy/u.endpoints/-test/-u.env.test.ts ./src/cli.deploy/u.endpoints/-test/-u.resolve.test.ts ./src/cli.deploy/u.endpoints/-test/-u.endpoints.fs.test.ts ./src/cli.deploy/-test/-u.stage.test.ts && deno run --check -P=test-deploy-authority-parent --cached-only --frozen --no-prompt --ignore-env ./src/cli.deploy/-test/-u.stage.authority.ts --no-color",
     "test:pull": "deno test -P=test --trace-leaks ./src/cli.pull",
     "test:serve": "deno test -P=test --trace-leaks ./src/cli.serve",

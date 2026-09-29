@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../../../-test.ts';
-import { Fs, Json, Pkg, type t, Time } from '../../common.ts';
+import { Fs, Hash, Json, Pkg, type t, Time } from '../../common.ts';
 import { R2Provider } from '../mod.ts';
 import { withTmpDir } from '../../../-test/u.fixture.ts';
 import { PushPublishStats } from '../../../u.push/u.publishStats.ts';
@@ -24,7 +24,7 @@ describe('R2 Provider: push', () => {
       let providerConfig: t.DeployTool.Config.Provider.R2 | undefined;
 
       const res = await R2Provider.push({
-        cwd: cwd as t.StringDir,
+        cwd,
         target: r2Target(cwd, stagingDir),
         createFiles(provider) {
           providerConfig = provider;
@@ -43,19 +43,18 @@ describe('R2 Provider: push', () => {
         { path: 'index.html', status: 'written' },
         { path: 'dist.json', status: 'written' },
       ]);
-      expect(
-        res.ok ? res.publish?.files.find((file) => file.path === 'asset.bin')?.bytes : undefined,
-      )
-        .to.eql(4);
+      const assetReport = res.ok
+        ? res.publish?.files.find((file) => file.path === 'asset.bin')
+        : undefined;
+      expect(assetReport?.bytes).to.eql(4);
       expect(providerConfig?.accountId).to.eql('account-1');
       expect(providerConfig?.bucket).to.eql('deploy-bucket');
       expect(providerConfig?.prefix).to.eql('deploy/site');
       expectWritesWithDistLast(writes, ['asset.bin', 'index.html']);
-      expect(writes.find((write) => write.path === 'asset.bin')?.bytes).to.eql([0, 1, 2, 3]);
+      const assetWrite = writes.find((write) => write.path === 'asset.bin');
+      expect(assetWrite?.bytes).to.eql([0, 1, 2, 3]);
       expect(writes.find((write) => write.path === 'index.html')?.mediaType).to.eql('text/html');
-      expect(writes.find((write) => write.path === 'asset.bin')?.mediaType).to.eql(
-        'application/octet-stream',
-      );
+      expect(assetWrite?.mediaType).to.eql('application/octet-stream');
     });
   });
 
@@ -66,7 +65,7 @@ describe('R2 Provider: push', () => {
       const writes: Write[] = [];
 
       const res = await R2Provider.push({
-        cwd: cwd as t.StringDir,
+        cwd,
         target: r2Target(cwd, stagingDir),
         createFiles: () => filesHandle({ writes }),
       });
@@ -86,13 +85,13 @@ describe('R2 Provider: push', () => {
   });
 
   describe('exact publication identity', () => {
-    it('equal root digests with renamed paths → publish the bytes selected at each exact path', async () => {
+    it('renamed path-to-byte mapping → a distinct content identity and exact-path publication', async () => {
       await withTmpDir(async (cwd) => {
         const remoteDir = await stageDist(Fs.join(cwd, 'remote'), { 'a.js': 'A', 'b.js': 'B' });
         const localDir = await stageDist(Fs.join(cwd, 'local'), { 'b.js': 'A', 'c.js': 'B' });
         const remote = await loadStagedDist(remoteDir);
         const local = await loadStagedDist(localDir);
-        expect(remote.hash.digest).to.eql(local.hash.digest);
+        expect(remote.hash.digest).not.to.eql(local.hash.digest);
         expect(remote.hash.parts['b.js']).not.to.eql(local.hash.parts['b.js']);
         const manifest = (await Fs.read(Fs.join(localDir, 'dist.json'))).data!;
         const store = new Map<string, StoredObject>();
@@ -205,9 +204,10 @@ describe('R2 Provider: push', () => {
           ]);
           expect(pruneFileStatuses(result)).to.eql([{ path: 'stale.txt', status: 'removed' }]);
           const written = warm ? ['a.js'] : [' a.js', 'a.js'];
-          expect(events.filter((event) => event.startsWith('write:')).sort()).to.eql(
-            [...written, 'dist.json'].map((path) => `write:deploy/site/${path}`).sort(),
-          );
+          const writeEvents = events.filter((event) => event.startsWith('write:')).sort();
+          const expectedWrites = [...written, 'dist.json']
+            .map((path) => `write:deploy/site/${path}`).sort();
+          expect(writeEvents).to.eql(expectedWrites);
           for (const path of written) {
             expectWriteEventBefore(
               events,
@@ -320,7 +320,7 @@ describe('R2 Provider: push', () => {
         let maxActive = 0;
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -369,7 +369,7 @@ describe('R2 Provider: push', () => {
         const events: Event[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -426,7 +426,7 @@ describe('R2 Provider: push', () => {
         const writes: Write[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -460,7 +460,7 @@ describe('R2 Provider: push', () => {
         const events: Event[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -488,7 +488,7 @@ describe('R2 Provider: push', () => {
         const events: Event[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -519,17 +519,19 @@ describe('R2 Provider: push', () => {
       await withTmpDir(async (cwd) => {
         const stagingDir = await stageDist(cwd);
         const staged = await loadStagedDist(stagingDir);
+        const parts = { ...staged.hash.parts, 'index.html': `${sha('1')}:size=1` };
         const remote = {
           ...staged,
           hash: {
-            digest: sha('0'),
-            parts: { ...staged.hash.parts, 'index.html': sha('1') },
+            scheme: 'sys.dist/v2',
+            digest: Hash.sha256(Pkg.Dist.Content.encode(parts)),
+            parts,
           },
         } satisfies t.DistPkg;
         const writes: Write[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -560,7 +562,7 @@ describe('R2 Provider: push', () => {
         ]);
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () => localR2FilesHandle({ store }),
         });
@@ -583,26 +585,24 @@ describe('R2 Provider: push', () => {
         const removes: Remove[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
-          createFiles: () =>
-            filesHandle({
-              writes,
-              removes,
-              listPages: [
-                {
-                  entries: [fileEntry('asset.bin'), fileEntry('stale-1.txt')],
-                  cursor: 'next' as t.Files.Cursor.List,
-                },
-                {
-                  entries: [
-                    fileEntry('dist.json'),
-                    fileEntry('index.html'),
-                    fileEntry('stale-2.txt'),
-                  ],
-                },
-              ],
-            }),
+          createFiles() {
+            const listPages: t.Files.Cmd.List.Result[] = [
+              {
+                entries: [fileEntry('asset.bin'), fileEntry('stale-1.txt')],
+                cursor: 'next' as t.Files.Cursor.List,
+              },
+              {
+                entries: [
+                  fileEntry('dist.json'),
+                  fileEntry('index.html'),
+                  fileEntry('stale-2.txt'),
+                ],
+              },
+            ];
+            return filesHandle({ writes, removes, listPages });
+          },
         });
 
         expect(res.ok).to.eql(true);
@@ -621,7 +621,7 @@ describe('R2 Provider: push', () => {
         const createFiles = () => localR2FilesHandle({ store });
 
         const first = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles,
         });
@@ -630,7 +630,7 @@ describe('R2 Provider: push', () => {
         await Fs.remove(`${stagingDir}/index.html`);
 
         const second = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles,
         });
@@ -657,7 +657,7 @@ describe('R2 Provider: push', () => {
         const removes: Remove[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -681,7 +681,7 @@ describe('R2 Provider: push', () => {
         const removes: Remove[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -706,7 +706,7 @@ describe('R2 Provider: push', () => {
         const events: Event[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           force: true,
           createFiles: () =>
@@ -744,7 +744,7 @@ describe('R2 Provider: push', () => {
           const store = new Map<string, StoredObject>();
           const target = r2Target(cwd, stagingDir);
           const createFiles = () => localR2FilesHandle({ store });
-          const push = () => R2Provider.push({ cwd: cwd as t.StringDir, target, createFiles });
+          const push = () => R2Provider.push({ cwd, target, createFiles });
           const initial = await push();
           expect(initial.ok).to.eql(true);
 
@@ -782,7 +782,7 @@ describe('R2 Provider: push', () => {
         const local = (await Fs.read(`${stagingDir}/dist.json`)).data!;
         const writes: Write[] = [];
         const result = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -806,7 +806,7 @@ describe('R2 Provider: push', () => {
         const writes: Write[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -838,7 +838,7 @@ describe('R2 Provider: push', () => {
         const writes: Write[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -875,8 +875,8 @@ describe('R2 Provider: push', () => {
         };
 
         const createFiles = () => localR2FilesHandle({ store });
-        const first = await R2Provider.push({ cwd: cwd as t.StringDir, target, createFiles });
-        const second = await R2Provider.push({ cwd: cwd as t.StringDir, target, createFiles });
+        const first = await R2Provider.push({ cwd, target, createFiles });
+        const second = await R2Provider.push({ cwd, target, createFiles });
 
         expect(first.ok ? PushPublishStats.summary(first.publish) : undefined).to.eql({
           total: 3,
@@ -903,7 +903,7 @@ describe('R2 Provider: push', () => {
         const writes: Write[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           force: true,
           createFiles: () => filesHandle({ writes, remoteText: Json.stringify(dist) }),
@@ -928,17 +928,19 @@ describe('R2 Provider: push', () => {
       await withTmpDir(async (cwd) => {
         const stagingDir = await stageDist(cwd);
         const staged = await loadStagedDist(stagingDir);
+        const parts = { ...staged.hash.parts, 'index.html': `${sha('1')}:size=1` };
         const remote = {
           ...staged,
           hash: {
-            digest: sha('0'),
-            parts: { ...staged.hash.parts, 'index.html': sha('1') },
+            scheme: 'sys.dist/v2',
+            digest: Hash.sha256(Pkg.Dist.Content.encode(parts)),
+            parts,
           },
         } satisfies t.DistPkg;
         const writes: Write[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () =>
             filesHandle({
@@ -969,7 +971,7 @@ describe('R2 Provider: push', () => {
         const writes: Write[] = [];
 
         const res = await R2Provider.push({
-          cwd: cwd as t.StringDir,
+          cwd,
           target: r2Target(cwd, stagingDir),
           createFiles: () => filesHandle({ writes, remoteText: '{' }),
         });

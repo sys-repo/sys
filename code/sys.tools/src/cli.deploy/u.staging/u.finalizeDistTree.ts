@@ -4,9 +4,10 @@ import { throwIfStagingCancelled } from './u.cancel.ts';
 import { assertDirectoryIdentity, captureDirectoryIdentity } from './u.identity.ts';
 import {
   createStagingManifestLedger,
+  publishStagingManifest,
   removeStagingManifest,
   retainStagingManifest,
-  stagingManifestIntegrity,
+  stagingManifestChecksum,
   type StagingManifestLedger,
   type StagingManifestRecord,
   validateStagingManifest,
@@ -14,10 +15,8 @@ import {
 import type { PreparedStagingMapping } from './u.prepare.ts';
 
 type FinalizationHooks = {
-  afterManifest?: (dir: t.StringAbsoluteDir) => void;
-  onHashProgress?: (
-    event: Parameters<NonNullable<t.Pkg.Dist.Compute.Args['onHashProgress']>>[0],
-  ) => void;
+  afterManifest?: (dir: t.StringAbsoluteDir) => void | Promise<void>;
+  onHashProgress?: t.Pkg.Dist.Compute.Args['onHashProgress'];
 };
 
 type Args = {
@@ -33,8 +32,25 @@ type Args = {
   hooks?: FinalizationHooks;
 };
 
+/** Internal I/O seams; ownership checks and ledger settlement remain real. */
+type FinalizationIo = {
+  publish: typeof publishStagingManifest;
+  remove: typeof removeStagingManifest;
+};
+
 type FinalizedDistTree = {
   readonly rootManifest: StagingManifestRecord;
+};
+
+type FinalizeInput = {
+  args: Args;
+  publish: typeof publishStagingManifest;
+  root: t.StringAbsoluteDir;
+  directories: t.DeployTool.Staging.DirectoryIdentity[];
+  identities: Map<t.StringAbsoluteDir, t.DeployTool.Staging.DirectoryIdentity>;
+  indexes: Extract<PreparedStagingMapping, { mode: 'index' }>[];
+  blocked: Set<string>;
+  manifests: StagingManifestLedger;
 };
 
 type Settlement<T = void> =
@@ -45,7 +61,10 @@ type Settlement<T = void> =
  * Settle one exact root Dist through retained, bottom-up directory identities.
  * Every non-root manifest written here is temporary and removed before return.
  */
-export async function finalizeDistTree(args: Args): Promise<FinalizedDistTree> {
+export async function finalizeDistTree(
+  args: Args,
+  io: FinalizationIo = { publish: publishStagingManifest, remove: removeStagingManifest },
+): Promise<FinalizedDistTree> {
   throwIfStagingCancelled(args.signal);
   const root: t.StringAbsoluteDir = Path.resolve(args.dir, '.');
   if (args.rootIdentity.path !== root) {
@@ -64,6 +83,7 @@ export async function finalizeDistTree(args: Args): Promise<FinalizedDistTree> {
   try {
     await finalize({
       args,
+      publish: io.publish,
       root,
       directories: [...directories],
       identities,
@@ -82,7 +102,7 @@ export async function finalizeDistTree(args: Args): Promise<FinalizedDistTree> {
 
   let cleanup: Settlement;
   try {
-    await removeTemporaryManifests(root, manifests, identities, body.kind === 'value');
+    await removeTemporaryManifests(root, manifests, identities, body.kind === 'value', io.remove);
     cleanup = { kind: 'value', value: undefined };
   } catch (error) {
     cleanup = { kind: 'error', error };
@@ -98,7 +118,7 @@ export async function finalizeDistTree(args: Args): Promise<FinalizedDistTree> {
   if (body.kind === 'error') throw body.error;
   if (cleanup.kind === 'error') {
     try {
-      await retractFinalizedDistTree(body.value, args.rootIdentity);
+      await retractFinalizedDistTree(body.value, args.rootIdentity, io.remove);
       if (manifests.get(root) === body.value.rootManifest) manifests.delete(root);
     } catch (retractionError) {
       throw new AggregateError(
@@ -109,6 +129,8 @@ export async function finalizeDistTree(args: Args): Promise<FinalizedDistTree> {
     }
     throw cleanup.error;
   }
+  await validateManifest(body.value.rootManifest, args.rootIdentity);
+  throwIfStagingCancelled(args.signal);
   return body.value;
 }
 
@@ -116,24 +138,17 @@ export async function finalizeDistTree(args: Args): Promise<FinalizedDistTree> {
 export async function retractFinalizedDistTree(
   finalization: FinalizedDistTree,
   rootIdentity: t.DeployTool.Staging.DirectoryIdentity,
+  remove: typeof removeStagingManifest = removeStagingManifest,
 ): Promise<void> {
   const record = finalization.rootManifest;
   if (record.dir !== rootIdentity.path || record.path !== Fs.join(rootIdentity.path, 'dist.json')) {
     throw new Error('Deploy staging finalization evidence does not match its retained root.');
   }
-  await removeManifest(record, rootIdentity);
+  await removeManifest(record, rootIdentity, remove);
   await assertDirectoryIdentity(rootIdentity, 'Deploy staging root');
 }
 
-async function finalize(input: {
-  args: Args;
-  root: t.StringAbsoluteDir;
-  directories: t.DeployTool.Staging.DirectoryIdentity[];
-  identities: Map<t.StringAbsoluteDir, t.DeployTool.Staging.DirectoryIdentity>;
-  indexes: Extract<PreparedStagingMapping, { mode: 'index' }>[];
-  blocked: Set<string>;
-  manifests: StagingManifestLedger;
-}): Promise<void> {
+async function finalize(input: FinalizeInput): Promise<void> {
   const finalized = new Set<string>();
 
   for (const identity of input.directories) {
@@ -145,6 +160,7 @@ async function finalize(input: {
       identity,
       input.identities,
       input.manifests,
+      input.publish,
     );
     finalized.add(identity.path);
   }
@@ -165,7 +181,13 @@ async function finalize(input: {
       excludeDirs: indexTargets,
     });
     await assertDirectoryIdentity(sourceIdentity, 'Deploy staging index source', input.args.signal);
-    await writeManifest(input.args, targetIdentity, input.identities, input.manifests);
+    await writeManifest(
+      input.args,
+      targetIdentity,
+      input.identities,
+      input.manifests,
+      input.publish,
+    );
     finalized.add(target);
   }
 
@@ -178,6 +200,7 @@ async function finalize(input: {
       identity,
       input.identities,
       input.manifests,
+      input.publish,
     );
     finalized.add(identity.path);
   }
@@ -194,6 +217,7 @@ async function settleDefaultDirectory(
   identity: t.DeployTool.Staging.DirectoryIdentity,
   identities: Map<t.StringAbsoluteDir, t.DeployTool.Staging.DirectoryIdentity>,
   manifests: StagingManifestLedger,
+  publish: typeof publishStagingManifest,
 ): Promise<void> {
   throwIfStagingCancelled(args.signal);
   await assertDirectoryIdentity(identity, 'Deploy staging finalizer directory', args.signal);
@@ -203,7 +227,7 @@ async function settleDefaultDirectory(
     includeDistLink: identity.path === root,
   });
   await assertDirectoryIdentity(identity, 'Deploy staging finalizer directory', args.signal);
-  await writeManifest(args, identity, identities, manifests);
+  await writeManifest(args, identity, identities, manifests, publish);
 }
 
 async function writeManifest(
@@ -211,6 +235,7 @@ async function writeManifest(
   identity: t.DeployTool.Staging.DirectoryIdentity,
   identities: Map<t.StringAbsoluteDir, t.DeployTool.Staging.DirectoryIdentity>,
   manifests: StagingManifestLedger,
+  publish: typeof publishStagingManifest,
 ): Promise<void> {
   throwIfStagingCancelled(args.signal);
   await assertDirectoryIdentity(identity, 'Deploy staging manifest directory', args.signal);
@@ -228,50 +253,76 @@ async function writeManifest(
     save: false,
     filter: args.filter,
     trustChildDist: true,
-    onHashProgress(event) {
+    async onHashProgress(event) {
       throwIfStagingCancelled(args.signal);
-      args.hooks?.onHashProgress?.(event);
+      await args.hooks?.onHashProgress?.(event);
       throwIfStagingCancelled(args.signal);
     },
   });
-  if (computed.error) throw computed.error;
+  throwIfStagingCancelled(args.signal);
+  if (computed.kind !== 'computed') throw computed.error;
 
   const json = Json.stringify(computed.dist, 2);
-  const integrity = String(computed.manifest?.integrity ?? '');
-  if (!integrity || Hash.sha256(json) !== integrity) {
-    throw new Error(`Deploy staging manifest integrity was not produced: ${identity.path}`);
+  const manifestChecksum = computed.manifestChecksum;
+  if (Hash.sha256(json) !== manifestChecksum) {
+    throw new Error(`Deploy staging manifest checksum was not produced: ${identity.path}`);
   }
 
   throwIfStagingCancelled(args.signal);
   await assertDirectoryIdentity(identity, 'Deploy staging manifest directory', args.signal);
   await validateChildManifests(identity.path, manifests, identities);
-  const written = await Fs.write(manifestPath, json, { force: true });
-  if (written.error) {
-    try {
-      const observedIntegrity = await stagingManifestIntegrity(manifestPath);
-      retainStagingManifest({
-        ledger: manifests,
-        directoryIdentity: identity,
-        integrity: observedIntegrity,
-      });
-    } catch (retentionError) {
-      throw new AggregateError(
-        [written.error, retentionError],
-        'Deploy staging manifest write failed and its resulting bytes could not be retained.',
-        { cause: written.error },
-      );
+  // Hashing yields to other writers. Equal content cannot renew the original document fence.
+  if (previous) await validateManifest(previous, identity);
+  else if (await Fs.lstat(manifestPath)) throw unsafeManifest(manifestPath);
+  throwIfStagingCancelled(args.signal);
+  if (previous) {
+    // Replace only our unchanged document. A later arrival must win, never be overwritten.
+    await removeStagingManifest(previous);
+    manifests.delete(identity.path);
+  }
+  await assertDirectoryIdentity(identity, 'Deploy staging manifest directory', args.signal);
+  let ownedChecksum: t.StringHash | undefined;
+  const recordOwnership = (checksum: t.StringHash) => void (ownedChecksum = checksum);
+  try {
+    await publish(manifestPath, new TextEncoder().encode(json), recordOwnership);
+  } catch (error) {
+    if (ownedChecksum) {
+      try {
+        await assertDirectoryIdentity(identity, 'Deploy staging manifest directory');
+        if (await Fs.lstat(manifestPath)) {
+          if (await stagingManifestChecksum(manifestPath) !== ownedChecksum) {
+            throw unsafeManifest(manifestPath);
+          }
+          retainStagingManifest({
+            ledger: manifests,
+            directoryIdentity: identity,
+            manifestChecksum: ownedChecksum,
+          });
+        }
+      } catch (retentionError) {
+        throw new AggregateError(
+          [error, retentionError],
+          'Deploy staging manifest write failed and its resulting bytes could not be retained.',
+          { cause: error },
+        );
+      }
     }
-    throw written.error;
+    throw error;
+  }
+  if (ownedChecksum !== manifestChecksum) {
+    throw new Error(
+      `Deploy staging manifest publication did not establish ownership: ${manifestPath}`,
+    );
   }
 
   const record = retainStagingManifest({
     ledger: manifests,
     directoryIdentity: identity,
-    integrity,
+    manifestChecksum,
   });
   await assertDirectoryIdentity(identity, 'Deploy staging manifest directory', args.signal);
   await validateManifest(record, identity);
-  args.hooks?.afterManifest?.(identity.path);
+  await args.hooks?.afterManifest?.(identity.path);
   throwIfStagingCancelled(args.signal);
 }
 
@@ -297,9 +348,10 @@ async function validateManifest(
 async function removeManifest(
   record: StagingManifestRecord,
   identity: t.DeployTool.Staging.DirectoryIdentity,
+  remove: typeof removeStagingManifest,
 ): Promise<void> {
   if (!sameDirectoryIdentity(record.directoryIdentity, identity)) throw unsafeManifest(record.path);
-  await removeStagingManifest(record);
+  await remove(record);
 }
 
 async function removeTemporaryManifests(
@@ -307,6 +359,7 @@ async function removeTemporaryManifests(
   manifests: StagingManifestLedger,
   identities: Map<t.StringAbsoluteDir, t.DeployTool.Staging.DirectoryIdentity>,
   keepRoot: boolean,
+  remove: typeof removeStagingManifest,
 ): Promise<void> {
   const records = [...manifests.values()]
     .filter((record) => !(keepRoot && record.dir === root))
@@ -318,6 +371,7 @@ async function removeTemporaryManifests(
       await removeManifest(
         record,
         requireIdentity(identities, record.dir, 'manifest directory'),
+        remove,
       );
       if (manifests.get(record.dir) === record) manifests.delete(record.dir);
     } catch (error) {

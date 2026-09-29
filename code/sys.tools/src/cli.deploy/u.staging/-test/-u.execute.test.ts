@@ -5,6 +5,7 @@ import {
   expect,
   expectError,
   Fs,
+  Is,
   it,
   Json,
   Path,
@@ -16,6 +17,7 @@ import {
 import { combineStagingLeases } from '../u.buildLease.ts';
 import { finalizeDistTree } from '../u.finalizeDistTree.ts';
 import { captureDirectoryIdentity } from '../u.identity.ts';
+import { createStagingManifestLedger, retainStagingManifest } from '../u.manifest.ts';
 import { settleStagingLease } from '../u.lease.ts';
 import { stageMappings } from '../u.stageMappings.ts';
 import { DIST_VERIFY_LIMITS, verifyStagedDist } from '../u.verifyStagedDist.ts';
@@ -48,14 +50,14 @@ describe('Staging: owned exact root Dist', () => {
       expect(result.stagingRoot).to.eql(`${tmp}/stage`);
       expect(Object.isFrozen(result)).to.eql(true);
       expect(Object.isFrozen(result.verification)).to.eql(true);
-      expect(Object.isFrozen(result.verification.dist)).to.eql(true);
-      expect(Object.isFrozen(result.verification.dist.hash.parts)).to.eql(true);
-      expect(result.verification.integrity).to.not.eql(result.verification.dist.hash.digest);
+      expect(Object.isFrozen(result.verification.content)).to.eql(true);
+      expect(Object.isFrozen(result.verification.content.parts)).to.eql(true);
+      expect(result.verification.manifestChecksum).to.not.eql(result.verification.content.digest);
       expect(await Fs.exists(`${tmp}/stage/stale/old.txt`)).to.eql(false);
       expect((await Fs.readText(`${tmp}/outside.txt`)).data).to.eql('outside');
 
       const actual = await regularFiles(`${tmp}/stage`);
-      const declared = Object.keys(result.verification.dist.hash.parts).toSorted();
+      const declared = Object.keys(result.verification.content.parts).toSorted();
       expect(actual).to.eql([...declared, 'dist.json'].toSorted());
       expect(actual.filter((path) => path.endsWith('/dist.json'))).to.eql([]);
 
@@ -89,7 +91,7 @@ describe('Staging: owned exact root Dist', () => {
       const second = await stageMappings(args);
       const secondRootIndex = (await Fs.readText(`${tmp}/stage/index.html`)).data;
 
-      expect(first.verification.dist.hash.digest).to.eql(second.verification.dist.hash.digest);
+      expect(first.verification.content.digest).to.eql(second.verification.content.digest);
       expect(firstRootIndex).to.eql(secondRootIndex);
       expect((await Fs.readText(`${tmp}/stage/custom/index.html`)).data).to.eql(custom);
       expect((await Fs.readText(`${tmp}/stage/empty/index.html`)).data).to.eql('');
@@ -123,7 +125,7 @@ describe('Staging: owned exact root Dist', () => {
         stagingRoot: 'stage',
         mappings: [copy('src', '.')],
       });
-      expect(retried.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+      expect(retried.verification.content.parts['index.html']).to.not.eql(undefined);
     });
   });
 
@@ -146,7 +148,7 @@ describe('Staging: owned exact root Dist', () => {
       const retried = await stageMappings(args);
       const html = (await Fs.readText(`${tmp}/stage/index.html`)).data ?? '';
       expect(html.includes('stale')).to.eql(false);
-      expect(retried.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+      expect(retried.verification.content.parts['index.html']).to.not.eql(undefined);
     });
   });
 
@@ -180,9 +182,10 @@ describe('Staging: owned exact root Dist', () => {
         const target = Path.fromFileUrl(new URL(href, Path.toFileUrl(path)));
         expect(await Fs.exists(target)).to.eql(true);
       }
-      expect((await regularFiles(`${tmp}/stage`)).filter((item) => item.endsWith('/dist.json')))
-        .to.eql([]);
-      expect(result.verification.dist.hash.parts['landing/index.html']).to.not.eql(undefined);
+      const files = await regularFiles(`${tmp}/stage`);
+      const childManifests = files.filter((item) => item.endsWith('/dist.json'));
+      expect(childManifests).to.eql([]);
+      expect(result.verification.content.parts['landing/index.html']).to.not.eql(undefined);
     });
   });
 
@@ -350,7 +353,7 @@ describe('Staging: owned exact root Dist', () => {
       const html = (await Fs.readText(`${tmp}/stage/index.html`)).data ?? '';
       expect((html.match(/name="x-build-reset"/g) ?? []).length).to.eql(1);
       expect(/content="\d{8}-[a-z0-9]{5}"/.test(html)).to.eql(true);
-      expect(staged.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+      expect(staged.verification.content.parts['index.html']).to.not.eql(undefined);
     });
   });
 
@@ -376,7 +379,7 @@ describe('Staging: owned exact root Dist', () => {
           dir: { source: 'builder', staging: '.' },
         }],
       });
-      expect(staged.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+      expect(staged.verification.content.parts['index.html']).to.not.eql(undefined);
     });
   });
 
@@ -422,7 +425,7 @@ describe('Staging: owned exact root Dist', () => {
         stagingRoot: 'stage',
         mappings: [copy('builder/dist', '.')],
       });
-      expect(retried.verification.dist.hash.parts['index.html']).to.not.eql(undefined);
+      expect(retried.verification.content.parts['index.html']).to.not.eql(undefined);
     });
   });
 
@@ -845,7 +848,7 @@ describe('Staging: owned exact root Dist', () => {
       await Fs.ensureDir(source);
       await Fs.write(`${source}/a.txt`, 'a');
       const computed = await Pkg.Dist.compute({ dir: source, save: true });
-      if (computed.error) throw computed.error;
+      if (computed.kind !== 'computed') throw computed.error;
 
       let verification: t.DeployTool.StageResult['verification'] | undefined;
       await expectError(
@@ -872,7 +875,7 @@ describe('Staging: owned exact root Dist', () => {
         stagingRoot: 'stage',
         mappings: [copy('src', '.')],
       });
-      expect(retried.verification.dist.hash.parts['a.txt']).to.not.eql(undefined);
+      expect(retried.verification.content.parts['a.txt']).to.not.eql(undefined);
     });
   });
 
@@ -925,12 +928,12 @@ describe('Staging: owned exact root Dist', () => {
       await Fs.ensureDir(source);
       await Fs.write(
         `${source}/-build.ts`,
-        [
-          `await Deno.rename('../stage', '../displaced-stage');`,
-          `await Deno.mkdir('../stage');`,
-          `await Deno.mkdir('dist', { recursive: true });`,
-          `await Deno.writeTextFile('dist/a.txt', 'a');`,
-        ].join('\n'),
+        Str.dedent(`
+          await Deno.rename('../stage', '../displaced-stage');
+          await Deno.mkdir('../stage');
+          await Deno.mkdir('dist', { recursive: true });
+          await Deno.writeTextFile('dist/a.txt', 'a');
+        `),
       );
       await Fs.write(
         `${source}/deno.json`,
@@ -1005,7 +1008,7 @@ describe('Staging: owned exact root Dist', () => {
         stagingRoot: 'stage',
         mappings: [copy('src', '.')],
       });
-      expect(retried.verification.dist.hash.parts['a.txt']).to.not.eql(undefined);
+      expect(retried.verification.content.parts['a.txt']).to.not.eql(undefined);
     });
   });
 
@@ -1067,7 +1070,7 @@ describe('Staging: owned exact root Dist', () => {
         stagingRoot: 'stage',
         mappings: [copy('src', '.')],
       });
-      expect(retried.verification.dist.hash.parts['a.txt']).to.not.eql(undefined);
+      expect(retried.verification.content.parts['a.txt']).to.not.eql(undefined);
     });
   });
 
@@ -1239,25 +1242,145 @@ describe('Staging: owned exact root Dist', () => {
       await Fs.write(`${child}/a.txt`, 'a');
       const rootIdentity = await captureDirectoryIdentity({ path: root, label: 'test root' });
 
-      await expectError(
-        () =>
-          finalizeDistTree({
-            dir: root,
-            rootIdentity,
-            hooks: {
-              afterManifest(dir) {
-                if (dir === child) {
-                  Deno.writeTextFileSync(`${child}/dist.json`, '{"tampered":true}\n');
-                }
-              },
+      const finalize = () =>
+        finalizeDistTree({
+          dir: root,
+          rootIdentity,
+          hooks: {
+            async afterManifest(dir) {
+              if (dir === child) {
+                await Fs.write(`${child}/dist.json`, '{"tampered":true}\n', { throw: true });
+              }
             },
-          }),
-        'finalization failed and temporary-manifest cleanup also failed',
-      );
+          },
+        });
+      await expectError(finalize, 'finalization failed and temporary-manifest cleanup also failed');
       expect(await Fs.exists(`${root}/dist.json`)).to.eql(false);
       expect(await Fs.exists(`${child}/dist.json`)).to.eql(true);
     });
   });
+
+  it('equal-content metadata replacement → refuse finalization and preserve the replacement', async () => {
+    for (const nested of [true, false]) {
+      await withTmpDir(async (tmp) => {
+        const root = `${tmp}/stage`;
+        const target = nested ? `${root}/nested` : root;
+        await Fs.ensureDir(target);
+        await Fs.write(`${target}/a.txt`, 'a');
+        const rootIdentity = await captureDirectoryIdentity({ path: root, label: 'test root' });
+        let pin: t.DistPin | undefined;
+        let replacement = '';
+
+        const finalize = () =>
+          finalizeDistTree({
+            dir: root,
+            rootIdentity,
+            hooks: {
+              async afterManifest(dir) {
+                if (dir !== target) return;
+                // The awaited hook models replacement between owned production and cleanup.
+                const dist = (await Fs.readJson(`${target}/dist.json`)).data;
+                if (!Pkg.Is.dist(dist)) throw new Error('Expected supported manifest.');
+                pin = { scheme: dist.hash.scheme, digest: dist.hash.digest };
+                replacement = Json.stringify({
+                  ...dist,
+                  pkg: { name: '@replacement/label', version: '9.0.0' },
+                  build: { ...dist.build, time: dist.build.time + 1 },
+                }, 2);
+                await Fs.write(`${target}/dist.json`, replacement, { throw: true });
+              },
+            },
+          });
+        await expectError(
+          finalize,
+          'finalization failed and temporary-manifest cleanup also failed',
+        );
+        if (!pin) throw new Error('Expected original producer pin.');
+        expect((await Fs.readText(`${target}/dist.json`)).data).to.eql(replacement);
+        const verified = await Pkg.Dist.Pinned.verify({
+          dir: await Fs.realPath(target),
+          pin,
+          limits: DIST_VERIFY_LIMITS,
+        });
+        expect(verified.kind).to.eql('verified');
+        if (nested) expect(await Fs.exists(`${root}/dist.json`)).to.eql(false);
+      });
+    }
+  });
+
+  for (const retained of [true, false]) {
+    it(`${retained ? 'retained document' : 'document absence'} replaced during hashing → preserve bytes and original ledger`, async () => {
+      for (const replace of [false, true]) {
+        await withTmpDir(async (tmp) => {
+          const root = `${tmp}/stage`;
+          const manifest = `${root}/dist.json`;
+          await Fs.write(`${root}/a.txt`, 'a');
+          await Fs.write(`${root}/index.html`, '<h1>custom</h1>');
+          const computed = await Pkg.Dist.compute({ dir: root, save: retained });
+          if (computed.kind !== 'computed') throw computed.error;
+          const replacement = Json.stringify({
+            ...computed.dist,
+            pkg: { name: '@replacement/label', version: '9.0.0' },
+          }, 2);
+          const rootIdentity = await captureDirectoryIdentity({ path: root, label: 'test root' });
+          const ledger = createStagingManifestLedger();
+          const original = retained
+            ? retainStagingManifest({
+              ledger,
+              directoryIdentity: rootIdentity,
+              manifestChecksum: computed.manifestChecksum,
+            })
+            : undefined;
+          let progress = 0;
+          let failure: unknown;
+          try {
+            await finalizeDistTree({
+              dir: root,
+              rootIdentity,
+              manifestLedger: ledger,
+              hooks: {
+                async onHashProgress() {
+                  if (progress++ === 0 && replace) await Fs.write(manifest, replacement);
+                },
+              },
+            });
+          } catch (cause) {
+            failure = cause;
+          }
+          expect(progress).to.be.greaterThan(0);
+          if (replace) {
+            const changed = `Deploy staging owned manifest changed before cleanup: ${manifest}`;
+            expect(failure).to.be.instanceOf(retained ? AggregateError : Error);
+            if (retained) {
+              const aggregate = failure as AggregateError;
+              expect(aggregate.message).to.eql(
+                'Deploy staging finalization failed and temporary-manifest cleanup also failed.',
+              );
+              expect(aggregate.cause).to.equal(aggregate.errors[0]);
+              const messages = aggregate.errors.map((error) => {
+                return Is.error(error) ? error.message : error;
+              });
+              expect(messages).to.eql([changed, changed]);
+            } else {
+              expect(Is.error(failure) ? failure.message : failure).to.eql(changed);
+            }
+            expect((await Fs.readText(manifest)).data).to.eql(replacement);
+            expect(ledger.get(root)).to.equal(original);
+          } else {
+            expect(failure).to.eql(undefined);
+            expect(ledger.get(root)?.manifestChecksum).to.be.a('string');
+          }
+          // The replacement remains valid content; refusal is document ownership, not pin failure.
+          const verified = await Pkg.Dist.Pinned.verify({
+            dir: await Fs.realPath(root),
+            pin: computed.pin,
+            limits: DIST_VERIFY_LIMITS,
+          });
+          expect(verified.kind).to.eql('verified');
+        });
+      }
+    });
+  }
 
   it('cancels cooperatively during a multi-file manifest hash', async () => {
     await withTmpDir(async (tmp) => {

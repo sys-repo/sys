@@ -44,7 +44,12 @@ type StageMappingsSnapshot = {
 /** One cwd-scoped cooperative lane for every operation that executes mutable build tasks. */
 const BUILD_MUTATION_AUTHORITY: t.StringRelativeDir = '@sys.tools.deploy-build';
 
-/** Stage one schedule-independent exact root Dist without presentation side-effects. */
+/**
+ * Replace the staging tree and produce one verified root Dist without presentation side-effects.
+ * After admission and cooperative lease acquisition, deletes the previous tree before execution.
+ * Failure cleanup retracts only owned, unchanged manifests: copied/generated payload may remain,
+ * and the previous tree is not restored. Verification does not prevent later filesystem mutation.
+ */
 export async function stageMappings(args: StageMappingsArgs): Promise<StageMappingsResult> {
   const input = snapshotStageMappingsArgs(args);
   const life = Dispose.abortable(input.until);
@@ -115,10 +120,7 @@ async function stageMappingsWithSignal(
     }
   } catch (error) {
     if (!buildLease) throw error;
-    return await settleStagingLease<StageMappingsResult>(
-      buildLease,
-      () => Promise.reject(error),
-    );
+    return await settleStagingLease<StageMappingsResult>(buildLease, () => Promise.reject(error));
   }
 
   const manifestLedger = createStagingManifestLedger();
@@ -156,7 +158,7 @@ async function stageMappingsWithSignal(
 
       await assertRootIdentity(identity, signal);
       await rooted.Tree.inspectSeal(target, { lease: acquired.lease, ...operationOptions(signal) });
-      await finalizeDistTree({
+      const finalized = await finalizeDistTree({
         dir: identity.path,
         rootIdentity: stagingIdentity,
         pkg,
@@ -170,7 +172,7 @@ async function stageMappingsWithSignal(
       await assertRootIdentity(identity, signal);
       await rooted.Tree.inspectSeal(target, { lease: acquired.lease, ...operationOptions(signal) });
 
-      const verification = await verifyStagedDist(identity.path, signal);
+      const verification = await verifyStagedDist(identity.path, signal, finalized.rootManifest);
       await assertRootIdentity(identity, signal);
       return Object.freeze({ stagingRoot: identity.path, verification });
     },
@@ -193,23 +195,13 @@ async function assertPreparedSourceIdentities(
 ): Promise<void> {
   for (const mapping of mappings) {
     if (mapping.mode === 'index') continue;
-    await assertDirectoryIdentity(
-      mapping.sourceIdentity,
-      'Deploy staging mapping source',
-      signal,
-    );
+    await assertDirectoryIdentity(mapping.sourceIdentity, 'Deploy staging mapping source', signal);
   }
 }
 
-async function assertRootIdentity(
-  rooted: t.FsRooted.Instance,
-  signal: AbortSignal,
-): Promise<void> {
+async function assertRootIdentity(rooted: t.FsRooted.Instance, signal: AbortSignal): Promise<void> {
   throwIfStagingCancelled(signal);
-  await rooted.Target.admit(
-    [{ kind: 'file', path: 'dist.json' }],
-    operationOptions(signal),
-  );
+  await rooted.Target.admit([{ kind: 'file', path: 'dist.json' }], operationOptions(signal));
 }
 
 function stagingOwnershipBranch(path: t.StringRelativeDir): t.StringRelativeDir {
@@ -235,7 +227,7 @@ function snapshotStageMappingsArgs(args: StageMappingsArgs): StageMappingsSnapsh
       mode,
       dir: Object.freeze({
         source: String(dir?.source ?? ''),
-        staging: String(dir?.staging ?? '') as t.StringRelativeDir,
+        staging: String(dir?.staging ?? ''),
       }),
     });
   });

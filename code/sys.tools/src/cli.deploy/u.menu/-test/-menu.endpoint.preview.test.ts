@@ -3,7 +3,12 @@ import { endpointMenuWith } from '../menu.endpoint.ts';
 import { captureInfo } from '../../-test/u.fixture.ts';
 import { withPreviewDist } from '../../-test/u.preview.fixture.ts';
 
-const ENDPOINT_YAML = `staging:\n  dir: ./staging\n\nmappings: []\n`;
+const ENDPOINT_YAML = Str.dedent(`
+  staging:
+    dir: ./staging
+
+  mappings: []
+`);
 
 describe('Deploy: endpoint menu / preview authority', () => {
   it('freshly invalidates preview availability and metadata after a staged-tree mutation', async () => {
@@ -15,7 +20,6 @@ describe('Deploy: endpoint menu / preview authority', () => {
       const generations: Array<{
         readonly showPreview: boolean;
         readonly hashPrefix: string;
-        readonly stageAge?: string;
         readonly stageSize?: string;
         readonly hasStageMeta: boolean;
       }> = [];
@@ -27,7 +31,6 @@ describe('Deploy: endpoint menu / preview authority', () => {
               generations.push({
                 showPreview: input.showPreview,
                 hashPrefix: Cli.stripAnsi(input.hashPrefix),
-                stageAge: input.stageAge,
                 stageSize: input.stageSize,
                 hasStageMeta: input.hasStageMeta,
               });
@@ -37,9 +40,7 @@ describe('Deploy: endpoint menu / preview authority', () => {
               }
               return 'back';
             },
-            runAction() {
-              return Promise.resolve({ ok: false });
-            },
+            runAction: () => Promise.resolve({ ok: false }),
           },
         )
       );
@@ -48,15 +49,13 @@ describe('Deploy: endpoint menu / preview authority', () => {
       expect(generations).to.have.length(2);
       expect(generations[0]).to.contain({
         showPreview: true,
-        hashPrefix: `#${String(evidence.dist.hash.digest).slice(-5)}`,
+        hashPrefix: `#${String(evidence.content.digest).slice(-5)}`,
         stageSize: Str.bytes(evidence.assets.totalBytes),
         hasStageMeta: true,
       });
-      expect(generations[0]?.stageAge).to.not.eql(undefined);
       expect(generations[1]).to.eql({
         showPreview: false,
         hashPrefix: '#     ',
-        stageAge: undefined,
         stageSize: undefined,
         hasStageMeta: false,
       });
@@ -117,9 +116,7 @@ describe('Deploy: endpoint menu / preview authority', () => {
             prompts += 1;
             return Promise.resolve('preview' as const);
           },
-          runAction() {
-            return Promise.resolve({ ok: true, preview: { kind: 'closed' as const } });
-          },
+          runAction: () => Promise.resolve({ ok: true, preview: { kind: 'closed' as const } }),
         },
       );
 

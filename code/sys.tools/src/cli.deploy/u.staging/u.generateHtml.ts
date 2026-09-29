@@ -2,22 +2,27 @@ import { Fs, Is, Path, Pkg, Str, type t } from '../common.ts';
 import { TEMPLATE } from './u.generateHtml.tmpl.ts';
 import { ensureBuildResetMeta, withBuildResetMeta } from './u.buildReset.ts';
 
-const MARKER = '@sys/tools: index';
-const MARKER_TOKEN = `<!-- ${MARKER} -->`;
-
 type TDir = {
   readonly abs: t.StringDir;
   readonly rel: t.StringDir;
   readonly dist?: t.DistPkg;
 };
 
-/** Ensure a marker-owned exact-file directory index exists. */
+const MARKER = '@sys/tools: index';
+const MARKER_TOKEN = `<!-- ${MARKER} -->`;
+
+/**
+ * Create a missing directory index, or refresh a marked index when forced.
+ * Existing custom HTML is preserved except for explicitly requested build-reset metadata.
+ */
 export async function ensureIndexHtml(
   cwd: t.StringDir,
   options: {
     /** Destination directory for the generated index; defaults to the scan root. */
     targetDir?: t.StringDir;
+    /** Refresh an existing index only when it contains the generator marker. Defaults false. */
     force?: boolean;
+    /** Insert/update build-reset metadata, including in otherwise-preserved custom HTML. */
     buildResetToken?: string;
     /** Link the page to its final local manifest. Defaults true. */
     includeDistLink?: boolean;
@@ -42,11 +47,10 @@ export async function ensureIndexHtml(
   const excludedRoots = [targetRoot, ...(options.excludeDirs ?? [])]
     .map((path) => Fs.Path.resolve(path))
     .filter((path) => path !== root);
-  const dirs = (await directories(root)).filter((dir) =>
-    excludedRoots.every((excluded) =>
-      !Path.Is.within(excluded, dir.abs) && !Path.Is.within(dir.abs, excluded)
-    )
-  );
+  const candidates = await directories(root);
+  const overlaps = (a: string, b: string) => Path.Is.within(a, b) || Path.Is.within(b, a);
+  const isIncluded = ({ abs }: TDir) => excludedRoots.every((path) => !overlaps(path, abs));
+  const dirs = candidates.filter(isIncluded);
   const html = renderHtml(
     dirs,
     targetRoot,
@@ -70,7 +74,8 @@ async function directories(root: t.StringDir): Promise<readonly TDir[]> {
       throw new Error(`Deploy generated index directory escaped its scan root: ${abs}`);
     }
     const rel = Path.relativePosix(relative);
-    const dist = (await Pkg.Dist.load(abs)).dist;
+    const loaded = await Pkg.Dist.load(abs);
+    const dist = loaded.kind === 'canonical' ? loaded.dist : undefined;
     res.push({ abs, rel, dist });
   }
 

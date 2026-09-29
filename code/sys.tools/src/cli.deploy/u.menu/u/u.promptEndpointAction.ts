@@ -14,7 +14,6 @@ type PromptEndpointActionArgs = {
   pushElapsed?: string;
   pushBytes?: number;
   hashPrefix: string;
-  stageAge?: string;
   stageSize?: string;
   pushUrl?: string;
   hasStageMeta: boolean;
@@ -52,10 +51,7 @@ export function formatPushActionName(args: {
  * Prompt for the next action in the endpoint menu.
  */
 export function promptEndpointAction(args: PromptEndpointActionArgs): Promise<EndpointAction> {
-  return promptEndpointActionWith(
-    args,
-    (input) => Cli.Input.Select.prompt<EndpointAction>(input),
-  );
+  return promptEndpointActionWith(args, (input) => Cli.Input.Select.prompt<EndpointAction>(input));
 }
 
 /** Internal endpoint prompt runner with an explicit selection effect. */
@@ -71,7 +67,6 @@ export async function promptEndpointActionWith(
     previewPort,
     pushedOk,
     hashPrefix,
-    stageAge,
     stageSize,
     pushUrl,
     hasStageMeta,
@@ -82,7 +77,7 @@ export async function promptEndpointActionWith(
   if (hasStageMeta) stageLabel = 'staged (rebuild)';
   if (pushedOk) stageLabel = 'staged ✔';
 
-  const stageMeta = `${formatStageAgeText(stageAge)}${formatStageSizeText(stageSize)}`;
+  const stageMeta = formatStageSizeText(stageSize);
   const stageName = `  ${hashPrefix}  ${stageLabel}${stageMeta}`;
   const pushName = formatPushActionName({
     pushedOk,
@@ -116,12 +111,6 @@ export async function promptEndpointActionWith(
 }
 
 /** Helpers: */
-function formatStageAgeText(stageAge?: string): string {
-  if (!stageAge) return '';
-  const suffix = stageAge === 'just now' ? '' : ' ago';
-  return ` ${c.gray(c.dim(`- ${stageAge}${suffix}`))}`;
-}
-
 function formatStageSizeText(stageSize?: string): string {
   return stageSize ? ` ${c.gray(c.dim(`| ${stageSize}`))}` : '';
 }

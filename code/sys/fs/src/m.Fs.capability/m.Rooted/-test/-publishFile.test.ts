@@ -360,6 +360,51 @@ describe('Fs.Capability.Rooted.publishFile', () => {
     }
   });
 
+  it('post-link cleanup fails once → retain complete publication and cause, then settle the temp', async () => {
+    const fixture = await setup();
+    try {
+      const content = bytes('complete publication');
+      const published = Fs.join(fixture.root, 'cleanup-once.txt');
+      const original = new Error('Post-link temporary-file removal failed.');
+      let temp = '';
+      let cleanupAttempts = 0;
+      const io = withIo({
+        async open(path, options) {
+          const file = await DEFAULT_IO.open(path, options);
+          if (options?.createNew === true) temp = path;
+          return file;
+        },
+        async remove(path, options) {
+          if (path === temp) {
+            cleanupAttempts++;
+            expect(await Deno.readFile(published)).to.eql(content);
+            if (cleanupAttempts === 1) throw original;
+          }
+          await DEFAULT_IO.remove(path, options);
+        },
+      });
+      const rooted = await createRooted({ root: fixture.root }, io);
+      const target = await fileTarget(rooted, 'cleanup-once.txt');
+      const error = await expectFailure(
+        () => rooted.File.publish(target, content),
+        'io-failure',
+        true,
+      );
+
+      expect(error.operation).to.eql('publish-file');
+      expect(error.cause).to.equal(original);
+      expect(error.cleanupError).to.eql(undefined);
+      expect(cleanupAttempts).to.eql(2);
+      expect(await Fs.exists(temp)).to.eql(false);
+      expect(await Deno.readFile(published)).to.eql(content);
+      const names: string[] = [];
+      for await (const entry of Deno.readDir(fixture.root)) names.push(entry.name);
+      expect(names).to.eql(['cleanup-once.txt']);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('sets committed when cancellation or cleanup fails after hard-link publication', async () => {
     const fixture = await setup();
     try {
