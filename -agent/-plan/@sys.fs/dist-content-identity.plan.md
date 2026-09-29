@@ -11,7 +11,7 @@ dist-content-identity.plan.md
 - [x] 1ff973510 feat(dist)!: migrate build and snapshot producers to canonical pins
 - [x] 65cc8ef7e feat(cell)!: configure Dist services with canonical content pins
 - [x] ae6151a1b feat(driver-pi)!: admit GUI packages through canonical Dist content
-- [ ] feat(cloudflare)!: admit R2 distributions using canonical content pins
+- [x] c64c8bf77 feat(cloudflare)!: admit R2 distributions using canonical content pins
 - [ ] feat(dist)!: align observations and signing fixtures with canonical manifests
 - [ ] fix(driver-vite): align frozen build fixtures with their dependency authority
 - [ ] test(dist): prove canonical build projection and serving composition
@@ -345,12 +345,17 @@ deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --r
 
 - **Owner:** attributable `code/sys.driver/driver-cloudflare/` ReadRoute types/admission/lifecycle
   tests and docs; sample build record, selection, status, local-proof code and deterministic tests.
-  Include only the identity-specific App/render-test/README hunks described below.
+  The 30-file whole-file handoff includes App/render-test/README presentation carry, attributed
+  separately below; do not reconstruct the historical identity-only hunk cut.
 - **Dependencies:** S1–S2 and S6; sample serving also uses S3. Workstreams E/H apply.
 - **Completion:** shared bounded inventory admission, zero policy effects before acceptance,
   canonical per-projection pins, captured document fences, producer refusal and publish-selected-build
   behavior. The UI distinguishes observed content and document hashes. No promise of later response
   checksums, browser execution integrity or provider acceptance; no real publication or sample repin.
+- **Handoff and verification:**
+  [R2 whole-file handoff and owner verification](./dist-content-identity.plan/landing/S9.landing.md)
+  records the 30-file candidate, seven excluded paths, current owner tests and evidence limits.
+  S9 remains unchecked until its actual source landing is observed.
 
 ### S10 — Observation and signing consumer contract closure
 
@@ -367,8 +372,9 @@ deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --r
 
 ### Mixed hunks and exclusions
 
-Path ownership above selects attributable deltas, never every edit under a directory. Resolve these
-known shared files by symbol/behavior, then inspect the actual cut before landing:
+Path ownership above attributes behaviors, never every edit under a directory. Apply the human's
+whole-file landing rule, explicitly record carried later-owner or unrelated behavior, and inspect
+actual files before landing; the historical hunk allocations below are not staging instructions:
 
 - **Vite:** canonical response/production and ordinary build assertions belong to S6. The optional
   `Build.Args.dependencyPolicy`, its `u.build.ts` forwarding, `u.wrangle.ts` command support, focused
@@ -385,10 +391,14 @@ known shared files by symbol/behavior, then inspect the actual cut before landin
   depending on Vite's earlier proof support. Preserve ordinary defaults and environment guards.
 - **Tools tasks:** `test:deploy:staging` belongs to S4; `test:crdt:snapshot` and `test:crypto:hash`
   belong to S6. Task-file proximity does not combine their source units.
-- **Cloudflare sample:** `src/ui/ui.App.tsx`, `src/-test/-ui.render.test.tsx` and README use the
+- **Cloudflare sample:** S9 carries complete `src/ui/ui.App.tsx`, `src/-test/-ui.render.test.tsx`
+  and README files, including their presentation/exposure wording and the human's concurrent App
+  copy change. That carry is not new identity work or browser-delivery proof. The
   [recorded minimal semantic cut](./dist-content-identity.plan/reviews/03/R3.landing-scope.md#tested-minimal-mixed-candidate)
-  as inspected evidence, not a patch to apply blindly against later bytes. Leave presentation,
-  image/exposure work and visualizer changes separate.
+  remains historical evidence, not a hunk-selection recipe. The
+  [S9 receipt](./dist-content-identity.plan/landing/S9.landing.md) names seven separately retained
+  image/HTML/CSS/Vite/HTTP-adapter/config paths; complete presentation coherence remains with those
+  owners rather than an isolated-S9 claim.
 - Preserve the workspace private-publication fix, template source/bundle refresh, plan buffer and
   all other unrelated deltas. Historical aggregate counts are not a current selection recipe.
 

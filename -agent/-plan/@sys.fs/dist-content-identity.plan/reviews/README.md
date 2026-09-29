@@ -14,3 +14,16 @@ no active slot. No round 03 review execution is recorded by this index.
 Governing plan: [dist-content-identity.plan.md](../../dist-content-identity.plan.md). Preparing or
 dispatching these prompts does not mean a review ran, establish a frozen source baseline, or
 authorize Git mutation or landing.
+
+## S9 owner-slice brief — prepared, held
+
+[S9 — R2 inventory admission and sample selection](./S9.blind-review.md) is prepared but not
+dispatched. The received three-finding documentation review was adjudicated and its corrections
+verified; the [S9 receipt](../landing/S9.landing.md) records that follow-up. The 30-file scope and
+preparation HEAD remain unchanged. Await any remaining documentation notes and explicit human
+dispatch. Refresh the baseline and scope before launch; recalibrate if scope changes materially.
+No blind review has run under this brief.
+
+Dispatch only the brief and repository access in a fresh session, not this index, documentation
+notes, implementation receipts, previous reports or adjudication. The prompt's preparation baseline
+is not a frozen worktree snapshot, and preparing it grants no active execution slot.
