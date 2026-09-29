@@ -8,7 +8,7 @@ dist-content-identity.plan.md
 - [x] 640f81a75 feat(server)!: serve and materialize canonical Dist evidence
 - [x] 29d108d70 feat(tools)!: preserve canonical Dist staging and publication ownership
 - [x] 103b61db8 feat(tools)!: consume canonical Dist pins in pull and serve
-- [ ] feat(dist)!: migrate build and snapshot producers to canonical pins
+- [x] 1ff973510 feat(dist)!: migrate build and snapshot producers to canonical pins
 - [ ] feat(cell)!: configure Dist services with canonical content pins
 - [ ] feat(driver-pi)!: admit GUI packages through canonical Dist content
 - [ ] feat(cloudflare)!: admit R2 distributions using canonical content pins
@@ -68,6 +68,12 @@ mandate. The separately recorded inventory-accounting and
 build-failure refactor remains separate. Preserve observations in the
 [adjacent findings register](./dist-content-identity.plan/adjacent-findings.md), with owner, evidence,
 proposed future commit, and a concrete condition for reconsideration.
+
+**Human-established landing rule:** use whole-file incremental commits for this arc, not manual
+hunk selection or independently buildable intermediate snapshots. Earlier mixed-hunk allocations
+are historical review attribution, not current staging instructions. Record actual landed scope
+and remaining dependencies honestly; establish complete coherence at the end of the arc. This does
+not waive owner verification, end-of-arc proofs, or security/permission checks.
 
 **Priority:** core `@sys` libraries, drivers and UI. Repository `deploy/` consumers still require
 the minimal migration, checks and old-input refusal needed to avoid a broken supported path.
@@ -308,6 +314,10 @@ deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --r
   The existing Deploy proof scope is Cell's `test:deploy:authority` and
   `src/m.cell/-test/-u.load.test.ts` through its owning `test` task, against the declared dependency
   context when execution is authorized. This is S7 owner proof, not an additional deferred item.
+- **Candidate evidence:**
+  [Cell whole-file handoff and owner verification](./dist-content-identity.plan/landing/S7.landing.md)
+  records the eleven-file scope, refusal/recovery controls, verified staging evidence, generated
+  help parity and executed owner checks. Preserve their integrated-worktree evidence boundary.
 
 ### S8 — Pi GUI payload/package admission
 

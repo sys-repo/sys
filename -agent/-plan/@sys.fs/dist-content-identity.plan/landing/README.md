@@ -8,6 +8,7 @@ root. The [primary plan](../../dist-content-identity.plan.md) remains the sole l
 - [S4 — Tools staging and publication ownership](./S4.landing.md)
 - [S5 — Tools Pull and Serve consumers](./S5.landing.md)
 - [S6 — Build and snapshot producers](./S6.landing.md)
+- [S7 — Cell service configuration and authored help](./S7.landing.md)
 
 These records describe inspected evidence, not Git authorization or isolated-commit proof. Plan and
 receipt changes are separate workflow artifacts, excluded from source implementation commits.
