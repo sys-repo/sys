@@ -11,29 +11,26 @@ import type { Files } from '../m.files/t.ts';
 export declare namespace FilesStatic {
   /** Runtime library surface. */
   export type Lib = {
-    /** Create a bounded static Files backing from canonical dist metadata. */
+    /** Create a static Files backing from a supported content inventory. */
     readonly fromDist: FromDist;
   };
 
-  /** Create a bounded static Files backing from canonical dist metadata. */
+  /** Index content facts; this adapter does not authenticate a pin or read payload bytes. */
   export type FromDist = (options: FromDistOptions) => Readonly;
 
   /** Bounded static Files backing. */
   export type Readonly = Files.Backing.Shape<'files/static:dist'>;
 
-  /** Options for creating a static Files backing from dist metadata. */
+  /** Options for indexing content facts and separately supplied observations. */
   export type FromDistOptions = Files.Backing.Options & {
-    /**
-     * Canonical distribution metadata consumed as deeply readonly.
-     *
-     * This is the only production Files seam that accepts `DistPkg`; the static
-     * adapter translates it into ordinary Files entries/content refs before any
-     * Files command result is emitted.
-     */
-    readonly dist: t.DeepReadonly<t.DistPkg>;
+    /** Supported content inventory, translated into ordinary Files entries and refs. */
+    dist: t.DeepReadonly<t.DistContent>;
+
+    /** Optional descriptive observation; never authenticated by the content identity. */
+    buildTime?: t.UnixTimestamp;
 
     /** Optional static base URL used to produce URL content refs. */
-    readonly baseUrl?: t.StringUrl;
+    baseUrl?: t.StringUrl;
   };
 
   /** Files/static error surface. */

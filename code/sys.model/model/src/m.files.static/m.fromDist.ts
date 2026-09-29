@@ -5,7 +5,9 @@ import { invalidPath } from './u/u.error.ts';
 import { handlers } from './u/u.handlers.ts';
 import { staticIndex } from './u/u.index.ts';
 
-/** Create a bounded static Files backing from canonical dist metadata. */
+/**
+ * Index a supported content inventory without claiming pin or payload-byte verification.
+ */
 export const fromDist: t.FilesStatic.Lib['fromDist'] = (options) => {
   if (!Is.plainObject(options)) throw invalidPath('Static dist options must be a plain object');
 
@@ -14,7 +16,11 @@ export const fromDist: t.FilesStatic.Lib['fromDist'] = (options) => {
   const capabilities = authority.capabilities;
   const defaultLimit = options.defaultLimit ?? D.defaultLimit;
   validatePageInput({ kind: 'list', defaultLimit }, invalidPath);
-  const index = staticIndex({ dist: options.dist, baseUrl: options.baseUrl });
+  const index = staticIndex({
+    dist: options.dist,
+    baseUrl: options.baseUrl,
+    buildTime: options.buildTime,
+  });
   const baseHandlers = handlers({ index, policy, capabilities, defaultLimit });
 
   return {

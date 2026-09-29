@@ -9,7 +9,6 @@ type PresentationArgs = {
   manifestHref?: URL;
   authority: t.DistServer.Started['authority'];
   evidence: t.FsPkg.Dist.Verify.Evidence;
-  renderedAt: t.UnixTimestamp;
 };
 
 /**

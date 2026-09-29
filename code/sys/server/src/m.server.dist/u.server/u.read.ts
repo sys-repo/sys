@@ -9,11 +9,11 @@ export type ReadDependencies = {
 };
 
 /**
- * Read the exact local manifest using its verified root, integrity, and byte-length authority.
+ * Read the exact retained local document using its checksum and byte-length observation.
  */
 export async function readManifest(args: {
   readonly dir: t.StringDir;
-  readonly integrity: t.StringHash;
+  readonly manifestChecksum: t.StringHash;
   readonly size: t.NumberBytes;
   readonly until: t.UntilInput;
   readonly deps: ReadDependencies;
@@ -21,7 +21,7 @@ export async function readManifest(args: {
   const read = await args.deps.readLocalPart({
     dir: args.dir,
     path: 'dist.json',
-    checksum: args.integrity,
+    checksum: args.manifestChecksum,
     size: args.size,
     until: args.until,
   });

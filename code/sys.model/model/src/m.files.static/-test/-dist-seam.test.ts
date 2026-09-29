@@ -9,6 +9,7 @@ const ALLOWED = new Set([
 ]);
 const FORBIDDEN = [
   'DistPkg',
+  'DistContent',
   'Pkg.Dist',
   'Pkg.Is.dist',
   'dist.hash.parts',
@@ -16,7 +17,7 @@ const FORBIDDEN = [
   '@sys/fs/pkg',
 ] as const;
 
-describe('FilesStatic DistPkg seam', () => {
+describe('FilesStatic content inventory seam', () => {
   it('confines dist package coupling to the static Files seam', async () => {
     const violations: string[] = [];
 

@@ -3,10 +3,10 @@ import {
   dataValue,
   isAppliedSeal,
   isCleanup,
+  isExpectedPin,
   isFailureReason,
   isFailureStage,
   isFrozenData,
-  isManifestChecksum,
   isSource,
   isTotals,
   isVerification,
@@ -27,7 +27,7 @@ export function admitMaterializeResult(
     if (!isFrozenData(input, ['kind'], false)) return;
     const kind = dataValue(input, 'kind');
     if (kind === 'existing' || kind === 'promoted') return admitSuccess(input, kind, expected);
-    if (kind === 'failed') return admitFailure(input, expected.args.manifest.integrity);
+    if (kind === 'failed') return admitFailure(input);
     return;
   } catch {
     return;
@@ -83,15 +83,15 @@ function admitSuccess(
   },
 ): t.Dist.Existing | t.Dist.Promoted | undefined {
   const keys = kind === 'existing'
-    ? ['kind', 'dir', 'integrity', 'verification', 'seal', 'source', 'cleanup']
-    : ['kind', 'dir', 'integrity', 'verification', 'seal', 'source', 'totals', 'cleanup'];
+    ? ['kind', 'dir', 'pin', 'verification', 'seal', 'source', 'cleanup']
+    : ['kind', 'dir', 'pin', 'verification', 'seal', 'source', 'totals', 'cleanup'];
   if (!isFrozenData(input, keys)) return;
   const cleanup = dataValue(input, 'cleanup');
   const seal = dataValue(input, 'seal');
   const verification = dataValue(input, 'verification');
   if (
     dataValue(input, 'dir') !== expected.dir ||
-    dataValue(input, 'integrity') !== expected.args.manifest.integrity ||
+    !isExpectedPin(dataValue(input, 'pin'), expected.args.manifest.pin) ||
     !isCleanup(cleanup) ||
     !isAppliedSeal(seal) ||
     !isVerification(verification, expected.args)
@@ -115,7 +115,6 @@ function admitSuccess(
 
 function admitFailure(
   input: Record<PropertyKey, unknown>,
-  expectedIntegrity: t.StringHash,
 ): t.Dist.Failed | undefined {
   const stage = dataValue(input, 'stage');
   const reason = dataValue(input, 'reason');
@@ -123,14 +122,15 @@ function admitFailure(
   if (!isFailureStage(stage) || !isFailureReason(reason) || !isCleanup(cleanup)) return;
 
   const hasPublication = Obj.hasOwn(input, 'publication');
-  const hasManifestChecksum = Obj.hasOwn(input, 'manifestChecksum');
+  const hasReleaseFailure = Obj.hasOwn(input, 'releaseFailure');
+  if (hasReleaseFailure && !isFailureReason(dataValue(input, 'releaseFailure'))) return;
   const keys = [
     'kind',
     'stage',
     'reason',
     'cleanup',
     ...(hasPublication ? ['publication'] : []),
-    ...(hasManifestChecksum ? ['manifestChecksum'] : []),
+    ...(hasReleaseFailure ? ['releaseFailure'] : []),
   ];
   if (!isFrozenData(input, keys)) return;
   if (
@@ -138,18 +138,6 @@ function admitFailure(
     dataValue(input, 'publication') !== 'committed' &&
     dataValue(input, 'publication') !== 'occupied'
   ) {
-    return;
-  }
-
-  if (hasManifestChecksum) {
-    if (
-      stage !== 'manifest-fetch' || reason !== 'integrity-mismatch' ||
-      cleanup !== 'not-needed' || hasPublication ||
-      !isManifestChecksum(dataValue(input, 'manifestChecksum'), expectedIntegrity)
-    ) {
-      return;
-    }
-  } else if (stage === 'manifest-fetch' && reason === 'integrity-mismatch') {
     return;
   }
 

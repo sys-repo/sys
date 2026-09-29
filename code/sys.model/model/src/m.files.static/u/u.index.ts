@@ -15,13 +15,21 @@ export type StaticIndex = {
   readonly distBuildTime?: t.UnixTimestamp;
 };
 
-/** Build the static Files index from canonical dist metadata. */
+/** Build the static Files index from content facts, not a descriptive manifest. */
 export function staticIndex(options: {
-  readonly dist: unknown;
-  readonly baseUrl?: t.StringUrl;
+  dist: unknown;
+  baseUrl?: t.StringUrl;
+  buildTime?: t.UnixTimestamp;
 }): StaticIndex {
   const { dist, baseUrl } = options;
-  if (!Pkg.Is.dist(dist)) throw invalidPath('Invalid static dist metadata');
+  if (!Is.record(dist) || !Pkg.Is.distPin({ scheme: dist.scheme, digest: dist.digest })) {
+    throw invalidPath('Invalid static content inventory');
+  }
+  try {
+    Pkg.Dist.Content.encode(dist.parts as t.DistContent['parts']);
+  } catch {
+    throw invalidPath('Invalid static content inventory');
+  }
   if (baseUrl !== undefined && !Is.string(baseUrl)) {
     throw invalidPath('Invalid static Files base URL');
   }
@@ -29,9 +37,9 @@ export function staticIndex(options: {
   const dirs = new Set<t.Files.String.Path>(['' as t.Files.String.Path]);
   const files = new Map<t.Files.String.Path, StaticFile>();
 
-  for (const [rawPath, rawPart] of Object.entries(dist.hash.parts)) {
+  for (const [rawPath, rawPart] of Object.entries(dist.parts as t.DistContent['parts'])) {
     const path = visiblePath(rawPath as t.Files.String.Path);
-    if (path === '') throw invalidPath('Static file path cannot be root');
+    if (path === '' || path !== rawPath) throw invalidPath('Noncanonical static file path');
     if (dirs.has(path)) throw invalidPath(`file conflicts with dir: ${path}`);
 
     const info = Pkg.Dist.Part.parse(rawPart);
@@ -47,7 +55,7 @@ export function staticIndex(options: {
   const entriesByPath = new Map<t.Files.String.Path, t.Files.Entry>();
   for (const entry of entries) entriesByPath.set(entry.path, entry);
 
-  const distBuildTime = buildTime(dist);
+  const distBuildTime = Num.Is.finite(options.buildTime) ? options.buildTime : undefined;
 
   return Object.freeze({
     entries: Object.freeze(entries),
@@ -89,9 +97,4 @@ function fileEntry(path: t.Files.String.Path, info: PartInfo): t.Files.Entry.Fil
     ...(info.size === undefined ? {} : { size: info.size }),
     hash: info.hash,
   });
-}
-
-function buildTime(dist: t.DistPkg): t.UnixTimestamp | undefined {
-  const time = dist.build.time;
-  return Num.Is.finite(time) ? time : undefined;
 }

@@ -1,7 +1,7 @@
 import type { t } from './common.ts';
 
 /**
- * Cell-compatible checksum-pinned Dist service contracts.
+ * Cell-compatible content-pinned Dist service contracts.
  */
 export declare namespace DistService {
   /** Public Cell lifecycle endpoint surface. */
@@ -10,7 +10,7 @@ export declare namespace DistService {
     readonly resources: Resources;
   };
 
-  /** Start one configured checksum-pinned Dist service. */
+  /** Start one configured content-pinned Dist service. */
   export type Start = (args: StartArgs) => Promise<t.HttpServer.Started>;
 
   /** Declare configured resources without starting the service. */
@@ -34,7 +34,7 @@ export declare namespace DistService {
   export type Config = {
     readonly name?: string;
     readonly dir: t.StringDir;
-    readonly integrity: t.StringHash;
+    readonly pin: t.DistPin;
     readonly limits: Readonly<t.FsPkg.Dist.Pinned.Verify.Limits>;
     readonly hostname?: t.StringHostname;
     readonly port?: t.PortNumber;

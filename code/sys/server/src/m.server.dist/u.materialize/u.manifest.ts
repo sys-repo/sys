@@ -1,51 +1,35 @@
-import { Is, Json, Num, Obj, Path, Pkg, Str, type t } from './common.ts';
+import { FsPkg, Num, Pkg, Str, type t } from './common.ts';
+import { verificationReason } from './u.failure.ts';
 
 export type ManifestPlan = {
   readonly resources: readonly t.HttpPull.Resource[];
+  readonly manifestChecksum: t.StringHash;
 };
 
 export type ManifestAdmission =
   | { readonly ok: true; readonly value: ManifestPlan }
-  | {
-    readonly ok: false;
-    readonly reason: Extract<
-      t.Dist.FailureReason,
-      'limit-exceeded' | 'malformed-manifest'
-    >;
-  };
+  | { readonly ok: false; readonly reason: t.Dist.FailureReason };
 
-const decoder = new TextDecoder('utf-8', { fatal: true });
 const compare = Str.Compare.codeUnit();
 
-/** Decode authenticated manifest bytes into bounded checksum-pinned staging instructions. */
-export function admitManifest(
+/** Admit through FS once, then derive bounded byte-checksummed acquisition from content facts. */
+export async function admitManifest(
   bytes: Uint8Array,
   finalUrl: t.StringUrl,
   policy: t.Dist.Policy,
-): ManifestAdmission {
-  let parsed: unknown;
-  try {
-    parsed = Json.parse<unknown>(decoder.decode(bytes));
-  } catch {
-    return rejected('malformed-manifest');
-  }
-
-  if (!Is.plainObject(parsed) || !Is.plainObject(parsed.hash)) {
-    return rejected('malformed-manifest');
-  }
-  const rawParts = parsed.hash.parts;
-  if (!Is.plainObject(rawParts)) return rejected('malformed-manifest');
-  const parts = rawParts as Record<string, unknown>;
-
-  let partCount = 0;
-  for (const path in rawParts) {
-    if (!Obj.hasOwn(rawParts, path)) continue;
-    if (partCount >= policy.resources.maxResources) return rejected('limit-exceeded');
-    partCount++;
-  }
-  if (partCount === 0) return rejected('malformed-manifest');
-  if (partCount >= policy.verification.entries) return rejected('limit-exceeded');
-  if (!Pkg.Is.dist(parsed)) return rejected('malformed-manifest');
+  pin: t.DistPin,
+  until?: t.UntilInput,
+): Promise<ManifestAdmission> {
+  const admitted = await FsPkg.Dist.Pinned.admitManifest({
+    bytes,
+    pin,
+    limits: policy.verification,
+    until,
+  });
+  if (admitted.kind !== 'manifest-admitted') return rejected(verificationReason(admitted));
+  const entries = Object.entries(admitted.evidence.content.parts);
+  if (entries.length > policy.resources.maxResources) return rejected('limit-exceeded');
+  entries.sort(([a], [b]) => compare(a, b));
 
   let base: URL;
   try {
@@ -54,57 +38,39 @@ export function admitManifest(
     return rejected('malformed-manifest');
   }
 
-  const entries = [...Obj.entries(parts)].sort(([a], [b]) => compare(a, b));
   const resources: t.HttpPull.Resource[] = [];
   let totalBytes = 0;
-
   for (const [target, rawPart] of entries) {
-    const parsedPart = Pkg.Dist.Part.parse(rawPart);
-    if (!parsedPart || parsedPart.size === undefined) return rejected('malformed-manifest');
-    if (Path.basename(target).toLowerCase() === 'dist.json') {
-      return rejected('malformed-manifest');
-    }
-
-    const size = parsedPart.size;
+    const part = Pkg.Dist.Part.parse(rawPart);
+    if (!part || part.size === undefined) return rejected('malformed-manifest');
+    const size = part.size;
     if (
       size > policy.resources.response.maxBytes ||
-      size > policy.verification.fileBytes
-    ) {
-      return rejected('limit-exceeded');
-    }
-    if (
-      size > policy.resources.maxTotalBytes - totalBytes ||
-      size > policy.verification.totalBytes - totalBytes
+      size > policy.resources.maxTotalBytes - totalBytes
     ) {
       return rejected('limit-exceeded');
     }
     totalBytes += size;
     if (!Num.Is.safeInt(totalBytes)) return rejected('limit-exceeded');
-
-    let source: t.StringUrl;
-    try {
-      const encoded = target.split('/').map((segment) => encodeURIComponent(segment)).join('/');
-      source = new URL(encoded, base).href;
-    } catch {
-      return rejected('malformed-manifest');
-    }
-
+    const encoded = target.split('/').map((segment) => encodeURIComponent(segment)).join('/');
     resources.push(Object.freeze({
-      source,
+      source: new URL(encoded, base).href,
       target,
-      checksum: parsedPart.hash,
+      checksum: part.hash,
       expectedBytes: size,
     }));
   }
-
-  return {
+  return Object.freeze({
     ok: true,
-    value: Object.freeze({ resources: Object.freeze(resources) }),
-  };
+    value: Object.freeze({
+      resources: Object.freeze(resources),
+      manifestChecksum: admitted.evidence.manifestChecksum,
+    }),
+  });
 }
 
 function rejected(
-  reason: Extract<t.Dist.FailureReason, 'limit-exceeded' | 'malformed-manifest'>,
+  reason: t.Dist.FailureReason,
 ): Extract<ManifestAdmission, { readonly ok: false }> {
   return Object.freeze({ ok: false, reason });
 }

@@ -123,6 +123,11 @@ describe('DistServer.start', () => {
 
       const cases: unknown[] = [
         { ...validInput(), pkgSubpath: 'ui' },
+        { ...validInput(), integrity: HASH },
+        { ...validInput(), pin: HASH },
+        { ...validInput(), pin: { scheme: 'old', digest: HASH } },
+        { ...validInput(), pin: new Proxy(validInput().pin, { get: trap }) },
+        { ...validInput(), pin: Object.defineProperty({}, 'scheme', { get: trap }) },
         { ...validInput(), dir: '/tmp/\0poison' as t.StringDir },
         { ...validInput(), unexpected: true },
         { ...validInput(), limits: { ...validInput().limits, unexpected: true } },
@@ -164,7 +169,7 @@ describe('DistServer.start', () => {
         server = await startWith({
           ...validInput(),
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           keyboard: false,
         }, deps);
@@ -209,7 +214,7 @@ describe('DistServer.start', () => {
       const pending = startWith(input, deps);
 
       input.dir = '/tmp/mutated' as t.StringDir;
-      input.integrity = `sha256-${'1'.repeat(64)}` as t.StringHash;
+      input.pin = { scheme: 'sys.dist/v2', digest: `sha256-${'1'.repeat(64)}` };
       input.limits.entries = 1;
       input.limits.totalBytes = 0;
 
@@ -217,7 +222,7 @@ describe('DistServer.start', () => {
       expect(error?.reason).to.eql('missing');
       expect(observed).to.eql({
         dir: expected.dir,
-        integrity: expected.integrity,
+        pin: expected.pin,
         limits: expected.limits,
         until: observed?.until,
       });
@@ -237,7 +242,7 @@ describe('DistServer.start', () => {
         const pending = startWith(
           {
             dir: relativeDir,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             limits: fixture.policy.verification,
             silent: true,
           },
@@ -318,7 +323,7 @@ describe('DistServer.start', () => {
         const error = await catchStart(() => {
           return startWith({
             dir: materialized.dir,
-            integrity: materialized.integrity,
+            pin: materialized.pin,
             limits: fixture.policy.verification,
             silent: true,
           }, deps);
@@ -352,7 +357,7 @@ describe('DistServer.start', () => {
           startWith({
             ...validInput(),
             dir: materialized.dir,
-            integrity: materialized.integrity,
+            pin: materialized.pin,
             limits: fixture.policy.verification,
           }, {
             ...D.DEPS,
@@ -391,7 +396,7 @@ describe('DistServer.start', () => {
           await startWith({
             ...validInput(),
             dir: materialized.dir,
-            integrity: materialized.integrity,
+            pin: materialized.pin,
             limits: fixture.policy.verification,
           }, {
             ...D.DEPS,
@@ -450,7 +455,7 @@ describe('DistServer.start', () => {
 
         const dist = fixture.cloneDist();
         dist.hash.parts['empty.txt'] = `${HASH}:size=0`;
-        const evidence = Object.freeze({ ...materialized.verification, dist });
+        const evidence = Object.freeze({ ...materialized.verification, content: dist.hash });
         const reads: t.FsPkg.Dist.Pinned.ReadPart.Args[] = [];
         const zeroDeps: StartDependencies = {
           ...D.DEPS,
@@ -463,7 +468,7 @@ describe('DistServer.start', () => {
 
         server = await startWith({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
         }, zeroDeps);
@@ -481,7 +486,7 @@ describe('DistServer.start', () => {
 
         let malformedReads = 0;
         const validBacking = D.DEPS.fromDist({
-          dist: evidence.dist,
+          dist: evidence.content,
           policy: Files.Policy.readonly('**'),
         });
         const malformedBacking = {
@@ -506,7 +511,7 @@ describe('DistServer.start', () => {
         };
         server = await startWith({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
         }, malformedDeps);
@@ -551,7 +556,7 @@ describe('DistServer.start', () => {
 
         server = await startWith({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
         }, deps);
@@ -613,7 +618,7 @@ describe('DistServer.start', () => {
         };
         server = await startWith({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
         }, deps);
@@ -669,7 +674,7 @@ describe('DistServer.start', () => {
         };
         server = await startWith({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
         }, deps);
@@ -716,7 +721,7 @@ describe('DistServer.start', () => {
 function validInput(): t.DistServer.Start.Args {
   return {
     dir: '/tmp/dist-generation' as t.StringDir,
-    integrity: HASH,
+    pin: { scheme: 'sys.dist/v2', digest: HASH },
     limits: {
       manifestBytes: 1024,
       entries: 10,

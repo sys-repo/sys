@@ -173,7 +173,7 @@ function createBacking(
 ): t.FilesStatic.Readonly {
   try {
     return deps.fromDist({
-      dist: evidence.dist,
+      dist: evidence.content,
       policy: Files.Policy.readonly('**'),
     });
   } catch {
@@ -201,7 +201,7 @@ function servePath(input: ServePathArgs): Promise<Response> {
       read: () =>
         readManifest({
           dir: host.dir,
-          integrity: evidence.integrity,
+          manifestChecksum: evidence.manifestChecksum,
           size: evidence.manifestBytes,
           until: signal,
           deps,

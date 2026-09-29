@@ -7,7 +7,7 @@ const encoder = new TextEncoder();
 
 export type Fixture = Awaited<ReturnType<typeof setup>>;
 
-/** Create one neutral loopback Dist source and isolated integrity-addressed store. */
+/** Create one neutral loopback Dist source and isolated content-addressed store. */
 export async function setup(options: { readonly browserAssets?: boolean } = {}) {
   const source = await Deno.realPath(
     await Deno.makeTempDir({ prefix: 'server-dist-source-' }),
@@ -33,13 +33,14 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
     builder: { name: '@sample/builder', version: '1.0.0' },
     save: true,
   });
+  if (computed.kind !== 'computed') throw computed.error;
   const assets = new Map<string, Uint8Array<ArrayBuffer>>();
   for (const path of Object.keys(computed.dist.hash.parts)) {
     assets.set(`/${path}`, Uint8Array.from(await Deno.readFile(Fs.join(source, path))));
   }
 
   let manifest = await Deno.readFile(Fs.join(source, 'dist.json'));
-  let integrity = computed.manifest.integrity;
+  const pin = computed.pin;
   let redirectBase = '';
   let redirectLocation = '';
   let manifestResponse: (() => Response | undefined) | undefined;
@@ -108,7 +109,7 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
     overrides: Partial<t.Dist.MaterializeArgs> = {},
   ): t.Dist.MaterializeArgs => ({
     manifestUrl,
-    integrity,
+    pin,
     storeDir,
     policy,
     ...overrides,
@@ -156,9 +157,12 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
     assets,
     authorizations,
     calls,
-    get integrity() {
-      return integrity;
+    pin,
+    get manifestChecksum() {
+      return Hash.sha256(manifest);
     },
+    generationPath: `sys.dist-v2/${pin.digest}`,
+    generationDir: Fs.join(storeDir, 'sys.dist-v2', pin.digest),
     get manifestBytes() {
       return manifest.slice();
     },
@@ -190,16 +194,12 @@ export async function setup(options: { readonly browserAssets?: boolean } = {}) 
     },
     source,
     storeDir,
-    /** Replace authenticated manifest bytes while retaining the original asset server. */
+    /** Mutate transport bytes without changing the independently authored expectation. */
     setManifest(dist: t.DistPkg) {
       manifest = encoder.encode(Json.stringify(dist, 2));
-      integrity = Hash.sha256(manifest);
-      return integrity;
     },
     setManifestBytes(bytes: Uint8Array) {
       manifest = bytes.slice();
-      integrity = Hash.sha256(manifest);
-      return integrity;
     },
     cloneDist(): t.DeepMutable<t.DistPkg> {
       const value = Json.parse<t.DeepMutable<t.DistPkg>>(Json.stringify(computed.dist));
@@ -236,9 +236,9 @@ export function verified(fixture: Fixture): t.FsPkg.Dist.Verify.Verified {
 export function evidence(fixture: Fixture): t.FsPkg.Dist.Verify.Evidence {
   const dist = fixture.cloneDist();
   return {
-    integrity: fixture.integrity,
+    manifestChecksum: fixture.manifestChecksum,
     manifestBytes: fixture.manifestBytes.byteLength,
-    dist,
+    content: dist.hash,
     assets: {
       files: Object.keys(dist.hash.parts).length,
       totalBytes: dist.build.size.total,

@@ -2,7 +2,9 @@ import type { t } from './common.ts';
 import { DistServer } from '../m.server.dist/mod.ts';
 import { loadConfig, resolveConfigPath, resolveDir, snapshotServiceArgs } from './u.config/u.ts';
 
-/** Start a checksum-pinned Dist host from Cell lifecycle args. */
+/**
+ * Start a content-pinned Dist host from Cell lifecycle args.
+ */
 export const start: t.DistService.Start = async (input) => {
   const args = snapshotServiceArgs(input, true);
   const configPath = resolveConfigPath(args);
@@ -11,7 +13,7 @@ export const start: t.DistService.Start = async (input) => {
 
   return await DistServer.start({
     dir,
-    integrity: config.integrity,
+    pin: config.pin,
     limits: config.limits,
     ...(config.hostname === undefined ? {} : { hostname: config.hostname }),
     ...(config.port === undefined ? {} : { port: config.port }),

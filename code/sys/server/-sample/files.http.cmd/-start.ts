@@ -16,7 +16,8 @@ const runtime = await prepareRuntime();
 
 try {
   const files = FilesStatic.fromDist({
-    dist: runtime.dist,
+    dist: runtime.dist.hash,
+    buildTime: runtime.dist.build.time,
     policy: SampleFiles.policy,
   });
   const capabilities = activeCapabilities(files.capabilities);
@@ -118,7 +119,7 @@ async function prepareRuntime() {
   try {
     await Fs.copyDir(SampleFiles.root, root, { force: true, throw: true });
     const computed = await Pkg.Dist.compute({ dir: root, save: true });
-    if (computed.error) throw computed.error;
+    if (computed.kind !== 'computed') throw computed.error;
     return {
       root,
       dist: computed.dist,

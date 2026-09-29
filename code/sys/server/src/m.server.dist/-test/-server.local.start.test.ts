@@ -8,7 +8,7 @@ const HASH = `sha256-${'0'.repeat(64)}` as t.StringHash;
 
 describe('DistServer.Local.start', () => {
   describe('authority', () => {
-    it('derives explicit local-unpinned authority from exact manifest bytes', async () => {
+    it('local observation → no pin authority; exact manifest bytes remain a serving fence', async () => {
       const fixture = await setup();
       let server: t.DistServer.Started | undefined;
       let pinnedReads = 0;
@@ -19,7 +19,7 @@ describe('DistServer.Local.start', () => {
         exactManifest.set(manifest);
         exactManifest[exactManifest.byteLength - 1] = 0x0a;
         await Fs.write(Fs.join(fixture.source, 'dist.json'), exactManifest);
-        const integrity = Hash.sha256(exactManifest);
+        const manifestChecksum = Hash.sha256(exactManifest);
 
         server = await startLocalWith(
           {
@@ -40,13 +40,14 @@ describe('DistServer.Local.start', () => {
           },
         );
 
-        expect(server.authority).to.eql({ kind: 'local-unpinned', integrity });
-        expect(server.verification.integrity).to.eql(integrity);
+        expect(server.authority).to.eql({ kind: 'local-unpinned' });
+        expect(server.verification.manifestChecksum).to.eql(manifestChecksum);
+        expect(server.verification.content).to.eql(fixture.cloneDist().hash);
         expect(server.verification.manifestBytes).to.eql(exactManifest.byteLength);
         expect(Object.isFrozen(server.authority)).to.eql(true);
         expect(Object.isFrozen(server.verification)).to.eql(true);
-        expect(Object.isFrozen(server.verification.dist)).to.eql(true);
-        expect(Object.isFrozen(server.verification.dist.hash.parts)).to.eql(true);
+        expect(Object.isFrozen(server.verification.content)).to.eql(true);
+        expect(Object.isFrozen(server.verification.content.parts)).to.eql(true);
 
         const authority = Object.getOwnPropertyDescriptor(server, 'authority');
         const verification = Object.getOwnPropertyDescriptor(server, 'verification');
@@ -184,6 +185,7 @@ describe('DistServer.Local.start', () => {
       const cases: readonly [unknown, t.DistServer.StartFailureReason][] = [
         [{ ...validLocalInput(), pkgSubpath: 'ui' }, 'invalid-input'],
         [{ ...validLocalInput(), integrity: HASH }, 'invalid-input'],
+        [{ ...validLocalInput(), pin: { scheme: 'sys.dist/v2', digest: HASH } }, 'invalid-input'],
         [{ ...validLocalInput(), unexpected: true }, 'invalid-input'],
         [
           { ...validLocalInput(), limits: { ...validLocalInput().limits, unexpected: true } },

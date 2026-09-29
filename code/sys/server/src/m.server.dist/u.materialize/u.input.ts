@@ -3,7 +3,7 @@ import { Arr, Fetch, Is, Num, Obj, Pkg, type t, Url } from './common.ts';
 export type InputSnapshot = {
   readonly manifestUrl: t.StringUrl;
   readonly configuredUrl: t.StringUrl;
-  readonly integrity: t.StringHash;
+  readonly pin: t.DistPin;
   readonly storeDir: t.StringDir;
   readonly policy: t.Dist.Policy;
   readonly credentials?: t.Dist.Credentials;
@@ -19,7 +19,7 @@ export type InputPreparation =
 
 const INPUT_KEYS = [
   'manifestUrl',
-  'integrity',
+  'pin',
   'storeDir',
   'policy',
   'credentials',
@@ -44,7 +44,8 @@ const RESOURCE_POLICY_KEYS = [
   'maxTotalBytes',
   'totalTimeout',
 ] as const;
-const VERIFICATION_KEYS = ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'] as const;
+const VERIFICATION_REQUIRED = ['manifestBytes', 'entries', 'fileBytes', 'totalBytes'] as const;
+const VERIFICATION_KEYS = [...VERIFICATION_REQUIRED, 'pathLength', 'pathTotal'] as const;
 const CREDENTIALS_KEYS = ['manifest', 'resources'] as const;
 const CREDENTIAL_KEYS = ['accessToken', 'headers'] as const;
 // Match canonical Pull's safe-integer accounting headroom before any manifest work begins.
@@ -58,23 +59,23 @@ export type PreparedManifestCredentials =
 export function snapshotInput(input: unknown): InputPreparation {
   try {
     if (!exactRecord(input, INPUT_KEYS)) return rejectedInput('invalid-input');
-    if (!required(input, ['manifestUrl', 'integrity', 'storeDir', 'policy'])) {
+    if (!required(input, ['manifestUrl', 'pin', 'storeDir', 'policy'])) {
       return rejectedInput('invalid-input');
     }
 
     const manifestUrl = snapshotManifestUrl(input.manifestUrl);
-    const integrity = snapshotIntegrity(input.integrity);
+    const pin = snapshotPin(input.pin);
     const storeDir = snapshotStoreDir(input.storeDir);
     const credentials = snapshotCredentials(
       Obj.hasOwn(input, 'credentials') ? input.credentials : undefined,
     );
     const until = Obj.hasOwn(input, 'until') ? input.until : undefined;
-    if (!manifestUrl || !integrity || !storeDir || credentials === false) {
+    if (!manifestUrl || !pin || !storeDir || credentials === false) {
       return rejectedInput('invalid-input');
     }
-    if (!Is.untilInput(until)) return rejectedInput('invalid-input');
-
+    // Own policy before borrowed lifecycle getters can mutate caller authority.
     const policy = snapshotPolicy(input.policy);
+    if (!Is.untilInput(until)) return rejectedInput('invalid-input');
     if (!policy) return rejectedInput('invalid-policy');
     const configured = Url.toCanonical(manifestUrl);
     if (!configured.ok) return rejectedInput('invalid-input');
@@ -84,7 +85,7 @@ export function snapshotInput(input: unknown): InputPreparation {
       value: Object.freeze({
         manifestUrl,
         configuredUrl: configured.href,
-        integrity,
+        pin,
         storeDir,
         policy,
         ...(credentials ? { credentials } : {}),
@@ -136,9 +137,9 @@ function snapshotManifestUrl(input: unknown): t.StringUrl | undefined {
   }
 }
 
-function snapshotIntegrity(input: unknown): t.StringHash | undefined {
-  const parsed = Pkg.Dist.Part.parse(input);
-  return parsed && parsed.hash === input && parsed.size === undefined ? parsed.hash : undefined;
+function snapshotPin(input: unknown): t.DistPin | undefined {
+  if (Is.Native.proxy(input) || !Pkg.Is.distPin(input)) return;
+  return Object.freeze({ scheme: input.scheme, digest: input.digest });
 }
 
 function snapshotStoreDir(input: unknown): t.StringDir | undefined {
@@ -151,7 +152,14 @@ function snapshotPolicy(input: unknown): t.Dist.Policy | undefined {
   const resources = snapshotResourcePolicy(input.resources);
   const verification = snapshotVerification(input.verification);
   if (!manifest || !resources || !verification) return;
-  return Object.freeze({ manifest, resources, verification });
+  return Object.freeze({
+    manifest: Object.freeze({
+      ...manifest,
+      maxBytes: Math.min(manifest.maxBytes, verification.manifestBytes),
+    }),
+    resources,
+    verification,
+  });
 }
 
 function snapshotResponsePolicy(input: unknown): t.HttpFetch.ResponsePolicy | undefined {
@@ -183,10 +191,18 @@ function snapshotOrigins(
   input: unknown,
   allowEmpty: boolean,
 ): readonly t.StringUrl[] | undefined {
-  if (!Arr.isArray(input) || (!allowEmpty && input.length === 0)) return;
+  if (Is.Native.proxy(input) || !Arr.isArray(input)) return;
+  if (Object.getPrototypeOf(input) !== Array.prototype) return;
+  if ((!allowEmpty && input.length === 0) || Reflect.ownKeys(input).length !== input.length + 1) {
+    return;
+  }
   const output: t.StringUrl[] = [];
   const seen = new Set<string>();
-  for (const value of input) {
+  // Positional own-data admission must not execute an iterator, getter or inherited slot.
+  for (let index = 0; index < input.length; index++) {
+    const descriptor = Object.getOwnPropertyDescriptor(input, String(index));
+    if (!descriptor || !descriptor.enumerable || !Obj.hasOwn(descriptor, 'value')) return;
+    const value: unknown = descriptor.value;
     if (!Is.str(value) || value !== value.trim()) return;
     try {
       const url = new URL(value);
@@ -245,7 +261,7 @@ function snapshotResourcePolicy(input: unknown): t.HttpPull.ResourcePolicy | und
 }
 
 function snapshotVerification(input: unknown): t.FsPkg.Dist.Pinned.Verify.Limits | undefined {
-  if (!exactRecord(input, VERIFICATION_KEYS) || !required(input, VERIFICATION_KEYS)) return;
+  if (!exactRecord(input, VERIFICATION_KEYS) || !required(input, VERIFICATION_REQUIRED)) return;
   const manifestBytes = input.manifestBytes;
   const entries = input.entries;
   const fileBytes = input.fileBytes;
@@ -254,7 +270,12 @@ function snapshotVerification(input: unknown): t.FsPkg.Dist.Pinned.Verify.Limits
   if (!isSafeInt(entries, 1)) return;
   if (!isSafeInt(fileBytes, 0)) return;
   if (!isSafeInt(totalBytes, 0)) return;
+  const { pathLength, pathTotal } = input;
+  if (pathLength !== undefined && !isSafeInt(pathLength, 1)) return;
+  if (pathTotal !== undefined && !isSafeInt(pathTotal, 1)) return;
   return Object.freeze({
+    ...(pathLength === undefined ? {} : { pathLength }),
+    ...(pathTotal === undefined ? {} : { pathTotal }),
     manifestBytes: manifestBytes as t.NumberBytes,
     entries: entries as t.NumberTotal,
     fileBytes: fileBytes as t.NumberBytes,
@@ -299,8 +320,14 @@ function exactRecord<K extends string>(
   input: unknown,
   keys: readonly K[],
 ): input is Record<K, unknown> {
-  return Is.plainObject(input) &&
-    Obj.keys(input).every((key) => keys.includes(key as K));
+  if (!Is.object(input) || Is.Native.proxy(input)) return false;
+  const prototype = Object.getPrototypeOf(input);
+  if (prototype !== Object.prototype && prototype !== null) return false;
+  return Reflect.ownKeys(input).every((key) => {
+    const descriptor = Object.getOwnPropertyDescriptor(input, key);
+    return Is.str(key) && keys.includes(key as K) && descriptor !== undefined &&
+      Obj.hasOwn(descriptor, 'value');
+  });
 }
 
 function required<K extends string>(input: Record<K, unknown>, keys: readonly K[]): boolean {

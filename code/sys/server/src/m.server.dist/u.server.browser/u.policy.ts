@@ -12,7 +12,7 @@ export function admitsVerifiedBrowserPolicy(
   policy: t.DistServer.BrowserPolicy.Input,
   evidence: t.FsPkg.Dist.Verify.Evidence,
 ): boolean {
-  const parts = evidence.dist.hash.parts;
+  const parts = evidence.content.parts;
   for (const source of policy.dedicatedWorkers) {
     const path = source.kind === 'asset' ? source.path : source.worker;
     if (!Obj.hasOwn(parts, path) || !isJavaScript(path)) return false;

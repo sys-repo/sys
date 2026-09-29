@@ -40,7 +40,7 @@ describe('Dist.Generation lease process', () => {
       const input: t.Dist.Generation.Open.Args = {
         store: { root: canonicalRoot, target: TARGET },
         manifestUrl: fixture.manifestUrl,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         policy: fixture.policy,
       };
       child = startChild(input);

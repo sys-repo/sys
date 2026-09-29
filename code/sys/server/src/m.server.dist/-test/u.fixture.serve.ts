@@ -28,7 +28,6 @@ type ServeEffects = {
   createScreen: (args: TDistServeScreen.CreateArgs) => TDistServeScreen.Reporter;
   isInteractive: () => boolean;
   open: (origin: t.StringUrl) => void | Promise<void>;
-  now: () => t.UnixTimestamp;
 };
 type OnKey = NonNullable<t.Cli.Keyboard.Bind.Options['onKey']>;
 type KeypressEvent = Parameters<OnKey>[0];
@@ -47,7 +46,6 @@ export function createModeEffects(isInteractive: boolean): ServeEffects {
     createScreen: unexpected,
     isInteractive: () => isInteractive,
     open: unexpected,
-    now: unexpected,
   };
 }
 
@@ -103,7 +101,7 @@ export function runNestedServe(
   );
 }
 
-export function createInteractiveEffects(fixture: Fixture) {
+export function createInteractiveEffects() {
   let finishKeyboard = () => {};
   const keyboardFinished = new Promise<void>((resolve) => {
     finishKeyboard = resolve;
@@ -132,7 +130,6 @@ export function createInteractiveEffects(fixture: Fixture) {
     }),
     isInteractive: () => true,
     open: () => {},
-    now: () => fixture.cloneDist().build.time,
   };
 
   return {

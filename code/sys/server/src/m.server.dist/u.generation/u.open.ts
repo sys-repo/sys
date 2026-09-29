@@ -246,10 +246,14 @@ async function openPrepared(
     target: target.path,
     dir: Fs.join(rooted.path, target.path),
   });
-  const generationDir: t.StringAbsoluteDir = Fs.join(store.dir, args.manifest.integrity);
+  const generationDir: t.StringAbsoluteDir = Fs.join(
+    store.dir,
+    'sys.dist-v2',
+    args.manifest.pin.digest,
+  );
   const materializeArgs: t.Dist.MaterializeArgs = freeze({
     manifestUrl: args.manifest.manifestUrl,
-    integrity: args.manifest.integrity,
+    pin: args.manifest.pin,
     storeDir: store.dir,
     policy: args.manifest.policy,
     ...(args.manifest.credentials ? { credentials: args.manifest.credentials } : {}),

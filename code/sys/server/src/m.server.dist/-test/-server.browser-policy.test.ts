@@ -170,7 +170,6 @@ describe('DistServer browser policy', () => {
         return true;
       },
       open: unexpected,
-      now: unexpected,
     };
 
     try {
@@ -260,7 +259,7 @@ describe('DistServer browser policy', () => {
         const error = await catchStart(() =>
           startWith({
             dir: materialized.dir,
-            integrity: materialized.integrity,
+            pin: materialized.pin,
             limits: fixture.policy.verification,
             browserPolicy,
             silent: true,
@@ -304,7 +303,7 @@ describe('DistServer browser policy', () => {
       };
       const pending = startWith({
         dir: materialized.dir,
-        integrity: materialized.integrity,
+        pin: materialized.pin,
         limits: fixture.policy.verification,
         browserPolicy: policy,
         silent: true,
@@ -340,7 +339,7 @@ describe('DistServer browser policy', () => {
 
       server = await DistServer.start({
         dir: materialized.dir,
-        integrity: materialized.integrity,
+        pin: materialized.pin,
         limits: fixture.policy.verification,
         browserPolicy: POLICY,
         silent: true,
@@ -416,7 +415,7 @@ describe('DistServer browser policy', () => {
       let lookups = 0;
       let reads = 0;
       const realBacking = D.DEPS.fromDist({
-        dist: materialized.verification.dist,
+        dist: materialized.verification.content,
         policy: Files.Policy.readonly('**'),
       });
       const backing = {
@@ -440,7 +439,7 @@ describe('DistServer browser policy', () => {
       };
       server = await startWith({
         dir: materialized.dir,
-        integrity: materialized.integrity,
+        pin: materialized.pin,
         limits: fixture.policy.verification,
         browserPolicy: ZERO_WORKERS,
         silent: true,
@@ -486,7 +485,7 @@ describe('DistServer browser policy', () => {
 
       server = await DistServer.start({
         dir: materialized.dir,
-        integrity: materialized.integrity,
+        pin: materialized.pin,
         limits: fixture.policy.verification,
         browserPolicy: POLICY,
         silent: true,
@@ -553,7 +552,7 @@ describe('DistServer browser policy', () => {
 
       server = await DistServer.start({
         dir: materialized.dir,
-        integrity: materialized.integrity,
+        pin: materialized.pin,
         limits: fixture.policy.verification,
         browserPolicy: ZERO_WORKERS,
         silent: true,
@@ -607,7 +606,7 @@ describe('DistServer browser policy', () => {
 
       ipv6 = await startWith({
         dir: materialized.dir,
-        integrity: materialized.integrity,
+        pin: materialized.pin,
         limits: fixture.policy.verification,
         hostname: '::1',
         browserPolicy: ZERO_WORKERS,
@@ -655,7 +654,7 @@ describe('DistServer browser policy', () => {
       };
       server = await startWith({
         dir: materialized.dir,
-        integrity: materialized.integrity,
+        pin: materialized.pin,
         limits: fixture.policy.verification,
         browserPolicy: POLICY,
         silent: true,
@@ -699,7 +698,7 @@ describe('DistServer browser policy', () => {
       let failure: t.FsPkg.Dist.Pinned.ReadPart.FailureKind = 'missing';
       server = await startWith({
         dir: materialized.dir,
-        integrity: materialized.integrity,
+        pin: materialized.pin,
         limits: fixture.policy.verification,
         browserPolicy: ZERO_WORKERS,
         silent: true,
@@ -745,7 +744,7 @@ describe('DistServer browser policy', () => {
 function validInput(): t.DistServer.Start.Args {
   return {
     dir: '/tmp/dist-generation' as t.StringDir,
-    integrity: `sha256-${'0'.repeat(64)}` as t.StringHash,
+    pin: { scheme: 'sys.dist/v2', digest: `sha256-${'0'.repeat(64)}` },
     limits: {
       manifestBytes: 1024,
       entries: 10,

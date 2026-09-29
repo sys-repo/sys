@@ -58,7 +58,6 @@ export const DistServeScreenRuntime = {
           manifestHref: args.manifestHref,
           authority: args.authority,
           evidence: args.evidence,
-          renderedAt: args.renderedAt,
           viewport,
           cursorRows: terminal.cursorRows,
           keyboard: frameKeyboard(args.keyboard),

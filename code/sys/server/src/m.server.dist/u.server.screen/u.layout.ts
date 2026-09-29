@@ -1,4 +1,4 @@
-import { c, Cli, HashFmt, Num, type t, Time } from './common.ts';
+import { c, Cli, HashFmt, Num, type t } from './common.ts';
 
 type MetadataPrefixArgs = {
   label: string;
@@ -10,7 +10,6 @@ type MetadataPrefixArgs = {
 type MetadataSuffix = {
   digest(maxWidth: number): string;
   compact(maxWidth: number): string;
-  fallback(maxWidth: number): string;
 };
 
 type MetadataValueStyle = (value: string) => string;
@@ -57,7 +56,6 @@ export const DistServeScreenLayout = {
         args.dir,
         args.evidence,
         args.manifestHref,
-        args.renderedAt,
         metadataColumn,
         metadataWidth,
       ),
@@ -156,13 +154,11 @@ const wrangle = {
     dir: t.StringDir,
     evidence: t.FsPkg.Dist.Verify.Evidence,
     manifestHref: URL | undefined,
-    renderedAt: t.UnixTimestamp,
     column: number,
     width: number,
   ) {
     const directory = wrangle.staticDir(dir, manifestHref);
-    const hash = evidence.dist.hash?.digest;
-    const age = wrangle.ageText(evidence.dist.build?.time, renderedAt);
+    const hash = evidence.content.digest;
     return metadataRow({
       label: 'static',
       value: directory.label,
@@ -172,7 +168,7 @@ const wrangle = {
       indent: column,
       labelWidth: 9,
       styledLabel: c.green('static'),
-      suffix: wrangle.digestSuffix(hash, manifestHref, age),
+      suffix: wrangle.digestSuffix(hash, manifestHref),
     });
   },
 
@@ -183,11 +179,9 @@ const wrangle = {
   },
 
   digestSuffix(
-    hash: t.StringHash | undefined,
+    hash: t.StringHash,
     manifestHref: URL | undefined,
-    age: string | undefined,
   ): MetadataSuffix {
-    const elapsed = age ? c.dim(c.gray(`· ${age}`)) : '';
     const arrow = c.green('←');
     const digests: string[] = [];
     let maxDigestWidth = Cli.Fmt.Text.Width.measure(HashFmt.digest(hash));
@@ -198,7 +192,7 @@ const wrangle = {
       const linked = manifestHref
         ? Cli.Fmt.hyperlink(digest, manifestHref, { underline: true })
         : digest;
-      digests.push(`${arrow} ${linked}${elapsed ? ` ${elapsed}` : ''}`);
+      digests.push(`${arrow} ${linked}`);
       maxDigestWidth = Cli.Fmt.Text.Width.measure(digest) - 1;
     }
 
@@ -206,12 +200,9 @@ const wrangle = {
       const width = wrangle.dimension(maxWidth);
       return candidates.find((candidate) => Cli.Fmt.Text.Width.measure(candidate) <= width) ?? '';
     };
-    const fallback = (maxWidth: number) => fit(elapsed ? [elapsed] : [], maxWidth);
-
     return {
       digest: (maxWidth) => fit(digests, maxWidth),
       compact: (maxWidth) => fit(digests.length > 0 ? [digests.at(-1) ?? ''] : [], maxWidth),
-      fallback,
     };
   },
 
@@ -221,7 +212,7 @@ const wrangle = {
     width: number,
   ) {
     const value = authority.kind === 'pinned'
-      ? `pinned ${authority.integrity}`
+      ? `pinned ${authority.pin.scheme} ${authority.pin.digest}`
       : `local ${c.dim(c.gray('·'))} ${c.magenta(c.bold('UNPINNED'))}`;
     return metadataRow({
       label: 'authority',
@@ -284,15 +275,6 @@ const wrangle = {
     return row ? [row] : [];
   },
 
-  ageText(value: t.UnixTimestamp | undefined, renderedAt: t.UnixTimestamp) {
-    if (!Num.Is.finite(value)) return undefined;
-    try {
-      return Time.elapsed(value, renderedAt).toString();
-    } catch {
-      return undefined;
-    }
-  },
-
   dashedDivider(width: number) {
     return c.dim(Cli.Fmt.hr({ width, color: 'green', weight: 'dashed' }));
   },
@@ -330,15 +312,6 @@ function metadataRow(args: MetadataRowArgs) {
     return compactMetadataRow(prefix, value, valueUrl, valueStyle, compactDigest, width);
   }
 
-  const fallback = suffix?.fallback(baseSuffixWidth);
-  if (fallback && Cli.Fmt.Text.Width.measure(`${base} ${fallback}`) <= width) {
-    return `${base} ${fallback}`;
-  }
-
-  const compactFallback = suffix?.fallback(compactSuffixWidth);
-  if (compactFallback) {
-    return compactMetadataRow(prefix, value, valueUrl, valueStyle, compactFallback, width);
-  }
   if (Cli.Fmt.Text.Width.measure(base) <= width) return base;
 
   const valueWidth = Cli.Fmt.Text.Width.fit({

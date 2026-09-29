@@ -20,7 +20,7 @@ describe('Dist.Generation.open', () => {
       const canonicalRoot = await Fs.realPath(root);
       expect(result.generation.kind).to.eql('promoted');
       expect(result.generation.dir).to.eql(
-        Fs.join(canonicalRoot, TARGET, fixture.integrity),
+        Fs.join(canonicalRoot, TARGET, fixture.generationPath),
       );
       expect(result.owner.store).to.eql({
         root: canonicalRoot,
@@ -69,7 +69,7 @@ describe('Dist.Generation.open', () => {
         dir: Fs.join(canonicalRoot, target),
       });
       expect(result.generation.dir).to.eql(
-        Fs.join(canonicalRoot, target, fixture.integrity),
+        Fs.join(canonicalRoot, target, fixture.generationPath),
       );
     } finally {
       await owner?.release();
@@ -195,7 +195,7 @@ function args(
   return {
     store: { root, target: TARGET },
     manifestUrl: fixture.manifestUrl,
-    integrity: fixture.integrity,
+    pin: fixture.pin,
     policy: fixture.policy,
     ...overrides,
   };

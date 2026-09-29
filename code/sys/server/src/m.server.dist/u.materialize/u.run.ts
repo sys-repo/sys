@@ -3,8 +3,6 @@ import {
   admitManifestResponse,
   causeReason as classifyCauseReason,
   failed,
-  failedManifestChecksum,
-  type ManifestFetchFailure,
   pullReason,
   verificationReason,
 } from './u.failure.ts';
@@ -25,7 +23,7 @@ type FetchedManifest = {
 
 type FetchResult =
   | { readonly ok: true; readonly value: FetchedManifest }
-  | ManifestFetchFailure;
+  | t.ManifestFetchFailure;
 
 type InitialGenerationSettlement =
   | { readonly kind: 'missing' }
@@ -35,15 +33,23 @@ type LeaseAcquisition =
   | { readonly ok: true; readonly lease: Lease }
   | { readonly ok: false; readonly reason: t.Dist.FailureReason };
 
+type FinalEvidenceResult =
+  | { readonly ok: true; readonly evidence: t.FsPkg.Dist.Pinned.Verify.Evidence }
+  | { readonly ok: false; readonly failure: t.Dist.Failed };
+
 export type MaterializeDependencies = {
   readonly rooted: t.FsRooted.Lib;
+  /** Internal fault seam; defaults to the real lease release. */
+  release?: (lease: Lease) => Promise<void>;
 };
 
 const DEFAULT_DEPENDENCIES: MaterializeDependencies = Object.freeze({
   rooted: Fs.Capability.Rooted,
 });
 
-/** Settle one pinned Dist with an `existing`, `promoted`, or `failed` result. */
+/**
+ * Settle one pinned Dist with an `existing`, `promoted`, or `failed` result.
+ */
 export const materialize: t.Dist.Materialize = (input) =>
   materializeWith(input, DEFAULT_DEPENDENCIES);
 
@@ -64,7 +70,7 @@ export async function materializeWith(
   try {
     rooted = await dependencies.rooted.create({ root: args.storeDir, until: args.until });
     const admitted = await rooted.Target.admit(
-      [{ kind: 'directory', path: args.integrity }],
+      [{ kind: 'directory', path: `sys.dist-v2/${args.pin.digest}` }],
       { until: args.until },
     );
     generation = admitted.targets[0];
@@ -88,13 +94,15 @@ export async function materializeWith(
   } catch (cause) {
     return failed('manifest-fetch', causeReason(cause));
   }
-  if (!fetched.ok) {
-    return fetched.reason === 'integrity-mismatch'
-      ? failedManifestChecksum(fetched.manifestChecksum)
-      : failed('manifest-fetch', fetched.reason);
-  }
+  if (!fetched.ok) return failed('manifest-fetch', fetched.reason);
 
-  const manifest = admitManifest(fetched.value.bytes, fetched.value.finalUrl, args.policy);
+  const manifest = await admitManifest(
+    fetched.value.bytes,
+    fetched.value.finalUrl,
+    args.policy,
+    args.pin,
+    args.until,
+  );
   if (!manifest.ok) return failed('manifest-admission', manifest.reason);
 
   let stage: Stage;
@@ -150,7 +158,7 @@ export async function materializeWith(
   try {
     staged = await FsPkg.Dist.Pinned.verify({
       dir: stage.path,
-      integrity: args.integrity,
+      pin: args.pin,
       limits: args.policy.verification,
       until: args.until,
     });
@@ -163,6 +171,11 @@ export async function materializeWith(
     return failed('stage-verification', verificationReason(staged), cleanup);
   }
 
+  if (staged.evidence.manifestChecksum !== manifest.value.manifestChecksum) {
+    const cleanup = await discardStage(rooted, stage);
+    return failed('stage-verification', 'verification-failure', cleanup);
+  }
+
   return await promoteVerifiedStage(
     args,
     rooted,
@@ -170,6 +183,7 @@ export async function materializeWith(
     dir,
     stage,
     fetched.value,
+    manifest.value.manifestChecksum,
     pull.totals,
     dependencies,
   );
@@ -196,7 +210,7 @@ async function settleInitialGeneration(
     try {
       existing = await FsPkg.Dist.Pinned.verify({
         dir,
-        integrity: args.integrity,
+        pin: args.pin,
         limits: args.policy.verification,
         until: args.until,
       });
@@ -215,12 +229,7 @@ async function settleInitialGeneration(
       return releaseReason
         ? Object.freeze({
           kind: 'settled',
-          result: failed(
-            'storage',
-            releaseReason,
-            'not-needed',
-            occupied ? 'occupied' : undefined,
-          ),
+          result: releaseFailed(settlement.result, 'storage', releaseReason),
         })
         : settlement;
     }
@@ -235,6 +244,7 @@ async function settleInitialGeneration(
           generation,
           dir,
           acquisition.lease,
+          existing.evidence.manifestChecksum,
           dependencies,
         ),
       });
@@ -268,12 +278,7 @@ async function settleInitialGeneration(
   const prior = settlement.kind === 'settled' ? settlement.result : undefined;
   return Object.freeze({
     kind: 'settled',
-    result: failed(
-      'storage',
-      releaseReason,
-      settlementCleanup(prior),
-      settlementPublication(prior),
-    ),
+    result: releaseFailed(prior, 'storage', releaseReason),
   });
 }
 
@@ -284,6 +289,7 @@ async function promoteVerifiedStage(
   dir: t.StringAbsoluteDir,
   stage: Stage,
   fetched: FetchedManifest,
+  manifestChecksum: t.StringHash,
   totals: t.HttpPull.ResourceTotals,
   dependencies: MaterializeDependencies,
 ): Promise<t.Dist.MaterializeResult> {
@@ -295,6 +301,9 @@ async function promoteVerifiedStage(
 
   let settlement: t.Dist.MaterializeResult;
   try {
+    // A separately observed candidate must coexist with our still-private stage. Neither an
+    // occupied result nor a committed error, by itself, establishes that provenance.
+    const separateChecksum = await separateWinnerChecksum(args, stage, dir);
     let promoted: t.FsRooted.PromotionResult;
     try {
       promoted = await rooted.Stage.promote(stage, generation, {
@@ -321,6 +330,7 @@ async function promoteVerifiedStage(
             dir,
             acquisition.lease,
             fetched,
+            separateChecksum ?? manifestChecksum,
             totals,
             cleanup,
             'occupied',
@@ -342,14 +352,7 @@ async function promoteVerifiedStage(
       }
 
       const releaseReason = await releaseGenerationLease(acquisition.lease, dependencies);
-      return releaseReason
-        ? failed(
-          'promotion',
-          releaseReason,
-          settlementCleanup(settlement),
-          settlementPublication(settlement),
-        )
-        : settlement;
+      return releaseReason ? releaseFailed(settlement, 'promotion', releaseReason) : settlement;
     }
 
     const cleanup = promoted.cleanupError ? await discardStage(rooted, stage) : 'complete';
@@ -360,6 +363,7 @@ async function promoteVerifiedStage(
       dir,
       acquisition.lease,
       fetched,
+      promoted.kind === 'published' ? manifestChecksum : separateChecksum ?? manifestChecksum,
       totals,
       cleanup,
       promoted.kind === 'published' ? 'committed' : 'occupied',
@@ -376,14 +380,7 @@ async function promoteVerifiedStage(
   }
 
   const releaseReason = await releaseGenerationLease(acquisition.lease, dependencies);
-  return releaseReason
-    ? failed(
-      'promotion',
-      releaseReason,
-      settlementCleanup(settlement),
-      settlementPublication(settlement),
-    )
-    : settlement;
+  return releaseReason ? releaseFailed(settlement, 'promotion', releaseReason) : settlement;
 }
 
 async function acquireGenerationLease(
@@ -414,11 +411,24 @@ async function releaseGenerationLease(
   dependencies: MaterializeDependencies,
 ): Promise<t.Dist.FailureReason | undefined> {
   try {
-    await lease.release();
+    if (dependencies.release) await dependencies.release(lease);
+    else await lease.release();
     return undefined;
   } catch (cause) {
     return classifyCauseReason(cause, dependencies.rooted.Is.failure);
   }
+}
+
+/** Preserve independent operation and inner-release truth without exposing raw errors. */
+function releaseFailed(
+  prior: t.Dist.MaterializeResult | undefined,
+  stage: t.Dist.FailureStage,
+  releaseFailure: t.Dist.FailureReason,
+): t.Dist.Failed {
+  const primary = prior?.kind === 'failed'
+    ? prior
+    : failed(stage, releaseFailure, settlementCleanup(prior), settlementPublication(prior));
+  return Object.freeze({ ...primary, releaseFailure });
 }
 
 async function targetPresent(dir: t.StringAbsoluteDir): Promise<boolean> {
@@ -453,8 +463,8 @@ async function fetchManifest(args: InputSnapshot): Promise<FetchResult> {
   });
 
   try {
-    const lower = await client.blob(args.manifestUrl, {}, { checksum: args.integrity });
-    const response = admitManifestResponse(lower, args.integrity);
+    const lower = await client.blob(args.manifestUrl);
+    const response = admitManifestResponse(lower);
     if (!response.ok) return response;
 
     const size = response.data.size;
@@ -489,6 +499,7 @@ async function settleExisting(
   generation: t.FsRooted.Target<'directory'>,
   dir: t.StringAbsoluteDir,
   lease: Lease,
+  manifestChecksum: t.StringHash,
   dependencies: MaterializeDependencies,
 ): Promise<t.Dist.MaterializeResult> {
   const sealed = await sealTarget(
@@ -508,6 +519,7 @@ async function settleExisting(
     'not-needed',
     'occupied',
     dependencies,
+    manifestChecksum,
     args.until,
   );
   return final.ok
@@ -522,6 +534,7 @@ async function settleVisible(
   dir: t.StringAbsoluteDir,
   lease: Lease,
   fetched: FetchedManifest,
+  manifestChecksum: t.StringHash,
   totals: t.HttpPull.ResourceTotals,
   cleanup: t.Dist.Cleanup,
   publication: t.Dist.FailedPublication,
@@ -531,7 +544,14 @@ async function settleVisible(
   let seal = snapshotAppliedSeal(lowerSeal);
   if (!seal) {
     // Never change permission metadata on a generation that is already observably invalid.
-    const beforeSeal = await finalEvidence(args, dir, cleanup, publication, dependencies);
+    const beforeSeal = await finalEvidence(
+      args,
+      dir,
+      cleanup,
+      publication,
+      dependencies,
+      manifestChecksum,
+    );
     if (!beforeSeal.ok) return beforeSeal.failure;
 
     const sealed = await sealTarget(
@@ -544,16 +564,19 @@ async function settleVisible(
     seal = sealed.seal;
   }
 
-  const final = await finalEvidence(args, dir, cleanup, publication, dependencies);
+  const final = await finalEvidence(
+    args,
+    dir,
+    cleanup,
+    publication,
+    dependencies,
+    manifestChecksum,
+  );
   if (!final.ok) return final.failure;
   return publication === 'committed'
     ? promotedResult(args, dir, final.evidence, seal, fetched, totals, cleanup)
     : existingResult(args, dir, final.evidence, seal, cleanup);
 }
-
-type FinalEvidenceResult =
-  | { readonly ok: true; readonly evidence: t.FsPkg.Dist.Pinned.Verify.Evidence }
-  | { readonly ok: false; readonly failure: t.Dist.Failed };
 
 async function finalEvidence(
   args: InputSnapshot,
@@ -561,13 +584,14 @@ async function finalEvidence(
   cleanup: t.Dist.Cleanup,
   publication: t.Dist.FailedPublication,
   dependencies: MaterializeDependencies,
+  manifestChecksum: t.StringHash,
   until?: t.UntilInput,
 ): Promise<FinalEvidenceResult> {
   let result: Verification;
   try {
     result = await FsPkg.Dist.Pinned.verify({
       dir,
-      integrity: args.integrity,
+      pin: args.pin,
       limits: args.policy.verification,
       ...(until === undefined ? {} : { until }),
     });
@@ -582,17 +606,43 @@ async function finalEvidence(
       ),
     });
   }
-  return result.kind === 'verified'
+  return result.kind === 'verified' && result.evidence.manifestChecksum === manifestChecksum
     ? Object.freeze({ ok: true, evidence: result.evidence })
     : Object.freeze({
       ok: false,
       failure: failed(
         'final-verification',
-        verificationReason(result),
+        result.kind === 'verified' ? 'verification-failure' : verificationReason(result),
         cleanup,
         publication,
       ),
     });
+}
+
+/** Establish a distinct winner before surrendering the private stage or observing publication. */
+async function separateWinnerChecksum(
+  args: InputSnapshot,
+  stage: Stage,
+  dir: t.StringAbsoluteDir,
+): Promise<t.StringHash | undefined> {
+  const source = await Fs.lstat(stage.path);
+  const target = await Fs.lstat(dir);
+  if (
+    !source?.isDirectory || source.isSymlink || !target?.isDirectory || target.isSymlink ||
+    !Num.Is.safeInt(source.dev) || !Num.Is.safeInt(source.ino) ||
+    !Num.Is.safeInt(target.dev) || !Num.Is.safeInt(target.ino) ||
+    (source.dev === target.dev && source.ino === target.ino)
+  ) return;
+  const result = await FsPkg.Dist.Pinned.verify({
+    dir,
+    pin: args.pin,
+    limits: args.policy.verification,
+    until: args.until,
+  });
+  if (result.kind !== 'verified') return;
+  const after = await Fs.lstat(dir);
+  if (after?.dev !== target.dev || after?.ino !== target.ino) return;
+  return result.evidence.manifestChecksum;
 }
 
 async function discardStage(rooted: Rooted, stage: Stage): Promise<t.Dist.Cleanup> {
@@ -614,7 +664,7 @@ function existingResult(
   return Object.freeze({
     kind: 'existing',
     dir,
-    integrity: args.integrity,
+    pin: args.pin,
     verification,
     seal,
     source: Object.freeze({ configuredUrl: args.configuredUrl }),
@@ -634,7 +684,7 @@ function promotedResult(
   return Object.freeze({
     kind: 'promoted',
     dir,
-    integrity: args.integrity,
+    pin: args.pin,
     verification,
     seal,
     source: Object.freeze({

@@ -21,7 +21,7 @@ export const sampleDist = dist({
 });
 
 export type SetupOptions = Omit<t.FilesStatic.FromDistOptions, 'dist' | 'policy'> & {
-  readonly dist?: t.DistPkg;
+  readonly dist?: t.DistContent;
   readonly policy?: t.Files.Policy.Shape;
 };
 
@@ -32,6 +32,7 @@ export type ListPayloadInput = Omit<t.Files.Cmd.List.Payload, 'cursor'> & {
 export function setup(options: SetupOptions = {}) {
   const backing = FilesStatic.fromDist({
     dist: options.dist ?? sampleDist,
+    buildTime: options.buildTime ?? buildTime,
     ...('baseUrl' in options ? { baseUrl: options.baseUrl } : { baseUrl }),
     policy: options.policy ?? allowAllPolicy,
     ...(options.defaultLimit === undefined ? {} : { defaultLimit: options.defaultLimit }),
@@ -68,21 +69,9 @@ export const cmd = {
   },
 };
 
-export function dist(parts: t.CompositeHashParts): t.DistPkg {
-  return {
-    type: 'https://jsr.io/@sys/types/0.0.0/src/types/t.Pkg.dist.ts',
-    build: {
-      time: buildTime,
-      size: { total: 27, pkg: 0 },
-      builder: 'fixture@0.0.0',
-      runtime: 'deno=fixture',
-      hash: { policy: 'fixture:dist-policy' },
-    },
-    hash: {
-      digest: HASHES.digest,
-      parts,
-    },
-  };
+export function dist(parts: t.DistContent['parts']): t.DistContent {
+  // Structural fixture only: FilesStatic does not recompute or authenticate this digest.
+  return { scheme: 'sys.dist/v2', digest: HASHES.digest, parts };
 }
 
 export function part(hash: t.StringHash, size?: number): t.StringFileHashUri {

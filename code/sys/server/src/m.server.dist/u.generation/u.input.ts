@@ -9,13 +9,13 @@ const KEYS = Object.freeze({
     [
       'store',
       'manifestUrl',
-      'integrity',
+      'pin',
       'policy',
       'credentials',
       'until',
     ] as const,
   ),
-  REQUIRED_INPUT: Object.freeze(['store', 'manifestUrl', 'integrity', 'policy'] as const),
+  REQUIRED_INPUT: Object.freeze(['store', 'manifestUrl', 'pin', 'policy'] as const),
   STORE: Object.freeze(['root', 'target'] as const),
 });
 const INVALID_UNTIL = Symbol('invalid-until');
@@ -58,7 +58,7 @@ export function snapshotInput(input: unknown): InputSnapshot | undefined {
     const absoluteRoot: t.StringAbsoluteDir = Fs.resolve(root);
     const materialize = snapshotMaterializeInput(freeze({
       manifestUrl: values.manifestUrl,
-      integrity: values.integrity,
+      pin: values.pin,
       storeDir: absoluteRoot,
       policy: values.policy,
       ...(values.credentials === undefined ? {} : { credentials: values.credentials }),

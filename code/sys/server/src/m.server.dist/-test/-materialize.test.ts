@@ -14,9 +14,9 @@ describe('Dist.materialize', () => {
         expect(promoted.kind).to.eql('promoted');
         if (promoted.kind !== 'promoted') return;
 
-        expect(promoted.dir).to.eql(Fs.join(fixture.storeDir, fixture.integrity));
-        expect(promoted.integrity).to.eql(fixture.integrity);
-        expect(promoted.verification.integrity).to.eql(fixture.integrity);
+        expect(promoted.dir).to.eql(fixture.generationDir);
+        expect(promoted.pin).to.eql(fixture.pin);
+        expect(promoted.verification.content.digest).to.eql(fixture.pin.digest);
         expect(promoted.verification.assets.files).to.eql(fixture.assets.size);
         expect(promoted.seal).to.eql({ kind: 'applied', changed: true });
         expect(Object.isFrozen(promoted.seal)).to.eql(true);
@@ -37,7 +37,7 @@ describe('Dist.materialize', () => {
         expect(existing.kind).to.eql('existing');
         if (existing.kind !== 'existing') return;
         expect(existing.dir).to.eql(promoted.dir);
-        expect(existing.verification.integrity).to.eql(fixture.integrity);
+        expect(existing.verification.content.digest).to.eql(fixture.pin.digest);
         expect(existing.seal).to.eql({ kind: 'applied', changed: false });
         expect(Object.isFrozen(existing.seal)).to.eql(true);
         expect(existing.cleanup).to.eql('not-needed');
@@ -49,7 +49,7 @@ describe('Dist.materialize', () => {
       }
     });
 
-    it('resolves assets from the authenticated final manifest URL', async () => {
+    it('resolves assets relative to the final manifest response URL', async () => {
       const fixture = await setup();
       try {
         fixture.redirectManifest('/nested');
@@ -69,23 +69,23 @@ describe('Dist.materialize', () => {
       }
     });
 
-    it('maps the same authenticated manifest bytes to one generation name across origins', async () => {
+    it('maps the same pinned content to one generation name across origins', async () => {
       const first = await setup();
       const second = await setup();
       try {
         second.setManifestBytes(first.manifestBytes);
         const [left, right] = await Promise.all([
           Dist.materialize(first.args()),
-          Dist.materialize(second.args({ integrity: first.integrity })),
+          Dist.materialize(second.args({ pin: first.pin })),
         ]);
 
         expect(left.kind).to.eql('promoted');
         expect(right.kind).to.eql('promoted');
         if (left.kind !== 'promoted' || right.kind !== 'promoted') return;
-        expect(Fs.basename(left.dir)).to.eql(first.integrity);
-        expect(Fs.basename(right.dir)).to.eql(first.integrity);
-        expect(left.verification.integrity).to.eql(first.integrity);
-        expect(right.verification.integrity).to.eql(first.integrity);
+        expect(Fs.basename(left.dir)).to.eql(first.pin.digest);
+        expect(Fs.basename(right.dir)).to.eql(first.pin.digest);
+        expect(left.verification.content.digest).to.eql(first.pin.digest);
+        expect(right.verification.content.digest).to.eql(first.pin.digest);
         expect(new URL(left.source.finalUrl).origin).to.not.eql(
           new URL(right.source.finalUrl).origin,
         );
@@ -108,7 +108,7 @@ describe('Dist.materialize', () => {
         await Deno.chmod(manifest, 0o600);
         const rooted = await Fs.Capability.Rooted.create({ root: fixture.storeDir });
         const admitted = await rooted.Target.admit([
-          { kind: 'directory', path: fixture.integrity },
+          { kind: 'directory', path: fixture.generationPath },
         ]);
         expect(await rooted.Tree.inspectSeal(admitted.targets[0])).to.eql({ kind: 'unsealed' });
 
@@ -123,7 +123,7 @@ describe('Dist.materialize', () => {
         expect(existing.kind).to.eql('existing');
         if (existing.kind !== 'existing') return;
         expect(existing.seal).to.eql({ kind: 'applied', changed: true });
-        expect(existing.verification.integrity).to.eql(fixture.integrity);
+        expect(existing.verification.content.digest).to.eql(fixture.pin.digest);
         expect(await rooted.Tree.inspectSeal(admitted.targets[0])).to.eql({ kind: 'sealed' });
         expect(credentials).to.eql(0);
         expect(fixture.calls.length).to.eql(requests);
@@ -195,7 +195,7 @@ describe('Dist.materialize', () => {
             reason: 'unsupported',
             cleanup: 'complete',
           });
-          expect(await Fs.exists(Fs.join(fixture.storeDir, fixture.integrity))).to.eql(false);
+          expect(await Fs.exists(fixture.generationDir)).to.eql(false);
         }
       } finally {
         await teardown(fixture);
@@ -227,7 +227,7 @@ describe('Dist.materialize', () => {
           Object.freeze({ rooted: replacement }),
         );
 
-        const dir = Fs.join(fixture.storeDir, fixture.integrity);
+        const dir = fixture.generationDir;
         expect(result).to.eql({
           kind: 'failed',
           stage: 'sealing',
@@ -448,7 +448,7 @@ describe('Dist.materialize', () => {
         expect(result).to.eql({
           kind: 'failed',
           stage: 'final-verification',
-          reason: 'integrity-mismatch',
+          reason: 'malformed-manifest',
           cleanup: 'not-needed',
           publication: 'occupied',
         });
@@ -491,7 +491,7 @@ describe('Dist.materialize', () => {
 
         const contender = await Fs.Capability.Rooted.create({ root: fixture.storeDir });
         const admitted = await contender.Target.admit([
-          { kind: 'directory', path: fixture.integrity },
+          { kind: 'directory', path: fixture.generationPath },
         ]);
         const blocked = await contender.Lease.acquire(admitted.targets, { mode: 'exclusive' });
         if (blocked.kind === 'acquired') await blocked.lease.release();
@@ -554,7 +554,7 @@ describe('Dist.materialize', () => {
 
         const rooted = await Fs.Capability.Rooted.create({ root: fixture.storeDir });
         const admitted = await rooted.Target.admit([
-          { kind: 'directory', path: fixture.integrity },
+          { kind: 'directory', path: fixture.generationPath },
         ]);
         const target = admitted.targets[0];
         const acquired = await rooted.Lease.acquire([target], { mode: 'exclusive' });
@@ -589,110 +589,39 @@ describe('Dist.materialize', () => {
         });
         expect(Reflect.ownKeys(result)).to.eql(['kind', 'stage', 'reason', 'cleanup']);
         expect(fixture.calls).to.eql(['/dist.json']);
-        expect(await Fs.exists(Fs.join(fixture.storeDir, fixture.integrity))).to.eql(false);
+        expect(await Fs.exists(fixture.generationDir)).to.eql(false);
       } finally {
         await teardown(fixture);
       }
     });
 
-    it('correlates checksum evidence with only the exact public mismatch variant', () => {
-      type BareManifestMismatch = {
-        readonly kind: 'failed';
-        readonly stage: 'manifest-fetch';
-        readonly reason: 'integrity-mismatch';
-        readonly cleanup: 'not-needed';
-      };
-      type ExactManifestMismatch = BareManifestMismatch & {
-        readonly manifestChecksum: t.Dist.ManifestChecksumMismatch;
-      };
-      type WrongStage = Omit<ExactManifestMismatch, 'stage'> & {
-        readonly stage: 'resource-pull';
-      };
-      type WrongReason = Omit<ExactManifestMismatch, 'reason'> & {
-        readonly reason: 'resource-failure';
-      };
-      type WrongCleanup = Omit<ExactManifestMismatch, 'cleanup'> & {
-        readonly cleanup: 'complete';
-      };
-      type WrongPublication = ExactManifestMismatch & {
-        readonly publication: 'committed';
-      };
-      type AssetMismatch = Omit<BareManifestMismatch, 'stage' | 'cleanup'> & {
-        readonly stage: 'resource-pull';
-        readonly cleanup: 'complete';
-      };
-      type ManifestTransportFailure = Omit<BareManifestMismatch, 'reason'> & {
-        readonly reason: 'resource-failure';
-      };
-      type IsFailed<T> = T extends t.Dist.Failed ? true : false;
-      const contract: Readonly<{
-        exact: IsFailed<ExactManifestMismatch>;
-        bare: IsFailed<BareManifestMismatch>;
-        wrongStage: IsFailed<WrongStage>;
-        wrongReason: IsFailed<WrongReason>;
-        wrongCleanup: IsFailed<WrongCleanup>;
-        wrongPublication: IsFailed<WrongPublication>;
-        assetMismatch: IsFailed<AssetMismatch>;
-        manifestTransportFailure: IsFailed<ManifestTransportFailure>;
-      }> = {
-        exact: true,
-        bare: false,
-        wrongStage: false,
-        wrongReason: false,
-        wrongCleanup: false,
-        wrongPublication: false,
-        assetMismatch: true,
-        manifestTransportFailure: true,
-      };
-
-      expect(contract).to.eql({
-        exact: true,
-        bare: false,
-        wrongStage: false,
-        wrongReason: false,
-        wrongCleanup: false,
-        wrongPublication: false,
-        assetMismatch: true,
-        manifestTransportFailure: true,
-      });
+    it('public authority → content pin only; document-checksum diagnostics are not a second pin', () => {
+      const pin = { scheme: 'sys.dist/v2', digest: Hash.sha256('content') } as const;
+      expectTypeOf<t.Dist.MaterializeArgs['pin']>(pin).toEqualTypeOf<t.DistPin>();
+      expectTypeOf<t.Dist.Existing['pin']>(pin).toEqualTypeOf<t.DistPin>();
+      type HasOldInput = 'integrity' extends keyof t.Dist.MaterializeArgs ? true : false;
+      type HasOldDiagnostics = 'manifestChecksum' extends keyof t.Dist.Failed ? true : false;
+      expectTypeOf<HasOldInput>(false).toEqualTypeOf<false>();
+      expectTypeOf<HasOldDiagnostics>(false).toEqualTypeOf<false>();
     });
 
-    it('returns only bounded serialized diagnostics for a wrong external manifest pin', async () => {
+    it('wrong external content pin → bounded serialized refusal without acquired inventory evidence', async () => {
       const fixture = await setup();
       try {
-        const integrity = Hash.sha256('not-the-manifest');
-        const result = await Dist.materialize(fixture.args({ integrity }));
+        const pin = { scheme: 'sys.dist/v2', digest: Hash.sha256('not-the-content') } as const;
+        const result = await Dist.materialize(fixture.args({ pin }));
         const expectedFailure = {
           kind: 'failed',
-          stage: 'manifest-fetch',
-          reason: 'integrity-mismatch',
+          stage: 'manifest-admission',
+          reason: 'pin-mismatch',
           cleanup: 'not-needed',
-          manifestChecksum: {
-            expected: integrity,
-            received: fixture.integrity,
-          },
         } as const;
         expect(result).to.eql(expectedFailure);
-        expect(Reflect.ownKeys(result)).to.eql([
-          'kind',
-          'stage',
-          'reason',
-          'cleanup',
-          'manifestChecksum',
-        ]);
+        expect(Reflect.ownKeys(result)).to.eql(['kind', 'stage', 'reason', 'cleanup']);
         expect(Json.parse(Json.stringify(result))).to.eql(expectedFailure);
         expect(Object.isFrozen(result)).to.eql(true);
-        expect(result.kind).to.eql('failed');
-        if (
-          result.kind !== 'failed' ||
-          result.stage !== 'manifest-fetch' ||
-          result.reason !== 'integrity-mismatch'
-        ) return;
-        expectTypeOf(result.manifestChecksum).toEqualTypeOf<t.Dist.ManifestChecksumMismatch>();
-        expect(Reflect.ownKeys(result.manifestChecksum)).to.eql(['expected', 'received']);
-        expect(Object.isFrozen(result.manifestChecksum)).to.eql(true);
         expect(fixture.calls).to.eql(['/dist.json']);
-        expect(await Fs.exists(Fs.join(fixture.storeDir, integrity))).to.eql(false);
+        expect(await Fs.exists(Fs.join(fixture.storeDir, 'sys.dist-v2', pin.digest))).to.eql(false);
       } finally {
         await teardown(fixture);
       }
@@ -701,7 +630,7 @@ describe('Dist.materialize', () => {
     it('treats an existing generation without dist.json as occupied and performs no network work', async () => {
       const fixture = await setup();
       try {
-        await Deno.mkdir(Fs.join(fixture.storeDir, fixture.integrity), { recursive: true });
+        await Deno.mkdir(fixture.generationDir, { recursive: true });
         let credentials = 0;
         const policy: t.Dist.Policy = {
           ...fixture.policy,
@@ -734,7 +663,7 @@ describe('Dist.materialize', () => {
     it('rejects an invalid existing generation without credentials or network work', async () => {
       const fixture = await setup();
       try {
-        const dir = Fs.join(fixture.storeDir, fixture.integrity);
+        const dir = fixture.generationDir;
         await Deno.mkdir(dir, { recursive: true });
         await Deno.writeTextFile(Fs.join(dir, 'dist.json'), '{}');
         let credentials = 0;
@@ -747,7 +676,7 @@ describe('Dist.materialize', () => {
         expect(result).to.eql({
           kind: 'failed',
           stage: 'existing-verification',
-          reason: 'integrity-mismatch',
+          reason: 'malformed-manifest',
           cleanup: 'not-needed',
           publication: 'occupied',
         });
@@ -780,7 +709,7 @@ describe('Dist.materialize', () => {
       }
     });
 
-    it('rejects authenticated path escape before asset transport and cleans its stage', async () => {
+    it('unsafe inventory path → refusal before asset transport or stage creation', async () => {
       const fixture = await setup();
       try {
         const dist = fixture.cloneDist();
@@ -793,18 +722,18 @@ describe('Dist.materialize', () => {
         const result = await Dist.materialize(fixture.args());
         expect(result).to.eql({
           kind: 'failed',
-          stage: 'staging',
-          reason: 'filesystem-failure',
-          cleanup: 'complete',
+          stage: 'manifest-admission',
+          reason: 'verification-failure',
+          cleanup: 'not-needed',
         });
         expect(fixture.calls).to.eql(['/dist.json']);
-        expect(await Fs.exists(Fs.join(fixture.storeDir, fixture.integrity))).to.eql(false);
+        expect(await Fs.exists(fixture.generationDir)).to.eql(false);
       } finally {
         await teardown(fixture);
       }
     });
 
-    it('rejects authenticated target collisions before asset transport', async () => {
+    it('inventory target collision → refusal before asset transport', async () => {
       const fixture = await setup();
       try {
         const dist = fixture.cloneDist();
@@ -817,9 +746,9 @@ describe('Dist.materialize', () => {
         const result = await Dist.materialize(fixture.args());
         expect(result).to.eql({
           kind: 'failed',
-          stage: 'staging',
-          reason: 'filesystem-failure',
-          cleanup: 'complete',
+          stage: 'manifest-admission',
+          reason: 'verification-failure',
+          cleanup: 'not-needed',
         });
         expect(fixture.calls).to.eql(['/dist.json']);
       } finally {
@@ -827,7 +756,7 @@ describe('Dist.materialize', () => {
       }
     });
 
-    it('rejects authenticated parts without exact size before asset transport', async () => {
+    it('inventory part without exact size → refusal before asset transport', async () => {
       const fixture = await setup();
       try {
         const dist = fixture.cloneDist();
@@ -859,11 +788,12 @@ describe('Dist.materialize', () => {
         const dist = fixture.cloneDist();
         dist.hash.digest = Hash.sha256('later-invalid-generation');
         fixture.setManifest(dist);
-        const later = await Dist.materialize(fixture.args());
+        const pin = { scheme: 'sys.dist/v2', digest: dist.hash.digest } as const;
+        const later = await Dist.materialize(fixture.args({ pin }));
 
         expect(later.kind).to.eql('failed');
         expect(await Fs.exists(originalDir)).to.eql(true);
-        expect(await Fs.exists(Fs.join(fixture.storeDir, fixture.integrity))).to.eql(false);
+        expect(await Fs.exists(Fs.join(fixture.storeDir, 'sys.dist-v2', pin.digest))).to.eql(false);
       } finally {
         await teardown(fixture);
       }
@@ -871,6 +801,76 @@ describe('Dist.materialize', () => {
   });
 
   describe('publication settlement', () => {
+    for (const existing of [false, true]) {
+      for (const mutate of [false, true]) {
+        it(`inner release failure, existing=${existing}, changed=${mutate} → independent settlement truth`, async () => {
+          const fixture = await setup();
+          const promotionError = rootedFailure(true, 'io-failure', 'promote-stage');
+          let releases = 0;
+          const changeDocument = async () => {
+            if (!mutate) return;
+            const dist = fixture.cloneDist();
+            dist.pkg = { name: '@changed/label', version: '2' };
+            await Fs.write(Fs.join(fixture.generationDir, 'dist.json'), Json.stringify(dist), {
+              throw: true,
+            });
+          };
+          const replacement = rootedWith((rooted) =>
+            Object.freeze({
+              ...rooted,
+              Tree: Object.freeze({
+                ...rooted.Tree,
+                async seal(...args: Parameters<t.FsRooted.Instance['Tree']['seal']>) {
+                  if (existing) await changeDocument();
+                  return await rooted.Tree.seal(...args);
+                },
+              }),
+              Stage: Object.freeze({
+                ...rooted.Stage,
+                async promote(
+                  stage: t.FsRooted.Stage,
+                  target: t.FsRooted.Target<'directory'>,
+                  options?: t.FsRooted.PromotionOptions,
+                ) {
+                  const published = await rooted.Stage.promote(stage, target, {
+                    ...options,
+                    seal: false,
+                  });
+                  if (published.kind !== 'published') {
+                    throw new Error('Expected owned publication.');
+                  }
+                  await changeDocument();
+                  throw promotionError;
+                },
+              }),
+            }), [promotionError]);
+          const dependencies = {
+            rooted: replacement,
+            async release(lease: t.FsRooted.Lease) {
+              await lease.release();
+              if (++releases === (existing ? 1 : 2)) throw new Error('private release detail');
+            },
+          };
+          try {
+            if (existing) await Fs.copy(fixture.source, fixture.generationDir, { throw: true });
+            const result = await materializeWith(fixture.args(), dependencies);
+            expect(result).to.eql({
+              kind: 'failed',
+              stage: mutate ? 'final-verification' : existing ? 'storage' : 'promotion',
+              reason: mutate ? 'verification-failure' : 'execution-failure',
+              cleanup: existing ? 'not-needed' : 'complete',
+              publication: 'occupied',
+              releaseFailure: 'execution-failure',
+            });
+            expect(releases).to.eql(existing ? 1 : 2);
+            expect(Json.stringify(result)).not.to.include('private release detail');
+          } finally {
+            await teardown(fixture);
+          }
+        });
+      }
+    }
+
     it('does not infer promoted provenance from a committed error and visible target', async () => {
       const fixture = await setup();
       const cause = rootedFailure(true, 'io-failure', 'promote-stage');
@@ -909,7 +909,7 @@ describe('Dist.materialize', () => {
         });
         expect(result.totals).to.eql(undefined);
         expect(result.seal.kind).to.eql('applied');
-        expect(result.verification.integrity).to.eql(fixture.integrity);
+        expect(result.verification.content.digest).to.eql(fixture.pin.digest);
       } finally {
         await teardown(fixture);
       }
@@ -945,7 +945,7 @@ describe('Dist.materialize', () => {
 
         const contender = await Fs.Capability.Rooted.create({ root: fixture.storeDir });
         const admitted = await contender.Target.admit([
-          { kind: 'directory', path: fixture.integrity },
+          { kind: 'directory', path: fixture.generationPath },
         ]);
         const blocked = await contender.Lease.acquire(admitted.targets, { mode: 'exclusive' });
         if (blocked.kind === 'acquired') await blocked.lease.release();
@@ -993,9 +993,9 @@ describe('Dist.materialize', () => {
         );
         expect(result.kind).to.eql('promoted');
         if (result.kind !== 'promoted') return;
-        expect(result.dir).to.eql(Fs.join(fixture.storeDir, fixture.integrity));
+        expect(result.dir).to.eql(fixture.generationDir);
         expect(result.cleanup).to.eql('pending');
-        expect(result.verification.integrity).to.eql(fixture.integrity);
+        expect(result.verification.content.digest).to.eql(fixture.pin.digest);
         expect(Fs.Capability.Rooted).to.equal(owner);
       } finally {
         await teardown(fixture);
@@ -1005,7 +1005,7 @@ describe('Dist.materialize', () => {
     it('preserves committed truth when the final generation changes after publication', async () => {
       const fixture = await setup();
       try {
-        const dir = Fs.join(fixture.storeDir, fixture.integrity);
+        const dir = fixture.generationDir;
         let settled = false;
         const pending = Dist.materialize(fixture.args()).finally(() => (settled = true));
         await waitForPath(dir);
@@ -1029,7 +1029,7 @@ describe('Dist.materialize', () => {
     it('does not rewrite a visible published generation as cancelled', async () => {
       const fixture = await setup();
       try {
-        const dir = Fs.join(fixture.storeDir, fixture.integrity);
+        const dir = fixture.generationDir;
         const controller = new AbortController();
         let settled = false;
         const pending = Dist.materialize(fixture.args({ until: controller.signal })).finally(
@@ -1043,7 +1043,7 @@ describe('Dist.materialize', () => {
         expect(result.kind).to.eql('promoted');
         if (result.kind !== 'promoted') return;
         expect(result.dir).to.eql(dir);
-        expect(result.verification.integrity).to.eql(fixture.integrity);
+        expect(result.verification.content.digest).to.eql(fixture.pin.digest);
         expect(Json.stringify(result)).to.not.include('private-post-publication-reason');
       } finally {
         await teardown(fixture);
@@ -1057,7 +1057,7 @@ describe('Dist.materialize', () => {
       try {
         const pending = Dist.materialize(fixture.args());
         await gate.requested;
-        const dir = Fs.join(fixture.storeDir, fixture.integrity);
+        const dir = fixture.generationDir;
         const nested = Fs.join(dir, 'nested');
         const retained = Fs.join(nested, 'retained.txt');
         await Deno.mkdir(nested, { recursive: true });
@@ -1100,10 +1100,10 @@ describe('Dist.materialize', () => {
         results.forEach((result) => {
           expect(result.kind === 'failed').to.eql(false);
           if (result.kind === 'failed') return;
-          expect(result.verification.integrity).to.eql(fixture.integrity);
+          expect(result.verification.content.digest).to.eql(fixture.pin.digest);
           expect(result.seal.kind).to.eql('applied');
           expect(Object.isFrozen(result.seal)).to.eql(true);
-          expect(result.dir).to.eql(Fs.join(fixture.storeDir, fixture.integrity));
+          expect(result.dir).to.eql(fixture.generationDir);
         });
         expect(
           results.map((result) => result.kind === 'failed' ? undefined : result.seal.changed)

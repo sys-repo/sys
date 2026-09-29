@@ -30,11 +30,11 @@ export declare namespace DistServerInput {
    * Start-input admission contracts.
    */
   export namespace Start {
-    /** Admitted checksum-pinned start authority. */
-    export type Snapshot = StartFields & { readonly integrity: t.StringHash };
+    /** Admitted content-pinned start authority. */
+    export type Snapshot = StartFields & { readonly pin: t.DistPin };
     /** Admitted locally verified start authority. */
     export type LocalSnapshot = StartFields;
-    /** Checksum-pinned start-input settlement. */
+    /** Content-pinned start-input settlement. */
     export type Preparation =
       | { readonly ok: true; readonly value: Snapshot }
       | Rejection;
@@ -54,7 +54,7 @@ export declare namespace DistServerInput {
   export namespace Serve {
     /** Normalized terminal-navigation mode. */
     export type Navigation = 'default' | 'nested';
-    /** Admitted checksum-pinned serve authority. */
+    /** Admitted content-pinned serve authority. */
     export type Snapshot = {
       readonly start: Start.Snapshot;
       readonly displayDir: t.StringDir;
@@ -68,7 +68,7 @@ export declare namespace DistServerInput {
       readonly pkgSubpath?: string;
       readonly navigation: Navigation;
     };
-    /** Checksum-pinned serve-input settlement. */
+    /** Content-pinned serve-input settlement. */
     export type Preparation =
       | { readonly ok: true; readonly value: Snapshot }
       | Rejection;

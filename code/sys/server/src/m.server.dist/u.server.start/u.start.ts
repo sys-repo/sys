@@ -5,7 +5,7 @@ import { disposeLifeWhenReady } from './u.lifecycle.ts';
 import { serveVerified } from '../u.server.start.verified/mod.ts';
 
 /**
- * Start one checksum-pinned local Dist host.
+ * Start one content-pinned local Dist host.
  */
 export const start: (input: t.DistServer.Start.Args) => Promise<t.DistServer.Started> = (input) =>
   startWith(input, D.DEPS);
@@ -34,7 +34,7 @@ export async function startWith(
     try {
       verified = await deps.verify({
         dir: prepared.value.dir,
-        integrity: prepared.value.integrity,
+        pin: prepared.value.pin,
         limits: prepared.value.limits,
         until: life.signal,
       });
@@ -48,7 +48,7 @@ export async function startWith(
     return await serveVerified(
       prepared.value,
       verified.evidence,
-      { kind: 'pinned', integrity: prepared.value.integrity },
+      { kind: 'pinned', pin: prepared.value.pin },
       life,
       deps,
       options,
@@ -97,7 +97,7 @@ export async function startLocalWith(
     return await serveVerified(
       prepared.value,
       verified.evidence,
-      { kind: 'local-unpinned', integrity: verified.evidence.integrity },
+      { kind: 'local-unpinned' },
       life,
       deps,
       options,

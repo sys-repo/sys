@@ -1,5 +1,6 @@
 import { describe, expect, Fs, it, type t, WebFixture } from '../../-test.ts';
 import { setup, teardown, verified } from '../../-test/u.fixture.dist.ts';
+import { pkg } from '../common.ts';
 import type { DistServeScreen as TDistServeScreen } from '../u.server.screen/t.ts';
 import { D, serveLocalWith, serveWith, startLocalWith, startWith } from '../u.server.start/mod.ts';
 import {
@@ -18,7 +19,7 @@ import {
 
 type ScreenCreateArgs = TDistServeScreen.CreateArgs;
 
-function createObservedNestedEffects(renderedAt: t.UnixTimestamp) {
+function createObservedNestedEffects() {
   const keyboard = Promise.withResolvers<t.Cli.Keyboard.Bind.Options>();
   const screen = Promise.withResolvers<ScreenCreateArgs>();
   const keyboardFinished = Promise.withResolvers<void>();
@@ -49,7 +50,6 @@ function createObservedNestedEffects(renderedAt: t.UnixTimestamp) {
       },
       isInteractive: () => true,
       open: () => {},
-      now: () => renderedAt,
     },
     keyboard: keyboard.promise,
     screen: screen.promise,
@@ -70,7 +70,7 @@ describe('DistServer.serve', () => {
         const running = serveWith(
           {
             dir: relativeDir,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             limits: fixture.policy.verification,
             port: 49152,
             silent: false,
@@ -100,9 +100,11 @@ describe('DistServer.serve', () => {
         expect(captured.silent).to.eql(false);
         expect(captured.keyboard).to.eql(true);
         expect(captured.strictPort).to.eql(true);
-        expect(captured.pkg).to.eql(fixture.cloneDist().pkg);
+        expect(captured.pkg).to.eql(undefined);
         expect(captured.hash).to.eql(fixture.cloneDist().hash.digest);
-        expect(captured.info).to.eql({ authority: `pinned ${fixture.integrity}` });
+        expect(captured.info).to.eql({
+          authority: `pinned ${fixture.pin.scheme} ${fixture.pin.digest}`,
+        });
         expect(captured.hasPkgSubpath).to.eql(false);
       } finally {
         started?.release();
@@ -135,7 +137,7 @@ describe('DistServer.serve', () => {
         const pinned = await catchStart(() =>
           serveWith({
             dir: fixture.source as t.StringDir,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             limits: fixture.policy.verification,
             pkgSubpath: '\u001b[2J',
           }, deps)
@@ -190,11 +192,10 @@ describe('DistServer.serve', () => {
         createScreen: unexpected,
         isInteractive: unexpected,
         open: unexpected,
-        now: unexpected,
       };
       const pinnedInput = {
         dir: fixture.source as t.StringDir,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         limits: fixture.policy.verification,
         navigation: 'nested',
         silent: false,
@@ -268,7 +269,6 @@ describe('DistServer.serve', () => {
                 return false;
               },
               open: unexpected,
-              now: unexpected,
             },
           )
         );
@@ -307,7 +307,7 @@ describe('DistServer.serve', () => {
       };
       const pinnedAccessor = {
         dir: fixture.source as t.StringDir,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         limits: fixture.policy.verification,
       };
       const localAccessor = {
@@ -316,7 +316,7 @@ describe('DistServer.serve', () => {
       };
       const pinnedTagged = {
         dir: fixture.source as t.StringDir,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         limits: fixture.policy.verification,
       };
       const localTagged = {
@@ -495,14 +495,13 @@ describe('DistServer.serve', () => {
           return true;
         },
         open: unexpected,
-        now: unexpected,
       };
 
       try {
         for (const until of cases) {
           const pinned = {
             dir: fixture.source as t.StringDir,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             limits: fixture.policy.verification,
             until,
           };
@@ -621,7 +620,6 @@ describe('DistServer.serve', () => {
             createScreen: unexpected,
             isInteractive: unexpected,
             open: unexpected,
-            now: unexpected,
           },
         );
 
@@ -689,7 +687,6 @@ describe('DistServer.serve', () => {
 
     it('owns interactive keyboard and screen against the actual listener origin', async () => {
       const fixture = await setup();
-      const dist = fixture.cloneDist();
       const relativeDir = Fs.Path.relative(Fs.cwd(), fixture.source) as t.StringDir;
       let captured: CapturedStartInput = {};
       let verificationDir: t.StringDir | undefined;
@@ -757,7 +754,6 @@ describe('DistServer.serve', () => {
             open: (origin) => {
               opened.push(origin);
             },
-            now: () => dist.build.time,
           },
         );
 
@@ -778,7 +774,7 @@ describe('DistServer.serve', () => {
           Fs.Path.toFileUrl(Fs.Path.join(Fs.Path.resolve(relativeDir), 'dist.json')).href,
         );
         expect(screenArgs.identity).to.eql({
-          root: screenArgs.evidence.dist.pkg,
+          root: pkg,
           subpath: 'ui/preview',
         });
         expect(screenArgs).to.not.have.property('pkg');
@@ -786,7 +782,6 @@ describe('DistServer.serve', () => {
         expect(screenArgs.authority.kind).to.eql('local-unpinned');
         expect(screenArgs.evidence).to.equal(started.server.verification);
         expect(screenArgs.keyboard).to.eql({ enabled: true, print: true });
-        expect(screenArgs.renderedAt).to.eql(dist.build.time);
 
         const exactRedraw = {
           altKey: false,
@@ -830,13 +825,13 @@ describe('DistServer.serve', () => {
     it('serves pinned nested authority with a finite closed result', async () => {
       const fixture = await setup();
       const started = createStarted(49152);
-      const terminal = createInteractiveEffects(fixture);
+      const terminal = createInteractiveEffects();
 
       try {
         const running = serveWith(
           {
             dir: fixture.source as t.StringDir,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             limits: fixture.policy.verification,
             navigation: 'nested',
           },
@@ -888,7 +883,6 @@ describe('DistServer.serve', () => {
               },
               isInteractive: () => true,
               open: () => void (opens += 1),
-              now: () => fixture.cloneDist().build.time,
             },
           )
         );
@@ -944,7 +938,6 @@ describe('DistServer.serve', () => {
           },
           isInteractive: () => true,
           open: (origin) => void opened.push(origin),
-          now: () => fixture.cloneDist().build.time,
         });
         let settled = false;
         void running.then(
@@ -1031,7 +1024,6 @@ describe('DistServer.serve', () => {
           }),
           isInteractive: () => true,
           open: () => {},
-          now: () => fixture.cloneDist().build.time,
         });
         await listenerSettled();
         if (!binding) throw new Error('nested keyboard binding not acquired');
@@ -1087,7 +1079,6 @@ describe('DistServer.serve', () => {
             }),
             isInteractive: () => true,
             open: () => {},
-            now: () => fixture.cloneDist().build.time,
           });
           await listenerSettled();
           if (!binding) throw new Error('nested keyboard binding not acquired');
@@ -1104,14 +1095,13 @@ describe('DistServer.serve', () => {
             source === 'listener' ? [] : [source === 'quit' ? 'keyboard' : 'keyboard.finished'],
           );
 
-          expect(
-            await binding.onKey?.(keypress('left', {
-              altKey: false,
-              ctrlKey: true,
-              metaKey: false,
-              shiftKey: false,
-            })),
-          ).to.eql('stop');
+          const navigation = await binding.onKey?.(keypress('left', {
+            altKey: false,
+            ctrlKey: true,
+            metaKey: false,
+            shiftKey: false,
+          }));
+          expect(navigation).to.eql('stop');
           expect(started.closeCauses).to.eql(
             source === 'listener' ? [] : [source === 'quit' ? 'keyboard' : 'keyboard.finished'],
           );
@@ -1179,7 +1169,6 @@ describe('DistServer.serve', () => {
         },
         isInteractive: () => true,
         open: () => {},
-        now: () => fixture.cloneDist().build.time,
       };
       const serveOnce = async (port: t.PortNumber) => {
         const acquired = Promise.withResolvers<t.Cli.Keyboard.Bind.Options>();
@@ -1207,14 +1196,13 @@ describe('DistServer.serve', () => {
           throw new Error('nested keyboard binding not acquired');
         }
         const { binding } = first;
-        expect(
-          await binding.onKey?.(keypress('left', {
-            altKey: false,
-            ctrlKey: true,
-            metaKey: false,
-            shiftKey: false,
-          })),
-        ).to.eql('stop');
+        const navigation = await binding.onKey?.(keypress('left', {
+          altKey: false,
+          ctrlKey: true,
+          metaKey: false,
+          shiftKey: false,
+        }));
+        expect(navigation).to.eql('stop');
         const settled = await outcome;
         acquireKeyboard = undefined;
         if (!settled.ok) throw settled.cause;
@@ -1247,7 +1235,7 @@ describe('DistServer.serve', () => {
       let second: Promise<t.DistServer.Serve.Result> | undefined;
 
       try {
-        const firstSession = createObservedNestedEffects(fixture.cloneDist().build.time);
+        const firstSession = createObservedNestedEffects();
         first = serveLocalWith(
           {
             dir: fixture.source as t.StringDir,
@@ -1274,7 +1262,7 @@ describe('DistServer.serve', () => {
         expect(await first).to.eql({ kind: 'closed' });
         expect(firstSession.disposals()).to.eql({ keyboard: 1, screen: 1 });
 
-        const secondSession = createObservedNestedEffects(fixture.cloneDist().build.time);
+        const secondSession = createObservedNestedEffects();
         second = serveLocalWith(
           {
             dir: fixture.source as t.StringDir,
@@ -1338,7 +1326,6 @@ describe('DistServer.serve', () => {
           }),
           isInteractive: () => true,
           open: () => {},
-          now: () => fixture.cloneDist().build.time,
         });
         await listenerSettled();
         if (!binding) throw new Error('nested keyboard binding not acquired');
@@ -1372,7 +1359,7 @@ describe('DistServer.serve', () => {
     it('closes when an acquired keyboard finishes before the server', async () => {
       const fixture = await setup();
       const started = createStarted(49152);
-      const terminal = createInteractiveEffects(fixture);
+      const terminal = createInteractiveEffects();
       try {
         const running = runInteractiveServe(fixture, started, terminal.effects);
         await listenerSettled();
@@ -1391,7 +1378,7 @@ describe('DistServer.serve', () => {
       const fixture = await setup();
       const closeFailure = new Error('keyboard-shutdown-failed');
       const started = createStarted(49152, { closeFailure });
-      const terminal = createInteractiveEffects(fixture);
+      const terminal = createInteractiveEffects();
       try {
         const running = runInteractiveServe(fixture, started, terminal.effects);
         await listenerSettled();
@@ -1414,7 +1401,7 @@ describe('DistServer.serve', () => {
       const fixture = await setup();
       const closeFailure = new Error('keyboard-quit-shutdown-failed');
       const started = createStarted(49152, { closeFailure, finishBeforeCloseFailure: true });
-      const terminal = createInteractiveEffects(fixture);
+      const terminal = createInteractiveEffects();
       try {
         const running = runInteractiveServe(fixture, started, terminal.effects);
         await listenerSettled();
@@ -1440,7 +1427,7 @@ describe('DistServer.serve', () => {
     it('disposes the keyboard without relabeling server-first completion', async () => {
       const fixture = await setup();
       const started = createStarted(49152);
-      const terminal = createInteractiveEffects(fixture);
+      const terminal = createInteractiveEffects();
       try {
         const running = runInteractiveServe(fixture, started, terminal.effects);
         await listenerSettled();
@@ -1476,7 +1463,6 @@ describe('DistServer.serve', () => {
         }),
         isInteractive: () => true,
         open: () => {},
-        now: () => fixture.cloneDist().build.time,
       };
 
       try {
@@ -1506,7 +1492,7 @@ describe('DistServer.serve', () => {
   });
 
   describe('presentation and failure ownership', () => {
-    it('passes one normalized package identity through pinned and local screens', async () => {
+    it('pinned and local screens → host package identity, never unverified manifest labels', async () => {
       const fixture = await setup();
       const screens: ScreenCreateArgs[] = [];
       let started: StartedController | undefined;
@@ -1520,7 +1506,6 @@ describe('DistServer.serve', () => {
         },
         isInteractive: () => true,
         open: () => {},
-        now: () => fixture.cloneDist().build.time,
       };
       const deps = {
         ...D.DEPS,
@@ -1538,7 +1523,7 @@ describe('DistServer.serve', () => {
         const pinned = serveWith(
           {
             dir: relativeDir,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             limits: fixture.policy.verification,
             silent: false,
             keyboard: false,
@@ -1574,7 +1559,7 @@ describe('DistServer.serve', () => {
         for (const screen of screens) {
           const identity = screen.identity;
           if (!identity || !('root' in identity)) throw new Error('compound identity not provided');
-          expect(identity.root).to.equal(screen.evidence.dist.pkg);
+          expect(identity.root).to.equal(pkg);
           expect(identity.subpath).to.eql('ui/preview');
         }
       } finally {
@@ -1618,7 +1603,6 @@ describe('DistServer.serve', () => {
             },
             isInteractive: () => true,
             open: () => {},
-            now: () => fixture.cloneDist().build.time,
           },
         ).then(
           () => ({ rejected: false, cause: undefined }),
@@ -1678,7 +1662,6 @@ describe('DistServer.serve', () => {
             }),
             isInteractive: () => true,
             open: () => {},
-            now: () => fixture.cloneDist().build.time,
           },
         );
 
@@ -1736,7 +1719,6 @@ describe('DistServer.serve', () => {
         }),
         isInteractive: () => true,
         open: () => {},
-        now: () => fixture.cloneDist().build.time,
       };
 
       try {
@@ -1803,7 +1785,6 @@ describe('DistServer.serve', () => {
             }),
             isInteractive: () => true,
             open: () => {},
-            now: () => fixture.cloneDist().build.time,
           },
         );
 
@@ -1836,7 +1817,7 @@ describe('DistServer.serve', () => {
           serveWith(
             {
               dir: fixture.source as t.StringDir,
-              integrity: fixture.integrity,
+              pin: fixture.pin,
               limits: fixture.policy.verification,
               port: 8080,
               silent: false,

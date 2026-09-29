@@ -23,9 +23,8 @@ describe('DistServeScreen', () => {
         identity: dist.pkg,
         origin: 'http://127.0.0.1:49152/' as t.StringUrl,
         dir: './dist' as t.StringDir,
-        authority: { kind: 'pinned', integrity: fixture.integrity },
+        authority: { kind: 'pinned', pin: fixture.pin },
         evidence: evidence(fixture),
-        renderedAt: dist.build.time,
         viewport: { width: 120, height: 30 },
         cursorRows: 1,
         keyboard: { enabled: true, print: true },
@@ -44,11 +43,11 @@ describe('DistServeScreen', () => {
       expect(raw).to.include(c.gray('./dist/'));
       expect(raw).to.not.include(c.dim(c.gray('./dist/')));
       expect(output).to.include(text(HashFmt.digest(dist.hash.digest)));
-      expect(output).to.not.include(dist.hash.digest);
-      expect(output).to.include(`pinned ${fixture.integrity}`);
+      expect(output).to.include(fixture.pin.digest);
+      expect(output).to.include(`pinned ${fixture.pin.scheme} ${fixture.pin.digest}`);
       expect(raw).to.include(c.gray('authority'));
       expect(raw).to.not.include(c.white('authority'));
-      expect(raw).to.not.include(c.gray(`pinned ${fixture.integrity}`));
+      expect(raw).to.not.include(c.gray(`pinned ${fixture.pin.scheme} ${fixture.pin.digest}`));
       expect(output).to.include('serving pinned Dist on HTTP server…');
       const lines = output.split('\n');
       const serviceRow = lines.find((line) => line.includes('http://localhost')) ?? '';
@@ -113,9 +112,8 @@ describe('DistServeScreen', () => {
         identity: { root: dist.pkg, subpath: '/ui//preview/' },
         origin: 'http://127.0.0.1:49152/' as t.StringUrl,
         dir: './dist' as t.StringDir,
-        authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+        authority: { kind: 'local-unpinned' },
         evidence: evidence(fixture),
-        renderedAt: dist.build.time,
         viewport: { width: 120, height: 30 },
         cursorRows: 1,
         keyboard: { enabled: false, print: false },
@@ -523,14 +521,15 @@ describe('DistServeScreen', () => {
           origin: 'http://127.0.0.1:49152/' as t.StringUrl,
           dir: './dist' as t.StringDir,
           manifestHref,
-          authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+          authority: { kind: 'local-unpinned' },
           evidence: evidence(fixture),
-          renderedAt: dist.build.time,
           viewport: { width, height: 30 },
           cursorRows: 1,
           keyboard: { enabled: false, print: true },
         });
-        return output.split('\n').find((line) => text(line).includes('dist')) ?? '';
+        const row = output.split('\n').find((line) => text(line).includes('static'));
+        if (row === undefined) throw new Error('Expected rendered static row.');
+        return row;
       };
       const suffix = `#${dist.hash.digest.slice(-5)}`;
       const full = outputRow(61);
@@ -558,7 +557,8 @@ describe('DistServeScreen', () => {
           underline: true,
         }),
       );
-      expect(text(outputRow(32))).to.not.include('←');
+      expect(text(outputRow(26))).to.include(`← ${suffix}`);
+      expect(text(outputRow(25))).to.not.include('←');
     } finally {
       await teardown(fixture);
     }
@@ -578,9 +578,8 @@ describe('DistServeScreen', () => {
         origin: 'http://127.0.0.1:49152/' as t.StringUrl,
         dir: './dist' as t.StringDir,
         manifestHref,
-        authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+        authority: { kind: 'local-unpinned' },
         evidence: evidence(fixture),
-        renderedAt: dist.build.time,
         viewport: { width: 80, height: 30 },
         cursorRows: 1,
         keyboard: { enabled: false, print: true },
@@ -608,7 +607,6 @@ describe('DistServeScreen', () => {
       const hash = dist.hash.digest;
       const manifestHref = Fs.Path.toFileUrl(Fs.Path.resolve('serve digest #1/dist.json'));
       const staticHref = new URL('./', manifestHref);
-      const renderedAt = (dist.build.time + 17 * 60 * 60 * 1000) as t.UnixTimestamp;
       const rightGutter = 1;
       const digestLabels: string[] = [];
       let maxDigestWidth = Cli.Fmt.Text.Width.measure(HashFmt.digest(hash));
@@ -622,23 +620,15 @@ describe('DistServeScreen', () => {
         const index = digestLabels.indexOf(label);
         return index < 0 ? 0 : digestLabels.length - index;
       };
-      const rowAt = (
-        width: number,
-        dir: t.StringDir,
-        metadata: 'complete' | 'no-age' | 'no-hash' = 'complete',
-      ) => {
+      const rowAt = (width: number, dir: t.StringDir) => {
         const proof = evidence(fixture);
-        const metadataDist = proof.dist as Partial<t.DeepMutable<typeof proof.dist>>;
-        if (metadata === 'no-hash') delete metadataDist.hash;
-        if (metadata === 'no-age') delete metadataDist.build;
         const output = DistServeScreen.toString({
           identity: dist.pkg,
           origin: 'http://127.0.0.1:49152/' as t.StringUrl,
           dir,
           manifestHref,
-          authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+          authority: { kind: 'local-unpinned' },
           evidence: proof,
-          renderedAt,
           viewport: { width, height: 30 },
           cursorRows: 1,
           keyboard: { enabled: false, print: true },
@@ -655,7 +645,7 @@ describe('DistServeScreen', () => {
 
       const directoryText = text(directory ?? '');
       const [pathHead = '', pathTail = ''] = directoryText.split('…');
-      expect(text(constrained)).to.include(`← ${compactDigest} · 17h`);
+      expect(text(constrained)).to.include(`← ${compactDigest}`);
       expect(directory).to.not.eql(undefined);
       expect(digest).to.not.eql(undefined);
       expect(directoryText.startsWith('/workspace/')).to.eql(true);
@@ -675,7 +665,6 @@ describe('DistServeScreen', () => {
 
         if (transitions.at(-1) !== rank) transitions.push(rank);
         expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width - rightGutter);
-        expect(text(row)).to.include('17h');
         expect(linkedDirectory).to.not.eql(undefined);
       }
       expect(transitions).to.eql([3, 2, 1, 0]);
@@ -710,18 +699,11 @@ describe('DistServeScreen', () => {
       }
 
       const unicodeDir = `/workspace/界面/🧪/é/${'segment/'.repeat(8)}` as t.StringDir;
-      const noHash = rowAt(40, unicodeDir, 'no-hash');
-      const noAge = rowAt(40, unicodeDir, 'no-age');
-      expect(text(noHash)).to.include('17h');
-      expect(text(noHash)).to.not.include('←');
-      expect(hyperlinkLabel(noHash, manifestHref)).to.eql(undefined);
-      expect(text(noAge)).to.include(`← ${compactDigest}`);
-      expect(text(noAge)).to.not.include('17h');
-      expect(hyperlinkLabel(noAge, manifestHref)).to.not.eql(undefined);
-      expect(Cli.Fmt.Text.Width.measure(noHash)).to.be.at.most(40 - rightGutter);
-      expect(Cli.Fmt.Text.Width.measure(noAge)).to.be.at.most(40 - rightGutter);
+      const unicode = rowAt(40, unicodeDir);
+      expect(text(unicode)).to.include(`← ${compactDigest}`);
+      expect(hyperlinkLabel(unicode, manifestHref)).to.not.eql(undefined);
+      expect(Cli.Fmt.Text.Width.measure(unicode)).to.be.at.most(40 - rightGutter);
 
-      expect(text(rowAt(22, dir))).to.not.include('17h');
       expect(text(rowAt(22, dir))).to.not.include('←');
       expect(Cli.Fmt.Text.Width.measure(rowAt(22, dir))).to.be.at.most(22 - rightGutter);
     } finally {
@@ -742,9 +724,8 @@ describe('DistServeScreen', () => {
           origin,
           dir: fixture.source as t.StringDir,
           manifestHref: Fs.Path.toFileUrl(Fs.Path.join(fixture.source, 'dist.json')),
-          authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+          authority: { kind: 'local-unpinned' },
           evidence: evidence(fixture),
-          renderedAt: fixture.cloneDist().build.time,
           viewport: { width, height },
           cursorRows: 1,
           keyboard: { enabled: true, print: true },
@@ -782,9 +763,8 @@ function nestedFrame(fixture: Fixture, width: number) {
     identity: dist.pkg,
     origin: 'http://127.0.0.1:49152/' as t.StringUrl,
     dir: fixture.source as t.StringDir,
-    authority: { kind: 'pinned', integrity: fixture.integrity },
+    authority: { kind: 'pinned', pin: fixture.pin },
     evidence: evidence(fixture),
-    renderedAt: dist.build.time,
     viewport: { width, height: 30 },
     cursorRows: 1,
     keyboard: { enabled: true, print: true, navigation: 'nested' },
@@ -797,9 +777,8 @@ function localFrame(fixture: Fixture) {
     identity: dist.pkg,
     origin: 'http://127.0.0.1:49152/' as t.StringUrl,
     dir: fixture.source as t.StringDir,
-    authority: { kind: 'local-unpinned', integrity: fixture.integrity },
+    authority: { kind: 'local-unpinned' },
     evidence: evidence(fixture),
-    renderedAt: dist.build.time,
     viewport: { width: 120, height: 30 },
     cursorRows: 1,
     keyboard: { enabled: false, print: true },

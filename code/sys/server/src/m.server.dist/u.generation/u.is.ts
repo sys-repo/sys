@@ -1,3 +1,4 @@
+import { Hash } from '@sys/crypto/hash';
 import { Arr, Is, Num, Obj, Pkg, type t, Url } from './common.ts';
 import type { InputSnapshot } from './u.input.ts';
 
@@ -25,7 +26,8 @@ const FAILURE_REASONS: readonly t.Dist.FailureReason[] = Object.freeze([
   'source-denied',
   'timeout',
   'limit-exceeded',
-  'integrity-mismatch',
+  'pin-mismatch',
+  'checksum-mismatch',
   'malformed-manifest',
   'resource-failure',
   'verification-failure',
@@ -61,18 +63,22 @@ export function isExactPromise(input: unknown): input is Promise<unknown> {
 export function isVerification(
   input: unknown,
   expected: InputSnapshot,
+  onInventory?: () => void,
 ): input is t.FsPkg.Dist.Verify.Evidence {
-  if (!isFrozenData(input, ['integrity', 'dist', 'manifestBytes', 'assets'])) return false;
-  const integrity = dataValue(input, 'integrity');
+  if (!isFrozenData(input, ['content', 'manifestChecksum', 'manifestBytes', 'assets'])) {
+    return false;
+  }
   const manifestBytes = dataValue(input, 'manifestBytes');
   const assets = dataValue(input, 'assets');
-  const dist = dataValue(input, 'dist');
+  const content = dataValue(input, 'content');
   if (
-    integrity !== expected.manifest.integrity ||
+    !isCanonicalHash(dataValue(input, 'manifestChecksum')) ||
     !isSafeInt(manifestBytes, 1) ||
     manifestBytes > expected.manifest.policy.verification.manifestBytes ||
     !isFrozenData(assets, ['files', 'totalBytes', 'packageBytes']) ||
-    !isDeepFrozenJson(dist, manifestBytes)
+    !isFrozenData(content, ['scheme', 'digest', 'parts']) ||
+    dataValue(content, 'scheme') !== expected.manifest.pin.scheme ||
+    dataValue(content, 'digest') !== expected.manifest.pin.digest
   ) {
     return false;
   }
@@ -81,18 +87,73 @@ export function isVerification(
   const totalBytes = dataValue(assets, 'totalBytes');
   const packageBytes = dataValue(assets, 'packageBytes');
   if (
-    !isSafeInt(files, 1) || files > expected.manifest.policy.verification.entries ||
+    !isSafeInt(files, 1) || files >= expected.manifest.policy.verification.entries ||
     !isSafeInt(totalBytes, 0) || totalBytes > expected.manifest.policy.verification.totalBytes ||
-    !isSafeInt(packageBytes, 0) || packageBytes > totalBytes ||
-    !Pkg.Is.dist(dist)
+    !isSafeInt(packageBytes, 0) || packageBytes > totalBytes
   ) {
     return false;
   }
 
-  const manifest: t.DistPkg = dist;
-  return manifest.build.size.total === totalBytes &&
-    manifest.build.size.pkg === packageBytes &&
-    Reflect.ownKeys(manifest.hash.parts).length === files;
+  // Scalar refusals precede every inspection/expansion of the potentially large parts dictionary.
+  // This internal observation seam proves ordering without global reflection patches or timing tests.
+  onInventory?.();
+  const parts = dataValue(content, 'parts');
+  if (
+    !Is.object(parts) || Is.Native.proxy(parts) ||
+    Object.getPrototypeOf(parts) !== objectPrototype || !Object.isFrozen(parts)
+  ) return false;
+  try {
+    const limits = expected.manifest.policy.verification;
+    const ceilings = Pkg.Dist.Content.limits;
+    const pathLimit = Num.clamp(0, ceilings.pathLength, limits.pathLength ?? ceilings.pathLength);
+    const workLimit = Num.clamp(0, ceilings.pathTotal, limits.pathTotal ?? ceilings.pathTotal);
+    const entryLimit = Num.clamp(0, ceilings.entries, limits.entries);
+    let structuralEntries = 1; // The manifest is not a payload file.
+    const directories = new Set<string>();
+    let pathUnits = 0;
+    let prefixUnits = 0;
+    let count = 0;
+    let total = 0;
+    let code = 0;
+    // Match FS's structural, UTF-16 inventory, and prefix-work budgets before encoding.
+    for (const path in parts) {
+      if (!Obj.hasOwn(parts, path)) continue;
+      if (++count > files || ++structuralEntries > entryLimit || path.length > pathLimit) {
+        return false;
+      }
+      const descriptor = Object.getOwnPropertyDescriptor(parts, path);
+      if (!isFrozenEnumerableData(descriptor) || !Is.str(descriptor.value)) return false;
+      // Match FS admission's maximum canonical hash/size length before regex parsing.
+      if (descriptor.value.length > 93) return false;
+      const part = Pkg.Dist.Part.parse(descriptor.value);
+      if (!part || part.size === undefined || part.size > limits.fileBytes) return false;
+      total += part.size;
+      if (Pkg.Dist.Is.codePath(path)) code += part.size;
+      if (!Num.Is.safeInt(total) || total > limits.totalBytes) return false;
+      pathUnits += path.length;
+      if (pathUnits > workLimit) return false;
+      // Charge every prefix before allocation; count shared directories only once as entries.
+      let separator = path.indexOf('/');
+      while (separator >= 0) {
+        prefixUnits += separator;
+        if (prefixUnits > workLimit) return false;
+        const directory = path.slice(0, separator);
+        if (!directories.has(directory)) {
+          if (++structuralEntries > entryLimit) return false;
+          directories.add(directory);
+        }
+        separator = path.indexOf('/', separator + 1);
+      }
+    }
+    if (count !== files || total !== totalBytes || code !== packageBytes) return false;
+    // The encoder selects enumerable string keys. Do not return hidden or symbol authority
+    // alongside that inventory; inspect exact own-key membership only after budget accounting.
+    if (Reflect.ownKeys(parts).length !== count) return false;
+    return Hash.sha256(Pkg.Dist.Content.encode(parts as t.DistContent['parts'])) ===
+      expected.manifest.pin.digest;
+  } catch {
+    return false;
+  }
 }
 
 export function isAppliedSeal(input: unknown): input is t.FsRooted.SealApplied {
@@ -151,12 +212,10 @@ export function isTotals(
     publishedBytes === expectedBytes;
 }
 
-export function isManifestChecksum(input: unknown, expected: t.StringHash): boolean {
-  if (!isFrozenData(input, ['expected', 'received'])) return false;
-  const reported = dataValue(input, 'expected');
-  const received = dataValue(input, 'received');
-  return reported === expected && isCanonicalHash(reported) &&
-    isCanonicalHash(received) && received !== expected;
+export function isExpectedPin(input: unknown, expected: t.DistPin): input is t.DistPin {
+  return isFrozenData(input, ['scheme', 'digest']) &&
+    dataValue(input, 'scheme') === expected.scheme &&
+    dataValue(input, 'digest') === expected.digest;
 }
 
 export function isFrozenData(
@@ -193,47 +252,6 @@ export function isFailureStage(input: unknown): input is t.Dist.FailureStage {
 
 export function isFailureReason(input: unknown): input is t.Dist.FailureReason {
   return Is.str(input) && FAILURE_REASONS.includes(input as t.Dist.FailureReason);
-}
-
-function isDeepFrozenJson(input: unknown, maxNodes: number): boolean {
-  const pending: unknown[] = [input];
-  const seen = new Set<object>();
-  let scheduled = 1;
-  if (scheduled > maxNodes) return false;
-
-  while (pending.length > 0) {
-    const value = pending.pop();
-    if (value === null || Is.str(value) || Is.bool(value)) continue;
-    if (Is.number(value)) {
-      if (!Num.Is.finite(value)) return false;
-      continue;
-    }
-    if (!Is.object(value) || Is.Native.proxy(value) || seen.has(value)) return false;
-    seen.add(value);
-
-    if (Arr.isArray(value)) {
-      const remaining = maxNodes - scheduled;
-      if (!isFrozenArray(value, remaining)) return false;
-      scheduled += value.length;
-      // Positional traversal preserves exact dense-array descriptor admission.
-      for (let index = 0; index < value.length; index += 1) {
-        pending.push(dataValue(value, String(index)));
-      }
-      continue;
-    }
-
-    if (Object.getPrototypeOf(value) !== objectPrototype || !Object.isFrozen(value)) return false;
-    const keys = Reflect.ownKeys(value);
-    if (keys.length > maxNodes - scheduled) return false;
-    scheduled += keys.length;
-    for (const key of keys) {
-      if (!Is.str(key)) return false;
-      const descriptor = Object.getOwnPropertyDescriptor(value, key);
-      if (!isFrozenEnumerableData(descriptor)) return false;
-      pending.push(descriptor.value);
-    }
-  }
-  return true;
 }
 
 export function isFrozenArray(

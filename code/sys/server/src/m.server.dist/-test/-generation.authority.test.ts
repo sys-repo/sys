@@ -1,3 +1,4 @@
+import { Pkg as FsPkg } from '@sys/fs/pkg';
 import { describe, expect, Fs, it, Rx, type t } from '../../-test.ts';
 import { type Fixture, setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist } from '../mod.ts';
@@ -7,6 +8,8 @@ import {
   openWith,
 } from '../u.generation/u.open.ts';
 import { retentionSnapshot } from '../u.generation/u.retention.ts';
+import { snapshotInput } from '../u.generation/u.input.ts';
+import { isVerification } from '../u.generation/u.is.ts';
 
 const TARGET = '@sample.foo';
 const LOWER_FAILED = Object.freeze(
@@ -19,6 +22,130 @@ const LOWER_FAILED = Object.freeze(
 );
 
 describe('Dist.Generation authority', () => {
+  it('tight scalar budget → no inventory expansion; genuine exact budget → admitted', async () => {
+    const fixture = await setup();
+    const root = Fs.join(fixture.storeDir, 'work-order');
+    try {
+      const lower = await Dist.materialize(fixture.args());
+      if (lower.kind === 'failed') throw new Error('Expected genuine lower evidence.');
+      for (const entries of [1, 3, 5]) {
+        const policy = {
+          ...fixture.policy,
+          verification: { ...fixture.policy.verification, entries },
+        };
+        const expected = snapshotInput(args(fixture, root, { policy }));
+        if (!expected) throw new Error('Expected owned caller input.');
+        let inventories = 0;
+        const admitted = isVerification(lower.verification, expected, () => inventories++);
+        expect(admitted).to.eql(entries === 5);
+        expect(inventories).to.eql(entries === 5 ? 1 : 0);
+      }
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
+  for (const decoration of ['hidden data', 'hidden accessor', 'symbol data', 'symbol accessor']) {
+    it(`${decoration} in lower inventory → refusal without hooks and one release`, async () => {
+      const fixture = await setup();
+      const root = Fs.join(fixture.storeDir, 'inventory-decoration');
+      try {
+        const lower = await prepareSuccess(fixture, root, TARGET);
+        let hooks = 0;
+        const key = decoration.startsWith('symbol') ? Symbol('uncovered') : 'uncovered.txt';
+        const descriptor = decoration.endsWith('accessor')
+          ? {
+            get() {
+              hooks++;
+              return Object.values(lower.verification.content.parts)[0];
+            },
+          }
+          : { value: Object.values(lower.verification.content.parts)[0] };
+        const parts = Object.freeze(Object.defineProperty(
+          { ...lower.verification.content.parts },
+          key,
+          { ...descriptor, enumerable: false },
+        ));
+        // Encoding selects enumerable string keys; the returned evidence must not expose extras.
+        expect(FsPkg.Dist.Content.encode(parts)).to.eql(
+          FsPkg.Dist.Content.encode(lower.verification.content.parts),
+        );
+        const candidate = Object.freeze({
+          ...lower,
+          verification: Object.freeze({
+            ...lower.verification,
+            content: Object.freeze({ ...lower.verification.content, parts }),
+          }),
+        });
+        const fake = fakeRooted(root, TARGET);
+        const result = await openWith(args(fixture, root), {
+          ensureDir: () => Promise.resolve(),
+          realPath: fake.realPath,
+          rooted: fake.rooted,
+          materialize: () => Promise.resolve(candidate),
+        });
+        try {
+          expect(result).to.eql({
+            kind: 'failed',
+            phase: 'materialization',
+            reason: 'execution-failure',
+            ownership: 'released',
+          });
+          expect(fake.releaseCalls()).to.eql(1);
+          expect(hooks).to.eql(0);
+        } finally {
+          if (result.kind === 'opened') await result.owner.release();
+        }
+      } finally {
+        await teardown(fixture);
+      }
+    });
+  }
+
+  it('inner release evidence → preserved separately; accessor evidence → refused without invocation', async () => {
+    const fixture = await setup();
+    const root = Fs.join(fixture.storeDir, 'inner-release');
+    let hooks = 0;
+    const lower = Object.freeze({ ...LOWER_FAILED, releaseFailure: 'execution-failure' } as const);
+    const hostile = Object.freeze(Object.defineProperty({ ...LOWER_FAILED }, 'releaseFailure', {
+      enumerable: true,
+      get() {
+        hooks++;
+        return 'execution-failure';
+      },
+    }));
+    try {
+      for (const evidence of [lower, hostile]) {
+        const fake = fakeRooted(root, TARGET);
+        const result = await openWith(args(fixture, root), {
+          ensureDir: () => Promise.resolve(),
+          realPath: fake.realPath,
+          rooted: fake.rooted,
+          materialize: () => Promise.resolve(evidence),
+        });
+        if (evidence === lower) {
+          expect(result).to.eql({
+            kind: 'failed',
+            phase: 'materialization',
+            generation: lower,
+            ownership: 'released',
+          });
+        } else {
+          expect(result).to.eql({
+            kind: 'failed',
+            phase: 'materialization',
+            reason: 'execution-failure',
+            ownership: 'released',
+          });
+        }
+        expect(fake.releaseCalls()).to.eql(1);
+      }
+      expect(hooks).to.eql(0);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('snapshots caller authority before I/O and ignores later mutation', async () => {
     const fixture = await setup();
     const root: t.StringAbsoluteDir = Fs.join(fixture.storeDir, 'snapshot', 'root');
@@ -191,6 +318,12 @@ describe('Dist.Generation authority', () => {
       { label: 'top-level Proxy', value: proxy },
       { label: 'Proxy prototype', value: proxyPrototype },
       { label: 'Proxy policy', value: { ...base, policy: proxy } },
+      { label: 'missing pin', value: omit(base, 'pin') },
+      { label: 'old pin', value: { ...omit(base, 'pin'), integrity: fixture.manifestChecksum } },
+      { label: 'mixed pin', value: { ...base, integrity: fixture.manifestChecksum } },
+      { label: 'Proxy pin', value: { ...base, pin: proxy } },
+      { label: 'accessor pin', value: accessor('pin', fixture.pin) },
+      { label: 'unsupported scheme', value: { ...base, pin: { ...fixture.pin, scheme: 'old' } } },
       { label: 'sparse lifecycle', value: { ...base, until: sparseUntil } },
       { label: 'cyclic lifecycle', value: { ...base, until: cyclicUntil } },
       { label: 'Proxy lifecycle', value: { ...base, until: proxy } },
@@ -1048,17 +1181,236 @@ describe('Dist.Generation authority', () => {
     }
   });
 
+  for (const singlePayload of [false, true]) {
+    it(`${singlePayload ? 'root payload' : 'shared directory'} structural entries → independent lower settlement`, async () => {
+      const fixture = await setup();
+      const root = Fs.join(fixture.storeDir, 'entry-budget-root');
+      try {
+        if (singlePayload) {
+          const removed = await Fs.remove(Fs.join(fixture.source, 'assets'));
+          expect(removed).to.eql(true);
+          fixture.assets.delete('/assets/app.js');
+          fixture.assets.delete('/assets/data #1.txt');
+        }
+        const computed = await FsPkg.Dist.compute({ dir: fixture.source, save: true });
+        if (computed.kind !== 'computed') throw computed.error;
+        fixture.setManifest(computed.dist);
+        await Fs.ensureDir(root);
+        const lower = await Dist.materialize(fixture.args({
+          storeDir: Fs.join(root, TARGET),
+          pin: computed.pin,
+        }));
+        if (lower.kind === 'failed') throw new Error(`Preparation failed: ${lower.reason}`);
+        // Independent structural oracle: manifest + payloads + one shared assets directory.
+        const requiredEntries = singlePayload ? 2 : 5;
+        for (const sufficient of [false, true]) {
+          const policy = {
+            ...fixture.policy,
+            verification: {
+              ...fixture.policy.verification,
+              entries: requiredEntries - (sufficient ? 0 : 1),
+            },
+          };
+          const admitted = await FsPkg.Dist.Pinned.admitManifest({
+            bytes: fixture.manifestBytes,
+            pin: computed.pin,
+            limits: policy.verification,
+          });
+          expect(admitted.kind).to.eql(sufficient ? 'manifest-admitted' : 'limit-exceeded');
+          const verified = await FsPkg.Dist.Pinned.verify({
+            dir: lower.dir,
+            pin: computed.pin,
+            limits: policy.verification,
+          });
+          expect(verified.kind).to.eql(sufficient ? 'verified' : 'limit-exceeded');
+          const actual = await Dist.materialize(fixture.args({
+            storeDir: Fs.join(root, TARGET),
+            pin: computed.pin,
+            policy,
+          }));
+          expect(actual.kind).to.eql(sufficient ? 'existing' : 'failed');
+          for (const releaseFails of sufficient ? [false] : [false, true]) {
+            const fake = fakeRooted(root, TARGET, {
+              release: () =>
+                releaseFails
+                  ? Promise.reject(new Error('Fixture failed-open release failure.'))
+                  : Promise.resolve(),
+            });
+            const before = retentionSnapshot();
+            const result = await openWith(args(fixture, root, { pin: computed.pin, policy }), {
+              ensureDir: () => Promise.resolve(),
+              realPath: fake.realPath,
+              rooted: fake.rooted,
+              materialize: () => Promise.resolve(lower),
+            });
+            try {
+              if (sufficient) {
+                expect(result.kind).to.eql('opened');
+                expect(fake.releaseCalls()).to.eql(0);
+              } else {
+                expect(result).to.eql({
+                  kind: 'failed',
+                  phase: 'materialization',
+                  reason: 'execution-failure',
+                  ownership: releaseFails ? 'pending' : 'released',
+                });
+                expect(fake.releaseCalls()).to.eql(1);
+                expect(retentionSnapshot().failedOpen).to.eql(
+                  before.failedOpen + (releaseFails ? 1 : 0),
+                );
+              }
+            } finally {
+              if (result.kind === 'opened') await result.owner.release();
+            }
+            expect(fake.releaseCalls()).to.eql(1);
+          }
+        }
+      } finally {
+        await teardown(fixture);
+      }
+    });
+  }
+
+  for (const initiallyMatching of [false, true]) {
+    it(`lifecycle nested pin mutation, initially ${initiallyMatching ? 'matching' : 'wrong'} → original expectation`, async () => {
+      const fixture = await setup();
+      const root = Fs.join(fixture.storeDir, 'pin-lifecycle-root');
+      const wrong = { ...fixture.pin, digest: `sha256-${'0'.repeat(64)}` };
+      const pin = { ...(initiallyMatching ? fixture.pin : wrong) };
+      const source = Rx.subject<t.DisposeEvent>();
+      let reads = 0;
+      const until = {
+        get disposed() {
+          reads++;
+          pin.digest = initiallyMatching ? wrong.digest : fixture.pin.digest;
+          return false;
+        },
+        dispose$: source,
+      };
+      let owner: t.Dist.Generation.Owner | undefined;
+      try {
+        const result = await Dist.Generation.open(args(fixture, root, { pin, until }));
+        if (result.kind === 'opened') owner = result.owner;
+        expect(reads).to.be.greaterThan(0);
+        expect(pin.digest).to.eql(initiallyMatching ? wrong.digest : fixture.pin.digest);
+        if (initiallyMatching) {
+          expect(result.kind).to.eql('opened');
+          if (result.kind !== 'opened') throw new Error('Expected original matching pin to open.');
+          expect(result.generation.pin).to.eql(fixture.pin);
+        } else {
+          expect(result.kind).to.eql('failed');
+          if (result.kind !== 'failed' || !('generation' in result)) {
+            throw new Error('Expected materialization refusal.');
+          }
+          expect(result.generation).to.eql({
+            kind: 'failed',
+            stage: 'manifest-admission',
+            reason: 'pin-mismatch',
+            cleanup: 'not-needed',
+          });
+          expect(result.ownership).to.eql('released');
+          expect(fixture.calls).to.eql(['/dist.json']);
+        }
+      } finally {
+        source.complete();
+        await owner?.release();
+        await teardown(fixture);
+      }
+    });
+  }
+
+  for (
+    const budget of ['pathLength', 'pathTotal', 'prefixWork', 'fileBytes', 'totalBytes'] as const
+  ) {
+    it(`${budget} over caller budget → reject genuine lower success and release once`, async () => {
+      const fixture = await setup();
+      const root: t.StringAbsoluteDir = Fs.join(fixture.storeDir, `path-budget-${budget}`);
+      // The astral name charges two UTF-16 units; repeated prefixes cost more than full paths.
+      const path = 'a/b/c/d/e/f/g/h/🦊.txt';
+      try {
+        await Fs.write(Fs.join(fixture.source, path), 'bounded');
+        const computed = await FsPkg.Dist.compute({ dir: fixture.source, save: true });
+        if (computed.kind !== 'computed') throw computed.error;
+        fixture.setManifest(computed.dist);
+        fixture.assets.set(`/${path}`, new TextEncoder().encode('bounded'));
+        await Fs.ensureDir(root);
+        const lower = await Dist.materialize(fixture.args({
+          storeDir: Fs.join(root, TARGET),
+          pin: computed.pin,
+        }));
+        if (lower.kind === 'failed') throw new Error(`Preparation failed: ${lower.reason}`);
+        const pathUnits = Object.keys(computed.dist.hash.parts)
+          .reduce((total, key) => total + key.length, 0);
+        const tight = budget === 'pathLength'
+          ? { pathLength: path.length - 1 }
+          : budget === 'fileBytes'
+          ? { fileBytes: 0 }
+          : budget === 'totalBytes'
+          ? { totalBytes: 0 }
+          : { pathTotal: budget === 'pathTotal' ? pathUnits - 1 : pathUnits };
+
+        for (const sufficient of [false, true]) {
+          const policy = {
+            ...fixture.policy,
+            verification: { ...fixture.policy.verification, ...(sufficient ? {} : tight) },
+          };
+          const verified = await FsPkg.Dist.Pinned.verify({
+            dir: lower.dir,
+            pin: computed.pin,
+            limits: policy.verification,
+          });
+          expect(verified.kind).to.eql(sufficient ? 'verified' : 'limit-exceeded');
+          const actual = await Dist.materialize(fixture.args({
+            storeDir: Fs.join(root, TARGET),
+            pin: computed.pin,
+            policy,
+          }));
+          expect(actual.kind).to.eql(sufficient ? 'existing' : 'failed');
+          const fake = fakeRooted(root, TARGET);
+          const result = await openWith(args(fixture, root, { pin: computed.pin, policy }), {
+            ensureDir: () => Promise.resolve(),
+            realPath: fake.realPath,
+            rooted: fake.rooted,
+            materialize: () => Promise.resolve(lower),
+          });
+          try {
+            if (sufficient) {
+              expect(result.kind).to.eql('opened');
+              expect(fake.releaseCalls()).to.eql(0);
+            } else {
+              expect(result).to.eql({
+                kind: 'failed',
+                phase: 'materialization',
+                reason: 'execution-failure',
+                ownership: 'released',
+              });
+              expect(fake.releaseCalls()).to.eql(1);
+            }
+          } finally {
+            if (result.kind === 'opened') await result.owner.release();
+          }
+          expect(fake.releaseCalls()).to.eql(1);
+        }
+      } finally {
+        await teardown(fixture);
+      }
+    });
+  }
+
   it('rejects frozen success evidence that is not bound to the selected generation', async () => {
     const fixture = await setup();
     const root: t.StringAbsoluteDir = Fs.join(fixture.storeDir, 'success-binding-root');
     const lower = await prepareSuccess(fixture, root, TARGET);
     const mutableAssets = { ...lower.verification.assets };
-    const oversizedDist = Object.freeze(
-      Array.from({ length: lower.verification.manifestBytes }, () => null),
-    );
-    const cyclicDist: unknown[] = [];
-    cyclicDist.push(cyclicDist);
-    Object.freeze(cyclicDist);
+    const oversizedParts = Object.freeze(Object.fromEntries(
+      Array.from({ length: lower.verification.manifestBytes }, (_, index) => [
+        `file-${index}`,
+        Object.values(lower.verification.content.parts)[0],
+      ]),
+    ));
+    const cyclicParts: Record<string, unknown> = {};
+    cyclicParts['cycle'] = cyclicParts;
+    Object.freeze(cyclicParts);
     const cases: Array<{ label: string; value: unknown }> = [
       {
         label: 'wrong directory',
@@ -1082,17 +1434,39 @@ describe('Dist.Generation authority', () => {
         }),
       },
       {
-        label: 'verification graph exceeding its authenticated byte bound',
+        label: 'content graph exceeding its retained document byte bound',
         value: Object.freeze({
           ...lower,
-          verification: Object.freeze({ ...lower.verification, dist: oversizedDist }),
+          verification: Object.freeze({
+            ...lower.verification,
+            content: Object.freeze({ ...lower.verification.content, parts: oversizedParts }),
+          }),
+        }),
+      },
+      {
+        label: 'oversized part string with unchanged summary',
+        value: Object.freeze({
+          ...lower,
+          verification: Object.freeze({
+            ...lower.verification,
+            content: Object.freeze({
+              ...lower.verification.content,
+              parts: Object.freeze({
+                ...lower.verification.content.parts,
+                'index.html': `sha256-${'0'.repeat(64)}:size=${'9'.repeat(4_096)}`,
+              }),
+            }),
+          }),
         }),
       },
       {
         label: 'cyclic verification graph',
         value: Object.freeze({
           ...lower,
-          verification: Object.freeze({ ...lower.verification, dist: cyclicDist }),
+          verification: Object.freeze({
+            ...lower.verification,
+            content: Object.freeze({ ...lower.verification.content, parts: cyclicParts }),
+          }),
         }),
       },
     ];
@@ -1208,8 +1582,8 @@ describe('Dist.Generation authority', () => {
       reason: 'integrity-mismatch',
       cleanup: 'not-needed',
       manifestChecksum: Object.freeze({
-        expected: fixture.integrity,
-        received: fixture.integrity,
+        expected: fixture.manifestChecksum,
+        received: fixture.manifestChecksum,
       }),
     });
     const raw = Object.freeze({ secret: 'lower-cause' });
@@ -1234,8 +1608,8 @@ describe('Dist.Generation authority', () => {
         materialize: () => Promise.resolve(symbolFailure as unknown as t.Dist.Failed),
       },
       {
-        label: 'self-contradictory checksum mismatch',
-        materialize: () => Promise.resolve(invalidMismatch as t.Dist.ManifestChecksumFailed),
+        label: 'retired document-pin mismatch contract',
+        materialize: () => Promise.resolve(invalidMismatch as unknown as t.Dist.Failed),
       },
       {
         label: 'proxied settlement',
@@ -1680,7 +2054,7 @@ function args(
   return {
     store: { root, target: TARGET },
     manifestUrl: fixture.manifestUrl,
-    integrity: fixture.integrity,
+    pin: fixture.pin,
     policy: fixture.policy,
     ...overrides,
   };

@@ -1,4 +1,4 @@
-import { Cli, D, Open, Path, pkg, type StartDependencies, type t, Time } from './common.ts';
+import { Cli, D, Open, Path, pkg, type StartDependencies, type t } from './common.ts';
 import { snapshotServeInput, snapshotServeLocalInput } from '../u.server.input/u.serve.ts';
 import { DistServeScreen } from '../u.server.screen/mod.ts';
 import type { DistServeScreen as TDistServeScreen } from '../u.server.screen/t.ts';
@@ -38,7 +38,6 @@ type ServeEffects = {
   readonly createScreen: typeof DistServeScreen.create;
   readonly isInteractive: typeof Cli.Is.interactive;
   readonly open: (origin: t.StringUrl) => void | Promise<void>;
-  readonly now: () => t.UnixTimestamp;
 };
 
 type ServeOutcome =
@@ -64,11 +63,10 @@ const DEFAULT_SERVE_EFFECTS: ServeEffects = Object.freeze({
   createScreen: DistServeScreen.create,
   isInteractive: Cli.Is.interactive,
   open: (origin) => Open.invokeDetached(Path.cwd(), origin, { silent: true }),
-  now: () => Time.now.timestamp,
 });
 
 /**
- * Serve one checksum-pinned Dist with terminal lifecycle ownership.
+ * Serve one content-pinned Dist with terminal lifecycle ownership.
  */
 export function serve(input: t.DistServer.Serve.NestedArgs): Promise<t.DistServer.Serve.Result>;
 export function serve(input: t.DistServer.Serve.Args): Promise<void>;
@@ -87,9 +85,7 @@ export function serveLocal(input: unknown): Promise<t.DistServer.Serve.Result | 
   return serveUnpinned(input, D.DEPS, DEFAULT_SERVE_EFFECTS);
 }
 
-/**
- * Serve one checksum-pinned Dist through explicit host and presentation dependencies.
- */
+/** Serve one content-pinned Dist through explicit host and presentation dependencies. */
 export function serveWith(
   input: t.DistServer.Serve.NestedArgs,
   deps: StartDependencies,
@@ -108,9 +104,7 @@ export function serveWith(
   return servePinned(input, deps, effects);
 }
 
-/**
- * Serve one locally verified, unpinned Dist through explicit host and presentation dependencies.
- */
+/** Serve one locally verified, unpinned Dist through explicit host and presentation dependencies. */
 export function serveLocalWith(
   input: t.DistServer.Local.Serve.NestedArgs,
   deps: StartDependencies,
@@ -153,7 +147,7 @@ async function servePinned(
     {
       strictPort: true,
       rawOutput: source.kind === 'raw',
-      rawAuthority: `pinned ${value.integrity}`,
+      rawAuthority: `pinned ${value.pin.scheme} ${value.pin.digest}`,
     },
   );
   return await serveLoop(started, source, {
@@ -271,7 +265,7 @@ async function serveLoop(
     }
 
     if (!terminal.isSettled()) {
-      const root = started.verification.dist.pkg ?? pkg;
+      const root = pkg; // The host's own identity, not an unauthenticated root manifest label.
       const identity = input.pkgSubpath === undefined ? root : { root, subpath: input.pkgSubpath };
       screen = effects.createScreen({
         identity,
@@ -281,7 +275,6 @@ async function serveLoop(
         evidence: started.verification,
         authority: started.authority,
         keyboard: wrangle.screenKeyboard(input.keyboard, input.navigation, keyboard !== undefined),
-        renderedAt: effects.now(),
         until: started.dispose$,
       });
       const ownedScreen = screen;

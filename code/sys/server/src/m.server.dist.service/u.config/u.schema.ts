@@ -4,7 +4,10 @@ const CanonicalText = Schema.Type.String({
   minLength: 1,
   pattern: '^(?!\\s)(?!.*\\s$)[^\\u0000-\\u001F\\u007F-\\u009F\\u2028\\u2029]+$',
 });
-const Integrity = Schema.Type.String({ pattern: '^sha256-[0-9a-f]{64}$' });
+const Pin = Schema.Type.Object({
+  scheme: Schema.Type.Literal('sys.dist/v2'),
+  digest: Schema.Type.String({ pattern: '^sha256-[0-9a-f]{64}$' }),
+}, { additionalProperties: false });
 const LoopbackHostname = Schema.Type.Union([
   Schema.Type.Literal('127.0.0.1'),
   Schema.Type.Literal('localhost'),
@@ -15,7 +18,7 @@ const SafeInteger = { maximum: Number.MAX_SAFE_INTEGER } as const;
 export type DistServiceConfigDoc = {
   readonly name?: string;
   readonly dir: string;
-  readonly integrity: string;
+  readonly pin: t.DistPin;
   readonly limits: {
     readonly manifestBytes: number;
     readonly entries: number;
@@ -40,7 +43,7 @@ export const DistServiceConfigSchema = Object.freeze(
       return Object.freeze({
         ...(doc.name === undefined ? {} : { name: doc.name }),
         dir: doc.dir as t.StringDir,
-        integrity: doc.integrity as t.StringHash,
+        pin: Object.freeze({ scheme: doc.pin.scheme, digest: doc.pin.digest }),
         limits,
         ...(doc.hostname === undefined ? {} : { hostname: doc.hostname }),
         ...(doc.port === undefined ? {} : { port: doc.port as t.PortNumber }),
@@ -51,7 +54,7 @@ export const DistServiceConfigSchema = Object.freeze(
       {
         name: Schema.Type.Optional(CanonicalText),
         dir: CanonicalText,
-        integrity: Integrity,
+        pin: Pin,
         limits: Schema.Type.Object(
           {
             manifestBytes: Schema.Type.Integer({ minimum: 1, ...SafeInteger }),

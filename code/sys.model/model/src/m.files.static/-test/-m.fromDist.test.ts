@@ -363,18 +363,23 @@ describe('FilesStatic.fromDist', () => {
       },
     });
 
-    const noSize = setup({
-      dist: dist({ 'nosize.txt': Hash.foo }),
-      baseUrl: undefined,
+    await expectFilesStaticError(
+      () => setup({ dist: dist({ 'nosize.txt': Hash.foo }), baseUrl: undefined }),
+      'FilesStaticError.InvalidPath',
+    );
+  });
+
+  it('content facts → no implicit descriptive metadata; explicit build observation stays separate', async () => {
+    const content = dist({ 'foo.txt': part(Hash.foo, 5) });
+    const backing = FilesStatic.fromDist({ dist: content, policy: allowAllPolicy });
+    const observed = FilesStatic.fromDist({
+      dist: content,
+      buildTime,
+      policy: allowAllPolicy,
     });
-    expect(await cmd.stat(noSize.backing, { path: 'nosize.txt' })).to.eql({
-      entry: { path: 'nosize.txt', kind: 'file', hash: Hash.foo },
-    });
-    expect(await cmd.read(noSize.backing, { path: 'nosize.txt' })).to.eql({
-      kind: 'ref',
-      file: { path: 'nosize.txt', kind: 'file', hash: Hash.foo },
-      contentRef: { kind: 'hash', path: 'nosize.txt', hash: Hash.foo },
-    });
+    expect((await cmd.manifest(backing))['.meta'].dist).to.eql(undefined);
+    expect((await cmd.manifest(observed))['.meta'].dist).to.eql({ build: { time: buildTime } });
+    expect((await cmd.manifest(backing)).entries).to.eql((await cmd.manifest(observed)).entries);
   });
 
   it('rejects unsafe dist inputs and unsupported watch/read variants', async () => {

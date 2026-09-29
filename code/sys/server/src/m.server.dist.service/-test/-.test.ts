@@ -120,7 +120,7 @@ describe('DistService', () => {
         config,
         configYaml({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           port: 0,
         }),
       );
@@ -153,7 +153,7 @@ describe('DistService', () => {
         config,
         configYaml({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
         }),
       );
       const controller = new AbortController();
@@ -216,13 +216,15 @@ describe('DistService', () => {
 
 function configYaml(options: {
   dir: string;
-  integrity?: t.StringHash;
+  pin?: t.DistPin;
   port?: number;
 }) {
   return Str.dedent(`
     name: neutral-dist
     dir: ${options.dir}
-    integrity: ${options.integrity ?? `sha256-${'0'.repeat(64)}`}
+    pin:
+      scheme: ${options.pin?.scheme ?? 'sys.dist/v2'}
+      digest: ${options.pin?.digest ?? `sha256-${'0'.repeat(64)}`}
     limits:
       manifestBytes: 1048576
       entries: 100

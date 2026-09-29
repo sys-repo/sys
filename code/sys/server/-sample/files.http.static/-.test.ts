@@ -1,9 +1,15 @@
+import { Pkg as FsPkg } from '@sys/fs/pkg';
 import { describe, expect, it } from '../../src/-test.ts';
 import { SampleFiles } from './-config.ts';
 import { Fetch, Files, FilesStatic, Fs, Hash, HttpStatic, Json, Pkg, type t } from './common.ts';
 
 describe('sample:files:http:static', () => {
   it('serves dist.json and reconstructs static Files content refs over plain HTTP', async () => {
+    const observation = await FsPkg.Dist.Local.verify({
+      dir: await Fs.realPath(SampleFiles.root),
+      limits: { manifestBytes: 4096, entries: 10, fileBytes: 1024, totalBytes: 4096 },
+    });
+    expect(observation.kind).to.eql('verified');
     const server = await HttpStatic.start({
       dir: SampleFiles.root,
       hostname: '127.0.0.1',
@@ -16,9 +22,10 @@ describe('sample:files:http:static', () => {
     let files: t.Files.Client.Local | undefined;
     try {
       const origin = server.origin as t.StringUrl;
-      const dist = await fetchPinnedDist(origin);
+      const dist = await fetchDistDocument(origin);
       const backing = FilesStatic.fromDist({
-        dist,
+        dist: dist.hash,
+        buildTime: dist.build.time,
         baseUrl: origin,
         policy: SampleFiles.policy,
       });
@@ -37,7 +44,8 @@ describe('sample:files:http:static', () => {
 /**
  * Helpers:
  */
-async function fetchPinnedDist(origin: t.StringUrl): Promise<t.DistPkg> {
+/** Fixture-owned byte expectation checks transport only; this is not a Dist content pin. */
+async function fetchDistDocument(origin: t.StringUrl): Promise<t.DistPkg> {
   const path = Fs.join(SampleFiles.root, 'dist.json');
   const manifest = await Fs.read(path);
   if (!manifest.data) throw new Error(`Expected local manifest fixture: ${path}`);

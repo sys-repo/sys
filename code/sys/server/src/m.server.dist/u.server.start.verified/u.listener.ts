@@ -30,8 +30,7 @@ export function startVerifiedListener(args: StartVerifiedListenerArgs): t.HttpSe
       ...(input.keyboard === undefined ? {} : { keyboard: input.keyboard }),
       ...(options.rawOutput
         ? {
-          pkg: evidence.dist.pkg,
-          hash: evidence.dist.hash.digest,
+          hash: evidence.content.digest,
           ...(options.rawAuthority === undefined
             ? {}
             : { info: { authority: options.rawAuthority } }),

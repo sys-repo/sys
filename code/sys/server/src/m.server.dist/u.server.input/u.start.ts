@@ -9,7 +9,7 @@ const freezeKeys = <const T extends readonly string[]>(...keys: T) => Object.fre
 export const KEYS = Object.freeze({
   PINNED: freezeKeys(
     'dir',
-    'integrity',
+    'pin',
     'limits',
     'hostname',
     'port',
@@ -31,10 +31,17 @@ export const KEYS = Object.freeze({
     'until',
   ),
   REQUIRED: Object.freeze({
-    PINNED: freezeKeys('dir', 'integrity', 'limits'),
+    PINNED: freezeKeys('dir', 'pin', 'limits'),
     LOCAL: freezeKeys('dir', 'limits'),
   }),
-  LIMITS: freezeKeys('manifestBytes', 'entries', 'fileBytes', 'totalBytes'),
+  LIMITS: freezeKeys(
+    'manifestBytes',
+    'entries',
+    'fileBytes',
+    'totalBytes',
+    'pathLength',
+    'pathTotal',
+  ),
   KEYBOARD: freezeKeys('print', 'exit'),
 });
 
@@ -49,8 +56,8 @@ export function snapshotStartInput(input: unknown): t.DistServerInput.Start.Prep
     const limits = snapshotLimits(source.limits);
     if (!validDir(source.dir) || !limits) return rejected('invalid-input');
 
-    const integrity = snapshotIntegrity(source.integrity);
-    if (!integrity) return rejected('invalid-input');
+    const pin = snapshotPin(source.pin);
+    if (!pin) return rejected('invalid-input');
 
     const dir = Path.resolve(Path.cwd(), source.dir) as t.StringAbsoluteDir;
     const shared = snapshotSharedStart(source, limits, dir);
@@ -58,7 +65,7 @@ export function snapshotStartInput(input: unknown): t.DistServerInput.Start.Prep
 
     return {
       ok: true,
-      value: Object.freeze({ ...shared.value, integrity }),
+      value: Object.freeze({ ...shared.value, pin }),
     };
   } catch {
     return rejected('invalid-input');
@@ -138,19 +145,32 @@ function validDir(input: unknown): input is t.StringDir {
   return Is.str(input) && input.length > 0 && !input.includes('\0');
 }
 
-function snapshotIntegrity(input: unknown): t.StringHash | undefined {
-  if (!Is.str(input)) return;
-  const parsed = Pkg.Dist.Part.parse(input);
-  return parsed?.hash === input && parsed.size === undefined ? (input as t.StringHash) : undefined;
+function snapshotPin(input: unknown): t.DistPin | undefined {
+  if (Is.Native.proxy(input) || !Pkg.Is.distPin(input)) return;
+  return Object.freeze({ scheme: input.scheme, digest: input.digest });
 }
 
 function snapshotLimits(input: unknown): Readonly<t.FsPkg.Dist.Verify.Limits> | undefined {
-  const source = snapshotRecord(input, KEYS.LIMITS, KEYS.LIMITS);
+  const source = snapshotRecord(input, KEYS.LIMITS, [
+    'manifestBytes',
+    'entries',
+    'fileBytes',
+    'totalBytes',
+  ]);
   if (!source) return;
-  const { manifestBytes, entries, fileBytes, totalBytes } = source;
+  const { manifestBytes, entries, fileBytes, totalBytes, pathLength, pathTotal } = source;
   if (!positive(manifestBytes) || !positive(entries)) return;
   if (!nonNegative(fileBytes) || !nonNegative(totalBytes)) return;
-  return Object.freeze({ manifestBytes, entries, fileBytes, totalBytes });
+  if (pathLength !== undefined && !positive(pathLength)) return;
+  if (pathTotal !== undefined && !positive(pathTotal)) return;
+  return Object.freeze({
+    manifestBytes,
+    entries,
+    fileBytes,
+    totalBytes,
+    ...(pathLength === undefined ? {} : { pathLength }),
+    ...(pathTotal === undefined ? {} : { pathTotal }),
+  });
 }
 
 function snapshotKeyboard(

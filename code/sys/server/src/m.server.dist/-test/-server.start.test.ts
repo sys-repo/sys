@@ -1,4 +1,3 @@
-import { Hash } from '@sys/crypto/hash';
 import { describe, expect, Fs, it, Json, Num, type t, Time } from '../../-test.ts';
 import { setup, teardown } from '../../-test/u.fixture.dist.ts';
 import { Dist, DistServer } from '../mod.ts';
@@ -16,7 +15,7 @@ describe('DistServer.start', () => {
         const missing = await catchStart(() => {
           return DistServer.start({
             dir: `${fixture.storeDir}/missing` as t.StringDir,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             limits: fixture.policy.verification,
             silent: true,
           });
@@ -27,7 +26,7 @@ describe('DistServer.start', () => {
         expect(missing?.reason).to.eql('missing');
         expect(missing?.message).to.eql('DistServer.start: pinned generation is unavailable.');
         expect(Json.stringify(missing)).to.not.include(fixture.storeDir);
-        expect(Json.stringify(missing)).to.not.include(fixture.integrity);
+        expect(Json.stringify(missing)).to.not.include(fixture.pin.digest);
         expect(Object.isFrozen(missing)).to.eql(true);
 
         const materialized = await Dist.materialize(fixture.args());
@@ -37,17 +36,17 @@ describe('DistServer.start', () => {
         const mismatch = await catchStart(() => {
           return DistServer.start({
             dir: materialized.dir,
-            integrity: `sha256-${'f'.repeat(64)}` as t.StringHash,
+            pin: { scheme: 'sys.dist/v2', digest: `sha256-${'f'.repeat(64)}` },
             limits: fixture.policy.verification,
             silent: true,
           });
         });
-        expect(mismatch?.reason).to.eql('integrity-mismatch');
+        expect(mismatch?.reason).to.eql('pin-mismatch');
         expect(mismatch?.message).to.eql(
           'DistServer.start: pinned generation verification failed.',
         );
         expect(Json.stringify(mismatch)).to.not.include(materialized.dir);
-        expect(Json.stringify(mismatch)).to.not.include(materialized.integrity);
+        expect(Json.stringify(mismatch)).to.not.include(materialized.pin.digest);
       } finally {
         await teardown(fixture);
       }
@@ -60,7 +59,7 @@ describe('DistServer.start', () => {
         const missing = await catchStart(() => {
           return DistServer.start({
             dir: Fs.join(fixture.storeDir, 'missing') as t.StringDir,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             limits: fixture.policy.verification,
             silent: true,
           });
@@ -73,7 +72,7 @@ describe('DistServer.start', () => {
 
         server = await DistServer.start({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
         });
@@ -86,7 +85,7 @@ describe('DistServer.start', () => {
       }
     });
 
-    it('rejects authenticated malformed and legacy manifests before listener startup', async () => {
+    it('malformed and unsupported manifests → refusal before listener startup', async () => {
       const fixture = await setup();
       try {
         const materialized = await Dist.materialize(fixture.args());
@@ -117,7 +116,7 @@ describe('DistServer.start', () => {
           const error = await catchStart(() => {
             return DistServer.start({
               dir: materialized.dir,
-              integrity: Hash.sha256(bytes),
+              pin: fixture.pin,
               limits: fixture.policy.verification,
               silent: true,
             });
@@ -143,14 +142,14 @@ describe('DistServer.start', () => {
 
         server = await DistServer.start({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
         });
 
         expect(server.authority).to.eql({
           kind: 'pinned',
-          integrity: materialized.integrity,
+          pin: materialized.pin,
         });
         expect(server.verification).to.eql(materialized.verification);
         expect(Object.isFrozen(server.authority)).to.eql(true);
@@ -346,7 +345,7 @@ describe('DistServer.start', () => {
 
         server = await DistServer.start({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
           until: controller.signal,
@@ -359,7 +358,7 @@ describe('DistServer.start', () => {
 
         server = await DistServer.start({
           dir: materialized.dir,
-          integrity: materialized.integrity,
+          pin: materialized.pin,
           limits: fixture.policy.verification,
           silent: true,
         });
@@ -384,7 +383,7 @@ describe('DistServer.start', () => {
         const error = await catchStart(() => {
           return DistServer.start({
             dir: materialized.dir,
-            integrity: materialized.integrity,
+            pin: materialized.pin,
             limits: fixture.policy.verification,
             hostname: '127.0.0.1',
             port: (blocker.addr as Deno.NetAddr).port as t.PortNumber,
@@ -415,7 +414,7 @@ async function startFixture(fixture: Awaited<ReturnType<typeof setup>>): Promise
 
   const server = await DistServer.start({
     dir: materialized.dir,
-    integrity: materialized.integrity,
+    pin: materialized.pin,
     limits: fixture.policy.verification,
     silent: true,
   });

@@ -9,10 +9,10 @@ type NestedServeArgs<T> = Omit<T, 'silent' | 'keyboard'> & {
 };
 
 /**
- * Contracts for checksum-pinned Dist materialization, sealing, and final-directory evidence.
+ * Contracts for content-pinned Dist materialization, sealing, and final-directory evidence.
  */
 export declare namespace Dist {
-  /** Product-neutral API for checksum-pinned Dist generations. */
+  /** Product-neutral API for content-pinned Dist generations. */
   export type Lib = {
     /**
      * Settle one pinned Dist as `existing`, `promoted`, or `failed`.
@@ -21,7 +21,7 @@ export declare namespace Dist {
      * directory.
      */
     readonly materialize: Materialize;
-    /** Open and own one checksum-pinned generation under caller-selected store authority. */
+    /** Open and own one content-pinned generation under caller-selected store authority. */
     readonly Generation: Generation.Lib;
   };
 
@@ -35,11 +35,11 @@ export declare namespace Dist {
 
   /** Complete caller authority for one materialization attempt. */
   export type MaterializeArgs = {
-    /** Absolute HTTP(S) location of the `dist.json` to authenticate. */
+    /** Absolute HTTP(S) location of the manifest declaring pinned content. */
     readonly manifestUrl: t.StringUrl;
-    /** Caller-supplied canonical SHA-256 pin for the exact `dist.json` response bytes. */
-    readonly integrity: t.StringHash;
-    /** Root directory whose children are integrity-addressed generations. */
+    /** Independent expected canonical payload identity. */
+    readonly pin: t.DistPin;
+    /** Root directory for scheme-bound, content-addressed generations. */
     readonly storeDir: t.StringDir;
     /** Required finite authority for acquisition and complete-generation verification. */
     readonly policy: Policy;
@@ -68,7 +68,7 @@ export declare namespace Dist {
     readonly resources?: HttpPull.ResourceCredentials;
   };
 
-  /** Terminal truth for the integrity-addressed generation target. */
+  /** Terminal truth for the content-addressed generation target. */
   export type MaterializeResult = Existing | Promoted | Failed;
 
   /** Safe private-stage cleanup outcome; never a claim that a generation was rolled back. */
@@ -87,8 +87,8 @@ export declare namespace Dist {
   type Success = {
     /** Canonical admitted generation directory. */
     readonly dir: t.StringAbsoluteDir;
-    /** Exact external manifest pin naming this generation. */
-    readonly integrity: t.StringHash;
+    /** Independent content pin naming this generation. */
+    readonly pin: t.DistPin;
     /** Fresh owner evidence produced against this exact returned directory. */
     readonly verification: FsPkg.Dist.Pinned.Verify.Evidence;
     /** Frozen lower-owner evidence that the complete returned generation is sealed. */
@@ -136,7 +136,8 @@ export declare namespace Dist {
     | 'source-denied'
     | 'timeout'
     | 'limit-exceeded'
-    | 'integrity-mismatch'
+    | 'pin-mismatch'
+    | 'checksum-mismatch'
     | 'malformed-manifest'
     | 'resource-failure'
     | 'verification-failure'
@@ -147,56 +148,27 @@ export declare namespace Dist {
   /** Visible target state known even though final verified settlement failed. */
   export type FailedPublication = 'committed' | 'occupied';
 
-  /** Bounded checksum evidence retained from one failed manifest response. */
-  export type ManifestChecksumMismatch = {
-    /** Caller-supplied manifest pin snapshotted before transport. */
-    readonly expected: t.StringHash;
-    /** SHA-256 observed over the response bytes received by this attempt. */
-    readonly received: t.StringHash;
-  };
-
-  /** Sanitized failure fields without paths, raw causes, credentials, or verification evidence. */
-  type FailedBase = {
+  /** Sanitized failure without paths, raw causes, credentials, or verification evidence. */
+  export type Failed = {
     readonly kind: 'failed';
     readonly stage: FailureStage;
     readonly reason: FailureReason;
     readonly cleanup: Cleanup;
     readonly publication?: FailedPublication;
+    /**
+     * Independent sanitized inner-lease release failure; never replaces the primary refusal.
+     */
+    readonly releaseFailure?: FailureReason;
     readonly dir?: undefined;
-    readonly integrity?: undefined;
+    readonly pin?: undefined;
     readonly verification?: undefined;
     readonly seal?: undefined;
     readonly source?: undefined;
     readonly totals?: undefined;
   };
 
-  /** Exact manifest-fetch mismatch carrying bounded lower-owner diagnostics. */
-  export type ManifestChecksumFailed = FailedBase & {
-    readonly stage: 'manifest-fetch';
-    readonly reason: 'integrity-mismatch';
-    readonly cleanup: 'not-needed';
-    readonly publication?: undefined;
-    readonly manifestChecksum: ManifestChecksumMismatch;
-  };
-
-  /** Failure variants that cannot carry manifest checksum diagnostics. */
-  type FailedWithoutManifestChecksum =
-    | (FailedBase & {
-      readonly stage: 'manifest-fetch';
-      readonly reason: Exclude<FailureReason, 'integrity-mismatch'>;
-      readonly manifestChecksum?: undefined;
-    })
-    | (FailedBase & {
-      readonly stage: Exclude<FailureStage, 'manifest-fetch'>;
-      readonly reason: FailureReason;
-      readonly manifestChecksum?: undefined;
-    });
-
-  /** Sanitized failed settlement with diagnostics reserved to the exact mismatch variant. */
-  export type Failed = ManifestChecksumFailed | FailedWithoutManifestChecksum;
-
   /**
-   * Outer ownership contracts for one checksum-pinned Dist generation.
+   * Outer ownership contracts for one content-pinned Dist generation.
    */
   export namespace Generation {
     /** Generation-session API. */
@@ -216,10 +188,10 @@ export declare namespace Dist {
       export type Args = {
         /** Caller-selected package-store authority. */
         store: Store.Input;
-        /** Absolute HTTP(S) location of the `dist.json` to authenticate. */
+        /** Absolute HTTP(S) location of the manifest declaring pinned content. */
         manifestUrl: t.StringUrl;
-        /** Caller-supplied canonical SHA-256 pin for the exact `dist.json` response bytes. */
-        integrity: t.StringHash;
+        /** Independent expected canonical payload identity. */
+        pin: t.DistPin;
         /** Explicit network and verification policy. */
         policy: Policy;
         /** Optional caller-selected credentials. */
@@ -339,12 +311,12 @@ export declare namespace Dist {
 }
 
 /**
- * Checksum-pinned local Dist hosting contracts.
+ * Content-pinned local Dist hosting contracts.
  */
 export declare namespace DistServer {
   /** Direct verified-or-refuse Dist hosting surface. */
   export type Lib = {
-    /** Start one checksum-pinned Dist host and return its lifecycle. */
+    /** Start one content-pinned Dist host and return its lifecycle. */
     readonly start: (args: Start.Args) => Promise<Started>;
     /** Blocking terminal-owned serve with pinned authority semantics. */
     readonly serve: Serve.Operation;
@@ -358,17 +330,17 @@ export declare namespace DistServer {
    */
   export namespace Start {
     /**
-     * Start one checksum-pinned Dist host.
+     * Start one content-pinned Dist host.
      *
      * Unlike `Dist.materialize`, this method returns only a running HTTP lifecycle. Every startup
      * failure rejects as a sanitized `StartError`.
      */
     export namespace Pinned {
       export type Args = {
-        /** Local generation directory containing the pinned `dist.json`. */
+        /** Local generation directory containing the manifest declaring pinned content. */
         dir: t.StringDir;
-        /** Canonical SHA-256 pin for the exact `dist.json` bytes. */
-        integrity: t.StringHash;
+        /** Independent expected canonical payload identity. */
+        pin: t.DistPin;
         /** Required finite complete-generation verification authority. */
         limits: FsPkg.Dist.Pinned.Verify.Limits;
         /** Loopback hostname. Defaults to `127.0.0.1`. */
@@ -393,7 +365,7 @@ export declare namespace DistServer {
   }
 
   /**
-   * Terminal-owned serving contracts for checksum-pinned authority.
+   * Terminal-owned serving contracts for content-pinned authority.
    */
   export namespace Serve {
     /** Pinned terminal-serving operation with default and nested-navigation overloads. */
@@ -404,9 +376,9 @@ export declare namespace DistServer {
       (args: Args): Promise<void>;
     };
 
-    /** Pinned start authority plus an optional package-application subpath. */
+    /** Pinned start authority plus optional host-package presentation. */
     export type Args = Start.Args & {
-      /** Raw package subpath rendered only after verified package resolution. */
+      /** Presentation-only subpath appended to the host package identity. */
       pkgSubpath?: string;
     };
 
@@ -429,7 +401,7 @@ export declare namespace DistServer {
     };
 
     /**
-     * Local authority derives manifest integrity from observed bytes and still refuses startup if the
+     * Local authority observes content without an independent pin and still refuses startup if the
      * observed generation mutates, contains undeclared entries, or fails complete verification. Its
      * listener serves the exact verified manifest at `/dist.json`, all declared parts, and the `/`
      * preview alias. Pinned application hosts keep their separate asset-only contract.
@@ -455,9 +427,9 @@ export declare namespace DistServer {
       until?: t.UntilInput;
     };
 
-    /** Local start authority plus terminal-only package-application presentation. */
+    /** Local start authority plus terminal-only host-package presentation. */
     export type ServeArgs = Args & {
-      /** Raw package subpath rendered only after verified package resolution. */
+      /** Presentation-only subpath appended to the host package identity. */
       pkgSubpath?: string;
     };
 
@@ -567,8 +539,8 @@ export declare namespace DistServer {
   export type Started = HttpServer.Started & {
     /** Authority provenance for this started host. */
     readonly authority:
-      | { readonly kind: 'pinned'; readonly integrity: t.StringHash }
-      | { readonly kind: 'local-unpinned'; readonly integrity: t.StringHash };
+      | { readonly kind: 'pinned'; readonly pin: t.DistPin }
+      | { readonly kind: 'local-unpinned' };
     /** Immutable evidence from the exact generation verification used to start this host. */
     readonly verification: FsPkg.Dist.Verify.Evidence;
     /** Frozen applied browser authority, when explicitly selected by the caller. */

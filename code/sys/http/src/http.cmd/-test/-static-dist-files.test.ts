@@ -1,14 +1,13 @@
 import { Hash } from '@sys/crypto/hash';
 import { Files } from '@sys/model/files';
-import type * as TFiles from '@sys/model/files/t';
+import type { Files as TFiles } from '@sys/model/files/t';
 import { FilesStatic } from '@sys/model/files/static';
-import type * as TFilesStatic from '@sys/model/files/static/t';
+import type { FilesStatic as TFilesStatic } from '@sys/model/files/static/t';
 import { describe, expect, it, Json, Pkg, type t, Testing } from '../../-test.ts';
 import { Fetch } from '../../http.client/m.HttpFetch/mod.ts';
 import { HttpCmd } from '../mod.ts';
 
 const HASH = {
-  digest: `sha256-${'0'.repeat(64)}`,
   foo: `sha256-${'1'.repeat(64)}`,
   baz: `sha256-${'2'.repeat(64)}`,
   readme: `sha256-${'3'.repeat(64)}`,
@@ -28,7 +27,7 @@ describe('HttpCmd + FilesStatic dist integration', () => {
     });
     const policy = Files.Policy.readonly('**', { deny: 'notes/baz.md' });
     const requests: string[] = [];
-    let backing: TFilesStatic.FilesStatic.Readonly | undefined;
+    let backing: TFilesStatic.Readonly | undefined;
 
     const server = Testing.Http.server((request) => {
       const url = new URL(request.url);
@@ -52,9 +51,9 @@ describe('HttpCmd + FilesStatic dist integration', () => {
     const origin = server.url.toURL().origin as t.StringUrl;
     const cmdUrl = `${origin}${ROUTE.cmd}` as t.StringUrl;
     const client = HttpCmd.client<
-      TFiles.Files.Cmd.Name,
-      TFiles.Files.Cmd.Payload,
-      TFiles.Files.Cmd.Result
+      TFiles.Cmd.Name,
+      TFiles.Cmd.Payload,
+      TFiles.Cmd.Result
     >({
       url: cmdUrl,
       ns: Files.Cmd.ns,
@@ -73,6 +72,7 @@ describe('HttpCmd + FilesStatic dist integration', () => {
     });
 
     try {
+      // Fixture-owned document bytes check transport only; this is not a Dist content pin.
       const fetched = await manifestFetch.blob(manifestUrl, undefined, {
         checksum: Hash.sha256(Json.stringify(dist, 2)),
       });
@@ -87,7 +87,12 @@ describe('HttpCmd + FilesStatic dist integration', () => {
       if (!Pkg.Is.dist(fetchedDist)) throw new Error('Expected fetched dist metadata.');
       expect(fetchedDist).to.eql(dist);
 
-      backing = FilesStatic.fromDist({ dist: fetchedDist, baseUrl: origin, policy });
+      backing = FilesStatic.fromDist({
+        dist: fetchedDist.hash,
+        buildTime: fetchedDist.build.time,
+        baseUrl: origin,
+        policy,
+      });
 
       const capabilities = await client.send(Files.Cmd.Name.capabilities, {});
       expect(capabilities).to.eql({
@@ -179,7 +184,7 @@ describe('HttpCmd + FilesStatic dist integration', () => {
   });
 });
 
-function sampleDist(parts: t.CompositeHashParts): t.DistPkg {
+function sampleDist(parts: t.DistContent['parts']): t.DistPkg {
   return {
     type: 'https://jsr.io/@sys/types/0.0.0/src/types/t.Pkg.dist.ts',
     build: {
@@ -190,7 +195,8 @@ function sampleDist(parts: t.CompositeHashParts): t.DistPkg {
       hash: { policy: 'fixture:dist-policy' },
     },
     hash: {
-      digest: HASH.digest,
+      scheme: 'sys.dist/v2',
+      digest: Hash.sha256(Pkg.Dist.Content.encode(parts)),
       parts,
     },
   };
@@ -200,13 +206,13 @@ function part(hash: t.StringHash, size: t.NumberBytes): t.StringFileHashUri {
   return `${hash}:size=${size}`;
 }
 
-function entryPaths(entries: readonly TFiles.Files.Entry[]): readonly TFiles.Files.String.Path[] {
+function entryPaths(entries: readonly TFiles.Entry[]): readonly TFiles.String.Path[] {
   return entries.map((entry) => entry.path);
 }
 
 async function expectRemoteCmdError(
   fn: () => Promise<unknown>,
-  name: TFiles.Files.Cmd.Name,
+  name: TFiles.Cmd.Name,
 ): Promise<t.Cmd.Error.Instance> {
   try {
     await fn();
