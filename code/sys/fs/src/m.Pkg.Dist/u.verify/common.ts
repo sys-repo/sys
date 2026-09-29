@@ -1,5 +1,5 @@
 export type * as t from '../../common/t.ts';
-export { D } from '../common.ts';
+export { D } from '../u.defaults.ts';
 
 export { Hash } from '@sys/crypto/hash';
 export { Is } from '@sys/std/is';
