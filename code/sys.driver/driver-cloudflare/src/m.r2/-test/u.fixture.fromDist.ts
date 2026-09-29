@@ -1,11 +1,12 @@
-import { CompositeHash, Hash } from '@sys/crypto/hash';
+import { Hash } from '@sys/crypto/hash';
+import { Pkg } from '@sys/std/pkg';
 import { Ignore } from '@sys/std/ignore';
 import type { t } from '../../-test.ts';
 import { origin } from './u.fixture.readRoute.ts';
 
 const ignoreDigest = await Ignore.digest([]);
 
-/** A real checksummed manifest, with no filesystem or provider dependencies. */
+/** A supported content descriptor, with no filesystem or provider dependencies. */
 export function fixture() {
   const parts = { 'index.html': `${Hash.sha256('hello')}:size=5` };
   const dist: t.DeepMutable<t.DistPkg> = {
@@ -20,12 +21,12 @@ export function fixture() {
         ignore: { format: 'gitignore', rules: [], 'rules:digest': ignoreDigest },
       },
     },
-    hash: { digest: CompositeHash.digest(parts), parts },
+    hash: { scheme: 'sys.dist/v2', digest: Hash.sha256(Pkg.Dist.Content.encode(parts)), parts },
   };
   const bytes = new TextEncoder().encode(JSON.stringify(dist));
   const signed: string[] = [];
   const authorized: string[] = [];
-  const policies: t.DeepReadonly<t.DistPkg>[] = [];
+  const policies: t.DeepReadonly<t.DistContent>[] = [];
   const args: t.R2.ReadRoute.FromDist.Args = {
     bucket: {
       name: 'assets',
@@ -38,7 +39,7 @@ export function fixture() {
     },
     storageOrigin: origin,
     prefix: 'release',
-    pin: { 'dist.json': Hash.sha256(bytes) },
+    pin: { scheme: dist.hash.scheme, digest: dist.hash.digest },
     manifestLimits: { manifestBytes: bytes.length, entries: 2, fileBytes: 5, totalBytes: 5 },
     limits: { maxBytes: 8, timeout: 1000, maxConcurrent: 1 },
     routes(dist) {

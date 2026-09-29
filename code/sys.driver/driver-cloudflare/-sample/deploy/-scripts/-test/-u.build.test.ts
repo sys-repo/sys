@@ -34,6 +34,29 @@ describe('R2 deployment sample: one-build publication projections', () => {
     expect(Object.keys(buildRecord.selection)).to.eql(['pins']);
   });
 
+  it('root metadata and reported totals change → pins and admitted payload total stay stable', async () => {
+    await using f = await localFixture();
+    const original = f.buildRecord;
+    const { buildRecord } = await buildSample(f.config, f.dir.absolute, async () => {
+      const built = await f.emit();
+      const path = f.dir.join('dist/dist.json');
+      const { data } = await Fs.readJson<t.DistPkg>(path);
+      if (!data) throw new Error('Missing fixture manifest.');
+      await Fs.writeJson(path, {
+        ...data,
+        pkg: { name: '@untrusted/root-label', version: '99.0.0' },
+        build: { ...data.build, time: data.build.time + 1, size: { total: 1, pkg: 1 } },
+      }, { throw: true });
+      return built;
+    });
+    expect(buildRecord.selection).to.eql(original.selection);
+    expect(buildRecord.bundleSize).to.eql(original.bundleSize);
+    expect(buildRecord.bundleSize).to.eql(
+      new TextEncoder().encode('firstexport {};body {}').length,
+    );
+    expect((await readInputs(f.dir.absolute)).buildRecord).to.eql(buildRecord);
+  });
+
   it('two wax seal paths → identical public bytes, never private payloads', async () => {
     const publicPath = 'images/wax-seal.v1.png';
     const png = await Fs.read(Fs.join(ROOT, 'public', publicPath));

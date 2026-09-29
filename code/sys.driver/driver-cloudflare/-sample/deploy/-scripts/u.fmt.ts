@@ -17,24 +17,24 @@ export function formatNextStep(
   `);
 }
 
-/** Format the selected manifest pins and the next publication command. */
+/** Format the selected content pins and the next publication command. */
 export function formatBuildSelection(
   selection: t.DistPins<t.Audience>,
   options: { width?: number } = {},
 ): string {
   const rows = (['public', 'private'] as const).map((audience) => ({
     label: `${audience}:`,
-    checksum: selection.pins[audience]['dist.json'],
+    pin: selection.pins[audience],
   }));
   const labelWidth = Text.Width.max(rows.map((row) => row.label));
-  const pins = rows.map(({ label, checksum }) => {
+  const pins = rows.map(({ label, pin }) => {
     const paddedLabel = Text.Width.padEnd(label, labelWidth);
-    const body = c.gray(checksum.slice(0, -5));
-    const suffix = c.green(checksum.slice(-5));
+    const body = c.gray(`${pin.scheme} ${pin.digest.slice(0, -5)}`);
+    const suffix = c.green(pin.digest.slice(-5));
     return `  ${paddedLabel} ${body}${suffix}`;
   });
 
-  const heading = Text.Width.padEnd('Manifest', labelWidth + 2);
+  const heading = Text.Width.padEnd('Content', labelWidth + 2);
   const recordUrl = Fs.Path.toFileUrl(Fs.join(ROOT, BUILD_RECORD_FILENAME));
   const recordLink = Fmt.hyperlink(BUILD_RECORD_FILENAME, recordUrl, { underline: true });
   const next = formatNextStep('publish to R2', 'deno task push', options);

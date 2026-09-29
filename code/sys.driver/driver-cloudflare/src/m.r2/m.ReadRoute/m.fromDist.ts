@@ -8,7 +8,7 @@ import { readObject } from './u/u.read.ts';
 type ManifestRead = { readonly bytes: Uint8Array } | t.R2.ReadRoute.FromDist.Failure;
 
 /**
- * Fetch and verify a pinned `dist.json`, then apply the route policy to construct a handler.
+ * Admit a content-pinned inventory, then apply route policy. Later response bodies are not verified.
  */
 export async function fromDist(
   input: t.R2.ReadRoute.FromDist.Args,
@@ -49,7 +49,7 @@ export async function fromDist(
       // The read timeout has ended. Manifest verification and route selection have no deadline.
       const admitted = await Pinned.admitManifest({
         bytes: read.bytes,
-        integrity: args.integrity,
+        pin: args.pin,
         limits: args.manifestLimits,
         until: signal,
       });
@@ -59,7 +59,7 @@ export async function fromDist(
         return Object.freeze({ kind: 'manifest-refused', reason: admitted.kind });
       }
 
-      return createHandlerFromManifest(admitted.evidence.dist);
+      return createHandlerFromManifest(admitted.evidence.content);
     } finally {
       signal.removeEventListener('abort', onAbort);
     }
@@ -99,13 +99,13 @@ export async function fromDist(
 
   /** Build synchronously so cancellation during the route policy wins before readiness. */
   function createHandlerFromManifest(
-    dist: t.DeepReadonly<t.DistPkg>,
+    content: t.DeepReadonly<t.DistContent>,
   ): t.R2.ReadRoute.FromDist.Result {
     let routes: ReadonlyMap<string, string>;
     try {
       const select = args.routes;
-      const selected = select(dist);
-      routes = snapshotDistRoutes(selected, args.prefix, dist);
+      const selected = select(content);
+      routes = snapshotDistRoutes(selected, args.prefix, content);
     } catch {
       return refusal ?? Object.freeze({ kind: 'policy-refused' });
     }

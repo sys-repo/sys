@@ -85,8 +85,8 @@ export function snapshotInputs(config: unknown, buildRecord: unknown): t.AppInpu
 }
 
 /** Put `index.html` in the private distribution and frontend assets in the public one. */
-export function partitionBuild(dist: t.DeepReadonly<t.DistPkg>) {
-  const files = selectionFiles(dist, 'build');
+export function partitionBuild(content: t.DistContent) {
+  const files = selectionFiles(content, 'build');
   return {
     private: ['index.html'],
     public: files.filter((path) => path !== 'dist.json' && path !== 'index.html'),
@@ -95,10 +95,10 @@ export function partitionBuild(dist: t.DeepReadonly<t.DistPkg>) {
 
 /** Check filenames for the requested role and include `dist.json` in the result. */
 export function selectionFiles(
-  dist: t.DeepReadonly<t.DistPkg>,
+  content: t.DistContent,
   role: 'build' | t.Audience = 'private',
 ): readonly string[] {
-  const payloads = Obj.keys(dist.hash.parts).map(String).sort();
+  const payloads = Obj.keys(content.parts).map(String).sort();
   const valid = payloads.every(isPath) && !payloads.includes('dist.json') &&
     (role === 'private'
       ? payloads.length === 1 && payloads[0] === 'index.html'
@@ -118,12 +118,19 @@ export async function selectBuild(
   audience: t.Audience = 'private',
 ): Promise<t.BuildSelection> {
   if (!Pkg.Is.distPin(pin)) throw new Error('Invalid sample Dist pin.');
-  const integrity = pin['dist.json'];
+  const captured = Pkg.Dist.Pins.capture({ pins: { selected: pin } }).pins.selected;
   const dir = Fs.resolve(root, `dist.${audience}`);
-  const verify = () => Pkg.Dist.Pinned.verify({ dir, integrity, limits: DIST_LIMITS });
-  const verified = await verify();
+  const check = () => Pkg.Dist.Pinned.verify({ dir, pin: captured, limits: DIST_LIMITS });
+  const verified = await check();
   if (verified.kind !== 'verified') return verified;
-  const files = selectionFiles(verified.evidence.dist, audience);
+  const { manifestChecksum } = verified.evidence;
+  const files = selectionFiles(verified.evidence.content, audience);
+  const verify = async (): Promise<t.FsPkg.Dist.Pinned.Verify.Result> => {
+    const result = await check();
+    if (result.kind !== 'verified') return result;
+    // Equal content does not reset this operation's exact-document baseline.
+    return result.evidence.manifestChecksum === manifestChecksum ? result : { kind: 'changed' };
+  };
   return { ...verified, files, dir, verify };
 }
 
@@ -140,8 +147,8 @@ export async function selectPublication(input: t.DistPins<t.Audience>, root: str
     throw new Error(`Sample ${checked.name ?? 'selection'} Dist refused: ${checked.kind}.`);
   }
   return {
-    private: selectionFiles(checked.evidence.private.dist, 'private'),
-    public: selectionFiles(checked.evidence.public.dist, 'public'),
+    private: selectionFiles(checked.evidence.private.content, 'private'),
+    public: selectionFiles(checked.evidence.public.content, 'public'),
   } as const;
 }
 

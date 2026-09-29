@@ -1,5 +1,6 @@
-import { CompositeHash, Hash } from '@sys/crypto/hash';
-import { describe, expect, expectTypeOf, it, type t, Time, WebFixture } from '../../-test.ts';
+import { Hash } from '@sys/crypto/hash';
+import { Pkg } from '@sys/std/pkg';
+import { describe, expect, expectTypeOf, it, Json, type t, Time, WebFixture } from '../../-test.ts';
 import { R2 } from '../mod.ts';
 import { fixture } from './u.fixture.fromDist.ts';
 import { expectResponsePolicy, forbidFetch, origin, request } from './u.fixture.readRoute.ts';
@@ -27,7 +28,8 @@ describe('R2.ReadRoute.fromDist', () => {
     expect(f.signed).to.eql(['release/dist.json']);
     expect(f.authorized).to.eql([]);
     expect(f.policies.length).to.eql(1);
-    expect(Object.isFrozen(f.policies[0].hash.parts)).to.eql(true);
+    expect(Object.isFrozen(f.policies[0].parts)).to.eql(true);
+    expect(Object.keys(f.policies[0]).toSorted()).to.eql(['digest', 'parts', 'scheme']);
     for (const [path, method] of [['/', 'GET'], ['/index.html', 'HEAD'], ['/dist.json', 'GET']]) {
       const response = await result.handler(request(path, { method }));
       expect(response.status).to.eql(200);
@@ -65,7 +67,11 @@ describe('R2.ReadRoute.fromDist', () => {
       undefined,
       null,
       {},
-      { ...f.args, pin: { 'dist.json': 'bad' } },
+      { ...f.args, pin: { 'dist.json': Hash.sha256(f.bytes) } },
+      { ...f.args, integrity: Hash.sha256(f.bytes) },
+      { ...f.args, pin: { ...f.args.pin, 'dist.json': Hash.sha256(f.bytes) } },
+      { ...f.args, pin: { ...f.args.pin, scheme: 'sys.dist/v1' } },
+      { ...f.args, pin: new Proxy(f.args.pin, {}) },
       { ...f.args, prefix: '../x' },
       { ...f.args, prefix: 'x/' },
       { ...f.args, prefix: undefined },
@@ -160,7 +166,7 @@ describe('R2.ReadRoute.fromDist', () => {
       events.push(key);
       f.args.prefix = 'changed';
       f.args.storageOrigin = 'https://elsewhere.example';
-      f.args.pin = { 'dist.json': '0'.repeat(64) };
+      f.args.pin = { scheme: 'sys.dist/v2', digest: Hash.sha256('other') };
       f.args.manifestLimits.manifestBytes = 1;
       f.args.limits.maxBytes = 1;
       f.args.limits.timeout = 1;
@@ -244,25 +250,58 @@ describe('R2.ReadRoute.fromDist', () => {
 
   it('preserves Dist refusal reasons and never invokes policy on refused bytes', async () => {
     for (
-      const reason of ['integrity-mismatch', 'malformed', 'unsafe-path', 'limit-exceeded'] as const
+      const reason of ['pin-mismatch', 'malformed', 'unsafe-path', 'limit-exceeded'] as const
     ) {
       const f = fixture();
-      if (reason === 'malformed') f.dist.build.size.total++;
+      if (reason === 'malformed') f.dist.hash.digest = Hash.sha256('forged');
       if (reason === 'unsafe-path') {
         f.args.manifestLimits.entries = 8;
         f.dist.hash.parts['../index.html'] = f.dist.hash.parts['index.html'];
         delete f.dist.hash.parts['index.html'];
-        f.dist.hash.digest = CompositeHash.digest(f.dist.hash.parts);
+        f.dist.hash.digest = Hash.sha256(Pkg.Dist.Content.encode(f.dist.hash.parts));
       }
-      const bytes = new TextEncoder().encode(JSON.stringify(f.dist));
+      const bytes = new TextEncoder().encode(Json.stringify(f.dist, 0));
       f.args.manifestLimits.manifestBytes = bytes.length;
       f.args.pin = {
-        'dist.json': reason === 'integrity-mismatch' ? Hash.sha256('other') : Hash.sha256(bytes),
+        scheme: 'sys.dist/v2',
+        digest: reason === 'pin-mismatch' ? Hash.sha256('other') : f.dist.hash.digest,
       };
       if (reason === 'limit-exceeded') f.args.manifestLimits.fileBytes = 4;
       using _fetch = WebFixture.Fetch.mock(() => Promise.resolve(new Response(bytes)));
       expect(await fromDist(f.args)).to.eql({ kind: 'manifest-refused', reason });
       expect(f.policies).to.eql([]);
+    }
+  });
+
+  it('metadata-only changes → the independent pin and policy content remain unchanged', async () => {
+    const f = fixture();
+    const expected = structuredClone(f.dist.hash);
+    f.dist.pkg = { name: '@untrusted/label', version: '9.9.9' };
+    f.dist.build.time++;
+    f.dist.build.size.total = 999;
+    const bytes = new TextEncoder().encode(Json.stringify(f.dist, 2));
+    f.args.manifestLimits.manifestBytes = bytes.length;
+    using _fetch = WebFixture.Fetch.mock(() => Promise.resolve(new Response(bytes)));
+    expect((await fromDist(f.args)).kind).to.eql('ready');
+    expect(f.policies).to.eql([expected]);
+  });
+
+  it('path or hash substitution → stale independent pin refuses before route selection', async () => {
+    for (const change of ['path', 'hash'] as const) {
+      const f = fixture();
+      if (change === 'path') {
+        f.dist.hash.parts['other.html'] = f.dist.hash.parts['index.html'];
+        delete f.dist.hash.parts['index.html'];
+      } else {
+        f.dist.hash.parts['index.html'] = `${Hash.sha256('world')}:size=5`;
+      }
+      f.dist.hash.digest = Hash.sha256(Pkg.Dist.Content.encode(f.dist.hash.parts));
+      const bytes = new TextEncoder().encode(Json.stringify(f.dist, 0));
+      f.args.manifestLimits.manifestBytes = bytes.length;
+      using _fetch = WebFixture.Fetch.mock(() => Promise.resolve(new Response(bytes)));
+      expect(await fromDist(f.args)).to.eql({ kind: 'manifest-refused', reason: 'pin-mismatch' });
+      expect(f.policies).to.eql([]);
+      expect(f.signed).to.eql(['release/dist.json']);
     }
   });
 

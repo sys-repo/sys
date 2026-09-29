@@ -2,6 +2,7 @@ import { R2 } from '@sys/driver-cloudflare/r2';
 import { WebFixture } from '@sys/testing/web';
 import { Fetch } from '@sys/http/client';
 import { prepareProof, prove, proveWith } from '../task.proof.local.ts';
+import { selectBuild } from '../../src/m.deployment/mod.ts';
 import { describe, expect, expectError, Fs, it, Json, Obj, Str, type t, Time } from './common.ts';
 import { localFixture as fixture } from './u.fixture.ts';
 
@@ -19,7 +20,7 @@ describe('R2 deployment sample: proof selection', () => {
     expect([...second.expected.keys()]).to.eql(['dist.json', 'index.html']);
     expect(new TextDecoder().decode(first.expected.get('index.html'))).to.eql('first');
     expect(new TextDecoder().decode(second.expected.get('index.html'))).to.eql('second');
-    expect((await first.verify()).kind).to.eql('integrity-mismatch');
+    expect((await first.verify()).kind).to.eql('pin-mismatch');
     expect((await second.verify()).kind).to.eql('verified');
   });
 
@@ -32,6 +33,36 @@ describe('R2 deployment sample: proof selection', () => {
     expect(selected.inputs).to.eql({ config: f.config, buildRecord: f.buildRecord });
     expect(selected.files).to.eql(['dist.json', 'index.html']);
   });
+
+  it('caller pin mutation → later rechecks retain the first independent expectation', async () => {
+    await using f = await fixture();
+    const pin = { ...f.buildRecord.selection.pins.private };
+    const selected = await selectBuild(pin, f.dir.absolute);
+    if (selected.kind !== 'verified') throw new Error(selected.kind);
+    const rebuilt = await f.build('second');
+    pin.digest = rebuilt.selection.pins.private.digest;
+    expect((await selected.verify()).kind).to.eql('pin-mismatch');
+  });
+
+  for (const phase of ['before manifest snapshot', 'after last snapshot'] as const) {
+    it(`metadata-only replacement ${phase} → expectation capture refuses`, async () => {
+      await using f = await fixture();
+      const path = f.dir.join('dist.private/dist.json');
+      const before = await Fs.readText(path);
+      if (!before.ok) throw new Error('Missing fixture manifest.');
+      // A trailing newline changes the document without changing any parsed content.
+      const replace = () => Fs.write(path, `${before.data}\n`, { throw: true });
+      await expectError(() =>
+        prepareProof(f.dir.absolute, async (args) => {
+          if (phase === 'before manifest snapshot' && args.path === path) await replace();
+          const snapshot = await Fs.Snapshot.file(args);
+          if (phase === 'after last snapshot' && args.path.endsWith('/index.html')) await replace();
+          return snapshot;
+        }), 'Local Dist changed during expectation capture.');
+      const fresh = await selectBuild(f.buildRecord.selection.pins.private, f.dir.absolute);
+      expect(fresh.kind).to.eql('verified');
+    });
+  }
 
   it('changed private bytes → refusal before live work', async () => {
     await using f = await fixture();
@@ -117,7 +148,7 @@ describe('R2 deployment sample: bootstrap-inclusive private delivery proof', () 
       expect(await pending).to.eql([{ status: 'fulfilled', value: undefined }]);
       expect(originalReads).to.eql(2);
       expect(f.state).to.eql({ starts: 1, closes: 1, requests: 10 });
-      expect(f.events.at(-1)?.integrity).to.eql(f.buildRecord.selection.pins.private['dist.json']);
+      expect(f.events.at(-1)?.pin).to.eql(f.buildRecord.selection.pins.private);
     } finally {
       release.resolve();
       await pending;
@@ -159,10 +190,32 @@ describe('R2 deployment sample: bootstrap-inclusive private delivery proof', () 
   it('bootstrap mismatch → one read, no listener/API requests, and no retry', async () => {
     await using f = await deliveryFixture();
     f.storage.set('dist.json', new TextEncoder().encode('{}'));
-    await expectError(() => prove(f.options), 'integrity-mismatch');
+    await expectError(() => prove(f.options), 'malformed');
     expect(f.storageKeys).to.eql(['dist.json']);
     expect(f.state).to.eql({ starts: 0, closes: 0, requests: 0 });
     expect(f.events.at(-1)).to.include({ result: 'refused', requests: 0, bootstrapAttempts: 1 });
+  });
+
+  it('metadata-only local replacement after selection → final refusal retains cleanup truth', async () => {
+    await using f = await deliveryFixture();
+    await expectError(() =>
+      prove({
+        ...f.options,
+        async log(text) {
+          f.options.log(text);
+          if (f.events.at(-1)?.result !== 'selected') return;
+          const path = f.dir.join('dist.private/dist.json');
+          const before = await Fs.readText(path);
+          if (!before.ok) throw new Error('Missing fixture manifest.');
+          await Fs.write(path, `${before.data}\n`, { throw: true });
+        },
+      }), 'Local Dist changed during live proof.');
+    expect(f.state).to.eql({ starts: 1, closes: 1, requests: 10 });
+    expect(f.events.some((event) => event.result === 'verified')).to.eql(false);
+    expect(f.events.at(-1)).to.include({ result: 'refused', requests: 10 });
+    expect(f.events.at(-1)?.manifestChecksum).to.eql(f.events[0].manifestChecksum);
+    const fresh = await selectBuild(f.buildRecord.selection.pins.private, f.dir.absolute);
+    expect(fresh.kind).to.eql('verified');
   });
 
   it('changed remote shell → admission succeeds, delivery stops at the first mismatch', async () => {

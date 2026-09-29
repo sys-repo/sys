@@ -5,6 +5,7 @@ export { Bytes } from '@sys/std/bytes';
 export { Err } from '@sys/std/error';
 export { Glob } from '@sys/std/glob';
 export { Is } from '@sys/std/is';
+export { Json } from '@sys/std/json';
 export { Log } from '@sys/std/log';
 export { Num } from '@sys/std/num';
 export { Obj } from '@sys/std/obj';

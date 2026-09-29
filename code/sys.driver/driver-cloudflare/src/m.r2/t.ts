@@ -242,12 +242,12 @@ export declare namespace R2 {
        * limits, callback, and signer; invalid configuration throws.
        */
       create(options: CreateOptions): Handler;
-      /** Fetch and verify a pinned `dist.json`, then construct a read handler. */
+      /** Admit a content-pinned inventory, then construct a read handler. */
       fromDist(args: FromDist.Args): Promise<FromDist.Result>;
     };
 
     /**
-     * Verify `dist.json` against its expected checksum, then construct read routes.
+     * Admit the manifest inventory against an independent content pin, then construct read routes.
      * Files served by the handler are not checked against the manifest's file hashes.
      */
     export namespace FromDist {
@@ -259,8 +259,8 @@ export declare namespace R2 {
         /** Unchanged object-key prefix; use an empty string for the bucket root. */
         prefix: string;
         /**
-         * Expected SHA-256 of the complete `dist.json` bytes, not its embedded `hash.digest`.
-         * Obtain this pin independently of the manifest download.
+         * Expected canonical content identity, supplied independently of the manifest download.
+         * Admission recomputes the inventory digest; this is not a checksum of the document bytes.
          */
         pin: t.DistPin;
         /** Limits for downloading and validating the manifest, separate from response limits. */
@@ -274,8 +274,8 @@ export declare namespace R2 {
       };
 
       /**
-       * Select routes synchronously, without IO, from immutable verified metadata.
-       * Map encoded URL paths → filenames in `dist.hash.parts`, without adding `prefix`.
+       * Select routes synchronously, without IO, from the immutable admitted content inventory.
+       * Map encoded URL paths → filenames in `content.parts`, without adding `prefix`.
        * `dist.json` may also be selected. Return a plain data map; unknown filenames,
        * accessors, and async results are refused. One invalid entry rejects the whole map.
        *
@@ -284,7 +284,9 @@ export declare namespace R2 {
        * The callback must handle rejections for all other async results. The driver does not
        * call their `then` methods, invoke their getters, or modify them to attach a handler.
        */
-      export type Routes = (dist: t.DeepReadonly<t.DistPkg>) => Readonly<Record<string, string>>;
+      export type Routes = (
+        content: t.DeepReadonly<t.DistContent>,
+      ) => Readonly<Record<string, string>>;
 
       /** Only `ready` exposes a handler; failures contain no provider or callback details. */
       export type Result = Ready | Failure;

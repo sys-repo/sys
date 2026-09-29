@@ -1,7 +1,7 @@
-import { CompositeHash, Hash } from '@sys/crypto/hash';
+import { Hash } from '@sys/crypto/hash';
 import { Ignore } from '@sys/std/ignore';
 import { R2 } from '@sys/driver-cloudflare/r2';
-import { Json, type t, WebFixture } from '../-test.ts';
+import { Json, Pkg, type t, WebFixture } from '../-test.ts';
 
 /** Structurally valid inputs; these pins do not refer to local or remote output. */
 export function fixtureInputs(): t.AppInputs {
@@ -13,8 +13,8 @@ export function fixtureInputs(): t.AppInputs {
       bundleSize: 551_353,
       selection: {
         pins: {
-          private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
-          public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+          private: { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` },
+          public: { scheme: 'sys.dist/v2', digest: `sha256-${'b'.repeat(64)}` },
         },
       },
     },
@@ -72,16 +72,19 @@ export async function remoteFixture() {
         ignore: { format: 'gitignore', rules: [], 'rules:digest': await Ignore.digest([]) },
       },
     },
-    hash: { digest: CompositeHash.digest(parts), parts },
+    hash: { scheme: 'sys.dist/v2', digest: Hash.sha256(Pkg.Dist.Content.encode(parts)), parts },
   };
   const manifest = encoder.encode(Json.stringify(dist));
   content.set('dist.json', manifest);
-  const pin = { 'dist.json': Hash.sha256(manifest) };
+  const pin: t.DeepMutable<t.DistPin> = { scheme: 'sys.dist/v2', digest: dist.hash.digest };
   const config = fixtureConfig();
   const buildRecord = {
     bundleSize: 551_353,
     selection: {
-      pins: { private: pin, public: { 'dist.json': Hash.sha256('fixture-public-manifest') } },
+      pins: {
+        private: pin,
+        public: { scheme: 'sys.dist/v2' as const, digest: Hash.sha256('fixture-public-content') },
+      },
     },
     publicAssetBase: config.publicAssetBase,
   };

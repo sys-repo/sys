@@ -40,8 +40,9 @@ object exists.
 Choose a constructor:
 
 - `create` takes an explicit path-to-object map and returns a handler. Invalid configuration throws.
-- `fromDist` fetches and verifies a pinned `dist.json`, then runs the route-selection callback. It
-  returns a `ready` result containing a handler, or a failure result.
+- `fromDist` admits a bounded manifest against an independent content pin, then runs the
+  route-selection callback. It returns a `ready` handler or a failure; later bodies are not
+  verified.
 
 Both require a bucket with `presignGet` support and the private S3 origin from `service.storageUrl`,
 not the bucket's public `readOrigin`. Signed URLs stay server-side: callers receive bytes, not
@@ -72,14 +73,20 @@ handler does not discover files automatically. See the
 
 ### Routes from a pinned Dist manifest
 
-`fromDist` downloads `prefix/dist.json` once, checks its checksum, and validates its metadata before
-constructing a handler. Supply a trusted `DistPin` with the shape `{ 'dist.json': checksum }`: the
-checksum is SHA-256 of the **complete file bytes**, not the manifest's embedded `hash.digest`.
-Obtain the pin independently of this download.
+`fromDist` downloads `prefix/dist.json` once, admits its bounded inventory, recomputes its content
+identity, and compares it with an independent `DistPin`: `{ scheme: 'sys.dist/v2', digest }`. This
+identity covers exact payload paths, checksums and byte lengths, not root labels or document layout.
+Retain the pin from a trusted producer or release record before downloading; copying the downloaded
+`hash.digest` is not an independent expectation. Old manifest-byte pins are refused, not converted.
 
-Using that `pin` and the service and bucket above, set separate manifest and response limits:
+Using the service and bucket above, set separate manifest and response limits. Replace this
+illustrative digest with the independently retained content expectation:
 
 ```ts
+const pin = {
+  scheme: 'sys.dist/v2',
+  digest: 'sha256-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+} as const;
 const result = await R2.ReadRoute.fromDist({
   bucket,
   storageOrigin: service.storageUrl,
@@ -100,9 +107,9 @@ if (result.kind !== 'ready') throw new Error(`Manifest routes refused: ${result.
 const handler = result.handler;
 ```
 
-The `routes` callback runs once, after verification, with immutable manifest metadata. Return a map
-from URL paths to filenames in `dist.hash.parts`, without prepending `prefix`. You may also route
-`dist.json`. Use `prefix: ''` for the bucket root.
+The `routes(content)` callback runs once after admission, with immutable `DistContent`, not root
+manifest metadata. Return a map from URL paths to own filenames in `content.parts`, without
+prepending `prefix`. You may also route `dist.json`. Use `prefix: ''` for the bucket root.
 
 The callback must be synchronous and IO-free, returning a plain data map. Accessors and async
 results are refused; one invalid entry rejects the entire map. The

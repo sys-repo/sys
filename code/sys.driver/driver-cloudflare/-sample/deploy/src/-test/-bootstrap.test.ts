@@ -1,5 +1,5 @@
-import { CompositeHash, Hash } from '@sys/crypto/hash';
-import { describe, expect, expectError, it, Json, type t } from '../-test.ts';
+import { Hash } from '@sys/crypto/hash';
+import { describe, expect, expectError, it, Json, Pkg, type t } from '../-test.ts';
 import { appFrom, DIST_LIMITS } from '../m.deployment/mod.ts';
 import { fixtureEnv, remoteFixture } from './u.fixture.ts';
 
@@ -19,10 +19,10 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
   describe('manifest acquisition and admission', () => {
     const cases = [
       {
-        name: 'wrong checksum',
+        name: 'invalid JSON',
         bytes: encoder.encode('wrong'),
         status: 200,
-        expected: 'integrity-mismatch',
+        expected: 'malformed',
       },
       {
         name: 'oversized body',
@@ -42,26 +42,46 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
     }
   });
 
-  it('checksum-matched invalid manifest → no app', async () => {
+  it('descriptive metadata changes → the independent content pin still admits the app', async () => {
     using f = await remoteFixture();
     f.dist.build.size.total++;
-    const bytes = encoder.encode(Json.stringify(f.dist));
-    f.content.set('dist.json', bytes);
-    f.pin['dist.json'] = Hash.sha256(bytes);
-    await expectError(() => appFrom(f, fixtureEnv), 'Sample manifest refused: malformed.');
-    expect(f.fetched.length).to.eql(1);
+    f.dist.build.time++;
+    f.dist.pkg = { name: '@untrusted/root-label', version: '99.0.0' };
+    f.content.set('dist.json', encoder.encode(Json.stringify(f.dist)));
+    const app = await appFrom(f, fixtureEnv);
+    const response = await app.fetch(new Request('http://sample.test/api/hello'));
+    expect(response.status).to.eql(200);
+    await response.body?.cancel();
+    expect(f.keys()).to.eql(['sample/ui/dist.json']);
   });
 
-  it('a checksum-matched private manifest cannot admit public asset relay routes', async () => {
+  it('different valid inventory → stale independent pin refuses before payload reads', async () => {
+    using f = await remoteFixture();
+    f.dist.hash.parts['index.html'] = `${Hash.sha256('other')}:size=5`;
+    f.dist.hash.digest = Hash.sha256(Pkg.Dist.Content.encode(f.dist.hash.parts));
+    f.content.set('dist.json', encoder.encode(Json.stringify(f.dist)));
+    await expectError(() => appFrom(f, fixtureEnv), 'Sample manifest refused: pin-mismatch.');
+    expect(f.keys()).to.eql(['sample/ui/dist.json']);
+  });
+
+  it('malformed descriptor → no app despite matching claimed digest', async () => {
+    using f = await remoteFixture();
+    f.dist.hash.parts['index.html'] = 'invalid';
+    f.content.set('dist.json', encoder.encode(Json.stringify(f.dist)));
+    await expectError(() => appFrom(f, fixtureEnv), 'Sample manifest refused: malformed.');
+    expect(f.keys()).to.eql(['sample/ui/dist.json']);
+  });
+
+  it('a content-pinned private inventory cannot admit public asset relay routes', async () => {
     using f = await remoteFixture();
     const asset = f.content.get('pkg/file.js')!;
     f.dist.hash.parts['pkg/file.js'] = `${Hash.sha256(asset)}:size=${asset.length}`;
     f.dist.build.size.total += asset.length;
     f.dist.build.size.pkg += asset.length;
-    f.dist.hash.digest = CompositeHash.digest(f.dist.hash.parts);
+    f.dist.hash.digest = Hash.sha256(Pkg.Dist.Content.encode(f.dist.hash.parts));
     const bytes = encoder.encode(Json.stringify(f.dist));
     f.content.set('dist.json', bytes);
-    f.pin['dist.json'] = Hash.sha256(bytes);
+    f.pin.digest = f.dist.hash.digest;
     await expectError(() => appFrom(f, fixtureEnv), 'Invalid sample private manifest filenames.');
     expect(f.keys()).to.eql(['sample/ui/dist.json']);
   });
@@ -76,9 +96,12 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
       },
     };
     const pins = [
-      { integrity: f.pin['dist.json'], files: ['index.html', 'dist.json'] },
+      { integrity: f.pin.digest, files: ['index.html', 'dist.json'] },
+      { 'dist.json': Hash.sha256(f.manifest) },
+      { ...f.pin, 'dist.json': Hash.sha256(f.manifest) },
+      { ...f.pin, integrity: Hash.sha256(f.manifest) },
       { ...f.pin, files: ['index.html'] },
-      { 'dist.json': `${f.pin['dist.json']}:size=1` },
+      { ...f.pin, digest: `${f.pin.digest}:size=1` },
     ];
     for (const pin of pins) {
       await expectError(() =>
@@ -151,8 +174,8 @@ describe('R2 deployment sample: pinned manifest bootstrap', () => {
         config.credentials.serve.secretAccessKey = 'OTHER_SECRET';
         config.publicAssetBase = 'https://other.example.test/sample/ui/';
         buildRecord.publicAssetBase = config.publicAssetBase;
-        buildRecord.selection.pins.public['dist.json'] = 'invalid after capture';
-        pin['dist.json'] = Hash.sha256('other');
+        buildRecord.selection.pins.public.digest = 'invalid after capture';
+        pin.digest = Hash.sha256('other');
         return 'fixture-only-credential';
       },
     });

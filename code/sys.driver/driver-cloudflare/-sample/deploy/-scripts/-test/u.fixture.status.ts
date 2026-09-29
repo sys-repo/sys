@@ -9,14 +9,15 @@ export async function shellFixture() {
     const dir = Fs.toDir(await Fs.realPath(temp.absolute));
     const output = dir.join('dist.private');
     await Fs.write(Fs.join(output, 'index.html'), 'fixture', { throw: true });
-    await Pkg.Dist.compute({
+    const computed = await Pkg.Dist.compute({
       dir: output,
       pkg: { name: '@test/r2', version: '0.0.0' },
       save: true,
     });
-    const verified = await Pkg.Dist.Local.verify({ dir: output, limits: DIST_LIMITS });
+    if (computed.kind !== 'computed') throw new Error(computed.error.message);
+    const pin = computed.pin;
+    const verified = await Pkg.Dist.Pinned.verify({ dir: output, pin, limits: DIST_LIMITS });
     if (verified.kind !== 'verified') throw new Error(`Fixture Dist refused: ${verified.kind}.`);
-    const pin = { 'dist.json': verified.evidence.integrity };
     const base = fixtureInputs();
     // Only the private pin refers to local output; no public build or provider access is needed.
     const inputs: t.AppInputs = {
@@ -33,7 +34,8 @@ export async function shellFixture() {
       dir,
       pin,
       inputs,
-      digest: verified.evidence.dist.hash.digest,
+      digest: verified.evidence.content.digest,
+      manifestChecksum: verified.evidence.manifestChecksum,
       async [Symbol.asyncDispose]() {
         await Fs.remove(dir.absolute);
       },

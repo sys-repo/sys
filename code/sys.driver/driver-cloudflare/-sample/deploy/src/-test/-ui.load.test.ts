@@ -24,7 +24,7 @@ const ORIGIN = 'https://sample.test';
 const PUBLIC_MANIFEST = 'https://assets.test/sample/ui/dist.json';
 const bundleSize = 551_353;
 const audiences = ['private', 'public'] as const;
-// Independently chosen digests: the UI reports these, but computes checksums from received bytes.
+// Deliberately inconsistent self-reports: the UI observes manifests, not verified payloads.
 const privateDist: t.DistPkg = {
   type: 'https://jsr.io/@sample/r2',
   build: {
@@ -34,12 +34,20 @@ const privateDist: t.DistPkg = {
     runtime: 'deno',
     hash: { policy: 'https://jsr.io/@sys/crypto' },
   },
-  hash: { digest: `sha256-${'a'.repeat(64)}`, parts: {} },
+  hash: {
+    scheme: 'sys.dist/v2',
+    digest: `sha256-${'a'.repeat(64)}`,
+    parts: { 'index.html': `${Hash.sha256('fixture')}:size=7` },
+  },
 };
 const publicDist: t.DistPkg = {
   ...privateDist,
   build: { ...privateDist.build, size: { total: bundleSize - 1_575, pkg: 0 } },
-  hash: { digest: `sha256-${'b'.repeat(64)}`, parts: {} },
+  hash: {
+    scheme: 'sys.dist/v2',
+    digest: `sha256-${'b'.repeat(64)}`,
+    parts: { 'app.js': `${Hash.sha256('fixture')}:size=7` },
+  },
 };
 const distributions = { private: privateDist, public: publicDist };
 
@@ -71,7 +79,7 @@ describe('R2 deployment sample: UI fetches', () => {
     }
   });
 
-  it('served projections → checksums match both build-selected manifest pins', async () => {
+  it('served projections → observed digests match content pins, not document checksums', async () => {
     await using f = await localFixture();
     const privateFile = await Fs.readText(f.dir.join('dist.private/dist.json'));
     const publicFile = await Fs.readText(f.dir.join('dist.public/dist.json'));
@@ -81,7 +89,9 @@ describe('R2 deployment sample: UI fetches', () => {
       public: new Response(publicFile.data),
     });
     for (const audience of audiences) {
-      expect(result[audience].checksum).to.eql(f.buildRecord.selection.pins[audience]['dist.json']);
+      const source = audience === 'private' ? privateFile.data : publicFile.data;
+      expect(result[audience].digest).to.eql(f.buildRecord.selection.pins[audience].digest);
+      expect(result[audience].checksum).to.eql(Hash.sha256(source));
       expect(result[audience].digest).not.to.eql(result[audience].checksum);
     }
   });

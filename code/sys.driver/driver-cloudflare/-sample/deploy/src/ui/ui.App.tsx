@@ -1,4 +1,4 @@
-import { Hash, Is, Pkg, pkg, React, Str, type t } from './common.ts';
+import { Hash, Is, Pkg, React, Str, type t } from './common.ts';
 import { startFetches } from './u.load.ts';
 
 type Manifest = {
@@ -7,6 +7,7 @@ type Manifest = {
   readonly size?: number;
 };
 
+const AUDIENCES = ['public', 'private'] as const;
 const PENDING: Manifest = { digest: 'Loading…', checksum: 'Loading…' };
 
 /**
@@ -19,18 +20,22 @@ export function App(
   },
 ) {
   const publicManifestUrl = new URL('dist.json', publicAssetBase).href;
+  const manifestUrls: Readonly<Record<t.Audience, string>> = {
+    public: publicManifestUrl,
+    private: '/ui/dist.json',
+  };
   const [message, setMessage] = React.useState('Loading…');
   const [bundleSize, setBundleSize] = React.useState<number | string>('Loading…');
   const [manifests, setManifests] = React.useState<Readonly<Record<t.Audience, Manifest>>>({
-    private: PENDING,
     public: PENDING,
+    private: PENDING,
   });
 
   React.useEffect(() => {
     if (!origin) return;
     setMessage('Loading…');
     setBundleSize('Loading…');
-    setManifests({ private: PENDING, public: PENDING });
+    setManifests({ public: PENDING, private: PENDING });
     return startFetches(
       origin,
       publicManifestUrl,
@@ -44,41 +49,96 @@ export function App(
 
   return (
     <main>
-      <h1>{pkg.name}</h1>
-      <h2>Deno HTML and API · R2 assets</h2>
+      <h1>@sample</h1>
+      <h2>Application server: HTML + API · Public R2: assets</h2>
       <p>
-        Deno serves this page and <a href='/api/hello'>/api</a> from the application origin
-        {renderOrigin(origin)}. UI scripts, styles, and images load directly from{' '}
-        <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2</a>,
-        avoiding Deno egress for those assets.
+        A thin, Web Standards–based application server handles the HTML entry point and{' '}
+        <a href='/api/hello'>/api</a> at the application origin
+        {renderOrigin(origin)}. JavaScript, CSS, images, and other static assets load directly from
+        {' '}
+        <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2 ↗</a>,
+        avoiding application-server egress for those assets.
       </p>
       <p>
-        <code>
-          <a href='/ui/index.html'>index.html</a>
-        </code>{' '}
-        and{' '}
-        <code>
-          <a href='/ui/dist.json'>dist.json</a>
-        </code>{' '}
-        are stored in <a href='https://developers.cloudflare.com/r2/api/tokens/'>private R2</a>{' '}
-        and served through a bounded relay. Deno fetches them with{' '}
+        The HTML entry point (<a href='/ui/index.html'>
+          <code>index.html</code>
+        </a>) and its manifest (<a href={manifestUrls.private}>
+          <code>dist.json</code>
+        </a>) are served from the application origin through a bounded relay to{' '}
+        <a href='https://developers.cloudflare.com/r2/api/tokens/'>private R2 ↗</a>. The application
+        server is the trust boundary for private R2 access. It fetches files using{' '}
         <a href='https://developers.cloudflare.com/r2/api/s3/presigned-urls/'>
-          short-lived presigned GET URLs
+          short-lived presigned GET URLs ↗
         </a>; the browser receives bytes, not signed URLs or R2 credentials.
       </p>
-      <h2>Same-origin fetches</h2>
+      <h2>Same-origin fetch</h2>
       <p aria-live='polite'>
         api.msg:{' '}
         <code>
           "<a href='/api/hello'>{message}</a>"
         </code>
       </p>
-      <h2>Manifest</h2>
-      <p className='bundle-size' aria-live='polite'>
-        total bundle • {Is.num(bundleSize) ? Str.bytes(bundleSize) : bundleSize}
-      </p>
-      {renderManifestTable('private', manifests.private, '/ui/dist.json')}
-      {renderManifestTable('public', manifests.public, publicManifestUrl)}
+      <section className='content-summary' aria-labelledby='content-heading'>
+        <header>
+          <h2 id='content-heading'>Content</h2>
+          <code>scheme: sys.dist/v2</code>
+        </header>
+        <p className='build-total' aria-live='polite'>
+          Build size · {Is.num(bundleSize) ? Str.bytes(bundleSize) : bundleSize}
+        </p>
+        <div
+          className='manifest-table-scroll'
+          role='region'
+          aria-label='Distribution content'
+          tabIndex={0}
+        >
+          <table className='identity-table' aria-labelledby='content-heading' aria-live='polite'>
+            <thead>
+              <tr>
+                <th scope='col'>Distribution</th>
+                <th scope='col' className='payload-size'>Payload</th>
+                <th scope='col'>Content Digest (SHA-256)</th>
+                <th scope='col'>Manifest</th>
+              </tr>
+            </thead>
+            <tbody>
+              {AUDIENCES.map((audience) => {
+                return renderManifestRow(audience, manifests[audience], manifestUrls[audience]);
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Digests are abbreviated. These values are manifest reports, not payload verification. Open
+          each manifest and compare its full <code>hash.scheme</code> and <code>hash.digest</code>
+          {' '}
+          with the corresponding pin in <code>dist.pins.json</code>.
+        </p>
+        <details className='manifest-checksums'>
+          <summary>Manifest document checksums</summary>
+          <p>
+            SHA-256 of each fetched <code>dist.json</code> file
+            <br />
+            not the distribution content hash stored in <code>hash.digest</code>.
+          </p>
+          <dl aria-live='polite'>
+            {AUDIENCES.map((audience) => {
+              return (
+                <div key={audience}>
+                  <dt>
+                    <a href={manifestUrls[audience]}>
+                      {audience === 'public' ? 'public ↗' : 'private'}
+                    </a>
+                  </dt>
+                  <dd>
+                    <code>{Str.stripPrefixOnce(manifests[audience].checksum, 'sha256-')}</code>
+                  </dd>
+                </div>
+              );
+            })}
+          </dl>
+        </details>
+      </section>
     </main>
   );
 }
@@ -98,85 +158,24 @@ function renderOrigin(origin?: string) {
   );
 }
 
-function renderManifestTable(audience: t.Audience, manifest: Manifest, href: string) {
-  const isPrivate = audience === 'private';
+function renderManifestRow(audience: t.Audience, manifest: Manifest, href: string) {
   const digest = Pkg.Dist.Part.hash(manifest.digest);
-  const checksum = Pkg.Dist.Part.hash(manifest.checksum);
   const elDigest = Is.str(digest)
     ? (
-      <a href={href} title={manifest.digest}>
+      <code title={`sys.dist/v2 ${manifest.digest}`}>
         {Hash.shorten(digest, [12, 5], { trimPrefix: true, divider: '…' })}
-      </a>
+      </code>
     )
     : manifest.digest;
-  const checksumLabel = Is.str(checksum)
-    ? Hash.shorten(checksum, [12, 5], { trimPrefix: true, divider: '…' })
-    : manifest.checksum;
 
   return (
-    <div
-      className='manifest-table-scroll'
-      role='region'
-      aria-label={`${audience} manifest hashes`}
-      tabIndex={0}
-    >
-      <table className='identity-table' aria-live='polite'>
-        <caption>
-          {isPrivate ? 'private relay' : 'public R2'} —{' '}
-          <a href={href}>{isPrivate ? '/ui/dist.json' : 'dist.json ↗'}</a>
-          {Is.str(digest) && (
-            <>
-              {' • '}
-              <code>#{Hash.shorten(digest, [0, 5], { trimPrefix: true })}</code>
-            </>
-          )}
-          {Is.num(manifest.size) && (
-            <>
-              {' • '}
-              <span title='Distribution payload size'>{Str.bytes(manifest.size)}</span>
-            </>
-          )}
-        </caption>
-        <thead>
-          <tr>
-            <th scope='col'>What</th>
-            <th scope='col'>SHA-256</th>
-            <th scope='col'>Compare locally</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope='row'>
-              <a href={href}>
-                <code>dist.json → hash.digest</code>
-              </a>
-            </th>
-            <td>
-              <code>{elDigest}</code>
-            </td>
-            <td>
-              {isPrivate
-                ? (
-                  <>
-                    <code>deno task serve</code> → <code>shell</code>
-                  </>
-                )
-                : <code>dist.public/dist.json</code>}
-            </td>
-          </tr>
-          <tr>
-            <th scope='row'>
-              checksum of <code>dist.json</code>
-            </th>
-            <td>
-              <code title={manifest.checksum}>{checksumLabel}</code>
-            </td>
-            <td>
-              <code>deno task build</code> → <code>{audience}:</code>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+    <tr key={audience}>
+      <th scope='row'>{audience}</th>
+      <td className='payload-size'>{Is.num(manifest.size) ? Str.bytes(manifest.size) : '—'}</td>
+      <td>{elDigest}</td>
+      <td>
+        <a href={href}>{audience === 'public' ? 'dist.json ↗' : '/ui/dist.json'}</a>
+      </td>
+    </tr>
   );
 }

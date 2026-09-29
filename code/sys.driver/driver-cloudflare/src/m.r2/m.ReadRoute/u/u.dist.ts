@@ -10,21 +10,33 @@ const speciesGetter = Object.getOwnPropertyDescriptor(NativePromise, Symbol.spec
 
 /** Validate and copy inputs before signing or invoking the route policy. */
 export function snapshotDist(input: t.R2.ReadRoute.FromDist.Args): DistInput {
+  if (ServerIs.Native.proxy(input) || !Is.record(input) || Obj.hasOwn(input, 'integrity')) {
+    throw invalid();
+  }
   const source = snapshotSource(input);
   if (!Is.str(source.storageOrigin)) throw invalid();
   const prefix = input.prefix;
   if (!Is.str(prefix)) throw invalid();
   if (prefix !== '') toPresignKey(prefix);
   objectKey(prefix, 'dist.json');
-  const pin = input.pin;
-  if (!Pkg.Is.distPin(pin)) throw invalid();
-  const integrity = pin['dist.json'];
-  const { manifestBytes, entries, fileBytes, totalBytes } = input.manifestLimits ?? {};
+  const expected = input.pin;
+  if (ServerIs.Native.proxy(expected) || !Pkg.Is.distPin(expected)) throw invalid();
+  const pin = Object.freeze({ scheme: expected.scheme, digest: expected.digest });
+  const { manifestBytes, entries, fileBytes, totalBytes, pathLength, pathTotal } =
+    input.manifestLimits ?? {};
   if (
     ![manifestBytes, entries].every((n) => Num.Is.safeInt(n) && n > 0) ||
-    ![fileBytes, totalBytes].every((n) => Num.Is.safeInt(n) && n >= 0)
+    ![fileBytes, totalBytes].every((n) => Num.Is.safeInt(n) && n >= 0) ||
+    ![pathLength, pathTotal].every((n) => n === undefined || (Num.Is.safeInt(n) && n > 0))
   ) throw invalid();
-  const manifestLimits = Object.freeze({ manifestBytes, entries, fileBytes, totalBytes });
+  const manifestLimits = Object.freeze({
+    manifestBytes,
+    entries,
+    fileBytes,
+    totalBytes,
+    ...(pathLength === undefined ? {} : { pathLength }),
+    ...(pathTotal === undefined ? {} : { pathTotal }),
+  });
   const limits = snapshotLimits(input.limits);
   const authorize = input.authorize;
   const routes = input.routes;
@@ -36,7 +48,7 @@ export function snapshotDist(input: t.R2.ReadRoute.FromDist.Args): DistInput {
   return Object.freeze({
     source,
     prefix,
-    integrity,
+    pin,
     manifestLimits,
     limits,
     authorize,
@@ -45,11 +57,11 @@ export function snapshotDist(input: t.R2.ReadRoute.FromDist.Args): DistInput {
   });
 }
 
-/** Copy a data-only route map restricted to `dist.hash.parts` entries and `dist.json`. */
+/** Copy a data-only route map restricted to admitted `content.parts` entries and `dist.json`. */
 export function snapshotDistRoutes(
   input: unknown,
   prefix: string,
-  dist: t.DeepReadonly<t.DistPkg>,
+  content: t.DeepReadonly<t.DistContent>,
 ): ReadonlyMap<string, string> {
   if (ServerIs.Native.promise(input)) {
     observeOrdinaryPromise(input);
@@ -66,7 +78,7 @@ export function snapshotDistRoutes(
     const filename = field.value;
     if (
       !Is.str(filename) ||
-      (filename !== 'dist.json' && !Obj.hasOwn(dist.hash.parts, filename))
+      (filename !== 'dist.json' && !Obj.hasOwn(content.parts, filename))
     ) throw invalid();
     routes.set(path, objectKey(prefix, filename));
   }

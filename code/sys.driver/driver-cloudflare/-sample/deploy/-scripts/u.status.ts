@@ -20,7 +20,7 @@ export async function buildStatus(pin: t.DistPin, root = ROOT): Promise<BuildSta
     };
   }
 
-  const dist = selected.evidence.dist;
+  const { content } = selected.evidence;
   const manifestUrl = Fs.Path.toFileUrl(Fs.resolve(selected.dir, 'dist.json'));
   const directoryUrl = new URL('./', manifestUrl);
 
@@ -35,7 +35,7 @@ export async function buildStatus(pin: t.DistPin, root = ROOT): Promise<BuildSta
     const linkedPath = path ? Fmt.hyperlink(path, directoryUrl, { underline: true }) : '';
     const reserve = Text.Width.measure(path) + 1;
     const digestWidth = maxWidth === undefined ? undefined : Math.max(0, maxWidth - reserve);
-    const digest = HashFmt.digest(dist.hash.digest, {
+    const digest = HashFmt.digest(content.digest, {
       arrow: true,
       url: manifestUrl,
       maxWidth: digestWidth,

@@ -64,22 +64,23 @@ describe('R2 deployment sample: publication admission', () => {
     }
   });
 
-  it('checksum-valid forbidden filenames in either projection → neither audience may publish', async () => {
+  it('content-pinned forbidden filenames in either projection → neither audience may publish', async () => {
     for (const invalid of audiences) {
       await using f = await fixture();
       const dir = f.dir.join(`dist.${invalid}`);
       await Fs.write(Fs.join(dir, 'sw.js'), 'fixture worker', { throw: true });
       const computed = await Pkg.Dist.compute({ dir, save: true });
+      if (computed.kind !== 'computed') throw new Error(computed.error.message);
       const selection = {
         pins: {
           ...f.buildRecord.selection.pins,
-          [invalid]: { 'dist.json': computed.manifest.integrity },
+          [invalid]: computed.pin,
         },
       };
       await Fs.writeJson(f.dir.join('dist.pins.json'), { ...f.buildRecord, selection }, {
         throw: true,
       });
-      // Establish integrity independently: refusal must come from sample policy, not stale pins.
+      // Verify the recorded producer pin: refusal must come from sample policy, not stale pins.
       const verified = await Pkg.Dist.Pins.verify({
         root: f.dir.absolute,
         selection,
@@ -98,7 +99,7 @@ describe('R2 deployment sample: publication admission', () => {
     }
   });
 
-  it('different manifest pins or missing partner output → no automatic repin or one-target fallback', async () => {
+  it('different content pins or missing partner output → no automatic repin or one-target fallback', async () => {
     for (const audience of audiences) {
       await using f = await fixture();
       await Fs.writeJson(f.dir.join('dist.pins.json'), {
@@ -106,7 +107,7 @@ describe('R2 deployment sample: publication admission', () => {
         selection: {
           pins: {
             ...f.buildRecord.selection.pins,
-            [audience]: { 'dist.json': `sha256-${'0'.repeat(64)}` },
+            [audience]: { scheme: 'sys.dist/v2', digest: `sha256-${'0'.repeat(64)}` },
           },
         },
       }, { throw: true });

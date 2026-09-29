@@ -22,7 +22,8 @@ export async function localFixture() {
         pkg: { name: '@test/r2', version: '0.0.0' },
         save: true,
       });
-      return { ok: true, manifest: computed.manifest, toString: () => 'fixture Vite build' };
+      if (computed.kind !== 'computed') throw new Error(computed.error.message);
+      return { ok: true as const, pin: computed.pin, toString: () => 'fixture Vite build' };
     };
     const build = async (html = 'first', assets: Assets = {}) => {
       const result = await buildSample(config, dir.absolute, () => emit(html, assets));

@@ -95,54 +95,25 @@ describe('R2.ReadRoute.fromDist: lifetime', () => {
     expect(f.policies).to.eql([]);
   });
 
-  for (const cancel of [false, true]) {
-    it(`pending real manifest admission → ${cancel ? 'cancel promptly and observe settlement' : 'read deadline has ended'}`, async () => {
-      const f = fixture();
-      const caller = new AbortController();
-      f.args.signal = caller.signal;
-      f.args.limits.timeout = 30;
-      const gate = Promise.withResolvers<void>();
-      let hashing = false;
-      let hashed = false;
-      let completed = false;
-      const original = crypto.subtle.digest;
-      // Delay the actual ignore-rules digest inside Pinned admission, never forge its result.
-      crypto.subtle.digest = async function (...args) {
-        hashing = true;
-        await gate.promise;
-        const result = await original.apply(this, args);
-        hashed = true;
-        return result;
-      };
-      using _fetch = WebFixture.Fetch.mock(() => Promise.resolve(new Response(f.bytes)));
-      const pending = fromDist(f.args).then((result) => {
-        completed = true;
-        return result;
-      });
-      try {
-        await Testing.until(() => hashing);
-        if (cancel) {
-          caller.abort('SECRET');
-          expect(await pending).to.eql({ kind: 'cancelled' });
-          expect(hashed).to.eql(false);
-        } else {
-          await Time.wait(60);
-          expect(completed).to.eql(false);
-        }
-        gate.resolve();
-        const result = await pending;
-        expect(result.kind).to.eql(cancel ? 'cancelled' : 'ready');
-        await Testing.until(() => hashed);
-        await Time.wait(0);
-        expect(f.policies.length).to.eql(cancel ? 0 : 1);
-      } finally {
-        gate.resolve();
-        await pending;
-        await Testing.until(() => hashed);
-        crypto.subtle.digest = original;
-      }
-    });
-  }
+  it('excluded ignore metadata → no asynchronous rule hashing during content admission', async () => {
+    const f = fixture();
+    let calls = 0;
+    const original = crypto.subtle.digest;
+    // v2 has no asynchronous ignore-rule authority to suspend. Its bounded native parse and
+    // content hash are synchronous; cancellation cannot interrupt those synchronous operations.
+    crypto.subtle.digest = () => {
+      calls++;
+      return Promise.reject(new Error('Unexpected asynchronous metadata digest.'));
+    };
+    using _fetch = WebFixture.Fetch.mock(() => Promise.resolve(new Response(f.bytes)));
+    try {
+      expect((await fromDist(f.args)).kind).to.eql('ready');
+      expect(calls).to.eql(0);
+      expect(f.policies.length).to.eql(1);
+    } finally {
+      crypto.subtle.digest = original;
+    }
+  });
 
   it('abort during policy takes precedence over its return or exception', async () => {
     for (const throws of [false, true]) {

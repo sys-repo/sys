@@ -23,7 +23,7 @@ export type RouteConfig = RouteSource & {
 export type DistInput = {
   readonly source: RouteSource;
   readonly prefix: string;
-  readonly integrity: string;
+  readonly pin: t.DistPin;
   readonly manifestLimits: t.FsPkg.Dist.Pinned.AdmitManifest.Limits;
   readonly limits: Readonly<t.R2.ReadRoute.Limits>;
   readonly authorize: t.R2.ReadRoute.Authorize;

@@ -17,15 +17,15 @@ export type Config = {
   };
 };
 
-/** Shared manifest pins, original bundle size, and recorded build base. */
+/** Shared content pins, original payload size, and recorded build base. */
 export type BuildRecord = {
   readonly publicAssetBase: string;
-  /** Original Vite Bundle total in bytes, before private/public projection. */
+  /** Original admitted payload total in bytes, before private/public projection. */
   readonly bundleSize: number;
   readonly selection: t.DistPins<Audience>;
 };
 
-/** Verified local audience and its captured recheck; callers own refusal policy. */
+/** Verified audience with a captured pin and document-stable recheck; callers own refusal policy. */
 export type BuildSelection =
   | t.FsPkg.Dist.Pinned.Verify.Failure
   | (t.FsPkg.Dist.Pinned.Verify.Verified & {

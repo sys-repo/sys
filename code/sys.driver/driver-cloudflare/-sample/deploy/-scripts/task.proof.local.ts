@@ -17,24 +17,24 @@ type RefusedGet =
 const ORIGIN = 'http://127.0.0.1:8080';
 
 /** Verify and snapshot the local private files for comparison with HTTP responses. */
-export async function prepareProof(root = ROOT) {
+export async function prepareProof(root = ROOT, snapshotFile = Fs.Snapshot.file) {
   const inputs = await readInputs(root);
   const selected = await selectBuild(inputs.buildRecord.selection.pins.private, root);
   require(selected.kind === 'verified', `Local Dist refused: ${selected.kind}.`);
   const { files, dir, evidence, verify } = selected;
-  const integrity = inputs.buildRecord.selection.pins.private['dist.json'];
+  const { manifestChecksum } = evidence;
 
   const expected = new Map<string, Uint8Array>();
   for (const path of files) {
-    const snapshot = await Fs.Snapshot.file({
+    const snapshot = await snapshotFile({
       root: dir,
       path: Fs.join(dir, path),
       maxBytes: path === 'dist.json' ? DIST_LIMITS.manifestBytes : DIST_LIMITS.fileBytes,
       timeout: 5_000,
     });
     const checksum = path === 'dist.json'
-      ? integrity
-      : Pkg.Dist.Part.hash(evidence.dist.hash.parts[path]);
+      ? manifestChecksum
+      : Pkg.Dist.Part.hash(evidence.content.parts[path]);
     require(
       Hash.sha256(snapshot.bytes) === checksum,
       'Local Dist changed during expectation capture.',
@@ -43,7 +43,7 @@ export async function prepareProof(root = ROOT) {
   }
   const rechecked = await verify();
   require(rechecked.kind === 'verified', 'Local Dist changed during expectation capture.');
-  return { inputs, files, expected, verify };
+  return { inputs, files, expected, manifestChecksum, verify };
 }
 
 /**
@@ -87,9 +87,9 @@ export async function proveWith(makeClient: typeof Fetch.make, options: t.ProofO
     }
   }
 
-  const { inputs, files, expected, verify } = await prepareProof(root);
+  const { inputs, files, expected, manifestChecksum, verify } = await prepareProof(root);
   const { config, buildRecord } = inputs;
-  const integrity = buildRecord.selection.pins.private['dist.json'];
+  const pin = buildRecord.selection.pins.private;
   const target = { accountId: config.accountId, ...config.targets.private };
   const maxRequests = 2 * expected.size + 6;
   const maxStorageReads = 2 * expected.size + 2;
@@ -97,7 +97,8 @@ export async function proveWith(makeClient: typeof Fetch.make, options: t.ProofO
   await report({
     result: 'selected',
     scope: 'private-shell',
-    integrity,
+    pin,
+    manifestChecksum,
     target,
     files,
     maxRequests,
@@ -202,7 +203,8 @@ export async function proveWith(makeClient: typeof Fetch.make, options: t.ProofO
       result: 'verified',
       scope: 'private-shell',
       publicDelivery: 'not exercised',
-      integrity,
+      pin,
+      manifestChecksum,
       target,
       requests,
       bootstrapAttempts,
@@ -219,7 +221,8 @@ export async function proveWith(makeClient: typeof Fetch.make, options: t.ProofO
         await report({
           ...refusedGet,
           result: 'refused',
-          integrity,
+          pin,
+          manifestChecksum,
           target,
           requests,
           bootstrapAttempts,

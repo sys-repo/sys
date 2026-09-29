@@ -7,7 +7,8 @@ const PATH = 'dist.private/';
 describe('R2 deployment sample: local shell status', () => {
   it('verified projection → renderer-neutral shell digest, not the manifest checksum', async () => {
     await using f = await shellFixture();
-    expect(f.digest).not.to.eql(f.pin['dist.json']);
+    expect(f.digest).to.eql(f.pin.digest);
+    expect(f.digest).not.to.eql(f.manifestChecksum);
     const { detail } = await buildStatus(f.pin, f.dir.absolute);
     expect(detail).to.eql({
       label: 'shell',
@@ -19,7 +20,7 @@ describe('R2 deployment sample: local shell status', () => {
     await using f = await shellFixture();
     const pin = { ...f.pin };
     const pending = buildStatus(pin, f.dir.absolute);
-    pin['dist.json'] = `sha256-${'0'.repeat(64)}`;
+    pin.digest = `sha256-${'0'.repeat(64)}`;
     const captured = await pending;
     const expected = await buildStatus(f.pin, f.dir.absolute);
     expect(captured.detail).to.eql(expected.detail);
@@ -51,11 +52,11 @@ describe('R2 deployment sample: local shell status', () => {
   });
 
   describe('unavailable local output', () => {
-    for (const kind of ['missing', 'integrity-mismatch', 'content-mismatch']) {
+    for (const kind of ['missing', 'pin-mismatch', 'content-mismatch']) {
       it(`${kind} → unavailable status rather than a digest`, async () => {
         await using f = await shellFixture();
-        const pin = kind === 'integrity-mismatch'
-          ? { 'dist.json': `sha256-${'0'.repeat(64)}` }
+        const pin = kind === 'pin-mismatch'
+          ? { ...f.pin, digest: `sha256-${'0'.repeat(64)}` }
           : f.pin;
         if (kind === 'missing') await Fs.remove(f.dir.join(PATH));
         if (kind === 'content-mismatch') {
@@ -71,7 +72,7 @@ describe('R2 deployment sample: local shell status', () => {
       await using f = await shellFixture();
       await Fs.remove(f.dir.join(PATH));
       await expectError(
-        () => buildStatus({ ...f.pin, 'dist.json': 'invalid' }, f.dir.absolute),
+        () => buildStatus({ ...f.pin, digest: 'invalid' }, f.dir.absolute),
         'Invalid sample Dist pin.',
       );
     });

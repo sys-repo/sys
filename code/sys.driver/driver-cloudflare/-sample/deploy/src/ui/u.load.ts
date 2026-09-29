@@ -1,7 +1,8 @@
 import { Fetch, Hash, Is, Json, Pkg, type t } from './common.ts';
 
 /**
- * Load the API, bundle total, and both manifests independently, without credentials or redirects.
+ * Observe the API, bundle total, and manifests without credentials, redirects, or pin authority.
+ * Schema recognition and document checksums do not verify payload or browser execution.
  */
 export function startFetches(
   origin: string,
@@ -54,7 +55,7 @@ export function startFetches(
     if (!Is.num(size) || !Number.isSafeInteger(size) || size < 0) {
       throw new Error('Invalid Dist size.');
     }
-    // Hash the received bytes, not reserialized JSON; size describes the distribution payload.
+    // Diagnostic only: checksum the received document; digest and size remain self-reports.
     if (!client.disposed) onManifest(audience, data.hash.digest, Hash.sha256(bytes), size);
   }
 

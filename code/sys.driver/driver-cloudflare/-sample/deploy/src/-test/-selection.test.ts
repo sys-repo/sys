@@ -1,4 +1,4 @@
-import { CompositeHash, Hash } from '@sys/crypto/hash';
+import { Hash } from '@sys/crypto/hash';
 import { describe, expect, Fs, it, type t } from '../-test.ts';
 import { configFrom, partitionBuild, selectionFiles, snapshotInputs } from '../m.deployment/mod.ts';
 import { fixtureConfig } from './u.fixture.ts';
@@ -112,7 +112,7 @@ describe('R2 deployment sample: filename policy', () => {
 describe('R2 deployment sample: build selection', () => {
   it('sample build record → shared pins and recorded base captured together', () => {
     const config = fixtureConfig();
-    const pin = { 'dist.json': `sha256-${'a'.repeat(64)}` };
+    const pin = { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` };
     const buildRecord = {
       selection: { pins: { private: pin, public: pin } },
       bundleSize: 551_353,
@@ -126,8 +126,8 @@ describe('R2 deployment sample: build selection', () => {
     const buildRecord = {
       selection: {
         pins: {
-          private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
-          public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+          private: { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` },
+          public: { scheme: 'sys.dist/v2', digest: `sha256-${'b'.repeat(64)}` },
         },
       },
       publicAssetBase: config.publicAssetBase,
@@ -137,16 +137,16 @@ describe('R2 deployment sample: build selection', () => {
     config.targets.public.prefix = 'other';
     config.publicAssetBase = 'https://other.example.test/other/';
     config.credentials.serve.secretAccessKey = 'OTHER_SECRET';
-    buildRecord.selection.pins.private['dist.json'] = `sha256-${'c'.repeat(64)}`;
-    buildRecord.selection.pins.public['dist.json'] = `sha256-${'d'.repeat(64)}`;
+    buildRecord.selection.pins.private.digest = `sha256-${'c'.repeat(64)}`;
+    buildRecord.selection.pins.public.digest = `sha256-${'d'.repeat(64)}`;
     buildRecord.publicAssetBase = 'https://other.example.test/other/';
     buildRecord.bundleSize = 898;
     expect(captured.config).to.eql(fixtureConfig());
     expect(captured.buildRecord).to.eql({
       selection: {
         pins: {
-          private: { 'dist.json': `sha256-${'a'.repeat(64)}` },
-          public: { 'dist.json': `sha256-${'b'.repeat(64)}` },
+          private: { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` },
+          public: { scheme: 'sys.dist/v2', digest: `sha256-${'b'.repeat(64)}` },
         },
       },
       publicAssetBase: fixtureConfig().publicAssetBase,
@@ -159,10 +159,18 @@ describe('R2 deployment sample: build selection', () => {
 
   it('old formats, missing or extra fields, or changed base → explicit rebuild guidance', () => {
     const config = fixtureConfig();
-    const pin = { 'dist.json': `sha256-${'a'.repeat(64)}` };
+    const pin = { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` };
     const selection = { pins: { private: pin, public: pin } };
     const buildRecord = { selection, publicAssetBase: config.publicAssetBase, bundleSize: 551_353 };
     const invalid = [
+      ...[
+        { 'dist.json': pin.digest },
+        { ...pin, 'dist.json': pin.digest },
+        { ...pin, integrity: pin.digest },
+      ].map((privatePin) => ({
+        ...buildRecord,
+        selection: { pins: { private: privatePin, public: pin } },
+      })),
       { private: pin, public: pin, publicAssetBase: config.publicAssetBase },
       { ...selection, bindings: { publicAssetBase: config.publicAssetBase } },
       { ...buildRecord, selection: { ...selection, bindings: {} } },
@@ -201,18 +209,8 @@ describe('R2 deployment sample: build selection', () => {
   });
 });
 
-/** Filename policy needs only an inventory; empty payloads avoid filesystem/build fixtures. */
-function inventory(paths: readonly string[]): t.DistPkg {
+/** Filename-only policy inputs, including invalid inventories; never used for admission. */
+function inventory(paths: readonly string[]): t.DistContent {
   const parts = Object.fromEntries(paths.map((path) => [path, `${Hash.sha256('')}:size=0`]));
-  return {
-    type: 'https://example.test/dist',
-    build: {
-      time: 0,
-      size: { total: 0, pkg: 0 },
-      builder: '@test/builder@1.0.0',
-      runtime: 'fixture',
-      hash: { policy: 'https://example.test/hash' },
-    },
-    hash: { digest: CompositeHash.digest(parts), parts },
-  };
+  return { scheme: 'sys.dist/v2', digest: Hash.sha256('filename-policy fixture'), parts };
 }

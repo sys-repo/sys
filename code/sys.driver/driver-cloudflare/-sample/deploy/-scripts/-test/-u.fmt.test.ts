@@ -8,8 +8,8 @@ import { describe, expect, Fmt, Fs, it, Obj, ROOT, Str, stripAnsi, type t } from
 
 const selection: t.DistPins<t.Audience> = Obj.deepFreeze({
   pins: {
-    public: { 'dist.json': `sha256-${'1'.repeat(64)}` },
-    private: { 'dist.json': `sha256-${'2'.repeat(64)}` },
+    public: { scheme: 'sys.dist/v2', digest: `sha256-${'1'.repeat(64)}` },
+    private: { scheme: 'sys.dist/v2', digest: `sha256-${'2'.repeat(64)}` },
   },
 });
 
@@ -95,12 +95,12 @@ describe('R2 deployment sample: next step formatting', () => {
 });
 
 describe('R2 deployment sample: build handoff formatting', () => {
-  it('selected pins → aligned full checksums and one combined publication command', () => {
+  it('selected pins → full schemes and digests with one combined publication command', () => {
     const actual = stripAnsi(formatBuildSelection(selection, { width: 40 }));
     expect(actual).to.eql(Str.dedent(`
-      Manifest   dist.pins.json
-        public:  ${selection.pins.public['dist.json']}
-        private: ${selection.pins.private['dist.json']}
+      Content    dist.pins.json
+        public:  sys.dist/v2 ${selection.pins.public.digest}
+        private: sys.dist/v2 ${selection.pins.private.digest}
 
       Next: publish to R2
       ${Fmt.hr({ width: 40 })}
@@ -109,12 +109,12 @@ describe('R2 deployment sample: build handoff formatting', () => {
     `));
   });
 
-  it('manifest filename → link to the sample build record', () => {
+  it('record filename → link to the sample build record', () => {
     const actual = formatBuildSelection(selection, { width: 40 });
     const target = Fs.Path.toFileUrl(Fs.join(ROOT, 'dist.pins.json'));
     const heading = actual.split('\n')[0];
     expect(heading).to.include(target.href);
-    expect(stripAnsi(heading)).to.eql('Manifest   dist.pins.json');
+    expect(stripAnsi(heading)).to.eql('Content    dist.pins.json');
   });
 
   it('explicit or terminal width → matching divider', () => {
