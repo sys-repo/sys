@@ -2,8 +2,8 @@
  * @module
  * Configure and execute Pull-owned remote materialization.
  *
- * Dist bundles authenticate an exact caller-supplied manifest pin and retain evidence on the
- * sealed generation. Sealing is point-in-time mode-bit evidence, not an OS security boundary. An
+ * Dist bundles verify payloads against an independent caller-supplied content pin and retain evidence
+ * on the sealed generation. Sealing is point-in-time mode-bit evidence, not an OS security boundary. An
  * optional projection is a mutable copy and carries no verification claim. GitHub bundles remain
  * bounded downloads, not verified Dist materialization.
  */

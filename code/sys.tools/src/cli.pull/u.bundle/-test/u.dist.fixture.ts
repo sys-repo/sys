@@ -2,7 +2,7 @@ import { Fs, Pkg, type t } from '../../../-test.ts';
 
 export type DistServerFixture = {
   readonly manifest: t.StringUrl;
-  readonly integrity: t.StringHash;
+  readonly pin: t.DistPin;
   readonly dist: t.DistPkg;
   readonly requests: () => number;
 };
@@ -44,6 +44,7 @@ export async function usingDistServer(
     builder: { name: '@sample/builder', version: '1.0.0' },
     save: true,
   });
+  if (computed.kind !== 'computed') throw computed.error;
   const files = new Map<string, Uint8Array>();
   for (const path of ['dist.json', ...Object.keys(computed.dist.hash.parts)]) {
     const read = await Fs.read(Fs.join(sourceDir, path));
@@ -64,7 +65,7 @@ export async function usingDistServer(
     const { port } = server.addr;
     await fn({
       manifest: `http://127.0.0.1:${port}/dist.json` as t.StringUrl,
-      integrity: computed.manifest.integrity,
+      pin: computed.pin,
       dist: computed.dist,
       requests: () => requests,
     });

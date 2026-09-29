@@ -1,5 +1,5 @@
 import { expect } from '../../-test.ts';
-import { Fs, Json, type t } from '../common.ts';
+import { Fs, Hash, Json, Pkg, type t } from '../common.ts';
 
 export type FixtureCaptured =
   | { kind: 'text'; status: number; body: string }
@@ -7,8 +7,6 @@ export type FixtureCaptured =
 
 export type FixtureHonoCtx = Parameters<t.HttpServer.Hono.MiddlewareHandler>[0];
 export type FixtureHonoNext = Parameters<t.HttpServer.Hono.MiddlewareHandler>[1];
-
-const DIST_DIGEST = 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18';
 
 /**
  * Test helpers
@@ -23,8 +21,14 @@ export const Fixture = {
     await Fs.write(`${dir}/${rel}`, data);
   },
 
-  distDoc(input: { readonly builtAt: number; readonly totalBytes?: number }): t.DistPkg {
-    const { builtAt, totalBytes = 2_100_000 } = input;
+  distDoc(input: {
+    readonly builtAt: number;
+    readonly totalBytes?: number;
+    readonly indexHtml?: string;
+  }): t.DistPkg {
+    const { builtAt, totalBytes = 2_100_000, indexHtml = '<html></html>' } = input;
+    const bytes = new TextEncoder().encode(indexHtml);
+    const parts = { 'index.html': `${Hash.sha256(bytes)}:size=${bytes.length}` };
     return {
       type: 'https://jsr.io/@sys/types/0.0.281/src/types/t.Pkg.dist.ts',
       pkg: { name: '@sys/example', version: '1.2.3' },
@@ -36,10 +40,9 @@ export const Fixture = {
         hash: { policy: 'https://jsr.io/@sys/fs/0.0.294/src/m.Pkg/m.Pkg.Dist.ts' },
       },
       hash: {
-        digest: DIST_DIGEST,
-        parts: {
-          './index.html': 'sha256-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        },
+        scheme: 'sys.dist/v2',
+        digest: Hash.sha256(Pkg.Dist.Content.encode(parts)),
+        parts,
       },
     };
   },
@@ -53,10 +56,11 @@ export const Fixture = {
   }) {
     const cwd = await Fixture.makeTempDir(input.section);
     const artifact = input.artifact ?? 'site';
-    const dist = Fixture.distDoc({ builtAt: input.builtAt });
+    const indexHtml = input.indexHtml ?? '<!doctype html>';
+    const dist = Fixture.distDoc({ builtAt: input.builtAt, indexHtml });
     const configText = input.configText ?? `name: View\ndir: ./${artifact}\n`;
 
-    await Fixture.writeFile(cwd, `${artifact}/index.html`, input.indexHtml ?? '<!doctype html>');
+    await Fixture.writeFile(cwd, `${artifact}/index.html`, indexHtml);
     await Fixture.writeFile(cwd, `${artifact}/dist.json`, `${Json.stringify(dist, '  ')}\n`);
     await Fixture.writeFile(cwd, '-config/@sys.tools.serve/view.yaml', configText);
 

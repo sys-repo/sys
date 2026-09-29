@@ -10,8 +10,7 @@ const LIMITS: t.GithubPull.Limits = {
   totalTime: 1000,
 };
 
-const INTEGRITY: t.StringHash = `sha256-${'a'.repeat(64)}`;
-const RECEIVED: t.StringHash = `sha256-${'b'.repeat(64)}`;
+const PIN: t.DistPin = { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` };
 
 describe('cli.pull/u.bundle → kind dispatch', () => {
   it('dispatches Dist bundles only to the pinned materializer', async () => {
@@ -19,7 +18,7 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
     const bundle: t.PullTool.ConfigYaml.DistBundle = {
       kind: 'dist',
       manifest: 'https://example.com/dist.json',
-      integrity: INTEGRITY,
+      pin: PIN,
       store: './.dist-store',
     };
     const expected: t.PullTool.Bundle.Dist.MaterializationFailure = {
@@ -27,10 +26,9 @@ describe('cli.pull/u.bundle → kind dispatch', () => {
       kind: 'materialization-failed',
       generation: {
         kind: 'failed',
-        stage: 'manifest-fetch',
-        reason: 'integrity-mismatch',
+        stage: 'manifest-admission',
+        reason: 'pin-mismatch',
         cleanup: 'not-needed',
-        manifestChecksum: { expected: INTEGRITY, received: RECEIVED },
       },
       projection: { kind: 'not-run' },
     };

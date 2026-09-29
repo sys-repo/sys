@@ -1,4 +1,4 @@
-import { Schema, type t } from '../common.ts';
+import { Is, Pkg, Schema, type t, Url } from '../common.ts';
 
 const RelativeDirSchema = Schema.Type.String({
   pattern:
@@ -46,7 +46,7 @@ const BundleDistSchema = Schema.Type.Object(
   {
     kind: Schema.Type.Literal('dist'),
     manifest: Schema.Type.String({ pattern: '^https?://[^\\s]+$' }),
-    integrity: Schema.Type.String({ pattern: '^sha256-[0-9a-f]{64}$' }),
+    pin: Schema.Type.Unknown(),
     store: RelativeDirSchema,
     project: Schema.Type.Optional(MutableTargetSchema),
   },
@@ -84,9 +84,29 @@ export const PullYamlSchema = {
   },
 
   validate(value: unknown) {
-    const ok = Schema.Value.Check(PullYamlSchema.schema, value);
-    const errors = ok ? [] : [...Schema.Value.Errors(PullYamlSchema.schema, value)];
-    return { ok, errors } as const;
+    if (!Schema.Value.Check(PullYamlSchema.schema, value)) {
+      return { ok: false, errors: [...Schema.Value.Errors(PullYamlSchema.schema, value)] } as const;
+    }
+    const errors: t.Schema.Value.Error[] = [];
+    for (const [index, bundle] of (value.bundles ?? []).entries()) {
+      if (bundle.kind !== 'dist') continue;
+      if (!isManifestUrl(bundle.manifest)) {
+        errors.push(...fieldErrors(
+          bundle.manifest,
+          `/bundles/${index}/manifest`,
+          'Expected an absolute HTTP(S) Dist manifest URL without userinfo.',
+        ));
+      }
+      // Pkg owns pin semantics; schema diagnostics only locate the refusal in authored YAML.
+      if (!Pkg.Is.distPin(bundle.pin)) {
+        errors.push(...fieldErrors(
+          bundle.pin,
+          `/bundles/${index}/pin`,
+          'Expected an independent canonical Dist content pin.',
+        ));
+      }
+    }
+    return { ok: errors.length === 0, errors } as const;
   },
 
   schema: Schema.Type.Object(
@@ -101,3 +121,20 @@ export const PullYamlSchema = {
     { additionalProperties: false },
   ),
 } as const;
+
+/** Match execution's source admission before any configured bundle can acquire content. */
+function isManifestUrl(input: string): boolean {
+  if (!Is.urlString(input)) return false;
+  const parsed = Url.parse(input);
+  if (!parsed.ok) return false;
+  const url = parsed.toURL();
+  return !url.username && !url.password;
+}
+
+function fieldErrors(value: unknown, path: string, message: string): t.Schema.Value.Error[] {
+  return [...Schema.Value.Errors(Schema.Type.Never(), value)].map((error) => ({
+    ...error,
+    path,
+    message,
+  }));
+}

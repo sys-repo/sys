@@ -13,7 +13,9 @@ describe('cli.pull/u.bundle → config stability', () => {
           bundles:
             - kind: dist
               manifest: ${fixture.manifest}
-              integrity: ${fixture.integrity}
+              pin:
+                scheme: ${fixture.pin.scheme}
+                digest: ${fixture.pin.digest}
               store: ./.dist-store
               project:
                 dir: pulled/sample
@@ -24,7 +26,7 @@ describe('cli.pull/u.bundle → config stability', () => {
         const bundle: t.PullTool.ConfigYaml.DistBundle = {
           kind: 'dist',
           manifest: fixture.manifest,
-          integrity: fixture.integrity,
+          pin: fixture.pin,
           store: './.dist-store',
           project: { dir: 'pulled/sample', mode: 'replace' },
         };

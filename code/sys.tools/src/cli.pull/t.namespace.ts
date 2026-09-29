@@ -62,7 +62,8 @@ export declare namespace PullTool {
   export type CliArgs = t.Tools.CliArgs & {
     config?: string;
     manifest?: string;
-    integrity?: string;
+    scheme?: string;
+    digest?: string;
     store?: string;
     project?: string;
     mode?: t.GithubPull.Mode;
@@ -86,7 +87,7 @@ export declare namespace PullTool {
     };
 
     /**
-     * Result truth for one checksum-pinned Dist bundle.
+     * Result truth for one content-pinned Dist bundle.
      *
      * `generation` retains Server verification evidence. `projection` reports only mutable-copy
      * settlement and never carries that evidence.
@@ -159,13 +160,20 @@ export declare namespace PullTool {
   /**
    * Strict durable configuration for Dist materialization and generic GitHub pulls.
    *
-   * A Dist bundle requires an independently supplied manifest pin and integrity-addressed store.
+   * A Dist bundle requires an independent content pin and a scheme-bound content-addressed store.
    * Its optional project is a mutable convenience, not artifact authority.
+   *
+   * Standard layout: `<workspace>/-config/@sys.tools.pull/<name>.yaml`. The anchor is two levels
+   * above the YAML directory; `dir` resolves from that anchor, or is used directly when absolute.
+   * Store and mutable targets resolve beneath the resulting directory, not the terminal cwd.
+   * Relocating the configuration can change output paths without changing its contents.
    */
   export namespace ConfigYaml {
-    /** Optional mutable copy of a pinned Dist generation. */
+    /** Optional mutable copy; HTML may be rewritten without inheriting generation verification. */
     export type DistProject = {
+      /** Child directory beneath resolved YAML `dir`. */
       dir: t.StringRelativeDir;
+      /** `create` refuses occupancy; `replace` removes the target without rollback on later failure. */
       mode: t.GithubPull.Mode;
     };
 
@@ -178,11 +186,12 @@ export declare namespace PullTool {
     /** One supported configured remote bundle. */
     export type Bundle = DistBundle | GithubReleaseBundle | GithubRepoBundle;
 
-    /** Checksum-pinned Dist authority and optional mutable projection. */
+    /** Content-pinned Dist authority and optional mutable projection. */
     export type DistBundle = {
       kind: 'dist';
       manifest: t.StringUrl;
-      integrity: t.StringHash;
+      pin: t.DistPin;
+      /** Sealed generation store beneath resolved YAML `dir`. */
       store: t.StringRelativeDir;
       project?: DistProject;
     };
@@ -207,6 +216,7 @@ export declare namespace PullTool {
 
     /** Strict YAML document owned by Pull. */
     export type Doc = {
+      /** Execution root: `.` selects the config anchor; relative paths resolve from it. */
       dir: t.StringDir;
       bundles?: Bundle[];
     };

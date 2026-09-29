@@ -10,29 +10,31 @@ const TOTAL_BYTES = 1024 * MIB;
 const MAX_RESOURCES = 4096;
 
 /**
- * Materialize one checksum-pinned generation, then optionally copy it into a mutable projection.
+ * Materialize one content-pinned generation, then optionally copy it into a mutable projection.
  *
  * Only an `existing` or `promoted` generation may be copied. Verification evidence remains on
  * `generation`; copied or HTML-rewritten bytes never inherit it. A projection failure preserves the
  * pinned generation outcome while returning an unsuccessful bundle result.
+ * The Rooted factory is an internal projection-test seam; production uses the public Fs capability.
  */
 export async function pullDistBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.DistBundle,
   options: t.PullTool.Bundle.RunOptions = {},
+  createRooted: t.FsRooted.Lib['create'] = Fs.Capability.Rooted.create,
 ): Promise<t.PullTool.Bundle.Dist.Result> {
   const spinner = options.silent ? undefined : Cli.spinner();
   const life = Rx.abortable(options.until);
 
   try {
-    spinner?.start(Fmt.spinnerText('materializing checksum-pinned dist...'));
+    spinner?.start(Fmt.spinnerText('materializing content-pinned dist...'));
     await Schedule.micro();
     const source = manifestSource(bundle.manifest);
     const canonicalBase = await Fs.realPath(baseDir) as t.StringDir;
     const storeDir = resolveWithin(canonicalBase, bundle.store, 'Dist store');
     const generation = await Dist.materialize({
       manifestUrl: source.href,
-      integrity: bundle.integrity,
+      pin: bundle.pin,
       storeDir,
       policy: materializePolicy(source.origin),
       until: life.signal,
@@ -64,6 +66,7 @@ export async function pullDistBundle(
       generation,
       project,
       life.signal,
+      createRooted,
     );
     if (projection.kind === 'failed') {
       spinner?.fail(Fmt.spinnerText(projection.error));
@@ -89,6 +92,7 @@ async function projectGeneration(
   generation: t.Dist.Existing | t.Dist.Promoted,
   project: t.PullTool.ConfigYaml.DistProject,
   signal: AbortSignal,
+  createRooted: t.FsRooted.Lib['create'],
 ): Promise<t.PullTool.Bundle.Dist.Projection.Success | t.PullTool.Bundle.Dist.Projection.Failure> {
   let dir: t.StringAbsoluteDir;
   try {
@@ -107,7 +111,7 @@ async function projectGeneration(
   let rooted: t.FsRooted.Instance;
   let target: t.FsRooted.Target<'directory'>;
   try {
-    rooted = await Fs.Capability.Rooted.create({ root: baseDir, until: signal });
+    rooted = await createRooted({ root: baseDir, until: signal });
     const admitted = await rooted.Target.admit(
       [{ kind: 'directory', path: project.dir }],
       { until: signal },
@@ -236,7 +240,7 @@ async function populateProjectionStage(
   generation: t.Dist.Existing | t.Dist.Promoted,
   signal: AbortSignal,
 ): Promise<void> {
-  const paths = ['dist.json', ...Object.keys(generation.verification.dist.hash.parts)];
+  const paths = ['dist.json', ...Object.keys(generation.verification.content.parts)];
   const admitted = await stage.files.Target.admit(
     paths.map((path) => ({ kind: 'file' as const, path })),
     { until: signal },

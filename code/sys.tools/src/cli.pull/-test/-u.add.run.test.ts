@@ -4,7 +4,7 @@ import { parseArgs } from '../u.args.ts';
 
 const CONFIG = './-config/@sys.tools.pull/components.yaml';
 const MANIFEST = 'https://example.com/ui.components/dist.json';
-const INTEGRITY = `sha256-${'a'.repeat(64)}`;
+const DIGEST = `sha256-${'a'.repeat(64)}`;
 
 describe('@sys/tools/pull add run adapter', () => {
   it('creates a pinned config without requiring --non-interactive', async () => {
@@ -33,7 +33,7 @@ describe('@sys/tools/pull add run adapter', () => {
     expect(await Fs.exists(Fs.join(cwd, CONFIG))).to.eql(false);
   });
 
-  it('fails when publisher integrity is absent', async () => {
+  it('missing independent content pin → refuse before config creation', async () => {
     const cwd = await tempRoot();
     const res = await captureInfo(() =>
       runAdd(
@@ -51,7 +51,7 @@ describe('@sys/tools/pull add run adapter', () => {
     );
 
     expect(res.value.exit).to.eql(1);
-    expect(res.output).to.contain('publisher-provided SHA-256');
+    expect(res.output).to.contain('canonical independently supplied content pin');
     expect(await Fs.exists(Fs.join(cwd, CONFIG))).to.eql(false);
   });
 });
@@ -64,8 +64,10 @@ function args(...extra: string[]): string[] {
     CONFIG,
     '--manifest',
     MANIFEST,
-    '--integrity',
-    INTEGRITY,
+    '--scheme',
+    'sys.dist/v2',
+    '--digest',
+    DIGEST,
     '--store',
     './.dist-store',
     '--project',

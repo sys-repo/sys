@@ -10,7 +10,7 @@ const LIMITS: t.GithubPull.Limits = {
   totalTime: 30_000,
 };
 
-const INTEGRITY = `sha256-${'a'.repeat(64)}` as t.StringHash;
+const PIN: t.DistPin = { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` };
 
 describe('cli.pull/u.bundle → menu labels', () => {
   it('renders bundle mutable targets as rooted relative paths', () => {
@@ -37,7 +37,7 @@ describe('cli.pull/u.bundle → menu labels', () => {
     const bundle: t.PullTool.ConfigYaml.DistBundle = {
       kind: 'dist',
       manifest: 'https://files.example/dist.json',
-      integrity: INTEGRITY,
+      pin: PIN,
       store: './.dist-store',
     };
 
@@ -79,7 +79,7 @@ function distBundle(manifest: string, project: string): t.PullTool.ConfigYaml.Di
   return {
     kind: 'dist',
     manifest: manifest as t.StringUrl,
-    integrity: INTEGRITY,
+    pin: PIN,
     store: './.dist-store',
     project: { dir: project as t.StringRelativeDir, mode: 'replace' },
   };

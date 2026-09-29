@@ -25,6 +25,12 @@ with code you trust.
 Use each command's `--help` for options and `dsl` for operational guidance. See the
 [package API](https://jsr.io/@sys/tools/doc) for programmatic entry points.
 
+## Static Serve status
+
+Serve may display canonical Dist manifest metadata, but it does not require an independent pin or
+verify served payload bytes. The displayed digest does not authenticate those bytes; size and build
+time are descriptive manifest metadata, not measured or verified payload facts.
+
 ## Deploy failure observations
 
 `Deploy` from `@sys/tools/deploy` exposes two lookups for exceptions escaping either `Deploy.push`
@@ -72,27 +78,39 @@ source concurrently: their locks do not interoperate. Retire only attributed obs
 confirmed quiescence and explicit cleanup approval. File age or an empty lock file is not evidence
 that deletion is safe. Deploy does not automatically migrate or delete old metadata.
 
-## Checksum-pinned Dist bundles
+## Content-pinned Dist bundles
 
-Pull verifies a Dist bundle against a trusted, publisher-provided checksum of the exact serialized
-`dist.json`. That pin authenticates the manifest's asset checksums and declared sizes. Hashing the
-downloaded manifest alone cannot establish the publisher's authority.
+Pull verifies a Dist bundle against an independently supplied `{ scheme: 'sys.dist/v2', digest }`
+content pin. The digest binds exact payload paths, file checksums, and byte lengths—not serialized
+`dist.json`. Root manifest package labels, build metadata, and JSON serialization are outside
+content identity; metadata inside payload files remains content. `manifestChecksum` separately
+identifies exact document bytes. A pin is only as trustworthy as its source: hashing the same
+download cannot establish the publisher's authority.
 
 The store keeps generations by pin. Rooted seals them by clearing filesystem write bits and checking
 the resulting mode state. This is point-in-time resistance to modification—not an OS sandbox,
 retention lock, hostile-process boundary, ACL guarantee, or sudden-power-loss guarantee.
 
-An optional projection is a mutable copy for local use. It inherits neither the generation's
-verification evidence nor its sealing evidence.
+An optional projection is a mutable copy for local use. Its HTML may be rewritten, and it inherits
+neither the generation's verification evidence nor its sealing evidence. `create` refuses an
+occupied target. `replace` removes the existing target before promotion and does not restore it if a
+later step fails; it is not rollback-safe replacement.
 
-Create a saved Pull configuration through the CLI. Replace the example URL and checksum with your
-publisher's values:
+Use the standard configuration layout: `<workspace>/-config/@sys.tools.pull/<name>.yaml`. Pull
+derives the workspace anchor two levels above the YAML directory, then resolves YAML `dir` from that
+anchor (`.` selects the anchor; an absolute `dir` is used directly). `store` and `project.dir`
+resolve beneath that resulting directory, not the terminal's current directory. Moving a
+configuration can therefore change output locations without changing its contents.
+
+Create a saved Pull configuration through the CLI. Replace the example URL and content digest with
+your publisher's independently supplied values:
 
 ```bash
 deno run -A jsr:@sys/tools pull add \
   --config ./-config/@sys.tools.pull/components.yaml \
   --manifest https://example.com/ui.components/dist.json \
-  --integrity 'sha256-<publisher-provided-manifest-hash>' \
+  --scheme sys.dist/v2 \
+  --digest 'sha256-<publisher-provided-content-digest>' \
   --store ./.dist-store \
   --project ./view/components \
   --mode replace

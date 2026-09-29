@@ -34,6 +34,14 @@ export const Fmt = {
         },
         {
           kind: 'lines',
+          label: 'Dist status',
+          items: [
+            'Static Serve does not require an independent pin or verify served payload bytes.',
+            'Displayed Dist metadata does not authenticate served bytes; size and build time are descriptive.',
+          ],
+        },
+        {
+          kind: 'lines',
           label: 'Examples',
           items: [
             `${cmd} --non-interactive --dir .`,

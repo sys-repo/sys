@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 import { Pull } from '../mod.ts';
 
 const CONFIG = '-config/@sys.tools.pull/view.yaml';
-const INTEGRITY = `sha256-${'a'.repeat(64)}`;
+const DIGEST = `sha256-${'a'.repeat(64)}`;
 
 describe('@sys/tools/pull materialization resolver', () => {
   it('resolves only configured mutable output directories', async () => {
@@ -41,7 +41,9 @@ describe('@sys/tools/pull materialization resolver', () => {
           bundles:
             - kind: dist
               manifest: https://example.com/dist.json
-              integrity: ${INTEGRITY}
+              pin:
+                scheme: sys.dist/v2
+                digest: ${DIGEST}
               store: ./.dist-store
         `).trimStart(),
         { force: true },
@@ -62,7 +64,9 @@ describe('@sys/tools/pull materialization resolver', () => {
           bundles:
             - kind: dist
               manifest: https://example.com/dist.json
-              integrity: ${INTEGRITY}
+              pin:
+                scheme: sys.dist/v2
+                digest: ${DIGEST}
               store: ./.dist-store
               project:
                 dir: ./.dist-store/project
@@ -108,14 +112,18 @@ function yaml() {
     bundles:
       - kind: dist
         manifest: https://files.example/sample.package/dist.json
-        integrity: ${INTEGRITY}
+        pin:
+          scheme: sys.dist/v2
+          digest: ${DIGEST}
         store: ./.dist-store
         project:
           dir: view/.pulled/sample.package
           mode: replace
       - kind: dist
         manifest: https://files.example/no-project/dist.json
-        integrity: sha256-${'b'.repeat(64)}
+        pin:
+          scheme: sys.dist/v2
+          digest: sha256-${'b'.repeat(64)}
         store: ./.dist-store
       - kind: github:release
         repo: sample/repository

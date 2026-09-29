@@ -2,7 +2,10 @@ import { Fs, Pkg, Str, type t, Time } from './common.ts';
 
 const ONE_MINUTE = 60 * 1000;
 
-/** Load optional dist metadata and project it into scalar service-status details. */
+/**
+ * Project optional canonical manifest metadata into scalar service-status details.
+ * These are unverified observations: static Serve neither checks payload bytes nor requires a pin.
+ */
 export async function distStatusDetails(
   location: t.ServeTool.LocationYaml.Location,
 ): Promise<readonly t.Service.Detail[]> {
@@ -22,7 +25,7 @@ async function loadDist(
 ): Promise<t.DistPkg | undefined> {
   for (const dir of candidateDirs(location)) {
     const loaded = await Pkg.Dist.load(dir);
-    if (loaded.dist) return loaded.dist;
+    if (loaded.kind === 'canonical') return loaded.dist;
   }
   return undefined;
 }

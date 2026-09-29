@@ -101,11 +101,12 @@ describe('cli.pull summary formatting', () => {
   });
 
   it('separates sealed generation evidence from mutable projection truth', () => {
-    const integrity = `sha256-${'a'.repeat(64)}` as t.StringHash;
+    const content = contentFixture();
+    const pin: t.DistPin = { scheme: content.scheme, digest: content.digest };
     const bundle: t.PullTool.ConfigYaml.DistBundle = {
       kind: 'dist',
       manifest: 'https://files.example/dist.json',
-      integrity,
+      pin,
       store: './.dist-store',
       project: { dir: 'dev', mode: 'replace' },
     };
@@ -115,10 +116,10 @@ describe('cli.pull summary formatting', () => {
       generation: {
         kind: 'existing',
         dir: '/tmp/.dist-store/generation' as t.StringAbsoluteDir,
-        integrity,
+        pin,
         verification: {
-          integrity,
-          dist: distFixture(),
+          manifestChecksum: `sha256-${'a'.repeat(64)}`,
+          content,
           manifestBytes: 1200,
           assets: { files: 1, totalBytes: 42, packageBytes: 42 },
         },
@@ -136,6 +137,8 @@ describe('cli.pull summary formatting', () => {
     const text = Cli.stripAnsi(Fmt.pullSummary({ bundle, data }));
     expect(text).to.match(/source\s+files\.example\/dist\.json/);
     expect(text).to.match(/generation\s+existing/);
+    expect(text).to.include(`${pin.scheme} ${pin.digest}`);
+    expect(text).to.not.include(data.generation.verification.manifestChecksum);
     expect(text).to.match(/files\s+1/);
     expect(text).to.match(/sealed\s+\/tmp\/\.dist-store\/generation/);
     expect(text).to.include('/tmp/dev (replace, mutable)');
@@ -174,22 +177,10 @@ describe('cli.pull summary formatting', () => {
   });
 });
 
-function distFixture(): t.DistPkg {
+function contentFixture(): t.DistContent {
   return {
-    type: 'https://jsr.io/@sample/foo',
-    pkg: { name: '@sample/foo', version: '1.0.0' },
-    build: {
-      time: 0,
-      size: { total: 42, pkg: 42 },
-      builder: '@sample/builder@1.0.0',
-      runtime: 'deno=2.6.0:v8=14.5.201.2-rusty:typescript=5.9.2',
-      hash: { policy: 'https://jsr.io/@sys/fs/0.0.229/src/m.Pkg/m.Pkg.Dist.ts' },
-    },
-    hash: {
-      digest: `sha256-${'b'.repeat(64)}`,
-      parts: {
-        'index.html': `sha256-${'c'.repeat(64)}` as t.StringFileHashUri,
-      },
-    },
+    scheme: 'sys.dist/v2',
+    digest: `sha256-${'b'.repeat(64)}`,
+    parts: { 'index.html': `sha256-${'c'.repeat(64)}:size=42` },
   };
 }

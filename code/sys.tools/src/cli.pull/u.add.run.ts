@@ -1,4 +1,4 @@
-import { done, Err, type t } from './common.ts';
+import { done, Err, Obj, Pkg, type t } from './common.ts';
 import { addDistBundle } from './u.add.ts';
 import { Fmt } from './u.fmt.ts';
 
@@ -8,12 +8,16 @@ export async function runAdd(
 ): Promise<t.RunReturn> {
   try {
     if (args._.length > 1) throw new Error(`Unexpected argument: ${args._[1]}`);
+    const pin = { scheme: args.scheme, digest: args.digest };
+    if (Obj.hasOwn(args, 'integrity') || !Pkg.Is.distPin(pin)) {
+      throw new Error('Pull add: a canonical independently supplied content pin is required.');
+    }
 
     const result = await addDistBundle({
       cwd,
       config: args.config ?? '',
       manifest: args.manifest ?? '',
-      integrity: args.integrity ?? '',
+      pin,
       store: args.store ?? '',
       project: args.project,
       mode: args.mode,

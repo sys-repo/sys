@@ -1,4 +1,4 @@
-import { Fs, Is, Str, type t, Url, Yaml, YamlConfig } from './common.ts';
+import { Fs, Is, Obj, Pkg, Str, type t, Url, Yaml, YamlConfig } from './common.ts';
 import { validateBundleIsolation } from './u.bundle/u.isolation.ts';
 import { PullFs, PullYamlSchema, validatePullYamlText } from './u.yaml/mod.ts';
 
@@ -6,10 +6,11 @@ export type PullAddInput = {
   cwd: t.StringDir;
   config: string;
   manifest: string;
-  integrity: string;
+  pin: t.DistPin;
   store: string;
   project?: string;
-  mode?: t.GithubPull.Mode;
+  /** Raw operator choice, admitted to create|replace before persistence. */
+  mode?: string;
   dryRun?: boolean;
 };
 
@@ -91,17 +92,21 @@ function addBundle(
 }
 
 function resolveBundle(input: PullAddInput): t.PullTool.ConfigYaml.DistBundle {
-  const manifest = manifestUrl(input.manifest);
-  const integrity = canonicalIntegrity(input.integrity);
-  const store = relativeDir(input.store, '--store');
+  const manifest = parseManifestUrl(input.manifest);
+  if (Obj.hasOwn(input, 'integrity') || !Pkg.Is.distPin(input.pin)) {
+    throw new Error('Pull add: a canonical independently supplied content pin is required.');
+  }
+  const pin = Object.freeze({ scheme: input.pin.scheme, digest: input.pin.digest });
+  const store = parseRelativeDir(input.store, '--store');
   const project = optionalProject(input.project, input.mode);
   if (project && pathsOverlap(store, project.dir)) {
     throw new Error('Pull add: --project must be separate from the sealed-generation --store.');
   }
-  return { kind: 'dist', manifest, integrity, store, project };
+  return { kind: 'dist', manifest, pin, store, project };
 }
 
-function manifestUrl(input: string): t.StringUrl {
+/** Internal manifest admission shared by durable add and interactive field validation. */
+export function parseManifestUrl(input: string): t.StringUrl {
   const text = String(input ?? '').trim();
   if (!Is.urlString(text)) {
     throw new Error('Pull add: --manifest must be an absolute HTTP(S) URL.');
@@ -116,17 +121,9 @@ function manifestUrl(input: string): t.StringUrl {
   return url.href as t.StringUrl;
 }
 
-function canonicalIntegrity(input: string): t.StringHash {
-  const text = String(input ?? '').trim();
-  if (!/^sha256-[0-9a-f]{64}$/.test(text)) {
-    throw new Error('Pull add: --integrity must be a canonical publisher-provided SHA-256.');
-  }
-  return text as t.StringHash;
-}
-
 function optionalProject(
   input: string | undefined,
-  mode: t.GithubPull.Mode | undefined,
+  mode: PullAddInput['mode'],
 ): t.PullTool.ConfigYaml.DistProject | undefined {
   const text = String(input ?? '').trim();
   if (!text) {
@@ -136,10 +133,11 @@ function optionalProject(
   if (mode !== 'create' && mode !== 'replace') {
     throw new Error('Pull add: --project requires --mode create|replace.');
   }
-  return { dir: relativeDir(text, '--project'), mode };
+  return { dir: parseRelativeDir(text, '--project'), mode };
 }
 
-function relativeDir(input: string, flag: string): t.StringRelativeDir {
+/** Internal child-path admission; final YAML validation still precedes persistence. */
+export function parseRelativeDir(input: string, flag: string): t.StringRelativeDir {
   const text = String(input ?? '').trim();
   if (!text) throw new Error(`Pull add: missing required flag: ${flag}`);
   if (text.startsWith('/') || text.startsWith('~') || /^[A-Za-z]:/.test(text)) {
@@ -196,7 +194,8 @@ function sameDist(
   a: t.PullTool.ConfigYaml.DistBundle,
   b: t.PullTool.ConfigYaml.DistBundle,
 ): boolean {
-  return a.manifest === b.manifest && a.integrity === b.integrity && samePath(a.store, b.store) &&
+  return a.manifest === b.manifest && a.pin.scheme === b.pin.scheme &&
+    a.pin.digest === b.pin.digest && samePath(a.store, b.store) &&
     sameProject(a.project, b.project);
 }
 

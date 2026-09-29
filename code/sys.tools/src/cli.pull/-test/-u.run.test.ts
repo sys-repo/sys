@@ -1,4 +1,4 @@
-import { describe, expect, expectError, Fs, it, Str } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Str, Yaml } from '../../-test.ts';
 import type { t } from '../common.ts';
 import { Pull } from '../mod.ts';
 import { removeDistStore, usingDistServer } from '../u.bundle/-test/u.dist.fixture.ts';
@@ -22,8 +22,8 @@ describe('@sys/tools/pull programmatic execution', () => {
 
         expect(pulled.data.kind).to.eql('dist');
         expect(pulled.data.generation.kind).to.eql('promoted');
-        expect(pulled.data.generation.integrity).to.eql(fixture.integrity);
-        expect(pulled.data.generation.verification.dist.pkg?.name).to.eql('@sample/foo');
+        expect(pulled.data.generation.pin).to.eql(fixture.pin);
+        expect(pulled.data.generation.verification.content).to.eql(fixture.dist.hash);
         expect(pulled.data.projection.kind).to.eql('projected');
 
         const generationIndex = await Fs.readText(
@@ -105,14 +105,117 @@ describe('@sys/tools/pull programmatic execution', () => {
     await usingDistServer(async (fixture) => {
       await withTmpDir(async (cwd) => {
         const config = Fs.join(cwd, CONFIG);
-        const wrong = { ...fixture, integrity: `sha256-${'f'.repeat(64)}` as t.StringHash };
+        const wrong = { ...fixture, pin: { ...fixture.pin, digest: `sha256-${'f'.repeat(64)}` } };
         await Fs.write(config, distYaml(wrong), { force: true });
 
         await expectError(
           () => Pull.run({ cwd, config: `./${CONFIG}` }),
-          'Dist materialization failed: manifest-fetch/integrity-mismatch',
+          'Dist materialization failed: manifest-admission/pin-mismatch',
         );
+        expect(fixture.requests()).to.eql(1); // Manifest only; no payload acquisition.
         expect(await Fs.exists(Fs.join(cwd, 'pulled/sample'))).to.eql(false);
+      });
+    });
+  });
+
+  for (const kind of ['old-only', 'mixed'] as const) {
+    it(`${kind} Dist configuration → refuse every bundle before remote acquisition`, async () => {
+      await usingDistServer(async (fixture) => {
+        await withTmpDir(async (cwd) => {
+          const config = Fs.join(cwd, CONFIG);
+          const base = { kind: 'dist', manifest: fixture.manifest, store: './.dist-store' };
+          const canonical = { ...base, pin: fixture.pin };
+          const legacy = {
+            ...base,
+            integrity: fixture.pin.digest,
+            project: { dir: 'pulled/sample', mode: 'replace' },
+          };
+          const invalid = kind === 'old-only' ? legacy : { ...legacy, pin: fixture.pin };
+          // A later invalid bundle must prevent acquisition of the earlier valid one too.
+          const yaml = Yaml.stringify({ dir: '.', bundles: [canonical, invalid] });
+          if (yaml.error || !yaml.data) throw new Error('Expected fixture YAML.');
+          await Fs.write(config, yaml.data, { throw: true });
+
+          await expectError(
+            () => Pull.run({ cwd, config: `./${CONFIG}` }),
+            'Pull.run: failed to load config:',
+          );
+          expect(fixture.requests()).to.eql(0);
+          expect(await Fs.exists(Fs.join(cwd, '.dist-store'))).to.eql(false);
+          expect(await Fs.exists(Fs.join(cwd, 'pulled/sample'))).to.eql(false);
+          expect((await Fs.readText(config)).data).to.eql(yaml.data);
+        });
+      });
+    });
+  }
+
+  for (const kind of ['malformed', 'userinfo'] as const) {
+    it(`${kind} Dist manifest URL → refuses all bundles before acquisition`, async () => {
+      await usingDistServer(async (fixture) => {
+        await withTmpDir(async (cwd) => {
+          const config = Fs.join(cwd, CONFIG);
+          const keepPath = Fs.join(cwd, 'pulled/sample/keep.txt');
+          await Fs.write(keepPath, 'keep existing projection', { throw: true });
+          const base = {
+            kind: 'dist',
+            manifest: fixture.manifest,
+            pin: fixture.pin,
+            store: './.dist-store',
+          };
+          const first = { ...base, project: { dir: 'pulled/sample', mode: 'replace' } };
+          const manifest = kind === 'malformed'
+            ? 'http://['
+            : fixture.manifest.replace('http://', 'http://user:password@');
+          const yaml = Yaml.stringify({ dir: '.', bundles: [first, { ...base, manifest }] });
+          if (yaml.error || !yaml.data) throw new Error('Expected fixture YAML.');
+          await Fs.write(config, yaml.data, { throw: true });
+
+          await expectError(
+            () => Pull.run({ cwd, config: `./${CONFIG}` }),
+            'Pull.run: failed to load config:',
+          );
+          expect(fixture.requests()).to.eql(0);
+          expect(await Fs.exists(Fs.join(cwd, '.dist-store'))).to.eql(false);
+          expect((await Fs.readText(keepPath)).data).to.eql('keep existing projection');
+          expect(await Fs.exists(Fs.join(cwd, 'pulled/sample/asset.txt'))).to.eql(false);
+          expect((await Fs.readText(config)).data).to.eql(yaml.data);
+        });
+      });
+    });
+  }
+
+  it('two valid Dist bundles → materializes both without changing configuration', async () => {
+    await usingDistServer(async (fixture) => {
+      await withTmpDir(async (cwd) => {
+        const config = Fs.join(cwd, CONFIG);
+        const bundles = ['first', 'second'].map((name) => ({
+          kind: 'dist',
+          manifest: fixture.manifest,
+          pin: fixture.pin,
+          store: './.dist-store',
+          project: { dir: `pulled/${name}`, mode: 'create' },
+        }));
+        const yaml = Yaml.stringify({ dir: '.', bundles });
+        if (yaml.error || !yaml.data) throw new Error('Expected fixture YAML.');
+        await Fs.write(config, yaml.data, { throw: true });
+
+        const result = await Pull.run({ cwd, config: `./${CONFIG}` });
+        expect(result.ok).to.eql(true);
+        expect(result.bundles.length).to.eql(2);
+        for (const [index, pulled] of result.bundles.entries()) {
+          if (pulled.bundle.kind !== 'dist' || !('kind' in pulled.data)) {
+            throw new Error('Expected Dist bundle result.');
+          }
+          expect(pulled.data.generation.kind).to.eql(index === 0 ? 'promoted' : 'existing');
+          expect(pulled.data.generation.pin).to.eql(fixture.pin);
+          expect(pulled.data.projection.kind).to.eql('projected');
+        }
+        for (const bundle of bundles) {
+          const asset = Fs.join(cwd, bundle.project.dir, 'asset.txt');
+          expect((await Fs.readText(asset)).data).to.eql('fixture-asset');
+        }
+        expect(fixture.requests()).to.eql(2); // One manifest and one asset; the second reuses it.
+        expect((await Fs.readText(config)).data).to.eql(yaml.data);
       });
     });
   });
@@ -214,7 +317,7 @@ function githubYaml() {
 }
 
 function distYaml(
-  fixture: { readonly manifest: t.StringUrl; readonly integrity: t.StringHash },
+  fixture: { readonly manifest: t.StringUrl; readonly pin: t.DistPin },
   project = true,
 ) {
   if (!project) {
@@ -223,7 +326,9 @@ function distYaml(
       bundles:
         - kind: dist
           manifest: ${fixture.manifest}
-          integrity: ${fixture.integrity}
+          pin:
+            scheme: ${fixture.pin.scheme}
+            digest: ${fixture.pin.digest}
           store: ./.dist-store
     `).trimStart();
   }
@@ -233,7 +338,9 @@ function distYaml(
     bundles:
       - kind: dist
         manifest: ${fixture.manifest}
-        integrity: ${fixture.integrity}
+        pin:
+          scheme: ${fixture.pin.scheme}
+          digest: ${fixture.pin.digest}
         store: ./.dist-store
         project:
           dir: pulled/sample

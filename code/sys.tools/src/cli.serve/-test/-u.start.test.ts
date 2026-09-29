@@ -1,4 +1,4 @@
-import { describe, expect, expectError, it, type t, Time } from '../../-test.ts';
+import { describe, expect, expectError, Fs, Hash, it, type t, Time } from '../../-test.ts';
 import { Serve } from '../mod.ts';
 import { Fixture } from './u.ts';
 
@@ -87,7 +87,7 @@ describe('Serve.start', () => {
   it('adds dist metadata details when the served artifact has a dist.json', async () => {
     const artifact = 'view/.pulled/ui.components';
     const builtAt = Date.now() - 4 * 24 * 60 * 60 * 1000;
-    const { cwd } = await Fixture.makeDistServeTarget({
+    const { cwd, dist } = await Fixture.makeDistServeTarget({
       section: 'serve-start-api-dist-status',
       builtAt,
       artifact,
@@ -104,7 +104,7 @@ describe('Serve.start', () => {
       const builtDate = Time.utc(new Date(builtAt)).format('yyyy MMM dd');
       expect(server.status().details).to.eql([
         { label: 'pkg', value: '@sys/example 1.2.3' },
-        { label: 'dist', value: `#1bb18, 2.1 MB, ${builtDate} · 4d ago` },
+        { label: 'dist', value: `#${dist.hash.digest.slice(-5)}, 2.1 MB, ${builtDate} · 4d ago` },
       ]);
     } finally {
       await server.close('test.dist-status');
@@ -114,7 +114,7 @@ describe('Serve.start', () => {
 
   it('omits elapsed age for dist metadata built less than one minute ago', async () => {
     const builtAt = Date.now();
-    const { cwd } = await Fixture.makeDistServeTarget({
+    const { cwd, dist } = await Fixture.makeDistServeTarget({
       section: 'serve-start-api-fresh-dist-status',
       builtAt,
       indexHtml: '<!doctype html><h1>fresh</h1>',
@@ -129,11 +129,68 @@ describe('Serve.start', () => {
       const builtDate = Time.utc(new Date(builtAt)).format('yyyy MMM dd');
       expect(server.status().details).to.eql([
         { label: 'pkg', value: '@sys/example 1.2.3' },
-        { label: 'dist', value: `#1bb18, 2.1 MB, ${builtDate}` },
+        { label: 'dist', value: `#${dist.hash.digest.slice(-5)}, 2.1 MB, ${builtDate}` },
       ]);
     } finally {
       await server.close('test.fresh-dist-status');
       await server.finished;
+    }
+  });
+
+  it('legacy Dist metadata → omit status details without converting a static server into a verifier', async () => {
+    const indexHtml = '<!doctype html><h1>legacy metadata</h1>';
+    const { cwd, artifact, dist } = await Fixture.makeDistServeTarget({
+      section: 'serve-start-api-legacy-dist',
+      builtAt: Date.now(),
+      indexHtml,
+    });
+    try {
+      const legacy = {
+        ...dist,
+        hash: {
+          digest: dist.hash.digest,
+          parts: { './index.html': Hash.sha256(indexHtml) },
+        },
+      };
+      await Fs.writeJson(`${cwd}/${artifact}/dist.json`, legacy, { throw: true });
+      const server = await Serve.start({ cwd, dir: `./${artifact}`, port: 0 });
+      try {
+        expect(server.status().details).to.eql(undefined);
+        const response = await fetch(server.url);
+        expect(response.status).to.eql(200);
+        expect(await response.text()).to.eql(indexHtml);
+      } finally {
+        await server.close('test.legacy-dist');
+        await server.finished;
+      }
+    } finally {
+      await Fs.remove(cwd);
+    }
+  });
+
+  it('canonical manifest metadata → remains an unverified observation of mutable static content', async () => {
+    const { cwd, artifact, dist } = await Fixture.makeDistServeTarget({
+      section: 'serve-start-api-unverified-dist',
+      builtAt: Date.now(),
+    });
+    const replacement = '<!doctype html><h1>changed after manifest creation</h1>';
+    try {
+      await Fs.write(`${cwd}/${artifact}/index.html`, replacement, { throw: true });
+      const server = await Serve.start({ cwd, dir: `./${artifact}`, port: 0 });
+      try {
+        const status = server.status();
+        expect(status.kind).to.eql('static-serve');
+        const metadata = status.details?.find((detail) => detail.label === 'dist');
+        expect(metadata?.value).to.include(`#${dist.hash.digest.slice(-5)}`);
+        const response = await fetch(server.url);
+        expect(response.status).to.eql(200);
+        expect(await response.text()).to.eql(replacement);
+      } finally {
+        await server.close('test.unverified-dist');
+        await server.finished;
+      }
+    } finally {
+      await Fs.remove(cwd);
     }
   });
 

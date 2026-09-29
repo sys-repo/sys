@@ -1,6 +1,7 @@
 /**
  * @module
- * Serve CLI tools.
+ * Serve CLI tools for ordinary static files, not pinned Dist hosting.
+ * Displayed Dist metadata does not authenticate served bytes; size and build time are descriptive.
  */
 import { Fs, type t } from './common.ts';
 import { cli } from './m.cli.ts';

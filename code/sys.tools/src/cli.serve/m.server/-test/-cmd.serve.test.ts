@@ -55,20 +55,8 @@ describe('serve server lifecycle', () => {
   });
 });
 
-const sampleDist = () => ({
-  type: 'https://jsr.io/@sample/foo',
-  pkg: { name: '@sample/foo', version: '1.0.0' },
-  build: {
-    time: 1746520471244,
-    size: { total: 2, pkg: 2 },
-    builder: '@sample/builder@1.0.0',
-    runtime: 'deno=2.6.0:v8=14.5.201.2-rusty:typescript=5.9.2',
-    hash: { policy: 'https://jsr.io/@sys/fs/0.0.229/src/m.Pkg/m.Pkg.Dist.ts' },
-  },
-  hash: {
-    digest: 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-    parts: {
-      './index.html': 'sha256-237bf73369464342ecde735fc719e09b2e61d72f796101890cdcee7efcd1bb18',
-    },
-  },
-});
+const sampleDist = () =>
+  Fixture.distDoc({
+    builtAt: 1746520471244,
+    indexHtml: '<!doctype html><h1>view</h1>',
+  });

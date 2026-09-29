@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../../-test.ts';
 import type { t } from '../../common.ts';
 import { validateBundleIsolation } from '../u.isolation.ts';
 
-const INTEGRITY = `sha256-${'a'.repeat(64)}` as t.StringHash;
+const PIN: t.DistPin = { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` };
 const LIMITS: t.GithubPull.Limits = {
   metadataBytes: 1000,
   entries: 10,
@@ -14,8 +14,8 @@ const LIMITS: t.GithubPull.Limits = {
 describe('cli.pull/u.bundle → filesystem authority isolation', () => {
   it('allows Dist bundles to share one sealed store', () => {
     const result = validateBundleIsolation(location([
-      dist('https://example.com/a/dist.json', INTEGRITY),
-      dist('https://example.com/b/dist.json', `sha256-${'b'.repeat(64)}` as t.StringHash),
+      dist('https://example.com/a/dist.json', PIN),
+      dist('https://example.com/b/dist.json', { ...PIN, digest: `sha256-${'b'.repeat(64)}` }),
     ]));
 
     expect(result).to.eql({ ok: true });
@@ -23,7 +23,7 @@ describe('cli.pull/u.bundle → filesystem authority isolation', () => {
 
   it('rejects projection overlap with sealed stores', () => {
     const bundle = {
-      ...dist('https://example.com/dist.json', INTEGRITY),
+      ...dist('https://example.com/dist.json', PIN),
       project: { dir: '.dist-store/project' as t.StringRelativeDir, mode: 'replace' as const },
     };
 
@@ -34,7 +34,7 @@ describe('cli.pull/u.bundle → filesystem authority isolation', () => {
 
   it('rejects cross-bundle mutable overlap before execution', () => {
     const bundle = {
-      ...dist('https://example.com/dist.json', INTEGRITY),
+      ...dist('https://example.com/dist.json', PIN),
       project: { dir: 'view/app' as t.StringRelativeDir, mode: 'replace' as const },
     };
     const github: t.PullTool.ConfigYaml.GithubRepoBundle = {
@@ -50,7 +50,7 @@ describe('cli.pull/u.bundle → filesystem authority isolation', () => {
 
   it('rejects relative aliases even when runtime input bypasses YAML schema', () => {
     const bundle = {
-      ...dist('https://example.com/dist.json', INTEGRITY),
+      ...dist('https://example.com/dist.json', PIN),
       store: 'nested/./store' as t.StringRelativeDir,
     };
 
@@ -61,12 +61,12 @@ describe('cli.pull/u.bundle → filesystem authority isolation', () => {
 
 function dist(
   manifest: string,
-  integrity: t.StringHash,
+  pin: t.DistPin,
 ): t.PullTool.ConfigYaml.DistBundle {
   return {
     kind: 'dist',
     manifest: manifest as t.StringUrl,
-    integrity,
+    pin,
     store: '.dist-store',
   };
 }

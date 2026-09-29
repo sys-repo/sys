@@ -1,10 +1,10 @@
-import { describe, expect, expectError, Fs, it, Str } from '../../-test.ts';
+import { describe, expect, expectError, Fs, it, Str, type t } from '../../-test.ts';
 import { addDistBundle } from '../u.add.ts';
 import { PullFs } from '../u.yaml/mod.ts';
 
 const CONFIG = './-config/@sys.tools.pull/components.yaml';
 const MANIFEST = 'https://example.com/ui.components/dist.json';
-const INTEGRITY = `sha256-${'a'.repeat(64)}`;
+const PIN = { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` } as const;
 const STORE = './.dist-store';
 const PROJECT = './view/components';
 
@@ -22,7 +22,7 @@ describe('@sys/tools/pull add', () => {
         {
           kind: 'dist',
           manifest: MANIFEST,
-          integrity: INTEGRITY,
+          pin: PIN,
           store: STORE,
           project: { dir: PROJECT, mode: 'replace' },
         },
@@ -66,16 +66,26 @@ describe('@sys/tools/pull add', () => {
     );
   });
 
-  it('requires publisher-provided integrity and never synthesizes a pin', async () => {
+  it('invalid or old pin → refuse before config creation without synthesizing authority', async () => {
     const cwd = await tempRoot();
-
+    const invalidPins = [
+      undefined,
+      { 'dist.json': PIN.digest },
+      { ...PIN, digest: '' },
+      { ...PIN, digest: `sha256-${'A'.repeat(64)}` },
+      { ...PIN, scheme: 'unsupported' },
+      { ...PIN, 'dist.json': PIN.digest },
+    ];
+    for (const pin of invalidPins) {
+      await expectError(
+        () => addDistBundle({ ...input(cwd), pin: pin as t.DistPin }),
+        'Pull add: a canonical independently supplied content pin is required.',
+      );
+    }
+    const mixed = { ...input(cwd), integrity: PIN.digest };
     await expectError(
-      () => addDistBundle({ ...input(cwd), integrity: '' }),
-      'Pull add: --integrity must be a canonical publisher-provided SHA-256.',
-    );
-    await expectError(
-      () => addDistBundle({ ...input(cwd), integrity: `sha256-${'A'.repeat(64)}` }),
-      'Pull add: --integrity must be a canonical publisher-provided SHA-256.',
+      () => addDistBundle(mixed),
+      'Pull add: a canonical independently supplied content pin is required.',
     );
     expect(await Fs.exists(Fs.join(cwd, CONFIG))).to.eql(false);
   });
@@ -123,7 +133,7 @@ function input(cwd: string) {
     cwd,
     config: CONFIG,
     manifest: MANIFEST,
-    integrity: INTEGRITY,
+    pin: PIN,
     store: STORE,
     project: PROJECT,
     mode: 'replace' as const,
@@ -138,13 +148,15 @@ async function writeConfig(cwd: string, text: string) {
   await Fs.write(Fs.join(cwd, CONFIG), text, { force: true });
 }
 
-function yaml(integrity = INTEGRITY) {
+function yaml(digest = PIN.digest) {
   return Str.dedent(`
     dir: .
     bundles:
       - kind: dist
         manifest: ${MANIFEST}
-        integrity: ${integrity}
+        pin:
+          scheme: sys.dist/v2
+          digest: ${digest}
         store: ${STORE}
         project:
           dir: ${PROJECT}

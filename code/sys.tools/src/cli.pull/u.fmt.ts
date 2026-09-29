@@ -1,6 +1,19 @@
 import { c, Cli, Fmt as Base, Fs, Str, type t } from './common.ts';
 import type { PullAddResult } from './u.add.ts';
 
+const CONFIG_PATHS = [
+  'Standard layout: <workspace>/-config/@sys.tools.pull/<name>.yaml.',
+  'Config anchor: two levels above the YAML directory (the workspace in the standard layout).',
+  'YAML dir resolves from that anchor; an absolute dir is used directly.',
+  'store and project.dir resolve beneath the resulting dir, not the terminal cwd.',
+  'Relocating config can change output paths without changing YAML.',
+];
+const PROJECTION = [
+  'create refuses an occupied target.',
+  'replace removes the existing target before promotion; later failure does not restore it.',
+  'Projected HTML may be rewritten; verification remains with the sealed generation.',
+];
+
 export const Fmt = {
   ...Base,
 
@@ -15,7 +28,7 @@ export const Fmt = {
           label: 'Usage',
           items: [
             `${cmd}`,
-            `${cmd} add --config ${config} --manifest <url> --integrity <sha256> --store <path>`,
+            `${cmd} add --config ${config} --manifest <url> --scheme sys.dist/v2 --digest <sha256> --store <path>`,
             `${cmd} --non-interactive --config ${config}`,
           ],
         },
@@ -23,7 +36,7 @@ export const Fmt = {
           kind: 'pairs',
           label: 'Commands',
           items: [
-            ['add', 'add a checksum-pinned Dist bundle to a pull config'],
+            ['add', 'add a content-pinned Dist bundle to a pull config'],
           ],
         },
         {
@@ -39,8 +52,7 @@ export const Fmt = {
           kind: 'lines',
           label: 'Owner',
           items: [
-            'Pull owns checksum-pinned materialization and explicit mutable projection.',
-            'Cell pulled-view setup uses Pull-owned config; the Cell descriptor remains unchanged.',
+            'Pull owns content-pinned materialization and explicit mutable projection.',
             `Pull config example: ${config}`,
           ],
         },
@@ -55,6 +67,8 @@ export const Fmt = {
             'Non-interactive pull execution runs an existing config; it does not create one from flags.',
           ],
         },
+        { kind: 'lines', label: 'Config paths', items: CONFIG_PATHS },
+        { kind: 'lines', label: 'Mutable projection', items: PROJECTION },
         {
           kind: 'lines',
           label: 'Config YAML',
@@ -64,7 +78,9 @@ export const Fmt = {
             'bundles:',
             '  - kind: dist',
             '    manifest: https://example.com/ui.components/dist.json',
-            '    integrity: sha256-<publisher-provided-manifest-hash>',
+            '    pin:',
+            '      scheme: sys.dist/v2',
+            '      digest: sha256-<publisher-provided-content-digest>',
             '    store: ./.dist-store',
             '    project:',
             '      dir: ./view/components',
@@ -75,7 +91,7 @@ export const Fmt = {
           kind: 'lines',
           label: 'Examples',
           items: [
-            `${cmd} add --config ${config} --manifest https://example.com/ui.components/dist.json --integrity sha256-<publisher-provided-manifest-hash> --store ./.dist-store --project ./view/components --mode replace`,
+            `${cmd} add --config ${config} --manifest https://example.com/ui.components/dist.json --scheme sys.dist/v2 --digest sha256-<publisher-provided-content-digest> --store ./.dist-store --project ./view/components --mode replace`,
             `${cmd} --non-interactive --config ${config}`,
           ],
         },
@@ -93,8 +109,8 @@ export const Fmt = {
           kind: 'lines',
           label: 'Usage',
           items: [
-            `${cmd} --config ${config} --manifest <url> --integrity <sha256> --store <path>`,
-            `${cmd} --dry-run --config ${config} --manifest <url> --integrity <sha256> --store <path>`,
+            `${cmd} --config ${config} --manifest <url> --scheme sys.dist/v2 --digest <sha256> --store <path>`,
+            `${cmd} --dry-run --config ${config} --manifest <url> --scheme sys.dist/v2 --digest <sha256> --store <path>`,
           ],
         },
         {
@@ -103,10 +119,11 @@ export const Fmt = {
           items: [
             ['-h, --help', 'show add help'],
             ['--config <path>', 'pull config YAML to create or mutate'],
-            ['--manifest <url>', 'absolute HTTP(S) dist.json URL'],
-            ['--integrity <sha256>', 'publisher-provided exact manifest-byte SHA-256'],
-            ['--store <path>', 'relative sealed generation store'],
-            ['--project <path>', 'optional relative mutable projection target'],
+            ['--manifest <url>', 'absolute HTTP(S) dist.json URL without userinfo'],
+            ['--scheme <scheme>', 'publisher-provided content scheme: sys.dist/v2'],
+            ['--digest <sha256>', 'independently supplied canonical content digest'],
+            ['--store <path>', 'sealed generation store beneath resolved YAML dir'],
+            ['--project <path>', 'optional mutable projection beneath resolved YAML dir'],
             ['--mode <mode>', 'required create|replace authority with --project'],
             ['--dry-run', 'preview the config mutation without writing'],
           ],
@@ -115,8 +132,8 @@ export const Fmt = {
           kind: 'lines',
           label: 'Semantics',
           items: [
-            'Adds one checksum-pinned Dist bundle to durable config; it does not pull files.',
-            'Manifest URL, publisher-provided integrity, and sealed generation store are required.',
+            'Adds one content-pinned Dist bundle to durable config; it does not pull files.',
+            'Manifest URL, independent content pin, and sealed generation store are required.',
             'Hashing the same download cannot establish artifact authority.',
             'Mutable projection is optional and requires an explicit create|replace mode.',
             'An exact existing bundle is a no-op success.',
@@ -125,11 +142,13 @@ export const Fmt = {
             `Next: ${Base.invoke('pull')} --non-interactive --config ${config}`,
           ],
         },
+        { kind: 'lines', label: 'Config paths', items: CONFIG_PATHS },
+        { kind: 'lines', label: 'Mutable projection', items: PROJECTION },
         {
           kind: 'lines',
           label: 'Examples',
           items: [
-            `${cmd} --config ${config} --manifest https://example.com/ui.components/dist.json --integrity sha256-<publisher-provided-manifest-hash> --store ./.dist-store --project ./view/components --mode replace`,
+            `${cmd} --config ${config} --manifest https://example.com/ui.components/dist.json --scheme sys.dist/v2 --digest sha256-<publisher-provided-content-digest> --store ./.dist-store --project ./view/components --mode replace`,
           ],
         },
       ],
@@ -147,7 +166,7 @@ export const Fmt = {
       [c.gray(' status'), c.white(status)],
       [c.gray(' config'), c.cyan(Fs.trimCwd(result.yamlPath))],
       [c.gray(' manifest'), c.cyan(result.bundle.manifest)],
-      [c.gray(' integrity'), c.white(result.bundle.integrity)],
+      [c.gray(' pin'), c.white(`${result.bundle.pin.scheme} ${result.bundle.pin.digest}`)],
       [c.gray(' store'), c.white(result.bundle.store)],
       [
         c.gray(' project'),
@@ -206,7 +225,7 @@ export const Fmt = {
       table.body([
         [c.gray(' source'), formatSourceUrl(bundle.manifest)],
         [c.gray(' generation'), c.white(generation.kind)],
-        [c.gray(' integrity'), c.white(generation.integrity)],
+        [c.gray(' pin'), c.white(`${generation.pin.scheme} ${generation.pin.digest}`)],
         [c.gray(' files'), c.white(String(evidence.assets.files))],
         [c.gray(' bytes'), c.gray(Str.bytes(evidence.assets.totalBytes))],
         [c.gray(' sealed'), c.cyan(generation.dir)],

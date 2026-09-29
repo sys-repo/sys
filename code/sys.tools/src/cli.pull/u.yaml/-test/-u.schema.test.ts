@@ -12,11 +12,11 @@ const LIMITS = {
 const local = () => ({ dir: 'dev', mode: 'create' as const });
 
 describe('PullYamlSchema', () => {
-  it('accepts checksum-pinned Dist bundles with optional explicit projection', () => {
+  it('content pin → accept optional explicit projection', () => {
     const base = {
       kind: 'dist',
       manifest: 'https://example.com/dist.json',
-      integrity: `sha256-${'a'.repeat(64)}`,
+      pin: { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` },
       store: './.dist-store',
     } as const;
 
@@ -33,15 +33,20 @@ describe('PullYamlSchema', () => {
     const valid = {
       kind: 'dist',
       manifest: 'https://example.com/dist.json',
-      integrity: `sha256-${'a'.repeat(64)}`,
+      pin: { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` },
       store: './.dist-store',
     } as const;
 
     const invalid = [
       { kind: 'http', dist: valid.manifest, local: { dir: 'dev' } },
       { ...valid, manifest: undefined },
-      { ...valid, integrity: undefined },
-      { ...valid, integrity: `sha256-${'A'.repeat(64)}` },
+      { ...valid, pin: undefined },
+      { ...valid, pin: { ...valid.pin, digest: `sha256-${'A'.repeat(64)}` } },
+      { ...valid, pin: { 'dist.json': valid.pin.digest } },
+      { ...valid, pin: { ...valid.pin, scheme: 'unsupported' } },
+      { ...valid, pin: { ...valid.pin, extra: true } },
+      { ...valid, integrity: valid.pin.digest },
+      { ...valid, pin: undefined, integrity: valid.pin.digest },
       { ...valid, store: undefined },
       { ...valid, project: { dir: './view/dev' } },
       { ...valid, project: { dir: '../outside', mode: 'replace' } },
@@ -49,6 +54,31 @@ describe('PullYamlSchema', () => {
 
     for (const bundle of invalid) {
       expect(PullYamlSchema.validate({ dir: '.', bundles: [bundle] }).ok).to.eql(false);
+    }
+  });
+
+  it('invalid Dist manifest URL → reports the authored field before dispatch', () => {
+    for (
+      const manifest of [
+        'http://[',
+        'https://[',
+        'https://user@example.com/dist.json',
+        'https://:password@example.com/dist.json',
+        'https://user:password@example.com/dist.json',
+      ]
+    ) {
+      const bundle = {
+        kind: 'dist',
+        manifest,
+        pin: { scheme: 'sys.dist/v2', digest: `sha256-${'a'.repeat(64)}` },
+        store: './.dist-store',
+      };
+      const result = PullYamlSchema.validate({ dir: '.', bundles: [bundle] });
+      expect(result.ok).to.eql(false);
+      expect(result.errors.map(({ path, message }) => ({ path, message }))).to.eql([{
+        path: '/bundles/0/manifest',
+        message: 'Expected an absolute HTTP(S) Dist manifest URL without userinfo.',
+      }]);
     }
   });
 

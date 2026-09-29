@@ -1,10 +1,18 @@
-import { c, Cli, Fs, Is, Open, opt, Str, type t, Url, Yaml } from '../common.ts';
+import { c, Cli, Fs, Is, Open, opt, Pkg, Str, type t } from '../common.ts';
+import { addDistBundle, parseManifestUrl, parseRelativeDir } from '../u.add.ts';
 import { Fmt as BaseFmt } from '../u.fmt.ts';
 import { PullFs } from '../u.yaml/mod.ts';
 import { validateBundleIsolation } from './u.isolation.ts';
 import { pullRemoteBundle, type RemoteBundleResult } from './u.pull/mod.ts';
 
-type C = t.PullTool.MenuCmd;
+type BundlePrompts = {
+  readonly Text: typeof Cli.Input.Text;
+  readonly Select: {
+    readonly prompt: (
+      options: Parameters<typeof Cli.Input.Select.prompt<string>>[0],
+    ) => Promise<string>;
+  };
+};
 type PullResult =
   | { readonly kind: 'back' }
   | { readonly kind: 'bundle'; readonly bundle?: t.PullTool.ConfigYaml.Bundle };
@@ -39,7 +47,7 @@ const bundleSourceLabel = (bundle: t.PullTool.ConfigYaml.Bundle): string => {
   if (bundle.kind === 'dist') return Fmt.distUrl(bundle.manifest);
 
   if (bundle.kind === 'github:release') {
-    if (Array.isArray(bundle.asset)) {
+    if (Is.array(bundle.asset)) {
       return c.magenta(c.italic(`github:release (${bundle.asset.length} assets)`));
     }
     if (Is.str(bundle.asset) && bundle.asset.trim()) {
@@ -78,10 +86,12 @@ export function formatBundleOptionName(
   return `${'  pull:'} ${branch} ${localDir} ${c.gray('←')} ${source}`;
 }
 
+/** Interactive bundle actions; prompt substitution does not replace admission or persistence. */
 export async function pullBundle(
-  _cwd: t.StringDir,
+  cwd: t.StringDir,
   yamlPath: t.StringPath,
   location: t.PullTool.ConfigYaml.Location,
+  prompts: BundlePrompts = Cli.Input,
 ): Promise<PullResult> {
   const done = (bundle?: t.PullTool.ConfigYaml.Bundle): PullResult => ({
     kind: 'bundle',
@@ -96,7 +106,7 @@ export async function pullBundle(
     return { name, value };
   });
 
-  const A = (await Cli.Input.Select.prompt<C>({
+  const A = await prompts.Select.prompt({
     message: 'Action:',
     options: [
       ...optBundles,
@@ -105,79 +115,65 @@ export async function pullBundle(
       opt('config: rename', 'config:rename'),
       opt(Fmt.back(), 'back'),
     ],
-  })) as C;
+  });
 
   if (A === 'back') return { kind: 'back' };
   if (A === 'exit') return done();
 
   if (A === 'bundle:add-dist') {
-    const manifestInput = await Cli.Input.Text.prompt({
+    const manifest = await prompts.Text.prompt({
       message: `Pinned ${c.italic('dist.json')} URL`,
       validate: validateManifestInput,
     });
-    const manifest = parseManifestUrl(manifestInput);
-    if (!manifest) throw new Error('Expected an absolute HTTP(S) manifest URL.');
 
-    const integrity = await Cli.Input.Text.prompt({
-      message: 'Publisher-provided manifest SHA-256',
-      validate: validateIntegrityInput,
+    const digest = await prompts.Text.prompt({
+      message: `Publisher-provided ${Pkg.Dist.Content.scheme} content digest`,
+      validate: validateDigestInput,
     });
-    const store = await Cli.Input.Text.prompt({
-      message: 'Immutable store subdirectory',
+    const store = await prompts.Text.prompt({
+      message: 'Sealed generation store subdirectory',
       validate: validateRelativeDir,
     });
-    const projectInput = await Cli.Input.Text.prompt({
+    const projectInput = await prompts.Text.prompt({
       message: 'Mutable projection subdirectory (optional)',
       default: '',
       validate: (input) => input.trim() ? validateRelativeDir(input) : true,
     });
-    const projectDir = projectInput.trim();
-    const project = projectDir
-      ? {
-        dir: projectDir as t.StringRelativeDir,
-        mode: (await Cli.Input.Select.prompt<t.GithubPull.Mode>({
-          message: 'Projection mutation mode',
-          options: [
-            { name: 'create', value: 'create' },
-            { name: 'replace', value: 'replace' },
-          ],
-        })) as t.GithubPull.Mode,
-      }
+    const project = projectInput.trim();
+    const mode = project
+      ? await prompts.Select.prompt({
+        message: 'Projection mutation mode',
+        options: [
+          { name: 'create', value: 'create' },
+          { name: 'replace', value: 'replace' },
+        ],
+      })
       : undefined;
 
-    const newBundle: t.PullTool.ConfigYaml.DistBundle = {
-      kind: 'dist',
+    await addDistBundle({
+      cwd,
+      config: yamlPath,
       manifest,
-      integrity: integrity.trim() as t.StringHash,
-      store: store.trim() as t.StringRelativeDir,
+      pin: { scheme: Pkg.Dist.Content.scheme, digest: digest.trim() },
+      store,
       project,
-    };
-    const isolation = validateBundleIsolation({
-      ...location,
-      bundles: [...bundles, newBundle],
-    });
-    if (!isolation.ok) throw new Error(isolation.error);
-
-    await updateYamlBundles(yamlPath, (current) => {
-      if (!current.some((item) => item.kind === 'dist' && sameDistBundle(item, newBundle))) {
-        current.push(newBundle);
-      }
+      mode,
     });
 
     const loaded = await PullFs.loadLocation(yamlPath);
     if (!loaded.ok) return done();
-    return pullBundle(_cwd, yamlPath, loaded.location);
+    return pullBundle(cwd, yamlPath, loaded.location, prompts);
   }
 
   if (A === 'config:edit') {
-    const openTarget = Fs.Path.trimCwd(yamlPath, { cwd: _cwd, prefix: true });
-    Open.invokeDetached(_cwd, openTarget.length > 0 ? openTarget : yamlPath, { silent: true });
-    return pullBundle(_cwd, yamlPath, location);
+    const openTarget = Fs.Path.trimCwd(yamlPath, { cwd, prefix: true });
+    Open.invokeDetached(cwd, openTarget.length > 0 ? openTarget : yamlPath, { silent: true });
+    return pullBundle(cwd, yamlPath, location, prompts);
   }
 
   if (A === 'config:rename') {
     const current = Fs.basename(yamlPath).slice(0, -PullFs.ext.length);
-    const raw = await Cli.Input.Text.prompt({
+    const raw = await prompts.Text.prompt({
       message: 'Config name',
       default: current,
       validate(value) {
@@ -191,7 +187,7 @@ export async function pullBundle(
     });
 
     const next = raw.trim();
-    if (next === current) return pullBundle(_cwd, yamlPath, location);
+    if (next === current) return pullBundle(cwd, yamlPath, location, prompts);
 
     const nextPath = Fs.join(Fs.dirname(yamlPath), `${next}${PullFs.ext}`);
     await Fs.ensureDir(Fs.dirname(nextPath));
@@ -199,7 +195,7 @@ export async function pullBundle(
 
     const loaded = await PullFs.loadLocation(nextPath);
     if (!loaded.ok) return { kind: 'back' };
-    return pullBundle(_cwd, nextPath, loaded.location);
+    return pullBundle(cwd, nextPath, loaded.location, prompts);
   }
 
   if (A.startsWith(PULL_PREFIX)) {
@@ -209,7 +205,7 @@ export async function pullBundle(
     const pulled = await pullBundleWithSummary(yamlPath, location, bundle);
     if (!pulled.ok) {
       console.info(Fmt.pullError(pulled.error));
-      return pullBundle(_cwd, yamlPath, location);
+      return pullBundle(cwd, yamlPath, location, prompts);
     }
 
     return done(pulled.bundle);
@@ -263,28 +259,6 @@ export async function pullConfiguredBundle(
 }
 
 /**
- * Read YAML, update bundles, write back.
- */
-async function updateYamlBundles(
-  yamlPath: t.StringPath,
-  mutate: (bundles: t.PullTool.ConfigYaml.Bundle[]) => void,
-) {
-  const read = await Fs.readText(yamlPath);
-  if (!read.ok || !read.data) return;
-
-  const parsed = Yaml.parse<t.PullTool.ConfigYaml.Doc>(read.data);
-  if (parsed.error || !parsed.data) return;
-
-  const doc = parsed.data;
-  doc.bundles = doc.bundles ?? [];
-  mutate(doc.bundles);
-
-  const yaml = Yaml.stringify(doc);
-  if (yaml.error || !yaml.data) return;
-  await Fs.write(yamlPath, yaml.data);
-}
-
-/**
  * Helpers:
  */
 function isDistResult(result: RemoteBundleResult): result is t.PullTool.Bundle.Dist.Result {
@@ -312,50 +286,25 @@ function bundleOptionLocalDirLabel(dir: string, width: number): string {
 }
 
 function validateManifestInput(input: string): true | string {
-  return parseManifestUrl(input) ? true : 'Enter an absolute HTTP(S) URL without userinfo.';
+  try {
+    parseManifestUrl(input);
+    return true;
+  } catch {
+    return 'Enter an absolute HTTP(S) URL without userinfo.';
+  }
 }
 
-function parseManifestUrl(input: string): t.StringUrl | undefined {
-  const text = input.trim();
-  if (!Is.urlString(text)) return;
-  const parsed = Url.parse(text);
-  if (!parsed.ok) return;
-  const url = parsed.toURL();
-  if (url.username || url.password) return;
-  url.hash = '';
-  return url.href as t.StringUrl;
-}
-
-function validateIntegrityInput(input: string): true | string {
-  return /^sha256-[0-9a-f]{64}$/.test(input.trim())
+function validateDigestInput(input: string): true | string {
+  return Pkg.Is.distPin({ scheme: Pkg.Dist.Content.scheme, digest: input.trim() })
     ? true
-    : 'Enter the canonical publisher-provided sha256- integrity.';
+    : 'Enter the canonical publisher-provided content digest.';
 }
 
 function validateRelativeDir(input: string): true | string {
-  const text = input.trim();
-  const normalized = Str.trimLeadingDotSlash(text).replaceAll('\\', '/');
-  if (
-    !normalized ||
-    normalized === '.' ||
-    normalized === '..' ||
-    normalized.startsWith('../') ||
-    normalized.endsWith('/..') ||
-    normalized.includes('/../') ||
-    normalized.split('/').some((part) => part === '.') ||
-    text.startsWith('/') ||
-    text.startsWith('~') ||
-    /^[A-Za-z]:/.test(text)
-  ) {
+  try {
+    parseRelativeDir(input, 'directory');
+    return true;
+  } catch {
     return 'Enter a child directory relative to the config root.';
   }
-  return true;
-}
-
-function sameDistBundle(
-  a: t.PullTool.ConfigYaml.DistBundle,
-  b: t.PullTool.ConfigYaml.DistBundle,
-): boolean {
-  return a.manifest === b.manifest && a.integrity === b.integrity && a.store === b.store &&
-    a.project?.dir === b.project?.dir && a.project?.mode === b.project?.mode;
 }

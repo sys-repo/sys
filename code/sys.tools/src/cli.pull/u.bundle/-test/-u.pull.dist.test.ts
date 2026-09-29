@@ -22,7 +22,7 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
           {
             kind: 'dist',
             manifest: fixture.manifest,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             store: './.dist-store',
             project: { dir: './view/app', mode: 'create' },
           },
@@ -33,7 +33,8 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
         expect(result.kind).to.eql('projection-failed');
         if (result.kind !== 'projection-failed') throw new Error('expected projection failure');
         expect(result.generation.kind).to.eql('promoted');
-        expect(result.generation.verification.integrity).to.eql(fixture.integrity);
+        expect(result.generation.pin).to.eql(fixture.pin);
+        expect(result.generation.verification.content).to.eql(fixture.dist.hash);
         expect(result.projection.reason).to.eql('target-occupied');
         const keep = await Fs.readText(keepPath);
         expect(keep.data).to.eql('keep');
@@ -46,7 +47,7 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
     });
   });
 
-  it('leaves a projection that wins during private staging completely untouched', async () => {
+  it('private projection staged → preserve a winner arriving before the projection lease settles', async () => {
     await usingDistServer(async (fixture) => {
       const root = await Fs.makeTempDir({ prefix: 'sys.tools.pull.dist.settlement.' });
       const baseDir = await Fs.realPath(root.absolute) as t.StringDir;
@@ -57,22 +58,52 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
       ]);
       const acquired = await owner.Lease.acquire(admitted.targets, { mode: 'exclusive' });
       if (acquired.kind !== 'acquired') throw new Error('Expected projection race lease.');
-      let pending:
-        | ReturnType<typeof pullDistBundle>
-        | undefined;
+      const controller = new AbortController();
+      const stages: t.FsRooted.Stage[] = [];
+      let projectionLeaseRequested = false;
+      const createRooted: t.FsRooted.Lib['create'] = async (options) => {
+        const rooted = await Fs.Capability.Rooted.create(options);
+        return {
+          ...rooted,
+          Stage: {
+            ...rooted.Stage,
+            async create(options) {
+              const stage = await rooted.Stage.create(options);
+              stages.push(stage);
+              return stage;
+            },
+          },
+          Lease: {
+            async acquire(targets, options) {
+              expect(targets.map((target) => target.path)).to.eql(['view/app']);
+              expect(options.mode).to.eql('exclusive');
+              expect(options.wait).to.eql(true);
+              projectionLeaseRequested = true;
+              return await rooted.Lease.acquire(targets, options);
+            },
+          },
+        };
+      };
+      let pending: ReturnType<typeof pullDistBundle> | undefined;
       try {
         pending = pullDistBundle(
           baseDir,
           {
             kind: 'dist',
             manifest: fixture.manifest,
-            integrity: fixture.integrity,
+            pin: fixture.pin,
             store: './.dist-store',
             project: { dir: './view/app', mode: 'create' },
           },
-          { silent: true },
+          { silent: true, until: controller.signal },
+          createRooted,
         );
-        await waitForProjectionStage(baseDir);
+        // Observe early rejection while waiting for the marker; await the original outcome below.
+        void pending.catch(() => undefined);
+        await Time.waitFor(() => projectionLeaseRequested, { interval: 1, timeout: 2000 });
+        expect(stages.length).to.eql(1);
+        const stage = stages[0];
+        expect((await Fs.readText(Fs.join(stage.path, 'asset.txt'))).data).to.eql('fixture-asset');
 
         await Fs.ensureDir(projectDir);
         const keepPath = Fs.join(projectDir, 'keep.txt');
@@ -87,10 +118,12 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
         expect(result.kind).to.eql('projection-failed');
         if (result.kind !== 'projection-failed') throw new Error('expected projection failure');
         expect(result.projection.reason).to.eql('target-occupied');
+        expect(await Fs.exists(stage.path)).to.eql(false); // Before broad fixture cleanup.
         expect((await Fs.readText(keepPath)).data).to.eql('concurrent-winner');
         expect((await Deno.lstat(projectDir)).mode).to.eql(modes.dir);
         expect((await Deno.lstat(keepPath)).mode).to.eql(modes.keep);
       } finally {
+        controller.abort('test.projection-race.cleanup');
         await acquired.lease.release();
         await pending?.catch(() => undefined);
         await removeFixtureRoot(baseDir, root.absolute);
@@ -106,7 +139,7 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
       const baseBundle: t.PullTool.ConfigYaml.DistBundle = {
         kind: 'dist',
         manifest: fixture.manifest,
-        integrity: fixture.integrity,
+        pin: fixture.pin,
         store: './.dist-store',
       };
 
@@ -157,7 +190,7 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
           {
             kind: 'dist',
             manifest: fixture.manifest,
-            integrity: `sha256-${'f'.repeat(64)}` as t.StringHash,
+            pin: { scheme: 'sys.dist/v2', digest: `sha256-${'f'.repeat(64)}` },
             store: './.dist-store',
             project: { dir: './view/app', mode: 'replace' },
           },
@@ -169,7 +202,7 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
         if (result.kind !== 'materialization-failed') {
           throw new Error('expected materialization failure');
         }
-        expect(result.generation.reason).to.eql('integrity-mismatch');
+        expect(result.generation.reason).to.eql('pin-mismatch');
         expect(result.projection).to.eql({ kind: 'not-run' });
         expect(await Fs.exists(Fs.join(baseDir, 'view/app'))).to.eql(false);
       } finally {
@@ -178,24 +211,6 @@ describe('cli.pull/u.bundle → pinned Dist settlement', () => {
     });
   });
 });
-
-async function waitForProjectionStage(baseDir: t.StringDir): Promise<void> {
-  const stages = Fs.join(baseDir, '.sys.rooted/stages');
-  const startedAt = performance.now();
-  while (true) {
-    try {
-      for await (const entry of Deno.readDir(stages)) {
-        if (entry.isDirectory) return;
-      }
-    } catch (cause) {
-      if (!(cause instanceof Deno.errors.NotFound)) throw cause;
-    }
-    if (performance.now() - startedAt > 2000) {
-      throw new Error('Timed out waiting for private projection staging.');
-    }
-    await Time.wait(1 as t.Msecs);
-  }
-}
 
 async function removeFixtureRoot(baseDir: t.StringDir, root: t.StringDir): Promise<void> {
   let storeRemoved = false;
