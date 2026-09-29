@@ -6,8 +6,8 @@ dist-content-identity.plan.md
 - [x] a1c9a6939 feat(fs)!: establish canonical Dist production and verification
 - [x] d95a79372 fix(fs): preserve narrow Dist verification dependencies
 - [x] 640f81a75 feat(server)!: serve and materialize canonical Dist evidence
-- [ ] feat(tools)!: preserve canonical Dist staging and publication ownership
-- [ ] feat(tools)!: consume canonical Dist pins in pull and serve
+- [x] 29d108d70 feat(tools)!: preserve canonical Dist staging and publication ownership
+- [x] 103b61db8 feat(tools)!: consume canonical Dist pins in pull and serve
 - [ ] feat(dist)!: migrate build and snapshot producers to canonical pins
 - [ ] feat(cell)!: configure Dist services with canonical content pins
 - [ ] feat(driver-pi)!: admit GUI packages through canonical Dist content
@@ -235,22 +235,35 @@ deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --r
   original/independent causes, awaited finalizers, exact-document cleanup refusal, and truthful
   preview invalidation/digest/size. Include TS-03's reachable Tools changes in attribution, but do
   not recommit their already-landed hunks. Do not reopen the independent R2 publisher repair.
-- **Candidate evidence:**
+- **Landing evidence:**
   [Tools staging cut and owner verification](./dist-content-identity.plan/landing/S4.landing.md)
-  records the 17-path cut (original 16 Tools paths plus one Fs-owned test), mixed task/menu allocation,
-  historical attribution, R-03 correction, accepted independent ownership review, and bounded
-  documentation/proof corrections, including public-contract test separation. Closing
-  checks include the separately attributable endpoint publication-status fix; they are integrated
-  worktree evidence, not independent re-review of the corrections or deferred build proof.
+  records the actual 18-path landing: all 17 ownership paths plus the separately attributable
+  endpoint publication-status correction, including its additional test file. The proposed separate
+  UI commit was not the actual landing split. Only the staging task landed from the mixed task
+  file; parity formatting and workflow-document changes were excluded. Historical attribution,
+  R-03, the original independent ownership review, and subsequent documentation/style/public-contract
+  test corrections retain their recorded scopes. Closing checks cover the combined source state
+  in the integrated worktree, not an isolated commit, independent re-review, or deferred build proof.
 
 ### S5 — Tools Pull and Serve consumers
 
 - **Owner:** attributable `code/sys.tools/src/cli.pull/` and `src/cli.serve/`, including YAML/CLI
-  parsing, help, fixtures and tests. This is caller expectation/configuration, not staging ownership.
+  parsing, public documentation, help, fixtures and tests, plus the Pull/Serve sections of
+  `code/sys.tools/README.md`. This is caller expectation/configuration, not staging ownership.
 - **Dependencies:** S1–S3. Cell examples in S7 consume these conventions.
 - **Completion:** old-only and mixed input refusal before acquisition, independent pin propagation,
   materialization and local/pinned status, mutable-projection non-authority, preserved credentials
   and caller bounds. No inferred pins, config conversion or checksum aliases. Workstream F applies.
+  Static Serve status remains a manifest-only observation, not pinned hosting or payload verification.
+- **Candidate evidence:**
+  [Pull/Serve exact cut and owner verification](./dist-content-identity.plan/landing/S5.landing.md)
+  records 33 attributable source/test/docs paths after quality, docs/style, and shared-add
+  adjudication. It includes public-entry old/mixed-input and URL preflight controls, interactive/add
+  persistence parity, projection lifecycle evidence, operator path/mutation guidance, and Serve
+  observation boundaries. The independent quality report covered the original 28 paths with
+  qualified blindness; subsequent corrections and the expanded cut retain in-thread inspection and
+  owner-check provenance (Pull 24/114, Serve 12/76), not a new independent verdict or isolated-commit
+  proof.
 
 ### S6 — Build and snapshot producer success contracts
 
