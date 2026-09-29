@@ -1,3 +1,4 @@
+import { Pinned } from '@sys/fs/pkg/dist/verify';
 import { Fs, Is, Json, Obj, Path, Testing, Yaml } from '../../-test.ts';
 import { Cell } from '../mod.ts';
 import { CellPaths } from '../u/paths.ts';
@@ -37,6 +38,7 @@ const EXPECTED = {
     stage: {
       returnedRoot: true,
       frozenEvidence: true,
+      verifiedEvidence: true,
       exactRoot: true,
       files: ['dist.json', 'index.html', 'ui.components/index.html'],
     },
@@ -68,6 +70,7 @@ type Report = {
     readonly stage: {
       readonly returnedRoot: boolean;
       readonly frozenEvidence: boolean;
+      readonly verifiedEvidence: boolean;
       readonly exactRoot: boolean;
       readonly files: readonly string[];
     };
@@ -78,12 +81,11 @@ type StageResult = {
   readonly ok: true;
   readonly stagingRoot: string;
   readonly verification: {
-    readonly integrity: string;
-    readonly dist: {
-      readonly hash: {
-        readonly digest: string;
-        readonly parts: Readonly<Record<string, string>>;
-      };
+    readonly manifestChecksum: string;
+    readonly content: {
+      readonly scheme: 'sys.dist/v2';
+      readonly digest: string;
+      readonly parts: Readonly<Record<string, string>>;
     };
     readonly assets: { readonly files: number };
   };
@@ -133,8 +135,17 @@ export const DeploySampleProof = Object.freeze({
     const staged = stageResultOf(result.steps[0]?.result);
     const stagingRoot = Fs.join(fixtureRoot, '.tmp/staging');
     const files = await regularFiles(stagingRoot);
-    const declared = Object.keys(staged.verification.dist.hash.parts).toSorted();
+    const declared = Object.keys(staged.verification.content.parts).toSorted();
     const exactFiles = [...declared, 'dist.json'].toSorted();
+    const { scheme, digest } = staged.verification.content;
+    const verified = await Pinned.verify({
+      dir: stagingRoot,
+      pin: { scheme, digest },
+      limits: { manifestBytes: 1048576, entries: 100, fileBytes: 1048576, totalBytes: 4194304 },
+    });
+    const verifiedEvidence = verified.kind === 'verified' &&
+      Obj.eql(verified.evidence.content, staged.verification.content) &&
+      verified.evidence.manifestChecksum === staged.verification.manifestChecksum;
 
     return {
       descriptor: {
@@ -161,6 +172,7 @@ export const DeploySampleProof = Object.freeze({
         stage: {
           returnedRoot: staged.stagingRoot === stagingRoot,
           frozenEvidence: isFrozenStageEvidence(staged, declared.length),
+          verifiedEvidence,
           exactRoot: Obj.eql(files, exactFiles),
           files,
         },
@@ -186,21 +198,18 @@ function stageResultOf(input: unknown): StageResult {
   }
 
   const evidence = verification as Record<string, unknown>;
-  const dist = evidence.dist;
+  const content = evidence.content;
   const assets = evidence.assets;
-  if (!Is.str(evidence.integrity) || !Is.object(dist) || !Is.object(assets)) {
+  if (!Is.str(evidence.manifestChecksum) || !Is.record(content) || !Is.record(assets)) {
     throw invalidStageResult();
   }
-
-  const hash = (dist as Record<string, unknown>).hash;
-  if (!Is.object(hash) || !Is.num((assets as Record<string, unknown>).files)) {
+  if (
+    content.scheme !== 'sys.dist/v2' || !Is.str(content.digest) ||
+    !Is.record(content.parts) || !Is.num(assets.files)
+  ) {
     throw invalidStageResult();
   }
-  const hashRecord = hash as Record<string, unknown>;
-  if (!Is.str(hashRecord.digest) || !Is.record(hashRecord.parts)) {
-    throw invalidStageResult();
-  }
-  if (!Object.values(hashRecord.parts).every((value) => Is.str(value))) {
+  if (!Object.values(content.parts).every((value) => Is.str(value))) {
     throw invalidStageResult();
   }
   return input as StageResult;
@@ -210,9 +219,8 @@ function isFrozenStageEvidence(stage: StageResult, declaredFiles: number): boole
   return (
     Object.isFrozen(stage) &&
     Object.isFrozen(stage.verification) &&
-    Object.isFrozen(stage.verification.dist) &&
-    Object.isFrozen(stage.verification.dist.hash.parts) &&
-    stage.verification.integrity !== stage.verification.dist.hash.digest &&
+    Object.isFrozen(stage.verification.content) &&
+    Object.isFrozen(stage.verification.content.parts) &&
     stage.verification.assets.files === declaredFiles
   );
 }

@@ -103,8 +103,8 @@ Options    -h, --help   show help
 | ------------------------- | ---------------------------------------------------------------------------------------- |
 | create: Cell              | Initialize this folder as an `@sys/cell`.                                                |
 | create: Cell at path      | Initialize `./foo` as an `@sys/cell`.                                                    |
-| add: pulled view          | Add a pulled view from `<manifest-url>` pinned by `<integrity>`.                         |
-| refresh: pulled views     | Materialize checksum-pinned configured views.                                            |
+| add: pulled view          | Add a pulled view from `<manifest-url>` pinned by `<scheme> <digest>`.                   |
+| refresh: pulled views     | Materialize content-pinned configured views.                                             |
 | add: static serve service | Add an `@sys/tools/serve` static service for `<dir>`.                                    |
 | add: service              | Add a service named `<service-name>` using endpoint `<endpoint>` from module `<module>`. |
 | add: proxy service        | Add a proxy service named `<service-name>`.                                              |
@@ -118,7 +118,10 @@ Sample slot values, not DSL grammar:
 
 - `<manifest-url>`: `https://fs.db.team/driver.stripe/dist.json`
 - `<manifest-url>`: `https://fs.db.team/ui.components/dist.json`
-- `<integrity>`: publisher-provided `sha256-<exact-manifest-byte-hash>`
+- `<scheme>`: `sys.dist/v2`
+- `<digest>`: independently publisher-provided `sha256-<canonical-payload-digest>`; not a manifest
+  byte checksum or a digest learned from the download being configured. Never relabel or
+  automatically repin an old expectation.
 - `<service-name>`: `ui:static:views` for the sample static view service
 - `<service-name>`: `stripe:dev:fixture` for the Stripe fixture service
 - `<service-name>`: `cell:proxy` for the sample public proxy

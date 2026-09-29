@@ -9,7 +9,7 @@ export type DistFixture = {
   readonly args: (overrides?: Partial<MaterializeArgs>) => MaterializeArgs;
   readonly manifestUrl: string;
   readonly manifestBytes: Uint8Array;
-  readonly integrity: string;
+  readonly pin: MaterializeArgs['pin'];
   readonly storeDir: string;
   readonly source: string;
   readonly policy: MaterializePolicy;
@@ -17,7 +17,7 @@ export type DistFixture = {
 };
 
 /**
- * Create one neutral loopback Dist source and isolated integrity-addressed store.
+ * Create one neutral loopback Dist source and isolated content-addressed store.
  */
 export async function setupDistFixture(root: string): Promise<DistFixture> {
   const source = Fs.join(root, 'dist-source');
@@ -54,6 +54,7 @@ export async function setupDistFixture(root: string): Promise<DistFixture> {
     save: true,
   });
 
+  if (computed.kind !== 'computed') throw computed.error;
   const assets = new Map<string, Uint8Array<ArrayBuffer>>();
   for (const path of Object.keys(computed.dist.hash.parts)) {
     const bytes = new Uint8Array(await Deno.readFile(Fs.join(canonicalSource, path)));
@@ -61,7 +62,7 @@ export async function setupDistFixture(root: string): Promise<DistFixture> {
   }
 
   const manifest = await Deno.readFile(Fs.join(canonicalSource, 'dist.json'));
-  const integrity = computed.manifest.integrity;
+  const pin = computed.pin;
 
   const server = Testing.Http.server((request) => {
     const url = new URL(request.url);
@@ -100,7 +101,7 @@ export async function setupDistFixture(root: string): Promise<DistFixture> {
 
   const args = (overrides: Partial<MaterializeArgs> = {}): MaterializeArgs => ({
     manifestUrl,
-    integrity,
+    pin,
     storeDir: canonicalStoreDir,
     policy,
     ...overrides,
@@ -114,9 +115,7 @@ export async function setupDistFixture(root: string): Promise<DistFixture> {
     get manifestBytes() {
       return manifest.slice();
     },
-    get integrity() {
-      return integrity;
-    },
+    pin,
     policy,
     async teardown() {
       const failures: unknown[] = [];
