@@ -1,4 +1,4 @@
-import { Fs, Path, type t } from '../common.ts';
+import { Fs, Is, type t } from '../common.ts';
 import { serveFileWithEtag } from '../u.serveFile/u.serveFileWithEtag.ts';
 
 type Input = Parameters<t.HttpServer.ServeStatic.Method>[0];
@@ -7,34 +7,40 @@ type Input = Parameters<t.HttpServer.ServeStatic.Method>[0];
  * Serve static files through the ETag-aware file path, preserving cache validation,
  * streaming, and Range/206 semantics as one transport contract.
  */
-export const serveStatic: t.HttpServer.ServeStatic.Method = (input: Input) => {
+export const serveStatic: t.HttpServer.ServeStatic.Method = (input) =>
+  serveStaticWith(input, Fs.stat);
+
+/** Internal stat seam for proving refusal before filesystem lookup. */
+export function serveStaticWith(
+  input: Input,
+  stat: t.Fs.GetStat,
+): t.HttpServer.Hono.MiddlewareHandler {
   const options = wrangle.options(input);
 
   return async (c) => {
-    // Avoid path-traversal (stepping up out of the server folder).
     const urlPath = decodeURIComponent(new URL(c.req.url).pathname);
-    const fullPath = Path.join(options.root ?? '', urlPath);
-    const filePath = Path.normalize(fullPath);
+    const root = Fs.Path.resolve(options.root ?? '.');
+    const filePath = Fs.Path.resolve(Fs.Path.join(root, urlPath));
 
-    // Ensure the result is still under {options.root}.
-    if (!filePath.startsWith(Path.normalize(options.root ?? '.'))) {
+    // Lexical containment before lookup or fallback; not a symlink/no-follow guarantee.
+    if (!Fs.Path.Is.within(root, filePath)) {
       return c.text('Forbidden', 403);
     }
 
     const notFound = async () => {
       // Custom 404 handler or default.
-      return typeof options.onNotFound === 'function'
+      return Is.func(options.onNotFound)
         ? await options.onNotFound(urlPath, c)
         : c.text('Not Found', 404);
     };
 
     try {
-      const info = await Fs.stat(filePath);
+      const info = await stat(filePath);
       if (!info) return await notFound();
 
       // NB: If the target is a directory, serve the `index.html` file.
-      const target = info.isDirectory ? Path.join(filePath, 'index.html') : filePath;
-      const targetInfo = info.isDirectory ? await Fs.stat(target) : info;
+      const target = info.isDirectory ? Fs.Path.join(filePath, 'index.html') : filePath;
+      const targetInfo = info.isDirectory ? await stat(target) : info;
       if (!targetInfo || !targetInfo.isFile) return await notFound();
 
       return await serveFileWithEtag({
@@ -47,7 +53,7 @@ export const serveStatic: t.HttpServer.ServeStatic.Method = (input: Input) => {
       throw err;
     }
   };
-};
+}
 
 /**
  * Helpers:
@@ -56,10 +62,10 @@ const wrangle = {
   /**
    * Normalise the caller’s input so we always work with an options object.
    *   - string  →  { root: string }
-   *   - object  →  unchanged
+   *   - object  →  default root merged with caller options
    */
   options(input: Input): t.HttpServer.ServeStatic.Options<t.HttpServer.Hono.Env> {
-    if (typeof input === 'string') return { root: input };
+    if (Is.string(input)) return { root: input };
     return { root: '.', ...input };
   },
 } as const;
