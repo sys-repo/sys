@@ -1,5 +1,5 @@
-import React from 'react';
-import { type t, BarSpinner, Button, Color, css } from './common.ts';
+import type React from 'react';
+import { BarSpinner, Button, Color, css, D, type t } from './common.ts';
 
 export type VerifyActionProps = {
   label?: string;
@@ -14,7 +14,7 @@ export type VerifyActionProps = {
  * Component:
  */
 export const VerifyAction: React.FC<VerifyActionProps> = (props) => {
-  const { debug = false, running = false, label = 'run verification' } = props;
+  const { debug = false, running = false, label = D.observationAction } = props;
 
   /**
    * Render:

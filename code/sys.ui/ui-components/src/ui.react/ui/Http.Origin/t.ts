@@ -7,11 +7,11 @@ type UValue = t.HttpOriginValue;
 /** Type re-exports. */
 export type * from './t.data.ts';
 
-/** HTTP origin UI and data contracts. */
+/**
+ * HTTP origin UI, data and controller contracts.
+ */
 export declare namespace HttpOrigin {
-  /**
-   * HttpOrigin UI Display.
-   */
+  /** Public UI, data helpers and controller surface. */
   export type Lib = {
     readonly Data: t.HttpOriginDataLib;
     readonly controller: ControllerFactory;
@@ -30,7 +30,9 @@ export declare namespace HttpOrigin {
   /** Flat URL row emitted from an origin tree. */
   export type UrlRow = URow;
   export type Value = UValue;
+  /** Manifest fetch/schema status only; `ok` does not authenticate content or payload bytes. */
   export type VerifyStatus = 'idle' | 'running' | 'ok' | 'error';
+  /** Enable unpinned manifest observation, not independent Dist verification. */
   export type Verify = boolean | VerifyOptions;
   export type VerifyOptions = { resolveUrl?: (e: VerifyResolveArgs) => t.StringUrl };
   export type VerifyResolveArgs = { origin: t.StringUrl; key: string; env: Env };

@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 
 export type LogVerifyResultsArgs = {
   env: t.HttpOrigin.Env;
@@ -8,7 +8,7 @@ export type LogVerifyResultsArgs = {
 };
 
 /**
- * Log a compact verification summary and table for Http.Origin rows.
+ * Log unpinned manifest observations, not payload verification evidence.
  */
 export function logVerifyResults(args: LogVerifyResultsArgs) {
   const items = args.rows.map((row) => ({
@@ -21,6 +21,8 @@ export function logVerifyResults(args: LogVerifyResultsArgs) {
   const total = items.length;
   const ok = items.filter((item) => item.status === 'ok').length;
   const error = items.filter((item) => item.status === 'error').length;
-  console.info(`[Http.Origin.verify] env=${args.env} total=${total} ok=${ok} error=${error}`);
+  console.info(
+    `[Http.Origin.observe] unpinned env=${args.env} total=${total} observed=${ok} error=${error}`,
+  );
   console.table(items);
 }

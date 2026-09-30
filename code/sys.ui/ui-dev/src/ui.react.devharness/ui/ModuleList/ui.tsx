@@ -1,7 +1,7 @@
-import React from 'react';
+import type React from 'react';
 
 import { useEffect, useRef } from 'react';
-import { type t, Color, DEFAULTS, css, useDist, useRubberband } from './common.ts';
+import { Color, css, DEFAULTS, Is, type t, useDist, useRubberband } from './common.ts';
 import { Footer } from './ui.Footer.tsx';
 import { List } from './ui.List.tsx';
 import { Title } from './ui.Title.tsx';
@@ -12,8 +12,8 @@ type LiMap = Map<number, HTMLLIElement>;
 
 export const View: React.FC<t.ModuleListProps> = (props) => {
   const { theme, scroll = true, focused = true, enabled = true } = props;
-  const url = new URL(props.href ?? window.location.href);
-  const imports = (props.imports ?? {}) as t.ModuleImports;
+  const url = new URL(props.href ?? globalThis.location.href);
+  const imports: t.ModuleImports = props.imports ?? {};
 
   const baseRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<LiMap>(new Map<number, HTMLLIElement>());
@@ -21,7 +21,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   /**
    * Hooks:
    */
-  const dist = useDist({ sampleFallback: true });
+  const dist = useDist();
   useRubberband(props.allowRubberband ?? false);
   useScrollObserver(baseRef, itemRefs.current, props.onItemVisibility);
   useScrollController(baseRef, itemRefs.current, props.scrollTo$);
@@ -32,7 +32,7 @@ export const View: React.FC<t.ModuleListProps> = (props) => {
   useEffect(() => {
     if (!enabled) return;
     const i = props.selectedIndex;
-    const isUnselected = i === undefined || (typeof i === 'number' && i < 0);
+    const isUnselected = i === undefined || (Is.number(i) && i < 0);
     if (isUnselected) props.onItemSelect?.({ index: -1 });
   }, [props.selectedIndex, enabled]);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, KeyValue } from './common.ts';
+import { KeyValue, type t } from './common.ts';
 import { Data } from './m.Data.ts';
 import { VerifyAction } from './ui.Action.Verify.tsx';
 import { useVerify } from './use.Verify.ts';
@@ -38,7 +38,7 @@ export const Info: React.FC<InfoProps> = (props) => {
             theme={props.theme}
             status={verify.status[row.key]}
             tooltip={verify.status[row.key] === 'ok' && verify.digest[row.key]
-              ? `dist.json: ${verify.digest[row.key]}`
+              ? `Self-reported sys.dist/v2 digest: ${verify.digest[row.key]}; payload not verified.`
               : undefined}
             reserveStatusSpace={verify.reserveStatusSpace}
           />
@@ -49,7 +49,7 @@ export const Info: React.FC<InfoProps> = (props) => {
     if (verify.verifyEnabled) {
       items.push({ kind: 'hr', thickness: 5, opacity: 0.06 });
       items.push({
-        k: 'integrity',
+        k: 'manifest (unpinned)',
         v: (
           <VerifyAction
             theme={props.theme}

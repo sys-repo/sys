@@ -1,5 +1,5 @@
 import React from 'react';
-import { Http, Path, Pkg, Rx, type t, Time } from './common.ts';
+import { D, Http, Is, Path, Pkg, Rx, type t, Time } from './common.ts';
 import { logVerifyResults } from './u.log.ts';
 
 export type UseVerifyArgs = {
@@ -10,16 +10,20 @@ export type UseVerifyArgs = {
 };
 
 /**
- * Local verify-state plumbing for Http.Origin row verification.
+ * Observe remote manifest shapes and self-reported digests without authenticating payloads.
  */
 export function useVerify(args: UseVerifyArgs) {
   const verifyEnabled = !!args.verify;
   const life = React.useRef(Rx.lifecycle());
   const run = React.useRef<t.Lifecycle | undefined>(undefined);
   const [running, setRunning] = React.useState(false);
-  const [actionLabel, setActionLabel] = React.useState('run verification');
-  const [status, setStatus] = React.useState<Record<string, t.HttpOrigin.VerifyStatus>>({});
-  const [digest, setDigest] = React.useState<Record<string, t.StringHash | undefined>>({});
+  const [actionLabel, setActionLabel] = React.useState<string>(D.observationAction);
+  const [status, setStatus] = React.useState<Record<string, t.HttpOrigin.VerifyStatus>>(
+    () => observationMap(),
+  );
+  const [digest, setDigest] = React.useState<Record<string, t.StringHash | undefined>>(
+    () => observationMap(),
+  );
   const [reserveStatusSpace, setReserveStatusSpace] = React.useState(false);
 
   React.useEffect(() => {
@@ -32,9 +36,9 @@ export function useVerify(args: UseVerifyArgs) {
   React.useEffect(() => {
     run.current?.dispose();
     setRunning(false);
-    setActionLabel('run verification');
-    setStatus({});
-    setDigest({});
+    setActionLabel(D.observationAction);
+    setStatus(observationMap());
+    setDigest(observationMap());
     setReserveStatusSpace(false);
   }, [args.env, args.origin, args.verify]);
 
@@ -44,32 +48,31 @@ export function useVerify(args: UseVerifyArgs) {
 
     const current = Rx.lifecycle(life.current.dispose$);
     const settled = toRunningStatus(args.rows);
-    const digests: Record<string, t.StringHash | undefined> = {};
-    const resolved = args.rows.reduce<Record<string, t.StringUrl>>((acc, row) => {
-      acc[row.key] = wrangle.resolveUrl(args, row);
-      return acc;
-    }, {});
+    const digests = observationMap<t.StringHash | undefined>();
+    const resolved = observationMap<t.StringUrl>();
     run.current = current;
     setRunning(true);
-    setStatus(settled);
+    setActionLabel(D.observationAction);
+    setStatus(observationMap(settled));
+    setDigest(observationMap());
 
     void (async () => {
       const tasks = args.rows.map(async (row) => {
-        const url = resolved[row.key];
-        const origin = new URL(url).origin;
-        const fetch = Http.fetcher({
-          policy: {
-            maxBytes: 16 * 1024 * 1024,
-            timeout: 30_000,
-            maxRedirects: 3,
-            progressInterval: 100,
-            sourceOrigins: [origin],
-            credentialOrigins: [],
-          },
-        });
-        current.dispose$.subscribe(() => fetch.dispose());
-
         try {
+          const url = wrangle.resolveUrl(args, row);
+          resolved[row.key] = url;
+          const origin = new URL(url).origin;
+          using fetch = Http.fetcher({
+            until: current,
+            policy: {
+              maxBytes: 16 * 1024 * 1024,
+              timeout: 30_000,
+              maxRedirects: 3,
+              progressInterval: 100,
+              sourceOrigins: [origin],
+              credentialOrigins: [],
+            },
+          });
           const res = await fetch.json(url);
           if (current.disposed || fetch.disposed) return;
 
@@ -77,16 +80,14 @@ export function useVerify(args: UseVerifyArgs) {
           const next: t.HttpOrigin.VerifyStatus = dist ? 'ok' : 'error';
           digests[row.key] = dist?.hash.digest;
           settled[row.key] = next;
-          setStatus({ ...settled });
-          setDigest({ ...digests });
+          setStatus(observationMap(settled));
+          setDigest(observationMap(digests));
         } catch {
           if (current.disposed) return;
           digests[row.key] = undefined;
           settled[row.key] = 'error';
-          setStatus({ ...settled });
-          setDigest({ ...digests });
-        } finally {
-          fetch.dispose();
+          setStatus(observationMap(settled));
+          setDigest(observationMap(digests));
         }
       });
 
@@ -100,7 +101,7 @@ export function useVerify(args: UseVerifyArgs) {
       setActionLabel(wrangle.actionLabel(settled));
       Time.until(current).delay(3000, () => {
         if (current.disposed) return;
-        setActionLabel('run verification');
+        setActionLabel(D.observationAction);
       });
     })();
   }, [args, verifyEnabled]);
@@ -122,7 +123,7 @@ export function useVerify(args: UseVerifyArgs) {
 const wrangle = {
   resolveUrl(args: UseVerifyArgs, row: t.HttpOrigin.UrlRow) {
     const verify = args.verify;
-    if (typeof verify === 'object' && verify?.resolveUrl) {
+    if (Is.object(verify) && verify?.resolveUrl) {
       return verify.resolveUrl({ origin: row.url, key: row.key, env: args.env });
     }
     return new URL(Path.join(row.url, 'dist.json')).href;
@@ -130,14 +131,19 @@ const wrangle = {
   actionLabel(status: Record<string, t.HttpOrigin.VerifyStatus>) {
     const values = Object.values(status);
     if (values.some((value) => value === 'error')) return 'has failures';
-    if (values.some((value) => value === 'ok')) return 'success';
-    return 'run verification';
+    if (values.some((value) => value === 'ok')) return 'observed (unpinned)';
+    return D.observationAction;
   },
 } as const;
+
+/** Observation keys are own data; absent keys never resolve through Object.prototype. */
+function observationMap<T>(values: Record<string, T> = {}): Record<string, T> {
+  return Object.assign(Object.create(null), values);
+}
 
 function toRunningStatus(rows: readonly t.HttpOrigin.UrlRow[]) {
   return rows.reduce<Record<string, t.HttpOrigin.VerifyStatus>>((acc, row) => {
     acc[row.key] = 'running';
     return acc;
-  }, {});
+  }, observationMap());
 }

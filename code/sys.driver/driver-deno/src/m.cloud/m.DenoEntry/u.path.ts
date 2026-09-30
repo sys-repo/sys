@@ -2,7 +2,8 @@ import { Fs, type t } from './common.ts';
 import { checkSelfReportedDist } from './u.checkSelfReported.ts';
 
 export async function loadTarget(options: t.DenoEntry.ServeOptions) {
-  const cwd = Fs.resolve(options.cwd ?? Fs.cwd());
+  // Canonicalize the working-directory anchor, not the selected target or Dist subtree.
+  const cwd = await Fs.realPath(Fs.resolve(options.cwd ?? Fs.cwd()));
   const target = {
     absolute: trustedPath(cwd, options.targetDir, 'targetDir'),
     relative: ensureDotRelativeDir(options.targetDir),
@@ -26,15 +27,15 @@ export async function loadTarget(options: t.DenoEntry.ServeOptions) {
       dist,
       entry,
       hasEntry,
-      hash: '' as t.StringHash,
+      hash: '',
       pkg: sourcePkg,
       target,
     } as const;
   }
 
-  const distPkg = await checkSelfReportedDist(dist.absolute);
-  const pkg = distPkg.pkg || sourcePkg;
-  const hash = distPkg.hash.digest;
+  const content = await checkSelfReportedDist(dist.absolute);
+  const pkg = sourcePkg;
+  const hash = content.digest;
 
   return {
     dist,
@@ -48,12 +49,12 @@ export async function loadTarget(options: t.DenoEntry.ServeOptions) {
 
 function trustedPath(root: t.StringPath, rel: t.StringRelativePath, label: string) {
   const path = Fs.resolve(Fs.join(root, rel));
-  if (path !== root && !path.startsWith(Fs.join(root, ''))) {
+  if (!Fs.Path.Is.within(root, path)) {
     throw new Error(`DenoEntry.serve: '${label}' escapes root '${root}': ${rel}`);
   }
   return path;
 }
 
-function ensureDotRelativeDir(dir: t.StringDir) {
-  return (dir.startsWith('./') ? dir : `./${dir}`) as t.StringRelativeDir;
+function ensureDotRelativeDir(dir: t.StringDir): t.StringRelativeDir {
+  return dir.startsWith('./') ? dir : `./${dir}`;
 }

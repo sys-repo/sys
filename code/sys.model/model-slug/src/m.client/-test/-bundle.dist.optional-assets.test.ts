@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { SlugClient as SlugClientBase } from '../mod.ts';
 import { Dist } from '../u.io.Dist.ts';
 
-import type { t } from '../common.ts';
+import { Hash, Pkg, type t } from '../common.ts';
 import { jsonResponse, LOAD_OPTIONS, stubFetch } from './u.fixture.ts';
 
 const SlugClient = {
@@ -40,32 +40,33 @@ const makeDist = (parts: string[]): t.DistPkg => {
     type: 'https://example.com/src/types/t.Pkg.dist.ts',
     pkg: { name: 'slug-client', version: '0.0.2' },
     build: {
-      time: 0 as t.UnixTimestamp,
+      time: 0,
       size: { total: 0, pkg: 0 },
       builder: 'slug-client@0.0.2',
       runtime: 'deno=1:v8=1:typescript=5',
       hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
     },
     hash: {
-      digest: 'sha256-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-      parts: hashParts as t.CompositeHashParts,
+      scheme: 'sys.dist/v2',
+      digest: Hash.sha256(Pkg.Dist.Content.encode(hashParts)),
+      parts: hashParts,
     },
   };
 };
 
 describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
   it('skips assets when dist lacks assets entry', async () => {
-    const docid = 'crdt:dist-only-playback' as t.StringId;
+    const docid: t.StringId = 'crdt:dist-only-playback';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats: [
         {
           src: {
             kind: 'video',
             logicalPath: '/video/main',
-            time: 0 as t.Msecs,
+            time: 0,
           },
           payload: null,
         },
@@ -96,7 +97,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
   });
 
   it('fetches assets when dist includes an assets entry', async () => {
-    const docid = 'crdt:dist-with-assets' as t.StringId;
+    const docid: t.StringId = 'crdt:dist-with-assets';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
@@ -115,10 +116,10 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
 
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats: [
         {
-          src: { kind: 'image', logicalPath: 'image/spot', time: 0 as t.Msecs },
+          src: { kind: 'image', logicalPath: 'image/spot', time: 0 },
           payload: null,
         },
       ],
@@ -153,7 +154,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
   });
 
   it('fails fast when dist omits playback entry', async () => {
-    const docid = 'crdt:dist-missing-playback' as t.StringId;
+    const docid: t.StringId = 'crdt:dist-missing-playback';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const dist = makeDist([SlugClient.Url.assetsFilename(cleaned)]);
 
@@ -161,7 +162,8 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
     const cleanup = stubFetch((url) => {
       if (url.includes('manifests/dist.json')) return jsonResponse(dist);
       if (url.includes(SlugClient.Url.assetsFilename(cleaned))) {
-        return jsonResponse({ docid: cleaned, assets: [] } as t.SpecTimelineAssetsManifest);
+        const assets: t.SpecTimelineAssetsManifest = { docid: cleaned, assets: [] };
+        return jsonResponse(assets);
       }
       if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
         throw new Error('playback manifest must not be fetched');
@@ -181,7 +183,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (dist gating)', () => {
   });
 
   it('fails when dist parts use manifests/ prefix (invalid key-space)', async () => {
-    const docid = 'crdt:dist-bare-keys' as t.StringId;
+    const docid: t.StringId = 'crdt:dist-bare-keys';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const dist = makeDist([`manifests/${SlugClient.Url.playbackFilename(cleaned)}`]);

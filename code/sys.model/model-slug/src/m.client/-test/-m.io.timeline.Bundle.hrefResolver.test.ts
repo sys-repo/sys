@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from '../../-test.ts';
-import type { t } from '../common.ts';
+import { Hash, Pkg, type t } from '../common.ts';
 import { SlugClient as SlugClientBase } from '../mod.ts';
 import { Dist } from '../u.io.Dist.ts';
 import { jsonResponse, LOAD_OPTIONS, stubFetch } from './u.fixture.ts';
@@ -31,21 +31,23 @@ describe('SlugClient.Timeline.Bundle: hrefResolver', () => {
     it('uses media-seq asset kinds for timeline resolver', () => {
       type Resolver = t.SlugTimelineBundleHrefResolver;
       type Args = Parameters<Resolver>[0];
-      const kind = null as unknown as Args['kind'];
-      expectTypeOf(kind).toEqualTypeOf<t.BundleDescriptorSlugTreeMediaSeqAssetKind | undefined>();
+      expectTypeOf<Args['kind']>(undefined).toEqualTypeOf<
+        t.BundleDescriptorSlugTreeMediaSeqAssetKind | undefined
+      >();
     });
 
     it('supports fs asset kinds via generic resolver', () => {
       type Resolver = t.SlugBundleHrefResolver<t.BundleDescriptorSlugTreeFsAssetKind>;
       type Args = Parameters<Resolver>[0];
-      const kind = null as unknown as Args['kind'];
-      expectTypeOf(kind).toEqualTypeOf<t.BundleDescriptorSlugTreeFsAssetKind | undefined>();
+      expectTypeOf<Args['kind']>(undefined).toEqualTypeOf<
+        t.BundleDescriptorSlugTreeFsAssetKind | undefined
+      >();
     });
   });
 });
 
 describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
-  const docid = 'crdt:bundle-href' as t.StringId;
+  const docid: t.StringId = 'crdt:bundle-href';
   const makeDist = (parts: string[]): t.DistPkg => {
     const hashParts: Record<string, t.StringFileHashUri> = {};
     for (const part of parts) {
@@ -56,15 +58,16 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
       type: 'https://example.com/src/types/t.Pkg.dist.ts',
       pkg: { name: 'slug-client', version: '0.0.1' },
       build: {
-        time: 0 as t.UnixTimestamp,
+        time: 0,
         size: { total: 0, pkg: 0 },
         builder: 'slug-client@0.0.1',
         runtime: 'deno=1:v8=1:typescript=5',
         hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
       },
       hash: {
-        digest: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-        parts: hashParts as t.CompositeHashParts,
+        scheme: 'sys.dist/v2',
+        digest: Hash.sha256(Pkg.Dist.Content.encode(hashParts)),
+        parts: hashParts,
       },
     };
   };
@@ -93,10 +96,10 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load (hrefResolver)', () => {
 
     const playbackManifest: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/a.mp4' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/a.mp4' }],
       beats: [
         {
-          src: { kind: 'video', logicalPath: '/video/a.mp4', time: 0 as t.Msecs },
+          src: { kind: 'video', logicalPath: '/video/a.mp4', time: 0 },
           payload: null,
         },
       ],
