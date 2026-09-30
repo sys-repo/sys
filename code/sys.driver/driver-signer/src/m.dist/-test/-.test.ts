@@ -3,9 +3,9 @@ import { Fs, Hash, Is, Json, Obj, Pkg, Rx, SignEd25519, Str, type t } from '../c
 import { DistSigner } from '../mod.ts';
 
 describe(`DistSigner`, () => {
-  const runData = (res: t.Signer.Result): t.DistSigner.RunDataSuccess => {
+  const runData = (res: t.Signer.Result): t.DistSigner.Run.DataSuccess => {
     if (!res.ok) throw new Error('Expected success result.');
-    return res.data as t.DistSigner.RunDataSuccess;
+    return res.data as t.DistSigner.Run.DataSuccess;
   };
 
   it('API', async () => {

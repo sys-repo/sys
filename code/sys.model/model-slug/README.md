@@ -10,8 +10,8 @@ APIs from these entrypoints:
 
 ## Load a playback bundle
 
-Import `SlugClient` from `/client`. Endpoint loaders need either a response policy or an HTTP client
-you own. The policy below limits response size, duration, redirects, and allowed origins.
+Endpoint loaders need either a response policy or an HTTP client you own. The policy below limits
+manifest response size, duration, redirects, and allowed origins.
 
 ```ts
 import { SlugClient } from 'jsr:@sys/model-slug/client';
@@ -40,16 +40,25 @@ if (result.ok) {
 }
 ```
 
-Use a real endpoint and document ID, with network access to that endpoint. In a browser, the
-endpoint must also allow any cross-origin requests.
+Run with network access to the endpoint. Browser use also requires the endpoint to allow
+cross-origin requests.
 
 Limits apply to each fetch, not to the bundle load as a whole. Pass `policy` to let the loader
-create and dispose its HTTP clients, or pass `client` to manage its lifetime yourself. Changing the
-layout or URLs does not expand the allowed origins.
+create and dispose its HTTP clients, or pass `client` to manage its lifetime yourself. For bundle
+loading, the policy governs manifest requests—not returned media URLs. Changing layout or URLs does
+not expand allowed manifest origins; asset resolution does not check `sourceOrigins`. Callers must
+govern subsequent media requests separately.
 
-By default, the loader reads `manifests/dist.json` and the document's playback and assets manifests.
-The playback manifest must be listed in dist; without an assets entry, the asset set is empty. The
-result contains a playback spec and asset resolver, not downloaded media or a running player.
+By default, the loader reads `-manifests/dist.json` and the document's playback and assets
+manifests. Use `layout: { manifestsDir: 'manifests' }` for a `manifests` directory. The playback
+manifest must be listed in dist; without an assets entry, the asset set is empty. The result
+contains a playback spec and asset resolver, not downloaded media or a running player. Membership
+and schema checks do not authenticate manifests or media: no independent content pin or document
+signature is checked. Treat the bundle as an observation, not verified payload evidence.
+
+Reused HTTP clients, including those held by descriptor clients, cache successful `dist.json`
+observations per manifest location while playback is refetched, so republished membership can remain
+stale; policy-only endpoint loads do not use this client-owned Dist cache.
 
 For descriptor-based loading, `SlugClient.FromDescriptor.make` returns a result containing a client
 for the selected endpoint, document, and layout. Check `ok` before using the client, and dispose it

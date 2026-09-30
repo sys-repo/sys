@@ -4,7 +4,7 @@ import { readBytes } from './u.run.io.ts';
 
 export async function readArtifactBytes(
   data: t.Signer.ResultData,
-  args: t.DistSigner.RunArgs,
+  args: t.DistSigner.Run.Args,
 ): Promise<{ ok: true; bytes: Uint8Array } | { ok: false; res: t.Signer.ResultFail }> {
   const artifact = args.artifact;
   if (
@@ -18,7 +18,7 @@ export async function readArtifactBytes(
   return await readBytes(data, artifact.path, 'artifact');
 }
 
-function wantsDistSignDescriptorWriteBack(args: t.DistSigner.RunArgs): boolean {
+function wantsDistSignDescriptorWriteBack(args: t.DistSigner.Run.Args): boolean {
   if (args.mode === 'verify') return false;
   if (args.artifact.kind !== 'dist.json') return false;
   return args.writeBack?.distSignDescriptor ?? true;
@@ -76,7 +76,7 @@ async function readDistBytes(
 
 async function writeDistSignDescriptorAndReadBytes(
   data: t.Signer.ResultData,
-  args: t.DistSigner.RunArgsSign | t.DistSigner.RunArgsSignVerify,
+  args: t.DistSigner.Run.ArgsSign | t.DistSigner.Run.ArgsSignVerify,
 ): Promise<{ ok: true; bytes: Uint8Array } | { ok: false; res: t.Signer.ResultFail }> {
   const loaded = await FsPkg.Dist.load(args.artifact.path);
 
