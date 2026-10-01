@@ -201,6 +201,12 @@ jobs:
           cd ${{ matrix.path }}
           deno task test
 
+      - name: Vite proof lanes → "${{ matrix.name }}"
+        if: ${{ matrix.name == '@sys/driver-vite' }}
+        run: |
+          cd ${{ matrix.path }}
+          deno task test:proofs
+
       - name: browser test module → "${{ matrix.name }}"
         if: ${{ matrix.browser == true }}
         run: |

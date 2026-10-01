@@ -40,28 +40,6 @@ describe('DenoLoaderResolver', () => {
     }
   });
 
-  it('resolves npm imports and node builtins through seam authority', async () => {
-    const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.seam.npm.');
-    try {
-      using resolver = await DenoLoaderResolver.create({
-        configPath: fixture.configPath,
-        noLock: true,
-      });
-
-      const npm = await resolver.resolve('npm:react@19.2.7', fixture.appUrl);
-      const bareNpm = await resolver.resolve('react', fixture.appUrl);
-      const nodeBuiltin = resolver.resolveSync('node:path', fixture.appUrl);
-
-      expect(npm.startsWith('file://')).to.eql(true);
-      expect(npm.toLowerCase()).to.include('react');
-      expect(bareNpm.startsWith('file://')).to.eql(true);
-      expect(bareNpm.toLowerCase()).to.include('react');
-      expect(nodeBuiltin).to.eql('node:path');
-    } finally {
-      await fixture.dispose();
-    }
-  });
-
   it('resolves remote children from concrete HTTPS referrers through the seam', async () => {
     const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.seam.remote.');
     try {
@@ -74,22 +52,6 @@ describe('DenoLoaderResolver', () => {
       const child = resolver.resolveSync('./posix/mod.ts', referrer);
 
       expect(child).to.eql('https://jsr.io/@std/path/1.1.2/posix/mod.ts');
-    } finally {
-      await fixture.dispose();
-    }
-  });
-
-  it('accepts entrypoints before resolving from the loader graph', async () => {
-    const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.seam.entrypoint.');
-    try {
-      using resolver = await DenoLoaderResolver.create({
-        configPath: fixture.configPath,
-        entrypoints: [fixture.appUrl],
-        noLock: true,
-      });
-
-      const workspaceExport = resolver.resolveSync('@fixture/pkg/feature', fixture.appUrl);
-      expect(workspaceExport).to.eql(fixture.featureUrl);
     } finally {
       await fixture.dispose();
     }

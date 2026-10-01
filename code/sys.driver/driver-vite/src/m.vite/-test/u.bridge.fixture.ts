@@ -174,7 +174,7 @@ function escapeRegExp(value: string) {
 async function reachablePackageSpecifiers(entry: string): Promise<readonly string[]> {
   const output = await Process.invoke({
     cmd: DENO_BINARY,
-    args: ['info', '--json', entry],
+    args: ['info', '--frozen', '--json', entry],
     cwd: ROOT.dir,
     silent: true,
   });
@@ -364,6 +364,14 @@ function defaultTsconfigJson() {
   return Json.stringify(obj, 2);
 }
 
+/**
+ * Prepare a caller-owned disposable fixture, not a live project.
+ * May write imports.json, deno.json, package.json, tsconfig.json and the selected Vite config.
+ * Only successful setup returns a restoration callback; the caller must await it in cleanup.
+ * Setup failure can leave changes without that callback; the caller still owns the fixture.
+ * Restoration is sequential, not atomic, and can itself fail.
+ * Graph discovery uses `deno info --frozen`, which is not cache-only and may acquire dependencies.
+ */
 export async function writeLocalFixtureImports(
   dir: string,
   config = 'vite.config.ts',

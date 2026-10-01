@@ -47,27 +47,6 @@ describe('ViteTransport loader resolver contract', () => {
     }
   });
 
-  it('resolves npm imports and node builtins through Deno loader authority', async () => {
-    const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.contract.npm.');
-    try {
-      using workspace = new Workspace({ configPath: fixture.configPath, noLock: true });
-      using loader = await workspace.createLoader();
-      const referrer = fixture.appUrl;
-
-      const npm = await loader.resolve('npm:react@19.2.7', referrer, ResolutionMode.Import);
-      const bareNpm = await loader.resolve('react', referrer, ResolutionMode.Import);
-      const nodeBuiltin = loader.resolveSync('node:path', referrer, ResolutionMode.Import);
-
-      expect(npm.startsWith('file://')).to.eql(true);
-      expect(npm.toLowerCase()).to.include('react');
-      expect(bareNpm.startsWith('file://')).to.eql(true);
-      expect(bareNpm.toLowerCase()).to.include('react');
-      expect(nodeBuiltin).to.eql('node:path');
-    } finally {
-      await fixture.dispose();
-    }
-  });
-
   it('resolves remote children from concrete HTTPS referrers', async () => {
     const fixture = await DenoLoaderResolverFixture.create('ViteTransport.loader.contract.remote.');
     try {

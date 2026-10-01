@@ -195,9 +195,23 @@ configuration, and plugins.
 
 ## Verification
 
-From this package, `deno task test` runs local driver, entrypoint, and candidate-consumer checks.
-`deno task smoke` is the separate guarded published-consumer lane, with JSR metadata preflight and
-fixture preparation. Local checks do not establish published-package behavior.
+From this package, `deno task test` runs the complete retained `test:unit` base lane: contracts,
+formatters, command construction, local transforms and cleanup. Thirteen named files that execute
+real builds, child configuration/graphs or live dev lifecycles are excluded only from that lane; all
+their assertions remain selectable through proof tasks. Parent test invocations use frozen,
+cache-only resolution without prompts; those flags do not constrain every loader or child.
+
+`deno task test:proofs` runs the formerly implicit real coverage through `test:entry:process`,
+`test:candidate`, `test:build`, `test:bridge`, `test:dev`, `test:config:process`, `test:graph`,
+`test:loader` and `test:integrity:build`. Linux CI runs it as a separate Vite-only step; module `ci`
+also includes it. A green routine `test` is not a green proof aggregate, full CI or build workflow.
+The existing `test:integrity` and `test:external` tasks remain separately selectable.
+
+The explicit `deno task test:dist:pipeline` lane checks stable content pins despite changed
+documents, projection/materialization, pinned serving and SRI byte matching—not browser enforcement.
+It is outside routine `test` and the former-coverage proof aggregate, but remains required by the
+Dist plan. `deno task smoke` is the separate guarded published-consumer lane, with JSR metadata
+preflight and fixture preparation. Local checks do not establish published-package behavior.
 
 See the [API documentation](https://jsr.io/@sys/driver-vite/doc) for programmatic entry, service,
 and plugin surfaces, and [JSR's Vite guide](https://jsr.io/docs/with/vite) for registry integration.
