@@ -12,11 +12,86 @@ dist-content-identity.plan.md
 - [x] 65cc8ef7e feat(cell)!: configure Dist services with canonical content pins
 - [x] ae6151a1b feat(driver-pi)!: admit GUI packages through canonical Dist content
 - [x] c64c8bf77 feat(cloudflare)!: admit R2 distributions using canonical content pins
-- [ ] feat(dist)!: align observations and signing fixtures with canonical manifests
-- [ ] fix(driver-vite): align frozen build fixtures with their dependency authority
+- [x] e9baa2857 fix(std): preserve native separators in path containment
+- [x] 60cd6377b fix(http): reject sibling-prefix static path escapes
+- [x] 9ce529fe5 feat(dist)!: align observations and signing fixtures with canonical manifests
+- [x] 7c8c28cda chore(ui): add frozen cache-only check tasks
+- [x] 6372151e2 docs(dist)!: clarify signing and observation boundaries
+- [x] 095bf200a fix(driver-vite): honor immediate-child dependency policy
+- [x] c9c17f093 test(driver-vite): separate proof lanes and restore passing base tests
+- [x] 3af0a19f9 refactor(dist): consolidate inventory accounting without merging authority
 - [ ] test(dist): prove canonical build projection and serving composition
 - [ ] test(driver-pi): prove canonical Dist isolation across real previews
-- [ ] refactor(dist): consolidate inventory accounting and retain build failure causes
+
+## Observed landing checkpoint — 2026-10-01
+
+At this reconciliation, HEAD is `6372151e2c88412fb7a5207999a0b0ce3c1f3656`,
+`docs(dist)!: clarify signing and observation boundaries`, directly following the two-file UI
+configuration commit `7c8c28cda`. The documentation/type-contract landing contains exactly the
+reviewed eight-file handoff, with no additional paths or worktree drift on those files:
+
+- `code/sys.driver/driver-signer/README.md`
+- `code/sys.driver/driver-signer/src/m.dist/t.ts`
+- `code/sys.driver/driver-signer/src/m.dist/u.audit.ts`
+- `code/sys.driver/driver-signer/src/m.dist/u.run.dist.ts`
+- `code/sys.driver/driver-signer/src/m.dist/-test/-.test.ts`
+- `code/sys.driver/driver-deno/README.md`
+- `code/sys.driver/driver-deno/src/m.cloud/m.DenoEntry/t.ts`
+- `code/sys.model/model-slug/README.md`
+
+The original five-file documentation cut expanded through the human-authorized public
+`DistSigner.Run` type migration and its three caller files. The breaking subject records the removed
+flat run-type names; runtime behavior is unchanged. Owner writing reviews were source-adjudicated
+and their accepted corrections implemented, including the additional Deno contract findings and
+model-slug path, media-policy and freshness corrections.
+
+Pre-landing verification passed: full signer **5 suites / 57 steps**, focused DenoEntry **2 / 19**,
+model-slug client **14 / 62**, all three package checks and README example checks, exact eight-file
+formatting, five-source-file lint and scoped whitespace checks. These are integrated-worktree
+results, not isolated-candidate proof. No post-correction independent blind GO, actual Apple
+signing/notarization, cloud deployment, browser or published-package certification is claimed.
+
+The preceding S10 landing `9ce529fe5` contained exactly its corrected 24-file source handoff:
+21 modified files and three added tests, matching the verified worktree at that landing. The human
+excluded `reviews/S10.finish.blind-review.md` from the actual commit. UI configurations, public
+documentation, workflow records and later-owner changes were not carried into S10. The
+[S10 receipt](./dist-content-identity.plan/landing/S10.landing.md#observed-s10-source-landing)
+retains that observed scope separately from implementer verification and historical independent
+holds; those holds are not rewritten by subsequent landings.
+
+The current remaining sequence, refined after this checkpoint, is immediate-child command completion
+→ proof-lane separation and passing base tests → accounting → integration composition → Pi-preview
+isolation. The opening arc remains the sole live landing ledger. Recordkeeping stays separate from
+source cuts. The historical reconciliation ran no tests and performed no Git mutation.
+
+## Finite Dist closure and mandatory Vite successor
+
+The human explicitly removed broad Vite repair from this plan's completion boundary so Dist can
+close distinctly. Complete the five remaining arc items and their required proof, reconcile their
+landings, then close this plan. The human subsequently required passing base tests early, while Dist
+continues: the new bounded checkpoint follows command completion and precedes accounting and both
+capstones. Merely separating or making tests runnable is insufficient. This does not require every
+Vite proof lane to pass early or permit reopening every migration owner.
+
+[vite-build-repair.plan.md](../@sys.driver-vite/vite-build-repair.plan.md) owns the mandatory immediate
+follow-up: remaining workspace/build proof fixtures, returned failure causes and focused producer
+controls. Dist now owns the early base-test checkpoint, including the already-agreed withdrawal of
+the new bridge experiment; the successor retains the shared helper's actual cleanup debt. These
+obligations are allocated, not dropped or made optional. The successor's opening arc depends on this
+plan; this informational successor link creates no reverse prerequisite. Dist closure does not
+certify whole-driver health.
+
+Accounting is independent of that repair. The two real capstones need their specific Vite build
+paths to work, not all ordinary Vite tests. If a required path is blocked, identify its concrete
+failure or missing execution capability and the smallest necessary correction. Bring that correction
+back for explicit scope attribution; do not automatically pull the entire Vite repair forward.
+Required proof and security restrictions remain binding. Inspect which unlanded Vite deltas a proof
+actually uses: a pass depending on successor-only code cannot certify the landed Dist state. Promote
+only a demonstrated dependency explicitly, with its affected proof; never hide that dependency.
+
+This boundary supersedes earlier ordinary-build-first sequencing below. The early passing-base-tests
+checkpoint is the explicit exception to deferring Vite repair; it is not permission to pull all real
+proof lanes forward. Deeper bridge, resolver and proof-framework redesign remains separately scoped.
 
 ## Purpose and authority
 
@@ -56,18 +131,28 @@ Historical plans explain how the implementation arrived here. Their use of words
 locked, or approved is not independent proof that exact-document identity is the correct permanent
 product identity. Do not rewrite those historical records or silently repurpose their pins.
 
+## Deferred metadata follow-up
+
+[dist-metadata.plan.md](./dist-metadata.plan.md) records a separate design-stage cleanup after this
+plan is fully landed and complete, including its required proofs. Its baseline preserves
+`hash.{scheme,digest,parts}` and introduces optional `.meta`, including `.meta.pkg` and `.meta.vite`.
+Metadata meaning, ownership and consumer/signing migration still require design. This is an
+informational successor link, not a prerequisite, completion condition or extension of this plan's
+opening arc.
+
 ## Landing discipline — bounded replacement, not adjacent hardening
 
 The target remains one coherent breaking contract replacement. The opening arc allocates it to ten
-migration source units, with a separate FS dependency-boundary correction before Server, followed by
-the three named integration-proof commits and the separate bounded refactor. These are planned
-ownership boundaries, not independently supported protocol states or claims that exact commit
-candidates have been assembled. Accepted R3-A01–A06 corrections and affected-consumer migrations
-retain their owner-local obligations. Do not turn nearby weaknesses into an expanding implementation
-mandate. The separately recorded inventory-accounting and
-build-failure refactor remains separate. Preserve observations in the
-[adjacent findings register](./dist-content-identity.plan/adjacent-findings.md), with owner, evidence,
-proposed future commit, and a concrete condition for reconsideration.
+migration source units, with the separate FS dependency correction before Server, and a native-path
+Std prerequisite followed by HTTP static-serving correction before S10. Documentation remains with
+its landed owner; ordinary Vite repair belongs to the mandatory successor plan. Inventory accounting
+precedes the two final integration-proof commits, so those proofs exercise the intended final
+behavior. These are ownership boundaries, not independently supported protocol states or claims that
+exact commit candidates have been assembled. Accepted R3-A01–A06 corrections and affected-consumer
+migrations retain their owner-local obligations. Do not turn nearby weaknesses into an expanding
+implementation mandate. Preserve observations in the
+[adjacent findings register](./dist-content-identity.plan/adjacent-findings.md), with owner,
+evidence, proposed future commit, and a concrete condition for reconsideration.
 
 **Human-established landing rule:** use whole-file incremental commits for this arc, not manual
 hunk selection or independently buildable intermediate snapshots. Earlier mixed-hunk allocations
@@ -90,8 +175,9 @@ Classify every further observation before editing:
   this change.
 - **Adjacent improvement:** no demonstrated failure of that bounded contract. Record it and its
   future commit; do not implement it during this landing. Discovery during migration does not
-  establish attribution to migration. This includes general resolver-policy hardening and unrelated
-  fixture lint debt unless a specific necessary proof demonstrates a narrower prerequisite.
+  establish attribution to migration. This includes general resolver-policy hardening and lint debt
+  outside the selected files. Necessary proof prerequisites and selected-file finish defects have
+  separately named owners below; neither authorizes a wider cleanup campaign.
 - **Execution prerequisite:** a named required proof cannot run within existing authority. Preserve
   that coverage gap and keep the affected lane stopped. Seek the smallest supported execution route;
   if it needs substantive loader/toolchain work, present it as a separate prerequisite decision, not
@@ -100,11 +186,12 @@ Classify every further observation before editing:
 
 The finite closing sequence is:
 
-1. Resolve each source unit below into exact attributable paths/hunks, including its tests,
-   necessary documentation, generated artifacts and removals. Use current deltas and reachable
-   history, not directory-wide staging or the historical aggregate path count. The unit boundaries
-   are the plan; their concrete cuts still require inspection. A newly discovered seam mismatch
-   requires an explicit plan revision, not a catch-all final commit or peripheral slivers.
+1. Resolve each source unit below into an exact whole-file candidate, including its tests, necessary
+   documentation, generated artifacts and removals. Attribute carried deltas explicitly. Use current
+   files and reachable history, not directory-wide staging, hunk deselection or the historical
+   aggregate path count. The unit boundaries are the plan; concrete cuts still require inspection. A
+   newly discovered seam mismatch requires an explicit plan revision, not a catch-all final commit
+   or peripheral slivers.
 2. Review and verify each source unit against its stated dependency context. Retain the accepted R3
    counterexamples, positive controls and targeted independent closure at their owning boundaries.
    Reuse applicable evidence; do not automatically repeat completed reviews or the entire residue
@@ -114,29 +201,192 @@ The finite closing sequence is:
    requirement.** A dependent migration state is not an independently releasable tree. Results from
    the integrated worktree must not be represented as results from an isolated intermediate commit.
    Do not add compatibility scaffolding merely to make intermediate commits green.
-4. Complete the three deferred proof commits below, in arc order, after their implementation
-   dependencies. Execute build-bearing lanes sequentially through an authorized route. The pipeline
-   item owns the outstanding independent composition evidence; it is not an unnamed final review.
+4. Complete immediate-child command support, then separate proof lanes and establish passing base
+   tests before starting accounting or either integration proof. Record the actual base/CI task
+   membership and passing outcomes; runnable-only or blocked evidence does not satisfy this early
+   checkpoint. Broad Vite proof-lane repair remains outside this prerequisite. Then complete bounded
+   accounting and execute the two capstones in arc order, with build-bearing lanes sequential through
+   an authorized route. The pipeline item owns the outstanding independent composition evidence.
 5. Assess the completed source/proof sequence against the single contract and reconcile its landed
    history. Source commits do not claim unexecuted composition coverage or release readiness. A
-   concrete newly demonstrated product defect requires a named owner and smallest correction, not
-   an autonomous widening of scope.
+   concrete newly demonstrated product defect requires a named owner and smallest correction, not an
+   autonomous widening of scope.
 
 The loader/graph investigation is retained as evidence, **not an instruction to launch a new review
-or implement a resolution framework**. Neither adjacent improvements nor the separate
-inventory-accounting/build-failure refactor is a prerequisite to source landing. Existing security,
-permission, signing and evidence-authority boundaries remain unchanged. Historical checkpoints below
-retain their original evidence meaning; their former single-commit/pre-landing-proof sequencing is
+or implement a resolution framework**. Neither general resolver hardening nor inventory-accounting
+consolidation is a prerequisite to earlier source-unit landing. Existing security, permission,
+signing and evidence-authority boundaries remain unchanged. Historical checkpoints below retain
+their original evidence meaning; their former single-commit/pre-landing-proof sequencing is
 superseded by this landing discipline and the explicit proof tail.
+
+## Historical closure-strategy review — bounded resilience, not proof theatre
+
+The human requested a BMIND/TMIND re-evaluation at `max`, accepted the bounded direction, and
+explicitly asked to update the actual arc: isolate HTTP and fix ordinary Vite failures before deeper
+proof work. This was implementing-thread plan review, not an independent blind verdict or a runtime
+model attestation. At that checkpoint, HEAD was `8ba45c06f`; checked source subjects were
+re-inspected and the index was empty. The earlier 81-path snapshot describes open work, not an S10 selection or an obligation to
+empty the tree. Template, Cloudflare presentation, workspace publication and other work stay
+separate.
+
+The subsequent HTTP review returned a hold on the two-file candidate despite passing owner tests.
+The human authorized a small Std prerequisite and the bounded HTTP middleware amendment, then
+requested this TMIND plan reconciliation at `max`. The actual opening arc now includes that Std item
+immediately before HTTP. The
+[HTTP adjudication](./dist-content-identity.plan/landing/HTTP.static-containment.landing.md#returned-independent-review--accepted-corrections-not-yet-executed)
+records all findings, source-backed dispositions and reviewer-reported execution limits. This is not
+post-correction proof or a new review gate; source edits and observed landings remain outstanding.
+
+**Diagnosis:** consumer completion, inherited defects and execution/proof problems coexist. History
+attributes DenoEntry's prefix check to `2146b4a1f8`, ModuleList's fallback request to `125299b59a`,
+and HTTP's request-path prefix check to `69090b66a6`. Their age does not excuse incorrect behavior.
+S2's verifier-import regression and TS-01's lost diagnostic distinction were genuine replacement
+regressions. Keep their corrections. Attribute each failure; neither blame the identity algorithm
+without evidence nor classify every remaining failure as environment noise.
+
+### Vite baseline — static success does not explain runtime failure
+
+The latest human report is **72 passed suites / 609 passed steps, 2 failed suites / 6 failed steps**
+(1m26s), from the driver-vite directory; the exact invocation and preceding child stderr were not
+supplied. These are runtime assertions, not TypeScript diagnostics. Five failures stop on build
+success; the sixth explicitly shows child failure before the intended package-write fault. They do
+not independently establish six Dist defects, and the intended later invariants remain unexercised.
+
+Freshly executed from `code/sys.driver/driver-vite`:
+
+```sh
+deno task check --frozen --cached-only
+```
+
+**Passed**, including both failing test files and the build implementation. This closes the
+immediate question of reproduced owner type errors, not runtime builds or generated-fixture type
+authority. No build, runtime regression or deep proof ran in this plan pass. Root dependency files
+stayed unchanged. Do not create a speculative type-fix commit for a diagnosis this evidence does not
+support.
+
+The historical child diagnostic establishes one frozen fixture/lock-authority refusal. The current
+bridge creates isolated dependency declarations without matching lock authority; the unchanged
+root-lock-copy attempt failed and was removed. The latest failures still need their actual cause.
+Preserve raw `cmd.output.text` rather than relying only on the clipped `toString()` or assertion
+stack. Classify source/type, fixture/lock, child startup, bundler, package-write and Dist-compute
+failures separately before changing anything. A successful package-write control must reach that
+stage; a missing-input negative must name that input rather than pass on an unrelated startup error.
+
+Graph discovery and transitive resolution have independent execution policy. Existing R3 constraints
+remain binding: parent flags, a warm cache and a broader test preset are not whole-chain
+containment. This review did not establish a compliant build route. Preserve available human child
+output first; run a new build only through a demonstrated authorized route. If unavailable, report
+the exact missing prerequisite. Do not turn that limitation into permission for a loader project or
+a false claim that the runtime failure is understood.
+
+### Work order and finite outcomes
+
+- **Std prerequisite:** correct `Path.Is.within` at its existing owner so native filesystem
+  separators, not portable slash conversion, determine containment. Retain absolute-input,
+  equal-root, parent/sibling and Windows cross-drive rules. Keep `Path.relativePosix` and canonical
+  Dist inventory spelling unchanged. Add the discriminating filename controls and run affected
+  callers; this is a separate two-file prerequisite, not an HTTP-local replacement algorithm.
+- **HTTP next:** retain the existing absolute-root/segment-aware handler correction and stat seam.
+  Add `u/u.middleware.ts` to the existing two-file candidate: directory admission must use the same
+  decoded-path containment rules before lookup/redirect, and slash redirects must remain on the
+  request origin with the query preserved. Keep native in-root filenames, roots, indexes, fallback,
+  ETag and Range controls. The returned three counterexamples become permanent tests. Correct the
+  selected test file's header comment; park the shared fixture's setup/cleanup issue under AF-06.
+  This remains lexical containment, not symlink/race protection or a path/transport framework.
+  DenoEntry's caller-selected directory check remains a different S10 obligation.
+- **S10 landed:** `9ce529fe5` carries the corrected 24-file source handoff, including production
+  ModuleList wiring, cache/cleanup controls, Origin state corrections and the bounded canon-residue
+  finish. The old 22-file candidate and independent holds remain historical in the
+  [receipt](./dist-content-identity.plan/landing/S10.landing.md#observed-s10-source-landing).
+  Integrated-worktree proof is not isolated-commit proof; this landing had no Vite-build
+  prerequisite.
+- **UI configuration boundary:** only `code/sys.ui/ui-react/deno.json` and
+  `code/sys.ui/ui-dev/deno.json` belong to `chore(ui): add frozen cache-only check tasks`.
+  Preserve the additive tasks and unchanged canonical `check`, targets and permissions. This cut
+  is separate from S10, public documentation and any workspace task rollout.
+- **Documentation/type-contract boundary:** `docs(dist)!: clarify signing and observation
+  boundaries` owns the eight files recorded in the observed landing checkpoint, after UI
+  configuration and before Vite repair. The human authorized the public `DistSigner.Run` migration
+  and its caller updates; do not restore compatibility aliases or treat it as runtime redesign.
+  Preserve Apple's in-place forced signing, no verify-only mode, no rollback, Gatekeeper assessment
+  and notarization-archive risks; caller-trusted Ed25519 keys, canonical kind selection,
+  descriptor write-before-sign, raw sidecars outside verified payload roots and separate filesystem
+  integrity checks. Preserve Deno staging/preparation distinctions, source-side effects, entry
+  prerequisites, complete-tree fallback budgets and the preview-probe choice. Preserve model-slug's
+  default `-manifests` path, manifest/media policy separation, client-cache freshness, disposal
+  ownership and observation-only result. Example typechecks and live JSR inspection do not prove
+  Apple operations, cloud deployment, browsers or published-package accuracy. Do not reopen S10 or
+  broaden these owner-local guides into other README cleanup.
+- **Vite command contract only:** complete the already-landed immediate-child dependency-policy
+  contract in its two command/test files. The mandatory successor plan owns returned causes,
+  native producer controls and remaining workspace-fixture correction. Preserve versions, lock
+  checks and ordinary developer defaults. Dist closure is not a whole-driver-health claim.
+- **Early base tests:** after command completion, separate routine discovery from explicit proof
+  lanes and make the retained base tests pass before accounting or either capstone. Own the narrow
+  bridge-experiment withdrawal here; do not suppress genuine unit failures. The detailed acceptance
+  contract below is required, not an optional convenience or the end of the successor plan.
+- **Accounting:** remove only the specified FS/Generation arithmetic duplication, with two immediate
+  callers, independent literal expectations and unchanged trust boundaries. Place it before the
+  final proofs so those proofs cover the intended final code. Stop if extraction needs a framework,
+  broadens dependencies or changes admission semantics; explained duplication is better than a bad
+  primitive. This is not an opportunity to redesign canonical identity or finish other owners.
+- **Pipeline, then Pi preview:** execute the two existing integration proofs after these behavior
+  changes. Prove real build identity, projections, exact-document reuse, serving and independent
+  preview lifetimes. Do not replace these with mocks or extend them into provider/browser/release
+  certification. Retain independent body/cleanup errors and required composition review. If a proof
+  finds a product defect, assign its smallest source correction explicitly before claiming closure.
+
+The opening arc records the Std prerequisite and expanded HTTP owner, not a shadow sequence. Std,
+HTTP and docs remain separate commits; build causes belong to Vite, and accounting precedes the
+proofs. No new prerequisite plan, review round or `GATE` is added. Plan approval is not Git-mutation
+authority or implementation delivery, and changing sequence does not relax any execution
+restriction.
+
+### Working loop and stopping rule
+
+For each correction: **name the invariant → establish the failure → make the smallest owner-local
+change → prove the negative and success control → inspect the whole changed files → run affected
+owner checks → hand off exact files and evidence limits → observe the human's landing.**
+
+- Classify new failures separately as product correctness, ineffective/broken proof, execution
+  authority/environment, or adjacent improvement. Record whether attribution is introduced,
+  inherited or unresolved. An unavailable test is not a product pass or a product defect by itself.
+- Each diagnostic run must distinguish a named hypothesis. Preserve the first meaningful error and
+  dependent cleanup errors. Do not repeat aggregate runs unchanged, retry through a refusal or call
+  later failures explained merely because one earlier problem was found. Stop after an uninformative
+  probe and choose the next discriminating observation before launching another.
+- Preserve signal: required assertions, independently authored expectations, original causes,
+  forbidden-effect checks, cleanup failures and positive controls. Remove obsolete-contract checks
+  or redundant scaffolding only with a named surviving invariant and replacement proof where needed.
+  No assertion weakening, suppressions, permission expansion, lock relaxation or evidence rebinding.
+- Prefer existing helpers and normal ownership/teardown mechanisms. A production failure should be
+  fixed at production; a fixture that fabricates incompatible authority should be fixed at the
+  fixture. Do not teach production to accommodate an impossible fixture or test a bypass of the
+  production boundary. A new abstraction needs actual callers and a demonstrated invariant benefit.
+- S-tier finish includes concrete residue in the selected whole files, not a repository-wide lint
+  campaign. S10's four imports retain their recorded owner disposition. The Vite containment
+  decision excludes the shared bridge from the Dist command cut; the later early-base-test
+  checkpoint owns the narrow bridge-experiment withdrawal. Its lint/discovery/cleanup issues remain
+  named, not waived as clean. If a necessary bridge correction is promoted, its whole-file finish becomes part of that
+  named correction. Preserve module initialization, import discovery and scheduling semantics.
+- Review again only for an unresolved risk or materially changed boundary. Targeted independent
+  closure of the containment/provenance corrections is useful; repeating the entire migration or
+  collecting another general verdict is not. Keep the already required independent composition
+  evidence with its owner. Do not treat qualified blindness as perfect blindness or discard valid
+  counterexamples because a heading was seen.
+- Close a slice when its stated behavior, falsifying proof, success controls, cleanup/failure truth
+  and whole-file finish are satisfied, with remaining limits explicit. New obligations require a
+  concrete consumer/security consequence, necessary proof dependency or bounded selected-file finish
+  defect. File-count reduction, aesthetic preference and another review's existence are not enough.
 
 ## Source units — ownership, dependencies and completion
 
-S1–S10 name the ten migration source units; the FS dependency-boundary follow-up is an unnumbered
-correction between S2 and S3. These are references, not another landing ledger. Workstreams A–H below
-retain the detailed contract and adversarial requirements. A unit is coherent when it changes one
-named contract or assurance boundary with its actual callers and tests,
-not merely because it is small. Isolation means reviewable ownership and explicit dependencies, not
-standalone CI success or independent release support.
+S1–S10 name the ten migration source units; the FS dependency-boundary follow-up remains between S2
+and S3, and the unnumbered Std/HTTP corrections precede S10. These are references, not another
+landing ledger. Workstreams A–H below retain the detailed contract and adversarial requirements. A
+unit is coherent when it changes one named contract or assurance boundary with its actual callers
+and tests, not merely because it is small. Isolation means reviewable ownership and explicit
+dependencies, not standalone CI success or independent release support.
 
 For every unit, record its exact cut and dependency snapshot before landing. Include ordinary
 owner-test migrations, negative controls, necessary docs and exports; never defer source correctness
@@ -287,12 +537,13 @@ deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --r
   retained returned pin/checksum, truthful hash display, and refusal before secondary writes/counts.
   Returned failure text must identify failure without implying a saved manifest. Snapshot command
   work must stop its spinner on success or rejection before printing success-only summaries.
-  Ordinary owner tests stay here even where execution awaits frozen-fixture correction. The existing
-  internal `buildWith` fault seam is earned; deferred failure-cause enhancement stays in the final
-  refactor. Dependency-policy support is allocated separately below. Workstreams A/H apply.
-  Computation selects inventory; complete-tree verification is separate. Data's `trustChildDist`
-  reuse need not reread child payloads. Empty/unsafe-inventory refusal precedes document writes;
-  failed saves do not promise rollback. Document these limits beside producer success guidance.
+  Ordinary owner tests originated here even where execution awaits frozen-fixture correction. The
+  existing internal `buildWith` fault seam is earned; returned failure-cause enhancement belongs to
+  the mandatory Vite successor plan, not Dist closure or accounting consolidation. Command support is
+  allocated separately below. Workstreams A/H apply. Computation selects inventory; complete-tree
+  verification is separate. Data's `trustChildDist` reuse need not reread child payloads.
+  Empty/unsafe-inventory refusal precedes document writes; failed saves do not promise rollback.
+  Document these limits beside producer success guidance.
 - **Candidate evidence:**
   [Producer exact cut and owner verification](./dist-content-identity.plan/landing/S6.landing.md)
   owns the path/hunk selection, commands, counts and documentation/source-review adjudication.
@@ -355,20 +606,96 @@ deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --r
 - **Handoff and verification:**
   [R2 whole-file handoff and owner verification](./dist-content-identity.plan/landing/S9.landing.md)
   records the 30-file candidate, seven excluded paths, current owner tests and evidence limits.
-  S9 remains unchecked until its actual source landing is observed.
+  Source landing `c64c8bf77` is observed and checked in the opening arc; workflow landing is
+  `8ba45c06f`. Later presentation deltas remain separately owned.
+
+### Std prerequisite — native filesystem containment
+
+- **Commit:** `fix(std): preserve native separators in path containment`.
+- **Whole-file owner:** `code/sys/std/src/m.Path/u/within.ts` and
+  `code/sys/std/src/m.Path/-test/-.test.ts`. Both were clean before the authorized implementation.
+  The [Std receipt](./dist-content-identity.plan/landing/STD.native-containment.landing.md) preserves
+  the independent review, accepted P3/layout finish and host proof; the opening arc records landing.
+- **Contract:** `Path.Is.within` already promises platform-dependent lexical containment. Interpret
+  the native relative result using native separators; do not convert a valid POSIX backslash into a
+  directory separator. Preserve non-string/non-absolute refusal, equal-root acceptance, genuine
+  parent/sibling refusal and the existing absolute-relative-result cross-drive guard.
+- **Boundary:** leave `Path.relativePosix` and its deliberately portable conversion unchanged.
+  Native filesystem containment is not canonical Dist part-name admission. Do not widen manifest
+  spellings, alter inventory validation, add a public platform mode or change dependency graphs.
+- **Proof:** distinguish POSIX `..\report.txt`, ordinary backslash names and `..literal.txt` from
+  actual parent paths; preserve native Windows separator/cross-drive cases with execution limits
+  stated. An OS-conditional test skipped on this host is not Windows runtime evidence. Run focused
+  Path and namespace tests, full Std owner checks and the bounded FS/Server/HTTP caller checks in
+  the HTTP receipt. Inspect actual shared-helper uses before declaring the change local to HTTP.
+
+### HTTP correction — consistent static admission and directory redirects
+
+- **Commit:** `fix(http): reject sibling-prefix static path escapes`.
+- **Whole-file owner:** `code/sys/http/src/http.server/m.HttpServer/u/u.serveStatic.ts`,
+  `code/sys/http/src/http.server/m.HttpServer/u/u.middleware.ts`, and
+  `code/sys/http/src/http.server/m.HttpServer/-test/-u.serveStatic.test.ts`. The middleware extension
+  follows the returned review's decoded-admission and redirect findings.
+- **Dependencies:** the Std prerequisite above. Preserve the actual public wrapper, internal stat
+  seam and downstream ETag/Range transport. No new public options or type/configuration changes.
+- **Completion:** direct and composed serving refuse outside decoded paths before the responsible
+  handler's lookup, redirect or fallback. The encoded-directory collision must not change that
+  decision. Directory redirects remain on the request origin, preserve the query and retain normal
+  slash/index behavior. Preserve the explicit middleware `strip` contract; do not silently redesign
+  default route-prefix behavior or add recursive decoding. Valid percent/space/native filenames,
+  `..literal.txt`, absolute/relative/default roots, 404/SPA, MIME, ETag/304 and Range/206 still
+  work.
+- **Proof and finish:** permanently reproduce the three returned failures with real local fixtures,
+  negative-effect assertions and independent success controls. Use direct dispatch where no listener
+  is needed; drain responses and settle owned fixtures on failure. Run focused tests, full HTTP
+  `test:unit`, source/scripts typecheck and exact changed-file lint/format/whitespace checks. Fix
+  the selected header comment, not unrelated helper or transport internals. AF-06 records the
+  separate shared-fixture obligation; an exercised setup/cleanup failure must be reported, not
+  suppressed.
+- **Evidence:** the
+  [HTTP receipt](./dist-content-identity.plan/landing/HTTP.static-containment.landing.md) preserves
+  initial greens, the returned hold, accepted dispositions, exact corrective scope and post-correction
+  red/green proof. Acceptance needs closure of those named cases, not another broad review by
+  default. These are integrated-worktree checks, not cross-platform or deployed certification.
 
 ### S10 — Observation and signing consumer contract closure
 
 - **Owner:** DenoEntry `src/m.cloud/m.DenoEntry/`; React `use/use.Dist/`; UI-components Dist samples
-  and `Http.Origin/`; UI-dev ModuleList regression; Model-slug Dist fixtures; the signer's
-  `src/m.dist/-test/-.test.ts` integrated regression. These are the named observation/signature
-  consumers, not a bucket for residual files or new cleanup.
-- **Dependencies:** S1–S2 and the reachable signer correction. Workstreams B/H apply.
+  and `Http.Origin/`; UI-dev ModuleList production observation wiring and regression; Model-slug
+  Dist fixtures/cache proof; the signer's `src/m.dist/-test/-.test.ts` integrated regression. These
+  are the named observation/signature consumers, not a bucket for residual files or new cleanup.
+- **Dependencies:** S1–S2, the reachable signer correction and the separately ordered HTTP static
+  containment fix. Workstreams B/H apply; no Vite-build prerequisite is introduced.
 - **Completion:** local consistency uses the sole verifier but remains unpinned; manifest-only UI
-  observations never imply payload authentication; async replacement/disposal retains its controls;
-  downstream fixture/cache assumptions match the contract. Real-file compute → sign/writeback →
-  load → strict verification preserves own keys. Canonical-document signing remains separate from
-  content identity, and raw-file signature behavior stays unchanged.
+  observations never imply payload authentication; every admitted origin row preserves its exact own
+  key and reaches terminal observation status even on resolver/URL/client setup failure. A new run
+  clears prior digest/action state; async replacement/disposal retains its controls. Downstream
+  fixture/cache assumptions match the contract. DenoEntry refuses sibling-prefix escapes before
+  imports; ModuleList never presents synthetic fallback as the current artifact. Cache proof must
+  enter the client-owned cache branch, and tests restore global state/remove owned temporary
+  directories on setup/body failure as well as success. Real-file compute → sign/writeback → load →
+  strict verification preserves own keys. Canonical-document signing remains separate from content
+  identity, and raw-file signature behavior stays unchanged.
+- **Evidence:** the [S10 owner receipt](./dist-content-identity.plan/landing/S10.landing.md)
+  preserves the initial 22-file candidate and independent hold with qualified blindness, then
+  records the first human-authorized corrections and corrected 24-file handoff, with effective red →
+  green proof, real cache/cleanup controls and **222 suites / 1,298 steps** across six full owners.
+  The later targeted-review hold identified two inherited Http.Origin defects; its source-only
+  counterexamples and qualified blindness remain separately attributed. A subsequent authorized
+  correction proves exact own observation keys, setup-failure accounting and current-run state, plus
+  truthful refusal/display docs. Three affected full owners pass **143 suites / 846 steps** after
+  correction, with declared strict checks, exact 24-file lint and 26-file source/config format.
+  Browser `__proto__` loss remains source-grounded, not runtime-reproduced on Deno. The subsequent
+  authorized five-file canon-residue finish reopens all 24 whole files and passes **107 suites / 567
+  steps** across its three affected full owners, strict declared checks, exact 24-file lint/format
+  and tracked whitespace checks. Unaffected owners retain earlier proof, not fresh full executions.
+  The receipt separates implementer GO, historical independent verdicts and observed landing.
+- **Observed landing:** `9ce529fe58fe729e1f2e7cb6c4f793e23c6e4676` contains exactly the 24 source
+  paths, with no worktree drift on them at the S10 reconciliation. The human excluded the prepared
+  targeted-review brief, resolving the earlier 25-file GUI mismatch. At that landing, the two
+  frozen-check configurations and original five-file documentation cut were excluded; their later
+  scope and landings are recorded in the opening arc and observed checkpoint. HTTP, all workflow
+  records and UI-components Vite visualizer changes were also outside the S10 source commit.
 
 ### Mixed hunks and exclusions
 
@@ -376,19 +703,23 @@ Path ownership above attributes behaviors, never every edit under a directory. A
 whole-file landing rule, explicitly record carried later-owner or unrelated behavior, and inspect
 actual files before landing; the historical hunk allocations below are not staging instructions:
 
-- **Vite:** canonical response/production and ordinary build assertions belong to S6. The optional
-  `Build.Args.dependencyPolicy`, its `u.build.ts` forwarding, `u.wrangle.ts` command support, focused
-  command assertions, build-test policy arguments and `u.bridge.fixture.ts` frozen discovery belong
-  to the frozen-fixture proof item. Keep each declaration/caller/test chain together. These flags
-  constrain the immediate child only; neither their presence nor their removal proves containment.
-- **Pipeline:** `-dist.pipeline.ts`, `u.dist.pipeline.cleanup.ts`, its focused cleanup test and
-  `code/sys.driver/driver-vite/deno.json` pipeline task/aggregate-test wiring belong to the pipeline
-  proof item. Preserve R3-A06 settlement behavior; do not move ordinary producer tests there.
+- **Vite:** canonical response/production and ordinary build assertions originated in S6. Its
+  whole-file landing carried the optional `Build.Args.dependencyPolicy` and `u.build.ts` forwarding.
+  The two-file command item completes that immediate-child contract; the mandatory successor owns
+  returned causes and affected native/workspace/formatter tests. Do not recommit already-landed
+  declarations as new work. The new bridge-test seam is withdrawn from the intended repair; retained
+  frozen discovery belongs to AF-02, outside both source cuts. No restriction is removed to obtain
+  execution. Immediate-child flags do not establish whole-chain containment.
+- **Pipeline:** `-dist.pipeline.ts`, `u.dist.pipeline.cleanup.ts`, its focused cleanup test and the
+  explicit `test:dist:pipeline` task in `code/sys.driver/driver-vite/deno.json` belong to the
+  integration item, not the command cut or successor repair. Keep the capstone explicitly invoked;
+  the pending addition to ordinary `test` is not required. No silent default-task expansion. Preserve R3-A06 settlement behavior; do not move ordinary producer tests there.
 - **Pi preview:** response/source-pin migration and ordinary assertions belong to S8. The optional
   `PreviewBuildInput.dependencyPolicy` type/import, conditional command forwarding in
   `-scripts/m.start.gui.preview.build/{mod.ts,u.runtime.ts}`, their focused assertions and
   `-scripts/-test.external/-task.start.gui.preview.real.ts` belong to the real-preview proof item,
-  depending on Vite's earlier proof support. Preserve ordinary defaults and environment guards.
+  depending on immediate-child command support, not broad Vite repair. Preserve ordinary defaults
+  and environment guards.
 - **Tools tasks:** `test:deploy:staging` belongs to S4; `test:crdt:snapshot` and `test:crypto:hash`
   belong to S6. Task-file proximity does not combine their source units.
 - **Cloudflare sample:** S9 carries complete `src/ui/ui.App.tsx`, `src/-test/-ui.render.test.tsx`
@@ -426,50 +757,439 @@ named source units, not the later accounting refactor or a new all-source review
   inspect prompt tests. Preserve truthful digest/size, mutation invalidation, action labels and
   nested-preview cleanup controls; prove their behavior through the menu/prompt owner tests.
 
-## Deferred proof commits — scope and completion
+## Immediate-child command and integration proofs — scope and completion
 
 These are bounded implementation/test commits, not review receipts or new `GATE` items. Deferred
 execution does not justify weakening assertions, hiding failed tests, changing dependency versions,
 relaxing guards, rebinding retained evidence or claiming whole-chain offline containment from parent
-flags. Required production fixes and ordinary owner-test migrations stay with their source units.
-Allocate mixed production/proof-support hunks explicitly; a proof item may own only the smallest
-necessary harness, command or forwarding correction. A run is successful only when the named scope
-passes, not when it contains passing subcounts.
+flags. Broad ordinary-build repair belongs after Dist closure. Allocate whole-file carry explicitly;
+the two proof items may own only necessary harness/task/forwarding corrections. A demonstrated
+product blocker needs its smallest source correction explicitly attributed before proof closure. A run passes only when its named scope passes, not when it contains passing
+subcounts.
 
-### Frozen Vite fixture authority
+### Vite containment decision — purpose before accumulated work
 
-`fix(driver-vite): align frozen build fixtures with their dependency authority`
+The human requested a second TMIND/DMIND assessment and this plan refinement after stopping the
+bridge-test expansion. Source/history inspection covered the eighteen named Vite paths and their
+configuration/transport owners at HEAD `6372151e2`. This is implementing-thread review, not a blind
+verdict, fresh runtime proof or permission for source/Git mutation. The initial two-item split was
+subsequently narrowed by the human: at that point only immediate-child command completion remained
+in Dist. The later early-base-test checkpoint is now also explicitly required before accounting;
+broad ordinary repair remains the mandatory successor, and deeper redesign stays separately scoped.
 
-- **Owner:** `code/sys.driver/driver-vite/src/m.vite/-test/u.bridge.fixture.ts`, the child-command
-  boundary and its focused tests. The reported refusal is a fixture/command lock-authority mismatch,
-  not established evidence of a Dist identity defect or a dependency upgrade requirement. An
-  unchanged root-lock copy was tried and refused; it is not a validated remedy.
-- **Dependency:** the source migration's canonical build-response and package-output contracts.
-  This correction precedes both build-dependent proof items below.
-- **Completion:** regression coverage for the demonstrated fixture refusal and successful execution
-  of the existing `-build.test.ts` and `-build.workspace-composition.test.ts` through the owning
-  `test:unit` task. Retain sample, worker, workspace, path/base, content-pin and successful-child /
-  failed-package-write assertions. Capture the child diagnostic on failure; do not infer a cause
-  from a boolean assertion alone.
-- **Boundary:** preserve fixed dependency versions, repository lock authority and frozen checks.
-  No general loader/resolver redesign, cache-repair acquisition or permission expansion. If the
-  authorized route is unavailable, report that item-specific blocker without turning it into an
-  all-source landing prerequisite or silently expanding the item.
+The driver adapts Vite to Deno projects: consumer toolchain selection, configuration/import
+resolution, owned build/dev lifecycles and truthful results. Its Dist responsibility is bounded:
+real Vite output → required package payload → `Pkg.Dist.compute` and save → successful result.
+`Pkg.Dist` owns identity/admission; projection, materialization and serving remain other owners.
+Production `ViteTransport` is necessary adaptation, not the same concept as the test-only
+`u.bridge.fixture.ts` dependency synthesizer.
+
+Keep three claims separate: content identity is equality of admitted paths/bytes; reproducibility is
+repeated builds producing those same bytes; execution containment constrains acquisition and side
+effects. None proves the others. Native producer greens support a real but narrower contract than
+`Vite.Config.app` workspace/transport behavior. They do not establish that the whole driver is
+solid, or explain the historical six failures whose raw diagnostics were not supplied.
+
+The strongest case for keeping the work is truthful producer refusal plus causal, stage-reaching
+controls. The strongest case for reduction is that a test-scaffolding problem became a new seam,
+cleanup contract and resolver-policy investigation. Keep the former; do not finish the latter just
+because it was started. Nor should reducing proof complexity become another architecture project in
+this arc: preserve valid focused tests and accepted real capstones; defer broader factoring to
+AF-07.
+
+### Immediate-child command contract
+
+`fix(driver-vite): honor immediate-child dependency policy`
+
+- **Whole-file owners:** `code/sys.driver/driver-vite/src/m.vite/u/u.wrangle.ts`,
+  `code/sys.driver/driver-vite/src/m.vite/u/-test/-wrangle.test.ts` and
+  `code/sys.driver/driver-vite/src/m.vite/u/-test/u.fixture.wrangle.ts`. The human requested
+  colocation of the test and its sole-consumer fixture; remove their former paths under
+  `src/m.vite/-test/` in the same source cut. Only relative imports change during relocation.
+- **Why it belongs:** S6 already landed `Build.Args.dependencyPolicy` and the three-argument
+  `Wrangle.command` call, while its committed callee accepts two arguments. Complete that exact
+  handoff; do not discard its pending support or present it as a new whole-chain policy API.
+  Intermediate source slices were permitted; this is an explicit remaining dependency, not proof
+  that the integrated-worktree checks failed or that the historical runtime failures are explained.
+- **Contract:** the selected option adds `--frozen --cached-only` before the immediate Deno entry.
+  Unselected command arguments, consumer Vite selection, config loader, permissions, environment and
+  startup-map lifecycle stay unchanged. No loader/prewarm/fallback propagation or new flag.
+- **Proof:** focused command construction checks prove selected flags, unchanged default arguments
+  and grants, and disposable startup artifacts; owner `check` and exact-file lint/format must pass.
+  Name the integrated dependency snapshot. This is command-contract proof, not application build or
+  whole-chain containment. Ordinary build/runtime obligations belong to the mandatory Vite successor.
+
+#### Command-policy verification checkpoint
+
+Before the human-requested colocation, the original two-file cut contained **36 insertions / 2 deletions** against HEAD
+`6372151e2c88412fb7a5207999a0b0ce3c1f3656`. Whole-file inspection found only target-attributed deltas.
+The regression proves the literal selected prefix, absence of both flags by default, equality of
+all remaining arguments and environment, and removal of both bootstrap files while the fixture root
+still exists. Existing Vite 7/8 loader, package authority, base and permission controls remain intact.
+No fresh red run was manufactured: the implementation already existed and passed before this pass;
+the pass strengthened its regression without reverting existing work.
+
+Commands from `code/sys.driver/driver-vite`:
+
+```sh
+deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks ./src/m.vite/-test/-wrangle.test.ts
+deno task check --frozen --cached-only
+deno fmt --check src/m.vite/u/u.wrangle.ts src/m.vite/-test/-wrangle.test.ts
+deno lint src/m.vite/u/u.wrangle.ts src/m.vite/-test/-wrangle.test.ts
+```
+
+The focused run passed **1 suite / 18 steps**; owner check, exact two-file format/lint and scoped
+whitespace checks passed. Runtime: Darwin arm64, Deno 2.9.7, TypeScript 6.0.3.
+
+These are integrated-worktree results, not isolated-candidate proof. Root dependency/config/lock
+files and the command fixture, Perf, bootstrap and startup owners matched HEAD. The worktree also
+contains separate Vite task, failure-cause, bridge, pipeline and documentation deltas; owner check
+includes that broader state. The option declaration and build forwarding already exist at HEAD;
+this cut does not require the successor's returned-cause behavior. No application build, transport,
+base-suite/CI, whole-chain containment or independent blind verdict is established by this checkpoint.
+
+The subsequent colocation preserves every assertion and fixture behavior. From the same owning
+module, the relocated exact-file run passed **1 suite / 18 steps**:
+
+```sh
+deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks ./src/m.vite/u/-test/-wrangle.test.ts
+deno task check --frozen --cached-only
+deno fmt --check src/m.vite/u/u.wrangle.ts src/m.vite/u/-test/-wrangle.test.ts src/m.vite/u/-test/u.fixture.wrangle.ts
+deno lint src/m.vite/u/u.wrangle.ts src/m.vite/u/-test/-wrangle.test.ts src/m.vite/u/-test/u.fixture.wrangle.ts
+```
+
+Owner check and exact three-file format/lint passed. Directory discovery via
+`deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks ./src/m.vite/u`
+also found the relocated test and passed **1 suite / 18 steps**. Scoped whitespace checks passed.
+The source cut now has three surviving files and two retired paths, not another command implementation
+or permission change. The preceding commands/counts remain historical evidence at their original
+paths; integrated-proof limits remain.
+
+### Early passing base tests — before accounting and capstones
+
+`test(driver-vite): separate proof lanes and restore passing base tests`
+
+- **Order:** after immediate-child command completion, before accounting and both real capstones.
+  Establish passing base tests during Dist, not at the end of the Vite successor. A task that can
+  launch, a discovery-only check or a green selected subset is not the required passing baseline.
+- **Owner:** Vite task/discovery wiring and the smallest named corrections to genuine base-test
+  failures. Inventory affected files/assertions and retain an explicit destination for every proof
+  before moving or restricting discovery. `deno.json` also carries the Dist pipeline task; attribute
+  shared-file deltas without silently accepting its pending default-`test` expansion.
+- **Membership:** define the retained `test:unit` lane and routine `test` entrypoint used by Linux CI.
+  Keep deterministic contract/formatter/command/cleanup tests in base coverage. Real build, workspace,
+  process, consumer, browser and composition proofs retain explicit owning tasks and all assertions.
+  Preserve established entry/candidate/dev coverage; any reassignment needs a named destination and
+  explicit scope attribution. Do not classify a test as a proof lane merely because it fails.
+- **Acceptance:** run the complete retained base lane and routine CI test entrypoint through their
+  declared tasks under supported authority, and require passing results before advancing. Record
+  exact commands, membership, counts and the source/dependency snapshot. Prove explicit proof tasks
+  remain selectable; exclusions must not suppress them through their current `test:unit` reuse.
+  The broader module `ci`, separate build workflow and deferred real proofs remain separate claims.
+- **Repair boundary:** withdraw only the abandoned new `-bridge.fixture.test.ts` and injected
+  `writeLocalFixtureImportsWith` seam/plumbing/option alias already identified in the Vite plan.
+  Preserve the existing helper, its callers and frozen-discovery delta. Name any other necessary
+  base-test correction and its affected proof before expanding the cut; do not silently promote
+  the ten-file successor repair. No blanket ignores, weakened assertions or hidden failures.
+- **Stop:** an authority refusal or unresolved base failure blocks this checkpoint; do not advance
+  with a runnable-only claim, broaden permissions, fetch dependencies or relax locks. Deferred proof
+  failures remain visible and mandatory at their original Dist or Vite owner.
+
+#### Lane inventory before routing — 2026-10-01
+
+Classify by observed effects, not failures. Keep existing source paths for mixed successor files;
+finite per-file unit exclusions avoid accidentally landing their pending behavior through moves.
+Every excluded file remains asserted and explicitly selected by a proof task:
+
+| Existing source (relative to `code/sys.driver/driver-vite/src/`) | Assertion destination and effects |
+| --- | --- |
+| `m.vite/-test/-build.test.ts` | `test:build`: real sample/worker output, base/path mutation, saved checksum, pin and retained digest |
+| `m.vite/-test/-build.workspace-composition.test.ts` | `test:build`: real workspace chunks and alias marker |
+| `m.vite/-test/-build.transitive-jsr.test.ts` | `test:build`: remote transitive resolution and emitted IDs |
+| `m.vite/-test/-build.failure-causes.test.ts` | `test:build`: real native children reaching write/compute/missing-input controls |
+| `m.vite/-test/-build.startup.test.ts` | `test:build`: version child, authority equality and real native payload verification |
+| `m.vite/-test/-published-fixture-lifecycle.test.ts` | `test:build`: real child builds and strict causal leak alarm |
+| `m.vite/-test/-bootstrap.handoff.test.ts`, `-bridge.integration.test.ts` | `test:bridge`: actual graph synthesis, builds and live dev HTTP; retain setup/tsconfig assertions |
+| `m.vite/-test/-dev.test.ts` | Split five injected startup/screen contracts into base `-dev.contract.test.ts`; retain all real child/HTTP/disposal/cancellation/port cases in `test:dev` |
+| `m.vite.config/-test/-fromFile.test.ts`, `-serverFs.test.ts` | `test:config:process`: child configuration evaluation, copied external fixture/not-found refusal and three live filesystem HTTP/symlink admission worlds |
+| `m.vite.plugins/m.OptimizeImports/-test/-u.graph-proof.test.ts` | `test:graph`: child graph breadth against ui-dev |
+| `m.vite.plugins/m.HtmlIntegrity/-test/-html-integrity.build.test.ts` | `test:integrity:build` and existing `test:integrity`: real build/refusal/written-byte and dev transform lifecycle matrix |
+| `m.vite.transport/-test/-u.loader.resolve.contract.test.ts`, `-u.resolve.loader.test.ts` | Keep local file/JSON/URL/disposal contracts in base; move only npm resolution and dependency-bearing entrypoint cases to explicit `test:loader` files |
+
+A final effect audit opened `-serverFs.test.ts` and its fixture and found bounded native Vite/HTTP
+work in a child probe. The initial green 62/501 runs still included those three passing cases;
+they were reassigned by effect, not status, to `test:config:process`. The final reruns below supersede
+those intermediate counts.
+
+Everything else remains in raw unit discovery, including relocated Wrangle, formatter, parser,
+bootstrap materialization, injected transport/plugin hooks, local transforms, entry/service and
+pipeline cleanup contracts. The abandoned new bridge experiment is withdrawn, not quarantined.
+
+Routine `test` will select the full retained `test:unit` lane. Reassign established entry-process
+and candidate build/dev proofs to the existing named tasks within explicit `test:proofs`, alongside
+all formerly implicit real proofs listed above. Preserve their CI reachability with a separate
+Vite-only Linux workflow step and include that aggregate in module `ci`. This is effect-based
+routing, not a passing aggregate-CI claim. Browser/external and Dist pipeline remain separately
+owned; do not add pipeline to routine `test` or to the old-coverage proof aggregate.
+
+Use an unrestricted common test invocation rather than making proofs inherit unit exclusions.
+Parent frozen/cache-only flags prevent parent dependency acquisition, not whole-child-chain
+containment. Runtime proof lanes lacking a compliant no-acquisition route remain visibly unrun.
+Base success remains a required execution result, not an implication of this inventory.
+
+#### Passing base checkpoint — implementation receipt, 2026-10-01
+
+The human issued GO for the exact lane-separation item. The implemented routing retains raw module
+unit discovery with thirteen exact per-file exclusions, not blanket directory ignores. All displaced
+assertions have the destinations above. Five injected dev cases and their harness moved verbatim
+into `-dev.contract.test.ts`; two npm-resolution cases and the dependency-bearing entrypoint case
+moved into `m.vite.transport/-test/-loader.npm.proof.ts`. No source directories moved. The new
+`src/-test/-test.lanes.test.ts` checks base-only routine routing, exact excluded-file/proof-path
+correspondence, file existence, independent proof selection and preserved CI invocation.
+
+The abandoned untracked `-bridge.fixture.test.ts` was removed. Its invocation seam, plumbing and
+option alias were withdrawn. Inspection against HEAD shows the shared helper's only retained
+changes are its preceding frozen-discovery flag and truthful mutation/restoration documentation.
+This restores the existing helper implementation; it does not repair its setup/restoration debt.
+
+Verification from `code/sys.driver/driver-vite`:
+
+```sh
+deno task test:unit --check --trace-leaks ./src/-test/-test.lanes.test.ts ./src/m.vite/-test/-dev.contract.test.ts ./src/m.vite.transport/-test/-u.loader.resolve.contract.test.ts ./src/m.vite.transport/-test/-u.resolve.loader.test.ts
+deno task test:unit --check --trace-leaks
+deno task test
+deno task check --frozen --cached-only
+```
+
+The focused run passed **4 suites / 13 steps**. Complete retained base discovery and the actual
+routine CI task entrypoint each passed **61 top-level tests / 498 steps, zero failures** after the
+filesystem HTTP routing correction: 25s for checked/leak-traced base, 23s for routine `test`.
+Captured output: `/var/folders/7n/9zpvp0kn44b4stg0zt55j8jr0000gp/T/pi-bash-65b9f7142204d6c5.log`.
+These are
+local Darwin arm64 runs of the Linux workflow's routine task, not remote Linux CI results. Owner
+check passed. A fresh red full-discovery run was skipped because it could execute acquisition-capable
+proofs and the expressly abandoned bridge experiment; existing assertions were preserved instead.
+No genuine retained-base failure required production correction in this pass.
+
+Each following leaf task passed selection/typechecking with the exact `--check --no-run` suffix:
+
+```sh
+deno task test:build --check --no-run
+deno task test:bridge --check --no-run
+deno task test:dev --check --no-run
+deno task test:config:process --check --no-run
+deno task test:graph --check --no-run
+deno task test:loader --check --no-run
+deno task test:integrity:build --check --no-run
+deno task test:entry:process --check --no-run
+deno task test:candidate --check --no-run
+deno task test:dist:pipeline --check --no-run
+deno task test:external --check --no-run
+deno task test:integrity --check --no-run
+```
+
+This proves actual task paths remain selectable without inheriting unit exclusions; it is **not
+runtime success of those proofs**. Do not append `--no-run` to the shell-chained `test:proofs`
+aggregate: that would not guard every preceding leaf. Real build/dev/loader/graph/candidate/browser,
+full `ci`, build workflow and Dist capstones were not executed or certified by this pass.
+
+Exact nine-file module format checks passed for `deno.json`, `README.md`, the six new/split test
+files and `u.bridge.fixture.ts`. Exact six-file test lint passed. Shared-helper lint still reports
+the **11 pre-existing diagnostics**, unchanged in substance; no suppression or broad cleanup was
+performed. Deno's YAML format check requests only inherited matrix-name quote normalization in
+`.github/workflows/test.linux.yaml`; preserve those unrelated bytes rather than reformat the
+workflow. The new workflow delta is six lines. Scoped tracked whitespace checks passed.
+Exact final module formatting/lint commands:
+
+```sh
+deno fmt --check deno.json README.md src/-test/-test.lanes.test.ts src/m.vite/-test/-dev.test.ts src/m.vite/-test/-dev.contract.test.ts src/m.vite/-test/u.bridge.fixture.ts src/m.vite.transport/-test/-u.loader.resolve.contract.test.ts src/m.vite.transport/-test/-u.resolve.loader.test.ts src/m.vite.transport/-test/-loader.npm.proof.ts
+deno lint src/-test/-test.lanes.test.ts src/m.vite/-test/-dev.test.ts src/m.vite/-test/-dev.contract.test.ts src/m.vite.transport/-test/-u.loader.resolve.contract.test.ts src/m.vite.transport/-test/-u.resolve.loader.test.ts src/m.vite.transport/-test/-loader.npm.proof.ts
+```
+
+**Snapshot and attribution:** HEAD `ee366e10382a6f5295c3bd52463210b380212f3e`, immediately after
+command-policy landing `095bf200acef30abae717fe2f34d5c25322572e4`. Runtime: Deno 2.9.7, TypeScript
+6.0.3, V8 15.0.245.2-rusty, aarch64-apple-darwin. Root `deno.json`, `deno.lock`, `imports.json`,
+`deps.yaml` and `package.json` match HEAD. No dependency acquisition task, permission expansion,
+installed-byte patch, generated refresh, Git mutation or source promotion was performed.
+
+The attributable routing cut has ten surviving paths: `.github/workflows/test.linux.yaml` and,
+within the Vite module, `README.md`, `deno.json`, `src/-test/-test.lanes.test.ts`,
+`src/m.vite/-test/-dev.test.ts`, `src/m.vite/-test/-dev.contract.test.ts`,
+`src/m.vite/-test/u.bridge.fixture.ts`,
+`src/m.vite.transport/-test/-u.loader.resolve.contract.test.ts`,
+`src/m.vite.transport/-test/-u.resolve.loader.test.ts` and
+`src/m.vite.transport/-test/-loader.npm.proof.ts`; the abandoned untracked bridge test is retired.
+The human explicitly confirmed these ten paths as this item's whole-file landing boundary.
+Carry the full README, full `deno.json` including the explicit pipeline declaration, and full
+bridge helper including the preceding frozen-discovery/documentation bytes in this step. Those
+retained deltas are deliberately included here, not separate hunk selections or mixed-delta
+handoff warnings. Pipeline implementation, successor build/formatter files and plan recordkeeping
+remain outside this source cut. This reviewed boundary provides the step point; standalone-green
+intermediate commits are not required, and its integrated dependencies do not add a landing hold
+or another review. Preserve final-state proof obligations and the remaining owners.
+
+These receipts are **integrated-worktree evidence, not isolated-candidate or blind review proof**.
+The retained formatter tests exercise the still-unlanded successor's `common.ts`, `t.ts`,
+`u/u.build.ts`, `u/u.log.ts` and `-test/-build.output-width.test.ts` deltas. Owner check also includes
+its configured fixture corrections and new native controls. Base discovery retains the unlanded
+Dist pipeline cleanup test/helper. These dependencies were not silently absorbed or newly authored
+here; keep their original owners and revalidate the intended landing state. Reconcile source landing
+only through the opening arc and reachable history.
+
+Complete retained discovery membership (59 files relative to the Vite module; 61 top-level tests):
+
+```text
+-scripts/-test/-task.prep.test.ts
+-scripts/-test/-task.smoke.test.ts
+src/-entry/-test/-m.Entry.main.test.ts
+src/-entry/-test/-m.Entry.test.ts
+src/-entry/-test/-serve.polling.test.ts
+src/-entry/u.command/-test/-u.dev.test.ts
+src/-entry/u.command/-test/-u.serve.test.ts
+src/-test/-test.lanes.test.ts
+src/-test/-u.SAMPLE.test.ts
+src/common/-u.perf.test.ts
+src/m.service/-test/-.test.ts
+src/m.vite.config.workspace/-test/-.test.ts
+src/m.vite.config/-test/-.test.ts
+src/m.vite.config/-test/-app.specifierRewrite.test.ts
+src/m.vite.config/-test/-app.test.ts
+src/m.vite.config/-test/-facadeBoundary.test.ts
+src/m.vite.config/-test/-paths.test.ts
+src/m.vite.config/-test/-plugins.test.ts
+src/m.vite.config/-test/-u.app.test.ts
+src/m.vite.config/-test/-u.browserSyntaxTargets.test.ts
+src/m.vite.config/-test/-u.oxcPreflight.test.ts
+src/m.vite.plugins/-test/-.test.ts
+src/m.vite.plugins/m.DisposeProtocolCompat/-test/-m.DisposeProtocolCompatPlugin.test.ts
+src/m.vite.plugins/m.HtmlIntegrity/-test/-u.htmlIntegrity.test.ts
+src/m.vite.plugins/m.OptimizeImports/-test/-.test.ts
+src/m.vite.plugins/m.OptimizeImports/-test/-m.OptimizeImportsPlugin.test.ts
+src/m.vite.plugins/m.OptimizeImports/-test/-u.derive.test.ts
+src/m.vite.plugins/m.OptimizeImports/-test/-u.rewrite.test.ts
+src/m.vite.plugins/m.OptimizeImports/-test/-u.rules.test.ts
+src/m.vite.startup/-test/-.test.ts
+src/m.vite.transport/-test/-.test.ts
+src/m.vite.transport/-test/-m.denoPlugin.test.ts
+src/m.vite.transport/-test/-u.load.test.ts
+src/m.vite.transport/-test/-u.loader.resolve.contract.test.ts
+src/m.vite.transport/-test/-u.npm.test.ts
+src/m.vite.transport/-test/-u.prefix.test.ts
+src/m.vite.transport/-test/-u.resolve.loader.test.ts
+src/m.vite.transport/-test/-u.resolve.loader.viteIds.test.ts
+src/m.vite.transport/-test/-u.resolve.test.ts
+src/m.vite/-test/-.test.ts
+src/m.vite/-test/-bootstrap.authority-ranking.test.ts
+src/m.vite/-test/-bootstrap.delivery.identity.test.ts
+src/m.vite/-test/-bootstrap.payload.test.ts
+src/m.vite/-test/-bootstrap.residue.test.ts
+src/m.vite/-test/-bootstrap.runtime-additions.test.ts
+src/m.vite/-test/-build.elapsed.test.ts
+src/m.vite/-test/-build.output-width.test.ts
+src/m.vite/-test/-dev.contract.test.ts
+src/m.vite/-test/-dist.pipeline.cleanup.test.ts
+src/m.vite/-test/-info.output-width.test.ts
+src/m.vite/-test/-tasks.output-width.test.ts
+src/m.vite/-test/-u.depAudit.react.test.ts
+src/m.vite/-test/-u.dev.output.test.ts
+src/m.vite/-test/-u.dev.parse.test.ts
+src/m.vite/-test/-u.dev.screen.runtime.test.ts
+src/m.vite/-test/-u.dev.screen.test.ts
+src/m.vite/-test/-u.fixture.run.test.ts
+src/m.vite/-test/-u.keyboard.test.ts
+src/m.vite/u/-test/-wrangle.test.ts
+```
+
+The five accepted documentation-review findings are bounded wording corrections: actual dev host
+exposure/disposal, producer versus child success, fixture mutation/restoration, explicit pipeline
+coverage and lossy width clipping. Preserve them with their source owners; they neither complete this
+base-test checkpoint nor fix helper restoration. Several touched files also contain successor-only
+behavior: documentation edits do not authorize landing that behavior early or bypassing the whole-file
+landing rule.
+
+#### Independent lane review — accepted evidence and limits, 2026-10-01
+
+The human supplied an independent report returning **GO for the bounded integrated-worktree item**,
+with no material defect attributable to separation. Accept that scope, not an isolated ten-file
+landing or runtime/full-CI certification. These are reviewer-reported executions, not fresh runs by
+this adjudication; the actual reviewer model/effort was not supplied and is not inferred from the
+prompt recommendation.
+
+From `code/sys.driver/driver-vite`, on Deno 2.9.7 / aarch64-apple-darwin, the reviewer reported:
+
+- `deno task test:unit --check --trace-leaks`: **61 passed / 498 steps / 0 failed**, 28s.
+- `deno task test`: **61 passed / 498 steps / 0 failed**, 23s.
+- `deno task check --frozen --cached-only`: passed.
+- `deno task test:run --check --no-run`: passed, **72 files** selected without unit exclusions.
+- All twelve explicit leaves listed in the implementation receipt passed `--check --no-run`;
+  no runtime proof task or shell-chained `test:proofs` was executed.
+
+Accept the coverage conservation: 72 unrestricted discovery files minus 13 exact exclusions leaves
+59 retained files; five injected dev cases and three loader cases retain their assertions and
+cleanup in the split files. The proof aggregate selects 17 distinct files: the exclusions, two
+entry-process files, candidate-consumer and loader proof. Existing task destinations and the
+Vite-only CI step preserve reachability. Source classification and discovery, not the routing
+regression alone, establish these dimensions; neither proves GitHub Actions execution.
+
+Accept the additional dependency finding. `src/-test/-test.lanes.test.ts` checks existence of every
+selected proof path; the successor's `-build.failure-causes.test.ts` and `-build.startup.test.ts`
+are required even though excluded from runtime base discovery. A ten-file-only snapshot omitting
+those files would fail that assertion. The baseline also includes successor error rendering,
+related checked build/types, the Dist cleanup **one suite / nine steps**, and the shared pipeline
+task declaration without attributing its implementation to routing. Source inspection confirmed
+the existence loop; Git observation confirmed both named native-control files outside HEAD.
+Preserve these owners and reconcile dependencies before any isolated or final-state baseline
+claim. Dependent whole-file intermediate landings remain allowed; this report does not promote
+successor source, waive final coherence or justify weakening existence assertions.
+
+Retain the bridge evidence limit: reachable history cannot reconstruct the discarded untracked
+experiment. The surviving HEAD diff establishes no removal of the existing helper implementation,
+not independent proof of that experiment's original contents or setup/restoration correctness.
+Inherited helper debt stays separately owned. Keeping routine `test` broad would be a smaller
+routing change but would retain the runtime prerequisites that this early checkpoint explicitly
+separates; reject that alternative for this contract, without expanding into broad Vite repair.
+No source correction or repeated runtime run follows from the supplied findings. Runtime proofs,
+Linux CI, whole-driver health and Dist capstones retain their separate verification obligations.
+
+### Mandatory Vite repair after Dist closure
+
+[vite-build-repair.plan.md](../@sys.driver-vite/vite-build-repair.plan.md) owns the remaining ordinary
+build/workspace proof and failure-cause repair. It retains the ten-file boundary, causal controls,
+workspace verification, shared-helper debt and evidence limits. Early base-test work is owned here,
+not duplicated in its opening arc. This transfer removes the blanket dependency, not the obligation.
 
 ### Build, projection and serving composition
 
 `test(dist): prove canonical build projection and serving composition`
 
 - **Owner:** `code/sys.driver/driver-vite/src/m.vite/-test.external/-dist.pipeline.ts`,
-  `u.dist.pipeline.cleanup.ts`, its focused cleanup tests and the owning `test:dist:pipeline` task.
-- **Dependencies:** canonical Vite, FS and Server source contracts plus the frozen-fixture correction.
-- **Completion:** two real builds with stable payload pins but distinct manifest checksums; recorded
-  projection pins; materialization and pinned serving of the expected bytes; original-document warm
-  reuse; changed-byte/path and stale-pin refusal. Preserve the existing SRI-byte assertions rather
-  than opening a separate SRI project. Include the already-required independent composition evidence.
+  `u.dist.pipeline.cleanup.ts`, `src/m.vite/-test/-dist.pipeline.cleanup.test.ts` and the explicit
+  `test:dist:pipeline` task in `code/sys.driver/driver-vite/deno.json`. Keep that task separately
+  invoked; do not carry the pending addition to default `test` as incidental repair or capstone
+  work. Separate invocation does not waive required execution or independent composition evidence.
+- **Dependencies:** canonical Vite, FS and Server source contracts, immediate-child command support
+  and accounting consolidation. Broad Vite repair is not a prerequisite. Prove the final composed
+  Dist behavior; explicitly account for any unlanded successor code used by the proof.
+- **Completion:** retain the two-real-build fixture, stable payload pins and distinct manifest
+  checksums; recorded projection pins; materialization and pinned serving of expected bytes;
+  original-document warm reuse; changed-byte/path and stale-pin refusal. The two-build assertion
+  establishes repeatability for this controlled fixture, not a general Vite reproducibility promise
+  or the definition of content identity. Pins recorded before HTTP are independently supplied to
+  that transport boundary, not proof of an external trusted release channel. Existing SRI-byte
+  comparisons prove correspondence to served bytes, not browser enforcement. Preserve these checks
+  without opening an SRI or resolver project, and include the required independent composition
+  evidence.
+- **Right-sized scope:** use the smallest real project and harness corrections needed for these
+  accepted claims. Do not preserve an unnecessarily coupled helper solely because it exists, but do
+  not require wholesale proof rearchitecture before this arc can close. Broader fixture/graph
+  factoring is AF-07. Any replacement must name the surviving assertion, owner and real runtime path
+  before deleting its old proof; no unreviewed reduction in the accepted coverage.
 - **Failure settlement:** retain R3-A06 body/cleanup failure arbitration, drained hosts, leases and
-  independent release errors. Refused restoration/removal never authorizes deletion around that
-  refusal. A passing cleanup-only test does not replace the real pipeline proof.
+  independent release errors. Own resources from the first allocation, not only after entering
+  `runPipeline`: the current fixture allocates a root and starts its HTTP source before that helper.
+  A source-setup failure must still release owned resources. Refused restoration/removal never
+  authorizes deletion around that refusal. A cleanup-only green does not replace real pipeline
+  proof.
 
 ### Real Pi preview isolation
 
@@ -477,28 +1197,36 @@ passes, not when it contains passing subcounts.
 
 - **Owner:** `code/sys.driver/driver-pi/-scripts/-test.external/-task.start.gui.preview.real.ts`,
   its preview-build fixture/forwarding boundary and the owning `test:preview:real` task.
-- **Dependencies:** canonical Pi package/source admission, Vite and Server contracts plus the
-  frozen-fixture correction. Run after the pipeline item in the recorded execution sequence.
+- **Dependencies:** canonical Pi package/source admission, immediate-child command support and final
+  FS/Server accounting behavior. Run after the pipeline item. Broad Vite repair is not a prerequisite;
+  the actual preview build path and any successor-code dependency must be proved explicitly.
 - **Completion:** two real preview generations with equal payload identity and distinct documents;
   the first remains verified and served while the second is built and cleaned up; covered package
   admission accepts the expected package and refuses a conflicting expectation. Preserve original
   documents, shared-output snapshots, environment sanitization, independent failures and cleanup.
+- **Fixture ownership:** protect environment restoration from the first mutation. The current real
+  preview case sets its ambient sentinel and awaits `directorySnapshot` before entering `try`;
+  snapshot/setup refusal must not leak that sentinel. Keep acquired sessions/hosts owned through
+  settlement. This is selected proof-fixture correctness, not a new lifecycle framework or a new
+  production defect claim; the source-derived setup failure has not been injected in this review.
 - **Boundary:** preserve the task's `--deny-write=../../..` guard, retained release evidence and
   ordinary developer behavior. No shared-output rebuild, GUI reset, release rebinding, provider
   publication or broader launcher/permission work.
 
 The human-reported ZIP read/extract `prep:zip --check` parity already passed, as recorded in
 [R3 landing evidence](./dist-content-identity.plan/reviews/03/R3.landing-scope.md#subsequent-functional-receipts-and-fixture-lock-diagnosis).
-Do not invent another missing ZIP proof; repeat only if relevant owner inputs change. The proof tail
-has no implicit fourth catch-all audit, upgrade or tooling project. A newly discovered obligation
-must be reported and explicitly scoped before changing arc membership.
+Do not invent another missing ZIP proof; repeat only if relevant owner inputs change. After the
+immediate-child command completion and accounting, these two capstones are the complete proof
+tail, not the start of another catch-all audit, upgrade or tooling project. A newly discovered
+obligation must be reported and explicitly scoped before changing arc membership.
 
 ## Dist test-signal audit — implementing-thread adjudication
 
 The original source/history adjudication performed no runtime reproduction or source/test edits.
 The human subsequently authorized all four bounded closure steps; the TS-01 proof below records that
-later execution. Observed HEAD remains `8d97fe4088bed6764e804424b767b089ffb13cf3`; that does not
-identify dirty source bytes or author intent. No Git mutation or independent review occurred here.
+later execution. HEAD at that adjudication was `8d97fe4088bed6764e804424b767b089ffb13cf3`; it does not
+identify current dirty bytes or author intent. That pass performed no Git mutation or independent
+review.
 
 ### TS-01 — accepted: producer failure-truth regression; red → green proof
 
@@ -1278,8 +2006,9 @@ filename to hide the defect. This item neither introduces the new identity nor c
 S1–S10 allocate the producer/consumer replacement previously named
 `feat(dist)!: unify build pins and verification on canonical content identity`. That aggregate
 subject is historical, not an additional expected commit. Workstreams A–H below specify the
-contract and proof obligations across those units; they are not another landing ledger. The three
-deferred proof items retain their explicit owners and completion criteria above.
+contract and proof obligations across those units; they are not another landing ledger. Dist owns
+the early passing-base-tests checkpoint and two integration proofs; the mandatory Vite successor
+owns remaining build/workspace proof and failure-cause repair.
 
 The pin type, strict capture, FS verification, Server addressing and consumer arguments are coupled.
 Document those dependencies in the source commit sequence rather than requiring every intermediate
@@ -1551,14 +2280,16 @@ workflows. These are acceptance criteria, not a new `GATE`. Neither a renamed fi
 existing suites establishes the new protocol. Release, provider/browser approval, and real evidence
 rebinding remain independently owned.
 
-### 4. Bounded post-replacement ownership and failure-evidence cleanup
+### 4. Bounded inventory accounting before final composition proof
 
-`refactor(dist): consolidate inventory accounting and retain build failure causes` follows the
-integrated replacement. This is one bounded follow-up, not a general cleanup campaign or another
-identity protocol. The TMIND/DMIND design pass inspected live types, implementations, tests, and
-owning tasks; it executed no runtime proof. The opening arc already contains this item once.
-Reinspect the landed predecessor before implementation; these notes do not attest future bytes or
-make this later item current.
+`refactor(dist): consolidate inventory accounting without merging authority` follows the source
+replacement, immediate-child command item and early passing-base-tests checkpoint, before both
+integration capstones. It has no dependency on broad Vite proof-lane repair. Build-cause work belongs
+to the mandatory successor; no obligation is dropped.
+This is a bounded two-caller extraction, not a general cleanup campaign or another identity protocol. The
+original TMIND/DMIND design inspection executed no runtime proof; the current plan review re-opened
+both arithmetic owners and confirmed the duplication and distinct trust boundaries. Reinspect the
+landed predecessor before implementation; this design is not an existing API or delivery claim.
 
 #### Design decision: share accounting, not authority
 
@@ -1624,35 +2355,12 @@ narrow verification dependency closure. If this one-shot surface requires a broa
 changes established admission outcomes, or loses bounded ordering, stop and bring that concrete
 trade-off back; retaining explained duplication is preferable to a dishonest shared primitive.
 
-#### Design decision: failed build results carry their own explanation
-
-`code/sys.driver/driver-vite/src/m.vite/u/u.build.ts::buildWith` drops `written.error` and
-`computed.error`; its failure response and formatter retain only child-process output. A successful
-child followed by failed package publication or Dist computation therefore lacks the returned cause.
-
-- Require `readonly error: t.StdError` on the existing `Vite.Build.Response` failure arm. Keep
-  `ok: true` and its Dist/pin/document fields unchanged; failures expose none of those success
-  fields. Do not invent a second result wrapper or parallel stage/reason taxonomy.
-- Each existing returned failure creates one contextual error through `Err.std`; package-write and
-  Dist-compute failures retain their upstream StdError as `cause`. Child failure and empty-output
-  refusal get their own truthful context. Keep `cmd.output` untouched: the child really may have
-  exited successfully. Do not synthesize an exit code or hide child output to explain driver
-  failure.
-- Pass the same owned error into the build's reporting path and `toString()`. Use `Err.summary` and
-  existing width/ANSI helpers for a useful cause summary without raw object/manifest dumps or
-  unsolicited stacks. This is local build diagnosis, not new remotely safe error disclosure. A log
-  line alone does not satisfy the returned-result contract; silent mode must still return it.
-- Extend only the package-internal `buildWith` fault seam as needed to inject compute failure as
-  well as package-write failure. No public Build.Args testing knobs, global monkey-patching, or
-  re-computation on the failure path. Preserve existing throw/exit/disposal behavior; do not turn a
-  broad catch into success or let diagnostic rendering discard an independent cleanup failure.
-
 #### Implementation sequence and falsification proof
 
-1. Reopen the landed predecessor and the owning `deno.json` files. Confirm the two findings still
-   exist, attribute only their deltas, and write the proposed public types before implementation.
-   Preserve all current migration fixes and unrelated open work; no production edits follow merely
-   from these notes.
+1. Reopen the landed predecessor and owning `deno.json` files. Confirm the two accounting callers,
+   attribute only this extraction's deltas, and write the proposed public types before
+   implementation. Preserve all migration fixes and unrelated work; these notes alone authorize no
+   production edit.
 2. Pin accounting behavior with literal owner-level expectations before extraction. For example,
    `a/b.txt` and `a/c.txt`, sizes 2 and 3, imply four structural entries, 14 path units, two charged
    prefix units, five total bytes, and zero package bytes. Separately, `a/b/c/d` needs five entries
@@ -1665,28 +2373,75 @@ child followed by failed package publication or Dist computation therefore lacks
    counts of zero, forged totals/digests, tighter caller limits, and exactly-once release on
    refusal. Agreement between callers of one helper is not an independent oracle. Test the helper
    against literal expectations and each trust boundary against its own forbidden effects.
-4. For Vite, first demonstrate loss of returned/rendered cause, then add the failure field and
-   reporting. Extend the existing successful-child/failed-package-write test and add deterministic
-   compute refusal. Assert child success remains true, driver success is false, contextual error and
-   original cause survive, no Dist/pin/checksum escapes, rendered output is width-bounded, and
-   cleanup still occurs. Retain ordinary success and real child-failure controls; test unsupported
-   access to success-only fields after failure narrowing through the existing type-check surface.
-5. Use the declared owner tasks: FS and Server `test:unit` on the named files, then affected owner
-   checks/suites; Vite `test:unit` for scoped build/formatter tests and `test:dist:pipeline` for the
-   final composition proof. Inspect current tasks and child-process containment before execution; no
-   permission widening, fallback dependency fetch, release rebuild, or evidence rebinding. Review
-   the changed owners and their composition, not an automatic repeat of every migration review.
-   Wider proof is warranted only by an actual changed invariant or dependency.
+4. Use FS and Server's declared `test:unit` scopes on the named files, public-surface/namespace
+   tests and affected owner checks/suites. Preserve the narrow verifier graph and re-run Server's
+   owning `test:dist:process` regression for that boundary; do not repeat S2's broad-barrel
+   regression. Check refusal classification and ordering, not just equal successful totals. Shared
+   helper agreement alone cannot close extraction proof.
+5. Hand the completed behavior to the following Vite pipeline and Pi preview items. They supply
+   final-state composition evidence once, rather than proving pre-refactor code and immediately
+   invalidating that result. No broader grants, fallback acquisition, release rebuild or evidence
+   rebinding. Review the changed boundaries for concrete risks, not every migration again.
 
 #### Boundary and stop conditions
 
 Identity bytes, scheme, supported formats, filesystem protections, and publication/lease semantics
 stay unchanged. No adjacent workspace, UI, profile, release-evidence, or plan-buffer cleanup. No
-unfinished source-owner obligation is moved into this refactor. The three explicitly deferred
-integration proofs retain their own arc items. A discovered admission, ownership or failure-truth
-defect must be assigned to its affected owner, not hidden as a proof-environment problem or absorbed
-into this refactor. The later implementation must prove the proposed extraction fits; this
-source-based design review is neither S-tier implementation closure nor landing clearance.
+unfinished source-owner obligation is moved into this refactor. The two integration capstones retain
+their own arc items after this change. A discovered admission, ownership or failure-truth defect
+must be assigned to its affected owner, not hidden as a proof-environment problem or absorbed into
+this refactor. The later implementation must prove the proposed extraction fits; this source-based
+design review is neither S-tier implementation closure nor landing clearance.
+
+#### Executed accounting checkpoint
+
+The bounded extraction exposes `Pkg.Dist.Inventory.inspect` and the same frozen `Inventory` leaf
+through `@sys/fs/pkg/dist/verify`. FS capture and Generation settlement consume it immediately.
+FS retains target/collision/reserved-name admission, sorting, encoding and digest composition;
+Generation retains scalar-first refusal, native/frozen/exact evidence admission, bounded
+count/descriptor preflight, claimed-total comparison and independent-pin recomputation.
+Inspection returns owned accounting facts, never a digest, pin or verified evidence.
+
+Literal owner controls passed before extraction: FS **1 suite / 13 steps**, Generation
+**1 / 47**. The new API's initial red was a missing `Inventory` type/export, not a behavioral
+counterexample. The focused accountant tests use literal counts/totals and retain separate
+full-path/prefix budgets, safe addition, fixed ceilings, own-key semantics and zero borrowed hooks.
+Existing real-filesystem positive controls, identity vectors, refusal ordering and release tests
+remain in their owners.
+
+Executed verification against the integrated worktree:
+
+- From `code/sys/fs`, `deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks`:
+  **81 passed / 755 steps / zero failed**; `deno task test:process --check --frozen --cached-only
+  --no-prompt`: **4 / 6 / zero failed**; `deno task check --frozen --cached-only` passed.
+- From `code/sys/server`, the same `test:unit` invocation: **43 / 364 / zero failed**;
+  `deno task test:dist:process --check --frozen --cached-only --no-prompt`: **4 / 10 / zero failed**,
+  including the existing hosting/generation graph, narrow-read and lease regressions.
+  `deno task check` passed as declared, without frozen/cache-only flags.
+- Exact **14-source-file** format/lint checks and scoped tracked whitespace checks passed.
+  No dependency surfaces, grants, profiles or generated artifacts were edited.
+
+Implementing-thread adversarial review checked accounting conservation, refusal precedence,
+preflight ordering, input/output ownership and the narrow dependency boundary; no material defect
+was found. This is not independent review, isolated-candidate certification, either integration
+capstone, or whole-plan closure. The opening arc remains the sole landing ledger.
+
+#### Supplied source-only writing review — adjudication
+
+The human supplied a source-only review of all 14 files and supporting implementations, with no
+reviewer edits or tests. All four findings were confirmed and corrected: Inventory now documents
+its nonempty native dictionary, mandatory canonical hash/size claims, selected-key semantics,
+structural entry count, package-byte classification and Unicode-only `unsafe-path` meaning;
+the excess-claim case names the declared asset count and authors exactly one excess claim;
+the freeze test explicitly names listed surfaces and includes `Pkg.Dist.Pins`; both runtime
+Inventory anchors use multiline JSDoc. Production accounting and admission behavior are unchanged.
+
+Focused post-correction verification used the owning frozen/cache-only `test:unit` tasks with
+`--check --no-prompt --trace-leaks`: FS Inventory, content admission, public surfaces and namespace
+freeze **4 suites / 44 steps / zero failed**; Generation authority **1 / 47 / zero failed**.
+Exact five-file format/lint and scoped tracked whitespace checks passed. These are implementer-run
+results, not reviewer-run replication. Historical full-owner/process results retain their original
+checkpoint scope; this writing review does not certify either capstone or whole-plan completion.
 
 ### Dependency and landing boundary
 
@@ -1696,10 +2451,13 @@ source-unit dependencies without requiring standalone CI-green intermediate comm
 compatibility machinery. These commits form one migration sequence, not independently supported
 partial Dist products.
 
-The three named proof commits follow their source dependencies. Their execution does not hold all
-reviewed source changes uncommitted; it remains necessary evidence before claiming the corresponding
-composition behavior verified. The inventory-accounting/build-failure refactor follows separately
-and is not a prerequisite to source landing or an extraction of unfinished consumer migration.
+Immediate-child command completion and the early passing-base-tests checkpoint precede accounting
+and the two real integration proofs. Accounting has no dependency on broad Vite proof-lane repair.
+Composition evidence remains required, but
+its execution does not hold all reviewed source changes uncommitted. It does not certify Vite's
+whole ordinary suite. The mandatory successor owns that bounded repair after Dist closure. Any
+later shared-behavior correction needs its own attribution and affected regression proof; a Dist
+receipt cannot silently certify successor changes. Accounting is not unfinished consumer migration.
 
 The independent R2 repair is outside this chain. This plan revision authorizes no production
 implementation, Git mutation, publication, evidence rebinding, or external operation.
@@ -1881,9 +2639,9 @@ work to restart. Reuse their applicable evidence and preserve the integrated own
 Source-unit work proceeds from S1's Types/Std contract through the documented dependency sequence.
 Name whether each receipt applies to an isolated commit or an integrated dependency snapshot; do not
 demand per-commit CI green. Do not use separate Tools publication tests as proof of the identity
-protocol. Preserve narrow red/green and literal-vector proof, then impacted owner checks. The three
-named integration items own their
-later execution. Stop on security/permission failures rather than widening grants.
+protocol. Preserve narrow red/green and literal-vector proof, then impacted owner checks. The Vite
+successor owns ordinary build repair; the two named integration items own execution against
+the final accounting behavior. Stop on security/permission failures rather than widening grants.
 Never regenerate external expectations, publish artifacts, or alter profiles as a way to obtain a
 green result.
 
@@ -1897,13 +2655,17 @@ old Dist format, compatibility API, conversion helper, old pin/configuration ali
 producer/verifier remains. Internal document observations, generic file checksums, and signatures
 retain truthful, separate meanings without becoming competing Dist identities.
 
-All affected consumers, old-input refusal controls and attributable residue belong to the source
-sequence; the three explicit proof commits own the deferred real-build/composition evidence. Earlier
-source commits need not wait for those proofs or pass CI in isolation, and they do not claim those
-proofs have passed. Independently owned old evidence may remain only as unsupported input awaiting
-separately authorized rebuilding, never as a functioning compatibility lane. Passing a renamed test
-suite or replacing one field is not completion. Whole-plan completion also requires the separately
-recorded bounded ownership/failure-evidence follow-up; it does not block earlier source landing.
+All affected consumers, old-input refusal controls and attributable residue belong to their source
+owners. Whole-plan completion includes the native-path Std prerequisite, isolated HTTP correction,
+observation/signing docs, immediate-child command completion, early proof-lane separation with passing
+base tests, and bounded accounting consolidation, in that order. The two integration capstones then
+prove the composed Dist behavior. Remaining Vite build/workspace proof and returned-cause repair are
+mandatory immediately afterward under the successor plan, not conditions for closing this plan.
+The early passing-base-tests requirement is not deferred to that successor. Earlier source commits
+need not wait for those proofs or pass CI in isolation; they do not claim those proofs passed.
+Independently owned old evidence may remain only as unsupported input awaiting separately authorized
+rebuilding, never as a functioning compatibility lane. Passing a renamed test suite,
+replacing one field, or obtaining a clean typecheck is not runtime completion.
 
 No provenance discovery, arbitrary execution-policy manifest, Merkle-tree framework, generic JSON
 canonicalization framework, browser whole-module-graph integrity, remote deployment, profile change,

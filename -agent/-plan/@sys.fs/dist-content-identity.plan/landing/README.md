@@ -11,6 +11,9 @@ root. The [primary plan](../../dist-content-identity.plan.md) remains the sole l
 - [S7 — Cell service configuration and authored help](./S7.landing.md)
 - [S8 — Pi GUI payload/package admission](./S8.landing.md)
 - [S9 — R2 inventory admission and sample selection](./S9.landing.md)
+- [Std prerequisite — Native filesystem containment](./STD.native-containment.landing.md)
+- [HTTP — Static admission and directory redirects](./HTTP.static-containment.landing.md)
+- [S10 — Observation and signing consumer contract closure](./S10.landing.md)
 
 These records describe inspected evidence, not Git authorization or isolated-commit proof. Plan and
 receipt changes are separate workflow artifacts, excluded from source implementation commits.
