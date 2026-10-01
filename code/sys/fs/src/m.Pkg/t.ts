@@ -37,9 +37,66 @@ export declare namespace Pkg {
       /** Check against an independent content pin and read checksum-matched files. */
       readonly Pinned: Pinned.Lib;
 
+      /** Bounded inventory accounting; does not admit paths or verify payload bytes. */
+      readonly Inventory: Inventory.Lib;
+
       /** Logging helpers for distribution-package metadata. */
       readonly Log: Log.Lib;
     };
+
+    /**
+     * Inspect selected own enumerable data claims without I/O, sorting, hashing or authority.
+     * Unselected keys are ignored; selected accessors and native proxies refuse without invocation.
+     * UTF-16 full-path and repeated-prefix work are bounded independently before allocation.
+     * Traversal spellings may inspect successfully; this does not establish path safety.
+     */
+    export namespace Inventory {
+      export type Lib = { readonly inspect: Method };
+      export type Method = (args: Args) => Result;
+      export type Args = {
+        /**
+         * Nonempty plain or null-prototype dictionary of path → canonical SHA-256/size claims.
+         * Values use `sha256-<64 lowercase hex>:size=<canonical nonnegative safe integer>`;
+         * hash-only values refuse. Only own enumerable string keys count; symbols,
+         * non-enumerable keys and inherited keys are ignored. Selected accessors and proxies refuse.
+         */
+        readonly parts: unknown;
+        readonly limits: Limits;
+      };
+      /**
+       * Own data bounds; unrelated limit members are ignored. Entries count one `dist.json`,
+       * all payload files and distinct implied directories. Entries/path limits cannot raise
+       * Content's fixed ceilings; omitted path limits use those ceilings. Entries/path bounds
+       * must be positive safe integers; file/total byte bounds must be nonnegative safe integers.
+       */
+      export type Limits = Pick<
+        Verify.Limits,
+        'entries' | 'fileBytes' | 'totalBytes' | 'pathLength' | 'pathTotal'
+      >;
+      /** One owned file claim; its spelling has not passed Rooted target admission. */
+      export type File = {
+        readonly path: t.StringRelativePath;
+        readonly hash: t.StringHash;
+        readonly size: t.NumberBytes;
+      };
+      export type Result = Inspected | Failure;
+      /** Newly owned frozen claims in enumeration order, not verified filesystem evidence. */
+      export type Inspected = {
+        readonly kind: 'inspected';
+        readonly files: readonly File[];
+        /** Sum of declared payload sizes; no manifest bytes are included or measured. */
+        readonly totalBytes: t.NumberBytes;
+        /** Sum of claims beneath `pkg/` or any nested `/pkg/` directory spelling. */
+        readonly packageBytes: t.NumberBytes;
+      };
+      /** `unsafe-path` means ill-formed Unicode only; Rooted path policy is not applied here. */
+      export type Failure = { readonly kind: FailureKind };
+      export type FailureKind = Extract<
+        Verify.FailureKind,
+        'invalid-input' | 'malformed' | 'unsafe-path' | 'limit-exceeded'
+      >;
+    }
+
     /**
      * Limits for projection outputs or selected distributions.
      * Payload bytes count once per distribution; manifests are excluded.

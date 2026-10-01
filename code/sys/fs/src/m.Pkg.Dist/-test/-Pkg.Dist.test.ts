@@ -1,5 +1,9 @@
 import { describe, expect, it, pkg, type t } from '../../-test.ts';
-import { Local as VerifyLocal, Pinned as VerifyPinned } from '@sys/fs/pkg/dist/verify';
+import {
+  Inventory as VerifyInventory,
+  Local as VerifyLocal,
+  Pinned as VerifyPinned,
+} from '@sys/fs/pkg/dist/verify';
 import { distTypePath as typesDistTypePath } from '@sys/types';
 import { pkg as fsPkg } from '../../pkg.ts';
 import { Dir } from '../../mod.ts';
@@ -23,11 +27,13 @@ describe('Pkg.Dist', () => {
     expect(Pkg.Dist).not.to.equal(Base.Dist);
     expect(VerifyLocal).to.equal(Dist.Local);
     expect(VerifyPinned).to.equal(Dist.Pinned);
+    expect(VerifyInventory).to.equal(Dist.Inventory);
     expect(Object.keys(Pkg.Dist.Local).sort()).to.eql(['readPart', 'verify']);
     expect(Object.keys(Pkg.Dist.Pinned).sort()).to.eql(['admitManifest', 'readPart', 'verify']);
     expect([Base.Dist, Dist.Local, Dist.Pinned].every(Object.isFrozen)).to.eql(true);
     expect(Object.keys(Pkg.Dist).sort()).to.eql([
       ...Object.keys(Base.Dist),
+      'Inventory',
       'Log',
       'Local',
       'Pinned',

@@ -6,7 +6,7 @@ import { Glob } from '../m.Glob/mod.ts';
 import { JsonFile } from '../m.JsonFile/mod.ts';
 
 describe('fs namespace freeze contract', () => {
-  it('freezes every exported namespace API and nested namespace', () => {
+  it('freezes the listed public namespaces and nested APIs', () => {
     const namespaces = [
       Fs,
       Fs.Is,
@@ -36,9 +36,11 @@ describe('fs namespace freeze contract', () => {
       Pkg.Dist.Is,
       Pkg.Dist.Content,
       Pkg.Dist.Part,
+      Pkg.Dist.Inventory,
       Pkg.Dist.Log,
       Pkg.Dist.Local,
       Pkg.Dist.Pinned,
+      Pkg.Dist.Pins,
       Watch,
       Glob,
       JsonFile,

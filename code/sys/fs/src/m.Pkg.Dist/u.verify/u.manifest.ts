@@ -1,8 +1,8 @@
 import { normalizeTargets } from '../../m.Fs.capability/m.Rooted/u/u.target.ts';
-import type { StrictManifest, StrictPart } from '../t.internal.ts';
+import { Inventory } from '../m.Inventory.ts';
+import type { StrictManifest } from '../t.internal.ts';
 import { D, Hash, Is, Json, Obj, Path, Pkg, Str, type t } from './common.ts';
 import { failure } from './u.io.ts';
-import { addBytes } from './u.limit.ts';
 
 const compare = Str.Compare.codeUnit();
 const decoder = new TextDecoder('utf-8', { fatal: true });
@@ -68,36 +68,11 @@ export function captureContent(
   limits: t.Pkg.Dist.Verify.Limits,
 ): StrictManifest {
   if (!Is.plainObject(input)) throw failure('malformed');
-  const ceilings = Pkg.Dist.Content.limits;
-  const entryLimit = Math.min(limits.entries, ceilings.entries);
-  const pathLimit = Math.min(limits.pathLength ?? ceilings.pathLength, ceilings.pathLength);
-  const pathTotalLimit = Math.min(limits.pathTotal ?? ceilings.pathTotal, ceilings.pathTotal);
-  const parts: StrictPart[] = [];
-  let pathTotal = 0;
-  let totalBytes = 0;
-  let packageBytes = 0;
-
-  // Bound before whole-collection arrays, sorting, regex parsing, and directory expansion.
-  for (const path in input) {
-    if (!Obj.hasOwn(input, path)) continue;
-    if (parts.length >= entryLimit || path.length > pathLimit) throw failure('limit-exceeded');
-    pathTotal = addBytes(pathTotal, path.length, pathTotalLimit);
-    if (!path.isWellFormed()) throw failure('unsafe-path');
-    const property = Object.getOwnPropertyDescriptor(input, path);
-    if (!property || !Obj.hasOwn(property, 'value')) throw failure('malformed');
-    const value = property.value;
-    if (!Is.str(value) || value.length > 93) throw failure('malformed');
-    const part = Pkg.Dist.Part.parse(value);
-    if (!part || part.size === undefined) throw failure('malformed');
-    if (part.size > limits.fileBytes) throw failure('limit-exceeded');
-    totalBytes = addBytes(totalBytes, part.size, limits.totalBytes);
-    if (Pkg.Dist.Is.codePath(path)) {
-      packageBytes = addBytes(packageBytes, part.size, limits.totalBytes);
-    }
-    parts.push(Object.freeze({ path, hash: part.hash, size: part.size }));
-  }
-  if (!parts.length) throw failure('malformed');
-  assertEntryLimit(parts, entryLimit, pathTotalLimit);
+  const inspected = Inventory.inspect({ parts: input, limits });
+  if (inspected.kind !== 'inspected') throw failure(inspected.kind);
+  const { totalBytes, packageBytes } = inspected;
+  // Sorting and target admission remain here, after the accountant's bounded owned facts.
+  const parts = [...inspected.files];
   const targets: t.FsRooted.TargetInput<'file'>[] = parts.map(({ path }) => ({
     kind: 'file',
     path,
@@ -133,26 +108,4 @@ export function captureContent(
     parts: inventory,
   });
   return Object.freeze({ content, parts: Object.freeze(parts), totalBytes, packageBytes });
-}
-
-/** Bound the manifest, files, and distinct implied directories before target normalization. */
-function assertEntryLimit(files: readonly StrictPart[], limit: number, stringLimit: number): void {
-  let entries = addBytes(1, files.length, limit);
-  let prefixUnits = 0;
-  const directories = new Set<string>();
-  for (const { path } of files) {
-    let separator = path.indexOf('/');
-    while (separator >= 0) {
-      // Charge every prefix before allocation, including repeated shared prefixes. Entry count
-      // alone does not bound this potentially quadratic string work. Rooted repeats only work
-      // admitted here; it remains the sole lexical/structural path-policy owner.
-      prefixUnits = addBytes(prefixUnits, separator, stringLimit);
-      const directory = path.slice(0, separator);
-      if (!directories.has(directory)) {
-        entries = addBytes(entries, 1, limit);
-        directories.add(directory);
-      }
-      separator = path.indexOf('/', separator + 1);
-    }
-  }
 }

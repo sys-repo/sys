@@ -13,6 +13,8 @@ const REQUIRED = [
   '/src/m.server.dist/u.generation/u.result.ts',
   '/src/m.server.dist/u.generation/u.is.ts',
   '/src/m.server.dist/u.materialize/u.run.ts',
+  '/src/m.Pkg.Dist/m.Inventory.ts',
+  '/src/m.Pkg.Dist/u.inventory.ts',
   '/src/m.Fs.capability/m.Rooted/u/u.create.ts',
 ] as const;
 const FORBIDDEN = [

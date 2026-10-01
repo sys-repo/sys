@@ -4,7 +4,7 @@ import { D, Num, Obj, Pkg } from '../common.ts';
 import { verifyPinnedWithIo } from '../u.verify/u.verify.ts';
 import { DEFAULT_IO, isFailure } from '../u.verify/u.io.ts';
 import { snapshotVerifyLimits } from '../u.verify/u.input.ts';
-import { parseManifestBytes } from '../u.verify/u.manifest.ts';
+import { captureContent, parseManifestBytes } from '../u.verify/u.manifest.ts';
 
 const encoder = new TextEncoder();
 const hashA = 'sha256-559aead08264d5795d3909718cdd05abd49572e84fe55590eef31a88a08fdffd';
@@ -222,6 +222,39 @@ describe('Dist content admission', () => {
     }
   });
 
+  it('literal shared-prefix budgets → exact counts and unchanged refusal precedence', () => {
+    const inventory = { 'a/b.txt': `${hashA}:size=2`, 'a/c.txt': `${hashA}:size=3` };
+    const exact = {
+      ...limits,
+      entries: 4,
+      pathLength: 7,
+      pathTotal: 14,
+      fileBytes: 3,
+      totalBytes: 5,
+    };
+    const result = captureContent(inventory, exact);
+    expect(result.parts).to.eql([
+      { path: 'a/b.txt', hash: hashA, size: 2 },
+      { path: 'a/c.txt', hash: hashA, size: 3 },
+    ]);
+    expect(result.totalBytes).to.eql(5);
+    expect(result.packageBytes).to.eql(0);
+    const budgets = [
+      { ...exact, entries: 3 },
+      { ...exact, pathLength: 6 },
+      { ...exact, pathTotal: 13 },
+      { ...exact, fileBytes: 2 },
+      { ...exact, totalBytes: 4 },
+    ];
+    for (const bounds of budgets) {
+      expect(refusal(inventory, bounds)).to.eql('limit-exceeded');
+    }
+    // The existing FS owner parses all bounded claims before charging directory prefixes.
+    // A later malformed claim must not become an earlier prefix-work limit refusal.
+    expect(refusal({ 'a/b/c/d': `${hashA}:size=1`, z: 'bad' }, { ...limits, pathTotal: 8 }))
+      .to.eql('malformed');
+  });
+
   it('caller limits cannot raise the shared manifest ceiling; exact-cap bytes still admit', async () => {
     const cap = D.contentLimits.manifestBytes;
     expect(cap).to.eql(16 * 1024 * 1024);
@@ -297,3 +330,13 @@ describe('Dist content admission', () => {
     expect(result.evidence.content).to.eql({ ...pin, parts });
   });
 });
+
+function refusal(input: unknown, bounds: t.Pkg.Dist.Verify.Limits) {
+  try {
+    captureContent(input, bounds);
+  } catch (cause) {
+    if (isFailure(cause)) return cause.kind;
+    throw cause;
+  }
+  throw new Error('Expected content refusal.');
+}

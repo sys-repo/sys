@@ -1,4 +1,5 @@
 import { Hash } from '@sys/crypto/hash';
+import { Inventory } from '@sys/fs/pkg/dist/verify';
 import { Arr, Is, Num, Obj, Pkg, type t, Url } from './common.ts';
 import type { InputSnapshot } from './u.input.ts';
 
@@ -103,49 +104,21 @@ export function isVerification(
     Object.getPrototypeOf(parts) !== objectPrototype || !Object.isFrozen(parts)
   ) return false;
   try {
-    const limits = expected.manifest.policy.verification;
-    const ceilings = Pkg.Dist.Content.limits;
-    const pathLimit = Num.clamp(0, ceilings.pathLength, limits.pathLength ?? ceilings.pathLength);
-    const workLimit = Num.clamp(0, ceilings.pathTotal, limits.pathTotal ?? ceilings.pathTotal);
-    const entryLimit = Num.clamp(0, ceilings.entries, limits.entries);
-    let structuralEntries = 1; // The manifest is not a payload file.
-    const directories = new Set<string>();
-    let pathUnits = 0;
-    let prefixUnits = 0;
     let count = 0;
-    let total = 0;
-    let code = 0;
-    // Match FS's structural, UTF-16 inventory, and prefix-work budgets before encoding.
+    // Generation owns hostile settlement admission. Refuse excess claims and executable or
+    // mutable slots before the shared accountant can allocate its bounded owned file facts.
     for (const path in parts) {
       if (!Obj.hasOwn(parts, path)) continue;
-      if (++count > files || ++structuralEntries > entryLimit || path.length > pathLimit) {
-        return false;
-      }
+      if (++count > files) return false;
       const descriptor = Object.getOwnPropertyDescriptor(parts, path);
       if (!isFrozenEnumerableData(descriptor) || !Is.str(descriptor.value)) return false;
-      // Match FS admission's maximum canonical hash/size length before regex parsing.
-      if (descriptor.value.length > 93) return false;
-      const part = Pkg.Dist.Part.parse(descriptor.value);
-      if (!part || part.size === undefined || part.size > limits.fileBytes) return false;
-      total += part.size;
-      if (Pkg.Dist.Is.codePath(path)) code += part.size;
-      if (!Num.Is.safeInt(total) || total > limits.totalBytes) return false;
-      pathUnits += path.length;
-      if (pathUnits > workLimit) return false;
-      // Charge every prefix before allocation; count shared directories only once as entries.
-      let separator = path.indexOf('/');
-      while (separator >= 0) {
-        prefixUnits += separator;
-        if (prefixUnits > workLimit) return false;
-        const directory = path.slice(0, separator);
-        if (!directories.has(directory)) {
-          if (++structuralEntries > entryLimit) return false;
-          directories.add(directory);
-        }
-        separator = path.indexOf('/', separator + 1);
-      }
     }
-    if (count !== files || total !== totalBytes || code !== packageBytes) return false;
+    if (count !== files) return false;
+    const inspected = Inventory.inspect({ parts, limits: expected.manifest.policy.verification });
+    if (
+      inspected.kind !== 'inspected' || inspected.files.length !== files ||
+      inspected.totalBytes !== totalBytes || inspected.packageBytes !== packageBytes
+    ) return false;
     // The encoder selects enumerable string keys. Do not return hidden or symbol authority
     // alongside that inventory; inspect exact own-key membership only after budget accounting.
     if (Reflect.ownKeys(parts).length !== count) return false;

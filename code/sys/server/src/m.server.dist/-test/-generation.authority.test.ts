@@ -1,3 +1,4 @@
+import { Hash } from '@sys/crypto/hash';
 import { Pkg as FsPkg } from '@sys/fs/pkg';
 import { describe, expect, Fs, it, Rx, type t } from '../../-test.ts';
 import { type Fixture, setup, teardown } from '../../-test/u.fixture.dist.ts';
@@ -22,6 +23,73 @@ const LOWER_FAILED = Object.freeze(
 );
 
 describe('Dist.Generation authority', () => {
+  it('literal inventory settlement → exact budgets, forged totals and proxy refusal stay separate', async () => {
+    const fixture = await setup();
+    try {
+      const hash = `sha256-${'a'.repeat(64)}`;
+      const parts = Object.freeze({ 'a/b.txt': `${hash}:size=2`, 'a/c.txt': `${hash}:size=3` });
+      // Literal preimage and totals are independent of both admission owners and the accountant.
+      const preimage = `["sys.dist/v2",[["a/b.txt","${hash}",2],["a/c.txt","${hash}",3]]]`;
+      const pin = Object.freeze({ scheme: 'sys.dist/v2' as const, digest: Hash.sha256(preimage) });
+      const assets = Object.freeze({ files: 2, totalBytes: 5, packageBytes: 0 });
+      const content = Object.freeze({ ...pin, parts });
+      const evidence = Object.freeze({ content, manifestChecksum: hash, manifestBytes: 1, assets });
+      const policy = {
+        ...fixture.policy,
+        verification: {
+          ...fixture.policy.verification,
+          entries: 4,
+          pathLength: 7,
+          pathTotal: 14,
+          fileBytes: 3,
+          totalBytes: 5,
+        },
+      };
+      const expected = snapshotInput(args(fixture, fixture.storeDir, { pin, policy }));
+      if (!expected) throw new Error('Expected literal settlement input.');
+      expect(isVerification(evidence, expected)).to.eql(true);
+      const claims = [
+        { ...assets, files: 1 },
+        { ...assets, files: 3 },
+        { ...assets, totalBytes: 4 },
+        { ...assets, packageBytes: 1 },
+      ];
+      for (const claimed of claims) {
+        const candidate = Object.freeze({ ...evidence, assets: Object.freeze(claimed) });
+        expect(isVerification(candidate, expected)).to.eql(false);
+      }
+      const budgets = [
+        { entries: 3 },
+        { pathLength: 6 },
+        { pathTotal: 13 },
+        { fileBytes: 2 },
+        { totalBytes: 4 },
+      ];
+      for (const tight of budgets) {
+        const bounded = snapshotInput(args(fixture, fixture.storeDir, {
+          pin,
+          policy: { ...policy, verification: { ...policy.verification, ...tight } },
+        }));
+        if (!bounded) throw new Error('Expected tighter settlement input.');
+        expect(isVerification(evidence, bounded)).to.eql(false);
+      }
+      let hooks = 0;
+      const trap = (): never => {
+        hooks++;
+        throw new Error('Inventory proxy invoked.');
+      };
+      const proxied = new Proxy(parts, { get: trap, ownKeys: trap, getPrototypeOf: trap });
+      const candidate = Object.freeze({
+        ...evidence,
+        content: Object.freeze({ ...content, parts: proxied }),
+      });
+      expect(isVerification(candidate, expected)).to.eql(false);
+      expect(hooks).to.eql(0);
+    } finally {
+      await teardown(fixture);
+    }
+  });
+
   it('tight scalar budget → no inventory expansion; genuine exact budget → admitted', async () => {
     const fixture = await setup();
     const root = Fs.join(fixture.storeDir, 'work-order');
@@ -1403,7 +1471,7 @@ describe('Dist.Generation authority', () => {
     const lower = await prepareSuccess(fixture, root, TARGET);
     const mutableAssets = { ...lower.verification.assets };
     const oversizedParts = Object.freeze(Object.fromEntries(
-      Array.from({ length: lower.verification.manifestBytes }, (_, index) => [
+      Array.from({ length: lower.verification.assets.files + 1 }, (_, index) => [
         `file-${index}`,
         Object.values(lower.verification.content.parts)[0],
       ]),
@@ -1434,7 +1502,7 @@ describe('Dist.Generation authority', () => {
         }),
       },
       {
-        label: 'content graph exceeding its retained document byte bound',
+        label: 'inventory claims exceeding the declared asset file count',
         value: Object.freeze({
           ...lower,
           verification: Object.freeze({
