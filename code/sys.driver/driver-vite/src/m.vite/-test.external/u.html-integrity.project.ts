@@ -1,7 +1,10 @@
-import { Fs, Str } from '../../-test.ts';
+import { Fs, Json, Str } from '../../-test.ts';
 
 /** Author the child project; its config deliberately disagrees with the CLI base. */
-export async function writeIntegrityProject(root: string) {
+export async function writeIntegrityProject(
+  root: string,
+  options: { mode?: 'local-asset-composition' } = {},
+) {
   await Fs.write(
     Fs.join(root, 'index.html'),
     Str.dedent(`
@@ -11,6 +14,7 @@ export async function writeIntegrityProject(root: string) {
         <script type="module" src="./main.js"></script>
       </body></html>
     `),
+    { throw: true },
   );
   await Fs.write(
     Fs.join(root, 'main.js'),
@@ -18,13 +22,20 @@ export async function writeIntegrityProject(root: string) {
       import './main.css';
       globalThis.integrityEntry = 'original';
     `),
+    { throw: true },
   );
-  await Fs.write(Fs.join(root, 'main.css'), '#probe { color: rgb(12, 34, 56); }');
-  await Fs.write(Fs.join(root, 'vite.config.ts'), childConfig());
+  await Fs.write(Fs.join(root, 'main.css'), '#probe { color: rgb(12, 34, 56); }', { throw: true });
+  await Fs.write(Fs.join(root, 'vite.config.ts'), childConfig(options.mode), {
+    throw: true,
+  });
 }
 
 /** This program executes in the real driver child, not in the parent test process. */
-function childConfig() {
+function childConfig(mode?: 'local-asset-composition') {
+  // Dist composition needs real local assets/SRI, not an additional Deno resolver proof.
+  const plugins = mode === 'local-asset-composition'
+    ? { react: false, deno: false, wasm: false, optimizeImports: false }
+    : { react: false };
   return Str.dedent(`
     import { createRequire } from 'node:module';
     import type { Plugin } from 'vite';
@@ -60,7 +71,7 @@ function childConfig() {
         paths: Vite.Config.paths({
           app: { entry: './index.html', base: '/wrong-config-base/' },
         }),
-        plugins: { react: false },
+        plugins: ${Json.stringify(plugins)},
         workspace: false,
         vitePlugins: [caller, VitePlugins.HtmlIntegrity.plugin()],
       });
