@@ -1,4 +1,4 @@
-DOCS/WRITING 
+# DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly
@@ -10,8 +10,6 @@ remain genuinely helpful—not brevity at the expense of understanding.
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 ---------------------------------------------------------------------------------------------------------
-
-
 
 
 @sys.fs
@@ -33,11 +31,15 @@ dist-content-identity.plan.md
 - [x] 9ce529fe5 feat(dist)!: align observations and signing fixtures with canonical manifests
 - [x] 7c8c28cda chore(ui): add frozen cache-only check tasks
 - [x] 6372151e2 docs(dist)!: clarify signing and observation boundaries
-- [ ] fix(driver-vite): honor immediate-child dependency policy
-- [ ] fix(driver-vite): align frozen fixtures and preserve build failure causes
-- [ ] refactor(dist): consolidate inventory accounting without merging authority
+- [x] 095bf200a fix(driver-vite): honor immediate-child dependency policy
+- [x] c9c17f093 test(driver-vite): separate proof lanes and restore passing base tests
+- [x] 3af0a19f9 refactor(dist): consolidate inventory accounting without merging authority
 - [ ] test(dist): prove canonical build projection and serving composition
 - [ ] test(driver-pi): prove canonical Dist isolation across real previews
+
+
+
+
 
 @sys.fs
 dist-metadata.plan.md
@@ -196,3 +198,7 @@ workspace-chunking-and-ui-components-bundle.plan.md
 - [ ] perf(ui-components): tune bundle composition and loading boundaries
 
 
+@sys.driver-vite
+vite-build-repair.plan.md
+- [ ] [dist-content-identity.plan.md](../@sys.fs/dist-content-identity.plan.md)
+- [ ] fix(driver-vite): align frozen fixtures and preserve build failure causes
