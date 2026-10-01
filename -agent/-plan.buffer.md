@@ -1,24 +1,48 @@
-prepare STIER review prompt - blind! Make it count.
- along with -canon level code-qualiyt sweep
- PLUS - we have a ton of surace area changed:
- <paths> open git tree
- ENSURE we have pure essence here not needless sprawl.
+DOCS/WRITING 
+Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 
- AND high end TUFTE documetnation langauge - STIER? Not just unreadable "code as prose" slop! Strong terse, beautiufl human
- elegnat pls
- And TMIND ensure this all at high level BMIND reads like elegant API - we got the "pin" API shape clean, elegant and 100yr STIER?
+Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly
+understand what matters and act correctly?
 
- This is securrty posture sturf HAS to be strong review! STIER security posture. TMIND.
- Create the Review Plan please. STIER (solid)!
+Verify claims against source. Flag misleading promises, missing context, repetition, and misplaced detail. Preserve essential caveats. Seek the fewest words that
+remain genuinely helpful—not brevity at the expense of understanding.
+
+Give an honest verdict and prioritized, concrete findings. Review only; no edits.
+
+---------------------------------------------------------------------------------------------------------
 
 
 
 
 @sys.fs
 dist-content-identity.plan.md
-- [x] fix(driver-signer): preserve own keys in canonical Dist documents
-- [x] fix(crypto): preserve every selected key in composite hash builders
-- [ ] feat(dist)!: unify build pins and verification on canonical content identity
+- [x] e6316e80b fix(driver-signer): preserve own keys in canonical Dist documents
+- [x] 872b5a34d fix(crypto): preserve every selected key in composite hash builders
+- [x] 6c15b0942 feat(dist)!: define canonical content identity and pin contracts
+- [x] a1c9a6939 feat(fs)!: establish canonical Dist production and verification
+- [x] d95a79372 fix(fs): preserve narrow Dist verification dependencies
+- [x] 640f81a75 feat(server)!: serve and materialize canonical Dist evidence
+- [x] 29d108d70 feat(tools)!: preserve canonical Dist staging and publication ownership
+- [x] 103b61db8 feat(tools)!: consume canonical Dist pins in pull and serve
+- [x] 1ff973510 feat(dist)!: migrate build and snapshot producers to canonical pins
+- [x] 65cc8ef7e feat(cell)!: configure Dist services with canonical content pins
+- [x] ae6151a1b feat(driver-pi)!: admit GUI packages through canonical Dist content
+- [x] c64c8bf77 feat(cloudflare)!: admit R2 distributions using canonical content pins
+- [x] e9baa2857 fix(std): preserve native separators in path containment
+- [x] 60cd6377b fix(http): reject sibling-prefix static path escapes
+- [x] 9ce529fe5 feat(dist)!: align observations and signing fixtures with canonical manifests
+- [x] 7c8c28cda chore(ui): add frozen cache-only check tasks
+- [x] 6372151e2 docs(dist)!: clarify signing and observation boundaries
+- [ ] fix(driver-vite): honor immediate-child dependency policy
+- [ ] fix(driver-vite): align frozen fixtures and preserve build failure causes
+- [ ] refactor(dist): consolidate inventory accounting without merging authority
+- [ ] test(dist): prove canonical build projection and serving composition
+- [ ] test(driver-pi): prove canonical Dist isolation across real previews
+
+@sys.fs
+dist-metadata.plan.md
+- [ ] [dist-content-identity.plan.md](./dist-content-identity.plan.md)
+- [ ] refactor(dist)!: move descriptive metadata into optional .meta
 
 
 
@@ -161,6 +185,14 @@ cmd-first-kernels.plan.md
 
 @sys.html
 html-capability.plan.md
-- [ ] GATE Human approves the HTML capability design in the actual /sys context
+- [x] GATE Human approves the HTML capability design in the actual /sys context
 - [ ] chore(html): scaffold the HTML package
-- [ ] feat(html): expose HTML parsing contracts and migrate Vite consumers
+- [ ] feat(html): expose HTML parsing contracts
+- [ ] refactor(driver-vite): migrate HTML parsing to @sys/html
+
+@sys.driver-vite
+workspace-chunking-and-ui-components-bundle.plan.md
+- [ ] fix(driver-vite): restore workspace module chunk resolution
+- [ ] perf(ui-components): tune bundle composition and loading boundaries
+
+
