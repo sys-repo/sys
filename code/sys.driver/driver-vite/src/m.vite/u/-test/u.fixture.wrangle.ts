@@ -1,5 +1,5 @@
-import { expect, Fs, Path, type t } from '../../-test.ts';
-import { Wrangle } from '../u/u.wrangle.ts';
+import { expect, Fs, Path, type t } from '../../../-test.ts';
+import { Wrangle } from '../u.wrangle.ts';
 
 type ConsumerOptions = {
   packageJson?: { dependencies: Record<string, string> };

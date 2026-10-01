@@ -1,12 +1,40 @@
-import { describe, expect, Fs, it, Path, ROOT } from '../../-test.ts';
-import { resolveFromImportMap } from '../../-test/u.importMap.ts';
-import { Wrangle } from '../u/u.wrangle.ts';
+import { describe, expect, Fs, it, Path, ROOT } from '../../../-test.ts';
+import { resolveFromImportMap } from '../../../-test/u.importMap.ts';
+import { Wrangle } from '../u.wrangle.ts';
 import { createConsumer, option, readImportMap } from './u.fixture.wrangle.ts';
 
 const vite8 = { dependencies: { vite: '8.0.2' } };
 const vite7 = { dependencies: { vite: '7.3.1' } };
 
 describe('Vite.Wrangle', () => {
+  it('explicit frozen-cache policy → child flags without changing ordinary builds', async () => {
+    await using consumer = await createConsumer({ packageJson: vite8 });
+    const ordinary = await consumer.command('build');
+    const constrained = await Wrangle.command(consumer.paths, 'build', 'frozen-cache');
+    try {
+      expect(ordinary.args).not.to.include('--frozen');
+      expect(ordinary.args).not.to.include('--cached-only');
+      expect(constrained.args.slice(0, 4)).to.eql([
+        'run',
+        '--no-prompt',
+        '--frozen',
+        '--cached-only',
+      ]);
+      expect(constrained.args.slice(4)).to.eql(ordinary.args.slice(2));
+      expect(constrained.env).to.eql(ordinary.env);
+
+      const { path, imports } = await readImportMap(constrained.args);
+      const moduleSyncPath = Path.fromFileUrl(imports['#module-sync-enabled']);
+      expect(await Fs.exists(moduleSyncPath)).to.eql(true);
+      await constrained.dispose();
+      expect(await Fs.exists(path)).to.eql(false);
+      expect(await Fs.exists(moduleSyncPath)).to.eql(false);
+      expect(await Fs.exists(consumer.root)).to.eql(true);
+    } finally {
+      await constrained.dispose();
+    }
+  });
+
   describe('package authority', () => {
     it('anchors npm resolution at the nearest consumer package', async () => {
       await using consumer = await createConsumer({
