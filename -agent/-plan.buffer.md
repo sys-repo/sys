@@ -9,6 +9,7 @@ remain genuinely helpful—not brevity at the expense of understanding.
 
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
+
 ---------------------------------------------------------------------------------------------------------
 
 
@@ -200,5 +201,26 @@ workspace-chunking-and-ui-components-bundle.plan.md
 
 @sys.driver-vite
 vite-build-repair.plan.md
-- [ ] [dist-content-identity.plan.md](../@sys.fs/dist-content-identity.plan.md)
-- [ ] fix(driver-vite): align frozen fixtures and preserve build failure causes
+- [x] [dist-content-identity.plan.md](../@sys.fs/dist-content-identity.plan.md)
+- [x] 8d3bc14fe fix(driver-vite): align frozen fixtures and preserve build failure causes
+
+
+
+
+
+
+
+
+
+- Commit: fix(driver-vite): align frozen fixtures and preserve build failure causes
+- Paths(10):
+    - code/sys.driver/driver-vite/src/m.vite/-test/-build.failure-causes.test.ts
+    - code/sys.driver/driver-vite/src/m.vite/-test/-build.output-width.test.ts
+    - code/sys.driver/driver-vite/src/m.vite/-test/-build.startup.test.ts
+    - code/sys.driver/driver-vite/src/m.vite/-test/-build.test.ts
+    - code/sys.driver/driver-vite/src/m.vite/-test/-build.workspace-composition.test.ts
+    - code/sys.driver/driver-vite/src/m.vite/-test/u.fixture.build.native.ts
+    - code/sys.driver/driver-vite/src/m.vite/common.ts
+    - code/sys.driver/driver-vite/src/m.vite/t.ts
+    - code/sys.driver/driver-vite/src/m.vite/u/u.build.ts
+    - code/sys.driver/driver-vite/src/m.vite/u/u.log.ts
