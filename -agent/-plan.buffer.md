@@ -34,8 +34,8 @@ dist-content-identity.plan.md
 - [x] 095bf200a fix(driver-vite): honor immediate-child dependency policy
 - [x] c9c17f093 test(driver-vite): separate proof lanes and restore passing base tests
 - [x] 3af0a19f9 refactor(dist): consolidate inventory accounting without merging authority
-- [ ] test(dist): prove canonical build projection and serving composition
-- [ ] test(driver-pi): prove canonical Dist isolation across real previews
+- [x] 3d9d00a4b test(dist): prove canonical build projection and serving composition
+- [x] ee78a58f93 test(driver-pi): prove canonical Dist isolation across real previews
 
 
 
