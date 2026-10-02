@@ -1,4 +1,15 @@
-import { c, Cli, describe, expect, HashFmt, it, Path, Str, stripAnsi } from '../../-test/common.ts';
+import {
+  c,
+  Cli,
+  describe,
+  Err,
+  expect,
+  HashFmt,
+  it,
+  Path,
+  Str,
+  stripAnsi,
+} from '../../-test/common.ts';
 import { ViteLog } from '../../m.fmt/mod.ts';
 import { Log } from '../u/u.log.ts';
 
@@ -215,6 +226,33 @@ describe('Vite.build output formatting', () => {
     expect(plain).not.to.include('←');
   });
 
+  it('producer refusal → full diagnostics at width 100; bounded, lossy clipping below', () => {
+    const cause = Err.std('Fixture package write failed.');
+    const error = Err.std('Vite build failed to write package declaration', { cause });
+    const args = {
+      ok: false,
+      stdio: '✓ built in 3.59s',
+      error,
+      dirs: { in: './src/index.html', out: './dist' },
+      totalSize: 0,
+      elapsed: 4_000,
+    };
+    const text = Log.Build.toString({ ...args, width: 100 });
+    const plain = stripAnsi(text);
+    expect(plain).to.include('Error: Vite build failed to write package declaration');
+    expect(plain).to.include('Cause: Error: Fixture package write failed.');
+    expect(plain).to.include('✓ built in 3.59s');
+    expect(plain).to.include('Bundle failed');
+    expect(plain).not.to.include('[object Object]');
+    expect(plain).not.to.include('dist.json');
+    expect(plain).not.to.include('\n    at ');
+    expect(text).not.to.include('\x1b]8;;');
+    expect(error.cause).to.equal(cause);
+    for (const width of [0, 8, 24, 56, 100]) {
+      expectBounded(Log.Build.toString({ ...args, width }), width);
+    }
+  });
+
   it('successful child transcript + producer refusal → retained text states failure', () => {
     const stdio = '✓ built in 3.59s';
     const text = Log.Build.toString({
@@ -263,10 +301,10 @@ describe('Vite.build output formatting', () => {
   });
 
   it('keeps captured Vite stdio and the bundle summary width-safe', () => {
-    const stdio = [
-      'dist/pkg/m.really-long-generated-entry-file-name-with-extra-suffix.js  380.13 kB | gzip: 116.78 kB',
-      '✓ built in 3.59s',
-    ].join('\n');
+    const stdio = Str.dedent(`
+      dist/pkg/m.really-long-generated-entry-file-name-with-extra-suffix.js  380.13 kB | gzip: 116.78 kB
+      ✓ built in 3.59s
+    `);
 
     const text = Log.Build.toString({
       ok: true,

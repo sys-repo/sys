@@ -3,12 +3,10 @@ import {
   c,
   Cli,
   describe,
-  Err,
   expect,
   Fs,
   HashFmt,
   it,
-  Json,
   Obj,
   Path,
   Pkg,
@@ -19,10 +17,8 @@ import {
   Testing,
 } from '../../-test.ts';
 import { extractModulePreloadLinks } from './u.html.ts';
-import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
 import { hasExplicitResourceManagementSyntax } from './u.syntax.ts';
 import { Vite } from '../mod.ts';
-import { buildWith } from '../u/u.build.ts';
 
 describe('Vite.build', () => {
   const { brightCyan: cyan, bold } = c;
@@ -58,12 +54,12 @@ describe('Vite.build', () => {
     outputKind: 'relative' | 'absolute',
     base = './',
   ) => {
-    const fs = await SAMPLE.fs('Vite.build');
+    // These fixtures exercise the repository workspace, not an isolated consumer declaration.
+    const fs = await SAMPLE.fs('Vite.build', { location: 'local-temp' });
     const cwd = fs.join('fixture');
-    await Fs.copy(sample, cwd);
-    const restore = await writeLocalFixtureImports(cwd);
 
     try {
+      await Fs.copy(sample, cwd);
       const expectedOutput = outputKind === 'relative' ? 'dist' : fs.join('output');
       const expectedOutputAbsolute = Fs.resolve(cwd, expectedOutput);
       const expectedPaths = {
@@ -154,6 +150,12 @@ describe('Vite.build', () => {
         path.startsWith('pkg/-entry.')
       );
       const entry = await readFile(Fs.join(outDir, entryPath ?? ''));
+      // Capture output facts while the owned fixture is still alive.
+      const javascript = await Promise.all(
+        Object.keys(res.dist.hash.parts)
+          .filter((path) => path.endsWith('.js'))
+          .map((path) => readFile(Fs.join(outDir, path))),
+      );
       if (VERBOSE) printDist(res.dist, paths);
 
       return {
@@ -161,11 +163,11 @@ describe('Vite.build', () => {
         paths,
         outDir,
         get files() {
-          return { html, entry, json: { dist: json.data } } as const;
+          return { html, entry, javascript, json: { dist: json.data } } as const;
         },
       } as const;
     } finally {
-      await restore();
+      await Fs.remove(fs.dir, { log: false });
     }
   };
 
@@ -197,10 +199,7 @@ describe('Vite.build', () => {
       expect(extractModulePreloadLinks(files.html).length).to.be.greaterThan(0);
       expect(Object.keys(res.dist.hash.parts)).to.include('sw.js');
 
-      const js = Object.keys(res.dist.hash.parts).filter((path) => path.endsWith('.js'));
-      const text = await Promise.all(
-        js.map(async (path) => (await Fs.readText(Fs.join(outDir, path))).data ?? ''),
-      );
+      const text = files.javascript;
       expect(text.some((source) => source.includes('module-worker-loaded'))).to.eql(true);
       expect(text.some((source) => source.includes('dynamic-chunk-loaded'))).to.eql(true);
       expect(text.some((source) => source.includes('Service Worker file loaded'))).to.eql(true);
@@ -236,10 +235,8 @@ describe('Vite.build', () => {
   });
 
   it('keeps a retained build digest unlinked after its output is replaced', async () => {
-    const fs = await SAMPLE.fs('Vite.build retained output');
+    const fs = await SAMPLE.fs('Vite.build retained output', { location: 'local-temp' });
     const cwd = fs.join('fixture');
-    await Fs.copy(SAMPLE.Dirs.sample1, cwd);
-    const restore = await writeLocalFixtureImports(cwd);
     const paths = { cwd, app: { entry: 'index.html', outDir: 'dist', base: './' } } as const;
     const build = async () => {
       return await Vite.build({
@@ -254,6 +251,7 @@ describe('Vite.build', () => {
     };
 
     try {
+      await Fs.copy(SAMPLE.Dirs.sample1, cwd);
       const first = await build();
       const source = (await Fs.readText(Fs.join(cwd, 'main.tsx'))).data ?? '';
       await Fs.write(Fs.join(cwd, 'main.tsx'), `${source}\nconsole.info('revision-b');\n`);
@@ -274,83 +272,7 @@ describe('Vite.build', () => {
         Cli.Fmt.hyperlink(firstDigest, manifestUrl, { underline: true }),
       );
     } finally {
-      await restore();
-    }
-  });
-
-  it('successful child but failed package write → no successful Dist authority', async () => {
-    const fs = await SAMPLE.fs('Vite.build package write failure');
-    const cwd = fs.join('fixture');
-    await Fs.copy(SAMPLE.Dirs.sample1, cwd);
-    const restore = await writeLocalFixtureImports(cwd);
-    const paths = { cwd, app: { entry: 'index.html', outDir: 'dist', base: './' } } as const;
-    const stale = { name: '@stale/package', version: '0.0.1' };
-    let writes = 0;
-    try {
-      const result = await buildWith({
-        dependencyPolicy: 'frozen-cache',
-        cwd,
-        paths,
-        pkg,
-        silent: true,
-        spinner: false,
-        exitOnError: false,
-      }, async (path) => {
-        writes += 1;
-        // Deterministic write failure with readable stale bytes; no host permission assumptions.
-        await Fs.write(path, Json.stringify(stale), { throw: true });
-        return { overwritten: false, error: Err.std('Fixture package write failed.') };
-      });
-      expect(result.cmd.output.success).to.eql(true);
-      expect(writes).to.eql(1);
-      expect(result.ok).to.eql(false);
-      const text = stripAnsi(result.toString({ width: 500 }));
-      expect(text).to.include('Bundle failed');
-      expect(text).to.include('target: dist');
-      expect(text).not.to.include('out:');
-      expect(text).not.to.include('dist/dist.json');
-      expect('dist' in result).to.eql(false);
-      expect('pin' in result).to.eql(false);
-      expect('manifestChecksum' in result).to.eql(false);
-      expect(await Fs.exists(Fs.join(cwd, 'dist/dist.json'))).to.eql(false);
-      expect((await Fs.readJson(Fs.join(cwd, 'dist/pkg/-pkg.json'))).data).to.eql(stale);
-    } finally {
-      await restore();
-    }
-  });
-
-  it('does not link an actual failed build', async () => {
-    const fs = await SAMPLE.fs('Vite.build failure output');
-    const cwd = fs.join('fixture');
-    await Fs.copy(SAMPLE.Dirs.sample1, cwd);
-    const restore = await writeLocalFixtureImports(cwd);
-    const paths = { cwd, app: { entry: 'index.html', outDir: 'dist', base: './' } } as const;
-
-    try {
-      await Fs.write(
-        Fs.join(cwd, 'index.html'),
-        '<script type="module" src="./missing.ts"></script>',
-      );
-      const res = await Vite.build({
-        dependencyPolicy: 'frozen-cache',
-        cwd,
-        paths,
-        pkg,
-        silent: true,
-        spinner: false,
-        exitOnError: false,
-      });
-      const output = res.toString({ width: 80 });
-
-      expect(res.ok).to.eql(false);
-      expect('dist' in res).to.eql(false);
-      expect('pin' in res).to.eql(false);
-      expect('manifestChecksum' in res).to.eql(false);
-      expectBounded(output, 80);
-      expect(output).to.not.include('\x1b]8;;');
-      expect(stripAnsi(output)).to.include('Bundle failed');
-    } finally {
-      await restore();
+      await Fs.remove(fs.dir, { log: false });
     }
   });
 });

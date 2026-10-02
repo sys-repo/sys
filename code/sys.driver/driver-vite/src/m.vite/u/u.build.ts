@@ -2,6 +2,7 @@ import {
   c,
   Cli,
   CompositeHash,
+  Err,
   Fs,
   Json,
   Path,
@@ -21,18 +22,19 @@ type Success = Extract<R, { ok: true }>;
 type RArgs = {
   output: t.Process.Output;
   elapsed: t.Msecs;
-} & ({ ok: false } | Pick<Success, 'ok' | 'dist' | 'pin' | 'manifestChecksum'>);
+} & ({ ok: false; error: t.StdError } | Pick<Success, 'ok' | 'dist' | 'pin' | 'manifestChecksum'>);
 
 /**
  * Run the <vite:build> command.
  */
 export const build: B = (input) => buildWith(input);
 
-/** Internal seam for the required package write's success/failure contract. */
+/** Internal producer seams; successful child output remains independent of producer refusal. */
 export async function buildWith(
-  input: Parameters<B>[0],
+  input: t.Vite.Build.Args,
   writePackage: typeof Fs.write = Fs.write,
-): ReturnType<B> {
+  compute: typeof Pkg.Dist.compute = Pkg.Dist.compute,
+): Promise<R> {
   const timer = Time.timer();
   const dependencyPolicy = input.dependencyPolicy;
   const paths = snapshotPaths(input.paths ?? (await Wrangle.pathsFromConfigfile(input.cwd)));
@@ -53,7 +55,7 @@ export async function buildWith(
   };
 
   const computeDist = async (save: boolean) => {
-    return await Pkg.Dist.compute({ dir, pkg, builder, save });
+    return await compute({ dir, pkg, builder, save });
   };
 
   const response = (args: RArgs): R => {
@@ -66,7 +68,7 @@ export async function buildWith(
         pin: args.pin,
         manifestChecksum: args.manifestChecksum,
       }
-      : { ok: false as const };
+      : { ok: false as const, error: args.error };
     const stdio = output.toString();
     return {
       ...authority,
@@ -82,6 +84,7 @@ export async function buildWith(
         return Log.Build.toString({
           ok,
           stdio,
+          ...(args.ok ? {} : { error: args.error }),
           dirs: { in: paths.app.entry, out: paths.app.outDir },
           totalSize,
           pkg,
@@ -98,18 +101,14 @@ export async function buildWith(
     };
   };
 
-  const fail = (message: string, output: t.Process.Output) => {
-    const errInfo = {
-      cmd,
-      code: output.code,
-      stderr: output.text.stderr,
-      stdout: output.text.stdout,
-    };
-    const res = response({ ok: false, output, elapsed: timer.elapsed.msec });
+  const fail = (message: string, output: t.Process.Output, cause?: t.StdError) => {
+    const error = Err.std(message, { cause });
+    const { stderr, stdout } = output.text;
+    const res = response({ ok: false, error, output, elapsed: timer.elapsed.msec });
 
-    console.error(message);
-    if (errInfo.stderr?.trim()) console.error(errInfo.stderr.trim());
-    if (!errInfo.stderr?.trim() && errInfo.stdout?.trim()) console.error(errInfo.stdout.trim());
+    console.error(Err.summary(error, { cause: true }));
+    if (stderr?.trim()) console.error(stderr.trim());
+    if (!stderr?.trim() && stdout?.trim()) console.error(stdout.trim());
 
     if (exitOnError) Deno.exit(1);
     return res;
@@ -152,7 +151,7 @@ export async function buildWith(
       await Fs.ensureDir(Fs.dirname(path));
       const written = await writePackage(path, Json.stringify(pkg, 2));
       if (written.error) {
-        return await fail('Vite build failed to write package declaration', output);
+        return await fail('Vite build failed to write package declaration', output, written.error);
       }
     }
 
@@ -167,12 +166,12 @@ export async function buildWith(
     }
 
     /**
-     * Success:
+     * Compute and save Dist metadata before reporting producer success:
      */
     const elapsed = timer.elapsed.msec;
     const computed = await computeDist(true);
     if (computed.kind !== 'computed') {
-      return await fail('Vite build failed to compute dist metadata', output);
+      return await fail('Vite build failed to compute dist metadata', output, computed.error);
     }
     return response({
       ok: true,

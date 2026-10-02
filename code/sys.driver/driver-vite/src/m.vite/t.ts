@@ -13,18 +13,11 @@ export declare namespace Vite {
     build(args: Build.Args): Promise<Build.Response>;
 
     /**
-     * Run the Vite `dev` command.
-     * Long running processes (spawn → child process).
-     *
-     * Command:
-     *    $ vite dev --port=<1234>
-     *
-     * Terminal Output:
-     *
-     *    VITE v<x.x.x>  ready in 350 ms
-     *
-     *    ➜  Local:   http://localhost:1234/
-     *    ➜  Network: use --host to expose
+     * Start a long-running Vite dev child and return after readiness and HTTP confirmation.
+     * Passes `--host`, requesting all-interface binding rather than loopback-only serving;
+     * a returned localhost URL does not establish loopback-only exposure.
+     * Await the returned process's `dispose()` to stop the child and release driver resources,
+     * or bind its lifetime with `until`. Startup errors reject the promise.
      */
     dev(args: Dev.Args): Promise<Dev.Process>;
   };
@@ -50,7 +43,10 @@ export declare namespace Vite {
       silent?: boolean;
       /** Show a progress spinner unless `silent` is set (default: true). */
       spinner?: boolean;
-      /** Exit with code 1 on a failed build (default: true). */
+      /**
+       * Exit with code 1 on a handled build failure (default: true).
+       * When false, return that failure as `ok: false`; other exceptions can still reject.
+       */
       exitOnError?: boolean;
       /**
        * Add frozen/cache-only flags to the immediate Deno build child; defaults remain unchanged.
@@ -59,7 +55,13 @@ export declare namespace Vite {
       dependencyPolicy?: 'frozen-cache';
     };
 
-    /** Response from a Vite command such as `build`. */
+    /**
+     * Complete producer outcome: `ok: true` requires the build, writing `pkg/-pkg.json`
+     * when `pkg` is supplied, and canonical Dist computation to succeed, including saving
+     * `dist.json`.
+     * `cmd.output` describes only the child; its `success` can be true while `ok` is false
+     * because later package writing or Dist computation failed.
+     */
     export type Response =
       & {
         readonly paths: t.ViteConfig.Paths;
@@ -76,7 +78,12 @@ export declare namespace Vite {
           /** Exact saved document checksum; not a content pin. */
           readonly manifestChecksum: t.StringHash;
         }
-        | { readonly ok: false }
+        | {
+          /** No `dist`, `pin`, or `manifestChecksum` is returned; output files may remain. */
+          readonly ok: false;
+          /** Build refusal context; producer failures retain their original cause. */
+          readonly error: t.StdError;
+        }
       );
 
     /** Formatting options for command response text. */

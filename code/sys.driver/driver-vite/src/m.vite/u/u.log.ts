@@ -1,9 +1,10 @@
 import { ViteLog } from '../../m.fmt/mod.ts';
 import { clipLine, metadataRow, outputWidth } from '../../m.fmt/u.ts';
-import { c, Cli, Path, type t, Url } from '../common.ts';
+import { c, Cli, Err, Is, Path, Str, type t, Url } from '../common.ts';
 
 type BuildArgs = t.ViteLog.Bundle.Args & {
   stdio: string;
+  error?: t.StdError;
 };
 
 type BuildPathsArgs = {
@@ -25,10 +26,10 @@ export const Log = {
     },
     toString(Pkg: t.Pkg, input: t.StringPath, options: { pad?: boolean } = {}) {
       input = input.replace(/^\.\//, ''); // trim leading "./" relative prefix (reduce visual noise).
-      const text = `
-${c.gray(`module:   ${ViteLog.Module.toString(Pkg)}`)}
-${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
-    `;
+      const text = Str.dedent(`
+        ${c.gray(`module:   ${ViteLog.Module.toString(Pkg)}`)}
+        ${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
+      `);
       return ViteLog.pad(text, options.pad);
     },
   },
@@ -74,7 +75,10 @@ ${c.brightGreen(`entry:    ${wrangle.fmtPath(input)}`)}
         width,
       });
       const vite = wrangle.clipLines(stdio, width);
-      const text = vite ? `${vite}\n\n${bundle}` : bundle;
+      const error = !ok && !Is.nil(args.error)
+        ? wrangle.clipLines(Err.summary(args.error, { cause: true }), width)
+        : '';
+      const text = [vite, error, bundle].filter((text) => !Is.falsy(text)).join('\n\n');
       return ViteLog.pad(text, args.pad);
     },
   },
