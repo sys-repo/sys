@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { CellHelp } from '../../m.help/mod.ts';
-import { stripAnsi } from '../common.ts';
+import { Cli, stripAnsi } from '../common.ts';
 import { FmtHelp } from '../u.help/u.mod.ts';
 import { Tmpl } from '../u/u.tmpl.ts';
 
@@ -61,7 +61,7 @@ describe('FmtHelp', () => {
     });
   });
 
-  it('dsl <chapter> → fits child chapter pages under narrow layout width', async () => {
+  it('dsl <chapter> → wraps prose at narrow width while preserving atomic source links', async () => {
     const width = 80;
     const root = await CellHelp.Dsl.load();
 
@@ -70,8 +70,48 @@ describe('FmtHelp', () => {
       const text = stripAnsi(await FmtHelp.dslOutput({ path: link.path, layout: { width } }));
 
       expectDslChapterPage(text, chapter);
-      expectMaxVisibleWidth(text, width);
+      expectMaxVisibleWidth(text, width, sourceLinkTokens(chapter));
     }
+  });
+
+  it('dsl pulled-view → preserves both reference destinations at narrow width', async () => {
+    const text = stripAnsi(
+      await FmtHelp.dslOutput({
+        path: ['pulled-view'],
+        layout: { width: 80 },
+      }),
+    );
+
+    expect(text).to.contain(
+      'https://github.com/sys-repo/sys/blob/main/code/sys.tools/README.md#content-pinned-dist-bundles',
+    );
+    expect(text).to.contain(
+      'https://github.com/sys-repo/sys/blob/main/code/sys/server/README.md#compose-the-dist-lifecycle-with-syscell',
+    );
+  });
+
+  it('width assertion → admits only isolated oversized source-link tokens', () => {
+    const width = 80;
+    const token = `guidance](https://example.com/${'a'.repeat(width)}).`;
+    const chapter: Chapter = {
+      path: [],
+      title: 'Links',
+      sections: [{ label: 'Rule', items: [`Read [owner ${token}`] }],
+    };
+    const links = sourceLinkTokens(chapter);
+
+    expect(links).to.eql([token]);
+    expect(() => expectMaxVisibleWidth(`  ${token}`, width, links)).not.to.throw();
+    expect(() => expectMaxVisibleWidth(`  ${token}`, width)).to.throw();
+    expect(() => expectMaxVisibleWidth(`  Read ${token}`, width, links)).to.throw();
+    expect(() => expectMaxVisibleWidth(`  ${token} extra`, width, links)).to.throw();
+    expect(() => expectMaxVisibleWidth(`${'prose '.repeat(width)}`, width, links)).to.throw();
+    expect(() => expectMaxVisibleWidth(token.replace('/a', '/b'), width, links)).to.throw();
+
+    const shortToken = 'guidance](https://example.com).';
+    expect(() => {
+      return expectMaxVisibleWidth(`${' '.repeat(width)}${shortToken}`, width, [shortToken]);
+    }).to.throw();
   });
 
   it('dsl --format skill → renders root chapter as a skill projection', async () => {
@@ -169,11 +209,27 @@ function expectChapterIndex(
   chapters.forEach((chapter) => expect(text).to.contain(chapterCommand(chapter, format)));
 }
 
-function expectMaxVisibleWidth(text: string, width: number) {
+function sourceLinkTokens(chapter: Chapter): readonly string[] {
+  return chapter.sections.flatMap((section) => {
+    return section.items.flatMap((item) => {
+      return item.split(/\s+/).filter((token) => /\]\(https?:\/\/[^\s)]+\)[.,;:]?$/.test(token));
+    });
+  });
+}
+
+function expectMaxVisibleWidth(
+  text: string,
+  width: number,
+  sourceLinks: readonly string[] = [],
+) {
+  // Wrap preserves indivisible words; only source-derived link tokens may overflow here.
+  const oversizedLinks = sourceLinks.filter((token) => Cli.Fmt.Text.Width.measure(token) > width);
   const wide = text
     .split('\n')
     .map((line) => line.trimEnd())
-    .filter((line) => line.length > width);
+    .filter((line) => {
+      return Cli.Fmt.Text.Width.measure(line) > width && !oversizedLinks.includes(line.trim());
+    });
   expect(wide, wide.join('\n')).to.eql([]);
 }
 
