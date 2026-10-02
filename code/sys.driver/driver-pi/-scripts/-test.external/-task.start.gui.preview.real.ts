@@ -1,6 +1,10 @@
-import { describe, DistServer, expect, Fs, Hash, Is, it, Process, Str } from '../common.ts';
+import { describe, DistServer, expect, Fs, FsDist, Hash, Is, it, Process, Str } from '../common.ts';
 
-import { START_GUI_SERVICE } from '../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
+import {
+  admitApplicationPkg,
+  snapshotDevelopmentAuthority,
+  START_GUI_SERVICE,
+} from '../../src/m.cli/m.profiles/u.start/u.gui/u.service.ts';
 import type { t } from '../m.start.gui.preview.build/common.ts';
 import {
   allocatePreviewGeneration,
@@ -42,6 +46,7 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
       'run',
       '--quiet',
       '--frozen',
+      '--cached-only',
       '--no-prompt',
       '-P=preview-worker',
       '--deny-write=../../..',
@@ -57,6 +62,7 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
     const sanitized = await capture([
       'run',
       '--frozen',
+      '--cached-only',
       '--no-prompt',
       '-P=preview-launch',
       './-scripts/task.start.gui.preview.ts',
@@ -83,119 +89,51 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
     expect(unlistedRun.state).not.to.eql('granted');
   });
 
-  it('keeps the first real Vite generation verified after a second real build', async () => {
-    const previousSentinel = Deno.env.get(AMBIENT_ENV_SENTINEL);
-    Deno.env.set(AMBIENT_ENV_SENTINEL, 'must-not-cross-build-boundary');
-    const paths = vitePaths(PACKAGE_ROOT);
-    const sharedBefore = await directorySnapshot(SHARED_DIST);
-    const firstReady = Promise.withResolvers<void>();
-    const releaseFirst = Promise.withResolvers<void>();
-    let firstSource: DevelopmentSource | undefined;
-    let secondSource: DevelopmentSource | undefined;
-    let firstOrigin: t.StringUrl | undefined;
-    let firstManifest: FileSnapshot | undefined;
-    let secondManifest: FileSnapshot | undefined;
-    let secondBody = '';
-
-    const firstRun = mainWith({
-      paths,
-      allocate: allocatePreviewGeneration,
-      build: buildPreviewGeneration,
-      async startGui(input) {
-        const source = developmentSource(input.source);
-        firstSource = source;
-        let server: t.DistServer.Started | undefined;
-        try {
-          firstManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
-          expect(firstManifest).to.eql({ exists: true, integrity: source.integrity });
-          server = await startHost(source);
-          firstOrigin = server.origin;
-          firstReady.resolve();
-          await releaseFirst.promise;
-        } catch (cause) {
-          firstReady.reject(cause);
-          throw cause;
-        } finally {
-          await server?.close('preview-real.first-complete');
-        }
-        return 'quit';
-      },
-    });
-    void firstRun.then(
-      () => firstReady.reject(new Error('First preview session ended before readiness.')),
-      firstReady.reject,
-    );
-
-    let proofFailure: unknown;
-    let proofFailed = false;
+  it('snapshot setup refusal → restore absent, empty and present sentinel values', async () => {
+    const previous = Deno.env.get(AMBIENT_ENV_SENTINEL);
+    const temporary = await Fs.makeTempDir({ prefix: 'driver-pi.preview.setup.' });
     try {
-      await firstReady.promise;
-      const first = developmentSource(firstSource);
-      const origin = firstOrigin;
-      if (!origin) throw new Error('Expected first preview host origin.');
-
-      const beforeSecond = await fetchText(origin);
-      expect(beforeSecond.status).to.eql(200);
-
-      await mainWith({
-        paths,
-        allocate: allocatePreviewGeneration,
-        build: buildPreviewGeneration,
-        async startGui(input) {
-          const source = developmentSource(input.source);
-          secondSource = source;
-          secondManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
-          expect(secondManifest).to.eql({ exists: true, integrity: source.integrity });
-          const server = await startHost(source);
-          try {
-            const response = await fetchText(server.origin);
-            expect(response.status).to.eql(200);
-            secondBody = response.body;
-          } finally {
-            await server.close('preview-real.second-complete');
-          }
-          return 'quit';
-        },
-      });
-
-      const second = developmentSource(secondSource);
-      const afterSecond = await fetchText(origin);
-      expect(afterSecond).to.eql(beforeSecond);
-      expect(secondBody.length).to.be.greaterThan(0);
-      expect(first.dir).not.to.eql(second.dir);
-      expect(first.integrity).not.to.eql(second.integrity);
-      expect(firstManifest).to.eql({ exists: true, integrity: first.integrity });
-      expect(secondManifest).to.eql({ exists: true, integrity: second.integrity });
-      expect(await Fs.exists(first.dir)).to.eql(true);
-      expect(await Fs.exists(second.dir)).to.eql(false);
-
-      releaseFirst.resolve();
-      await firstRun;
-      expect(await Fs.exists(first.dir)).to.eql(false);
-      expect(await directorySnapshot(SHARED_DIST)).to.eql(sharedBefore);
-    } catch (cause) {
-      proofFailed = true;
-      proofFailure = cause;
-    } finally {
-      releaseFirst.resolve();
-      try {
-        await firstRun;
-      } catch (cause) {
-        if (proofFailed && proofFailure !== cause) {
-          proofFailure = new AggregateError(
-            [proofFailure, cause],
-            'Real preview proof and first-session cleanup failed.',
-          );
-        } else if (!proofFailed) {
-          proofFailed = true;
-          proofFailure = cause;
+      const unsupported = Fs.join(temporary.absolute, 'not-a-directory');
+      await Fs.write(unsupported, 'file', { throw: true });
+      const cases = [
+        { name: 'absent', value: undefined },
+        { name: 'empty', value: '' },
+        { name: 'present', value: 'original-sentinel' },
+      ];
+      for (const { name, value } of cases) {
+        if (value === undefined) Deno.env.delete(AMBIENT_ENV_SENTINEL);
+        else Deno.env.set(AMBIENT_ENV_SENTINEL, value);
+        let refusal: unknown;
+        let actual: unknown;
+        try {
+          await withPreviewSentinel(async () => {
+            expect(Deno.env.get(AMBIENT_ENV_SENTINEL)).to.eql('must-not-cross-build-boundary');
+            try {
+              await directorySnapshot(unsupported);
+            } catch (cause) {
+              refusal = cause;
+              throw cause;
+            }
+          });
+        } catch (cause) {
+          actual = cause;
         }
+        if (!Is.error(refusal)) throw new Error('Expected real snapshot setup refusal.');
+        expect(refusal.message).to.eql(`Unsupported shared Dist root: ${unsupported}`);
+        expect(actual).to.equal(refusal);
+        expect(Deno.env.get(AMBIENT_ENV_SENTINEL), name).to.eql(value);
       }
-      if (previousSentinel === undefined) Deno.env.delete(AMBIENT_ENV_SENTINEL);
-      else Deno.env.set(AMBIENT_ENV_SENTINEL, previousSentinel);
+    } finally {
+      if (previous === undefined) Deno.env.delete(AMBIENT_ENV_SENTINEL);
+      else Deno.env.set(AMBIENT_ENV_SENTINEL, previous);
+      await Fs.remove(temporary.absolute);
     }
-    if (proofFailed) throw proofFailure;
   });
+
+  it(
+    'keeps the first real Vite generation verified after a second real build',
+    () => withPreviewSentinel(provePreviewIsolation),
+  );
 
   it('distinguishes absent and present trees and rejects unsupported entries', async () => {
     const temporary = await Fs.makeTempDir({ prefix: 'driver-pi.preview.snapshot.' });
@@ -236,6 +174,176 @@ describe('driver-pi/scripts/task.start.gui.preview real build isolation', () => 
   });
 });
 
+async function withPreviewSentinel(body: () => Promise<void>): Promise<void> {
+  const previous = Deno.env.get(AMBIENT_ENV_SENTINEL);
+  const failures: unknown[] = [];
+  try {
+    Deno.env.set(AMBIENT_ENV_SENTINEL, 'must-not-cross-build-boundary');
+    await body();
+  } catch (cause) {
+    failures.push(cause);
+  }
+  try {
+    if (previous === undefined) Deno.env.delete(AMBIENT_ENV_SENTINEL);
+    else Deno.env.set(AMBIENT_ENV_SENTINEL, previous);
+  } catch (cause) {
+    failures.push(cause);
+  }
+  if (failures.length === 1) throw failures[0];
+  if (failures.length > 1) {
+    throw new AggregateError(failures, 'Real preview proof and sentinel restoration failed.');
+  }
+}
+
+async function provePreviewIsolation(): Promise<void> {
+  const paths = vitePaths(PACKAGE_ROOT);
+  const sharedBefore = await directorySnapshot(SHARED_DIST);
+  const firstReady = Promise.withResolvers<void>();
+  const releaseFirst = Promise.withResolvers<void>();
+  let firstSource: DevelopmentSource | undefined;
+  let secondSource: DevelopmentSource | undefined;
+  let firstOrigin: t.StringUrl | undefined;
+  let firstManifest: FileSnapshot | undefined;
+  let secondManifest: FileSnapshot | undefined;
+  let firstManifestChecksum: t.StringHash | undefined;
+  let secondManifestChecksum: t.StringHash | undefined;
+  let secondBody = '';
+
+  const firstRun = mainWith({
+    paths,
+    allocate: allocatePreviewGeneration,
+    async build(input) {
+      const result = await buildPreviewGeneration({ ...input, dependencyPolicy: 'frozen-cache' });
+      if (result.ok) firstManifestChecksum = result.manifestChecksum;
+      return result;
+    },
+    async startGui(input) {
+      const source = developmentSource(input.source);
+      firstSource = source;
+      try {
+        firstManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
+        expect(firstManifest).to.eql({ exists: true, integrity: firstManifestChecksum });
+        await withPreviewHost(source, 'preview-real.first-complete', async (server) => {
+          firstOrigin = server.origin;
+          firstReady.resolve();
+          await releaseFirst.promise;
+        });
+      } catch (cause) {
+        firstReady.reject(cause);
+        throw cause;
+      }
+      return 'quit';
+    },
+  });
+  void firstRun.then(
+    () => firstReady.reject(new Error('First preview session ended before readiness.')),
+    firstReady.reject,
+  );
+
+  let proofFailure: unknown;
+  let proofFailed = false;
+  try {
+    await firstReady.promise;
+    const first = developmentSource(firstSource);
+    const origin = firstOrigin;
+    if (!origin) throw new Error('Expected first preview host origin.');
+
+    const beforeSecond = await fetchText(origin);
+    expect(beforeSecond.status).to.eql(200);
+
+    await mainWith({
+      paths,
+      allocate: allocatePreviewGeneration,
+      async build(input) {
+        const result = await buildPreviewGeneration({ ...input, dependencyPolicy: 'frozen-cache' });
+        if (result.ok) secondManifestChecksum = result.manifestChecksum;
+        return result;
+      },
+      async startGui(input) {
+        const source = developmentSource(input.source);
+        secondSource = source;
+        secondManifest = await fileSnapshot(Fs.join(source.dir, 'dist.json'));
+        expect(secondManifest).to.eql({ exists: true, integrity: secondManifestChecksum });
+        await withPreviewHost(source, 'preview-real.second-complete', async (server) => {
+          const response = await fetchText(server.origin);
+          expect(response.status).to.eql(200);
+          secondBody = response.body;
+        });
+        return 'quit';
+      },
+    });
+
+    const second = developmentSource(secondSource);
+    const afterSecond = await fetchText(origin);
+    expect(afterSecond).to.eql(beforeSecond);
+    expect(secondBody.length).to.be.greaterThan(0);
+    expect(first.dir).not.to.eql(second.dir);
+    // Equal payloads retain content identity; build-time document bytes remain separate.
+    expect(first.pin).to.eql(second.pin);
+    expect(firstManifestChecksum).not.to.eql(secondManifestChecksum);
+    expect(firstManifest).to.eql({ exists: true, integrity: firstManifestChecksum });
+    expect(secondManifest).to.eql({ exists: true, integrity: secondManifestChecksum });
+    const stillVerified = await FsDist.Pinned.verify({
+      dir: first.dir,
+      pin: first.pin,
+      limits: START_GUI_SERVICE.limits,
+    });
+    expect(stillVerified.kind).to.eql('verified');
+    if (stillVerified.kind !== 'verified') throw new Error('First preview no longer verifies.');
+    expect(stillVerified.evidence.manifestChecksum).to.eql(firstManifestChecksum);
+    expect(await fileSnapshot(Fs.join(first.dir, 'dist.json'))).to.eql(firstManifest);
+    expect(await Fs.exists(first.dir)).to.eql(true);
+    expect(await Fs.exists(second.dir)).to.eql(false);
+
+    releaseFirst.resolve();
+    await firstRun;
+    expect(await Fs.exists(first.dir)).to.eql(false);
+    expect(await directorySnapshot(SHARED_DIST)).to.eql(sharedBefore);
+  } catch (cause) {
+    proofFailed = true;
+    proofFailure = cause;
+  } finally {
+    releaseFirst.resolve();
+    try {
+      await firstRun;
+    } catch (cause) {
+      if (proofFailed && proofFailure !== cause) {
+        proofFailure = new AggregateError(
+          [proofFailure, cause],
+          'Real preview proof and first-session cleanup failed.',
+        );
+      } else if (!proofFailed) {
+        proofFailed = true;
+        proofFailure = cause;
+      }
+    }
+  }
+  if (proofFailed) throw proofFailure;
+}
+
+async function withPreviewHost(
+  source: DevelopmentSource,
+  reason: string,
+  body: (server: t.DistServer.Started) => Promise<void>,
+): Promise<void> {
+  const server = await startHost(source);
+  const failures: unknown[] = [];
+  try {
+    await body(server);
+  } catch (cause) {
+    failures.push(cause);
+  }
+  try {
+    await server.close(reason);
+  } catch (cause) {
+    failures.push(cause);
+  }
+  if (failures.length === 1) throw failures[0];
+  if (failures.length > 1) {
+    throw new AggregateError(failures, 'Real preview host proof and cleanup failed.');
+  }
+}
+
 function developmentSource(input: DevelopmentSource | undefined): DevelopmentSource {
   if (input?.kind !== 'development') throw new Error('Expected development preview evidence.');
   return input;
@@ -243,14 +351,40 @@ function developmentSource(input: DevelopmentSource | undefined): DevelopmentSou
 
 async function startHost(source: DevelopmentSource) {
   try {
-    return await DistServer.start({
+    const snapshot = snapshotDevelopmentAuthority(source);
+    if (!snapshot.ok) throw snapshot.failure.error;
+    const authority = snapshot.authority;
+    const server = await DistServer.start({
       dir: source.dir,
-      integrity: source.integrity,
+      pin: authority.pin,
       limits: START_GUI_SERVICE.limits,
       hostname: '127.0.0.1',
       port: 0,
       silent: true,
     });
+    try {
+      const until = new AbortController().signal;
+      expect(await admitApplicationPkg(authority, source.dir, server, until)).to.eql({
+        origin: server.origin,
+        digest: source.pin.digest,
+      });
+      const wrong = snapshotDevelopmentAuthority({
+        ...source,
+        expectedPkg: { ...source.expectedPkg, name: '@wrong/preview' },
+      });
+      if (!wrong.ok) throw wrong.failure.error;
+      expect(await admitApplicationPkg(wrong.authority, source.dir, server, until)).to.eql(
+        undefined,
+      );
+      return server;
+    } catch (cause) {
+      try {
+        await server.close('preview-real.package-proof-failed');
+      } catch (cleanup) {
+        throw new AggregateError([cause, cleanup], 'Package proof and host cleanup failed.');
+      }
+      throw cause;
+    }
   } catch (cause) {
     if (DistServer.Error.is(cause)) {
       throw new Error(`Real preview host failed: ${cause.reason}.`, { cause });
@@ -259,7 +393,9 @@ async function startHost(source: DevelopmentSource) {
   }
 }
 
-/** Exact shared-tree observation preserves absence and rejects links or special entries. */
+/**
+ * Exact shared-tree observation preserves absence and rejects links or special entries.
+ */
 async function directorySnapshot(dir: t.StringAbsoluteDir): Promise<DirectorySnapshot> {
   const root = await Fs.lstat(dir);
   if (!root) return Object.freeze({ kind: 'absent' });

@@ -4,7 +4,9 @@ import { resolvePreviewDenoDir } from './u.deno.ts';
 const packageRoot = Fs.resolve(import.meta.dirname ?? '.', '../..');
 const worker = Fs.Path.fromFileUrl(new URL('./-entry.worker.ts', import.meta.url));
 
-/** Launch the preview runtime in a sanitized, least-authority worker process. */
+/**
+ * Launch the preview runtime in a sanitized, least-authority worker process.
+ */
 export async function main(): Promise<void> {
   const denoDir = await resolvePreviewDenoDir(packageRoot);
   const systemRoot = Deno.build.os === 'windows' ? Deno.env.get('SystemRoot') : undefined;
@@ -20,6 +22,7 @@ export async function main(): Promise<void> {
       'run',
       '--quiet',
       '--frozen',
+      ...(Deno.args.includes('--environment-preflight') ? ['--cached-only'] : []),
       '--no-prompt',
       '-P=preview-worker',
       '--deny-write=../../..',
