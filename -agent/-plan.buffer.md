@@ -13,6 +13,12 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 ---------------------------------------------------------------------------------------------------------
 
 
+1. workspace-ci-closeout.plan.md
+2. workspace-chunking-and-ui-components-bundle.plan.md
+3. html-subresource-integrity.plan.md
+4. r2-public-delivery.plan.md
+
+
 @sys.fs
 dist-content-identity.plan.md
 - [x] e6316e80b fix(driver-signer): preserve own keys in canonical Dist documents
@@ -210,17 +216,3 @@ vite-build-repair.plan.md
 
 
 
-
-
-- Commit: fix(driver-vite): align frozen fixtures and preserve build failure causes
-- Paths(10):
-    - code/sys.driver/driver-vite/src/m.vite/-test/-build.failure-causes.test.ts
-    - code/sys.driver/driver-vite/src/m.vite/-test/-build.output-width.test.ts
-    - code/sys.driver/driver-vite/src/m.vite/-test/-build.startup.test.ts
-    - code/sys.driver/driver-vite/src/m.vite/-test/-build.test.ts
-    - code/sys.driver/driver-vite/src/m.vite/-test/-build.workspace-composition.test.ts
-    - code/sys.driver/driver-vite/src/m.vite/-test/u.fixture.build.native.ts
-    - code/sys.driver/driver-vite/src/m.vite/common.ts
-    - code/sys.driver/driver-vite/src/m.vite/t.ts
-    - code/sys.driver/driver-vite/src/m.vite/u/u.build.ts
-    - code/sys.driver/driver-vite/src/m.vite/u/u.log.ts
