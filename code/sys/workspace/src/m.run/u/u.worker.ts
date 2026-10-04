@@ -29,7 +29,9 @@ export function resolveCommand(
   task: t.WorkspaceRun.Task,
 ): PackageCommand | null {
   if (hasTask(deno, task)) return { cmd: 'deno', args: ['task', task] };
-  if (task === 'dry') return { cmd: 'deno', args: ['publish', '--allow-dirty', '--dry-run'] };
+  if (task === 'dry' && deno.private !== true) {
+    return { cmd: 'deno', args: ['publish', '--allow-dirty', '--dry-run'] };
+  }
   return null;
 }
 
