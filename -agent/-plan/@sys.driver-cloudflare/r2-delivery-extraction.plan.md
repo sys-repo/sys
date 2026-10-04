@@ -10,6 +10,12 @@ r2-delivery-extraction.plan.md
 - [x] 652d1daa7 fix(http): settle server shutdown and completion failures together
 - [x] b3f14a5ee refactor(driver-cloudflare): reduce the R2 sample to policy and library calls
 
+## Status
+
+**Complete — retained completion record; not archived.**
+All nine extraction units are landed and the accepted proof is recorded below. Future delivery,
+worker, hosting and credential work stays with its existing owners.
+
 ## Purpose and record boundary
 
 Extract reusable delivery mechanisms from the R2 sample into their existing library owners. Retain
@@ -68,6 +74,12 @@ live in guarded task files; importing them in tests does not execute the task. B
 imports remain inside `import.meta.main`. Application/UI decomposition is preserved.
 
 ## Durable contracts and compatibility
+
+These contracts describe the extraction candidate, not every detail of today's API. The later
+[dist-content-identity.plan.md](../@sys.fs/dist-content-identity.plan.md) replaced exact-manifest
+byte pins with canonical payload identity. Its owner code defines the current contract; document
+checksums retain their separate role. Do not restore the historical pin grammar from this record
+or invent another extraction phase.
 
 ### Dist pins, projection, and the sample build record
 
@@ -365,6 +377,6 @@ Preserve this completed snapshot before archival. The lifecycle subjects are
 `plan(done): r2-delivery-extraction.plan.md`, then `plan(archived): r2-delivery-extraction.plan.md`.
 Both consumers' checked references survive archival; a future recovery hash must identify the
 committed final plan snapshot, not the implementation commit or the removal commit. The source arc
-is landed, but this plan is currently untracked; no committed completion snapshot or archival is
-claimed. Preserve the record through a separately authorized plan commit before removal. No archival
-or Git mutation is part of this reconciliation.
+is landed and this plan is tracked. Its final reconciled completion snapshot still needs the separate
+human-authorised `plan(done)` commit; no such lifecycle landing or archival is claimed. Preserve the
+record before the later deletion pass. No archival or Git mutation is part of this reconciliation.
