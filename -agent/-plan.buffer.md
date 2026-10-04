@@ -187,8 +187,8 @@ deploy-state-containment.plan.md
 
 @sys.driver-crdt
 cmd-first-kernels.plan.md
-- [x] test(driver-crdt): establish isolated native and immutable contract fixtures
-- [ ] test(driver-crdt): compare async-owner and native-replica mutation paths
+- [x] 7b0f48ff3 test(driver-crdt): establish isolated native and immutable contract fixtures
+- [x] f24076d6c test(driver-crdt): compare async-owner and native-replica mutation paths
 - [ ] test(driver-crdt): prove editor reconciliation and boundary failure behavior
 - [ ] docs(driver-crdt): specify draft-one contracts from topology evidence
 
