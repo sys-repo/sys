@@ -1,6 +1,28 @@
 @sample.r2
 public-image-delivery.plan.md
-- [ ] feat(sample.r2): demonstrate direct public R2 image delivery
+- [x] 1b9d2ece9 feat(sample.r2): demonstrate direct public R2 image delivery
+
+## Status
+
+**Complete — retained completion record; not archived.**
+The original image item and its accepted bounded proof are complete. The paired-image successor,
+SRI adoption and hosted delivery retain their separate owners and evidence limits.
+
+## Historical scope and successor
+
+This plan records the original single-image example. The later paired-image comparison belongs to
+[html-subresource-integrity.plan.md](../@sys.driver-vite/html-subresource-integrity.plan.md); its
+opening arc owns that successor's landing record. The original source PNG and public-only delivery
+boundary remain. The successor adds a byte-identical source-managed copy, native Vite references,
+and filename-role captions; it replaces the one-image design, `%BASE_URL%`, and direct-PNG link. Do
+not restore those older choices from the historical sections below.
+
+The human accepted local test/build proof and wide/narrow browser rendering as sufficient for the
+image comparison. Keyboard, blocked-resource, and provider-header checks remain optional
+diagnostics, not image closeout requirements. They were not established by the screenshots. This
+bounded image acceptance does not complete sample SRI adoption or hosted R2 release proof. The
+following design and proof sections retain the original implementation's context, not new execution
+instructions.
 
 ## Intent and boundary
 
@@ -164,6 +186,11 @@ passed.
 
 ## Local proof record
 
+The following proof was recorded with the original implementation; it was not rerun during plan
+reconciliation. The opening checkbox records its landing. The accepted image completion boundary and
+successor above supersede the original mandatory live/browser checklist; unperformed checks remain
+unverified, not implicitly passed.
+
 Commands ran from `code/sys.driver/driver-cloudflare/-sample/deploy/`:
 
 ```sh
@@ -182,9 +209,9 @@ deno task test
 - Vite 8.3.0 build succeeded. `dist.private/index.html` contains a footer outside `#root`, explicit
   64 by 64 image dimensions, and the same absolute URL for the image and PNG link:
   `https://pub-72d4e716dcae492f9e174c58866d5533.r2.dev/tmp.sys.driver-cloudflare/r2-proof-ui/images/wax-seal.v1.png`.
-  The caption refinement was rebuilt and inspected: "image" links to that PNG; "public R2" links
-  to `https://developers.cloudflare.com/r2/buckets/public-buckets/`, matching `ui.App.tsx`.
-  Neither unresolved `%BASE_URL%` nor embedded image data appears in that HTML.
+  The caption refinement was rebuilt and inspected: "image" links to that PNG; "public R2" links to
+  `https://developers.cloudflare.com/r2/buckets/public-buckets/`, matching `ui.App.tsx`. Neither
+  unresolved `%BASE_URL%` nor embedded image data appears in that HTML.
 - `dist/dist.json` and `dist.public/dist.json` both inventory `images/wax-seal.v1.png` at 58,841
   bytes, with SHA-256 `9a110325ca0d22eb23c6c88d60960fdd3c9d9b9c5ccaa331b0ac27679239d83a`. The
   offline PNG test independently hashes `public/images/wax-seal.v1.png` to that same digest and
@@ -193,10 +220,11 @@ deno task test
 - `dist.private/dist.json` inventories only `index.html` as payload; the PNG is public-only.
   `dist.public/images/wax-seal.v1.png` was also opened visually.
 
-These observations are local build/test evidence only. No publication, live service, or browser
-check was performed. Actual R2 MIME/cache headers, cold-load requests, narrow-layout/focus behavior,
-and request-blocking behavior remain unobserved acceptance evidence. Publication needs separate
-human authorization; browser observations require a browser-capable session or human confirmation.
+These original observations are local build/test evidence only; no publication, live service, or
+browser check was performed in that pass. Subsequent human screenshots of the paired-image successor
+showed wide and narrow rendering. They do not establish R2 MIME/cache headers, cold-load network
+requests, keyboard focus, or request-blocking behavior. Those optional diagnostics do not block the
+accepted image scope. Publication still requires separate human authorization.
 
 ## Non-goals and review question
 
@@ -204,7 +232,6 @@ No independent media deployment, image framework, resize API, custom URL resolve
 Deno image proxy, additional bucket, credential change, cache-control framework, release-retention
 system, or extra terminal output. No reconstruction or refactoring of the existing sample machinery.
 
-A fresh blind TMIND + DMIND review should challenge whether this is the simplest native-Web shape,
-whether each mechanism has the correct owner, and whether the proof distinguishes direct delivery
-from merely rendering an image. Review live source and reachable history independently; this plan is
-a proposal, not evidence of its own correctness. A smaller design or a clean review is valid.
+The original review question challenged native-Web simplicity, mechanism ownership, and proof of
+direct delivery rather than merely image rendering. It is historical design context, not a current
+review dispatch or an instruction to reopen the completed image item.
