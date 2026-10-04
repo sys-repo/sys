@@ -20,8 +20,45 @@ dist-content-identity.plan.md
 - [x] 095bf200a fix(driver-vite): honor immediate-child dependency policy
 - [x] c9c17f093 test(driver-vite): separate proof lanes and restore passing base tests
 - [x] 3af0a19f9 refactor(dist): consolidate inventory accounting without merging authority
-- [ ] test(dist): prove canonical build projection and serving composition
-- [ ] test(driver-pi): prove canonical Dist isolation across real previews
+- [x] 3d9d00a4b test(dist): prove canonical build projection and serving composition
+- [x] ee78a58f93 test(driver-pi): prove canonical Dist isolation across real previews
+
+## Status
+
+**Complete — retained completion record; not archived.**
+The bounded source arc and accepted in-scope proof are complete. Remaining work is plan-artifact
+preservation and later human-authorised cleanup, not more Dist implementation.
+
+## Bounded Dist closeout reconciliation
+
+At inspected HEAD `85657a884fc918b9d29d84d7c872b695a9017b87`, all 22 opening-arc subjects and hashes
+reconcile with reachable ancestry. The final Pi source cut and its additional dispatch record are
+accounted for below. Required owner receipts, the corrected real build/projection/serving capstone
+and the real overlapping-preview capstone retain their executed boundaries and review provenance.
+The bounded identity/admission/production/serving migration and its required proof tail are complete.
+The mandatory bounded Vite successor has also landed at `8d3bc14fe`; its own plan retains the repair
+and proof evidence. This record reconciliation ran no new tests and performed no Git mutation.
+
+Retain the disclosed dependency context: the early base-lane existence control requires the
+successor's two native-control files, and historical integrated runs included then-unlanded
+successor build/error bytes. Their later landing discharges the bounded successor obligation; it
+does not turn those runs into isolated-Dist proof. The two capstones' successful paths did not
+demonstrate a necessary successor-only production correction. No source is promoted across owners
+and no isolated post-landing baseline is certified. The remaining Tools parity-test delta is line
+wrapping only; unrelated Cloudflare, templates, workspace and other work is not claimed or absorbed.
+
+Earlier checkpoint wording below retains its original time and evidence scope. Later capstone and
+landing receipts resolve their named Dist proof gaps without relabeling earlier runs or reviewer
+provenance. Whole-chain acquisition policy, external provenance, browser/provider certification and
+general reproducibility remain outside this bounded closure. Source closure does not commit or
+retire these workflow records; their final snapshot and lifecycle remain human-controlled.
+
+Preserve this primary plan and its companion directory as one artifact set, including the untracked
+neutral `reviews/PIPELINE.blind-review.md`. Parked AF-01/02/03/06/07 and the prepared-only canon-style
+note retain their recorded owners and re-entry limits; none is silently waived or made a new Dist
+completion item. A final `plan(done)` snapshot must precede `plan(archived)` removal. Preserve surviving
+checked prerequisite references and independently active follow-ups, with final-snapshot recovery
+identity where needed. No source or removal commit substitutes for that completed plan snapshot.
 
 ## Observed landing checkpoint — 2026-10-01
 
@@ -1163,8 +1200,9 @@ not duplicated in its opening arc. This transfer removes the blanket dependency,
 `test(dist): prove canonical build projection and serving composition`
 
 - **Owner:** `code/sys.driver/driver-vite/src/m.vite/-test.external/-dist.pipeline.ts`,
-  `u.dist.pipeline.cleanup.ts`, `src/m.vite/-test/-dist.pipeline.cleanup.test.ts` and the explicit
-  `test:dist:pipeline` task in `code/sys.driver/driver-vite/deno.json`. Keep that task separately
+  `u.dist.pipeline.cleanup.ts`, `src/m.vite/-test/-dist.pipeline.cleanup.test.ts`, the shared project
+  writer `u.html-integrity.project.ts` and the explicit `test:dist:pipeline` task in
+  `code/sys.driver/driver-vite/deno.json`. Keep that task separately
   invoked; do not carry the pending addition to default `test` as incidental repair or capstone
   work. Separate invocation does not waive required execution or independent composition evidence.
 - **Dependencies:** canonical Vite, FS and Server source contracts, immediate-child command support
@@ -1185,11 +1223,148 @@ not duplicated in its opening arc. This transfer removes the blanket dependency,
   factoring is AF-07. Any replacement must name the surviving assertion, owner and real runtime path
   before deleting its old proof; no unreviewed reduction in the accepted coverage.
 - **Failure settlement:** retain R3-A06 body/cleanup failure arbitration, drained hosts, leases and
-  independent release errors. Own resources from the first allocation, not only after entering
-  `runPipeline`: the current fixture allocates a root and starts its HTTP source before that helper.
-  A source-setup failure must still release owned resources. Refused restoration/removal never
-  authorizes deletion around that refusal. A cleanup-only green does not replace real pipeline
+  independent release errors. Enter `runPipeline`'s protected body before temporary-root acquisition
+  and source startup; register the root before canonicalization and the returned listener before
+  URL/policy/project setup. Setup failure must still release acquired resources. Refused store
+  removal must prevent recursive root deletion. A cleanup-only green does not replace real pipeline
   proof.
+
+#### Executed composition checkpoint
+
+The four-file source cut retains every accepted pipeline assertion. Its local JS/CSS project now
+inherits actual ancestor workspace authority instead of synthesizing bridge/import/lock authority.
+The shared writer's opt-in `local-asset-composition` mode disables unused Deno/WASM/optimizer
+plugins; other callers retain their default plugin selection. Project writes fail during setup
+rather than silently continuing. The real driver child, `Vite.Config.app` output layout, HtmlIntegrity
+plugin and the selected public FS/Server production paths remain exercised. No resolver or
+published-consumer proof is substituted.
+
+Temporary-root acquisition, canonicalization and source setup run inside protected settlement.
+Two added controls allocate real roots/listeners and inject failure after acquisition, checking
+original-cause identity, awaited disposal and removed roots. They exercise the cleanup pattern, not a
+fault injected into the capstone's actual startup constructor. No behavioral red was claimed for the
+caller-ordering correction; no test-only production API was added. Existing synchronous-close/drain,
+independent-error and refused-removal arbitration controls remain. Test-only canon finish uses
+async/await settlement, canonical guards and declarative identity pairing.
+
+Executed from `code/sys.driver/driver-vite` on Deno **2.9.7**, aarch64 Darwin:
+
+- `deno task test:dist:pipeline --check`: **1 suite / 1 step / zero failed**, including two real
+  builds, four cold materializations/hosts, recorded private/public pins, distinct manifest checksums,
+  served payload/SRI correspondence, original-document warm reuse and byte/path/stale-pin refusals.
+- `deno task test:run --check --trace-leaks ./src/m.vite/-test/-dist.pipeline.cleanup.test.ts`:
+  **1 / 11 / zero failed**, including both real setup-resource controls.
+- `deno task test:unit --check --trace-leaks`: **61 / 500 / zero failed**;
+  `deno task check --frozen --cached-only` passed, including shared-writer callers' typechecks.
+- Exact four-source-file format/lint and scoped tracked whitespace checks passed. Task routing,
+  dependency surfaces, versions, grants, profiles and generated source were not changed by this pass.
+
+These are integrated-worktree results. Source comparison inspected the successor's existing
+`m.vite/{common.ts,t.ts,u/u.build.ts,u/u.log.ts}` deltas: added failure causes, a default-preserving
+compute seam, failure-only rendering and documentation do not establish a necessary success-path
+promotion. Those bytes were present during execution and remain with their owner; this is not an
+isolated landed-Dist certification or verification of the successor's failure paths. The observed
+HEAD advanced from `41e3b9c1b` to `52edc0b0e` by a plan-buffer-only commit, with no Vite/FS/Server or
+root dependency-surface delta in that history interval.
+
+Implementing-thread boundary/residue review found no material defect in this bounded cut.
+[The neutral composition brief](./dist-content-identity.plan/reviews/PIPELINE.blind-review.md) specified
+independent replication. The human subsequently supplied a blind-review **GO** for these four complete
+files at HEAD `52edc0b0e8003657a7133171b91d9e1d125d4c30`, reporting no target drift, excluded-material
+exposure, candidate edits or material findings. Actual reviewer identity/model/effort was not supplied;
+the brief's prospective calibration is not retrospective reviewer provenance.
+
+The reviewer reported sequential execution of the same focused cleanup and pipeline commands above:
+**1 / 11 / zero failed** and **1 / 1 / zero failed**, respectively, with leak sanitizers passing and
+no remaining `vite-dist-pipeline-*` root. This is reviewer-reported replication, not a new
+implementer-run receipt. The review independently attributed the successor production deltas as
+unnecessary for the successful composition path. This establishes independent runtime evidence for
+that snapshot, not disposition of subsequent findings.
+
+A subsequent human-supplied whole-file residue review reported the same passing cleanup/pipeline
+execution and clean four-file formatting, but identified bounded corrections. Source inspection
+accepted all four material findings:
+
+- Replace parallel revision bookkeeping and numeric host offsets with named revision/audience
+  records. Extract only build/project/capture, materialize/serve/attest and SRI boundaries; retain
+  one real capstone and immediate cleanup registration after each allocation.
+- Assert distinct entry-script, stylesheet and modulepreload roles, with the preload sharing the
+  entry URL/integrity. Establish a successful read on the corruption host before mutation and
+  require the existing changed-byte refusal status **412**, not merely a non-200 response.
+- Remove the unused restoration stage and its manufactured failure cases. Preserve store-removal
+  refusal preventing recursive root deletion, independent causes and awaited host drainage.
+- Group cleanup controls by partial setup ownership, host drainage, and cleanup order/cause
+  preservation. Use typed phases, meaningful case names and literal expected stopping sequences;
+  do not derive the oracle from the implementation's refusal branching.
+
+Also accept a purpose-named local-asset composition option in place of `native`, preserving the
+shared writer's default behavior, and expression-bodied callbacks that only return another call.
+The correction remains within the same four files; no generic fixture framework or order-dependent
+split capstones are warranted. Historical greens above concern the pre-correction snapshot. Review
+findings alone do not authorize source implementation or Git mutation.
+
+#### Residue correction proof
+
+The authorized residue pass retained one capstone and all prior composition boundaries. Named
+revision/audience records now expose producer selections, local evidence, stores and hosts; the host
+array is only a cleanup registry. `buildProjectCapture`, `materializeServeAttest` and `verifySri`
+separate the earned phases, registering each returned host before attestation can fail. Setup
+ownership remains protected from first allocation. The unused restoration stage was removed.
+Cleanup cases now have typed phases, semantic groups, literal stopping sequences and member-identity
+assertions; callback-refusal coverage explicitly does not claim actual inner removal/release faults.
+
+Executed from `code/sys.driver/driver-vite`:
+
+- Focused cleanup command above: **1 suite / 14 steps / zero failed**; eleven controls plus three
+  grouping steps, not three new behavior proofs.
+- `deno task test:dist:pipeline --check`: **1 / 1 / zero failed**, including explicit module-entry,
+  stylesheet and overlapping-preload roles, equal preload/entry URL and integrity, and a verified
+  **200 → 412** read on the same corruption host.
+- `deno task test:unit --check --trace-leaks --reporter=dot`: **61 / 503 / zero failed**.
+- `deno task check --frozen --cached-only`, exact four-file formatting/lint and scoped tracked
+  whitespace checks passed. A path-only check found no remaining `vite-dist-pipeline-*` root.
+
+A temporary duplicate-stylesheet mutation of the consumed HTML retained three integrity-bearing
+JS/CSS tags but failed at `verifySri`'s stylesheet-role assertion (**expected one, observed two**).
+The mutation was removed and the real pipeline rerun green. An earlier producer-fixture mutation
+was rejected by HtmlIntegrity for a stylesheet pointing to JS, before reaching this assertion; it
+is not counted as the intended red. Structural extraction/grouping had no separate preceding red.
+No mutation seam or extra fixture framework remains in the candidate.
+
+Final implementing-thread rereads covered all four complete files and found no remaining accepted
+residue. These corrected-source results are implementer-run, integrated-worktree evidence; neither
+prior reviewer report is relabeled as independent replication of the corrected bytes. Production
+successor deltas, dependency surfaces, task routing and permission grants remain separately owned.
+
+The human subsequently supplied a fresh, post-correction code-quality **PASS**, reporting all eleven
+cleanup controls, the real two-build pipeline and exact four-file formatting passing. It confirmed
+named records, earned helper boundaries, immediate resource ownership, semantic cleanup grouping,
+explicit SRI roles/overlap, the successful-read control and exact **412** refusal, and removal of the
+unused restoration stage. No remaining material quality or assertion-precision blocker was reported.
+Accept that scoped disposition and retain the four-file design unchanged; further abstraction is not
+warranted. Reviewer identity/model/effort and blindness were not supplied for this final pass; do not
+label it broader release clearance or invent that provenance.
+
+#### Observed composition source cut
+
+The inspected reachable commit `3d9d00a4be51a1985eeb921018535bb8f4844444` has the exact composition
+subject and reviewed four-file boundary: three added pipeline/cleanup/control files and the modified
+shared project writer, **647 insertions / 6 deletions**. Its complete diff preserves named records,
+immediate ownership registration, explicit SRI roles/overlap and the **200 → 412** corruption control;
+temporary mutation controls and the unused restoration stage are absent. No workflow records,
+production successor deltas, task/permission configuration or dependency surfaces occur in that cut.
+Scoped worktree/index comparison against this commit found no residual delta, and commit whitespace
+inspection passed. This BMIND reconciliation ran no tests; the executed and reviewer-reported proof
+above retains its integrated-worktree scope, not post-landing isolated-candidate certification.
+The opening arc owns landing identity; this paragraph records the inspected commit boundary.
+
+Retain the first review's explicit limit: simultaneous failures inside actual tree removal and lease
+release were not fault-injected. Their independent preservation rests on separate guarded operations
+inspected in source; outer failure controls do not establish that inner runtime combination.
+Successful sealed-store removal was executed. Neither the review nor frozen/cache-only warm
+execution certifies isolated landed-candidate behavior or whole-chain containment. Pi preview isolation
+and whole-plan closure are not claimed. The opening arc remains the sole landing ledger; these workflow
+records are separate from source.
 
 ### Real Pi preview isolation
 
@@ -1204,14 +1379,115 @@ not duplicated in its opening arc. This transfer removes the blanket dependency,
   the first remains verified and served while the second is built and cleaned up; covered package
   admission accepts the expected package and refuses a conflicting expectation. Preserve original
   documents, shared-output snapshots, environment sanitization, independent failures and cleanup.
-- **Fixture ownership:** protect environment restoration from the first mutation. The current real
-  preview case sets its ambient sentinel and awaits `directorySnapshot` before entering `try`;
-  snapshot/setup refusal must not leak that sentinel. Keep acquired sessions/hosts owned through
-  settlement. This is selected proof-fixture correctness, not a new lifecycle framework or a new
-  production defect claim; the source-derived setup failure has not been injected in this review.
+- **Fixture ownership:** protect environment restoration from the first mutation, including path
+  and shared-tree snapshot setup. Keep acquired sessions/hosts owned through settlement and preserve
+  independent body/cleanup failures. The initial source-only assessment identified sentinel mutation
+  before protected setup but did not inject that failure; the executed checkpoint below supplies the
+  bounded control. This is selected proof-fixture correctness, not a new lifecycle framework or a
+  new production defect claim.
 - **Boundary:** preserve the task's `--deny-write=../../..` guard, retained release evidence and
   ordinary developer behavior. No shared-output rebuild, GUI reset, release rebinding, provider
   publication or broader launcher/permission work.
+
+[The neutral Pi review brief](./dist-content-identity.plan/reviews/PI.blind-review.md) dispatches
+bounded independent replication of the two complete source files. Prompt preparation does not
+establish that a review ran or provide a verdict.
+
+#### Executed real-preview checkpoint
+
+The two-file source cut uses canonical producer pins independently of returned manifest checksums.
+One capstone holds the first real host through a second actual Vite build, host close and generation
+removal, then checks the first response, freshly verifies its whole tree against the original pin,
+compares its exact document checksum and re-reads the original manifest bytes. Both generations have
+matching payload pins but distinct documents; both owned directories are removed after their sessions
+settle, and the shared `dist` snapshot is unchanged. Each pinned host accepts the expected package and
+refuses a conflicting name through the production package-admission boundary.
+
+`withPreviewSentinel` owns restoration from its first mutation, before any path/snapshot setup.
+The real snapshot-refusal control checks absent, empty and populated prior values and original-cause
+identity. Under the extracted old ordering, its focused run left an absent sentinel set to
+`must-not-cross-build-boundary` and failed the restoration assertion. Protected restoration passed
+all three cases; temporary focus was removed. `withPreviewHost` awaits close and preserves body and
+close causes independently; the first session is released and awaited even when the second proof fails. Existing
+production retention on a GUI rejection without established host settlement remains unchanged.
+Combined native host-close or environment-restoration faults were source-inspected, not injected.
+
+A temporary newline-only change to the first fixture's `dist.json` after second-session cleanup
+retained verified payload identity but failed the fresh manifest-checksum assertion. This falsifies
+original-document retention independently of payload equality. The mutation was removed and the
+real proof rerun green; no production test knob, mutation seam or generic fixture framework remains.
+The launcher adds cache-only execution only for environment preflight; ordinary preview arguments,
+worker sanitization, finite grants and the workspace write denial retain their existing behavior.
+
+Executed from `code/sys.driver/driver-pi`, at inspected HEAD
+`3d9d00a4be51a1985eeb921018535bb8f4844444`:
+
+- `deno task test:preview --check --frozen --cached-only --no-prompt`: **1 suite / 21 steps / zero
+  failed**, including pre-host cleanup failures and conservative generation retention.
+- `deno task test:preview:real --check --frozen --cached-only`: **1 / 5 / zero failed**, including
+  the setup-refusal control, real overlapping sessions and snapshot controls; leak sanitizers passed.
+- `deno task test:unit --check --frozen --cached-only --no-prompt --trace-leaks --reporter=dot`:
+  **77 / 536 / zero failed**.
+- Owner check passed. Its task expansion runs `check:deps` without appended flags and places appended
+  check flags after `--`; this receipt does not claim task-wide frozen/cache-only enforcement.
+  Exact two-file format/lint and scoped whitespace checks passed without formatter writes.
+
+These are implementer-run, integrated-worktree results. The Vite successor's
+`m.vite/{common.ts,t.ts,u/u.build.ts,u/u.log.ts}` bytes were present: source tracing found added failure
+causes, documentation, a default-preserving compute seam and failure-only rendering unnecessary to
+this successful build path. No successor-only delta was promoted; no isolated landed-candidate,
+whole-chain containment, general Vite reproducibility, browser or release certification is claimed.
+Whole-file implementing-thread boundary/residue review found no remaining material defect in this
+bounded cut; these implementer receipts do not establish independent review. Dependency/configuration
+surfaces, retained release evidence and shared outputs were not changed by this pass. The opening arc
+remains the sole landing ledger, and this checkpoint remains separate workflow evidence.
+
+#### Returned independent Pi review
+
+The human supplied a bounded **GO**, reporting inspection of both complete source files, no blocking
+findings and no reason for further abstraction or capstone splitting. Accept that disposition and
+leave the source design unchanged. Reviewer identity/model/effort was not supplied; the brief's
+prospective calibration does not establish the executed reviewer configuration.
+
+At reported HEAD `3d9d00a4be51a1985eeb921018535bb8f4844444`, the reviewer independently ran the two
+preview commands above sequentially: **1 suite / 21 steps / zero failures** and **1 / 5 / zero
+failures**. Leak tracing and `--deny-write=../../..` remained intact. Exact two-file format/lint and
+scoped whitespace checks passed, without formatter writes or additional owner suites. These are
+reviewer-reported results, not additional implementing-thread execution.
+
+The review found no observed HEAD or path-state drift and reconciled checked arc predecessors against
+reachable history. Its source-based attribution found no demonstrated necessary successor-only
+correction: the present Vite compute seam uses the same default `Pkg.Dist.compute` callee, and the
+changed failure/reporting branches are unnecessary to this successful proof. Unlanded Vite proof
+fixtures were not executed by these tasks. Retain the integrated-worktree evidence limit; this is
+not isolated-candidate certification.
+
+The reviewer reported receiving only the prompt and repository, but opening the plan accidentally
+exposed a historical checkpoint. No target executed checkpoint or review report was opened. Preserve
+that disclosure rather than describing the pass as unqualified blindness. Combined body/cleanup and
+environment-restoration faults remained source-inspected, not fault-injected. The reported
+`u.app.specifierRewrite.ts::warmNpm` descendant `deno info --json` invocation lacks frozen/cache-only
+flags; warm-cache success is not whole-chain acquisition-policy proof. No containment repair is
+promoted into this bounded Pi item. Ordinary developer behavior, retained release authority and
+shared outputs remain outside modification scope. Neither this GO nor these receipts establish
+browser/provider certification, general reproducibility or whole-plan closure.
+
+#### Observed Pi source and record cut
+
+The inspected reachable commit `ee78a58f93e4a6b3cd9e972b5bfea15268e32ce9` has the exact Pi subject.
+Its two modified source files match the reviewed preview proof and launcher: protected sentinel
+restoration, fresh first-tree/document verification, production package admission, independent host
+cleanup causes and preflight-only cache policy remain intact. Scoped comparison found no remaining
+source worktree/index delta, and commit whitespace inspection passed. No test ran during this BMIND
+landing reconciliation; earlier implementer and reviewer receipts retain their stated scope.
+
+The actual cut contains **three files / 301 insertions / 113 deletions**: the two source files plus
+`reviews/PI.blind-review.md`, a 49-line neutral dispatch brief. The brief is an additional workflow
+record beyond the requested two-file source-only selection; it is preparation, not an executed
+review receipt or extra runtime behavior. Record that carried path rather than describing the commit
+as an exact two-file cut. No production Vite successor files, dependency/permission configuration,
+retained release evidence or shared generated outputs occur in this commit. The opening arc owns
+landing identity; no Git rewrite or additional source correction is authorized by this reconciliation.
 
 The human-reported ZIP read/extract `prep:zip --check` parity already passed, as recorded in
 [R3 landing evidence](./dist-content-identity.plan/reviews/03/R3.landing-scope.md#subsequent-functional-receipts-and-fixture-lock-diagnosis).
