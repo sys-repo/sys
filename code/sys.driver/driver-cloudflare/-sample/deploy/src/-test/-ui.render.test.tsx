@@ -179,7 +179,7 @@ describe('R2 deployment sample: UI rendering', () => {
         Hash.sha256(privateBytes, { prefix: false }),
       ]);
       expect(details.querySelector('p')?.innerHTML).to.eql(
-        'SHA-256 of each fetched <code>dist.json</code> file<br>not the distribution content hash stored in <code>hash.digest</code>.',
+        'SHA-256 of each fetched <code>dist.json</code> file<br>not the distribution’s content hash stored in <code>hash.digest</code>.',
       );
       expect([...details.querySelectorAll('p code')].map((el) => el.textContent)).to.eql([
         'dist.json',

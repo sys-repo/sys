@@ -119,7 +119,7 @@ export function App(
           <p>
             SHA-256 of each fetched <code>dist.json</code> file
             <br />
-            not the distribution content hash stored in <code>hash.digest</code>.
+            not the distribution’s content hash stored in <code>hash.digest</code>.
           </p>
           <dl aria-live='polite'>
             {AUDIENCES.map((audience) => {

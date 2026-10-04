@@ -2,7 +2,8 @@ import { Hono } from 'hono';
 import type { t } from './common.ts';
 
 /**
- * Construct HTTP routes around an already-admitted shell handler.
+ * Serve the HTML entry point and API, not public assets.
+ * The admitted shell exposes only index.html and the diagnostic dist.json.
  */
 export function createApp({ shell, bundleSize }: t.AppOptions): t.HttpServer.App {
   // Do not decode percent-encoded paths before routing or stripping the mount prefix.

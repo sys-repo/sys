@@ -26,8 +26,9 @@
             alt="Red wax seal"
           />
           <figcaption>
-            <strong>Vite-managed image</strong>
+            <strong>Vite-managed asset</strong>
             <span>Fingerprinted filename</span>
+            <a href="https://developers.cloudflare.com/r2/buckets/public-buckets/">Public R2 ↗</a>
             <code>pkg/a.[hash].png</code>
           </figcaption>
         </figure>
@@ -35,16 +36,12 @@
           <img src="/images/wax-seal.v1.png" width="64" height="64" alt="Red wax seal" />
           <figcaption>
             <strong>Public file</strong>
-            <span>Filename is preserved</span>
+            <span>Preserved filename</span>
+            <a href="https://developers.cloudflare.com/r2/buckets/public-buckets/">Public R2 ↗</a>
             <code>images/wax-seal.v1.png</code>
           </figcaption>
         </figure>
       </div>
-      <p>
-        Both images load directly from
-        <a href="https://developers.cloudflare.com/r2/buckets/public-buckets/">public R2</a>, avoiding
-        application-server egress fees for image delivery.
-      </p>
     </footer>
     <script type="module" src="./-entry.tsx"></script>
   </body>

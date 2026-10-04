@@ -17,12 +17,15 @@ describe('R2 deployment sample: native image examples', () => {
     expect(root.nextElementSibling).to.equal(footer);
     expect(root.querySelectorAll('img').length).to.eql(0);
     const images = [...footer.querySelectorAll('img')];
-    expect(images.map((image) => ({
-      src: image.getAttribute('src'),
-      width: image.getAttribute('width'),
-      height: image.getAttribute('height'),
-      alt: image.getAttribute('alt'),
-    }))).to.eql([
+    const actualImages = images.map((image) => {
+      return {
+        src: image.getAttribute('src'),
+        width: image.getAttribute('width'),
+        height: image.getAttribute('height'),
+        alt: image.getAttribute('alt'),
+      };
+    });
+    expect(actualImages).to.eql([
       {
         src: './images/wax-seal.v1.png?no-inline',
         width: '64',
@@ -36,25 +39,40 @@ describe('R2 deployment sample: native image examples', () => {
         alt: 'Red wax seal',
       },
     ]);
-    expect([...footer.querySelectorAll('figcaption strong')].map((el) => el.textContent)).to.eql([
-      'Vite-managed image',
+    const labels = [...footer.querySelectorAll('figcaption strong')].map((el) => el.textContent);
+    expect(labels).to.eql([
+      'Vite-managed asset',
       'Public file',
     ]);
-    expect([...footer.querySelectorAll('figcaption span')].map((el) => el.textContent)).to.eql([
+    const descriptions = [...footer.querySelectorAll('figcaption span')].map((el) => {
+      return el.textContent;
+    });
+    expect(descriptions).to.eql([
       'Fingerprinted filename',
-      'Filename is preserved',
+      'Preserved filename',
     ]);
-    expect([...footer.querySelectorAll('figcaption code')].map((el) => el.textContent)).to.eql([
+    const filenames = [...footer.querySelectorAll('figcaption code')].map((el) => el.textContent);
+    expect(filenames).to.eql([
       'pkg/a.[hash].png',
       'images/wax-seal.v1.png',
     ]);
-    expect([...footer.querySelectorAll('a')].map((link) => ({
-      text: link.textContent,
-      href: link.getAttribute('href'),
-    }))).to.eql([{
-      text: 'public R2',
-      href: 'https://developers.cloudflare.com/r2/buckets/public-buckets/',
-    }]);
+    expect(footer.querySelectorAll('figcaption code a').length).to.eql(0);
+    expect(template.content.querySelectorAll('[data-image-link]').length).to.eql(0);
+    expect(footer.querySelectorAll('a').length).to.eql(2);
+    const captions = [...footer.querySelectorAll('figcaption')];
+    expect(captions.length).to.eql(2);
+    for (const caption of captions) {
+      expect(caption.previousElementSibling?.tagName).to.eql('IMG');
+      const childTags = [...caption.children].map((el) => el.tagName);
+      expect(childTags).to.eql(['STRONG', 'SPAN', 'A', 'CODE']);
+      const delivery = caption.querySelector(':scope > a');
+      expect(delivery?.textContent).to.eql('Public R2 ↗');
+      expect(delivery?.getAttribute('href')).to.eql(
+        'https://developers.cloudflare.com/r2/buckets/public-buckets/',
+      );
+      expect(delivery?.nextElementSibling).to.equal(caption.querySelector('code'));
+    }
+    expect(footer.querySelectorAll('p').length).to.eql(0);
     expect(footer.querySelectorAll('script').length).to.eql(0);
     expect(source.data).not.to.include('%BASE_URL%');
   });
