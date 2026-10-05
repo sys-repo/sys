@@ -1,4 +1,4 @@
-import { type t, Schema, Yaml } from '../common.ts';
+import { Schema, type t, Yaml } from '../common.ts';
 import { PullYamlSchema } from './u.schema.ts';
 
 export const PullYamlErrorCode: t.Yaml.Error['code'] = 'BAD_ALIAS';

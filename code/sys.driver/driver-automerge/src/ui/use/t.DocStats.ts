@@ -11,5 +11,5 @@ export type UseCrdtDocStats = (repo?: t.Crdt.Repo, docid?: t.Crdt.Id) => t.CrdtD
  * Instance snapshot of the `useDocStats` hook.
  */
 export type CrdtDocStatsHook = {
-  readonly info?: t.DocumentStats;
+  readonly info?: t.Document.Stats;
 };

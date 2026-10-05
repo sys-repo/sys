@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Json, Obj, Path, isEmptyRecord } from './common.ts';
+import { Fs, Is, isEmptyRecord, Json, Obj, Path, type t } from './common.ts';
 import { toDenoJson } from './u.toJson.deno.ts';
 
 type DenoConfigJson = {
@@ -34,8 +34,8 @@ export async function applyDeno(
     if (hasImports) nextImportMap.imports = imports;
     else delete nextImportMap.imports;
 
-    await Fs.writeJson(denoFilePath, denoJson as t.Json);
-    await Fs.writeJson(targetPath, nextImportMap as t.Json);
+    await Fs.writeJson(denoFilePath, denoJson as t.Json, { throw: true });
+    await Fs.writeJson(targetPath, nextImportMap as t.Json, { throw: true });
 
     return {
       kind: 'importMap',
@@ -47,7 +47,7 @@ export async function applyDeno(
 
   if (hasImports) denoJson.imports = imports;
   else delete denoJson.imports;
-  await Fs.writeJson(denoFilePath, denoJson as t.Json);
+  await Fs.writeJson(denoFilePath, denoJson as t.Json, { throw: true });
 
   return {
     kind: 'imports',

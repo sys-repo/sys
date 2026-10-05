@@ -1,242 +1,216 @@
-# Vite Driver
-Tools for working with [Vite](https://vitejs.dev/) as an ESM bundler within a multi-module [Deno](https://docs.deno.com/) workspace.
+# @sys/driver-vite
 
-## What
-`@sys/driver-vite` lets you use Vite under Deno without inventing a new app model. It preserves a sane, faithful Vite experience while owning the Deno-specific adaptation work that Vite does not natively handle.
+Vite tooling for Deno workspaces: task entrypoints, application configuration, and transport for
+Deno-style module imports. The driver adapts Vite's Node/npm-oriented toolchain without replacing
+Vite's application model.
 
-## Why
-Vite assumes a Node/npm-oriented runtime, module-resolution, and config-loading environment. Deno has different import, runtime, and compatibility semantics. `@sys/driver-vite` owns that adaptation boundary so applications can stay conceptually close to normal Vite usage while still working correctly under Deno.
+## Usage
 
-#### Philosophy
-<UI Framework™️> agnostic.
+Start from a configured Deno project with a compatible `vite` dependency in its nearest
+`package.json`; the published driver selects Vite from that consumer declaration. With an HTML entry
+at `src/index.html`, put this local shim at `-scripts/task.vite.ts`:
 
-
-#### Standards
-Bundled output from `@sys/driver-vite` is **ESM only**, aligned with the [JSR package rules](https://jsr.io/docs/publishing-packages#jsr-package-rules) and with the established [standard module format](https://tc39.es/ecma262/#sec-modules) of the modern web.
-
-Shared open standards reduce friction across tools, runtimes, and packages, and make the overall system simpler, more durable, and easier to evolve collectively. ("[Standards Make the World](https://summerofprotocols.com/research/standards-make-the-world)")
-
-
->> "Fully standardized and finalized as a core part of ECMAScript, maintained by TC39 and ECMA International" (2015)
-[-ref](https://tc39.es/ecma262/#sec-modules)
-
-
-<p>&nbsp;</p>
-
-## Resolution Model
-`@sys/driver-vite` separates import handling into two layers so each layer has one job.
-
-#### `Policy` (`driver-vite`)
-- rewrites workspace aliases and import-map names (for example `@sys/* → jsr:...`)
-- composes the Vite config/plugin layer
-
-#### `Transport` (Deno adapter)
-- resolves and loads `jsr:`, `npm:`, and URL-like specifiers
-- preserves module identity across Vite/Rollup so relative imports continue to chain correctly
-
-#### Contract
-- `Policy` rewrites names.
-- `Transport` resolves and loads modules.
-- Final module IDs must be stable and portable (never cache-hash paths).
-
-#### Validation
-- `deno task test` is the default local source-of-truth lane.
-- `deno task smoke` is the guarded external-consumer lane. Run it post-release against published JSR packages.
-- `deno task test:external` runs the raw external suite directly.
-
-### Security Posture
-`@sys/driver-vite` intentionally constrains the child `deno run npm:vite ...` process instead of
-defaulting to broad toolchain permissions.
-
-Current posture:
-- no child `-A`
-- `run` is scoped to the resolved native `esbuild` binary and the active `deno` executable only
-- `write` is scoped to the executing project root and the shared Vite cache roots, including canonical filesystem paths where required
-- `build` runs without child network permission
-- `dev` network is limited to `localhost`, `127.0.0.1`, and `0.0.0.0`
-- `dev` system access is limited to `networkInterfaces`
-
-Current limit:
-- child `env` remains broad because Vite 7 enumerates `process.env` in its Node config path; this prevents a stable name-scoped env allow-list in Deno today
-
-Validation lanes:
-- `src/m.vite/-test/-wrangle.test.ts` locks the permission-shaping contract
-- `src/m.vite/-test/-build.test.ts` and `src/m.vite/-test/-dev.test.ts` validate local runtime behavior
-- `deno task smoke` validates published/external consumer behavior with JSR metadata preflight and fixture prep
-- `deno task test:external` runs the raw published/external suite directly
-
-
-<p>&nbsp;</p>
-<p>&nbsp;</p>
-
-
----
-
-### References
-
-- [JSR Docs: Vite](https://jsr.io/docs/with/vite) (Build Tool).
-- [Deno Docs: Workspace](https://docs.deno.com/runtime/fundamentals/workspaces/).
-- [jsr:@sys/driver-deno](https://jsr.io/@sys/driver-deno) ← for workspace import/dependency graph.
-
-
-<p>&nbsp;<p>
-
----
-
-### Runtime ← Bundler
-
-![deno-vite-v8-isolate-w3c-typescript-esm-logos](https://github.com/user-attachments/assets/f76ef3f2-f4f3-40bf-9301-517e21fe5a0d)
-
-
-<p>&nbsp;</p>
-
-# Usage
-In your project (with a `deno.json`) declare entry point via `deno tasks` which point in
-to the common set of API "commands" (aka. "tasks") via the `/main` entry-point, eg:
-
-```bash
-jsr:@sys/driver-vite@<version>/main --cmd=dev
-jsr:@sys/driver-vite@<version>/main --cmd=build
-jsr:@sys/driver-vite@<version>/main --cmd=serve
-
-# (etc)...
+```ts
+import 'jsr:@sys/driver-vite/main';
 ```
 
-Call up "Info" to see available commands → `deno task info`:
+`/main` executes immediately; it is a task entrypoint, not a passive library import. Add these tasks
+to the project's `deno.json`:
 
-```bash
-Usage: deno task [COMMAND]
-
-  deno task dev       Run the development server.
-  deno task build     Transpile to production bundle.
-  deno task serve     Run a local HTTP server over the production bundle.
-  deno task clean     Delete temporary files.
-  deno task info      Show info.
+```json
+{
+  "tasks": {
+    "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
+    "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html"
+  }
+}
 ```
 
+These commands grant full authority to the parent launcher; the Vite child has separate grants
+below. In an existing `@sys/tmpl` workspace, reuse its tasks and dependency configuration. Bare
+imports need configured resolution, and tasks using `-P=dev` need a consumer-defined permission
+preset; an imported package does not supply one.
 
-<p>&nbsp;<p>
-
-
-
-
-## Configuration
-
-Define explicit app paths, then hand the rest of the baseline config assembly to
-`Vite.Config.app(...)`.
+Place `vite.config.ts` at the project root:
 
 ```ts
 import { Vite } from 'jsr:@sys/driver-vite';
-import { defineConfig } from 'vite';
 
-export default defineConfig(() => {
+export default Vite.Config.define(() => {
   const paths = Vite.Config.paths({
-    app: {
-      entry: 'src/index.html',
-      outDir: 'dist',
-    },
+    app: { entry: './src/index.html', outDir: 'dist' },
   });
-
   return Vite.Config.app({ paths });
 });
 ```
 
-`Vite.Config.app(...)` composes the default application bundle shape:
-- workspace-aware aliasing
-- import-map and Deno transport handling
-- React / WASM plugin defaults
-- production bundle output layout
+Run `deno task dev` for development or `deno task build` for ESM output. The HTML entry, its
+application modules, and their dependencies must exist. Build output replaces the configured output
+directory's contents; do not use it for unrelated files.
 
-It also preserves two explicit extension paths:
-- `vitePlugins` for caller-supplied Vite plugins appended after the driver/common plugin set
-- normal outer `defineConfig(...)` composition for any broader raw Vite config shaping
+`Vite.Config.app` assembles workspace aliases, import-map handling, React/WASM defaults, and output
+layout. Use `vitePlugins` to add your plugins after the common set and before the driver's final
+plugins, or compose a broader config through `Vite.Config.define`. See the
+[configuration API](https://jsr.io/@sys/driver-vite/doc/config) for paths, workspace filtering,
+chunking, and plugin options.
 
-You can still constrain workspace visibility and customize bundle behavior:
+## Producing a Dist content pin
+
+In a configured workspace with `@sys/driver-vite` mapped, build programmatically and narrow the
+result before using its content pin:
+
+```ts
+import { Vite } from '@sys/driver-vite';
+
+const result = await Vite.build({
+  paths: Vite.Config.paths({ app: { entry: './src/index.html', outDir: 'dist' } }),
+  pkg: { name: '@example/app', version: '1.0.0' },
+  exitOnError: false,
+});
+if (!result.ok) throw new Error(result.toString());
+console.info(result.pin); // { scheme: 'sys.dist/v2', digest: 'sha256-…' }
+```
+
+Success means the required output writes and canonical computation completed, including saving
+`dist.json`. `result.pin` identifies payload content; `result.manifestChecksum` identifies the saved
+document's exact bytes and is not a content expectation.
+
+When `pkg` is supplied, the build writes `pkg/-pkg.json` into the payload. Those bytes affect the
+pin, unlike descriptive package labels at the root of `dist.json`.
+
+Use `exitOnError: false` to receive a failure result rather than the default process exit. Other
+errors can still reject the promise. The build's `finally` stops the spinner and awaits command
+cleanup during normal return or exception unwinding; `Deno.exit(1)` does not run that cleanup.
+Neither failure form promises rollback of build output.
+
+Computation selects an inventory; it does not establish complete-tree verification or independent
+trust. See the [shared producer contract](../../sys/fs/README.md#produce-a-content-pin). Distribute
+pins through a trusted channel independent of the artifact download. Old manifest-checksum
+expectations require explicit rebuilding and recording of canonical content pins, not field
+renaming.
+
+## HTML subresource integrity
+
+Use the project setup above, a driver revision that exports `VitePlugins.HtmlIntegrity`, and a
+compatible consumer `vite` dependency. Opt in for client HTML builds through the plugin surface:
 
 ```ts
 import { Vite } from 'jsr:@sys/driver-vite';
-import { defineConfig } from 'vite';
+import { VitePlugins } from 'jsr:@sys/driver-vite/plugins';
 
-export default defineConfig(async () => {
-  const paths = Vite.Config.paths({
-    app: {
-      entry: 'src/index.html',
-      outDir: 'dist',
-    },
-  });
-
-  return Vite.Config.app({
-    paths,
-    filter(e) {
-      if (e.subpath.startsWith('/client')) return true;
-      if (e.pkg === '@sys/std') return true;
-      return false;
-    },
-    chunks(e) {
-      e.chunk('react', 'react');
-      e.chunk('react.dom', 'react-dom');
-      e.chunk('sys', ['@sys/std']);
-    },
-    minify: true,
-    plugins: { react: true, wasm: true, deno: true },
-    vitePlugins: [
-      {
-        name: 'custom:example',
-      },
-    ],
-  });
-});
+export default Vite.Config.define(() =>
+  Vite.Config.app({
+    paths: Vite.Config.paths({ app: { entry: './src/index.html' } }),
+    vitePlugins: [VitePlugins.HtmlIntegrity.plugin()],
+  })
+);
 ```
 
-For direct examples, see:
-- [`src/-test/vite.sample-config/simple/vite.config.ts`](./src/-test/vite.sample-config/simple/vite.config.ts)
-- [`src/-test/vite.sample-config/custom/vite.config.ts`](./src/-test/vite.sample-config/custom/vite.config.ts)
+### Ownership and coverage
 
+The plugin handles output-owned URLs using Vite's resolved base, including CLI overrides:
 
-<p>&nbsp;</p>
+- Relative (`./` or empty): resolve from each emitted HTML file's directory.
+- Root-relative: require the resolved path to fall within the base directory boundary.
+- Absolute HTTP(S) CDN: require both the matching origin and base directory boundary.
 
-## Tasks
+Absolute resource URLs are external unless an absolute CDN base establishes ownership. Unrelated
+external references remain unchanged and receive no integrity guarantee from this plugin.
 
-- `deno task test` → local driver and local bridge integration
-- `deno task smoke` → guarded external-consumer smoke for the pinned published package lane
-- `deno task test:external` → raw external-consumer suite
-- `deno task check` → module typecheck
-- `deno task prep` → sync publish-sensitive fixture pins and transport loader imports
-- `deno task clean` → remove generated temp state and sample fixture build artifacts
+For owned URLs, the plugin adds SHA-256 SRI to emitted HTML's module scripts and stylesheets.
+Modulepreloads of the same covered module URL receive matching integrity. Resource URLs stay
+unchanged; covered requests use anonymous CORS, which retains same-origin credentials. Cross-origin
+hosts must supply suitable CORS headers. Integrity remains opt-in; development is unchanged.
 
-<p>&nbsp;</p>
+Coverage is **not the module graph**: imported chunks, dependency-only preloads, CSS imports,
+workers, images, and fonts remain outside it. Trusted HTML is required. A covered module must not
+already be in the document's module map through an unprotected loading path; a later tag does not
+revalidate it. SRI neither authenticates HTML nor establishes that application code is safe.
 
----
+### Build contract
 
-## Debugging
+Omit authored `integrity` only on plugin-handled source tags so the plugin can generate it after
+bundling; keep authored integrity on unrelated external resources. Local source paths are checked
+against Vite's root before bundling, not the deployment base. Input validation includes
+`template`/`noscript` content, foreign and inline module scripts, and CSS links consumed by Vite
+regardless of `rel`. Consumption is independent of deployment ownership: resolver-backed source
+identifiers such as `virtual:entry` are checked too. Unrelated external references that Vite retains
+keep their authored metadata. This does not expand browser-active output coverage: ordinary inert
+final content stays untouched. Final tags accept matching integrity; missing owned outputs,
+ambiguous paths, and conflicting final metadata fail the build.
 
-### Perf
+`use-credentials` on covered resources, `<base href>`, custom `renderBuiltUrl`, SSR/library builds,
+and owned `public/` JS/CSS outside the bundle inventory are unsupported.
 
-`SYS_DRIVER_VITE_PERF` supports leveled transport/startup diagnostics from both the parent and child Vite processes.
+Additional boundaries fail closed:
 
-- `SYS_DRIVER_VITE_PERF=1` → calm operator summaries and major readiness milestones
-- `SYS_DRIVER_VITE_PERF=2` → diagnostic mode (phase timings, slow resolve samples, cache misses/writes/hits)
-- `SYS_DRIVER_VITE_PERF=3` → full trace mode (includes per-item churn such as inflight/settled chatter)
+- Static `<select>` elements in active output HTML are refused, including ordinary option-only
+  selects. The parser can discard resource tags that Chromium retains and loads. Ordinary inert
+  templates remain untouched; this restriction does not apply to DOM created later by application
+  code.
+- Declarative shadow DOM is unsupported. Any HTML `<template shadowrootmode>` reached in active
+  output traversal is refused, regardless of the mode value or host eligibility. Open, closed, and
+  nested declarative roots can load stylesheets; they are not ordinary inert templates. Syntax
+  stored inside an ordinary inert template or raw text stays untouched, not covered.
+- Resolved `%NAME%` substitutions in HTML (from environment or `define`) and
+  `html.additionalAssetSources` are unsupported. They can change what Vite consumes after input
+  validation or outside the built-in attribute vocabulary.
 
-```bash
-SYS_DRIVER_VITE_PERF=1 deno task dev
-SYS_DRIVER_VITE_PERF=2 deno task dev
-SYS_DRIVER_VITE_PERF=3 deno task dev
-```
+This plugin must be the last user `order: 'pre'` HTML hook in Vite's resolved plugin order; a later
+pre HTML hook causes build refusal. Earlier input transforms remain supported.
 
-If you want to inspect a run later, redirect stdout/stderr to a file and sample it with `rg`, `tail`, or `awk`.
+All JS/CSS/HTML transformations must finish **before** this plugin's post-ordered `generateBundle`
+hook. Later bundle hooks, disk writers, and post-build rewriting are unsupported; the plugin does
+not detect arbitrary later changes. `dist.json` is computed afterward, but is not an SRI validator.
 
-### Resolve trace
+### Verification
 
-`SYS_DRIVER_VITE_TRACE_RESOLVE=1` enables narrow resolve-provenance tracing for transport audit/debug work.
-It is intentionally more targeted than `SYS_DRIVER_VITE_PERF` and is meant for short-lived investigation runs.
+From this package, `deno task test:integrity` checks written bytes and runs the controlled
+two-origin Chromium acceptance/tamper matrix, including preload, HTTP-cache, select parser-parity,
+and open/closed/nested declarative-shadow controls. Real builds also prove resolver-backed source
+consumption, separate metadata refusals, and retained-external controls. A wrong digest must produce
+a resource-specific browser integrity diagnostic; matching rehashed bytes must load. The proof
+records the browser user agent and actual child Vite/Rolldown versions.
 
-```bash
-SYS_DRIVER_VITE_TRACE_RESOLVE=1 deno task dev
-```
+## Resolution and authority
 
-Current trace output focuses on:
-- resolve request keys and canonical aliases
-- miss / inflight-hit / settled-hit / alias-hit boundaries
-- importer-derived dependency hits
-- resolved redirect / alias identity hints
+Policy rewrites workspace/import-map names; transport resolves and loads `jsr:`, `npm:`, and URL
+specifiers. Module identity must remain stable and portable so relative imports chain correctly, not
+become cache-hash paths. Bundled output is ESM only.
+
+The child `deno run npm:vite` process does not use `-A`:
+
+- Build writes are scoped to output and cache roots, with config-cache access where required by the
+  Vite loader. Dev additionally permits writes beneath the consumer project root. Canonical paths
+  are included where needed.
+- Build network access is limited to `localhost`; dev permits local serving/startup addresses.
+  System access is limited to runtime queries, with `networkInterfaces` added for dev.
+- Run access is scoped to the active Deno executable. FFI access covers the `node_modules/.deno`
+  tree beside the nearest `package.json`, not just individual native packages.
+- Read and environment access remain broad, including Vite's `process.env` enumeration.
+
+These are Deno API grants, not native subprocess or FFI confinement. Use trusted application code,
+configuration, and plugins.
+
+## Verification
+
+From this package, `deno task test` runs the complete retained `test:unit` base lane: contracts,
+formatters, command construction, local transforms and cleanup. Thirteen named files that execute
+real builds, child configuration/graphs or live dev lifecycles are excluded only from that lane; all
+their assertions remain selectable through proof tasks. Parent test invocations use frozen,
+cache-only resolution without prompts; those flags do not constrain every loader or child.
+
+`deno task test:proofs` runs the formerly implicit real coverage through `test:entry:process`,
+`test:candidate`, `test:build`, `test:bridge`, `test:dev`, `test:config:process`, `test:graph`,
+`test:loader` and `test:integrity:build`. Linux CI runs it as a separate Vite-only step; module `ci`
+also includes it. A green routine `test` is not a green proof aggregate, full CI or build workflow.
+The existing `test:integrity` and `test:external` tasks remain separately selectable.
+
+The explicit `deno task test:dist:pipeline` lane checks stable content pins despite changed
+documents, projection/materialization, pinned serving and SRI byte matching—not browser enforcement.
+It is outside routine `test` and the former-coverage proof aggregate, but remains required by the
+Dist plan. `deno task smoke` is the separate guarded published-consumer lane, with JSR metadata
+preflight and fixture preparation. Local checks do not establish published-package behavior.
+
+See the [API documentation](https://jsr.io/@sys/driver-vite/doc) for programmatic entry, service,
+and plugin surfaces, and [JSR's Vite guide](https://jsr.io/docs/with/vite) for registry integration.

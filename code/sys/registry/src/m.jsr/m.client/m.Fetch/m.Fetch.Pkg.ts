@@ -1,25 +1,38 @@
-import { type t, Err, Fetch, JsrUrl } from './common.ts';
+import { JsrUrl, type t } from './common.ts';
+import { fetchJson, fetchText } from './u.fetch.ts';
 import { graph, type RawPkgVersionInfo } from './u.graph.ts';
+
+const D = {
+  fresh: {
+    versions: true,
+    latestInfo: true,
+    exactInfo: false,
+  },
+} as const;
 
 /**
  * Network fetching helpers against a specific JSR package.
  */
-export const Pkg: t.JsrFetch.PkgLib = {
+export const Pkg: t.JsrFetch.Pkg.Lib = Object.freeze({
   /**
    * https://jsr.io/docs/api#package-metadata
    */
   async versions(name, options = {}) {
-    const url = JsrUrl.Pkg.metadata(name);
-    const fetch = Fetch.make(options.dispose$);
-    const res = await fetch.json<t.JsrFetch.PkgMetaVersions>(url, { cache: 'no-store' });
+    const fresh = wrangle.fresh(options, D.fresh.versions);
+    const url = wrangle.freshUrl(JsrUrl.Pkg.metadata(name), fresh);
+    const res = await fetchJson<t.JsrFetch.Pkg.MetaVersions>(
+      url,
+      wrangle.freshInit(fresh),
+      options.until,
+    );
     const data = res.data
       ? {
-          ...res.data,
-          get versions() {
-            // NB: prevent display blow-outs if console logging the response object.
-            return res.data.versions;
-          },
-        }
+        ...res.data,
+        get versions() {
+          // NB: prevent display blow-outs if console logging the response object.
+          return res.data.versions;
+        },
+      }
       : undefined;
     return {
       ...res,
@@ -27,21 +40,26 @@ export const Pkg: t.JsrFetch.PkgLib = {
         return res.headers;
       },
       data,
-    } as t.JsrFetch.PkgVersionsResponse;
+    } as t.JsrFetch.Pkg.VersionsResponse;
   },
 
   /**
    * https://jsr.io/docs/api#package-version-metadata
    */
   async info(name, vInput, options = {}) {
-    const version = vInput ? vInput : ((await Pkg.versions(name)).data?.latest ?? '');
-    const url = JsrUrl.Pkg.version(name, version);
-    const fetch = Fetch.make(options.dispose$);
-    const res = await fetch.json<RawPkgVersionInfo>(url, { cache: 'no-store' });
+    const latest = !vInput;
+    const version = vInput ? vInput : ((await Pkg.versions(name, options)).data?.latest ?? '');
+    const fresh = wrangle.fresh(options, latest ? D.fresh.latestInfo : D.fresh.exactInfo);
+    const url = wrangle.freshUrl(JsrUrl.Pkg.version(name, version), fresh);
+    const res = await fetchJson<RawPkgVersionInfo>(
+      url,
+      wrangle.freshInit(fresh),
+      options.until,
+    );
     if (!res.data) return res;
 
     const pkg: t.Pkg = { name, version: version ?? '' };
-    const data: t.JsrFetch.PkgVersionInfo = {
+    const data: t.JsrFetch.Pkg.VersionInfo = {
       pkg,
       manifest: res.data.manifest,
       exports: res.data.exports,
@@ -61,32 +79,45 @@ export const Pkg: t.JsrFetch.PkgLib = {
    * https://jsr.io/docs/api#modules
    */
   file(name, version, opt = {}) {
-    const api: t.JsrFetch.PkgFileFetcher = {
+    const api: t.JsrFetch.Pkg.FileFetcher = {
       pkg: { name, version },
       async text(path, options = {}) {
-        const { checksum } = options;
-        const errors = Err.errors();
-        const fetch = Fetch.make([opt.dispose$, options.dispose$]);
         const url = JsrUrl.Pkg.file(name, version, path);
-
-        let res = await fetch.text(url, {}, { checksum });
-        let status = res.status;
-
-        if (errors.ok) return res;
-        if (res.error) errors.push(res.error);
-        return {
-          ...res,
-          ok: false,
-          status,
-          path,
-          get headers() {
-            return res.headers;
-          },
-          error: errors.toError(),
-        } as any; // NB: type-hack, error.
+        return await fetchText(
+          url,
+          { checksum: options.checksum },
+          [opt.until, options.until],
+        );
       },
     };
 
     return api;
   },
-};
+});
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  fresh(options: t.JsrFetch.Pkg.MetadataOptions, defaultValue: boolean): boolean {
+    return options.fresh ?? defaultValue;
+  },
+
+  freshInit(fresh: boolean): t.HttpFetch.Init {
+    if (!fresh) return {};
+    return {
+      cache: 'reload',
+      headers: {
+        'cache-control': 'no-cache',
+        pragma: 'no-cache',
+      },
+    };
+  },
+
+  freshUrl(url: t.StringUrl, fresh: boolean): t.StringUrl {
+    if (!fresh) return url;
+    const next = new URL(url);
+    next.searchParams.set('sys-cache-bust', Date.now().toString(36));
+    return next.href as t.StringUrl;
+  },
+} as const;

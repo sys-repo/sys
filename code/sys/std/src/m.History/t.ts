@@ -1,11 +1,16 @@
 import type { t } from './common.ts';
 
 /**
- * History tools.
+ * History helper contracts.
  */
-export type HistoryLib = {
-  stack(options?: { max?: number; items?: string[] }): HistoryStack;
-};
+export declare namespace History {
+  /**
+   * History tools.
+   */
+  export type Lib = {
+    stack(options?: { max?: number; items?: string[] }): HistoryStack;
+  };
+}
 
 /**
  * An up ↔ down history ring.

@@ -1,0 +1,6 @@
+# Static @sys/ui dist service.
+
+name: sys.ui:view
+dir: ./dist
+info:
+  path: /

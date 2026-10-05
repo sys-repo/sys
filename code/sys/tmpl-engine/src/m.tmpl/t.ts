@@ -13,13 +13,13 @@ export type TmplEngineLib = {
   readonly File: t.TmplFileLib;
 
   /** FileMap toolkit (bundling, validation, materialize). */
-  readonly FileMap: t.FileMapLib;
+  readonly FileMap: t.FileMap.Lib;
 
   /** Create a new directory template. */
   makeTmpl: t.TmplFactory;
 
   /** Bundle a template to an embeddable JSON artefact. */
-  bundle: t.FileMapLib['bundle'];
+  bundle: t.FileMap.Bundle.Method;
 };
 
 /**
@@ -66,7 +66,7 @@ export type TmplContent = {
  *     existence of the file but excludes it from the set of templates that
  *     are copied to the target.
  */
-export type TmplFilter = t.FileMapFilter;
+export type TmplFilter = t.FileMap.Filter.Predicate;
 
 /**
  * Handler that runs for each template file being copied.
@@ -75,7 +75,7 @@ export type TmplFilter = t.FileMapFilter;
  *  - adjust the content before writing.
  *  - adjust the target filename.
  */
-export type TmplProcessFile = t.FileMapProcessor;
+export type TmplProcessFile = t.FileMap.Write.Processor.Method;
 
 /** Options passed to the `tmpl.copy` method. */
 export type TmplWriteOptions = {
@@ -93,8 +93,9 @@ export type TmplWriteOptions = {
 export type TmplWriteResult = {
   readonly dir: { readonly source: t.StringDir; readonly target: t.StringDir };
   readonly ops: readonly t.TmplWriteOp[];
+  readonly total: t.FileMap.Write.Result['total'];
   readonly ctx?: O;
 };
 
 /** Details about a template's file-write operation. */
-export type TmplWriteOp = t.FileMapOp;
+export type TmplWriteOp = t.FileMap.Write.Op.Any;

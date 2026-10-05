@@ -1,85 +1,67 @@
 import { type t } from './common.ts';
 
-/**
- * Tools for working with "crdt:<id>/path" URI links
- * within the code editor.
- */
-export type EditorCrdtLinkLib = Readonly<{
-  register: t.EditorCrdtRegisterLink;
-  create: t.EditorCrdtLinkCreateDoc;
-  enable: t.EditorCrdtLinkEnable;
+/** Tools for working with `crdt:<id>/path` URI links within the code editor. */
+export type Lib = Readonly<{
+  register: Register;
+  create: CreateDoc;
+  enable: Enable;
 }>;
 
-/**
- * Register CRDT link detection + opener; lifecycle-managed.
- */
-export type EditorCrdtRegisterLink = (
-  ctx: t.MonacoCtx,
-  options?: t.EditorCrdtRegisterLinkOptions | t.EditorCrdtLinkClickHandler,
+/** Register CRDT link detection and opener with lifecycle management. */
+export type Register = (
+  ctx: t.MonacoDriver.Ctx,
+  options?: RegisterOptions | ClickHandler,
 ) => Promise<t.Lifecycle>;
 
 /** Options passed to the `Crdt.registerLink` method. */
-export type EditorCrdtRegisterLinkOptions = {
+export type RegisterOptions = {
   language?: t.EditorLanguage;
-  onLinkClick?: t.EditorCrdtLinkClickHandler;
+  onLinkClick?: ClickHandler;
   until?: t.UntilInput;
 };
 
-/**
- * Event handler for click actions on inline registered
- * link structures within the code-editor.
- */
-export type EditorCrdtLinkClickHandler = (e: EditorCrdtLinkClick) => void;
+/** Event handler for click actions on inline registered link structures. */
+export type ClickHandler = (e: Click) => void;
+
 /** Event arguments for when a link is CMD clicked within the code-editor. */
-export type EditorCrdtLinkClick = Readonly<{
+export type Click = Readonly<{
   /** Details about the editor text-model. */
   model: {
-    /** URI of the editor text-model the link exists within.  */
+    /** URI of the editor text-model the link exists within. */
     uri: t.Monaco.Uri;
   };
-  /** raw "crdt:*" as string. */
+  /** Raw `crdt:*` as string. */
   raw: string;
-  /** Path to the "crdt:*" URI. */
+  /** Path to the `crdt:*` URI. */
   path: t.ObjectPath;
-  /** Flags: */
+  /** Flags. */
   is: {
-    /** True for "crdt:create". */
+    /** True for `crdt:create`. */
     create: boolean;
   };
   /** Snapshot of a detected inline link within a Monaco text model. */
-  bounds: t.EditorLinkBounds;
+  bounds: t.MonacoDriver.Link.Bounds;
 }>;
 
-/**
- * Creates a new CRDT document via the given repo and inserts
- * its `crdt:<id>` link into the editor at the specified bounds.
- *
- * Use case: this is triggered typically via a click on
- * the "crdt:create" link action.
- */
-export type EditorCrdtLinkCreateDoc = (
-  ctx: t.MonacoCtx,
+/** Create a new CRDT document via the given repo and insert its link into the editor. */
+export type CreateDoc = (
+  ctx: t.MonacoDriver.Ctx,
   repo: t.CrdtRepo,
-  bounds: t.EditorLinkBounds,
-) => Promise<EditorCrdtLinkCreateResult>;
+  bounds: t.MonacoDriver.Link.Bounds,
+) => Promise<CreateResult>;
 
-/**
- * Result from `EditorCrdtLink.create`.
- */
-export type EditorCrdtLinkCreateResult = t.Crdt.RefResult;
+/** Result from `EditorCrdt.Link.create`. */
+export type CreateResult = t.Crdt.RefResult;
 
-/**
- * Registers a link listener on the given editor context and
- * handles events such as `crdt:create` by invoking `Link.create` etc.
- */
-export type EditorCrdtLinkEnable = (
-  ctx: t.MonacoCtx,
+/** Register a link listener on the given editor context. */
+export type Enable = (
+  ctx: t.MonacoDriver.Ctx,
   repo: t.CrdtRepo,
-  options?: t.EditorCrdtLinkEnableOptions | t.UntilInput,
+  options?: EnableOptions | t.UntilInput,
 ) => Promise<t.Lifecycle>;
 
 /** Options passed to the `Link.enable` method. */
-export type EditorCrdtLinkEnableOptions = {
-  onCreate?: (e: t.EditorCrdtLinkCreateResult) => void;
+export type EnableOptions = {
+  onCreate?: (e: CreateResult) => void;
   until?: t.UntilInput;
 };

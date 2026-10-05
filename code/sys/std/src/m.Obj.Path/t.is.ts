@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 /**
  * Predicates over object-paths (arrays of segments).
  */
-export type ObjPathIsLib = {
+export type Lib = {
   /** True if the value is an object path */
   path(v?: unknown): v is t.ObjectPath;
 

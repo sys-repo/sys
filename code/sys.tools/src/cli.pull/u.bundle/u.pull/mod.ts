@@ -1,39 +1,59 @@
-import type { t } from '../../common.ts';
-import { errorMessage, fail } from './common.ts';
-import { pullGithubReleaseBundle } from './u.pull.github.ts';
-import { pullHttpBundle } from './u.pull.http.ts';
+import type { t } from './common.ts';
+import { pullGithubReleaseBundle } from '../u.pull.github/u.release.ts';
+import { pullGithubRepoBundle } from '../u.pull.github/u.repo.ts';
+import { pullDistBundle } from './u.pull.dist.ts';
 
-type PullHttp = (
+type PullDist = (
   baseDir: t.StringDir,
-  bundle: t.PullTool.ConfigYaml.HttpBundle,
-) => Promise<t.PullToolRemoteBundleResult>;
+  bundle: t.PullTool.ConfigYaml.DistBundle,
+  options?: t.PullTool.Bundle.RunOptions,
+) => Promise<t.PullTool.Bundle.Dist.Result>;
 type PullGithubRelease = (
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.GithubReleaseBundle,
-) => Promise<t.PullToolRemoteBundleResult>;
+  options?: t.PullTool.Bundle.RunOptions,
+) => Promise<t.GithubPull.Outcome>;
+type PullGithubRepo = (
+  baseDir: t.StringDir,
+  bundle: t.PullTool.ConfigYaml.GithubRepoBundle,
+  options?: t.PullTool.Bundle.RunOptions,
+) => Promise<t.GithubPull.Outcome>;
 type Pullers = {
-  pullHttp: PullHttp;
+  pullDist: PullDist;
   pullGithubRelease: PullGithubRelease;
+  pullGithubRepo: PullGithubRepo;
 };
 
-/**
- * Pulls a remote bundle into a local directory.
- * Supports `http` and `github:release` pull kinds.
- */
+export type RemoteBundleResult = t.PullTool.Bundle.Dist.Result | t.GithubPull.Outcome;
+
+/** Pull one configured remote bundle into its explicit local target. */
 export async function pullRemoteBundle(
   baseDir: t.StringDir,
   bundle: t.PullTool.ConfigYaml.Bundle,
   pullers: Pullers = {
-    pullHttp: pullHttpBundle,
+    pullDist: pullDistBundle,
     pullGithubRelease: pullGithubReleaseBundle,
+    pullGithubRepo: pullGithubRepoBundle,
   },
-): Promise<t.PullToolRemoteBundleResult> {
+  options: t.PullTool.Bundle.RunOptions = {},
+): Promise<RemoteBundleResult> {
   try {
-    if (bundle.kind === 'http') return pullers.pullHttp(baseDir, bundle);
-    if (bundle.kind === 'github:release') return pullers.pullGithubRelease(baseDir, bundle);
+    if (bundle.kind === 'dist') return await pullers.pullDist(baseDir, bundle, options);
+    if (bundle.kind === 'github:release') {
+      return await pullers.pullGithubRelease(baseDir, bundle, options);
+    }
+    if (bundle.kind === 'github:repo') {
+      return await pullers.pullGithubRepo(baseDir, bundle, options);
+    }
     const _never: never = bundle;
-    return fail(`Unknown bundle kind: ${String(_never)}`);
+    throw new Error(`Unknown bundle kind: ${String(_never)}`);
   } catch (error) {
-    return fail(errorMessage(error));
+    if (bundle.kind === 'dist') throw error;
+    return {
+      ok: false,
+      kind: 'source-failure',
+      error: 'GitHub pull failed.',
+      files: [],
+    };
   }
 }

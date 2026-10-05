@@ -1,11 +1,11 @@
 import {
   compare,
   equals,
-  greaterThan as gt,
   greaterOrEqual as gte,
+  greaterThan as gt,
   greaterThanRange as gtr,
-  lessThan as lt,
   lessOrEqual as lte,
+  lessThan as lt,
   lessThanRange as ltr,
 } from '@std/semver';
 
@@ -13,7 +13,7 @@ import { type t } from './common.ts';
 import { coerce } from './u.coerce.ts';
 import { parse, range as parseRange } from './u.parse.ts';
 
-type L = t.SemverIsLib;
+type L = t.Semver.Is.Lib;
 type InputV = string | t.Semver;
 type InputR = string | t.SemverRange;
 

@@ -2,12 +2,12 @@ import React from 'react';
 import { useErrorMarkers } from '../m.Markers.Error/mod.ts';
 import { type t, slug, Yaml } from './common.ts';
 
-type D = t.EditorDiagnostic;
+type D = t.EditorError.Diagnostic.Shape;
 
 /**
  * Synchronize Monaco markers from YAML diagnostics or raw parser errors.
  */
-export const useYamlErrorMarkers: t.UseYamlErrorMarkers = (args) => {
+export const useYamlErrorMarkers: t.EditorYaml.Hook.UseErrorMarkers = (args) => {
   const { errors = [], owner, enabled = true, ...rest } = args;
   const ownerRef = React.useRef(owner ?? `yaml-${slug()}`);
 
@@ -45,7 +45,7 @@ const wrangle = {
     return undefined;
   },
 
-  asEditorDiagnostic(d: t.Yaml.Diagnostic): t.EditorDiagnostic {
+  asEditorDiagnostic(d: t.Yaml.Diagnostic): t.EditorError.Diagnostic.Shape {
     const base = { message: d.message, code: d.code, path: d.path } as const;
 
     if (Array.isArray(d.linePos) && d.linePos.length > 0) {

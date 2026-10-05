@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../../-test.ts';
+import { c, describe, expect, it } from '../../../-test.ts';
 import { parseCurrentVersion, parseUpgradeRun, parseUpgradeStatus } from '../u.parse.ts';
 import { procOutput } from './u.fixture.ts';
 
@@ -16,9 +16,9 @@ describe('DenoVersion.parse', () => {
   it('parses current stable upgrade status when already current', () => {
     const res = parseUpgradeStatus(procOutput([
       'Current Deno version: v2.7.13',
-      '\u001b[0m\u001b[38;5;245mLooking up stable version\u001b[0m',
+      c.gray('Looking up stable version'),
       '',
-      'Local deno version \u001b[32m2.7.13\u001b[39m is the most recent release',
+      `Local deno version ${c.green('2.7.13')} is the most recent release`,
     ].join('\n')));
 
     expect(res).to.eql({

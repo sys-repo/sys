@@ -7,6 +7,10 @@ describe(`Url`, () => {
     const m = await import('@sys/immutable/url');
     expect(m.Url).to.equal(Url);
 
+    expect(Url).to.not.equal(UrlBase);
+    expect(Object.isFrozen(UrlBase)).to.eql(true);
+    expect(Object.keys(Url).sort()).to.eql([...Object.keys(UrlBase), 'ref', 'dsl'].sort());
+
     // Ensure all base Url fields are preserved by reference.
     const keys = Object.keys(UrlBase) as (keyof typeof UrlBase)[];
     keys.forEach((key) => expect(Url[key]).to.equal(UrlBase[key]));

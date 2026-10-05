@@ -1,360 +1,452 @@
-import { describe, it, expect, expectTypeOf } from '../../../-test.ts';
+import { describe, expect, it, type t } from '../../../-test.ts';
+import { providerlessPrebuiltStageDoc } from '../../-test/u.fixture.ts';
 import { EndpointYamlSchema } from '../mod.ts';
 
 describe('Schema: endpoint', () => {
-  it('initial: is type-correct and validates', () => {
-    const doc = EndpointYamlSchema.initial();
-    const res = EndpointYamlSchema.validate(doc);
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
+  describe('initial', () => {
+    it('is type-correct and validates', () => {
+      const doc = EndpointYamlSchema.initial();
+      const res = EndpointYamlSchema.validate(doc);
+      expect(res.ok).to.eql(true);
+      expect(res.errors).to.eql([]);
+    });
   });
 
-  it('validate: rejects empty object (staging.dir required)', () => {
-    const res = EndpointYamlSchema.validate({});
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
+  describe('validate', () => {
+    describe('document', () => {
+      it('requires staging on the validated document type plane', () => {
+        // @ts-expect-error Validated endpoint documents require a staging root.
+        const invalid: t.DeployTool.Config.EndpointYaml.Doc = {};
+        expect(invalid).to.eql({});
+      });
 
-  it('validate: rejects unknown top-level keys', () => {
-    const res = EndpointYamlSchema.validate({ nope: 123 });
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
+      it('rejects empty object (staging.dir required)', () => {
+        const res = EndpointYamlSchema.validate({});
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
 
-  it('validate: accepts provider.orbiter', () => {
-    const value = {
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'orbiter',
-        siteId: 'abc123',
-        domain: 'example.com',
-      },
-      mappings: [],
-    };
+      it('rejects unknown top-level keys', () => {
+        const res = EndpointYamlSchema.validate({ nope: 123 });
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
 
-    const res = EndpointYamlSchema.validate(value);
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
+      it('accepts providerless prebuilt copy stage endpoint', () => {
+        const res = EndpointYamlSchema.validate(providerlessPrebuiltStageDoc());
 
-    // type guard sanity: shape should be compatible with endpoint YAML doc surface
-    expectTypeOf(value).toMatchTypeOf<{
-      readonly provider?: unknown;
-      readonly mappings?: unknown;
-      readonly staging: unknown;
-    }>();
-  });
-
-  it('validate: accepts provider.orbiter shards', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'orbiter',
-        siteId: 'fs',
-        domain: 'fs',
-        shards: {
-          total: 64,
-          only: [1, 2],
-          siteIds: { 1: 'a', 2: 'b' },
-        },
-      },
-      mappings: [],
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
     });
 
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
+    describe('provider', () => {
+      it('rejects discontinued provider.orbiter', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          provider: {
+            kind: 'orbiter',
+            siteId: 'abc123',
+            domain: 'example.com',
+          },
+          mappings: [],
+        });
 
-  it('validate: accepts provider.deno', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'deno',
-        app: 'my-app',
-        org: 'my-org',
-        tokenEnv: 'DENO_DEPLOY_TOKEN',
-        verifyPreview: true,
-      },
-      mapping: {
-        dir: {
-          source: './pkg',
-          staging: '.',
-        },
-      },
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('accepts provider.r2', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          provider: {
+            kind: 'r2',
+            accountId: 'account-1',
+            bucket: 'deploy-bucket',
+            prefix: 'deploy/site',
+            readOrigin: 'https://cdn.example.com',
+            credentials: {
+              accessKeyId: 'key-1',
+              secretAccessKey: 'secret-1',
+            },
+          },
+          mappings: [],
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
+
+      it('rejects provider.r2 unknown keys', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          provider: {
+            kind: 'r2',
+            accountId: 'account-1',
+            bucket: 'deploy-bucket',
+            prefix: 'deploy/site',
+            credentials: {
+              accessKeyId: 'key-1',
+              secretAccessKey: 'secret-1',
+            },
+            endpoint: 'https://example.com',
+          },
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('rejects provider.r2 missing required keys', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          provider: {
+            kind: 'r2',
+            accountId: 'account-1',
+            bucket: 'deploy-bucket',
+            prefix: 'deploy/site',
+          },
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('rejects provider.deno as an unsupported tools deploy provider', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          provider: {
+            kind: 'deno',
+            app: 'my-app',
+          },
+          mappings: [],
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('rejects provider with unknown kind', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          provider: { kind: 'wat' },
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('accepts provider.noop', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          provider: { kind: 'noop' },
+          mappings: [],
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
     });
 
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
+    describe('mappings', () => {
+      it('rejects bad mapping.mode', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          mappings: [
+            {
+              mode: 'wat' as unknown,
+              dir: { source: '.', staging: '.' },
+            },
+          ],
+        });
 
-  it('validate: accepts provider.deno with a singular mapping shape', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'deno',
-        app: 'my-app',
-      },
-      mapping: {
-        dir: {
-          source: './pkg',
-          staging: '.',
-        },
-      },
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('rejects unsafe mapping destinations', () => {
+        for (
+          const staging of [
+            '../output',
+            '/tmp/output',
+            'C:/output',
+            'C:output',
+            'C:\\output',
+            '~/output',
+            '~user/output',
+            ' output',
+            'output ',
+            'output/',
+            'output//nested',
+            'output/.',
+            'output.',
+            'CON',
+            '.sys.rooted',
+            'bad:name',
+            'dist.json',
+            'DIST.JSON',
+            'nested/index.html',
+            'nested/INDEX.HTML',
+            '<other>',
+          ]
+        ) {
+          const res = EndpointYamlSchema.validate({
+            staging: { dir: './staging' },
+            mappings: [{ mode: 'copy', dir: { source: './src', staging } }],
+          });
+
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
+
+      it('accepts mapping.mode "index"', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          mappings: [
+            {
+              mode: 'index',
+              dir: { source: '.', staging: '.' },
+            },
+          ],
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
+
+      it('rejects unsafe staging-relative index sources', () => {
+        for (const source of ['../source', '/tmp/source', 'C:/source', 'C:source', 'source/']) {
+          const res = EndpointYamlSchema.validate({
+            staging: { dir: './staging' },
+            mappings: [{ mode: 'index', dir: { source, staging: './landing' } }],
+          });
+
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
+
+      it('rejects unknown keys inside mapping objects', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          mappings: [
+            {
+              mode: 'copy',
+              dir: { source: '.', staging: '.' },
+              extra: true,
+            },
+          ],
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('accepts shard config on mappings', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          mappings: [
+            {
+              mode: 'copy',
+              dir: { source: './video/partition-<shard>', staging: './<shard>.video.cdn.example' },
+              shards: { total: 64, requireAll: true },
+            },
+          ],
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
+
+      it('rejects non-positive, fractional, and unsafe shard totals', () => {
+        for (const total of [0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+          const res = EndpointYamlSchema.validate({
+            staging: { dir: './staging' },
+            mappings: [
+              {
+                mode: 'copy',
+                dir: { source: './source-<shard>', staging: './target-<shard>' },
+                shards: { total },
+              },
+            ],
+          });
+
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
+
+      it('rejects unknown keys inside dir', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging' },
+          mappings: [
+            {
+              mode: 'copy',
+              dir: { source: '.', staging: '.', extra: 'x' },
+            },
+          ],
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
     });
 
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
+    describe('source', () => {
+      it('accepts optional source', () => {
+        const res = EndpointYamlSchema.validate({
+          source: { dir: './src' },
+          staging: { dir: './staging' },
+          mappings: [],
+        });
 
-  it('validate: rejects provider.deno unknown keys', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'deno',
-        app: 'my-app',
-        extra: true,
-      },
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
+
+      it('accepts source.dir "."', () => {
+        const res = EndpointYamlSchema.validate({
+          source: { dir: '.' },
+          staging: { dir: './staging' },
+          mappings: [],
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
+
+      it('rejects empty and edge-whitespace source paths', () => {
+        for (const dir of ['', ' source', 'source ']) {
+          const res = EndpointYamlSchema.validate({
+            source: { dir },
+            staging: { dir: './staging' },
+            mappings: [],
+          });
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
     });
 
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
+    describe('staging', () => {
+      it('accepts staging.dir', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: 'staging-1' },
+          mappings: [],
+        });
 
-  it('validate: rejects provider.deno carrying orbiter mappings', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'deno',
-        app: 'my-app',
-      },
-      mappings: [
-        {
-          mode: 'index',
-          dir: { source: './pkg', staging: '.' },
-        },
-      ],
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
+
+      it('allows finalizer-owned basenames as dedicated staging-root directory names', () => {
+        for (const dir of ['dist.json', 'INDEX.HTML']) {
+          const res = EndpointYamlSchema.validate({ staging: { dir }, mappings: [] });
+          expect(res.ok).to.eql(true);
+          expect(res.errors).to.eql([]);
+        }
+      });
+
+      it('rejects non-descendant staging roots', () => {
+        for (
+          const dir of [
+            '.',
+            './',
+            '..',
+            '../stage',
+            '/tmp/stage',
+            'C:/tmp/stage',
+            'C:tmp/stage',
+            'C:\\tmp\\stage',
+            '~',
+            '~/stage',
+            '~user/stage',
+            ' stage',
+            'stage ',
+            'stage/',
+            'stage//nested',
+            'stage/.',
+            'stage.',
+            'CON',
+            '.sys.rooted',
+            'bad:name',
+          ]
+        ) {
+          const res = EndpointYamlSchema.validate({ staging: { dir }, mappings: [] });
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
+
+      it('rejects retired staging.clear', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging', clear: true },
+          mappings: [],
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('accepts staging.html.buildReset', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging', html: { buildReset: true } },
+          mappings: [],
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
+
+      it('accepts staging.serve.port', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: './staging', serve: { port: 4041 } },
+          mappings: [],
+        });
+
+        expect(res.ok).to.eql(true);
+        expect(res.errors).to.eql([]);
+      });
+
+      it('rejects non-integer and out-of-range staging.serve.port', () => {
+        for (const port of [0, 4040.5, 65536]) {
+          const res = EndpointYamlSchema.validate({
+            staging: { dir: './staging', serve: { port } },
+            mappings: [],
+          });
+
+          expect(res.ok).to.eql(false);
+          expect(res.errors.length).to.be.greaterThan(0);
+        }
+      });
+
+      it('rejects unknown keys inside staging', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: 'staging-1', extra: true },
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('rejects unknown keys inside staging.html', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: 'staging-1', html: { buildReset: true, extra: true } },
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
+
+      it('rejects unknown keys inside staging.serve', () => {
+        const res = EndpointYamlSchema.validate({
+          staging: { dir: 'staging-1', serve: { port: 4040, extra: true } },
+        });
+
+        expect(res.ok).to.eql(false);
+        expect(res.errors.length).to.be.greaterThan(0);
+      });
     });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects provider.deno carrying orbiter-only fields', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'deno',
-        app: 'my-app',
-        siteId: 'orbiter-site',
-      },
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects provider.orbiter unknown keys', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'orbiter',
-        siteId: 'fs',
-        domain: 'fs',
-        extra: true,
-      },
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects provider.orbiter missing required keys', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: {
-        kind: 'orbiter',
-        siteId: 'fs',
-        // domain missing
-      },
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects provider with unknown kind', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: { kind: 'wat' },
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects bad mapping.mode', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      mappings: [
-        {
-          mode: 'wat' as unknown,
-          dir: { source: '.', staging: '.' },
-        },
-      ],
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: accepts mapping.mode "index"', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      mappings: [
-        {
-          mode: 'index',
-          dir: { source: '.', staging: '.' },
-        },
-      ],
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: rejects unknown keys inside mapping objects', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      mappings: [
-        {
-          mode: 'copy',
-          dir: { source: '.', staging: '.' },
-          extra: true,
-        },
-      ],
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: accepts shard config on mappings', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      mappings: [
-        {
-          mode: 'copy',
-          dir: { source: './video/partition-<shard>', staging: './<shard>.video.cdn.example' },
-          shards: { total: 64, requireAll: true },
-        },
-      ],
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: rejects unknown keys inside dir', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      mappings: [
-        {
-          mode: 'copy',
-          dir: { source: '.', staging: '.', extra: 'x' },
-        },
-      ],
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: accepts provider.noop', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging' },
-      provider: { kind: 'noop' },
-      mappings: [],
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: accepts staging.dir', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: 'staging-1' },
-      mappings: [],
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: accepts optional source', () => {
-    const res = EndpointYamlSchema.validate({
-      source: { dir: './src' },
-      staging: { dir: './staging' },
-      mappings: [],
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: accepts source.dir "."', () => {
-    const res = EndpointYamlSchema.validate({
-      source: { dir: '.' },
-      staging: { dir: './staging' },
-      mappings: [],
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: accepts staging.html.buildReset', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging', html: { buildReset: true } },
-      mappings: [],
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: accepts staging.serve.port', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: './staging', serve: { port: 4041 } },
-      mappings: [],
-    });
-
-    expect(res.ok).to.eql(true);
-    expect(res.errors).to.eql([]);
-  });
-
-  it('validate: rejects unknown keys inside staging', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: 'staging-1', extra: true },
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects unknown keys inside staging.html', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: 'staging-1', html: { buildReset: true, extra: true } },
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
-  });
-
-  it('validate: rejects unknown keys inside staging.serve', () => {
-    const res = EndpointYamlSchema.validate({
-      staging: { dir: 'staging-1', serve: { port: 4040, extra: true } },
-    });
-
-    expect(res.ok).to.eql(false);
-    expect(res.errors.length).to.be.greaterThan(0);
   });
 });

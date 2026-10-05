@@ -1,31 +1,26 @@
 import type { t } from './common.ts';
-
-export type * from './t.codec.ts';
-export type * from './t.curried.ts';
-export type * from './t.diff.ts';
-export type * from './t.is.ts';
-export type * from './t.rel.ts';
+import type * as TDiff from './t.diff.ts';
 
 type O = Record<string, unknown>;
 
 /**
  * Tools for working with objects via abstract path arrays.
  */
-export interface ObjPathLib {
+export type Lib = {
   /** Predicates over object-paths. */
-  readonly Is: t.ObjPathIsLib;
+  readonly Is: t.Obj.Path.Is.Lib;
 
   /** Utilities for determining relationships between object-paths. */
-  readonly Rel: t.ObjPathRelLib;
+  readonly Rel: t.Obj.Path.Rel.Lib;
 
   /** Collection of codecs (pointer, dot, etc). */
-  readonly Codec: t.ObjPathCodecLib;
+  readonly Codec: t.Obj.Path.Codec.Lib;
 
   /**
    * Encode a path array → string.
    * - Uses the given codec (defaults to `pointer`).
    */
-  encode(path: t.ObjectPath, opts?: t.ObjPathEncodeOptions): string;
+  encode(path: t.ObjectPath, opts?: t.Obj.Path.Codec.EncodeOptions): string;
 
   /**
    * Decode a string → path array.
@@ -33,18 +28,21 @@ export interface ObjPathLib {
    * - `numeric: true` coerces digit-only tokens into numbers.
    * - `safe: true` pre-sanitizes the string before strict decode (may still throw).
    */
-  decode(text: string, opts?: t.ObjPathDecodeOptions): t.ObjectPath;
+  decode(text: string, opts?: t.Obj.Path.Codec.DecodeOptions): t.ObjectPath;
 
   /**
    * Tolerant decode that never throws; returns result with fixes and optional error.
    */
-  tryDecode(text: string | undefined, opts?: t.PathTryDecodeOptions): t.PathTryDecodeResult;
+  tryDecode(
+    text: string | undefined,
+    opts?: t.Obj.Path.TryDecodeOptions,
+  ): t.Obj.Path.TryDecodeResult;
 
   /** Apply conservative repairs to a path string before decoding. */
   sanitize(
     text: string,
-    opts?: t.ObjPathSanitizeOptions,
-  ): { readonly text: string; readonly fixes: t.ObjPathFix[] };
+    opts?: t.Obj.Path.SanitizeOptions,
+  ): { readonly text: string; readonly fixes: t.Obj.Path.Fix[] };
 
   /**
    * Utility: Coerce digit-only string tokens into numbers.
@@ -53,17 +51,21 @@ export interface ObjPathLib {
   asNumeric(path: readonly (string | number)[]): t.ObjectPath;
 
   /** Tools for mutating an object in-place. */
-  Mutate: ObjPathMutateLib;
+  Mutate: t.Obj.Path.Mutate.Lib;
 
   /** Create a new curried-path instance for the given path. */
-  curry: t.CurriedPathLib['make'];
+  curry: t.Obj.Path.Curried.Lib['make'];
 
   /**
    * Deep-get helper with overloads so the return type
    * is `T | undefined` unless you pass a default value.
    */
   get<T = unknown>(subject: O | undefined, path: t.ObjectPath): T | undefined;
-  get<T = unknown>(subject: O | undefined, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
+  get<T = unknown>(
+    subject: O | undefined,
+    path: t.ObjectPath,
+    defaultValue: t.NonUndefined<T>,
+  ): T;
 
   /**
    * Determine if the given path exists on the subject, irrespective of value.
@@ -128,7 +130,7 @@ export interface ObjPathLib {
   normalize(
     input: unknown,
     opts?: {
-      codec?: t.ObjPathCodecKind | t.ObjPathCodec;
+      codec?: t.Obj.Path.Codec.Kind | t.Obj.Path.Codec.Definition;
       numeric?: boolean;
     },
   ): t.ObjectPath;
@@ -145,53 +147,68 @@ export interface ObjPathLib {
   appendSuffix(path: t.ObjectPath, suffix: string): t.ObjectPath;
   appendSuffix(path: undefined, suffix: string): undefined;
   appendSuffix(path: t.ObjectPath | undefined, suffix: string): t.ObjectPath | undefined;
-}
-
-/**
- * Tools that mutate an object in-place using
- * an abstract path arrays.
- */
-export type ObjPathMutateLib = {
-  /**
-   * Deep-set helper that mutates `subject` setting a nested value at the `path`.
-   *  - Creates intermediate objects/arrays as needed.
-   *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
-   */
-  set<T = unknown>(subject: O, path: t.ObjectPath, value: T): t.ObjDiffOp | undefined;
-
-  /**
-   * Ensure a value at the given path exists (not undefined),
-   * and if not assigns the given default.
-   */
-  ensure<T = unknown>(subject: O, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
-
-  /**
-   * Deletes the value at the given path if it exists.
-   */
-  delete(subject: O, path: t.ObjectPath): t.ObjDiffOp | undefined;
-
-  /**
-   * Mutate `target` in-place so that, once the function returns,
-   * `target` is a deep structural clone of `source`.
-   *
-   *  - Uses {@link Obj.Path.Mutate.set} for every write/delete.
-   *  - Walks objects deeply; whole arrays are replaced when they differ (unless `diffArrays` is true).
-   *  - No external dependencies, deterministic, and ~75 LOC.
-   */
-  diff<T extends O = O>(source: T, target: T, options?: t.ObjDiffOptions): t.ObjDiffReport;
 };
+
+export namespace Mutate {
+  /**
+   * Tools that mutate an object in-place using
+   * an abstract path arrays.
+   */
+  /** A JSON-serialisable description of one structural mutation. */
+  export type Op = TDiff.Op;
+
+  /** Options passed to object-path diff/mutation helpers. */
+  export type Options = TDiff.Options;
+
+  /** Aggregate result returned from object-path diff helpers. */
+  export type Report = TDiff.Report;
+
+  export type Lib = {
+    /**
+     * Deep-set helper that mutates `subject` setting a nested value at the `path`.
+     *  - Creates intermediate objects/arrays as needed.
+     *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
+     */
+    set<T = unknown>(subject: O, path: t.ObjectPath, value: T): Op | undefined;
+
+    /**
+     * Ensure a value at the given path exists (not undefined),
+     * and if not assigns the given default.
+     */
+    ensure<T = unknown>(subject: O, path: t.ObjectPath, defaultValue: t.NonUndefined<T>): T;
+
+    /**
+     * Deletes the value at the given path if it exists.
+     */
+    delete(subject: O, path: t.ObjectPath): Op | undefined;
+
+    /**
+     * Mutate `target` in-place so that, once the function returns,
+     * `target` is a deep structural clone of `source`.
+     *
+     *  - Uses {@link Obj.Path.Mutate.set} for every write/delete.
+     *  - Walks objects deeply; whole arrays are replaced when they differ (unless `diffArrays` is true).
+     *  - No external dependencies, deterministic, and ~75 LOC.
+     */
+    diff<T extends O = O>(
+      source: T,
+      target: T,
+      options?: Options,
+    ): Report;
+  };
+}
 
 /**
  * Options and Result Structures:
  */
 
 /** Options controlling how a path string is sanitized before decoding. */
-export type ObjPathSanitizeOptions = {
-  codec?: t.ObjPathCodecKind | t.ObjPathCodec;
+export type SanitizeOptions = {
+  codec?: t.Obj.Path.Codec.Kind | t.Obj.Path.Codec.Definition;
 };
 
 /** String-level repair kinds applied by {@link Path.sanitize}. */
-export type ObjPathFix =
+export type Fix =
   /** Removed leading/trailing whitespace. */
   | 'trimmed'
   /** Added a leading slash for non-empty pointer paths. */
@@ -202,16 +219,16 @@ export type ObjPathFix =
   | 'removed-trailing-slash';
 
 /** Options for tolerant decoding; extends PathDecodeOptions with a fallback path. */
-export type PathTryDecodeOptions = t.ObjPathDecodeOptions & {
+export type TryDecodeOptions = t.Obj.Path.Codec.DecodeOptions & {
   fallback?: t.ObjectPath;
 };
 
 /** Structured result returned from tryDecode, including success flag, path, and any applied fixes. */
-export type PathTryDecodeResult =
-  | { readonly ok: true; readonly path: t.ObjectPath; readonly fixes: t.ObjPathFix[] }
+export type TryDecodeResult =
+  | { readonly ok: true; readonly path: t.ObjectPath; readonly fixes: t.Obj.Path.Fix[] }
   | {
-      readonly ok: false;
-      readonly path: t.ObjectPath;
-      readonly fixes: t.ObjPathFix[];
-      readonly error: Error;
-    };
+    readonly ok: false;
+    readonly path: t.ObjectPath;
+    readonly fixes: t.Obj.Path.Fix[];
+    readonly error: Error;
+  };

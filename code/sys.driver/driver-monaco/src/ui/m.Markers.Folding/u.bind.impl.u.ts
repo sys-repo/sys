@@ -16,7 +16,7 @@ export function clampOffset(model: TextModel, pos: number): number {
 }
 
 /** Clamp start/end positions to model bounds */
-export function clampOffsetSE(model: TextModel, pos: OffsetLike): t.FoldOffset {
+export function clampOffsetSE(model: TextModel, pos: OffsetLike): t.EditorFolding.Offset {
   return {
     start: clampOffset(model, pos.start),
     end: clampOffset(model, pos.end),
@@ -24,7 +24,7 @@ export function clampOffsetSE(model: TextModel, pos: OffsetLike): t.FoldOffset {
 }
 
 /** Convert offsets → Monaco ranges (validated). */
-export function offsetsToRanges(model: TextModel, offsets: t.FoldOffset[]): IRange[] {
+export function offsetsToRanges(model: TextModel, offsets: t.EditorFolding.Offset[]): IRange[] {
   if (model.isDisposed()) return [];
   return offsets.map(({ start, end }) => {
     const s = model.getPositionAt(clampOffset(model, start));
@@ -39,7 +39,7 @@ export function offsetsToRanges(model: TextModel, offsets: t.FoldOffset[]): IRan
 }
 
 /** Convert ranges → offsets. */
-export function rangesToOffsets(model: TextModel, ranges: IRange[]): t.FoldOffset[] {
+export function rangesToOffsets(model: TextModel, ranges: IRange[]): t.EditorFolding.Offset[] {
   if (model.isDisposed()) return [];
   return ranges.map((r) => ({
     start: model.getOffsetAt({ lineNumber: r.startLineNumber, column: r.startColumn }),
@@ -48,8 +48,8 @@ export function rangesToOffsets(model: TextModel, ranges: IRange[]): t.FoldOffse
 }
 
 /** Stable comparison on offsets. */
-export function equalOffsets(a: t.FoldOffset[], b: t.FoldOffset[]) {
-  const norm = (xs: t.FoldOffset[]) => [...xs].sort((p, q) => p.start - q.start || p.end - q.end);
+export function equalOffsets(a: t.EditorFolding.Offset[], b: t.EditorFolding.Offset[]) {
+  const norm = (xs: t.EditorFolding.Offset[]) => [...xs].sort((p, q) => p.start - q.start || p.end - q.end);
   const aa = norm(a);
   const bb = norm(b);
   if (aa.length !== bb.length) return false;
@@ -57,7 +57,7 @@ export function equalOffsets(a: t.FoldOffset[], b: t.FoldOffset[]) {
 }
 
 /** Read CRDT fold marks as offsets. */
-export function readStoredOffsets(doc: t.CrdtRef, path: t.ObjectPath): t.FoldOffset[] {
+export function readStoredOffsets(doc: t.CrdtRef, path: t.ObjectPath): t.EditorFolding.Offset[] {
   try {
     return A.marks(doc.current, path)
       .filter((m) => m.name === D.FOLD_MARK)
@@ -68,7 +68,7 @@ export function readStoredOffsets(doc: t.CrdtRef, path: t.ObjectPath): t.FoldOff
 }
 
 /** Compute 0-based parent line indices to fold from offsets. */
-export function parentLinesFromOffsets(model: TextModel, offsets: t.FoldOffset[]) {
+export function parentLinesFromOffsets(model: TextModel, offsets: t.EditorFolding.Offset[]) {
   const line = (start: number) => model.getPositionAt(clampOffset(model, start)).lineNumber;
   const pos = (start: number) => Math.max(0, line(start) - 1);
   const lines = offsets.map((e) => pos(e.start));
@@ -76,8 +76,12 @@ export function parentLinesFromOffsets(model: TextModel, offsets: t.FoldOffset[]
 }
 
 /** Curried "marks" emitter with model/bus/path baked in. */
-export function makeMarksEmitter(bus$: t.EditorEventBus, model: TextModel, path: t.ObjectPath) {
-  return (trigger: t.EventCrdtMarks['trigger'], prev: t.FoldOffset[], next: t.FoldOffset[]) => {
+export function makeMarksEmitter(bus$: t.EditorBus.Subject, model: TextModel, path: t.ObjectPath) {
+  return (
+    trigger: t.EditorEvent.Crdt.Marks['trigger'],
+    prev: t.EditorFolding.Offset[],
+    next: t.EditorFolding.Offset[],
+  ) => {
     if (equalOffsets(prev, next)) return;
 
     const before = offsetsToRanges(model, prev);

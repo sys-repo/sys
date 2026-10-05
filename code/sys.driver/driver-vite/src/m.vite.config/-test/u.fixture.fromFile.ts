@@ -20,5 +20,5 @@ export async function probeFromFile(input?: string) {
     throw new Error(output.text.stderr.trim() || output.text.stdout.trim() || 'ViteConfig.fromFile child probe failed');
   }
 
-  return Json.parse(output.text.stdout.trim()) as t.ViteConfigFromFile;
+  return Json.parse(output.text.stdout.trim()) as t.ViteConfig.FromFile;
 }

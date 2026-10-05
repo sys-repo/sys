@@ -5,7 +5,7 @@ import { Name } from './m.Name.ts';
 /**
  * Take unknown input and produce a standard error object.
  */
-export const std: t.ErrLib['std'] = (input: any, opt = {}) => {
+export const std: t.Err.Lib['std'] = (input: any, opt = {}) => {
   const options = wrangle.options(opt);
   const errors = wrangle.aggregate(options);
   const name = wrangle.name(options);

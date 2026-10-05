@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Is } from '../common.ts';
+import { c, Cli, Fmt, Fs, Is, type t } from '../common.ts';
 import { CrdtRepoSchema } from './u.schema.ts';
 import { CrdtReposFs } from './u.fs.ts';
 
@@ -89,10 +89,9 @@ function buildSyncMenuOptions(
 
   const syncRows = endpoints.map((entry, index) => {
     const tree = Cli.Fmt.Tree.branch([index, endpoints], 1);
-    const endpointLabel =
-      entry.enabled === false
-        ? c.dim(c.gray(`${entry.endpoint} (disabled)`))
-        : c.cyan(entry.endpoint);
+    const endpointLabel = entry.enabled === false
+      ? c.dim(c.gray(`${entry.endpoint} (disabled)`))
+      : c.cyan(entry.endpoint);
     const label = `${baseIndent}${padLabel('sync', labelWidth)}: ${tree} ${endpointLabel}`;
     return { name: label, value: entry.endpoint } as const;
   });
@@ -115,7 +114,7 @@ function buildSyncMenuOptions(
   }
 
   options.push({ name: addLabel, value: 'add' }, ...syncRows);
-  options.push({ name: c.gray(c.dim('← back')), value: 'back' });
+  options.push({ name: Fmt.back(), value: 'back' });
   return options;
 }
 
@@ -149,7 +148,7 @@ async function promptEndpointAction(args: {
 
   const action = await Cli.Input.Select.prompt<'edit' | 'enable' | 'disable' | 'delete' | 'back'>({
     message: `sync ${c.gray(endpoint)}:`,
-    options: [...items, { name: `  ${c.gray(c.dim('← back'))}`, value: 'back' }],
+    options: [...items, { name: Fmt.back({ indent: '  ' }), value: 'back' }],
     hideDefault: true,
   });
 
@@ -167,7 +166,7 @@ async function promptEndpointAction(args: {
       return args.endpoint;
     }
     const updated = endpoints.map((item) =>
-      item.endpoint === endpoint ? { ...item, endpoint: trimmed } : item,
+      item.endpoint === endpoint ? { ...item, endpoint: trimmed } : item
     );
     await saveSyncEndpoints(path, updated);
     return trimmed;
@@ -175,7 +174,7 @@ async function promptEndpointAction(args: {
 
   if (action === 'enable' || action === 'disable') {
     const updated = endpoints.map((item) =>
-      item.endpoint === endpoint ? { ...item, enabled: action === 'enable' } : item,
+      item.endpoint === endpoint ? { ...item, enabled: action === 'enable' } : item
     );
     await saveSyncEndpoints(path, updated);
     return endpoint;

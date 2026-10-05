@@ -1,5 +1,6 @@
 declare var self: ServiceWorkerGlobalScope;
-import { type t, Str, HTTP_HEADER_MEDIA_FULL_CACHE_READY } from './common.ts';
+import { HTTP_HEADER_MEDIA_FULL_CACHE_READY, Str, type t } from './common.ts';
+import { PkgCache } from './u.pkg.names.ts';
 
 export type MediaFullResponseCandidate = {
   readonly status: number;
@@ -12,23 +13,23 @@ export type RangeWindowCandidateInput = {
   readonly status: number;
   readonly request: { start: number; end?: number };
   readonly contentRange?: string | null;
-  readonly policy: t.HttpCacheMediaPolicy;
+  readonly policy: t.HttpCache.Media.Policy;
 };
 
 export function resolveMediaPolicy(
-  input: t.HttpCacheMediaPolicyInput | undefined,
-): t.HttpCacheMediaPolicy {
+  input: t.HttpCache.Media.PolicyInput | undefined,
+): t.HttpCache.Media.Policy {
   const mode = input?.mode ?? 'safe-full';
   return {
     mode,
     maxChunkBytes: wrangle.positive(input?.maxChunkBytes, 5 * 1024 * 1024),
     maxObjectBytes: wrangle.positive(input?.maxObjectBytes, 512 * 1024 * 1024),
     maxTotalBytes: wrangle.positive(input?.maxTotalBytes, 1024 * 1024 * 1024),
-    ttlMs: wrangle.positive(input?.ttlMs, 1000 * 60 * 60 * 24),
+    ttl: wrangle.positive(input?.ttlMs, 1000 * 60 * 60 * 24) as t.Msecs,
   };
 }
 
-export function shouldBypassMediaCache(mode: t.HttpCacheMediaMode): boolean {
+export function shouldBypassMediaCache(mode: t.HttpCache.Media.Mode): boolean {
   return mode === 'off';
 }
 
@@ -58,7 +59,9 @@ export function isRangeWindowCacheCandidate(input: RangeWindowCandidateInput) {
   if (bytes <= 0) return { ok: false, reason: 'empty-range' } as const;
   if (bytes > policy.maxChunkBytes) return { ok: false, reason: 'chunk-too-large' } as const;
   if (bytes > policy.maxTotalBytes) return { ok: false, reason: 'total-budget-too-small' } as const;
-  if (parsed.total > policy.maxObjectBytes) return { ok: false, reason: 'object-too-large' } as const;
+  if (parsed.total > policy.maxObjectBytes) {
+    return { ok: false, reason: 'object-too-large' } as const;
+  }
 
   return { ok: true, parsed, bytes } as const;
 }
@@ -71,28 +74,32 @@ export function isCacheableHashedAssetResponse(response: Response) {
 
   const contentType = String(response.headers.get('Content-Type') ?? '').toLowerCase();
   if (!contentType) return { ok: true } as const;
-  if (contentType.includes('text/html')) return { ok: false, reason: 'content-type:text/html' } as const;
+  if (contentType.includes('text/html')) {
+    return { ok: false, reason: 'content-type:text/html' } as const;
+  }
   return { ok: true } as const;
 }
 
-export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
+export const pkg: t.HttpCache.Lib['pkg'] = async (args) => {
   const { pkg, silent = false } = args;
   const media = resolveMediaPolicy(args.media);
+  const names = PkgCache.names(pkg);
 
-  const CACHE_ASSETS = `${pkg.name}:asset-files`;
-  const CACHE_MEDIA = `${pkg.name}:media-files`;
-  const CACHE_MEDIA_RANGE = `${pkg.name}:media-range-files`;
+  const CACHE_ASSETS = names.asset;
+  const CACHE_MEDIA = names.media;
+  const CACHE_MEDIA_RANGE = names.mediaRange;
 
   const HASHED_ASSET = /\/pkg\/[^/]+\.[A-Za-z0-9_-]{8,}\.\w+$/i;
   const MEDIA_EXT = /\.(mp4|m4v|mov|webm)$/i;
 
-  if (!silent)
+  if (!silent) {
     console.info(`💦 [service-worker] starting Http.Cache: ${pkg.name} ${pkg.version}`, {
       CACHE_ASSETS,
       CACHE_MEDIA,
       CACHE_MEDIA_RANGE,
       media,
     });
+  }
 
   /**
    * Installation: instruct the new Service Worker to skip the waiting phase
@@ -101,17 +108,15 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
   self.skipWaiting();
 
   /**
-   * Activation: claim clients immediately and purge stale caches.
+   * Activation: claim clients immediately and purge stale package-owned caches.
    *
-   * Keeps only the current asset/media caches (freeing space and preventing
-   * outdated responses) by deleting any other previously versioned cache names.
+   * Unrelated origin caches and delimiter-prefix neighbors remain untouched.
    */
   self.addEventListener('activate', (e) => {
     const claimAndClean = async () => {
       await self.clients.claim();
-      const keep = new Set([CACHE_ASSETS, CACHE_MEDIA, CACHE_MEDIA_RANGE]);
       for (const name of await caches.keys()) {
-        if (!keep.has(name)) await caches.delete(name);
+        if (names.isOwned(name) && !names.isCurrent(name)) await caches.delete(name);
       }
     };
 
@@ -206,7 +211,13 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
         await rangeMeta.remove(cache, key);
       } else {
         await rangeMeta.touch(cache, key, Date.now());
-        if (!silent) console.info(`🟢 media range cache hit: ${requestRange.start}-${requestRange.end ?? ''} • ${request.url}`);
+        if (!silent) {
+          console.info(
+            `🟢 media range cache hit: ${requestRange.start}-${
+              requestRange.end ?? ''
+            } • ${request.url}`,
+          );
+        }
         return cached;
       }
     }
@@ -224,7 +235,7 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     }
 
     const now = Date.now();
-    const expiresAt = now + media.ttlMs;
+    const expiresAt = now + media.ttl;
     const stored = wrangle.withEntryMeta(network.clone(), {
       createdAt: now,
       lastAccessAt: now,
@@ -247,7 +258,9 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
     }
     if (!silent) {
       const parsed = candidate.parsed;
-      console.info(`🧩 cached media range: ${parsed.from}-${parsed.to}/${parsed.total} • ${request.url}`);
+      console.info(
+        `🧩 cached media range: ${parsed.from}-${parsed.to}/${parsed.total} • ${request.url}`,
+      );
     }
     return network;
   }
@@ -322,8 +335,9 @@ export const pkg: t.HttpCacheLib['pkg'] = async (args) => {
 
     const headers = new Headers(full.headers);
     const contentLengthRaw = Number(headers.get('Content-Length'));
-    const contentLength =
-      Number.isFinite(contentLengthRaw) && contentLengthRaw > 0 ? contentLengthRaw : undefined;
+    const contentLength = Number.isFinite(contentLengthRaw) && contentLengthRaw > 0
+      ? contentLengthRaw
+      : undefined;
     const check = isSafeFullMediaCandidate({
       status: full.status,
       contentRange: headers.get('Content-Range'),
@@ -360,7 +374,10 @@ export function isSafeFullMediaCandidate(input: MediaFullResponseCandidate) {
   if (input.status !== 200) return { ok: false, reason: `status:${input.status}` } as const;
   if (input.bodySize <= 0) return { ok: false, reason: 'empty-body' } as const;
   if (typeof input.contentLength === 'number' && input.contentLength !== input.bodySize) {
-    return { ok: false, reason: `length-mismatch:${input.contentLength}!=${input.bodySize}` } as const;
+    return {
+      ok: false,
+      reason: `length-mismatch:${input.contentLength}!=${input.bodySize}`,
+    } as const;
   }
 
   if (input.contentRange) {
@@ -386,7 +403,9 @@ const wrangle = {
     const start = Number(startStr);
     const endRaw = endStr ? Number(endStr) : undefined;
     if (!Number.isFinite(start) || start < 0) return undefined;
-    if (typeof endRaw === 'number' && (!Number.isFinite(endRaw) || endRaw < start)) return undefined;
+    if (typeof endRaw === 'number' && (!Number.isFinite(endRaw) || endRaw < start)) {
+      return undefined;
+    }
     return typeof endRaw === 'number' ? { start, end: endRaw } : { start };
   },
 
@@ -410,7 +429,9 @@ const wrangle = {
     });
   },
 
-  entryMeta(headers: Headers): { createdAt: number; lastAccessAt: number; expiresAt: number; bytes: number } | undefined {
+  entryMeta(
+    headers: Headers,
+  ): { createdAt: number; lastAccessAt: number; expiresAt: number; bytes: number } | undefined {
     const createdAt = Number(headers.get('x-sys-cache-created-at'));
     const lastAccessAt = Number(headers.get('x-sys-cache-last-access-at'));
     const expiresAt = Number(headers.get('x-sys-cache-expires-at'));
@@ -514,7 +535,7 @@ const rangeMeta = {
 
   async evict(
     cache: Cache,
-    policy: t.HttpCacheMediaPolicy,
+    policy: t.HttpCache.Media.Policy,
     now: number,
     incomingBytes: number,
   ): Promise<void> {
@@ -525,7 +546,7 @@ const rangeMeta = {
 
   async writeWithBudget(
     cache: Cache,
-    policy: t.HttpCacheMediaPolicy,
+    policy: t.HttpCache.Media.Policy,
     incomingBytes: number,
     writer: () => Promise<void>,
   ): Promise<boolean> {
@@ -539,7 +560,7 @@ const rangeMeta = {
 
   async evictWithin(
     cache: Cache,
-    policy: t.HttpCacheMediaPolicy,
+    policy: t.HttpCache.Media.Policy,
     now: number,
     incomingBytes: number,
   ): Promise<boolean> {
@@ -561,7 +582,8 @@ const rangeMeta = {
       delete index.entries[key];
     }
 
-    const totalBytes = () => Object.values(index.entries).reduce((acc, next) => acc + next.bytes, 0);
+    const totalBytes = () =>
+      Object.values(index.entries).reduce((acc, next) => acc + next.bytes, 0);
     let total = totalBytes();
     if (total + incomingBytes <= policy.maxTotalBytes) {
       await rangeMeta.write(cache, index);

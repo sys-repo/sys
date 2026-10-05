@@ -1,22 +1,23 @@
-import type { ViteLogHelpLib } from './t.ts';
-
-import { c, pkg as modulePkg, Pkg } from './common.ts';
-import { API } from './u.API.ts';
+import type { t } from './common.ts';
+import { c } from '@sys/cli/fmt';
+import { Pkg } from '@sys/fs/pkg';
+import { pkg as modulePkg } from '../pkg.ts';
+import { Tasks } from './u.Tasks.ts';
 import { Dist } from './u.Dist.ts';
 
-export const Help: ViteLogHelpLib = {
+export const Help: t.ViteLog.Help.Lib = {
   async log(args) {
     const pkg = args.pkg ?? modulePkg;
     const dirs = args.dirs;
 
-    // API (commands).
-    if (args.api !== false) API.log({ ...args.api, minimal: false });
+    // Common tasks.
+    if (args.tasks !== false) Tasks.log({ ...args.tasks, minimal: false });
     console.info();
 
     // Dist bundle.
-    const { dist } = await Pkg.Dist.load(dirs.out);
-    if (dist) {
-      Dist.log(dist, { dirs });
+    const loaded = await Pkg.Dist.load(dirs.out);
+    if (loaded.kind === 'canonical' && loaded.dist) {
+      Dist.log(loaded.dist, { dirs });
     } else {
       // NB: not built yet.
       const buildCmd = c.green(`deno task ${c.bold('build')}`);

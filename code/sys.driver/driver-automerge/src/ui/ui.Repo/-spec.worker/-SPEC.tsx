@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { css, D, STORAGE_KEY } from '../common.ts';
 import { Repo } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
@@ -13,7 +13,7 @@ export default Spec.describe(D.displayName, async (e) => {
       ctx.redraw();
     }
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       update();

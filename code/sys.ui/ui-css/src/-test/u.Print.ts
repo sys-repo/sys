@@ -5,9 +5,9 @@ const cyan = c.brightCyan;
 const y = c.yellow;
 
 export const TestPrint = {
-  transformed(m: t.CssTransformed) {
+  transformed(m: t.Style.Transform.Result) {
     info();
-    info(cyan(`CssTransformed:`));
+    info(cyan(`Style.Transform.Result:`));
     info(m);
     info();
     info(`↑.${cyan('style')}:`, m.style);
@@ -20,9 +20,9 @@ export const TestPrint = {
     info();
   },
 
-  container(m: t.CssDomContainerBlock) {
+  container(m: t.CssDom.Container.Block) {
     info();
-    info(cyan(`CssDomContainerBlock:`));
+    info(cyan(`CssDom.Container.Block:`));
     info(m);
     info(`↑.${cyan('toString()')}:`, `"${y(m.toString())}" ${c.gray('← default: QueryCondition')}`);
     info(

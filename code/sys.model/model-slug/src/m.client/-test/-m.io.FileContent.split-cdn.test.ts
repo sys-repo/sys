@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import type { t } from '../common.ts';
 import { SlugClient } from '../mod.ts';
-import { jsonResponse, stubFetch } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch } from './u.fixture.ts';
 
 describe('SlugClient.FromEndpoint.FileContent (split cdn)', () => {
   it('uses urls.manifestBase for index and urls.contentBase for content', async () => {
@@ -27,6 +27,7 @@ describe('SlugClient.FromEndpoint.FileContent (split cdn)', () => {
 
     try {
       const options = {
+        ...LOAD_OPTIONS,
         urls: {
           manifestBase: 'http://manifests.example.com/',
           contentBase: 'http://content.example.com/',

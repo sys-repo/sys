@@ -1,7 +1,5 @@
-/**
- * @external
- */
-export * as A from '@automerge/automerge';
+/** Automerge core runtime namespace. */
+export * as A from '../m.Automerge/mod.ts';
 export { Repo as AutomergeRepo } from '@automerge/automerge-repo';
 
 /**
@@ -27,7 +25,6 @@ export { Is } from '@sys/std/is';
 export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { slug } from '@sys/std/random';
-export { R } from '@sys/std/r';
 export { Time } from '@sys/std/time';
 export { Url } from '@sys/std/url';
 export { Schedule } from '@sys/std/async';

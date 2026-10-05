@@ -5,13 +5,13 @@ import type * as t from '@sys/types';
 import { DenoDeps } from '@sys/driver-deno/runtime';
 import {
   assertImportMap,
-  PATH,
-  PublishedExports,
-  PublishedVersion,
   assertPublishedImportExports,
   augmentImportMapFromSpecifiers,
   augmentTemplateDeps,
   collectTemplateBareImports,
+  PATH,
+  PublishedExports,
+  PublishedVersion,
   readJson,
   resolvePackageVersions,
   resolvePublishedPackageVersions,
@@ -22,6 +22,7 @@ import {
   writeTextIfChanged,
 } from './-prep.u.ts';
 import { DenoFile } from '@sys/driver-deno/runtime';
+import { bundleHelp } from '../src/m.help/-bundle/mod.ts';
 import { makeBundle } from '../src/m.tmpl/u.makeBundle.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../../..');
@@ -85,6 +86,7 @@ export async function main(options: Options = {}) {
   await writeIfChanged(path.tmplRepoImports, repoImports, nextImports);
   await writeIfChanged(path.tmplRepoPackage, repoPackage, nextPackage);
   await makeBundle();
+  await bundleHelp();
   logCommitMessage(options.commitContext ?? 'tmpl');
 }
 

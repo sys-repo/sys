@@ -1,35 +1,85 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.382",
+  "version": "0.0.480",
   "license": "MIT",
   "tasks": {
-    "ci": "deno task check && deno task test && deno task test:external && deno task clean",
+    "ci": "deno task check && deno task test && deno task test:proofs && deno task test:external && deno task clean",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check --node-modules-dir=auto src/*",
-    "test": "deno test --node-modules-dir=auto -P=test",
-    "test:external": "deno task test --trace-leaks ./src/m.vite/-test.external/mod.ts",
+    "test": "deno task test:unit",
+    "test:cache": "deno test --no-run --node-modules-dir=auto -P=test --frozen --no-prompt ./src ./src/-entry/-test.external/-graph.process.ts ./src/-entry/-test.external/-serve.cached.process.ts ./src/m.vite/-test.external/-candidate-consumer.ts ./src/m.vite.transport/-test/-loader.npm.proof.ts",
+    "test:run": "deno test --node-modules-dir=auto -P=test --frozen --cached-only --no-prompt",
+    "test:unit": "deno task test:run --ignore=./src/m.vite/-test/-build.test.ts,./src/m.vite/-test/-build.workspace-composition.test.ts,./src/m.vite/-test/-build.transitive-jsr.test.ts,./src/m.vite/-test/-build.failure-causes.test.ts,./src/m.vite/-test/-build.startup.test.ts,./src/m.vite/-test/-published-fixture-lifecycle.test.ts,./src/m.vite/-test/-bootstrap.handoff.test.ts,./src/m.vite/-test/-bridge.integration.test.ts,./src/m.vite/-test/-dev.test.ts,./src/m.vite.config/-test/-fromFile.test.ts,./src/m.vite.config/-test/-serverFs.test.ts,./src/m.vite.plugins/m.OptimizeImports/-test/-u.graph-proof.test.ts,./src/m.vite.plugins/m.HtmlIntegrity/-test/-html-integrity.build.test.ts",
+    "test:proofs": "deno task test:entry:process && deno task test:candidate && deno task test:build && deno task test:bridge && deno task test:dev && deno task test:config:process && deno task test:graph && deno task test:loader && deno task test:integrity:build",
+    "test:build": "deno task test:run --trace-leaks ./src/m.vite/-test/-build.test.ts ./src/m.vite/-test/-build.workspace-composition.test.ts ./src/m.vite/-test/-build.transitive-jsr.test.ts ./src/m.vite/-test/-build.failure-causes.test.ts ./src/m.vite/-test/-build.startup.test.ts ./src/m.vite/-test/-published-fixture-lifecycle.test.ts",
+    "test:bridge": "deno task test:run --trace-leaks ./src/m.vite/-test/-bootstrap.handoff.test.ts ./src/m.vite/-test/-bridge.integration.test.ts",
+    "test:dev": "deno task test:run --trace-leaks ./src/m.vite/-test/-dev.test.ts",
+    "test:config:process": "deno task test:run --trace-leaks ./src/m.vite.config/-test/-fromFile.test.ts ./src/m.vite.config/-test/-serverFs.test.ts",
+    "test:graph": "deno task test:run --trace-leaks ./src/m.vite.plugins/m.OptimizeImports/-test/-u.graph-proof.test.ts",
+    "test:loader": "deno task test:run --trace-leaks ./src/m.vite.transport/-test/-loader.npm.proof.ts",
+    "test:entry:process": "deno task test:run --trace-leaks ./src/-entry/-test.external/-graph.process.ts ./src/-entry/-test.external/-serve.cached.process.ts",
+    "test:candidate": "deno task test:run --trace-leaks ./src/m.vite/-test.external/-candidate-consumer.ts",
+    "test:dist:pipeline": "deno task test:run --trace-leaks ./src/m.vite/-test.external/-dist.pipeline.ts",
+    "test:external": "deno task test:run --trace-leaks ./src/m.vite/-test.external/mod.ts",
+    "test:integrity:build": "deno task test:run --trace-leaks ./src/m.vite.plugins/m.HtmlIntegrity/-test/-html-integrity.build.test.ts",
+    "test:integrity": "deno task test:run --trace-leaks ./src/m.vite.plugins/-test ./src/m.vite.plugins/m.HtmlIntegrity/-test ./src/m.vite/-test.external/-html-integrity.chromium.ts",
     "perf": "deno run -P=dev ./-scripts/task.perf.ts",
     "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info    --dir=./src/-test/vite.sample-1",
+    "dev": "deno task sample:dev",
+    "build": "deno task sample:build",
+    "serve": "deno task sample:serve",
+    "info": "deno task sample:info",
+    "sample:dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --dir=./src/-test/vite.sample-1",
+    "sample:build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build --dir=./src/-test/vite.sample-1",
+    "sample:serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve --dir=./src/-test/vite.sample-1/dist",
+    "sample:info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info --dir=./src/-test/vite.sample-1",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./config": "./src/m.vite.config/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./entry": "./src/-entry/mod.ts",
     "./main": "./src/-entry/-main.ts",
+    "./service": "./src/m.service/mod.ts",
     "./plugins": "./src/m.vite.plugins/mod.ts",
     "./sample-imports": "./src/-test/-sample-imports.ts"
+  },
+  "publish": {
+    "exclude": [
+      "src/-entry/-test.external",
+      "src/-entry/-test.fixture",
+      "src/-test/vite.sample-1/",
+      "src/-test/vite.sample-2/",
+      "src/-test/vite.sample-3/",
+      "src/-test/vite.sample-config/",
+      "src/-test/vite.sample-std-path/",
+      "src/-test/vite.sample-bridge/",
+      "src/-test/vite.sample-published-baseline/",
+      "src/-test/vite.sample-published-ui-baseline/",
+      "src/-test/vite.sample-published-ui-components/"
+    ]
   },
   "permissions": {
     "clean": {
       "read": true,
       "write": true,
       "env": true
+    },
+    "entry-serve-proof": {
+      "read": [
+        "./.tmp/entry-serve-proof/dist"
+      ],
+      "net": [
+        "127.0.0.1:0"
+      ],
+      "env": [
+        "FORCE_COLOR",
+        "TERM",
+        "TERM_PROGRAM"
+      ]
     },
     "test": {
       "read": true,
@@ -71,4 +121,3 @@
     }
   }
 }
-

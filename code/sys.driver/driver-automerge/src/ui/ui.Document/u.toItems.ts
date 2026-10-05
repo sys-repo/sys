@@ -1,7 +1,7 @@
 import { type t, Is, Obj, PATH, Str, Time, CrdtIs } from './common.ts';
 
-export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValueItem[] {
-  const items: t.KeyValueItem[] = [];
+export function toItems(doc?: t.Crdt.Ref, stats?: t.Document.Stats): t.KeyValue.Item[] {
+  const items: t.KeyValue.Item[] = [];
 
   if (!doc) return items;
 
@@ -14,7 +14,7 @@ export function toItems(doc?: t.Crdt.Ref, stats?: t.DocumentStats): t.KeyValueIt
   });
 
   if (doc) {
-    const meta = Obj.Lens.bind<t.SysMeta>(doc.current, PATH.meta);
+    const meta = Obj.Lens.bind<t.Crdt.SysMeta>(doc.current, PATH.meta);
     const { createdAt } = meta.get() ?? {};
 
     items.push({ k: 'Identity' });

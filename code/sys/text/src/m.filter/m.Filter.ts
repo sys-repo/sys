@@ -12,8 +12,8 @@ import { parse } from './u.parse.ts';
  * - match(query, text) → { match, score, ranges? }
  * - apply(query, candidates) → scored results (optionally limited)
  */
-export const Filter: t.TextFilter.Lib = {
+export const Filter: t.TextFilter.Lib = Object.freeze({
   parse,
   match,
   apply,
-};
+});

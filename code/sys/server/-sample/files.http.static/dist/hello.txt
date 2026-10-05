@@ -1,0 +1,1 @@
+hello from @sys/server static Files sample

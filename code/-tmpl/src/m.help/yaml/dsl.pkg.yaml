@@ -1,0 +1,99 @@
+id: pkg
+title: Package template
+summary: |
+  Scaffold a package inside an existing system workspace.
+
+sections:
+  - label: Rule
+    items: |
+      Use `pkg` for a new package directory inside an existing system workspace.
+      The target must have a nearest ancestor `deno.json` with a `workspace` array.
+      Do not use `pkg` to create a repo root; use `repo` first.
+      Do not infer `--pkgName` from a folder unless the human confirms it.
+      If package path and package name disagree, stop and ask.
+
+  - label: Speech acts
+    items: |
+      add a package named <@scope/name>
+      add a pure package root named <@scope/name>
+      create a package under <workspace-path>
+      create a headless package named <@scope/name>
+      create a root-only package with no secondary subpaths
+      scaffold a Deno package
+      make a package at code/<namespace>/<name>
+      land only the root ESM package surface
+      add package <@scope/name> to the workspace
+
+  - label: Slots
+    items: |
+      Required: `--dir <package-dir>`.
+      Required: `--pkgName <@scope/name>`.
+      Run from the workspace root when using a relative `<package-dir>`.
+      Relative `<package-dir>` values resolve from the current working directory.
+      Absolute `<package-dir>` values are preserved.
+      `<@scope/name>` is the intended package import/publish name.
+      Ask when either slot is missing, ambiguous, or likely mistyped.
+
+  - label: Command
+    items: |
+      Preview:
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <package-dir>`.
+      Add `pkg --pkgName <@scope/name> --dry-run`.
+      Write:
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <package-dir>`.
+      Add `pkg --pkgName <@scope/name>`.
+      Existing target with approval: add `--force`.
+      Do not use `jsr:@sys/tmpl/pkg`.
+
+  - label: Side effects
+    items:
+      - Creates package files including `deno.json`, `README.md`, `src/`, and scripts.
+      - >-
+        Also creates test harness files and secondary affordance subpaths such as UI and
+        filesystem stubs.
+      - Replaces template placeholder `@sample/foo` with `--pkgName`.
+      - Applies replacement across scaffolded files.
+      - Adds the package directory to the host workspace `deno.json` workspace array.
+      - The new workspace entry leaves generated workspace graph/CI surfaces stale.
+      - They stay stale until repo prep runs.
+      - Workspace-level tasks may report `0 packages ordered` until refreshed.
+      - '`--dry-run` previews copied files but does not run setup side effects.'
+
+  - label: Pure/root reduction
+    items:
+      - >-
+        If the human explicitly scopes a package as pure, headless, root-only, or limited to
+        the root ESM surface, scaffold with `pkg` first.
+      - Then treat template-provided secondary affordance surfaces as provisional until accepted.
+      - Secondary affordance surfaces are package subpaths or support areas.
+      - Examples include UI/browser/dev-harness, filesystem, examples, samples, or extension points.
+      - They are not package contract merely because the template created them.
+      - >-
+        Keep the root runtime surface, type surfaces, package metadata, common support, tests,
+        and any explicitly accepted subpaths.
+      - Remove unaccepted secondary affordance surfaces before treating the package as landed.
+      - Do not infer this reduction from `pkg` alone.
+      - Do not infer it from broad domain words such as server or runtime alone.
+      - If the package role is ambiguous, stop and ask before pruning.
+      - Do not remove a subpath when that subpath is the named purpose of the package.
+
+  - label: Verify
+    items:
+      - Confirm `<package-dir>/deno.json` contains the requested package name.
+      - Confirm root workspace `deno.json` includes `<package-dir>` exactly once.
+      - Confirm the workspace entry is sorted with existing entries.
+      - Confirm no `@sample/foo` placeholder remains under the new package.
+      - >-
+        For explicit pure/headless/root-only scopes, confirm exports expose only root/type
+        surfaces plus explicitly accepted subpaths.
+      - Confirm no generated secondary affordance surface survived as accidental package contract.
+      - Run `deno task check` from the package directory for package-local type proof.
+      - MUST run `deno task prep` from the workspace root after package scaffold.
+      - Run it before workspace-level CI.
+      - '`deno task prep` runs the generated `@sys/workspace` refresh flow.'
+      - It refreshes dependency/import, graph, package metadata, and CI surfaces.
+      - Then run workspace-level verification from the workspace root.
+      - Use `deno task ci` or `deno task check`.
+      - Confirm the new package appears in "packages ordered".
+      - Package-local `deno task check` does not prove workspace graph freshness.
+      - If the workspace root cannot be found, stop and ask for the correct target.

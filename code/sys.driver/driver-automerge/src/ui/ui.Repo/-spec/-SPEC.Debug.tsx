@@ -14,7 +14,7 @@ import {
   STORAGE_KEY,
 } from '../common.ts';
 
-type P = t.RepoSyncSwitchProps;
+type P = t.Repo.SyncSwitch.Props;
 type Storage = Pick<P, 'theme' | 'debug' | 'storageKey' | 'mode'> & { noRepo?: boolean };
 const defaults: Storage = {
   theme: 'Dark',

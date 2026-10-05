@@ -1,4 +1,4 @@
-import { type t, Effect, Immutable, slug } from '../common.ts';
+import { Effect, Immutable, slug, type t } from '../common.ts';
 import { attachPlaybackDriverEffect, attachSlugLoaderEffect } from '../m.effects/mod.ts';
 import { makePlaybackAdapter } from './u.effect.playback.ts';
 import { makeSlugAdapter } from './u.effect.slug.ts';
@@ -10,7 +10,7 @@ type State = t.SlugPlaybackState;
  */
 export const Controller: t.SlugPlaybackControllerLib = {
   create(props) {
-    const { baseUrl } = props;
+    const { baseUrl, transport } = props;
     const id = `slug-playback-${slug()}`;
     const ref = Immutable.clonerRef<State>({});
     const controller = Effect.Controller.create({ id, ref, props });
@@ -25,7 +25,7 @@ export const Controller: t.SlugPlaybackControllerLib = {
     const slugAdapter = makeSlugAdapter(controller);
     const playbackAdapter = makePlaybackAdapter(controller);
     attachPlaybackDriverEffect(playbackAdapter);
-    attachSlugLoaderEffect(slugAdapter, { baseUrl, setBundle });
+    attachSlugLoaderEffect(slugAdapter, { baseUrl, setBundle, transport });
 
     return controller;
   },

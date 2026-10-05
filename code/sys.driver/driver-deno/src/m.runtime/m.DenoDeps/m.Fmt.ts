@@ -1,6 +1,6 @@
-import { type t, c, Cli, Semver } from './common.ts';
+import { c, Cli, Semver, type t } from './common.ts';
 
-export const Fmt: t.DepsFmt = {
+export const Fmt: t.DenoDeps.Fmt.Lib = {
   deps(deps, options = {}) {
     if (!deps) return '';
     const indent = wrangle.indent(options.indent);

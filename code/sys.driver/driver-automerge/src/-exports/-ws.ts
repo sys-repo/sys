@@ -16,7 +16,7 @@ export * from '../m.server/mod.ts';
  * ```
  */
 if (import.meta.main) {
-  type A = t.SyncServerArgs;
+  type A = t.SyncServer.Args;
   const { port, dir, host, silent } = Args.parse<A>(Deno.args, { default: { port: 3030 } });
   console.info(Str.SPACE);
   await Server.ws({ port, dir, host, silent });

@@ -4,14 +4,24 @@
 export declare namespace CliSpinner {
   export type Lib = {
     /** Create a new spinner instance without starting it. */
-    create(text?: string): Instance;
+    create(text?: string, options?: Create.Options): Instance;
     /** Create and start a new spinner instance. */
     start(text?: string, options?: Options): Instance;
     /** Run async work with a started spinner that is always stopped afterwards. */
     with<T>(text: string, run: (spinner: Instance) => Promise<T>, options?: Options): Promise<T>;
   };
 
-  export type Options = { silent?: boolean };
+  /** Semantic terminal-output target used by the spinner owner. */
+  export type OutputTarget = 'stdout' | 'stderr';
+
+  /** Spinner creation contracts. */
+  export namespace Create {
+    /** Options for creating a spinner without starting it. */
+    export type Options = { target?: OutputTarget };
+  }
+
+  /** Options for creating and conditionally starting a spinner. */
+  export type Options = Create.Options & { silent?: boolean };
 
   export type Instance = {
     /** Current spinner label text. */

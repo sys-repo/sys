@@ -6,6 +6,7 @@ export async function readSlugTreeSourceFiles(args: {
   ignore?: readonly string[];
 }): Promise<readonly t.SlugBundleTransform.TreeFs.SourceFile[]> {
   const { fs } = args;
+  const decoder = new TextDecoder();
   const ignore = createIgnoreMatcher(args.ignore);
   const files: t.SlugBundleTransform.TreeFs.SourceFile[] = [];
 
@@ -24,7 +25,7 @@ export async function readSlugTreeSourceFiles(args: {
 
       if (!entry.isFile || !isMarkdown(entry.name)) continue;
 
-      const source = String((await Fs.readText(entry.path)).data ?? '');
+      const source = decoder.decode((await fs.read(entry.path)).data ?? new Uint8Array());
       const rel = Fs.Path.relative(args.root, entry.path) as t.StringPath;
       files.push({ path: rel, source, name: entry.name });
     }

@@ -1,11 +1,10 @@
 // deno-lint-ignore-file no-unreachable
 import { Vite } from '@sys/driver-vite';
-import { defineConfig } from 'vite';
 
 /**
  * SAMPLE: Custom plugin (no customization).
  */
-export default defineConfig(async () => {
+export default Vite.Config.define(async () => {
   const paths = Vite.Config.paths({
     app: {
       entry: '.tmp/sample/src/index.html',

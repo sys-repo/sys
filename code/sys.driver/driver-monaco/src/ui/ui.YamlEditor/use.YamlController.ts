@@ -8,7 +8,7 @@ import { useSignals } from './use.Signals.ts';
 
 type P = Omit<t.YamlEditorProps, 'bus$'>;
 
-export function useYamlController(bus$: t.EditorEventBus, props: P) {
+export function useYamlController(bus$: t.EditorBus.Subject, props: P) {
   const { onReady, diagnostics = D.diagnostics, path } = props;
   const sourcePath = normalizeSourcePath(props.path);
   const pathKey = React.useMemo(() => Obj.hash(path), [path]);

@@ -1,7 +1,8 @@
 import type { t } from '../common.ts';
+import type * as TErrIs from './t.is.ts';
+import type * as TErrLib from './t.lib.ts';
 
-export type * from './t.lib.ts';
-export type * from './t.is.ts';
+export type { ErrSummaryOptions } from './t.lib.ts';
 
 /** Input for an error generator. */
 export type ErrorGeneratorInput = unknown | Response;
@@ -16,7 +17,7 @@ export type ErrSuccess<T> = { ok: true; data: T; error: undefined };
 export type ErrFail<T> = { ok: false; data?: T; error: t.StdError };
 
 /**
- * Options passed to the `ErrLib.stdErr` method.
+ * Options passed to the `Err.std` method.
  */
 export type ErrStdOptions = {
   /** The name/type of this error. */
@@ -30,22 +31,41 @@ export type ErrStdOptions = {
 };
 
 /**
- * The standard named error types.
+ * Error helper contracts.
  */
-export type ErrNameLib = {
-  readonly error: 'Error';
-  readonly aggregate: 'AggregateError';
-  readonly eval: 'EvalError';
-  readonly range: 'RangeError';
-  readonly reference: 'ReferenceError';
-  readonly syntax: 'SyntaxError';
-  readonly type: 'TypeError';
-  readonly uri: 'URIError';
-  readonly compile: 'CompileError';
-  readonly link: 'LinkError';
-  readonly runtime: 'RuntimeError';
-  readonly internal: 'InternalError';
-};
+export declare namespace Err {
+  /** Helpers for working with errors. */
+  export type Lib = TErrLib.Lib;
+
+  /**
+   * Error type guard contracts.
+   */
+  export namespace Is {
+    /** Type guards. */
+    export type Lib = TErrIs.Lib;
+  }
+
+  /**
+   * Standard error-name contracts.
+   */
+  export namespace Name {
+    /** The standard named error types. */
+    export type Lib = {
+      readonly error: 'Error';
+      readonly aggregate: 'AggregateError';
+      readonly eval: 'EvalError';
+      readonly range: 'RangeError';
+      readonly reference: 'ReferenceError';
+      readonly syntax: 'SyntaxError';
+      readonly type: 'TypeError';
+      readonly uri: 'URIError';
+      readonly compile: 'CompileError';
+      readonly link: 'LinkError';
+      readonly runtime: 'RuntimeError';
+      readonly internal: 'InternalError';
+    };
+  }
+}
 
 /**
  * ErrorCollection

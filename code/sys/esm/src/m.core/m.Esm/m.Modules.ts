@@ -1,8 +1,8 @@
-import { type t, Err, Is } from './common.ts';
+import { Err, Is, type t } from './common.ts';
 import { Latest } from './u.latest.ts';
 import { parse } from './u.parse.ts';
 
-export const Modules: t.EsmModulesLib = {
+export const Modules: t.EsmModulesLib = Object.freeze({
   create(input = []) {
     type E = t.EsmParsedImport;
     const errors = Err.errors();
@@ -33,4 +33,4 @@ export const Modules: t.EsmModulesLib = {
 
     return api;
   },
-};
+});

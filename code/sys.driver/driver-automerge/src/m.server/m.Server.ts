@@ -5,7 +5,7 @@ import { ws } from './u.ws.ts';
 /**
  * Tools for working with CRDT sync servers:
  */
-export const Server: t.SyncServerLib = {
+export const Server: t.SyncServer.Lib = {
   ws,
   probe,
 };

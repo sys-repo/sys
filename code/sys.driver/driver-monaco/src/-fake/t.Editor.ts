@@ -2,19 +2,16 @@ import type { t } from './common.ts';
 
 type StringSourceCode = string;
 
-/**
- * Factory: Create a new editor fake.
- */
-export type CreateFakeEditor = (
-  model?: t.FakeTextModel | t.Monaco.TextModel | StringSourceCode,
-) => t.FakeEditorFull;
+/** Factory: create a new editor fake. */
+export type Create = (model?: t.MonacoFake.Model.Shape | t.Monaco.TextModel | StringSourceCode) => Full;
 
-/**
- * Minimal `IStandaloneCodeEditor` fake:
- */
-export type FakeEditorFull = t.Monaco.Editor & t.FakeEditor;
+/** Minimal `IStandaloneCodeEditor` fake, cast with Monaco editor shape. */
+export type Full = t.Monaco.Editor & Shape;
+
 type UpdateOptionsArg = Parameters<t.Monaco.I.IStandaloneCodeEditor['updateOptions']>[0];
-export type FakeEditor = t.EditorHiddenMembers &
+
+/** Minimal `IStandaloneCodeEditor` fake shape. */
+export type Shape = t.EditorHiddenMembers &
   Pick<
     t.Monaco.I.IStandaloneCodeEditor,
     | 'getId'

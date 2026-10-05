@@ -1,5 +1,4 @@
 export {
-  Testing,
   afterAll,
   afterEach,
   beforeAll,
@@ -10,5 +9,7 @@ export {
   expectError,
   expectTypeOf,
   it,
+  Testing,
 } from '@sys/testing/server';
+export { EsmAssert } from '@sys/esm/testing';
 export * from '../common.ts';

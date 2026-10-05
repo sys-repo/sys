@@ -4,7 +4,7 @@ import type { t } from '../common.ts';
  * Copy arbitrary text to the system clipboard from a Deno CLI context.
  * Permission: deno run --allow-run=pbcopy (for mac).
  */
-export async function copyToClipboard(text: string): Promise<t.CliCopyResult> {
+export async function copyToClipboard(text: string): Promise<t.Cli.CopyToClipboard.Result> {
   const bytes = new TextEncoder().encode(text);
   const tried: string[] = [];
 

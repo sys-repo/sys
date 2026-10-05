@@ -1,33 +1,38 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for generating random values.
+ * Random value helper contracts.
  */
-export type RandomLib = {
-  /** Length constants */
-  readonly Length: { readonly cuid: number; readonly slug: number };
-
-  /** Generates a random base-36 string of exactly the specified length. */
-  base36(length: number): string;
-
-  /** Random number tools alias (Num.random). */
-  readonly number: t.Num.Lib['random'];
-
+export declare namespace Random {
   /**
-   * Generate a non-sequental identifier.
-   * IMPORTANT
-   *    DO NOT put "slugs" into databases as keys.
-   *    Use the longer "cuid" for that.
+   * Tools for generating random values.
    */
-  slug(): string;
+  export type Lib = {
+    /** Length constants */
+    readonly Length: { readonly cuid: number; readonly slug: number };
 
-  /**
-   * Generates a short, collision-resistant ID.
-   * Uses timestamp, an incrementing counter, and random bytes.
-   *
-   * @param length The total desired length of the generated CUID-like string.
-   *               If not provided, a default length is used.
-   * @returns A collision-resistant string of the specified length.
-   */
-  cuid(length?: number): string;
-};
+    /** Generates a random base-36 string of exactly the specified length. */
+    base36(length: number): string;
+
+    /** Random number tools alias (Num.random). */
+    readonly number: t.Num.Lib['random'];
+
+    /**
+     * Generate a non-sequental identifier.
+     * IMPORTANT
+     *    DO NOT put "slugs" into databases as keys.
+     *    Use the longer "cuid" for that.
+     */
+    slug(): string;
+
+    /**
+     * Generates a short, collision-resistant ID.
+     * Uses timestamp, an incrementing counter, and random bytes.
+     *
+     * @param length The total desired length of the generated CUID-like string.
+     *               If not provided, a default length is used.
+     * @returns A collision-resistant string of the specified length.
+     */
+    cuid(length?: number): string;
+  };
+}

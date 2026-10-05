@@ -4,7 +4,7 @@ import { ensureIsObject } from './u.ts';
 
 type O = Record<string, unknown>;
 
-export const make: t.AliasResolverLib['make'] = (obj, opts = {}) => {
+export const make: t.AliasResolver.Lib['make'] = (obj, opts = {}) => {
   const rootLens = Obj.Lens.bind<O>(obj, opts.root ?? []);
   const aliasLens = rootLens.at<O>(opts.alias ?? ['alias']);
 

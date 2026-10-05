@@ -1,12 +1,12 @@
-import type { SignalIsLib } from './t.ts';
+import type * as Type from './t.ts';
 
 import { Signal } from '@preact/signals-core';
-import { type t, isObject } from './common.ts';
+import { isObject, type t } from './common.ts';
 
-export const Is: SignalIsLib = {
+export const Is: Type.Signal.Is.Lib = Object.freeze({
   signal<T = unknown>(input: unknown): input is t.Signal<T> {
     if (input instanceof Signal) return true;
     const value = input as t.Signal<T>;
     return isObject(value) && 'value' in value && typeof value.peek === 'function';
   },
-};
+});

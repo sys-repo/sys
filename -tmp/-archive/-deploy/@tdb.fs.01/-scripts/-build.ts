@@ -16,7 +16,7 @@ const concurrency = 4;
 console.info();
 await buildAndCopyAll(
   [
-    ['../../code/sys.ui/ui-react-components', 'sys/ui.components', { build }],
+    ['../../code/sys.ui/ui-components', 'sys/ui.components', { build }],
     ['../../code/sys.ui/ui-factory', 'sys/ui.factory', { build }],
     ['../../code/sys.driver/driver-automerge', 'sys/driver.automerge', { build }],
     ['../../code/sys.driver/driver-monaco', 'sys/driver.monaco', { build }],

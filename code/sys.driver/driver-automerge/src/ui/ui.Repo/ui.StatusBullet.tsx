@@ -2,7 +2,7 @@ import React from 'react';
 import { type t, Bullet, Color } from './common.ts';
 import { getStatus } from './u.status.ts';
 
-type P = t.RepoStatusBulletProps;
+type P = t.Repo.StatusBullet.Props;
 
 export const StatusBullet: React.FC<P> = (props) => {
   const { repo } = props;

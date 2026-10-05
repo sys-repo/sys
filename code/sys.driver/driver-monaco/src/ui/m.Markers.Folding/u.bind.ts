@@ -5,7 +5,7 @@ import { impl } from './u.bind.impl.ts';
  * Pure CRDT ⇄ Monaco fold-mark synchronizer (lifecycle-based, React-free).
  * Uses only Monaco public commands (fold/unfoldAll) to keep gutter + hidden areas in sync.
  */
-export const bindFoldMarks: t.BindFoldMarks = (args) => {
+export const bindFoldMarks: t.EditorFolding.Bind = (args) => {
   const { editor, doc, path, until, enabled = true } = args;
   const life = Rx.lifecycle(until);
 
@@ -16,7 +16,7 @@ export const bindFoldMarks: t.BindFoldMarks = (args) => {
     Rx.filter((e) => e.kind === 'editor:crdt:marks'),
   );
 
-  const api = Rx.toLifecycle<t.EditorFoldBinding>(life, { $ });
+  const api = Rx.toLifecycle<t.EditorFolding.Binding.Instance>(life, { $ });
   if (!enabled || !editor || !doc || !path?.length) return api;
 
   // Bind to editor model

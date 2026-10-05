@@ -1,7 +1,7 @@
 /**
  * @system
  */
-export type { ObjDiffOp } from '@sys/std/t';
+export type { Obj } from '@sys/std/t';
 export type * from '@sys/types';
 
 /**

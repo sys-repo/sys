@@ -1,4 +1,4 @@
-import { type t, describe, expect, it, MonacoFake, Rx, Schedule } from '../../../-test.ts';
+import { describe, expect, it, MonacoFake, Rx, Schedule, type t } from '../../../-test.ts';
 import { Bus } from '../common.ts';
 import { EditorYaml } from '../mod.ts';
 
@@ -14,9 +14,9 @@ describe('Monaco.Yaml', () => {
       });
 
       it('dispose: via dispose$', () => {
-        const life = Rx.disposable();
+        const life = Rx.lifecycle();
         const editor = MonacoFake.editor('');
-        const ob = EditorYaml.Path.observe({ editor }, life);
+        const ob = EditorYaml.Path.observe({ editor }, life.dispose$);
         expect(ob.disposed).to.eql(false);
         life.dispose();
         expect(ob.disposed).to.eql(true);
@@ -35,7 +35,7 @@ describe('Monaco.Yaml', () => {
         const editor = MonacoFake.editor(model);
         const ob = EditorYaml.Path.observe({ editor });
 
-        const fired: t.EventYamlCursor[] = [];
+        const fired: t.EditorEvent.Yaml.Cursor[] = [];
         const sub = ob.$.subscribe((e) => fired.push(e));
         try {
           // Caret inside the "👋" scalar.
@@ -71,7 +71,7 @@ describe('Monaco.Yaml', () => {
         const editor = MonacoFake.editor(model);
         const ob = EditorYaml.Path.observe({ editor });
 
-        const fired: t.EventYamlCursor[] = [];
+        const fired: t.EditorEvent.Yaml.Cursor[] = [];
         const sub = ob.$.subscribe((e) => fired.push(e));
         try {
           editor.setPosition({ lineNumber: 1, column: 6 });
@@ -114,7 +114,8 @@ describe('Monaco.Yaml', () => {
         });
 
         it('does not include the first child when caret is on a root key after a blank line', () => {
-          const yaml = `.foo:\n  dev: true\n\nvideo:\n  src: https://example.com/video.mp4\n  crop: [11.5, -10]\n  width: 600`;
+          const yaml =
+            `.foo:\n  dev: true\n\nvideo:\n  src: https://example.com/video.mp4\n  crop: [11.5, -10]\n  width: 600`;
           const model = MonacoFake.model(yaml, { language: 'yaml' });
           const editor = MonacoFake.editor(model);
           const ob = EditorYaml.Path.observe({ editor });
@@ -140,8 +141,8 @@ describe('Monaco.Yaml', () => {
 
         const ob1 = EditorYaml.Path.observe({ editor });
         const ob2 = EditorYaml.Path.observe({ editor });
-        const fired1: t.EventYamlCursor[] = [];
-        const fired2: t.EventYamlCursor[] = [];
+        const fired1: t.EditorEvent.Yaml.Cursor[] = [];
+        const fired2: t.EditorEvent.Yaml.Cursor[] = [];
         const sub1 = ob1.$.pipe(Rx.skip(1)).subscribe((e) => fired1.push(e));
         const sub2 = ob2.$.pipe(Rx.skip(1)).subscribe((e) => fired2.push(e));
         try {
@@ -168,7 +169,7 @@ describe('Monaco.Yaml', () => {
 
         const ob1 = EditorYaml.Path.observe({ editor });
         const ob2 = EditorYaml.Path.observe({ editor });
-        const fired: t.EventYamlCursor[] = [];
+        const fired: t.EditorEvent.Yaml.Cursor[] = [];
         let ob3: ReturnType<typeof EditorYaml.Path.observe> | undefined;
         let sub: ReturnType<typeof ob2.$.subscribe> | undefined;
         let sub3: ReturnType<typeof ob2.$.subscribe> | undefined;
@@ -193,7 +194,7 @@ describe('Monaco.Yaml', () => {
 
           // New observe creates a fresh producer again:
           ob3 = EditorYaml.Path.observe({ editor });
-          const again: t.EventYamlCursor[] = [];
+          const again: t.EditorEvent.Yaml.Cursor[] = [];
           sub3 = ob3.$.pipe(Rx.skip(1)).subscribe((e) => again.push(e));
 
           editor.setPosition({ lineNumber: 1, column: 7 });
@@ -214,7 +215,7 @@ describe('Monaco.Yaml', () => {
 
         const ob = EditorYaml.Path.observe({ editor });
 
-        const fired: t.EventYamlCursor[] = [];
+        const fired: t.EditorEvent.Yaml.Cursor[] = [];
         let completed = false;
 
         // Ignore initial snapshot; only count the next emission
@@ -240,27 +241,31 @@ describe('Monaco.Yaml', () => {
 
     describe('ping/pong: "cursor"', () => {
       it('responds to "editor:ping" with editor:yaml:cursor + editor:pong', async () => {
-        const life = Rx.disposable();
+        const life = Rx.lifecycle();
         const bus$ = Bus.make();
         const model = MonacoFake.model('foo: bar', { language: 'yaml' });
         const editor = MonacoFake.editor(model);
 
         // Start observing (this creates the cursor producer)
-        EditorYaml.Path.observe({ editor, bus$ }, life);
+        EditorYaml.Path.observe({ editor, bus$ }, life.dispose$);
 
-        const events: t.EditorEvent[] = [];
+        const events: t.EditorEvent.Shape[] = [];
         const sub = bus$.pipe(Rx.takeUntil(life.dispose$)).subscribe((e) => events.push(e));
         try {
           const nonce = 'nonce-123';
-          bus$.next({
-            kind: 'editor:ping',
-            request: ['cursor'],
-            nonce,
-          } satisfies t.EventEditorPing);
+          bus$.next(
+            {
+              kind: 'editor:ping',
+              request: ['cursor'],
+              nonce,
+            } satisfies t.EditorEvent.Ping.Request,
+          );
 
           await Schedule.macro();
-          const cursor = events.find((e) => e.kind === 'editor:yaml:cursor') as t.EventYamlCursor;
-          const pong = events.find((e) => e.kind === 'editor:pong') as t.EventEditorPong;
+          const cursor = events.find((e) =>
+            e.kind === 'editor:yaml:cursor'
+          ) as t.EditorEvent.Yaml.Cursor;
+          const pong = events.find((e) => e.kind === 'editor:pong') as t.EditorEvent.Ping.Response;
 
           expect(cursor).to.exist;
           expect(pong).to.exist;

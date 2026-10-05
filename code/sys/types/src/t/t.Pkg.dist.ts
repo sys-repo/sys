@@ -1,5 +1,29 @@
 import type { t } from './common.ts';
 
+/** The sole supported Dist content interpretation and hash domain. */
+export type DistScheme = 'sys.dist/v2';
+
+/** Independently supplied expectation of a distribution's canonical payload identity. */
+export type DistPin = {
+  readonly scheme: t.DistScheme;
+  readonly digest: t.StringHash;
+};
+
+/**
+ * Content descriptor: exact payload paths, SHA-256 checksums, and canonical required byte lengths.
+ * A descriptor alone is a claim, not independent authority or proof of current file bytes.
+ */
+export type DistContent = {
+  readonly scheme: t.DistScheme;
+  readonly digest: t.StringHash;
+  readonly parts: Readonly<Record<t.StringRelativePath, t.StringHash>>;
+};
+
+/** Content pins for a set of named distributions. */
+export type DistPins<N extends string = string> = {
+  readonly pins: Readonly<Record<N, t.DistPin>>;
+};
+
 /**
  * Distribution package metadata (`/dist/dist.json`).
  */
@@ -8,7 +32,8 @@ export type DistPkg = {
   type: t.StringTypeUrl;
 
   /**
-   * Optional package identity metadata for the content root.
+   * Descriptive root package label, excluded from content identity.
+   * Not authority for an authenticated package check; that requires verified payload bytes.
    * Omitted when the dist describes non-package folder content.
    */
   pkg?: t.Pkg;
@@ -37,7 +62,7 @@ export type DistPkg = {
 
       /**
        * Effective ignore-policy used to scope hashed files.
-       * If present, this policy must reproduce `hash.parts`.
+       * Descriptive only; verification never executes these rules.
        */
       ignore?: t.DistPkgHashIgnore;
     };
@@ -61,16 +86,8 @@ export type DistPkg = {
     };
   };
 
-  /** Map of hashes of the binary contents of the package. */
-  hash: t.CompositeHash;
-};
-
-/**
- * Legacy distribution package metadata.
- * NB: Prior schema shape without `build.hash.policy`.
- */
-export type DistPkgLegacy = Omit<DistPkg, 'build'> & {
-  build: Omit<DistPkg['build'], 'hash'>;
+  /** Canonical payload identity and inventory; root metadata is not covered by this digest. */
+  hash: t.DistContent;
 };
 
 /**
@@ -90,5 +107,5 @@ export type DistPkgHashIgnore = {
   /** Effective ordered ignore rules used during compute. */
   rules: string[];
   /** Digest of canonical serialized rules. */
-  readonly "rules:digest": t.StringHash;
+  readonly 'rules:digest': t.StringHash;
 };

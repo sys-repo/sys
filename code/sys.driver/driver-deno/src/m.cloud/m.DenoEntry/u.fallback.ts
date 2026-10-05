@@ -1,7 +1,7 @@
 import { type t, Fs } from './common.ts';
 
 export function fallback(distDir: string) {
-  return async function onNotFound(path: string, c: t.HonoContext) {
+  return async function onNotFound(path: string, c: t.HttpServer.Hono.Context) {
     const leaf = Fs.Path.basename(path);
 
     if (leaf.includes('.')) {

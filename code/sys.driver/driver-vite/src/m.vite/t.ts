@@ -1,88 +1,138 @@
 import type { t } from './common.ts';
 
-type ToStringOptions = { pad?: boolean };
-
 /**
- * Library: Tools for running Vite via commands issued to a child process.
+ * Tools for running Vite via commands issued to a child process.
  */
-export type ViteLib = {
-  readonly Config: t.ViteConfigLib;
-  readonly Startup: t.ViteStartup.Lib;
+export declare namespace Vite {
+  /** Public Vite command driver surface. */
+  export type Lib = {
+    readonly Config: t.ViteConfig.Lib;
+    readonly Startup: t.ViteStartup.Lib;
+
+    /** Build the application into its configured output directory. */
+    build(args: Build.Args): Promise<Build.Response>;
+
+    /**
+     * Start a long-running Vite dev child and return after readiness and HTTP confirmation.
+     * Passes `--host`, requesting all-interface binding rather than loopback-only serving;
+     * a returned localhost URL does not establish loopback-only exposure.
+     * Await the returned process's `dispose()` to stop the child and release driver resources,
+     * or bind its lifetime with `until`. Startup errors reject the promise.
+     */
+    dev(args: Dev.Args): Promise<Dev.Process>;
+  };
 
   /**
-   * Run the Vite `build` command to produce an output `/dist` bundle.
+   * Vite build command contract.
    */
-  build(args: ViteBuildArgs): Promise<t.ViteBuildResponse>;
+  export namespace Build {
+    /** Arguments passed to the [Vite.build] method. */
+    export type Args = {
+      /** Directory containing `vite.config.ts`; used only when `paths` is omitted. */
+      cwd?: t.StringAbsoluteDir;
+      /**
+       * Build paths. If omitted, read from `vite.config.ts`.
+       * Supplied paths are copied before asynchronous work begins.
+       * Vite still loads `vite.config.ts`; only `app.outDir` and `app.base` override its settings.
+       * Entry points, workers, and plugins remain configured in that file.
+       */
+      paths?: t.ViteConfig.Paths;
+      /** Consuming module being built. */
+      pkg?: t.Pkg;
+      /** Hide build progress. Errors are still logged. */
+      silent?: boolean;
+      /** Show a progress spinner unless `silent` is set (default: true). */
+      spinner?: boolean;
+      /**
+       * Exit with code 1 on a handled build failure (default: true).
+       * When false, return that failure as `ok: false`; other exceptions can still reject.
+       */
+      exitOnError?: boolean;
+      /**
+       * Add frozen/cache-only flags to the immediate Deno build child; defaults remain unchanged.
+       * This does not constrain in-process loaders or further subprocesses started by plugins.
+       */
+      dependencyPolicy?: 'frozen-cache';
+    };
+
+    /**
+     * Complete producer outcome: `ok: true` requires the build, writing `pkg/-pkg.json`
+     * when `pkg` is supplied, and canonical Dist computation to succeed, including saving
+     * `dist.json`.
+     * `cmd.output` describes only the child; its `success` can be true while `ok` is false
+     * because later package writing or Dist computation failed.
+     */
+    export type Response =
+      & {
+        readonly paths: t.ViteConfig.Paths;
+        readonly cmd: { readonly input: string; readonly output: t.Process.Output };
+        readonly elapsed: t.Msecs;
+        toString(options?: ToStringOptions): string;
+      }
+      & (
+        | {
+          readonly ok: true;
+          readonly dist: t.DistPkg;
+          /** Canonical payload identity produced by this build. */
+          readonly pin: t.DistPin;
+          /** Exact saved document checksum; not a content pin. */
+          readonly manifestChecksum: t.StringHash;
+        }
+        | {
+          /** No `dist`, `pin`, or `manifestChecksum` is returned; output files may remain. */
+          readonly ok: false;
+          /** Build refusal context; producer failures retain their original cause. */
+          readonly error: t.StdError;
+        }
+      );
+
+    /** Formatting options for command response text. */
+    export type ToStringOptions = {
+      /** Add a leading and trailing blank line. */
+      pad?: boolean;
+      /** Maximum rendered line width for terminal-safe presentation. */
+      width?: number;
+    };
+  }
 
   /**
-   * Run the Vite `dev` command.
-   * Long running processes (spawn → child process).
-   *
-   * Command:
-   *    $ vite dev --port=<1234>
-   *
-   * Terminal Output:
-   *
-   *    VITE v<x.x.x>  ready in 350 ms
-   *
-   *    ➜  Local:   http://localhost:1234/
-   *    ➜  Network: use --host to expose
+   * Vite dev command contract.
    */
-  dev(args: ViteDevArgs): Promise<t.ViteProcess>;
+  export namespace Dev {
+    /** Arguments passed to the [Vite.dev] method. */
+    export type Args = Options & PackageInput;
 
-};
+    /** Vite child process for long-running commands such as `$ vite dev`. */
+    export type Process = t.LifecycleAsync & {
+      readonly proc: t.Process.Handle;
+      readonly port: number;
+      readonly url: t.StringPath;
+      listen(): Promise<void>;
+      keyboard(): Promise<void>;
+    };
 
-/**
- * Arguments passed to the [Vite.build] method.
- */
-export type ViteBuildArgs = {
-  /** Override the current-working-directory path */
-  cwd?: t.StringAbsoluteDir;
-  /** Explicit path authority, bypassing config file discovery when known. */
-  paths?: t.ViteConfigPaths;
-  /** Consuming module being built. */
-  pkg?: t.Pkg;
-  /** Supress all log output. */
-  silent?: boolean;
-  /** Show wait spinner. */
-  spinner?: boolean;
-  /** Exit the process with a non-zero code on failure (default: false). */
-  exitOnError?: boolean;
-};
+    /** Reporter mode for dev server output. */
+    export type ReporterMode = 'auto' | 'screen' | 'raw';
 
-/**
- * Arguments passed to the [Vite.dev] method.
- */
-export type ViteDevArgs = {
-  cwd?: t.StringAbsoluteDir;
-  /** Explicit path authority, bypassing config file discovery when known. */
-  paths?: t.ViteConfigPaths;
-  port?: number;
-  pkg?: t.Pkg; // Consumer module.
-  silent?: boolean;
-  dispose$?: t.UntilObservable;
-};
+    /** Base dev-server options independent of package identity. */
+    export type Options = {
+      cwd?: t.StringAbsoluteDir;
+      /** Explicit path authority, bypassing config file discovery when known. */
+      paths?: t.ViteConfig.Paths;
+      port?: number;
+      /** Fail startup if the requested port is unavailable. */
+      strictPort?: boolean;
+      silent?: boolean;
+      /** Select parent-owned screen reporting or raw Vite passthrough. */
+      reporter?: ReporterMode;
+      /** Maximum visible Vite output rows in screen reporter mode. */
+      logLines?: number;
+      until?: t.UntilInput;
+    };
 
-/**
- * Vite Child Process.
- * A long running process, for instance when running: "$ vite dev"
- */
-export type ViteProcess = t.LifecycleAsync & {
-  readonly proc: t.Process.Handle;
-  readonly port: number;
-  readonly url: t.StringPath;
-  listen(): Promise<void>;
-  keyboard(): Promise<void>;
-};
-
-/**
- * Response from a vite command (such as `build`).
- */
-export type ViteBuildResponse = {
-  readonly ok: boolean;
-  readonly paths: t.ViteConfigPaths;
-  readonly dist: t.DistPkg;
-  readonly cmd: { readonly input: string; readonly output: t.Process.Output };
-  readonly elapsed: t.Msecs;
-  toString(options?: ToStringOptions): string;
-};
+    /** Package-backed presentation input; subpaths cannot exist without package metadata. */
+    export type PackageInput =
+      | { pkg?: undefined; pkgSubpath?: never }
+      | { pkg: t.Pkg; pkgSubpath?: string };
+  }
+}

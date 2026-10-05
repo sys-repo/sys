@@ -1,7 +1,7 @@
 import { YAMLError } from 'yaml';
-import { type t, Arr, Immutable, Is, Obj, Rx } from './common.ts';
-import { parseAst } from './u.parse.ts';
-import { toJS } from './u.toJS.ts';
+import { Arr, Immutable, Is, Obj, Rx, type t } from './common.ts';
+import { parseAst } from './u/u.parse.ts';
+import { toJS } from './u/u.toJS.ts';
 
 type S = t.YamlLib['syncer'];
 type O = Record<string, unknown>;
@@ -95,7 +95,8 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
 
     // Guard:
     if (!Is.string(after)) {
-      const msg = `Cannot make YAML/sync update. The new value is type '${typeof after}' and not a string.`;
+      const msg =
+        `Cannot make YAML/sync update. The new value is type '${typeof after}' and not a string.`;
       console.warn(msg);
       return;
     }
@@ -104,7 +105,7 @@ const make: S = <T = unknown>(input: t.YamlSyncArgsInput, until: t.UntilInput) =
     const ast = parseAst(after);
     if (ast.errors.length > 0) ast.errors.forEach((err) => errors.add(err));
 
-    let ops: t.ObjDiffOp[] = [];
+    let ops: t.Obj.Path.Mutate.Op[] = [];
     const value = ast.errors.length === 0 ? (toJS(ast).data as t.YamlValue<T>) : undefined;
 
     const targetPath = path.target ?? [];
@@ -243,7 +244,7 @@ function defaultPath(yamlPath: t.ObjectPath): t.ObjectPath {
 /**
  * Library:
  */
-export const Syncer: t.YamlSyncLib = {
+export const Syncer: t.YamlSyncLib = Object.freeze({
   make,
   defaultPath,
-};
+});

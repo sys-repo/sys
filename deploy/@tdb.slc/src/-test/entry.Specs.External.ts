@@ -1,4 +1,4 @@
-import { ns as ReactComponents, SpecsComponents } from '@sys/ui-react-components/specs';
+import { ns as ReactComponents, SpecsComponents } from '@sys/ui-components/specs';
 import type { t } from './common.ts';
 
 const Ns = {

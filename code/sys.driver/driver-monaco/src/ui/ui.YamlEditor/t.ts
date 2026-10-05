@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Component:
  */
 export type YamlEditorProps = {
-  bus$?: t.EditorEventBus;
+  bus$?: t.EditorBus.Subject;
   repo?: t.CrdtRepo;
   signals?: Partial<t.YamlEditorSignals>;
   path?: t.YamlSyncArgsInput['path'];
@@ -19,9 +19,9 @@ export type YamlEditorProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 
-  onReady?: t.EditorCrdtBindingReadyHandler;
+  onReady?: t.EditorCrdt.Binding.ReadyHandler;
   onDocumentLoaded?: t.YamlEditorDocumentLoadedHandler;
-  onCursor?: (e: t.EditorCursor) => void;
+  onCursor?: (e: t.MonacoDriver.Cursor) => void;
 };
 
 /** Display settings for diagnostics (error markers).  */
@@ -42,7 +42,7 @@ export type YamlEditorSignals = {
   monaco: t.Signal<t.Monaco.Monaco | undefined>;
   editor: t.Signal<t.Monaco.Editor | undefined>;
   doc: t.Signal<t.CrdtRef | undefined>;
-  yaml: t.Signal<t.EditorYaml | undefined>;
+  yaml: t.Signal<t.EditorYaml.State | undefined>;
 };
 
 /**

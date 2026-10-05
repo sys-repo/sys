@@ -1,0 +1,68 @@
+id: pkg.help
+title: Package help template
+summary: |
+  Add a package-local YAML help-resource spine to an existing sys package.
+
+sections:
+  - label: Rule
+    items: |
+      Use `pkg.help` only for an existing sys package that should own maintained help text.
+      This is an additive package affordance, not a new package scaffold.
+      It creates `src/m.help/` as the resource/loading layer.
+      It does not add CLI routes, command behavior, argument parsing, or rendering.
+      It does not add DSL resources; add DSL only after an explicit DSL surface is requested.
+      It does not change `deno.json` exports or root runtime `src/mod.ts`.
+      Target the package root that contains `deno.json`.
+      Do not target `src/m.help` directly.
+
+  - label: Speech acts
+    items: |
+      add bundled YAML help resources to this package
+      add a help-resource spine to <package-dir>
+      add package help resources without adding CLI behavior
+      standardize maintained help resources for <@scope/name>
+
+  - label: Slots
+    items:
+      - 'Required: `--dir <package-dir>`.'
+      - '`<package-dir>` must already exist.'
+      - '`<package-dir>` must contain `deno.json`, `src/common.ts`, and `src/types.ts`.'
+      - Run from the workspace root when using a relative `<package-dir>`.
+      - Relative `<package-dir>` values resolve from the current working directory.
+      - Absolute `<package-dir>` values are preserved.
+      - No `--pkgName` or `--name` flag is accepted.
+      - >-
+        The workspace/import authority must resolve `@sys/cli/t`, `@sys/fs`,
+        `@sys/fs/t`, `@sys/yaml`, and `@sys/tmpl-engine`.
+      - Ask when the package boundary, help ownership, or public help role is unclear.
+
+  - label: Command
+    items: |
+      Preview:
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <package-dir> pkg.help --dry-run`.
+      Write:
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <package-dir> pkg.help`.
+      Existing package roots are expected and do not require `--force`.
+      Existing `src/m.help/` requires explicit approval and `--force`.
+      Do not use `jsr:@sys/tmpl/pkg.help`.
+
+  - label: Side effects
+    items: |
+      Creates `src/m.help/` with YAML resources, bundle files, typed loaders, and local helpers.
+      Adds or updates package task `help:bundle`.
+      Adds `deno task help:bundle` to package task `prep` when missing.
+      Adds the help type surface to `src/types.ts`.
+      Does not change `deno.json` exports.
+      Does not change root runtime `src/mod.ts`.
+      Does not add CLI commands, argument parsing, rendering, or DSL chapters.
+      `--dry-run` previews copied files but does not run setup side effects.
+
+  - label: Verify
+    items: |
+      Confirm `<package-dir>/src/m.help/` exists.
+      Confirm `<package-dir>/deno.json` has task `help:bundle`.
+      Confirm package task `prep` runs `help:bundle`.
+      Confirm `<package-dir>/src/types.ts` exports `./m.help/t.ts`.
+      Confirm `deno.json` exports and `src/mod.ts` did not change unless separately requested.
+      Run `deno task help:bundle` from `<package-dir>`.
+      Run `deno check -- ./src/m.help/mod.ts ./src/m.help/-bundle/mod.ts` from `<package-dir>`.

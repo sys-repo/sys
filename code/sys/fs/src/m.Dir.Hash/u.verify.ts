@@ -1,9 +1,9 @@
-import { type t, Err, Fs, Hash, Path, CompositeHash } from './common.ts';
+import { CompositeHash, Err, Fs, Hash, Path, type t } from './common.ts';
 
 /**
- * Verify a directory against the given [CompositeHash] value.
+ * Verify a directory against a composite hash or hash file.
  */
-export const verify: t.DirHashLib['verify'] = async (dir, hashInput) => {
+export const verify: t.Dir.Hash.Verify.Method = async (dir, hashInput) => {
   dir = Fs.resolve(dir);
   const errors = Err.errors();
   const exists = await Fs.exists(dir);
@@ -31,30 +31,20 @@ export const verify: t.DirHashLib['verify'] = async (dir, hashInput) => {
   }
 
   /**
-   * Response.
-   */
-  const res: t.DirHashVerifyResponse = {
-    exists,
-    dir,
-    hash: wrangle.hash(hash),
-    is: { valid: undefined },
-  };
-
-  /**
    * Verify.
    */
+  let is: t.CompositeHash.Verify.Response['is'] = { valid: undefined };
   if (Hash.Is.composite(hash)) {
     const verify = await CompositeHash.verify(hash, async (e) => {
       const path = Fs.join(dir, e.part);
       return (await Fs.read(path)).data;
     });
-    res.is = verify.is;
+    is = verify.is;
     if (verify.error) errors.push(verify.error);
   }
 
   // Finish up.
-  res.error = errors.toError();
-  return res;
+  return { exists, dir, hash: wrangle.hash(hash), is, error: errors.toError() };
 };
 
 /**

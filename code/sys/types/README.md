@@ -1,12 +1,17 @@
-# Types \<T\>
-Common ("standard") type definitions shared between system modules.
+# @sys/types
 
-### Usage
+Shared type vocabulary for system modules. These contracts describe values and behavior; they do not
+implement the resources they describe.
 
-This library provides no implementations, and is safe to import without out needing to 
-worry about exploding bundle size.  To further ensure this is the case, remember to
-include the `type` keyword on your imports, eg:
+Use type-only imports so the dependency is erased from emitted JavaScript:
 
 ```ts
-import type { Immutable } from '@sys/types'
+import type { ImmutableRef } from 'jsr:@sys/types/t';
+
+type Counter = ImmutableRef<{ count: number }>;
 ```
+
+The root also exports runtime package metadata (`pkg` and `distTypePath`). `/t` exports types only;
+implementations such as immutable references live in their owning packages.
+
+See the [type documentation](https://jsr.io/@sys/types/doc) for the shared contracts.

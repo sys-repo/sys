@@ -1,86 +1,138 @@
-import type { format, formatDistance, formatRelative, subDays } from 'date-fns';
-import type { StdDate, t } from './common.ts';
+import type { t } from './common.ts';
 
 /**
- * Library: Tools for working with Dates.
+ * Calendar helpers and local-zone date labels.
  */
-export type DateLib = {
-  /** Date value type verification flags. */
-  readonly Is: t.DateIsLib;
+export declare namespace Date {
+  /** Calendar queries, date labels, and fixed millisecond units. */
+  export type Lib = {
+    /** Calendar-year predicates. */
+    readonly Is: Is.Lib;
 
-  /** Tools for working with Day values. */
-  readonly Day: t.DayLib;
+    /** Day-of-year helpers. */
+    readonly Day: Day.Lib;
 
-  /** Tools for formatting dates into "pretty" strings. */
-  readonly Format: t.DateFormatLib;
+    /** Date labels and calendar-day subtraction. */
+    readonly Format: Format.Lib;
 
-  /** Format date string in the given "pretty" string. The result may vary by locale. */
-  format: t.DateFormatLib['toString'];
+    /** Compatibility alias of `Format.toString`. */
+    readonly format: Format.Lib['toString'];
 
-  /** Parses a date string using the specified format string. */
-  parse: typeof StdDate.parse;
+    /** Parse a local date using a numeric-field pattern, such as 'yyyy-MM-dd HH:mm'. */
+    readonly parse: (input: string, pattern: string) => globalThis.Date;
 
-  /** Calculates the difference of the 2 given dates in various units. If the units are omitted, it returns the difference in the all available units. */
-  difference: typeof StdDate.difference;
+    /** Absolute difference in selected units (default: all); months use local calendar fields. */
+    readonly difference: (
+      from: globalThis.Date,
+      to: globalThis.Date,
+      options?: DifferenceOptions,
+    ) => Difference;
 
-  /** The number of milliseconds in a day. */
-  readonly DAY: typeof StdDate.DAY;
-  /** The number of milliseconds in an hour. */
-  readonly HOUR: typeof StdDate.HOUR;
-  /** The number of milliseconds in a minute. */
-  readonly MINUTE: typeof StdDate.MINUTE;
-  /** The number of milliseconds in a second. */
-  readonly SECOND: typeof StdDate.SECOND;
-  /** The number of milliseconds in a week. */
-  readonly WEEK: typeof StdDate.WEEK;
-};
+    /** Exactly 86,400,000 milliseconds; a local calendar day may differ across DST. */
+    readonly DAY: t.Msecs;
+    /** Exactly 3,600,000 milliseconds. */
+    readonly HOUR: t.Msecs;
+    /** Exactly 60,000 milliseconds. */
+    readonly MINUTE: t.Msecs;
+    /** Exactly 1,000 milliseconds. */
+    readonly SECOND: 1000;
+    /** Exactly seven 24-hour days in milliseconds. */
+    readonly WEEK: t.Msecs;
+  };
 
-/**
- * Library: Tools for working with Day date values.
- */
-export type DayLib = {
-  ofYear: typeof StdDate.dayOfYear;
-  ofYearUtc: typeof StdDate.dayOfYearUtc;
-};
+  /** Units available from calendar-date differences, distinct from duration-string suffixes. */
+  export type DifferenceUnit =
+    | 'milliseconds'
+    | 'seconds'
+    | 'minutes'
+    | 'hours'
+    | 'days'
+    | 'weeks'
+    | 'months'
+    | 'quarters'
+    | 'years';
 
-/**
- * Library: Date value type verification flags.
- */
-export type DateIsLib = {
-  leapYear: typeof StdDate.isLeap;
-  leapYearUtc: typeof StdDate.isUtcLeap;
-};
+  /** Units to calculate; omission selects all units. */
+  export type DifferenceOptions = { units?: DifferenceUnit[] };
 
-/**
- * Library: Tools for formatting dates into "pretty" strings.
- */
-export type DateFormatLib = {
-  /** Format date string in the given "pretty" string. The result may vary by locale. */
-  toString: typeof format;
+  /** Selected difference fields; unrequested fields are absent. */
+  export type Difference = Readonly<Partial<Record<DifferenceUnit, number>>>;
 
-  /** Return the distance between the given dates in words. */
-  distance: typeof formatDistance;
+  /**
+   * Day-of-year helpers.
+   */
+  export namespace Day {
+    /** One-based day numbers in the selected zone. */
+    export type Lib = {
+      /** Day of the year using local calendar fields. */
+      readonly ofYear: (date: globalThis.Date) => number;
+      /** Day of the year using UTC calendar fields. */
+      readonly ofYearUtc: (date: globalThis.Date) => number;
+    };
+  }
 
-  /** Represent the date in words relative to the given base date. */
-  relative: typeof formatRelative;
+  /**
+   * Calendar-year predicates.
+   */
+  export namespace Is {
+    /** Numeric inputs are calendar years, not Unix timestamps. */
+    export type Lib = {
+      /** Whether the numeric year or Date's local year is a leap year. */
+      readonly leapYear: (year: globalThis.Date | number) => boolean;
+      /** Whether the numeric year or Date's UTC year is a leap year. */
+      readonly leapYearUtc: (year: globalThis.Date | number) => boolean;
+    };
+  }
 
-  /** Subtract the specified number of days from the given date. */
-  subDays: typeof subDays;
-};
+  /**
+   * Local-zone date labels and calendar-day subtraction.
+   * Formatting uses date-fns tokens and its default locale. Locale and date-construction extensions
+   * are not part of this public contract.
+   */
+  export namespace Format {
+    /** Date labels and non-mutating calendar-day subtraction. */
+    export type Lib = {
+      /**
+       * Format local calendar fields using date-fns tokens.
+       * Invalid dates throw RangeError; pattern errors propagate unchanged.
+       */
+      readonly toString: (date: Input, pattern: string) => string;
 
-/**
- * Represents an Date/Time value.
- */
+      /** Distance in words; invalid dates throw RangeError. */
+      readonly distance: (date: Input, baseDate: Input, options?: DistanceOptions) => string;
+
+      /** Label relative to the supplied base date; invalid dates throw RangeError. */
+      readonly relative: (date: Input, baseDate: Input) => string;
+
+      /** A new Date with local calendar days subtracted; invalid input yields an invalid Date. */
+      readonly subDays: (date: Input, amount: number) => globalThis.Date;
+    };
+
+    /** Date, Unix milliseconds, or a string interpreted by native Date construction. */
+    export type Input = globalThis.Date | t.UnixTimestamp | string;
+
+    /** Controls whether a distance includes its direction. */
+    export type DistanceOptions = {
+      /** Include a past or future qualifier (default: false). */
+      addSuffix?: boolean;
+    };
+  }
+}
+
+/** A date-time snapshot; an invalid value has a NaN timestamp. */
 export type DateTime = {
-  /** The date value represented by the object. */
+  /** A fresh Date copy; mutating it cannot change this instance. */
   readonly date: Date;
 
-  /** Retrieve the current higher-precision UnixEpoch by including milliseconds since January 1, 1970, 00:00:00 UTC. */
+  /** Unix milliseconds since 1970-01-01T00:00:00Z, or NaN for an invalid value. */
   readonly timestamp: t.UnixTimestamp;
 
-  /** Formats the date with the the template */
-  format(template?: string): string;
+  /**
+   * Format in the host's local zone, defaulting to 'yyyy-MM-dd'.
+   * Invalid dates throw RangeError('Time.utc: invalid date'); template errors propagate.
+   */
+  readonly format: (template?: string) => string;
 };
 
-/** Input values for generating a DateTime instance. */
+/** Unix milliseconds, an ISO string, or a Date copied when creating the instance. */
 export type DateTimeInput = number | string | Date;

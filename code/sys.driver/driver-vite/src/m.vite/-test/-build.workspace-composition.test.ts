@@ -1,12 +1,11 @@
-import { type t, c, describe, expect, Fs, it, Json, pkg, SAMPLE, Testing } from '../../-test.ts';
-import { writeLocalFixtureImports } from './u.bridge.fixture.ts';
+import { c, describe, expect, Fs, it, Json, pkg, SAMPLE, type t, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
 
 describe('Vite.build (workspace composition)', () => {
   const { brightCyan: cyan, bold } = c;
   const VERBOSE = false;
 
-  const printDist = (dist: t.DistPkg, paths: t.ViteConfigPaths) => {
+  const printDist = (dist: t.DistPkg, paths: t.ViteConfig.Paths) => {
     const entry = Fs.trimCwd(Fs.join(paths.cwd, paths.app.entry));
     const outDir = Fs.trimCwd(Fs.join(paths.cwd, paths.app.outDir));
 
@@ -34,21 +33,20 @@ describe('Vite.build (workspace composition)', () => {
   const testBuild = async (sample: t.StringDir) => {
     const cwd = Fs.resolve('./.tmp/test/Vite.build.workspace-composition/fixture');
     await Fs.remove(Fs.dirname(cwd), { log: false });
-    await Fs.ensureDir(Fs.dirname(cwd));
-    await Fs.copy(sample, cwd);
-    const configPath = Fs.join(cwd, 'vite.config.ts');
-    const originalConfig = (await Fs.readText(configPath)).data ?? '';
-    const workspace = Fs.resolve('../../../deno.json').replaceAll('\\', '/');
-    await Fs.write(
-      configPath,
-      originalConfig.replace(
-        'Vite.Config.app({ paths })',
-        `Vite.Config.app({ paths, workspace: ${Json.stringify(workspace)} })`,
-      ),
-    );
-    const restore = await writeLocalFixtureImports(cwd);
-
+    // Retain the actual ancestor workspace/lock instead of declaring an isolated fixture workspace.
     try {
+      await Fs.ensureDir(Fs.dirname(cwd));
+      await Fs.copy(sample, cwd);
+      const configPath = Fs.join(cwd, 'vite.config.ts');
+      const originalConfig = (await Fs.readText(configPath)).data ?? '';
+      const workspace = Fs.resolve('../../../deno.json').replaceAll('\\', '/');
+      await Fs.write(
+        configPath,
+        originalConfig.replace(
+          'Vite.Config.app({ paths })',
+          `Vite.Config.app({ paths, workspace: ${Json.stringify(workspace)} })`,
+        ),
+      );
       const expectedPaths = {
         cwd,
         app: {
@@ -59,6 +57,7 @@ describe('Vite.build (workspace composition)', () => {
       } as const;
 
       const res = await Vite.build({
+        dependencyPolicy: 'frozen-cache',
         cwd,
         paths: expectedPaths,
         pkg,
@@ -69,6 +68,7 @@ describe('Vite.build (workspace composition)', () => {
       if (!res.ok) console.warn(res.toString());
 
       expect(res.ok).to.eql(true);
+      if (!res.ok) throw new Error(res.toString());
       expect(res.paths).to.eql(expectedPaths);
 
       const readFile = async (path: string) => (await Fs.readText(path)).data ?? '';
@@ -90,8 +90,6 @@ describe('Vite.build (workspace composition)', () => {
         },
       } as const;
     } finally {
-      await restore();
-      await Fs.write(configPath, originalConfig);
       await Fs.remove(Fs.dirname(cwd), { log: false });
     }
   };

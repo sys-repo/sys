@@ -1,14 +1,17 @@
-import { type t, Deps, Err, Esm, Fs, Path } from './common.ts';
+import { Deps, Err, Esm, Fs, Path, type t } from './common.ts';
 import { createSession, type UpgradeSession } from './u.session.ts';
 import { upgradeWithSession } from './u.upgrade.ts';
+import { entryKey } from './u.entry.ts';
 
+/**
+ * Compute a fresh upgrade plan and write the manifest and its dependency files.
+ * Writes may occur without version changes; a failed write does not roll back earlier writes.
+ */
 export const apply: t.WorkspaceUpgrade.Lib['apply'] = async (input, options) => {
   return await applyWithSession(input, options, createSession());
 };
 
-/**
- * Internal session-aware apply helper for multi-phase upgrade orchestration.
- */
+/** Apply with shared registry lookups; manifest reads and planning still run on each call. */
 export async function applyWithSession(
   input: t.WorkspaceUpgrade.Input,
   options: t.WorkspaceUpgrade.Options | undefined,
@@ -30,6 +33,8 @@ export async function applyWithSession(
     {
       depsPath: planned.input.deps,
       denoFilePath: wrangle.denoFilePath(planned.input),
+      packageFilePath: wrangle.packageFilePath(planned.input, manifest.data),
+      packageJson: manifest.data.packageJson,
     },
     [...entries],
   );
@@ -49,21 +54,33 @@ const wrangle = {
     return Path.resolve(dir, 'deno.json');
   },
 
+  packageFilePath(
+    input: t.WorkspaceUpgrade.Input,
+    manifest: t.EsmDeps.State,
+  ): t.StringPath | undefined {
+    const requested = manifest.packageJson !== undefined ||
+      manifest.entries.some((entry) => entry.target.includes('package.json'));
+    if (!requested) return undefined;
+
+    const dir = input.cwd ?? Fs.dirname(input.deps);
+    return Path.resolve(dir, 'package.json');
+  },
+
   entries(
     entries: readonly t.EsmDeps.Entry[],
-    policy: t.EsmPolicyResult,
+    policy: t.EsmPolicy.Result,
   ): readonly t.EsmDeps.Entry[] {
     const selectedByKey = new Map(
       policy.decisions
-        .filter((decision): decision is t.EsmPolicyDecision & { ok: true } => decision.ok)
+        .filter((decision): decision is t.EsmPolicy.Decision & { ok: true } => decision.ok)
         .flatMap((decision) => {
           const version = decision.selection.selected?.version;
-          return version ? [[wrangle.key(decision.input.subject.entry), version] as const] : [];
+          return version ? [[entryKey(decision.input.subject.entry), version] as const] : [];
         }),
     );
 
     return entries.map((entry) => {
-      const version = selectedByKey.get(wrangle.key(entry));
+      const version = selectedByKey.get(entryKey(entry));
       if (!version) return entry;
       const input = Esm.toString(entry.module, { version });
       const module = Esm.parse(input, entry.module.alias);
@@ -71,17 +88,17 @@ const wrangle = {
     });
   },
 
-  key(entry: t.EsmDeps.Entry): string {
-    return `${entry.module.registry}:${entry.module.name}`;
-  },
-
-  topologyError(result: Exclude<t.EsmTopologicalResult, { ok: true }>): t.StdError {
+  topologyError(result: Exclude<t.EsmTopological.Decision.Result, { ok: true }>): t.StdError {
     if ('cycle' in result) {
-      const err = `Workspace upgrade plan could not be applied because the dependency graph is cyclic: ${result.cycle.keys.join(', ')}`;
+      const err =
+        `Workspace upgrade plan could not be applied because the dependency graph is cyclic: ${
+          result.cycle.keys.join(', ')
+        }`;
       return Err.std(err);
     }
 
-    const err = `Workspace upgrade plan could not be applied because the dependency graph is invalid: ${result.invalid.code}`;
+    const err =
+      `Workspace upgrade plan could not be applied because the dependency graph is invalid: ${result.invalid.code}`;
     return Err.std(err);
   },
 } as const;

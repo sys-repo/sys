@@ -27,5 +27,5 @@ export type LogoCanvasPanelHandler = (e: LogoCanvasPanelHandlerArgs) => void;
 export type LogoCanvasPanelHandlerArgs = {
   event: 'enter' | 'leave' | 'click';
   panel: t.CanvasPanel;
-  modifier: t.KeyboardModifierFlags;
+  modifier: t.Keyboard.Modifier.Flags;
 };

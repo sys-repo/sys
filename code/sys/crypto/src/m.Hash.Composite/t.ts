@@ -1,126 +1,134 @@
+import type * as TSys from '@sys/types';
 import type { t } from '../common.ts';
 
-/** Loose input type for a hashing algorithm choice. */
-export type HashAlgoInput = 'sha256' | 'sha1' | t.ToHash;
-
-/** Loose input type for options passed to Composite-Hash builder creation method. */
-export type CompositeHashBuilderOptionsInput =
-  | t.CompositeHashBuildOptions
-  | t.CompositeHashBuildOptions['algo']
-  | t.CompositeHashBuildOptions['initial'];
-
-/** Loose input type for options passed to Composite-Hash digest method. */
-export type CompositeHashDigestOptionsInput = t.CompositeHashBuildOptions;
-
-/** Loose input type for args passed to the Composite-Hash verify method. */
-export type CompositeHashVerifyArgsInput = t.CompositeHashVerifyOptions | t.HashVerifyLoader;
+/** Represents a composite hash built from a sorted set of constituent hashes. */
+export type CompositeHash = TSys.CompositeHash;
 
 /**
- * Tools for building composite hashes.
+ * Composite hash contracts.
  */
-export type CompositeHashLib = {
-  readonly Uri: { readonly File: FileHashUriLib };
+export declare namespace CompositeHash {
+  /** Tools for building composite hashes. */
+  export type Lib = {
+    /** URI helpers for composite-hash parts. */
+    readonly Uri: { readonly File: FileHashUri.Lib };
 
-  /** Create a new Composite-Hash builder. */
-  builder(options?: t.CompositeHashBuilderOptionsInput): t.CompositeHashBuilder;
+    /** Create a new composite-hash builder. */
+    builder(options?: Builder.OptionsInput): Builder;
 
-  /** Calculate the composite hash (aka: "digest") of the given set of hashes after sorting. */
-  digest(
-    parts: t.CompositeHash['parts'],
-    options?: t.CompositeHashDigestOptionsInput,
-  ): t.StringHash;
+    /** Calculate the composite hash, aka digest, of the given set of hashes after sorting. */
+    digest(parts: t.CompositeHash['parts'], options?: Digest.OptionsInput): t.StringHash;
 
-  /** Abstractly verify a hash against content.  */
-  verify(
-    hash: t.CompositeHash,
-    args: t.CompositeHashVerifyArgsInput,
-  ): Promise<t.HashVerifyResponse>;
+    /** Abstractly verify a hash against content. */
+    verify(hash: t.CompositeHash, args: Verify.ArgsInput): Promise<Verify.Response>;
+
+    /** Wrangle an input to a simple concrete composite-hash object. */
+    toComposite(input?: t.CompositeHash | Builder): t.CompositeHash;
+
+    /** Sum the total byte-size of the given parts. */
+    size(
+      parts: t.CompositeHashParts,
+      filter?: (e: { path: string; uri: FileHashUri.Parts }) => boolean,
+    ): t.NumberBytes | undefined;
+  };
+
+  /** Loose input type for a hashing algorithm choice. */
+  export type AlgoInput = 'sha256' | 'sha1' | t.Hash.ToHash;
+
+  /** Structure used to build a composite hash. */
+  export type Builder = t.CompositeHash & {
+    /** The number of parts that make up the composite hash. */
+    readonly length: number;
+
+    /** The algorithm the builder is using to calculate hashes. */
+    readonly algo: AlgoInput;
+
+    /** Add a new hash to the set. */
+    add(key: string, value: unknown): Builder;
+
+    /** Remove the named hash from the set. */
+    remove(key: string): Builder;
+
+    /** Produce a simple composite-hash object. */
+    toObject(): t.CompositeHash;
+
+    /** Convert the builder into the digest string. */
+    toString(): string;
+  };
 
   /**
-   * Wrangles an input to a simple concrete Composite-Hash object.
-   * Pass nothing to retrieve an empty version of the structure.
+   * Composite-hash builder contracts.
    */
-  toComposite(input?: t.CompositeHash | t.CompositeHashBuilder): t.CompositeHash;
+  export namespace Builder {
+    /** Options passed to the composite-hash builder method. */
+    export type Options = {
+      /** Method for producing hashes. */
+      algo?: AlgoInput;
+
+      /** Initial items to add. */
+      initial?: { key: string; value: unknown }[];
+    };
+
+    /** Loose input type for options passed to composite-hash builder creation. */
+    export type OptionsInput = Options | Options['algo'] | Options['initial'];
+  }
 
   /**
-   * Sums the total byte-size of the given parts.
-   * @returns The sum of all bytes extracted from the URIs, or `undefined`
-   *          if `parts` is empty or none include byte-size data.
+   * Composite-hash digest contracts.
    */
-  size(
-    parts: t.CompositeHashParts,
-    filter?: (e: { path: string; uri: t.FileHashUriParts }) => boolean,
-  ): t.NumberBytes | undefined;
-};
+  export namespace Digest {
+    /** Loose input type for options passed to the composite-hash digest method. */
+    export type OptionsInput = Builder.Options;
+  }
 
-/** Options passed to the Composite-Hash.verify method. */
-export type CompositeHashVerifyOptions = {
-  /** Method for producing hashes. */
-  algo?: t.HashAlgoInput;
+  /**
+   * Composite-hash verification contracts.
+   */
+  export namespace Verify {
+    /** Loose input type for args passed to the composite-hash verify method. */
+    export type ArgsInput = Options | Loader;
 
-  /** Loader to retrieve the data to hash and compare. */
-  loader: t.HashVerifyLoader;
-};
+    /** Options passed to the composite-hash verify method. */
+    export type Options = {
+      /** Method for producing hashes. */
+      algo?: AlgoInput;
 
-/** Function that loads content to be verified against a hash.  */
-export type HashVerifyLoader = (e: HashVerifyLoaderArgs) => Promise<Uint8Array | undefined | void>;
+      /** Loader to retrieve the data to hash and compare. */
+      loader: Loader;
+    };
 
-/** Arguments passed to the `HashVerifyLoader`. */
-export type HashVerifyLoaderArgs = { part: string };
+    /** Function that loads content to be verified against a hash. */
+    export type Loader = (e: LoaderArgs) => Promise<Uint8Array | undefined | void>;
 
-/** Response returned from Composite-Hash.verify method. */
-export type HashVerifyResponse = {
-  is: { valid?: boolean };
+    /** Arguments passed to the hash verification loader. */
+    export type LoaderArgs = { part: string };
 
-  /** The composite hash value. */
-  hash: { a: t.CompositeHash; b: t.CompositeHash };
+    /** Response returned from the composite-hash verify method. */
+    export type Response = {
+      is: { valid?: boolean };
 
-  /** Error details if any occured. */
-  error?: t.StdError;
-};
+      /** The composite hash value. */
+      hash: { a: t.CompositeHash; b: t.CompositeHash };
 
-/** Options passed to the Composite-Hash.build method. */
-export type CompositeHashBuildOptions = {
-  /** Method for producing hashes. */
-  algo?: HashAlgoInput;
-
-  /** Initial items to add. */
-  initial?: { key: string; value: unknown }[];
-};
-
-/**
- * Structure used to build a CompositeHash.
- */
-export type CompositeHashBuilder = t.CompositeHash & {
-  /** The number of parts that make up the composite hash. */
-  readonly length: number;
-
-  /** The algorithm the builder is using to calculate hashes. */
-  readonly algo: t.HashAlgoInput;
-
-  /** Add a new hash to the set. */
-  add(key: string, value: unknown): t.CompositeHashBuilder;
-
-  /** Remove the name hash from the set. */
-  remove(key: string): t.CompositeHashBuilder;
-
-  /** Produce a simple {CompositeHash} object. */
-  toObject(): t.CompositeHash;
-
-  /** Convert the builder into the digest string. */
-  toString(): string;
-};
+      /** Error details if any occurred. */
+      error?: t.StdError;
+    };
+  }
+}
 
 /**
- * URIs:
+ * File hash URI contracts.
  */
-export type FileHashUriLib = {
-  toUri(hash: string, bytes?: number): t.StringFileHashUri;
-  fromUri(input: string): FileHashUriParts;
-};
+export declare namespace FileHashUri {
+  /** Helpers for reading and encoding file-hash URI strings. */
+  export type Lib = {
+    toUri(hash: string, bytes?: number): t.StringFileHashUri;
+    fromUri(input: string): Parts;
+  };
 
-/** A decomposed file-hash URI. */
-export type FileHashUriParts = {
-  hash: t.StringHash;
-  bytes?: number;
-};
+  /** A decomposed file-hash URI. */
+  export type Parts = {
+    hash: t.StringHash;
+    bytes?: number;
+  };
+}

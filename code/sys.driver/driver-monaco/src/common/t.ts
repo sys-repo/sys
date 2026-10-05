@@ -9,18 +9,17 @@ export type * from '../t.def.monaco.ts';
  */
 export type * from '@sys/types';
 
-export type { ColorTheme } from '@sys/color/t';
+export type { Color } from '@sys/color/t';
 export type { EmitEvent, EmitEventSchedule, EventFilterLib } from '@sys/event/t';
 export type { Infer, Schema, TSchema } from '@sys/schema/t';
 export type { SpecImports } from '@sys/testing/t';
-export type { CssEdgesInput, CssInput, CssMarginArray, CssProps, CssValue } from '@sys/ui-css/t';
-export type { KeyboardModifierFlags } from '@sys/ui-dom/t';
-export type {
-  ButtonFlags,
-  ObjectViewProps,
-  TreeHostViewNodeList,
-} from '@sys/ui-react-components/t';
-export type { DevCtx } from '@sys/ui-react-devharness/t';
+import type * as TCss from '@sys/ui-css/t';
+export type CssEdgesInput = TCss.CssEdges.Input;
+export type CssInput = TCss.Style.Input;
+export type CssProps = TCss.Style.Props;
+export type { Keyboard } from '@sys/ui-dom/t';
+export type { Button, ObjectViewProps, TreeHostViewNodeList } from '@sys/ui-components/t';
+export type { DevCtx } from '@sys/ui-dev/react/devharness/t';
 export type { FC } from '@sys/ui-react/t';
 export type {
   Yaml,
@@ -36,7 +35,7 @@ export type {
 /**
  * @drivers
  */
-export type { A, Crdt, DocumentIdProps } from '@sys/driver-automerge/t';
+export type { A, Crdt } from '@sys/driver-automerge/t';
 
 /**
  * CRDT

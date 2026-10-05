@@ -48,7 +48,7 @@ export const TEMPLATE = Str.dedent(`
     <body>
       <ul>
 __LIST__
-        <li><a href="./dist.json" class="version">dist.json</a></li>
+__DIST__
       </ul>
     </body>
   </html>

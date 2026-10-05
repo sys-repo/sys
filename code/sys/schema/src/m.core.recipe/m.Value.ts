@@ -4,7 +4,7 @@ import { type t } from './common.ts';
  * Tiny constructors for recipe nodes.
  * These are intentionally minimal and side-effect free.
  */
-export const Value: t.ValueLib = {
+export const Value: t.ValueLib = Object.freeze({
   string: (o: Omit<t.StrSpec, 'kind'> = {}): t.StrSpec => ({ kind: 'string', ...o }),
   number: (o: Omit<t.NumSpec, 'kind'> = {}): t.NumSpec => ({ kind: 'number', ...o }),
   boolean: (o: Omit<t.BoolSpec, 'kind'> = {}): t.BoolSpec => ({ kind: 'boolean', ...o }),
@@ -38,4 +38,4 @@ export const Value: t.ValueLib = {
   }),
 
   optional: (of: t.SpecVariant): t.OptSpec => ({ kind: 'optional', of }),
-};
+});

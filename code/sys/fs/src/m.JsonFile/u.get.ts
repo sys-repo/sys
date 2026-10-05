@@ -3,12 +3,12 @@ import { type t, Fs, Immutable, Is, Obj, Time } from './common.ts';
 /**
  * Get or create a file handle.
  */
-export async function get<D extends t.JsonFileDoc>(
+export async function get<D extends t.JsonFile.Doc>(
   path: t.StringPath,
   initial: D,
-  options: t.JsonFileGetOptions = {},
-): Promise<t.JsonFile<D>> {
-  type F = t.JsonFile<D>;
+  options: t.JsonFile.GetOptions = {},
+): Promise<t.JsonFile.Instance<D>> {
+  type F = t.JsonFile.Instance<D>;
 
   path = Fs.resolve(path);
   const exists = await Fs.exists(path);
@@ -68,14 +68,14 @@ export async function get<D extends t.JsonFileDoc>(
     await file.save();
   }
 
-  return doc as t.JsonFile<D>;
+  return doc as t.JsonFile.Instance<D>;
 }
 
 /**
  * Helpers:
  */
 const wrangle = {
-  async seed<D extends t.JsonFileDoc>(args: {
+  async seed<D extends t.JsonFile.Doc>(args: {
     path: string;
     exists: boolean;
     initial: D;
@@ -101,7 +101,7 @@ const wrangle = {
     return wrangle.ensureCreatedAt(res.data);
   },
 
-  ensureCreatedAt<D extends t.JsonFileDoc>(input: D): D {
+  ensureCreatedAt<D extends t.JsonFile.Doc>(input: D): D {
     if (input['.meta']?.createdAt) return input;
 
     const clone = Obj.clone(input);

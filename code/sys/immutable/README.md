@@ -1,82 +1,59 @@
 # Immutable
-Core immutable state primitives. Minimal, engine-agnostic primitives for working with immutable state.
 
+Immutable state contracts and utilities, with an RFC-6902 JSON Patch implementation. `Immutable<T>`
+exposes `current` and `change(fn)`; `ImmutableRef<T>` adds identity and `events()` for observing
+changes.
 
-### Entry points
+## Immutable<T>: read → change → next value
+
 ```ts
-import { Immutable, Lens } from 'jsr:@sys/immutable/core';
-import { Immutable, Lens } from 'jsr:@sys/immutable/rfc6902';
-```
+import { Immutable } from 'jsr:@sys/immutable/rfc6902';
 
-This library defines the canonical `Immutable<T>` and `ImmutableRef<T>` shapes - objects exposing `.current`, `.change(fn)`, and `.events()` — along with lifecycle and observable utilities.
-
-This package has **no dependency** on any particular patch algebra (JSON Patch, Automerge, etc.), making it the stable core upon which all CRDT, worker, or diff-based systems can be built.
-
-
-
-
-<p>&nbsp;</p>
-
-# Immutable\<T\>
-General immutability pattern.
-See full type definitions: [`@sys/types`](code/sys/types/src/types/t.Immutable.ts)
-
-In its basic usage pattern:
-```ts
-type T = { count: number }
+type T = { count: number };
+const foo = Immutable.cloner<T>({ count: 0 });
 
 foo.current;                       //  === { count: 0 }    ↓
 foo.change((d) => d.count = 123);  //   Σ  |               ← safe mutation
 foo.current;                       //  === { count: 123 }  ↓              ..(next instance)
 ```
 
+Mutate the draft inside `change`, not `current`. Each change clones the current value and computes
+JSON patches, so this implementation is not intended for large objects.
 
-...and with a more flavor to the shape and characteristics of the `Immutable<T>` design pattern primitive (which is used extensively across the system for strongly typed manipulation of state).
+## Observe changes
 
-A broad number of diverse (and divergent) systems can be driven by this one single
-"safe" state manipulation pattern.
-
-Below shows how an `Immutable<T>` of `JSON` is declared, listened to, manipulated, and then ultimately disposed of (lifecycle):
-
+Use `clonerRef` when you also need identity and change events.
 
 ```ts
-type Immutable<T> = {
-  current: T
-  change(fn: Mutator<T>): void
-  listen(): Events<T>
+import { Immutable } from 'jsr:@sys/immutable/rfc6902';
+
+const ref = Immutable.clonerRef({ count: 0 });
+const events = ref.events();
+const subscription = events.$.subscribe(({ before, after, patches }) => {
+  console.log(before.count, after.count, patches);
+});
+
+try {
+  ref.change((draft) => {
+    draft.count = 123;
+  });
+  console.log(ref.current.count); // 123
+} finally {
+  subscription.unsubscribe();
+  events.dispose();
 }
-
-type T = { count: number }
-
-// Generator<T> over some immutability strategy
-// (typically an external library's implementation, see namespace: `@sys/driver-*`), eg. "crdt" etc.
-const foo = Generator.create<T>({ count: 0 }) // ← Immutable<T>
-
-
-/**
- * Imutable change pattern.
- * (safely mutate a proxy).
- */
-foo.current;                       //  === { count: 0 }    ↓
-foo.change((d) => d.count = 123);  //   Σ  |               ← safe mutation
-foo.current;                       //  === { count: 123 }  ↓
-
-
-// Strongly typed Event<T> stream observable: 💦
-const events = thing.listen(): Events<T>
-events.$.subscribe((e) => { /* handle event stream */ });
-
-/**
- * ↑ 💦
- *
- * Stream of Patch<T> changes optionally available,
- * eg. "RFC-6902 JSON patch standard".
- *
- * The Events<T> library itself enshrines the meaning of the message stream
- * conceptually through domain specific, pre-canned, stongly typed properties
- * and methods of functional filters/helpers.
- */
-
-// Finished.
-events.dispose();
 ```
+
+A change with no patches emits no event. Dispose the event handle when observation ends; the
+reference itself has no `dispose()` method.
+
+## Entry points
+
+- [`/core`](https://jsr.io/@sys/immutable/doc/core/): engine-independent lens, path-ref, and object
+  helpers; not a concrete state constructor.
+- [`/rfc6902`](https://jsr.io/@sys/immutable/doc/rfc6902/): `Immutable.cloner`,
+  `Immutable.clonerRef`, and JSON Patch helpers.
+- [`/t`](https://jsr.io/@sys/immutable/doc/t/): type contracts.
+
+The shared contracts can describe different state engines; `/rfc6902` uses JSON Patch. See the
+[API reference](https://jsr.io/@sys/immutable/doc/) for graph and URL utilities.

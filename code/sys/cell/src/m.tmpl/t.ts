@@ -1,0 +1,40 @@
+import type { t } from './common.ts';
+
+/**
+ * Cell template types.
+ */
+export declare namespace CellTmpl {
+  /** Available Cell template names. Add new names here as templates are introduced. */
+  export type Name = 'default';
+
+  /**
+   * Execution-safe template materialization types.
+   */
+  export namespace Write {
+    /** Options for writing an embedded Cell template. */
+    export type Options = { readonly dryRun?: boolean };
+
+    /** File write operation emitted while materializing a Cell template. */
+    export type Op = t.FileMap.Write.Op.Any;
+
+    /** Result from writing an embedded Cell template. */
+    export type Result = {
+      readonly target: string;
+      readonly dryRun: boolean;
+      readonly ops: readonly Op[];
+      readonly total: t.FileMap.Write.Result['total'];
+    };
+  }
+
+  /** Library surface for Cell templates. */
+  export type Lib = {
+    /** Available Cell template names. */
+    readonly names: readonly Name[];
+    /** Create a template writer for the selected Cell template. */
+    make(name?: Name): t.Tmpl;
+    /** Read a text file from the embedded template bundle. */
+    text(name: Name, path: t.StringPath): Promise<string>;
+    /** Rebuild the embedded template bundle from source files. */
+    bundle(): Promise<t.FileMap.Bundle.Result>;
+  };
+}

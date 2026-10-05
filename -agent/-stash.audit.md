@@ -5,21 +5,18 @@ status: stashed
 repo: sys
 repo_url: https://github.com/sys-repo/sys.git
 worktree: /Users/phil/code/org.sys/sys
-subject: checkpoint(cli.deploy): deno integration smoke-proven before final driver reporting cleanup
-note: ./-agent/stashes/checkpoint.cli.deploy-deno-integration-smoke-proven-before-final-driver-reporting-cleanup.md
+subject: 'checkpoint(http): combined fetch-pull hardening before ordered reconstruction'
+note: ./-agent/stashes/checkpoint-http-combined-fetch-pull-hardening-before-ordered-reconstruction.md
 branch: phil-work
-stash: stash@{0}
-created_at: 2026-03-30T20:58:00+13:00
+stash: 5d2da64900f06cc7dfe5c3d9ce698aa3234a1c5e
+created_at: 2026-07-31T02:29:11Z
 summary:
-  - Deno cli.deploy stage -> push is smoke-proven end-to-end against real Deno Deploy.
-  - Staged Deno roots now carry a truthful root dist.json for generic staged hash/reporting.
-  - Driver and cli deploy failure reporting/log enrichment is mid-landing.
+  - Preserve the selected combined HTTP Fetch/Pull experiment without stashing planning Markdown.
 next:
-  - Tighten driver-deno missing-app reporting from logs-enriched failure truth.
-  - Finish the remaining deno push/stage output cleanup without reopening the core integration seam.
+  - Reconstruct the verified Dist arc as isolated red-green commits from the checksum baseline.
 resume:
   - git switch phil-work
-  - git stash apply stash@{0}
+  - git stash apply 5d2da64900f06cc7dfe5c3d9ce698aa3234a1c5e
 ```
 
 ## Stash checkpoint
@@ -29,19 +26,56 @@ status: stashed
 repo: sys
 repo_url: https://github.com/sys-repo/sys.git
 worktree: /Users/phil/code/org.sys/sys
-subject: checkpoint(driver-agent.pi): typed session policy tightened before tomorrow review
-note: ./-agent/stashes/checkpoint.driver-agent.pi-typed-session-policy-tightened-before-tomorrow-review.md
+subject: 'checkpoint(testing): pre-hardening node-test migration experiment'
+note: ./-agent/stashes/checkpoint-testing-pre-hardening-node-test-migration-experiment.md
 branch: phil-work
-stash: stash@{0}
-created_at: 2026-04-12T18:18:27+12:00
+stash: fd6c018c0416f3f328431bbe985449326cbcf35e
+created_at: 2026-08-04T20:47:38.595Z
 summary:
-  - Pi profile session policy is now typed, with persistent modes requiring explicit project storage.
-  - Project session locality now resolves from the nearest ancestor deps.yaml instead of raw cwd.
-  - Profile passthrough session flags are blocked so durable startup policy stays owned by the profile layer.
+  - Preserve the false-green Node-authority migration while rebuilding the Deno-native authority from the restored baseline.
 next:
-  - Re-review the deps.yaml-root choice and the raw Cli.run escape hatch with a fresh head.
-  - Decide whether the pi.NOTES.md edit belongs in this same change or should be split.
+  - Implement deterministic sanitizer alarm controls before resuming the runtime adapter.
 resume:
   - git switch phil-work
-  - git stash apply stash@{0}
+  - git stash apply fd6c018c0416f3f328431bbe985449326cbcf35e
+```
+
+## Stash checkpoint
+
+```yaml
+status: closed
+repo: sys
+repo_url: https://github.com/sys-repo/sys.git
+worktree: /Users/phil/code/org.sys/sys
+subject: 'checkpoint(http): combined fetch-pull hardening before ordered reconstruction'
+note: ./-agent/stashes/checkpoint-http-combined-fetch-pull-hardening-before-ordered-reconstruction.md
+branch: phil-work
+stash: 5d2da64900f06cc7dfe5c3d9ce698aa3234a1c5e
+created_at: 2026-08-11T07:42:28Z
+summary:
+  - The ordered Dist reconstruction completed and both governing plans were retired.
+next:
+  - Drop the spent local stash after this closure record is committed.
+resume:
+  - Closed; do not apply this checkpoint.
+```
+
+## Stash checkpoint
+
+```yaml
+status: closed
+repo: sys
+repo_url: https://github.com/sys-repo/sys.git
+worktree: /Users/phil/code/org.sys/sys
+subject: 'checkpoint(testing): pre-hardening node-test migration experiment'
+note: ./-agent/stashes/checkpoint-testing-pre-hardening-node-test-migration-experiment.md
+branch: phil-work
+stash: fd6c018c0416f3f328431bbe985449326cbcf35e
+created_at: 2026-08-11T07:42:28Z
+summary:
+  - The sanitizer-strict Deno-native BDD migration completed and its governing plan was retired.
+next:
+  - Drop the spent local stash after this closure record is committed.
+resume:
+  - Closed; do not apply this checkpoint.
 ```

@@ -4,9 +4,9 @@ import { meta } from './u.meta.ts';
 import { pick } from './u.pick.ts';
 import { policy } from './u.policy.ts';
 
-export const Shard: t.ShardLib = {
+export const Shard: t.Shard.Lib = Object.freeze({
   pick,
   meta,
   policy,
   Sha256,
-};
+});

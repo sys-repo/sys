@@ -1,8 +1,11 @@
-import { A, describe, expect, it, Obj } from '../../-test.ts';
+import { A, afterAll, describe, expect, it, Obj, repoCleanup } from '../../-test.ts';
 import { toObject } from '../u.toObject.ts';
-import { testRepo } from './-u.ts';
+import { testRepo as createTestRepo } from './-u.ts';
 
-describe('Crdt.toObject', { sanitizeResources: false, sanitizeOps: false }, () => {
+const Repos = repoCleanup(afterAll);
+const testRepo = () => Repos.crdt(createTestRepo());
+
+describe('Crdt.toObject', () => {
   const decoupled = (original: any, plain: any, mutate: (x: any) => void) => {
     const snapshot = Obj.clone(original);
     mutate(plain);

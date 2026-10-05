@@ -106,4 +106,4 @@ async function buildDag<T extends O = O>(
   };
 }
 
-export const build: t.GraphLib['Dag']['build'] = buildDag;
+export const build: t.Graph.Lib['Dag']['build'] = buildDag;

@@ -1,4 +1,5 @@
 import { c, describe, expect, it, Rx, Semver, slug, Testing } from '../../../-test.ts';
+import { Url } from '../../../common.ts';
 import { assertFetchDisposed } from '../-u.ts';
 import { Fetch } from '../mod.ts';
 import { Jsr } from '../../m.Jsr/mod.ts';
@@ -10,7 +11,8 @@ describe('Jsr.Fetch.Pkg (external)', () => {
       await Testing.retry(3, async () => {
         const name = '@sys/std';
         const res = await Jsr.Fetch.Pkg.versions(name);
-        expect(res.url).to.eql(`https://jsr.io/${name}/meta.json`);
+        const url = res.ok ? res.finalUrl : res.url;
+        expect(Url.toCanonical(url).href).to.eql(`https://jsr.io/${name}/meta.json`);
         expect(res.status).to.eql(200);
         expect(res.error).to.eql(undefined);
 
@@ -25,7 +27,7 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         Fmt.printExternalObject('Jsr.Fetch.Pkg.versions:', {
           ok: res.ok,
           status: res.status,
-          url: res.url,
+          url,
           data: {
             scope: res.data?.scope,
             name: res.data?.name,
@@ -84,7 +86,7 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         Fmt.printExternalObject('Jsr.Fetch.Pkg.info:', {
           ok: res.ok,
           status: res.status,
-          url: res.url,
+          url: res.ok ? res.finalUrl : res.url,
           data: {
             pkg: res.data?.pkg,
             manifest: Object.keys(res.data?.manifest ?? {}).length,
@@ -100,21 +102,28 @@ describe('Jsr.Fetch.Pkg (external)', () => {
         const modules = res.data?.graph?.modules ?? [];
         const max = 5;
         const title = c.cyan(`${c.bold('graph modules')} (first ${max} of ${modules.length}):`);
-        console.info(title, modules.slice(0, max).map((module) => ({
-          path: module.path,
-          dependencies: module.dependencies.length,
-        })));
+        console.info(
+          title,
+          modules.slice(0, max).map((module) => ({
+            path: module.path,
+            dependencies: module.dependencies.length,
+          })),
+        );
         const deps = modules
           .flatMap((module) => module.dependencies.map((dep) => dep.specifier))
           .filter((specifier, index, items) => items.indexOf(specifier) === index)
           .sort((a, b) => a.localeCompare(b));
-        const rel = deps.filter((specifier) => specifier.startsWith('./') || specifier.startsWith('../'));
+        const rel = deps.filter((specifier) =>
+          specifier.startsWith('./') || specifier.startsWith('../')
+        );
         const jsr = deps.filter((specifier) => specifier.startsWith('jsr:'));
         const npm = deps.filter((specifier) => specifier.startsWith('npm:'));
         const preview = (items: readonly string[]) => {
           const shown = items.slice(0, 5);
           const more = items.length - shown.length;
-          const lines = shown.length === 0 ? ['  - []'] : shown.map((item) => `  - ${c.green(JSON.stringify(item))}`);
+          const lines = shown.length === 0
+            ? ['  - []']
+            : shown.map((item) => `  - ${c.green(JSON.stringify(item))}`);
           if (more > 0) lines.push(`  ${c.gray(c.italic(`${more} more`))}`);
           return lines.join('\n');
         };
@@ -143,8 +152,8 @@ describe('Jsr.Fetch.Pkg (external)', () => {
   });
 
   it('dispose ← (cancel fetch operation)', async () => {
-    const { dispose, dispose$ } = Rx.disposable();
-    const promise = Fetch.Pkg.versions('@sys/std', { dispose$ });
+    const { dispose, dispose$ } = Rx.lifecycle();
+    const promise = Fetch.Pkg.versions('@sys/std', { until: dispose$ });
 
     dispose();
     const res = await promise;

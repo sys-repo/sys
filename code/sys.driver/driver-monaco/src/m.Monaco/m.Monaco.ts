@@ -1,3 +1,4 @@
+import { loader } from '@monaco-editor/react';
 import type { t } from './common.ts';
 
 import { Error } from '../m.Error/mod.ts';
@@ -13,12 +14,15 @@ import { Link } from './m.Link.ts';
 /**
  * Code editor library:
  */
-export const Monaco: t.MonacoLib = {
+export const Monaco: t.MonacoDriver.Lib = {
   get Bus() {
     return Bus;
   },
   get Is() {
     return EditorIs;
+  },
+  get loader() {
+    return loader;
   },
   get Editor() {
     return Editor;

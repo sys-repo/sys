@@ -1,8 +1,8 @@
-import { type t, Semver } from './common.ts';
+import { Semver, type t } from './common.ts';
 import { parse } from './u.parse.ts';
 import { toString } from './u.toString.ts';
 
-export const Latest = {
+export const Latest = Object.freeze({
   name(items: t.EsmParsedImport[], input: t.StringModuleSpecifier): t.StringSemver {
     const name = parse(input).name;
     const matches = items.filter((m) => m.name === name);
@@ -22,7 +22,7 @@ export const Latest = {
     });
     return res;
   },
-} as const;
+});
 
 /**
  * Helpers

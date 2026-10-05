@@ -1,12 +1,11 @@
-import { type t, Err, Http, SlugMounts, Url } from './common.ts';
+import { Err, Http, SlugMounts, type t, Url } from './common.ts';
 
 const FILE = 'mounts.json' as const;
 const EMPTY: t.SlugMounts.Doc = { mounts: [] };
 
-export const loadMounts: t.SlugDataClient.Mounts.Load = async (origin) => {
-  const fetch = Http.fetcher();
+export const loadMounts: t.SlugDataClient.Mounts.Load = async (origin, transport) => {
   const url = Url.parse(origin).join(FILE) as t.StringUrl;
-  const res = await fetch.json<unknown>(url);
+  const res = await fetchJson(url, transport);
 
   if (!res.ok) {
     if (wrangle.isEmpty(res)) return { ok: true, value: EMPTY };
@@ -28,7 +27,9 @@ export const loadMounts: t.SlugDataClient.Mounts.Load = async (origin) => {
       ok: false,
       error: {
         kind: 'schema',
-        message: `Mount index failed @sys/schema validation. Reason: ${Err.summary(checked.errors)}`,
+        message: `Mount index failed @sys/schema validation. Reason: ${
+          Err.summary(checked.errors)
+        }`,
       },
     };
   }
@@ -36,8 +37,21 @@ export const loadMounts: t.SlugDataClient.Mounts.Load = async (origin) => {
   return { ok: true, value: res.data as t.SlugMounts.Doc };
 };
 
+async function fetchJson(
+  url: t.StringUrl,
+  transport: t.SlugLoadTransport,
+): Promise<t.HttpFetch.Response<unknown>> {
+  const ownsClient = !transport.client;
+  const client = transport.client ?? Http.fetcher({ policy: transport.policy });
+  try {
+    return await client.json<unknown>(url);
+  } finally {
+    if (ownsClient) client.dispose();
+  }
+}
+
 const wrangle = {
-  isEmpty(res: t.FetchResponse<unknown>) {
+  isEmpty(res: t.HttpFetch.ResponseFailure) {
     const url = res.url ?? '';
     const isMountIndex = url.endsWith('/mounts.json');
     const isLocalhost = url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1');

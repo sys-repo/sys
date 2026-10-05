@@ -1,0 +1,6 @@
+# Static UI Components dist service.
+
+name: view
+dir: ../../../../sys.ui/ui-components/dist
+info:
+  path: /

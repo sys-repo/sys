@@ -1,0 +1,154 @@
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
+import { Time } from '../mod.ts';
+
+describe('Time.waitFor admission', () => {
+  it('pre-abort prevents even a truthy predicate', async () => {
+    const ctrl = new AbortController();
+    const reason = new Error('stop');
+    ctrl.abort(reason);
+    let calls = 0;
+    let caught: unknown;
+    try {
+      await Time.waitFor(() => ++calls, { signal: ctrl.signal });
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).to.equal(reason);
+    expect(calls).to.eql(0);
+  });
+
+  it('zero budget prevents predicate admission', async () => {
+    let calls = 0;
+    let caught: unknown;
+    try {
+      await Time.waitFor(() => ++calls, { timeout: 0 });
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).to.be.instanceof(Error);
+    expect(caught).to.have.property('message', 'Time.waitFor: timeout exceeded');
+    expect(calls).to.eql(0);
+  });
+});
+
+describe('waiting', () => {
+  describe('Time.wait', () => {
+    it('resolves after the given delay', async () => {
+      const start = Date.now();
+      await Time.wait(50);
+      const elapsed = Date.now() - start;
+      expect(elapsed).to.be.greaterThanOrEqual(45);
+    });
+
+    it('returns a cancellable delay promise', async () => {
+      const timer = Time.wait(100);
+      expectTypeOf(timer.cancel).toEqualTypeOf<() => void>();
+      timer.cancel();
+
+      // Internal state invariants.
+      expect(timer.is.cancelled).to.eql(true);
+      expect(timer.is.done).to.eql(true);
+      expect(timer.is.completed).to.eql(false);
+      await timer;
+    });
+
+    it('supports AbortSignal via options object', async () => {
+      const ac = new AbortController();
+      const timer = Time.wait(200, { signal: ac.signal });
+      ac.abort();
+
+      await timer; // resolves quietly
+      expect(timer.is.cancelled).to.eql(true);
+    });
+
+    it('supports AbortSignal passed directly', async () => {
+      const ac = new AbortController();
+      const timer = Time.wait(200, ac.signal);
+      ac.abort();
+
+      await timer;
+      expect(timer.is.cancelled).to.eql(true);
+    });
+
+    it('defaults to a microtask tick when no msecs provided', async () => {
+      let ran = false;
+      await Time.wait().then(() => (ran = true));
+      expect(ran).to.eql(true);
+    });
+
+    it('has correct type signature', () => {
+      expectTypeOf(Time).toEqualTypeOf<t.Time.Lib>();
+      expectTypeOf(Time.wait).toEqualTypeOf<t.Time.Lib['wait']>();
+
+      type WaitShape = (
+        msecs?: t.Msecs,
+        options?: { readonly signal?: AbortSignal } | AbortSignal,
+      ) => t.Time.Delay.Promise;
+      expectTypeOf(Time.wait).toEqualTypeOf<WaitShape>();
+    });
+  });
+
+  describe('Time.waitFor', () => {
+    it('resolves once the predicate becomes truthy', async () => {
+      using cleanup = new DisposableStack();
+      let value = false;
+      cleanup.adopt(Time.delay(50, () => (value = true)), (timer) => timer.cancel());
+
+      const result = await Time.waitFor(() => value);
+      expect(result).to.eql(true);
+    });
+
+    it('passes through resolved values from async predicates', async () => {
+      const result = await Time.waitFor(() => Promise.resolve('done'));
+      expect(result).to.equal('done');
+    });
+
+    it('throws if timeout exceeded', async () => {
+      const start = Date.now();
+      let err: Error | undefined;
+
+      try {
+        await Time.waitFor(() => false, { timeout: 100, interval: 30 });
+      } catch (e) {
+        err = e as Error;
+      }
+
+      const elapsed = Date.now() - start;
+      expect(err?.message.toLowerCase()).to.contain('timeout');
+      expect(elapsed).to.be.greaterThanOrEqual(90);
+    });
+
+    it('has correct type signature', () => {
+      expectTypeOf(Time.waitFor).toEqualTypeOf<t.Time.Lib['waitFor']>();
+
+      type WaitForShape = <T>(
+        fn: () => T | Promise<T>,
+        options?: { readonly interval?: number; readonly timeout?: number; signal?: AbortSignal },
+      ) => Promise<T>;
+
+      expectTypeOf(Time.waitFor).toEqualTypeOf<WaitForShape>();
+    });
+
+    it('supports AbortSignal cancellation', async () => {
+      const ac = new AbortController();
+      let count = 0;
+      const fn = () => {
+        count++;
+        return false; // never resolves truthy
+      };
+
+      const p = Time.waitFor(fn, { interval: 10, timeout: 30, signal: ac.signal });
+
+      // Cancel on next tick.
+      queueMicrotask(() => ac.abort('stop'));
+      let caught: unknown;
+      try {
+        await p;
+      } catch (error) {
+        caught = error;
+      }
+      expect(caught).to.equal('stop');
+      expect(count).to.eql(1);
+    });
+  });
+});

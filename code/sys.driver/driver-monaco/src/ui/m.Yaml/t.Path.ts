@@ -1,21 +1,13 @@
 import type { t } from './common.ts';
 
-/**
- * Tools for working with selection paths in YAML.
- */
-export type EditorYamlPathLib = Readonly<{
-  /** Create a new `EditorYamlPathObserver`. */
-  observe(
-    args: { editor: t.Monaco.Editor; bus$?: t.EditorEventBus },
-    until?: t.UntilInput,
-  ): EditorYamlCursorPathObserver;
+/** Tools for working with selection paths in YAML. */
+export type Lib = Readonly<{
+  /** Create a new YAML cursor path observer. */
+  observe(args: { editor: t.Monaco.Editor; bus$?: t.EditorBus.Subject }, until?: t.UntilInput): Observer;
 }>;
 
-/**
- * Live observer of the [object-path] within an editor's
- * YAML document based on where the user's caret is.
- */
-export type EditorYamlCursorPathObserver = t.Lifecycle & {
-  readonly $: t.Observable<t.EventYamlCursor>;
-  readonly current: t.EventYamlCursor;
+/** Live observer of the object path at the user's caret in a YAML document. */
+export type Observer = t.Lifecycle & {
+  readonly $: t.Observable<t.EditorEvent.Yaml.Cursor>;
+  readonly current: t.EditorEvent.Yaml.Cursor;
 };

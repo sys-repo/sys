@@ -1,4 +1,4 @@
-import { type t, Esm, Fs, Is } from './common.ts';
+import { Esm, Fs, Is, type t } from './common.ts';
 import { Path } from './m.DenoFile.Path.ts';
 import { load } from './u.load.ts';
 
@@ -6,7 +6,7 @@ import { load } from './u.load.ts';
  * Load a deno workspace.
  * NB: pass nothing to walk up to the nearest ancestor workspace.
  */
-export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) => {
+export const workspace: t.DenoFile.Lib['workspace'] = async (path, options = {}) => {
   const { walkup = true } = options;
   const src = await wrangle.workspaceSource(path, walkup);
   const denofile = await load(src);
@@ -18,7 +18,7 @@ export const workspace: t.DenoFileLib['workspace'] = async (path, options = {}) 
   let _modules: t.EsmModules | undefined; // NB: lazy-load.
   const children = await loadFiles(dir, dirs);
 
-  const api: t.DenoWorkspace = {
+  const api: t.DenoFile.Workspace.Info = {
     exists,
     dir,
     file,
@@ -56,7 +56,7 @@ async function loadFiles(root: t.StringDir, subpaths: t.StringPath[]) {
     .map((subpath) => resolveDenofile(subpath))
     .map(async (path) => load(await path));
 
-  const toChild = (path: t.StringPath, denofile: t.DenoFileJson): t.DenoWorkspaceChild => {
+  const toChild = (path: t.StringPath, denofile: t.DenoFile.Json): t.DenoFile.Workspace.Child => {
     const dir = Fs.dirname(path);
     return {
       path: { dir, denofile: path },
@@ -70,7 +70,7 @@ async function loadFiles(root: t.StringDir, subpaths: t.StringPath[]) {
     .map((m) => toChild(trimPath(m.path), m.data!));
 }
 
-function toSpecifiers(files: t.DenoFileJson[]): t.StringModuleSpecifier[] {
+function toSpecifiers(files: t.DenoFile.Json[]): t.StringModuleSpecifier[] {
   return files
     .filter((file) => !!file.name)
     .map((file) => {

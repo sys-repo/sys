@@ -1,56 +1,107 @@
 import type { t } from './common.ts';
 
 /**
- * Tools for working with the browser's HTTP cache within a "service-worker" process.
+ * HTTP cache contracts.
  */
-export type HttpCacheLib = {
-  readonly Cmd: t.HttpCacheCmdLib;
+export declare namespace HttpCache {
+  /** Service-worker cache helper library. */
+  export type Lib = {
+    /** Command helpers for controlling service-worker cache state. */
+    readonly Cmd: t.HttpCacheCmd.Lib;
+    /** Canonical package-cache namespace helper. */
+    readonly Pkg: Pkg.Lib;
+
+    /**
+     * Starts the permanent cache for all immutable,
+     * hash-named bundle files.
+     *
+     * Files emitted by Vite look like:
+     *   /pkg/m.XOnTrOh4.js
+     *   /pkg/a.BnEcDK_c.wasm
+     *   /pkg/-entry.DJ2ZDeEQ.js
+     *   /pkg/m.2CvxsZQK.css
+     *
+     * Rule:
+     *   • must live under "/pkg/"
+     *   • have *any* base name
+     *   • a dot-separated "hash" >= 8 chars (letters, digits, "_" or "-")
+     *   • a final extension (js, css, wasm, etc.)
+     */
+    pkg(args: Pkg.Args): Promise<void>;
+  };
 
   /**
-   * Starts the permanent cache for all immutable,
-   * hash-named bundle files.
-   *
-   * Files emitted by Vite look like:
-   *   /pkg/m.XOnTrOh4.js
-   *   /pkg/a.BnEcDK_c.wasm
-   *   /pkg/-entry.DJ2ZDeEQ.js
-   *   /pkg/m.2CvxsZQK.css
-   *
-   * Rule:
-   *   • must live under "/pkg/"
-   *   • have *any* base name
-   *   • a dot-separated "hash" >= 8 chars (letters, digits, "_" or "-")
-   *   • a final extension (js, css, wasm, etc.)
+   * Package cache contracts.
    */
-  pkg(args: HttpCachePkgArgs): Promise<void>;
-};
+  export namespace Pkg {
+    /** Package-cache namespace helper. */
+    export type Lib = {
+      /** Snapshot the canonical cache names and ownership boundary for a package. */
+      readonly names: (pkg: t.Pkg) => Names;
+    };
 
-/** Inputs for `Http.Cache.pkg(...)`. */
-export type HttpCachePkgArgs = {
-  pkg: t.Pkg;
-  cacheName?: string;
-  silent?: boolean;
-  /** Optional media cache policy (defaults to `safe-full`). */
-  media?: HttpCacheMediaPolicyInput;
-};
+    /** Frozen package-cache namespace snapshot. */
+    export type Names = {
+      /** Exact delimiter-bound package namespace prefix. */
+      readonly prefix: string;
+      /** Current immutable-asset cache name. */
+      readonly asset: string;
+      /** Current full-media cache name. */
+      readonly media: string;
+      /** Current ranged-media cache name. */
+      readonly mediaRange: string;
+      /** All current package cache names. */
+      readonly current: readonly string[];
+      /** Test whether a cache belongs to this exact package namespace. */
+      readonly isOwned: (name: string) => boolean;
+      /** Test whether a cache is one of the current package cache names. */
+      readonly isCurrent: (name: string) => boolean;
+    };
 
-/** Media caching strategy used for ranged video requests. */
-export type HttpCacheMediaMode = 'off' | 'safe-full' | 'range-window';
+    /** Inputs for `Http.Cache.pkg(...)`. */
+    export type Args = {
+      /** Package descriptor used to derive cache namespaces. */
+      pkg: t.Pkg;
+      /** Suppress service-worker cache logging. */
+      silent?: boolean;
+      /** Optional media cache policy (defaults to `safe-full`). */
+      media?: Media.PolicyInput;
+    };
+  }
 
-/** Normalized media cache policy used internally by the SW cache runtime. */
-export type HttpCacheMediaPolicy = {
-  readonly mode: HttpCacheMediaMode;
-  readonly maxChunkBytes: number;
-  readonly maxObjectBytes: number;
-  readonly maxTotalBytes: number;
-  readonly ttlMs: number;
-};
+  /**
+   * Media cache policy contracts.
+   */
+  export namespace Media {
+    /** Media caching strategy used for ranged video requests. */
+    export type Mode = 'off' | 'safe-full' | 'range-window';
 
-/** User-supplied media cache policy (partial/optional shape). */
-export type HttpCacheMediaPolicyInput = {
-  mode?: HttpCacheMediaMode;
-  maxChunkBytes?: number;
-  maxObjectBytes?: number;
-  maxTotalBytes?: number;
-  ttlMs?: number;
-};
+    /** Normalized media cache policy used internally by the SW cache runtime. */
+    export type Policy = {
+      /** Active media caching strategy. */
+      readonly mode: Mode;
+      /** Maximum byte size for a single cached range chunk. */
+      readonly maxChunkBytes: number;
+      /** Maximum full-object byte size eligible for media caching. */
+      readonly maxObjectBytes: number;
+      /** Maximum total bytes retained by range-window media cache. */
+      readonly maxTotalBytes: number;
+      /** Time-to-live for cached media range entries. */
+      readonly ttl: t.Msecs;
+    };
+
+    /** User-supplied media cache policy input. */
+    export type PolicyInput = {
+      /** Media caching strategy override. */
+      mode?: Mode;
+      /** Maximum byte size for a single cached range chunk. */
+      maxChunkBytes?: number;
+      /** Maximum full-object byte size eligible for media caching. */
+      maxObjectBytes?: number;
+      /** Maximum total bytes retained by range-window media cache. */
+      maxTotalBytes?: number;
+      /** Time-to-live for cached media range entries, in milliseconds. */
+      ttlMs?: number;
+    };
+  }
+}

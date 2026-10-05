@@ -1,7 +1,7 @@
-import { Dev, Signal, Spec } from '../../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../../-test.ui.ts';
 import { D } from '../common.ts';
 import { SlugOrigin } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -31,7 +31,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size([450, null])

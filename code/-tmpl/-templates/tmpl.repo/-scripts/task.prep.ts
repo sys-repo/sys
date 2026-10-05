@@ -21,7 +21,7 @@ async function updateCi(cwd = Deno.cwd()) {
 
   const source = { root: PATHS.packages };
   await Workspace.Ci.Build.sync({ cwd, log: true, source, target: PATHS.build, on });
-  await Workspace.Ci.Test.sync({ cwd, log: true, source, target: PATHS.test, on });
+  await Workspace.Ci.Test.Linux.sync({ cwd, log: true, source, target: PATHS.test, on });
 }
 
 export async function main(cwd = Deno.cwd()) {

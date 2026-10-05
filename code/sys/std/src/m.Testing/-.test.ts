@@ -1,5 +1,5 @@
 import { Random } from '../m.Random/mod.ts';
-import { Testing, describe, expect, expectError, expectTypeOf, it } from './mod.ts';
+import { describe, expect, expectError, expectTypeOf, it, Testing } from './mod.ts';
 import { Time } from '../m.Time/mod.ts';
 
 Deno.test('Deno.test: sample (down at the test runner metal)', async (test) => {
@@ -14,18 +14,12 @@ describe('Testing', () => {
     expect(m.expectTypeOf).to.equal(expectTypeOf);
   });
 
-  it('exports BDD semantics', async () => {
-    const { describe, it } = await import('@std/testing/bdd');
-    const { afterAll, afterEach, beforeAll, beforeEach } = await import('@std/testing/bdd');
+  it('exports canonical BDD registrations directly', async () => {
+    const runner = await import('@sys/types/testing');
+    const facade = await import('@sys/std/testing');
+    const names = ['describe', 'it', 'beforeAll', 'beforeEach', 'afterEach', 'afterAll'] as const;
 
-    expect(Testing.Bdd.expect).to.equal(expect);
-    expect(Testing.Bdd.describe).to.equal(describe);
-    expect(Testing.Bdd.it).to.equal(it);
-
-    expect(Testing.Bdd.beforeAll).to.equal(beforeAll);
-    expect(Testing.Bdd.afterAll).to.equal(afterAll);
-    expect(Testing.Bdd.beforeEach).to.equal(beforeEach);
-    expect(Testing.Bdd.afterEach).to.equal(afterEach);
+    names.forEach((name) => expect(facade[name]).to.equal(runner[name]));
   });
 
   it('randomPort', () => {
@@ -42,19 +36,19 @@ describe('Testing', () => {
   });
 
   describe('expectError', () => {
-    const throwError = (message: string) => {
+    const fail = (message: string) => {
       throw new Error(message);
     };
 
     it('succeeds (default message)', async () => {
       await expectError(async () => {
         await Testing.wait(0);
-        throwError('Foo');
+        fail('Foo');
       });
     });
 
     it('succeeds (custom message)', async () => {
-      await expectError(() => throwError('Bar'), 'Bar');
+      await expectError(() => fail('Bar'), 'Bar');
     });
 
     it('fails when error not thrown', async () => {

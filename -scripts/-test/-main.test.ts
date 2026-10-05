@@ -41,7 +41,7 @@ describe('scripts/main prep orchestration', () => {
     ]);
   });
 
-  it('--prep-bump forwards the prep context into the dedicated bump followup lane without refreshing the CI Deno pin', async () => {
+  it('--prep-bump forwards the prep context and refreshes the CI Deno pin', async () => {
     const calls: unknown[] = [];
     const api = fakeLib({
       prep: async (context?: unknown) => {
@@ -60,6 +60,7 @@ describe('scripts/main prep orchestration', () => {
 
     expect(calls).to.eql([
       ['prep', 'bump'],
+      ['prepCiDeno'],
       ['prepCi', { versionFilter: 'ahead', prepared: 2, final: true, ensureGraph: false }],
     ]);
   });

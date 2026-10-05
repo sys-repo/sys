@@ -1,9 +1,9 @@
 import React from 'react';
-import { type t, Bus, Color, css, Obj, ObjectView, Rx, Str, useRev } from '../common.ts';
+import { Bus, Color, css, Obj, ObjectView, Rx, Str, type t, useRev } from '../common.ts';
 import { EditorYaml } from '../m.Yaml/mod.ts';
 
 export type YamlObjectViewProps = {
-  bus$?: t.EditorEventBus;
+  bus$?: t.EditorBus.Subject;
   doc?: t.CrdtRef;
   title?: string;
   editor?: t.Monaco.Editor;
@@ -27,8 +27,8 @@ export const YamlObjectView: React.FC<P> = (props) => {
    * Local state:
    */
   const [rev, bump] = useRev();
-  const [yaml, setYaml] = React.useState<t.EventYaml | undefined>();
-  const [cursor, setCursor] = React.useState<t.EventYamlCursor | undefined>();
+  const [yaml, setYaml] = React.useState<t.EditorEvent.Yaml.Data | undefined>();
+  const [cursor, setCursor] = React.useState<t.EditorEvent.Yaml.Cursor | undefined>();
 
   /**
    * Effect: ensure cursor producer exists (singleton per editorId).
@@ -45,7 +45,7 @@ export const YamlObjectView: React.FC<P> = (props) => {
    */
   React.useEffect(() => {
     if (!bus$) return;
-    const life = Rx.disposable();
+    const life = Rx.lifecycle();
 
     // Listeners:
     const $ = bus$.pipe(Rx.takeUntil(life.dispose$));
@@ -85,18 +85,19 @@ export const YamlObjectView: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  data(props: P & { yaml?: t.EventYaml; cursor?: t.EventYamlCursor }, rev: number) {
+  data(
+    props: P & { yaml?: t.EditorEvent.Yaml.Data; cursor?: t.EditorEvent.Yaml.Cursor },
+    rev: number,
+  ) {
     const { doc, cursor, yaml } = props;
     const docField = doc ? `doc(crdt:${doc.id.slice(-5)})` : 'doc';
-    const yamlDisplay = !yaml?.path
-      ? yaml
-      : {
-          ...yaml,
-          path: {
-            source: wrangle.path(yaml.path.source),
-            target: wrangle.path(yaml.path.target),
-          },
-        };
+    const yamlDisplay = !yaml?.path ? yaml : {
+      ...yaml,
+      path: {
+        source: wrangle.path(yaml.path.source),
+        target: wrangle.path(yaml.path.target),
+      },
+    };
     return {
       rev,
       [docField]: Obj.truncateStrings(doc?.current),
@@ -113,7 +114,7 @@ const wrangle = {
     return Str.truncate(out, 25);
   },
 
-  cursorPath(cursor?: t.EditorCursor) {
+  cursorPath(cursor?: t.MonacoDriver.Cursor) {
     return cursor ? wrangle.path(cursor?.path) : undefined;
   },
 } as const;

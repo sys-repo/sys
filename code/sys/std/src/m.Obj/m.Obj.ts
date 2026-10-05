@@ -3,17 +3,25 @@ import type { t } from './common.ts';
 import { Lens } from '../m.Obj.Lens/mod.ts';
 import { Path } from '../m.Obj.Path/mod.ts';
 
-import { isEmptyRecord, isObject, isRecord, R } from './common.ts';
-import { asGetter } from './u.asGetter.ts';
-import { clone } from './u.clone.ts';
-import { extend } from './u.extend.ts';
-import { hash } from './u.hash.ts';
-import { truncateStrings } from './u.truncate.ts';
-import { keys, pick, sortKeys, toArray } from './u.ts';
-import { walk } from './u.walk.ts';
-import { entries } from './u.entries.ts';
+import { deep as equals } from '../m.Eql/m.Eql.ts';
+import { isEmptyRecord, isObject, isRecord } from './common.ts';
+import {
+  asGetter,
+  clone,
+  deepFreeze,
+  entries,
+  extend,
+  hash,
+  hasOwn,
+  keys,
+  pick,
+  sortKeys,
+  toArray,
+  truncateStrings,
+  walk,
+} from './u/mod.ts';
 
-export const Obj: t.ObjLib = {
+export const Obj: t.Obj.Lib = Object.freeze({
   Path,
   Lens,
 
@@ -22,15 +30,17 @@ export const Obj: t.ObjLib = {
   truncateStrings,
   pick,
   keys,
+  hasOwn,
   entries,
   sortKeys,
   clone,
+  deepFreeze,
   extend,
   hash,
-  eql: R.equals,
+  eql: equals,
   asGetter,
 
   isObject,
   isRecord,
   isEmptyRecord,
-};
+});

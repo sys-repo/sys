@@ -1,6 +1,6 @@
-import { Time, type t } from './common.ts';
+import { type t, Time } from './common.ts';
 
-type R = t.TestingLib['retry'];
+type R = t.Testing.Lib['retry'];
 
 /**
  * Attempt to run the test function <n>-times before throwing.

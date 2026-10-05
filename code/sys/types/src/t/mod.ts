@@ -1,6 +1,7 @@
 export type * from './-external.ts';
 
 export type * from './t.Array.ts';
+export type * from './t.Async.ts';
 export type * from './t.Binary.ts';
 export type * from './t.Boolean.ts';
 export type * from './t.Coord.ts';
@@ -24,6 +25,7 @@ export type * from './t.Pkg.dist.ts';
 export type * from './t.Pkg.ts';
 export type * from './t.Readonly.ts';
 export type * from './t.Semver.ts';
+export type * from './t.Service.ts';
 export type * from './t.Signal.ts';
 export type * from './t.Size.ts';
 export type * from './t.Sort.ts';

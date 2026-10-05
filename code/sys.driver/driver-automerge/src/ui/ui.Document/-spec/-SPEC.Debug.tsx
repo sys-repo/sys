@@ -15,7 +15,7 @@ import {
   STORAGE_KEY,
 } from '../common.ts';
 
-type P = t.DocumentProps;
+type P = t.Document.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
 const defaults: Storage = {
   debug: false,

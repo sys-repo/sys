@@ -1,6 +1,6 @@
 import { type t, Num, Severity } from './common.ts';
 
-export const toMarkers: t.EditorErrorLib['toMarkers'] = (target, errors) => {
+export const toMarkers: t.EditorError.Lib['toMarkers'] = (target, errors) => {
   const model = 'getModel' in target ? target.getModel() : target;
   if (!model) return [];
 
@@ -17,7 +17,7 @@ export const toMarkers: t.EditorErrorLib['toMarkers'] = (target, errors) => {
     return off + (c - 1);
   };
 
-  const toOffsets = (d: t.EditorDiagnostic): [number, number] => {
+  const toOffsets = (d: t.EditorError.Diagnostic.Shape): [number, number] => {
     if (Array.isArray(d.range)) {
       const start = d.range[0] ?? 0;
       const preferEnd = d.range[2] ?? d.range[1];
@@ -69,7 +69,7 @@ export const toMarkers: t.EditorErrorLib['toMarkers'] = (target, errors) => {
 /**
  * Helpers:
  */
-function hasLocation(d: t.EditorDiagnostic) {
+function hasLocation(d: t.EditorError.Diagnostic.Shape) {
   return Array.isArray(d.range) || Array.isArray(d.pos) || (d.linePos && d.linePos.length >= 1);
 }
 

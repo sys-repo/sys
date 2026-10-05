@@ -1,6 +1,6 @@
 {
   "name": "@sys/tmpl-engine",
-  "version": "0.0.289",
+  "version": "0.0.356",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -8,10 +8,15 @@
     "check": "deno check -- ./src/ ./scripts/*",
     "clean": "deno run -P=clean ./scripts/task.clean.ts"
   },
+  "publish": {
+    "exclude": [
+      "src/-test/sample-1/",
+      "src/-test/sample-2/"
+    ]
+  },
   "exports": {
     ".": "./src/mod.ts",
-    "./t": "./src/types.ts",
-    "./types": "./src/types.ts"
+    "./t": "./src/types.ts"
   },
   "permissions": {
     "clean": {

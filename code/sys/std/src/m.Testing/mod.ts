@@ -11,7 +11,7 @@
  * within the folder structure.
  *
  * ```ts
- * import { Testing, describe, expect, it } from '@std/sys';
+ * import { Testing, describe, expect, it } from '@sys/std/testing';
  *
  * describe('My Suite', () => {
  *   it('does something', async () => {
@@ -21,7 +21,6 @@
  * });
  */
 export {
-  Bdd,
   afterAll,
   afterEach,
   beforeAll,

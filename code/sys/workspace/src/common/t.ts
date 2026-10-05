@@ -3,20 +3,12 @@
  */
 export type * from '@sys/types';
 
-export type { CliFormat, CliSpinner } from '@sys/cli/t';
-export type {
-  EsmDeps,
-  EsmPolicyDecision,
-  EsmPolicyInput,
-  EsmPolicyMode,
-  EsmPolicyResult,
-  EsmRegistry,
-  EsmTopologicalInput,
-  EsmTopologicalResult,
-} from '@sys/esm/t';
-export type { JsonFileMeta } from '@sys/fs/t';
+export type { Cli } from '@sys/cli/t';
+export type { EsmDeps, EsmPolicy, EsmRegistry, EsmTopological } from '@sys/esm/t';
+export type { JsonFile } from '@sys/fs/t';
 export type { Process } from '@sys/process/t';
 export type { Registry } from '@sys/registry/t';
+export type { Str, Time, Xml } from '@sys/std/t';
 
 /**
  * @local

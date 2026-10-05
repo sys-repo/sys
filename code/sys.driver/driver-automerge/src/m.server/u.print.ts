@@ -1,4 +1,4 @@
-import { type t, c, Cli, Fs, Is, pkg, Pkg, Rx, Str, Time } from './common.ts';
+import { c, Cli, Fs, Is, Pkg, pkg, Rx, Str, type t, Time } from './common.ts';
 
 /**
  * Helpers for logging.
@@ -28,7 +28,9 @@ export const Log = {
     const bullet = c.bold(c.cyan('⏱'));
 
     const title = `${bullet} ${ts}`;
-    const msg = `  ${'Memory:'}      RSS ${rss}, ${c.cyan('Heap Used')} ${heapUsed}, Heap Total ${heapTotal}`;
+    const msg = `  ${'Memory:'}      RSS ${rss}, ${
+      c.cyan('Heap Used')
+    } ${heapUsed}, Heap Total ${heapTotal}`;
 
     console.info(c.gray(title));
     console.info(c.gray(`  ${'Module:'}      ${Pkg.toString(pkg)}`));
@@ -72,9 +74,8 @@ export const Log = {
     const { debounce = 3_000, heartbeatDelay = 30 * 60_000 } = options;
 
     const $ = Rx.subject();
-    $.pipe(Rx.debounceTime(debounce)).subscribe(() => log?.());
-
     const time = Time.until(life);
+    $.pipe(Rx.debounceTime(debounce), Rx.takeUntil(time.dispose$)).subscribe(() => log?.());
     const heartbeat = (log: boolean = true) => {
       if (log) $.next();
       time.delay(heartbeatDelay, heartbeat);

@@ -33,7 +33,9 @@ type TLModule = typeof import('@testing-library/react');
 // Top-level await keeps the exported API sync (no Promise-returning renderHook).
 const TL: TLModule = await import('@testing-library/react');
 
+/** Server-safe Testing Library renderHook export after DOM polyfill setup. */
 export const renderHook: TLModule['renderHook'] = TL.renderHook;
+/** Server-safe Testing Library act export after DOM polyfill setup. */
 export const act: TLModule['act'] = TL.act;
 
 export type RenderHook = TLModule['renderHook'];

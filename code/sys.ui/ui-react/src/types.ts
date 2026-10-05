@@ -1,13 +1,13 @@
 /**
- * @module types
+ * @module
+ * Public type surface for React UI helpers.
  */
 import type { JSX } from 'react';
-export type { FC } from 'react';
 
 /** The output of a render function. */
 export type RenderOutput = JSX.Element | null | undefined | false;
 
-/** Input types that can be passed to a render function */
+/** Input types that can be passed to a render function. */
 export type RenderInput = RenderOutput | string | number;
 
 /**

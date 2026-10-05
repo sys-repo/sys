@@ -1,5 +1,4 @@
 export type * from '@sys/types';
-export type * from '@sys/std/t';
 export type * from '@sys/esm/t';
 export type * from '@sys/process/t';
 export type * from '@sys/workspace/t';

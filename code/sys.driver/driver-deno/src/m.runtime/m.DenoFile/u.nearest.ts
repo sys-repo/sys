@@ -1,8 +1,8 @@
-import { type t, Fs } from './common.ts';
+import { Fs, type t } from './common.ts';
 import { Path } from './m.DenoFile.Path.ts';
 import { load } from './u.load.ts';
 
-export const nearest: t.DenoFileLib['nearest'] = async (start, shouldStop) => {
+export const nearest: t.DenoFile.Lib['nearest'] = async (start, shouldStop) => {
   const path = await Path.nearest(start, shouldStop);
   if (!path) return undefined;
 

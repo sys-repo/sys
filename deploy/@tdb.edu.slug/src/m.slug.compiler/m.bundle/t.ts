@@ -15,7 +15,7 @@ export type SlugBundleLib = {
     cwd: t.StringDir;
     cmd: t.Crdt.Cmd.Client;
     interactive?: boolean;
-  }) => Promise<t.MenuResult>;
+  }) => Promise<t.Cli.Input.Menu.Result>;
 };
 
 /** Result of validating a bundle profile file. */

@@ -42,7 +42,7 @@ export async function main() {
     /**
      * DevHarness:
      */
-    const { render, useKeyboard } = await import('@sys/ui-react-devharness');
+    const { render, useKeyboard } = await import('@sys/ui-dev/react/devharness');
     const { Specs } = await import('./-specs.ts');
     const el = await render(pkg, Specs, {
       hr: (e) => {
@@ -63,7 +63,7 @@ export async function main() {
     /**
      * Entry/Splash:
      */
-    const { useKeyboard } = await import('@sys/ui-react-devharness');
+    const { useKeyboard } = await import('@sys/ui-dev/react/devharness');
     const { spawnUiRepoWorker } = await import('../ui/-test.ui.repo.ts');
     const { Splash } = await import('./ui.Splash.tsx');
     const repo = await spawnUiRepoWorker();

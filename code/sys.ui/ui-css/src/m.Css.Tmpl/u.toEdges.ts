@@ -1,6 +1,6 @@
 import { type t, Delete, CssEdges, Is } from './common.ts';
 
-type K = keyof t.CssProps;
+type K = keyof t.Style.Props;
 type N = number | string | null;
 
 /**
@@ -11,20 +11,20 @@ type N = number | string | null;
  *  - Y/X array    (eg. [20, 5])
  */
 export function toEdges(
-  input?: t.CssEdgesInput | t.Falsy | boolean,
-  mutater?: t.CssEdgeMutater,
-): t.CssProps {
+  input?: t.CssEdges.Input | t.Falsy | boolean,
+  mutater?: t.CssEdges.Mutater,
+): t.Style.Props {
   const done = (top?: N, right?: N, bottom?: N, left?: N) => {
-    const res: t.CssProps = {};
-    const assign = (field: keyof t.CssProps | null, value?: N) => {
+    const res: t.Style.Props = {};
+    const assign = (field: keyof t.Style.Props | null, value?: N) => {
       if (value == null || field == null) return;
       (res as any)[field] = value;
     };
 
     if (Is.func(mutater)) {
-      const runMutation = (edge: keyof t.CssEdges, value?: N) => {
-        let field: keyof t.CssProps | null = edge;
-        const payload: t.CssEdgeMutaterArgs = {
+      const runMutation = (edge: keyof t.CssEdges.Shape, value?: N) => {
+        let field: keyof t.Style.Props | null = edge;
+        const payload: t.CssEdges.MutaterArgs = {
           current: { value, edge },
           changeField: (next) => (field = next),
           changeValue: (next) => (value = next),
@@ -44,7 +44,7 @@ export function toEdges(
     }
     return res;
   };
-  const fromArray = (input: t.CssEdgesArray) => {
+  const fromArray = (input: t.CssEdges.Array) => {
     const [top, right, bottom, left] = CssEdges.toArray(input);
     return done(top, right, bottom, left);
   };
@@ -52,7 +52,7 @@ export function toEdges(
   if (input == null) return {};
   if (Is.str(input) && input.includes(' ')) {
     const parts = input.split(' ').map((v) => (Is.numeric(v) ? Number(v) : v));
-    return fromArray(parts as t.CssEdgesArray);
+    return fromArray(parts as t.CssEdges.Array);
   }
   if (isEdgeValue(input)) {
     return done(input, input, input, input);
@@ -67,27 +67,27 @@ export function toEdges(
  * Value wrangling helpers.
  */
 export const WrangleEdge = {
-  absolute(style: t.CssValue): t.CssProps {
+  absolute(style: t.Style.Value): t.Style.Props {
     if (style.Absolute === undefined) return style;
     const props = toEdges(style.Absolute);
-    const res: t.CssProps = { ...style, position: 'absolute', ...props };
+    const res: t.Style.Props = { ...style, position: 'absolute', ...props };
     delete (res as any).Absolute;
     return res;
   },
 
-  margin(style: t.CssValue): t.CssProps {
+  margin(style: t.Style.Value): t.Style.Props {
     return mutateEdge(style, 'Margin', 'marginTop', 'marginRight', 'marginBottom', 'marginLeft');
   },
-  marginX(style: t.CssValue): t.CssProps {
+  marginX(style: t.Style.Value): t.Style.Props {
     const Margin = CssEdges.toArrayX(style.MarginX);
     return WrangleEdge.margin({ ...style, Margin, MarginX: undefined });
   },
-  marginY(style: t.CssValue): t.CssProps {
+  marginY(style: t.Style.Value): t.Style.Props {
     const Margin = CssEdges.toArrayY(style.MarginY);
     return WrangleEdge.margin({ ...style, Margin, MarginY: undefined });
   },
 
-  padding(style: t.CssValue): t.CssProps {
+  padding(style: t.Style.Value): t.Style.Props {
     return mutateEdge(
       style,
       'Padding',
@@ -97,11 +97,11 @@ export const WrangleEdge = {
       'paddingLeft',
     );
   },
-  paddingX(style: t.CssValue): t.CssProps {
+  paddingX(style: t.Style.Value): t.Style.Props {
     const Padding = CssEdges.toArrayX(style.PaddingX);
     return WrangleEdge.padding({ ...style, Padding, PaddingX: undefined });
   },
-  paddingY(style: t.CssValue): t.CssProps {
+  paddingY(style: t.Style.Value): t.Style.Props {
     const Padding = CssEdges.toArrayY(style.PaddingY);
     return WrangleEdge.padding({ ...style, Padding, PaddingY: undefined });
   },
@@ -115,13 +115,13 @@ function isEdgeValue(input: any): input is N {
 }
 
 function mutateEdge(
-  style: t.CssValue,
-  tmplKey: keyof t.CssTemplates,
+  style: t.Style.Value,
+  tmplKey: keyof t.CssTmpl.Templates,
   topKey: K | null,
   rightKey: K | null,
   bottomKey: K | null,
   leftKey: K | null,
-): t.CssProps {
+): t.Style.Props {
   if (style[tmplKey] === undefined) return style;
   const props = toEdges(style[tmplKey], (e) => {
     const { edge } = e.current;

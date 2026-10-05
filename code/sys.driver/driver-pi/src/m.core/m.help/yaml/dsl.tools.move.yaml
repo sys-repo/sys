@@ -1,0 +1,35 @@
+id: move
+title: Pi-Driver move tool policy
+summary: |
+  Author `tools.move` profile policy for the wrapper-owned filesystem move and rename tool. This
+  chapter governs future-launch policy only; live use still requires a registered `move` tool.
+
+sections:
+  - label: Use when
+    items: |
+      The prompt asks to enable or disable the `move` tool for a future Pi-Driver launch.
+      The prompt asks whether file or directory renames should be available in future sessions.
+      The prompt asks why a current session cannot move files even though profile YAML was edited.
+
+  - label: YAML shape
+    items: |
+      `tools.move.enabled` controls whether the launcher may register `move` on the next launch.
+      Minimal explicit enablement: `tools: { move: { enabled: true } }`.
+      Minimal explicit disablement: `tools: { move: { enabled: false } }`.
+      Move policy does not grant new writable paths; writable roots remain governed by sandbox policy.
+      Omitted move policy currently resolves through wrapper defaults; author explicit policy when changing durable behavior.
+
+  - label: Edit sequence
+    items: |
+      Read `dsl profile` before editing profile YAML.
+      Locate the active profile path from launcher metadata when available.
+      Read the exact profile YAML file.
+      Change only `tools.move.enabled` unless the user requested a broader edit.
+      Ask the human to restart or relaunch Pi before expecting any availability change.
+
+  - label: Callability boundary
+    items: |
+      DSL policy text does not make `move` callable.
+      A live session can call `move` only when the launcher registered it and appended its Runtime Tool Contract.
+      If `move` is absent from the live tool surface, do not use shell move or rename commands as a fallback.
+      If the human asks to move files now and no callable `move` tool exists, stop and report that this session cannot perform that move.

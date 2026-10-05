@@ -9,5 +9,7 @@ describe('Jsr (client)', () => {
     expect(Jsr.Fetch).to.equal(Fetch);
     expect(Jsr.Is).to.equal(Is);
     expect(Jsr.Import).to.equal(Import);
+    expect(Jsr.Url).to.equal(Fetch.Url);
+    expect(Jsr.Url.Pkg.web('@sys/tools')).to.eql('https://jsr.io/@sys/tools');
   });
 });

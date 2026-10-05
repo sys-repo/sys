@@ -1,6 +1,11 @@
 import { Fs, Str } from '../../-test.ts';
 
-export async function writeWorkspace(cwd: string, args: { readonly failCheck: boolean }) {
+export async function writeWorkspace(
+  cwd: string,
+  args: { failCheck: boolean; failTest?: boolean },
+) {
+  const testA = "Deno.writeTextFileSync('../../run.log', 'test:pkg-a\\n', { append: true });";
+
   await Fs.writeJson(Fs.join(cwd, 'deno.json'), {
     workspace: ['code/pkg-a', 'code/pkg-b', 'code/pkg-c'],
   });
@@ -8,7 +13,7 @@ export async function writeWorkspace(cwd: string, args: { readonly failCheck: bo
   await writePackage(cwd, 'code/pkg-a', {
     exports: { '.': './src/mod.ts' },
     tasks: {
-      test: script("Deno.writeTextFileSync('../../run.log', 'test:pkg-a\\n', { append: true });"),
+      test: script(args.failTest ? `${testA} Deno.exit(1);` : testA),
       check: script("Deno.writeTextFileSync('../../run.log', 'check:pkg-a\\n', { append: true });"),
       dry: script("Deno.writeTextFileSync('../../run.log', 'dry:pkg-a\\n', { append: true });"),
     },
@@ -20,8 +25,8 @@ export async function writeWorkspace(cwd: string, args: { readonly failCheck: bo
     tasks: {
       check: args.failCheck
         ? script(
-            "Deno.writeTextFileSync('../../run.log', 'check:pkg-b\\n', { append: true }); Deno.exit(1);",
-          )
+          "Deno.writeTextFileSync('../../run.log', 'check:pkg-b\\n', { append: true }); Deno.exit(1);",
+        )
         : script("Deno.writeTextFileSync('../../run.log', 'check:pkg-b\\n', { append: true });"),
     },
     source: Str.dedent(`
@@ -52,9 +57,9 @@ async function writePackage(
   cwd: string,
   path: string,
   args: {
-    readonly exports: Record<string, string>;
-    readonly tasks: Record<string, string>;
-    readonly source: string;
+    exports: Record<string, string>;
+    tasks: Record<string, string>;
+    source: string;
   },
 ) {
   await Fs.writeJson(Fs.join(cwd, path, 'deno.json'), {

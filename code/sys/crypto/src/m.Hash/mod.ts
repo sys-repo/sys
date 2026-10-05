@@ -14,7 +14,7 @@
  *
  * @example
  * ```ts
- * import { Hash, sha256 } from '@sys/std/hash';
+ * import { Hash, sha256 } from '@sys/crypto/hash';
  *
  * const data = new Uint8Array([1, 2, 3]);
  * const a = Hash.sha256(data);
@@ -26,7 +26,7 @@
  * @example
  * Create a composite hash (digest) of several values.
  * ```ts
- * import { CompositeHash } from '@sys/std/hash';
+ * import { CompositeHash } from '@sys/crypto/hash';
  *
  * const digest = CompositeHash.create();
  * digest

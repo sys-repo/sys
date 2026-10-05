@@ -1,9 +1,15 @@
-import { type t, Rx } from './common.ts';
+import { type t } from './common.ts';
 
 type T = t.SlugEffectAdapter;
 
 export function makeSlugAdapter(controller: t.SlugPlaybackController): T {
-  return Rx.toLifecycleView<T>(controller, {
+  return {
+    get dispose$() {
+      return controller.dispose$;
+    },
+    get disposed() {
+      return controller.disposed;
+    },
     current: () => controller.current().slug,
     onChange: (fn) => controller.onChange((state) => fn(state.slug)),
     next(patch) {
@@ -11,5 +17,5 @@ export function makeSlugAdapter(controller: t.SlugPlaybackController): T {
       const slug = { ...base, ...patch };
       controller.next({ slug });
     },
-  });
+  };
 }

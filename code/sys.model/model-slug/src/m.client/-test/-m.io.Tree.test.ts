@@ -3,13 +3,18 @@ import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
 import { D } from '../common.ts';
-import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch, textResponse } from './u.fixture.ts';
 
 describe('SlugClient.FromEndpoint.Tree.load', () => {
-  const Tree = SlugClient.FromEndpoint.Tree;
+  const endpoint = SlugClient.FromEndpoint.Tree;
+  const Tree = {
+    load(baseUrl: t.StringUrl, docid: t.StringId, options: t.SlugScopedLoadOptions = {}) {
+      return endpoint.load(baseUrl, docid, { ...LOAD_OPTIONS, ...options });
+    },
+  };
 
   it('is the SlugClient tree loader', () => {
-    expect(SlugClient.FromEndpoint.Tree).to.equal(Tree);
+    expect(SlugClient.FromEndpoint.Tree).to.equal(endpoint);
   });
 
   it('loads tree manifest (happy path)', async () => {
@@ -38,7 +43,7 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
     }
   });
 
-  it('passes RequestInit extras but enforces cache policy', async () => {
+  it('passes admitted init extras but enforces GET and cache policy', async () => {
     const docid = 'crdt:tree-init' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const payload: t.SlugTreeDoc = { tree: [{ slug: 'one', ref: 'slug:one' }] };
@@ -52,8 +57,7 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
     });
 
     try {
-      const init: RequestInit = {
-        method: 'PATCH',
+      const init: t.HttpFetch.Init = {
         headers: { 'x-tree': '1' },
         cache: 'reload',
       };
@@ -61,13 +65,12 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
         throw new Error('expected tree load success');
       }
       const headers = seenInit?.headers;
-      const headerValue =
-        headers instanceof Headers
-          ? headers.get('x-tree')
-          : headers && typeof headers === 'object' && !Array.isArray(headers)
-            ? (headers as Record<string, string>)['x-tree']
-            : undefined;
-      expect(seenInit?.method).to.equal('PATCH');
+      const headerValue = headers instanceof Headers
+        ? headers.get('x-tree')
+        : headers && typeof headers === 'object' && !Array.isArray(headers)
+        ? (headers as Record<string, string>)['x-tree']
+        : undefined;
+      expect(seenInit?.method).to.equal('GET');
       expect(headerValue).to.eql('1');
       expect(seenInit?.cache).to.eql(D.CACHE_INIT.cache);
     } finally {
@@ -79,11 +82,12 @@ describe('SlugClient.FromEndpoint.Tree.load', () => {
     const docid = 'crdt:tree-http' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.treeFilename(cleaned)))
+      if (url.includes(SlugClient.Url.treeFilename(cleaned))) {
         return textResponse('Service Unavailable', {
           status: 503,
           statusText: 'Service Unavailable',
         });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 

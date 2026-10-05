@@ -1,0 +1,21 @@
+# Cell descriptor.
+
+kind: cell
+version: 1
+name: sys.ui
+
+services:
+  - name: sys.ui:view
+    use: Serve
+    from: 'jsr:@sys/tools/serve'
+    config: ./-config/@sys.tools.serve/view.yaml
+    variants:
+      dev:
+        use: ViteService
+        from: 'jsr:@sys/driver-vite/service'
+        config: ./-config/@sys.driver-vite/view.dev.yaml
+
+  - name: sys.ui:files
+    use: FilesWebSocketService
+    from: 'jsr:@sys/server/files/service'
+    config: ./-config/@sys.server.files/sample.yaml

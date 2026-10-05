@@ -1,5 +1,5 @@
 import { describe, expect, it } from '../../-test.ts';
-import { isBarePackageId, toViteNpmSpecifier } from '../u.npm.ts';
+import { isBarePackageId, toViteNpmSpecifier } from '../u/u.npm.ts';
 
 describe('ViteTransport.npm', () => {
   describe('specifier normalization', () => {
@@ -21,8 +21,7 @@ describe('ViteTransport.npm', () => {
       );
     });
 
-
-    it('normalizes npm slash-prefixed scoped subpaths from deno info output', () => {
+    it('normalizes npm slash-prefixed scoped subpaths', () => {
       expect(toViteNpmSpecifier('npm:/@noble/hashes@2.0.1/legacy.js')).to.eql(
         '@noble/hashes/legacy.js',
       );

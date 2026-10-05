@@ -1,4 +1,5 @@
-import { type t, checkVersion, isMissingBinaryError, Process } from './common.ts';
+import { checkVersion, isMissingBinaryError, type t } from './common.ts';
+import { invoke } from '../u.invoke.ts';
 
 const HINT_NOT_FOUND = 'git not found. Install Git and ensure it is on PATH.';
 const HINT_FAILED = 'git root probe failed. Ensure git is executable and on PATH.';
@@ -18,7 +19,7 @@ export const root: t.GitRootFn = async (opts = {}) => {
 
   let res: t.Process.Output;
   try {
-    res = await Process.invoke({
+    res = await invoke({
       cmd: git,
       args: ['rev-parse', '--show-toplevel'],
       cwd: opts.cwd,

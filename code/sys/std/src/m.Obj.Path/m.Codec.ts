@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-const pointer: t.ObjPathCodec = {
+const pointer: t.Obj.Path.Codec.Definition = {
   kind: 'pointer',
   encode(path) {
     if (path.length === 0) return '';
@@ -9,8 +9,9 @@ const pointer: t.ObjPathCodec = {
   },
   decode(text) {
     if (text === '') return [];
-    if (!text.startsWith('/'))
+    if (!text.startsWith('/')) {
       throw new Error('Invalid JSON Pointer: must start with "/" or be "".');
+    }
     const unesc = (s: string) => s.replace(/~1/g, '/').replace(/~0/g, '~');
     return text
       .slice(1)
@@ -19,7 +20,7 @@ const pointer: t.ObjPathCodec = {
   },
 };
 
-const dot: t.ObjPathCodec = {
+const dot: t.Obj.Path.Codec.Definition = {
   kind: 'dot',
   encode(path) {
     if (path.length === 0) return '';
@@ -85,11 +86,11 @@ const dot: t.ObjPathCodec = {
   },
 };
 
-export const Codec: t.ObjPathCodecLib = {
+export const Codec: t.Obj.Path.Codec.Lib = Object.freeze({
   default: pointer,
   pointer,
   dot,
-} as const;
+});
 
 /**
  * Helpers:

@@ -149,6 +149,20 @@ describe('Signal', () => {
       test(undefined);
     });
 
+    it('dedupes structurally equal cycle values', () => {
+      type T = { index: number };
+      const s = Signal.create<T>({ index: 1 });
+      const values: T[] = [{ index: 1 }, { index: 1 }, { index: 2 }];
+
+      const res1 = Signal.cycle(s, values);
+      expect(res1).to.eql({ index: 2 });
+      expect(s.value).to.eql({ index: 2 });
+
+      const res2 = Signal.cycle(s, values);
+      expect(res2).to.eql({ index: 1 });
+      expect(s.value).to.eql({ index: 1 });
+    });
+
     it('cycles from <undefined>', () => {
       const s = Signal.create<T | undefined>();
       expect(s.value).to.eql(undefined);
@@ -257,8 +271,9 @@ describe('Signal', () => {
     });
 
     it('supports union overload: ReadableSignal<T> | undefined → T | undefined', () => {
-      const maybeSignal: { value: number } | undefined =
-        Math.random() > 0.5 ? { value: 123 } : undefined;
+      const maybeSignal: { value: number } | undefined = Math.random() > 0.5
+        ? { value: 123 }
+        : undefined;
       const res = Signal.read(maybeSignal);
       expectTypeOf(res).toEqualTypeOf<number | undefined>();
     });

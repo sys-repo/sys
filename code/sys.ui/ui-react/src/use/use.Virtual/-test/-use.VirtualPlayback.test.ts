@@ -47,7 +47,7 @@ describe('useVirtualPlayback', () => {
   it('advances via manual clock control (integration sanity)', async () => {
     const life = Rx.lifecycle();
     const tl = resolved(1_000, [seg(0, 1_000, 0)]);
-    let clock: t.VirtualClock | null = null;
+    let clock: t.Timecode.VirtualClock.Instance | null = null;
 
     const { result, unmount } = renderHook(() =>
       useVirtualPlayback(tl, {
@@ -63,7 +63,9 @@ describe('useVirtualPlayback', () => {
       expect(clock).to.exist;
 
       // Advance the core clock, then publish into the hook via seek:
-      act(() => result.current.seek(Timecode.VTime.toMsecs(clock!.advance(250 as t.Msecs).vtime) as any));
+      act(() =>
+        result.current.seek(Timecode.VTime.toMsecs(clock!.advance(250 as t.Msecs).vtime) as any),
+      );
 
       expect(result.current.vtime).to.eql(250);
     } finally {

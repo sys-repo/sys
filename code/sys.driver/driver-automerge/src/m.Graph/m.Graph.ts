@@ -9,7 +9,7 @@ const { index, forEach, forEachAsync } = Graph.Dag;
  * CRDT Graph Utilities
  * Provides a generic, repo-backed DAG walker for CRDT documents.
  */
-export const CrdtGraph: t.CrdtGraphLib = {
+export const CrdtGraph: t.CrdtGraph.Lib = {
   default: { discoverRefs },
   Dag: { build, index, forEach, forEachAsync },
   walk,

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { type t, Color, css, D, DocumentId, Obj, ObjectView, Repo, Str } from './common.ts';
+import { Color, css, D, DocumentId, Obj, ObjectView, Repo, Str, type t } from './common.ts';
 import { FooterTools } from './ui.FooterTools.tsx';
 
 type O = Record<string, unknown>;
 type P = t.CardProps;
 
+/**
+ * Composite Automerge card for document selection, status, and object inspection.
+ */
 export const Card: React.FC<P> = (props) => {
   const { debug = false, headerStyle = {}, storageKey: localstorage, repo } = props;
 
@@ -122,12 +125,13 @@ export const Card: React.FC<P> = (props) => {
     />
   );
 
-  if (!repo)
+  if (!repo) {
     return (
       <div className={css(styles.empty, props.style).class} title={D.displayName}>
         {'(repository not provided)'}
       </div>
     );
+  }
 
   return (
     <div className={css(styles.base, props.style).class}>

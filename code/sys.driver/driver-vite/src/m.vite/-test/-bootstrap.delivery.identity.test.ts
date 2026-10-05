@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it } from '../../-test.ts';
-import { Wrangle } from '../u.wrangle.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
 
 describe('Bootstrap delivery identity world', () => {
   it('build: equivalent inputs now derive stable delivery handle identity', async () => {
@@ -39,7 +39,6 @@ async function fixture(prefix: string) {
   await Fs.writeJson(`${root}/package.json`, {
     dependencies: {
       vite: '8.0.9',
-      esbuild: '0.27.4',
     },
   });
   await Fs.writeJson(`${root}/deno.json`, {

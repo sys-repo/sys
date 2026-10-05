@@ -4,14 +4,14 @@ import { type t, Dispose, EditorFolding, Obj, Rx, useBus, useFunction } from './
 import { EditorCrdt } from './m.Crdt.ts';
 import { monitorReady } from './use.CrdtBinding.ready.ts';
 
-export const useCrdtBinding: t.UseEditorCrdtBinding = (args, onReady) => {
+export const useCrdtBinding: t.EditorCrdt.UseBinding = (args, onReady) => {
   const { monaco, editor, doc, path, foldMarks = false } = args;
   const pathKey = React.useMemo(() => Obj.hash(path), [path]);
 
   /**
    * Refs/Hooks:
    */
-  const bindingRef = React.useRef<t.EditorCrdtBinding>(undefined);
+  const bindingRef = React.useRef<t.EditorCrdt.Binding.Instance>(undefined);
   const onReadySafe = useFunction(onReady);
   const bus$ = useBus(args.bus$);
 

@@ -1,4 +1,5 @@
-import { type t, D, Http, Schema, SlugSchema, SlugUrl } from './common.ts';
+import { D, Schema, SlugSchema, SlugUrl, type t } from './common.ts';
+import { fetchJson } from './u.fetch.ts';
 import { formatSchemaReason } from './u.schema.ts';
 
 export const FileContent: t.SlugClientFileContentLib = {
@@ -9,9 +10,8 @@ export const FileContent: t.SlugClientFileContentLib = {
 async function index(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  options?: t.SlugFileContentLoadOptions,
+  options: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentIndex>> {
-  const fetch = Http.fetcher();
   const cleanedDocid = SlugUrl.Util.cleanDocid(docid);
   const manifests = SlugUrl.Composition.manifestsLocation(baseUrl, options);
   const url = SlugUrl.Composition.manifests({
@@ -19,16 +19,18 @@ async function index(
     manifestsDir: manifests.manifestsDir,
     filename: SlugUrl.treeAssetsFilename(cleanedDocid),
   });
-  const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
+  const req: t.HttpFetch.Init = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 
-  const res = await fetch.json<unknown>(url, req);
+  const res = await fetchJson<unknown>(url, req, options);
   if (!res.ok) {
     return {
       ok: false,
       error: {
         kind: 'http',
-        message: `Slug-file-content index fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
+        message: `Slug-file-content index fetch failed. ${res.status} ${res.statusText} @ ${
+          res.url ?? url
+        }`,
         status: res.status,
         statusText: res.statusText,
         url: res.url ?? url,
@@ -55,7 +57,8 @@ async function index(
       ok: false,
       error: {
         kind: 'schema',
-        message: `Slug-file-content index docid mismatch. Expected: ${cleanedDocid}. Got: ${manifest.docid}`,
+        message:
+          `Slug-file-content index docid mismatch. Expected: ${cleanedDocid}. Got: ${manifest.docid}`,
       },
     };
   }
@@ -66,25 +69,26 @@ async function index(
 async function get(
   baseUrl: t.StringUrl,
   hash: string,
-  options?: t.SlugFileContentLoadOptions,
+  options: t.SlugFileContentLoadOptions,
 ): Promise<t.SlugClientResult<t.SlugFileContentDoc>> {
-  const fetch = Http.fetcher();
   const content = SlugUrl.Composition.contentLocation(baseUrl, options);
   const url = SlugUrl.Composition.content({
     baseUrl: content.baseUrl,
     contentDir: content.contentDir,
     filename: SlugUrl.fileContentFilename(hash),
   });
-  const req: RequestInit = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
+  const req: t.HttpFetch.Init = { ...D.CACHE_INIT, ...(options?.init ?? {}) };
   req.cache = D.CACHE_INIT.cache;
 
-  const res = await fetch.json<unknown>(url, req);
+  const res = await fetchJson<unknown>(url, req, options);
   if (!res.ok) {
     return {
       ok: false,
       error: {
         kind: 'http',
-        message: `Slug-file-content fetch failed. ${res.status} ${res.statusText} @ ${res.url ?? url}`,
+        message: `Slug-file-content fetch failed. ${res.status} ${res.statusText} @ ${
+          res.url ?? url
+        }`,
         status: res.status,
         statusText: res.statusText,
         url: res.url ?? url,

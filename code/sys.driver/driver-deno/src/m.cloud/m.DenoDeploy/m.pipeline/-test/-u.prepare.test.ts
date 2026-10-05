@@ -1,4 +1,4 @@
-import { type t, describe, Esm, expect, Fs, it } from '../../../../-test.ts';
+import { describe, Esm, expect, Fs, it, type t } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
 
 describe('DenoDeploy.prepare', () => {
@@ -58,7 +58,7 @@ async function createStageFixture(): Promise<t.DenoDeploy.Stage.Result> {
     hash: { digest: 'sha256-abc123' },
   });
 
-  const workspace: t.DenoWorkspace = {
+  const workspace: t.DenoFile.Workspace.Info = {
     exists: true,
     dir: workspaceDir,
     file: Fs.join(workspaceDir, 'deno.json'),

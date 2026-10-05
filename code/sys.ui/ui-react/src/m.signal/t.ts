@@ -1,57 +1,50 @@
-import type Preact from '@preact/signals-react';
-import type { SignalLib } from '@sys/std/t';
+import type * as Preact from '@preact/signals-react';
+import type { Signal as StdSignal } from '@sys/std/t';
+import type { Signal as SignalType } from '@sys/types';
 import type { t } from './common.ts';
 
-export type { ReadonlySignal, Signal, SignalValue, UnwrapSignals } from '@sys/types';
-export type * from './t.effect.ts';
+export type { ReadonlySignal, SignalValue, UnwrapSignals } from '@sys/types';
+/** Mutable reactive value compatible with the system Signal contract. */
+export type Signal<T = unknown> = SignalType<T>;
 
 /**
- * Reactive Signals (React Extensions)
+ * Reactive Signals (React extensions).
  */
-export type SignalReactLib = SignalLib & {
-  /**
-   * React hook: create a reactive Signal bound to component render lifecycle.
-   *
-   * Example:
-   * ```ts
-   * const count = Signal.useSignal(0);
-   * Signal.useEffect(() => console.log(count.value));
-   * ```
-   *
-   * Mirrors `@preact/signals-react` behavior:
-   * - Reading `.value` inside an effect registers a dependency.
-   * - Updating `.value` triggers re-render and dependent effects.
-   */
-  useSignal: typeof Preact.useSignal;
+export declare namespace Signal {
+  /** React-facing signal helper surface. */
+  export type Lib = StdSignal.Lib & {
+    /** Create a reactive Signal bound to component render lifecycle. */
+    readonly useSignal: typeof Preact.useSignal;
+
+    /** Register a lifecycle-aware reactive effect. */
+    readonly useEffect: Effect.Listener;
+
+    /** Trigger a safe redraw when signals read inside the callback change. */
+    readonly useRedrawEffect: RedrawEffect.Listener;
+  };
 
   /**
-   * Register a lifecycle-aware reactive effect.
-   *
-   * Wraps `useSignalEffect` from `@preact/signals-react`, adding a lazily-instantiated
-   * `Abortable` lifecycle (`e.life`) for each run.
-   *
-   * Key behaviors:
-   * - `e.life` is only created if accessed.
-   * - Cleans up in order: user cleanup → `life.dispose()` (if created).
-   * - Each run receives a fresh lifecycle; previous is disposed first.
-   *
-   * Example:
-   * ```ts
-   * Signal.useEffect((e) => {
-   *   count.value; // establish dependency
-   *   e.life.dispose$.subscribe(() => console.log('cleanup'));
-   * });
-   * ```
+   * Lifecycle-aware React signal effect contracts.
    */
-  useEffect: t.UseSignalEffectListener;
+  export namespace Effect {
+    /** Register a lifecycle-aware hook effect; no disposer is returned. */
+    export type Listener = (fn: Fn) => void;
+
+    /** Effect callback receiving the run lifecycle context; may return a cleanup. */
+    export type Fn = (e: Args) => void | (() => void);
+
+    /** Lazy lifecycle for a single run; aborts on re-run or unmount. */
+    export type Args = { readonly life: t.Abortable };
+  }
 
   /**
-   * Safely causes a redraw (via a useState counter incrementing)
-   * when any of the signals that are hooked into within the
-   * callback change value.
-   *
-   *    Safe: == stops effect listeners on tear-down.
-   *
+   * Lifecycle-aware redraw effect contracts.
    */
-  useRedrawEffect: t.UseRedrawEffectListener;
-};
+  export namespace RedrawEffect {
+    /** Register a lifecycle-aware redraw effect; no disposer is returned. */
+    export type Listener = (fn: Fn) => void;
+
+    /** Redraw callback; may optionally use `e.life` and/or return a cleanup. */
+    export type Fn = (e: Effect.Args) => void | (() => void);
+  }
+}

@@ -1,4 +1,4 @@
-import { type t, FileMap, Is, isRecord } from './common.ts';
+import { FileMap, Is, isRecord, type t } from './common.ts';
 
 type O = Record<string, unknown>;
 
@@ -17,7 +17,7 @@ export const makeTmpl: t.TmplFactory = (source, opt) => {
 function factory(args: {
   source: t.StringDir | t.FileMap;
   processFile?: t.TmplProcessFile;
-  filters?: t.FileMapFilter[];
+  filters?: t.FileMap.Filter.Predicate[];
   ctx?: O;
 }): t.Tmpl {
   const { filters } = args;
@@ -51,14 +51,21 @@ function factory(args: {
       const ctx = wrangle.ctx(args.ctx, options.ctx);
       const source = await tmpl.source();
 
-      const processFile: t.FileMapProcessor = (e) => args.processFile?.(e); // ← NB: forward as-is (keeps e.ctx)
+      const processFile: t.FileMap.Write.Processor.Method = (e) => args.processFile?.(e); // ← NB: forward as-is (keeps e.ctx)
       const res = await FileMap.write(source.fileMap, target, { ctx, processFile, force, dryRun });
 
       // prettier-ignore
       return {
         ctx,
-        get dir() { return { source: source.dir, target }; },
-        get ops() { return res.ops; },
+        get dir() {
+          return { source: source.dir, target };
+        },
+        get ops() {
+          return res.ops;
+        },
+        get total() {
+          return res.total;
+        },
       };
     },
 

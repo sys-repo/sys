@@ -34,7 +34,7 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   );
 
   const mono = true;
-  const items: t.KeyValueItem[] = [{ kind: 'title', v: 'Slug Data' }];
+  const items: t.KeyValue.Item[] = [{ kind: 'title', v: 'Slug Data' }];
   function add(label: string, value: t.SampleLoadAction) {
     const isSelected = value === current;
     const btn = (

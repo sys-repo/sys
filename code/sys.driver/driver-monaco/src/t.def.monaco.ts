@@ -1,7 +1,11 @@
 import type { t } from './common.ts';
 
+import type { loader } from '@monaco-editor/react';
 import type * as monaco from 'monaco-editor';
 import type { editor } from 'monaco-editor';
+
+/** Upstream Monaco runtime loader singleton. */
+export type MonacoLoader = typeof loader;
 
 /**
  * Core Monaco library types:
@@ -19,7 +23,7 @@ export namespace Monaco {
   export type Range = monaco.Range;
   export type CancellationToken = monaco.CancellationToken;
   export type LinePos = t.LinePos;
-  export type Cursor = t.EditorCursor;
+  export type Cursor = t.MonacoDriver.Cursor;
 
   /** Nested namespace for all the I-prefixed interfaces */
   export namespace I {

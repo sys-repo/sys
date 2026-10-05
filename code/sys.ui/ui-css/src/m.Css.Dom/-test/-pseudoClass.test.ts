@@ -21,7 +21,7 @@ describe('CssPseudoClass', () => {
     });
 
     it('true', () => {
-      const test = (names: t.CssPseudoClass[]) => {
+      const test = (names: t.CssDom.PseudoClass.Name[]) => {
         names.forEach((name) => expect(CssDom.PseudoClass.isClass(name)).to.be.true);
       };
       test([...CssDom.PseudoClass.level3]);

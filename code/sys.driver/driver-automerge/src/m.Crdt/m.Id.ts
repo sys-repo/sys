@@ -6,7 +6,7 @@ const URI_PREFIX = 'crdt:';
 /**
  * Helpers for recognising, parsing, formatting, and normalising CRDT Ids/URIs.
  */
-export const CrdtId: t.CrdtIdLib = {
+export const CrdtId: t.Crdt.Lib['Id'] = {
   /**
    * Extract a CRDT Id from a URI string; returns undefined if not valid.
    * Expects a string of the form "crdt:<id>" where <id> is a valid document id.

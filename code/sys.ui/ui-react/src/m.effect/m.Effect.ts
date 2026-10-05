@@ -3,7 +3,8 @@ import { Effect as StdEffect } from '@sys/std/effect';
 import type { t } from './common.ts';
 import { EffectController as Controller, useEffectController } from './m.EffectController/mod.ts';
 
-export const Effect: t.EffectReactLib = {
+/** Standard Effect helpers extended with React controller hooks. */
+export const Effect: t.Effect.Lib = {
   ...StdEffect,
   Controller,
   useEffectController,

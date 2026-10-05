@@ -1,44 +1,30 @@
 import type { t } from './common.ts';
 
 /**
- * Helpers for working with the template patterns (a DSL for css of sorts).
+ * CSS template contracts.
  */
-export type CssTmplLib = {
+export declare namespace CssTmpl {
   /**
-   * Apply common CSS templates (desiganted by capital letter field names)
-   * converting the object into standard [CssProperties].
-   *
-   * For example: { Absolute: 0 }
+   * Runtime library surface.
    */
-  transform(input?: t.CssValue | t.Falsy): t.CssProps;
+  export type Lib = {
+    /** Apply common CSS templates and convert them into standard CSS properties. */
+    transform(input?: t.Style.Value | t.Falsy): t.Style.Props;
 
-  /**
-   * Convert a sloppy input into an {edges} property object
-   * Input:
-   *  - single value (eg. 0 or '5em')
-   *  - 4-part array (eg. [10, null, 0, 5])
-   *  - Y/X array    (eg. [20, 5])
-   */
-  toEdges(input?: t.CssEdgesInput | t.Falsy, mutater?: t.CssEdgeMutater): t.CssProps;
-};
+    /** Convert sloppy edge input into an edge property object. */
+    toEdges(input?: t.CssEdges.Input | t.Falsy, mutater?: t.CssEdges.Mutater): t.Style.Props;
+  };
 
-/**
- * CSS Templates.
- *
- * These are CSS template-names disambiguated from other
- * css properties by being capitalied.
- *
- * A template is used to transform common CSS operations into
- * their proper CSS equivalent.
- */
-export type CssTemplates = {
-  Absolute?: t.CssEdgesInput;
-  Margin?: t.CssEdgesInput;
-  MarginX?: t.CssEdgesXYInput;
-  MarginY?: t.CssEdgesXYInput;
-  Padding?: t.CssEdgesInput;
-  PaddingX?: t.CssEdgesXYInput;
-  PaddingY?: t.CssEdgesXYInput;
-  Size?: number | string | [number | string, number | string] | t.Falsy;
-  Scroll?: boolean;
-};
+  /** Capitalized CSS template fields expanded into standard CSS properties. */
+  export type Templates = {
+    Absolute?: t.CssEdges.Input;
+    Margin?: t.CssEdges.Input;
+    MarginX?: t.CssEdges.XYInput;
+    MarginY?: t.CssEdges.XYInput;
+    Padding?: t.CssEdges.Input;
+    PaddingX?: t.CssEdges.XYInput;
+    PaddingY?: t.CssEdges.XYInput;
+    Size?: number | string | [number | string, number | string] | t.Falsy;
+    Scroll?: boolean;
+  };
+}

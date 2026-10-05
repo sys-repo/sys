@@ -43,7 +43,7 @@ export const useErrorMarkers: t.UseErrorMarkers = (args) => {
       return;
     }
 
-    const markers = toMarkers(model, errors as t.EditorDiagnostic[]);
+    const markers = toMarkers(model, errors as t.EditorError.Diagnostic.Shape[]);
     monaco.editor.setModelMarkers(model, owner, markers);
     didSetRef.current = true;
   }, [enabled, monaco, editor, errors, owner]);
@@ -57,7 +57,7 @@ export const useErrorMarkers: t.UseErrorMarkers = (args) => {
 
       if (!enabled) return; // ← nothing when disabled
 
-      const markers = errors.length ? toMarkers(model, errors as t.EditorDiagnostic[]) : [];
+      const markers = errors.length ? toMarkers(model, errors as t.EditorError.Diagnostic.Shape[]) : [];
       monaco.editor.setModelMarkers(model, owner, markers);
       didSetRef.current = true;
     });

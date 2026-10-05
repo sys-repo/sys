@@ -1,9 +1,9 @@
-import { type t, Fs, Json, Path } from './common.ts';
+import { Fs, Json, Path, type t } from './common.ts';
 
 /**
  * Load a `deno.json` file at the given file path.
  */
-export const load: t.DenoFileLib['load'] = async (path) => {
+export const load: t.DenoFile.Lib['load'] = async (path) => {
   path = Path.resolve(path ?? './deno.json');
   if (await Fs.Is.dir(path)) {
     const json = Fs.join(path, 'deno.json');
@@ -14,7 +14,7 @@ export const load: t.DenoFileLib['load'] = async (path) => {
   }
 
   if (!path.endsWith('.jsonc')) {
-    return Fs.readJson<t.DenoFileJson>(path);
+    return Fs.readJson<t.DenoFile.Json>(path);
   }
 
   const res = await Fs.readText(path);
@@ -28,7 +28,7 @@ export const load: t.DenoFileLib['load'] = async (path) => {
     };
   }
 
-  const parsed = Json.safeParse<t.DenoFileJson>(res.data, {}, { jsonc: true });
+  const parsed = Json.safeParse<t.DenoFile.Json>(res.data, {}, { jsonc: true });
   if (!parsed.ok) {
     return {
       ok: false,

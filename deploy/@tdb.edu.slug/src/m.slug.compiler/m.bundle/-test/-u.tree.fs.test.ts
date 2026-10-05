@@ -1,5 +1,5 @@
 import { type t, describe, expect, Fs, Hash, it } from '../../-test.ts';
-import { Json, SlugSchema } from '../common.ts';
+import { FsCapability, Json, SlugSchema } from '../common.ts';
 import { collectDistDirs, writeDistFiles } from '../u.dist.ts';
 import { bundleSlugTreeFs } from '../m.bundle.slug-tree.fs/mod.ts';
 
@@ -141,6 +141,41 @@ describe('Lint: slug-tree:fs', () => {
       );
       expect(assetHashes.has(String(a?.hash ?? ''))).to.eql(true);
       expect(assetHashes.has(String(c?.hash ?? ''))).to.eql(true);
+    } finally {
+      await Fs.remove(tmpDir);
+    }
+  });
+
+  it('reads sha256 source through injected fs runtime', async () => {
+    const tmpDir = (await Fs.makeTempDir()).absolute;
+    try {
+      const srcDir = Fs.join(tmpDir, 'src');
+      await Fs.ensureDir(srcDir);
+      await Fs.write(Fs.join(srcDir, 'a.md'), 'alpha');
+
+      const base = FsCapability.fromFs(Fs);
+      const readPaths: string[] = [];
+      const fs: t.SlugTreeFsRuntime = {
+        ...base,
+        async read(path) {
+          readPaths.push(String(path));
+          return await base.read(path);
+        },
+      };
+      const config: t.SlugBundleFileTree = {
+        source: 'src',
+        target: {
+          dir: [{ kind: 'sha256', path: 'out/sha256' }],
+        },
+      };
+
+      await bundleSlugTreeFs({
+        cwd: tmpDir,
+        config,
+        fs,
+      });
+
+      expect(readPaths).to.eql([Fs.join(srcDir, 'a.md')]);
     } finally {
       await Fs.remove(tmpDir);
     }

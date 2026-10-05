@@ -5,31 +5,19 @@ type O = Record<string, unknown>;
 /**
  * Generic DAG walker for document graphs.
  */
-export type GraphLib = {
-  /** Default helpers (e.g. naive outbound-reference discovery). */
-  readonly default: { readonly discoverRefs: t.Graph.DiscoverRefs };
+export declare namespace Graph {
+  /** Generic DAG walker helper module surface. */
+  export type Lib = {
+    /** Default helpers (e.g. naive outbound-reference discovery). */
+    readonly default: { readonly discoverRefs: DiscoverRefs };
 
-  /** Walk a document-reference DAG using user-supplied loaders and hooks. */
-  readonly walk: t.Graph.Walk;
+    /** Walk a document-reference DAG using user-supplied loaders and hooks. */
+    readonly walk: Walk;
 
-  /**
-   * DAG helpers:
-   * - `build`: materialize a DAG from a root id (nodes + edges).
-   * - `index`: derive a fast id → node lookup map.
-   * - `forEach`: iterate nodes in the stored order.
-   */
-  readonly Dag: {
-    readonly build: t.Graph.Dag.Build;
-    readonly index: t.Graph.Dag.Index;
-    readonly forEach: t.Graph.Dag.ForEachSync;
-    readonly forEachAsync: t.Graph.Dag.ForEachAsync;
+    /** DAG helper library surface. */
+    readonly Dag: Dag.Lib;
   };
-};
 
-/**
- * Generic DAG walker for document graphs.
- */
-export namespace Graph {
   /**
    * Internal graph document shape: a read-only snapshot of the current value.
    *
@@ -151,6 +139,14 @@ export namespace Graph {
    * DAG materialization API.
    */
   export namespace Dag {
+    /** DAG helper module surface. */
+    export type Lib = {
+      readonly build: Build;
+      readonly index: Index;
+      readonly forEach: ForEachSync;
+      readonly forEachAsync: ForEachAsync;
+    };
+
     /**
      * Node within the materialized DAG.
      *
@@ -222,25 +218,27 @@ export namespace Graph {
      * - `onDoc` / `onSkip` / `onRefs` are optional and will be invoked
      *   in addition to the DAG accumulator.
      */
-    export type BuildArgs<T extends O = O> = Omit<
-      Graph.WalkArgs<T>,
-      'onDoc' | 'onSkip' | 'onRefs'
-    > & {
-      /**
-       * Include nodes that were only ever seen via `onSkip`
-       * (e.g. not-found, already-processed) in the `nodes` list.
-       *
-       * Default: false.
-       */
-      readonly includeSkipped?: boolean;
+    export type BuildArgs<T extends O = O> =
+      & Omit<
+        Graph.WalkArgs<T>,
+        'onDoc' | 'onSkip' | 'onRefs'
+      >
+      & {
+        /**
+         * Include nodes that were only ever seen via `onSkip`
+         * (e.g. not-found, already-processed) in the `nodes` list.
+         *
+         * Default: false.
+         */
+        readonly includeSkipped?: boolean;
 
-      /**
-       * Optional user hooks, invoked alongside the DAG accumulator.
-       */
-      readonly onDoc?: Graph.WalkArgs<T>['onDoc'];
-      readonly onSkip?: Graph.WalkArgs<T>['onSkip'];
-      readonly onRefs?: Graph.WalkArgs<T>['onRefs'];
-    };
+        /**
+         * Optional user hooks, invoked alongside the DAG accumulator.
+         */
+        readonly onDoc?: Graph.WalkArgs<T>['onDoc'];
+        readonly onSkip?: Graph.WalkArgs<T>['onSkip'];
+        readonly onRefs?: Graph.WalkArgs<T>['onRefs'];
+      };
 
     /**
      * Build a materialized DAG from the given root using `Graph.walk`

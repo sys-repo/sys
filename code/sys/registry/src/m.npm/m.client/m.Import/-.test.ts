@@ -13,6 +13,8 @@ describe('Npm.Import', () => {
   });
 
   it('specifier( pkg, version, suffix ) → appends suffix verbatim', () => {
-    expect(Import.specifier('react', '19.0.0', '/jsx-runtime')).to.eql('npm:react@19.0.0/jsx-runtime');
+    expect(Import.specifier('react', '19.0.0', '/jsx-runtime')).to.eql(
+      'npm:react@19.0.0/jsx-runtime',
+    );
   });
 });

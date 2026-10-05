@@ -7,5 +7,4 @@ export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';
 export { slug } from '@sys/std/random';
-export { R } from '@sys/std/r';
 export { Time } from '@sys/std/time';

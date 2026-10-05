@@ -1,4 +1,4 @@
-import { type t, Fs, PATHS, Templates, TmplEngine } from './common.ts';
+import { Fs, PATHS, type t, Templates, TmplEngine } from './common.ts';
 import { TemplateSourceRoots } from '../m.Templates.ts';
 
 const PREFIX = 'tmpl.';
@@ -16,7 +16,7 @@ export async function makeBundle() {
 
   // NOTE: in the monorepo `-tmpl/*` folder the actual template folders
   //       are prefixed with '-tmpl/tmpl.<name>` naming format.
-  const filter: t.FileMapFilter = (e) => isAllowedTemplateBundlePath(e.path);
+  const filter: t.FileMap.Filter.Predicate = (e) => isAllowedTemplateBundlePath(e.path);
   const res = await TmplEngine.bundle(src, {
     targetFile,
     filter,
@@ -58,7 +58,8 @@ export async function assertTemplateSourceClean(sourceRoot: t.StringDir) {
 
   if (offenders.length > 0) {
     const details = offenders.join('\n');
-    const err = `Template source contains forbidden generated directories (clean before bundling):\n${details}`;
+    const err =
+      `Template source contains forbidden generated directories (clean before bundling):\n${details}`;
     throw new Error(err);
   }
 }

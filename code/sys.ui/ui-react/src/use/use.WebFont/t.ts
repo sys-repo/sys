@@ -1,10 +1,9 @@
-import type { WebFontLib as Base, WebFontConfig } from '@sys/ui-css/t';
 import type { t } from './common.ts';
 
 /**
  * Tools for working with web-fonts.
  */
-export type WebFontLib = Base & {
+export type WebFontLib = t.WebFont.Lib & {
   readonly useWebFont: t.UseWebFont;
 };
 
@@ -14,4 +13,4 @@ export type WebFontLib = Base & {
  *
  * Idempotent, calls upstream to core implementation: @sys/ui-css:WebFont
  */
-export type UseWebFont = (dir: t.StringDir, opts: WebFontConfig) => void;
+export type UseWebFont = (dir: t.StringDir, opts: t.WebFont.Config) => void;

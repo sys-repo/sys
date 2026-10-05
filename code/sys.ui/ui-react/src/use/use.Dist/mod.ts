@@ -1,1 +1,1 @@
-export * from './use.Dist.ts';
+export { useDist } from './use.Dist.ts';

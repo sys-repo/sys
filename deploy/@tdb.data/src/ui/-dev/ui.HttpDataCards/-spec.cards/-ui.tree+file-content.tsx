@@ -1,5 +1,6 @@
-import { type t, DataClient, Is, Obj, Str } from './common.ts';
+import { DataClient, Is, Obj, Str, type t } from './common.ts';
 import { renderTreeContentCard } from './-ui.tree+file-content.card.tsx';
+import { responsePolicy } from './u.fixture.ts';
 
 type Params = {
   readonly kind: 'slug-tree:fs';
@@ -27,6 +28,7 @@ export const TreeContent: t.ActionProbe.ProbeSpec<t.HttpDataCards.TEnv, Params> 
       origin: e.origin,
       dataset: e.dataset,
       docid: e.docid,
+      policy: responsePolicy(e.origin),
     });
 
     e.item({ k: 'origin', v: e.origin });

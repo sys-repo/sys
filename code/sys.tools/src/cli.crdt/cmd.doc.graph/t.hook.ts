@@ -41,5 +41,5 @@ export type DocumentGraphPlugin = {
     dag: t.Graph.Dag.Result;
     cmd: t.Crdt.Cmd.Client;
     docpath: t.ObjectPath;
-  }) => t.MenuResult | Promise<t.MenuResult>;
+  }) => t.CliInput.Menu.Result | Promise<t.CliInput.Menu.Result>;
 };

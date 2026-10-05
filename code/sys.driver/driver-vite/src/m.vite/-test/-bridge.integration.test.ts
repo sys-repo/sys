@@ -1,25 +1,57 @@
-import { describe, expect, Fs, Http, it, pkg, SAMPLE, Testing } from '../../-test.ts';
+import { describe, expect, Fs, Http, Is, it, pkg, ROOT, SAMPLE, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
 import { writeLocalBridgeImports } from './u.bridge.fixture.ts';
+import { hasExplicitResourceManagementSyntax } from './u.syntax.ts';
 
 type O = Record<string, unknown>;
 
 describe('Vite @sys bridge integration', () => {
-  it('fixture bridge writes and restores local tsconfig authority', async () => {
+  it('fixture bridge writes local tsconfig authority without reviving pluginutils split-brain imports', async () => {
     const fs = await Fs.makeTempDir({ prefix: 'Vite.bridge.fixture.' });
     const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sampleBridge));
     const tsconfigPath = Fs.join(dir, 'tsconfig.json');
+    const importsPath = Fs.join(dir, 'imports.json');
+    const packagePath = Fs.join(dir, 'package.json');
     await Fs.copy(SAMPLE.Dirs.sampleBridge, dir);
 
     const restore = await writeLocalBridgeImports(dir);
     try {
       type T = { compilerOptions?: O; include?: string[] };
       const tsconfig = (await Fs.readJson<T>(tsconfigPath)).data ?? {};
+      const imports =
+        (await Fs.readJson<{ imports?: Record<string, string> }>(importsPath)).data?.imports ?? {};
+      const dependencies = await packageDependencies(packagePath);
+      const oxcRuntimeVersion = await rootDevDependencyVersion('@oxc-project/runtime');
+
       expect(tsconfig.compilerOptions?.allowJs).to.eql(true);
       expect(tsconfig.compilerOptions?.checkJs).to.eql(false);
       expect(tsconfig.compilerOptions?.jsx).to.eql('react-jsx');
       expect(tsconfig.compilerOptions?.jsxImportSource).to.eql('react');
       expect(tsconfig.include).to.eql(['src/**/*']);
+      expect(imports['@rolldown/pluginutils']).to.eql(undefined);
+      expect(imports['@oxc-project/runtime/helpers/usingCtx']).to.eql(
+        `npm:@oxc-project/runtime@${oxcRuntimeVersion}/helpers/usingCtx`,
+      );
+      expect(dependencies['@oxc-project/runtime']).to.eql(oxcRuntimeVersion);
+      expect(imports['@sys/std/dispose/compat']).to.match(
+        /code\/sys\/std\/src\/m\.Dispose\/m\.Compat\/mod\.ts$/,
+      );
+    } finally {
+      await restore();
+      expect(await Fs.exists(tsconfigPath)).to.eql(false);
+      await Fs.remove(fs.absolute, { log: false });
+    }
+  });
+
+  it('fixture bridge can skip synthetic tsconfig authority for js-entry smoke worlds', async () => {
+    const fs = await Fs.makeTempDir({ prefix: 'Vite.bridge.fixture.skip-tsconfig.' });
+    const dir = Fs.join(fs.absolute, Fs.basename(SAMPLE.Dirs.sample2));
+    const tsconfigPath = Fs.join(dir, 'tsconfig.json');
+    await Fs.copy(SAMPLE.Dirs.sample2, dir);
+
+    const restore = await writeLocalBridgeImports(dir, { skipTsconfig: true });
+    try {
+      expect(await Fs.exists(tsconfigPath)).to.eql(false);
     } finally {
       await restore();
       expect(await Fs.exists(tsconfigPath)).to.eql(false);
@@ -87,10 +119,17 @@ describe('Vite @sys bridge integration', () => {
 
         const main = await fetch(`${server.url}main.ts`);
         const text = await main.text();
+        const helperPath = text.match(/from "([^"]*usingCtx\.js)"/)?.[1];
         expect(main.status).to.eql(200);
         expect(text).to.include('sample-bridge');
         expect(text).to.include('sample-bridge-http');
+        expect(helperPath).to.be.a('string');
+        expect(hasExplicitResourceManagementSyntax(text)).to.eql(false);
         expect(text.includes('@sys/std')).to.eql(false);
+
+        const helper = await fetch(new URL(helperPath ?? '', server.url));
+        expect(helper.status).to.eql(200);
+        expect(await helper.text()).to.include('function _usingCtx');
       } finally {
         if (server) await server.dispose();
         await restore();
@@ -99,3 +138,20 @@ describe('Vite @sys bridge integration', () => {
     });
   });
 });
+
+/**
+ * Helpers:
+ */
+
+async function packageDependencies(path: string) {
+  const pkg = (await Fs.readJson<{ dependencies?: Record<string, string> }>(path)).data;
+  return pkg?.dependencies ?? {};
+}
+
+async function rootDevDependencyVersion(name: string) {
+  const path = ROOT.resolve('package.json');
+  const pkg = (await Fs.readJson<{ devDependencies?: Record<string, string> }>(path)).data;
+  const version = pkg?.devDependencies?.[name];
+  if (Is.str(version)) return version;
+  throw new Error(`Missing root package version authority for ${name}`);
+}

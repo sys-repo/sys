@@ -11,9 +11,13 @@
  * import type { Immutable } from '@sys/t';        ↓
  * import type { Immutable } from '@sys/types';    ← (alias)
  * ```
- *
  */
 export type * from './types.ts';
 export type * as t from './types.ts';
+
+/**
+ * Canonical module path used for type-package distribution metadata.
+ */
+export const distTypePath = 'src/t/t.Pkg.dist.ts';
 
 export { pkg } from './pkg.ts';

@@ -1,5 +1,4 @@
 import { describe, expect, it } from '../../-test.ts';
-import { D } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
 describe('FileMap.Data (encoding)', () => {
@@ -16,7 +15,22 @@ describe('FileMap.Data (encoding)', () => {
     const data = new Uint8Array([1, 2, 3]);
     const a = Data.encode('image/png', data);
     const b = Data.decode(a);
-    expect(a).to.eql(`data:image/png;base64,AQID`);
+    expect(a).to.eql('data:image/png;base64,AQID');
+    expect(b).to.eql(data);
+  });
+
+  it('encode → decode: parameterized text', () => {
+    const a = Data.encode('text/plain; charset=UTF-8', 'foobar');
+    const b = Data.decode(a);
+    expect(a).to.eql('data:text/plain; charset=UTF-8;base64,Zm9vYmFy');
+    expect(b).to.eql('foobar');
+  });
+
+  it('encode → decode: valid custom binary media type', () => {
+    const data = new Uint8Array([1, 2, 3]);
+    const a = Data.encode('application/vnd.example', data);
+    const b = Data.decode(a);
+    expect(a).to.eql('data:application/vnd.example;base64,AQID');
     expect(b).to.eql(data);
   });
 
@@ -28,71 +42,67 @@ describe('FileMap.Data (encoding)', () => {
   });
 
   describe('contentType', () => {
-    it('contentType.fromPath', () => {
-      const map = D.contentTypes.all(); // Record<ext, mime>
-
-      Object.entries(map).forEach(([ext, mime]) => {
-        const path = `foo/file${ext}`;
-        const a = Data.contentType.fromPath(path);
-        const b = Data.contentType.fromPath(ext); // dotfile path like ".ts" is supported
-
-        expect(a).to.eql(mime);
-        expect(b).to.eql(mime);
-      });
-    });
-
-    it('contentType.fromPath: extension only (eg. ".gitignore")', () => {
+    it('contentType.fromPath: canonical source profile and standard registry', () => {
       const test = (path: string, expected: string) => {
         expect(Data.contentType.fromPath(path)).to.eql(expected);
       };
-      test('.gitignore', 'text/plain');
-      test('foo/bar/.gitignore', 'text/plain');
+
+      test('foo/file.ts', 'application/typescript');
+      test('foo/file.MTS', 'application/typescript');
+      test('foo/file.cts', 'application/typescript');
+      test('foo/file.tsx', 'application/typescript+jsx');
+      test('foo/file.json', 'application/json');
+      test('foo/file.yaml', 'text/yaml');
+      test('foo/file.HTML', 'text/html');
+      test('foo/file.png', 'image/png');
+      test('.json', 'application/json');
     });
 
-    it('contentType.fromPath: default → "text/plain"', () => {
+    it('contentType.fromPath: unknown path → text fallback', () => {
       const test = (path: string) => {
-        expect(Data.contentType.fromPath(path)).to.eql(D.contentType);
+        expect(Data.contentType.fromPath(path)).to.eql('text/plain');
       };
+
       test('');
       test('foo');
       test('foo/bar.baz');
       test('foo/foo.vue');
+      test('.gitignore');
+      test('foo/bar/.gitignore');
     });
 
-    it('contentType.fromPath: default → "application/typescript"', () => {
-      const test = (path: string, expected: string) => {
-        expect(Data.contentType.fromPath(path)).to.eql(expected);
-      };
-      test('foo/file.ts', 'application/typescript');
-      test('foo/file.tsx', 'application/typescript+jsx');
-    });
-
-    it('contentType.fromUri', () => {
+    it('contentType.fromUri: canonical bare media type', () => {
       const test = (uri: string, expected: string) => {
         expect(Data.contentType.fromUri(uri)).to.eql(expected);
       };
-      test('data:text/plain;base64,abcd', 'text/plain');
+
+      test('data:text/HTML;charset=UTF-8,hello', 'text/html');
       test('data:image/png;base64,abcd', 'image/png');
-      test('data:application/typescipt;base64,abcd', 'application/typescipt');
-      test('data:application/typescipt+jsx;base64,abcd', 'application/typescipt+jsx');
+      test('data:application/vnd.api+JSON;version=1,{}', 'application/vnd.api+json');
+      test('data:,hello', 'text/plain');
+      test('data:;base64,SGVsbG8=', 'text/plain');
     });
 
-    it('contentType.fromUri: not supported/found → "" (empty string)', () => {
-      const test = (uri: string) => {
-        expect(Data.contentType.fromUri(uri)).to.eql('');
+    it('contentType.fromUri: malformed or non-data input → empty string', () => {
+      const fromUri = Data.contentType.fromUri as (uri: unknown) => string;
+      const test = (uri: unknown) => {
+        expect(fromUri(uri)).to.eql('');
       };
-      const NON = [123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
-      NON.forEach((v: any) => test(v));
+
       test('');
       test('foo');
       test('data:foo/bar');
+      test('data:text/plain');
+      test('data:text/*,hello');
+      test('data:text/plain;broken,hello');
+      [123, true, null, undefined, {}, []].forEach(test);
     });
   });
 
   describe('errors', () => {
-    it('encode: throws if non-supported contentType', () => {
-      const fn = () => Data.encode('foo/bar', 'abc');
-      expect(fn).to.throw(/Content-type "foo\/bar" not supported/);
+    it('encode: throws if contentType is malformed', () => {
+      const fn = () => Data.encode('not-a-media-type', 'abc');
+      expect(fn).to.throw(/Content-type "not-a-media-type" not supported/);
     });
 
     it('decode: throws if not a data-uri', () => {

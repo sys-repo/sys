@@ -4,10 +4,10 @@
  */
 export { pkg } from './pkg.ts';
 
-/** Type library (barrel file). */
+/** Package type surface. */
 export type * as t from './types.ts';
 
 /**
- * Helpers:
+ * Shared crypto helpers.
  */
 export { FileHashUri } from './m.Hash.Composite/m.Uri.ts';

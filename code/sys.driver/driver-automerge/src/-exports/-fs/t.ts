@@ -2,26 +2,32 @@ import type { AutomergeUrl, NetworkAdapterInterface, SharePolicy } from '@autome
 import type { t } from './common.ts';
 
 /**
- * API for CRDT's on a file-system:
+ * Filesystem-backed CRDT contracts.
  */
-export type CrdtFilesystemLib = t.CrdtLib & {
-  readonly kind: 'crdt:fs';
-  repo(args?: t.StringDir | t.CrdtFsRepoArgs): t.CrdtRepo;
-};
+export declare namespace CrdtFs {
+  /** API for CRDTs on a filesystem. */
+  export type Lib = t.Crdt.Lib & {
+    readonly kind: 'crdt:fs';
+    repo(args?: t.StringDir | RepoArgs): t.Crdt.Repo;
+  };
 
-/** Arguments for file-system `Crdt.repo` method. */
-export type CrdtFsRepoArgs = {
-  dir?: t.StringDir;
-  network?: CrdtFsNetworkArgInput | CrdtFsNetworkArgInput[];
-  sharePolicy?: SharePolicy;
-  denylist?: AutomergeUrl[];
-  until?: t.UntilInput;
-};
+  /** Arguments for filesystem `Crdt.repo`. */
+  export type RepoArgs = {
+    dir?: t.StringDir;
+    network?: Network.Input | Network.Input[];
+    sharePolicy?: SharePolicy;
+    denylist?: AutomergeUrl[];
+    until?: t.UntilInput;
+  };
 
-/** Network connection argument. */
-export type CrdtFsNetworkArg =
-  | t.StringWebsocketEndpoint // ↓ shorthand for: ↓
-  | t.CrdtWebsocketNetworkArg;
+  /**
+   * Filesystem CRDT network contracts.
+   */
+  export namespace Network {
+    /** Network connection argument. */
+    export type Arg = t.Crdt.Network.WebsocketEndpoint | t.Crdt.Network.WebsocketArg;
 
-/** Looser input args taking specific CRDT args, and general network interface types. */
-export type CrdtFsNetworkArgInput = CrdtFsNetworkArg | NetworkAdapterInterface | t.Falsy;
+    /** Loose network input accepted by filesystem repos. */
+    export type Input = Arg | NetworkAdapterInterface | t.Falsy;
+  }
+}

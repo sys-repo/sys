@@ -1,5 +1,5 @@
-import { Dev, Signal, Spec } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Harness, Signal, Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Content, updateForBreakpointSize } from './-SPEC.u.tsx';
 import { App, Color, css, useControllers } from './common.ts';
 import { Layout } from './m.Layout.tsx';
@@ -26,7 +26,7 @@ export default Spec.describe('MobileLayout', async (e) => {
     const ctx = Spec.ctx(e);
     const update = { size: () => updateForBreakpointSize(ctx, app) };
 
-    Dev.Theme.signalEffect(ctx, debug.props.theme, 1);
+    Harness.Theme.signalEffect(ctx, debug.props.theme, 1);
     Signal.effect(() => {
       debug.listen();
       update.size();

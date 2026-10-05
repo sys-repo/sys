@@ -1,4 +1,4 @@
-import { type t, c, Cmd, Crdt, Net, Str } from '../common.ts';
+import { c, Cmd, Crdt, Net, Str, type t } from '../common.ts';
 
 /**
  * Connects to the repository daemon and returns a typed command client.
@@ -26,7 +26,7 @@ export async function client(port: number): Promise<t.Crdt.Cmd.Client> {
       throw new Error(`Could not connect to repository daemon on ${url} (connection failed)`);
     }
 
-    // Wrap WebSocket → CmdEndpoint.
+    // Wrap WebSocket → Cmd endpoint.
     const endpoint = Cmd.Transport.fromWebSocket(ws);
 
     // Construct the strongly-typed client.

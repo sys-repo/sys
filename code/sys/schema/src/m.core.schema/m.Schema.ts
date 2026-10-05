@@ -6,7 +6,7 @@ import { tryValidate } from './u.try.ts';
 
 export { Type, Value };
 
-export const Schema: t.SchemaLib = {
+export const Schema: t.SchemaLib = Object.freeze({
   try: tryValidate,
 
   // https://standardschema.dev
@@ -23,4 +23,4 @@ export const Schema: t.SchemaLib = {
   get Error() {
     return Error;
   },
-};
+});

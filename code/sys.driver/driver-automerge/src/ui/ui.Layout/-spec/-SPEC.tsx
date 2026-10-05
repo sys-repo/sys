@@ -1,4 +1,4 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
 
 import { type t, D, Repo, STORAGE_KEY } from '../common.ts';
 import { Layout } from '../mod.ts';
@@ -12,7 +12,7 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();
@@ -26,7 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
         const v = Signal.toObject(p);
 
         const suffix = (doc?: t.Crdt.Ref) => (doc ? `- (crdt:${doc.id.slice(-5)})` : '');
-        const slots: t.LayoutSlots = {
+        const slots: t.Layout.Slots = {
           main: (ctx) => <Foo ctx={ctx} label={`🌳 Main ${suffix(ctx.doc)}`} />,
           sidebar: (ctx) => <Foo ctx={ctx} label={`🌳 Sidebar ${suffix(ctx.doc)}`} />,
           footer: (ctx) => <Foo ctx={ctx} label={`🌳 Footer ${suffix(ctx.doc)}`} padding={0} />,

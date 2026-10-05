@@ -16,6 +16,7 @@ import { DocumentId } from '../../ui/ui.DocumentId/mod.ts';
 import { Layout } from '../../ui/ui.Layout/mod.ts';
 import { Repo } from '../../ui/ui.Repo/mod.ts';
 
+/** Automerge core runtime namespace. */
 export { A } from './common.ts';
 export { Binary, Card, Dev, DocumentId, Layout, Repo };
 
@@ -28,7 +29,7 @@ export { useDoc, useDocStats, useRev };
 /**
  * CRDT UI Library:
  */
-export const Crdt: t.CrdtViewLib = {
+export const Crdt: t.CrdtView.Lib = {
   ...Base,
   UI: {
     Dev,

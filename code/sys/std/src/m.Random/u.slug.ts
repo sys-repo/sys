@@ -7,4 +7,4 @@ import { base36 } from './u.base36.ts';
  *    DO NOT put "slugs" into databases as keys.
  *    Use the longer "cuid" for that.
  */
-export const slug: t.RandomLib['slug'] = () => base36(Length.slug);
+export const slug: t.Random.Lib['slug'] = () => base36(Length.slug);

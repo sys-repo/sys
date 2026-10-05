@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-process",
-  "version": "0.0.82",
+  "version": "0.0.146",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -12,7 +12,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./ffmpeg": "./src/-exports/-ffmpeg.ts",
     "./git": "./src/-exports/-git.ts"
   },

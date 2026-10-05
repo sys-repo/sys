@@ -1,8 +1,8 @@
 /**
  * @module
- * Type surface for the web-worker transport layer of the CRDT repo.
+ * Web-worker transport types for the CRDT repo.
  * Bridges the main thread and background worker via MessagePort,
  * isolating heavy Automerge work from the UI thread while preserving
- * the standard the `Crdt.Repo` interface.
+ * the standard `Crdt.Repo` interface.
  */
 export { CrdtWorker } from './m.Worker.ts';

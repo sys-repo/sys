@@ -5,8 +5,8 @@ import { pathAtCaret } from './u.pathAtCaret.ts';
  * Singleton path-observer registry per `editorId`.
  */
 export type Producer = t.Lifecycle & {
-  readonly $: t.Observable<t.EventYamlCursor>; //   shared stream (multicast)
-  readonly current: t.EventYamlCursor; //           snapshot getter
+  readonly $: t.Observable<t.EditorEvent.Yaml.Cursor>; //   shared stream (multicast)
+  readonly current: t.EditorEvent.Yaml.Cursor; //           snapshot getter
   readonly editorId: t.StringId; //                 code-editor
 };
 
@@ -16,7 +16,7 @@ export type Producer = t.Lifecycle & {
  */
 export function createProducer(args: {
   editor: t.Monaco.Editor;
-  bus$?: t.EditorEventBus;
+  bus$?: t.EditorBus.Subject;
 }): Producer {
   const { editor } = args;
   const editorId = editor.getId();
@@ -33,7 +33,7 @@ export function createProducer(args: {
   let version = model.getVersionId();
 
   // Latest snapshot.
-  let currentCursor: t.EventYamlCursor = makeEmptyEvent(editorId);
+  let currentCursor: t.EditorEvent.Yaml.Cursor = makeEmptyEvent(editorId);
 
   const parse = () => {
     ast = Yaml.parseAst(model.getValue());
@@ -55,7 +55,7 @@ export function createProducer(args: {
     const { offset, path } = pathAtCaret(model, ast, position);
     if (offset === -1) return clear(emit);
 
-    const next: t.EventYamlCursor = {
+    const next: t.EditorEvent.Yaml.Cursor = {
       kind: 'editor:yaml:cursor',
       editorId,
       path,
@@ -133,7 +133,7 @@ export function createProducer(args: {
 /**
  * Helpers:
  */
-function makeEmptyEvent(editorId: t.StringId): t.EventYamlCursor {
+function makeEmptyEvent(editorId: t.StringId): t.EditorEvent.Yaml.Cursor {
   return {
     kind: 'editor:yaml:cursor',
     editorId,
@@ -141,7 +141,7 @@ function makeEmptyEvent(editorId: t.StringId): t.EventYamlCursor {
   };
 }
 
-function isSameCursor(a: t.EventYamlCursor, b: t.EventYamlCursor) {
+function isSameCursor(a: t.EditorEvent.Yaml.Cursor, b: t.EditorEvent.Yaml.Cursor) {
   // Canonical fast path:
   if (EditorIs.cursorEqual(a, b)) return true;
 

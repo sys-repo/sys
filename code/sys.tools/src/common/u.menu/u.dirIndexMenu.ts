@@ -19,13 +19,13 @@ type DirIndexMenuResult =
  * Updates "last used" metadata and persists changes to the config.
  */
 export async function dirIndexMenu<
-  TDoc extends t.JsonFileDoc,
+  TDoc extends t.JsonFile.Doc,
   TEntry extends t.Tools.Recency,
 >(args: {
   cwd: t.StringDir;
   scopeKey: string;
   defaultMount: string;
-  config: t.JsonFile<TDoc>;
+  config: t.JsonFile.Instance<TDoc>;
   io: {
     list(doc: TDoc, scope: string): readonly TEntry[];
     set(doc: TDoc, scope: string, next: readonly TEntry[]): void;

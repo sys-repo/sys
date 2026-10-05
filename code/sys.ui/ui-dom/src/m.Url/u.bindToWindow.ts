@@ -1,17 +1,20 @@
-import { type t, Rx } from './common.ts';
+import { Rx, type t } from './common.ts';
 
 /**
- * Bind a UrlRef to window.location via the History API.
+ * Bind an immutable URL ref to window.location via the History API.
  *
  * One-way flow:
- *   UrlRef.current (and its change events) → window.location
+ *   immutable URL ref current value (and its change events) → window.location
  *
  * No attempt is made to listen to popstate/hashchange or mutate the
- * UrlRef from DOM events; that belongs in a higher-level integrator.
+ * immutable URL ref from DOM events; that belongs in a higher-level integrator.
  */
-export function bindToWindow(ref: t.UrlRef, opts: t.DomUrlBindOptions = {}): t.DomUrlBinding {
+export function bindToWindow(
+  ref: t.Immutable.Url.Ref,
+  opts: t.DomUrlBindOptions = {},
+): t.DomUrlBinding {
   const { mode = 'replace', until } = opts;
-  const life = Rx.lifecycle(opts.until);
+  const life = Rx.lifecycle(until);
 
   /**
    * No-op binding when not in a browser environment.
@@ -40,7 +43,7 @@ export function bindToWindow(ref: t.UrlRef, opts: t.DomUrlBindOptions = {}): t.D
     location.href = nextHref;
   };
 
-  // Initial sync from the current `UrlRef` snapshot.
+  // Initial sync from the current immutable URL ref snapshot.
   syncWindow(ref.current);
 
   // Subscribe to immutable change events and mirror into `window.location`.

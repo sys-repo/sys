@@ -1,4 +1,4 @@
 /**
  * @module types
  */
-export type * from '@sys/crdt-t/t';
+export type * from './types/mod.ts';

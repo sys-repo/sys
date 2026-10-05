@@ -2,4 +2,4 @@
  * @module
  * Test workflow helpers for workspace CI.
  */
-export { Test } from './mod.Test.ts';
+export { Test } from './m.Test.ts';

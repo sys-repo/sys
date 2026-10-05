@@ -1,10 +1,10 @@
 export { Color } from '@sys/color';
 export { Immutable } from '@sys/immutable/rfc6902';
+export { Arr } from '@sys/std/arr';
 export { isObject, isRecord } from '@sys/std/is';
 export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Is } from '@sys/std/is';
 export { slug } from '@sys/std/random';
-export { R } from '@sys/std/r';
 export { Time } from '@sys/std/time';
 export { Rx } from '@sys/std/rx';

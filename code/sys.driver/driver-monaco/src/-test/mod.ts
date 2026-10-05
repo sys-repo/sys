@@ -5,13 +5,13 @@ export {
   beforeEach,
   c,
   describe,
-  DomMock,
   expect,
   expectError,
   expectTypeOf,
   it,
   Testing,
 } from '@sys/testing/server';
+export { DomMock } from '@sys/testing/server/dom';
 export { act, renderHook } from '@sys/ui-react/testing/server';
 export { MonacoFake } from '../-fake/mod.ts';
 

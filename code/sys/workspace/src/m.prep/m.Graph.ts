@@ -1,12 +1,12 @@
-import { type t, c, Cli, Fs, Is, Obj, Str, Time } from './common.ts';
+import { c, Cli, Fs, Is, Obj, Str, type t, Time } from './common.ts';
 import { WorkspaceGraph } from '../m.graph/mod.ts';
 import { State } from './m.State.ts';
 import { runPhase } from '../u.phase.ts';
 
-export const Graph: t.WorkspacePrep.Graph.Lib = {
+export const Graph: t.WorkspacePrep.Graph.Lib = Object.freeze({
   async build(cwd = Fs.cwd()) {
     const deno = (await Fs.readJson<Record<string, unknown>>(State.workspaceFile(cwd))).data ?? {};
-    const workspace = Array.isArray(deno.workspace) ? deno.workspace.filter(Is.str) : [];
+    const workspace = Is.array(deno.workspace) ? deno.workspace.filter(Is.str) : [];
     const include = workspace.map((path) => `${path}/deno.json`);
 
     const graph = await WorkspaceGraph.collect({ cwd, source: { include } });
@@ -15,11 +15,11 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
     if (!ordered.ok) {
       if ('invalid' in ordered) {
         const keys = ordered.invalid.keys.join(', ');
-        const err = `Workspace.Prep.Graph.build: failed to order workspace paths (${ordered.invalid.code}): ${keys}`;
+        const err =
+          `Workspace.Prep.Graph.build: failed to order workspace paths (${ordered.invalid.code}): ${keys}`;
         throw new Error(err);
       }
-      const err = `Workspace.Prep.Graph.build: failed to order workspace paths (cycle): ${ordered.cycle.keys.join(', ')}`;
-      throw new Error(err);
+      throw new Error(wrangle.cycleError(packages, ordered.cycle));
     }
 
     return {
@@ -100,22 +100,61 @@ export const Graph: t.WorkspacePrep.Graph.Lib = {
       label: 'writing workspace graph snapshot...',
       silent,
       fn: () => Graph.write({ cwd, snapshot }),
-      done: (res) =>
-        wrangle.done({
+      done(res) {
+        return wrangle.done({
           cwd,
           graph,
           path: res.path,
           changed: res.changed,
           startedAt: ensureStartedAt,
-        }),
+        });
+      },
     });
   },
-};
+});
 
 /**
  * Helpers:
  */
 const wrangle = {
+  cycleError(graph: t.WorkspaceGraph.PackageGraph, cycle: t.WorkspaceGraph.Cyclic['cycle']) {
+    const cyclePath = cycle.path.length > 0 ? cycle.path : cycle.keys;
+    const message = [
+      'Workspace.Prep.Graph.build: failed to order workspace paths (cycle):',
+      cyclePath.join(' → '),
+    ].join(' ');
+    const lines = [message, `remaining: ${cycle.keys.join(', ')}`];
+    const witnesses = wrangle.cycleWitnesses(graph, cyclePath);
+    if (witnesses.length > 0) {
+      lines.push('witness imports:');
+      for (const witness of witnesses) {
+        lines.push(`  ${witness.edge.from} → ${witness.edge.to}`);
+        const moduleEdge = witness.moduleEdge;
+        lines.push(`    ${moduleEdge.from} → ${moduleEdge.to} (${moduleEdge.kind})`);
+      }
+    }
+    return lines.join('\n');
+  },
+
+  cycleWitnesses(
+    graph: t.WorkspaceGraph.PackageGraph,
+    cyclePath: readonly t.WorkspaceGraph.Package['path'][],
+  ) {
+    const witnesses: {
+      readonly edge: t.WorkspaceGraph.PackageEdge;
+      readonly moduleEdge: t.WorkspaceGraph.ModuleEdge;
+    }[] = [];
+    // Paired path segments require adjacent cursor access.
+    for (let offset = 0; offset < cyclePath.length - 1; offset++) {
+      const from = cyclePath[offset];
+      const to = cyclePath[offset + 1];
+      const edge = graph.edges.find((item) => item.from === from && item.to === to);
+      const first = edge?.imports[0];
+      if (edge && first) witnesses.push({ edge, moduleEdge: first });
+    }
+    return witnesses;
+  },
+
   async assertCurrent(cwd = Fs.cwd()) {
     const res = await Graph.check(cwd);
     if (!res.existing) {

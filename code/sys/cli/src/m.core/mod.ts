@@ -48,6 +48,7 @@ import { Cli } from './m.Cli/mod.ts';
 
 export { Args, c, Color, stripAnsi } from './common.ts';
 export { Fmt } from './m.Fmt/mod.ts';
+export { Is } from './m.Is/mod.ts';
 export { Keyboard } from './m.Keyboard/mod.ts';
 export { Prompt } from './m.Prompt/mod.ts';
 export { Spinner } from './m.Spinner/mod.ts';

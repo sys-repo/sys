@@ -1,0 +1,121 @@
+id: test
+title: Workspace Test Runner
+summary: >-
+  Test packages; inspect results; recover.
+
+sections:
+  - label: Choose execution
+    items:
+      - >-
+          Use `deno task test` for the canonical /sys run: topology-safe
+          parallel execution that continues through package test failures.
+      - >-
+          Use `deno task test:seq` when immediate child output and fail-fast
+          package execution are more useful than a complete workspace result.
+      - '`deno task test:parallel` is the explicit parallel alias.'
+      - >-
+          `Workspace.Run.test()` defaults to sequential execution. API callers
+          must request `strategy: { kind: 'parallel', jobs? }` when they need
+          parallel run-through behavior.
+
+  - label: CLI control
+    items:
+      - >-
+          Use `deno task test -- --jobs=auto` for the bounded automatic worker
+          count, or `deno task test -- --jobs=<n>` for a positive integer limit.
+      - >-
+          Root `deno task test` is already parallel, so `--jobs` needs no
+          separate `--parallel` flag.
+      - >-
+          `deno task test -- --parallel=false` selects sequential execution;
+          prefer the clearer `deno task test:seq` alias.
+      - >-
+          Workspace runner flags belong after the task separator, as in
+          `deno task test -- --jobs=8`. `deno task --jobs=8 test` controls
+          Deno's task runner instead of the workspace package scheduler.
+      - >-
+          Automatic jobs use half the available processors, bounded to 2–8;
+          unavailable hardware information resolves to 4.
+
+  - label: Scheduler guarantees
+    items:
+      - >-
+          Ready independent packages may overlap. A dependent starts only after
+          each selected predecessor reaches a terminal result.
+      - >-
+          Missing test tasks are `skipped`. Package test failures and skips do
+          not cancel later launches or suppress dependents, so every selected
+          package reaches a terminal result.
+      - >-
+          Results and failure selection remain in workspace graph order. Live
+          completion order is presentation only and never changes result truth.
+
+  - label: Result model
+    items:
+      - >-
+          A workspace result is a graph-ordered set of package outcomes.
+          Manifest name is package identity; workspace path is the location for
+          execution, diagnostics, and reruns.
+      - >-
+          Process exit or signal is authoritative for package success. On a
+          failed workspace result, `failure` is the first failed package in
+          graph order.
+      - >-
+          Parallel execution captures package stdout and stderr for final
+          diagnosis. Sequential execution sends child output directly to the
+          terminal instead.
+      - >-
+          Use `filter` to select packages from `{ dir, pkg, task }`; do not
+          derive a separate order outside the workspace graph.
+
+  - label: Choose output
+    items:
+      - >-
+          For parallel API calls, use `reporter: 'screen'` for animated progress
+          and final scrollback, or `reporter: 'log'` when animation is
+          inappropriate. Omission chooses screen output only on a stdout terminal.
+      - >-
+          Read live completions from top-left, down each column, then right.
+          Newest completions appear first; `... +N more` accounts for hidden
+          older rows.
+      - >-
+          Final screen scrollback is exhaustive: every completion appears first,
+          followed by every failed-package repair action, with no overflow
+          summary.
+      - >-
+          Use `Workspace.Run.Fmt.result(...)` for the full result table. Use
+          `Workspace.Run.Fmt.handoff(...)` for a concise repair summary or full
+          failure evidence.
+      - >-
+          Root interactive parallel runs combine screen output with a compact
+          handoff. Root noninteractive parallel runs use full failure evidence.
+
+  - label: Recover failures
+    items:
+      - >-
+          Compact handoff output gives graph-ordered failed packages, a failure
+          fact, and the exact package-local rerun command:
+          `deno task --cwd ./<package-path> <task>`.
+      - >-
+          For screen output, pass the completion value supplied by `onComplete`
+          as `screen` to the compact handoff. Do not construct that value
+          independently. Without it, compact output safely repeats all repairs.
+      - >-
+          Use full detail when diagnosis matters. It adds available structured
+          failure evidence and every nonempty captured stdout and stderr stream.
+      - >-
+          Live and compact output omit failure messages and captured streams.
+          The exact rerun command may wrap but is never truncated or rewritten.
+
+  - label: Interpret telemetry
+    items:
+      - >-
+          Native test counts are optional evidence. They never override process
+          success or failure.
+      - >-
+          Simple `deno test ...` tasks may yield final JUnit facts. Other task
+          shapes remain valid runs without those facts; the runner does not infer
+          test progress from console text.
+      - >-
+          In formatted summaries, `—` means a native count was unavailable or
+          inapplicable. It never means zero tests.

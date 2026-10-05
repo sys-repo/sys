@@ -1,6 +1,13 @@
 import type { t } from './common.ts';
 
+/**
+ * @module
+ * Public types for detached URL and path opening helpers.
+ */
+/** Supported OS identifiers for command resolution. */
 export type OpenOs = 'windows' | 'linux' | 'darwin';
+
+/** OS discriminator accepted by `Open.resolveCommand`. */
 export type OpenOsInput = OpenOs | (string & {});
 
 /**

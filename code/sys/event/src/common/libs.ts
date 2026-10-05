@@ -6,6 +6,7 @@ export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { slug } from '@sys/std/random';
 export { Obj } from '@sys/std/obj';
+export { Num } from '@sys/std/num';
 export { Pkg } from '@sys/std/pkg';
 export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';

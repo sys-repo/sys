@@ -4,7 +4,7 @@ import { FileSize as Size } from './m.FileSize.ts';
 /**
  * Helpers for working with binary files in the browser.
  */
-export const File: t.FileLib = {
+export const File: t.File.Lib = {
   DEFAULTS,
   Size,
 

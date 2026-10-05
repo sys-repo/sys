@@ -1,10 +1,11 @@
-import { type t, Args } from './common.ts';
+import { Args, type t } from './common.ts';
+import { CliStartTargetSelectorKeys } from './u.startTarget.ts';
 
 export function parseArgs(argv: string[] = []): t.ServeTool.CliParsedArgs {
   const args = Args.parse<t.ServeTool.CliArgs>(argv, {
     alias: { h: 'help' },
     boolean: ['help', 'open', 'non-interactive'],
-    string: ['config', 'dir', 'host'],
+    string: [...CliStartTargetSelectorKeys, 'host'],
   });
 
   return {

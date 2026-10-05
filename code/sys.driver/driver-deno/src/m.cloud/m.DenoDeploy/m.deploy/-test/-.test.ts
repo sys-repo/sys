@@ -1,11 +1,11 @@
-import { type t, describe, expect, Fs, it, Pkg } from '../../../../-test.ts';
+import { describe, expect, Fs, it, Pkg, type t } from '../../../../-test.ts';
 import { DenoDeploy } from '../../mod.ts';
 import { D } from '../../common.ts';
 import { DeployCli } from '../../../u.cli.deploy/mod.ts';
 import { createStageWorkspace } from '../../m.stage/-test/u.fixture.workspace.ts';
 import { createFakeDeployCli } from './u.fixture.ts';
 
-describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
+describe('DenoDeploy.deploy', () => {
   it('builds native deno deploy cli invocation from a staged artifact', () => {
     const stage = {
       target: { dir: '/repo/apps/foo' },
@@ -140,8 +140,8 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
     const mod = await import(`file://${stage.root}/entry.ts`);
     const res = await mod.default.fetch(new Request('http://local/'));
     const body = await res.text();
-    const expectedHtml =
-      (await Fs.readText(Fs.join(stagedTarget, 'dist', 'index.html'))).data ?? '';
+    const expectedHtml = (await Fs.readText(Fs.join(stagedTarget, 'dist', 'index.html'))).data ??
+      '';
 
     expect(res.status).to.eql(200);
     expect(res.headers.get('content-type')).to.contain('text/html');
@@ -153,8 +153,12 @@ describe('DenoDeploy.deploy', { sanitizeResources: false }, () => {
     const assetRes = await mod.default.fetch(
       new Request(new URL(assetUrl, 'http://local/').toString()),
     );
-    expect(assetRes.status).to.eql(200);
-    expect(assetRes.headers.get('content-type')).to.contain('javascript');
+    try {
+      expect(assetRes.status).to.eql(200);
+      expect(assetRes.headers.get('content-type')).to.contain('javascript');
+    } finally {
+      await assetRes.body?.cancel();
+    }
   });
 
   it('runs the standalone stage → prepare → deploy path against a staged artifact', async () => {
@@ -227,6 +231,7 @@ function assertDeploySuccess(
   if (res.ok) return;
   if ('error' in res) throw res.error instanceof Error ? res.error : new Error(String(res.error));
 
-  const err = `expected successful standalone deploy, got code ${res.code}\nstdout:\n${res.stdout}\nstderr:\n${res.stderr}`;
+  const err =
+    `expected successful standalone deploy, got code ${res.code}\nstdout:\n${res.stdout}\nstderr:\n${res.stderr}`;
   throw new Error(err);
 }

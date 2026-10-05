@@ -4,7 +4,7 @@ import { std } from './u.std.ts';
 /**
  * Create a new error collection builder.
  */
-export const errors: t.ErrLib['errors'] = () => {
+export const errors: t.Err.Lib['errors'] = () => {
   const set = new Set<t.StdError>();
   const api: t.ErrorCollection = {
     get ok() {

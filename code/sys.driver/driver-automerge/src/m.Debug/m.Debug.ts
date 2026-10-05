@@ -1,4 +1,4 @@
-import { type t, A } from './common.ts';
+import { A, type t } from './common.ts';
 import { Reentry } from './m.Reentry.ts';
 
 /** Track whether tripwire patch was applied. */
@@ -17,7 +17,8 @@ const warnTrip = (where: string) => {
   });
 };
 
-export const Debug: t.DebugLib = {
+/** Development diagnostics for Automerge callback re-entry and safe doc access. */
+export const Debug: t.Debug.Lib = {
   Reentry,
 
   installTripwireGetHeads(enable) {
@@ -43,7 +44,7 @@ export const Debug: t.DebugLib = {
     queueMicrotask(fn);
   },
 
-  coalesce(): t.Scheduler {
+  coalesce(): t.Debug.Scheduler {
     let queued = false;
     return (fn: () => void) => {
       if (queued) return;
@@ -55,7 +56,7 @@ export const Debug: t.DebugLib = {
     };
   },
 
-  getHeadsSafe(doc): t.Heads {
+  getHeadsSafe(doc): t.Debug.Heads {
     if (Reentry.inCallback()) {
       if (tripwireMode === 'fallback') warnTrip('Debug.getHeadsSafe');
       throw new Error('getHeadsSafe: called during Automerge callback');

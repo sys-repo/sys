@@ -1,4 +1,4 @@
-import { type t, describe, expect, Fs, it, makeTmpl, Templates } from '../-test.ts';
+import { describe, expect, Fs, it, makeTmpl, type t, Templates } from '../-test.ts';
 import { logTemplate, makeWorkspaceWithPkg } from './u.ts';
 
 describe('Template: m.mod.ui', () => {
@@ -67,6 +67,10 @@ describe('Template: m.mod.ui', () => {
       // Sample stub deleted:
       expect(specsText.includes('// [`${ns}: name`]:')).to.eql(false, 'stub should be removed');
     }
+
+    // Generated runtime module preserves the frozen namespace contract.
+    const modText = (await Fs.readText(Fs.join(targetDir, 'mod.ts'))).data ?? '';
+    expect(modText).to.include('Object.freeze({ UI })');
 
     // Sanity: target UI module exists where expected:
     expect(includes(`/ns/my-module/src/ui/Button/t.ts`)).to.be.true;

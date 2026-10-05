@@ -1,12 +1,11 @@
-import type { LocalStorageLib } from './t.ts';
-
+import { type t } from '../common.ts';
 import { immutable } from './u.immutable.ts';
 import { ns } from './u.namespace.ts';
 
 /**
  * Helpers for working with a strongly typed local-storage object.
  */
-export const LocalStorage: LocalStorageLib = {
+export const LocalStorage: t.LocalStorage.Lib = {
   ns,
   immutable,
 };

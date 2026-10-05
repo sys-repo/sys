@@ -1,7 +1,7 @@
-import { type t, Err } from './common.ts';
+import { Err, type t } from './common.ts';
 import { probe, probeTargets } from './u.ts';
 
-export const Port: t.PortLib = {
+export const Port: t.PortLib = Object.freeze({
   random() {
     // OS assigns a free port; we close immediately.
     const listener = Deno.listen({ port: 0 });
@@ -22,9 +22,9 @@ export const Port: t.PortLib = {
     for (const host of probeTargets()) {
       const res = probe(host, port);
       if (res.kind === 'in_use') return true; // definite conflict on this host
-      if (res.kind === 'ok')
+      if (res.kind === 'ok') {
         sawOk = true; // at least one host is clear
-      else {
+      } else {
         // Any ambiguous/denied/other failure → treat conservatively as "in use".
         // This avoids the false-negative you hit where real bind fails later.
         return true;
@@ -37,6 +37,9 @@ export const Port: t.PortLib = {
 
   get(pref?: t.PortNumber, options: { throw?: boolean } = {}) {
     if (pref === undefined) return Port.random();
+    // Port zero delegates allocation to the eventual listener. Probing it first is both
+    // meaningless and needlessly requests wildcard IPv4/IPv6 bind authority.
+    if (pref === 0) return pref;
 
     if (!Port.inUse(pref)) return pref;
 
@@ -50,4 +53,4 @@ export const Port: t.PortLib = {
     }
     throw Err.std(`No free port found starting from ${pref}`);
   },
-};
+});

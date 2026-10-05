@@ -1,11 +1,16 @@
-# UI: Monaco Code Editor
-UI module wrapping the Prosemirrir rich-text editor (with CRDT bindings).
+# ProseMirror Driver
+
+UI module wrapping the ProseMirror rich-text editor with CRDT bindings.
 
 #### References
 - https://prosemirror.net
 
 
 ### Example
-```ts
-import { pkg } from 'jsr:@sys/driver-prosemirror';
+```tsx
+import { TextEditor } from 'jsr:@sys/driver-prosemirror';
+
+export function Editor({ doc, path }) {
+  return <TextEditor doc={doc} path={path} singleLine />;
+}
 ```

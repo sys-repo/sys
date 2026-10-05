@@ -38,6 +38,28 @@ describe('u.kind.tree-fs/u.policy.file-content', () => {
     expect(res.value.sha256.every((d) => d.filename.endsWith('.json'))).to.eql(true);
   });
 
+  it('derives canonical file-content media types with a binary fallback', async () => {
+    const res = await SlugBundleTransformTreeFs.derive({
+      includePath: true,
+      files: [
+        { path: 'notes/readme.md', source: 'markdown' },
+        { path: 'site/index.html', source: 'html' },
+        { path: 'media/image.png', source: 'png' },
+        { path: 'data/blob.unknown', source: 'unknown' },
+      ],
+    });
+
+    expect(res.ok).to.eql(true);
+    if (!res.ok) return;
+
+    expect(res.value.docs.map(({ path, contentType }) => ({ path, contentType }))).to.eql([
+      { path: 'notes/readme.md', contentType: 'text/markdown' },
+      { path: 'site/index.html', contentType: 'text/html' },
+      { path: 'media/image.png', contentType: 'image/png' },
+      { path: 'data/blob.unknown', contentType: 'application/octet-stream' },
+    ]);
+  });
+
   it('honors explicit docid over manifest filename derivation', async () => {
     const res = await SlugBundleTransformTreeFs.derive({
       docid: 'explicit-kb',

@@ -3,7 +3,7 @@ import { type t, Immutable, Is, Obj, pkg } from '../common.ts';
 const REGISTRY_KEY = Symbol.for(`${pkg.name}:localStorageImmutable`);
 const global = globalThis as any;
 
-type RegistryItem = t.LocalStorageImmutable<t.JsonMapLikeU>;
+type RegistryItem = t.LocalStorage.Immutable<t.JsonMapLikeU>;
 type Registry = Map<string, RegistryItem>;
 const registry: Registry =
   global[REGISTRY_KEY] ?? (global[REGISTRY_KEY] = new Map<string, RegistryItem>());
@@ -14,11 +14,11 @@ const registry: Registry =
 export function immutable<T extends t.JsonMapLikeU>(
   key: string,
   initial: T,
-): t.LocalStorageImmutable<T> {
-  type R = t.LocalStorageImmutable<T>;
+): t.LocalStorage.Immutable<T> {
+  type R = t.LocalStorage.Immutable<T>;
   key = String(key);
 
-  if (registry.has(key)) return registry.get(key) as t.LocalStorageImmutable<T>;
+  if (registry.has(key)) return registry.get(key) as t.LocalStorage.Immutable<T>;
 
   const save = (obj: T) => localStorage.setItem(key, JSON.stringify(obj));
   const reset = (input?: T) => {

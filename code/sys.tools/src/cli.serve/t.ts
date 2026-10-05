@@ -1,7 +1,6 @@
 import type { t } from './common.ts';
 
 /** Type exports */
-export type * from './t.mime.ts';
 export type * from './t.namespace.ts';
 
 /**

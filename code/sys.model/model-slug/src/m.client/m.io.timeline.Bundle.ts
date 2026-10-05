@@ -1,4 +1,4 @@
-import { type t, Is, SlugUrl } from './common.ts';
+import { Is, SlugUrl, type t } from './common.ts';
 import { Assets } from './m.io.timeline.Assets.ts';
 import { Playback } from './m.io.timeline.Playback.ts';
 import { Dist } from './u.io.Dist.ts';
@@ -10,7 +10,7 @@ export const Bundle: t.SlugClientTimelineBundleLib = {
 async function load<P = unknown>(
   baseUrl: t.StringUrl,
   docid: t.StringId,
-  opts?: t.SlugTimelineBundleLoadOptions,
+  opts: t.SlugTimelineBundleLoadOptions,
 ): Promise<t.SlugClientResult<t.SpecTimelineBundle<P>>> {
   const distResult = await Dist.load(baseUrl, opts);
   if (!distResult.ok) return { ok: false, error: distResult.error };

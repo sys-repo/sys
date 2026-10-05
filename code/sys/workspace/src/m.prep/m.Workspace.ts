@@ -1,4 +1,4 @@
-import { type t, Arr, Fs, Str } from './common.ts';
+import { Arr, Fs, Str, type t } from './common.ts';
 import { State } from './m.State.ts';
 
 const compare = Str.Compare.codeUnit();
@@ -7,7 +7,7 @@ type WorkspaceFileJson = {
   workspace?: t.StringPath[];
 } & t.JsonMap;
 
-export const Workspace: t.WorkspacePrep.Workspace.Lib = {
+export const Workspace: t.WorkspacePrep.Workspace.Lib = Object.freeze({
   async normalize(cwd = Fs.cwd()) {
     const path = State.workspaceFile(cwd);
     const before = (await Fs.readJson<WorkspaceFileJson>(path)).data;
@@ -23,7 +23,7 @@ export const Workspace: t.WorkspacePrep.Workspace.Lib = {
 
     return { changed, path };
   },
-};
+});
 
 /**
  * Helpers:

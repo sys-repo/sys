@@ -1,0 +1,36 @@
+id: copy
+title: Pi-Driver copy tool policy
+summary: |
+  Author `tools.copy` profile policy for the wrapper-owned filesystem copy and artifact-import
+  tool. This chapter governs future-launch policy only; live use still requires a registered `copy`
+  tool.
+
+sections:
+  - label: Use when
+    items: |
+      The prompt asks to enable or disable the `copy` tool for a future Pi-Driver launch.
+      The prompt asks whether exact artifact import should be available in future sessions.
+      The prompt asks why a current session cannot copy files even though profile YAML was edited.
+
+  - label: YAML shape
+    items: |
+      `tools.copy.enabled` controls whether the launcher may register `copy` on the next launch.
+      Minimal explicit enablement: `tools: { copy: { enabled: true } }`.
+      Minimal explicit disablement: `tools: { copy: { enabled: false } }`.
+      Copy policy does not grant new readable or writable paths; roots remain governed by sandbox policy.
+      Omitted copy policy currently resolves through wrapper defaults; author explicit policy when changing durable behavior.
+
+  - label: Edit sequence
+    items: |
+      Read `dsl profile` before editing profile YAML.
+      Locate the active profile path from launcher metadata when available.
+      Read the exact profile YAML file.
+      Change only `tools.copy.enabled` unless the user requested a broader edit.
+      Ask the human to restart or relaunch Pi before expecting any availability change.
+
+  - label: Callability boundary
+    items: |
+      DSL policy text does not make `copy` callable.
+      A live session can call `copy` only when the launcher registered it and appended its Runtime Tool Contract.
+      If `copy` is absent from the live tool surface, do not use shell copy commands as a fallback.
+      If the human asks to copy files now and no callable `copy` tool exists, stop and report that this session cannot perform that copy.

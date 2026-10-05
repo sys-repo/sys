@@ -1,4 +1,4 @@
-import { type t, clone, isPlainObject } from './common.ts';
+import { clone, isPlainObject, type t } from './common.ts';
 import { set } from './m.Mutate.set.ts';
 
 type O = Record<string, unknown>;
@@ -11,11 +11,11 @@ type Path = t.ObjectPath;
 export function diff<T extends O = O>(
   source: T,
   target: T,
-  options: t.ObjDiffOptions = {},
-): t.ObjDiffReport {
+  options: t.Obj.Path.Mutate.Options = {},
+): t.Obj.Path.Mutate.Report {
   const { diffArrays = false } = options;
-  const ops: t.ObjDiffOp[] = [];
-  const pushOp = (op?: t.ObjDiffOp) => {
+  const ops: t.Obj.Path.Mutate.Op[] = [];
+  const pushOp = (op?: t.Obj.Path.Mutate.Op) => {
     if (op) ops.push(op);
   };
 

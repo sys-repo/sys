@@ -4,7 +4,7 @@ import { CssTmpl } from './mod.ts';
 type N = string | number | null | undefined;
 
 describe('CssTmpl: template transforms', () => {
-  const assertEdges = (res: t.CssProps, expected: [N, N, N, N]) => {
+  const assertEdges = (res: t.Style.Props, expected: [N, N, N, N]) => {
     const [top, right, bottom, left] = expected;
     expect(res.top).to.eql(top);
     expect(res.right).to.eql(right);
@@ -12,7 +12,7 @@ describe('CssTmpl: template transforms', () => {
     expect(res.left).to.eql(left);
   };
 
-  const assertKeyExists = (expected: boolean, key: keyof t.CssTemplates, props: t.CssProps) => {
+  const assertKeyExists = (expected: boolean, key: keyof t.CssTmpl.Templates, props: t.Style.Props) => {
     const exists = Object.keys(props).includes(key);
     expect(exists).to.eql(expected);
   };
@@ -27,7 +27,7 @@ describe('CssTmpl: template transforms', () => {
   });
 
   describe('cleaning template input', () => {
-    const assertNoKey = (key: keyof t.CssTemplates, subject: t.CssValue) => {
+    const assertNoKey = (key: keyof t.CssTmpl.Templates, subject: t.Style.Value) => {
       const exists = Object.keys(subject).includes(String(key));
       expect(exists).to.eql(false, key);
     };
@@ -97,7 +97,7 @@ describe('CssTmpl: template transforms', () => {
     });
 
     it('with mutation callback', () => {
-      const edges: (keyof t.CssEdges)[] = [];
+      const edges: (keyof t.CssEdges.Shape)[] = [];
       const res = CssTmpl.toEdges([1, 2, 3, 4], (e) => {
         edges.push(e.current.edge);
         const value = e.current.value;
@@ -109,7 +109,7 @@ describe('CssTmpl: template transforms', () => {
   });
 
   describe('{ Absolute } → position: "absolute"', () => {
-    const assert = (res: t.CssValue, expected: [N, N, N, N]) => {
+    const assert = (res: t.Style.Value, expected: [N, N, N, N]) => {
       assertEdges(res, expected);
       expect(res.Absolute).to.eql(undefined);
       expect(res.position).to.eql('absolute');
@@ -137,7 +137,7 @@ describe('CssTmpl: template transforms', () => {
   });
 
   describe('{ Margin, MarginX, MarginY }', () => {
-    const assert = (res: t.CssProps, expected: [N, N, N, N]) => {
+    const assert = (res: t.Style.Props, expected: [N, N, N, N]) => {
       const [top, right, bottom, left] = expected;
       expect(res.marginTop).to.eql(top);
       expect(res.marginRight).to.eql(right);
@@ -185,7 +185,7 @@ describe('CssTmpl: template transforms', () => {
   });
 
   describe('{ Padding, PaddingX, PaddingY }', () => {
-    const assert = (res: t.CssProps, expected: [N, N, N, N]) => {
+    const assert = (res: t.Style.Props, expected: [N, N, N, N]) => {
       const [top, right, bottom, left] = expected;
       expect(res.paddingTop).to.eql(top);
       expect(res.paddingRight).to.eql(right);
@@ -236,7 +236,7 @@ describe('CssTmpl: template transforms', () => {
     type N = number | string | undefined;
 
     it('nothing', () => {
-      const test = (input: t.CssValue['Size'], width: N, height: N) => {
+      const test = (input: t.Style.Value['Size'], width: N, height: N) => {
         const res = CssTmpl.transform({ Size: input });
         expect(res.width).to.equal(width);
         expect(res.height).to.equal(height);
@@ -250,7 +250,7 @@ describe('CssTmpl: template transforms', () => {
       test([] as any, undefined, undefined);
     });
 
-    const test = (input: t.CssValue['Size'], width: N, height: N) => {
+    const test = (input: t.Style.Value['Size'], width: N, height: N) => {
       const res = CssTmpl.transform({ Size: input });
       expect(res.width).to.equal(width);
       expect(res.height).to.equal(height);

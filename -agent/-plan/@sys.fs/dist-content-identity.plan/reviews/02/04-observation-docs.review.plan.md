@@ -1,0 +1,105 @@
+gpt-6-astra • high
+# Review for `dist-content-identity.plan.md`: untrusted observations and operator contracts
+
+```text
+Mode: Blind, independent review; orthogonal falsification of observation safety, lifecycle handling
+and active operator documentation. This is not a redesign of the sample App or a general docs audit.
+Read this round's README.md first; its dispatch, blindness, state and execution rules apply.
+
+Target: /Users/phil/code/org.sys/sys. Review attributable live worktree behavior, including untracked
+files, for feat(dist)!: unify build pins and verification on canonical content identity.
+Governing artifact: -agent/-plan/@sys.fs/dist-content-identity.plan.md.
+Read its opening five lines, Proposed identity contract, Clean-break API, artifact, and release
+behavior, workstream H, Required adversarial proof matrix and Completion boundary. Skip historical
+finding narratives, implementation checkpoints and receipt/verdict sections. Only the observation
+and documentation seams below are assigned; other plan dimensions supply context, not extra work.
+
+Authority: Traverse applicable AGENTS/canon, reconcile the opening arc through read-only history,
+and use live public types, source, tests and your own bounded runtime observations. Plans, prose and
+commit subjects are evidence, not proof. Do not read round 01, correction/adjudication records,
+preparation/recovery copies, sibling reports or the implementing conversation. Apply STIER/TMIND;
+for prose require high explanatory signal, precise evidence limits and minimal truthful examples.
+
+Question: Can untrusted manifest observations crash or mislead a consumer, escape disposal, or teach
+an operator to treat descriptive data/checksums as independent content authority?
+Primary repository-relative observation files:
+code/sys.ui/ui-react/src/use/use.Dist/use.Dist.ts
+code/sys.ui/ui-react/src/use/use.Dist/t.ts
+code/sys.ui/ui-react/src/use/use.Dist/use.Dist.sample.ts
+code/sys.ui/ui-react/src/use/use.Dist/-.test.ts
+code/sys/std/src/m.Pkg/m/m.Is.ts
+code/sys.ui/ui-components/src/ui.react/ui/Http.Origin/use.Verify.ts
+code/sys.ui/ui-components/src/ui.react/ui/Http.Origin/t.ts
+code/sys.ui/ui-components/src/ui.react/ui/Http.Origin/ui.Action.Verify.tsx
+code/sys.ui/ui-components/src/ui.react/ui/Http.Origin/ui.Info.tsx
+code/sys.ui/ui-components/src/ui.react/ui/Http.Origin/-test/-use.Verify.test.tsx
+Follow formatter/render helpers only when needed to establish an actual malformed-value or trust claim.
+
+Required observation dimensions:
+1. Fetch JSON as unknown and recognize the supported shape before exposing it. Cover null, arrays,
+   partial/malformed descriptors, missing/unsupported schemes and valid observations. A schema guard
+   is not cryptographic admission; even a self-consistent digest is not an independent pin.
+2. Trace bounded transport, requested-origin/credential policy, rejection handling and safe display
+   when no usable manifest exists. Explicit sample fallback must not masquerade as remote success.
+   Check actual sample/remote/error state across option changes and effects, not only static fixtures.
+3. Disposal must suppress late transport and fallback completion without abandoning owned work.
+   Inspect test reachability for unmount and delayed resolution, and separate transport rejection
+   from malformed successful JSON. Do not infer full browser execution from hook/server rendering.
+4. Http.Origin's manifest-only observation must not imply payload or execution authentication.
+   Preserve existing negative controls and evidence labels without rewriting intentional App UI.
+
+Primary active documentation:
+code/sys.driver/driver-cloudflare/README.md
+code/sys/cell/README.md
+code/sys/cell/src/m.help/yaml/dsl.pulled-view.yaml
+code/sys/cell/src/m.help/yaml/dsl.examples.yaml
+code/sys/cell/src/m.help/yaml/dsl.yaml
+code/sys/cell/-sample/cell.stripe/view/README.md
+code/sys/server/README.md
+code/sys/fs/README.md
+code/sys/server/-sample/files.http.static/docs/README.md
+
+Check documentation against current owner contracts, not against another document alone:
+code/sys.driver/driver-cloudflare/src/m.r2/t.ts
+code/sys.driver/driver-cloudflare/src/m.r2/m.ReadRoute/m.fromDist.ts
+code/sys.driver/driver-cloudflare/src/m.r2/m.ReadRoute/u/u.dist.ts
+code/sys/server/src/m.server.dist/t.ts
+code/sys.tools/src/cli.pull/u.args.ts
+code/sys.tools/src/cli.pull/u.fmt.ts
+
+Required documentation dimensions:
+5. Cloudflare examples use an independently retained v2 pin and bounded admission. routes receives
+   immutable DistContent/content.parts, not authenticated root metadata. Explain that later served
+   bodies are not checksum-verified by this handler; no automatic re-pin from a download.
+6. Cell pulled-view speech acts, public CLI flags, sample guidance and bundled help agree on
+   independent scheme/digest pins. Help tests are not by themselves proof of README accuracy.
+   Inspect the active bundled chapter through its owner, never hand-edit generated bytes.
+7. Server distinguishes successful document-checksum evidence, content-pin mismatch, asset checksum
+   failure, publication and cleanup truth. Examples must not promise nonexistent failure fields or
+   checksum-addressed store fallback. Cross-check FS and static-sample assurance levels: local
+   consistency, exact-response checksum, inventory admission and full-tree verification differ.
+8. Comments, names and test messages should teach these distinctions without adding ceremony.
+   Report obsolete live instructions with an executable misuse sequence, not stylistic preference.
+   Make the strongest evidence-based case for leaving clear, correct wording and code unchanged.
+
+Boundaries: Review only under README rules. The human's App refinements, sample HTML/CSS, image links,
+HTTP exposure changes and Vite visualizer configuration are not cleanup targets. No source/test/docs
+edits, formatting writes, Git/remote mutations, dependency/permission/profile changes, publication,
+credentials, shared sample builds, browser claims without proof or evidence rebinding.
+Read owning deno.json before selecting narrow hook/observation/help tests. Use existing tasks and
+permission authority; inspect initialization/effects and request a serialized slot for any shared
+build/browser work. No real provider access or GUI release proof is required for this slice.
+Record scoped source/task/dependency evidence at entry and compare material content at exit, not
+HEAD/status alone. Stop on denial or material drift and report the precise remaining limit.
+
+Output: Write only
+-agent/-plan/@sys.fs/dist-content-identity.plan.reviews/02/04-observation-docs.review.md.
+Use the README report contract. Include an untrusted-value/lifecycle proof map and a compact
+claim → current type/source/test evidence map for the active docs. Findings need exact path/symbol,
+executable failure or misuse sequence, invariant, smallest owner correction and closing proof.
+Separate source inspection, predicted behavior, executed tests, optional prose improvements and
+uncovered obligations. Give a scoped verdict, not whole-system or landing clearance.
+```
+
+gpt-6-astra • high
+# Review for `dist-content-identity.plan.md`: untrusted observations and operator contracts

@@ -1,9 +1,15 @@
-import { type t, Rx } from './common.ts';
+import { type t } from './common.ts';
 
 type T = t.PlaybackEffectAdapter;
 
 export function makePlaybackAdapter(controller: t.SlugPlaybackController): T {
-  return Rx.toLifecycleView<T>(controller, {
+  return {
+    get dispose$() {
+      return controller.dispose$;
+    },
+    get disposed() {
+      return controller.disposed;
+    },
     current: () => controller.current().playback,
     onChange: (fn) => controller.onChange((state) => fn(state.playback)),
     next(patch) {
@@ -11,5 +17,5 @@ export function makePlaybackAdapter(controller: t.SlugPlaybackController): T {
       const playback = { ...base, ...patch };
       controller.next({ playback });
     },
-  });
+  };
 }

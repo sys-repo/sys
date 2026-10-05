@@ -1,4 +1,4 @@
-import { withTmpDir } from '../../-test/-fixtures.ts';
+import { withTmpDir } from '../../-test/u.fixture.ts';
 import { describe, expect, Fs, it, pkg, Str } from '../../../-test.ts';
 import { EndpointsFs } from '../mod.ts';
 
@@ -11,14 +11,13 @@ describe('EndpointsFs', () => {
     expect(EndpointsFs.fileOf('alpha')).to.eql(`${EndpointsFs.dir}/alpha.yaml`);
   });
 
-  it('initialYaml: contains mappings: []', () => {
+  it('initialYaml: contains the supported staged mapping scaffold', () => {
     const yaml = EndpointsFs.initialYaml();
     expect(yaml.includes('mappings: []')).to.eql(true);
-    expect(yaml.includes('# mapping:')).to.eql(true);
     expect(yaml.includes('# deploy endpoint: alpha')).to.eql(false);
-    expect(yaml.includes('siteId: SITE_ID_HERE')).to.eql(true);
-    expect(yaml.includes('app: APP_NAME_HERE')).to.eql(true);
-    expect(yaml.includes('tokenEnv: TOKEN_ENV_HERE')).to.eql(true);
+    expect(yaml.includes('# provider:')).to.eql(false);
+    expect(yaml.includes('app: APP_NAME_HERE')).to.eql(false);
+    expect(yaml.includes('tokenEnv: TOKEN_ENV_HERE')).to.eql(false);
     expect(yaml.includes('source: ./my-public')).to.eql(true);
   });
 
@@ -30,7 +29,7 @@ describe('EndpointsFs', () => {
 
       const text = (await Fs.readText(path)).data!;
       expect(text.includes('mappings: []')).to.eql(true);
-      expect(text.includes('siteId: SITE_ID_HERE')).to.eql(true);
+      expect(text.includes('# provider:')).to.eql(false);
     });
   });
 
@@ -140,29 +139,132 @@ describe('EndpointsFs', () => {
     });
   });
 
-  it('validateYaml: deno singular mapping source exists relative to tool cwd → ok:true', async () => {
+  it('validateYaml: admits index sources produced later under staging', async () => {
     await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('deno')}`;
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('staged-index')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-      await Fs.ensureDir(`${tmp}/code/apps/foo`);
+      await Fs.ensureDir(`${tmp}/src/site`);
+      await Fs.write(`${tmp}/src/site/a.txt`, 'a');
+      await Fs.write(
+        yamlPath,
+        Str.dedent(`
+          staging:
+            dir: ./staging
+          mappings:
+            - mode: copy
+              dir:
+                source: ./src/site
+                staging: ./nested
+            - mode: index
+              dir:
+                source: ./nested
+                staging: ./landing
+        `),
+      );
+
+      const res = await EndpointsFs.validateYaml(yamlPath);
+      expect(res.ok).to.eql(true);
+      expect(await Fs.exists(`${tmp}/staging/nested`)).to.eql(false);
+    });
+  });
+
+  it('validateYaml: resolves env refs in providerless string leaves before validation', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-stage')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+      await Fs.ensureDir(`${tmp}/src/site`);
+      await Fs.write(
+        `${tmp}/.env`,
+        'SAMPLE_DEPLOY_SOURCE="./src/site"\nSAMPLE_DEPLOY_STAGE="./stage"\n',
+      );
 
       const yaml = Str.dedent(`
-        provider:
-          kind: deno
-          app: my-app
-        source:
-          dir: .
         staging:
-          dir: ./stage
-        mapping:
-          dir:
-            source: ./code/apps/foo
-            staging: .
+          dir: \${env:SAMPLE_DEPLOY_STAGE}
+        mappings:
+          - mode: copy
+            dir:
+              source: \${env:SAMPLE_DEPLOY_SOURCE}
+              staging: .
         `);
 
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
+
       expect(res.ok).to.eql(true);
+      if (res.ok) {
+        expect(res.doc.staging?.dir).to.eql('./stage');
+        expect(res.doc.mappings?.[0]?.dir.source).to.eql('./src/site');
+      }
+    });
+  });
+
+  it('validateYaml: resolves r2 provider env refs before validation', async () => {
+    await withTmpDir(async (tmp) => {
+      const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-r2')}`;
+      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+      await Fs.write(
+        `${tmp}/.env`,
+        'SAMPLE_DEPLOY_R2_ACCOUNT_ID="account-1"\nSAMPLE_DEPLOY_R2_BUCKET="deploy-bucket"\n',
+      );
+
+      const yaml = Str.dedent(`
+        provider:
+          kind: r2
+          accountId: \${env:SAMPLE_DEPLOY_R2_ACCOUNT_ID}
+          bucket: \${env:SAMPLE_DEPLOY_R2_BUCKET}
+          prefix: deploy/site
+          credentials:
+            accessKeyId: key-1
+            secretAccessKey: secret-1
+        staging:
+          dir: ./staging
+        mappings: []
+        `);
+
+      await Fs.write(yamlPath, yaml);
+      const res = await EndpointsFs.validateYaml(yamlPath);
+
+      expect(res.ok).to.eql(true);
+      if (res.ok && res.doc.provider?.kind === 'r2') {
+        expect(res.doc.provider.accountId).to.eql('account-1');
+        expect(res.doc.provider.bucket).to.eql('deploy-bucket');
+      }
+    });
+  });
+
+  it('validateYaml: missing env ref fails before schema/provider validation', async () => {
+    const key = 'SAMPLE_DEPLOY_MISSING_ACCOUNT_ID';
+    await withoutProcessEnv(key, async () => {
+      await withTmpDir(async (tmp) => {
+        const yamlPath = `${tmp}/${EndpointsFs.fileOf('env-missing')}`;
+        await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
+
+        const yaml = Str.dedent(`
+          provider:
+            kind: r2
+            accountId: \${env:${key}}
+            bucket: deploy-bucket
+            prefix: deploy/site
+            credentials:
+              accessKeyId: key-1
+              secretAccessKey: secret-1
+          staging:
+            dir: ./staging
+          mappings: []
+          `);
+
+        await Fs.write(yamlPath, yaml);
+        const res = await EndpointsFs.validateYaml(yamlPath);
+
+        expect(res.ok).to.eql(false);
+        if (!res.ok) {
+          const rendered = JSON.stringify(res.errors, null, 2);
+          expect(rendered.includes(`provider.accountId references missing env var: ${key}`)).to.eql(
+            true,
+          );
+        }
+      });
     });
   });
 
@@ -190,111 +292,6 @@ describe('EndpointsFs', () => {
       await Fs.write(yamlPath, yaml);
       const res = await EndpointsFs.validateYaml(yamlPath);
       expect(res.ok).to.eql(true);
-    });
-  });
-
-  it('validateYaml: shard templates use provider.shards.total → ok:true', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
-      await Fs.ensureDir(`${tmp}/code/video/partition-0`);
-      await Fs.ensureDir(`${tmp}/code/video/partition-1`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: 123abc
-          domain: example.com
-          shards: { total: 2 }
-        source:
-          dir: ./code
-        staging:
-          dir: ./staging
-        mappings:
-          - mode: copy
-            dir:
-              source: ./video/partition-<shard>
-              staging: ./<shard>.video.cdn.example
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(true);
-    });
-  });
-
-  it('validateYaml: rejects provider.shards.only out of range', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: 123abc
-          domain: example.com
-          shards:
-            total: 2
-            only: [3]
-        staging:
-          dir: ./staging
-        mappings: []
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(false);
-    });
-  });
-
-  it('validateYaml: rejects provider.shards.siteIds invalid key', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad-key')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: 123abc
-          domain: example.com
-          shards:
-            total: 2
-            siteIds:
-              x: 11111111-1111-1111-1111-111111111111
-        staging:
-          dir: ./staging
-        mappings: []
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(false);
-    });
-  });
-
-  it('validateYaml: rejects provider.shards.siteIds empty value', async () => {
-    await withTmpDir(async (tmp) => {
-      const yamlPath = `${tmp}/${EndpointsFs.fileOf('provider-shards-bad-value')}`;
-      await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-
-      const yaml = Str.dedent(`
-        provider:
-          kind: orbiter
-          siteId: 123abc
-          domain: example.com
-          shards:
-            total: 2
-            siteIds:
-              1: ''
-        staging:
-          dir: ./staging
-        mappings: []
-        `);
-
-      await Fs.write(yamlPath, yaml);
-      const res = await EndpointsFs.validateYaml(yamlPath);
-      expect(res.ok).to.eql(false);
     });
   });
 
@@ -379,7 +376,7 @@ describe('EndpointsFs', () => {
       const yamlPath = `${tmp}/${EndpointsFs.fileOf('refactor')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
 
-      await Fs.ensureDir(`${tmp}/repo-root/sys.ui/ui-react-components`);
+      await Fs.ensureDir(`${tmp}/repo-root/sys.ui/ui-components`);
 
       const yaml = Str.dedent(`
         source:
@@ -389,8 +386,8 @@ describe('EndpointsFs', () => {
         mappings:
           - mode: build+copy
             dir:
-              source: ./sys.ui/ui-react-components
-              staging: dist/ui-react-components
+              source: ./sys.ui/ui-components
+              staging: dist/ui-components
       `);
 
       await Fs.write(yamlPath, yaml);
@@ -404,11 +401,14 @@ describe('EndpointsFs', () => {
     await withTmpDir(async (tmp) => {
       const path = `${tmp}/${EndpointsFs.fileOf('ok')}`;
       await Fs.ensureDir(`${tmp}/${EndpointsFs.dir}`);
-      await Fs.write(path, Str.dedent(`
+      await Fs.write(
+        path,
+        Str.dedent(`
         staging:
           dir: ./staging
         mappings: []
-      `));
+      `),
+      );
 
       const res = await EndpointsFs.validateYaml(path);
       expect(res.ok).to.eql(true);
@@ -576,7 +576,7 @@ describe('EndpointsFs', () => {
           - mode: copy
             dir:
               source: ./code/my-modules/ui.foo.bar
-              staging: ui-react-components
+              staging: ui-components
       `);
 
       await Fs.write(yamlPath, yaml);
@@ -586,3 +586,16 @@ describe('EndpointsFs', () => {
     });
   });
 });
+
+/**
+ * Helpers:
+ */
+const withoutProcessEnv = async (key: string, fn: () => Promise<void>) => {
+  const original = Deno.env.get(key);
+  Deno.env.delete(key);
+  try {
+    await fn();
+  } finally {
+    if (original != null) Deno.env.set(key, original);
+  }
+};

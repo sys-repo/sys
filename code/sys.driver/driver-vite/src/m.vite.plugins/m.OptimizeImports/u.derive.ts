@@ -1,6 +1,6 @@
 import { type t, Fs, Is, Path } from './common.ts';
 
-type WorkspaceInput = Pick<t.DenoWorkspace, 'dir' | 'children'>;
+type WorkspaceInput = Pick<t.DenoFile.Workspace.Info, 'dir' | 'children'>;
 type ExportKind = 'value';
 type ExportInfo = { readonly name: string; readonly kind: ExportKind };
 
@@ -14,7 +14,7 @@ export async function deriveWorkspacePackageRules(
 
 async function derivePackageRule(
   workspaceDir: string,
-  child: t.DenoWorkspaceChild,
+  child: t.DenoFile.Workspace.Child,
 ): Promise<t.OptimizeImportsPlugin.PackageRule | undefined> {
   const pkgId = child.denofile.name;
   const exports = child.denofile.exports;
@@ -25,6 +25,7 @@ async function derivePackageRule(
 
   const pkgDir = Path.join(workspaceDir, child.path.dir);
   const rootSymbols = await readValueExports(Path.join(pkgDir, rootTarget));
+  rootSymbols.delete('pkg');
   if (rootSymbols.size === 0) return undefined;
 
   const candidates = new Map<string, string>();

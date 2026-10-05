@@ -1,0 +1,5 @@
+# Vite dev service for UI Components.
+
+name: view
+dir: ../../../../sys.ui/ui-components
+port: 5173

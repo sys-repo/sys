@@ -3,11 +3,11 @@ import { type t } from '../common.ts';
 /**
  * Factory: local-storage namespace.
  */
-export function ns<T extends t.JsonMapLikeU>(namespace: string): t.LocalStorage<T> {
+export function ns<T extends t.JsonMapLikeU>(namespace: string): t.LocalStorage.Namespace<T> {
   namespace = namespace.replace(/\/+$/, '').trim();
   const toKey = (name: keyof T) => (namespace ? `${namespace}/${String(name)}` : String(name));
 
-  const local: t.LocalStorage<T> = {
+  const local: t.LocalStorage.Namespace<T> = {
     namespace,
 
     get<K extends keyof T>(key: K, defaultValue: T[K]) {

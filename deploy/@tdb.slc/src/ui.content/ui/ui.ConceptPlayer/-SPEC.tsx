@@ -1,5 +1,5 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { SampleBody } from './-SPEC.ui.tsx';
 import { Color } from './common.ts';
 import { ConceptPlayer } from './mod.ts';
@@ -11,7 +11,7 @@ export default Spec.describe('ConceptPlayer', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme);
+    Harness.Theme.signalEffect(ctx, p.theme);
     Signal.effect(() => {
       ctx.host.tracelineColor(Color.alpha(Color.CYAN, 0.2));
       debug.listen();

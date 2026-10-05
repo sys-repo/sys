@@ -1,4 +1,4 @@
-import { type t, Yaml } from '../common.ts';
+import { Is, Str, type t, Yaml } from '../common.ts';
 import { patch } from './m.patch.ts';
 
 export async function normalizeAliases(args: {
@@ -19,7 +19,7 @@ export async function normalizeAliases(args: {
       const fieldKey = path[path.length - 1];
 
       if (parentKey !== 'alias') return;
-      if (typeof fieldKey !== 'string' || !fieldKey.startsWith(':')) return;
+      if (!Is.str(fieldKey) || !fieldKey.startsWith(':')) return;
 
       const node = event.node;
       if (!Yaml.Is.scalar(node)) return;
@@ -27,8 +27,7 @@ export async function normalizeAliases(args: {
       const value = String(node.value ?? '');
       if (!value.startsWith('/')) return;
 
-      // Remove exactly one leading slash
-      node.value = value.slice(1);
+      node.value = Str.stripPrefixOnce(value, '/');
     });
   });
 }

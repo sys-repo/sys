@@ -1,5 +1,4 @@
 import { type t, Color } from './common.ts';
-import type { StyleLib } from './t.ts';
 
 import { CssDom as Dom, CssEdges as Edges, CssTmpl as Tmpl, toString } from './common.ts';
 import { isZero } from './u.is.ts';
@@ -9,12 +8,12 @@ import { transformer } from './u.transform.ts';
 const { toPadding, toMargins } = Edges;
 
 /** Perform a transformation on a loose set of CSS inputs. */
-export const css: t.CssTransform = transformer({});
+export const css: t.Style.Transform.Fn = transformer({});
 
 /**
  * CSS styling tools.
  */
-export const Style: StyleLib = {
+export const Style: t.Style.Lib = {
   Dom,
   Color,
   Edges,

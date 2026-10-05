@@ -1,7 +1,14 @@
-import { type t, origin } from './common.ts';
-import type { JsrUrlPkgLib } from './t.ts';
+import { origin, type t } from './common.ts';
+import { Is } from './m.Url.Pkg.Is.ts';
+import type { JsrUrl } from './t.ts';
 
-export const Pkg: JsrUrlPkgLib = {
+export const Pkg: JsrUrl.Pkg.Lib = Object.freeze({
+  Is,
+
+  web(name) {
+    return `${origin}/${name}`;
+  },
+
   metadata(name) {
     return `${origin}/${name}/meta.json`;
   },
@@ -24,7 +31,7 @@ export const Pkg: JsrUrlPkgLib = {
     const module = Pkg.file(pkg, modulePath);
     return { contract, module };
   },
-};
+});
 
 /**
  * Helpers:

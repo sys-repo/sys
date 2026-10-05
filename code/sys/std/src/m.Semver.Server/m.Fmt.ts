@@ -1,6 +1,6 @@
-import { type t, Base, c } from './common.ts';
+import { Base, c, type t } from './common.ts';
 
-export const Fmt: t.SemverServerFmt = {
+export const Fmt: t.Semver.Server.Fmt = Object.freeze({
   colorize(input, options = {}) {
     const {
       highlight,
@@ -33,4 +33,4 @@ export const Fmt: t.SemverServerFmt = {
 
     return `${prefixColor(prefix)}${ver}${pre}`;
   },
-};
+});

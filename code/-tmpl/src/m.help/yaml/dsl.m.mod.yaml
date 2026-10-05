@@ -1,0 +1,63 @@
+id: m.mod
+title: Module template
+summary: |
+  Scaffold a TypeScript module folder and wire its type export into the package.
+
+sections:
+  - label: Rule
+    items: |
+      Use `m.mod` for a plain TypeScript module boundary inside an existing package.
+      The target directory is the module identity; there is no `--name` flag.
+      Choose an exact target folder, usually under `<package>/src/`.
+      The target should be inside a package with a `deno.json`.
+      A `types.ts` should exist at or above the module within that package.
+      Do not use `m.mod` for React component UI scaffolds.
+      Use `m.mod.ui` or `m.mod.ui.controller` for React component modules.
+
+  - label: Speech acts
+    items: |
+      create a module at <module-dir>
+      add a module for <concept>
+      scaffold a module under <package>/src/m.<Name>
+      make a TypeScript module folder
+
+  - label: Slots
+    items: |
+      Required: `--dir <module-dir>`.
+      Run from the containing package root when using a relative `<module-dir>`.
+      Relative `<module-dir>` values resolve from the current working directory.
+      Absolute `<module-dir>` values are preserved.
+      No component or package name flag is accepted.
+      Ask when the prompt gives a concept but not a target directory.
+      Ask before creating nested modules if the package boundary is unclear.
+
+  - label: Command
+    items: |
+      Preview:
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <module-dir>`.
+      Add `m.mod --dry-run`.
+      Write:
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <module-dir>`.
+      Add `m.mod`.
+      Existing target with approval: add `--force`.
+      Do not use `jsr:@sys/tmpl/m.mod`.
+
+  - label: Side effects
+    items: |
+      Creates a module folder with `mod.ts`, `t.ts`, and `common.ts`.
+      Also creates test scaffold files.
+      Updates the nearest parent `types.ts`.
+      Verify that file is inside the intended package boundary.
+      Setup warns when the containing package or parent `types.ts` cannot be found.
+      `--dry-run` previews copied files but does not update the parent `types.ts`.
+
+  - label: Verify
+    items:
+      - Confirm `<module-dir>/mod.ts` and `<module-dir>/t.ts` exist.
+      - |-
+        Confirm the nearest parent `types.ts` includes:
+        `export type * from './<relative-module>/t.ts';`.
+      - Confirm the updated `types.ts` is inside the intended package boundary.
+      - Run the package `deno task check` or the narrow module tests.
+      - If no parent `types.ts` exists, stop.
+      - Decide whether to create one or choose a different package boundary.

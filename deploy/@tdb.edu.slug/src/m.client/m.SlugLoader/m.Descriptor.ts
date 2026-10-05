@@ -1,4 +1,4 @@
-import { type t, SlugClient, Url } from './common.ts';
+import { SlugClient, type t, Url } from './common.ts';
 import { Origin } from './m.Origin.ts';
 import { withVideoShardRewrite } from './u.withVideoShardRewrite.ts';
 
@@ -8,12 +8,12 @@ const create: t.SlugLoaderDescriptorLib['create'] = (target) => {
   const kind: T['kind'] = target.kind;
   const resolveTarget: T['target'] = () => target;
 
-  const load: T['load'] = async (origin) => {
-    return SlugClient.FromEndpoint.Descriptor.load(origin, target.descriptorPath);
+  const load: T['load'] = (origin, transport) => {
+    return SlugClient.FromEndpoint.Descriptor.load(origin, target.descriptorPath, transport);
   };
 
-  const docids: T['docids'] = async (origin) => {
-    const descriptor = await load(origin);
+  const docids: T['docids'] = async (origin, transport) => {
+    const descriptor = await load(origin, transport);
     if (!descriptor.ok) return descriptor;
 
     const value = descriptor.value.bundles
@@ -26,9 +26,13 @@ const create: t.SlugLoaderDescriptorLib['create'] = (target) => {
 
   const client: T['client'] = async (args) => {
     const origin = Origin.parse(args.origin);
+    const transport: t.SlugLoadTransport = args.client
+      ? { client: args.client }
+      : { policy: args.policy };
     const descriptor = await SlugClient.FromEndpoint.Descriptor.load(
       origin.cdn.default,
       target.descriptorPath,
+      transport,
     );
     if (!descriptor.ok) return descriptor;
 
@@ -45,6 +49,7 @@ const create: t.SlugLoaderDescriptorLib['create'] = (target) => {
       baseUrl: Url.parse(origin.cdn.default).join(target.basePath),
       kind: selected.value.kind,
       docid: selected.value.docid,
+      ...transport,
     });
     if (!client.ok) return client;
 

@@ -1,7 +1,7 @@
 import { describe, expect, expectError, it } from '../../-test.ts';
 import { Sample } from './-u.ts';
 
-import { type t, Fs, Path } from '../common.ts';
+import { type t, Fs, Json, Path } from '../common.ts';
 import { FileMap } from '../mod.ts';
 
 describe('FileMap.bundle (rollup: toMap + write)', () => {
@@ -21,7 +21,7 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
     // Artifact exists on disk and round-trips keys:
     expect(await Fs.exists(outFile)).to.eql(true);
     const json = (await Fs.readText(outFile)).data ?? '';
-    const roundTripped = JSON.parse(json) as t.FileMap;
+    const roundTripped: t.FileMap = Json.parse<t.FileMap>(json) ?? {};
     expect(Object.keys(roundTripped)).to.eql(Object.keys(res.fileMap));
   });
 
@@ -38,7 +38,7 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
 
     // Round-trip: JSON on disk exactly matches in-memory map keys.
     const json = (await Fs.readText(outFile)).data ?? '';
-    const roundTripped = JSON.parse(json) as t.FileMap;
+    const roundTripped: t.FileMap = Json.parse<t.FileMap>(json) ?? {};
     expect(Object.keys(roundTripped)).to.eql(Object.keys(res.fileMap));
   });
 
@@ -57,7 +57,7 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
 
     // Verify the artifact matches the filtered keys:
     const json = (await Fs.readText(outFile)).data ?? '';
-    const m = JSON.parse(json) as t.FileMap;
+    const m: t.FileMap = Json.parse<t.FileMap>(json) ?? {};
     expect(Object.keys(m)).to.eql(keys);
   });
 
@@ -88,7 +88,7 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
     expect(Object.keys(res.fileMap)).to.eql([]);
 
     const json = (await Fs.readText(outFile)).data ?? '';
-    const m = JSON.parse(json) as t.FileMap;
+    const m: t.FileMap = Json.parse<t.FileMap>(json) ?? {};
     expect(Object.keys(m)).to.eql([]);
   });
 
@@ -110,7 +110,7 @@ describe('FileMap.bundle (rollup: toMap + write)', () => {
       const out2 = Path.join(tmp.target, '2.json');
 
       let clone: t.FileMap | undefined;
-      const beforeWrite: t.FileMapBundleBeforeWrite = (e) => {
+      const beforeWrite: t.FileMap.Bundle.BeforeWrite.Method = (e) => {
         clone = e.fileMap;
 
         // NB: mutating the passed file-map as example of clone safety.

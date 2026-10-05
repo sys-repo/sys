@@ -5,15 +5,15 @@ type O = Record<string, unknown>;
 /**
  * Curried object-path wrapper API.
  */
-export type CurriedPathLib = {
+export type Lib = {
   /** Create a new curried-path instance for the given path: */
-  make<T = unknown>(path: t.ObjectPath): CurriedPath<T>;
+  make<T = unknown>(path: t.ObjectPath): Instance<T>;
 };
 
 /**
  * The standard read/mutate API for a single curried object-path value.
  */
-export type CurriedPath<T = unknown> = {
+export type Instance<T = unknown> = {
   /** The curried path. */
   readonly path: t.ObjectPath;
 
@@ -34,7 +34,7 @@ export type CurriedPath<T = unknown> = {
    *  - Creates intermediate objects/arrays as needed.
    *  - If `value` is `undefined`, the property is removed via [delete] rather than assigned `undefined`.
    */
-  set(subject: O, value: T): t.ObjDiffOp | undefined;
+  set(subject: O, value: T): t.Obj.Path.Mutate.Op | undefined;
 
   /**
    * Ensure a value at the path exists (not undefined),
@@ -45,11 +45,11 @@ export type CurriedPath<T = unknown> = {
   /**
    * Deletes the value at the given path if it exists.
    */
-  delete(subject: O): t.ObjDiffOp | undefined;
+  delete(subject: O): t.Obj.Path.Mutate.Op | undefined;
 
   /**
    * Creates a new curried path combining this path as the root
    * and the given sub-path.
    */
-  at<T = unknown>(subpath: t.ObjectPath): CurriedPath<T>;
+  at<T = unknown>(subpath: t.ObjectPath): Instance<T>;
 };

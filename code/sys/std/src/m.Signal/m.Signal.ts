@@ -1,4 +1,4 @@
-import type { SignalLib } from './t.ts';
+import type * as Type from './t.ts';
 
 import { batch, computed, signal } from '@preact/signals-core';
 
@@ -20,7 +20,7 @@ export { signal };
  *    https://preactjs.com/blog/introducing-signals/
  *    https://preactjs.com/guide/v10/signals
  */
-export const Signal: SignalLib = {
+export const Signal: Type.Signal.Lib = Object.freeze({
   Is,
 
   /**
@@ -41,4 +41,4 @@ export const Signal: SignalLib = {
   cycle,
   walk,
   toObject,
-} as const;
+});

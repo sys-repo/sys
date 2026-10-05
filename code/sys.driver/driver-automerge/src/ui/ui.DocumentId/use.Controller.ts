@@ -5,14 +5,14 @@ import { DocUrl, Parse } from './u.ts';
 import { useLocalStorage } from './use.LocalStorage.ts';
 import { useTransientMessage } from './use.TransientMessage.ts';
 
-type Args = t.UseDocumentIdHookArgs;
-type Hook = t.DocumentIdHook;
-type P = t.DocumentIdHookSignals;
+type Args = t.DocumentId.Hook.Args;
+type Hook = t.DocumentId.Hook.Instance;
+type P = t.DocumentId.Hook.Signals;
 
 /**
  * Hook (or passthough):
  */
-export const useController: t.UseDocumentIdHook = (input: Hook | Args = {}) => {
+export const useController: t.DocumentId.Hook.Use = (input: Hook | Args = {}) => {
   return isHook(input)
     ? input //                ← Controlled   (passed in hook)
     : useInternal(input); //  ← Uncontrolled (manage hook locally)
@@ -34,7 +34,7 @@ function useInternal(args: Args = {}): Hook {
    */
   const bootRef = React.useRef<{ attempted: boolean; id?: string }>({ attempted: false });
   const seededFromUrlRef = React.useRef(false);
-  const signalsRef = useRef<t.DocumentIdHookSignals>(wrangle.signals(args));
+  const signalsRef = useRef<t.DocumentId.Hook.Signals>(wrangle.signals(args));
   const signals = signalsRef.current;
 
   if (url && !seededFromUrlRef.current) {
@@ -109,7 +109,7 @@ function useInternal(args: Args = {}): Hook {
   /**
    * Handlers:
    */
-  const run = async (e: t.DocumentIdActionArgs) => {
+  const run = async (e: t.DocumentId.Action.Args) => {
     if (!repo) return;
     const p = signalsRef.current;
     const props = wrangle.props(args, p, repo);
@@ -236,12 +236,12 @@ function useInternal(args: Args = {}): Hook {
     }
   };
 
-  const onAction: t.DocumentIdActionHandler = (e) => run(e);
+  const onAction: t.DocumentId.Action.Handler = (e) => run(e);
 
   /**
    * API:
    */
-  const api: t.DocumentIdHook = {
+  const api: t.DocumentId.Hook.Instance = {
     ready,
     instance,
     signals,
@@ -267,7 +267,7 @@ const isHook = (input: unknown): input is Hook => !!input && Is.string((input as
 const hasText = (p: P) => Boolean(p.textbox.value?.trim());
 
 const wrangle = {
-  props(args: Args, p: P, repo: t.CrdtRepo | undefined): t.DocumentIdHookProps {
+  props(args: Args, p: P, repo: t.CrdtRepo | undefined): t.DocumentId.Hook.Props {
     const { urlKey = D.urlKey, url = D.url, readOnly = D.readOnly } = args;
     const is = wrangle.is(p, repo);
     const parsed = wrangle.parsed(p);
@@ -278,7 +278,7 @@ const wrangle = {
     return { textbox, docId, repo, doc, is, action, url, urlKey, readOnly };
   },
 
-  is(p: P, repo?: t.CrdtRepo): t.DocumentIdHookProps['is'] {
+  is(p: P, repo?: t.CrdtRepo): t.DocumentId.Hook.Props['is'] {
     const parsed = wrangle.parsed(p);
     const id = parsed.id;
     const doc = p.doc.value;
@@ -305,7 +305,7 @@ const wrangle = {
     return Parse.textbox(text);
   },
 
-  action(p: P): t.DocumentIdActionArgs {
+  action(p: P): t.DocumentId.Action.Args {
     // Decide button label:
     // - No text  → "Create"
     // - Any text → "Load" (even if invalid, in which case the button will be disabled).
@@ -313,7 +313,7 @@ const wrangle = {
   },
 
   signals(args: Args) {
-    const api: t.DocumentIdHookSignals = {
+    const api: t.DocumentId.Hook.Signals = {
       textbox: args.signals?.textbox ?? Signal.create<string>(),
       doc: args.signals?.doc ?? Signal.create<t.CrdtRef>(),
       path: args.signals?.path ?? Signal.create<t.ObjectPath>(),

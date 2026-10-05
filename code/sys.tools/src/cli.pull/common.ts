@@ -1,8 +1,7 @@
-import { type t } from '../common.ts';
-import { PullTool } from './t.namespace.ts';
+import type { t } from '../common.ts';
 
 export { Env } from '@sys/fs/env';
-export { Http } from '@sys/http/server';
+export { Dist } from '@sys/server/dist';
 export { Schema } from '@sys/schema';
 export { YamlConfig } from '@sys/yaml/cli';
 
@@ -12,8 +11,8 @@ export type * as t from './common.t.ts';
 /**
  * Constants:
  */
-const id = PullTool.ID;
-const name = PullTool.NAME;
+const id = 'pull' satisfies t.PullTool.Id;
+const name = 'system/pull:tools' satisfies t.PullTool.Name;
 export const D = {
   tool: { id, name },
   Path: {},
