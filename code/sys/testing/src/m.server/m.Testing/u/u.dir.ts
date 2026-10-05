@@ -1,4 +1,4 @@
-import { type t, Fs, slug } from './common.ts';
+import { Fs, slug, type t } from '../common.ts';
 
 /**
  * Testing helpers for working on a known server (eg. HTTP/network and file-system).
@@ -20,7 +20,7 @@ export const dir: t.TestingServerLib['dir'] = async (dirname: string, options = 
       return dir;
     },
     async exists(...path: string[]) {
-      return exists(dir, path);
+      return await exists(dir, path);
     },
     join(...parts: string[]) {
       return Fs.join(dir, ...parts);

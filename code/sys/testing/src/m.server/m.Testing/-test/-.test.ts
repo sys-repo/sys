@@ -1,6 +1,6 @@
-import { describe, expect, it } from '../-test.ts';
-import { Testing } from './mod.ts';
-import { withTmpDir } from './u.withTmpDir.ts';
+import { describe, expect, it } from './common.ts';
+import { Testing } from '../mod.ts';
+import { withTmpDir } from '../u/u.withTmpDir.ts';
 
 describe('Server ← test helpers', () => {
   describe('API', () => {

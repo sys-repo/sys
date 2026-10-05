@@ -1,4 +1,4 @@
-import { Err, Fs, type t } from './common.ts';
+import { Err, Fs, type t } from '../common.ts';
 
 type WithTmpDir = t.TestingServerLib['withTmpDir'];
 type Options = NonNullable<Parameters<WithTmpDir>[1]>;

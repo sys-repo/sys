@@ -9,8 +9,8 @@ import {
   it,
   Path,
   Testing,
-} from '../../-test.ts';
-import { createWithTmpDir } from './u.withTmpDir.ts';
+} from './common.ts';
+import { createWithTmpDir } from '../u/u.withTmpDir.ts';
 
 type Io = Parameters<typeof createWithTmpDir>[0];
 

@@ -1,4 +1,4 @@
-import { type t, Err } from './common.ts';
+import { Err, type t } from '../common.ts';
 
 /**
  * Connects to a hostname (default is "127.0.0.1") and port on a

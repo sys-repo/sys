@@ -1,5 +1,5 @@
-import { type t, describe, it, expect } from '../../-test.ts';
-import { Testing, Path, Fs } from './mod.ts';
+import { describe, expect, it } from './common.ts';
+import { Fs, Path, Testing } from '../mod.ts';
 
 describe('Testing.dir', () => {
   it('creates: os-temp (default)', async () => {
