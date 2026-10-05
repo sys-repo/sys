@@ -4,7 +4,7 @@ import { Err, type t } from '../common.ts';
  * Connects to a hostname (default is "127.0.0.1") and port on a
  * TCP transport and attempts to resolve to the connection.
  */
-export const connect: t.TestingServerLib['connect'] = async (port, options = {}) => {
+export const connect: t.TestingServer.Connect = async (port, options = {}) => {
   const { hostname = '127.0.0.1' } = options;
   const started = performance.now();
 
@@ -18,13 +18,13 @@ export const connect: t.TestingServerLib['connect'] = async (port, options = {})
     remote = conn.remoteAddr as Deno.NetAddr;
     local = conn.localAddr as Deno.NetAddr;
     conn.close(); // ensure we don’t leak descriptors
-  } catch (err: any) {
+  } catch (err) {
     refused = true;
     error = Err.std(err);
   }
 
   const ok = !refused && !error;
-  const api: t.TestConnectionResponse = {
+  const api: t.TestingServer.Connect.Result = {
     ok,
     refused,
     elapsed: performance.now() - started,

@@ -8,11 +8,10 @@ import {
   Is,
   it,
   Path,
+  type t,
   Testing,
 } from './common.ts';
 import { createWithTmpDir } from '../u/u.withTmpDir.ts';
-
-type Io = Parameters<typeof createWithTmpDir>[0];
 
 describe('Testing.withTmpDir', () => {
   it('canonical usable root → callback value → cleanup', async () => {
@@ -28,6 +27,8 @@ describe('Testing.withTmpDir', () => {
       return value;
     });
     expectTypeOf(result).toEqualTypeOf<Promise<typeof value>>();
+    // @ts-expect-error Callback inference must not erase the object result to any.
+    expectTypeOf(result).toMatchTypeOf<Promise<string>>();
     expect(await result).to.equal(value);
     expect(await Fs.exists(root)).to.eql(false);
   });
@@ -40,6 +41,12 @@ describe('Testing.withTmpDir', () => {
     expectTypeOf(sync).toEqualTypeOf<Promise<number>>();
     expectTypeOf(async).toEqualTypeOf<Promise<number>>();
     expectTypeOf(empty).toEqualTypeOf<Promise<undefined>>();
+    // @ts-expect-error Sync result inference must reject an unrelated result type.
+    expectTypeOf(sync).toMatchTypeOf<Promise<string>>();
+    // @ts-expect-error Async result inference must reject an unrelated result type.
+    expectTypeOf(async).toMatchTypeOf<Promise<string>>();
+    // @ts-expect-error Undefined result inference must reject a numeric result type.
+    expectTypeOf(empty).toMatchTypeOf<Promise<number>>();
     expect(await Promise.all([sync, async, empty])).to.eql([42, 42, undefined]);
   });
 
@@ -265,7 +272,7 @@ describe('Testing.withTmpDir', () => {
 });
 
 /** Deterministic three-operation fixture; no filesystem effects or global patching. */
-function fixture(overrides: Partial<Io> = {}) {
+function fixture(overrides: Partial<t.TestingServer.WithTmpDir.Io> = {}) {
   const allocated = Fs.toDir(Path.resolve('.tmp/withTmpDir.allocated'));
   const canonical = Path.resolve('.tmp/withTmpDir.canonical');
   const calls: string[] = [];

@@ -1,30 +1,23 @@
 import { Err, Fs, type t } from '../common.ts';
 
-type WithTmpDir = t.TestingServerLib['withTmpDir'];
-type Options = NonNullable<Parameters<WithTmpDir>[1]>;
-type Io = Readonly<Pick<typeof Fs, 'makeTempDir' | 'realPath' | 'remove'>>;
-type Execution<T> =
-  | { readonly ok: true; readonly value: T }
-  | { readonly ok: false; readonly error: unknown };
-
 /**
  * Pass a fresh canonical temporary-directory path to a callback; await cleanup before settlement.
  */
-export const withTmpDir: WithTmpDir = createWithTmpDir({
+export const withTmpDir: t.TestingServer.WithTmpDir = createWithTmpDir({
   makeTempDir: Fs.makeTempDir,
   realPath: Fs.realPath,
   remove: Fs.remove,
 });
 
 /** Internal filesystem binding seam for deterministic lifetime tests; not a public barrel export. */
-export function createWithTmpDir(io: Io): WithTmpDir {
+export function createWithTmpDir(io: t.TestingServer.WithTmpDir.Io): t.TestingServer.WithTmpDir {
   return async <T>(
     fn: (dir: t.StringAbsoluteDir) => T,
-    options: Options = {},
+    options: t.TestingServer.WithTmpDir.Options = {},
   ): Promise<Awaited<T>> => {
     const { prefix = 'sys.testing.' } = options;
     const dir = await io.makeTempDir({ prefix });
-    let execution: Execution<Awaited<T>>;
+    let execution: t.TestingServer.WithTmpDir.Execution<Awaited<T>>;
     try {
       const canonical = await io.realPath(dir.absolute);
       execution = { ok: true, value: await fn(canonical) };

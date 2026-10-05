@@ -4,7 +4,7 @@ import { Fs, slug, type t } from '../common.ts';
  * Testing helpers for working on a known server (eg. HTTP/network and file-system).
  */
 
-export const dir: t.TestingServerLib['dir'] = async (dirname: string, options = {}) => {
+export const dir: t.TestingServer.Dir = async (dirname: string, options = {}) => {
   const location = options.location ?? 'os-temp';
   const localDir = Fs.resolve('./.tmp/test', dirname, (options.slug ?? true) ? slug() : '');
   const exists = (dir: string, path: string[]) => Fs.exists(Fs.join(dir, ...path));
@@ -15,7 +15,7 @@ export const dir: t.TestingServerLib['dir'] = async (dirname: string, options = 
   })();
   await Fs.ensureDir(dir);
 
-  const api: t.TestingDir = {
+  const api: t.TestingServer.Dir.Result = {
     get dir() {
       return dir;
     },

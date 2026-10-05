@@ -20,5 +20,6 @@
  *   });
  * });
  */
-export * from './common.ts';
+// Keep the entry type pool public; implementation common.ts adds scoped internal contracts.
+export * from '../common.ts';
 export { Testing } from './m.Testing.ts';
