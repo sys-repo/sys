@@ -1,9 +1,99 @@
 import { Yaml } from '@sys/yaml';
-import { describe, Err, expect, expectError, Fs, it, Process, Str, Testing } from '../../-test.ts';
+import {
+  describe,
+  Err,
+  expect,
+  expectError,
+  Fs,
+  Is,
+  it,
+  Process,
+  Str,
+  Testing,
+} from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 import { CI_DENO_VERSION } from '../u.deno.ts';
 
+type WorkflowStep = {
+  readonly name?: string;
+  readonly uses?: string;
+  readonly with?: Readonly<Record<string, string>>;
+  readonly run?: string;
+  readonly if?: string;
+  readonly 'continue-on-error'?: boolean | string;
+};
+
+type WorkflowJob = {
+  readonly 'runs-on': string;
+  readonly permissions: Readonly<Record<string, string>>;
+  readonly environment?: unknown;
+  readonly env?: unknown;
+  readonly strategy?: {
+    readonly matrix: {
+      readonly include: readonly {
+        readonly name: string;
+        readonly path: string;
+        readonly browser?: boolean;
+        readonly proofs?: boolean;
+      }[];
+    };
+  };
+  readonly needs?: string;
+  readonly steps: readonly WorkflowStep[];
+};
+
+type WorkflowDoc = {
+  readonly jobs: {
+    readonly graph: WorkflowJob;
+    readonly deno: WorkflowJob;
+  };
+};
+
 describe('WorkspaceCi.Test.Linux', () => {
+  it('declared proof tasks → selected independently of browser tasks and routed fail-fast', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Test.proofs');
+    const cases = [
+      { name: 'ordinary', task: undefined, browser: false, proofs: undefined },
+      { name: 'empty', task: '', browser: false, proofs: undefined },
+      { name: 'non-string', task: 1, browser: false, proofs: undefined },
+      { name: 'proofs', task: 'deno task info', browser: false, proofs: true },
+      { name: 'browser', task: undefined, browser: true, proofs: undefined },
+      { name: 'both', task: 'deno task info', browser: true, proofs: true },
+    ];
+    const paths = cases.map(({ name }) => fs.join('code', name));
+    for (const item of cases) {
+      const tasks: Record<string, string | number> = { test: 'deno task info' };
+      if (!Is.nil(item.task)) tasks['test:proofs'] = item.task;
+      if (item.browser) tasks['test:browser'] = 'deno task info';
+      await Fs.writeJson(fs.join('code', item.name, 'deno.json'), {
+        name: `@scope/${item.name}`,
+        tasks,
+        'x-sys': { ci: { test: { browser: item.browser } } },
+      });
+    }
+
+    const doc = workflow(await WorkspaceCi.Test.Linux.text({ paths }));
+    expect(doc.jobs.deno.strategy?.matrix.include).to.eql(
+      cases.map(({ name, browser, proofs }) => ({
+        name: `@scope/${name}`,
+        path: fs.join('code', name),
+        ...(browser ? { browser: true } : {}),
+        ...(proofs ? { proofs: true } : {}),
+      })),
+    );
+    const steps = doc.jobs.deno.steps;
+    const proof = proofStep(doc);
+    expect(proof.if, 'proofs must run only for selected matrix members').to.eql(
+      '${{ matrix.proofs == true }}',
+    );
+    expect(proof['continue-on-error'] ?? false, 'proof failure must fail the job').to.eql(false);
+    const base = steps.findIndex((step) => step.name === 'test module → "${{ matrix.name }}"');
+    const browser = steps.findIndex((step) =>
+      step.name === 'browser test module → "${{ matrix.name }}"'
+    );
+    expect(base >= 0 && base < steps.indexOf(proof) && steps.indexOf(proof) < browser).to.eql(true);
+    expect(steps[browser]?.if).to.eql('${{ matrix.browser == true }}');
+  });
   it('builds matrix YAML from ordered module paths', async () => {
     const fs = await Testing.dir('WorkspaceCi.Test.text');
     const a = fs.join('code/sys/alpha');
@@ -167,7 +257,7 @@ describe('WorkspaceCi.Test.Linux', () => {
     );
   });
 
-  it('returns unchanged when the rendered workflow already matches disk', async () => {
+  it('stale output → repaired proof wiring → unchanged second sync', async () => {
     const fs = await Testing.dir('WorkspaceCi.Test.sync.unchanged');
     const moduleDir = fs.join('code/sys/alpha');
     const target = '.github/workflows/test.yaml';
@@ -177,12 +267,25 @@ describe('WorkspaceCi.Test.Linux', () => {
       tasks: { test: 'deno task info' },
     });
 
+    // Seed an ordinary workflow, then select proofs as a package-owned task.
+    const stale = await WorkspaceCi.Test.Linux.text({ cwd: fs.dir, paths: [moduleDir] });
+    await Fs.write(fs.join(target), stale);
+    await Fs.writeJson(Fs.join(moduleDir, 'deno.json'), {
+      name: '@scope/alpha',
+      tasks: { test: 'deno task info', 'test:proofs': 'deno task info' },
+    });
     const first = await WorkspaceCi.Test.Linux.sync({
       cwd: fs.dir,
       source: { paths: [moduleDir] },
       target,
     });
     expect(first.kind).to.eql('written');
+    const repaired = (await Fs.readText(fs.join(target))).data ?? '';
+    const doc = workflow(repaired);
+    expect(doc.jobs.deno.strategy?.matrix.include).to.eql([
+      { name: '@scope/alpha', path: moduleDir, proofs: true },
+    ]);
+    expect(proofStep(doc).if).to.eql('${{ matrix.proofs == true }}');
 
     const second = await WorkspaceCi.Test.Linux.sync({
       cwd: fs.dir,
@@ -192,6 +295,7 @@ describe('WorkspaceCi.Test.Linux', () => {
     expect(second.kind).to.eql('unchanged');
     expect(second.target).to.eql(fs.join(target));
     expect(second.count).to.eql(1);
+    expect((await Fs.readText(fs.join(target))).data).to.eql(repaired);
   });
 
   it('renders explicit push and pull request triggers', async () => {
@@ -274,26 +378,26 @@ describe('WorkspaceCi.Test.Linux', () => {
   });
 });
 
-type WorkflowStep = {
-  readonly name?: string;
-  readonly uses?: string;
-  readonly with?: Readonly<Record<string, string>>;
-  readonly run?: string;
-};
+/** Parse only the workflow shape exercised by this suite. */
+function workflow(yaml: string): WorkflowDoc {
+  const parsed = Yaml.parse<WorkflowDoc>(yaml);
+  expect(parsed.error).to.eql(undefined);
+  if (!parsed.data) throw Err.std('Expected parsed Linux workflow');
+  return parsed.data;
+}
 
-type WorkflowJob = {
-  readonly 'runs-on': string;
-  readonly permissions: Readonly<Record<string, string>>;
-  readonly environment?: unknown;
-  readonly env?: unknown;
-  readonly strategy?: unknown;
-  readonly needs?: string;
-  readonly steps: readonly WorkflowStep[];
-};
-
-type WorkflowDoc = {
-  readonly jobs: {
-    readonly graph: WorkflowJob;
-    readonly deno: WorkflowJob;
-  };
-};
+function proofStep(doc: WorkflowDoc): WorkflowStep {
+  const selected = doc.jobs.deno.steps.filter((step) =>
+    step.run?.includes('deno task test:proofs')
+  );
+  expect(selected, 'expected exactly one proof step').to.have.length(1);
+  const step = selected[0];
+  if (!step) throw Err.std('Missing proof step');
+  expect(step.run?.trim(), 'proof command must use the matrix cwd and propagate failure').to.eql(
+    Str.dedent(`
+      cd \${{ matrix.path }}
+      deno task test:proofs
+    `),
+  );
+  return step;
+}

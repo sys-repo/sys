@@ -15,14 +15,22 @@ export async function loadLinuxModule(cwd: t.StringDir, path: t.StringPath) {
   if (browser && !wrangle.hasTask(module.file, 'test:browser')) {
     throw Err.std(`Browser-marked module is missing task "test:browser": ${path}`);
   }
-  return { path: module.path, name: module.name, browser } as const;
+  // Declaring test:proofs selects an additional Linux CI lane; the package owns its contents.
+  const proofs = wrangle.hasTask(module.file, 'test:proofs');
+  return { path: module.path, name: module.name, browser, proofs } as const;
 }
 
-export function toMatrixItemYaml(module: { path: t.StringPath; name: string; browser?: boolean }) {
+export function toMatrixItemYaml(
+  module: { path: t.StringPath; name: string; browser?: boolean; proofs?: boolean },
+) {
   const name = WorkflowSafe.scalar(module.name, 'matrix name');
   const path = WorkflowSafe.scalar(module.path, 'matrix path');
   const yaml = TEST_MATRIX_ITEM_TEMPLATE.replace(/NAME/g, () => name).replace(/PATH/g, () => path);
-  return module.browser ? `${yaml}\n  browser: true` : yaml;
+  return [
+    yaml,
+    ...(module.browser ? ['  browser: true'] : []),
+    ...(module.proofs ? ['  proofs: true'] : []),
+  ].join('\n');
 }
 
 async function loadJson(path: string) {

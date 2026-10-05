@@ -52,6 +52,12 @@ export const TEST_BODY_TEMPLATE = `      - name: 'Configure Browser Runtime: Chr
           cd \${{ matrix.path }}
           deno task test
 
+      - name: proof test module → "\${{ matrix.name }}"
+        if: \${{ matrix.proofs == true }}
+        run: |
+          cd \${{ matrix.path }}
+          deno task test:proofs
+
       - name: browser test module → "\${{ matrix.name }}"
         if: \${{ matrix.browser == true }}
         run: |

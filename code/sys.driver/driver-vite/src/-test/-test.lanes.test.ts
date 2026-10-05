@@ -1,5 +1,22 @@
 import config from '../../deno.json' with { type: 'json' };
-import { describe, expect, Fs, it, ROOT } from '../-test.ts';
+import { describe, Err, expect, Fs, it, ROOT, Str, Yaml } from '../-test.ts';
+
+type Workflow = {
+  readonly jobs: {
+    readonly deno: {
+      readonly strategy: {
+        readonly matrix: {
+          readonly include: readonly { readonly path: string; readonly proofs?: boolean }[];
+        };
+      };
+      readonly steps: readonly {
+        readonly if?: string;
+        readonly run?: string;
+        readonly 'continue-on-error'?: boolean | string;
+      }[];
+    };
+  };
+};
 
 const tasks: Readonly<Record<string, string>> = config.tasks;
 const proofTasks = [
@@ -16,19 +33,39 @@ const proofTasks = [
 
 describe('Vite test lanes', () => {
   it('routine CI lane → base only; former runtime coverage stays explicit', async () => {
-    expect(tasks.test).to.eql('deno task test:unit');
-    expect(tasks['test:proofs']).to.eql(proofTasks.map((name) => `deno task ${name}`).join(' && '));
-    expect(tasks.ci).to.include('deno task test:proofs');
-    const workflow = (await Fs.readText(ROOT.resolve('.github/workflows/test.linux.yaml'))).data;
-    expect(workflow).to.include("if: ${{ matrix.name == '@sys/driver-vite' }}");
-    expect(workflow).to.include('deno task test:proofs');
+    expect(taskNames(tasks.test)).to.eql(['test:unit']);
+    proofLanes(tasks['test:proofs']);
+    expect(taskNames(tasks.ci), 'module ci must execute the proof aggregate').to.include(
+      'test:proofs',
+    );
+    const yaml = (await Fs.readText(ROOT.resolve('.github/workflows/test.linux.yaml'))).data ?? '';
+    const parsed = Yaml.parse<Workflow>(yaml);
+    expect(parsed.error, 'Linux workflow must parse').to.eql(undefined);
+    if (!parsed.data) throw Err.std('Missing Linux workflow');
+    const job = parsed.data.jobs.deno;
+    const rows = job.strategy.matrix.include.filter((row) =>
+      row.path === 'code/sys.driver/driver-vite'
+    );
+    expect(rows, 'Linux CI must select Vite exactly once').to.have.length(1);
+    expect(rows[0]?.proofs, 'Linux CI must select Vite runtime proofs').to.eql(true);
+    const steps = job.steps.filter((step) => step.run?.includes('deno task test:proofs'));
+    expect(steps, 'Linux CI must execute the proof aggregate exactly once').to.have.length(1);
+    expect(steps[0]?.if, 'Linux CI must route proofs by the task-derived marker').to.eql(
+      '${{ matrix.proofs == true }}',
+    );
+    expect(steps[0]?.run?.trim(), 'Linux CI proofs must use the selected module cwd').to.eql(
+      Str.dedent(`
+        cd \${{ matrix.path }}
+        deno task test:proofs
+      `),
+    );
+    expect(steps[0]?.['continue-on-error'] ?? false, 'Linux CI must propagate proof failure').to
+      .eql(false);
   });
 
   it('unit exclusions → exact files remain selected by proof tasks', async () => {
-    const ignored = (tasks['test:unit'].split('--ignore=')[1] ?? '').split(',').sort();
-    const selected = proofTasks.flatMap((name) => paths(tasks[name]));
-    expect(ignored).to.have.length(13);
-    expect(ignored).to.eql(selected.filter((path) => path.endsWith('.test.ts')).sort());
+    const selected = proofLanes(tasks['test:proofs']).flatMap((name) => paths(tasks[name]));
+    assertPartition(tasks['test:unit'], selected);
     for (const path of selected) {
       expect(await Fs.exists(ROOT.resolve('code/sys.driver/driver-vite', path)), path).to.eql(true);
     }
@@ -39,15 +76,73 @@ describe('Vite test lanes', () => {
     for (const flag of ['--frozen', '--cached-only', '--no-prompt']) {
       expect(tasks['test:run']).to.include(flag);
     }
-    for (const name of [...proofTasks, 'test:dist:pipeline', 'test:external', 'test:integrity']) {
-      expect(tasks[name], name).to.include('deno task test:run ');
-      expect(tasks[name], name).not.to.include('test:unit');
+    const explicit = ['test:dist:pipeline', 'test:external', 'test:integrity'];
+    for (const name of [...proofLanes(tasks['test:proofs']), ...explicit]) {
+      const args = tasks[name].trim().split(/\s+/);
+      expect(args.slice(0, 3), name).to.eql(['deno', 'task', 'test:run']);
+      expect(args, name).not.to.include('test:unit');
       expect(tasks[name], name).not.to.include('--ignore');
     }
-    expect(tasks['test:proofs']).not.to.include('test:dist:pipeline');
+  });
+
+  it('aggregate contract → tolerates whitespace/order but rejects lost lanes and non-fail-fast execution', () => {
+    const reordered = [...proofTasks].reverse();
+    const command = reordered.map((name) => ` deno  task  ${name} `).join('  &&  ');
+    expect(proofLanes(command)).to.eql(reordered);
+    const missing = proofTasks.filter((name) => name !== 'test:build');
+    expect(() => proofLanes(missing.map((name) => `deno task ${name}`).join(' && '))).to.throw(
+      'Missing required proof lane: test:build',
+    );
+    for (const separator of [';', '||', '&']) {
+      expect(() => proofLanes(command.replace('&&', separator))).to.throw(
+        'Expected fail-fast deno task chain',
+      );
+    }
+    expect(() => proofLanes(`${command} && deno task test:dist:pipeline`)).to.throw(
+      'Dist pipeline must remain outside the proof aggregate',
+    );
+  });
+
+  it('coverage partition → file splits stay valid; excluded-but-unselected files fail', () => {
+    const original = ['./src/one.test.ts'];
+    assertPartition(`deno task test:run --ignore=${original.join(',')}`, original);
+    const split = ['./src/two.test.ts', './src/one.test.ts'];
+    const unit = `deno task test:run --ignore=${split.join(',')}`;
+    assertPartition(unit, [...split].reverse());
+    expect(() => assertPartition(unit, ['./src/one.test.ts'])).to.throw(
+      'Unit exclusions must match selected proof test files',
+    );
   });
 });
 
+/** Only the task-only, fail-fast && form is supported here; this is not a shell parser. */
+function taskNames(command: string): readonly string[] {
+  return command.split('&&').map((part) => {
+    const match = /^deno\s+task\s+([\w:-]+)$/.exec(part.trim());
+    if (!match) throw Err.std(`Expected fail-fast deno task chain: ${command}`);
+    return match[1];
+  });
+}
+
+function proofLanes(command: string): readonly string[] {
+  const names = taskNames(command);
+  for (const name of proofTasks) {
+    if (!names.includes(name)) throw Err.std(`Missing required proof lane: ${name}`);
+  }
+  if (names.includes('test:dist:pipeline')) {
+    throw Err.std('Dist pipeline must remain outside the proof aggregate');
+  }
+  return names;
+}
+
+function assertPartition(unit: string, selected: readonly string[]) {
+  const ignored = (unit.match(/(?:^|\s)--ignore=(\S+)/)?.[1] ?? '')
+    .split(',').filter((path) => path.length > 0).sort();
+  expect(ignored, 'Unit exclusions must match selected proof test files').to.eql(
+    selected.filter((path) => path.endsWith('.test.ts')).sort(),
+  );
+}
+
 function paths(task: string) {
-  return task.split(' ').filter((arg) => arg.startsWith('./src/'));
+  return task.trim().split(/\s+/).filter((arg) => arg.startsWith('./src/'));
 }

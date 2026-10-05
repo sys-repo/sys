@@ -133,6 +133,7 @@ jobs:
             path: code/sys.driver/driver-pi
           - name: "@sys/driver-vite"
             path: code/sys.driver/driver-vite
+            proofs: true
           - name: "@sys/tools"
             path: code/sys.tools
           - name: "@draft/shell"
@@ -202,6 +203,12 @@ jobs:
         run: |
           cd ${{ matrix.path }}
           deno task test
+
+      - name: proof test module → "${{ matrix.name }}"
+        if: ${{ matrix.proofs == true }}
+        run: |
+          cd ${{ matrix.path }}
+          deno task test:proofs
 
       - name: browser test module → "${{ matrix.name }}"
         if: ${{ matrix.browser == true }}
