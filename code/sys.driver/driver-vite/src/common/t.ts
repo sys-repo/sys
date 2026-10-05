@@ -23,6 +23,7 @@ export type * from '@sys/types';
 
 export type { Cli } from '@sys/cli/t';
 export type { DenoDeps, DenoFile } from '@sys/driver-deno/t';
+export type { Html } from '@sys/html/t';
 export type { Process } from '@sys/process/t';
 export type { DistServer } from '@sys/server/t';
 export type { Time } from '@sys/std/t';

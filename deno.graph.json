@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1791178283510,
+    "createdAt": 1791183445687,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-fddde7c42d9523abb42517104d3b5665f642e4e75bfe1fba2460cc2fe803ac80",
+      "/graph": "sha256-fd31af1c806973d93a47112c0094b4ae058712bdfa39aa4f84e9ba630b6849dc",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.159/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.159/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1791178283516
+    "modifiedAt": 1791183445693
   },
   "graph": {
     "orderedPaths": [
@@ -845,6 +845,10 @@
       {
         "from": "code/sys/fs",
         "to": "deploy/@tdb.edu.slug"
+      },
+      {
+        "from": "code/sys/html",
+        "to": "code/sys.driver/driver-vite"
       },
       {
         "from": "code/sys/http",

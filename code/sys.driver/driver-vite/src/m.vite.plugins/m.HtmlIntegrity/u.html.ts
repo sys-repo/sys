@@ -1,9 +1,8 @@
 import MagicString from 'magic-string';
-import { defaultTreeAdapter as tree, type DefaultTreeAdapterTypes, parse } from 'parse5';
-import { Hash, Is, type t } from './common.ts';
+import { Hash, Html, Is, type t } from './common.ts';
 import { integrityResource, refuse } from './u.url.ts';
 
-type Element = DefaultTreeAdapterTypes.Element;
+type Element = t.Html.Element;
 type ResolveResource = (url: string) => ReturnType<typeof integrityResource>;
 type CssRequest = (url: string) => boolean;
 type Phase =
@@ -118,7 +117,7 @@ function htmlReferences(
   htmlFile: string,
   phase: Phase,
 ): readonly Reference[] {
-  const document = parse(html, {
+  const document = Html.parse(html, {
     sourceCodeLocationInfo: true,
     scriptingEnabled: phase.kind === 'output',
     onParseError(error) {
@@ -128,24 +127,20 @@ function htmlReferences(
     },
   });
   const result: Reference[] = [];
-  const visit = (parent: DefaultTreeAdapterTypes.ParentNode) => {
+  const visit = (parent: t.Html.ParentNode) => {
     for (const node of parent.childNodes) {
-      // The parser's discriminant guard is the external AST interop boundary.
-      if (!tree.isElementNode(node)) continue;
+      if (!Html.Is.element(node)) continue;
       const htmlNamespace = node.namespaceURI === 'http://www.w3.org/1999/xhtml';
       if (phase.kind === 'output' && !htmlNamespace) {
         visit(node); // HTML integration points can contain active tags; foreign scripts are not HTML.
         continue;
       }
-      if (htmlNamespace && node.tagName === 'template') {
+      if (Html.Is.template(node)) {
         // Declarative roots can load resources immediately; they are not inert templates.
         if (phase.kind === 'output' && attribute(node, 'shadowrootmode') !== undefined) {
           refuse(htmlFile, '', 'declarative shadow DOM is unsupported (<template shadowrootmode>)');
         }
-        // parse5's HTML namespace/tag establishes the external Template AST type.
-        if (phase.kind === 'input') {
-          visit(tree.getTemplateContent(node as DefaultTreeAdapterTypes.Template));
-        }
+        if (phase.kind === 'input') visit(node.content);
         continue;
       }
       if (phase.kind === 'output' && node.tagName === 'select') {

@@ -1,6 +1,6 @@
-import { defaultTreeAdapter as tree, parseFragment } from 'parse5';
 import { isCSSRequest } from 'vite';
 import { describe, expect, it, Str } from '../../../-test.ts';
+import { Html } from '../common.ts';
 import { finalizeIntegrityHtml, sri, validateIntegrityInputs } from '../u.html.ts';
 import { integrityResource } from '../u.url.ts';
 
@@ -191,8 +191,8 @@ describe('HTML integrity bytes and tag contract', () => {
     it(`inserts effective attributes without consuming an unquoted slash: ${name}`, () => {
       const output = finalize(html);
       // Reparse: an integrity-looking substring alone does not establish an attribute.
-      const node = parseFragment(output).childNodes[0];
-      if (!node || !tree.isElementNode(node)) throw new Error('expected parsed resource element');
+      const node = Html.parseFragment(output).childNodes[0];
+      if (!Html.Is.element(node)) throw new Error('expected parsed resource element');
       const attr = (name: string) => node.attrs.find((item) => item.name === name)?.value;
       expect(attr('integrity')).to.eql(integrity);
       expect(attr('crossorigin')).to.eql('anonymous');
