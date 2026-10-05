@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1790317877024,
+    "createdAt": 1791172491085,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-f326f371aa55fee71c33f777a97448be072d9b8f5409c16f85c168ff3aa30a24",
+      "/graph": "sha256-5eab0ba1fee3cd7ca54787c0939ed5ee7f7ba9ece27c7eafb9f4b4fef5c87517",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.159/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.159/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1790317877029
+    "modifiedAt": 1791172491092
   },
   "graph": {
     "orderedPaths": [
@@ -668,6 +668,10 @@
       {
         "from": "code/sys/crypto",
         "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/crypto",
+        "to": "code/sys.ui/ui-components"
       },
       {
         "from": "code/sys/crypto",
