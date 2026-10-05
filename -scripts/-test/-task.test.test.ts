@@ -1,5 +1,4 @@
 import { Workspace } from '@sys/workspace';
-import { CompletionHang } from '@sys/workspace/run';
 import { describe, expect, it } from '@sys/testing/server';
 import { Cli, Is, Str, type t } from '../common.ts';
 import {
@@ -8,6 +7,7 @@ import {
   main,
   resolveTestPresentation,
 } from '../task.test.ts';
+import { wantsTestHelp } from '../u.test.help.ts';
 
 describe('scripts/task.test', () => {
   describe('argument policy', () => {
@@ -47,62 +47,48 @@ describe('scripts/task.test', () => {
 
     it('clears the startup viewport only for the interactive parallel screen', () => {
       const frames: string[] = [];
-      const repaint = Cli.Screen.repaint;
-      Object.defineProperty(Cli.Screen, 'repaint', {
-        value: (frame: string) => frames.push(frame),
-      });
-
-      try {
-        clearTestStartupScreen(resolveTestPresentation('sequential', true));
-        clearTestStartupScreen(resolveTestPresentation('parallel', false));
-        clearTestStartupScreen(resolveTestPresentation('parallel', true));
-      } finally {
-        Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
-      }
-
+      const repaint = (frame: string) => frames.push(frame);
+      clearTestStartupScreen(resolveTestPresentation('sequential', true), repaint);
+      clearTestStartupScreen(resolveTestPresentation('parallel', false), repaint);
+      clearTestStartupScreen(resolveTestPresentation('parallel', true), repaint);
       expect(frames).to.eql(['']);
     });
 
     it('clears before the interactive parallel run enters Workspace', async () => {
       const effects: string[] = [];
-      const result = {
-        ok: true as const,
-        task: 'test' as const,
+      const result: t.WorkspaceRun.Ok = {
+        ok: true,
+        task: 'test',
         cwd: '/tmp/workspace',
         elapsed: 1,
         orderedPaths: [],
         packages: [],
       };
-      const repaint = Cli.Screen.repaint;
-      const run = Workspace.Run.test;
-      const armWarning = CompletionHang.armWarning;
-      const info = console.info;
       const exitCode = Deno.exitCode;
-      Object.defineProperty(Cli.Screen, 'repaint', {
-        value: (frame: string) => effects.push(`repaint:${frame.length}`),
-      });
-      Object.defineProperty(Workspace.Run, 'test', {
-        value: () => {
-          effects.push('workspace:test');
-          return Promise.resolve(result);
-        },
-      });
-      Object.defineProperty(CompletionHang, 'armWarning', {
-        value: () => ({ cancel() {} }),
-      });
-      console.info = () => {};
-
       try {
-        await main({ argv: ['--parallel'], interactive: true });
+        await main({
+          argv: ['--parallel'],
+          interactive: true,
+          deps: {
+            repaint: (frame) => effects.push(`repaint:${frame.length}`),
+            async run() {
+              effects.push('workspace:test');
+              return result;
+            },
+            armWarning(input) {
+              expect(input.result).to.equal(result);
+              expect(input.strategy).to.eql({ kind: 'parallel' });
+              effects.push('completion:warning');
+              return { cancel() {} };
+            },
+            write: () => {},
+          },
+        });
+        expect(Deno.exitCode).to.eql(0);
       } finally {
-        Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
-        Object.defineProperty(Workspace.Run, 'test', { value: run });
-        Object.defineProperty(CompletionHang, 'armWarning', { value: armWarning });
-        console.info = info;
         Deno.exitCode = exitCode;
       }
-
-      expect(effects).to.eql(['repaint:0', 'workspace:test']);
+      expect(effects).to.eql(['repaint:0', 'workspace:test', 'completion:warning']);
     });
 
     it('uses final scrollback truth to avoid repeating visible failure actions', async () => {
@@ -118,36 +104,29 @@ describe('scripts/task.test', () => {
         failure: first,
       };
       const lines: string[] = [];
-      const repaint = Cli.Screen.repaint;
-      const size = Cli.Screen.size;
-      const run = Workspace.Run.test;
-      const armWarning = CompletionHang.armWarning;
-      const info = console.info;
       const exitCode = Deno.exitCode;
-      Object.defineProperty(Cli.Screen, 'repaint', { value: () => {} });
-      Object.defineProperty(Cli.Screen, 'size', { value: () => ({ width: 80, height: 24 }) });
-      Object.defineProperty(Workspace.Run, 'test', {
-        value: (args?: t.WorkspaceRun.Test.Args) => {
-          const reporter = args?.reporter;
-          if (reporter && !Is.string(reporter)) {
-            reporter.onComplete({ failedPackages: { visible: 2, total: 2 } });
-          }
-          return Promise.resolve(result);
-        },
-      });
-      Object.defineProperty(CompletionHang, 'armWarning', {
-        value: () => ({ cancel() {} }),
-      });
-      console.info = (...args: unknown[]) => lines.push(String(args[0] ?? ''));
-
       try {
-        await main({ argv: ['--parallel'], interactive: true });
+        await main({
+          argv: ['--parallel'],
+          interactive: true,
+          deps: {
+            repaint: () => {},
+            async run(args) {
+              const reporter = args?.reporter;
+              if (reporter && !Is.string(reporter)) {
+                reporter.onComplete({ failedPackages: { visible: 2, total: 2 } });
+              }
+              return result;
+            },
+            handoff(result, options) {
+              return Workspace.Run.Fmt.handoff(result, { ...options, width: 80 });
+            },
+            armWarning: () => ({ cancel() {} }),
+            write: (...args) => lines.push(String(args[0] ?? '')),
+          },
+        });
+        expect(Deno.exitCode).to.eql(1);
       } finally {
-        Object.defineProperty(Cli.Screen, 'repaint', { value: repaint });
-        Object.defineProperty(Cli.Screen, 'size', { value: size });
-        Object.defineProperty(Workspace.Run, 'test', { value: run });
-        Object.defineProperty(CompletionHang, 'armWarning', { value: armWarning });
-        console.info = info;
         Deno.exitCode = exitCode;
       }
 
@@ -161,6 +140,15 @@ describe('scripts/task.test', () => {
   });
 
   describe('operator help', () => {
+    it('shares help parsing across test entrypoints without treating other flags as help', () => {
+      expect(wantsTestHelp([])).to.eql(false);
+      expect(wantsTestHelp(['--jobs=4'])).to.eql(false);
+      expect(wantsTestHelp(['--help=false'])).to.eql(false);
+      expect(wantsTestHelp(['--', '--help'])).to.eql(true);
+      expect(wantsTestHelp(['-h'])).to.eql(true);
+      expect(wantsTestHelp(['--help=false', '--help'])).to.eql(true);
+    });
+
     it('renders exact root-local help for both help aliases', async () => {
       const expected = Str.dedent(`
       Workspace test runner
@@ -180,7 +168,8 @@ describe('scripts/task.test', () => {
 
       Notes:
         deno task test defaults to the topology-safe parallel scheduler.
-        deno task test:parallel is the explicit parallel alias.
+        deno task test runs workspace info after successful tests, but not help.
+        deno task test:parallel runs parallel tests without workspace info.
         deno task test:seq preserves the sequential baseline.
         @sys/workspace flags live after -- and are distinct from Deno task flags.
         For runner DSL guidance: deno run -ER jsr:@sys/workspace dsl test
@@ -206,12 +195,18 @@ function failedPackage(path: t.StringPath, code: number): t.WorkspaceRun.Package
 
 async function runHelp(argv: readonly string[]) {
   const lines: string[] = [];
-  const info = console.info;
-  console.info = (...args: unknown[]) => lines.push(String(args[0] ?? ''));
-  try {
-    await main({ argv, interactive: false });
-  } finally {
-    console.info = info;
-  }
+  await main({
+    argv,
+    interactive: false,
+    deps: {
+      write: (...args) => lines.push(String(args[0] ?? '')),
+      async run() {
+        throw new Error('Help must not run workspace tests');
+      },
+      armWarning() {
+        throw new Error('Help must not arm a completion warning');
+      },
+    },
+  });
   return lines.join('\n');
 }

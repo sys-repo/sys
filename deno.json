@@ -3,10 +3,11 @@
     "install": "deno install --frozen",
     "lock:sync": "deno install --frozen=false",
     "info": "deno run -P=dev ./-scripts/task.info.ts",
-    "ci": "deno task check && deno task dry && deno task test && deno task info",
-    "test": "deno task test:parallel",
+    "ci": "deno task test:root && deno task check && deno task dry && deno task test",
+    "test": "deno run -P=test ./-scripts/task.test.info.ts",
     "test:seq": "deno run -P=test ./-scripts/task.test.ts --parallel=false",
     "test:parallel": "deno run -P=test ./-scripts/task.test.ts --parallel",
+    "test:root": "deno test -P=test ./-scripts/-test/-task.test.test.ts ./-scripts/-test/-task.test.info.test.ts",
     "check": "deno run -P=test ./-scripts/task.check.ts",
     "check:graph": "deno run -P=dev ./-scripts/task.check.graph.ts",
     "dry": "deno run -P=test ./-scripts/task.dry.ts",
@@ -166,4 +167,3 @@
     }
   }
 }
-

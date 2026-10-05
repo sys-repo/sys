@@ -1,6 +1,7 @@
 import { Workspace } from '@sys/workspace';
 import { CompletionHang } from '@sys/workspace/run';
-import { Args, Cli, Is, Str, type t } from './common.ts';
+import { Cli, Str, type t } from './common.ts';
+import { wantsTestHelp } from './u.test.help.ts';
 
 export type TestPresentation =
   | { readonly mode: 'sequential' }
@@ -20,16 +21,31 @@ export type TestPresentation =
 type MainArgs = {
   argv?: readonly string[];
   interactive?: boolean;
+  deps?: Partial<MainDeps>;
 };
 
-type HelpArgs = {
-  help?: boolean | readonly boolean[];
+type MainDeps = {
+  readonly run: t.WorkspaceRun.Lib['test'];
+  readonly repaint: t.Cli.Screen.Lib['repaint'];
+  readonly handoff: t.WorkspaceRun.Fmt.Lib['handoff'];
+  readonly armWarning: t.CompletionHang.Lib['armWarning'];
+  readonly write: (...args: unknown[]) => void;
 };
 
+/**
+ * Run workspace tests with root-owned presentation and completion diagnostics.
+ */
 export async function main(input: MainArgs = {}) {
+  const {
+    run = Workspace.Run.test,
+    repaint = Cli.Screen.repaint,
+    handoff = Workspace.Run.Fmt.handoff,
+    armWarning = CompletionHang.armWarning,
+    write = console.info,
+  } = input.deps ?? {};
   const argv = input.argv ?? Deno.args;
-  if (wantsHelp(argv)) {
-    console.info(help());
+  if (wantsTestHelp(argv)) {
+    write(help());
     return;
   }
 
@@ -53,31 +69,21 @@ export async function main(input: MainArgs = {}) {
         },
       },
     };
-  clearTestStartupScreen(presentation);
-  const result = await Workspace.Run.test(args);
+  clearTestStartupScreen(presentation, repaint);
+  const result = await run(args);
   const output = presentation.mode === 'sequential'
     ? Workspace.Run.Fmt.result(result)
-    : Workspace.Run.Fmt.handoff(result, {
+    : handoff(result, {
       detail: presentation.detail,
       terminal: presentation.terminal,
       ...(screenCompletion ? { screen: screenCompletion } : {}),
     });
 
-  console.info();
-  console.info(output);
-  console.info();
+  write();
+  write(output);
+  write();
   Deno.exitCode = result.ok ? 0 : 1;
-  CompletionHang.armWarning({ result, strategy: args.strategy });
-}
-
-function wantsHelp(argv: readonly string[]) {
-  const parsed = Args.parse<HelpArgs>(argv.filter((value) => value !== '--'), {
-    boolean: ['help'],
-    alias: { h: 'help' },
-    unknown: () => true,
-  });
-  const help = parsed.help;
-  return Is.array(help) ? help.some((value) => value === true) : help === true;
+  armWarning({ result, strategy: args.strategy });
 }
 
 function help() {
@@ -99,7 +105,8 @@ function help() {
 
     Notes:
       deno task test defaults to the topology-safe parallel scheduler.
-      deno task test:parallel is the explicit parallel alias.
+      deno task test runs workspace info after successful tests, but not help.
+      deno task test:parallel runs parallel tests without workspace info.
       deno task test:seq preserves the sequential baseline.
       @sys/workspace flags live after -- and are distinct from Deno task flags.
       For runner DSL guidance: deno run -ER jsr:@sys/workspace dsl test
@@ -127,8 +134,11 @@ export function resolveTestPresentation(
 }
 
 /** Clear prior stdout before the root-owned workspace setup phase begins. */
-export function clearTestStartupScreen(presentation: TestPresentation) {
-  if (presentation.mode === 'parallel-screen') Cli.Screen.repaint('');
+export function clearTestStartupScreen(
+  presentation: TestPresentation,
+  repaint: t.Cli.Screen.Lib['repaint'] = Cli.Screen.repaint,
+) {
+  if (presentation.mode === 'parallel-screen') repaint('');
 }
 
 export function defaultTestArgs(argv: readonly string[]) {
