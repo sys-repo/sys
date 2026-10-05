@@ -136,7 +136,7 @@ describe('Isolation evidence | resolved reachability is not native initializatio
     expect(() => assertExcludes(graph, ['yjs@'])).to.throw('Forbidden reachability: yjs@');
   });
 
-  it('legacy side-effect import → the exclusion assertion detects the old driver', async () => {
+  it('legacy-owned module → the exclusion assertion detects the old driver', async () => {
     const graph = reachable(await collectInfo(fixture('u.leak-legacy')), false);
     expect(() => assertExcludes(graph, ['/driver-automerge/'])).to.throw(
       'Forbidden reachability: /driver-automerge/',
