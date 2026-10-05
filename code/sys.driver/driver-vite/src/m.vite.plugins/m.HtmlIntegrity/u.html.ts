@@ -1,6 +1,7 @@
 import MagicString from 'magic-string';
 import { Hash, Html, Is, type t } from './common.ts';
-import { integrityResource, refuse } from './u.url.ts';
+import { integrityError } from './u.error.ts';
+import { integrityResource } from './u.url.ts';
 
 type Element = t.Html.Element;
 type ResolveResource = (url: string) => ReturnType<typeof integrityResource>;
@@ -45,10 +46,9 @@ export function validateIntegrityInputs(
     if (ref.kind === 'modulepreload' && (!resource || !modules.has(resource.identity))) continue;
     validateCredentials(ref, htmlFile);
     if (attribute(ref.element, 'integrity') !== undefined) {
-      refuse(
-        htmlFile,
-        ref.url,
+      throw integrityError(
         'authored input integrity cannot survive bundling; let the plugin generate it',
+        { htmlFile, url: ref.url },
       );
     }
   }
@@ -72,14 +72,16 @@ export function finalizeIntegrityHtml(
     const { fileName } = resource;
     const output = Object.hasOwn(bundle, fileName) ? bundle[fileName] : undefined;
     if (!output || output.fileName !== fileName) {
-      refuse(
-        htmlFile,
-        ref.url,
+      throw integrityError(
         `missing emitted output ${fileName} (public/ files are unsupported)`,
+        { htmlFile, url: ref.url },
       );
     }
     if (ref.kind === 'style' ? !/\.css$/i.test(fileName) : !/\.(?:m?js)$/i.test(fileName)) {
-      refuse(htmlFile, ref.url, `unsupported ${ref.kind} output ${fileName}`);
+      throw integrityError(
+        `unsupported ${ref.kind} output ${fileName}`,
+        { htmlFile, url: ref.url },
+      );
     }
     let integrity = hashes.get(fileName);
     if (!integrity) {
@@ -90,13 +92,15 @@ export function finalizeIntegrityHtml(
     validateCredentials(ref, htmlFile);
     const authored = attribute(ref.element, 'integrity');
     if (authored !== undefined && authored !== integrity) {
-      refuse(htmlFile, ref.url, `conflicting integrity for ${fileName}`);
+      throw integrityError(`conflicting integrity for ${fileName}`, { htmlFile, url: ref.url });
     }
     // Insert before a parser-established attribute, never into a trailing unquoted value.
     // In data-x=/> the slash is attribute data, not self-closing syntax.
     const name = ref.kind === 'module' ? 'src' : 'href';
     const offset = ref.element.sourceCodeLocation?.attrs?.[name]?.startOffset;
-    if (offset === undefined) refuse(htmlFile, ref.url, 'missing HTML attribute source location');
+    if (offset === undefined) {
+      throw integrityError('missing HTML attribute source location', { htmlFile, url: ref.url });
+    }
     const attributes = [
       authored === undefined ? ` integrity="${integrity}"` : '',
       attribute(ref.element, 'crossorigin') === undefined ? ' crossorigin="anonymous"' : '',
@@ -122,7 +126,10 @@ function htmlReferences(
     scriptingEnabled: phase.kind === 'output',
     onParseError(error) {
       if (error.code === 'duplicate-attribute') {
-        refuse(htmlFile, '', `duplicate HTML attribute at ${error.startLine}:${error.startCol}`);
+        throw integrityError(
+          `duplicate HTML attribute at ${error.startLine}:${error.startCol}`,
+          { htmlFile },
+        );
       }
     },
   });
@@ -138,20 +145,25 @@ function htmlReferences(
       if (Html.Is.template(node)) {
         // Declarative roots can load resources immediately; they are not inert templates.
         if (phase.kind === 'output' && attribute(node, 'shadowrootmode') !== undefined) {
-          refuse(htmlFile, '', 'declarative shadow DOM is unsupported (<template shadowrootmode>)');
+          throw integrityError(
+            'declarative shadow DOM is unsupported (<template shadowrootmode>)',
+            { htmlFile },
+          );
         }
         if (phase.kind === 'input') visit(node.content);
         continue;
       }
       if (phase.kind === 'output' && node.tagName === 'select') {
-        refuse(
-          htmlFile,
-          '',
+        throw integrityError(
           'static <select> output is unsupported: parser/browser parity is unproven',
+          { htmlFile },
         );
       }
       if (htmlNamespace && node.tagName === 'base' && attribute(node, 'href') !== undefined) {
-        refuse(htmlFile, attribute(node, 'href') ?? '', '<base href> is unsupported');
+        throw integrityError(
+          '<base href> is unsupported',
+          { htmlFile, url: attribute(node, 'href') },
+        );
       }
       if (phase.kind === 'input' && attribute(node, 'vite-ignore') !== undefined) {
         visit(node); // Vite retains this tag rather than consuming its metadata.
@@ -171,7 +183,10 @@ function htmlReferences(
       if (node.tagName === 'link' && Is.str(href)) {
         const rel = (attribute(node, 'rel') ?? '').toLowerCase().split(/[\t\n\f\r ]+/);
         if (rel.includes('stylesheet') && rel.includes('modulepreload')) {
-          refuse(htmlFile, href, 'ambiguous stylesheet/modulepreload relation');
+          throw integrityError(
+            'ambiguous stylesheet/modulepreload relation',
+            { htmlFile, url: href },
+          );
         }
         // Vite consumes local CSS links by URL, independently of rel and namespace.
         const consumed = phase.kind === 'input' && consumesCss(node, href, phase.isCSSRequest);
@@ -213,7 +228,10 @@ function consumesCss(element: Element, href: string, isCSSRequest: CssRequest): 
 function validateCredentials(ref: Reference, htmlFile: string) {
   const mode = attribute(ref.element, 'crossorigin')?.toLowerCase();
   if (mode !== undefined && mode !== '' && mode !== 'anonymous') {
-    refuse(htmlFile, ref.url, 'covered resources require anonymous crossorigin');
+    throw integrityError(
+      'covered resources require anonymous crossorigin',
+      { htmlFile, url: ref.url },
+    );
   }
 }
 

@@ -1,5 +1,6 @@
 import { c, DenoFile, describe, expect, Fs, Is, it, Json, Path, type t } from '../../-test.ts';
 import { ViteConfig } from '../mod.ts';
+import { HtmlIntegrity } from '../../m.vite.plugins/m.HtmlIntegrity/mod.ts';
 import { BROWSER_SYNTAX_TARGETS } from '../u/u.browserSyntaxTargets.ts';
 
 describe('Config.Build', () => {
@@ -57,7 +58,7 @@ describe('Config.Build', () => {
       expect(config.cacheDir).to.eql(Fs.join(p.cwd, 'node_modules', '.vite'));
       expect(config.server?.fs?.allow).to.eql([Path.resolve(p.cwd), workspaceRoot]);
       expect(config.build?.outDir).to.eql(Fs.join(p.cwd, p.app.outDir));
-      expect(input.main).to.eql(Fs.join(p.cwd, p.app.entry));
+      expect(input).to.eql({ main: Fs.join(p.cwd, p.app.entry) });
       expect(config.optimizeDeps).to.eql(undefined);
       expect(config.build?.target).to.eql([...BROWSER_SYNTAX_TARGETS]);
       expect(config.oxc).to.eql({ target: [...BROWSER_SYNTAX_TARGETS] });
@@ -132,6 +133,44 @@ describe('Config.Build', () => {
       expect(names.at(-3)).to.eql('custom:a');
       expect(names.at(-2)).to.eql('sys:oxc-preflight');
       expect(names.at(-1)).to.eql('visualizer');
+    });
+
+    for (const htmlIntegrity of [undefined, false, true]) {
+      it(`HTML integrity ${htmlIntegrity} → app-only, ordered, default-off`, async () => {
+        const config = await ViteConfig.app({
+          workspace: false,
+          plugins: { deno: false, react: false, wasm: false, htmlIntegrity },
+          vitePlugins: [{ name: 'caller:post', enforce: 'post' }],
+          visualizer: true,
+        });
+        const names = (config.plugins as t.VitePlugin[]).map((plugin) => plugin.name);
+        expect(names).to.eql([
+          'sys:fs-root-identity',
+          'sys:dispose-protocol-compat',
+          'sys:optimize-imports',
+          'caller:post',
+          ...(htmlIntegrity ? ['sys:html-integrity'] : []),
+          'sys:oxc-preflight',
+          'visualizer',
+        ]);
+        const workers = config.worker?.plugins?.().flat() as t.VitePlugin[];
+        expect(workers.map((plugin) => plugin.name)).to.eql([
+          'sys:dispose-protocol-compat',
+          'sys:optimize-imports',
+        ]);
+      });
+    }
+
+    it('HTML integrity false → preserves a caller factory instance', async () => {
+      const explicit = HtmlIntegrity.plugin();
+      const config = await ViteConfig.app({
+        workspace: false,
+        plugins: { deno: false, react: false, wasm: false, htmlIntegrity: false },
+        vitePlugins: [explicit],
+      });
+      const plugins = config.plugins as t.VitePlugin[];
+      expect(plugins.filter((plugin) => plugin.name === explicit.name)).to.eql([explicit]);
+      expect(plugins.includes(explicit)).to.eql(true);
     });
 
     it('supports app config without a workspace', async () => {
@@ -221,8 +260,10 @@ describe('Config.Build', () => {
 
       const input = config.build?.rollupOptions?.input;
       if (!Is.record(input)) throw new Error('Expected named build inputs');
-      expect(input.main).to.eql(Fs.join(paths.cwd, 'src/-foo.html'));
-      expect(input.sw).to.eql(Fs.join(paths.cwd, 'src/sw.ts'));
+      expect(input).to.eql({
+        main: Fs.join(paths.cwd, 'src/-foo.html'),
+        sw: Fs.join(paths.cwd, 'src/sw.ts'),
+      });
       expect(config.envDir).to.eql(paths.cwd);
     });
 

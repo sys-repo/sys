@@ -29,13 +29,13 @@ export type Options = {
    */
   minify?: boolean;
 
-  /** Common plugins to include (default true). */
+  /** Driver-managed plugins; see each flag for its default. */
   plugins?: t.ViteConfig.CommonPlugins;
 
   /**
    * Additional caller-supplied Vite plugins.
-   * These are appended after the driver/common plugin set and before any terminal plugins
-   * managed by the driver (for example the visualizer).
+   * App-only: appended after the common set, before optional HTML integrity, OXC preflight,
+   * and the visualizer. Later byte writers remain outside the HTML integrity contract.
    */
   vitePlugins?: t.VitePluginOption[];
 

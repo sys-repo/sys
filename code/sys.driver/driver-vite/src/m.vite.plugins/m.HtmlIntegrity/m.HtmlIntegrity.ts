@@ -1,6 +1,6 @@
 import { Is, Path, type t } from './common.ts';
+import { integrityError } from './u.error.ts';
 import { finalizeIntegrityHtml, validateIntegrityInputs } from './u.html.ts';
-import { refuse } from './u.url.ts';
 
 /**
  * Build-only integrity for HTML-linked modules and stylesheets.
@@ -16,20 +16,26 @@ export const HtmlIntegrity: t.VitePlugins.HtmlIntegrity.Lib = {
       async configResolved(value) {
         config = value;
         if (config.build.ssr || config.build.lib || config.experimental.renderBuiltUrl) {
-          throw new Error(
-            '[sys:html-integrity] SSR, library, and renderBuiltUrl builds are unsupported',
-          );
+          throw integrityError('SSR, library, and renderBuiltUrl builds are unsupported');
         }
         if (config.html?.additionalAssetSources) {
-          refuse('', '', 'custom HTML asset sources are unsupported');
+          throw integrityError('custom HTML asset sources are unsupported');
         }
         const index = config.plugins.indexOf(plugin);
-        if (index < 0) refuse('', '', 'missing resolved integrity plugin');
+        if (index < 0) throw integrityError('missing resolved integrity plugin');
+        const instances = config.plugins.filter((next) => next.name === 'sys:html-integrity');
+        if (instances.length !== 1) {
+          throw integrityError(
+            'duplicate sys:html-integrity plugins; choose plugins.htmlIntegrity or one explicit factory instance',
+          );
+        }
         const later = config.plugins.slice(index + 1).find((next) => {
           const hook = next.transformIndexHtml;
           return hook && !Is.func(hook) && hook.order === 'pre';
         });
-        if (later) refuse('', '', `pre HTML hook ${later.name} must run before sys:html-integrity`);
+        if (later) {
+          throw integrityError(`pre HTML hook ${later.name} must run before sys:html-integrity`);
+        }
         // Load the public classifier only for an opted-in build, not when importing /plugins.
         ({ isCSSRequest } = await import('vite'));
       },
@@ -44,10 +50,9 @@ export const HtmlIntegrity: t.VitePlugins.HtmlIntegrity.Lib = {
               Object.hasOwn(config.env, key) ||
               Object.hasOwn(config.define ?? {}, `import.meta.env.${key}`)
             ) {
-              refuse(
-                file,
-                token,
+              throw integrityError(
                 'HTML environment substitution is unsupported with integrity enabled',
+                { htmlFile: file, url: token },
               );
             }
           }
@@ -59,15 +64,13 @@ export const HtmlIntegrity: t.VitePlugins.HtmlIntegrity.Lib = {
         order: 'post',
         handler(options, bundle) {
           if (options.format !== 'es' || this.environment.config.consumer !== 'client') {
-            throw new Error(
-              '[sys:html-integrity] only client HTML builds with ESM output are supported',
-            );
+            throw integrityError('only client HTML builds with ESM output are supported');
           }
           const html = Object.values(bundle).filter((output) =>
             output.type === 'asset' && output.fileName.endsWith('.html')
           );
           if (html.length === 0) {
-            throw new Error('[sys:html-integrity] requires an emitted HTML entry');
+            throw integrityError('requires an emitted HTML entry');
           }
           for (const output of html) {
             if (output.type !== 'asset') continue;

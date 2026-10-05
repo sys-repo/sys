@@ -2,10 +2,11 @@ import { createRequire } from 'node:module';
 import { Perf } from '../../common/u.perf.ts';
 import { workspace } from '../../m.vite.config.workspace/mod.ts';
 import { DisposeProtocolCompatPlugin } from '../../m.vite.plugins/m.DisposeProtocolCompat/mod.ts';
+import { HtmlIntegrity } from '../../m.vite.plugins/m.HtmlIntegrity/mod.ts';
 import { OptimizeImportsPlugin } from '../../m.vite.plugins/m.OptimizeImports/mod.ts';
 import { deriveWorkspacePackageRules } from '../../m.vite.plugins/m.OptimizeImports/u.derive.ts';
 import { oxcPreflightPlugin } from './u.oxcPreflight.ts';
-import { asArray, Delete, DenoFile, Fs, Is, Path, type t } from '../common.ts';
+import { asArray, DenoFile, Fs, Is, Path, type t } from '../common.ts';
 import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewrite.ts';
 import { visualizerPlugin } from './u.app.visualizerPlugin.ts';
 import { paths as formatPaths } from './u.paths.ts';
@@ -124,6 +125,9 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
     if (includeAppPlugins && options.vitePlugins?.length) {
       plugins.push(...options.vitePlugins);
     }
+    if (includeAppPlugins && options.plugins?.htmlIntegrity) {
+      plugins.push(HtmlIntegrity.plugin());
+    }
     if (includeAppPlugins) plugins.push(oxcPreflightPlugin());
     if (includeAppPlugins && Boolean(options.visualizer)) {
       // NB: the visualizer must be added last.
@@ -143,7 +147,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
     emptyOutDir: true,
     outDir,
     rollupOptions: {
-      input: Delete.undefined<{}>({ main, sw }),
+      input: Is.str(sw) ? { main, sw } : { main },
       output,
     },
   };

@@ -46,19 +46,25 @@ export declare namespace ViteConfig {
   /** Flags for major code-registries. */
   export type CodeRegistry = 'jsr' | 'npm';
 
-  /** Common plugins (default: true). */
+  /** Driver-managed plugins; defaults are defined per flag. */
   export type CommonPlugins = {
-    /** Flag indicating if the official `deno-vite` plugin should be included. */
+    /** Include the official `deno-vite` plugin. Default: true. */
     deno?: boolean;
 
-    /** Flag indicating if the React plugin should be included. */
+    /** Include the React plugin. Default: true. */
     react?: boolean;
 
-    /** Flag indicating if the "wasm" plugin should be included. */
+    /** Include the WASM plugin. Default: true. */
     wasm?: boolean;
 
-    /** Flag indicating if the derived barrel optimize-imports plugin should be included. */
+    /** Include the derived barrel optimize-imports plugin. Default: true. */
     optimizeImports?: boolean;
+
+    /**
+     * Add Subresource Integrity to owned JS/CSS linked from built HTML.
+     * Does not authenticate HTML or cover the module graph. App builds only; default: false.
+     */
+    htmlIntegrity?: boolean;
   };
 
   /** Handler for declaring how to chunk a module. */
