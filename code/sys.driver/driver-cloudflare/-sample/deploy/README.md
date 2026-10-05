@@ -103,8 +103,8 @@ the original build's payload total, before the split into private and public fil
 bytes, in the same public-first order. A document checksum is not a content pin: it can change while
 the payload remains identical.
 
-The browser does not check the reported digests or sizes against trusted pins, verify payload bytes,
-or verify browser execution. Each fetch can fail without hiding the other results.
+The content table does not itself compare reported digests or sizes with trusted pins or verify
+fetched payloads or browser execution. Each fetch can fail without hiding the other results.
 
 The sample rejects old-format `dist.pins.json` records with rebuild guidance; it does not convert
 them or choose replacement pins. Rebuild only outputs you own, and authorize publication separately.
@@ -134,9 +134,9 @@ the application server. Each caption separates build treatment from delivery: "V
 and "Public file" describe the build paths; "Public R2 ↗" identifies their shared delivery origin
 and links to Cloudflare's public-bucket documentation.
 
-Filenames are not integrity checks.
-[Subresource Integrity (SRI)](https://www.w3.org/TR/2016/REC-SRI-20160623/) lets browsers verify
-scripts and stylesheets—not these images. The seal artwork is not proof of authenticity.
+Production builds add [Subresource Integrity (SRI)](https://www.w3.org/TR/2016/REC-SRI-20160623/) to
+HTML-linked JavaScript and CSS. Browsers verify those fetched bytes against hashes in trusted HTML.
+Transitive imports and images are not covered; the seal artwork is not proof of authenticity.
 
 A regression test checks that the two PNG files remain byte-identical. Keep editable artwork outside
 publishable inputs. Do not upload either PNG separately or modify generated output after the build
@@ -192,7 +192,8 @@ Start `serve` again, then check one cold load:
 1. Open the UI with an empty browser cache and no controlling service worker. Confirm it renders.
 2. In the network panel, confirm that the document, API, and private manifest load from the
    application origin. The public manifest, JavaScript, CSS, and referenced assets should load
-   successfully, with final URLs under the configured `publicAssetBase`. Check the content table at
+   successfully, with final URLs under the configured `publicAssetBase`. The HTML-linked JavaScript
+   and CSS should carry SHA-256 integrity and anonymous CORS metadata. Check the content table at
    desktop and narrow widths: public precedes private, columns align, and the table scrolls within
    the page when needed. Links should reach the corresponding manifests, and payload sizes should
    remain distinct from the build size. Expand the document checksums and confirm the full values

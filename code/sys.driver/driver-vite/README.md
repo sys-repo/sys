@@ -170,8 +170,7 @@ two-origin Chromium acceptance/tamper matrix, including preload, HTTP-cache, sel
 and open/closed/nested declarative-shadow controls. Real builds also prove resolver-backed source
 consumption, separate metadata refusals, and retained-external controls. A wrong digest must produce
 a resource-specific browser integrity diagnostic; matching rehashed bytes must load. The proof
-records the browser user agent and actual child Vite/Rolldown versions; current ordering coverage is
-Vite 8.3.0, not a compatibility claim for every Vite release or browser.
+records the browser user agent and actual child Vite/Rolldown versions.
 
 ## Resolution and authority
 

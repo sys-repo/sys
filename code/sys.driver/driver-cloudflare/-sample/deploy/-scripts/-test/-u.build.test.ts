@@ -88,6 +88,27 @@ describe('R2 deployment sample: one-build publication projections', () => {
     }
   });
 
+  it('integrity-bearing private HTML → unchanged public JS/CSS bytes and verified projections', async () => {
+    await using f = await localFixture();
+    const js = 'export const value = 1;';
+    const css = 'body { color: rgb(12, 34, 56); }';
+    const base = f.config.publicAssetBase;
+    const jsIntegrity = Hash.sha256(js, { encoding: 'base64' });
+    const cssIntegrity = Hash.sha256(css, { encoding: 'base64' });
+    const html = [
+      `<link rel="stylesheet" href="${base}app.css" integrity="${cssIntegrity}" crossorigin="anonymous">`,
+      `<script type="module" src="${base}app.js" integrity="${jsIntegrity}" crossorigin="anonymous"></script>`,
+    ].join('\n');
+
+    const buildRecord = await f.build(html, { 'app.js': js, 'app.css': css });
+    const selected = await selectPublication(buildRecord.selection, f.dir.absolute);
+    expect(selected.private).to.eql(['dist.json', 'index.html']);
+    expect(selected.public).to.eql(['app.css', 'app.js', 'dist.json']);
+    expect((await Fs.readText(f.dir.join('dist.private/index.html'))).data).to.eql(html);
+    expect((await Fs.readText(f.dir.join('dist.public/app.js'))).data).to.eql(js);
+    expect((await Fs.readText(f.dir.join('dist.public/app.css'))).data).to.eql(css);
+  });
+
   it('captures the public base before the builder yields; later config cannot retarget old HTML', async () => {
     await using f = await localFixture();
     const config = { ...f.config };

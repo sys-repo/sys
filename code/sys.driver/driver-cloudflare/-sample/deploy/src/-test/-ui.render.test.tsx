@@ -7,6 +7,7 @@ import { App } from '../ui/ui.App.tsx';
 const ORIGIN = 'https://sample.test';
 const PUBLIC_BASE = 'https://assets.test/nested/sample/ui/';
 const PUBLIC_MANIFEST = `${PUBLIC_BASE}dist.json`;
+const SRI_DOCS = 'https://www.w3.org/TR/2016/REC-SRI-20160623/';
 const bundleSize = 551_353;
 const privateDist: t.DistPkg = {
   type: 'https://jsr.io/@sample/r2',
@@ -124,8 +125,10 @@ describe('R2 deployment sample: UI rendering', () => {
         'Application server: HTML + API · Public R2: assets',
       );
       expect(res.container.querySelector('p')?.textContent).to.eql(
-        'A thin, Web Standards–based application server handles the HTML entry point and /api at the application origin (sample.test). JavaScript, CSS, images, and other static assets load directly from public R2 ↗, avoiding application-server egress for those assets.',
+        'A thin, Web Standards–based application server handles the HTML entry point and /api at the application origin (sample.test). JavaScript, CSS, images, and other static assets load directly from public R2 ↗, avoiding application-server egress for those assets. Browsers verify HTML-linked scripts and styles using Subresource Integrity (SRI) ↗.',
       );
+      const sriDocs = res.container.querySelector(`a[href="${SRI_DOCS}"]`);
+      expect(sriDocs?.textContent).to.eql('Subresource Integrity (SRI) ↗');
 
       // Public completes first: the private row must retain its loading state.
       await TestReact.act(async () => {
@@ -299,6 +302,9 @@ describe('R2 deployment sample: UI rendering', () => {
     try {
       expect(res.container.querySelector('p')?.textContent).to.include(
         'at the application origin. JavaScript, CSS, images, and other static assets',
+      );
+      expect(res.container.querySelector(`a[href="${SRI_DOCS}"]`)?.textContent).to.eql(
+        'Subresource Integrity (SRI) ↗',
       );
     } finally {
       res.dispose();

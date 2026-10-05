@@ -57,7 +57,11 @@ export function App(
         {renderOrigin(origin)}. JavaScript, CSS, images, and other static assets load directly from
         {' '}
         <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2 ↗</a>,
-        avoiding application-server egress for those assets.
+        avoiding application-server egress for those assets. Browsers verify HTML-linked scripts and
+        styles using{' '}
+        <a href='https://www.w3.org/TR/2016/REC-SRI-20160623/'>
+          Subresource Integrity (SRI) ↗
+        </a>.
       </p>
       <p>
         The HTML entry point (<a href='/ui/index.html'>
