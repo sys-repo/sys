@@ -31,7 +31,7 @@ describe('VitePlugins.HtmlIntegrity → written build output', () => {
     await expectWritten(root, './', 3);
   });
 
-  it('remains default-off and absent from development HTML', async () => {
+  it('generic build without a factory → unprotected output and unchanged development', async () => {
     await using fixture = await createFixture();
     const { root, config } = fixture;
     await build({ ...config, plugins: [] });

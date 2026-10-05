@@ -62,7 +62,8 @@ export declare namespace ViteConfig {
 
     /**
      * Add Subresource Integrity to owned JS/CSS linked from built HTML.
-     * Does not authenticate HTML or cover the module graph. App builds only; default: false.
+     * Does not authenticate HTML or cover the module graph. App builds only; default: true.
+     * False disables the managed instance, not a caller-supplied factory.
      */
     htmlIntegrity?: boolean;
   };

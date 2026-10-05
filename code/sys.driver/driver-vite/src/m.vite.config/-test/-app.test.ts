@@ -69,6 +69,7 @@ describe('Config.Build', () => {
       expect(includesPlugin(config, 'sys:specifier-rewrite')).to.be.true;
       expect(includesPlugin(config, 'sys:dispose-protocol-compat')).to.be.true;
       expect(includesPlugin(config, 'sys:oxc-preflight')).to.be.true;
+      expect(includesPlugin(config, 'sys:html-integrity')).to.be.true;
     });
 
     it('no common plugins', async () => {
@@ -79,6 +80,7 @@ describe('Config.Build', () => {
         'sys:fs-root-identity',
         'sys:dispose-protocol-compat',
         'sys:optimize-imports',
+        'sys:html-integrity',
         'sys:oxc-preflight',
       ]);
     });
@@ -100,6 +102,8 @@ describe('Config.Build', () => {
       expect(secondCompat?.name).to.eql('sys:dispose-protocol-compat');
       expect(firstCompat).not.to.equal(secondCompat);
       expect(firstDeno).not.to.equal(secondDeno);
+      expect(first.some((plugin) => plugin.name === 'sys:html-integrity')).to.eql(false);
+      expect(second.some((plugin) => plugin.name === 'sys:html-integrity')).to.eql(false);
     });
 
     it('appends caller-supplied vite plugins after the driver/common plugin set', async () => {
@@ -130,13 +134,19 @@ describe('Config.Build', () => {
       });
       const names = ((config.plugins ?? []) as t.VitePlugin[]).flat().map((m) => m.name);
 
-      expect(names.at(-3)).to.eql('custom:a');
+      expect(names.at(-4)).to.eql('custom:a');
+      expect(names.at(-3)).to.eql('sys:html-integrity');
       expect(names.at(-2)).to.eql('sys:oxc-preflight');
       expect(names.at(-1)).to.eql('visualizer');
     });
 
-    for (const htmlIntegrity of [undefined, false, true]) {
-      it(`HTML integrity ${htmlIntegrity} → app-only, ordered, default-off`, async () => {
+    const integrityCases = [
+      { htmlIntegrity: undefined, expected: ['sys:html-integrity'] },
+      { htmlIntegrity: false, expected: [] },
+      { htmlIntegrity: true, expected: ['sys:html-integrity'] },
+    ] as const;
+    for (const { htmlIntegrity, expected } of integrityCases) {
+      it(`HTML integrity ${htmlIntegrity} → app-only, ordered, default-on`, async () => {
         const config = await ViteConfig.app({
           workspace: false,
           plugins: { deno: false, react: false, wasm: false, htmlIntegrity },
@@ -149,7 +159,7 @@ describe('Config.Build', () => {
           'sys:dispose-protocol-compat',
           'sys:optimize-imports',
           'caller:post',
-          ...(htmlIntegrity ? ['sys:html-integrity'] : []),
+          ...expected,
           'sys:oxc-preflight',
           'visualizer',
         ]);
@@ -158,6 +168,23 @@ describe('Config.Build', () => {
           'sys:dispose-protocol-compat',
           'sys:optimize-imports',
         ]);
+      });
+    }
+
+    const pluginCases = [
+      { name: 'omitted', plugins: undefined },
+      { name: 'empty', plugins: {} },
+      { name: 'partial', plugins: { react: false } },
+    ];
+    for (const { name, plugins } of pluginCases) {
+      it(`plugin options ${name} → inherit integrity and other defaults`, async () => {
+        const config = await ViteConfig.app({ workspace: false, plugins });
+        const entries = (config.plugins as t.VitePlugin[]).filter((plugin) =>
+          plugin.name === 'sys:html-integrity'
+        );
+        expect(entries.length).to.eql(1);
+        expect(includesPlugin(config, 'react')).to.eql(plugins?.react ?? true);
+        expect(includesPlugin(config, 'wasm')).to.eql(true);
       });
     }
 

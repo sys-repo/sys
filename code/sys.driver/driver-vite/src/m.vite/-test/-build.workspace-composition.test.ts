@@ -104,7 +104,9 @@ describe('Vite.build (workspace composition)', () => {
       if (VERBOSE) printDist(res.dist, res.paths);
 
       expect(files.html).to.include(`<title>Sample-2</title>`);
-      expect(files.html).to.include(`<script type="module" crossorigin src="./pkg/-entry.`);
+      expect(files.html).to.match(
+        /<script type="module" crossorigin(?=[\s>])[^>]*\ssrc="\.\/pkg\/-entry\./,
+      );
       expect(res.dist.build.size.total).to.be.greaterThan(10_000);
       expect(files.hasSysAliasMarker).to.eql(true);
 

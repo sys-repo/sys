@@ -21,6 +21,7 @@ describe('ViteConfig.app', () => {
       'sys:dispose-protocol-compat',
       'sys:optimize-imports',
       'user:plugin',
+      'sys:html-integrity',
       'sys:oxc-preflight',
     ]);
 

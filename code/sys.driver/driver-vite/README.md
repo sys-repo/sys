@@ -91,8 +91,19 @@ renaming.
 
 ## HTML subresource integrity
 
-Use the project setup above, a driver revision that exports `VitePlugins.HtmlIntegrity`, and a
-compatible consumer `vite` dependency. Opt in for client HTML builds through the plugin surface:
+With the project setup above and a driver revision containing the app default, `Vite.Config.app`
+adds integrity to owned HTML-linked JS/CSS in production client builds. No plugin import or `true`
+flag is needed. This changes production HTML and can refuse previously accepted unsupported inputs;
+it does not silently disable integrity for compatibility.
+
+For a deliberate exception, use `plugins: { htmlIntegrity: false }`. Omitted flags inherit their
+per-field defaults, including when other plugin options are supplied. Explicit `true` remains valid.
+Development and worker plugin factories are unchanged; generic `Vite.Config.define` and native Vite
+builds gain no default.
+
+Existing app configs with an explicit integrity factory must remove it or disable the managed
+instance. Duplicate resolved instances refuse the build rather than being silently deduplicated.
+Advanced caller composition retains one factory with the managed instance disabled:
 
 ```ts
 import { Vite } from 'jsr:@sys/driver-vite';
@@ -101,6 +112,7 @@ import { VitePlugins } from 'jsr:@sys/driver-vite/plugins';
 export default Vite.Config.define(() =>
   Vite.Config.app({
     paths: Vite.Config.paths({ app: { entry: './src/index.html' } }),
+    plugins: { htmlIntegrity: false },
     vitePlugins: [VitePlugins.HtmlIntegrity.plugin()],
   })
 );
@@ -120,7 +132,7 @@ external references remain unchanged and receive no integrity guarantee from thi
 For owned URLs, the plugin adds SHA-256 SRI to emitted HTML's module scripts and stylesheets.
 Modulepreloads of the same covered module URL receive matching integrity. Resource URLs stay
 unchanged; covered requests use anonymous CORS, which retains same-origin credentials. Cross-origin
-hosts must supply suitable CORS headers. Integrity remains opt-in; development is unchanged.
+hosts must supply suitable CORS headers; a successful local build does not verify those headers.
 
 Coverage is **not the module graph**: imported chunks, dependency-only preloads, CSS imports,
 workers, images, and fonts remain outside it. Trusted HTML is required. A covered module must not

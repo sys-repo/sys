@@ -5,6 +5,7 @@
   "private": true,
   "tasks": {
     "test": "deno test -P=test ./src/-test/ ./-scripts/-test/",
+    "test:integrity": "deno task build && deno test -P=test ./-scripts/-test/-html-integrity.build.ts",
     "proof:local": "deno run --no-prompt --unstable-no-legacy-abort -P=serve ./-scripts/task.proof.local.ts",
     "build": "deno run --no-prompt -P=build ./-scripts/task.build.ts",
     "clean": "deno run --no-prompt -P=clean ./-scripts/task.clean.ts",

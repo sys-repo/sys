@@ -40,7 +40,6 @@ function childConfig(mode?: 'local-asset-composition') {
     import { createRequire } from 'node:module';
     import type { Plugin } from 'vite';
     import { Vite } from '@sys/driver-vite';
-    import { VitePlugins } from '@sys/driver-vite/plugins';
     import { Fs } from '@sys/fs';
     import { Json } from '@sys/std/json';
     import { Is } from '@sys/std/is';
@@ -73,7 +72,7 @@ function childConfig(mode?: 'local-asset-composition') {
         }),
         plugins: ${Json.stringify(plugins)},
         workspace: false,
-        vitePlugins: [caller, VitePlugins.HtmlIntegrity.plugin()],
+        vitePlugins: [caller],
       });
       return { ...config, css: { postcss: { plugins: [] } } };
     });

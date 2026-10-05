@@ -26,7 +26,7 @@ export const HtmlIntegrity: t.VitePlugins.HtmlIntegrity.Lib = {
         const instances = config.plugins.filter((next) => next.name === 'sys:html-integrity');
         if (instances.length !== 1) {
           throw integrityError(
-            'duplicate sys:html-integrity plugins; choose plugins.htmlIntegrity or one explicit factory instance',
+            'duplicate sys:html-integrity plugins; remove the explicit factory or set plugins.htmlIntegrity to false and keep one factory instance',
           );
         }
         const later = config.plugins.slice(index + 1).find((next) => {
@@ -36,7 +36,7 @@ export const HtmlIntegrity: t.VitePlugins.HtmlIntegrity.Lib = {
         if (later) {
           throw integrityError(`pre HTML hook ${later.name} must run before sys:html-integrity`);
         }
-        // Load the public classifier only for an opted-in build, not when importing /plugins.
+        // Load the public classifier only for an integrity-enabled build, not a /plugins import.
         ({ isCSSRequest } = await import('vite'));
       },
       transformIndexHtml: {

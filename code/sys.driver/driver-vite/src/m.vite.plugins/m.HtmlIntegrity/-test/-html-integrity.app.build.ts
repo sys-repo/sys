@@ -20,6 +20,10 @@ type DuplicateCase = {
 // Each constructor makes fresh instances; repeated identity is intentional in exactly one case.
 const DUPLICATES: readonly DuplicateCase[] = [
   {
+    name: 'default + factory',
+    create: () => ({ vitePlugins: [VitePlugins.HtmlIntegrity.plugin()] }),
+  },
+  {
     name: 'boolean + factory',
     create: () => ({
       plugins: { htmlIntegrity: true },
@@ -29,6 +33,7 @@ const DUPLICATES: readonly DuplicateCase[] = [
   {
     name: 'distinct',
     create: () => ({
+      plugins: { htmlIntegrity: false },
       vitePlugins: [VitePlugins.HtmlIntegrity.plugin(), VitePlugins.HtmlIntegrity.plugin()],
     }),
   },
@@ -36,12 +41,13 @@ const DUPLICATES: readonly DuplicateCase[] = [
     name: 'repeated',
     create() {
       const plugin = VitePlugins.HtmlIntegrity.plugin();
-      return { vitePlugins: [plugin, plugin] };
+      return { plugins: { htmlIntegrity: false }, vitePlugins: [plugin, plugin] };
     },
   },
   {
     name: 'nested/promise',
     create: () => ({
+      plugins: { htmlIntegrity: false },
       vitePlugins: [
         [false, Promise.resolve(VitePlugins.HtmlIntegrity.plugin())],
         Promise.resolve([null, [VitePlugins.HtmlIntegrity.plugin()]]),
@@ -57,27 +63,55 @@ describe('ViteConfig.app → HTML integrity composition', () => {
       const config = await appConfig(fixture, create());
       await expectBuildRefusal(
         config,
-        '[sys:html-integrity] duplicate sys:html-integrity plugins; choose plugins.htmlIntegrity or one explicit factory instance',
+        '[sys:html-integrity] duplicate sys:html-integrity plugins; remove the explicit factory or set plugins.htmlIntegrity to false and keep one factory instance',
       );
     });
   }
 
-  for (const htmlIntegrity of [undefined, false, true]) {
-    it(`app opt-in ${htmlIntegrity} → written bytes and unchanged development`, async () => {
+  const cases = [
+    { name: 'omitted', plugins: {}, enabled: true },
+    { name: 'undefined', plugins: { htmlIntegrity: undefined }, enabled: true },
+    { name: 'true', plugins: { htmlIntegrity: true }, enabled: true },
+    { name: 'false', plugins: { htmlIntegrity: false }, enabled: false },
+  ];
+  for (const { name, plugins, enabled } of cases) {
+    it(`app integrity ${name} → written bytes and unchanged development`, async () => {
       await using fixture = await createFixture();
       const { root } = fixture;
       const config = await appConfig(fixture, {
-        plugins: { htmlIntegrity },
+        plugins,
         vitePlugins: [callerMutation()],
       });
 
       await build(config);
-      if (htmlIntegrity) await expectWritten(root, './');
+      if (enabled) await expectWritten(root, './');
       else expect(await readBuiltHtml(root)).not.to.include('integrity=');
 
       await expectDevelopment(config);
     });
   }
+
+  it('managed false + one caller factory → written integrity and unchanged development', async () => {
+    await using fixture = await createFixture();
+    const config = await appConfig(fixture, {
+      plugins: { htmlIntegrity: false },
+      vitePlugins: [VitePlugins.HtmlIntegrity.plugin()],
+    });
+    await build(config);
+    await expectWritten(fixture.root, './');
+    await expectDevelopment(config);
+  });
+
+  it('inherited integrity → unsupported library build refuses rather than disables', async () => {
+    await using fixture = await createFixture();
+    const config = await appConfig(fixture, {});
+    await expectBuildRefusal({
+      ...config,
+      build: {
+        lib: { entry: Fs.join(fixture.root, 'main.js'), formats: ['es'], fileName: 'fixture' },
+      },
+    }, 'SSR, library, and renderBuiltUrl builds are unsupported');
+  });
 
   it('later disk writer → successful build is not SRI consistency', async () => {
     await using fixture = await createFixture();

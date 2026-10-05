@@ -29,12 +29,12 @@ export type Options = {
    */
   minify?: boolean;
 
-  /** Driver-managed plugins; see each flag for its default. */
+  /** Driver-managed plugins; HTML integrity defaults on. See each flag for its default. */
   plugins?: t.ViteConfig.CommonPlugins;
 
   /**
    * Additional caller-supplied Vite plugins.
-   * App-only: appended after the common set, before optional HTML integrity, OXC preflight,
+   * App-only: appended after the common set, before managed HTML integrity, OXC preflight,
    * and the visualizer. Later byte writers remain outside the HTML integrity contract.
    */
   vitePlugins?: t.VitePluginOption[];

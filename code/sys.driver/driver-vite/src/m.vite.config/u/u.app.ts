@@ -125,7 +125,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
     if (includeAppPlugins && options.vitePlugins?.length) {
       plugins.push(...options.vitePlugins);
     }
-    if (includeAppPlugins && options.plugins?.htmlIntegrity) {
+    if (includeAppPlugins && (options.plugins?.htmlIntegrity ?? true)) {
       plugins.push(HtmlIntegrity.plugin());
     }
     if (includeAppPlugins) plugins.push(oxcPreflightPlugin());
