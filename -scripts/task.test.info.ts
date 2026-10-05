@@ -1,9 +1,11 @@
 import { Process, type t } from './common.ts';
+import { main as workspaceInfo } from './task.info.ts';
 import { wantsTestHelp } from './u.test.help.ts';
 
 type MainArgs = {
   argv?: readonly string[];
   run?: t.Process.Lib['inherit'];
+  info?: () => Promise<void>;
 };
 
 /**
@@ -12,6 +14,7 @@ type MainArgs = {
 export async function main(input: MainArgs = {}) {
   const argv = input.argv ?? Deno.args;
   const run = input.run ?? Process.inherit;
+  const info = input.info ?? workspaceInfo;
   const test = await run({
     cmd: Deno.execPath(),
     args: ['task', 'test:parallel', ...argv],
@@ -19,8 +22,7 @@ export async function main(input: MainArgs = {}) {
   Deno.exitCode = test.code;
   if (!test.success || wantsTestHelp(argv)) return;
 
-  const info = await run({ cmd: Deno.execPath(), args: ['task', 'info'] });
-  Deno.exitCode = info.code;
+  await info();
 }
 
 if (import.meta.main) await main();
