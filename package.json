@@ -6,6 +6,7 @@
     "@types/react-dom": "19.3.0",
     "monaco-editor": "0.57.0",
     "motion": "12.43.0",
+    "parse5": "8.0.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "react-icons": "5.7.0"
@@ -15,7 +16,6 @@
     "@oxc-project/runtime": "0.152.0",
     "@vitejs/plugin-react": "6.1.1",
     "magic-string": "1.4.2",
-    "parse5": "8.0.1",
     "prettier": "3.9.9",
     "rollup": "4.64.0",
     "rollup-plugin-visualizer": "7.1.1",

@@ -2,8 +2,10 @@
   "name": "@sys/html",
   "version": "0.0.0",
   "license": "MIT",
+  "description": "HTML parsing primitives.",
   "tasks": {
     "test": "deno test -P=test",
+    "test:browser": "deno test -P=browser ./src/-test.browser/-browser.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts"
@@ -14,6 +16,17 @@
   },
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true }
+    "test": { "read": true, "write": true, "env": true },
+    "browser": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": ["127.0.0.1"],
+      "run": true,
+      "ffi": true,
+      "sys": {
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+      }
+    }
   }
 }
