@@ -35,6 +35,7 @@ type WorkflowJob = {
         readonly path: string;
         readonly browser?: boolean;
         readonly proofs?: boolean;
+        readonly cache?: boolean;
       }[];
     };
   };
@@ -50,6 +51,99 @@ type WorkflowDoc = {
 };
 
 describe('WorkspaceCi.Test.Linux', () => {
+  it('declared cache tasks → warm before every test lane and survive regeneration', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Test.cache');
+    const cases = [
+      { name: 'ordinary', task: undefined, cache: undefined },
+      { name: 'empty', task: '', cache: undefined },
+      { name: 'whitespace', task: '  ', cache: undefined },
+      { name: 'non-string', task: 1, cache: undefined },
+      { name: 'cached', task: 'deno task check', cache: true },
+      { name: 'cached-other', task: 'deno task info', cache: true },
+    ];
+    const paths = cases.map(({ name }) => fs.join('code', name));
+    for (const item of cases) {
+      const tasks: Record<string, string | number> = {
+        test: 'deno task info',
+        'test:proofs': 'deno task info',
+        'test:browser': 'deno task info',
+      };
+      if (!Is.nil(item.task)) tasks['test:cache'] = item.task;
+      await Fs.writeJson(fs.join('code', item.name, 'deno.json'), {
+        name: `@scope/${item.name}`,
+        tasks,
+        'x-sys': { ci: { test: { browser: true } } },
+      });
+    }
+
+    const yaml = await WorkspaceCi.Test.Linux.text({ paths });
+    const doc = workflow(yaml);
+    expect(doc.jobs.deno.strategy?.matrix.include).to.eql(
+      cases.map(({ name, cache }) => ({
+        name: `@scope/${name}`,
+        path: fs.join('code', name),
+        browser: true,
+        proofs: true,
+        ...(cache ? { cache: true } : {}),
+      })),
+    );
+    const steps = doc.jobs.deno.steps;
+    const cache = steps.filter((step) => step.run?.includes('deno task test:cache'));
+    expect(cache).to.have.length(1);
+    expect(cache[0]?.if).to.eql('${{ matrix.cache == true }}');
+    expect(cache[0]?.run?.trim()).to.eql(Str.dedent(`
+      cd \${{ matrix.path }}
+      deno task test:cache
+    `));
+    expect(cache[0]?.['continue-on-error'] ?? false).to.eql(false);
+    const step = cache[0];
+    if (!step) throw Err.std('Missing cache step');
+    const install = steps.findIndex((step) => step.run?.includes('if deno task install; then'));
+    expect(install >= 0 && install < steps.indexOf(step), 'install precedes cache preparation').to
+      .eql(true);
+    for (const name of ['test', 'test:proofs', 'test:browser']) {
+      const test = steps.findIndex((step) => step.run?.trim().endsWith(`deno task ${name}`));
+      expect(test > steps.indexOf(step), name).to.eql(true);
+    }
+
+    const target = '.github/workflows/test.yaml';
+    await Fs.write(fs.join(target), 'stale workflow');
+    const first = await WorkspaceCi.Test.Linux.sync({
+      cwd: fs.dir,
+      source: { paths },
+      target,
+    });
+    expect(first.kind).to.eql('written');
+    expect((await Fs.readText(fs.join(target))).data).to.eql(yaml);
+    const second = await WorkspaceCi.Test.Linux.sync({
+      cwd: fs.dir,
+      source: { paths },
+      target,
+    });
+    expect(second.kind).to.eql('unchanged');
+
+    const scopedPaths = [fs.join('code', 'ordinary'), fs.join('code', 'cached-other')];
+    const scopedTarget = '.github/workflows/test.scoped.yaml';
+    const scoped = await WorkspaceCi.Test.Linux.sync({
+      cwd: fs.dir,
+      source: { paths: scopedPaths },
+      target: scopedTarget,
+    });
+    expect(scoped.kind).to.eql('written');
+    if (scoped.kind !== 'written') throw Err.std('Expected scoped workflow');
+    expect(scoped.count).to.eql(2);
+    expect(workflow(scoped.yaml).jobs.deno.strategy?.matrix.include).to.eql(
+      doc.jobs.deno.strategy?.matrix.include.filter((row) => scopedPaths.includes(row.path)),
+    );
+    expect((await Fs.readText(fs.join(scopedTarget))).data).to.eql(scoped.yaml);
+    const scopedAgain = await WorkspaceCi.Test.Linux.sync({
+      cwd: fs.dir,
+      source: { paths: scopedPaths },
+      target: scopedTarget,
+    });
+    expect(scopedAgain.kind).to.eql('unchanged');
+  });
+
   it('declared proof tasks → selected independently of browser tasks and routed fail-fast', async () => {
     const fs = await Testing.dir('WorkspaceCi.Test.proofs');
     const cases = [

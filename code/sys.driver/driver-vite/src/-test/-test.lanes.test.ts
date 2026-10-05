@@ -6,7 +6,11 @@ type Workflow = {
     readonly deno: {
       readonly strategy: {
         readonly matrix: {
-          readonly include: readonly { readonly path: string; readonly proofs?: boolean }[];
+          readonly include: readonly {
+            readonly path: string;
+            readonly proofs?: boolean;
+            readonly cache?: boolean;
+          }[];
         };
       };
       readonly steps: readonly {
@@ -32,6 +36,65 @@ const proofTasks = [
 ] as const;
 
 describe('Vite test lanes', () => {
+  it('cache preparation → frozen type-check graph and fail-fast CI ordering', async () => {
+    const cache = tasks['test:cache'];
+    const args = cache.trim().split(/\s+/);
+    expect(args.slice(0, 2), 'Vite owns a type-checked no-run cache task').to.eql(['deno', 'test']);
+    for (
+      const flag of ['--no-run', '--node-modules-dir=auto', '-P=test', '--frozen', '--no-prompt']
+    ) {
+      expect(args).to.include(flag);
+    }
+    expect(cache).not.to.include('--cached-only');
+    expect(cache).not.to.include('--no-check');
+    expect(paths(cache)).to.include('./src');
+    const selected = proofLanes(tasks['test:proofs']).flatMap((name) => paths(tasks[name]));
+    for (const path of selected.filter((path) => !path.endsWith('.test.ts'))) {
+      expect(paths(cache), `explicit proof entry must be warmed: ${path}`).to.include(path);
+    }
+    const yaml = (await Fs.readText(ROOT.resolve('.github/workflows/test.linux.yaml'))).data ?? '';
+    const job = Yaml.parse<Workflow>(yaml).data?.jobs.deno;
+    if (!job) throw Err.std('Missing Linux workflow');
+    assertViteCacheSelection(job.strategy.matrix.include);
+    const cacheSteps = job.steps.filter((step) => step.run?.includes('deno task test:cache'));
+    expect(cacheSteps).to.have.length(1);
+    const step = cacheSteps[0];
+    if (!step) throw Err.std('Missing cache step');
+    expect(step.if).to.eql('${{ matrix.cache == true }}');
+    expect(step.run?.trim()).to.eql(Str.dedent(`
+      cd \${{ matrix.path }}
+      deno task test:cache
+    `));
+    expect(step['continue-on-error'] ?? false).to.eql(false);
+    const install = job.steps.findIndex((item) => item.run?.includes('if deno task install; then'));
+    expect(install >= 0 && install < job.steps.indexOf(step), 'install precedes cache preparation')
+      .to.eql(true);
+    for (const name of ['test', 'test:proofs', 'test:browser']) {
+      const test = job.steps.findIndex((item) => item.run?.trim().endsWith(`deno task ${name}`));
+      expect(test > job.steps.indexOf(step), name).to.eql(true);
+    }
+  });
+
+  it('cache selection → other adopters are allowed; missing preparation and duplicate Vite rows fail', () => {
+    const vite = {
+      name: config.name,
+      path: 'code/sys.driver/driver-vite',
+      proofs: true,
+      cache: true,
+    } as const;
+    const other = { name: '@scope/other', path: 'code/other', cache: true } as const;
+    assertViteCacheSelection([other, vite]);
+    expect(() => assertViteCacheSelection([other])).to.throw(
+      'Linux CI must select Vite exactly once',
+    );
+    expect(() => assertViteCacheSelection([vite, other, vite])).to.throw(
+      'Linux CI must select Vite exactly once',
+    );
+    expect(() => assertViteCacheSelection([{ ...vite, cache: false }, other])).to.throw(
+      'Linux CI must select Vite cache preparation',
+    );
+  });
+
   it('routine CI lane → base only; former runtime coverage stays explicit', async () => {
     expect(taskNames(tasks.test)).to.eql(['test:unit']);
     proofLanes(tasks['test:proofs']);
@@ -115,6 +178,14 @@ describe('Vite test lanes', () => {
   });
 });
 
+function assertViteCacheSelection(
+  matrix: Workflow['jobs']['deno']['strategy']['matrix']['include'],
+) {
+  const rows = matrix.filter((row) => row.path === 'code/sys.driver/driver-vite');
+  expect(rows, 'Linux CI must select Vite exactly once').to.have.length(1);
+  expect(rows[0]?.cache, 'Linux CI must select Vite cache preparation').to.eql(true);
+}
+
 /** Only the task-only, fail-fast && form is supported here; this is not a shell parser. */
 function taskNames(command: string): readonly string[] {
   return command.split('&&').map((part) => {
@@ -144,5 +215,5 @@ function assertPartition(unit: string, selected: readonly string[]) {
 }
 
 function paths(task: string) {
-  return task.trim().split(/\s+/).filter((arg) => arg.startsWith('./src/'));
+  return task.trim().split(/\s+/).filter((arg) => arg === './src' || arg.startsWith('./src/'));
 }

@@ -17,11 +17,19 @@ export async function loadLinuxModule(cwd: t.StringDir, path: t.StringPath) {
   }
   // Declaring test:proofs selects an additional Linux CI lane; the package owns its contents.
   const proofs = wrangle.hasTask(module.file, 'test:proofs');
-  return { path: module.path, name: module.name, browser, proofs } as const;
+  // Cache preparation is opt-in and runs before any selected test lane.
+  const cache = wrangle.hasTask(module.file, 'test:cache');
+  return { path: module.path, name: module.name, browser, proofs, cache } as const;
 }
 
 export function toMatrixItemYaml(
-  module: { path: t.StringPath; name: string; browser?: boolean; proofs?: boolean },
+  module: {
+    path: t.StringPath;
+    name: string;
+    browser?: boolean;
+    proofs?: boolean;
+    cache?: boolean;
+  },
 ) {
   const name = WorkflowSafe.scalar(module.name, 'matrix name');
   const path = WorkflowSafe.scalar(module.path, 'matrix path');
@@ -30,6 +38,7 @@ export function toMatrixItemYaml(
     yaml,
     ...(module.browser ? ['  browser: true'] : []),
     ...(module.proofs ? ['  proofs: true'] : []),
+    ...(module.cache ? ['  cache: true'] : []),
   ].join('\n');
 }
 
@@ -52,7 +61,7 @@ const wrangle = {
 
   hasTask(file: { tasks?: unknown }, name: string) {
     const tasks = wrangle.record(file.tasks);
-    return Is.str(tasks?.[name]) && Boolean(tasks[name]);
+    return Is.str(tasks?.[name]) && tasks[name].trim().length > 0;
   },
 
   record(input: unknown) {

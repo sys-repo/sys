@@ -47,6 +47,12 @@ export const TEST_BODY_TEMPLATE = `      - name: 'Configure Browser Runtime: Chr
           echo "::error::Chrome/Chromium runtime not found"
           exit 1
 
+      - name: cache test dependencies → "\${{ matrix.name }}"
+        if: \${{ matrix.cache == true }}
+        run: |
+          cd \${{ matrix.path }}
+          deno task test:cache
+
       - name: test module → "\${{ matrix.name }}"
         run: |
           cd \${{ matrix.path }}

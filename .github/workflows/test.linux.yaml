@@ -41,8 +41,6 @@ jobs:
             path: code/sys.dev
           - name: "@sys/crdt"
             path: code/sys/crdt
-          - name: "@sys/html"
-            path: code/sys/html
           - name: "@sys/std"
             path: code/sys/std
           - name: "@sys/archive"
@@ -55,6 +53,8 @@ jobs:
             path: code/sys/event
           - name: "@sys/ui-state"
             path: code/sys.ui/ui-state
+          - name: "@sys/html"
+            path: code/sys/html
           - name: "@sys/immutable"
             path: code/sys/immutable
           - name: "@sys/ui-dom"
@@ -134,6 +134,7 @@ jobs:
           - name: "@sys/driver-vite"
             path: code/sys.driver/driver-vite
             proofs: true
+            cache: true
           - name: "@sys/tools"
             path: code/sys.tools
           - name: "@draft/shell"
@@ -198,6 +199,12 @@ jobs:
           done
           echo "::error::Chrome/Chromium runtime not found"
           exit 1
+
+      - name: cache test dependencies → "${{ matrix.name }}"
+        if: ${{ matrix.cache == true }}
+        run: |
+          cd ${{ matrix.path }}
+          deno task test:cache
 
       - name: test module → "${{ matrix.name }}"
         run: |
