@@ -19,31 +19,15 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 4. r2-public-delivery.plan.md
 
 
-@sys.fs
-dist-content-identity.plan.md
-- [x] e6316e80b fix(driver-signer): preserve own keys in canonical Dist documents
-- [x] 872b5a34d fix(crypto): preserve every selected key in composite hash builders
-- [x] 6c15b0942 feat(dist)!: define canonical content identity and pin contracts
-- [x] a1c9a6939 feat(fs)!: establish canonical Dist production and verification
-- [x] d95a79372 fix(fs): preserve narrow Dist verification dependencies
-- [x] 640f81a75 feat(server)!: serve and materialize canonical Dist evidence
-- [x] 29d108d70 feat(tools)!: preserve canonical Dist staging and publication ownership
-- [x] 103b61db8 feat(tools)!: consume canonical Dist pins in pull and serve
-- [x] 1ff973510 feat(dist)!: migrate build and snapshot producers to canonical pins
-- [x] 65cc8ef7e feat(cell)!: configure Dist services with canonical content pins
-- [x] ae6151a1b feat(driver-pi)!: admit GUI packages through canonical Dist content
-- [x] c64c8bf77 feat(cloudflare)!: admit R2 distributions using canonical content pins
-- [x] e9baa2857 fix(std): preserve native separators in path containment
-- [x] 60cd6377b fix(http): reject sibling-prefix static path escapes
-- [x] 9ce529fe5 feat(dist)!: align observations and signing fixtures with canonical manifests
-- [x] 7c8c28cda chore(ui): add frozen cache-only check tasks
-- [x] 6372151e2 docs(dist)!: clarify signing and observation boundaries
-- [x] 095bf200a fix(driver-vite): honor immediate-child dependency policy
-- [x] c9c17f093 test(driver-vite): separate proof lanes and restore passing base tests
-- [x] 3af0a19f9 refactor(dist): consolidate inventory accounting without merging authority
-- [x] 3d9d00a4b test(dist): prove canonical build projection and serving composition
-- [x] ee78a58f93 test(driver-pi): prove canonical Dist isolation across real previews
-
+@sys.workspace
+workspace-ci-closeout.plan.md
+- [x] 93dc483cc fix(workspace): skip implicit publish dry runs for private packages
+- [x] ec7925589 chore(tmpl): refresh repository template dependency snapshots
+- [x] f2a6c3bfb fix(sample.r2): finish delivery presentation without custom asset sources
+- [x] f50801189 style(tools): format Dist preview parity assertions
+- [x] 7c0a98d8b feat(testing): add scoped temporary-directory helper
+- [x] b27b10169 refactor(testing): organize server testing utilities and tests
+- [x] 7bd81cdf8 refactor(testing): establish semantic ownership of server helper contracts
 
 
 
@@ -61,7 +45,14 @@ html-subresource-integrity.plan.md
 - [x] e29b7c596 feat(driver-vite): add opt-in integrity for HTML-linked assets
 - [x] 2ea133e7c feat(driver-cloudflare): compare image asset paths in the R2 sample
 - [x] d83cf2a44 feat(driver-cloudflare): enable subresource integrity in the R2 sample
+- [x] 49d43914c feat(driver-vite): add managed HTML integrity for app builds
+- [ ] feat(driver-vite): enable HTML integrity by default for app builds
 - [ ] feat(driver-vite): adopt HTML integrity in templates and eligible apps
+
+@sys.driver-vite
+preview-startup-failure.plan.md
+- [ ] fix(net): bound port selection and preserve probe refusal
+- [ ] fix(driver-vite): report occupied preview ports with checked retry hints
 
 
 
@@ -144,9 +135,6 @@ r2-web-exposure.plan.md
 
 
 
-@sys.driver.cloudflare
-r2-files-enumeration-bounds.plan.md
-- [x] 2d4e9d2ce fix(driver-cloudflare): bound R2 Files enumeration work
 
 
 
@@ -182,9 +170,8 @@ system-owned-spinner.plan.md
 
 @sys.tools
 deploy-state-containment.plan.md
-- [x] fix(tools): contain build coordination in source-owned dev state
+- [x] 9537de5ee fix(tools): contain build coordination in source-owned dev state
 - [ ] chore(deploy): isolate the fs.db.team development workflow
-
 
 @sys.driver-crdt
 cmd-first-kernels.plan.md
@@ -193,27 +180,14 @@ cmd-first-kernels.plan.md
 - [ ] test(driver-crdt): prove editor reconciliation and boundary failure behavior
 - [ ] docs(driver-crdt): specify draft-one contracts from topology evidence
 
-@sys.html
-html-capability.plan.md
-- [x] GATE Human approves the HTML capability design in the actual /sys context
-- [ ] chore(html): scaffold the HTML package
-- [ ] feat(html): expose HTML parsing contracts
-- [ ] refactor(driver-vite): migrate HTML parsing to @sys/html
 
 @sys.driver-vite
 workspace-chunking-and-ui-components-bundle.plan.md
 - [ ] fix(driver-vite): restore workspace module chunk resolution
 - [ ] perf(ui-components): tune bundle composition and loading boundaries
 
-
 @sys.driver-vite
-vite-build-repair.plan.md
-- [x] [dist-content-identity.plan.md](../@sys.fs/dist-content-identity.plan.md)
-- [x] 8d3bc14fe fix(driver-vite): align frozen fixtures and preserve build failure causes
-
-
-
-
-
+ci-proof-lane-repair.plan.md
+- [x] 02f3ae9b5 fix(ci): preserve explicit proof lanes through workflow generation
 
 
