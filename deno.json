@@ -88,6 +88,7 @@
     "code/sys/esm",
     "code/sys/event",
     "code/sys/fs",
+    "code/sys/html",
     "code/sys/http",
     "code/sys/immutable",
     "code/sys/markdown",

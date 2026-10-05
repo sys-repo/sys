@@ -41,6 +41,8 @@ jobs:
             path: code/sys.dev
           - name: "@sys/crdt"
             path: code/sys/crdt
+          - name: "@sys/html"
+            path: code/sys/html
           - name: "@sys/std"
             path: code/sys/std
           - name: "@sys/archive"

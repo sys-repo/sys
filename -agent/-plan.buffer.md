@@ -60,7 +60,8 @@ html-subresource-integrity.plan.md
 - [x] d449229f6 feat(crypto): add Base64 digest output to Hash
 - [x] e29b7c596 feat(driver-vite): add opt-in integrity for HTML-linked assets
 - [x] 2ea133e7c feat(driver-cloudflare): compare image asset paths in the R2 sample
-- [ ] feat(driver-cloudflare): enable subresource integrity in the R2 sample
+- [x] d83cf2a44 feat(driver-cloudflare): enable subresource integrity in the R2 sample
+- [ ] feat(driver-vite): adopt HTML integrity in templates and eligible apps
 
 
 
