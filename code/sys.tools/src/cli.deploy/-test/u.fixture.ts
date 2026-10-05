@@ -1,24 +1,22 @@
-import { Fs, type t, Yaml } from '../common.ts';
+import { Testing } from '../../-test.ts';
+import { type t, Yaml } from '../common.ts';
 
 /**
- * Run a function inside a temporary directory.
- * The directory is created before execution and always removed after.
+ * Pass a fresh canonical temporary-directory path to the callback; does not change cwd.
+ * Delegate lifetime to Testing.withTmpDir, awaiting cleanup before settlement.
  */
 export async function withTmpDir<T>(
   fn: (dir: string) => Promise<T>,
   options: { prefix?: string } = {},
 ): Promise<T> {
   const { prefix = 'sys.tools.deploy.' } = options;
-  const dir = await Fs.makeTempDir({ prefix });
-  const canonical = await Fs.realPath(dir.absolute);
-  try {
-    return await fn(canonical);
-  } finally {
-    await Fs.remove(dir.absolute);
-  }
+  return await Testing.withTmpDir(fn, { prefix });
 }
 
-/** Capture console.info output while preserving the original sink. */
+/**
+ * Temporarily replace console.info to capture output without forwarding it.
+ * Restore the original global sink afterward; do not overlap other captures.
+ */
 export async function captureInfo<T>(
   fn: () => Promise<T>,
 ): Promise<{ readonly value: T; readonly output: string }> {

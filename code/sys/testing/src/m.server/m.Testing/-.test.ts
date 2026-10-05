@@ -1,5 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
 import { Testing } from './mod.ts';
+import { withTmpDir } from './u.withTmpDir.ts';
 
 describe('Server ← test helpers', () => {
   describe('API', () => {
@@ -9,9 +10,14 @@ describe('Server ← test helpers', () => {
       expect('DomMock' in server).to.eql(false);
       expect(Testing).to.not.equal(m.Testing);
       expect(Object.isFrozen(m.Testing)).to.eql(true);
+      expect(Object.isFrozen(Testing)).to.eql(true);
       expect(Object.keys(Testing).sort()).to.eql(
-        [...Object.keys(m.Testing), 'dir', 'connect'].sort(),
+        [...Object.keys(m.Testing), 'dir', 'connect', 'withTmpDir'].sort(),
       );
+
+      expect(server.Testing).to.equal(Testing);
+      expect(server.Testing.withTmpDir).to.equal(withTmpDir);
+      expect('createWithTmpDir' in server).to.eql(false);
 
       const props = Object.keys(m.Testing) as (keyof typeof m.Testing)[];
       props.forEach((key) => expect(Testing[key]).to.equal(m.Testing[key]));

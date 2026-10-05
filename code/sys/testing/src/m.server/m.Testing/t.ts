@@ -4,14 +4,24 @@ import type { t } from './common.ts';
  * Testing helpers for working on a known server (eg. HTTP/network and file-system).
  */
 export type TestingServerLib = t.Testing.Server.Lib & {
-  /**
-   * Generates a new test directory on the file-system.
-   */
+  /** Create or reuse a caller-owned directory; use withTmpDir for callback-scoped cleanup. */
   dir(dirname: t.StringDir, options?: t.TestingDirOptions): Promise<t.TestingDir>;
 
   /**
-   * Connects to a hostname (default is "127.0.0.1") and port on a named
-   * transport (default is "tcp") and attempts to resolve to the connection.
+   * Pass a fresh canonical temporary-directory path to a sync/async callback (prefix: "sys.testing.").
+   * Does not change cwd. Await cleanup before settlement, including after canonicalization failure.
+   * Single failures are rethrown unchanged; dual failures form a StdError aggregate with normalized
+   * diagnostics ordered execution then cleanup. Cleanup is attempted, not guaranteed; callers own
+   * any other resources they open.
+   */
+  withTmpDir<T>(
+    fn: (dir: t.StringAbsoluteDir) => T,
+    options?: { readonly prefix?: string },
+  ): Promise<Awaited<T>>;
+
+  /**
+   * Probe TCP connectivity to a host (default: "127.0.0.1").
+   * Close the socket and return status and address details.
    */
   connect(port: t.PortNumber, options?: { hostname?: string }): Promise<TestConnectionResponse>;
 };
@@ -37,7 +47,7 @@ export type TestingDir = {
   /** Joins a path to the root test directory. */
   join(...parts: t.StringPath[]): t.StringAbsolutePath;
 
-  /** Lists all paths within the root directory. */
+  /** List file paths within the root, relative when trimRoot is true. */
   ls(trimRoot?: boolean): Promise<t.StringPath[]>;
 };
 
