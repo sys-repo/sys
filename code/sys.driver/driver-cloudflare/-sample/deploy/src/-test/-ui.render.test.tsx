@@ -106,7 +106,7 @@ describe('R2 deployment sample: UI rendering', () => {
       expect(details.hasAttribute('open')).to.eql(false);
       expect(details.querySelector('summary')?.textContent).to.eql('Manifest document checksums');
       const checksumLabels = [...details.querySelectorAll('dt')].map((el) => el.textContent);
-      expect(checksumLabels).to.eql(['public ↗', 'private']);
+      expect(checksumLabels).to.eql(['public ↗', 'private ↗']);
       const checksumLinks = [...details.querySelectorAll('dt a')];
       expect(checksumLinks.map((link) => link.getAttribute('href'))).to.eql([
         PUBLIC_MANIFEST,
@@ -125,10 +125,10 @@ describe('R2 deployment sample: UI rendering', () => {
         'Application server: HTML + API · Public R2: assets',
       );
       expect(res.container.querySelector('p')?.textContent).to.eql(
-        'A thin, Web Standards–based application server handles the HTML entry point and /api at the application origin (sample.test). JavaScript, CSS, public images, and other public assets load directly from public R2 ↗, avoiding application-server egress for those assets. Browsers verify HTML-linked scripts and styles using Subresource Integrity (SRI) ↗.',
+        'A thin, Web Standards–based application server handles the HTML entry point and /api ↗ at the application origin (sample.test). JavaScript, CSS, public images, and other public assets load directly from public R2 ↗, avoiding application-server egress for those assets. Browsers verify HTML-linked scripts and styles using Subresource Integrity (SRI) ↗.',
       );
       expect(res.container.querySelector('main > p:nth-of-type(2)')?.textContent).to.eql(
-        'The HTML entry point (index.html), its manifest (dist.json), and the private image below are served from the application origin through a bounded relay to private R2 ↗. The application server is the trust boundary for private R2 access. It fetches files using short-lived presigned GET URLs ↗; the browser receives bytes, not signed URLs or R2 credentials. This sample allows anonymous access to these files.',
+        'The HTML entry point (index.html), its manifest (dist.json ↗), and the private image below are served from the application origin through a bounded relay to private R2 ↗. The application server is the trust boundary for private R2 access. It fetches files using short-lived presigned GET URLs ↗; the browser receives bytes, not signed URLs or R2 credentials. This sample allows anonymous access to these files.',
       );
       const sriDocs = res.container.querySelector(`a[href="${SRI_DOCS}"]`);
       expect(sriDocs?.textContent).to.eql('Subresource Integrity (SRI) ↗');
@@ -170,12 +170,30 @@ describe('R2 deployment sample: UI rendering', () => {
           `sys.dist/v2 ${dist.hash.digest}`,
         );
       }
-      for (const link of res.container.querySelectorAll('a')) {
+      const links = [...res.container.querySelectorAll('a')];
+      expect(links.map((link) => link.getAttribute('href'))).to.eql([
+        '/api/hello',
+        ORIGIN,
+        'https://developers.cloudflare.com/r2/buckets/public-buckets/',
+        SRI_DOCS,
+        '/ui/index.html',
+        '/ui/dist.json',
+        'https://developers.cloudflare.com/r2/api/tokens/',
+        'https://developers.cloudflare.com/r2/api/s3/presigned-urls/',
+        '/api/hello',
+        PUBLIC_MANIFEST,
+        '/ui/dist.json',
+        PUBLIC_MANIFEST,
+        '/ui/dist.json',
+      ]);
+      for (const link of links) {
         const href = link.getAttribute('href');
         if (!href) throw new Error('Expected a link destination.');
-        const external = new URL(href, ORIGIN).origin !== new URL(ORIGIN).origin;
-        expect(link.textContent?.endsWith(' ↗'), href).to.eql(external);
-        expect(link.hasAttribute('target'), href).to.eql(false);
+        const reference = ![ORIGIN, '/ui/index.html'].includes(href);
+        expect(link.textContent?.endsWith(' ↗'), href).to.eql(reference);
+        expect(link.getAttribute('target'), href).to.eql(reference ? '_blank' : null);
+        expect(link.getAttribute('rel'), href).to.eql(reference ? 'noopener noreferrer' : null);
+        expect(link.getAttribute('title'), href).to.eql(reference ? 'Opens in a new tab' : null);
       }
       const documentChecksums = [...details.querySelectorAll('dd code')].map((el) => {
         return el.textContent;
@@ -260,8 +278,8 @@ describe('R2 deployment sample: UI rendering', () => {
         expect(res.container.querySelector('.build-total')?.textContent).to.eql(
           'Build size · Could not load bundle size.',
         );
-        expect(res.container.querySelector('a[href="/api/hello"]')?.textContent).to.eql('/api');
-        expect(res.container.textContent).to.include('api.msg: "hello"');
+        expect(res.container.querySelector('a[href="/api/hello"]')?.textContent).to.eql('/api ↗');
+        expect(res.container.textContent).to.include('api.msg: "hello" ↗');
       } finally {
         res.dispose();
         await Time.wait(0);

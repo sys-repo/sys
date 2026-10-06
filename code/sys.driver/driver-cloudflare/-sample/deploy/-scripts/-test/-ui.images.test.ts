@@ -16,6 +16,11 @@ describe('R2 deployment sample: native image examples', () => {
     if (!root || !footer) throw new Error('Sample root and footer must exist.');
     expect(root.nextElementSibling).to.equal(footer);
     expect(root.querySelectorAll('img').length).to.eql(0);
+    const fallbackLinks = [...root.querySelectorAll('a')];
+    expect(fallbackLinks.map((link) => link.getAttribute('href'))).to.eql([
+      '/api/hello',
+      '/ui/dist.json',
+    ]);
     const images = [...footer.querySelectorAll('img')];
     const actualImages = images.map((image) => {
       return {
@@ -64,7 +69,7 @@ describe('R2 deployment sample: native image examples', () => {
     expect(filenames).to.eql([
       'pkg/a.[hash].png',
       'images/wax-seal.v1.png',
-      'images/wax-seal.v1.png',
+      'images/wax-seal.v1.png ↗',
     ]);
     const imageLinks = [...footer.querySelectorAll('figcaption code a')];
     expect(imageLinks.map((link) => link.getAttribute('href'))).to.eql([
@@ -75,9 +80,11 @@ describe('R2 deployment sample: native image examples', () => {
     expect(template.content.querySelectorAll('[data-image-link]').length).to.eql(0);
     const links = [...footer.querySelectorAll('a')];
     expect(links.length).to.eql(4);
-    for (const link of links) {
+    for (const link of [...fallbackLinks, ...links]) {
       expect(link.getAttribute('target')).to.eql('_blank');
       expect(link.getAttribute('rel')).to.eql('noopener noreferrer');
+      expect(link.getAttribute('title')).to.eql('Opens in a new tab');
+      expect(link.textContent?.endsWith(' ↗')).to.eql(true);
     }
     const captions = [...footer.querySelectorAll('figcaption')];
     expect(captions.length).to.eql(3);

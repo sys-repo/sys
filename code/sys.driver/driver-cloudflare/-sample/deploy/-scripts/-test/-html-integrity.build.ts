@@ -53,9 +53,13 @@ describe('R2 sample → inherited HTML integrity in written projections', () => 
     const captionLinks = [...html.matchAll(/<figcaption>([\s\S]*?)<\/figcaption>/g)]
       .flatMap(([, caption]) => [...caption.matchAll(/<a\b([^>]*)>/g)]);
     expect(captionLinks.length).to.eql(4);
-    for (const [, attrs] of captionLinks) {
+    const links = [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
+    expect(links.length).to.eql(6);
+    for (const [, attrs, label] of links) {
       expect(attrs).to.match(/\starget="_blank"/);
       expect(attrs).to.match(/\srel="noopener noreferrer"/);
+      expect(attrs).to.match(/\stitle="Opens in a new tab"/);
+      expect(label.trim().endsWith(' ↗')).to.eql(true);
     }
     const source = (await Fs.read(Fs.join(ROOT, 'public/images/wax-seal.v1.png'))).data;
     if (!source) throw new Error('Missing source PNG.');

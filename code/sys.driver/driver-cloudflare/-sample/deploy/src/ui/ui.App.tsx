@@ -53,35 +53,38 @@ export function App(
       <h2>Application server: HTML + API · Public R2: assets</h2>
       <p>
         A thin, Web Standards–based application server handles the HTML entry point and{' '}
-        <a href='/api/hello'>/api</a> at the application origin
+        <ReferenceLink href='/api/hello'>/api</ReferenceLink> at the application origin
         {renderOrigin(origin)}. JavaScript, CSS, public images, and other public assets load
         directly from{' '}
-        <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2 ↗</a>,
-        avoiding application-server egress for those assets. Browsers verify HTML-linked scripts and
-        styles using{' '}
-        <a href='https://www.w3.org/TR/2016/REC-SRI-20160623/'>
-          Subresource Integrity (SRI) ↗
-        </a>.
+        <ReferenceLink href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>
+          public R2
+        </ReferenceLink>, avoiding application-server egress for those assets. Browsers verify
+        HTML-linked scripts and styles using{' '}
+        <ReferenceLink href='https://www.w3.org/TR/2016/REC-SRI-20160623/'>
+          Subresource Integrity (SRI)
+        </ReferenceLink>.
       </p>
       <p>
         The HTML entry point (<a href='/ui/index.html'>
           <code>index.html</code>
-        </a>), its manifest (<a href={manifestUrls.private}>
+        </a>), its manifest (<ReferenceLink href={manifestUrls.private}>
           <code>dist.json</code>
-        </a>), and the private image below are served from the application origin through a bounded
-        relay to{' '}
-        <a href='https://developers.cloudflare.com/r2/api/tokens/'>private R2 ↗</a>. The application
-        server is the trust boundary for private R2 access. It fetches files using{' '}
-        <a href='https://developers.cloudflare.com/r2/api/s3/presigned-urls/'>
-          short-lived presigned GET URLs ↗
-        </a>; the browser receives bytes, not signed URLs or R2 credentials. This sample allows
-        anonymous access to these files.
+        </ReferenceLink>), and the private image below are served from the application origin
+        through a bounded relay to{' '}
+        <ReferenceLink href='https://developers.cloudflare.com/r2/api/tokens/'>
+          private R2
+        </ReferenceLink>. The application server is the trust boundary for private R2 access. It
+        fetches files using{' '}
+        <ReferenceLink href='https://developers.cloudflare.com/r2/api/s3/presigned-urls/'>
+          short-lived presigned GET URLs
+        </ReferenceLink>; the browser receives bytes, not signed URLs or R2 credentials. This sample
+        allows anonymous access to these files.
       </p>
       <h2>Same-origin fetch</h2>
       <p aria-live='polite'>
         api.msg:{' '}
         <code>
-          "<a href='/api/hello'>{message}</a>"
+          <ReferenceLink href='/api/hello'>"{message}"</ReferenceLink>
         </code>
       </p>
       <section className='content-summary' aria-labelledby='content-heading'>
@@ -132,9 +135,7 @@ export function App(
               return (
                 <div key={audience}>
                   <dt>
-                    <a href={manifestUrls[audience]}>
-                      {audience === 'public' ? 'public ↗' : 'private'}
-                    </a>
+                    <ReferenceLink href={manifestUrls[audience]}>{audience}</ReferenceLink>
                   </dt>
                   <dd>
                     <code>{Str.stripPrefixOnce(manifests[audience].checksum, 'sha256-')}</code>
@@ -152,6 +153,15 @@ export function App(
 /**
  * Helpers:
  */
+/** Inspect supporting material beside the sample, regardless of its origin. */
+function ReferenceLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a href={href} target='_blank' rel='noopener noreferrer' title='Opens in a new tab'>
+      {children} ↗
+    </a>
+  );
+}
+
 function renderOrigin(origin?: string) {
   if (!Is.str(origin) || origin === '') return null;
   return (
@@ -180,7 +190,9 @@ function renderManifestRow(audience: t.Audience, manifest: Manifest, href: strin
       <td className='payload-size'>{Is.num(manifest.size) ? Str.bytes(manifest.size) : '—'}</td>
       <td>{elDigest}</td>
       <td>
-        <a href={href}>{audience === 'public' ? 'dist.json ↗' : '/ui/dist.json'}</a>
+        <ReferenceLink href={href}>
+          {audience === 'public' ? 'dist.json' : '/ui/dist.json'}
+        </ReferenceLink>
       </td>
     </tr>
   );

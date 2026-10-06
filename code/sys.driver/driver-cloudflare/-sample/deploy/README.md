@@ -111,6 +111,13 @@ fetched payloads or browser execution. Each fetch can fail without hiding the ot
 The sample rejects old-format `dist.pins.json` records with rebuild guidance; it does not convert
 them or choose replacement pins. Rebuild only outputs you own, and authorize publication separately.
 
+Link behavior follows purpose, not origin. Application home and `index.html` navigate in the same
+tab. References to manifests (in prose, the table, and checksum labels), raw API JSON, the private
+image, and documentation open in new tabs so the sample stays available for comparison. `↗` marks
+these reference links; they use native `target="_blank"`, `rel="noopener noreferrer"`, and an "Opens
+in a new tab" title. The React view shares one local `ReferenceLink` renderer; the fallback HTML and
+image captions remain native links with no JavaScript dependency.
+
 ## Same image, three delivery examples
 
 The footer shows the same transparent 200 × 200 wax seal three times, each at 64 × 64 CSS pixels.
@@ -151,7 +158,9 @@ is not proof of authenticity. See the
 A regression test checks that the two PNG files remain byte-identical. Keep editable artwork outside
 publishable inputs. Do not upload either PNG separately or modify generated output after the build
 records its inventory. Once published, keep `v1` bytes unchanged. For changed artwork, use a new
-revision in both source locations and HTML references.
+revision in both source locations and HTML references, update `PRIVATE_IMAGE` in
+`src/m.deployment/u.selection.ts`, and update the corresponding regression paths and expected image
+checksum. The private filename policy must continue to admit only the intended revision.
 
 Versioned and fingerprinted filenames do not prevent overwrites, set cache headers, or retain old
 assets. Inspect the response headers when checking delivery. Push still removes objects absent from
