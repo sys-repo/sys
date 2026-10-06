@@ -1,11 +1,16 @@
-import type { t } from '../common.ts';
+import { c } from '@sys/cli/fmt';
 import { DistServer } from '@sys/server/dist/server';
+import { Str } from '@sys/std/str';
+import type { t } from '../common.ts';
 import { resolvePkgSubpath } from './u.pkgSubpath.ts';
 
 type ServeDependencies = {
-  Local: {
-    readonly serve: (args: t.DistServer.Local.ServeArgs) => Promise<void>;
-  };
+  Local: { readonly serve: (args: t.DistServer.Local.ServeArgs) => Promise<void> };
+};
+
+type DispatchEffects = {
+  write(text: string): void;
+  exitCode(code: number): void;
 };
 
 const PREVIEW_LIMITS = Object.freeze(
@@ -17,7 +22,14 @@ const PREVIEW_LIMITS = Object.freeze(
   } satisfies t.DistServer.Local.Args['limits'],
 );
 
-/** Serve a verified production bundle from entry command args. */
+const DISPATCH_EFFECTS: DispatchEffects = {
+  write: (text) => console.error(text),
+  exitCode: (code) => void (Deno.exitCode = code),
+};
+
+/**
+ * Serve a verified production bundle from entry command args.
+ */
 export async function serve(args: t.ViteEntry.Args.Serve) {
   return await serveWith(args, DistServer);
 }
@@ -32,7 +44,7 @@ export async function serveWith(
   const pkgSubpath = resolvePkgSubpath(args);
   const { port = 8080, dir = 'dist', silent = false } = args;
   await deps.Local.serve({
-    dir: dir as t.StringDir,
+    dir,
     limits: PREVIEW_LIMITS,
     port,
     silent,
@@ -45,10 +57,24 @@ export async function dispatch(args: t.ViteEntry.Args.Serve): Promise<void> {
   await dispatchWith(args, serve);
 }
 
-/** Internal command-runner seam for orchestration tests. */
+/** Internal CLI orchestration seam; the programmatic serve boundary still rejects. */
 export async function dispatchWith(
   args: t.ViteEntry.Args.Serve,
   run: (args: t.ViteEntry.Args.Serve) => Promise<void>,
+  effects: DispatchEffects = DISPATCH_EFFECTS,
 ): Promise<void> {
-  await run(args);
+  try {
+    // Serving rejection follows its owned cleanup; report only after that settles.
+    await run(args);
+  } catch (cause) {
+    if (!DistServer.Error.is(cause) || cause.reason !== 'address-in-use') throw cause;
+    const { port = 8080 } = args;
+    const text = Str.builder()
+      .line(c.red('Cannot serve'))
+      .line('')
+      .line(`  ${c.white(`127.0.0.1:${port} is already in use.`)}`)
+      .line(`  ${c.gray('Stop the existing server or choose another port.')}`);
+    effects.write(text.toText({ trailingNewline: true }));
+    effects.exitCode(1);
+  }
 }

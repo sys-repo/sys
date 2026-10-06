@@ -1,6 +1,6 @@
 import { stripAnsi } from '@sys/cli/fmt';
 import { describe, expect, it } from '../../src/-test.ts';
-import { Str } from '../common.ts';
+import { Err, Str } from '../common.ts';
 import { default as deno } from '../../deno.json' with { type: 'json' };
 import { mainWith, PKG_SUBPATH, renderServeInUse } from '../task.vite.u.ts';
 
@@ -51,10 +51,45 @@ describe('driver-pi/scripts/task.vite', () => {
     `));
   });
 
+  it('routes only serve through the programmatic boundary after identity injection', async () => {
+    const seen: unknown[] = [];
+    const deps = {
+      async main(args: unknown) {
+        seen.push(['main', args]);
+      },
+      async serve(args: unknown) {
+        seen.push(['serve', args]);
+      },
+    };
+    for (const cmd of ['build', 'dev', 'info', 'serve']) await mainWith([`--cmd=${cmd}`], deps);
+    expect(seen).to.eql([
+      ['main', { _: [], cmd: 'build' }],
+      ['main', { _: [], cmd: 'dev', pkgSubpath: PKG_SUBPATH }],
+      ['main', { _: [], cmd: 'info' }],
+      ['serve', { _: [], cmd: 'serve', pkgSubpath: PKG_SUBPATH }],
+    ]);
+  });
+
+  it('preserves programmatic serving rejection identity without entering shared CLI dispatch', async () => {
+    const cause = new Error('serve rejection sentinel');
+    let mainCalls = 0;
+    const { result } = await Err.Try.run(() =>
+      mainWith(['--cmd=serve'], {
+        async main() {
+          mainCalls++;
+        },
+        serve: () => Promise.reject(cause),
+      })
+    );
+    expect(result.ok).to.eql(false);
+    if (!result.ok) expect(result.error).to.equal(cause);
+    expect(mainCalls).to.eql(0);
+  });
+
   it('injects the package-owned ui identity into dev and serve', async () => {
     for (const cmd of ['dev', 'serve'] as const) {
       const seen: unknown[] = [];
-      await mainWith([`--cmd=${cmd}`], { main: (args) => Promise.resolve(void seen.push(args)) });
+      await mainWith([`--cmd=${cmd}`], recordingDeps(seen));
       expect(seen).to.eql([{ _: [], cmd, pkgSubpath: PKG_SUBPATH }]);
     }
   });
@@ -62,7 +97,7 @@ describe('driver-pi/scripts/task.vite', () => {
   it('leaves build and info structurally unchanged', async () => {
     for (const cmd of ['build', 'info'] as const) {
       const seen: unknown[] = [];
-      await mainWith([`--cmd=${cmd}`], { main: (args) => Promise.resolve(void seen.push(args)) });
+      await mainWith([`--cmd=${cmd}`], recordingDeps(seen));
       expect(seen).to.eql([{ _: [], cmd }]);
     }
   });
@@ -72,7 +107,7 @@ describe('driver-pi/scripts/task.vite', () => {
       const seen: unknown[] = [];
       await mainWith(
         ['--cmd=serve', `--${field}=///${PKG_SUBPATH}//`],
-        { main: (args) => Promise.resolve(void seen.push(args)) },
+        recordingDeps(seen),
       );
       expect(seen).to.eql([{ _: [], cmd: 'serve', [field]: `///${PKG_SUBPATH}//` }]);
     }
@@ -82,7 +117,7 @@ describe('driver-pi/scripts/task.vite', () => {
     const seen: unknown[] = [];
     await mainWith(
       [`--cmd=dev`, `--pkgSubpath=${PKG_SUBPATH}`, `--pkg-subpath=///${PKG_SUBPATH}//`],
-      { main: (args) => Promise.resolve(void seen.push(args)) },
+      recordingDeps(seen),
     );
     expect(seen).to.eql([{
       _: [],
@@ -97,7 +132,7 @@ describe('driver-pi/scripts/task.vite', () => {
       const seen: unknown[] = [];
       await mainWith(
         ['--cmd=serve', `--${field}=///`],
-        { main: (args) => Promise.resolve(void seen.push(args)) },
+        recordingDeps(seen),
       );
       expect(seen).to.eql([{ _: [], cmd: 'serve', [field]: '///', pkgSubpath: PKG_SUBPATH }]);
     }
@@ -111,31 +146,41 @@ describe('driver-pi/scripts/task.vite', () => {
       ]
     ) {
       let calls = 0;
-      const error = await catchError(() =>
-        mainWith(input, { main: () => Promise.resolve(void calls++) })
+      const { result } = await Err.Try.run(() =>
+        mainWith(input, {
+          async main() {
+            calls++;
+          },
+          async serve() {
+            calls++;
+          },
+        })
       );
-      expect(error?.message).to.include('DriverPiVite:');
+      expect(result.ok).to.eql(false);
+      if (!result.ok) expect(result.error.message).to.include('DriverPiVite:');
       expect(calls).to.eql(0);
     }
   });
 
   it('rejects conflicting caller spellings before delegation', async () => {
     const seen: unknown[] = [];
-    const error = await catchError(() =>
+    const { result } = await Err.Try.run(() =>
       mainWith(
-        [`--cmd=dev`, `--pkgSubpath=${PKG_SUBPATH}`, '--pkg-subpath=other'],
-        { main: (args) => Promise.resolve(void seen.push(args)) },
+        ['--cmd=dev', `--pkgSubpath=${PKG_SUBPATH}`, '--pkg-subpath=other'],
+        recordingDeps(seen),
       )
     );
-    expect(error?.message).to.eql('DriverPiVite: pkgSubpath and pkg-subpath conflict.');
+    expect(result.ok).to.eql(false);
+    if (!result.ok) {
+      expect(result.error.message).to.eql('DriverPiVite: pkgSubpath and pkg-subpath conflict.');
+    }
     expect(seen).to.eql([]);
   });
 });
 
-async function catchError(fn: () => Promise<unknown>): Promise<Error | undefined> {
-  try {
-    await fn();
-  } catch (error) {
-    return error as Error;
-  }
+function recordingDeps(seen: unknown[]) {
+  const run = async (args: unknown) => {
+    seen.push(args);
+  };
+  return { main: run, serve: run };
 }

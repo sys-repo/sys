@@ -4,14 +4,17 @@ import { Pkg } from '@sys/std/pkg';
 import { pkg } from '../src/pkg.ts';
 import { c, Cli, DistServer, Is, Str } from './common.ts';
 
+type ViteMain = Pick<ViteEntry.Lib, 'main' | 'serve'>;
+type ParsedArgs = ViteEntry.Args & Record<string, unknown>;
+
 const PKG_SUBPATH_FLAGS = ['pkgSubpath', 'pkg-subpath'] as const;
 
 /** The Driver Pi application surface rendered by its Vite commands. */
 export const PKG_SUBPATH = 'ui';
 
-type ViteMain = Pick<ViteEntry.Lib, 'main'>;
-type ParsedArgs = ViteEntry.Args & Record<string, unknown>;
-
+/**
+ * Run the package-owned Vite task, preserving its fixed-port refusal presentation.
+ */
 export async function main(input: string[]): Promise<void> {
   const { ViteEntry } = await import('@sys/driver-vite/entry');
   try {
@@ -48,8 +51,10 @@ ${rule}`);
 
 /** Internal delegation seam for deterministic task-adapter tests. */
 export async function mainWith(input: string[], deps: ViteMain): Promise<void> {
-  const args = Args.parse<ParsedArgs>(input, { string: [...PKG_SUBPATH_FLAGS] });
-  await deps.main(withPkgSubpath(args));
+  const args = withPkgSubpath(Args.parse<ParsedArgs>(input, { string: [...PKG_SUBPATH_FLAGS] }));
+  // Preserve the package-owned refusal table; shared CLI dispatch handles its own failures.
+  if (args.cmd === 'serve') await deps.serve(args);
+  else await deps.main(args);
 }
 
 function reportServeInUse(input: string[], cause: unknown): boolean {
