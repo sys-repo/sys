@@ -1,4 +1,4 @@
-import { type t, Err, Time } from './common.ts';
+import { type t, Err, Time } from '../common.ts';
 
 export const connect: t.NetLib['connect'] = async (port, options = {}) => {
   const { hostname = '127.0.0.1', attempts = 10, delay = 100, backoff = 1.5 } = options;

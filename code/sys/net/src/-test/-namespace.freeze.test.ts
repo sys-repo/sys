@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
 import { Net } from '../mod.ts';
-import { Host } from '../m.Net/u.host.ts';
+import { Host } from '../m.Net/u/u.host.ts';
 
 describe('net namespace freeze contract', () => {
   it('freezes every exported namespace API and nested namespace', () => {

@@ -1,4 +1,4 @@
-import { Is } from './common.ts';
+import { Is } from '../common.ts';
 
 /** Internal host helpers for network address formatting and probing. */
 export const Host = Object.freeze({

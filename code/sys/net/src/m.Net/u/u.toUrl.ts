@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 import { Host } from './u.host.ts';
 
 export const toUrl: t.NetLib['toUrl'] = (addr, kind = 'http') => {

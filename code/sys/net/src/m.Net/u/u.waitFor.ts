@@ -1,4 +1,4 @@
-import { type t } from './common.ts';
+import { type t } from '../common.ts';
 
 export const waitFor: t.NetLib['waitFor'] = (target) => {
   if (target instanceof WebSocket) {

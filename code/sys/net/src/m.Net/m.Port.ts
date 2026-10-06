@@ -1,5 +1,5 @@
 import { Err, Num, type t } from './common.ts';
-import { createPortProbe, type PortListen, type ProbeResult } from './u.probe.ts';
+import { createPortProbe, type PortListen, type ProbeResult } from './u/u.probe.ts';
 
 /**
  * Host-agnostic port selection with bounded search and conservative availability checks.

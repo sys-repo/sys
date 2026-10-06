@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { createPort } from '../m.Port.ts';
-import { createPortProbe, type PortListen } from '../u.probe.ts';
+import { createPortProbe, type PortListen } from '../u/u.probe.ts';
 
 type Options = Parameters<PortListen>[0];
 const TARGETS = ['0.0.0.0', '127.0.0.1', '::', '::1'];
