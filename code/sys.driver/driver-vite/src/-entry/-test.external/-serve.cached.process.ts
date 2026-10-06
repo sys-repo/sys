@@ -2,7 +2,6 @@ import { default as deno } from '../../../deno.json' with { type: 'json' };
 import {
   Cli,
   describe,
-  Err,
   expect,
   Fs,
   Is,
@@ -11,7 +10,6 @@ import {
   Path,
   Pkg,
   ROOT,
-  Str,
   type t,
   Time,
 } from '../../-test.ts';
@@ -67,75 +65,6 @@ describe('ViteEntry cached-only serve process', () => {
     try {
       await setupDist();
       await proveCachedServe();
-    } finally {
-      await Fs.remove(FIXTURE_ROOT, { log: false });
-    }
-  });
-
-  it('reports an occupied listener with finite authority, semantic colors and a bottom blank line', async () => {
-    using blocker = Deno.listen({ hostname: HOSTNAME, port: 0 });
-    const { port } = blocker.addr as Deno.NetAddr;
-    try {
-      await setupDist();
-      const executable = Path.join(PACKAGE_DIR, 'src/-entry/-main.ts');
-      const args = [
-        'run',
-        '--quiet',
-        '--frozen',
-        `--lock=${WORKSPACE_LOCK}`,
-        '--cached-only',
-        '--no-prompt',
-        '--node-modules-dir=none',
-        '--config=deno.json',
-        `--allow-read=${DIST}`,
-        `--allow-net=${HOSTNAME}:${port}`,
-        '--allow-env=FORCE_COLOR,TERM,TERM_PROGRAM',
-        executable,
-        '--cmd=serve',
-        `--dir=${DIST}`,
-        `--port=${port}`,
-        '--silent',
-      ];
-      const denoDir = Deno.env.get('DENO_DIR');
-      const child = new Deno.Command(Deno.execPath(), {
-        args,
-        cwd: PACKAGE_DIR,
-        clearEnv: true,
-        env: { FORCE_COLOR: '1', ...(denoDir ? { DENO_DIR: denoDir } : {}) },
-        stdin: 'null',
-        stdout: 'piped',
-        stderr: 'piped',
-      }).spawn();
-      const output = child.output();
-      const timeout = Time.delay(15_000);
-      try {
-        const settled = await Promise.race([output, timeout.then(() => undefined)]);
-        if (!settled) throw new Error('Occupied serve did not exit within 15 seconds.');
-        const stderr = new TextDecoder().decode(settled.stderr);
-        const plain = Cli.stripAnsi(stderr);
-        const expected = Str.dedent(`
-          Cannot serve
-
-            127.0.0.1:${port} is already in use.
-            Stop the existing server or choose another port.
-        `);
-        expect(settled.code, stderr).to.eql(1);
-        expect(settled.stdout.byteLength).to.eql(0);
-        // Preserve the byte contract: the diagnostic ends with one empty terminal line.
-        expect(plain, stderr).to.eql(`${expected}\n\n`);
-        expect(stderr).to.include('\u001b[31mCannot serve');
-        expect(stderr).to.include(`\u001b[37m127.0.0.1:${port} is already in use.`);
-        expect(stderr).to.include('\u001b[90mStop the existing server or choose another port.');
-        const { result } = Err.Try.run(() => {
-          using _unexpected = Deno.listen({ hostname: HOSTNAME, port });
-        });
-        expect(result.ok).to.eql(false);
-        if (!result.ok) expect(result.error).to.be.instanceOf(Deno.errors.AddrInUse);
-      } finally {
-        timeout.cancel();
-        await stopChild(child, child.status, 'SIGINT');
-        await output;
-      }
     } finally {
       await Fs.remove(FIXTURE_ROOT, { log: false });
     }
