@@ -1,4 +1,4 @@
-export type * as t from '../common/t.ts';
+export type * as t from './t.ts';
 export { default as React } from 'react';
 export { createRoot } from 'react-dom/client';
 export { Hash } from '@sys/crypto/hash';

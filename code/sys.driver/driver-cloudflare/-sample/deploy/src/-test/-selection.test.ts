@@ -68,7 +68,7 @@ describe('R2 deployment sample: filename policy', () => {
   });
 
   it('preserved seal → shared payload, with only that exact image permitted privately', () => {
-    const image = 'images/wax-seal.v1.png';
+    const image = 'images/wax-seal.png';
     expect(partitionBuild(inventory(['index.html', 'app.js', 'app.css', image]))).to.eql({
       private: [image, 'index.html'],
       public: ['app.css', 'app.js', image],
@@ -81,6 +81,7 @@ describe('R2 deployment sample: filename policy', () => {
     const invalid = [
       [image],
       ['index.html', 'images/other.png'],
+      ['index.html', 'images/wax-seal.v1.png'],
       ['index.html', image, 'pkg/a.fixture.png'],
     ];
     for (const files of invalid) {

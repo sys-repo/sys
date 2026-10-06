@@ -12,6 +12,13 @@ a bounded relay. The application server is the trust boundary for private R2 acc
 and signed URLs stay on the server. Application access is deliberately anonymous; private bucket
 backing is not caller authentication.
 
+## UI composition
+
+`src/ui/index.html` is a minimal document with an empty React root and entry-module script.
+`src/ui/-entry.tsx` mounts Page from `src/ui/m.Page/`, whose root composes the introduction, content
+section, and image examples. All visible page content, including the footer, belongs to React and
+requires the client bundle. There is no static fallback, server-side rendering, or hydration.
+
 ## Setup
 
 ### Buckets
@@ -115,38 +122,38 @@ Link behavior follows purpose, not origin. Application home and `index.html` nav
 tab. References to manifests (in prose, the table, and checksum labels), raw API JSON, the private
 image, and documentation open in new tabs so the sample stays available for comparison. `↗` marks
 these reference links; they use native `target="_blank"`, `rel="noopener noreferrer"`, and an "Opens
-in a new tab" title. The React view shares one local `ReferenceLink` renderer; the fallback HTML and
-image captions remain native links with no JavaScript dependency.
+in a new tab" title. All page references, including the image captions, share the Page module's
+`ReferenceLink` renderer.
 
 ## Same image, three delivery examples
 
 The footer shows the same transparent 200 × 200 wax seal three times, each at 64 × 64 CSS pixels.
-The artwork and revision stay the same; captions distinguish build naming from delivery origin.
+The artwork stays the same; captions distinguish build naming from delivery origin.
 
-| Example            | Output                   | Delivery                 |
-| ------------------ | ------------------------ | ------------------------ |
-| Vite-managed asset | `pkg/a.[hash].png`       | Direct public R2         |
-| Public file        | `images/wax-seal.v1.png` | Direct public R2         |
-| Private file       | `images/wax-seal.v1.png` | Application-origin relay |
+| Example            | Output                | Delivery                 |
+| ------------------ | --------------------- | ------------------------ |
+| Vite-managed asset | `pkg/a.[hash].png`    | Direct public R2         |
+| Public file        | `images/wax-seal.png` | Direct public R2         |
+| Private file       | `images/wax-seal.png` | Application-origin relay |
 
-Use [source-managed assets](src/ui/images/wax-seal.v1.png) when Vite should name the output and
-update its references. Use [public/](public/images/wax-seal.v1.png) when a filename must be
-preserved. Both built PNGs enter `dist.public`; the preserved PNG also enters `dist.private`, using
-the existing projection and publication flow. No third authored image or separate upload is needed.
+Use [source-managed assets](src/ui/images/wax-seal.png) when Vite should name the output and update
+its references. Use [public/](public/images/wax-seal.png) when a filename must be preserved. Both
+built PNGs enter `dist.public`; the preserved PNG also enters `dist.private`, using the existing
+projection and publication flow. No third authored image or separate upload is needed.
 
-The native `<img>` elements live outside React's root, independently of the entry module. The
-managed reference is `./images/wax-seal.v1.png?no-inline`: Vite emits a fingerprinted PNG rather
-than embedding its bytes in private HTML. The public reference is `/images/wax-seal.v1.png`. Vite
-rewrites both using its resolved `base`, which this sample sets from `publicAssetBase`.
+React renders three ordinary `<img>` elements. The entry module imports
+`./images/wax-seal.png?no-inline` and passes its URL into Page: Vite emits a fingerprinted PNG
+rather than embedding its bytes in JavaScript. The preserved public URL is resolved with
+`new URL('images/wax-seal.png', publicAssetBase)`, using the same configured base as the public
+manifest.
 
-The third image uses `vite-ignore` with `src="/ui/images/wax-seal.v1.png"` to preserve the
-application-origin URL. The existing manifest-derived relay serves the exact admitted private PNG
-using a server-side presigned GET; the browser receives bytes, not a signed URL. Unknown image paths
-remain refused. The public images never fall back to the relay. No runtime URL assembly or
-request-time HTML rewriting is needed. The private filename label links directly to
-`/ui/images/wax-seal.v1.png`; both public filename labels stay unlinked. The private image link and
-three Cloudflare documentation links use native `target="_blank"` and `rel="noopener noreferrer"`
-attributes.
+The third image uses exactly `src="/ui/images/wax-seal.png"`, an application-origin URL. The
+existing manifest-derived relay serves the exact admitted private PNG using a server-side presigned
+GET; the browser receives bytes, not a signed URL. Unknown image paths remain refused. The public
+images never fall back to the relay; no request-time HTML rewriting is needed. The private filename
+label links directly to `/ui/images/wax-seal.png`; both public filename labels stay unlinked. The
+private image link and three Cloudflare documentation links use native `target="_blank"` and
+`rel="noopener noreferrer"` attributes.
 
 Production builds add [Subresource Integrity (SRI)](https://www.w3.org/TR/2016/REC-SRI-20160623/) to
 HTML-linked modules, stylesheets, and dependency modulepreloads. Browsers check those requests
@@ -157,14 +164,14 @@ is not proof of authenticity. See the
 
 A regression test checks that the two PNG files remain byte-identical. Keep editable artwork outside
 publishable inputs. Do not upload either PNG separately or modify generated output after the build
-records its inventory. Once published, keep `v1` bytes unchanged. For changed artwork, use a new
-revision in both source locations and HTML references, update `PRIVATE_IMAGE` in
-`src/m.deployment/u.selection.ts`, and update the corresponding regression paths and expected image
-checksum. The private filename policy must continue to admit only the intended revision.
+records its inventory. For changed artwork, update both source copies and the expected image
+checksum. If renaming the image, update both source paths, the entry import, React image references,
+`PRIVATE_IMAGE` in `src/m.deployment/u.selection.ts`, and the corresponding regression paths. The
+private filename policy must continue to admit only the intended PNG.
 
-Versioned and fingerprinted filenames do not prevent overwrites, set cache headers, or retain old
-assets. Inspect the response headers when checking delivery. Push still removes objects absent from
-the selected inventory.
+Filenames alone do not prevent overwrites, set cache headers, or retain old assets. Inspect the
+response headers when checking delivery. Push still removes objects absent from the selected
+inventory.
 
 Direct public delivery avoids application-server egress fees for the first two images. The private
 image consumes application-server bandwidth. Storage and operation charges can still apply. The
@@ -219,19 +226,16 @@ Start `serve` again, then check one cold load:
    remain distinct from the build size. Expand the document checksums and confirm the full values
    remain readable.
 3. Confirm two separate PNG requests succeed under `publicAssetBase`: the managed `pkg/a.[hash].png`
-   and the preserved `images/wax-seal.v1.png`. Both should have `Content-Type: image/png`; record
-   their actual cache headers. Confirm the third request succeeds at the application origin as
-   `/ui/images/wax-seal.v1.png`, with PNG MIME, `no-store`, and no redirect to a signed URL. No
-   image may be a data URL, and neither public image may be served by the application origin.
+   and the preserved `images/wax-seal.png`. Both should have `Content-Type: image/png`; record their
+   actual cache headers. Confirm the third request succeeds at the application origin as
+   `/ui/images/wax-seal.png`, with PNG MIME, `no-store`, and no redirect to a signed URL. No image
+   may be a data URL, and neither public image may be served by the application origin.
 4. Check all three 64 × 64 images and their labels side by side at a wide viewport and wrapped at a
    narrow viewport. Tab to each delivery link; confirm visible focus and its documentation target.
 5. Temporarily block each PNG request independently and reload. The other images, UI, and API should
    still work, with the blocked image's alternative text and caption remaining meaningful. Remove
    each block after checking it.
-6. Temporarily block only the public entry module and reload. The HTML notice and all independently
-   loaded images should remain visible, but the full UI should not load. Remove the block when
-   finished.
-7. Temporarily block only the public `dist.json` request and reload. Its row should report a public
+6. Temporarily block only the public `dist.json` request and reload. Its row should report a public
    manifest error while the private row, API message, and build size remain available. Remove the
    block when finished.
 

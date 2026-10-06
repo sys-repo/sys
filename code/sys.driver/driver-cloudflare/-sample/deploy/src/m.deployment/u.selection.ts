@@ -4,7 +4,7 @@ import { Fs, Is, Obj, Pkg, type t } from './common.ts';
 export const BUILD_RECORD_FILENAME = 'dist.pins.json';
 
 /** One preserved image shared across both delivery paths. */
-const PRIVATE_IMAGE = 'images/wax-seal.v1.png';
+const PRIVATE_IMAGE = 'images/wax-seal.png';
 
 /** Response size, deadline, and concurrent-request limits. */
 export const READ_LIMITS = Object.freeze({ maxBytes: 1_048_576, timeout: 5_000, maxConcurrent: 4 });

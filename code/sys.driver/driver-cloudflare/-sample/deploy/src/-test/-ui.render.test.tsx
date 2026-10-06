@@ -2,10 +2,14 @@ import { Hash } from '@sys/crypto/hash';
 import { afterEach, beforeEach } from '@sys/testing/server';
 import { DomMock, TestReact } from '@sys/ui-react/testing/server';
 import { describe, expect, it, Json, Str, type t, Time, WebFixture } from '../-test.ts';
-import { App } from '../ui/ui.App.tsx';
+import { Page } from '../ui/m.Page/mod.ts';
 
 const ORIGIN = 'https://sample.test';
 const PUBLIC_BASE = 'https://assets.test/nested/sample/ui/';
+const ASSETS = {
+  publicAssetBase: PUBLIC_BASE,
+  managedImageUrl: `${PUBLIC_BASE}pkg/a.fixture.png`,
+};
 const PUBLIC_MANIFEST = `${PUBLIC_BASE}dist.json`;
 const SRI_DOCS = 'https://www.w3.org/TR/2016/REC-SRI-20160623/';
 const bundleSize = 551_353;
@@ -37,6 +41,73 @@ const publicDist: t.DistPkg = {
 describe('R2 deployment sample: UI rendering', () => {
   DomMock.init({ beforeEach, afterEach });
 
+  it('React-owned layout → three image examples before any manifest or API response', async () => {
+    const res = await TestReact.render(<Page origin='' {...ASSETS} />, { strict: false });
+    try {
+      const main = res.container.querySelector('main');
+      const footer = res.container.querySelector('footer');
+      if (!main || !footer) throw new Error('Rendered Page must own its main and footer.');
+      expect([...res.container.children].map((el) => el.tagName)).to.eql(['MAIN', 'FOOTER']);
+      expect(main.nextElementSibling).to.equal(footer);
+      const figures = [...footer.querySelectorAll('figure')];
+      expect(figures.length).to.eql(3);
+      for (const figure of figures) {
+        expect(figure.querySelectorAll('img').length).to.eql(1);
+        expect(figure.querySelectorAll('figcaption').length).to.eql(1);
+      }
+      const images = [...footer.querySelectorAll('img')];
+      expect(images.map((image) => ({
+        src: image.getAttribute('src'),
+        width: image.getAttribute('width'),
+        height: image.getAttribute('height'),
+        alt: image.getAttribute('alt'),
+      }))).to.eql([
+        { src: ASSETS.managedImageUrl, width: '64', height: '64', alt: 'Red wax seal' },
+        {
+          src: `${PUBLIC_BASE}images/wax-seal.png`,
+          width: '64',
+          height: '64',
+          alt: 'Red wax seal',
+        },
+        { src: '/ui/images/wax-seal.png', width: '64', height: '64', alt: 'Red wax seal' },
+      ]);
+      expect([...footer.querySelectorAll('figcaption strong')].map((el) => el.textContent)).to.eql([
+        'Vite-managed asset',
+        'Public file',
+        'Private file',
+      ]);
+      expect([...footer.querySelectorAll('figcaption > span')].map((el) => el.textContent)).to.eql([
+        'Fingerprinted filename',
+        'Preserved filename',
+        'Preserved filename',
+      ]);
+      expect([...footer.querySelectorAll('figcaption code')].map((el) => el.textContent)).to.eql([
+        'pkg/a.[hash].png',
+        'images/wax-seal.png',
+        'images/wax-seal.png ↗',
+      ]);
+      expect(
+        [...footer.querySelectorAll('figcaption code a')].map((link) => link.getAttribute('href')),
+      ).to.eql(['/ui/images/wax-seal.png']);
+      expect(footer.querySelector('figure:first-child code a')).to.eql(null);
+      expect(footer.querySelector('figure:nth-child(2) code a')).to.eql(null);
+      const captions = [...footer.querySelectorAll('figcaption')];
+      expect(captions.length).to.eql(3);
+      for (const [index, caption] of captions.entries()) {
+        const delivery = caption.querySelector('a');
+        expect(delivery?.textContent).to.eql(index === 2 ? 'Private R2 ↗' : 'Public R2 ↗');
+        expect(delivery?.getAttribute('href')).to.eql(
+          index === 2
+            ? 'https://developers.cloudflare.com/r2/api/tokens/'
+            : 'https://developers.cloudflare.com/r2/buckets/public-buckets/',
+        );
+      }
+    } finally {
+      res.dispose();
+      await Time.wait(0);
+    }
+  });
+
   it('pending → public-first rows with independent sizes, full digests, and separate document checksums', async () => {
     const privateResponse = Promise.withResolvers<Response>();
     const publicResponse = Promise.withResolvers<Response>();
@@ -53,9 +124,7 @@ describe('R2 deployment sample: UI rendering', () => {
       if (req.url === `${ORIGIN}/api/bundle`) return bundle.promise;
       throw new Error(`Unexpected fixture request: ${req.url}`);
     });
-    const res = await TestReact.render(<App origin={ORIGIN} publicAssetBase={PUBLIC_BASE} />, {
-      strict: false,
-    });
+    const res = await TestReact.render(<Page origin={ORIGIN} {...ASSETS} />, { strict: false });
     try {
       const section = res.container.querySelector('.content-summary');
       const regions = res.container.querySelectorAll('.manifest-table-scroll');
@@ -185,12 +254,20 @@ describe('R2 deployment sample: UI rendering', () => {
         '/ui/dist.json',
         PUBLIC_MANIFEST,
         '/ui/dist.json',
+        'https://developers.cloudflare.com/r2/buckets/public-buckets/',
+        'https://developers.cloudflare.com/r2/buckets/public-buckets/',
+        'https://developers.cloudflare.com/r2/api/tokens/',
+        '/ui/images/wax-seal.png',
       ]);
       for (const link of links) {
         const href = link.getAttribute('href');
         if (!href) throw new Error('Expected a link destination.');
         const reference = ![ORIGIN, '/ui/index.html'].includes(href);
         expect(link.textContent?.endsWith(' ↗'), href).to.eql(reference);
+        expect(
+          [...link.querySelectorAll('span.reference-link-arrow')].map((arrow) => arrow.textContent),
+          href,
+        ).to.eql(reference ? ['↗'] : []);
         expect(link.getAttribute('target'), href).to.eql(reference ? '_blank' : null);
         expect(link.getAttribute('rel'), href).to.eql(reference ? 'noopener noreferrer' : null);
         expect(link.getAttribute('title'), href).to.eql(reference ? 'Opens in a new tab' : null);
@@ -212,9 +289,6 @@ describe('R2 deployment sample: UI rendering', () => {
       expect(section?.querySelector('.manifest-table-scroll + p')?.textContent).to.eql(
         'Digests are abbreviated. These values are manifest reports, not payload verification. Open each manifest and compare its full hash.scheme and hash.digest with the corresponding pin in dist.pins.json.',
       );
-      expect(section?.textContent).not.to.include('not verified by this page');
-      expect(section?.textContent).not.to.include('(diagnostic)');
-      expect(section?.textContent).not.to.include('observations');
     } finally {
       res.dispose();
       privateResponse.resolve(new Response(null, { status: 204 }));
@@ -244,9 +318,7 @@ describe('R2 deployment sample: UI rendering', () => {
         }
         throw new Error(`Unexpected fixture request: ${req.url}`);
       });
-      const res = await TestReact.render(<App origin={ORIGIN} publicAssetBase={PUBLIC_BASE} />, {
-        strict: false,
-      });
+      const res = await TestReact.render(<Page origin={ORIGIN} {...ASSETS} />, { strict: false });
       try {
         await TestReact.act(async () => {
           await Time.wait(0);
@@ -297,9 +369,7 @@ describe('R2 deployment sample: UI rendering', () => {
       if (req.url === `${ORIGIN}/api/bundle`) return Promise.resolve(Response.json({ size: 0 }));
       return Promise.resolve(Response.json(empty));
     });
-    const res = await TestReact.render(<App origin={ORIGIN} publicAssetBase={PUBLIC_BASE} />, {
-      strict: false,
-    });
+    const res = await TestReact.render(<Page origin={ORIGIN} {...ASSETS} />, { strict: false });
     try {
       await TestReact.act(async () => {
         await Time.wait(0);
@@ -317,9 +387,7 @@ describe('R2 deployment sample: UI rendering', () => {
   });
 
   it('absent origin → prose has no empty annotation', async () => {
-    const res = await TestReact.render(<App origin='' publicAssetBase={PUBLIC_BASE} />, {
-      strict: false,
-    });
+    const res = await TestReact.render(<Page origin='' {...ASSETS} />, { strict: false });
     try {
       expect(res.container.querySelector('p')?.textContent).to.include(
         'at the application origin. JavaScript, CSS, public images, and other public assets',

@@ -111,8 +111,8 @@ describe('R2 deployment sample: HTTP adapter integration', () => {
         ['/data.json', 404],
         ['/ui/favicon.ico', 404],
         ['/favicon.ico', 404],
-        ['/images/wax-seal.v1.png', 404],
-        ['/ui/images/wax-seal.v1.png', 404],
+        ['/images/wax-seal.png', 404],
+        ['/ui/images/wax-seal.png', 404],
         ['/pkg/a.fixture.png', 404],
         ['/ui/pkg/a.fixture.png', 404],
         ['/ui/unselected.js', 404],
@@ -131,7 +131,7 @@ describe('R2 deployment sample: HTTP adapter integration', () => {
   });
 
   it('admitted private PNG → signed internal GETs and byte/metadata-correct application responses', async () => {
-    const path = 'images/wax-seal.v1.png';
+    const path = 'images/wax-seal.png';
     const source = await Fs.read(
       Fs.Path.fromFileUrl(new URL(`../../public/${path}`, import.meta.url)),
     );
@@ -160,7 +160,15 @@ describe('R2 deployment sample: HTTP adapter integration', () => {
     f.fetched.length = 0;
     // Storage presence alone never grants an application route.
     f.content.set('images/unselected.png', bytes);
-    for (const url of ['/ui/images/unselected.png', '/ui/pkg/a.fixture.png', `/${path}`]) {
+    f.content.set('images/wax-seal.v1.png', bytes);
+    for (
+      const url of [
+        '/ui/images/unselected.png',
+        '/ui/images/wax-seal.v1.png',
+        '/ui/pkg/a.fixture.png',
+        `/${path}`,
+      ]
+    ) {
       for (const method of ['GET', 'HEAD']) {
         const response = await app.request(url, { method });
         expect(response.status).to.eql(404);

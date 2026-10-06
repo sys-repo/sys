@@ -4,13 +4,8 @@ import { Fetch, Hash, Is, Json, Pkg, type t } from './common.ts';
  * Observe the API, bundle total, and manifests without credentials, redirects, or pin authority.
  * Schema recognition and document checksums do not verify payload or browser execution.
  */
-export function startFetches(
-  origin: string,
-  publicManifestUrl: string,
-  onMessage: (value: string) => void,
-  onManifest: (audience: t.Audience, digest: string, checksum: string, size?: number) => void,
-  onBundleSize: (size?: number) => void,
-): () => void {
+export function startFetches(args: t.StartFetchesArgs): () => void {
+  const { origin, publicManifestUrl, onMessage, onManifest, onBundleSize } = args;
   const client = Fetch.make({
     policy: {
       maxBytes: 65_536,
@@ -56,7 +51,9 @@ export function startFetches(
       throw new Error('Invalid Dist size.');
     }
     // Diagnostic only: checksum the received document; digest and size remain self-reports.
-    if (!client.disposed) onManifest(audience, data.hash.digest, Hash.sha256(bytes), size);
+    if (!client.disposed) {
+      onManifest(audience, { digest: data.hash.digest, checksum: Hash.sha256(bytes), size });
+    }
   }
 
   loadMessage().catch(() => {
@@ -68,7 +65,9 @@ export function startFetches(
   for (const audience of ['private', 'public'] as const) {
     loadManifest(audience).catch(() => {
       const message = `Could not load the ${audience} manifest.`;
-      if (!client.disposed) onManifest(audience, message, message);
+      if (!client.disposed) {
+        onManifest(audience, { digest: message, checksum: message, size: undefined });
+      }
     });
   }
 

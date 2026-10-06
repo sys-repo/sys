@@ -58,13 +58,13 @@ describe('R2 deployment sample: one-build publication projections', () => {
   });
 
   it('two wax seal paths → identical public bytes and a shared preserved private image', async () => {
-    const publicPath = 'images/wax-seal.v1.png';
+    const publicPath = 'images/wax-seal.png';
     const png = await Fs.read(Fs.join(ROOT, 'public', publicPath));
     const managed = await Fs.read(Fs.join(ROOT, 'src/ui', publicPath));
     if (!png.ok || !png.data || !managed.ok || !managed.data) {
-      throw new Error('Both versioned sample PNGs must be readable.');
+      throw new Error('Both sample PNGs must be readable.');
     }
-    // Same artwork and revision: only build treatment differs between the two examples.
+    // Same artwork: only build treatment differs between the two examples.
     expect(managed.data).to.eql(png.data);
     expect(Hash.sha256(png.data)).to.eql(
       'sha256-9a110325ca0d22eb23c6c88d60960fdd3c9d9b9c5ccaa331b0ac27679239d83a',

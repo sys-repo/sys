@@ -313,13 +313,13 @@ function controlledFetches() {
     if (req.url === PUBLIC_MANIFEST) return responses.public.promise;
     throw new Error(`Unexpected fixture request: ${req.url}`);
   });
-  const stop = startFetches(
-    ORIGIN,
-    PUBLIC_MANIFEST,
-    (value) => messages.push(value),
-    (audience, digest, checksum, size) => manifests[audience].push({ digest, checksum, size }),
-    (size) => sizes.push(size),
-  );
+  const stop = startFetches({
+    origin: ORIGIN,
+    publicManifestUrl: PUBLIC_MANIFEST,
+    onMessage: (value) => messages.push(value),
+    onManifest: (audience, manifest) => manifests[audience].push(manifest),
+    onBundleSize: (size) => sizes.push(size),
+  });
   return {
     responses,
     requests,
