@@ -16,14 +16,14 @@ export declare namespace VitePlugins {
   /**
    * Subresource Integrity (SRI) for JavaScript and CSS linked from built HTML.
    *
-   * Browsers use hashes in trusted HTML to check fetched bytes. Coverage is limited to
-   * emitted module scripts, stylesheets, and preloads of the same module URL;
-   * imported dependencies are not covered.
+   * Browsers use hashes in trusted HTML to check fetched bytes. Covers owned HTML module
+   * scripts, stylesheets, and modulepreloads, including dependency-only links. Preload
+   * integrity does not bind subsequent imports or protect the whole module graph.
    *
    * See the package README's "HTML subresource integrity" section for build and loading limits.
    */
   export namespace HtmlIntegrity {
-    /** Opt-in client-build integration; development serving is unchanged. */
+    /** Client-build plugin factory; managed by default in `Vite.Config.app`, inactive in dev. */
     export type Lib = {
       /**
        * Create a plugin that adds SHA-256 integrity and anonymous CORS attributes.

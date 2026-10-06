@@ -6,8 +6,10 @@ import { integrityResource } from '../u.url.ts';
 
 const JS = 'globalThis.entry = "✓";';
 const CSS = new TextEncoder().encode('body { color: red; } /* é */');
+const DEPENDENCY = 'export const value = "dependency";';
 const bundle = {
   'pkg/entry.js': { type: 'chunk', fileName: 'pkg/entry.js', code: JS },
+  'pkg/dependency.js': { type: 'chunk', fileName: 'pkg/dependency.js', code: DEPENDENCY },
   'pkg/style.css': { type: 'asset', fileName: 'pkg/style.css', source: CSS },
   'pkg/space name.js': { type: 'asset', fileName: 'pkg/space name.js', source: JS },
 } as const;
@@ -335,7 +337,7 @@ describe('HTML integrity bytes and tag contract', () => {
       <template><script type="module" src="missing.js"></script></template>
       <script src="classic.js"></script>
       <script type="module" src="https://other.example/main.js" integrity="authored" crossorigin="use-credentials"></script>
-      <link rel="modulepreload" href="dependency-only.js">
+      <link rel="modulepreload" href="https://other.example/dependency-only.js">
     `);
     expect(finalize(input)).to.eql(input);
     expect(() => validateInput(input)).not.to.throw();
@@ -345,7 +347,7 @@ describe('HTML integrity bytes and tag contract', () => {
       '<svg><foreignObject><script type="module" src="pkg/entry.js"></script></foreignObject></svg>';
     expect(finalize(input)).to.include(`integrity="${sri(JS)}"`);
   });
-  it('gives overlapping entry preloads the same integrity but leaves descendants outside coverage', () => {
+  it('covers overlapping and dependency-only preloads without collapsing URL identity', () => {
     const input = Str.dedent(`
       <link rel="modulepreload" href="./pkg/entry.js?q=1#x">
       <link rel="modulepreload" href="./pkg/entry.js?q=2#x">
@@ -353,10 +355,26 @@ describe('HTML integrity bytes and tag contract', () => {
       <script type="module" src="./pkg/entry.js?q=1#x"></script>
     `);
     const output = finalize(input);
-    expect(output.match(/integrity=/g)?.length).to.eql(2);
-    expect(output.match(/crossorigin=/g)?.length).to.eql(2);
-    expect(output).to.include('<link rel="modulepreload" href="./pkg/entry.js?q=2#x">');
-    expect(output).to.include('<link rel="modulepreload" href="./pkg/dependency.js">');
+    expect(output.match(/integrity=/g)?.length).to.eql(4);
+    expect(output.match(/crossorigin=/g)?.length).to.eql(4);
+    expect(output).to.include(`integrity="${sri(DEPENDENCY)}"`);
+    expect(output).to.include('href="./pkg/entry.js?q=2#x"');
+    expect(output).to.include('href="./pkg/dependency.js"');
+    expect(finalize(output)).to.eql(output);
+  });
+  for (const attr of ['integrity="authored"', 'crossorigin="use-credentials"']) {
+    it(`validates dependency-only preload input metadata: ${attr}`, () => {
+      const input = `<link rel="modulepreload" href="dependency.js" ${attr}>`;
+      expect(() => validateInput(input)).to.throw('[sys:html-integrity]');
+    });
+  }
+  it('refuses missing dependency-only preload output and conflicting final metadata', () => {
+    const missing = '<link rel="modulepreload" href="missing.js">';
+    expect(() => finalize(missing)).to.throw('missing emitted output missing.js');
+    for (const attr of ['integrity="sha384-conflict"', 'crossorigin="use-credentials"']) {
+      const input = `<link rel="modulepreload" href="pkg/dependency.js" ${attr}>`;
+      expect(() => finalize(input)).to.throw('[sys:html-integrity]');
+    }
   });
   for (const mode of ['', ' crossorigin', ' crossorigin=""', ' crossorigin="anonymous"']) {
     it(`accepts anonymous credentials: ${mode || '(absent)'}`, () => {

@@ -91,15 +91,18 @@ renaming.
 
 ## HTML subresource integrity
 
-With the project setup above and a driver revision containing the app default, `Vite.Config.app`
-adds integrity to owned HTML-linked JS/CSS in production client builds. No plugin import or `true`
-flag is needed. This changes production HTML and can refuse previously accepted unsupported inputs;
-it does not silently disable integrity for compatibility.
+`Vite.Config.app` adds integrity to owned HTML-linked JS/CSS in production client builds by default.
+No plugin import or `true` flag is needed. Unsupported inputs fail the build; integrity is not
+silently disabled for compatibility.
 
-For a deliberate exception, use `plugins: { htmlIntegrity: false }`. Omitted flags inherit their
-per-field defaults, including when other plugin options are supplied. Explicit `true` remains valid.
-Development and worker plugin factories are unchanged; generic `Vite.Config.define` and native Vite
-builds gain no default.
+**Availability:** this section describes the workspace implementation. Published-driver acceptance
+of default-on integrity and dependency-preload coverage remains unverified.
+
+For a deliberate exception, use `plugins: { htmlIntegrity: false }`. Omitted flags retain their
+per-field defaults even when other plugin options are supplied. Explicit `true` remains valid.
+Development serving is unchanged, and worker plugin factories do not include HTML integrity.
+`Vite.Config.define` or native Vite alone does not add the plugin; the default comes from
+`Vite.Config.app`, regardless of which runner builds that configuration.
 
 Existing app configs with an explicit integrity factory must remove it or disable the managed
 instance. Duplicate resolved instances refuse the build rather than being silently deduplicated.
@@ -129,44 +132,22 @@ The plugin handles output-owned URLs using Vite's resolved base, including CLI o
 Absolute resource URLs are external unless an absolute CDN base establishes ownership. Unrelated
 external references remain unchanged and receive no integrity guarantee from this plugin.
 
-For owned URLs, the plugin adds SHA-256 SRI to emitted HTML's module scripts and stylesheets.
-Modulepreloads of the same covered module URL receive matching integrity. Resource URLs stay
-unchanged; covered requests use anonymous CORS, which retains same-origin credentials. Cross-origin
-hosts must supply suitable CORS headers; a successful local build does not verify those headers.
+For owned URLs, the plugin adds SHA-256 SRI to emitted HTML's module scripts, stylesheets, and
+modulepreloads, including dependency-only links. Resource URLs stay unchanged; covered requests use
+anonymous CORS, which retains same-origin credentials. Cross-origin hosts must supply suitable CORS
+headers; a successful local build does not verify those headers.
 
-Coverage is **not the module graph**: imported chunks, dependency-only preloads, CSS imports,
-workers, images, and fonts remain outside it. Trusted HTML is required. A covered module must not
-already be in the document's module map through an unprotected loading path; a later tag does not
-revalidate it. SRI neither authenticates HTML nor establishes that application code is safe.
+Coverage is **not the module graph**. A preload's hash protects its request, not subsequent imports.
+Do not rely on preload failure to prevent later execution. CSS imports, workers, images, and fonts
+remain outside coverage. Trusted HTML is required. A later tag does not revalidate a module already
+loaded through an unprotected path. SRI neither authenticates HTML nor establishes that application
+code is safe.
 
 ### Build contract
 
-Omit authored `integrity` only on plugin-handled source tags so the plugin can generate it after
-bundling; keep authored integrity on unrelated external resources. Local source paths are checked
-against Vite's root before bundling, not the deployment base. Input validation includes
-`template`/`noscript` content, foreign and inline module scripts, and CSS links consumed by Vite
-regardless of `rel`. Consumption is independent of deployment ownership: resolver-backed source
-identifiers such as `virtual:entry` are checked too. Unrelated external references that Vite retains
-keep their authored metadata. This does not expand browser-active output coverage: ordinary inert
-final content stays untouched. Final tags accept matching integrity; missing owned outputs,
-ambiguous paths, and conflicting final metadata fail the build.
-
-`use-credentials` on covered resources, `<base href>`, custom `renderBuiltUrl`, SSR/library builds,
-and owned `public/` JS/CSS outside the bundle inventory are unsupported.
-
-Additional boundaries fail closed:
-
-- Static `<select>` elements in active output HTML are refused, including ordinary option-only
-  selects. The parser can discard resource tags that Chromium retains and loads. Ordinary inert
-  templates remain untouched; this restriction does not apply to DOM created later by application
-  code.
-- Declarative shadow DOM is unsupported. Any HTML `<template shadowrootmode>` reached in active
-  output traversal is refused, regardless of the mode value or host eligibility. Open, closed, and
-  nested declarative roots can load stylesheets; they are not ordinary inert templates. Syntax
-  stored inside an ordinary inert template or raw text stays untouched, not covered.
-- Resolved `%NAME%` substitutions in HTML (from environment or `define`) and
-  `html.additionalAssetSources` are unsupported. They can change what Vite consumes after input
-  validation or outside the built-in attribute vocabulary.
+Omit authored `integrity` on plugin-handled source tags; the plugin generates it after bundling.
+Keep authored integrity on unrelated external resources. Final tags accept matching integrity;
+missing owned outputs, ambiguous paths, and conflicting final metadata fail the build.
 
 This plugin must be the last user `order: 'pre'` HTML hook in Vite's resolved plugin order; a later
 pre HTML hook causes build refusal. Earlier input transforms remain supported.
@@ -175,14 +156,45 @@ All JS/CSS/HTML transformations must finish **before** this plugin's post-ordere
 hook. Later bundle hooks, disk writers, and post-build rewriting are unsupported; the plugin does
 not detect arbitrary later changes. `dist.json` is computed afterward, but is not an SRI validator.
 
-### Verification
+#### Source validation
 
-From this package, `deno task test:integrity` checks written bytes and runs the controlled
-two-origin Chromium acceptance/tamper matrix, including preload, HTTP-cache, select parser-parity,
-and open/closed/nested declarative-shadow controls. Real builds also prove resolver-backed source
-consumption, separate metadata refusals, and retained-external controls. A wrong digest must produce
-a resource-specific browser integrity diagnostic; matching rehashed bytes must load. The proof
-records the browser user agent and actual child Vite/Rolldown versions.
+Local source paths are checked against Vite's root, not the deployment base. Validation also follows
+what Vite consumes: `template`/`noscript` content, foreign and inline module scripts, CSS links
+regardless of `rel`, and resolver-backed identifiers such as `virtual:entry`. Retained unrelated
+external references keep their authored metadata. These input checks do not expand output coverage:
+ordinary inert final content stays untouched.
+
+#### Unsupported inputs
+
+`use-credentials` on covered resources, `<base href>`, custom `renderBuiltUrl`, SSR/library builds,
+and owned `public/` JS/CSS outside the bundle inventory are unsupported.
+
+The following also fail the build:
+
+- Static `<select>` elements in active output HTML, including option-only selects. The parser can
+  discard resource tags that Chromium retains and loads. This restriction does not apply to ordinary
+  inert templates or DOM created later by application code.
+- Any HTML `<template shadowrootmode>` reached in active output traversal, regardless of mode value
+  or host eligibility. Open, closed, and nested declarative roots can load stylesheets; they are not
+  ordinary inert templates. Syntax inside an ordinary inert template or raw text stays untouched,
+  not covered.
+- Resolved `%NAME%` substitutions in HTML (from environment or `define`) and
+  `html.additionalAssetSources`. They can change what Vite consumes after input validation or
+  outside the built-in attribute vocabulary.
+
+### Integrity checks
+
+From this package, `deno task test:integrity` checks written bytes, build refusals, and browser
+behavior on two origins. Its real dependency build tests ordinary static imports under both normal
+timing and completed-preload-before-import timing, each with original, tampered, and matching-rehash
+controls. Tampered dependency execution fails the test even if the browser reports an integrity
+error. Results apply to the recorded browser and loading conditions, not all browsers or timings.
+
+Other controls cover entry/style tampering, preload and HTTP-cache behavior, select parser parity,
+and open/closed/nested declarative shadow roots. Build checks cover resolver-backed input
+consumption, metadata refusals, and retained external resources. Browser tamper checks require
+resource-specific integrity diagnostics; matching rehashed bytes must load. Reports record the
+browser user agent and Vite/Rolldown versions.
 
 ## Resolution and authority
 
@@ -206,23 +218,24 @@ configuration, and plugins.
 
 ## Verification
 
-From this package, `deno task test` runs the complete retained `test:unit` base lane: contracts,
-formatters, command construction, local transforms and cleanup. Thirteen named files that execute
-real builds, child configuration/graphs or live dev lifecycles are excluded only from that lane; all
-their assertions remain selectable through proof tasks. Parent test invocations use frozen,
-cache-only resolution without prompts; those flags do not constrain every loader or child.
+Run from this package. Choose the task for the boundary being changed:
 
-`deno task test:proofs` runs the formerly implicit real coverage through `test:entry:process`,
-`test:candidate`, `test:build`, `test:bridge`, `test:dev`, `test:config:process`, `test:graph`,
-`test:loader` and `test:integrity:build`. Linux CI runs it as a separate Vite-only step; module `ci`
-also includes it. A green routine `test` is not a green proof aggregate, full CI or build workflow.
-The existing `test:integrity` and `test:external` tasks remain separately selectable.
+| Command                        | Coverage                                                                                                             |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| `deno task test`               | Unit contracts, formatters, command construction, local transforms, and cleanup. Excludes real-build/process proofs. |
+| `deno task test:proofs`        | Real builds, child startup/configuration, module graphs, loaders, and live dev lifecycles.                           |
+| `deno task test:integrity`     | Written-byte checks, build refusals, and [browser integrity controls](#integrity-checks).                            |
+| `deno task test:dist:pipeline` | Content-pin stability, projection/materialization, pinned serving, and SRI byte matching—not browser enforcement.    |
+| `deno task test:external`      | External-consumer, generated-project, and runtime/browser regression scenarios.                                      |
+| `deno task smoke`              | JSR version preflight, fixture preparation, then `test:external` for published-consumer checks.                      |
 
-The explicit `deno task test:dist:pipeline` lane checks stable content pins despite changed
-documents, projection/materialization, pinned serving and SRI byte matching—not browser enforcement.
-It is outside routine `test` and the former-coverage proof aggregate, but remains required by the
-Dist plan. `deno task smoke` is the separate guarded published-consumer lane, with JSR metadata
-preflight and fixture preparation. Local checks do not establish published-package behavior.
+[deno.json](./deno.json) defines task composition and focused sub-tasks. Linux CI runs `test:proofs`
+separately; package `ci` includes it and `test:external`. The Dist pipeline task is separate from
+both routine tests and `test:proofs`; run it for changes to the distribution contract.
+
+A green unit run is not a green proof aggregate or full CI run. Parent test invocations use frozen,
+cache-only resolution without prompts; those flags do not constrain every loader or child. Local
+checks do not establish published-package behavior.
 
 See the [API documentation](https://jsr.io/@sys/driver-vite/doc) for programmatic entry, service,
 and plugin surfaces, and [JSR's Vite guide](https://jsr.io/docs/with/vite) for registry integration.

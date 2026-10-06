@@ -37,11 +37,6 @@ export async function attestIntegrity(
 
   const rootUrl = new URL(base, 'https://sri.invalid/');
   const htmlUrl = new URL(htmlFile, rootUrl);
-  const moduleUrls = new Set(
-    resources.filter((item) => item.kind === 'module').map((item) =>
-      new URL(item.url, htmlUrl).href
-    ),
-  );
   const references: IntegrityReference[] = [];
   const external: string[] = [];
   for (const item of resources) {
@@ -50,7 +45,6 @@ export async function attestIntegrity(
       external.push(item.url);
       continue;
     }
-    if (item.kind === 'modulepreload' && !moduleUrls.has(url.href)) continue;
     const path = decodeURIComponent(url.pathname.slice(rootUrl.pathname.length));
     const bytes = (await Fs.read(Fs.resolve(outDir, path))).data;
     if (!bytes) throw new Error(`Missing written resource: ${path}`);

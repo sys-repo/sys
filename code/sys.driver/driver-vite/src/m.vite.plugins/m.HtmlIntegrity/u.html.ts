@@ -34,7 +34,6 @@ export function validateIntegrityInputs(
   // even when the output base is /release/ or a CDN URL.
   const resolve: ResolveResource = (url) =>
     integrityResource(url, htmlFile, '/') ?? integrityResource(url, htmlFile, base);
-  const modules = moduleIdentities(references, resolve);
   for (const ref of references) {
     const resource = resolve(ref.url);
     // Consumption is independent of deployment ownership: a resolver can bundle virtual:entry.
@@ -43,7 +42,6 @@ export function validateIntegrityInputs(
       ? (ref.url !== '' && isSourceRequest(ref.url)) || ref.element.childNodes.length > 0
       : ref.kind === 'style' && consumesCss(ref.element, ref.url, isCSSRequest);
     if (!resource && !consumed) continue;
-    if (ref.kind === 'modulepreload' && (!resource || !modules.has(resource.identity))) continue;
     validateCredentials(ref, htmlFile);
     if (attribute(ref.element, 'integrity') !== undefined) {
       throw integrityError(
@@ -63,12 +61,11 @@ export function finalizeIntegrityHtml(
 ): string {
   const references = htmlReferences(html, htmlFile, { kind: 'output' });
   const resolve: ResolveResource = (url) => integrityResource(url, htmlFile, base);
-  const modules = moduleIdentities(references, resolve);
   const source = new MagicString(html);
   const hashes = new Map<string, string>();
   for (const ref of references) {
     const resource = resolve(ref.url);
-    if (!resource || (ref.kind === 'modulepreload' && !modules.has(resource.identity))) continue;
+    if (!resource) continue;
     const { fileName } = resource;
     const output = Object.hasOwn(bundle, fileName) ? bundle[fileName] : undefined;
     if (!output || output.fileName !== fileName) {
@@ -233,14 +230,4 @@ function validateCredentials(ref: Reference, htmlFile: string) {
       { htmlFile, url: ref.url },
     );
   }
-}
-
-function moduleIdentities(references: readonly Reference[], resolve: ResolveResource) {
-  const modules = new Set<string>();
-  for (const ref of references) {
-    if (ref.kind !== 'module') continue;
-    const resource = resolve(ref.url);
-    if (resource) modules.add(resource.identity);
-  }
-  return modules;
 }

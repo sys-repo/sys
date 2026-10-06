@@ -135,8 +135,11 @@ and "Public file" describe the build paths; "Public R2 ↗" identifies their sha
 and links to Cloudflare's public-bucket documentation.
 
 Production builds add [Subresource Integrity (SRI)](https://www.w3.org/TR/2016/REC-SRI-20160623/) to
-HTML-linked JavaScript and CSS. Browsers verify those fetched bytes against hashes in trusted HTML.
-Transitive imports and images are not covered; the seal artwork is not proof of authenticity.
+HTML-linked modules, stylesheets, and dependency modulepreloads. Browsers check those requests
+against hashes in trusted HTML. A preload's hash protects its request, not subsequent imports. Do
+not rely on preload failure to prevent later execution. Images are not covered, and the seal artwork
+is not proof of authenticity. See the
+[driver's coverage limits](../../../driver-vite/README.md#ownership-and-coverage).
 
 A regression test checks that the two PNG files remain byte-identical. Keep editable artwork outside
 publishable inputs. Do not upload either PNG separately or modify generated output after the build

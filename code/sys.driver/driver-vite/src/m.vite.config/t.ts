@@ -48,7 +48,7 @@ export declare namespace ViteConfig {
 
   /** Driver-managed plugins; defaults are defined per flag. */
   export type CommonPlugins = {
-    /** Include the official `deno-vite` plugin. Default: true. */
+    /** Include the driver's Deno-aware module transport. Default: true. */
     deno?: boolean;
 
     /** Include the React plugin. Default: true. */

@@ -17,7 +17,7 @@ export async function commonPlugins(
     const plugins: t.VitePluginOption[] = [];
 
     /**
-     * The official Deno vite-plugin:
+     * Driver-owned Deno transport:
      */
     if (options.deno ?? true) {
       plugins.push(ViteTransport.denoPlugin(wrangle.denoPluginOptions(context)));
