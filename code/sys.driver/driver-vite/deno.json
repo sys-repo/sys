@@ -23,6 +23,7 @@
     "test:dist:pipeline": "deno task test:run --trace-leaks ./src/m.vite/-test.external/-dist.pipeline.ts",
     "test:external": "deno task test:run --trace-leaks ./src/m.vite/-test.external/mod.ts",
     "test:integrity:build": "deno task test:run --trace-leaks ./src/m.vite.plugins/m.HtmlIntegrity/-test/-html-integrity.build.test.ts",
+    "test:integrity:apps": "deno task test:run --trace-leaks ./src/m.vite/-test.external/-html-integrity.apps.ts",
     "test:integrity": "deno task test:run --trace-leaks ./src/m.vite.plugins/-test ./src/m.vite.plugins/m.HtmlIntegrity/-test ./src/m.vite/-test.external/-html-integrity.chromium.ts",
     "perf": "deno run -P=dev ./-scripts/task.perf.ts",
     "smoke": "deno run -P=dev ./-scripts/task.smoke.ts",
