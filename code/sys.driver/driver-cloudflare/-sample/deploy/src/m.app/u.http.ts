@@ -2,8 +2,8 @@ import { Hono } from 'hono';
 import type { t } from './common.ts';
 
 /**
- * Serve the HTML entry point and API, not public assets.
- * The admitted shell exposes only index.html and the diagnostic dist.json.
+ * Serve admitted private files and the API, not public asset routes.
+ * The admitted manifest defines the shell's exact file routes.
  */
 export function createApp({ shell, bundleSize }: t.AppOptions): t.HttpServer.App {
   // Do not decode percent-encoded paths before routing or stripping the mount prefix.

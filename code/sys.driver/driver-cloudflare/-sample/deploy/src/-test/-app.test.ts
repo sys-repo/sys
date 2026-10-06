@@ -1,4 +1,4 @@
-import { describe, expect, it, Time } from '../-test.ts';
+import { describe, expect, Fs, it, Time } from '../-test.ts';
 import { createApp, routesFor } from '../m.app/mod.ts';
 import { appFrom } from '../m.deployment/mod.ts';
 import { fixtureEnv, remoteFixture } from './u.fixture.ts';
@@ -127,6 +127,50 @@ describe('R2 deployment sample: HTTP adapter integration', () => {
         expect(response.headers.has('location')).to.eql(false);
       }
     }
+    expect(f.fetched).to.eql([]);
+  });
+
+  it('admitted private PNG → signed internal GETs and byte/metadata-correct application responses', async () => {
+    const path = 'images/wax-seal.v1.png';
+    const source = await Fs.read(
+      Fs.Path.fromFileUrl(new URL(`../../public/${path}`, import.meta.url)),
+    );
+    if (!source.ok || !source.data) throw new Error('Sample PNG must be readable.');
+    const bytes = source.data;
+    using f = await remoteFixture({ [path]: bytes });
+    const app = await appFrom(f, fixtureEnv);
+    f.fetched.length = 0;
+    for (const method of ['GET', 'HEAD']) {
+      const response = await app.request(`/ui/${path}`, { method });
+      expect(response.status).to.eql(200);
+      expect(response.headers.get('content-type')).to.eql('image/png');
+      expect(response.headers.get('content-length')).to.eql(String(bytes.byteLength));
+      expect(response.headers.get('cache-control')).to.eql('no-store');
+      expect(response.headers.get('x-content-type-options')).to.eql('nosniff');
+      expect(response.headers.has('location')).to.eql(false);
+      expect(new Uint8Array(await response.arrayBuffer())).to.eql(
+        method === 'HEAD' ? new Uint8Array() : bytes,
+      );
+    }
+    expect(f.keys()).to.eql([`sample/ui/${path}`, `sample/ui/${path}`]);
+    for (const req of f.fetched) {
+      expect(req.method).to.eql('GET');
+      expect(new URL(req.url).searchParams.has('X-Amz-Signature')).to.eql(true);
+    }
+    f.fetched.length = 0;
+    // Storage presence alone never grants an application route.
+    f.content.set('images/unselected.png', bytes);
+    for (const url of ['/ui/images/unselected.png', '/ui/pkg/a.fixture.png', `/${path}`]) {
+      for (const method of ['GET', 'HEAD']) {
+        const response = await app.request(url, { method });
+        expect(response.status).to.eql(404);
+        expect(await response.text()).to.eql('');
+        expect(response.headers.has('location')).to.eql(false);
+      }
+    }
+    const refused = await app.request(`/ui/${path}`, { method: 'POST' });
+    expect(refused.status).to.eql(405);
+    expect(refused.headers.get('allow')).to.eql('GET, HEAD');
     expect(f.fetched).to.eql([]);
   });
 

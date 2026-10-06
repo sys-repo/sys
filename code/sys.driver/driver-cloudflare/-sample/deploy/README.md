@@ -4,12 +4,13 @@ One UI build, two delivery paths:
 
 - **Application server:** a thin, Web Standards–based server handles the HTML entry point and `/api`
   at `localhost:8080`.
-- **Public R2:** the browser loads JavaScript, CSS, images, and other static assets directly from
-  the public bucket, never through the application server.
+- **Public R2:** the browser loads JavaScript, CSS, public images, and other public assets directly
+  from the public bucket, never through the application server.
 
-The HTML entry point and its manifest (`dist.json`) come from private R2 through a bounded relay.
-The application server is the trust boundary for private R2 access: R2 credentials and signed URLs
-stay on the server.
+The HTML entry point, its manifest (`dist.json`), and the private image come from private R2 through
+a bounded relay. The application server is the trust boundary for private R2 access: R2 credentials
+and signed URLs stay on the server. Application access is deliberately anonymous; private bucket
+backing is not caller authentication.
 
 ## Setup
 
@@ -83,7 +84,7 @@ Then open:
 - API: <http://localhost:8080/api/hello>
 
 Restart `serve` after publishing a new build. Startup admits the private inventory against its
-recorded content pin; it does not checksum later HTML or manifest responses. `proof:local` checks
+recorded content pin; it does not checksum later payload or manifest responses. `proof:local` checks
 one run against captured local bytes, not continuous delivery integrity.
 
 ## Read the content table
@@ -98,7 +99,8 @@ A content pin binds exact payload paths, checksums, and byte lengths. Root packa
 metadata, and JSON layout do not change it.
 
 **Payload** is the size reported by each manifest, not the size of `dist.json`. **Build size** is
-the original build's payload total, before the split into private and public files. The collapsed
+the original build's payload total, before projection into private and public files. The preserved
+image appears in both inventories, so adding their payload totals counts it twice. The collapsed
 **Manifest document checksums** section contains the full SHA-256 checksums of the received manifest
 bytes, in the same public-first order. A document checksum is not a content pin: it can change while
 the payload remains identical.
@@ -109,30 +111,35 @@ fetched payloads or browser execution. Each fetch can fail without hiding the ot
 The sample rejects old-format `dist.pins.json` records with rebuild guidance; it does not convert
 them or choose replacement pins. Rebuild only outputs you own, and authorize publication separately.
 
-## Same image, two build paths
+## Same image, three delivery examples
 
-The footer compares two byte-identical copies of the transparent 200 × 200 wax seal, each displayed
-at 64 × 64 CSS pixels. The artwork and revision stay the same; only Vite's build treatment differs.
+The footer shows the same transparent 200 × 200 wax seal three times, each at 64 × 64 CSS pixels.
+The artwork and revision stay the same; captions distinguish build naming from delivery origin.
 
-| Example            | Source                                                         | Public output            |
-| ------------------ | -------------------------------------------------------------- | ------------------------ |
-| Vite-managed asset | [src/ui/images/wax-seal.v1.png](src/ui/images/wax-seal.v1.png) | `pkg/a.[hash].png`       |
-| Public file        | [public/images/wax-seal.v1.png](public/images/wax-seal.v1.png) | `images/wax-seal.v1.png` |
+| Example            | Output                   | Delivery                 |
+| ------------------ | ------------------------ | ------------------------ |
+| Vite-managed asset | `pkg/a.[hash].png`       | Direct public R2         |
+| Public file        | `images/wax-seal.v1.png` | Direct public R2         |
+| Private file       | `images/wax-seal.v1.png` | Application-origin relay |
 
-Use source-managed assets when Vite should name the output and update its references. Use `public/`
-when a filename must be preserved. Both examples enter `dist.public`; source location does not
-determine which server delivers the image.
+Use [source-managed assets](src/ui/images/wax-seal.v1.png) when Vite should name the output and
+update its references. Use [public/](public/images/wax-seal.v1.png) when a filename must be
+preserved. Both built PNGs enter `dist.public`; the preserved PNG also enters `dist.private`, using
+the existing projection and publication flow. No third authored image or separate upload is needed.
 
-The native `<img>` elements live outside React's root. The managed reference is
-`./images/wax-seal.v1.png?no-inline`: Vite emits a fingerprinted PNG rather than embedding its bytes
-in private HTML. The public reference is `/images/wax-seal.v1.png`: Vite copies the file and
-preserves its name. Vite rewrites both references using its resolved `base`, which this sample sets
-from `publicAssetBase`. No runtime URL assembly or HTML environment substitution is needed.
+The native `<img>` elements live outside React's root, independently of the entry module. The
+managed reference is `./images/wax-seal.v1.png?no-inline`: Vite emits a fingerprinted PNG rather
+than embedding its bytes in private HTML. The public reference is `/images/wax-seal.v1.png`. Vite
+rewrites both using its resolved `base`, which this sample sets from `publicAssetBase`.
 
-Both images load directly from public R2, independently of the entry module. Neither falls back to
-the application server. Each caption separates build treatment from delivery: "Vite-managed asset"
-and "Public file" describe the build paths; "Public R2 ↗" identifies their shared delivery origin
-and links to Cloudflare's public-bucket documentation.
+The third image uses `vite-ignore` with `src="/ui/images/wax-seal.v1.png"` to preserve the
+application-origin URL. The existing manifest-derived relay serves the exact admitted private PNG
+using a server-side presigned GET; the browser receives bytes, not a signed URL. Unknown image paths
+remain refused. The public images never fall back to the relay. No runtime URL assembly or
+request-time HTML rewriting is needed. The private filename label links directly to
+`/ui/images/wax-seal.v1.png`; both public filename labels stay unlinked. The private image link and
+three Cloudflare documentation links use native `target="_blank"` and `rel="noopener noreferrer"`
+attributes.
 
 Production builds add [Subresource Integrity (SRI)](https://www.w3.org/TR/2016/REC-SRI-20160623/) to
 HTML-linked modules, stylesheets, and dependency modulepreloads. Browsers check those requests
@@ -150,8 +157,9 @@ Versioned and fingerprinted filenames do not prevent overwrites, set cache heade
 assets. Inspect the response headers when checking delivery. Push still removes objects absent from
 the selected inventory.
 
-Direct delivery avoids application-server egress fees for these images. Storage and operation
-charges can still apply. The `r2.dev` URL is for this demo, not a production-domain setup.
+Direct public delivery avoids application-server egress fees for the first two images. The private
+image consumes application-server bandwidth. Storage and operation charges can still apply. The
+`r2.dev` URL is for this demo, not a production-domain setup.
 
 ## Clean local outputs
 
@@ -184,9 +192,9 @@ deno task proof:local
 ```
 
 The check verifies the private distribution against its recorded content pin, then compares served
-HTML and manifest bytes with captured local files. The initial manifest checksum must still match at
-the final local recheck: replacing the document fails the check even if its content pin is
-unchanged. Reports record `pin` and `manifestChecksum` separately. R2 is read, not changed.
+private payload and manifest bytes with captured local files. The initial manifest checksum must
+still match at the final local recheck: replacing the document fails the check even if its content
+pin is unchanged. Reports record `pin` and `manifestChecksum` separately. R2 is read, not changed.
 
 ### Browser delivery
 
@@ -203,14 +211,15 @@ Start `serve` again, then check one cold load:
    remain readable.
 3. Confirm two separate PNG requests succeed under `publicAssetBase`: the managed `pkg/a.[hash].png`
    and the preserved `images/wax-seal.v1.png`. Both should have `Content-Type: image/png`; record
-   their actual cache headers. Neither image may be a data URL or served by the application origin.
-4. Check both 64 × 64 images and their labels side by side at a wide viewport and wrapped at a
-   narrow viewport. Tab to each "Public R2 ↗" delivery link; confirm visible focus and the
-   documentation target.
-5. Temporarily block each PNG request independently and reload. The other image, UI, and API should
+   their actual cache headers. Confirm the third request succeeds at the application origin as
+   `/ui/images/wax-seal.v1.png`, with PNG MIME, `no-store`, and no redirect to a signed URL. No
+   image may be a data URL, and neither public image may be served by the application origin.
+4. Check all three 64 × 64 images and their labels side by side at a wide viewport and wrapped at a
+   narrow viewport. Tab to each delivery link; confirm visible focus and its documentation target.
+5. Temporarily block each PNG request independently and reload. The other images, UI, and API should
    still work, with the blocked image's alternative text and caption remaining meaningful. Remove
    each block after checking it.
-6. Temporarily block only the public entry module and reload. The HTML notice and both independently
+6. Temporarily block only the public entry module and reload. The HTML notice and all independently
    loaded images should remain visible, but the full UI should not load. Remove the block when
    finished.
 7. Temporarily block only the public `dist.json` request and reload. Its row should report a public

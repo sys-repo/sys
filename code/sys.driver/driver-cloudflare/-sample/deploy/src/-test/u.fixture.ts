@@ -1,7 +1,7 @@
 import { Hash } from '@sys/crypto/hash';
 import { Ignore } from '@sys/std/ignore';
 import { R2 } from '@sys/driver-cloudflare/r2';
-import { Json, Pkg, type t, WebFixture } from '../-test.ts';
+import { Json, Obj, Pkg, type t, WebFixture } from '../-test.ts';
 
 /** Structurally valid inputs; these pins do not refer to local or remote output. */
 export function fixtureInputs(): t.AppInputs {
@@ -51,10 +51,10 @@ export function fixtureConfig() {
 export const fixtureEnv: t.EnvReader = { get: () => 'fixture-only-credential' };
 
 /** Manifest and storage bytes owned entirely by the fixture. */
-export async function remoteFixture() {
+export async function remoteFixture(payloads: Record<string, Uint8Array> = {}) {
   const encoder = new TextEncoder();
   const html = encoder.encode('<h1>fixture</h1>');
-  const content = new Map<string, Uint8Array>([['index.html', html]]);
+  const content = new Map<string, Uint8Array>([['index.html', html], ...Obj.entries(payloads)]);
   const parts = Object.fromEntries([...content].map(([path, bytes]) => [
     path,
     `${Hash.sha256(bytes)}:size=${bytes.byteLength}`,
@@ -64,7 +64,10 @@ export async function remoteFixture() {
     pkg: { name: '@test/r2', version: '0.0.0' },
     build: {
       time: 1,
-      size: { total: html.byteLength, pkg: 0 },
+      size: {
+        total: [...content.values()].reduce((sum, bytes) => sum + bytes.byteLength, 0),
+        pkg: 0,
+      },
       builder: '@test/builder@1.0.0',
       runtime: 'fixture',
       hash: {

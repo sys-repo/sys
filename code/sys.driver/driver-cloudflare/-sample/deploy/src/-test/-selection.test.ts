@@ -67,6 +67,29 @@ describe('R2 deployment sample: filename policy', () => {
     ]);
   });
 
+  it('preserved seal → shared payload, with only that exact image permitted privately', () => {
+    const image = 'images/wax-seal.v1.png';
+    expect(partitionBuild(inventory(['index.html', 'app.js', 'app.css', image]))).to.eql({
+      private: [image, 'index.html'],
+      public: ['app.css', 'app.js', image],
+    });
+    expect(selectionFiles(inventory(['index.html', image]))).to.eql([
+      'dist.json',
+      image,
+      'index.html',
+    ]);
+    const invalid = [
+      [image],
+      ['index.html', 'images/other.png'],
+      ['index.html', image, 'pkg/a.fixture.png'],
+    ];
+    for (const files of invalid) {
+      expect(() => selectionFiles(inventory(files))).to.throw(
+        'Invalid sample private manifest filenames.',
+      );
+    }
+  });
+
   it('missing required files or wrong audience → filename-policy refusal', () => {
     const cases = [
       ['private', []],

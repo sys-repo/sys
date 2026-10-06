@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 
-/** The private HTML shell or public frontend assets. */
+/** Private application files or public frontend assets. */
 export type Audience = 'private' | 'public';
 export type Target = { readonly bucket: string; readonly prefix: string };
 export type CredentialNames = { readonly accessKeyId: string; readonly secretAccessKey: string };

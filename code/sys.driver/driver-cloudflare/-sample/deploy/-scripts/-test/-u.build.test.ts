@@ -57,7 +57,7 @@ describe('R2 deployment sample: one-build publication projections', () => {
     expect((await readInputs(f.dir.absolute)).buildRecord).to.eql(buildRecord);
   });
 
-  it('two wax seal paths → identical public bytes, never private payloads', async () => {
+  it('two wax seal paths → identical public bytes and a shared preserved private image', async () => {
     const publicPath = 'images/wax-seal.v1.png';
     const png = await Fs.read(Fs.join(ROOT, 'public', publicPath));
     const managed = await Fs.read(Fs.join(ROOT, 'src/ui', publicPath));
@@ -78,14 +78,15 @@ describe('R2 deployment sample: one-build publication projections', () => {
       [managedPath]: managed.data,
     });
     const selected = await selectPublication(buildRecord.selection, f.dir.absolute);
-    expect(selected.private).to.eql(['dist.json', 'index.html']);
+    expect(selected.private).to.eql(['dist.json', publicPath, 'index.html']);
     expect(selected.public).to.eql(['app.css', 'app.js', 'dist.json', publicPath, managedPath]);
     for (const path of [publicPath, managedPath]) {
       const published = await Fs.read(f.dir.join('dist.public', path));
       expect(published.ok).to.eql(true);
       expect(published.data).to.eql(png.data);
-      expect(await Fs.exists(f.dir.join('dist.private', path))).to.eql(false);
     }
+    expect((await Fs.read(f.dir.join('dist.private', publicPath))).data).to.eql(png.data);
+    expect(await Fs.exists(f.dir.join('dist.private', managedPath))).to.eql(false);
   });
 
   it('integrity-bearing private HTML → unchanged public JS/CSS bytes and verified projections', async () => {

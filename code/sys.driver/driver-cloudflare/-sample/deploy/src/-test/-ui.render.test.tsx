@@ -125,7 +125,10 @@ describe('R2 deployment sample: UI rendering', () => {
         'Application server: HTML + API · Public R2: assets',
       );
       expect(res.container.querySelector('p')?.textContent).to.eql(
-        'A thin, Web Standards–based application server handles the HTML entry point and /api at the application origin (sample.test). JavaScript, CSS, images, and other static assets load directly from public R2 ↗, avoiding application-server egress for those assets. Browsers verify HTML-linked scripts and styles using Subresource Integrity (SRI) ↗.',
+        'A thin, Web Standards–based application server handles the HTML entry point and /api at the application origin (sample.test). JavaScript, CSS, public images, and other public assets load directly from public R2 ↗, avoiding application-server egress for those assets. Browsers verify HTML-linked scripts and styles using Subresource Integrity (SRI) ↗.',
+      );
+      expect(res.container.querySelector('main > p:nth-of-type(2)')?.textContent).to.eql(
+        'The HTML entry point (index.html), its manifest (dist.json), and the private image below are served from the application origin through a bounded relay to private R2 ↗. The application server is the trust boundary for private R2 access. It fetches files using short-lived presigned GET URLs ↗; the browser receives bytes, not signed URLs or R2 credentials. This sample allows anonymous access to these files.',
       );
       const sriDocs = res.container.querySelector(`a[href="${SRI_DOCS}"]`);
       expect(sriDocs?.textContent).to.eql('Subresource Integrity (SRI) ↗');
@@ -301,7 +304,7 @@ describe('R2 deployment sample: UI rendering', () => {
     });
     try {
       expect(res.container.querySelector('p')?.textContent).to.include(
-        'at the application origin. JavaScript, CSS, images, and other static assets',
+        'at the application origin. JavaScript, CSS, public images, and other public assets',
       );
       expect(res.container.querySelector(`a[href="${SRI_DOCS}"]`)?.textContent).to.eql(
         'Subresource Integrity (SRI) ↗',

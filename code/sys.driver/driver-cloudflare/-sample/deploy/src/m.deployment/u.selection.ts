@@ -3,6 +3,9 @@ import { Fs, Is, Obj, Pkg, type t } from './common.ts';
 /** Sample-owned build record, outside both distribution roots. */
 export const BUILD_RECORD_FILENAME = 'dist.pins.json';
 
+/** One preserved image shared across both delivery paths. */
+const PRIVATE_IMAGE = 'images/wax-seal.v1.png';
+
 /** Response size, deadline, and concurrent-request limits. */
 export const READ_LIMITS = Object.freeze({ maxBytes: 1_048_576, timeout: 5_000, maxConcurrent: 4 });
 /** Verification limits for each distribution. */
@@ -84,11 +87,11 @@ export function snapshotInputs(config: unknown, buildRecord: unknown): t.AppInpu
   }
 }
 
-/** Put `index.html` in the private distribution and frontend assets in the public one. */
+/** Keep frontend assets public; also select the preserved seal beside the private HTML. */
 export function partitionBuild(content: t.DistContent) {
   const files = selectionFiles(content, 'build');
   return {
-    private: ['index.html'],
+    private: files.filter((path) => path === 'index.html' || path === PRIVATE_IMAGE),
     public: files.filter((path) => path !== 'dist.json' && path !== 'index.html'),
   };
 }
@@ -101,7 +104,8 @@ export function selectionFiles(
   const payloads = Obj.keys(content.parts).map(String).sort();
   const valid = payloads.every(isPath) && !payloads.includes('dist.json') &&
     (role === 'private'
-      ? payloads.length === 1 && payloads[0] === 'index.html'
+      ? payloads.includes('index.html') &&
+        payloads.every((file) => file === 'index.html' || file === PRIVATE_IMAGE)
       : payloads.every((file) =>
         (role === 'build' && file === 'index.html') || isPublicAsset(file)
       ) && (role === 'public' || payloads.includes('index.html')) &&

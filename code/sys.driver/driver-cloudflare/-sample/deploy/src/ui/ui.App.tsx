@@ -54,8 +54,8 @@ export function App(
       <p>
         A thin, Web Standards–based application server handles the HTML entry point and{' '}
         <a href='/api/hello'>/api</a> at the application origin
-        {renderOrigin(origin)}. JavaScript, CSS, images, and other static assets load directly from
-        {' '}
+        {renderOrigin(origin)}. JavaScript, CSS, public images, and other public assets load
+        directly from{' '}
         <a href='https://developers.cloudflare.com/r2/buckets/public-buckets/'>public R2 ↗</a>,
         avoiding application-server egress for those assets. Browsers verify HTML-linked scripts and
         styles using{' '}
@@ -66,14 +66,16 @@ export function App(
       <p>
         The HTML entry point (<a href='/ui/index.html'>
           <code>index.html</code>
-        </a>) and its manifest (<a href={manifestUrls.private}>
+        </a>), its manifest (<a href={manifestUrls.private}>
           <code>dist.json</code>
-        </a>) are served from the application origin through a bounded relay to{' '}
+        </a>), and the private image below are served from the application origin through a bounded
+        relay to{' '}
         <a href='https://developers.cloudflare.com/r2/api/tokens/'>private R2 ↗</a>. The application
         server is the trust boundary for private R2 access. It fetches files using{' '}
         <a href='https://developers.cloudflare.com/r2/api/s3/presigned-urls/'>
           short-lived presigned GET URLs ↗
-        </a>; the browser receives bytes, not signed URLs or R2 credentials.
+        </a>; the browser receives bytes, not signed URLs or R2 credentials. This sample allows
+        anonymous access to these files.
       </p>
       <h2>Same-origin fetch</h2>
       <p aria-live='polite'>
