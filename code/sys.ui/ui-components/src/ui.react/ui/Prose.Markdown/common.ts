@@ -1,6 +1,8 @@
 import { Pkg, pkg, type t } from '../common.ts';
 
 export * from '../common.ts';
+// Keep parsing/frontmatter out of the shared runtime barrel.
+export { Markdown } from '@sys/markdown';
 
 type P = t.ProseMarkdown.Props;
 
