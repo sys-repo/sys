@@ -1,6 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { pkg } from '../common.ts';
+import { pkg } from '../pkg.ts';
 
 /**
  * Service Worker:
