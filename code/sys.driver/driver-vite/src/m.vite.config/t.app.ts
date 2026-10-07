@@ -19,7 +19,10 @@ export type Options = {
    */
   filter?: t.WorkspaceFilter;
 
-  /** Place a named module in its own bundle. */
+  /**
+   * Select declared module targets for named chunks; see `ViteConfig.Chunks.Args.chunk`.
+   * Backend dependency grouping can affect loading/evaluation across app and worker entries.
+   */
   chunks?: t.ViteConfig.Chunks;
 
   /**

@@ -5,6 +5,7 @@ import { DisposeProtocolCompatPlugin } from '../../m.vite.plugins/m.DisposeProto
 import { HtmlIntegrity } from '../../m.vite.plugins/m.HtmlIntegrity/mod.ts';
 import { OptimizeImportsPlugin } from '../../m.vite.plugins/m.OptimizeImports/mod.ts';
 import { deriveWorkspacePackageRules } from '../../m.vite.plugins/m.OptimizeImports/u.derive.ts';
+import { localPathFromDenoSpecifier } from '../../m.vite.transport/u/u.specifier.ts';
 import { oxcPreflightPlugin } from './u.oxcPreflight.ts';
 import { asArray, DenoFile, Fs, Is, Path, type t } from '../common.ts';
 import { createNpmPrewarm, createSpecifierRewrite } from './u.app.specifierRewrite.ts';
@@ -87,7 +88,7 @@ export const app: t.ViteConfig.Lib['app'] = async (options = {}) => {
   const format = 'es';
   const output: t.Rollup.OutputOptions = {
     format,
-    manualChunks: wrangle.manualChunks(manualChunks),
+    manualChunks: await wrangle.manualChunks(manualChunks, ws?.aliases),
     chunkFileNames: 'pkg/m.[hash].js', //     |←  m.<hash> == "code/chunk" (module)
     assetFileNames: 'pkg/a.[hash].[ext]', //  |←  a.<hash> == "asset"
     entryFileNames(chunkInfo) {
@@ -410,24 +411,52 @@ const wrangle = {
     return path ? Path.resolve(path) : '';
   },
 
-  manualChunks(chunks: Record<string, string[]>) {
-    const entries = Object.entries(chunks);
-    if (entries.length === 0) return undefined;
+  async manualChunks(
+    chunks: Record<string, string[]>,
+    workspaceAliases: readonly t.ViteAlias[] = [],
+  ) {
+    const declarations = Object.entries(chunks);
+    if (declarations.length === 0) return undefined;
+
+    const wanted = new Set(Object.values(chunks).flat().map(wrangle.normalizeModuleId));
+    const workspaceTargets = new Map<string, readonly string[]>();
+    for (const alias of workspaceAliases) {
+      if (!Is.str(alias.find)) continue;
+      const specifier = wrangle.normalizeModuleId(alias.find);
+      if (!wanted.has(specifier) || workspaceTargets.has(specifier)) continue;
+      const logical = wrangle.normalizeModuleId(alias.replacement);
+      const targets = [logical];
+      try {
+        // Vite defaults to realpath IDs; transport can retain the logical alias path.
+        targets.push(wrangle.normalizeModuleId(await Fs.realPath(alias.replacement)));
+      } catch (error) {
+        // Unimported/missing exports must not turn chunk declarations into eager imports.
+        if (!Is.error(error) || error.name !== 'NotFound') throw error;
+      }
+      workspaceTargets.set(specifier, targets);
+    }
+
+    const entries = declarations.map(([alias, modules]) => ({
+      alias,
+      modules: modules.map((moduleName) => {
+        const specifier = wrangle.normalizeModuleId(moduleName);
+        return { specifier, paths: workspaceTargets.get(specifier) };
+      }),
+    }));
 
     return ((id: string) => {
       const resolved = wrangle.normalizeModuleId(id);
-      for (const [alias, modules] of entries) {
-        if (modules.some((moduleName) => wrangle.matchesManualChunk(resolved, moduleName))) {
-          return alias;
+      const local = localPathFromDenoSpecifier(resolved);
+      const workspaceId = local ? wrangle.normalizeModuleId(local) : resolved;
+      for (const { alias, modules } of entries) {
+        for (const { specifier, paths } of modules) {
+          if (resolved === specifier) return alias;
+          if (resolved.includes(`/node_modules/${specifier}/`)) return alias;
+          if (paths?.includes(workspaceId)) return alias;
         }
       }
       return undefined;
     }) as t.Rollup.OutputOptions['manualChunks'];
-  },
-
-  matchesManualChunk(id: string, moduleName: string) {
-    const target = wrangle.normalizeModuleId(moduleName);
-    return id === target || id.includes(`/node_modules/${target}/`);
   },
 
   normalizeModuleId(value: string) {

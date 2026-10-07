@@ -1,3 +1,4 @@
+import './-build.workspace-chunks.ts';
 import { c, describe, expect, Fs, it, Json, pkg, SAMPLE, type t, Testing } from '../../-test.ts';
 import { Vite } from '../mod.ts';
 

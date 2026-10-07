@@ -1,4 +1,27 @@
-import { Path } from '../common.ts';
+import { Path, type t } from '../common.ts';
+
+const LOCAL_LOADERS: readonly t.DenoLoader[] = ['JSX', 'JavaScript', 'Json', 'TSX', 'TypeScript'];
+
+/**
+ * Admit a local, unqueried transport identity for exact workspace-target comparison.
+ * Remote requests can carry local cache paths: those are not workspace identities.
+ * Validate before parsing; the general transport parser assumes a trusted producer.
+ */
+export function localPathFromDenoSpecifier(value: string): string | undefined {
+  const spec = unwrapViteId(value);
+  if (!spec.startsWith('\0deno::')) return;
+  const fields = spec.split('::');
+  if (fields.length !== 4) return;
+  const [, loader, request, resolved] = fields;
+  if (!LOCAL_LOADERS.some((item) => item === loader)) return;
+  if (!request || !resolved || /[?#\0]/.test(request + resolved)) return;
+  if (!Path.Is.absolute(resolved)) return;
+
+  const hasScheme = /^[a-z][a-z\d+.-]*:/i.test(request);
+  const isLocalFileUrl = /^file:\/\/(?:\/|localhost\/)/i.test(request);
+  if (hasScheme && !Path.Is.absolute(request) && !isLocalFileUrl) return;
+  return Path.normalize(resolved);
+}
 
 export function isDenoSpecifier(str: string) {
   return str.startsWith('\0deno');

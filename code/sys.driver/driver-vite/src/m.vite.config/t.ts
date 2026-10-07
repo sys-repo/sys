@@ -123,7 +123,19 @@ export declare namespace ViteConfig {
   export namespace Chunks {
     /** Arguments passed to the chunk method. */
     export type Args = {
-      /** Define a chunk. */
+      /**
+       * Place exact module targets in a named chunk.
+       * Active workspace aliases resolve roots/subpaths to exact export files, including their
+       * realpaths and supported local Deno IDs; they do not select an entire package/directory.
+       * Filtered/disabled workspace aliases add no resolved-target matches. Declarations select
+       * modules already in the graph, not new imports. Existing exact-ID/node_modules matching
+       * remains available. First match follows object-key order; reusing an alias replaces its list.
+       *
+       * The backend owns dependency placement and may merge shared dependencies across entries.
+       * A named chunk is not package-exclusive or a promise of a separate download/lazy boundary:
+       * grouping can change loading and side-effect evaluation timing. Verify the emitted graph
+       * and runtime behavior for the app, service worker, and module workers.
+       */
       chunk(alias: string, moduleName?: string | string[]): Args;
     };
   }

@@ -2,6 +2,7 @@ import { c, DenoFile, describe, expect, Fs, Is, it, Json, Path, type t } from '.
 import { ViteConfig } from '../mod.ts';
 import { HtmlIntegrity } from '../../m.vite.plugins/m.HtmlIntegrity/mod.ts';
 import { BROWSER_SYNTAX_TARGETS } from '../u/u.browserSyntaxTargets.ts';
+import { adaptLoaderResolution } from '../../m.vite.transport/u.resolve/u.loaderAdapter.ts';
 
 describe('Config.Build', () => {
   const { brightCyan: cyan } = c;
@@ -366,26 +367,201 @@ describe('Config.Build', () => {
       }
     });
 
-    it('adapts chunk aliases to a manualChunks function for resolved node_modules ids', async () => {
+    it('adapts chunk aliases to a first-match manualChunks function', async () => {
       const config = await ViteConfig.app({
         chunks(e) {
-          e.chunk('react', 'react');
-          e.chunk('react.dom', 'react-dom');
+          e.chunk('react', ['react', '/exact/id?raw']);
+          e.chunk('react.dom', ['react', 'react-dom']);
+          e.chunk('replaced', 'lodash');
+          e.chunk('replaced', 'yaml');
         },
       });
 
       const manualChunks = config.build?.rollupOptions?.output as t.Rollup.OutputOptions;
       const chunk = manualChunks.manualChunks as undefined | ((id: string) => string | undefined);
 
-      expect(typeof chunk).to.eql('function');
-      expect(chunk?.('/tmp/node_modules/.deno/react@19.2.5/node_modules/react/index.js')).to.eql(
-        'react',
-      );
-      expect(chunk?.('/tmp/node_modules/.deno/react-dom@19.2.5/node_modules/react-dom/client.js'))
-        .to.eql('react.dom');
-      expect(chunk?.('/tmp/node_modules/.deno/lodash@4.17.21/node_modules/lodash/map.js')).to.eql(
-        undefined,
-      );
+      const react = '/tmp/node_modules/.deno/react@19.2.5/node_modules/react/index.js';
+      const reactDom = '/tmp/node_modules/.deno/react-dom@19.2.5/node_modules/react-dom/client.js';
+      expect(Is.func(chunk)).to.eql(true);
+      expect(chunk?.(react)).to.eql('react');
+      expect(chunk?.(reactDom)).to.eql('react.dom');
+      expect(chunk?.('/exact/id?raw')).to.eql('react');
+      expect(chunk?.('/exact/id')).to.eql(undefined);
+      expect(chunk?.('/tmp/node_modules/lodash/map.js')).to.eql(undefined);
+      expect(chunk?.('/tmp/node_modules/yaml/browser.js')).to.eql('replaced');
+    });
+
+    it('leaves manualChunks undefined when no chunks are declared', async () => {
+      const config = await ViteConfig.app({ chunks() {} });
+      const output = config.build?.rollupOptions?.output as t.Rollup.OutputOptions;
+      expect(output.manualChunks).to.eql(undefined);
+    });
+
+    it('workspace chunks → symlink realpaths and transport-produced local identities', async () => {
+      const fs = await fixture.aliasWorld('ViteConfig.app.chunks.identity.', { symlink: true });
+      try {
+        const config = await ViteConfig.app({
+          paths: ViteConfig.paths({ cwd: fs.appDir }),
+          workspace: fs.workspaceFile,
+          plugins: { optimizeImports: false },
+          chunks(e) {
+            e.chunk('root', '@tmp/lib');
+            e.chunk('mod', '@tmp/lib/mod');
+          },
+        });
+        const output = config.build?.rollupOptions?.output as t.Rollup.OutputOptions;
+        const chunk = output.manualChunks as (id: string) => string | undefined;
+        const logical = Path.join(fs.libDir, 'src', 'mod.ts');
+        const physical = await Fs.realPath(logical);
+        expect(logical).not.to.eql(physical);
+        expect(chunk(logical)).to.eql('mod');
+        expect(chunk(physical)).to.eql('mod');
+        expect(chunk(physical.replaceAll('/', '\\'))).to.eql('mod');
+
+        for (const target of [logical, physical]) {
+          const fileUrl = Path.toFileUrl(target).href;
+          const requests = ['@tmp/lib/mod', '../lib/src/mod.ts', target, fileUrl];
+          for (const request of requests) {
+            const id = adaptLoaderResolution(request, fileUrl, new Map(), fs.appDir);
+            if (!Is.str(id)) throw new Error('Expected a local transport identity');
+            expect(id.startsWith('\0deno::')).to.eql(true);
+            expect(chunk(id), request).to.eql('mod');
+            expect(chunk(`/@id/${id.replace('\0', '__x00__')}`), request).to.eql('mod');
+          }
+        }
+        expect(chunk(`${physical}?raw`)).to.eql(undefined);
+        expect(chunk(Path.join(Path.dirname(physical), 'private.ts'))).to.eql(undefined);
+      } finally {
+        await Fs.remove(fs.root);
+      }
+    });
+
+    it('workspace chunks → malformed, remote and queried wrappers do not match or throw', async () => {
+      const fs = await fixture.aliasWorld('ViteConfig.app.chunks.admission.', {});
+      try {
+        const config = await ViteConfig.app({
+          paths: ViteConfig.paths({ cwd: fs.appDir }),
+          workspace: fs.workspaceFile,
+          plugins: { optimizeImports: false },
+          chunks: (e) => e.chunk('mod', '@tmp/lib/mod'),
+        });
+        const output = config.build?.rollupOptions?.output as t.Rollup.OutputOptions;
+        const chunk = output.manualChunks as (id: string) => string | undefined;
+        const target = Path.join(fs.libDir, 'src', 'mod.ts');
+        const invalid = [
+          '\0deno',
+          '\0deno::',
+          '\0deno::TypeScript',
+          '\0deno::TypeScript::@tmp/lib/mod',
+          `\0deno::TypeScript::@tmp/lib/mod::${target}::extra`,
+          `\0deno::Unknown::@tmp/lib/mod::${target}`,
+          `\0deno::::@tmp/lib/mod::${target}`,
+          `\0deno::TypeScript::::${target}`,
+          '\0deno::TypeScript::@tmp/lib/mod::',
+          `\0other::TypeScript::@tmp/lib/mod::${target}`,
+          `\0deno::TypeScript::https://example.com/mod.ts::${target}`,
+          `\0deno::TypeScript::https:/example.com/mod.ts::${target}`,
+          `\0deno::TypeScript::jsr:@tmp/lib/mod::${target}`,
+          `\0deno::TypeScript::npm:@tmp/lib/mod::${target}`,
+          '\0deno::TypeScript::@tmp/lib/mod::https://example.com/mod.ts',
+          `\0deno::TypeScript::@tmp/lib/mod?raw::${target}`,
+          `\0deno::TypeScript::@tmp/lib/mod::${target}?raw`,
+          `\0deno::TypeScript::@tmp/lib/mod::${target}#fragment`,
+          `\0deno::TypeScript::@tmp/lib/mod::${target}?/../mod.ts`,
+        ];
+        for (const id of invalid) {
+          const label = Json.stringify(id);
+          expect(chunk(id), label).to.eql(undefined);
+          expect(chunk(`/@id/${id.replace('\0', '__x00__')}`), label).to.eql(undefined);
+        }
+      } finally {
+        await Fs.remove(fs.root);
+      }
+    });
+
+    it('workspace chunks → preserve integer-key precedence, replacement and absent targets', async () => {
+      const fs = await fixture.aliasWorld('ViteConfig.app.chunks.precedence.', {});
+      try {
+        const config = await ViteConfig.app({
+          paths: ViteConfig.paths({ cwd: fs.appDir }),
+          workspace: fs.workspaceFile,
+          plugins: { optimizeImports: false },
+          chunks(e) {
+            e.chunk('later', '@tmp/lib/mod');
+            e.chunk('10', '@tmp/lib/mod');
+            e.chunk('2', '@tmp/lib/mod');
+            e.chunk('root', '@tmp/lib');
+            e.chunk('root', '@tmp/absent');
+          },
+        });
+        const output = config.build?.rollupOptions?.output as t.Rollup.OutputOptions;
+        const chunk = output.manualChunks as (id: string) => string | undefined;
+        expect(chunk(Path.join(fs.libDir, 'src', 'mod.ts'))).to.eql('2');
+        expect(chunk(Path.join(fs.libDir, 'src', 'index.ts'))).to.eql(undefined);
+        expect(chunk(Path.join(fs.libDir, 'src', 'mod.tsx'))).to.eql(undefined);
+      } finally {
+        await Fs.remove(fs.root);
+      }
+    });
+
+    it('resolves exact workspace export targets without capturing sibling exports', async () => {
+      const fs = await fixture.aliasWorld('ViteConfig.app.chunks.workspace.', {});
+      try {
+        const config = await ViteConfig.app({
+          paths: ViteConfig.paths({ cwd: fs.appDir }),
+          workspace: fs.workspaceFile,
+          plugins: { optimizeImports: false },
+          chunks(e) {
+            e.chunk('lib.root', '@tmp/lib');
+            e.chunk('lib.mod', '@tmp/lib/mod');
+          },
+        });
+        const output = config.build?.rollupOptions?.output as t.Rollup.OutputOptions;
+        const chunk = output.manualChunks as undefined | ((id: string) => string | undefined);
+        const root = Path.join(fs.libDir, 'src', 'index.ts');
+        const mod = Path.join(fs.libDir, 'src', 'mod.ts');
+
+        expect(chunk?.(root)).to.eql('lib.root');
+        expect(chunk?.(mod)).to.eql('lib.mod');
+        expect(chunk?.(`\0deno::TypeScript::@tmp/lib::${root}`)).to.eql('lib.root');
+        expect(chunk?.(`/@id/__x00__deno::TypeScript::@tmp/lib/mod::${mod}`)).to.eql('lib.mod');
+        expect(chunk?.(Path.join(fs.libDir, 'src', 'private.ts'))).to.eql(undefined);
+        expect(chunk?.(`${mod}?raw`)).to.eql(undefined);
+        // Resolution is authoritative, not the request's original spelling.
+        expect(chunk?.(`\0deno::TypeScript::@tmp/lib/mod::${root}`)).to.eql('lib.root');
+        const remote = '\0deno::TypeScript::@tmp/lib/mod::https://example.com/mod.ts';
+        expect(chunk?.(remote)).to.eql(undefined);
+        expect(chunk?.('\0deno-unrelated')).to.eql(undefined);
+
+        const filtered = await ViteConfig.app({
+          paths: ViteConfig.paths({ cwd: fs.appDir }),
+          workspace: fs.workspaceFile,
+          filter: (e) => e.subpath.includes('/mod'),
+          plugins: { optimizeImports: false },
+          chunks(e) {
+            e.chunk('lib.root', '@tmp/lib');
+            e.chunk('lib.mod', '@tmp/lib/mod');
+          },
+        });
+        const filteredOutput = filtered.build?.rollupOptions?.output as t.Rollup.OutputOptions;
+        const filteredChunk = filteredOutput.manualChunks as (id: string) => string | undefined;
+        expect(filteredChunk(root)).to.eql(undefined);
+        expect(filteredChunk(mod)).to.eql('lib.mod');
+
+        const disabled = await ViteConfig.app({
+          paths: ViteConfig.paths({ cwd: fs.appDir }),
+          workspace: false,
+          plugins: { optimizeImports: false },
+          chunks(e) {
+            e.chunk('lib.root', '@tmp/lib');
+          },
+        });
+        const disabledOutput = disabled.build?.rollupOptions?.output as t.Rollup.OutputOptions;
+        const disabledChunk = disabledOutput.manualChunks as (id: string) => string | undefined;
+        expect(disabledChunk(root)).to.eql(undefined);
+      } finally {
+        await Fs.remove(fs.root);
+      }
     });
   });
 });
@@ -393,7 +569,7 @@ describe('Config.Build', () => {
 const fixture = {
   async aliasWorld(
     prefix: string,
-    options: { direct?: boolean; transitive?: boolean },
+    options: { direct?: boolean; transitive?: boolean; symlink?: boolean },
   ) {
     const fs = await Fs.makeTempDir({ prefix });
     const root = await Fs.realPath(fs.absolute);
@@ -414,7 +590,9 @@ const fixture = {
     });
 
     await fixture.workspaceMember(appDir, '@tmp/app');
-    await fixture.workspaceMember(libDir, '@tmp/lib');
+    const memberDir = options.symlink ? Path.join(root, 'physical', 'lib') : libDir;
+    await fixture.workspaceMember(memberDir, '@tmp/lib');
+    if (options.symlink) await Fs.ensureSymlink(memberDir, libDir);
     await fixture.reactLinkedPackage(authorityPackageDir, '0.0.0-fixture');
 
     if (options.direct) {
@@ -436,11 +614,13 @@ const fixture = {
 
   async workspaceMember(dir: string, name: string) {
     await Fs.ensureDir(Path.join(dir, 'src'));
+    await Fs.write(Path.join(dir, 'src', 'index.ts'), 'export const root = true;\n');
     await Fs.write(Path.join(dir, 'src', 'mod.ts'), 'export const ok = true;\n');
+    await Fs.write(Path.join(dir, 'src', 'private.ts'), 'export const internal = true;\n');
     await Fs.writeJson(Path.join(dir, 'deno.json'), {
       name,
       version: '0.0.0',
-      exports: { './mod': './src/mod.ts' },
+      exports: { '.': './src/index.ts', './mod': './src/mod.ts' },
     });
   },
 
