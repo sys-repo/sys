@@ -1,3 +1,8 @@
+I’m putting that on the table now because my long-range aim is to develop a better form of lawyer–client collaboration, leaving that unrefernced until we’re already working together would be risk. I’ve carved out the trust/estate work as a concrete test: important advice in its own right, and evidence of whether this way of working is worth developing further together.
+
+
+
+
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 
@@ -175,10 +180,6 @@ cmd-first-kernels.plan.md
 - [ ] docs(driver-crdt): specify draft-one contracts from topology evidence
 
 
-@sys.driver-vite
-workspace-chunking-and-ui-components-bundle.plan.md
-- [ ] fix(driver-vite): restore workspace module chunk resolution
-- [ ] perf(ui-components): tune bundle composition and loading boundaries
 
 @sys.driver-vite
 ci-proof-lane-repair.plan.md
