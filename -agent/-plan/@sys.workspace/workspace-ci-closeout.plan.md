@@ -35,39 +35,54 @@ its own explicit human instruction and never appears in this plan's source arc.
 
 ### Current closeout assessment
 
-Observed at `b8bb8389a41d82c998ed1bafd03dc03e65d23002`: all seven source cuts above are landed.
-Subsequent independent dependency upgrades, CRDT proof corrections, and workspace refresh are real
-history, not extra items retroactively absorbed into this arc. The current root lockfile has no live
-delta. Pending work is five modified tracked plans and seventeen untracked planning artifacts,
-including this record; no assessed paths are staged. The excluded buffer remains outside this
-assessment.
+At baseline `31817e6ecf5e9077f92e928ab5743e8fd765632f`, all seven source cuts above remain landed.
+Subsequent dependency, CRDT, SRI, image/composition, and chunking work has its own history; none is
+retroactively absorbed into this arc. The human committed the reviewed twenty-artifact planning and
+portability-research baseline. The working tree was clean before this separately authorized
+plan-only reconciliation. The older five-modified/seventeen-untracked counts below are historical
+intake, not current pending work. The buffer remains outside this closeout's reconciliation scope.
 
-Source-arc completion is not final workspace closeout. Exact-candidate root/graph/build proof,
-explicit planning-artifact disposition, the human push, and required hosted results remain pending.
-Keeping working plans uncommitted is valid, but does not satisfy the existing clean-tree exit
-criterion; changing that criterion requires a separate explicit decision. No new test, build,
-published-consumer, provider, or hosted result is supplied by this maintenance update.
+Preservation resolved that baseline's artifact disposition without endorsing unfinished designs or
+claiming product completion. The separate local-delivery reconciliation does not change this source
+arc. Source-arc completion and a clean baseline do not supply exact-candidate root/graph/build proof,
+an authorized push, or exact-SHA hosted CI results. Those workspace obligations remain pending
+unless supported by their own receipts; no such fresh receipt is supplied here.
+
+Local R2 delivery has a separate finish line: candidate-bound publication/private/public/browser
+evidence and human credential retirement, owned by
+[r2-public-delivery.plan.md](../@sys.driver-cloudflare/r2-public-delivery.plan.md#current-local-acceptance-boundary).
+The sample service worker is explicitly deferred, and its Deno Deploy rollout is stopped. Neither
+new hosting nor worker implementation is required for local acceptance or this workspace closeout.
+The root check/dry exit-status defect remains workspace-owned; preserve the aggregate-success and
+coverage requirement below rather than silently accepting a green composite exit or opening an R2
+source campaign.
 
 ## One owner, no roadmap duplication
 
 - [dist-content-identity.plan.md](../@sys.fs/dist-content-identity.plan.md) and
   [vite-build-repair.plan.md](../@sys.driver-vite/vite-build-repair.plan.md) remain completed source
   arcs. Do not append residual changes, retest their whole history, or reopen them for this closeout.
-- [html-subresource-integrity.plan.md](../@sys.driver-vite/html-subresource-integrity.plan.md)
-  retains the landed capability/image arc and future sample SRI adoption. This closeout owns the
-  residual sample presentation and compatibility correction, not integrity opt-in.
+- [html-subresource-integrity.plan.md](../@sys.driver-vite/html-subresource-integrity.plan.md) is an
+  archived completed owner, including sample adoption (`d83cf2a44`), default app integrity
+  (`6ca3259dc`), and dependency modulepreloads (`fa1a9a9e9`). Final snapshot: `c45dfb492`; removal:
+  `a9a7db8ed`, despite its misleading `plan(done)` subject. Preserve the recovery path and companion
+  record; source completion is not fresh browser enforcement for a new R2 candidate.
 - [workspace-chunking-and-ui-components-bundle.plan.md](../@sys.driver-vite/workspace-chunking-and-ui-components-bundle.plan.md)
-  retains workspace chunk resolution and measured bundle tuning. This closeout owns only disposition
-  of the existing visualizer flag. Its disposition is not a completed chunking or performance item.
-- [r2-public-delivery.plan.md](../@sys.driver-cloudflare/r2-public-delivery.plan.md) retains mixed
-  delivery, credential closeout and service-worker integration; hosted execution remains with its
-  exposure owner. No provider work or service-worker change is needed to land this tree.
+  is an archived completed owner: chunk resolution and bounded tuning landed in `34857daf5`,
+  `dcc61ca38`, and `416877674`. Final snapshot: `f7bfe22f7`; removal: `97a7d7979`. The older
+  visualizer disposition below is not another pending performance item.
+- [private-image-delivery.plan.md](../@sample.r2/private-image-delivery.plan.md) is an archived
+  completed owner: `8498fb608`; final snapshot `40fd1796b`, removal `a0a0c0021`. Later React-owned
+  composition is `c38ef6a31`. Do not apply the historical HTML-only/static-image layout below to the
+  current candidate.
+- [r2-public-delivery.plan.md](../@sys.driver-cloudflare/r2-public-delivery.plan.md) owns current
+  local acceptance, human credential closeout, and the deferred service-worker follow-up. Its
+  exposure sibling retains a stopped hosting proposal, not an active Deno Deploy prerequisite.
 
-Phil approved the next-work order: finish this closeout, then sample SRI adoption, workspace chunk
-resolution and ui-components bundle tuning, and the R2 public-delivery follow-on. SRI adoption does
-not depend on the chunk-resolution repair; taking it first clears the remaining sample-integrity
-item without moving it into this closeout. Existing product arcs and their internal order remain
-unchanged. Approval of this planning revision alone authorises no source implementation or Git action.
+The earlier proposed next-work order is superseded by these landed owner outcomes and Phil's local
+R2 scope decision. Finish outstanding evidence and truthful records without replaying SRI/chunking
+implementation, reopening completed owners, or selecting a future runtime. This planning revision
+authorises no source implementation, provider operation, or Git action.
 
 These are ownership/navigation links, not prerequisite items or a dependency chain. Do not copy
 another plan's commits into this arc. The open-tree closeout must not wait for those future arcs.
@@ -77,6 +92,9 @@ or this landing operation; their independent work remains outside scope.
 ## Source cuts: inventory and authorised extension
 
 Paths below are repository-relative. Attribution is by semantic delta, not directory proximity.
+These seven cuts and their receipts are retained historical boundaries, not pending source work or
+current sample inventories. In particular, the old public-only PNGs/HTML-only private output and
+outside-React layout describe the recorded candidate, not today's private-image/React composition.
 
 ### 1. Private-package command selection
 
@@ -538,6 +556,14 @@ visualizer proof lane is required for this disposition.
 
 ## Planning artifacts: separate bounded intake
 
+The inventories, per-artifact dispositions, and then-open decisions below are historical receipts.
+The reviewed baseline was subsequently preserved at `31817e6ec`; this supersedes their pending-tree
+counts, not their evidence limits. Phil separately authorized the release-hardening header/arc
+conversion before that commit. The extraction snapshot wording in `r2-public-delivery.plan.md` is
+corrected in this authorized local-delivery reconciliation. Neither issue remains an unresolved
+preservation decision. The research note now lives at `@sys/runtime-portability-audit.md` as
+provisional evidence; its preservation did not adopt a migration plan.
+
 The authoring inventory had these seven modified tracked artifacts:
 
 - `-agent/-plan/@sample.r2/public-image-delivery.plan.md`
@@ -647,8 +673,8 @@ wrapped live headers are file-shape repairs, not new dependencies, gates, or arc
 triage and CRDT brief remain non-implementation records. Full live artifacts and all five tracked
 plan diffs were inspected; the truncated R2 diff output was continued through its captured log.
 
-Two bounded maintenance scope decisions remain before calling artifact reconciliation complete;
-neither is a new source-arc item or authority to restructure another product plan:
+At that historical reconciliation, two bounded maintenance scope decisions remained. Both now have
+the dispositions recorded above; this list preserves the original questions, not current blockers:
 
 - Authorize the canonical opening-arc conversion of `release-hardening.plan.md`, naming its
   intended membership/order while retaining the existing progressive, policy-sensitive boundary.
@@ -702,20 +728,24 @@ and permissions; retain frozen/cache-only policy where supported. Build lanes ru
 No signing, trust, dependency-age, sandbox or permission bypass; stop at the actual refusal.
 
 Before the final push, bind local verification to the final candidate and inspect generator/test
-side effects. Root `deno task ci` runs check, dry, tests and info; it does not include all GitHub lanes.
-The current check/dry wrappers can print a failed aggregate yet exit successfully. Require successful
-aggregate outcomes and expected package coverage for check, dry and test, not merely a zero composite
-exit. Record justified skips, including private packages' implicit publication dry runs, while
-retaining their explicit tasks. Any failed aggregate or incomplete/unexplained coverage blocks
-closeout. Final-candidate receipts must establish each stage's result and coverage. A task-wrapper
-repair requires an explicit scope decision; no such source cut is added here.
+side effects. Root `deno task ci` runs `test:root && check && dry && test`; it does not include all
+GitHub lanes. The current check/dry wrappers can print a failed aggregate yet exit successfully.
+Require successful aggregate outcomes and expected package coverage for check, dry and test, not
+merely a zero composite exit. Record justified skips, including private packages' implicit
+publication dry runs, while retaining their explicit tasks. Any failed aggregate or
+incomplete/unexplained coverage blocks closeout. Final-candidate receipts must establish each
+stage's result and coverage. A task-wrapper repair requires an explicit scope decision; no such
+source cut is added here.
 
 Inspect the current workflow/task owners and cover required missing lanes without substituting a
 base-suite pass:
 
 - root local CI and `check:graph`;
-- driver-vite's separate declared `test:proofs` lane; the current Linux workflow at `b8bb8389a`
-  no longer invokes it, so do not describe it as current hosted coverage;
+- driver-vite's separate declared `test:proofs` lane; the current Linux workflow includes the
+  `proofs: true` matrix entry and conditional task step after repair `02f3ae9b5`. Configuration is
+  not a successful hosted run: require exact-SHA evidence. Its archived plan is recoverable at
+  `53e83ee82` under `-agent/-plan/@sys.driver-vite/ci-proof-lane-repair.plan.md`, removed by
+  `f6d28dfe7` despite that commit's unrelated `dist-metadata.plan` subject;
 - the affected sample and ui-components declared builds;
 - existing hosted browser/matrix jobs when GitHub runs them; no new browser/platform campaign.
 

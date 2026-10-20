@@ -1332,21 +1332,29 @@ less misowned mechanism, not weaker assurance.
 
 ## R2 delivery and exposure handoff
 
-The opening references name the intended R2 route, not an approved production hostname or current
-live-provider success. The delivery plan proves the existing Files-backed upload and authenticated
-readback; the exposure plan proves the same selected bytes through owned HTTPS. Conditional writes,
-CAS activation, commit receipts, an owned S3 SDK, and provider-enforced immutability are not
-prerequisites for this independently pinned consumer. If the release owner selects a different
-provider, reconcile the references explicitly rather than adding provider machinery to Pi.
+The local-R2 reconciliation after `31817e6ec` stops the exposure plan's Deno Deploy sequence. It
+does not establish Pi's published-product evidence or select another host. Keep this plan's exposure
+reference unchecked: the stopped proposal is not a fulfilled product prerequisite, even though its
+remaining foundation arc contains only landed items. Before resuming the published-product item, the
+release owner must select the actual hosting scope and explicitly reconcile this dependency. No Pi
+arc item, release gate, product worker requirement, or completed local lane changes here.
+
+The opening references name the previously intended R2 route, not an approved production hostname or
+current live-provider success. The delivery plan records Files-backed upload and authenticated
+readback; owned-HTTPS evidence for the selected product remains required but is not supplied by the
+stopped exposure proposal. Conditional writes, CAS activation, commit receipts, an owned S3 SDK, and
+provider-enforced immutability are not prerequisites for this independently pinned consumer. If the
+release owner selects a different provider, reconcile the references explicitly rather than adding
+provider machinery to Pi.
 
 The delivery prerequisite records completed sample storage evidence at `efdd7cdde`; its final
 snapshot is `0687bc053`, archived by `67466fed9`. Its checked reference does not assert that the Pi
-product has been uploaded. The exposure plan owns a mixed-delivery Deno sample: private shell/API
-through the application and intentionally public assets through R2/CDN. Hosted proof remains
-outstanding there. That sample's topology does not select Pi's artifact provider or product browser
-graph, and application serving does not move into Pi. Internal presigning is not this product's
-artifact-host contract: retain stable manifest/resource URLs on the selected host, no runtime
-storage credentials, and independently retained execution authority.
+product has been uploaded. The R2 sample uses local Deno for private shell/API and intentionally
+public R2 assets. Its former hosted Deno/CDN topology is historical, not an active rollout or a
+promise that this prerequisite will complete next. That topology does not select Pi's provider or
+browser graph, and application serving does not move into Pi. Internal presigning is not this
+product's artifact-host contract: retain stable manifest/resource URLs on the selected host, no
+runtime storage credentials, and independently retained execution authority.
 
 The dependency direction is storage readback → application/public delivery proof → Pi published
 binding. Exposure can first prove a small non-release Dist without this product entry or release

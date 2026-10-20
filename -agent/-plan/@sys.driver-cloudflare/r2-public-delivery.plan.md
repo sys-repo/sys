@@ -12,6 +12,61 @@ r2-public-delivery.plan.md
 - [x] [r2-delivery-extraction.plan.md](r2-delivery-extraction.plan.md)
 - [ ] feat(driver-cloudflare): integrate the template service worker with mixed R2 delivery
 
+## Current local acceptance boundary
+
+Phil selected local Deno plus the existing R2 targets as the current finish line, then authorized
+this plan-only reconciliation after baseline preservation at `31817e6ec`. The source architecture is
+accepted within its trusted-storage, anonymous-access, bounded-publication model; full local
+delivery closeout is still pending evidence and human credential retirement. No additional R2-local
+implementation campaign was demonstrated necessary by the bounded review.
+
+The service-worker item remains unchecked but is explicitly deferred, important downstream work. It
+is neither completed nor abandoned and does not block local acceptance. Resume it only under
+separate implementation authority. Local acceptance does not complete this plan's deferred arc or
+permit archival. The Deno Deploy sequence in [r2-web-exposure.plan.md](r2-web-exposure.plan.md) is
+stopped, not the next destination. Future workerd/celld adaptation and hosted deployment are
+separate decisions; the provisional [runtime audit](../@sys/runtime-portability-audit.md) is
+research, not an adopted migration plan.
+
+Completed extraction, canonical content pins, SRI, private-image/React composition, and bounded
+chunking work stay closed. Current source includes private `index.html`, `images/wax-seal.png`, and
+`dist.json`; the preserved image also belongs to the public inventory. The build record includes
+required `bundleSize`. The HTML is an empty React root, not a static fallback notice. The sample
+continues to reject worker outputs.
+
+Remaining local acceptance, with each operational step separately authorized:
+
+1. Select one candidate and bind applicable receipts to source/lock/config identity, tool versions,
+   public base, both targets, both content pins, and exact manifest checksums. Record command, time,
+   result, and evidence scope. Run only missing or invalidated checks/build proof. The sample's
+   `test:integrity` rebuilds: freeze the candidate after the final build, not before it. Rebuilding
+   requires downstream evidence rebinding, not a blanket replay of settled owner campaigns.
+2. Establish publication of that candidate if not already evidenced. Verify both projections before
+   each push; preserve public-first/private-second order and unchanged selected bytes. Existing push
+   is manifest-last then prune, not atomic publication, rollback, or remote byte verification. Use
+   only confirmed dedicated prefixes and no competing publisher.
+3. Obtain selected private HTTP proof against retained local expectations. `proof:local` proves
+   private delivery, not public/browser execution. With the current three selected private files,
+   its declared limits are 12 application attempts and 8 storage reads, including bootstrap; these
+   are ceilings, not measured provider traffic. Stop the ordinary server before this proof and await
+   process completion/disposal, not only its earlier `verified` event.
+4. Obtain public-byte and cold-browser evidence for the same candidate under the capstone below.
+   Separate checked public files from browser-exercised requests, and label unexercised assets.
+   Generated SRI and the sample build-integrity check do not establish browser enforcement; the
+   driver-vite original/tampered/rehash browser controls have their own scope and candidate binding.
+   No whole-graph, HTML, or image authenticity claim follows from request-specific SRI.
+5. Phil completes the existing credential rotation/replacement/known-consumer/revocation obligation
+   below, recording scope and completion without values. The accepted shared bucket-scoped Read &
+   Write sample pair is unchanged; separate read-only serving credentials are not a new
+   prerequisite.
+
+Historical receipts below remain useful where their candidate and scope apply; this reconciliation
+ran no tests, builds, publication, live reads, or browser proof. Workspace
+aggregate-success/coverage, artifact disposition, authorized push, and exact-SHA hosted CI are
+separate obligations in
+[workspace-ci-closeout.plan.md](../@sys.workspace/workspace-ci-closeout.plan.md). Its check/dry
+wrapper exit defect is not a new R2 implementation prerequisite.
+
 ## Landing and extraction decision
 
 The 62-file commit `3c8f9c38e` contains the mixed-delivery sample together with safe R2 diagnostics,
@@ -27,22 +82,18 @@ complete implementation arc, final sample composition, measured footprint, and b
 receipts. It includes the shared-Dist identity work: there is no second identity-cleanup phase after
 `sw.js`.
 
-The post-extraction sample baseline is `b3f14a5ee7f28284095649c96bc273cae880e7f1`. The child remains
-live for its final completion snapshot before archival; this parent's checked reference must survive
-its later removal. Any recovery hash must name the final committed plan snapshot, not that source
-commit. Detailed extraction history belongs in the child, not a duplicated ledger here.
+The post-extraction sample baseline is `b3f14a5ee7f28284095649c96bc273cae880e7f1`. The child's
+completed preservation snapshot is `df5e83456`; it remains live pending separately authorized
+archival. This parent's checked reference must survive its later removal. Recovery uses the final
+plan snapshot, not the source commit. Detailed extraction history belongs in the child, not a
+duplicated ledger here.
 
 This plan owns the mixed-delivery contract, its candidate-specific local/provider/browser proof,
-template service-worker integration, and human credential closeout. The first hosted deployment,
-`db.team` application ingress, and `cdn.db.team` public asset delivery belong solely to
-[r2-web-exposure.plan.md](r2-web-exposure.plan.md). Do not record a second hosted execution here.
-Service-worker integration is a separate follow-up, not a prerequisite for that first hosted proof;
-its unchecked item remains in this arc and is not claimed complete or abandoned.
-
-The exposure plan consumes the landed mixed-delivery implementation and the completed extraction,
-not completion of this whole plan. These are sibling work boundaries; neither plan depends on the
-other's unfinished arc. No new roadmap or circular prerequisite is needed. After implementation,
-worker-specific browser proof belongs here; any hosted run still needs its own explicit authority.
+human credential closeout, and deferred template service-worker follow-up. The exposure plan retains
+the stopped Deno Deploy/`db.team`/`cdn.db.team` proposal and historical foundation; it supplies no
+current hosting sequence. Neither sibling waits for completion of the other's whole arc. No new
+roadmap or circular prerequisite is needed. When the worker item is separately resumed, its
+worker-specific browser proof belongs here; any hosted run still needs its own scope and authority.
 
 Earlier delivery receipts remain historical; local extraction tests and a build do not refresh them.
 Credential rotation, replacement verification, and revocation remain mandatory under **Credential
@@ -273,16 +324,16 @@ composition. Vite owns building and captured build-configuration handoff; Pkg.Di
 projection and shared inventory identity; Deploy owns input admission, credential resolution,
 failure interpretation, and publication; R2 owns object access and bounded private delivery; HTTP
 owns managed listener settlement. The completed extraction establishes those owner boundaries,
-including shared multi-inventory identity and immediate sample adoption. Preserve them while adding
-the existing template service worker; do not reintroduce sample-local infrastructure or another
-persisted identity wrapper.
+including shared multi-inventory identity and immediate sample adoption. Preserve them during local
+acceptance and any separately resumed service-worker work; do not reintroduce sample-local
+infrastructure or another persisted identity wrapper.
 
-The confirmed `r2.dev` endpoint is the existing development baseline, not the production target.
-The human-selected production asset hostname is now `cdn.db.team`; its bucket binding, final
-URL-to-key prefix, configuration/build migration, and verification belong to
-[r2-web-exposure.plan.md](r2-web-exposure.plan.md). A different base requires a new build and both
-pins; never relabel an old receipt. No source/configuration or provider setting was changed by this
-plan reconciliation. Bucket creation and exposure remain owner-managed settings, not sample tasks.
+The confirmed `r2.dev` endpoint is the existing development baseline and the current local
+acceptance target, not a production-service claim. The former `cdn.db.team` migration belongs to the
+stopped proposal retained in [r2-web-exposure.plan.md](r2-web-exposure.plan.md), not the next local
+step. Any separately selected different base requires a new build and both pins; never relabel an
+old receipt. No source/configuration or provider setting was changed by this reconciliation. Bucket
+creation and exposure remain owner-managed settings, not sample tasks.
 
 The real UI asset graph must bypass Deno, not merely an additional demonstration image. Deno still
 sends HTML, API, and private-relay responses. The invariant is no Deno delivery of the selected
@@ -320,10 +371,10 @@ Existing owners:
   `src/m.app/` owns only HTTP composition; `-scripts/` owns explicit task orchestration and proof.
 
 The original single-origin foundation is recorded in
-[r2-web-exposure.plan.md](r2-web-exposure.plan.md). Its active hosted contract now consumes this
-mixed-delivery design; its older all-assets-through-Deno receipts remain historical. Neither plan
-requires completion of the other's unfinished work. The exposure plan is the sole first-hosting
-ledger; local, hosted, and future worker-controlled evidence must retain their own candidates.
+[r2-web-exposure.plan.md](r2-web-exposure.plan.md). Its hosted sequence is stopped; its older
+all-assets-through-Deno receipts remain historical. Neither plan requires completion of the other's
+unfinished work. Any future hosting scope must be selected explicitly; local, hosted, and future
+worker-controlled evidence must retain their own candidates.
 
 Do not revive the conditional-publication/generation-management proposal withdrawn in `cf03b4555`.
 Its historical source is
@@ -354,10 +405,11 @@ Its historical source is
 8. Public objects remain readable independently of Deno authorization. Public executable assets are
    trusted application code, not sandboxed code because they have another source origin. Trust the
    configured publisher and storage/delivery authorities; do not add a provenance system here.
-9. The template service worker follows reusable-owner extraction, not the initial mixed-delivery
-   landing. Its entry script must be directly served from the application origin with appropriate
-   scope. Its cache policy must explicitly exclude private responses; HTTP `no-store` alone does not
-   govern Cache Storage. Cold application startup must remain independent of worker installation.
+9. The template service worker is deferred after the completed reusable-owner extraction, not a
+   local-acceptance prerequisite. When resumed, its entry must be served from the application origin
+   with appropriate scope. Its cache policy must explicitly exclude private responses; HTTP
+   `no-store` alone does not govern Cache Storage. Cold application startup must remain independent
+   of worker installation.
 
 ## One build, explicit publication inventories
 
@@ -369,13 +421,14 @@ Generated layout after extraction:
 
 - `dist/`: complete Vite output, verified locally; never publish this root indiscriminately to both
   audiences.
-- `dist.private/`: `index.html` and its own generated `dist.json`.
+- `dist.private/`: `index.html`, preserved `images/wax-seal.png`, and its own generated `dist.json`.
 - `dist.public/`: selected public build assets at their emitted relative paths, plus their own
   generated `dist.json`.
-- `dist.pins.json`: the sample-owned `{ publicAssetBase, selection: { pins } }` build record, base
-  first. Its shared `DistPins<'private' | 'public'>` value contains canonical manifest pins; its
-  base is the exact URL captured for the build. The filename migration did not rename `selection`
-  fields or introduce another nested identity schema.
+- `dist.pins.json`: the sample-owned `{ publicAssetBase, bundleSize, selection: { pins } }` build
+  record. `bundleSize` is required and records the admitted build's payload total, not browser
+  transfer bytes. Its shared `DistPins<'private' | 'public'>` value contains canonical content pins;
+  exact manifest checksums remain separate evidence. The base is the exact URL captured for the
+  build. The filename migration did not rename `selection` fields or add another identity schema.
 
 Keep generated roots and the build record ignored. The record remains outside both Dist roots; it
 holds no filename inventory or credentials. Delegate nested pin/name validation to
@@ -388,30 +441,35 @@ dated historical filename receipts below.
 
 Derive inventories from the admitted build, not manually maintained hash filenames, bucket listing,
 matching remote metadata, or an assumption that `pkg/` is the whole artifact. Explicitly classify
-`index.html` as Deno/private delivery and the remaining selected frontend assets as public. Account
-for any additional document or worker output before admitting it; do not silently publish a new
-output role. Private data, fixtures, credentials, and task inputs must not enter the frontend build.
+`index.html` as private and frontend assets as public, with the preserved seal deliberately selected
+for both private and public delivery. Account for any additional document or worker output before
+admitting it; do not silently publish a new output role. Private data, fixtures, credentials, and
+task inputs must not enter the frontend build.
 
-Partition application payloads without changing their bytes or relative asset paths. The verified
-projection algorithm belongs at the `Pkg.Dist` filesystem owner, using existing generation, pinned
-reads, and verification; the sample supplies audience policy. Do not implement another hasher or
-promote a generic partitioning framework. Capture the public asset base once and use that authority
-through the Vite invocation and selection. Verify both outputs before writing the selection. Reject
-malformed/partial selection and a configured base that differs from the selected build; changing the
-base requires a new build, not retargeting publication of old HTML.
+Project the selected, intentionally overlapping audiences without changing bytes or relative asset
+paths. The verified projection algorithm belongs at the `Pkg.Dist` filesystem owner, using existing
+generation, pinned reads, and verification; the sample supplies audience policy. Do not implement
+another hasher or promote a generic partitioning framework. Capture the public asset base once and
+use that authority through the Vite invocation and selection. Verify both outputs before writing the
+selection. Reject malformed/partial selection and a configured base that differs from the selected
+build; changing the base requires a new build, not retargeting publication of old HTML.
 
 A failed build is not a publishable new candidate. Before each audience push, verify both local
 projections against one captured selection; publish only that audience. The combined `push` task
-runs `push:public && push:private`, stopping on failure. Keep selection, configuration, and staged
-bytes unchanged across both tasks; this is not an atomic capture or publication. Serve needs the
-captured selection and private remote manifest, not local Dist directories or a public network
-preflight.
+runs `push:public && push:private && push:next`, stopping on failure; the final task is the
+walkthrough handoff, not another publication. Keep selection, configuration, and staged bytes
+unchanged across both tasks; this is not an atomic capture or publication. Serve needs the captured
+selection and private remote manifest, not local Dist directories or a public network preflight.
 
 Update all selection consumers together: private startup, push, local build status, proof, and UI
 manifest labels must refer to the appropriate projection. The private digest no longer describes the
 complete UI bundle. No expectation is derived from R2.
 
-## Work items
+## Implementation record and deferred follow-up
+
+Items 1–4 retain the landed work's intent and bounded evidence, not a new implementation sequence.
+Their dated receipts do not override the current inventory, task wiring, or acceptance boundary
+above. Item 5 remains deferred.
 
 ### 1. Captured publication input at the Deploy owner
 
@@ -523,9 +581,10 @@ from the sample without promoting this initial workflow into a library.
   access, and integrity/cost boundaries tersely. Describe direct delivery, not HTTP redirects. Keep
   the private relay's short-lived presigned GET URLs explicit in the view: Deno uses them
   internally; the browser receives bytes, not signed URLs or R2 credentials.
-- If the public entry bundle fails, React cannot render its own failure UI. Keep the HTML shell
-  legible without the bundle and test the actual failure boundary; do not claim independent
-  interactive UI status or silently fetch a backup bundle through Deno.
+- If the public entry bundle fails, React cannot render its own failure UI. The current HTML is an
+  empty React root: no static notice or visible content survives the missing entry. Record the
+  actual failure boundary; do not promise independent UI status or fetch a backup bundle through
+  Deno. Earlier readable-shell observations below belong only to their historical candidates.
 
 Suggested explanatory copy:
 
@@ -662,7 +721,12 @@ execution, real SIGINT shutdown, or refreshed credentials. Preserve the mixed-de
 candidate-specific evidence limits above when extending this consumer. No additional extraction
 cleanup phase is required before the service-worker item.
 
-### 5. Integrate the existing template service worker through the extracted APIs
+### 5. Deferred: integrate the existing template service worker through the extracted APIs
+
+Phil explicitly deferred this important downstream work before baseline preservation and confirmed
+that boundary for this reconciliation. The unchecked arc item records retained work, not the next
+local acceptance action. No implementation or worker-controlled proof is authorized by this edit.
+The following requirements apply when the item is separately resumed.
 
 Build on the extracted owners to preserve the normal template's existing service-worker capability
 in one bounded follow-up, not a new worker framework or second application. The post-extraction
@@ -701,8 +765,9 @@ semantics.
 ## Target-selection gate
 
 This resolved gate records the development mapping below. It does not approve reuse of those
-buckets/prefixes for production or creation of `cdn.db.team`. The exposure plan owns that explicit
-resource and operation decision; preserve this historical gate rather than retargeting it.
+buckets/prefixes for production or creation of `cdn.db.team`. That exposure proposal is stopped;
+future hosting requires a new explicit resource and operation decision. Preserve this historical
+gate rather than retargeting it.
 
 Resolver: Phil, as the deployment/resource owner. The gate controls which live resources item 3 may
 target: the account, both buckets, owned key namespace, public HTTPS asset base, and intended
@@ -756,12 +821,13 @@ infrastructure; no production-delivery claim follows from this setup.
 
 ## Credential closeout
 
-Before closing this arc, Phil rotates credentials used during development, installs bucket-scoped
-replacements in the appropriate local/hosted secret stores, and verifies each required role before
-revoking the retired keys. Check known consumers before revocation, including any legacy keys; do
-not assume they are unused. Record completion and scope without values. If exposure is suspected,
-revoke promptly rather than waiting for arc completion. Rotation never excuses unsafe diagnostics.
-This is a human-owned closeout obligation, not authorization for agent key creation or revocation.
+Before declaring local delivery closed, Phil rotates credentials used during development, installs
+bucket-scoped replacements in the actual consumer secret stores, and verifies each required role
+before revoking the retired keys. Check known consumers before revocation, including any legacy
+keys; do not assume they are unused. Record completion and scope without values. If exposure is
+suspected, revoke promptly rather than waiting for arc completion. Rotation never excuses unsafe
+diagnostics. This is a human-owned closeout obligation, not authorization for agent key creation or
+revocation.
 
 ## Operating limits
 
@@ -778,16 +844,18 @@ before those actions; this plan creates no remote resources and grants no broade
 
 ## Proof and acceptance
 
-Use red → green → refactor at the narrowest owning boundary. Extend existing fixture seams rather
-than adding a second publisher, browser platform, or general observability system.
+The fixture contracts below are predominantly landed owner behavior, not a mandate to reimplement or
+rerun every campaign. Reuse applicable candidate-bound receipts and refresh missing or invalidated
+proof only. A demonstrated source defect needs its own bounded correction authority and narrow red →
+green proof; do not add a publisher, browser platform, or observability system.
 
-Minimum fixture evidence:
+Fixture evidence to retain:
 
 - Deploy file/document parity, source exclusivity and capture, credential-reference handling,
   permission/failure behavior, and concurrent-call isolation without a config file.
-- One Vite build yields verified, non-overlapping application payload inventories with unchanged
-  bytes; each projection has its own manifest. Stale outputs and unrelated/private inputs do not
-  enter public publication.
+- One Vite build yields verified explicit audience inventories with unchanged bytes; each projection
+  has its own manifest. The preserved seal intentionally overlaps audiences. Stale outputs and
+  unrelated/private inputs do not enter public publication.
 - Captured build-base mutation, mismatched later configuration, mixed/changed projection bytes, and
   incomplete selection are refused. Serving does not require local projection directories.
 - Each audience task selects the correct root, pin, target, and deletion namespace. Invalid
@@ -825,8 +893,10 @@ Browser/network capstone, after separately authorized publication:
 2. Load the application with an empty browser cache and no controlling service worker. Confirm the
    document remains at the application origin and API/private reads reach Deno.
 3. Inspect every resource actually exercised by that build: entry, preloads, styles, imports, and
-   referenced assets. Their final public URLs, MIME, CORS behavior, and byte ownership must agree
-   with the selected graph. Do not add unused workers or lazy-loading features to inflate proof.
+   referenced assets. Their final public URLs, status, MIME, CORS, cache/encoding metadata, and
+   decoded bytes must agree with retained expectations. Compare the public manifest and selected
+   payloads independently; label assets not exercised by the browser. Verify React/API and both
+   private/public image paths. Do not add workers or lazy-loading features to inflate proof.
 4. Correlate browser requests with the reviewed Deno route inventory and confirmed public URL/bucket
    mapping. Establish cold-cache public bodies bypass Deno; a hostname, digest display, or cache-hit
    header alone is not proof. Use available server transfer evidence without building a platform.
@@ -836,15 +906,15 @@ Browser/network capstone, after separately authorized publication:
 6. Keep public delivery, private HTTP proof, and hosted execution as separate evidence. A human-run
    browser check is acceptable if reported as such; never substitute fixture results for it.
 
-Deno Deploy at `console.deno.com` is the selected hosting target. Packaged configuration/pin
-availability, runtime compatibility, `db.team` ingress, and `cdn.db.team` delivery require the
-candidate-bound evidence in [r2-web-exposure.plan.md](r2-web-exposure.plan.md) before claiming hosted
-support or measured cost savings. Neither this local proof nor an old exposure receipt covers a
-new deployed candidate. This plan adds no duplicate deployment item.
+Local Deno with the existing R2 mapping is the selected endpoint. The Deno Deploy/`db.team`/
+`cdn.db.team` sequence in [r2-web-exposure.plan.md](r2-web-exposure.plan.md) is stopped. Future
+runtime adaptation or hosting needs its own scope and candidate-bound evidence; neither local proof
+nor old exposure receipts establish deployed support or measured cost savings.
 
 The stopping point is an honest, repeatable mixed-delivery sample that declares application policy
 and calls reusable owners, with projection, shared identity, captured build configuration, and
-pinned delivery mechanics extracted before template service-worker integration. No competing
-sample-only persisted Dist identity format, copied verification/bootstrap algorithm, generated YAML
-bridge, or transitional delivery fallback may remain. Credential closeout remains human-owned. No
-material source/proof claim may exceed the recorded evidence.
+pinned delivery mechanics extracted. Template service-worker integration remains explicitly
+deferred; local acceptance does not mark it complete. No competing sample-only persisted Dist
+identity format, copied verification/bootstrap algorithm, generated YAML bridge, or transitional
+delivery fallback may remain. Credential closeout remains human-owned. No material source/proof
+claim may exceed the recorded evidence.
