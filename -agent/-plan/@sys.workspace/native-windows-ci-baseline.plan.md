@@ -1,6 +1,8 @@
+@sys.workspace
 native-windows-ci-baseline.plan.md
-- [ ] refactor(workspace): name Linux test workflow explicitly
-- [ ] feat(workspace): generate native Windows test workflows
+- [x] ce5d1be24 refactor(workspace): name Linux test workflow explicitly
+- [x] 20eb0e570 feat(workspace): generate native Windows test workflows
+- [x] 27b6cb5fa test(ci): clear native Windows admission blockers
 - [ ] test(ci): establish native Windows proof with @sys/std
 
 ## Purpose
@@ -9,8 +11,8 @@ Turn the system's cross-platform hypothesis into one real, durable host proof wi
 Windows to Linux tests, builds, browser testing, JSR publication, or release policy.
 
 Deno, TypeScript, and ESM make portability plausible. They do not prove filesystem, process, shell,
-path, permission, or runner behavior. This plan establishes the smallest honest Windows feedback loop
-from which broader package compatibility can be earned.
+path, permission, or runner behavior. This plan establishes the smallest honest Windows feedback
+loop from which broader package compatibility can be earned.
 
 ## Design position
 
@@ -40,9 +42,9 @@ runs-on: windows-2025
 ```
 
 A versioned label is not an immutable image pin. Before implementation item 2, verify current GitHub
-provider documentation for label availability, image lifecycle, and supported shell names. Record the
-canonical documentation URLs used as evidence; if the repository cannot access the label, stop rather
-than silently substituting another host.
+provider documentation for label availability, image lifecycle, and supported shell names. Record
+the canonical documentation URLs used as evidence; if the repository cannot access the label, stop
+rather than silently substituting another host.
 
 It must exercise native Windows behavior under an explicit Windows-only `shell: pwsh` contract. Do
 not select Bash, Git Bash, WSL, MSYS, Cygwin, or another POSIX compatibility layer to make existing
@@ -66,8 +68,8 @@ Observed ownership:
 - `-scripts/common.ts` owns repository trigger configuration and allowed JSR scopes.
 - `code/sys/workspace/src/m.ci/u/u.sync.ts` owns default workflow targets and aggregate sync.
 - `code/sys/workspace/src/m.ci/m.Test/` owns test workflow discovery, rendering, writing, and tests.
-- `code/sys/workspace/src/m.ci/u/u.workflow.ts` currently embeds Ubuntu and Bash assumptions shared by
-  Linux test/build generation.
+- `code/sys/workspace/src/m.ci/u/u.workflow.ts` currently embeds Ubuntu and Bash assumptions shared
+  by Linux test/build generation.
 - `code/sys/workspace/src/m.ci/u.deno.ts` carries the generated CI Deno version.
 - package `deno.json` task surfaces determine generated test/build membership.
 - `x-sys.ci.test.browser` marks the separate browser-test extension of the current Linux test lane.
@@ -89,15 +91,15 @@ hand-edit generated YAML as the source of behavior.
 
 ### Native Windows execution
 
-- Use the documented `windows-2025` versioned runner label, not `windows-latest`; do not describe the
-  label as an immutable pin.
+- Use the documented `windows-2025` versioned runner label, not `windows-latest`; do not describe
+  the label as an immutable pin.
 - Verify current GitHub-hosted runner and shell documentation before rendering the host contract.
 - Use GitHub's native Windows run substrate with explicit Windows-only `shell: pwsh`; do not force a
   POSIX shell.
 - Root checkout, dependency installation, workspace information, graph verification, and Deno
   information remain repository-root operations and carry no package `working-directory`.
-- Apply `working-directory: ${{ matrix.path }}` to exactly the package `test:windows` step rather than
-  using shell-level `cd` or a job-level working-directory default.
+- Apply `working-directory: ${{ matrix.path }}` to exactly the package `test:windows` step rather
+  than using shell-level `cd` or a job-level working-directory default.
 - Prefer direct commands such as `deno task install`, `deno info`, and the package test task.
 - Do not copy the Bash retry loop into PowerShell. Add a cross-platform retry primitive only after a
   concrete failure demonstrates that direct installation is insufficient.
@@ -121,8 +123,8 @@ JSR or build APIs merely to make the Windows test renderer look symmetrical.
 
 ## Windows package admission
 
-A package earns Windows CI admission through an explicit `test:windows` task in its `deno.json`.
-The generated Windows matrix discovers that exact task from the same ordered workspace source used by
+A package earns Windows CI admission through an explicit `test:windows` task in its `deno.json`. The
+generated Windows matrix discovers that exact task from the same ordered workspace source used by
 other CI generation.
 
 Contract:
@@ -143,29 +145,38 @@ The first admitted package is `@sys/std`. Its initial task value is exact:
 "test:windows": "deno task test"
 ```
 
-The generator proves task presence, ordering, and safe rendering; it cannot prove suite completeness.
-Source inspection, local invocation, and hosted logs must prove that `test:windows` reaches the
-ordinary `@sys/std` suite without narrowing its discovery surface. Future package admissions remain
-package-owner reviews rather than a central semantic inference.
+The generator proves task presence, ordering, and safe rendering; it cannot prove suite
+completeness. Source inspection, local invocation, and hosted logs must prove that `test:windows`
+reaches the ordinary `@sys/std` suite without narrowing its discovery surface. Future package
+admissions remain package-owner reviews rather than a central semantic inference.
 
-This is progressive compatibility, not universal compatibility theater. A green first workflow proves
-its admitted matrix only. It must not be reported as proof that every `@sys` package works on Windows.
+This is progressive compatibility, not universal compatibility theater. A green first workflow
+proves its admitted matrix only. It must not be reported as proof that every `@sys` package works on
+Windows.
 
 ## Generator shape
 
 Keep platform-specific ownership visible beneath named `WorkspaceCi.Test.Linux` and
 `WorkspaceCi.Test.Windows` capabilities.
 
+`test` remains the root identity for this API and aggregate contract. Host names are children of
+that root, never sibling roots: `WorkspaceCi.Test.{Linux,Windows}`,
+`SyncArgs.targets.test.{linux,windows}`, and `SyncSummary.test.{linux,windows}`. The `test:linux`
+and `test:windows` strings are GitHub workflow identities; they do not replace the root `test`
+namespace or make Linux an implicit default.
+
 Required design properties:
 
-- Linux and Windows renderers may share module loading, safe matrix-scalar validation, ordered source
-  discovery, trigger rendering, action versions, and write/sync result shapes.
+- Linux and Windows renderers may share module loading, safe matrix-scalar validation, ordered
+  source discovery, trigger rendering, action versions, and write/sync result shapes.
 - Linux owns its Bash dependency retry and browser setup.
 - Windows owns its runner and native command shape.
+- Windows accepts no workflow-environment input; adding static values or explicit GitHub expressions
+  requires a separate demonstrated contract.
 - Host-specific text must not enter the JSR generator.
 - `SyncArgs.targets.test` must expose named `linux` and `windows` targets.
-- `SyncSummary.test` must expose named `linux` and `windows` results; do not use positional arrays or
-  retain singular `test` as an implicit Linux alias.
+- `SyncSummary.test` must expose named `linux` and `windows` results; do not use positional arrays
+  or retain singular `test` as an implicit Linux alias.
 - Aggregate runtime logging and return values must preserve independent result kinds, including one
   host being `unchanged` while the other is `removed` or `skipped`.
 - Update root prep delegation tests, including `-scripts/-test/-task.prep.ci.test.ts`, to return and
@@ -175,9 +186,9 @@ Required design properties:
 - Do not introduce a generic runner framework, arbitrary shell dialect registry, or speculative
   macOS surface.
 
-The implementation should choose the smallest semantic factoring after tests expose the stable shared
-kernel. Duplication between two small host renderers is preferable to a parameterized template that
-hides platform behavior.
+The implementation should choose the smallest semantic factoring after tests expose the stable
+shared kernel. Duplication between two small host renderers is preferable to a parameterized
+template that hides platform behavior.
 
 ## Implementation item 1 — explicit Linux identity
 
@@ -206,13 +217,13 @@ Acceptance:
 
 ## Implementation item 2 — native Windows generation
 
-Target outcome: `@sys/workspace` can generate, write, sync, and remove a native Windows test workflow
-from packages that expose `test:windows`.
+Target outcome: `@sys/workspace` can generate, write, sync, and remove a native Windows test
+workflow from packages that expose `test:windows`.
 
 Work:
 
-1. Verify and record current GitHub documentation for the `windows-2025` runner label, hosted image
-   lifecycle, and `pwsh` shell contract.
+1. Preserve the recorded GitHub provider contract for the `windows-2025` runner label, hosted image
+   lifecycle, and `pwsh` shell while implementing the generated workflow.
 2. Shape named `WorkspaceCi.Test.Linux` and `WorkspaceCi.Test.Windows` contracts in the type plane.
 3. Replace singular aggregate test target/result identity with named `test.linux` and `test.windows`
    members in both types and runtime results.
@@ -236,7 +247,8 @@ Required negative assertions:
 - no package working directory on root orchestration steps and exactly one matrix package working
   directory on the `test:windows` step;
 - no Chrome setup or `test:browser` step;
-- no publish command, OIDC permission, JSR trigger, or deployment environment.
+- no workflow environment-variable input, secret expression, publish command, OIDC permission, JSR
+  trigger, or deployment environment.
 
 Acceptance:
 
@@ -248,29 +260,58 @@ Acceptance:
 - a package with `test:windows` is present;
 - named aggregate results independently represent Linux `unchanged` and Windows `removed` or
   `skipped` in the same sync;
-- parsed YAML proves root orchestration has no package working directory and exactly the package test
-  step uses `${{ matrix.path }}`;
+- parsed YAML proves root orchestration has no package working directory and exactly the package
+  test step uses `${{ matrix.path }}`;
 - a stale Windows workflow is removed when no admitted package remains;
 - Linux, build, and JSR fixture outputs remain unchanged outside their deliberate Linux rename.
 
-## Implementation item 3 — first real host proof
+## Implementation item 3 — admission preflight
 
-Target outcome: GitHub executes a native Windows Server 2025 test of `@sys/std` through the generated
-workflow.
+Target outcome: clear known test and root-prep blockers under existing CI without admitting a
+Windows package or creating a cloud Windows workflow.
+
+Work:
+
+1. Land the root prep-CI delegation proof omitted from item 2.
+2. Make ordinary `@sys/std` host-default path expectations truthful for both POSIX and Windows
+   separators without changing runtime semantics, narrowing discovery, or skipping tests.
+3. Keep `@sys/std` without `test:windows` and regenerate the authoritative absence of
+   `.github/workflows/test.windows.yaml`.
+4. Run the ordinary `@sys/std` suite, root prep-CI proof, focused generator checks, root graph
+   check, and repeated generation.
+5. After explicit landing and push authorization, require the repository's existing CI to remain
+   green before activating Windows in the immediate next item.
+
+Acceptance:
+
+- default path joins, glob joins, and directory-builder expectations follow host truth;
+- explicit POSIX and Windows path behavior remains covered;
+- no runtime path behavior changes;
+- no package exposes `test:windows` and no Windows workflow exists;
+- existing CI remains unchanged and green after the preflight landing.
+
+## Implementation item 4 — first real host proof
+
+Target outcome: GitHub executes a native Windows Server 2025 test of `@sys/std` through the
+generated workflow.
 
 Work:
 
 1. Add the exact task `"test:windows": "deno task test"` to `code/sys/std/deno.json`.
-2. Add source-level proof that the admission delegates to the unchanged ordinary suite.
+2. Prove exact delegation through manifest source inspection, generated admission, equal local
+   ordinary and delegated discovery/results, and hosted logs. Do not use a package test discovered
+   by the task under test as an independent narrowing guard.
 3. Regenerate `.github/workflows/test.windows.yaml` through root prep.
 4. Verify the generated matrix contains `@sys/std` and no package without `test:windows`.
 5. Run focused local generator and both ordinary and delegated `@sys/std` tasks.
-6. After the implementation commit is explicitly landed and pushed by an authorized operator, observe
-   one GitHub-hosted Windows run and record its URL, runner label, image version, shell, Deno version,
-   matrix package, ordinary-suite discovery/result surface, and final result in this plan's durable
-   proof section.
-7. If the first run fails, classify the failure as workflow substrate, `@sys/std`, dependency install,
-   root workspace orchestration, or external runner service before changing scope.
+6. After the implementation commit is explicitly landed and pushed by an authorized operator,
+   observe one GitHub-hosted Windows run and record its URL, runner label, image version, shell,
+   Deno version, matrix package, ordinary-suite discovery/result surface, and final result in this
+   plan's durable proof section.
+7. If the first run fails, classify the failure as workflow substrate, `@sys/std`, dependency
+   install, root workspace orchestration, or external runner service before changing scope. Keep the
+   red result visible; do not narrow, skip, emulate, or add `continue-on-error` to manufacture
+   green.
 
 Acceptance:
 
@@ -280,7 +321,7 @@ Acceptance:
   and the unchanged ordinary `@sys/std` suite complete;
 - hosted logs expose enough ordinary-suite discovery/result evidence to reject a narrowed green run;
 - the observed run is green;
-- no failure is hidden with `continue-on-error`, blanket skips, or shell emulation;
+- no failure is hidden with `continue-on-error`, blanket skips, task narrowing, or shell emulation;
 - the reported claim is limited to the admitted package and exercised root workflow substrate.
 
 ## Blast-radius map for follow-on work
@@ -320,8 +361,8 @@ Admit only after substrate findings are understood:
 - root workspace info and graph verification exercised by the first workflow provide partial runtime
   evidence but do not equal the package's complete test suite.
 
-Each follow-on package should receive a bounded plan or implementation item grounded in actual Windows
-output. Do not pre-author broad portability fixes from static suspicion alone.
+Each follow-on package should receive a bounded plan or implementation item grounded in actual
+Windows output. Do not pre-author broad portability fixes from static suspicion alone.
 
 ## Blind-review adjudication
 
@@ -337,8 +378,43 @@ The review also identified the root README workflow badge as a live operational 
 item 1. No review finding widens the opening arc into build, browser, JSR, release, `@sys/fs`,
 `@sys/process`, or complete `@sys/workspace` compatibility work.
 
+A later independent implementation review found four generator defects and one provider-evidence
+drift. The corrections are accepted as part of item 2:
+
+- Windows exposes no workflow-environment input because this lane needs no secret or expression
+  surface;
+- direct Windows text/write calls enforce exact nonempty `test:windows` admission;
+- Windows module paths are canonical repository-relative forward-slash paths and paths outside the
+  generation root fail closed;
+- Windows owns its module loader and matrix renderer without importing the Linux/browser template;
+- durable provider evidence follows the manifest currently linked by the official runner-image
+  availability table.
+
+A targeted orthogonal implementation re-review found two remaining generator-boundary defects. Both
+are accepted as item-2 constraints:
+
+- caller-controlled trigger-list values must reject blank, non-string, control-character, and GitHub
+  expression input, while YAML-sensitive and implicitly typed values retain exact string meaning;
+- Windows module admission must enforce physical containment for the generation root, module
+  directory, and loaded `deno.json`, while retaining the lexical repository-relative alias emitted
+  into workflow YAML.
+
+A final pre-land review of the first package admission found two blockers. Both are accepted:
+
+- ordinary `@sys/std` host-default path tests encoded POSIX-only separators for auto joins, glob
+  joins, and directory builders even though runtime behavior correctly selects native Windows
+  semantics;
+- a package test discovered by the ordinary task can assert current manifest declarations, but
+  cannot independently detect narrowing that excludes the assertion itself.
+
+The first correction is isolated as item 3 and changes test expectations only. The self-discovered
+manifest assertion is removed; item 4 instead relies on exact source, generated admission, equal
+local ordinary/delegated results, and hosted logs. Item 3 deliberately leaves Windows unadmitted so
+existing cloud CI proves the preflight before item 4 activates the generated lane. Once activated, a
+hosted red result remains visible and is classified rather than hidden or worked around.
+
 Review does not authorize implementation, Git mutation, remote mutation, publication, or workflow
-dispatch.
+dispatch. The later human instruction authorizes the item-3 correction pass only.
 
 ## Verification
 
@@ -368,15 +444,29 @@ deno task check:graph
 git diff --check
 ```
 
-After all local items, run the full root verification tasks appropriate to the final changed surface.
-Remote GitHub evidence is observed only after explicit human-authorized landing and push. A local
-non-Windows host cannot substitute for the Windows runner result.
+After all local items, run the full root verification tasks appropriate to the final changed
+surface. Remote GitHub evidence is observed only after explicit human-authorized landing and push. A
+local non-Windows host cannot substitute for the Windows runner result.
 
 ## Durable proof
 
-Record only completed evidence here:
+Provider contract verified from official GitHub sources on 2026-08-24:
 
-- canonical GitHub provider documentation URLs used to verify the runner label and shell contract;
+- [GitHub-hosted runners reference](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+  lists `windows-2025` as an x64 Windows workflow label for both public and private repositories.
+- [GitHub Actions runner images](https://github.com/actions/runner-images) identifies `windows-2025`
+  as a Windows Server 2025 x64 label, documents weekly GA image updates, supports at most two GA
+  images plus one beta, and defines announcement, brownout, and removal stages for image
+  deprecation. A versioned label selects an OS line; it does not pin an immutable image build.
+- [Workflow syntax for GitHub Actions](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#jobsjob_idstepsshell)
+  defines `pwsh` on Windows as PowerShell Core and documents its `.ps1` invocation contract.
+- [Current Windows Server 2025 image manifest](https://github.com/actions/runner-images/blob/main/images/windows/Windows2025-VS2026-Readme.md)
+  is the manifest currently linked for `windows-2025` by the official runner-image availability
+  table. It identifies Windows Server 2025 and includes PowerShell 7. The manifest is a moving
+  record of the deployed image, not a workflow pin.
+
+After item 4 reaches GitHub-hosted execution, record only completed run evidence here:
+
 - exact GitHub Actions run URL;
 - observed runner label and image version;
 - observed shell and Deno version;
@@ -401,12 +491,12 @@ This plan is complete when:
 - parsed YAML proves root orchestration and package working-directory ownership are distinct;
 - JSR, build, browser, release, and publication behavior remain outside the Windows design;
 - `@sys/std` owns the exact `"test:windows": "deno task test"` delegation;
-- a GitHub-hosted `windows-2025` run proves the unchanged ordinary `@sys/std` suite and complete first
-  matrix green;
+- a GitHub-hosted `windows-2025` run proves the unchanged ordinary `@sys/std` suite and complete
+  first matrix green;
 - the evidence claim remains bounded to what ran;
 - every material blind-review finding has a supported disposition; and
-- follow-on `@sys/fs`, `@sys/process`, and `@sys/workspace` work is driven by observed evidence rather
-  than folded speculatively into this arc.
+- follow-on `@sys/fs`, `@sys/process`, and `@sys/workspace` work is driven by observed evidence
+  rather than folded speculatively into this arc.
 
 ## Non-goals
 

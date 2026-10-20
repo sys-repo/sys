@@ -1,8 +1,27 @@
-# JSR prep and release hardening plan
+@sys.workspace
+release-hardening.plan.md
+- [x] f3b6e6191 fix(workspace): fail closed on unsafe workflow generation values
+- [x] e9aee780d fix(ci): publish JSR packages from clean GitHub worktrees
+- [x] e17f352a0 fix(ci): checkout LFS assets before JSR publish
+- [x] 3b3402435 fix(ci): hydrate LFS assets before JSR publish
+- [x] a5fa75c4c fix(ci): align LFS attributes before strict JSR publish
+- [ ] feat(workspace): add non-mutating generated-output drift proof
+- [ ] fix(workspace): enforce generated drift preflight before JSR publish
+- [ ] fix(workspace): harden workflow scalar rendering and validation
+- [ ] fix(ci): enforce explicit JSR trigger and environment policy
+- [ ] chore(ci): tighten release dependency trust roots
+
+## Preservation boundary
+
+This structural normalization preserves the existing release-hardening proposal, not implementation
+readiness or completion. The unchecked arc maps the five existing chunks in their recommended order;
+subjects remain provisional, and conditional choices below remain conditional. The opening arc is
+the sole landing ledger. Historical evidence is not a fresh release-path assessment or a new test
+run. Broader current-state reconciliation remains separate from this baseline preservation.
 
 ## Position
 
-Current posture is strong but not yet S-tier on the release path. The work should be landed
+The original assessment was strong but not yet S-tier on the release path. The work should be landed
 progressively, not as one large move.
 
 Most fixes are small-to-medium. The only potentially disruptive items are the publish gate changes
@@ -47,7 +66,7 @@ Goal: prove generation is current without mutating files.
   - `package.json`
   - `deno.graph.json`
   - `.github/workflows/build.yaml`
-  - `.github/workflows/test.yaml`
+  - `.github/workflows/test.linux.yaml`
   - `.github/workflows/jsr.yaml`
   - generated `src/pkg.ts` files
   - CI Deno pin
@@ -124,35 +143,30 @@ Acceptance:
 This order improves safety immediately without first changing release policy. Policy-sensitive
 changes land only after the repo can prove generated state cleanly.
 
-## Progress
+## Historical evidence
 
-### Landed
+### Workflow-generation guard
 
-- [x] `f3b6e6191` fix(workspace): fail closed on unsafe workflow generation values
-  - Started Chunk 3 with the low-disruption fail-closed guard.
-  - Generated workflow module names and paths now reject shell/YAML-sensitive values before render.
-  - Covered JSR publish, build, and test workflow generation paths.
-  - Added regression tests for unsafe package names and paths.
-  - Current generated workflow output remains unchanged for existing workspace package names and
-    paths.
-- [x] `e17f352a0` fix(ci): checkout LFS assets before JSR publish
-  - Began proving JSR checkout cleanliness before publish by ensuring LFS assets are present.
-- [x] `3b3402435` fix(ci): hydrate LFS assets before JSR publish
-  - Continued the LFS checkout/hydration path for JSR publish cleanliness.
-- [x] `a5fa75c4c` fix(ci): align LFS attributes before strict JSR publish
-  - Aligned LFS attributes with committed pointer files for strict JSR publish checks.
+The low-disruption fail-closed guard began Chunk 3 by rejecting shell/YAML-sensitive workflow module
+names and paths before rendering. The recorded coverage included JSR publish, build, and test
+workflow generation, with regression tests for unsafe package names and paths. At that change,
+generated output remained unchanged for existing workspace package names and paths.
 
-### In progress
+### GitHub publish cleanliness
 
-- Remove `--allow-dirty` from generated GitHub JSR publish steps.
-  - This targets GitHub OIDC publish only.
-  - Local dry-run helper surfaces may still use `--allow-dirty` for operator diagnostics.
-  - If GitHub publish now fails dirty, treat that as a real generated-state/provenance signal.
+The clean-worktree change removed `--allow-dirty` from generated GitHub JSR publish steps. The later
+LFS changes ensured checkout assets were present, continued hydration, and aligned LFS attributes
+with committed pointer files for strict publish checks. These are partial Chunk 2 evidence, not
+completion of generated-drift preflight.
 
-### Remaining first-pass candidates
+This boundary targets GitHub OIDC publish only. Local dry-run helper surfaces may still use
+`--allow-dirty` for operator diagnostics. If GitHub publish fails dirty, treat that as a real
+generated-state/provenance signal.
 
-- Chunk 1: add non-mutating generated-output drift proof.
-- Chunk 2: add publish preflight around generated drift before changing publish policy.
+## Preserved first-pass priorities
+
+- Chunk 1: non-mutating generated-output drift proof.
+- Chunk 2: publish preflight around generated drift before changing publish policy.
 - Chunk 3 follow-up: split the coarse scalar guard into path-specific and package-name-specific
   validators if needed.
 

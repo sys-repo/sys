@@ -1,3 +1,4 @@
+@sys.driver-pi
 start-ui-release-evidence.plan.md
 - [x] [start-ui.design.md](start-ui.design.md)
 - [x] e52d9c0c4 feat(cli): expose narrow keyboard lifecycle entrypoint
@@ -50,24 +51,27 @@ start-ui-release-evidence.plan.md
 - [x] f33eb684b fix(server): right-size bootstrap capability paths
 - [x] e6ff0d57f fix(driver-pi): clarify bootstrap capability status
 - [x] 60c623bca test(driver-pi): prove bottom-docked start:gui footer
-- [ ] plan(snapshot): verified-package-ui-release.plan.md
-- [ ] [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
-- [ ] GATE release owner selects immutable artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
+- [x] c39511c15 [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
+- [ ] GATE release owner selects versioned artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
+- [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
+- [ ] [r2-web-exposure.plan.md](../@sys.driver-cloudflare/r2-web-exposure.plan.md)
 - [ ] feat(driver-pi): bind published GUI Dist evidence for release
 
 ## Purpose
+
 Finish Driver Pi GUI release evidence in two honest stages:
 
 1. make the complete release acquisition path work against an operator-owned `http://localhost:8080`
    Dist source; then
-2. replace only the local publication assumptions once real immutable hosting and public HTTPS proof
-   authority exist.
+2. replace only the local publication assumptions once selected versioned hosting, retention policy,
+   and public HTTPS proof authority exist.
 
 The first stage is a development release-path rehearsal, not a public release claim. The second
 stage remains human-gated. Planning and readiness do not authorize implementation, publication, or
 Git mutation.
 
 ## Current arc
+
 The narrow HTTP host, narrow FS Dist verifier, and complete local Dist transport are landed at
 `f4303dd39`, `a96178674`, and `9ad3d214f`. Driver Vite's lazy command graph is consolidated through
 `540ef7436`, Driver Pi's duplicate source server is removed at `515e1a1b5`, and the frozen local GUI
@@ -75,18 +79,20 @@ release-evidence lane is landed at `1f4ccb176`. A deliberate rebuilt-candidate l
 stale pin fails closed at manifest acquisition. The completed Server/Driver Pi diagnostic boundary
 now retains the exact expected/received pair at its owner, admits it against launcher authority, and
 renders only trusted terminal evidence and local-rehearsal guidance. Human DX review then identified
-that the linked `manifest` row displayed the manifest-byte pin rather than the canonical Dist content
-digest. The shared linked-reference formatter landed at `72c8d412c`, Driver Pi's corrected
+that the linked `manifest` row displayed the manifest-byte pin rather than the canonical Dist
+content digest. The shared linked-reference formatter landed at `72c8d412c`, Driver Pi's corrected
 verified-digest flow and terminal presentation landed at `fe66d2588`, and the exact local verified
 Dist-directory link landed at `1d5e25ff3`. The arc's landed and remaining authority boundaries
 follow this order:
 
 The finite Chrome prerequisite's final completed snapshot is `c099fb1f3`; its fully reachable
-nine-commit arc ends at `73d944372`. Its direct child `22acc030e plan(retire):
-finite-chrome-process-authority.plan.md` removed the live file after that truthful `plan(done)`
-snapshot. The final snapshot, exact reachable implementation arc, recorded validation, and the
-human's explicit completion determination establish this dependency as complete. This parent retains
-`c099fb1f3` as its recovery identity and does not duplicate the prerequisite's internal arc.
+nine-commit arc ends at `73d944372`. Its direct child
+`22acc030e plan(retire):
+finite-chrome-process-authority.plan.md` removed the live file after that
+truthful `plan(done)` snapshot. The final snapshot, exact reachable implementation arc, recorded
+validation, and the human's explicit completion determination establish this dependency as complete.
+This parent retains `c099fb1f3` as its recovery identity and does not duplicate the prerequisite's
+internal arc.
 
 1. align the strict lifecycle alarm with the Rolldown version selected by the frozen Vite graph;
 2. restore a green eager Driver Vite entry through direct runtime-owner imports;
@@ -112,14 +118,16 @@ human's explicit completion determination establish this dependency as complete.
     `manifest  dist/ ← digest:sha256:#<tail>` with only the digest linked to the admitted manifest;
 22. link `dist/` to the exact local verified generation directory without changing digest authority;
 23. let a handled shared CLI key stop its binding before another terminal read begins;
-24. return a clean GUI back action to the same profile action menu only after complete owner cleanup;
+24. return a clean GUI back action to the same profile action menu only after complete owner
+    cleanup;
 25. run and adjudicate the scheduled orthogonal review;
 26. bind each pinned Dist host to one invocation-resolved absolute root path for verification and
     every request read;
 27. render the verified release-mechanism ownership plan and hand off the next technical arc;
 28. complete the referenced release-mechanism ownership plan;
-29. stop at the release-owner gate; and
-30. only after that gate, bind independently verified published evidence.
+29. resolve the release-owner gate for the published binding;
+30. consume the separately owned R2 upload/readback and public-exposure prerequisites; and
+31. only after those dependencies, bind independently verified published evidence.
 
 The diagnostic pair followed lower-owner → consumer order. The intermediate Server checkpoint
 extended the public failure result before Driver Pi admitted the new exact shape, so that historical
@@ -734,10 +742,10 @@ After the binding name is landed, select the already-built replacement candidate
 data-only authority change. This item advances the local rehearsal tuple; it does not alter the
 binding mechanism or hide candidate selection inside the rename.
 
-- Before binding, require the existing `dist/` to be the deliberately selected candidate rather
-  than whichever build happens to be present. Stop on any mismatch; do not make a new digest true by
-  rebinding it implicitly. Bind through `deno task bind:gui:evidence:local` and require exact package
-  identity `@sys/driver-pi@0.0.138` and manifest integrity
+- Before binding, require the existing `dist/` to be the deliberately selected candidate rather than
+  whichever build happens to be present. Stop on any mismatch; do not make a new digest true by
+  rebinding it implicitly. Bind through `deno task bind:gui:evidence:local` and require exact
+  package identity `@sys/driver-pi@0.0.138` and manifest integrity
   `sha256-ce9b78fa028c5e48e0be0c64cc1da4767faad695d23df879dc16e0d8196f7d5a`.
 - Change only the generated evidence value attributable to candidate selection. The renamed banner
   belongs to the preceding commit; do not combine the two hunks merely because they share one file.
@@ -754,9 +762,9 @@ single-file data commit without turning presentation into authority or Git autom
 
 - Keep `bind:gui:evidence:local` as the precise least-authority writer. After successful settlement,
   render package identity from `pkg.name`, local-GUI evidence state, and the output path through the
-  canonical `Table`; frame the fixed suggestion
-  `chore(driver-pi): bind rebuilt local GUI evidence` with a width-aware cyan `Fmt.hr` and render it
-  through `Fmt.Commit.suggestion` from the narrow public `@sys/cli/fmt` entry.
+  canonical `Table`; frame the fixed suggestion `chore(driver-pi): bind rebuilt local GUI evidence`
+  with a width-aware cyan `Fmt.hr` and render it through `Fmt.Commit.suggestion` from the narrow
+  public `@sys/cli/fmt` entry.
 - Emit no suggestion before candidate verification and successful evidence write settlement. A
   verification, identity, render, or write failure retains its existing error and produces no false
   success or commit guidance.
@@ -765,10 +773,10 @@ single-file data commit without turning presentation into authority or Git autom
   contacts `:8080`, resets stores, or infers whether other worktree changes belong in a commit.
 - Keep semantic facts in one frozen `EVIDENCE` object and render the vertical output hierarchy with
   canonical `Str.dedent`; do not retain parallel message/output constants or formatter-span joins.
-- Extend the existing unit and cache-process proofs with semantic fact ordering, canonical state/path
-  styling, cyan rule shape, width-bounded table rows, and successful child settlement. Do not pin
-  incidental `Table` spacing or formatter-owned heading copy, and do not add a second executable,
-  formatter, process harness, or output schema.
+- Extend the existing unit and cache-process proofs with semantic fact ordering, canonical
+  state/path styling, cyan rule shape, width-bounded table rows, and successful child settlement. Do
+  not pin incidental `Table` spacing or formatter-owned heading copy, and do not add a second
+  executable, formatter, process harness, or output schema.
 
 ## `refactor(http)!: rename checksum observation to received`
 
@@ -781,9 +789,9 @@ Rename the field at the HTTP owner as one explicit breaking migration before Ser
   `received` across their public types, construction, Pull transfer checks, and tests. The new name
   means only the digest observed over bounded bytes received by that operation; it is never source,
   manifest, artifact, or publication authority.
-- Migrate every live workspace consumer in the same unit, including Registry assertions and
-  Server's existing successful-manifest checksum check. Keep Server's generic mismatch failure
-  unchanged here; bounded diagnostic retention belongs to the following Server-owned item.
+- Migrate every live workspace consumer in the same unit, including Registry assertions and Server's
+  existing successful-manifest checksum check. Keep Server's generic mismatch failure unchanged
+  here; bounded diagnostic retention belongs to the following Server-owned item.
 - Remove the old field without a dual-write or compatibility alias. The `!` subject records the
   published contract break truthfully; release coordination and publication remain separately
   authorized human/release-workflow actions. Do not rewrite intentionally frozen generated bundles
@@ -792,11 +800,10 @@ Rename the field at the HTTP owner as one explicit breaking migration before Ser
   accounting, retries, cancellation, disposal, permissions, and IO authority exactly. This is a
   terminology correction over an existing observation, not a transport or trust redesign.
 - Prove the runtime and public type expose `received` and not `actual`, compile all live workspace
-  consumers, and perform a residue pass that distinguishes attributable source from frozen
-  generated artifacts. Run focused Fetch/Pull and touched Registry tests, the full HTTP package
-  tests, HTTP and Registry checks, scoped formatting/lint, and both package dry publications; keep
-  separately invoked external-network lanes diagnostic and distinguish unrelated failures. Do not
-  publish.
+  consumers, and perform a residue pass that distinguishes attributable source from frozen generated
+  artifacts. Run focused Fetch/Pull and touched Registry tests, the full HTTP package tests, HTTP
+  and Registry checks, scoped formatting/lint, and both package dry publications; keep separately
+  invoked external-network lanes diagnostic and distinguish unrelated failures. Do not publish.
 
 ## `feat(server): retain manifest checksum mismatch evidence`
 
@@ -824,8 +831,8 @@ without making failure evidence into artifact authority.
   constructor from manufacturing it.
 - Apply only the downstream type adaptations needed to keep live consumers coherent: Driver Pi's
   current exact identity boundary rejects the now-impossible bare mismatch, while typed fixtures
-  construct the complete diagnostic variant. Do not admit, carry, or render the diagnostic in
-  Driver Pi; that strict consumer behavior belongs to the following item.
+  construct the complete diagnostic variant. Do not admit, carry, or render the diagnostic in Driver
+  Pi; that strict consumer behavior belongs to the following item.
 - Keep every other materialization failure structurally unchanged, including resource-pull asset
   mismatches and existing, staged, or final verification mismatches. Keep top-level failure
   `integrity`, `verification`, `source`, `totals`, bytes, headers, raw errors, credentials, URLs,
@@ -875,9 +882,9 @@ render the additional facts only in the trusted terminal projection.
   failure retain that row; invalid configuration with no trusted pin omits it.
 - Render the stable row through `HashFmt.digest` from `@sys/crypto/fmt` with the measured value-cell
   `maxWidth` and no `length` override. Preserve its default five-character tail and established
-  progressive context reduction (`digest:sha256:#xxxxx` → `sha256:#xxxxx` → `#xxxxx` → omitted).
-  The compact row is orientation, not verification evidence: add no age, hyperlink, source URL,
-  cache claim, or replacement authority.
+  progressive context reduction (`digest:sha256:#xxxxx` → `sha256:#xxxxx` → `#xxxxx` → omitted). The
+  compact row is orientation, not verification evidence: add no age, hyperlink, source URL, cache
+  claim, or replacement authority.
 - Keep Driver Pi's base `stage`/`reason`/`cleanup`/`publication` materialization evidence and its
   rendered `evidence` row unchanged. Carry the copied mismatch pair as separate finite terminal
   diagnostics, retain full canonical values, and add adjacent `expected` and `received` table rows.
@@ -919,8 +926,8 @@ wrong-pin runtime             → no generation, application host, redirect, or 
 ```
 
 Use focused admission, failure-state, screen-rendering, bootstrap, and supervisor tests before the
-existing disposable wrong-pin runtime capstone. Prove stable row order, complete wide-terminal
-text, every shared compact-digest transition, semantic head/tail omission for full mismatch values,
+existing disposable wrong-pin runtime capstone. Prove stable row order, complete wide-terminal text,
+every shared compact-digest transition, semantic head/tail omission for full mismatch values,
 short-viewport bounds, generic-browser non-disclosure, unchanged candidate bytes, and zero
 application starts. Then run Driver Pi check, package tests, release-runtime lane, formatting/lint,
 dry publication, and the workspace check. Do not rebuild or regenerate launcher evidence as part of
@@ -962,26 +969,26 @@ deno task bind:dev
   stop before evidence binding.
 - Keep `bind:gui:evidence:local` as the independently callable least-authority leaf for an
   intentionally selected, already-built candidate. Preserve its script entry, frozen/cached-only
-  execution, exact permission profile, candidate verification, deterministic rendering, and
-  one-leaf write authority.
-- Preserve the behavior and ownership of `dev`, `build`, `serve`, and `reset`. `bind:dev` never starts
-  serving, launches the GUI, contacts `:8080`, removes a cache, or performs a second build after
-  binding.
+  execution, exact permission profile, candidate verification, deterministic rendering, and one-leaf
+  write authority.
+- Preserve the behavior and ownership of `dev`, `build`, `serve`, and `reset`. `bind:dev` never
+  starts serving, launches the GUI, contacts `:8080`, removes a cache, or performs a second build
+  after binding.
 - Lead the README development surface with the concise task grammar, then retain the precise binding
   leaf as the advanced frozen-candidate path. Change exact local-mismatch recovery guidance to
   `Intended local build? In Driver Pi run deno task bind:dev, then relaunch.`; the runtime only
   presents that command and never invokes it.
-- Keep the generated-source banner attached to `bind:gui:evidence:local`, the operation that actually
-  writes the leaf. Do not duplicate the binding script, permission profile, or process proof under
-  the concise task name.
-- Pin the exact `bind:dev` sequence and build-before-bind order in task tests. Prove that the existing
-  build and binding leaves remain the only causal operations rather than adding a duplicate broad
-  end-to-end harness for their composition.
+- Keep the generated-source banner attached to `bind:gui:evidence:local`, the operation that
+  actually writes the leaf. Do not duplicate the binding script, permission profile, or process
+  proof under the concise task name.
+- Pin the exact `bind:dev` sequence and build-before-bind order in task tests. Prove that the
+  existing build and binding leaves remain the only causal operations rather than adding a duplicate
+  broad end-to-end harness for their composition.
 - Run the composition once against the deliberately selected local source and require the rebuilt
   manifest and generated evidence bytes to remain deterministic. If it advances candidate identity,
   stop and separate that data change rather than hiding it in this DX commit.
-- Add no `bind:release` task or remote-publication vocabulary. The verified package-UI successor plan
-  and release-owner gate must first establish the real provider and publication boundary.
+- Add no `bind:release` task or remote-publication vocabulary. The verified package-UI successor
+  plan and release-owner gate must first establish the real provider and publication boundary.
 
 ## `fix(driver-pi): link local GUI manifest digest`
 
@@ -994,9 +1001,9 @@ Keep this as one terminal-presentation refinement over the existing stable `dist
   formatted digest with `Cli.Fmt.hyperlink` when the captured location is available. Follow the
   established Driver Vite and Server pattern where the digest label links to the manifest bytes it
   identifies.
-- Keep ANSI-stripped output semantically complete and preserve every existing compact-width fallback.
-  The link is orientation to a potentially mutable location, never new checksum, package, cache, or
-  publication authority.
+- Keep ANSI-stripped output semantically complete and preserve every existing compact-width
+  fallback. The link is orientation to a potentially mutable location, never new checksum, package,
+  cache, or publication authority.
 - Make no Driver Vite, Vite config, browser UI, Splash, Server, Crypto, generated evidence, build,
   binding, permission, materialization, or service-worker change. The stable `dist.json` emitted by
   `@sys/driver-vite` remains the sole artifact boundary in play.
@@ -1011,8 +1018,8 @@ landed `72c8d412c` commit moves those mechanics into the existing `HashFmt.diges
 reimplementing them in Driver Pi.
 
 - Add optional standard incoming-reference arrow and digest-label URL presentation to
-  `HashFmt.digest`; include the arrow in `maxWidth` accounting and preserve the established
-  full → algorithm → hash → omitted fallback sequence.
+  `HashFmt.digest`; include the arrow in `maxWidth` accounting and preserve the established full →
+  algorithm → hash → omitted fallback sequence.
 - Apply the URL only to the visible digest label. The arrow remains presentation context and never
   enters the hyperlink target.
 - Keep ordinary `HashFmt.digest` output unchanged when the new options are absent.
@@ -1029,8 +1036,8 @@ bytes, rather than `verification.dist.hash.digest`, the canonical digest of the 
 those authenticated bytes. The landed `fe66d2588` correction changes the value flow, not the trust
 model.
 
-- Keep `START_GUI_SERVICE.source.integrity` as launcher-owned manifest-byte authority for acquisition
-  and refusal. It never becomes the operator-facing Dist digest.
+- Keep `START_GUI_SERVICE.source.integrity` as launcher-owned manifest-byte authority for
+  acquisition and refusal. It never becomes the operator-facing Dist digest.
 - Snapshot the canonical lowercase `verification.dist.hash.digest` from the already-verified
   application result at the same strict admission boundary that retains package identity and
   listener origin. Do not recompute it or obtain it from presentation, browser state, or the source
@@ -1038,12 +1045,11 @@ model.
 - Carry the admitted digest in the immutable ready state. Non-ready states do not claim a verified
   Dist digest, and the browser bootstrap projection continues to expose only its existing generic
   state/redirect contract.
-- Render the ready terminal row as
-  `manifest  dist/ ← digest:sha256:#<tail>`. Driver Pi contributes only the `dist/` context;
-  `HashFmt.digest` owns arrow, compaction, color, and digest-only linking.
-- Keep the exact admitted manifest URL as the digest hyperlink target. At the `fe66d2588` checkpoint,
-  `dist/` remains plain because no directory URL has yet been admitted, and no build age is fabricated
-  because this ready-state contract retains no verified timestamp.
+- Render the ready terminal row as `manifest  dist/ ← digest:sha256:#<tail>`. Driver Pi contributes
+  only the `dist/` context; `HashFmt.digest` owns arrow, compaction, color, and digest-only linking.
+- Keep the exact admitted manifest URL as the digest hyperlink target. At the `fe66d2588`
+  checkpoint, `dist/` remains plain because no directory URL has yet been admitted, and no build age
+  is fabricated because this ready-state contract retains no verified timestamp.
 - Preserve development-mode plain fallback, width bounds, terminal-only disclosure, generated
   evidence, build/binding tasks, permissions, Server behavior, and publication authority.
 
@@ -1058,23 +1064,23 @@ test fixtures.
 The landed `1d5e25ff3` follow-up gives `dist/` parity with Vite and Server without conflating the
 local materialized directory with the admitted HTTP manifest location.
 
-- Capture the exact absolute verified/materialized generation path as an optional copied `file:` href.
-  Require native URL capture and exact path round-trip; on any unsafe or unavailable conversion,
-  retain the plain semantic fallback rather than synthesizing a target.
+- Capture the exact absolute verified/materialized generation path as an optional copied `file:`
+  href. Require native URL capture and exact path round-trip; on any unsafe or unavailable
+  conversion, retain the plain semantic fallback rather than synthesizing a target.
 - Carry that optional href only in the immutable ready state assembled from the selected generation,
   and publish the state only after application admission. Non-ready states do not claim a verified
   directory link.
 - Link only the visible `dist/` label to the local generation directory. Keep the canonical Dist
   digest linked exclusively to the exact admitted manifest URL; never derive either link from the
   other.
-- Preserve `HashFmt.digest` ownership of arrow, width compaction, coloring, and digest-only hyperlink
-  semantics. At narrow widths, retain the plain or linked `dist/` fallback without fabricating a
-  digest, location, or age.
+- Preserve `HashFmt.digest` ownership of arrow, width compaction, coloring, and digest-only
+  hyperlink semantics. At narrow widths, retain the plain or linked `dist/` fallback without
+  fabricating a digest, location, or age.
 - Add no browser disclosure, filesystem read, build, binding, reset, cache, publication, or recovery
   authority. The link is terminal orientation to bytes already selected and verified.
 
-Landed closure: focused rendering **16/16**, profiles **28/337**, and process **1/5** passed; package
-check, scoped format/lint/type-check, and full-worktree `git diff --check` passed.
+Landed closure: focused rendering **16/16**, profiles **28/337**, and process **1/5** passed;
+package check, scoped format/lint/type-check, and full-worktree `git diff --check` passed.
 
 ## `fix(cli): let handled keys stop keyboard bindings`
 
@@ -1087,14 +1093,16 @@ read, so the GUI remains on `stopping` until another key releases it.
   admitted `onKey` callback returns it, leave the listener before another iterator read begins and
   let the existing listener-finally path dispose the lower keypress owner and settle `finished`.
 - Keep key classification and policy with callers. The shared owner learns no Driver Pi action,
-  profile-menu concept, key grammar, or stop taxonomy; canonical q/Ctrl+C behavior remains unchanged.
+  profile-menu concept, key grammar, or stop taxonomy; canonical q/Ctrl+C behavior remains
+  unchanged.
 - Preserve the existing disposal, retry, listener-failure, callback-completion, Promise-transport,
   and unavailable-terminal contracts. Do not use timing yields, thrown sentinels, raw stop-reason
   strings, or caller disposal from inside the callback.
-- Prove that a handled stop performs one callback, never enters a second pending read, disposes once,
-  and settles the binding. Existing ordinary-key continuation and canonical quit proofs remain.
-- This closes in-band handled-key termination only. It does not claim Cliffy's pending stdin read can
-  be externally cancelled after it has begun.
+- Prove that a handled stop performs one callback, never enters a second pending read, disposes
+  once, and settles the binding. Existing ordinary-key continuation and canonical quit proofs
+  remain.
+- This closes in-band handled-key termination only. It does not claim Cliffy's pending stdin read
+  can be externally cancelled after it has begun.
 
 Land this reusable correction independently before the Driver Pi navigation consumer.
 
@@ -1143,13 +1151,14 @@ settlement into menu policy.
 - Keep standalone consumers standalone. The isolated Vite preview and direct/programmatic GUI
   callers may explicitly discard a successful control completion and settle as they do today; they
   never import, open, or synthesize the profile menu merely because the control was back.
-- Remove the synthetic visible-frame claim. Focused composition tests own same-profile reconstruction
-  and teardown-before-prompt ordering; the shared keyboard owner proves no second read. Record a real
-  operator TTY run as acceptance evidence before landing rather than manufacturing terminal frames
-  from fake screens and prompts.
-- Add no browser-process control, cache reset, rebuild, rebind, source-server action, new permission,
-  generated-evidence change, or Server/FS/Crypto/Driver Vite contract. Verified-host cleanup remains
-  exactly as it is today, and the detached browser process is neither newly owned nor closed.
+- Remove the synthetic visible-frame claim. Focused composition tests own same-profile
+  reconstruction and teardown-before-prompt ordering; the shared keyboard owner proves no second
+  read. Record a real operator TTY run as acceptance evidence before landing rather than
+  manufacturing terminal frames from fake screens and prompts.
+- Add no browser-process control, cache reset, rebuild, rebind, source-server action, new
+  permission, generated-evidence change, or Server/FS/Crypto/Driver Vite contract. Verified-host
+  cleanup remains exactly as it is today, and the detached browser process is neither newly owned
+  nor closed.
 
 Focused proof:
 
@@ -1204,8 +1213,8 @@ Adjudication retains these durable decisions:
   that owner decision.
 
 The review was read-only and ran no tasks. Its source verdict does not replace implementation proof:
-the pinned-root correction owns its focused runtime tests and package validation below. Review grants
-no code, Git, publication, provider-selection, or gate-passage authority.
+the pinned-root correction owns its focused runtime tests and package validation below. Review
+grants no code, Git, publication, provider-selection, or gate-passage authority.
 
 The finite Chrome prerequisite owns the shared Process and Testing correction. This plan retains
 only its dependency and the Driver Pi proof consequences; do not duplicate that maintenance plan
@@ -1225,45 +1234,58 @@ checksum-authenticated, and Driver Pi already supplies an admitted absolute gene
 is neither a landed Driver Pi integrity bypass nor permission to leave the shared host inconsistent.
 
 - In `snapshotStartInput`, synchronously resolve `dir` from the invocation CWD before the first
-  scheduler boundary, exactly as `snapshotStartLocalInput` does. Carry that one absolute path through
-  pinned verification, `start`, raw and screen `serve`, and every request read; do not introduce a
-  second Server path owner.
-- Preserve `Pkg.Dist.Pinned` canonical root and ancestor checks plus per-read path, length, checksum,
-  and lifecycle admission. This fixes CWD-relative requested-root drift only; it does not claim
-  descriptor-relative confinement, immunity to hostile same-user mutation, or a stronger filesystem
-  capability.
+  scheduler boundary, exactly as `snapshotStartLocalInput` does. Carry that one absolute path
+  through pinned verification, `start`, raw and screen `serve`, and every request read; do not
+  introduce a second Server path owner.
+- Preserve `Pkg.Dist.Pinned` canonical root and ancestor checks plus per-read path, length,
+  checksum, and lifecycle admission. This fixes CWD-relative requested-root drift only; it does not
+  claim descriptor-relative confinement, immunity to hostile same-user mutation, or a stronger
+  filesystem capability.
 - Keep public types, manifest and asset authority, browser policy, errors, listener lifecycle,
   permissions, terminal presentation, and Local behavior unchanged. Add no Driver Pi, FS, HTTP,
   generated-evidence, build, binding, reset, or publication change.
 - Prove a relative pinned `start` snapshots the invocation root before the scheduler turn and reuses
-  it after CWD changes for both verification and request reads. Prove raw pinned `serve` forwards the
-  same absolute root; retain successful exact bytes and fail-closed mutation behavior.
+  it after CWD changes for both verification and request reads. Prove raw pinned `serve` forwards
+  the same absolute root; retain successful exact bytes and fail-closed mutation behavior.
 - Run focused pinned start and serve tests, then Server check, complete package tests, scoped
   formatting and lint, package dry publication, and `git diff --check`. No broader package lane is
   required unless the implementation changes a public contract.
 - Stop and replan under the actual semantic owner if this requires changing `Pkg.Dist` path
   algorithms, widening permissions, or redesigning hostile-writer confinement.
 
-## `plan(snapshot): verified-package-ui-release.plan.md`
+## Retired verified-package UI release prerequisite
 
-### Semantic ownership correction
+### Completion, recovery, and attribution
 
 Generic release mechanisms accumulated inside Driver Pi while the verified local lane was completed.
-The architecture owner has selected their correction now: FS owns leased batch removal, Server owns
-pinned generation lifetime, and Driver Pi retains package policy, presentation, browser behavior,
-and supervision. This is not a new package-UI abstraction or release/app monolith.
+The architecture owner selected and completed their correction: FS owns leased batch removal, Server
+owns pinned generation lifetime, and Driver Pi retains package policy, presentation, browser
+behavior, and only unavoidable direct sequencing. This is not a new package-UI abstraction or
+release/app monolith.
 
-This planning-only handoff is the final step of the local technical arc. Execute it only after the
-local evidence item has landed, the pre-gate orthogonal review has been adjudicated, and the pinned
-host reuses one invocation-resolved absolute root path for verification and every request read, and
-before asking the release owner to pass the publication gate. It renders one separately reviewable
-successor plan, records its exact path and commit hash in the opening arc, and makes that plan the
-next technical cross-reference. The adjacent prerequisite reference remains unchecked until that
-plan's opening arc completes, so the public-release gate cannot precede the ownership correction. It
-authorizes no implementation, Git mutation, publication, or gate passage.
+Reachable commit `c39511c15` contains the prerequisite's final completed snapshot at
+`-agent/-plan/@sys.driver-pi/verified-package-ui-release.plan.md`. Its subject,
+`plan(done): start-ui-release-evidence.plan.md`, is an attribution defect: the commit modified only
+the prerequisite and is not completion evidence for this live plan, its release-owner gate, or its
+published-evidence item. Reachable commit `4fee036f8` then removed the completed prerequisite with
+subject `plan(retire): verified-package-ui-release.plan.md`.
 
-The successor plan starts from this exact mechanism inventory, then narrows it by semantic ownership
-rather than assuming every listed file moves:
+The formerly planned local `plan(snapshot): verified-package-ui-release.plan.md` item never landed
+under that exact subject and became obsolete after the independently cohesive prerequisite reached a
+recoverable final snapshot. It is removed from the opening arc under explicit plan-scope authority
+rather than assigned a fabricated commit identity. The checked retired reference now carries
+`c39511c15` as its durable recovery anchor; the retirement commit is recorded here and no history
+rewrite is implied.
+
+The prerequisite completed the local technical ownership arc after the local evidence item landed,
+the pre-gate orthogonal review was adjudicated, and the pinned host reused one invocation-resolved
+absolute root path for verification and every request read. Its completed direct-composition child
+established the final thin Driver Pi endpoint before control returned to this plan's unresolved
+human release gate. Neither prerequisite completion nor retirement authorizes implementation, Git
+mutation, publication, or gate passage.
+
+The prerequisite began from this exact mechanism inventory, then narrowed it by semantic ownership
+rather than assuming every listed file moved:
 
 - `code/sys.driver/driver-pi/-scripts/m.start.gui.evidence.local/-test/-.test.ts`;
 - `code/sys.driver/driver-pi/-scripts/m.start.gui.evidence.local/common.ts`;
@@ -1281,54 +1303,126 @@ rather than assuming every listed file moves:
 - `code/sys.driver/driver-pi/-scripts/-test.browser.ts`; and
 - the attributable task and permission wiring in `code/sys.driver/driver-pi/deno.json`.
 
-Reconcile that inventory against the existing owners at
-`code/sys/fs/src/m.Fs.capability/m.Rooted/`, `code/sys/fs/src/m.Pkg.Dist/`,
-`code/sys/server/src/m.server.dist/`, and `code/sys/http/src/http.server/`. Add no new package or
-facade. The successor plan names source and destination paths, API boundaries, migration order,
-proof owners, deletion conditions, and publication consequences.
+Reconcile that inventory against the existing owners at `code/sys/fs/src/m.Fs.capability/m.Rooted/`,
+`code/sys/fs/src/m.Pkg.Dist/`, `code/sys/server/src/m.server.dist/`, and
+`code/sys/http/src/http.server/`. Add no new package or facade. The prerequisite named source and
+destination paths, API boundaries, migration order, proof owners, deletion conditions, and
+publication consequences.
 
 The target Driver Pi shape is one conceptual TypeScript adapter that declares package policy and
 composes the upstream capabilities. Package identity, frozen evidence, source and limit policy,
 service name, browser policy, current/legacy store identity, recovery, presentation, and terminal
-lifecycle remain Driver Pi-owned. The generated evidence leaf, evidence renderer, permission-isolated
-entry, operator reset presentation, and package-owned policy tests remain separate where authority
-requires them. Generic batch lease/removal and generation ownership do not remain Driver Pi call-site
-mechanism.
+lifecycle remain Driver Pi-owned. The generated evidence leaf, evidence renderer,
+permission-isolated entry, operator reset presentation, and package-owned policy tests remain
+separate where authority requires them. Generic batch lease/removal and generation ownership do not
+remain Driver Pi call-site mechanism.
 
 ### Proof ownership and minimal Driver Pi shape
 
 Correct semantic ownership does not mean moving everything upward. Assign each generic guarantee and
 its deepest causal, adversarial, permission, process, and platform proof to exactly one existing
-owner. Record the existing proof, destination proof, retained Driver Pi proof, and deletion condition
-so the correction neither drops assurance nor leaves duplicate mechanism.
+owner. Record the existing proof, destination proof, retained Driver Pi proof, and deletion
+condition so the correction neither drops assurance nor leaves duplicate mechanism.
 
 Driver Pi retains package-policy proofs and one thin end-to-end composition lane showing that its
 frozen evidence opens an owned generation, admits package identity, reaches an independently
 verified host, honors browser and recovery policy, and shuts down in owner order. It does not repeat
-upstream path, lease, byte-integrity, materialization, cache, or hosting matrices. Minimal means less
-misowned mechanism, not weaker assurance.
+upstream path, lease, byte-integrity, materialization, cache, or hosting matrices. Minimal means
+less misowned mechanism, not weaker assurance.
+
+## R2 delivery and exposure handoff
+
+The opening references name the intended R2 route, not an approved production hostname or current
+live-provider success. The delivery plan proves the existing Files-backed upload and authenticated
+readback; the exposure plan proves the same selected bytes through owned HTTPS. Conditional writes,
+CAS activation, commit receipts, an owned S3 SDK, and provider-enforced immutability are not
+prerequisites for this independently pinned consumer. If the release owner selects a different
+provider, reconcile the references explicitly rather than adding provider machinery to Pi.
+
+The delivery prerequisite records completed sample storage evidence at `efdd7cdde`; its final
+snapshot is `0687bc053`, archived by `67466fed9`. Its checked reference does not assert that the Pi
+product has been uploaded. The exposure plan owns a mixed-delivery Deno sample: private shell/API
+through the application and intentionally public assets through R2/CDN. Hosted proof remains
+outstanding there. That sample's topology does not select Pi's artifact provider or product browser
+graph, and application serving does not move into Pi. Internal presigning is not this product's
+artifact-host contract: retain stable manifest/resource URLs on the selected host, no runtime
+storage credentials, and independently retained execution authority.
+
+The dependency direction is storage readback → application/public delivery proof → Pi published
+binding. Exposure can first prove a small non-release Dist without this product entry or release
+item. Pi must then verify its own selected product against that exposure: prerequisite completion
+does not prove an artifact that was not part of the first delivery. This plan's release gate does
+not block local delivery/exposure preparation or their separately authorized non-release operations.
+
+The product release must establish one continuous chain:
+
+```text
+owner-authorized product graph
+→ one built, verified, frozen Driver Pi Dist and independently retained pin/package
+→ local preflight matches that retained authority before upload
+→ existing push-only Files-backed upload to a fresh versioned R2 prefix
+→ authenticated readback of that same manifest and every asset
+→ exact manifest and every asset verified through owned HTTPS
+→ frozen launcher evidence without rebuilding the selected GUI
+→ Pi cold acquisition, package admission, and verified-loopback execution
+→ warm offline reuse and tamper refusal
+```
+
+Direct public-browser execution of that same product remains a distinct required proof, not an
+implication of download success. Preserve the public worker/cache and browser/platform obligations
+below. A versioned object path is not a fresh browser origin or provider-enforced immutable storage.
+
+Ordinary Deploy staging is not this handoff: `stageMappings` finalizes with Tools' package identity
+and can regenerate manifest time/bytes, indexes, and HTML. Select and freeze the product first, then
+use existing Dist verification to compare its exact root against the independently retained
+pin/package before the push-only invocation. Reverify the unchanged local candidate and both remote
+readback paths against that same authority before binding. Refuse a substituted candidate, even if
+internally valid; never silently repin or restage it. Current push does not accept a new
+complete-value release-authority API or guarantee checksum-pinned reads at each upload; do not claim
+either. If its existing target configuration cannot express the unchanged selected root, name the
+smallest Tools-owned input correction separately, not a new publisher or conditional storage
+prerequisite. An ordinary skipped/unchanged-publish result is not remote byte verification.
+
+The current `-scripts/m.start.gui.evidence.local/mod.ts` observes the saved local candidate and
+binds its pin at the fixed localhost URL. It is not the published binder. Published binding must
+consume the independently retained, publicly verified authority rather than call that local `main`
+or recompute an authoritative pin from whichever manifest is now present. Reuse pure rendering only
+where its admission contract fits; do not widen the local rehearsal task into a remote publisher.
+
+Pi's frozen manifest URL directly selects the retained artifact. No mutable pointer, receipt, ETag,
+or endpoint contents supply execution authority. Keep old pinned URLs available under the selected
+retention/no-overwrite policy; record its operational and provider-enforcement limits honestly.
+Changing remote bytes must still fail independent consumer verification, not trigger a fallback.
+Local materialized generations, leases, sealing, and pinned hosting remain unchanged.
+
+Keep credentials, upload, pointer discovery, and proxy logic outside Pi. Server retains
+materialization and independently verified hosting; Pi retains product/package policy and the thin
+end-to-end release proof. Add no release facade or duplicate lower-owner failure matrices.
 
 ## Human release gate
 
 Authority: the human release owner.
 
-The gate blocks only `feat(driver-pi): bind published GUI Dist evidence for release`. The local item
-may land and remain useful while the gate is unresolved.
+The gate blocks only `feat(driver-pi): bind published GUI Dist evidence for release`. The completed
+local lane remains useful while it is unresolved. It does not block local upload/readback and
+exposure preparation or their separately authorized non-release proof operations.
 
 Pass evidence records all of the following as concrete values in this plan:
 
-- one artifact provider, exact HTTPS hostname and immutable/versioned path namespace;
-- provider retention, overwrite-refusal, redirect, and credential boundaries;
+- one artifact provider, exact HTTPS hostname and dedicated versioned path namespace;
+- retention/no-overwrite policy, actual provider/credential enforcement limits, and redirect
+  boundaries; a prefix convention does not establish provider-enforced immutability;
 - one normally trusted non-loopback public HTTPS proof origin;
 - the supported browser engines and minimum versions;
 - the supported OS/filesystem set for locking, sealing, cold materialization, and warm reuse; and
 - either evidence that no prior product build exposed the selected local Service Worker authority or
   an explicit fresh-origin/site-data migration decision.
 
-If the selected provider needs separately owned publication mechanics, add its plan as a
-prerequisite rather than implementing credentials, object-store settlement, or a reusable uploader
-in Driver Pi. Deferral leaves the public item unchecked and makes no negative claim about the
-completed local path.
+The opening arc references the separately owned upload/readback and exposure plans for the intended
+R2 route. Record the selected provider/host/namespace and authority values before passing this gate;
+the references are not that selection evidence. Deferral leaves the public item unchecked and makes
+no negative claim about the completed local path. Neither this gate nor prerequisite completion
+alone authorizes provider mutation or publication.
 
 ## `feat(driver-pi): bind published GUI Dist evidence for release`
 
@@ -1336,9 +1430,14 @@ completed local path.
   production contains no module rooted under `src/-test` and no DevHarness code.
 - Freeze one owner-selected Driver Pi package expectation and that authorized production graph, then
   build and verify one candidate exactly as established by the local item.
-- Upload the unchanged candidate to the selected immutable/versioned path. Fetch and verify its
-  published manifest and every declared asset against the frozen build evidence before generating
-  launcher evidence.
+- Compare the frozen candidate with its retained pin/package through existing local Dist
+  verification before invoking the existing push-only Files upload into a fresh versioned prefix.
+  Never stage, regenerate, or silently rebind it. A valid different Dist must be refused, not
+  adopted.
+- Authenticate R2 readback, then fetch the manifest and every declared asset through the selected
+  owned HTTPS hostname. Compare both paths and the unchanged local candidate against the retained
+  authority before generating launcher evidence. Upload/skip status and authenticated S3 readback
+  alone are not substitutes for public byte verification.
 - Require manifest and resources to remain on the one selected artifact hostname, with no userinfo,
   query authority, fragment, mutable `latest`, overwrite, or redirect to an unlisted host.
 - Generate the launcher evidence leaf only after remote verification, replace the local tuple as one
@@ -1348,12 +1447,17 @@ completed local path.
 - Add only the selected artifact hostname to the named CLI permission surface. Credentials and
   provider mutation mechanics remain outside Driver Pi.
 - Execute the same exact Dist under verified-loopback and normally trusted public HTTPS policy.
-  Observe the local tombstone worker register, deny loopback deployment, remove owned cache state,
-  and unregister; observe public cache-worker registration without certificate, secure-context, or
-  browser-profile bypass.
+  Prove the public transitive HTML/CSS/module/asset/worker URL graph stays bound to the selected
+  version, including explicit entry/index URLs, redirects, MIME/headers, and relevant browser CORS.
+  Deno artifact acquisition does not itself require browser CORS to the artifact origin.
+- Observe the local tombstone worker register, deny loopback deployment, remove owned cache state,
+  and unregister; observe the owner-authorized public cache-worker registration without certificate,
+  secure-context, or browser-profile bypass. Prove worker scope, cache identity/isolation, and the
+  prior-worker migration decision; `no-store` alone does not disable explicit CacheStorage.
 - Prove cold acquisition, warm offline reuse, package/Dist identity, exact remote pin equality,
   frozen-artifact publication, public/local byte equality, tamper refusal, and the selected
-  browser/filesystem floors.
+  browser/filesystem floors. Include replacement of a valid candidate before publication and before
+  evidence binding; neither may silently change the independently retained pin/package.
 - Never add runtime TOFU, provider-supplied authority, post-pin mutation, previous-generation
   fallback, release-to-development fallback, a credential manager, or a release-receipt subsystem.
 
@@ -1389,6 +1493,8 @@ Stop rather than broaden the plan if:
 - the local substrate proof would require product-entry redesign or implicit build ownership;
 - the published-release item would keep a test-rooted entry or include DevHarness code;
 - evidence generation would enter the Vite application graph or rebuild the candidate after pinning;
+- publication would stage/transform the selected Dist, substitute Tools' package identity, silently
+  replace the retained pin, or obtain Pi execution authority from a mutable current pointer;
 - raw request spelling would become application authority or require a custom parser solely to
   reject aliases already normalized by the HTTP substrate;
 - the launcher would start the source, repair automatically, or merge release/development authority;
