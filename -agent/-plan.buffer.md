@@ -1,8 +1,3 @@
-I’m putting that on the table now because my long-range aim is to develop a better form of lawyer–client collaboration, leaving that unrefernced until we’re already working together would be risk. I’ve carved out the trust/estate work as a concrete test: important advice in its own right, and evidence of whether this way of working is worth developing further together.
-
-
-
-
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 
