@@ -1,13 +1,45 @@
-import { c, Cli, describe, expect, it } from '../../../-test.ts';
+import { c, Cli, describe, expect, it, type t } from '../../../-test.ts';
 import { WorkspaceDelta } from '../../mod.ts';
 import { Fixture } from '../../-test/u.fixture.ts';
 import { fileLines } from '../u.files.ts';
 
-describe('@sys/workspace Delta.Fmt', () => {
-  it('explains git-derived root selection with bounded changed-file evidence', async () => {
-    const { cwd, graphPath } = await Fixture.gitBaselineWorkspace();
-
-    const delta = await WorkspaceDelta.Git.fromRef({ cwd, graphPath, ref: 'baseline' });
+describe('@sys/workspace Delta.Fmt', {
+  permissions: { read: true, write: true, env: true, run: false },
+}, () => {
+  it('explains git-derived root selection with bounded changed-file evidence', () => {
+    const delta: t.WorkspaceDelta.Git.FromRefResult = {
+      ref: 'baseline',
+      head: 'HEAD',
+      graphPath: '/tmp/workspace/deno.graph.json',
+      collect: Fixture.collect({
+        orderedPaths: ['code/pkg-a', 'code/pkg-b', 'code/pkg-c'],
+        edges: [{ from: 'code/pkg-a', to: 'code/pkg-c' }],
+        candidates: [
+          Fixture.candidate('code/pkg-a', '@scope/a'),
+          Fixture.candidate('code/pkg-b', '@scope/b'),
+          Fixture.candidate('code/pkg-c', '@scope/c'),
+        ],
+      }),
+      changedFiles: [
+        'code/pkg-a/src/mod.ts',
+        'code/pkg-b/deno.json',
+        'code/pkg-b/src/mod.ts',
+        'code/pkg-c/deno.json',
+        'code/pkg-c/src/mod.ts',
+        'deno.graph.json',
+        'deno.json',
+      ],
+      changedPkgPaths: ['code/pkg-a', 'code/pkg-b', 'code/pkg-c'],
+      needsBumpPkgPaths: ['code/pkg-a'],
+      alreadyBumpedPkgPaths: ['code/pkg-b'],
+      newPkgPaths: ['code/pkg-c'],
+      bumpRootPkgPaths: ['code/pkg-a'],
+      bumpClosurePkgPaths: ['code/pkg-a', 'code/pkg-c'],
+      skipped: [
+        { file: 'deno.graph.json', reason: 'outside-workspace-package' },
+        { file: 'deno.json', reason: 'outside-workspace-package' },
+      ],
+    };
     const text = Cli.stripAnsi(
       WorkspaceDelta.Fmt.explain({ delta, maxFilesPerPackage: 1, width: 80 }),
     );

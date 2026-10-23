@@ -2,6 +2,7 @@ import { Cli, describe, expect, Fs, it, Num, type t, Testing } from '../../-test
 import { WorkspaceCli } from '../mod.ts';
 import { runWith as runBumpWith } from '../../m.bump/u/u.run.ts';
 import { Fixture as DeltaFixture } from '../../m.delta/-test/u.fixture.ts';
+import { fromRefWith } from '../../m.delta/m.Git/u.fromRef.ts';
 import * as fixture from '../../m.upgrade/-test/u.fixture.ts';
 import type { UpgradeRegistryDependencies } from '../../m.upgrade/u.session.ts';
 import {
@@ -63,58 +64,6 @@ describe('Workspace.Cli.run', () => {
       expect(result.text).to.include('--from <pkg|path>');
       expect(result.text).to.include('--explain-delta');
     }
-  });
-
-  it('explains git-derived bump roots when requested', async () => {
-    const { cwd } = await DeltaFixture.gitBaselineWorkspace();
-
-    const { result, text } = await captureInfo(() =>
-      WorkspaceCli.run({
-        cwd,
-        argv: ['bump', '--since', 'baseline', '--dry-run', '--explain-delta'],
-      })
-    );
-
-    expect(result.kind).to.eql('bump');
-    expect(Cli.stripAnsi(text)).to.include('delta      baseline → HEAD');
-    expect(Cli.stripAnsi(text)).to.include('roots      @scope/a');
-    expect(Cli.stripAnsi(text)).to.include('@scope/a • code/pkg-a ← needs bump');
-    expect(Cli.stripAnsi(text)).to.include('Dry run only. No files updated.');
-  });
-
-  it('shows a compact delta prelude before default interactive bump selection', async () => {
-    const { cwd } = await DeltaFixture.gitBaselineWorkspace();
-    await DeltaFixture.git(cwd, ['tag', 'jsr-publish', 'baseline']);
-    let promptOptions: readonly { readonly value: string; readonly checked?: boolean }[] = [];
-    const bumpRun: WorkspaceCliDependencies['bumpRun'] = (args) =>
-      runBumpWith(
-        {
-          promptCheckbox: (input) => {
-            const options = input.options as readonly {
-              readonly value: t.StringPath;
-              readonly checked?: boolean;
-            }[];
-            promptOptions = options;
-            const picked = options.filter((option) => option.checked).map((option) => option.value);
-            return Promise.resolve(picked);
-          },
-          promptSelect: Cli.Input.Select.prompt,
-        },
-        args,
-      );
-    const { result, text } = await captureInfo(() =>
-      runWith({ bumpRun }, { cwd, argv: ['bump', '--dry-run'] })
-    );
-    const plain = Cli.stripAnsi(text);
-
-    expect(result.kind).to.eql('bump');
-    expect(promptOptions.filter((option) => option.checked).map((option) => option.value)).to.eql([
-      'code/pkg-a',
-    ]);
-    expect(plain).to.include('status     bump required');
-    expect(plain).to.include('affected   2 packages');
-    expect(plain).to.include('root       @scope/a');
-    expect(plain).to.not.include('delta      jsr-publish → HEAD');
   });
 
   it('routes dsl help without entering upgrade planning', async () => {
@@ -453,6 +402,102 @@ describe('Workspace.Cli.run', () => {
         );
       }
     }
+  });
+});
+
+describe('Workspace.Cli.run: git-derived bumps', {
+  permissions: { read: true, write: true, env: true, run: false },
+}, () => {
+  it('explains git-derived bump roots when requested', async () => {
+    await Testing.withTmpDir(async (cwd) => {
+      await DeltaFixture.workspace(cwd);
+      const git = DeltaFixture.gitReads(cwd);
+      const policy: t.WorkspaceBump.Policy = { couplings: [] };
+      const deltaCalls: t.WorkspaceDelta.Git.FromRefArgs[] = [];
+      const deltaFromRef: WorkspaceCliDependencies['deltaFromRef'] = (args) => {
+        deltaCalls.push(args);
+        return fromRefWith(git.invoke, args);
+      };
+      const { result, text } = await captureInfo(() =>
+        runWith({ deltaFromRef }, {
+          cwd,
+          argv: [
+            'bump',
+            '--since',
+            'baseline',
+            '--dry-run',
+            '--explain-delta',
+            '--release',
+            'minor',
+          ],
+          bumpPolicy: policy,
+        })
+      );
+
+      git.assertCalls();
+      expect(deltaCalls).to.eql([{ cwd, ref: 'baseline', release: 'minor', policy }]);
+      expect(result.kind).to.eql('bump');
+      if (result.kind === 'bump') {
+        expect(result.bump.collect.release).to.eql('minor');
+        expect(result.bump.plan.selectedPaths).to.eql(['code/pkg-a', 'code/pkg-c']);
+        expect(result.bump.dryRun).to.eql(true);
+      }
+      expect(Cli.stripAnsi(text)).to.include('delta      baseline → HEAD');
+      expect(Cli.stripAnsi(text)).to.include('roots      @scope/a');
+      expect(Cli.stripAnsi(text)).to.include('@scope/a • code/pkg-a ← needs bump');
+      expect(Cli.stripAnsi(text)).to.include('Dry run only. No files updated.');
+    });
+  });
+
+  it('shows a compact delta prelude before default interactive bump selection', async () => {
+    await Testing.withTmpDir(async (cwd) => {
+      await DeltaFixture.workspace(cwd);
+      const git = DeltaFixture.gitReads(cwd, 'jsr-publish');
+      const deltaCalls: t.WorkspaceDelta.Git.FromRefArgs[] = [];
+      const deltaFromRef: WorkspaceCliDependencies['deltaFromRef'] = (args) => {
+        deltaCalls.push(args);
+        return fromRefWith(git.invoke, args);
+      };
+      let promptOptions: readonly { readonly value: string; readonly checked?: boolean }[] = [];
+      const bumpRun: WorkspaceCliDependencies['bumpRun'] = (args) =>
+        runBumpWith(
+          {
+            promptCheckbox: (input) => {
+              const options = input.options as readonly {
+                readonly value: t.StringPath;
+                readonly checked?: boolean;
+              }[];
+              promptOptions = options;
+              const picked = options.filter((option) => option.checked).map((option) =>
+                option.value
+              );
+              return Promise.resolve(picked);
+            },
+            promptSelect: Cli.Input.Select.prompt,
+          },
+          args,
+        );
+      const { result, text } = await captureInfo(() =>
+        runWith({ bumpRun, deltaFromRef }, { cwd, argv: ['bump', '--dry-run'] })
+      );
+      const plain = Cli.stripAnsi(text);
+
+      git.assertCalls();
+      expect(deltaCalls).to.eql([{ cwd, ref: 'jsr-publish', release: 'patch', policy: undefined }]);
+      expect(result.kind).to.eql('bump');
+      if (result.kind === 'bump') {
+        expect(result.bump.plan.selectedPaths).to.eql(['code/pkg-a', 'code/pkg-c']);
+        expect(result.bump.dryRun).to.eql(true);
+      }
+      const checked = promptOptions.filter((option) => option.checked).map((option) =>
+        option.value
+      );
+      expect(checked).to.eql(['code/pkg-a']);
+      expect(plain).to.include('status     bump required');
+      expect(plain).to.include('affected   2 packages');
+      expect(plain).to.include('root       @scope/a');
+      expect(plain).to.not.include('delta      jsr-publish → HEAD');
+    });
   });
 });
 

@@ -1,8 +1,11 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it, type t, Testing } from '../../-test.ts';
 import { WorkspaceDelta } from '../mod.ts';
+import { fromRefWith } from '../m.Git/u.fromRef.ts';
 import { Fixture } from './u.fixture.ts';
 
-describe('@sys/workspace Delta.Git.fromNameStatus', () => {
+describe('@sys/workspace Delta.Git.fromNameStatus', {
+  permissions: { read: true, write: true, env: true, run: false },
+}, () => {
   describe('raw name-status lines', () => {
     it('maps add, modify, and delete paths', () => {
       const collect = Fixture.collect({
@@ -115,36 +118,83 @@ describe('@sys/workspace Delta.Git.fromNameStatus', () => {
 
   describe('git ref baselines', () => {
     it('classifies changed packages by baseline version state', async () => {
-      const { cwd, graphPath } = await Fixture.gitBaselineWorkspace();
+      await Testing.withTmpDir(async (cwd) => {
+        const graphPath = await Fixture.workspace(cwd);
+        const git = Fixture.gitReads(cwd);
+        const res = await fromRefWith(git.invoke, { cwd, graphPath, ref: 'baseline' });
 
-      const res = await WorkspaceDelta.Git.fromRef({ cwd, graphPath, ref: 'baseline' });
-
-      expect(res.ref).to.eql('baseline');
-      expect(res.head).to.eql('HEAD');
-      expect(res.graphPath).to.eql(graphPath);
-      expect(res.changedPkgPaths).to.eql(['code/pkg-a', 'code/pkg-b', 'code/pkg-c']);
-      expect(res.needsBumpPkgPaths).to.eql(['code/pkg-a']);
-      expect(res.alreadyBumpedPkgPaths).to.eql(['code/pkg-b']);
-      expect(res.newPkgPaths).to.eql(['code/pkg-c']);
-      expect(res.bumpRootPkgPaths).to.eql(['code/pkg-a']);
-      expect(res.bumpClosurePkgPaths).to.eql(['code/pkg-a', 'code/pkg-c']);
+        git.assertCalls();
+        expect(res.ref).to.eql('baseline');
+        expect(res.head).to.eql('HEAD');
+        expect(res.graphPath).to.eql(graphPath);
+        expect(res.changedPkgPaths).to.eql(['code/pkg-a', 'code/pkg-b', 'code/pkg-c']);
+        expect(res.needsBumpPkgPaths).to.eql(['code/pkg-a']);
+        expect(res.alreadyBumpedPkgPaths).to.eql(['code/pkg-b']);
+        expect(res.newPkgPaths).to.eql(['code/pkg-c']);
+        expect(res.bumpRootPkgPaths).to.eql(['code/pkg-a']);
+        expect(res.bumpClosurePkgPaths).to.eql(['code/pkg-a', 'code/pkg-c']);
+      });
     });
 
-    it('fails clearly when the graph snapshot is missing', async () => {
-      const { cwd } = await Fixture.gitBaselineWorkspace();
+    it('fails clearly when the graph snapshot is missing, before invoking Git', async () => {
+      await Testing.withTmpDir(async (cwd) => {
+        const calls: t.Process.InvokeArgs[] = [];
+        const invoke: t.Process.Lib['invoke'] = (args) => {
+          calls.push(args);
+          throw new Error('Unexpected Git invocation');
+        };
+        let error: Error | undefined;
+        try {
+          await fromRefWith(invoke, {
+            cwd,
+            ref: 'baseline',
+            graphPath: `${cwd}/missing.graph.json`,
+          });
+        } catch (err) {
+          error = err as Error;
+        }
 
-      let error: Error | undefined;
-      try {
-        await WorkspaceDelta.Git.fromRef({
-          cwd,
-          ref: 'baseline',
-          graphPath: `${cwd}/missing.graph.json`,
-        });
-      } catch (err) {
-        error = err as Error;
-      }
+        expect(error?.message).to.eql(
+          `Workspace graph snapshot not found: ${cwd}/missing.graph.json`,
+        );
+        expect(calls).to.eql([]);
+      });
+    });
 
-      expect(error?.message).to.include('Workspace graph snapshot not found');
+    it('propagates a failed diff without requesting baseline manifests', async () => {
+      await Testing.withTmpDir(async (cwd) => {
+        await Fixture.workspace(cwd);
+        const git = Fixture.gitReads(cwd);
+        git.outputs[0] = Fixture.output('', 128, 'bad revision');
+        let error: Error | undefined;
+        try {
+          await fromRefWith(git.invoke, { cwd, ref: 'baseline' });
+        } catch (err) {
+          error = err as Error;
+        }
+
+        expect(error?.message).to.eql('Git diff failed for baseline..HEAD: bad revision');
+        git.assertCalls(1);
+      });
+    });
+
+    it('rejects malformed baseline manifest JSON', async () => {
+      await Testing.withTmpDir(async (cwd) => {
+        await Fixture.workspace(cwd);
+        const git = Fixture.gitReads(cwd);
+        git.outputs[1] = Fixture.output('{');
+        let error: Error | undefined;
+        try {
+          await fromRefWith(git.invoke, { cwd, ref: 'baseline' });
+        } catch (err) {
+          error = err as Error;
+        }
+
+        expect(error?.message).to.eql(
+          'Could not parse baseline manifest at baseline:code/pkg-a/deno.json.',
+        );
+        git.assertCalls(2);
+      });
     });
   });
 });

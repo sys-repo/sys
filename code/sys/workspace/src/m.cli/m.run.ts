@@ -10,6 +10,7 @@ import { FmtHelp } from './u.fmt/u.fmt.help.ts';
 
 export type WorkspaceCliDependencies = {
   readonly bumpRun: t.WorkspaceBump.Lib['run'];
+  readonly deltaFromRef: t.WorkspaceDelta.Git.Lib['fromRef'];
   readonly interactive: typeof runInteractive;
   readonly upgrade: t.WorkspaceUpgrade.Lib;
 };
@@ -18,6 +19,7 @@ export type WorkspaceCliDependencyOverrides = Partial<WorkspaceCliDependencies>;
 
 const DEFAULT_DEPS: WorkspaceCliDependencies = {
   bumpRun: WorkspaceBump.run,
+  deltaFromRef: WorkspaceDelta.Git.fromRef,
   interactive: runInteractive,
   upgrade: WorkspaceUpgrade,
 };
@@ -33,6 +35,7 @@ export async function runWith(
 ): Promise<t.WorkspaceCli.Result> {
   const deps: WorkspaceCliDependencies = {
     bumpRun: overrides.bumpRun ?? DEFAULT_DEPS.bumpRun,
+    deltaFromRef: overrides.deltaFromRef ?? DEFAULT_DEPS.deltaFromRef,
     interactive: overrides.interactive ?? DEFAULT_DEPS.interactive,
     upgrade: overrides.upgrade ?? DEFAULT_DEPS.upgrade,
   };
@@ -199,7 +202,7 @@ const wrangle = {
     if (!wrangle.shouldShowDeltaPrelude(args)) return await runBump(args.run);
 
     try {
-      const delta = await WorkspaceDelta.Git.fromRef({
+      const delta = await deps.deltaFromRef({
         cwd: args.run.cwd,
         ref: DEFAULT_BUMP_DELTA_REF,
         release: args.run.release,
@@ -242,7 +245,7 @@ const wrangle = {
     args: t.WorkspaceBump.Args.RunResolved,
     cwd: t.StringDir,
   ): Promise<t.WorkspaceBump.RunResult> {
-    const delta = await WorkspaceDelta.Git.fromRef({
+    const delta = await deps.deltaFromRef({
       cwd,
       ref: args.since ?? '',
       release: args.run.release,

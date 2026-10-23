@@ -1,4 +1,4 @@
-import { Is, Json, Path, Process, Semver, type t } from '../common.ts';
+import { Is, Json, Path, Semver, type t } from '../common.ts';
 
 /**
  * Classify changed packages by their baseline manifest version state.
@@ -8,7 +8,7 @@ export async function classify(args: {
   readonly ref: string;
   readonly collect: t.WorkspaceBump.CollectResult;
   readonly delta: t.WorkspaceDelta.Result;
-}) {
+}, invoke: t.Process.Lib['invoke']) {
   const candidates = new Map(
     args.collect.candidates.map((candidate) => [candidate.pkgPath, candidate] as const),
   );
@@ -19,7 +19,7 @@ export async function classify(args: {
   for (const pkgPath of args.delta.changedPkgPaths) {
     const candidate = candidates.get(pkgPath);
     if (!candidate) continue;
-    const baseline = await baselineVersion({ cwd: args.cwd, ref: args.ref, candidate });
+    const baseline = await baselineVersion({ cwd: args.cwd, ref: args.ref, candidate }, invoke);
     if (!baseline) {
       newPkgPaths.push(pkgPath);
     } else if (Semver.Is.eql(candidate.version.current, baseline)) {
@@ -36,9 +36,9 @@ async function baselineVersion(args: {
   readonly cwd: t.StringDir;
   readonly ref: string;
   readonly candidate: t.WorkspaceBump.Candidate;
-}) {
+}, invoke: t.Process.Lib['invoke']) {
   const path = Path.trimCwd(args.candidate.denoFilePath, { cwd: args.cwd });
-  const output = await Process.invoke({
+  const output = await invoke({
     cmd: 'git',
     cwd: args.cwd,
     args: ['show', `${args.ref}:${path}`],

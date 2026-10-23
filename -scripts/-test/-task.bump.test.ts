@@ -1,8 +1,10 @@
 import { describe, expect, Fs, it, Testing } from '@sys/testing/server';
 import { Cli } from '@sys/cli';
-import { Process } from '@sys/process';
-import { type t, WorkspaceGraph } from '@sys/workspace';
-import { main } from '../task.bump.ts';
+import { type t } from '@sys/workspace';
+import { Fixture } from '../../code/sys/workspace/src/m.delta/-test/u.fixture.ts';
+import { fromRefWith } from '../../code/sys/workspace/src/m.delta/m.Git/u.fromRef.ts';
+import { runWith } from '../../code/sys/workspace/src/m.cli/m.run.ts';
+import { main, mainWith } from '../task.bump.ts';
 import {
   bumpPolicy,
   postBumpLockSyncArgs,
@@ -10,7 +12,9 @@ import {
   postBumpPrepArgs,
 } from '../task.bump.policy.ts';
 
-describe('scripts/task.bump', () => {
+describe('scripts/task.bump', {
+  permissions: { read: true, write: true, env: true, run: false },
+}, () => {
   it('syncs metadata, runs bump prep, then reconciles the lockfile', () => {
     expect(postBumpPackageSyncArgs()).to.eql([
       'run',
@@ -59,24 +63,51 @@ describe('scripts/task.bump', () => {
     expectMaxVisibleWidth(output, 80);
   });
 
-  it('derives dry-run bump roots from a since ref', async () => {
-    const { cwd } = await gitBaselineWorkspace();
-    const calls: string[] = [];
-    const info = console.info;
-    console.info = (...args: unknown[]) => calls.push(String(args[0] ?? ''));
+  it('forwards bump inputs and derives dry-run roots from a since ref', async () => {
+    await Testing.withTmpDir(async (cwd) => {
+      await Fixture.workspace(cwd);
+      const git = Fixture.gitReads(cwd);
+      const cliCalls: t.WorkspaceCli.Input[] = [];
+      const deltaCalls: t.WorkspaceDelta.Git.FromRefArgs[] = [];
+      const calls: string[] = [];
+      const info = console.info;
+      console.info = (...args: unknown[]) => calls.push(String(args[0] ?? ''));
 
-    try {
-      await main({ argv: ['--since', 'baseline', '--dry-run'], options: { cwd } });
-    } finally {
-      console.info = info;
-    }
+      try {
+        const result = await mainWith((input = {}) => {
+          cliCalls.push(input);
+          return runWith({
+            deltaFromRef(args) {
+              deltaCalls.push(args);
+              return fromRefWith(git.invoke, args);
+            },
+          }, input);
+        }, { argv: ['--since', 'baseline', '--dry-run'], options: { cwd } });
+        expect(result).to.eql(true);
+      } finally {
+        console.info = info;
+      }
 
-    const output = Cli.stripAnsi(calls.join('\n'));
-    const deno = await Fs.readJson<{ version?: string }>(Fs.join(cwd, 'code/pkg-a/deno.json'));
-    expect(output).to.not.include('Delta since baseline..HEAD');
-    expect(output).to.include('deno task bump @scope/a --non-interactive');
-    expect(output).to.include('@scope/a');
-    expect(deno.data?.version).to.eql('1.0.0');
+      git.assertCalls();
+      const policy = cliCalls[0]?.bumpPolicy;
+      expect(cliCalls).to.eql([{
+        argv: ['bump', '--since', 'baseline', '--dry-run'],
+        cwd,
+        bumpPolicy: policy,
+      }]);
+      expect(policy?.couplings).to.eql(bumpPolicy().couplings);
+      expect(policy?.exclude?.('deploy/@tdb.slc/example')).to.eql(true);
+      expect(policy?.followups?.({ cwd, plan: emptyPlan() })).to.eql(
+        bumpPolicy().followups?.({ cwd, plan: emptyPlan() }),
+      );
+      expect(deltaCalls).to.eql([{ cwd, ref: 'baseline', release: 'patch', policy }]);
+      const output = Cli.stripAnsi(calls.join('\n'));
+      const deno = await Fs.readJson<{ version?: string }>(Fs.join(cwd, 'code/pkg-a/deno.json'));
+      expect(output).to.not.include('Delta since baseline..HEAD');
+      expect(output).to.include('deno task bump @scope/a --non-interactive');
+      expect(output).to.include('@scope/a');
+      expect(deno.data?.version).to.eql('1.0.0');
+    });
   });
 
   it('fails clearly when since and from are both supplied', async () => {
@@ -133,60 +164,4 @@ function expectMaxVisibleWidth(text: string, width: number) {
     .map((line) => line.trimEnd())
     .filter((line) => line.length > width);
   expect(wide, wide.join('\n')).to.eql([]);
-}
-
-async function gitBaselineWorkspace() {
-  const fs = await Testing.dir('task.bump.since');
-  const cwd = fs.dir;
-  const graphPath = Fs.join(cwd, 'deno.graph.json');
-
-  await writeWorkspace(cwd, ['code/pkg-a', 'code/pkg-b']);
-  await writePackage(cwd, 'code/pkg-a', '@scope/a', '1.0.0', `export const a = 'a';\n`);
-  await writePackage(cwd, 'code/pkg-b', '@scope/b', '1.0.0', `export const b = 'b';\n`);
-  await git(cwd, ['init']);
-  await git(cwd, ['config', 'user.email', 'test@example.com']);
-  await git(cwd, ['config', 'user.name', 'Test User']);
-  await git(cwd, ['add', '.']);
-  await git(cwd, ['commit', '-m', 'baseline']);
-  await git(cwd, ['tag', 'baseline']);
-
-  await writeWorkspace(cwd, ['code/pkg-a', 'code/pkg-b', 'code/pkg-c']);
-  await Fs.write(Fs.join(cwd, 'code/pkg-a/src/mod.ts'), `export const a = 'changed';\n`);
-  await writePackage(cwd, 'code/pkg-b', '@scope/b', '1.0.1', `export const b = 'changed';\n`);
-  await writePackage(cwd, 'code/pkg-c', '@scope/c', '0.1.0', `export const c = 'new';\n`);
-  const snapshot = WorkspaceGraph.Snapshot.create({
-    graph: {
-      orderedPaths: ['code/pkg-a', 'code/pkg-b', 'code/pkg-c'],
-      edges: [{ from: 'code/pkg-a', to: 'code/pkg-c' }],
-    },
-  });
-  await WorkspaceGraph.Snapshot.write(snapshot, graphPath);
-  await git(cwd, ['add', '.']);
-  await git(cwd, ['commit', '-m', 'current']);
-
-  return { cwd } as const;
-}
-
-async function writeWorkspace(cwd: string, workspace: readonly string[]) {
-  await Fs.writeJson(Fs.join(cwd, 'deno.json'), { workspace: [...workspace] });
-}
-
-async function writePackage(
-  cwd: string,
-  pkgPath: string,
-  name: string,
-  version: string,
-  source: string,
-) {
-  await Fs.writeJson(Fs.join(cwd, pkgPath, 'deno.json'), {
-    name,
-    version,
-    exports: { '.': './src/mod.ts' },
-  });
-  await Fs.write(Fs.join(cwd, pkgPath, 'src/mod.ts'), source);
-}
-
-async function git(cwd: string, args: readonly string[]) {
-  const res = await Process.invoke({ cmd: 'git', cwd, args: [...args], silent: true });
-  if (!res.success) throw new Error(res.text.stderr || res.text.stdout);
 }

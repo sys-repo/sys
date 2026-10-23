@@ -1,4 +1,4 @@
-import { Fs, Process, Testing, type t } from '../../-test.ts';
+import { expect, Fs, type t } from '../../-test.ts';
 import { WorkspaceGraph } from '../../m.graph/mod.ts';
 
 export const Fixture = {
@@ -28,60 +28,77 @@ export const Fixture = {
     };
   },
 
-  async gitBaselineWorkspace() {
-    const fs = await Testing.dir('WorkspaceDelta.Git.fromRef');
-    const cwd = fs.dir;
+  /** Current manifests and graph only; the caller owns the temporary directory. */
+  async workspace(cwd: t.StringDir) {
+    const orderedPaths = ['code/pkg-a', 'code/pkg-b', 'code/pkg-c'];
+    await Fs.writeJson(Fs.join(cwd, 'deno.json'), { workspace: orderedPaths });
+    for (
+      const [path, name, version] of [
+        ['code/pkg-a', '@scope/a', '1.0.0'],
+        ['code/pkg-b', '@scope/b', '1.0.1'],
+        ['code/pkg-c', '@scope/c', '0.1.0'],
+      ]
+    ) {
+      await Fs.writeJson(Fs.join(cwd, path, 'deno.json'), { name, version });
+    }
     const graphPath = Fs.join(cwd, 'deno.graph.json');
-
-    await Fixture.writeWorkspace(cwd, ['code/pkg-a', 'code/pkg-b']);
-    await Fixture.writePackage(cwd, 'code/pkg-a', '@scope/a', '1.0.0', `export const a = 'a';\n`);
-    await Fixture.writePackage(cwd, 'code/pkg-b', '@scope/b', '1.0.0', `export const b = 'b';\n`);
-    await Fixture.git(cwd, ['init']);
-    await Fixture.git(cwd, ['config', 'user.email', 'test@example.com']);
-    await Fixture.git(cwd, ['config', 'user.name', 'Test User']);
-    await Fixture.git(cwd, ['add', '.']);
-    await Fixture.git(cwd, ['commit', '-m', 'baseline']);
-    await Fixture.git(cwd, ['tag', 'baseline']);
-
-    await Fixture.writeWorkspace(cwd, ['code/pkg-a', 'code/pkg-b', 'code/pkg-c']);
-    await Fs.write(Fs.join(cwd, 'code/pkg-a/src/mod.ts'), `export const a = 'changed';\n`);
-    await Fixture.writePackage(cwd, 'code/pkg-b', '@scope/b', '1.0.1', `export const b = 'changed';\n`);
-    await Fixture.writePackage(cwd, 'code/pkg-c', '@scope/c', '0.1.0', `export const c = 'new';\n`);
     const snapshot = WorkspaceGraph.Snapshot.create({
-      graph: {
-        orderedPaths: ['code/pkg-a', 'code/pkg-b', 'code/pkg-c'],
-        edges: [{ from: 'code/pkg-a', to: 'code/pkg-c' }],
-      },
+      graph: { orderedPaths, edges: [{ from: 'code/pkg-a', to: 'code/pkg-c' }] },
     });
     await WorkspaceGraph.Snapshot.write(snapshot, graphPath);
-    await Fixture.git(cwd, ['add', '.']);
-    await Fixture.git(cwd, ['commit', '-m', 'current']);
-
-    return { cwd, graphPath } as const;
+    return graphPath;
   },
 
-  async writeWorkspace(cwd: t.StringDir, workspace: readonly t.StringPath[]) {
-    await Fs.writeJson(Fs.join(cwd, 'deno.json'), { workspace: [...workspace] });
+  /** A closed four-call script, never a native-process fallback. */
+  gitReads(cwd: t.StringDir, ref = 'baseline') {
+    const commands = [
+      ['diff', '--name-status', '-z', `${ref}..HEAD`, '--'],
+      ['show', `${ref}:code/pkg-a/deno.json`],
+      ['show', `${ref}:code/pkg-b/deno.json`],
+      ['show', `${ref}:code/pkg-c/deno.json`],
+    ].map((args) => ({ cmd: 'git', cwd, args, silent: true }));
+    const outputs = [
+      Fixture.output([
+        'M\0code/pkg-a/src/mod.ts',
+        'M\0code/pkg-b/deno.json',
+        'M\0code/pkg-b/src/mod.ts',
+        'A\0code/pkg-c/deno.json',
+        'A\0code/pkg-c/src/mod.ts',
+        'A\0deno.graph.json',
+        'M\0deno.json',
+        '',
+      ].join('\0')),
+      Fixture.output('{"version":"1.0.0"}'),
+      Fixture.output('{"version":"1.0.0"}'),
+      Fixture.output('', 128, `Manifest code/pkg-c/deno.json absent at ${ref}`),
+    ];
+    const calls: t.Process.InvokeArgs[] = [];
+    const invoke: t.Process.Lib['invoke'] = (args) => {
+      const index = calls.length;
+      calls.push(args);
+      expect(args).to.eql(commands[index]);
+      return Promise.resolve(outputs[index]);
+    };
+    return {
+      invoke,
+      outputs,
+      assertCalls(count = commands.length) {
+        // Assert after orchestration too: the default CLI prelude catches failures.
+        expect(calls).to.eql(commands.slice(0, count));
+      },
+    };
   },
 
-  async writePackage(
-    cwd: t.StringDir,
-    pkgPath: t.StringPath,
-    name: string,
-    version: string,
-    source: string,
-  ) {
-    await Fs.writeJson(Fs.join(cwd, pkgPath, 'deno.json'), {
-      name,
-      version,
-      exports: { '.': './src/mod.ts' },
-    });
-    await Fs.write(Fs.join(cwd, pkgPath, 'src/mod.ts'), source);
-  },
-
-  async git(cwd: t.StringDir, args: readonly string[]) {
-    const res = await Process.invoke({ cmd: 'git', cwd, args: [...args], silent: true });
-    if (!res.success) throw new Error(res.text.stderr || res.text.stdout);
-    return res;
+  output(stdout: string, code = 0, stderr = ''): t.Process.Output {
+    const encoder = new TextEncoder();
+    return {
+      code,
+      success: code === 0,
+      signal: null,
+      stdout: encoder.encode(stdout),
+      stderr: encoder.encode(stderr),
+      text: { stdout, stderr },
+      toString: () => stdout,
+    };
   },
 } as const;

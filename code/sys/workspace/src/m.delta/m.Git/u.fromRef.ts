@@ -9,6 +9,14 @@ import { fromNameStatus } from './u.fromNameStatus.ts';
  * Derive package delta facts from one git baseline ref.
  */
 export async function fromRef(args: t.WorkspaceDelta.Git.FromRefArgs) {
+  return await fromRefWith(Process.invoke, args);
+}
+
+/** Package-internal execution seam for Git reads. */
+export async function fromRefWith(
+  invoke: t.Process.Lib['invoke'],
+  args: t.WorkspaceDelta.Git.FromRefArgs,
+) {
   const cwd = args.cwd ?? Fs.cwd();
   const ref = wrangle.ref(args.ref);
   const head = args.head ? wrangle.ref(args.head) : 'HEAD';
@@ -23,9 +31,9 @@ export async function fromRef(args: t.WorkspaceDelta.Git.FromRefArgs) {
     edges: snapshot.graph.edges,
     policy: args.policy,
   });
-  const nameStatus = await wrangle.nameStatus({ cwd, ref, head });
+  const nameStatus = await wrangle.nameStatus(invoke, { cwd, ref, head });
   const delta = fromNameStatus({ collect, nameStatus });
-  const classification = await classify({ cwd, ref, collect, delta });
+  const classification = await classify({ cwd, ref, collect, delta }, invoke);
   const bumpRootPkgPaths = WorkspaceGraph.minimalDependentRoots(
     classification.needsBumpPkgPaths,
     collect.edges,
@@ -58,12 +66,12 @@ const wrangle = {
     return trimmed;
   },
 
-  async nameStatus(args: {
+  async nameStatus(invoke: t.Process.Lib['invoke'], args: {
     readonly cwd: t.StringDir;
     readonly ref: string;
     readonly head: string;
   }) {
-    const output = await Process.invoke({
+    const output = await invoke({
       cmd: 'git',
       cwd: args.cwd,
       args: ['diff', '--name-status', '-z', `${args.ref}..${args.head}`, '--'],
