@@ -1,11 +1,23 @@
-import { type t, AutomergeRepo, c, describe, expect, it, Rx } from '../../-test.ts';
+import {
+  afterAll,
+  AutomergeRepo,
+  c,
+  describe,
+  expect,
+  it,
+  repoCleanup,
+  Rx,
+  type t,
+} from '../../-test.ts';
 import { toAutomergeHandle, toRef } from '../mod.ts';
 
-describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
+const Repos = repoCleanup(afterAll);
+
+describe('CrdtRef', () => {
   type T = { count: number };
 
   it('toAutomergeHandle', () => {
-    const repo = new AutomergeRepo();
+    const repo = Repos.automerge(new AutomergeRepo());
     const handle = repo.create<T>({ count: 0 });
     const doc = toRef(handle);
     expect(toAutomergeHandle(doc)).to.equal(handle);
@@ -14,7 +26,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
   });
 
   it('create → change → patches (sequence)', () => {
-    const repo = new AutomergeRepo();
+    const repo = Repos.automerge(new AutomergeRepo());
     const handle = repo.create<T>({ count: 0 });
 
     const doc = toRef(handle);
@@ -44,17 +56,17 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   describe('dispose', () => {
     it('disposed from toRef param', () => {
-      const life = Rx.disposable();
-      const repo = new AutomergeRepo();
+      const life = Rx.lifecycle();
+      const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0 });
-      const doc = toRef(handle, life);
+      const doc = toRef(handle, life.dispose$);
 
       life.dispose();
       expect(doc.disposed).to.eql(true);
     });
 
     it('does not change after disposal', () => {
-      const repo = new AutomergeRepo();
+      const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0 });
       const doc = toRef(handle);
       expect(doc.disposed).to.eql(false);
@@ -68,7 +80,7 @@ describe('CrdtRef', { sanitizeResources: false, sanitizeOps: false }, () => {
     });
 
     it('events do not fire when created after disposal', () => {
-      const repo = new AutomergeRepo();
+      const repo = Repos.automerge(new AutomergeRepo());
       const handle = repo.create<T>({ count: 0 });
       const doc = toRef(handle);
       doc.dispose();

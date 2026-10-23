@@ -4,6 +4,6 @@ import { observe } from './u.path.observe.ts';
 /**
  * Tools for working with selection paths in YAML.
  */
-export const Path: t.EditorYamlPathLib = {
+export const Path: t.EditorYaml.Path.Lib = {
   observe,
 };

@@ -16,8 +16,8 @@ describe('FileMap', () => {
     });
 
     it('toMap: filtered', async () => {
-      const fired: t.FileMapFilterArgs[] = [];
-      const filter: t.FileMapFilter = (e) => {
+      const fired: t.FileMap.Filter.Args[] = [];
+      const filter: t.FileMap.Filter.Predicate = (e) => {
         fired.push(e);
         return !e.contentType.startsWith('image/');
       };
@@ -82,7 +82,7 @@ describe('FileMap', () => {
 
     it('predicate meta-data', async () => {
       const map = await FileMap.toMap(dir);
-      const fired: t.FileMapFilterArgs[] = [];
+      const fired: t.FileMap.Filter.Args[] = [];
 
       FileMap.filter(map, (m) => {
         fired.push(m);

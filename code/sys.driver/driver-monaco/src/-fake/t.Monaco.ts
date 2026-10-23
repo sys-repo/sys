@@ -7,19 +7,17 @@ type ILinksList = t.Monaco.I.ILinksList;
 /**
  * Factory: create a new global `monaco` mock.
  *
- * - No arg → returns the raw `FakeMonacoGlobal`
- * - Pass `{ cast: true }` → returns `t.Monaco.Monaco` (casted variant)
+ * - No arg → returns the raw fake Monaco global.
+ * - Pass `{ cast: true }` → returns `t.Monaco.Monaco`.
  */
-export type CreateFakeMonaco = {
-  (): t.FakeMonacoGlobal;
-  (options: { cast?: false }): t.FakeMonacoGlobal;
+export type Create = {
+  (): Shape;
+  (options: { cast?: false }): Shape;
   (options: { cast: true }): t.Monaco.Monaco;
 };
 
-/**
- * Minimal `Monaco` global mock.
- */
-export type FakeMonacoGlobal = Readonly<{
+/** Minimal `Monaco` global mock. */
+export type Shape = Readonly<{
   languages: {
     registerLinkProvider(
       languageId: string,
@@ -42,33 +40,19 @@ export type FakeMonacoGlobal = Readonly<{
     /** Test hook: call the first registered opener. */
     _open(uri: t.Monaco.Uri): boolean | Promise<boolean>;
 
-    /**
-     * Create a new text model.
-     * Real Monaco: monaco.editor.createModel(value, languageId?, uri?)
-     */
+    /** Create a new text model. */
     createModel(value: string, languageId?: string, uri?: t.Monaco.Uri): TextModel;
 
-    /**
-     * Get a model by its URI.
-     * Real Monaco: monaco.editor.getModel(uri)
-     */
+    /** Get a model by its URI. */
     getModel(uri: t.Monaco.Uri): TextModel | null;
 
-    /**
-     * Get all models.
-     * Real Monaco: monaco.editor.getModels()
-     */
+    /** Get all models. */
     getModels(): TextModel[];
 
-    /**
-     * Marker management (minimal subset).
-     * Real Monaco: monaco.editor.setModelMarkers(model, owner, markers)
-     */
+    /** Marker management. */
     setModelMarkers(model: TextModel, owner: string, markers: t.Monaco.I.IMarkerData[]): void;
 
-    /**
-     * Returns Monaco editor markers matching the given filter.
-     */
+    /** Returns Monaco editor markers matching the given filter. */
     getModelMarkers(filter: {
       owner?: string;
       resource?: t.Monaco.Uri;

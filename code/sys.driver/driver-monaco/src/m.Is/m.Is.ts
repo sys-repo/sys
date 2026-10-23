@@ -1,9 +1,9 @@
-import { type t, asRange, D, Is, Obj, R } from './common.ts';
+import { asRange, D, Is, Obj, type t } from './common.ts';
 
 type IRange = t.Monaco.I.IRange;
 type IPosition = t.Monaco.I.IPosition;
 
-export const EditorIs: t.EditorIsLib = {
+export const EditorIs: t.EditorIs.Lib = {
   editorRange(input: any): input is IRange {
     if (!input) return false;
     if (typeof input !== 'object') return false;
@@ -22,7 +22,7 @@ export const EditorIs: t.EditorIsLib = {
   },
 
   nullRange(input: IRange): boolean {
-    return R.equals(input, D.NULL_RANGE);
+    return Obj.eql(input, D.NULL_RANGE);
   },
 
   singleCharRange(input: t.EditorRangeInput) {
@@ -61,7 +61,7 @@ export const EditorIs: t.EditorIsLib = {
     );
   },
 
-  cursorEqual(a?: t.EditorCursor, b?: t.EditorCursor): boolean {
+  cursorEqual(a?: t.MonacoDriver.Cursor, b?: t.MonacoDriver.Cursor): boolean {
     if (!a || !b) return false;
     if (a === b) return true;
 

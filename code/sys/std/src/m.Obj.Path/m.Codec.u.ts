@@ -22,7 +22,7 @@ export function asNumeric(path: readonly (string | number)[]): t.ObjectPath {
  * Encode a path array → string.
  * - Uses the given codec (defaults to `pointer`).
  */
-export function encode(path: t.ObjectPath, opts?: t.ObjPathEncodeOptions): string {
+export function encode(path: t.ObjectPath, opts?: t.Obj.Path.Codec.EncodeOptions): string {
   const c = resolveCodec(opts?.codec);
   return c.encode(path);
 }
@@ -33,7 +33,7 @@ export function encode(path: t.ObjectPath, opts?: t.ObjPathEncodeOptions): strin
  * - `numeric: true` coerces digit-only tokens into numbers.
  * - `safe: true` pre-sanitizes the string before strict decode (may still throw).
  */
-export function decode(text: string, opts: t.ObjPathDecodeOptions = {}): t.ObjectPath {
+export function decode(text: string, opts: t.Obj.Path.Codec.DecodeOptions = {}): t.ObjectPath {
   const { numeric = true, safe = false } = opts;
   const c = resolveCodec(opts?.codec);
   const input = safe ? sanitize(text, { codec: c }).text : text; // ← only pre-process
@@ -44,7 +44,10 @@ export function decode(text: string, opts: t.ObjPathDecodeOptions = {}): t.Objec
 /**
  * Tolerant decode that never throws; returns result with fixes and optional error.
  */
-export function tryDecode(text = '', opts: t.PathTryDecodeOptions = {}): t.PathTryDecodeResult {
+export function tryDecode(
+  text = '',
+  opts: t.Obj.Path.TryDecodeOptions = {},
+): t.Obj.Path.TryDecodeResult {
   const { codec, numeric, fallback = [] } = opts;
   const { text: repaired, fixes } = sanitize(text, { codec });
   try {
@@ -60,12 +63,14 @@ export function tryDecode(text = '', opts: t.PathTryDecodeOptions = {}): t.PathT
  */
 
 /** Resolve a codec from kind or instance. */
-function resolveCodec(kind?: t.ObjPathCodecKind | t.ObjPathCodec): t.ObjPathCodec {
+function resolveCodec(
+  kind?: t.Obj.Path.Codec.Kind | t.Obj.Path.Codec.Definition,
+): t.Obj.Path.Codec.Definition {
   if (!kind) return Codec.default;
-  const maybe = kind as t.ObjPathCodec;
+  const maybe = kind as t.Obj.Path.Codec.Definition;
   return typeof maybe.encode === 'function' && typeof maybe.decode === 'function'
     ? maybe
     : kind === 'dot'
-      ? Codec.dot
-      : Codec.pointer;
+    ? Codec.dot
+    : Codec.pointer;
 }

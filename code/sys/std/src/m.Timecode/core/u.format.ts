@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-export const format: t.TimecodeLib['format'] = (ms: number, opts = {}): t.VttTimecode => {
+export const format: t.Timecode.Lib['format'] = (ms: number, opts = {}): t.VttTimecode => {
   const { withMsecs = false, forceHours = false } = opts;
 
   if (!Number.isFinite(ms) || ms < 0) {

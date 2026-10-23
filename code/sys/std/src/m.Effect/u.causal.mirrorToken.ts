@@ -3,7 +3,7 @@ import { type t } from './common.ts';
 /**
  * Create a one-shot token for mirrored values in bidirectional sync adapters.
  */
-export const mirrorToken: t.EffectCausalLib['mirrorToken'] = <T>() => {
+export const mirrorToken: t.Effect.Causal.Lib['mirrorToken'] = <T>() => {
   let hasToken = false;
   let token = undefined as unknown as T;
   const api: t.EffectMirrorToken<T> = {

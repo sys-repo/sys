@@ -1,7 +1,7 @@
 import { Is, type t } from './common.ts';
 import { mergeAndReplace } from './u.ts';
 
-export function formatSize(key: string, input: unknown, target: t.CssProps) {
+export function formatSize(key: string, input: unknown, target: t.Style.Props) {
   type V = string | number | undefined;
   const format = (input: any): V => {
     if (!(Is.num(input) || Is.str(input))) return;

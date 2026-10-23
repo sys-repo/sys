@@ -1,4 +1,4 @@
-import { type t, Json, Process } from './common.ts';
+import { Is, Json, Process, type t } from './common.ts';
 
 /**
  * Probe a media file for useful metadata (via ffprobe).
@@ -40,34 +40,34 @@ export async function probeVideo(src: t.StringPath): Promise<t.VideoTool.ProbeIn
     // Video:
     video: hasAny(v)
       ? {
-          codec: str(v?.codec_name),
-          codecLongName: str(v?.codec_long_name),
-          width: num(v?.width),
-          height: num(v?.height),
-          pixelFormat: str(v?.pix_fmt),
-          profile: str(v?.profile),
-          level: num(v?.level),
-          bitRate: num(v?.bit_rate),
-          avgFrameRate: avg || undefined,
-          rFrameRate: rfr || undefined,
-          fps: fps ?? undefined,
-          colorSpace: str(v?.color_space),
-          colorTransfer: str(v?.color_transfer),
-          colorPrimaries: str(v?.color_primaries),
-          fieldOrder: str(v?.field_order),
-        }
+        codec: str(v?.codec_name),
+        codecLongName: str(v?.codec_long_name),
+        width: num(v?.width),
+        height: num(v?.height),
+        pixelFormat: str(v?.pix_fmt),
+        profile: str(v?.profile),
+        level: num(v?.level),
+        bitRate: num(v?.bit_rate),
+        avgFrameRate: avg || undefined,
+        rFrameRate: rfr || undefined,
+        fps: fps ?? undefined,
+        colorSpace: str(v?.color_space),
+        colorTransfer: str(v?.color_transfer),
+        colorPrimaries: str(v?.color_primaries),
+        fieldOrder: str(v?.field_order),
+      }
       : undefined,
 
     // Audio:
     audio: hasAny(a)
       ? {
-          codec: str(a?.codec_name),
-          codecLongName: str(a?.codec_long_name),
-          channels: num(a?.channels),
-          channelLayout: str(a?.channel_layout),
-          sampleRate: num(a?.sample_rate),
-          bitRate: num(a?.bit_rate),
-        }
+        codec: str(a?.codec_name),
+        codecLongName: str(a?.codec_long_name),
+        channels: num(a?.channels),
+        channelLayout: str(a?.channel_layout),
+        sampleRate: num(a?.sample_rate),
+        bitRate: num(a?.bit_rate),
+      }
       : undefined,
   };
 }
@@ -76,18 +76,18 @@ export async function probeVideo(src: t.StringPath): Promise<t.VideoTool.ProbeIn
  * Helpers:
  */
 function num(v: unknown): number | undefined {
-  if (typeof v === 'number' && Number.isFinite(v)) return v;
-  if (typeof v === 'string' && v.trim().length > 0) {
+  if (Is.num(v) && Number.isFinite(v)) return v;
+  if (Is.str(v) && v.trim().length > 0) {
     const n = Number(v);
     return Number.isFinite(n) ? n : undefined;
   }
   return undefined;
 }
 function str(v: unknown): string | undefined {
-  return typeof v === 'string' && v.length > 0 ? v : undefined;
+  return Is.str(v) && v.length > 0 ? v : undefined;
 }
 function hasAny(obj: any): boolean {
-  return obj && typeof obj === 'object' && Object.keys(obj).length > 0;
+  return Is.record(obj) && Object.keys(obj).length > 0;
 }
 function parseFps(fr: string | undefined): number | undefined {
   if (!fr) return undefined;

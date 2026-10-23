@@ -1,5 +1,9 @@
-import { c, Cli, describe, expect, it, Testing } from '../../-test.ts';
+import { FakeSpinner } from '@sys/cli/testing';
+import { c, Cli, describe, expect, it, type t, Testing } from '../../-test.ts';
 import { WorkspaceRun } from '../mod.ts';
+import { createDefaultParallelReporterRuntimeDeps } from '../u.reporter/mod.ts';
+import { runTaskWith } from '../u.run/mod.ts';
+import { createReporterScreen } from './u.fixture.reporter.ts';
 import { readLog, writeWorkspace } from './u.fixture.ts';
 
 describe('WorkspaceRun', () => {
@@ -20,6 +24,7 @@ describe('WorkspaceRun', () => {
     expect(result.elapsed >= 0).to.eql(true);
     expect(result.packages[0]?.kind).to.eql('ran');
     if (result.packages[0]?.kind === 'ran') {
+      expect(result.packages[0].name).to.eql('@test/pkg-a');
       expect(result.packages[0].path).to.eql('code/pkg-a');
       expect(result.packages[0].code).to.eql(0);
       expect(result.packages[0].success).to.eql(true);
@@ -28,11 +33,13 @@ describe('WorkspaceRun', () => {
     }
     expect(result.packages[1]).to.eql({
       kind: 'skipped',
+      name: '@test/pkg-b',
       path: 'code/pkg-b',
       reason: 'task:missing',
     });
     expect(result.packages[2]?.kind).to.eql('ran');
     if (result.packages[2]?.kind === 'ran') {
+      expect(result.packages[2].name).to.eql('@test/pkg-c');
       expect(result.packages[2].path).to.eql('code/pkg-c');
       expect(result.packages[2].code).to.eql(0);
       expect(result.packages[2].success).to.eql(true);
@@ -41,6 +48,94 @@ describe('WorkspaceRun', () => {
     }
     expect(log).to.eql('test:pkg-a\\ntest:pkg-c\\n');
     expect(WorkspaceRun.Fmt.result(result).includes('task')).to.eql(true);
+  });
+
+  it('runs declared package tests through the explicit parallel scheduler', async () => {
+    const fs = await Testing.dir('WorkspaceRun.test.parallel');
+    await writeWorkspace(fs.dir, { failCheck: false });
+
+    const result = await WorkspaceRun.test({
+      cwd: fs.dir,
+      rebuildGraph: true,
+      strategy: { kind: 'parallel', jobs: 2 },
+      reporter: 'log',
+    });
+    const log = await readLog(fs.dir);
+
+    expect(result.ok).to.eql(true);
+    expect(result.task).to.eql('test');
+    expect(result.orderedPaths).to.eql(['code/pkg-a', 'code/pkg-b', 'code/pkg-c']);
+    expect(result.packages.map((item) => item.kind)).to.eql(['ran', 'skipped', 'ran']);
+    expect(log).to.eql('test:pkg-a\\ntest:pkg-c\\n');
+  });
+
+  it('clears setup output and writes final screen scrollback before completion truth', async () => {
+    const fs = await Testing.dir('WorkspaceRun.test.screen-receipt');
+    await writeWorkspace(fs.dir, { failCheck: false });
+    const screen = createReporterScreen({ width: 100, height: 24 });
+    const spinner = FakeSpinner.create();
+    const spinnerAdapter = FakeSpinner.adapter({ spinner });
+    const reporterRuntime = {
+      ...createDefaultParallelReporterRuntimeDeps(spinnerAdapter.create),
+      size: () => ({ width: 100, height: 24 }),
+      events: () => screen.events,
+      repaint: (frame: string) => effects.push(`repaint:${frame.length}`),
+    };
+    const info = console.info;
+    const startSpinner = spinner.start;
+    const stopSpinner = spinner.stop;
+    const effects: string[] = [];
+    let completion: t.WorkspaceRun.Test.Reporter.ScreenCompletion | undefined;
+    let result: t.WorkspaceRun.Result | undefined;
+    spinner.start = (text) => {
+      effects.push('spinner:start');
+      return startSpinner(text);
+    };
+    spinner.stop = () => {
+      effects.push('spinner:stop');
+      return stopSpinner();
+    };
+    console.info = (...args: unknown[]) => {
+      const text = Cli.stripAnsi(String(args[0] ?? ''));
+      if (text === '') effects.push('write:blank');
+      else if (text.startsWith('workspace ')) effects.push(text);
+      else if (text.includes('@test/pkg-a')) effects.push('scrollback');
+    };
+
+    try {
+      result = await runTaskWith(
+        { reporterRuntime },
+        'test',
+        {
+          cwd: fs.dir,
+          rebuildGraph: true,
+          strategy: { kind: 'parallel', jobs: 2 },
+          reporter: {
+            mode: 'screen',
+            onComplete(value) {
+              completion = value;
+              effects.push('complete');
+            },
+          },
+        },
+      );
+    } finally {
+      console.info = info;
+    }
+
+    expect(result?.ok).to.eql(true);
+    expect(completion).to.eql({ failedPackages: { visible: 0, total: 0 } });
+    expect(spinnerAdapter.calls).to.eql([{ text: '', options: { target: 'stdout' } }]);
+    expect(effects).to.eql([
+      'workspace graph  →  rebuilding',
+      'workspace test   →  3 packages ordered',
+      'workspace test   →  strategy: parallel, 2 jobs (concurrent)',
+      'repaint:0',
+      'spinner:start',
+      'spinner:stop',
+      'scrollback',
+      'complete',
+    ]);
   });
 
   it('filters ordered paths when a package filter is provided', async () => {
@@ -98,12 +193,68 @@ describe('WorkspaceRun', () => {
     expect(text.includes('task test')).to.eql(true);
     expect(formatted.includes(c.cyan('tests'))).to.eql(true);
     expect(formatted.includes(c.cyan('test'))).to.eql(true);
-    expect(text.includes('ran 2')).to.eql(true);
-    expect(text.includes('skipped 0')).to.eql(true);
-    expect(text.includes('failed 0')).to.eql(true);
+    expect(text.includes('packages ran 2')).to.eql(true);
+    expect(text.includes('packages skipped 0')).to.eql(true);
+    expect(text.includes('packages failed 0')).to.eql(true);
     expect(text.includes('package')).to.eql(true);
-    expect(text.includes('code/pkg-a')).to.eql(true);
-    expect(text.includes('code/pkg-c')).to.eql(true);
+    expect(text.includes('@test/pkg-a')).to.eql(true);
+    expect(text.includes('@test/pkg-c')).to.eql(true);
+    expect(formatted.endsWith(Cli.Fmt.hr('green'))).to.eql(true);
+  });
+
+  it('formats native test stats only from observed reports', () => {
+    const observed: t.WorkspaceRun.Test.Stats.Observed = {
+      kind: 'observed',
+      capability: 'deno:junit',
+      source: 'junit',
+      tests: 10136,
+      failed: 1000,
+      failures: 1000,
+      errors: 0,
+      skipped: 0,
+      failedCases: [],
+      warnings: [],
+    };
+    const failure = ranPackage('code/pkg-a', false, observed);
+    const result: t.WorkspaceRun.Result = {
+      ok: false,
+      task: 'test',
+      cwd: '/tmp/workspace' as t.StringDir,
+      elapsed: 1,
+      orderedPaths: ['code/pkg-a', 'code/pkg-b', 'code/pkg-c', 'code/pkg-d'],
+      packages: [
+        failure,
+        ranPackage('code/pkg-b', true, {
+          kind: 'unavailable',
+          capability: 'deno:junit',
+          source: 'junit',
+          reason: 'report:missing',
+        }),
+        ranPackage('code/pkg-c', true, {
+          kind: 'unsupported',
+          capability: 'none',
+          reason: 'task:not-native-deno-test',
+        }),
+        { kind: 'skipped', name: '@test/pkg-d', path: 'code/pkg-d', reason: 'task:missing' },
+      ],
+      failure,
+    };
+    const formatted = WorkspaceRun.Fmt.result(result);
+    const text = normalizeSummary(formatted);
+    const rows = Cli.stripAnsi(formatted)
+      .split('\n')
+      .map((line) => line.trim().replace(/\s+/g, ' '));
+
+    expect(text.includes('test cases 10,136')).to.eql(true);
+    expect(text.includes('test failures 1,000')).to.eql(true);
+    expect(text.includes('reports 1 collected · 1 unavailable · 1 not applicable')).to.eql(true);
+    expect(rows.includes('package status elapsed tests failed')).to.eql(true);
+    expect(rows.includes('@test/pkg-a failed 1ms 10,136 1,000')).to.eql(true);
+    expect(rows.includes('@test/pkg-b ok 1ms — —')).to.eql(true);
+    expect(rows.includes('@test/pkg-c')).to.eql(true);
+    expect(rows.includes('@test/pkg-c ok 1ms — —')).to.eql(false);
+    expect(formatted.includes(c.gray('@test/pkg-c'))).to.eql(true);
+    expect(rows.includes('@test/pkg-d skipped — — —')).to.eql(true);
   });
 
   it('formats dry run summary text and cyan task highlight', async () => {
@@ -122,6 +273,53 @@ describe('WorkspaceRun', () => {
     expect(text.includes('task dry')).to.eql(true);
     expect(formatted.includes(c.cyan('dry runs'))).to.eql(true);
     expect(formatted.includes(c.cyan('dry'))).to.eql(true);
+    expect(formatted.endsWith(Cli.Fmt.hr('green'))).to.eql(true);
+  });
+
+  it('repeats the status summary after long package tables', () => {
+    const packages = Array.from({ length: 11 }, (_, count) => ({
+      kind: 'ran' as const,
+      name: `@test/pkg-${count}`,
+      path: `code/pkg-${count}`,
+      code: 0,
+      success: true,
+      signal: null,
+      elapsed: 1,
+    }));
+    const formatted = WorkspaceRun.Fmt.result({
+      ok: true,
+      task: 'test',
+      cwd: '/tmp/workspace',
+      elapsed: 1,
+      orderedPaths: packages.map((item) => item.path),
+      packages,
+    });
+    const rows = Cli.stripAnsi(formatted)
+      .split('\n')
+      .map((line) => line.trim().replace(/\s+/g, ' '));
+    const summary = [
+      'status success',
+      'task test',
+      'packages ran 11',
+      'packages skipped 0',
+      'packages failed 0',
+    ];
+    const headerStatus = rows.indexOf(summary[0]!);
+    const footerStatus = rows.lastIndexOf(summary[0]!);
+    const packageHeader = rows.indexOf('package status elapsed');
+
+    expect(headerStatus >= 0).to.eql(true);
+    expect(footerStatus > headerStatus).to.eql(true);
+    expect(packageHeader > headerStatus).to.eql(true);
+    expect(packageHeader < footerStatus).to.eql(true);
+    expect(rows.slice(headerStatus, headerStatus + summary.length)).to.eql(summary);
+    expect(rows.slice(footerStatus, footerStatus + summary.length)).to.eql(summary);
+    expect(rows[headerStatus - 2]?.startsWith('━')).to.eql(true);
+    expect(rows[headerStatus - 1]).to.eql('');
+    expect(rows[footerStatus - 2] !== '').to.eql(true);
+    expect(rows[footerStatus - 1]).to.eql('');
+    expect(rows[footerStatus + summary.length]).to.eql('');
+    expect(rows[footerStatus + summary.length + 1]?.startsWith('━')).to.eql(true);
   });
 
   it('stops on the first failing package check', async () => {
@@ -147,3 +345,20 @@ describe('WorkspaceRun', () => {
     expect(log).to.eql('check:pkg-a\\ncheck:pkg-b\\n');
   });
 });
+
+function ranPackage(
+  path: t.StringPath,
+  success: boolean,
+  testStats: t.WorkspaceRun.Test.Stats.Result,
+): t.WorkspaceRun.Package.Ran {
+  return {
+    kind: 'ran',
+    name: `@test/${path.split('/').at(-1)}`,
+    path,
+    code: success ? 0 : 1,
+    success,
+    signal: null,
+    elapsed: 1,
+    testStats,
+  };
+}

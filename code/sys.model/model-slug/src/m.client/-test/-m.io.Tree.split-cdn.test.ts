@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { SlugClient } from '../mod.ts';
 import type { t } from '../common.ts';
-import { jsonResponse, stubFetch } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch } from './u.fixture.ts';
 
 describe('SlugClient.FromEndpoint.Tree.load (split cdn)', () => {
   it('loads manifests from urls.manifestBase', async () => {
@@ -16,6 +16,7 @@ describe('SlugClient.FromEndpoint.Tree.load (split cdn)', () => {
 
     try {
       const result = await SlugClient.FromEndpoint.Tree.load('http://content.example.com/', docid, {
+        ...LOAD_OPTIONS,
         urls: { manifestBase: 'http://manifests.example.com/' },
       });
       if (!result.ok) throw new Error('expected tree result');

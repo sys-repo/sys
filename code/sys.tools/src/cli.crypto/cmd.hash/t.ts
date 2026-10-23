@@ -25,6 +25,8 @@ export type HashRunResult = {
   readonly bytesTotal: t.NumberBytes;
   readonly computedAt: t.UnixTimestamp;
   readonly dist: t.DistPkg;
+  /** Producer content identity; distribute independently to use it as an expected pin. */
+  readonly pin: t.DistPin;
 };
 
 export type HashDistRowStatus = 'created' | 'changed' | 'differs' | 'invalid';
@@ -38,7 +40,7 @@ export type HashDistRow = {
 export type HashDistRowBefore = {
   readonly path: t.StringPath;
   readonly exists: boolean;
-  readonly kind: 'missing' | 'canonical' | 'legacy' | 'invalid';
+  readonly kind: 'missing' | 'canonical' | 'invalid';
   readonly sizeBytes?: t.NumberBytes;
   readonly digest?: t.StringHash;
 };

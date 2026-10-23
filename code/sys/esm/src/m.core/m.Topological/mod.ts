@@ -1,10 +1,10 @@
-import { type t } from './common.ts';
+import type { t } from './common.ts';
 import { build } from './m.plan.ts';
 
 /**
  * @module
  * Pure topological dependency upgrade planning.
  */
-export const Topological: t.EsmTopological.Lib = {
+export const Topological: t.EsmTopological.Lib = Object.freeze({
   build,
-};
+});

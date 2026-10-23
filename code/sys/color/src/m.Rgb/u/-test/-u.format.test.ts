@@ -74,7 +74,7 @@ describe('Color.lighten | Color.darken', () => {
 
 describe('Color.toHex', () => {
   const test = (input: string, expected?: string) => {
-    const res = Color.toHex(input as t.AlphaColorInput);
+    const res = Color.toHex(input as t.Color.AlphaInput);
     expect(res).to.eql(expected);
   };
 

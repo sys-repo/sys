@@ -1,6 +1,6 @@
 import { c, Cli, Fs, type t } from './common.ts';
 
-export const Fmt: t.WorkspacePrep.Fmt.Lib = {
+export const Fmt: t.WorkspacePrep.Fmt.Lib = Object.freeze({
   importMap(args) {
     const total = args.total.toLocaleString();
     const cwd = args.cwd ?? Fs.cwd();
@@ -22,4 +22,4 @@ export const Fmt: t.WorkspacePrep.Fmt.Lib = {
     if (args.result.package) paths.push(args.result.package.packageFilePath);
     return Fmt.importMap({ cwd: args.cwd, total: args.result.total, paths });
   },
-};
+});

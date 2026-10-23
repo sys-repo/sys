@@ -1,42 +1,61 @@
 import type { t } from './common.ts';
 
 /**
- * Canonical `deps.yaml` manifest helpers for ESM dependencies.
+ * Canonical dependency declarations: `deps.yaml` is the authority;
+ * Deno imports and `package.json` dependency fields are its projections.
  */
 export declare namespace EsmDeps {
   /** Where imports are written when applying deps to a Deno config. */
   export type TargetKind = 'imports' | 'importMap';
 
-  /** Runtime surface for working with canonical dependency manifests. */
+  /** Read and render dependency declarations; apply them to their target files. */
   export type Lib = {
-    /** Load a dependency manifest from YAML text or path. */
+    /** Normalize dependency declarations from YAML text or a `.yaml` / `.yml` path. */
     from(input: t.StringPath | t.StringYaml): Promise<Result>;
-    /** Apply Deno imports onto a target `deno.json` or import-map target. */
+    /**
+     * Project dependencies into inline Deno imports or a referenced import map.
+     *
+     * Config-load and write failures reject. The config is written before its import map;
+     * earlier writes and partial output may remain.
+     */
     applyDeno(path: t.StringPath | undefined, entries?: Entry[]): Promise<ApplyResult>;
-    /** Apply package dependencies onto a target `package.json`. */
+    /**
+     * Replace dependencies and resolver overrides in `package.json`.
+     * No target returns `undefined` without writing. Write failures reject; partial output may remain.
+     */
     applyPackage(
       path: t.StringPath | undefined,
       entries?: Entry[],
+      options?: PackageProjectionOptions,
     ): Promise<ApplyPackageResult | undefined>;
-    /** Write canonical dependency YAML back to a deps.yaml target. */
+    /**
+     * Persist dependency declarations in canonical YAML form.
+     * Write failures reject; partial output may remain.
+     */
     applyYaml(
       path: t.StringPath | undefined,
       entries?: Entry[],
       options?: YamlOptions,
     ): Promise<ApplyYamlResult>;
-    /** Apply canonical deps to deps.yaml and projected files together. */
+    /**
+     * Write the manifest and its projections from one set of dependency declarations.
+     *
+     * Writes follow `deps.yaml` → Deno imports → optional `package.json` and stop on the first failure.
+     * Rejection is not rollback: earlier writes and partial output may remain.
+     */
     applyFiles(
       input: {
         readonly depsPath?: t.StringPath;
         readonly denoFilePath?: t.StringPath;
         readonly packageFilePath?: t.StringPath;
-        readonly yaml?: YamlOptions;
+        readonly yaml?: ApplyFilesYamlOptions;
+        readonly packageJson?: PackageJsonPolicy;
       },
       entries?: Entry[],
     ): Promise<ApplyFilesResult>;
-    /** Render manifest entries back to `deps.yaml`. */
+    /** Render canonical YAML without writing files. */
     toYaml(entries: Entry[], options?: YamlOptions): Yaml;
-    /** Normalize an ESM import into a manifest entry. */
+    /** Pair an ESM import with its projection targets and metadata; default to `deno.json`. */
     toEntry(
       module: t.EsmImport | t.StringModuleSpecifier,
       options?: {
@@ -46,55 +65,69 @@ export declare namespace EsmDeps {
         subpaths?: t.StringDir[];
       },
     ): Entry;
-    /** Find the canonical import for a versionless dependency stem. */
+    /**
+     * Return the first declared specifier matching the input's registry and package name.
+     * The input's version does not constrain the match.
+     */
     findImport(
       entries: Entry[] | undefined,
       input: t.StringModuleSpecifier,
     ): t.StringModuleSpecifier | undefined;
   };
 
-  /** Target dependency file kind for generated dependency surfaces. */
+  /** Manifest target selecting Deno imports or Node dependency fields. */
   export type TargetFile = 'deno.json' | 'package.json';
 
-  /** Result from loading a dependency manifest. */
+  /** Manifest state and diagnostics, which may coexist. */
   export type Result = {
-    /** Parsed dependency manifest state when loading succeeded. */
+    /** Normalized manifest state, when available. */
     data?: State;
-    /** Load or parse error when state could not be produced. */
+    /** Load, parse, or entry errors; inspect even when `data` is present. */
     error?: t.StdError;
   };
 
-  /** Result from writing canonical deps back to a deps.yaml file. */
+  /** Written manifest and its destination. */
   export type ApplyYamlResult = {
-    /** Resolved deps.yaml file path. */
+    /** Supplied path, or `./deps.yaml` when omitted. */
     readonly depsFilePath: t.StringPath;
-    /** Rendered YAML payload written to disk. */
+    /** Canonical YAML written to the target. */
     readonly yaml: Yaml;
   };
 
-  /** Result from applying deps to a `deno.json` or import-map target. */
+  /** Written Deno import projection and its destinations. */
   export type ApplyResult = {
     /** Whether imports were written inline or via an import map. */
     readonly kind: TargetKind;
-    /** Resolved `deno.json` file path. */
+    /** Absolute path of the updated Deno config (`.json` or `.jsonc`). */
     readonly denoFilePath: t.StringPath;
-    /** File path that received the rendered imports. */
+    /** Absolute path that received the import mappings. */
     readonly targetPath: t.StringPath;
-    /** Final import map written to the target. */
+    /** Projected mappings; empty when the target's `imports` field is removed. */
     readonly imports: Record<string, t.StringModuleSpecifier>;
   };
 
-  /** Result from applying deps to a `package.json` target. */
+  /** Written package dependency fields; empty maps represent removed fields. */
   export type ApplyPackageResult = {
-    /** Resolved `package.json` file path. */
+    /** Supplied package target path, without normalization. */
     readonly packageFilePath: t.StringPath;
-    /** Final runtime dependency map written to `package.json`. */
+    /** Runtime dependency mappings. */
     readonly dependencies: Record<string, t.StringSemver>;
-    /** Final development dependency map written to `package.json`. */
+    /** Development dependency mappings. */
     readonly devDependencies: Record<string, t.StringSemver>;
+    /** Resolver overrides. */
+    readonly overrides: t.PkgNodeOverrides;
   };
 
-  /** Result from applying canonical deps to deps.yaml and projected files. */
+  /** Options for projecting canonical package policy into `package.json`. */
+  export type PackageProjectionOptions = {
+    /** Optional package.json resolver policy. */
+    readonly packageJson?: PackageJsonPolicy;
+  };
+
+  /** YAML options accepted by multi-file projection. */
+  export type ApplyFilesYamlOptions = Omit<YamlOptions, 'packageJson'>;
+
+  /** Results returned only after every requested manifest and projection write completes. */
   export type ApplyFilesResult = {
     /** Result from writing deps.yaml. */
     readonly yaml: ApplyYamlResult;
@@ -110,17 +143,25 @@ export declare namespace EsmDeps {
     readonly entries: Entry[];
     /** Parsed ESM module set derived from the entries. */
     readonly modules: t.EsmModules;
-    /** Render the manifest state back to YAML. */
+    /** Parsed package.json resolver policy. */
+    readonly packageJson?: PackageJsonPolicy;
+    /** Render this state as YAML, retaining its resolver policy unless overridden. */
     toYaml(options?: YamlOptions): Yaml;
   };
 
-  /** YAML manifest wrapper. */
+  /** Canonical package.json resolver policy parsed from `deps.yaml`. */
+  export type PackageJsonPolicy = {
+    /** npm-compatible package override policy. */
+    readonly overrides?: t.PkgNodeOverrides;
+  };
+
+  /** One manifest as structured data and serialized text. */
   export type Yaml = {
     /** Structured YAML manifest object. */
     readonly obj: YamlShape;
     /** Serialized YAML text. */
     readonly text: t.StringYaml;
-    /** Stringify the YAML wrapper. */
+    /** Return the same serialized YAML as `text`. */
     toString(): string;
   };
 
@@ -128,6 +169,8 @@ export declare namespace EsmDeps {
   export type YamlOptions = {
     /** Optional grouping callback for named dependency groups. */
     groupBy?: CategorizeByGroup;
+    /** Optional package.json resolver policy to render. */
+    packageJson?: PackageJsonPolicy;
   };
 
   /** Categorize a dependency into a named group. */
@@ -136,32 +179,24 @@ export declare namespace EsmDeps {
   export type CategorizeByGroupArgs = {
     /** Dependency currently being grouped. */
     entry: Entry;
-    /** Target file kinds attached to the dependency. */
+    /** Projection target currently being rendered. */
     target: TargetFile | TargetFile[];
     /** Assign the dependency to a named YAML group. */
     group(name: string, options?: { subpaths?: t.StringDir[]; dev?: boolean }): void;
   };
 
-  /** Canonical dependency manifest entry. */
+  /** One dependency declaration and its projection targets. */
   export type Entry = {
-    /** The parsed ESM import for the dependency. */
+    /** Parsed import identity, version, and optional alias. */
     module: t.EsmParsedImport;
 
-    /** File kinds the dependency projects into. */
+    /** Destinations that consume this declaration. */
     target: TargetFile[];
 
-    /**
-     * Additional subpaths projected from the dependency root.
-     * Example:
-     *   `yaml`
-     *   `yaml/types`
-     */
+    /** Additional Deno import subpaths, relative to the dependency root (e.g. `yaml/types`). */
     subpaths?: t.StringDir[];
 
-    /**
-     * Flag indicating the dependency is development-only.
-     * Only relevant when projecting to `package.json`.
-     */
+    /** Select `devDependencies` rather than `dependencies` in `package.json`; ignored by Deno. */
     dev?: boolean;
   };
 
@@ -182,29 +217,24 @@ export declare namespace EsmDeps {
   /** Reusable YAML dependency entry stored in a group. */
   export type YamlGroup = Omit<YamlEntry, 'group'>;
 
-  /** One dependency entry in `deps.yaml`. */
+  /** A YAML item declaring an import, a group reference, or package resolver overrides. */
   export type YamlEntry = {
-    /**
-     * Fully-qualified import specifier.
-     * Example:
-     *   `jsr:@sys/tmp@0.0.0`
-     *   `npm:rxjs@7`
-     */
+    /** Dependency specifier, e.g. `jsr:@std/path@1.0.8` or `npm:rxjs@7`. */
     import?: t.StringModuleSpecifier;
 
     /** Name of a reusable dependency group to include. */
     group?: YamlGroupName;
 
-    /** Additional subpaths projected from the dependency root. */
+    /** Additional Deno import subpaths, relative to the dependency root. */
     subpaths?: t.StringDir[];
 
-    /** Override alias name when it differs from the import name. */
+    /** Deno import alias in place of the package name. */
     name?: string;
 
-    /**
-     * Flag indicating the dependency is development-only.
-     * Only relevant when projecting to `package.json`.
-     */
+    /** Select `devDependencies` rather than `dependencies` in `package.json`; ignored by Deno. */
     dev?: boolean;
+
+    /** Standalone resolver overrides, allowed only in direct `package.json` items. */
+    overrides?: t.PkgNodeOverrides;
   };
 }

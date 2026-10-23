@@ -1,7 +1,7 @@
-import { Dev, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
+import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { D, type t } from './common.ts';
 import { Mounts } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -10,7 +10,21 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Mounts.UI origin={origin} debug={v.debug} theme={v.theme} />;
+    return (
+      <Mounts.UI
+        origin={origin}
+        policy={{
+          maxBytes: 16 * 1024 * 1024,
+          timeout: 30_000,
+          maxRedirects: 3,
+          progressInterval: 100,
+          sourceOrigins: ['http://localhost:1234'],
+          credentialOrigins: [],
+        }}
+        debug={v.debug}
+        theme={v.theme}
+      />
+    );
   }
 
   e.it('init', (e) => {
@@ -23,7 +37,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size([360, null])

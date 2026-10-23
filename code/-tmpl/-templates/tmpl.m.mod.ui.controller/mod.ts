@@ -6,7 +6,7 @@ import { Uncontrolled } from './ui.tsx';
 import { Controlled } from './ui.Controlled.tsx';
 import { createController as controller } from './u.controller.ts';
 
-export const MyCtrl: t.MyCtrl.Lib = {
+export const MyCtrl: t.MyCtrl.Lib = Object.freeze({
   controller,
-  UI: { Controlled, Uncontrolled },
-};
+  UI: Object.freeze({ Controlled, Uncontrolled }),
+});

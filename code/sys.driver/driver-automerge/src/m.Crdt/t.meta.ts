@@ -1,9 +1,6 @@
 import type { t } from './common.ts';
 
-/**
- * Common meta-data optionally applied to all new
- * documents typially under the `.meta` path.
- */
-export type SysMeta = {
+/** Common metadata optionally applied to new documents under the `.meta` path. */
+export type Sys = {
   readonly createdAt?: t.UnixTimestamp;
 };

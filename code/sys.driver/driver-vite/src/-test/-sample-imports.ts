@@ -13,7 +13,7 @@ import { Jsr } from '@sys/registry/jsr';
 import { Str } from '@sys/std/str';
 import { Args } from '@sys/std/args';
 import { Path } from '@sys/std/path';
-import { Date as D, Time } from '@sys/std/time';
+import { Time } from '@sys/std/time';
 import { IndexedDb } from '@sys/std/indexeddb';
 import { Rx } from '@sys/std/rx';
 import { Semver } from '@sys/std/semver';
@@ -28,7 +28,7 @@ console.groupCollapsed('🧫 @sys/std');
 
 console.info('@sys/std:Rx', Rx);
 console.info('@sys/std:Path', Path);
-console.info('@sys/std:D (Date)', D, `"${D.format(now, 'E MMM do, yyyy')}"`);
+console.info('@sys/std:Time.Date', Time.Date, `"${Time.Date.format(now, 'E MMM do, yyyy')}"`);
 console.info('@sys/std:Time', Time);
 console.info('@sys/std:Args', Args, 'parsed:', Args.parse(['--foo', '--bar=baz', './file.txt']));
 console.info('@sys/std:IndexedDb', IndexedDb);

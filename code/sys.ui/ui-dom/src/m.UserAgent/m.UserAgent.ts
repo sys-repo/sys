@@ -1,9 +1,7 @@
-import type { UserAgentLib } from './t.ts';
+import { type t } from './common.ts';
 import { parseUserAgent } from './u.parse.ts';
 
-import type { t } from './common.ts';
-
-let _current: t.UserAgent | undefined; // NB: singleton reference.
+let _current: t.UserAgent.Info | undefined; // NB: singleton reference.
 
 /**
  * Ref:
@@ -12,9 +10,9 @@ let _current: t.UserAgent | undefined; // NB: singleton reference.
  *    Summary:
  *    "The User-Agent request header is a characteristic string that lets
  *     servers and network peers identify the application, operating system,
- *     vendor, and/or version of the requesting user agent.""
+ *     vendor, and/or version of the requesting user agent."
  */
-export const UserAgent: UserAgentLib = {
+export const UserAgent: t.UserAgent.Lib = {
   /**
    * Lazily parse and cache the current browser user-agent string.
    */

@@ -5,7 +5,9 @@ import type { t } from '../common.ts';
  * from measured refs and reports axis-specific and combined visibility.
  */
 export type UseVisibilityThreshold = (args: Args, deps: unknown[]) => VisibilityThreshold2D;
+/** Compute horizontal visibility from current element and container measurements. */
 export type UseVisibilityThresholdX = (args: ArgsX, deps: unknown[]) => VisibilityThreshold1D;
+/** Compute vertical visibility from current element and container measurements. */
 export type UseVisibilityThresholdY = (args: ArgsY, deps: unknown[]) => VisibilityThreshold1D;
 
 /**
@@ -35,6 +37,7 @@ type ArgsY = Omit<Args, 'containerWidth' | 'offsetX' | 'hysteresisX'>;
  * Hook result:
  */
 export type VisibilityThreshold1D = { threshold: t.Pixels; visible: boolean };
+/** Combined horizontal and vertical visibility-threshold result. */
 export type VisibilityThreshold2D = {
   x: { threshold: t.Pixels; visible: boolean };
   y: { threshold: t.Pixels; visible: boolean };

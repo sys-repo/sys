@@ -4,7 +4,7 @@ import { ensureIsObject } from './u.ts';
 
 type O = Record<string, unknown>;
 
-export const analyze: t.AliasResolverLib['analyze'] = (obj, opts = {}) => {
+export const analyze: t.AliasResolver.Lib['analyze'] = (obj, opts = {}) => {
   const diagnostics: t.Alias.Diagnostic[] = [];
 
   /**

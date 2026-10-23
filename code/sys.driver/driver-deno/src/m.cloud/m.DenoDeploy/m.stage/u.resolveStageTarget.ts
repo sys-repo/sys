@@ -1,8 +1,8 @@
-import { type t, Path } from './common.ts';
+import { Path, type t } from './common.ts';
 import { DenoFile } from '../../../m.runtime/mod.ts';
 
 type Response = {
-  readonly workspace: t.DenoWorkspace;
+  readonly workspace: t.DenoFile.Workspace.Info;
   readonly target: {
     readonly absolute: t.StringDir;
     readonly relative: t.StringRelativeDir;
@@ -29,7 +29,8 @@ export async function resolveStageTarget(request: t.DenoDeploy.Stage.Request): P
 
   const targetRootRel = Path.relative(workspace.dir, targetDir);
   if (targetRootRel.startsWith('..')) {
-    const err = `DenoDeploy.stage: target dir '${targetDir}' is outside workspace '${workspace.dir}'`;
+    const err =
+      `DenoDeploy.stage: target dir '${targetDir}' is outside workspace '${workspace.dir}'`;
     throw new Error(err);
   }
 
@@ -37,7 +38,8 @@ export async function resolveStageTarget(request: t.DenoDeploy.Stage.Request): P
     targetRootRel !== '.' &&
     !workspace.children.some((child) => child.path.dir === targetRootRel)
   ) {
-    const err = `DenoDeploy.stage: target dir '${targetDir}' is not a declared workspace child of '${workspace.dir}'`;
+    const err =
+      `DenoDeploy.stage: target dir '${targetDir}' is not a declared workspace child of '${workspace.dir}'`;
     throw new Error(err);
   }
 

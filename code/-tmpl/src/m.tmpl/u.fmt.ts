@@ -41,6 +41,8 @@ const wrangle = {
       }
     }
 
+    if (args.tmpl === 'pkg.help') return `docs(${scope}): add help resources to ${path} (${files})`;
+
     if (args.tmpl === 'm.mod') return `chore(${scope}): scaffold ${path} (${files})`;
 
     if (args.tmpl === 'm.mod.ui' && args.options?.name) {

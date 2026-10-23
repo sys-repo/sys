@@ -1,19 +1,22 @@
-import { type t, Workspace } from '@sys/workspace';
+import { type t } from '@sys/workspace';
+import { WorkspaceCli } from '@sys/workspace/cli';
 import { bumpPolicy } from './task.bump.policy.ts';
 
 export async function main(input: t.WorkspaceBump.Args.RunInput = {}) {
-  const args = Workspace.Bump.Args.run({ ...input, policy: bumpPolicy() });
-  if (args.help) {
-    Workspace.Bump.Fmt.help();
-    return false;
-  }
-  if (args.invalidRelease) console.warn(Workspace.Bump.Fmt.invalidRelease(args.invalidRelease));
-  await Workspace.Bump.run(args.run);
+  return await mainWith(WorkspaceCli.run, input);
+}
 
+/** Internal runner seam; the task entrypoint always uses WorkspaceCli.run. */
+export async function mainWith(
+  runCli: t.WorkspaceCli.Lib['run'],
+  input: t.WorkspaceBump.Args.RunInput = {},
+) {
+  await runCli({
+    argv: ['bump', ...(input.argv ?? Deno.args)],
+    cwd: input.options?.cwd,
+    bumpPolicy: bumpPolicy(),
+  });
   return true;
 }
 
-/**
- * Main entry:
- */
 if (import.meta.main) await main();

@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, Json, Testing } from '../../-test.ts';
-import { apply } from '../u.apply.ts';
+import { apply } from '../u/u.apply.ts';
 
 const FS_MOD = new URL('../../../../fs/src/mod.ts', import.meta.url).href;
 

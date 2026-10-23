@@ -5,7 +5,7 @@ import { renderCtx } from './u.ts';
 import { Body } from './ui.Body.tsx';
 import { Spinner } from './ui.Spinner.tsx';
 
-type P = t.LayoutProps;
+type P = t.Layout.Props;
 
 export const Layout: React.FC<P> = (props) => {
   const { debug = false, spinning } = props;

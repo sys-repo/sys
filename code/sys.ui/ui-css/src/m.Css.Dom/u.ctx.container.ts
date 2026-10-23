@@ -4,16 +4,16 @@ import { type t } from './common.ts';
  * CSS: @container API
  */
 export function createContainer(args: {
-  rules: t.CssDomRules;
+  rules: t.CssDom.Rules;
   condition: string;
   name?: string;
   scoped?: t.StringCssSelector[];
-}): t.CssDomContainerBlock {
+}): t.CssDom.Container.Block {
   const { rules, name, scoped = [] } = args;
   const condition = wrangle.condition(args.condition);
-  const inserted = new Set<t.CssDomInsertedRule>();
+  const inserted = new Set<t.CssDom.InsertedRule>();
 
-  const api: t.CssDomContainerBlock = {
+  const api: t.CssDom.Container.Block = {
     kind: '@container',
     condition,
     name,
@@ -49,8 +49,8 @@ export function createContainer(args: {
  * Convert a container block to a string.
  */
 export function toString(
-  container: t.CssDomContainerBlock,
-  kind: t.CssDomContainerToStringKind = 'QueryCondition',
+  container: t.CssDom.Container.Block,
+  kind: t.CssDom.Container.ToStringKind = 'QueryCondition',
 ): string {
   if (kind === 'QueryCondition') {
     let res = container.kind;

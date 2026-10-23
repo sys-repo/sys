@@ -8,7 +8,6 @@ describe('Bootstrap runtime-additions world', () => {
       packageJson: {
         dependencies: {
           vite: '8.0.9',
-          esbuild: '0.27.4',
         },
       },
       denoJson: {},
@@ -29,7 +28,6 @@ describe('Bootstrap runtime-additions world', () => {
       packageJson: {
         dependencies: {
           vite: '8.0.9',
-          esbuild: '0.27.4',
         },
       },
       denoJson: {},
@@ -39,7 +37,6 @@ describe('Bootstrap runtime-additions world', () => {
       packageJson: {
         dependencies: {
           vite: '8.0.9',
-          esbuild: '0.27.4',
           '@vitejs/plugin-react': '6.0.1',
         },
       },
@@ -68,7 +65,6 @@ describe('Bootstrap runtime-additions world', () => {
       packageJson: {
         dependencies: {
           vite: '8.0.9',
-          esbuild: '0.27.4',
           react: '19.2.5',
           'react-dom': '19.2.5',
           lodash: '4.17.21',

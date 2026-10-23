@@ -1,14 +1,24 @@
 import { TreeHost } from '../../ui.TreeHost/mod.ts';
-import { type t, SlugClient, SlugSchema } from '../common.ts';
+import { SlugClient, SlugSchema, type t } from '../common.ts';
 import type { SlugEffectAdapter, SlugPlaybackSlugState } from './t.ts';
 
 type LoadBundleResult = t.SlugClientResult<t.TimecodePlaybackDriver.Wire.Bundle>;
 type LoadBundle = (baseUrl: t.StringUrl, ref: t.StringId) => Promise<LoadBundleResult>;
-type Props = {
-  readonly baseUrl: t.StringUrl;
-  readonly loadBundle?: LoadBundle;
-  readonly setBundle?: (bundle: t.TimecodePlaybackDriver.Wire.Bundle | undefined) => void;
-};
+type Props =
+  & {
+    readonly baseUrl: t.StringUrl;
+    readonly setBundle?: (bundle: t.TimecodePlaybackDriver.Wire.Bundle | undefined) => void;
+  }
+  & (
+    | {
+      readonly loadBundle: LoadBundle;
+      readonly transport?: never;
+    }
+    | {
+      readonly loadBundle?: undefined;
+      readonly transport: t.SlugLoadTransport;
+    }
+  );
 
 /**
  * Attach the slug loader effect.
@@ -17,7 +27,10 @@ type Props = {
  * is a `refOnly` slug with a ref ID, loads the bundle from the endpoint.
  */
 export function attachSlugLoaderEffect(adapter: SlugEffectAdapter, props: Props): void {
-  const { baseUrl, loadBundle = SlugClient.FromEndpoint.Timeline.Bundle.load, setBundle } = props;
+  const { baseUrl, setBundle } = props;
+  const loadBundle: LoadBundle = props.loadBundle ?? ((url, ref) => {
+    return SlugClient.FromEndpoint.Timeline.Bundle.load(url, ref, props.transport);
+  });
   const onBundle = setBundle ?? (() => {});
   let loadGen = 0; // Staleness tracking.
   const getSlug = () => adapter.current() ?? {};

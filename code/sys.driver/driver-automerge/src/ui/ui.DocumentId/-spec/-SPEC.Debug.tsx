@@ -17,9 +17,9 @@ import {
 } from '../common.ts';
 
 type Doc = { count?: number };
-type P = t.DocumentIdProps;
+type P = t.DocumentId.Props;
 
-export const sampleUrlFactory: t.DocumentIdUrlFactory = (e) => {
+export const sampleUrlFactory: t.DocumentId.Url.Factory = (e) => {
   const url = new URL(location.href);
   url.searchParams.set('my-key', e.docId);
   console.info('⚡️ SAMPLE URL FACTORY:', e, url.href);
@@ -81,7 +81,7 @@ export async function createDebugSignals() {
     readOnly: s(snap.readOnly),
 
     urlKey: s(snap.urlKey),
-    url: s<t.UseDocumentIdHookArgs['url']>(snap.url === 'ƒ' ? sampleUrlFactory : snap.url),
+    url: s<t.DocumentId.Hook.Args['url']>(snap.url === 'ƒ' ? sampleUrlFactory : snap.url),
   };
   const p = props;
   const api = {

@@ -8,19 +8,6 @@ export type EsmImportMap = { readonly [key: string]: string };
 /** Values representing public registries of ESM modules. */
 export type EsmRegistry = 'jsr' | 'npm';
 
-/** Public dependency policy modes for ESM upgrade selection. */
-export type EsmPolicyMode = EsmPolicy.Mode;
-/** Public dependency policy input. */
-export type EsmPolicyInput = EsmPolicy.Input;
-/** Public dependency policy decision. */
-export type EsmPolicyDecision = EsmPolicy.Decision;
-/** Public dependency policy result. */
-export type EsmPolicyResult = EsmPolicy.Result;
-/** Public topological ordering input. */
-export type EsmTopologicalInput = EsmTopological.DecisionInput;
-/** Public topological ordering result. */
-export type EsmTopologicalResult = EsmTopological.DecisionResult;
-
 /** Core ESM import and dependency helpers. */
 export type EsmLib = {
   /** Pure topological dependency ordering. */

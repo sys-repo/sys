@@ -6,5 +6,5 @@ export { Args } from '@sys/std/args';
 export const PATHS = {
   packages: 'code/packages',
   build: '.github/workflows/build.yaml',
-  test: '.github/workflows/test.yaml',
+  test: '.github/workflows/test.linux.yaml',
 } as const;

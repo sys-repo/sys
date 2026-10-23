@@ -5,11 +5,11 @@ import { type t } from './common.ts';
  * for the `CssTransformer` API.
  */
 export function createTransformContainer(
-  base: t.CssTransformed,
-  block: t.CssDomContainerBlock,
-  style?: t.CssProps | undefined,
-): t.CssTransformContainerBlock {
-  const api: t.CssTransformContainerBlock = {
+  base: t.Style.Transform.Result,
+  block: t.CssDom.Container.Block,
+  style?: t.Style.Props | undefined,
+): t.Style.Transform.ContainerBlock {
+  const api: t.Style.Transform.ContainerBlock = {
     block,
 
     container: base.container,

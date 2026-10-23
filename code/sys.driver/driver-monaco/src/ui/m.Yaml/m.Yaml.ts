@@ -6,7 +6,7 @@ import { Path } from './m.Path.ts';
 import { useYaml } from './use.Yaml.ts';
 import { useYamlErrorMarkers } from './use.YamlErrorMarkers.ts';
 
-export const EditorYaml: t.EditorYamlLib = {
+export const EditorYaml: t.EditorYaml.Lib = {
   Path,
   Editor,
   Error,

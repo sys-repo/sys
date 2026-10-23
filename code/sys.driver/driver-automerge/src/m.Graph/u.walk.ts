@@ -11,10 +11,10 @@ type O = Record<string, unknown>;
  * - CRDT repo support via `getWithRetry`
  * - CRDT-flavoured default `discoverRefs`
  */
-export const walk: t.CrdtGraphWalk = (args) => walkImpl(args);
+export const walk: t.CrdtGraph.Walk.Fn = (args) => walkImpl(args);
 
 async function walkImpl<T extends O = O>(
-  args: t.CrdtGraphWalkArgs<T>,
+  args: t.CrdtGraph.Walk.Args<T>,
 ): Promise<t.Graph.WalkResult> {
   /**
    * Normalised loader:

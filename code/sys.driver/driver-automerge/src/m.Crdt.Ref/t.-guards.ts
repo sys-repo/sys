@@ -1,4 +1,4 @@
-import type { Crdt as G } from '@sys/crdt-t/t';
+import type { Crdt as G } from '@sys/crdt/t';
 import type { t } from './common.ts';
 import type { CrdtChange, CrdtEvents, CrdtPathEvents } from './t.ts';
 

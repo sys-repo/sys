@@ -6,13 +6,13 @@ const TOKEN = /\bcrdt:(create\b|[A-Za-z0-9._~-]+(?:\/[A-Za-z0-9._~\-/]+)*)\b/g;
  * Test hook:
  */
 export const __test = {
-  lastHandler: undefined as t.EditorCrdtLinkClickHandler | undefined,
+  lastHandler: undefined as t.EditorCrdt.Link.ClickHandler | undefined,
 };
 
 /**
  * Method:
  */
-export const register: t.EditorCrdtRegisterLink = async (ctx, opt) => {
+export const register: t.EditorCrdt.Link.Register = async (ctx, opt) => {
   const { monaco, editor } = ctx;
 
   const options = wrangle.options(opt);
@@ -101,8 +101,8 @@ export const register: t.EditorCrdtRegisterLink = async (ctx, opt) => {
       const path = isCreate ? ([] as t.ObjectPath) : segments.slice(1);
 
       const model = { uri: modelUri };
-      const bounds: t.EditorLinkBounds = { model, start, end, range, startOffset, endOffset };
-      const ev: t.EditorCrdtLinkClick = {
+      const bounds: t.MonacoDriver.Link.Bounds = { model, start, end, range, startOffset, endOffset };
+      const ev: t.EditorCrdt.Link.Click = {
         model,
         raw,
         is: { create: isCreate },
@@ -129,7 +129,7 @@ export const register: t.EditorCrdtRegisterLink = async (ctx, opt) => {
  * Helpers:
  */
 const wrangle = {
-  options(input?: Parameters<t.EditorCrdtRegisterLink>[1]): t.EditorCrdtRegisterLinkOptions {
+  options(input?: Parameters<t.EditorCrdt.Link.Register>[1]): t.EditorCrdt.Link.RegisterOptions {
     if (!input) return {};
     if (typeof input === 'function') return { onLinkClick: input };
     return input;

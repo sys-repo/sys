@@ -1,13 +1,13 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Lens } from '../mod.ts';
+
+const valueOfType = <T>() => undefined as unknown as T;
 
 describe('Lens.toObject', () => {
   describe('Lens.toObject (types)', () => {
-    const v: any = undefined;
-
     type S = { a: { b: number }; arr: readonly string[] };
-    type RW = t.ObjLensRef<S, number>;
-    type RO = t.ReadonlyObjLensRef<S, string>;
+    type RW = t.Obj.Lens.Ref<S, number>;
+    type RO = t.Obj.Lens.ReadonlyRef<S, string>;
 
     type Mixed = {
       keep: { z: boolean };
@@ -17,27 +17,27 @@ describe('Lens.toObject', () => {
       date: Date;
     };
 
-    type Out = t.UnwrapLenses<Mixed>;
+    type Out = t.Obj.Lens.Unwrap<Mixed>;
 
     it('unwraps lens value types', () => {
-      expectTypeOf<Out['rw']>(v).toEqualTypeOf<number>();
-      expectTypeOf<Out['ro']>(v).toEqualTypeOf<string>();
+      expectTypeOf(valueOfType<Out['rw']>()).toEqualTypeOf<number>();
+      expectTypeOf(valueOfType<Out['ro']>()).toEqualTypeOf<string>();
     });
 
     it('preserves tuple/array element types and readonly tuple', () => {
-      expectTypeOf<Out['list']>(v).toEqualTypeOf<readonly [string, number]>();
+      expectTypeOf(valueOfType<Out['list']>()).toEqualTypeOf<readonly [string, number]>();
       type First = Out['list'][0];
       type Second = Out['list'][1];
-      expectTypeOf<First>(v).toEqualTypeOf<string>();
-      expectTypeOf<Second>(v).toEqualTypeOf<number>();
+      expectTypeOf(valueOfType<First>()).toEqualTypeOf<string>();
+      expectTypeOf(valueOfType<Second>()).toEqualTypeOf<number>();
     });
 
     it('recurses plain objects, preserving shape', () => {
-      expectTypeOf<Out['keep']['z']>(v).toEqualTypeOf<boolean>();
+      expectTypeOf(valueOfType<Out['keep']['z']>()).toEqualTypeOf<boolean>();
     });
 
     it('preserves non-plain instances as-is', () => {
-      expectTypeOf<Out['date']>(v).toEqualTypeOf<Date>();
+      expectTypeOf(valueOfType<Out['date']>()).toEqualTypeOf<Date>();
     });
   });
 

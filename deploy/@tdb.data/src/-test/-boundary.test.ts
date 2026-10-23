@@ -13,7 +13,12 @@ describe('@tdb/data/slug export graph boundary', () => {
     const root = Path.resolve(import.meta.dirname ?? '.');
     await EsmAssert.runtimeGraphBoundary({
       entry: Path.resolve(root, './entry.splash.tsx'),
-      forbiddenImports: ['@sys/ui-react-devharness'],
+      forbiddenImports: [
+        '@sys/ui-react-devharness',
+        '@sys/ui-react-devharness/react',
+        '@sys/ui-dev',
+        '@sys/ui-dev/react/devharness',
+      ],
       forbiddenPathIncludes: [
         '/src/-test/common.ts',
         '/src/ui/common/u.icons.ts',

@@ -2,14 +2,14 @@ import { Url as UrlBase } from '@sys/immutable/url';
 import { Url as UrlBaseBase } from '@sys/std/url';
 
 import {
-  type t,
-  beforeAll,
   afterAll,
+  beforeAll,
   describe,
   DomMock,
   expect,
   expectTypeOf,
   it,
+  type t,
 } from '../-test.ts';
 import { Url } from './mod.ts';
 
@@ -29,11 +29,11 @@ describe('Url', () => {
 
   describe('Url.bindToWindow', () => {
     it('has the expected signature', () => {
-      type T = (ref: t.UrlRef, options?: t.DomUrlBindOptions) => t.DomUrlBinding;
+      type T = (ref: t.Immutable.Url.Ref, options?: t.DomUrlBindOptions) => t.DomUrlBinding;
       expectTypeOf(Url.bindToWindow).toEqualTypeOf<T>();
     });
 
-    it('mirrors UrlRef changes into window.location (replace mode, same-origin)', () => {
+    it('mirrors immutable URL ref changes into window.location (replace mode, same-origin)', () => {
       const href = 'https://example.com/app?foo=1';
       window.location.href = href;
 

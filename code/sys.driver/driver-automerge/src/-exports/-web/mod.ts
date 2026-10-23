@@ -8,7 +8,6 @@ import {
 } from '@automerge/automerge-repo-network-websocket';
 import { IndexedDBStorageAdapter } from '@automerge/automerge-repo-storage-indexeddb';
 import {
-  type t,
   Arr,
   AutomergeRepo,
   CrdtCmd,
@@ -21,22 +20,25 @@ import {
   createPeerId,
   D,
   Is,
+  type t,
   toObject,
   toRepo,
   whenReady,
 } from './common.ts';
 
-type Args = t.CrdtWebRepoArgs;
+type Args = t.CrdtWeb.RepoArgs;
 
 /**
  * Exports:
  */
-export { A, AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.ts';
+/** Automerge core runtime namespace. */
+export { A } from './common.ts';
+export { AutomergeRepo, toAutomergeHandle, toAutomergeRepo } from './common.ts';
 
 /**
  * Library:
  */
-export const Crdt: t.CrdtWebLib = {
+export const Crdt: t.CrdtWeb.Lib = {
   kind: 'crdt:web',
   repo(args = {}) {
     const { sharePolicy, denylist, until } = args;
@@ -108,7 +110,7 @@ const wrangle = {
     return adapters;
   },
 
-  adapter(arg?: t.CrdtWebNetworkArgInput) {
+  adapter(arg?: t.CrdtWeb.Network.Input) {
     if (Is.record(arg) && Is.string(arg.ws)) return wrangle.ws(arg.ws);
     return arg as t.NetworkAdapterInterface;
   },

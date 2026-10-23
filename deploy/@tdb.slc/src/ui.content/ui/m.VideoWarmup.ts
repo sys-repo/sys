@@ -1,4 +1,4 @@
-import { type t, Http, Rx } from './common.ts';
+import { Http, Rx, type t } from './common.ts';
 import { VideoWarmup } from './u.VideoWarmup.ts';
 
 type WarmBatch = {
@@ -7,73 +7,91 @@ type WarmBatch = {
   readonly promise: Promise<void>;
 };
 
+type Warm = typeof Http.Preload.warm;
+
 const P = {
   landing: 1,
   programme: 2,
   section: 3,
 } as const;
 
-const completed = new Set<string>();
-let current: WarmBatch | undefined;
+export function createWarmVideo(warm: Warm = Http.Preload.warm) {
+  const completed = new Set<string>();
+  let current: WarmBatch | undefined;
 
-export const WarmVideo = {
-  landing() {
-    return run(VideoWarmup.landing(), P.landing);
-  },
+  const run = async (urls: readonly string[], priority: number) => {
+    if (typeof window === 'undefined') return;
 
-  programmeIntro(media?: t.VideoMediaContent) {
-    return run(VideoWarmup.programmeIntro(media), P.programme);
-  },
+    const pending = urls.filter((url) => !!url && !completed.has(url));
+    if (!pending.length) return;
 
-  section(media?: t.VideoMediaContent) {
-    return run(VideoWarmup.section(media), P.section);
-  },
-} as const;
-
-async function run(urls: readonly string[], priority: number) {
-  if (typeof window === 'undefined') return;
-
-  const pending = urls.filter((url) => !!url && !completed.has(url));
-  if (!pending.length) return;
-
-  if (current) {
-    if (current.priority > priority) return current.promise;
-    current.life.dispose();
-    await current.promise.catch(() => {});
-  }
-
-  const life = Rx.abortable();
-  const promise = (async () => {
-    const controlled = await whenServiceWorkerControls();
-    if (!controlled) return;
-    if (life.disposed || current?.life !== life) return;
-
-    for (const url of pending) {
-      if (life.disposed) break;
-      if (current?.life !== life) break;
-      if (completed.has(url)) continue;
-
-      const result = await Http.Preload.warm(
-        [{ url, range: { start: 0, end: 0 } }],
-        { concurrency: 1, until: life.dispose$ },
-      );
-
-      if (life.disposed) break;
-      if (current?.life !== life) break;
-      if (result.ok && result.ops.every((op) => op.ok && op.fullMediaCached === true)) {
-        completed.add(url);
-      }
+    if (current) {
+      if (current.priority > priority) return current.promise;
+      current.life.dispose();
+      await current.promise.catch(() => {});
     }
-  })().catch((err) => {
-    if (life.disposed) return;
-    throw err;
-  }).finally(() => {
-    if (current?.life === life) current = undefined;
-  });
 
-  current = { priority, life, promise };
-  return promise;
+    const life = Rx.abortable();
+    const promise = (async () => {
+      const controlled = await whenServiceWorkerControls();
+      if (!controlled) return;
+      if (life.disposed || current?.life !== life) return;
+
+      for (const url of pending) {
+        if (life.disposed) break;
+        if (current?.life !== life) break;
+        if (completed.has(url)) continue;
+
+        const origin = new URL(url).origin;
+        const result = await warm(
+          [{ url, range: { start: 0, end: 0 } }],
+          {
+            policy: {
+              maxBytes: 1024 * 1024,
+              timeout: 30_000,
+              maxRedirects: 3,
+              progressInterval: 100,
+              sourceOrigins: [origin],
+              credentialOrigins: [],
+            },
+            concurrency: 1,
+            until: life.dispose$,
+          },
+        );
+
+        if (life.disposed) break;
+        if (current?.life !== life) break;
+        if (result.ok && result.ops.every((op) => op.ok && op.fullMediaCached === true)) {
+          completed.add(url);
+        }
+      }
+    })().catch((err) => {
+      if (life.disposed) return;
+      throw err;
+    }).finally(() => {
+      if (current?.life === life) current = undefined;
+    });
+
+    current = { priority, life, promise };
+    return promise;
+  };
+
+  return {
+    landing() {
+      return run(VideoWarmup.landing(), P.landing);
+    },
+
+    programmeIntro(media?: t.VideoMediaContent) {
+      return run(VideoWarmup.programmeIntro(media), P.programme);
+    },
+
+    section(media?: t.VideoMediaContent) {
+      return run(VideoWarmup.section(media), P.section);
+    },
+  } as const;
 }
+
+export const WarmVideo = createWarmVideo();
 
 async function whenServiceWorkerControls() {
   if (typeof navigator === 'undefined') return false;
@@ -99,7 +117,7 @@ async function whenServiceWorkerControls() {
       resolve(value);
     };
 
-    const timeout = window.setTimeout(() => done(!!navigator.serviceWorker.controller), 1500);
+    const timeout = globalThis.setTimeout(() => done(!!navigator.serviceWorker.controller), 1500);
     navigator.serviceWorker.addEventListener('controllerchange', handler, { once: true });
   });
 }

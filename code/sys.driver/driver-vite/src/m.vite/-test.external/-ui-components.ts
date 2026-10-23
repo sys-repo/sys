@@ -1,33 +1,29 @@
 import { describe, expect, it, SAMPLE, Testing } from '../../-test.ts';
 
-import { buildSample } from './u.fixture.build.ts';
+import { assertBuildOk, buildSample } from './u.fixture.build.ts';
 import { devSample } from './u.fixture.dev.ts';
 
 const STD_PATH_PARENT = '/@id/__x00__deno::TypeScript::@std/path::';
 const STD_PATH_CHILD = '@std/path/1.1.4/';
 
-describe(
-  'Vite published external smoke (ui-components build)',
-  { sanitizeOps: false, sanitizeResources: false },
-  () => {
-    it('published driver-vite resolves @sys/ui-react-components and @sys/ui-react-devharness', async () => {
-      await Testing.retry(2, async () => {
-        const { build, files } = await buildSample({
-          sampleName: 'Vite.ui-components.published.build',
-          sampleDir: SAMPLE.Dirs.samplePublishedUiComponents,
-        });
-
-        expect(build.ok).to.eql(true);
-        expect(files.html).to.include('<title>Sample-UI-Components</title>');
-        const js = files.js.map((file) => file.text).join('\n');
-        expect(js.length > 0).to.eql(true);
-        expect(js.includes('Button')).to.eql(true);
-        expect(js.includes('ui-react-components')).to.eql(true);
-        expect(js.includes('ui-react-devharness')).to.eql(true);
+describe('Vite published external smoke (ui-components build)', () => {
+  it('published driver-vite resolves @sys/ui-components and @sys/ui-dev', async () => {
+    await Testing.retry(2, async () => {
+      const { build, files } = await buildSample({
+        sampleName: 'Vite.ui-components.published.build',
+        sampleDir: SAMPLE.Dirs.samplePublishedUiComponents,
       });
+
+      assertBuildOk(build, 'Published UI components build failed');
+      expect(files.html).to.include('<title>Sample-UI-Components</title>');
+      const js = files.js.map((file) => file.text).join('\n');
+      expect(js.length > 0).to.eql(true);
+      expect(js.includes('Button')).to.eql(true);
+      expect(js.includes('ui-components')).to.eql(true);
+      expect(js.includes('@sys/ui-dev/react/devharness/hooks')).to.eql(true);
     });
-  },
-);
+  });
+});
 
 describe('Vite published external smoke (ui-components dev)', () => {
   it('published driver-vite serves ui component module graph without html fallback', async () => {
@@ -41,18 +37,30 @@ describe('Vite published external smoke (ui-components dev)', () => {
       try {
         expect(html.status).to.eql(200);
         expect(entry.status).to.eql(200);
-        expect(entry.text.includes(`from '@sys/ui-react-devharness'`)).to.eql(false);
-        expect(entry.text.includes(`from "@sys/ui-react-devharness"`)).to.eql(false);
+        expect(entry.text.includes(`from '@sys/ui-dev';`)).to.eql(false);
+        expect(entry.text.includes(`from "@sys/ui-dev";`)).to.eql(false);
 
-        const buttonUrl = directImport(entry.imports, '@sys/ui-react-components/button', 'ui-react-components/button');
-        const devHarnessUrl = directImport(entry.imports, '@sys/ui-react-devharness', 'ui-react-devharness');
+        const buttonUrl = directImport(
+          entry.imports,
+          '@sys/ui-components/react/button',
+          'ui-components/react/button',
+        );
+        const devHarnessUrl = directImport(
+          entry.imports,
+          '@sys/ui-dev/react/devharness/hooks',
+          'ui-dev/react/devharness/hooks',
+        );
         const stdPathUrl = directImport(entry.imports, STD_PATH_PARENT, '@std/path');
 
         const button = await fetch(buttonUrl);
         const devHarness = await fetch(devHarnessUrl);
         const stdPath = await fetch(stdPathUrl);
         const stdPathImports = imports(stdPath.url, stdPath.text);
-        const recursiveChild = directImport(stdPathImports, STD_PATH_CHILD, 'recursive @std/path child import');
+        const recursiveChild = directImport(
+          stdPathImports,
+          STD_PATH_CHILD,
+          'recursive @std/path child import',
+        );
         const child = await fetch(recursiveChild);
 
         for (const mod of [button, devHarness, stdPath, child]) {

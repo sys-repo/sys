@@ -1,31 +1,13 @@
-/**
- * A single validation error reported by a Standard Schema validator.
- * - `path`:    object path to the failing value.
- * - `message`: human-readable description of the failure.
- */
-export type StandardSchemaIssue = Readonly<{
-  path: readonly (string | number)[];
-  message: string;
-}>;
+import type { StandardSchemaV1 } from '@standard-schema/spec';
 
 /**
- * Wrap a JSON Schema (e.g. TypeBox) with a Standard Schema v1 adapter.
+ * Official Standard Schema v1 contract.
  * ref: https://standardschema.dev
- *
- * - Pure adapter:     does not mutate the original schema.
- * - Strict semantics: mirrors Value.Check/Value.Errors (no coercion).
- * - `vendor` defaults to "sys" (override if needed).
  */
-export type StandardSchemaV1<Input = unknown, Output = Input> = Readonly<{
-  '~standard': Readonly<{
-    version: '1.0.0';
-    vendor: string;
-    types?: unknown;
-    validate(value: Input): StandardSchemaV1Result<Input, Output>;
-  }>;
-}>;
+export type { StandardSchemaV1 } from '@standard-schema/spec';
 
-/** A result from a standard-schema `validate` method call. */
-export type StandardSchemaV1Result<Input = unknown, Output = Input> =
-  | Readonly<{ ok: true; value: Output }>
-  | Readonly<{ ok: false; issues: readonly StandardSchemaIssue[] }>;
+/** A single validation issue reported by a Standard Schema validator. */
+export type StandardSchemaIssue = StandardSchemaV1.Issue;
+
+/** A result from a Standard Schema `validate` method call. */
+export type StandardSchemaV1Result<Output = unknown> = StandardSchemaV1.Result<Output>;

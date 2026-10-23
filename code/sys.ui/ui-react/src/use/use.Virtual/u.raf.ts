@@ -1,8 +1,8 @@
 import { type t, Schedule } from './common.ts';
 
 type FrameDriverDeps = {
-  getClock: () => t.VirtualClock | null;
-  publish: (s: t.VirtualClockState) => void;
+  getClock: () => t.Timecode.VirtualClock.Instance | null;
+  publish: (s: t.Timecode.VirtualClock.State) => void;
 };
 
 export function startRafClockLoop(life: t.LifeLike | undefined, deps: FrameDriverDeps): () => void {

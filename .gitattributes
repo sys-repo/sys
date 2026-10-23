@@ -1,15 +1,22 @@
 # Enforce consistent line endings
 * text=auto
 
-# Track large images with Git LFS (large-file-storage):
+# Keep normal binary deploy assets out of text normalization without marking
+# them as LFS. Broad LFS globs make normal Git blobs appear dirty in
+# LFS-enabled checkouts.
+deploy/**/*.pdf -text
+deploy/**/*.png -text
+deploy/**/*.jpg -text
+deploy/**/*.jpeg -text
+deploy/**/*.svg -text
+deploy/**/*.gif -text
+
+# Track selected large media with Git LFS (large-file-storage).
+# Keep these attributes aligned with committed LFS pointer files.
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 *.webm filter=lfs diff=lfs merge=lfs -text
-deploy/**/*.pdf   filter=lfs diff=lfs merge=lfs -text
-deploy/**/*.png   filter=lfs diff=lfs merge=lfs -text
-deploy/**/*.jpg   filter=lfs diff=lfs merge=lfs -text
-deploy/**/*.jpeg  filter=lfs diff=lfs merge=lfs -text
-deploy/**/*.svg   filter=lfs diff=lfs merge=lfs -text
-deploy/**/*.gif   filter=lfs diff=lfs merge=lfs -text
+deploy/@tdb.slc/public/images/fc/*.jpg filter=lfs diff=lfs merge=lfs -text
+deploy/@tdb.slc.std/src/ui/ui.Logo.Wordmark/images/logo.*.svg filter=lfs diff=lfs merge=lfs -text
 
 # Keep this publishable SVG as normal git text so the generated TS surface can
 # be rebuilt from source without LFS pointer drift.

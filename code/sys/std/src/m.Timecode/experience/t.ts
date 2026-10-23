@@ -1,7 +1,5 @@
 import type { t } from './common.ts';
 
-export type * from './t.lib.ts';
-
 /**
  * Timestamp-aligned semantic unit projected via a composite timeline.
  *

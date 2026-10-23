@@ -1,8 +1,9 @@
 /**
- * System
+ * @system
  */
 export { Esm } from '@sys/esm';
 export { Args } from '@sys/std/args';
+export { Arr } from '@sys/std/arr';
 export { Delete } from '@sys/std/delete';
 export { Err } from '@sys/std/error';
 export { Json } from '@sys/std/json';
@@ -12,8 +13,10 @@ export { Semver } from '@sys/std/semver/server';
 export { asArray } from '@sys/std/arr';
 export { Is, isRecord } from '@sys/std/is';
 export { Num } from '@sys/std/num';
+export { Obj } from '@sys/std/obj';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
+export { Try } from '@sys/std/try';
 export { Url } from '@sys/std/url';
 
 export { c, Cli, stripAnsi } from '@sys/cli';
@@ -23,5 +26,6 @@ export { FileMap, Fs, Path, Pkg } from '@sys/fs';
 export { Http } from '@sys/http/server';
 export { Net } from '@sys/net';
 export { Process } from '@sys/process';
+export { Yaml } from '@sys/yaml';
 
 export { DenoDeps, DenoFile } from '@sys/driver-deno/runtime';

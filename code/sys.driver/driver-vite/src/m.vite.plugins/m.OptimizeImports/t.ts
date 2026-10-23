@@ -16,7 +16,7 @@ export declare namespace OptimizeImportsPlugin {
 
   /** Rewrite rules for one exact package root. */
   export type PackageRule = {
-    /** Exact package root id to match, such as `@sys/ui-react-components`. */
+    /** Exact package root id to match, such as `@sys/ui-components`. */
     readonly packageId: string;
     /** Named-import rewrite rules for this package root. */
     readonly imports: readonly ImportRule[];

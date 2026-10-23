@@ -1,7 +1,7 @@
-import { YAMLError, isAlias, isMap, isPair, isScalar, isSeq } from 'yaml';
-import { type t, ERR } from './common.ts';
+import { isAlias, isMap, isPair, isScalar, isSeq, YAMLError } from 'yaml';
+import { ERR, type t } from './common.ts';
 
-export const YamlIs: t.YamlIsLib = {
+export const YamlIs: t.YamlIsLib = Object.freeze({
   /**
    * Value types:
    */
@@ -78,4 +78,4 @@ export const YamlIs: t.YamlIsLib = {
   diagnosticArray(input?: unknown): input is t.YamlDiagnostic[] {
     return Array.isArray(input) && input.every((v) => YamlIs.diagnostic(v));
   },
-};
+});

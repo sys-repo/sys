@@ -2,6 +2,8 @@ import { Window } from 'happy-dom';
 import type { t } from './common.ts';
 
 let _window: Window | undefined;
+let _closing = Promise.resolve();
+const windows = new Set<Window>();
 
 const ORIGINAL = {
   window: (globalThis as any).window,
@@ -38,7 +40,7 @@ const applyGlobals = (win: Window) => {
  * - Repeated calls reuse the same Window instance.
  * - If called with a custom URL, it must take effect (i.e., create a new Window).
  */
-export const polyfill: t.DomMockLib['polyfill'] = (options = {}) => {
+export const polyfill: t.DomMock.Lib['polyfill'] = (options = {}) => {
   const { url = 'http://localhost:1234' } = options;
 
   // If a custom URL is requested, force a new Window so location updates.
@@ -47,17 +49,19 @@ export const polyfill: t.DomMockLib['polyfill'] = (options = {}) => {
   const win = forceNew ? new Window({ url }) : _window || new Window({ url });
 
   _window = win;
+  windows.add(win);
   applyGlobals(win);
 };
 
 /**
- * Returns `globalThis` to its original state.
+ * Returns `globalThis` to its original state and closes every detached HappyDOM window.
  *
  * Contract (as exercised by std tests):
- * - After unpolyfill, the next polyfill must create a NEW Window instance.
+ * - Global restoration is synchronous.
+ * - The returned promise settles after HappyDOM has cancelled its internal async tasks.
+ * - After unpolyfill, the next polyfill creates a NEW Window instance.
  */
-export const unpolyfill: t.DomMockLib['unpolyfill'] = () => {
-  // Reset instance so next polyfill creates a fresh Window (test expects this).
+export const unpolyfill: t.DomMock.Lib['unpolyfill'] = () => {
   _window = undefined;
 
   restore('window', ORIGINAL.window);
@@ -67,4 +71,26 @@ export const unpolyfill: t.DomMockLib['unpolyfill'] = () => {
   restore('HTMLElement', ORIGINAL.HTMLElement);
   restore('self', ORIGINAL.self);
   restore('__SYS_BROWSER_MOCK__', ORIGINAL.__SYS_BROWSER_MOCK__);
+
+  const closing = [...windows];
+  windows.clear();
+  if (closing.length === 0) return _closing;
+
+  const previous = _closing.catch(() => undefined);
+  const current = previous.then(async () => {
+    const results = await Promise.allSettled(closing.map((win) => win.happyDOM.close()));
+    const errors: unknown[] = [];
+    for (const result of results) {
+      if (result.status === 'rejected') errors.push(result.reason);
+    }
+
+    if (errors.length === 1) throw errors[0];
+    if (errors.length > 1) {
+      throw new AggregateError(errors, 'Failed to close every tracked HappyDOM window.');
+    }
+  });
+
+  // A failed close belongs to this call; do not poison later teardown attempts.
+  _closing = current.catch(() => undefined);
+  return current;
 };

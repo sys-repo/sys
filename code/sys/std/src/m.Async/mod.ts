@@ -1,6 +1,6 @@
 /**
- * @module: @sys/std/async
- * Primitives for scheduling, timing, and lifecycle control.
+ * @module
+ * Asynchronous scheduling, synchronization, and lifecycle primitives.
  */
 export { Await, maybeWait, semaphore } from '../m.Async.Await/mod.ts';
 export { Schedule } from '../m.Async.Schedule/mod.ts';

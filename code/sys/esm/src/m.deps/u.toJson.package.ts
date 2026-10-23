@@ -1,11 +1,15 @@
-import { type t, Esm, isEmptyRecord, Obj } from './common.ts';
+import { Esm, isEmptyRecord, Obj, type t } from './common.ts';
+import { PackageJsonPolicy } from './u.packageJson.policy.ts';
 
 type Dependencies = Record<string, string>;
 
 /**
  * Convert canonical dependency entries to a `package.json` dependency shape.
  */
-export function toPackageJson(entries?: t.EsmDeps.Entry[]): t.PkgNodeJson {
+export function toPackageJson(
+  entries?: t.EsmDeps.Entry[],
+  options: t.EsmDeps.PackageProjectionOptions = {},
+): t.PkgNodeJson {
   const dependencies: Dependencies = {};
   const devDependencies: Dependencies = {};
 
@@ -38,5 +42,8 @@ export function toPackageJson(entries?: t.EsmDeps.Entry[]): t.PkgNodeJson {
   const json: t.PkgNodeJson = {};
   if (!isEmptyRecord(dependencies)) json.dependencies = Obj.sortKeys(dependencies);
   if (!isEmptyRecord(devDependencies)) json.devDependencies = Obj.sortKeys(devDependencies);
+  if (options.packageJson?.overrides) {
+    json.overrides = PackageJsonPolicy.cloneOverrides(options.packageJson.overrides);
+  }
   return json;
 }

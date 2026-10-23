@@ -1,46 +1,50 @@
 # @sys/driver-process
-A collection of thin, typed process drivers that adapt external CLI tools into stable, policy-free TypeScript APIs.
 
-## FFmpeg
-**FFmpeg** process driver exposing media inspection and transformation capabilities
-via `ffprobe` and `ffmpeg`.
+Typed adapters for external FFmpeg and Git command-line tools, using `@sys/process` for I/O.
 
-#### Purpose
-Exposes **capabilities**, not policy.
-All I/O happens via `@sys/process`. No schema, no UI, no assumptions.
+Install the tools you need and grant Deno permission to run them. You choose the files, repository,
+and operations.
 
+## Inspect media
 
-#### Usage
+`/ffmpeg` exposes binary probing and media duration, not a general transcoding API. `Ffmpeg.probe()`
+checks tool availability; `Ffmpeg.duration()` uses `ffprobe` and returns a result that must be
+narrowed before reading milliseconds.
+
 ```ts
 import { Ffmpeg } from 'jsr:@sys/driver-process/ffmpeg';
 
-const duration = await Ffmpeg.Ffprobe.duration('/path/video.webm');
-// → t.Msecs | undefined
+const result = await Ffmpeg.duration('./video.webm');
+if (result.ok) {
+  console.info(result.msecs);
+} else {
+  console.info(result.reason);
+}
 ```
 
-<p>&nbsp;</p>
+Provide an existing media file. Importing the package does not install FFmpeg or grant Deno
+permissions.
 
-## Git
-**Git** source control process driver.
+## Inspect a Git working tree
 
-Exposes a thin, typed wrapper over core Git CLI capabilities.
-
-Uses Git’s **porcelain** output format for machine-stable parsing (designed by Git specifically for tooling, unlike human-oriented output which may change).
+`/git` parses Git's machine-oriented porcelain status output. This example observes the current
+repository without changing it:
 
 ```ts
 import { Git } from 'jsr:@sys/driver-process/git';
 
-// Runtime capability check
-const probe = await Git.probe();
-if (!probe.ok) {
-  // git not available
-}
-
-// Get working tree status via `git status --porcelain`
 const status = await Git.status();
-
 if (status.ok) {
-  for (const e of status.entries) {
-    console.log(e.index, e.worktree, e.path);
+  for (const entry of status.entries) {
+    console.info(entry.index, entry.worktree, entry.path);
   }
+} else {
+  console.info(status.reason);
 }
+```
+
+Run from a Git working tree with Git installed and permission to invoke it. `Git.probe()` checks
+availability; it does not establish that a directory is a repository. Pass `untracked: false` to
+`Git.status` when untracked entries should be excluded.
+
+See the [API documentation](https://jsr.io/@sys/driver-process/doc) for options and result variants.

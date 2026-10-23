@@ -1,4 +1,4 @@
-import { Dev, Spec } from '../../-test.ui.ts';
+import { Harness, Spec } from '../../-test.ui.ts';
 
 import { D, Signal } from '../common.ts';
 import { SlugSheetStack } from '../mod.ts';
@@ -29,7 +29,7 @@ export default Spec.describe(D.displayName, async (e) => {
     }
 
     Signal.effect(update);
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
       .size('fill', 80)

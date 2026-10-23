@@ -12,6 +12,8 @@ import { info } from './u.info.ts';
  * - `deno info` CLI docs: https://docs.deno.com/runtime/reference/cli/info/
  * - `--json` is unstable, so this boundary intentionally isolates drift
  */
-export const GraphCli = {
-  info,
-} as const;
+export const GraphCli = Object.freeze(
+  {
+    info,
+  } as const,
+);

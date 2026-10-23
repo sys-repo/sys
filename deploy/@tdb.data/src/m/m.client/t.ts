@@ -26,7 +26,7 @@ export declare namespace SlugDataClient {
     readonly baseUrl: t.StringUrl;
     readonly docid: t.StringId;
     readonly layout?: Layout;
-  };
+  } & t.SlugLoadTransport;
 
   /** Arguments for constructing a client from an origin + dataset pair. */
   export type DatasetArgs = {
@@ -34,7 +34,7 @@ export declare namespace SlugDataClient {
     readonly dataset: t.StringId;
     readonly docid?: t.StringId;
     readonly layout?: Layout;
-  };
+  } & t.SlugLoadTransport;
 
   /** Optional tree-content selection input. */
   export type TreeContentArgs = {
@@ -83,6 +83,9 @@ export declare namespace SlugDataClient {
     };
 
     /** Load the runtime mount index from one staged root origin. */
-    export type Load = (origin: t.StringUrl) => Promise<t.SlugClientResult<t.SlugMounts.Doc>>;
+    export type Load = (
+      origin: t.StringUrl,
+      transport: t.SlugLoadTransport,
+    ) => Promise<t.SlugClientResult<t.SlugMounts.Doc>>;
   }
 }

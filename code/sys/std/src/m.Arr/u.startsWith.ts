@@ -7,7 +7,7 @@ import { equal } from './u.equality.ts';
  * Elements are compared with `Object.is` so that **NaN** and
  * `-0` behave the same way JavaScript’s strict equality (`===`) does.
  */
-export const startsWith: t.ArrayLib['startsWith'] = <T>(
+export const startsWith: t.Arr.Lib['startsWith'] = <T>(
   subject: readonly T[],
   prefix: readonly T[],
 ): boolean => {

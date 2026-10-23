@@ -1,2 +1,2 @@
-export { startServer, startServing } from './cmd.serve.ts';
-export { Mime } from './u.mime.ts';
+export { startServing } from './cmd.serve.ts';
+export { startServer } from './u.startServer.ts';

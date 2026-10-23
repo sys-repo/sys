@@ -31,5 +31,7 @@ export type CrdtLens = {
 };
 /** Partial lens variants: */
 export type CrdtPartialLens = Partial<t.CrdtLens>;
+/** Lazy or eager partial lens input. */
 export type CrdtPartialLensInput = CrdtPartialLens | (() => CrdtPartialLens);
+/** Ordered set of partial lenses rendered against a CRDT document. */
 export type CrdtPartialLenses = readonly CrdtPartialLensInput[];

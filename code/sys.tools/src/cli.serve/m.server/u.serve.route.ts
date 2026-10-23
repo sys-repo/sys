@@ -1,6 +1,5 @@
-import { type t, Fs, Str, serveFileWithEtag } from '../common.ts';
+import { Fs, MediaType, serveFileWithEtag, Str, type t } from '../common.ts';
 import { Fmt } from '../u.fmt.ts';
-import { Mime } from './u.mime.ts';
 import { makeFilter } from './u.serve.filter.ts';
 import { serveJsonView } from './u.serve.json.ts';
 
@@ -10,19 +9,12 @@ export type ServeRouteArgs = {
 
 type Target = {
   readonly path: t.StringPath;
-  readonly mime: t.ServeTool.ServedMimeType;
-  readonly is: { readonly file: boolean };
+  readonly isFile: boolean;
   readonly stat?: Deno.FileInfo;
 };
 
-/**
- * Factory for the main serve route handler.
- *
- * Pure and testable:
- *  - closed over only [dir]
- *  - all runtime deps via imports
- */
-export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
+/** Create the main static-file route. */
+export function route(args: ServeRouteArgs): t.HttpServer.Hono.MiddlewareHandler {
   const { dir } = args;
 
   return async (c) => {
@@ -34,9 +26,7 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
     const rel = reqPath.startsWith('/') ? reqPath.slice(1) : reqPath;
     const fsBasePath = `${dir}/${rel}`;
 
-    /**
-     * General 404 handler
-     */
+    /** Render the fallback response body. */
     async function notFound(): Promise<string> {
       const filter = makeFilter();
       try {
@@ -51,12 +41,7 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
       }
     }
 
-    /**
-     * Resolve the effective file-system target for the request:
-     *  - initial path
-     *  - optional "index.html" fallback for directories
-     *  - derived MIME and flags
-     */
+    /** Resolve a file path, including the directory-index fallback. */
     async function resolveTarget(path: t.StringPath): Promise<Target> {
       let stat = await Fs.stat(path);
 
@@ -64,13 +49,8 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
       path = resolved.path;
       stat = resolved.stat;
 
-      const dotIndex = path.lastIndexOf('.');
-      const ext = dotIndex === -1 ? '' : path.slice(dotIndex + 1).toLowerCase();
-      const mime = Mime.extensionMap[ext] ?? Mime.fallback;
-      const is = {
-        file: Boolean(stat?.isFile),
-      };
-      return { path, stat, mime, is };
+      const isFile = stat?.isFile === true;
+      return { path, stat, isFile };
     }
 
     /**
@@ -78,9 +58,10 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
      * Returns a JSON response or `undefined` to continue normal handling.
      */
     async function handleJsonView(target: Target) {
-      const { stat, mime } = target;
+      const { stat } = target;
       if (view !== 'json' || !stat) return;
 
+      const mime = MediaType.fromPath(target.path) ?? MediaType.Fallback.binary;
       const path = { fs: target.path, req: reqPath };
       const result = await serveJsonView({ stat, mime, path });
       const status = result.kind === 'file' ? 200 : 404;
@@ -91,51 +72,14 @@ export function route(args: ServeRouteArgs): t.HonoMiddlewareHandler {
     const jsonResponse = await handleJsonView(target);
     if (jsonResponse) return jsonResponse;
 
-    if (!target.is.file) return c.text(await notFound(), 404);
-    const { mime } = target;
+    if (!target.isFile) return c.text(await notFound(), 404);
 
-    /**
-     * Delegate to shared HTTP helper:
-     *  - preserves Range / 206 from `serveFile`
-     *  - adds ETag / If-None-Match handling
-     *
-     * We adapt the Response back through `c.newResponse` so the
-     * test fixture’s capture hooks still see a "response" hit.
-     */
-    const reqAny = c.req as unknown as { raw?: Request; url: string };
-    const req = reqAny.raw instanceof Request ? reqAny.raw : new Request(reqAny.url);
-
-    const res = await serveFileWithEtag({
-      req,
+    // Preserve the shared ETag, Range/206, and streaming response unchanged.
+    return serveFileWithEtag({
+      req: c.req.raw,
       path: target.path,
       stat: target.stat,
     });
-
-    // For 304 (and any status with no body), keep the body null.
-    let body: Uint8Array | null = null;
-    if (res.body && res.status !== 304) {
-      const buf = await res.arrayBuffer();
-      body = new Uint8Array(buf);
-    }
-
-    // Convert Headers → plain record for our fixture’s capture + ResponseInit,
-    // but normalise Content-Type to the route’s explicit MIME (no charset).
-    const headers: Record<string, string> = {};
-    res.headers.forEach((value, key) => {
-      const k = key.toLowerCase();
-      if (k === 'content-type' && mime) {
-        headers[key] = mime;
-      } else {
-        headers[key] = value;
-      }
-    });
-
-    const init: ResponseInit = {
-      status: res.status,
-      headers,
-    };
-
-    return c.newResponse(body as any, init as any);
   };
 }
 

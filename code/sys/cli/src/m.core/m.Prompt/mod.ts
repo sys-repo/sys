@@ -4,7 +4,7 @@ import type { t } from '../common.ts';
 /**
  * Index of input prompts.
  */
-export const Prompt: t.CliPromptLib = {
+export const Prompt: t.CliPrompt.Lib = Object.freeze({
   /** Text input prompt (String). */
   Input,
 
@@ -28,4 +28,4 @@ export const Prompt: t.CliPromptLib = {
 
   /** Multi-select list input propmt. */
   Checkbox,
-};
+});

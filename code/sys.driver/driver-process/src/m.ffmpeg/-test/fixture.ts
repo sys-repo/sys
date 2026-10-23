@@ -1,5 +1,6 @@
 import { type t } from '../../-test.ts';
 import { Process } from '../common.ts';
+import { withInvoke } from '../../u.invoke.ts';
 
 export const okOutput = (stdout = '') => makeOutput(true, '', stdout);
 export const failOutput = (stderr = '', stdout = '') => makeOutput(false, stderr, stdout);
@@ -20,13 +21,7 @@ export function makeOutput(success: boolean, stderr = '', stdout = ''): t.Proces
 
 export async function withInvokeStub(
   stub: typeof Process.invoke,
-  fn: () => Promise<void>,
+  run: () => Promise<void>,
 ): Promise<void> {
-  const prev = Process.invoke;
-  try {
-    Process.invoke = stub;
-    await fn();
-  } finally {
-    Process.invoke = prev;
-  }
+  await withInvoke(stub, run);
 }

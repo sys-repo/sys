@@ -2,6 +2,7 @@ import React from 'react';
 import { TextEditor } from '../ui.TextEditor/mod.ts';
 import { type t, Color, css, D } from './common.ts';
 
+/** Labeled CRDT-backed ProseMirror text editor panel. */
 export const TextPanel: React.FC<t.TextPanelProps> = (props) => {
   const { debug = false, label = D.label, doc, path, scroll = D.scroll } = props;
 

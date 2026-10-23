@@ -63,7 +63,7 @@ describe(`TimecodePlayback.Manifest`, () => {
   });
 
   describe('Manifest.standard', () => {
-    it('returns a Standard Schema v1 adapter that validates (ok → value)', () => {
+    it('returns a Standard Schema v1 adapter that validates (value)', async () => {
       const std = PlaybackSchema.Manifest.standard();
       const validate = std['~standard'].validate;
 
@@ -79,14 +79,14 @@ describe(`TimecodePlayback.Manifest`, () => {
         ],
       };
 
-      const res = validate(input);
-      expect(res.ok).to.eql(true);
-      if (res.ok) {
+      const res = await validate(input);
+      expect(res.issues).to.eql(undefined);
+      if (res.issues === undefined) {
         expect(res.value).to.eql(input);
       }
     });
 
-    it('returns a Standard Schema v1 adapter that reports issues (bad → issues)', () => {
+    it('returns a Standard Schema v1 adapter that reports issues', async () => {
       const std = PlaybackSchema.Manifest.standard();
       const validate = std['~standard'].validate;
 
@@ -101,15 +101,15 @@ describe(`TimecodePlayback.Manifest`, () => {
         ],
       };
 
-      const res = validate(input);
-      expect(res.ok).to.eql(false);
-      if (!res.ok) {
+      const res = await validate(input);
+      expect('issues' in res).to.eql(true);
+      if (res.issues) {
         expect(Array.isArray(res.issues)).to.eql(true);
         expect(res.issues.length > 0).to.eql(true);
 
         // Path should point at the failing field.
         // (Exact wording can vary; keep it loose.)
-        const paths = res.issues.map((i) => i.path.join('/'));
+        const paths = res.issues.map((i) => i.path?.join('/') ?? '');
         expect(paths.some((p) => p.includes('beats/0/src/kind'))).to.eql(true);
       }
     });

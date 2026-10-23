@@ -1,89 +1,105 @@
 import type { CSSProperties } from 'react';
 import type { t } from './common.ts';
-export type * from './t.transform.ts';
+import type * as TTransform from './t.transform.ts';
 
-type N = CssNumberOrStringInput;
 type CssVars = { [K in `--${string}`]?: string | number };
-export type CssNumberOrStringInput = number | string | null | undefined;
-
-/**
- * CSS-Properties that accept string AND (inferable "unit" numbers) as values.
- * For example:
- *
- *  - { fontSize: 32 }
- *  - { fontSize: '32px' }
- */
-export type CssProps = CSSProperties & CssVars;
-
-/**
- * Standard CSS properties with CSS-template extensions.
- */
-export type CssValue = t.CssProps & t.CssPseudo & t.CssTemplates;
-export type CssInput =
-  | t.CssValue
-  | undefined
-  | null
-  | false
-  | never
-  | t.CssTransformed
-  | CssInput[];
-
-/**
- * A CSS class-name.
- * (no period, eg. "foo" not ".foo")
- */
-export type CssClassname = string;
-export type CssClassPrefix = string;
-
-/** Options passed to `Style.transformer` factory function. */
-export type StyleTransformerOptions = { sheet?: t.CssDomStylesheet };
-
-/**
- * CSS styling tools.
- */
-export type StyleLib = NamespaceLibs & {
-  /** Perform a transformation on a loose set of CSS inputs. */
-  readonly css: t.CssTransform;
-
-  /** Factory to produce `transform` function scoped to the given prefix. */
-  transformer(options?: t.StyleTransformerOptions): t.CssTransform;
-
-  /** Transform margin spacing. */
-  readonly toMargins: t.CssEdgesLib['toMargins'];
-  /** Transform padding spacing. */
-  readonly toPadding: t.CssEdgesLib['toPadding'];
-  /** Transform shadding settings. */
-  readonly toShadow: CssToShadow;
-
-  /** Convert a {style} props object to a CSS string. */
-  toString(style?: t.CssValue): string;
-
-  /** Determine if the CSS value input amounts to 0. */
-  isZero(value?: N): boolean;
-};
 
 type NamespaceLibs = {
   /** Tools for working with colors. */
-  readonly Color: t.ColorLib;
+  readonly Color: t.Color.Lib;
 
   /** Tools for working with edges. */
-  readonly Edges: t.CssEdgesLib;
+  readonly Edges: t.CssEdges.Lib;
 
-  /** Tools for working with edges. */
-  readonly Tmpl: t.CssTmplLib;
+  /** Tools for working with templates. */
+  readonly Tmpl: t.CssTmpl.Lib;
 
   /** Tools for programatically managing CSS stylesheets within the browser DOM. */
-  readonly Dom: t.CssDomLib;
+  readonly Dom: t.CssDom.Lib;
 };
 
 /**
- * Shadow
+ * CSS styling contracts.
  */
-export type CssToShadow = (input?: CssShadow) => string | undefined;
-export type CssShadow = {
-  color: number | string;
-  blur: number;
-  x?: number;
-  y?: number;
-  inner?: boolean;
-};
+export declare namespace Style {
+  /**
+   * Runtime library surface.
+   */
+  export type Lib = NamespaceLibs & {
+    /** Perform a transformation on a loose set of CSS inputs. */
+    readonly css: Transform.Fn;
+
+    /** Factory to produce `transform` function scoped to the given prefix. */
+    transformer(options?: TransformerOptions): Transform.Fn;
+
+    /** Transform margin spacing. */
+    readonly toMargins: t.CssEdges.Lib['toMargins'];
+
+    /** Transform padding spacing. */
+    readonly toPadding: t.CssEdges.Lib['toPadding'];
+
+    /** Transform shadow settings. */
+    readonly toShadow: Shadow.ToString;
+
+    /** Convert a {style} props object to a CSS string. */
+    toString(style?: Value): string;
+
+    /** Determine if the CSS value input amounts to 0. */
+    isZero(value?: NumberOrStringInput): boolean;
+  };
+
+  /** CSS value accepted as a number, string, or nullish input. */
+  export type NumberOrStringInput = number | string | null | undefined;
+
+  /** Standard CSS properties with CSS custom-property support. */
+  export type Props = CSSProperties & CssVars;
+
+  /** Standard CSS properties with CSS-template extensions. */
+  export type Value = Props & t.CssDom.PseudoClass.Map & t.CssTmpl.Templates;
+
+  /** Loose CSS transform input. */
+  export type Input = Value | undefined | null | false | never | Transform.Result | Input[];
+
+  /** A CSS class-name. */
+  export type Classname = string;
+
+  /** CSS class prefix. */
+  export type ClassPrefix = string;
+
+  /** Options passed to `Style.transformer` factory function. */
+  export type TransformerOptions = { sheet?: t.CssDom.Stylesheet };
+
+  /**
+   * CSS transform contracts.
+   */
+  export namespace Transform {
+    /** Flags indicating the kind of string to export from the `toString` method. */
+    export type ToStringKind = TTransform.ToStringKind;
+
+    /** Function that transforms CSS inputs into an applicable style object. */
+    export type Fn = TTransform.Fn;
+
+    /** A transformed CSS properties object. */
+    export type Result = TTransform.Result;
+
+    /** Specialized @container block API for the `Style.Transform.Fn` result. */
+    export type ContainerBlock = TTransform.ContainerBlock;
+  }
+
+  /**
+   * Box-shadow contracts.
+   */
+  export namespace Shadow {
+    /** Converts a shadow input to a CSS box-shadow string. */
+    export type ToString = (input?: Input) => string | undefined;
+
+    /** Shadow input. */
+    export type Input = {
+      color: number | string;
+      blur: number;
+      x?: number;
+      y?: number;
+      inner?: boolean;
+    };
+  }
+}

@@ -5,13 +5,14 @@ import { FileHashUri } from './m.Uri.ts';
 
 type Parts = t.DeepMutable<t.CompositeHashParts>;
 
-export const builder: t.CompositeHashLib['builder'] = (input = {}) => {
+export const builder: t.CompositeHash.Lib['builder'] = (input = {}) => {
   const options = wrangle.options(input);
-  const parts: Parts = {};
+  // Private dictionary: every key is data, never an inherited setter (including __proto__).
+  const parts: Parts = Object.create(null);
   let _digest: string | undefined;
   const reset = () => (_digest = undefined);
 
-  const api: t.CompositeHashBuilder = {
+  const api: t.CompositeHash.Builder = {
     algo: options.algo ?? 'sha256',
 
     get length() {
@@ -62,11 +63,11 @@ export const builder: t.CompositeHashLib['builder'] = (input = {}) => {
  * Helpers
  */
 const wrangle = {
-  options(input?: t.CompositeHashBuilderOptionsInput): t.CompositeHashBuildOptions {
+  options(input?: t.CompositeHash.Builder.OptionsInput): t.CompositeHash.Builder.Options {
     if (!input) return {};
     if (Array.isArray(input)) return { initial: input };
     if (typeof input === 'string' || typeof input === 'function') {
-      const algo = input as t.CompositeHashBuildOptions['algo'];
+      const algo = input as t.CompositeHash.Builder.Options['algo'];
       return { algo };
     }
     return input ?? {};

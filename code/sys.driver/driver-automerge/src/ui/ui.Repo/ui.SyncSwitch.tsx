@@ -7,7 +7,7 @@ import { DefaultDetails } from './ui.SyncSwitch.DefaultDetails.tsx';
 import { NetworkIcons } from './ui.Icons.Network.tsx';
 import { useController } from './use.SyncSwitch.Controller.ts';
 
-type P = t.RepoSyncSwitchProps;
+type P = t.Repo.SyncSwitch.Props;
 
 export const SyncSwitch: React.FC<P> = (props) => {
   const { repo, mode = D.mode } = props;
@@ -83,7 +83,7 @@ export const SyncSwitch: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  switchTheme(props: P, status?: t.RepoInfoStatus) {
+  switchTheme(props: P, status?: t.Repo.Status) {
     const theme = Color.theme(props.theme);
     const base = SwitchTheme.fromName(theme.name);
 

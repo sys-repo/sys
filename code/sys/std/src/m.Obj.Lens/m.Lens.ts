@@ -1,9 +1,9 @@
 import type { t } from './common.ts';
 import { Is } from './m.Is.ts';
-import { bindRO } from './u.bindRO.ts';
-import { bindRW } from './u.bindRW.ts';
-import { makeCurriedAll } from './u.path.ts';
-import { toObject } from './u.toObject.ts';
+import { bindRO } from './u/u.bindRO.ts';
+import { bindRW } from './u/u.bindRW.ts';
+import { makeCurriedAll } from './u/u.path.ts';
+import { toObject } from './u/u.toObject.ts';
 
 type PathInput = t.PathLike | undefined | null;
 
@@ -11,16 +11,16 @@ type PathInput = t.PathLike | undefined | null;
  * Obj.Path-based lenses.
  * Thin sugar over Obj.Path.curry + Mutate.
  */
-export const Lens: t.ObjLensLib = {
+export const Lens: t.Obj.Lens.Lib = Object.freeze({
   Is,
   toObject,
 
   /** Create an unbound lens at a path. Accepts pointer string or ObjectPath. */
-  at<T = unknown>(...path: PathInput[]): t.ObjLens<T> {
+  at<T = unknown>(...path: PathInput[]): t.Obj.Lens.Unbound<T> {
     const cur = makeCurriedAll<T>(...path);
     const bind = <S extends Record<string, unknown>>(subject: S) => bindRW<S, T>(cur, subject);
     // Spread preserves Curried surface (path/get/exists/set/ensure/delete/join)
-    return { ...cur, bind } as t.ObjLens<T>;
+    return { ...cur, bind } as t.Obj.Lens.Unbound<T>;
   },
 
   /**
@@ -30,18 +30,18 @@ export const Lens: t.ObjLensLib = {
   bind<S extends Record<string, unknown>, T = unknown>(
     subject: S,
     ...path: PathInput[]
-  ): t.ObjLensRef<S, T> {
+  ): t.Obj.Lens.Ref<S, T> {
     return this.at<T>(...path).bind(subject);
   },
 
   /** Read-only variants. */
-  Readonly: {
-    at<T = unknown>(...path: PathInput[]): t.ReadonlyObjLens<T> {
+  Readonly: Object.freeze({
+    at<T = unknown>(...path: PathInput[]): t.Obj.Lens.ReadonlyUnbound<T> {
       const cur = makeCurriedAll<T>(...path);
       const { path: p, get, exists, at: join } = cur;
       const bind = <S extends Record<string, unknown>>(subject: S) => bindRO<S, T>(cur, subject);
       // Return only the readonly surface + bind
-      return { path: p, get, exists, at: join, bind } as t.ReadonlyObjLens<T>;
+      return { path: p, get, exists, at: join, bind } as t.Obj.Lens.ReadonlyUnbound<T>;
     },
 
     /**
@@ -51,8 +51,8 @@ export const Lens: t.ObjLensLib = {
     bind<S extends Record<string, unknown>, T = unknown>(
       subject: S,
       ...path: PathInput[]
-    ): t.ReadonlyObjLensRef<S, T> {
+    ): t.Obj.Lens.ReadonlyRef<S, T> {
       return this.at<T>(...path).bind(subject);
     },
-  },
-};
+  }),
+});

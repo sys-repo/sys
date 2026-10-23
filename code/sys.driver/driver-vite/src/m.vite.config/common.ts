@@ -7,5 +7,6 @@ export { Delete } from '@sys/std/delete';
 export { Err } from '@sys/std/error';
 export { Is, isRecord } from '@sys/std/is';
 export { Json } from '@sys/std/json';
+export { Str } from '@sys/std/str';
 
 export { PATHS } from '../common/u.paths.ts';

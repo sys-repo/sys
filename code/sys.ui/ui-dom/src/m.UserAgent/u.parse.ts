@@ -22,7 +22,7 @@ import type { t } from './common.ts';
  *   https://github.com/lancedikson/bowser
  *   https://www.npmjs.com/package/bowser
  */
-export function parseUserAgent(input: string): t.UserAgent {
+export function parseUserAgent(input: string): t.UserAgent.Info {
   const parsed = wrangle.parse((input || '').trim());
   const is = wrangle.flags(parsed);
 
@@ -102,7 +102,7 @@ const wrangle = {
     os: { name: string };
     browser: { name: string };
     device: { model: string; type: string };
-  }): t.UserAgentFlags {
+  }): t.UserAgent.Flags {
     const { os, device, browser } = parsed;
     const name = wrangle.string(os.name);
 

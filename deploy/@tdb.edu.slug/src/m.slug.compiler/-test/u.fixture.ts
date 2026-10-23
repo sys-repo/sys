@@ -1,4 +1,4 @@
-import type { t } from '../common.ts';
+import { Hash, Pkg, type t } from '../common.ts';
 
 export type HttpFixtureResponse = {
   readonly status?: number;
@@ -41,8 +41,9 @@ export function makeDist(parts: string[]): t.DistPkg {
       hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
     },
     hash: {
-      digest: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-      parts: hashParts as t.CompositeHashParts,
+      scheme: 'sys.dist/v2',
+      digest: Hash.sha256(Pkg.Dist.Content.encode(hashParts)),
+      parts: hashParts,
     },
   };
 }

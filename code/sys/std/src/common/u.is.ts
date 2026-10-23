@@ -1,3 +1,8 @@
+/** True if input is a symbol. */
+export function isSymbol(input: unknown): input is symbol {
+  return typeof input === 'symbol';
+}
+
 /**
  * True if input is a non-null object (includes arrays, functions, etc.).
  */

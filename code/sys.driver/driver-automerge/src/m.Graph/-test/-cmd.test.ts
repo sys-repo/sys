@@ -41,7 +41,7 @@ describe(`Crdt.Graph: using commands`, () => {
      *    cmd.send('doc:read', { doc: id }) → { value: T }
      *    Adapt into the immutable Graph doc shape: { current: T }.
      */
-    const loadViaCmd: t.CrdtGraphLoadDoc<T> = async (id) => {
+    const loadViaCmd: t.CrdtGraph.LoadDoc<T> = async (id) => {
       const result = await cmd.send('doc:read', { doc: id });
       const current = result.value;
       return !current ? undefined : ({ current } as t.ImmutableSnapshot<T>);

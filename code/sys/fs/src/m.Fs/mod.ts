@@ -2,4 +2,4 @@
  * @module
  * Filesystem tools.
  */
-export { Fs } from './m.Fs.ts';
+export { Fs } from './m/m.Fs.ts';

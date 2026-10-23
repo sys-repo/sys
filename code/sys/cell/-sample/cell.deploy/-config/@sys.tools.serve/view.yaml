@@ -1,0 +1,6 @@
+# Serve-tool owner config for the Cell deploy preview service.
+
+name: deploy:view
+dir: .
+info:
+  path: /view/.pulled/ui.components/

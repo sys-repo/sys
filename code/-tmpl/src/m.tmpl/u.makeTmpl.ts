@@ -1,8 +1,9 @@
 import { json } from './-bundle.ts';
 import { type t, TmplEngine } from './common.ts';
 
-export async function makeTmpl(root: t.TemplateName) {
-  const fileProcessor: t.FileMapProcessor = async (e) => {
+/** The explicit file map is an internal seam for historical embedded-product controls. */
+export function makeTmpl(root: t.TemplateName, fileMap: t.FileMap = json) {
+  const fileProcessor: t.FileMap.Write.Processor.Method = (e) => {
     // Strip the root prefix from the path so files land at the target-root.
     if (e.path.startsWith(`${root}/`)) {
       const rel = e.path.slice(root.length + 1);
@@ -14,13 +15,13 @@ export async function makeTmpl(root: t.TemplateName) {
   /**
    * Filtered template:
    */
-  type F = t.FileMapFilter;
+  type F = t.FileMap.Filter.Predicate;
   const inScope: F = (e) => e.path.startsWith(`${root}/`);
   const notHidden: F = (e) => e.filename !== '.tmpl.ts'; // NB: the initialization script for the template: IS NOT content.
 
   const tmpl = TmplEngine
     //
-    .makeTmpl(json, fileProcessor)
+    .makeTmpl(fileMap, fileProcessor)
     .filter(inScope)
     .filter(notHidden);
 

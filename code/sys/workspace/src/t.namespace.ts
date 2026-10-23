@@ -15,6 +15,9 @@ export namespace Workspace {
     /** CLI entrypoints for workspace tooling. */
     readonly Cli: t.WorkspaceCli.Lib;
 
+    /** Workspace package-level change delta helpers. */
+    readonly Delta: t.WorkspaceDelta.Lib;
+
     /** Local workspace graph and package-order helpers. */
     readonly Graph: t.WorkspaceGraph.Lib;
 

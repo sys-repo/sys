@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-deno",
-  "version": "0.0.321",
+  "version": "0.0.408",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
@@ -13,10 +13,16 @@
     "sample:deploy": "deno run -A ./-scripts/task.sample.deploy.ts",
     "sample:create-app": "deno run -A ./-scripts/task.sample.create-app.ts"
   },
+  "publish": {
+    "exclude": [
+      "src/-test/sample-1/",
+      "src/-test/sample-2/",
+      "src/m.cloud/m.DenoDeploy/-test.sample/"
+    ]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./cloud": "./src/m.cloud/mod.ts",
     "./runtime": "./src/m.runtime/mod.ts"
   },

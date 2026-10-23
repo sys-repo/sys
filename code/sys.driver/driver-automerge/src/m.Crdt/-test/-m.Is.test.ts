@@ -1,11 +1,17 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { afterAll, beforeAll, describe, expect, it, repoCleanup, type t } from '../../-test.ts';
 import { CrdtIs } from '../mod.ts';
 import { testRepo } from './-u.ts';
 
-describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
+const Repos = repoCleanup(afterAll);
+
+describe('Crdt.Is', () => {
   type T = { count: number };
   const Is = CrdtIs;
-  const repo = testRepo();
+  let repo!: t.CrdtRepo;
+
+  beforeAll(() => {
+    repo = Repos.crdt(testRepo());
+  });
 
   it('Is.repo', () => {
     // Positive: real repo instance from test helper.
@@ -58,7 +64,7 @@ describe('Crdt.Is', { sanitizeResources: false, sanitizeOps: false }, () => {
 
   it('Is.uri', () => {
     // Use a known-good document id (must satisfy CrdtIs.id(validId) === true).
-    const validId = 'pz1U8r3FH2ubPjnBzTMtFB8Yaaw' as t.DocumentId;
+    const validId = 'pz1U8r3FH2ubPjnBzTMtFB8Yaaw' as t.Crdt.Id;
     const uri = `crdt:${validId}`;
 
     // happy path

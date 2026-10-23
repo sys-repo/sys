@@ -1,7 +1,7 @@
 import { type t, DEFAULT, Obj } from './common.ts';
 import { AlphanumericWithHyphens } from './u.ts';
 
-export function createClasses(args: { rules: t.CssDomRules; prefix?: string }): t.CssDomClasses {
+export function createClasses(args: { rules: t.CssDom.Rules; prefix?: string }): t.CssDom.Classes {
   const { rules } = args;
   const inserted = new Set<string>();
   const prefix = wrangleClassPrefix(args.prefix);
@@ -11,7 +11,7 @@ export function createClasses(args: { rules: t.CssDomRules; prefix?: string }): 
     throw new Error(validation.error);
   }
 
-  const api: t.CssDomClasses = {
+  const api: t.CssDom.Classes = {
     prefix,
     get names() {
       return Array.from(inserted);

@@ -15,13 +15,12 @@
  */
 export { pkg } from './pkg.ts';
 
-/** Type library (barrel file). */
+/** Package type surface. */
 export type * as t from './types.ts';
 
-/**
- * Library
- */
+/** Root driver runtime surfaces. */
 export { ViteEntry } from './-entry/mod.ts';
 export { ViteConfig } from './m.vite.config/mod.ts';
+export { ViteService } from './m.service/mod.ts';
 export { ViteTransport } from './m.vite.transport/mod.ts';
 export { Vite } from './m.vite/mod.ts';

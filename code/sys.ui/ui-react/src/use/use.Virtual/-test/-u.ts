@@ -1,10 +1,10 @@
 import { type t } from '../common.ts';
 
 /**
- * Build a minimal, deterministic TimecodeResolved used by our stub.
+ * Build a minimal, deterministic Timecode.Resolved used by our stub.
  */
-export function makeResolved(total: number, segCount: number): t.TimecodeResolved {
-  const segments: t.TimecodeResolvedSegment[] = Array.from({ length: segCount }, (_, i) => {
+export function makeResolved(total: number, segCount: number): t.Timecode.Resolved {
+  const segments: t.Timecode.ResolvedSegment[] = Array.from({ length: segCount }, (_, i) => {
     const from = (i * 100) as t.Msecs;
     const to = (from + 100) as t.Msecs;
     return {
@@ -26,7 +26,7 @@ export function makeResolved(total: number, segCount: number): t.TimecodeResolve
       absSlices: 0,
       open: { start: 0, end: 0, relEnd: 0 },
     },
-  } as t.TimecodeResolved;
+  } as t.Timecode.Resolved;
 }
 
 /**
@@ -37,7 +37,7 @@ export function seg(
   vt: t.Msecs,
   of: t.Msecs,
   src: t.StringRef = 'test:0' as t.StringRef,
-): t.TimecodeResolvedSegment {
+): t.Timecode.ResolvedSegment {
   return {
     src,
     virtual: { from: vf as t.Msecs, to: vt as t.Msecs },
@@ -50,7 +50,7 @@ export function seg(
  */
 export function resolved(
   total: t.Msecs,
-  segments: readonly t.TimecodeResolvedSegment[],
-): t.TimecodeCompositionResolved {
+  segments: readonly t.Timecode.ResolvedSegment[],
+): t.Timecode.Composite.Resolve.Result {
   return { total, segments };
 }

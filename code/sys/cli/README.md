@@ -1,42 +1,32 @@
-# Command Line Interface
-Tools for working with a command-line interfaces (`cli`).
+# @sys/cli
 
-- Ansi colors
-- Table formatting
-- Prompting (user input)
+Terminal input and output for Deno command-line applications.
 
-### Example
+The root `Cli` library provides tables, colors, spinners, and prompts. Focused entry points include:
+
+- [`/fmt`](https://jsr.io/@sys/cli/doc/fmt): ANSI colors, text layout, and display formatting.
+- [`/keyboard`](https://jsr.io/@sys/cli/doc/keyboard): keypress handling and bindings.
+- [`/shell`](https://jsr.io/@sys/cli/doc/shell): plan PATH and alias changes without executing a
+  shell.
+- [`/testing`](https://jsr.io/@sys/cli/doc/testing): fake spinners and isolated select-prompt
+  replacements.
+
+## Format a table
+
 ```ts
-import { Cli, c } from '@sys/cli';
+import { Cli } from 'jsr:@sys/cli';
+import { c } from 'jsr:@sys/cli/fmt';
 
-/**
- * Ansi colors:
- */
-console.info(c.cyan('using color'));
-
-/**
- * string: plain → ansi → plain:
- */
-const text = `thing ${c.green('with')} color`;
-const stripped = Cli.stripAnsi(text);
-
-
-/**
- * Table formatting:
- */
 const table = Cli.table([]);
-table.push(['foo', 'bar']);
-console.info(table.toString().trim())
+table.push(['Package', 'Status']);
+table.push(['example', c.green('ready')]);
 
-
-/**
- * Prompting:
- */
-const dirname = await Cli.Input.Text.prompt({
-  message: 'Folder Name',
-  default: 'foo',
-  // Keep folder-name simple + safe: letters, numbers, dot, dash, underscore, slashes (no spaces).
-  validate: (v: string) =>
-    /^[\w.\-\/]+$/.test(v) || 'Use letters, numbers, ".", "-", "_" (and optional "/")',
-});
+console.info(table.toString().trim());
 ```
+
+The example prints a table without waiting for input. Use `Cli.stripAnsi(text)` to remove terminal
+control sequences when you need plain text.
+
+Prompts and keyboard input are interactive. Keep them out of unattended runs unless you provide a
+non-interactive alternative. For filesystem paths, check more than syntax: confirm containment
+within the intended directory and the required access before use.

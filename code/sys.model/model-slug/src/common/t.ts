@@ -12,6 +12,7 @@ export type {
   ValueError,
 } from '@sys/schema/t';
 export type { Timecode } from '@sys/std/t';
+export type { HttpFetch } from '@sys/http/t';
 export type { TimecodePlaybackSchemaLib } from '@sys/model/t';
 
 /**

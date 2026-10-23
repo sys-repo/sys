@@ -1,4 +1,4 @@
-import { type t, c, Cli, opt } from './common.ts';
+import { c, Cli, Fmt, opt, type t } from './common.ts';
 
 export type ServeLocationMenuPick =
   | { readonly kind: 'back' }
@@ -22,7 +22,7 @@ export async function serveLocationMenu(args: {
       opt(`  start server   → ${fmtLocalhost}`, 'serve:start/local'),
       opt(`  start server   → ${fmtNetwork}`, 'serve:start/network'),
       opt(dim(` (remove)`), 'dir:remove'),
-      opt(dim(`← back`), 'back'),
+      opt(Fmt.back(), 'back'),
     ],
     hideDefault: true,
   });

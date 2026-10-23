@@ -1,7 +1,23 @@
 import { describe, expect, it } from '../../-test.ts';
 import { jsonResponse, makeDist, stubFetch } from '../../-test/u.fixture.ts';
-import { type t, Schema, SlugClient } from '../common.ts';
+import { Schema, SlugClient, type t } from '../common.ts';
 import { SchemaBundleConfig } from '../schema/mod.ts';
+
+const TRANSPORT: t.SlugLoadTransport = {
+  policy: {
+    maxBytes: 64 * 1024 * 1024,
+    timeout: 1000,
+    maxRedirects: 0,
+    progressInterval: 25,
+    sourceOrigins: [
+      'https://default.example.com',
+      'https://manifests.example.com',
+      'https://content.example.com',
+      'https://media.example.com',
+    ],
+    credentialOrigins: [],
+  },
+};
 
 describe('BundleProfile domain-free config (e2e)', () => {
   it('validates schema and loads via SlugClient.FromDescriptor', async () => {
@@ -131,24 +147,31 @@ describe('BundleProfile domain-free config (e2e)', () => {
       seen.push(url);
       if (url.includes(SlugClient.Url.treeFilename(fsClean))) return jsonResponse(treePayload);
       if (url.includes(SlugClient.Url.treeAssetsFilename(fsClean))) return jsonResponse(fileIndex);
-      if (url.includes(SlugClient.Url.fileContentFilename('hash-a')))
+      if (url.includes(SlugClient.Url.fileContentFilename('hash-a'))) {
         return jsonResponse(filePayload);
+      }
       if (url.includes('dist.json')) return jsonResponse(dist);
-      if (url.includes(SlugClient.Url.assetsFilename(mediaClean)))
+      if (url.includes(SlugClient.Url.assetsFilename(mediaClean))) {
         return jsonResponse(assetsManifest);
-      if (url.includes(SlugClient.Url.playbackFilename(mediaClean)))
+      }
+      if (url.includes(SlugClient.Url.playbackFilename(mediaClean))) {
         return jsonResponse(playbackManifest);
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
+    let fsClientValue: t.SlugClientDescriptor | undefined;
+    let mediaClientValue: t.SlugClientDescriptor | undefined;
     try {
       const fsClient = SlugClient.FromDescriptor.make({
         descriptor,
         kind: 'slug-tree:fs',
         docid: fsDocid,
         baseUrl: 'https://default.example.com/kb/',
+        ...TRANSPORT,
       });
       if (!fsClient.ok) throw new Error('expected fs client');
+      fsClientValue = fsClient.value;
 
       const treeResult = await fsClient.value.Tree.load({
         urls: { manifestBase: 'https://manifests.example.com/kb/' },
@@ -176,8 +199,10 @@ describe('BundleProfile domain-free config (e2e)', () => {
         kind: 'slug-tree:media:seq',
         docid: mediaDocid,
         baseUrl: 'https://media.example.com/program/',
+        ...TRANSPORT,
       });
       if (!mediaClient.ok) throw new Error('expected media client');
+      mediaClientValue = mediaClient.value;
 
       const bundleResult = await mediaClient.value.Timeline.Bundle.load({
         urls: { assetBase: 'https://media.example.com/' },
@@ -204,6 +229,8 @@ describe('BundleProfile domain-free config (e2e)', () => {
       expect(seen.some((url) => url.includes('https://manifests.example.com'))).to.eql(true);
       expect(seen.some((url) => url.includes('https://content.example.com'))).to.eql(true);
     } finally {
+      fsClientValue?.dispose();
+      mediaClientValue?.dispose();
       cleanup();
     }
   });

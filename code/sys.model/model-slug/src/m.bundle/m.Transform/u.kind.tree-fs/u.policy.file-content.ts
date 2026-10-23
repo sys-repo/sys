@@ -1,9 +1,10 @@
-import { type t, Hash, SlugSchema } from './common.ts';
+import { Hash, SlugSchema, type t } from './common.ts';
 import { readFrontmatter } from './u.frontmatter.ts';
 import { deriveIndex, toEntry, toSha256Filename } from './u.file-content.ts';
 import { normalizeManifestTargets, resolveDocid } from './u.docid.ts';
-import { deriveAssetsPath, normalizeFilePath, toContentType } from './u.path.ts';
+import { deriveAssetsPath, mediaTypeFromPath, normalizeFilePath } from './u.path.ts';
 
+// deno-lint-ignore require-await -- Preserve the promise-based transform contract.
 export const derive: t.SlugBundleTransform.TreeFs.Lib['derive'] = async (args) => {
   try {
     const docs: t.SlugFileContentDoc[] = [];
@@ -13,7 +14,7 @@ export const derive: t.SlugBundleTransform.TreeFs.Lib['derive'] = async (args) =
       const rel = normalizeFilePath(file.path);
       const source = String(file.source ?? '');
       const hash = Hash.sha256(source);
-      const contentType = toContentType(rel);
+      const contentType = mediaTypeFromPath(rel);
       const frontmatter = readFrontmatter(source, rel);
       const payload: t.SlugFileContentDoc = args.includePath
         ? { source, path: rel, hash, contentType, frontmatter }

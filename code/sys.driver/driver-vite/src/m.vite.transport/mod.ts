@@ -8,6 +8,7 @@
 import type { t } from './common.ts';
 import { denoPlugin } from './m.denoPlugin.ts';
 
+/** Deno-native module transport helpers for Vite. */
 export const ViteTransport: t.ViteTransport.Lib = {
   denoPlugin,
 };

@@ -12,7 +12,7 @@ import {
 
 describe('Crdt (Core API)', () => {
   it('API', async () => {
-    const assertCommon = (Crdt: t.CrdtLib) => {
+    const assertCommon = (Crdt: t.Crdt.Lib) => {
       expect(Crdt.toObject).to.equal(toObject);
       expect(Crdt.Url).to.equal(CrdtUrl);
       expect(Crdt.Id).to.equal(CrdtId);

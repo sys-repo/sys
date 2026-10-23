@@ -1,4 +1,4 @@
-import { type t, Fs, Is, Pkg } from './common.ts';
+import { Fs, Is, Pkg, type t } from './common.ts';
 
 export async function writeDistFiles(dirs: Iterable<t.StringDir>): Promise<number> {
   const unique = new Set<string>();
@@ -11,7 +11,8 @@ export async function writeDistFiles(dirs: Iterable<t.StringDir>): Promise<numbe
   for (const dir of unique) {
     if (!(await Fs.exists(dir))) continue;
     if (!(await Fs.Is.dir(dir))) continue;
-    await Pkg.Dist.compute({ dir, save: true });
+    const computed = await Pkg.Dist.compute({ dir, save: true });
+    if (computed.kind !== 'computed') throw computed.error;
     written += 1;
   }
   return written;

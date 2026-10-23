@@ -8,11 +8,11 @@ import { type t, Is, Rx, Try } from './common.ts';
  * getter. The Abortable is created only if `e.life` is accessed during a run.
  * Cleanup order: user cleanup → life.dispose() (if created).
  */
-export const useSignalEffect: t.UseSignalEffectListener = (cb) => {
+export const useSignalEffect: t.Signal.Effect.Listener = (cb) => {
   preactUseEffect(() => {
     let life: t.Abortable | undefined;
 
-    const e: t.UseSignalEffectFnArgs = {
+    const e: t.Signal.Effect.Args = {
       get life() {
         return (life ??= Rx.abortable());
       },

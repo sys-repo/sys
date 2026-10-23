@@ -1,135 +1,172 @@
-import { add, startOfDay, sub } from 'date-fns';
-import { describe, expect, it, Testing } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Time } from '../mod.ts';
+import { wallClock } from './u.fixture.wallClock.ts';
 
-const FORMAT = 'yyyy-MM-dd hh:mm:ss';
-const format = (date: Date) => Time.utc(date).format(FORMAT);
-
-describe('timer', () => {
-  it('starts with current date', async () => {
-    await Testing.retry(3, async () => {
-      const now = Time.now.format(FORMAT);
+describe('Time.timer', () => {
+  describe('start time, resets, and Date isolation', () => {
+    it('omitted start → current time and zero elapsed duration', () => {
+      using clock = wallClock();
       const timer = Time.timer();
-      expect(format(timer.startedAt)).to.eql(now);
+      expectTypeOf(timer).toEqualTypeOf<t.Time.Timer>();
+      expect(timer.startedAt.getTime()).to.eql(clock.now);
+      expect(timer.elapsed.msec).to.eql(0);
+      clock.set(clock.now + 123);
+      expect(timer.elapsed.msec).to.eql(123);
+    });
+
+    it('copies the supplied Date, including epoch zero', () => {
+      using _clock = wallClock(123);
+      const input = new Date(0);
+      const timer = Time.timer(input);
+      expect(timer.startedAt).not.to.equal(input);
+      expect(timer.startedAt.getTime()).to.eql(0);
+      input.setTime(1000);
+      expect(timer.startedAt.getTime()).to.eql(0);
+      expect(timer.elapsed.msec).to.eql(123);
+    });
+
+    it('returns fresh Dates whose mutation cannot affect elapsed', () => {
+      using _clock = wallClock(123);
+      const timer = Time.timer(new Date(0));
+      const first = timer.startedAt;
+      const second = timer.startedAt;
+      expect(first).not.to.equal(second);
+      expect(first).to.eql(second);
+      first.setTime(NaN);
+      second.setTime(1000);
+      expect(timer.startedAt.getTime()).to.eql(0);
+      expect(timer.elapsed.msec).to.eql(123);
+    });
+
+    it('reset restarts elapsed time without changing earlier Date snapshots', () => {
+      using clock = wallClock(1000);
+      const timer = Time.timer(new Date(500));
+      const previous = timer.startedAt;
+      for (const timestamp of [2000, 3000, 3000]) {
+        clock.set(timestamp);
+        expect(timer.reset()).to.equal(timer);
+        expect(timer.startedAt.getTime()).to.eql(timestamp);
+        expect(timer.elapsed.msec).to.eql(0);
+        clock.set(timestamp + 25);
+        expect(timer.elapsed.msec).to.eql(25);
+        expect(previous.getTime()).to.eql(500);
+      }
+    });
+
+    it('clock moves before the start → invalid duration; reset uses the new time', () => {
+      using clock = wallClock(1000);
+      const timer = Time.timer(new Date(1000));
+      clock.set(1100);
+      expect(timer.elapsed.msec).to.eql(100);
+      clock.set(900);
+      expect(timer.startedAt.getTime()).to.eql(1000);
+      expect(timer.elapsed.ok).to.eql(false);
+      expect(timer.elapsed.msec).to.eql(-1);
+      timer.reset();
+      expect(timer.startedAt.getTime()).to.eql(900);
+      expect(timer.elapsed.msec).to.eql(0);
+    });
+
+    it('an invalid start cannot be repaired by Date mutation, but reset replaces it', () => {
+      using _clock = wallClock(1000);
+      const input = new Date(NaN);
+      const timer = Time.timer(input);
+      input.setTime(0);
+      timer.startedAt.setTime(0);
+      expect(timer.startedAt.getTime()).to.be.NaN;
+      expect(timer.elapsed.ok).to.eql(false);
+      timer.reset();
+      expect(timer.startedAt.getTime()).to.eql(1000);
+      expect(timer.elapsed.msec).to.eql(0);
     });
   });
 
-  it('starts with given date', () => {
-    const start = add(startOfDay(new Date()), { days: 1 });
-    const timer = Time.timer(start);
-    expect(format(timer.startedAt)).to.eql(format(start));
-    expect(format(timer.startedAt)).to.not.eql(format(new Date()));
+  describe('elapsed units, rounding, and formatting', () => {
+    const cases = [
+      ['sec', 90_000, undefined, 90],
+      ['sec', 90_000, 0, 90],
+      ['min', 324_000, undefined, 5.4],
+      ['min', 324_000, 0, 5],
+      ['min', 324_000, 1, 5.4],
+      ['hour', 9_468_000, undefined, 2.6],
+      ['hour', 9_468_000, 0, 3],
+      ['hour', 9_468_000, 1, 2.6],
+      ['hour', 9_468_000, 2, 2.63],
+      ['day', 410_700_000, undefined, 4.8],
+      ['day', 410_700_000, 0, 5],
+      ['day', 410_700_000, 1, 4.8],
+    ] as const;
+    for (const [unit, msecs, round, expected] of cases) {
+      it(`${unit}, round ${round ?? 'default'} → ${expected}`, () => {
+        using _clock = wallClock(msecs);
+        const timer = Time.timer(new Date(0), { round });
+        expect(timer.elapsed[unit]).to.eql(expected);
+        expect(timer.elapsed[unit]).to.eql(Time.elapsed(0, msecs, { round })[unit]);
+      });
+    }
+
+    const formats = [
+      [90_000, 's', '90s'],
+      [90_000, 'sec', '90s'],
+      [324_000, 'm', '5m'],
+      [324_000, 'min', '5m'],
+      [9_468_000, 'h', '3h'],
+      [9_468_000, 'hour', '3h'],
+      [410_700_000, 'd', '5d'],
+      [410_700_000, 'day', '5d'],
+    ] as const;
+    for (const [msecs, unit, expected] of formats) {
+      it(`format(${unit}) → ${expected}`, () => {
+        using _clock = wallClock(msecs);
+        expect(Time.timer(new Date(0)).elapsed.format(unit)).to.eql(expected);
+      });
+    }
+
+    const strings = [
+      [0, '0ms'],
+      [999, '999ms'],
+      [10_000, '10s'],
+      [35_000, '35s'],
+      [59_000, '59s'],
+      [119_000, '2m'],
+      [16 * 60_000, '16m'],
+      [59 * 60_000, '59m'],
+      [61 * 60_000, '1h'],
+      [89 * 60_000, '1h'],
+      [91 * 60_000, '2h'],
+      [3 * 3_600_000, '3h'],
+      [27 * 3_600_000, '1d'],
+      [2 * 86_400_000, '2d'],
+      [4 * 86_400_000, '4d'],
+    ] as const;
+    for (const [msecs, expected] of strings) {
+      it(`toString at ${msecs} ms → ${expected}`, () => {
+        using _clock = wallClock(msecs);
+        expect(Time.timer(new Date(0)).elapsed.toString()).to.eql(expected);
+      });
+    }
   });
 
-  it('waits', async () => {
+  it('real host clock advances the elapsed value', async () => {
+    const before = Date.now();
     const timer = Time.timer();
-    expect(timer.elapsed.msec).to.lessThan(5); // NB: 'msecs' default unit for 'elapsed'.
+    expect(timer.startedAt.getTime()).to.be.within(before, Date.now());
     await Time.wait(10);
-    expect(timer.elapsed.msec).to.greaterThan(6);
-    expect(timer.elapsed.msec).to.greaterThan(6);
+    const lower = Date.now() - timer.startedAt.getTime();
+    const elapsed = timer.elapsed.msec;
+    const upper = Date.now() - timer.startedAt.getTime();
+    expect(elapsed).to.be.within(lower, upper);
+    expect(elapsed).to.be.greaterThan(0);
   });
 
-  it('reports elapsed seconds', () => {
-    const start = sub(new Date(), { minutes: 1, seconds: 30 });
-
-    expect(Time.timer(start).elapsed.sec).to.eql(90);
-    expect(Time.timer(start, { round: 0 }).elapsed.sec).to.eql(90);
-
-    const timer = Time.timer(start);
-    expect(timer.elapsed.format('s')).to.eql('90s');
-    expect(timer.elapsed.format('sec')).to.eql('90s');
-  });
-
-  it('reports elapsed minutes', () => {
-    const start = sub(new Date(), { minutes: 5, seconds: 24 });
-
-    expect(Time.timer(start, { round: 0 }).elapsed.min).to.eql(5);
-    expect(Time.timer(start, { round: 1 }).elapsed.min).to.eql(5.4);
-    expect(Time.timer(start).elapsed.min).to.eql(5.4);
-
-    const timer = Time.timer(start);
-    expect(timer.elapsed.format('m')).to.eql('5m');
-    expect(timer.elapsed.format('min')).to.eql('5m');
-  });
-
-  it('reports elapsed hours', () => {
-    const start = sub(new Date(), { hours: 2, minutes: 37, seconds: 48 });
-
-    expect(Time.timer(start).elapsed.hour).to.eql(2.6);
-    expect(Time.timer(start, { round: 0 }).elapsed.hour).to.eql(3);
-    expect(Time.timer(start, { round: 1 }).elapsed.hour).to.eql(2.6);
-    expect(Time.timer(start, { round: 2 }).elapsed.hour).to.eql(2.63);
-
-    const timer = Time.timer(start);
-    expect(timer.elapsed.format('h')).to.eql('3h');
-    expect(timer.elapsed.format('hour')).to.eql('3h');
-  });
-
-  it('reports elapsed days', () => {
-    const start = sub(new Date(), { days: 4, hours: 18, minutes: 5 });
-
-    const test = (round: undefined | number, ...expected: number[]) => {
-      // NB: multiple round values → hack for variation between MacOS and Linux.
-      const res =
-        round === undefined
-          ? Time.timer(start).elapsed.day
-          : Time.timer(start, { round }).elapsed.day;
-      const expectedMatch = expected.some((value) => res === value);
-      expect(expectedMatch).to.eql(true);
-    };
-
-    test(undefined, 4.7, 4.8);
-    test(1, 4.7, 4.8);
-    test(0, 5);
-
-    const timer = Time.timer(start);
-    expect(timer.elapsed.format('d')).to.eql('5d');
-    expect(timer.elapsed.format('day')).to.eql('5d');
-  });
-
-  it('toString()', () => {
-    let start = new Date();
-    const elapsed = () => Time.timer(start).elapsed;
-
-    expect(elapsed().toString().endsWith('ms')).to.eql(true);
-
-    start = sub(start, { seconds: 10 });
-    expect(elapsed().toString()).to.eql('10s');
-
-    start = sub(start, { seconds: 25 });
-    expect(elapsed().toString()).to.eql('35s');
-
-    start = sub(start, { seconds: 24 });
-    expect(elapsed().toString()).to.eql('59s');
-
-    start = sub(start, { minutes: 1 });
-    expect(elapsed().toString()).to.eql('2m');
-
-    start = sub(start, { minutes: 14.5 });
-    expect(elapsed().toString()).to.eql('16m');
-
-    start = sub(start, { minutes: 43 });
-    expect(elapsed().toString()).to.eql('59m');
-
-    start = sub(start, { minutes: 1.1 });
-    expect(elapsed().toString()).to.eql('1h');
-
-    start = sub(start, { minutes: 29 });
-    expect(elapsed().toString()).to.eql('1h');
-
-    start = sub(start, { minutes: 1 });
-    expect(elapsed().toString()).to.eql('2h');
-
-    start = sub(start, { hours: 1 });
-    expect(elapsed().toString()).to.eql('3h');
-
-    start = sub(start, { hours: 24 });
-    expect(elapsed().toString()).to.eql('1d');
-
-    start = sub(start, { hours: 24 });
-    expect(elapsed().toString()).to.eql('2d');
-
-    start = sub(start, { hours: 48 });
-    expect(elapsed().toString()).to.eql('4d');
+  it('fixture body throws → restores the original wall-clock descriptor', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(Date, 'now');
+    const failure = new Error('fixture body failure');
+    expect(() => {
+      using clock = wallClock(0);
+      expect(Date.now()).to.eql(clock.now);
+      throw failure;
+    }).to.throw(failure);
+    expect(Object.getOwnPropertyDescriptor(Date, 'now')).to.eql(descriptor);
   });
 });

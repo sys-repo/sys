@@ -1,5 +1,12 @@
 /**
  * @module
+ * YAML parsing, serialization, AST inspection, and config-file helpers.
+ *
+ * ```ts
+ * import { Yaml } from 'jsr:@sys/yaml';
+ *
+ * const parsed = Yaml.parse<{ name: string }>('name: sys');
+ * ```
  */
 export { pkg } from './pkg.ts';
 

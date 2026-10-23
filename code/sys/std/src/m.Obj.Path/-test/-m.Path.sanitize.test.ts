@@ -1,4 +1,4 @@
-import { type t, describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../-test.ts';
 import { Path } from '../mod.ts';
 
 describe('Path.sanitize', () => {
@@ -73,7 +73,7 @@ describe('Path.sanitize', () => {
   });
 
   it('accepts a codec instance object (pointer-kind)', () => {
-    const customPointer: t.ObjPathCodec = {
+    const customPointer: t.Obj.Path.Codec.Definition = {
       kind: 'pointer',
       encode: (p) => Path.Codec.pointer.encode(p),
       decode: (s) => Path.Codec.pointer.decode(s),
@@ -83,9 +83,9 @@ describe('Path.sanitize', () => {
     expect(res.fixes).to.eql(['ensured-leading-slash']);
   });
 
-  it('type surface: returns { text: string; fixes: readonly ObjPathFix[] }', () => {
+  it('type surface: returns { text: string; fixes: readonly t.Obj.Path.Fix[] }', () => {
     const out = Path.sanitize('/ok');
     expectTypeOf(out.text).toEqualTypeOf<string>();
-    expectTypeOf(out.fixes).toEqualTypeOf<t.ObjPathFix[]>();
+    expectTypeOf(out.fixes).toEqualTypeOf<t.Obj.Path.Fix[]>();
   });
 });

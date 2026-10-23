@@ -1,9 +1,21 @@
+import type { EffectController as EffectControllerType } from '@sys/types';
 import { type t } from './common.ts';
 
+export type EffectController<State, Patch = Partial<State>, Props = undefined> = EffectControllerType<
+  State,
+  Patch,
+  Props
+>;
+
 /**
- * EffectController — minimal orchestration primitive.
+ * EffectController contracts.
  */
-export type EffectControllerLib = CreateMethod & {};
+export declare namespace EffectController {
+  /**
+   * Minimal orchestration primitive.
+   */
+  export type Lib = CreateMethod & {};
+}
 
 /** Create: factory overloads */
 type CreateMethod = {
@@ -24,7 +36,7 @@ type CreateMethod = {
 export type EffectRef<State> = {
   readonly current: State;
   change(mutator: (draft: State) => void): void;
-  events(dispose$: t.UntilInput): { readonly $: t.Observable<{ readonly after: State }> };
+  events(until: t.UntilInput): { readonly $: t.Observable<{ readonly after: State }> };
 };
 
 /**

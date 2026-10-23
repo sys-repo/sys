@@ -1,9 +1,10 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { SlugPlaybackDriver } from '../mod.ts';
+import { baseUrl, testTransport } from './u.fixture.ts';
 
 describe('SlugPlaybackDriver.Controller', () => {
-  const baseUrl = 'http://test';
-  const create = () => SlugPlaybackDriver.Controller.create({ baseUrl });
+  const create = () =>
+    SlugPlaybackDriver.Controller.create({ baseUrl, transport: testTransport() });
 
   describe('create', () => {
     it('returns controller with id and lifecycle', () => {
@@ -104,7 +105,9 @@ describe('SlugPlaybackDriver.Controller', () => {
       ctrl.next({ slug: { selectedPath: ['a'] } });
       expect(fired.length).to.be.greaterThan(fired0);
       expect(
-        fired.some((state) => (state as { slug?: { selectedPath?: string[] } })?.slug?.selectedPath?.[0] === 'a'),
+        fired.some((state) =>
+          (state as { slug?: { selectedPath?: string[] } })?.slug?.selectedPath?.[0] === 'a'
+        ),
       ).to.eql(true);
 
       ctrl.dispose();

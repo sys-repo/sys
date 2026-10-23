@@ -1,232 +1,260 @@
 import type { t } from './common.ts';
 
 /**
- * Workspace dependency upgrade orchestration.
+ * Dependency upgrades from a manifest: publication evidence, version choices, and file writes.
  */
 export declare namespace WorkspaceUpgrade {
-  /** Dependency upgrade orchestration surface. */
+  /** Inspect or update dependency pins; only application writes files. */
   export type Lib = {
-    /** Collect canonical dependency upgrade candidates from manifest and registry inputs. */
+    /** Inspect published versions and age eligibility without changing dependency files. */
     collect(input: Input, options?: Options): Promise<CollectResult>;
-    /** Compose policy and topological ordering into one canonical upgrade result. */
+    /** Choose upgrades and order known dependencies without changing dependency files. */
     upgrade(input: Input, options?: Options): Promise<Result>;
-    /** Plan and apply one canonical workspace dependency upgrade pass. */
+    /**
+     * Compute a fresh plan and write the manifest and its generated dependency files.
+     * Does not consume an earlier preview or ask for confirmation.
+     *
+     * Invalid or cyclic graphs reject before writing; incomplete registry evidence does not.
+     * Files may be rewritten even when no version changes. Writes stop on failure without rollback.
+     */
     apply(input: Input, options?: Options): Promise<ApplyResult>;
   };
 
-  /** Workspace-facing dependency policy selection. */
+  /** Rules for choosing newer versions from the age-eligible set. */
   export type Policy = {
-    /** Version-selection mode applied during upgrade planning. */
-    readonly mode: t.EsmPolicyMode;
-    /** Dependency names or aliases excluded from upgrade selection. */
+    /** Allow patch, same-major, unrestricted, or no upgrades. */
+    readonly mode: t.EsmPolicy.Mode;
+    /** Exact package names or manifest aliases to leave unchanged. */
     readonly exclude?: readonly string[];
   };
 
-  /** Per-registry collection counts emitted while checking available versions. */
+  /** Manifest-entry counts by registry, not network-request counts. */
   export type RegistryProgressCounts = {
-    /** Number of JSR dependencies reached in the registry check phase. */
     readonly jsr: number;
-    /** Number of npm dependencies reached in the registry check phase. */
     readonly npm: number;
   };
 
-  /** Registry collection progress emitted while checking available package versions. */
+  /** Emitted before each version lookup; counts include the lookup about to begin. */
   export type RegistryProgress = {
-    /** Canonical progress step. */
     readonly kind: 'registry';
-    /** Registry currently being checked. */
     readonly registry: t.EsmRegistry;
-    /** Inclusive per-registry counts reached so far. */
+    /** Entries reached so far, including the current entry. */
     readonly current: RegistryProgressCounts;
-    /** Total per-registry dependencies to check in this pass. */
+    /** Entries with a usable current version in an enabled registry. */
     readonly total: RegistryProgressCounts;
-    /** Inclusive total registry checks reached so far. */
+    /** Entries reached across both registries, not completed responses. */
     readonly completed: number;
-    /** Total registry checks in this pass. */
+    /** Total entries scheduled for lookup; skipped entries are excluded. */
     readonly dependencies: number;
   };
 
-  /** Non-registry orchestration phase progress. */
+  /** Entry into planning or application, not confirmation of success. */
   export type PhaseProgress = {
-    /** Canonical progress step. */
     readonly kind: 'plan' | 'apply';
   };
 
-  /** Progress event emitted during one workspace upgrade pass. */
+  /** Lookup starts and phase boundaries; no completion event is emitted. */
   export type Progress = RegistryProgress | PhaseProgress;
 
-  /** Callback for upgrade progress events. */
+  /** Synchronous observer; a thrown error aborts the pass. */
   export type ProgressHandler = (progress: Progress) => void;
 
-  /** Canonical dependency source selection for workspace upgrades. */
+  /** Dependency manifest and output location. */
   export type Input = {
-    /** Working directory used to resolve upgrade inputs. */
+    /** Directory for deno.json and package.json; defaults to the manifest's directory. */
     readonly cwd?: t.StringDir;
-    /** Canonical dependency manifest path. */
+    /** Manifest path; relative paths use the process working directory, not the output directory. */
     readonly deps: t.StringPath;
   };
 
-  /** Options controlling workspace dependency upgrades. */
+  /** Version-selection controls and progress observation for one pass. */
   export type Options = {
-    /** Policy applied to dependency version selection. */
+    /** When options are omitted, allow same-major upgrades with no exclusions. */
     readonly policy: Policy;
-    /** Whether prerelease versions are considered during collection and planning. */
+    /** Include prereleases among visible versions; defaults to false. */
     readonly prerelease?: boolean;
-    /** Registries consulted for available package versions. */
+    /** Registries to check; defaults to both JSR and npm. */
     readonly registries?: readonly t.EsmRegistry[];
-    /** Emit orchestration logging to the console. */
+    /**
+     * Waiting period after publication for npm and JSR releases, in whole milliseconds.
+     * Must be a nonnegative safe integer; zero disables the delay (default).
+     * The current visible version is exempt. Missing, invalid, or future publication times
+     * prevent other versions from passing an enabled age check.
+     * A required deadline outside the supported date range rejects the pass.
+     */
+    readonly minimumDependencyAge?: t.Msecs;
+    /**
+     * Unix time in whole milliseconds, captured once per pass when omitted.
+     * Must be nonnegative and within JavaScript's supported date range.
+     */
+    readonly evaluatedAt?: t.UnixTimestamp;
+    /** Retained in the result; does not currently produce console output. */
     readonly log?: boolean;
-    /** Optional progress callback for long-running upgrade phases. */
+    /** Observe lookup starts and phase changes. */
     readonly progress?: ProgressHandler;
   };
 
-  /** Resolved options used for one workspace upgrade pass. */
+  /** Options with defaults filled and one evaluation time fixed for the pass. */
   export type ResolvedOptions = {
-    /** Policy applied to dependency version selection. */
     readonly policy: Policy;
-    /** Whether prerelease versions are considered during collection and planning. */
     readonly prerelease: boolean;
-    /** Registries consulted for available package versions. */
     readonly registries: readonly t.EsmRegistry[];
-    /** Whether orchestration logging was enabled. */
+    readonly minimumDependencyAge: t.Msecs;
+    readonly evaluatedAt: t.UnixTimestamp;
     readonly log: boolean;
-    /** Optional progress callback for long-running upgrade phases. */
     readonly progress?: ProgressHandler;
   };
 
-  /** Aggregate counts from one workspace upgrade pass. */
+  /** Entry counts, not unique packages or files written. */
   export type SummaryTotals = {
-    /** Number of dependency entries evaluated. */
+    /** All parsed manifest entries, including those not collected. */
     readonly dependencies: number;
-    /** Number of dependencies allowed by policy. */
+    /** Collected entries with a permitted newer version. */
     readonly allowed: number;
-    /** Number of dependencies blocked by policy. */
+    /** Collected entries without a permitted upgrade, including current or excluded entries. */
     readonly blocked: number;
-    /** Number of dependencies included in the ordered plan. */
+    /** Allowed entries in a valid dependency order; zero if ordering fails. */
     readonly planned: number;
   };
 
-  /** Canonical dependency-graph derivation code. */
+  /** Failure to retrieve package metadata or derive dependency relationships. */
   export type GraphCode = 'registry:info' | 'registry:graph';
 
-  /** Structured reason explaining why graph derivation could not complete for one dependency. */
+  /** Why a selected dependency's relationships remain unknown. */
   export type GraphReason = {
-    /** Canonical graph-derivation code. */
     readonly code: GraphCode;
-    /** Optional human-readable detail. */
     readonly message?: string;
   };
 
-  /** One dependency whose graph relationships could not be fully derived. */
+  /** Selected dependency with missing graph evidence; does not itself prevent application. */
   export type GraphUnresolved = {
-    /** Canonical manifest entry whose graph information is incomplete. */
     readonly entry: t.EsmDeps.Entry;
-    /** Structured graph-derivation reason. */
     readonly reason: GraphReason;
   };
 
-  /** One collected dependency candidate. */
-  export type Candidate = {
-    /** Canonical manifest entry being evaluated. */
-    readonly entry: t.EsmDeps.Entry;
-    /** Registry used to resolve available versions. */
-    readonly registry: t.EsmRegistry;
-    /** Normalized current pinned version. */
-    readonly current: t.StringSemver;
-    /** Latest version reported by the registry when available. */
-    readonly latest?: t.StringSemver;
-    /** Available versions reported by the registry, sorted descending. */
-    readonly available: readonly t.StringSemver[];
+  /**
+   * Publication-age assessment, independent of version-selection policy.
+   * Eligible releases are old enough, exempt as the current pin, or unchecked because the delay is off.
+   * Standdown is a temporary hold; unknown covers missing, invalid, or future publication times.
+   */
+  export type VersionEligibility =
+    | { readonly kind: 'eligible' }
+    | {
+      readonly kind: 'standdown';
+      /** Unix-millisecond deadline; the release becomes eligible at this instant. */
+      readonly eligibleAt: t.UnixTimestamp;
+      /** Elapsed milliseconds since publication at evaluation time. */
+      readonly age: t.Msecs;
+    }
+    | { readonly kind: 'unknown-published-at' };
+
+  /** Publication evidence and age assessment for one visible release. */
+  export type VersionFact = {
+    readonly version: t.StringSemver;
+    /** JSR creation time or npm publication time, preserved when valid; may still be in the future. */
+    readonly publishedAt?: t.StringTimestamp;
+    readonly eligibility: VersionEligibility;
   };
 
-  /** Canonical non-collection code. */
+  /** Published-version evidence for one manifest entry, including releases too young to select. */
+  export type Candidate = {
+    /** The manifest entry; aliases of one package remain distinct. */
+    readonly entry: t.EsmDeps.Entry;
+    readonly registry: t.EsmRegistry;
+    /** Normalized manifest version, not an installed or lockfile version. */
+    readonly current: t.StringSemver;
+    /** Highest visible version, not necessarily eligible or selected. */
+    readonly latest?: t.StringSemver;
+    /**
+     * Visible versions in descending order, before the age check.
+     * Excludes disabled prereleases; npm also excludes deprecated releases and versions
+     * above a usable latest tag.
+     */
+    readonly available: readonly t.StringSemver[];
+    /** Age-eligible subset in descending order; version policy is applied later. */
+    readonly eligible: readonly t.StringSemver[];
+    /** Publication facts in the same order as the visible versions. */
+    readonly versions: readonly VersionFact[];
+  };
+
+  /** Why a manifest or dependency could not yield a candidate. */
   export type CollectCode =
     | 'deps:load'
     | 'registry:unsupported'
     | 'version:missing-current'
     | 'registry:fetch';
 
-  /** Structured non-collection reason. */
+  /** Collection failure or deliberate omission, rather than a version-policy decision. */
   export type CollectReason = {
-    /** Canonical non-collection code. */
     readonly code: CollectCode;
-    /** Optional human-readable detail. */
     readonly message?: string;
   };
 
-  /** One dependency that was not collected into a registry-backed candidate. */
+  /** Skipped or failed entry; a manifest-load failure uses a synthetic entry naming its path. */
   export type Uncollected = {
-    /** Canonical manifest entry that could not be collected. */
     readonly entry: t.EsmDeps.Entry;
-    /** Structured non-collection reason. */
     readonly reason: CollectReason;
   };
 
-  /** Aggregate counts from one candidate-collection pass. */
+  /** Counts of inspected entries and collection outcomes. */
   export type CollectTotals = {
-    /** Number of dependency entries inspected from the manifest. */
+    /** Parsed entries after manifest normalization, not raw YAML rows. */
     readonly dependencies: number;
-    /** Number of dependencies collected successfully. */
+    /** Entries with registry version data, even if no visible versions remain. */
     readonly collected: number;
-    /** Number of dependencies skipped before registry fetch. */
+    /** Unusable current versions and disabled or unsupported registries. */
     readonly skipped: number;
-    /** Number of dependencies that failed during registry fetch. */
+    /** Registry lookup failures, or one manifest-load failure with zero dependencies. */
     readonly failed: number;
   };
 
-  /** Result from collecting canonical dependency upgrade candidates. */
+  /** Registry evidence and collection failures; no dependency files have been written. */
   export type CollectResult = {
-    /** Resolved orchestration input. */
+    /** Supplied paths, returned without normalization. */
     readonly input: Input;
-    /** Resolved orchestration options. */
     readonly options: ResolvedOptions;
-    /** Aggregate collection counts. */
     readonly totals: CollectTotals;
-    /** Successfully collected dependency candidates. */
     readonly candidates: readonly Candidate[];
-    /** Dependencies not collected into upgrade candidates. */
+    /** Inspect even when other entries were collected successfully. */
     readonly uncollected: readonly Uncollected[];
+    /** Resolver overrides carried from the manifest, not separate upgrade candidates. */
+    readonly packageJson?: t.EsmDeps.PackageJsonPolicy;
   };
 
-  /** Derived dependency graph used for ordered upgrade planning. */
+  /** Known relationships among approved upgrades, not a complete dependency graph. */
   export type Graph = {
-    /** Nodes entering ordered planning. */
-    readonly nodes: t.EsmTopologicalInput['nodes'];
-    /** Derived dependency edges between the planned nodes. */
-    readonly edges: t.EsmTopologicalInput['edges'];
-    /** Dependencies whose graph relationships were not fully derivable. */
+    /** One node per allowed decision, keyed by registry and package name. */
+    readonly nodes: t.EsmTopological.Decision.Input['nodes'];
+    /** Directed from dependency to dependent; only planned nodes are included. */
+    readonly edges: t.EsmTopological.Decision.Input['edges'];
+    /** Missing evidence can coexist with successful topological ordering. */
     readonly unresolved: readonly GraphUnresolved[];
   };
 
-  /** Result from one workspace dependency upgrade pass. */
+  /** Non-writing plan; collection and graph diagnostics may describe incomplete evidence. */
   export type Result = {
-    /** Resolved orchestration input. */
+    /** Supplied paths, returned without normalization. */
     readonly input: Input;
-    /** Resolved orchestration options. */
     readonly options: ResolvedOptions;
-    /** Canonical candidate collection result. */
     readonly collect: CollectResult;
-    /** Policy decisions across collected candidates. */
-    readonly policy: t.EsmPolicyResult;
-    /** Derived dependency graph used for topological ordering. */
+    /** Version decisions for collected entries only. */
+    readonly policy: t.EsmPolicy.Result;
     readonly graph: Graph;
-    /** Topological ordering result across the derived dependency graph. */
-    readonly topological: t.EsmTopologicalResult;
-    /** Aggregate outcome counts. */
+    /** Order over known edges, or a cycle/invalid-graph diagnostic. */
+    readonly topological: t.EsmTopological.Decision.Result;
     readonly totals: SummaryTotals;
   };
 
-  /** Result from planning and applying one workspace dependency upgrade pass. */
+  /** Returned only after the manifest and every requested dependency-file write completes. */
   export type ApplyResult = {
-    /** Resolved orchestration input. */
+    /** Supplied paths, returned without normalization. */
     readonly input: Input;
-    /** Resolved orchestration options. */
     readonly options: ResolvedOptions;
-    /** Canonical upgrade planning result used for application. */
+    /** Fresh plan computed by this apply call, not a previously returned preview. */
     readonly upgrade: Result;
-    /** Canonical manifest entries after selected versions were applied. */
+    /** Approved pins replaced; all other entries retain their versions. */
     readonly entries: readonly t.EsmDeps.Entry[];
-    /** Projected dependency file apply result. */
+    /** Written manifest, Deno imports, and optional package.json. */
     readonly files: t.EsmDeps.ApplyFilesResult;
   };
 }

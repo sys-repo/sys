@@ -1,14 +1,8 @@
-import { type t, Schema, Yaml } from '../common.ts';
+import { Schema, type t, Yaml } from '../common.ts';
+import { endpointPathErrors, EndpointYamlErrorCode } from './u.pathPolicy.ts';
 import { EndpointYamlSchema } from './u.schema.ts';
 
-/**
- * Fixed `yaml` ErrorCode required to construct a `YAMLError`.
- *
- * This value is intentionally stable and semantically inert.
- * In this system, all human meaning lives in `message`; the
- * `code` exists solely to satisfy the upstream error shape.
- */
-export const EndpointYamlErrorCode: t.Yaml.Error['code'] = 'BAD_ALIAS';
+export { EndpointYamlErrorCode } from './u.pathPolicy.ts';
 
 /**
  * Validate endpoint YAML content (pure).
@@ -20,8 +14,15 @@ export const EndpointYamlErrorCode: t.Yaml.Error['code'] = 'BAD_ALIAS';
  * No throwing. Always returns a YamlCheck.
  */
 export function validateEndpointYamlText(text: string): t.DeployTool.Endpoint.Fs.YamlCheck {
-  const ast = Yaml.parseAst(text);
+  return validateEndpointYamlAst(Yaml.parseAst(text));
+}
 
+/**
+ * Validate an endpoint YAML AST (pure).
+ *
+ * Env-ref resolution, if needed, must happen before calling this helper.
+ */
+export function validateEndpointYamlAst(ast: t.Yaml.Ast): t.DeployTool.Endpoint.Fs.YamlCheck {
   if (ast.errors?.length) {
     return {
       ok: false,
@@ -49,6 +50,14 @@ export function validateEndpointYamlText(text: string): t.DeployTool.Endpoint.Fs
     return {
       ok: false,
       errors: Schema.Error.fromYaml([err]),
+    };
+  }
+
+  const pathErrors = endpointPathErrors(js.data);
+  if (pathErrors.length > 0) {
+    return {
+      ok: false,
+      errors: Schema.Error.fromYaml([...pathErrors]),
     };
   }
 

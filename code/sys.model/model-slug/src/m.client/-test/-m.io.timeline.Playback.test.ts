@@ -1,14 +1,24 @@
 import { describe, expect, it } from '../../-test.ts';
-import { Playback } from '../m.io.timeline.Playback.ts';
+import { Playback as PlaybackEndpoint } from '../m.io.timeline.Playback.ts';
 import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
 import { D } from '../common.ts';
-import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch, textResponse } from './u.fixture.ts';
+
+const Playback = {
+  load<P = unknown>(
+    baseUrl: t.StringUrl,
+    docid: t.StringId,
+    options: t.SlugScopedLoadOptions = {},
+  ) {
+    return PlaybackEndpoint.load<P>(baseUrl, docid, { ...LOAD_OPTIONS, ...options });
+  },
+};
 
 describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
   it('is the SlugClient playback loader', () => {
-    expect(SlugClient.FromEndpoint.Timeline.Playback).to.equal(Playback);
+    expect(SlugClient.FromEndpoint.Timeline.Playback).to.equal(PlaybackEndpoint);
   });
 
   it('loads playback manifest (happy path)', async () => {
@@ -68,7 +78,7 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
     }
   });
 
-  it('passes RequestInit extras but enforces cache policy', async () => {
+  it('passes admitted init extras but enforces GET and cache policy', async () => {
     const docid = 'crdt:playback-init' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const manifest: t.SpecTimelineManifest = {
@@ -86,21 +96,19 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
     });
 
     try {
-      const init: RequestInit = {
-        method: 'PUT',
+      const init: t.HttpFetch.Init = {
         headers: { 'x-signal': 'ok' },
         cache: 'reload',
       };
       const result = await Playback.load('http://example.com/', docid, { init });
       if (!result.ok) throw new Error('expected playback result');
       const headers = seenInit?.headers;
-      const headerValue =
-        headers instanceof Headers
-          ? headers.get('x-signal')
-          : headers && typeof headers === 'object' && !Array.isArray(headers)
-            ? (headers as Record<string, string>)['x-signal']
-            : undefined;
-      expect(seenInit?.method).to.equal('PUT');
+      const headerValue = headers instanceof Headers
+        ? headers.get('x-signal')
+        : headers && typeof headers === 'object' && !Array.isArray(headers)
+        ? (headers as Record<string, string>)['x-signal']
+        : undefined;
+      expect(seenInit?.method).to.equal('GET');
       expect(headerValue).to.eql('ok');
       expect(seenInit?.cache).to.eql(D.CACHE_INIT.cache);
     } finally {
@@ -112,8 +120,9 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
     const docid = 'crdt:playback-http' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
         return textResponse('Not Found', { status: 404, statusText: 'Not Found' });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -134,12 +143,13 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
     const docid = 'crdt:playback-schema' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
         return jsonResponse({
           docid: cleaned,
           composition: [],
           beats: 'not-an-array',
         });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 
@@ -159,12 +169,13 @@ describe('SlugClient.FromEndpoint.Timeline.Playback.load', () => {
     const docid = 'crdt:playback-mismatch' as t.StringId;
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const cleanup = stubFetch((url) => {
-      if (url.includes(SlugClient.Url.playbackFilename(cleaned)))
+      if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
         return jsonResponse({
           docid: 'other-playback',
           composition: [],
           beats: [],
         });
+      }
       throw new Error(`Unexpected fetch: ${url}`);
     });
 

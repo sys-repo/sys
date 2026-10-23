@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../-test.ts';
 import { c, Fmt } from '../common.ts';
-import { withTree } from '../u.menu.tree.ts';
+import { withTree } from '../u.menu/u.tree.ts';
 
 describe('YamlConfig.menu.tree', () => {
   it('builds labels and tree markers', () => {

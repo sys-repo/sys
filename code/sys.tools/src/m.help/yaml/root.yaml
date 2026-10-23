@@ -1,0 +1,17 @@
+summary: |
+  Package-local help resources.
+
+sections:
+  - label: Rule
+    items: |
+      Author maintained help text under `src/m.help/yaml/`.
+      Keep `m.help` responsible for resources, loading, and validation only.
+      Keep command routing, argument parsing, and rendering outside `m.help`.
+      Expose help publicly only through an explicit package export or CLI route.
+
+  - label: Maintenance
+    items: |
+      Run `deno task help:bundle` after editing YAML help resources.
+      Keep `src/m.help/-bundle/-bundle.json` generated from the YAML resources.
+      Keep bundle-only dependencies out of normal runtime common paths.
+      Run a narrow check over `src/m.help/` after changing resource shape or loaders.

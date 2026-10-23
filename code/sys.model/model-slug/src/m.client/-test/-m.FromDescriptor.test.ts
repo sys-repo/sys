@@ -2,7 +2,7 @@ import { describe, expect, it } from '../../-test.ts';
 import { SlugClient } from '../mod.ts';
 
 import type { t } from '../common.ts';
-import { jsonResponse, stubFetch } from './u.fixture.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch } from './u.fixture.ts';
 
 describe('SlugClient.FromDescriptor', () => {
   it('selects one bundle by kind/docid', () => {
@@ -42,6 +42,7 @@ describe('SlugClient.FromDescriptor', () => {
     };
 
     const result = SlugClient.FromDescriptor.make({
+      ...LOAD_OPTIONS,
       descriptor,
       baseUrl: 'http://example.com/',
     });
@@ -65,11 +66,12 @@ describe('SlugClient.FromDescriptor', () => {
       expect(seenUrls[0]).to.include('/manifests-x/');
       expect(seenUrls[0]).to.include(SlugClient.Url.treeFilename(cleaned));
     } finally {
+      client.dispose();
       cleanup();
     }
   });
 
-  it('rejects ambiguous bundle selections', async () => {
+  it('rejects ambiguous bundle selections', () => {
     const descriptor: t.BundleDescriptorDoc = {
       bundles: [
         {
@@ -86,6 +88,7 @@ describe('SlugClient.FromDescriptor', () => {
     };
 
     const result = SlugClient.FromDescriptor.make({
+      ...LOAD_OPTIONS,
       descriptor,
       baseUrl: 'http://example.com/',
     });
@@ -113,6 +116,7 @@ describe('SlugClient.FromDescriptor', () => {
     };
 
     const result = SlugClient.FromDescriptor.make({
+      ...LOAD_OPTIONS,
       descriptor,
       baseUrl: 'https://example.com/',
     });
@@ -124,5 +128,6 @@ describe('SlugClient.FromDescriptor', () => {
         video: { strategy: 'prefix-range', total: 64 },
       },
     });
+    result.value.dispose();
   });
 });

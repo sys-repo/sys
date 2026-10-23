@@ -1,0 +1,213 @@
+import { describe, expect, Fs, it, Time } from '../-test.ts';
+import { createApp, routesFor } from '../m.app/mod.ts';
+import { appFrom } from '../m.deployment/mod.ts';
+import { fixtureEnv, remoteFixture } from './u.fixture.ts';
+
+describe('R2 deployment sample: HTTP app', () => {
+  it('redirects, API, method restrictions, and unknown routes do not invoke the shell', async () => {
+    let calls = 0;
+    const app = createApp({
+      bundleSize: 551_353,
+      shell: () => {
+        calls++;
+        return Promise.resolve(new Response('shell'));
+      },
+    });
+    for (const path of ['/', '/ui']) {
+      for (const method of ['GET', 'HEAD']) {
+        const response = await app.request(path, { method });
+        expect(response.status).to.eql(308);
+        expect(response.headers.get('location')).to.eql('/ui/');
+        await response.body?.cancel();
+      }
+    }
+    for (const path of ['/api/hello', '/api/hello?msg=foo']) {
+      const response = await app.request(path);
+      expect(response.status).to.eql(200);
+      expect(await response.json()).to.eql({ msg: '👋 hello world!' });
+      expect(response.headers.get('content-type')).to.include('application/json');
+      expect(response.headers.get('cache-control')).to.eql('no-store');
+      expect(response.headers.get('x-content-type-options')).to.eql('nosniff');
+    }
+    const bundle = await app.request('/api/bundle');
+    expect(bundle.status).to.eql(200);
+    expect(await bundle.json()).to.eql({ size: 551_353 });
+    expect(bundle.headers.get('cache-control')).to.eql('no-store');
+    expect(bundle.headers.get('x-content-type-options')).to.eql('nosniff');
+    const bundleHead = await app.request('/api/bundle', { method: 'HEAD' });
+    expect(bundleHead.status).to.eql(200);
+    expect(await bundleHead.text()).to.eql('');
+    for (const path of ['/', '/ui', '/api/hello', '/api/bundle', '/ui/']) {
+      const response = await app.request(path, { method: 'POST' });
+      expect(response.status).to.eql(405);
+      expect(response.headers.get('allow')).to.eql('GET, HEAD');
+    }
+    for (const path of ['/missing', '/%75i/', '/api/%68ello']) {
+      const response = await app.request(path);
+      expect(response.status).to.eql(404);
+      expect(response.headers.get('cache-control')).to.eql('no-store');
+      expect(response.headers.get('x-content-type-options')).to.eql('nosniff');
+    }
+    expect((await app.request('/missing', { method: 'POST' })).status).to.eql(404);
+    expect((await app.request('/?q=1')).status).to.eql(400);
+    expect(calls).to.eql(0);
+  });
+
+  it('maps relative shell filenames and strips the mount without decoding paths or dropping queries', async () => {
+    expect(routesFor(['dist.json', 'index.html'])).to.eql({
+      '/': 'index.html',
+      '/dist.json': 'dist.json',
+      '/index.html': 'index.html',
+    });
+    const seen: string[] = [];
+    const app = createApp({
+      bundleSize: 551_353,
+      shell: (req) => {
+        const url = new URL(req.url);
+        seen.push(`${req.method} ${url.pathname}${url.search}`);
+        return Promise.resolve(new Response(null, { status: 204 }));
+      },
+    });
+    for (const path of ['/ui/', '/ui/%69ndex.html?q=1', '/ui/index.html']) {
+      expect((await app.request(path, { method: 'HEAD' })).status).to.eql(204);
+    }
+    expect(seen).to.eql(['HEAD /', 'HEAD /%69ndex.html?q=1', 'HEAD /index.html']);
+  });
+});
+
+describe('R2 deployment sample: HTTP adapter integration', () => {
+  it('serves shell GET/HEAD while refusing public assets, queries, and encoded aliases before storage', async () => {
+    using f = await remoteFixture();
+    const app = await appFrom(f, fixtureEnv);
+    f.fetched.length = 0;
+    const bundle = await app.request('/api/bundle');
+    expect(await bundle.json()).to.eql({ size: f.buildRecord.bundleSize });
+    expect(f.buildRecord.bundleSize).not.to.eql(f.dist.build.size.total);
+    expect(f.fetched).to.eql([]);
+    for (
+      const [path, key] of [['/ui/', 'index.html'], ['/ui/index.html', 'index.html'], [
+        '/ui/dist.json',
+        'dist.json',
+      ]]
+    ) {
+      const response = await app.request(path);
+      expect(response.status).to.eql(200);
+      expect(new Uint8Array(await response.arrayBuffer())).to.eql(f.content.get(key));
+      expect(f.keys().at(-1)).to.eql(`sample/ui/${key}`);
+    }
+    const head = await app.request('/ui/', { method: 'HEAD' });
+    expect(head.status).to.eql(200);
+    expect(await head.text()).to.eql('');
+    f.fetched.length = 0;
+    for (
+      const [path, status] of [
+        ['/ui/pkg/file.js', 404],
+        ['/ui/pkg/file.css', 404],
+        ['/pkg/file.js', 404],
+        ['/pkg/file.css', 404],
+        ['/ui/fonts/font.woff2', 404],
+        ['/fonts/font.woff2', 404],
+        ['/ui/data.json', 404],
+        ['/data.json', 404],
+        ['/ui/favicon.ico', 404],
+        ['/favicon.ico', 404],
+        ['/images/wax-seal.png', 404],
+        ['/ui/images/wax-seal.png', 404],
+        ['/pkg/a.fixture.png', 404],
+        ['/ui/pkg/a.fixture.png', 404],
+        ['/ui/unselected.js', 404],
+        ['/ui/?q=1', 400],
+        ['/ui/pkg/%66ile.js', 400],
+      ] as const
+    ) {
+      for (const method of ['GET', 'HEAD']) {
+        const response = await app.request(path, { method });
+        expect(response.status, path).to.eql(status);
+        expect(await response.text()).to.eql('');
+        expect(response.headers.has('location')).to.eql(false);
+      }
+    }
+    expect(f.fetched).to.eql([]);
+  });
+
+  it('admitted private PNG → signed internal GETs and byte/metadata-correct application responses', async () => {
+    const path = 'images/wax-seal.png';
+    const source = await Fs.read(
+      Fs.Path.fromFileUrl(new URL(`../../public/${path}`, import.meta.url)),
+    );
+    if (!source.ok || !source.data) throw new Error('Sample PNG must be readable.');
+    const bytes = source.data;
+    using f = await remoteFixture({ [path]: bytes });
+    const app = await appFrom(f, fixtureEnv);
+    f.fetched.length = 0;
+    for (const method of ['GET', 'HEAD']) {
+      const response = await app.request(`/ui/${path}`, { method });
+      expect(response.status).to.eql(200);
+      expect(response.headers.get('content-type')).to.eql('image/png');
+      expect(response.headers.get('content-length')).to.eql(String(bytes.byteLength));
+      expect(response.headers.get('cache-control')).to.eql('no-store');
+      expect(response.headers.get('x-content-type-options')).to.eql('nosniff');
+      expect(response.headers.has('location')).to.eql(false);
+      expect(new Uint8Array(await response.arrayBuffer())).to.eql(
+        method === 'HEAD' ? new Uint8Array() : bytes,
+      );
+    }
+    expect(f.keys()).to.eql([`sample/ui/${path}`, `sample/ui/${path}`]);
+    for (const req of f.fetched) {
+      expect(req.method).to.eql('GET');
+      expect(new URL(req.url).searchParams.has('X-Amz-Signature')).to.eql(true);
+    }
+    f.fetched.length = 0;
+    // Storage presence alone never grants an application route.
+    f.content.set('images/unselected.png', bytes);
+    f.content.set('images/wax-seal.v1.png', bytes);
+    for (
+      const url of [
+        '/ui/images/unselected.png',
+        '/ui/images/wax-seal.v1.png',
+        '/ui/pkg/a.fixture.png',
+        `/${path}`,
+      ]
+    ) {
+      for (const method of ['GET', 'HEAD']) {
+        const response = await app.request(url, { method });
+        expect(response.status).to.eql(404);
+        expect(await response.text()).to.eql('');
+        expect(response.headers.has('location')).to.eql(false);
+      }
+    }
+    const refused = await app.request(`/ui/${path}`, { method: 'POST' });
+    expect(refused.status).to.eql(405);
+    expect(refused.headers.get('allow')).to.eql('GET, HEAD');
+    expect(f.fetched).to.eql([]);
+  });
+
+  it('passes cancellation through the UI mount to the read adapter', async () => {
+    using f = await remoteFixture();
+    const app = await appFrom(f, fixtureEnv);
+    const started = Promise.withResolvers<AbortSignal>();
+    f.read = (req) => {
+      started.resolve(req.signal);
+      return new Promise((_resolve, reject) => {
+        req.signal.addEventListener('abort', () => reject(new Error('fixture aborted')), {
+          once: true,
+        });
+      });
+    };
+    const controller = new AbortController();
+    const response = app.request('/ui/', { signal: controller.signal });
+    const timeout = Time.delay(1_000, () => {
+      throw new Error('Storage fetch did not start.');
+    });
+    try {
+      await Promise.race([started.promise, timeout]);
+      controller.abort();
+      expect((await response).status).to.eql(499);
+      expect((await started.promise).aborted).to.eql(true);
+    } finally {
+      timeout.cancel();
+      controller.abort();
+      await response;
+    }
+  });
+});

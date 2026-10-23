@@ -1,4 +1,4 @@
-import { type t, Dev, Signal, Spec } from '../../-test.ui.ts';
+import { type t, Harness, Signal, Spec } from '../../-test.ui.ts';
 
 import { Color, css, D, ObjectView } from '../common.ts';
 import { DocumentId } from '../mod.ts';
@@ -19,7 +19,7 @@ export default Spec.describe(D.displayName, async (e) => {
      * NOTE: either pass down the hook (instance)
      *       OR the setup arguments for the hook.
      */
-    const args: t.UseDocumentIdHookArgs<SampleDoc> = {
+    const args: t.DocumentId.Hook.Args<SampleDoc> = {
       repo: v.passRepo ? repo : undefined,
       signals: { doc: p.doc, textbox: p.textbox, path: p.path },
       initial: () => ({ count: 0 }), // NB: dynamic generator.
@@ -72,7 +72,7 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Dev.Theme.signalEffect(ctx, p.theme, 1);
+    Harness.Theme.signalEffect(ctx, p.theme, 1);
     Signal.effect(() => {
       debug.listen();
       ctx.redraw();

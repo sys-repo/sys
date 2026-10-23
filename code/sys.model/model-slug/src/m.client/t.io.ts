@@ -26,13 +26,29 @@ export type SlugClientShardPolicy = {
   readonly path?: 'preserve' | 'root-filename';
 };
 
-/** Common load options for slug endpoints. */
-export type SlugLoadOptions = {
-  init?: RequestInit;
-  layout?: SlugClientLayout;
+/** Transport authority for dynamic slug endpoints. */
+export type SlugLoadTransport =
+  | {
+    /** Caller-owned bounded Fetch capability. */
+    readonly client: t.HttpFetch.Instance;
+    readonly policy?: never;
+  }
+  | {
+    readonly client?: undefined;
+    /** Policy for a Fetch capability owned for the duration of the load. */
+    readonly policy: t.HttpFetch.ResponsePolicy;
+  };
+
+/** Load options that do not grant transport authority. */
+export type SlugScopedLoadOptions = {
+  readonly init?: t.HttpFetch.Init;
+  readonly layout?: SlugClientLayout;
   /** Overrides base origins; directory layout still comes from `layout`. */
-  urls?: SlugLoadUrls;
+  readonly urls?: SlugLoadUrls;
 };
+
+/** Common load options for dynamic slug endpoints. */
+export type SlugLoadOptions = SlugScopedLoadOptions & SlugLoadTransport;
 
 /** Optional base URL overrides for slug loading. */
 export type SlugLoadUrls = {
@@ -53,13 +69,15 @@ export type SlugClientTreeLib = {
   readonly load: (
     baseUrl: t.StringUrl,
     docid: t.StringId,
-    options?: t.SlugTreeLoadOptions,
+    options: t.SlugTreeLoadOptions,
   ) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
 };
 
 /** Tree loaders scoped to a descriptor client. */
 export type SlugClientTreeFromDescriptorLib = {
-  readonly load: (options?: t.SlugTreeLoadOptions) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
+  readonly load: (
+    options?: t.SlugScopedLoadOptions,
+  ) => Promise<t.SlugClientResult<t.SlugTreeDoc>>;
 };
 
 /** Load options specific to tree endpoints. */

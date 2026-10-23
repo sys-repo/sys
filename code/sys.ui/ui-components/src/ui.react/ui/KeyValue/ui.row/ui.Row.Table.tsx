@@ -1,0 +1,88 @@
+import React from 'react';
+import { type t, Color, css, D } from '../common.ts';
+import { toFont, toRowOpacity, toSpacing } from '../u/mod.ts';
+import { Cell } from '../ui/ui.Cell.tsx';
+import { toCellCursor, type CursorRender } from './u.cursor.ts';
+
+type P = Omit<t.KeyValue.ItemProps, 'layout' | 'item'> & {
+  layout: t.KeyValue.Layout.Table;
+  item: t.KeyValue.Item.Row;
+  cursor?: CursorRender;
+};
+
+export const RowTable: React.FC<P> = (props) => {
+  const { debug = false, item, mono, truncate, layout } = props;
+  const opacity = toRowOpacity(item.opacity, { k: D.keyOpacity, v: 1 });
+  const cursorPart = props.cursor?.part;
+
+  /**
+   * Render:
+   */
+  const theme = Color.theme(props.theme);
+  const spacing = toSpacing(item.x, item.y);
+  const [mxL, mxR] = spacing.x;
+  const [myT, myB] = spacing.y;
+  const { fontFamily } = toFont({ mono });
+
+  const styles = {
+    base: css({
+      Margin: spacing.edges,
+      display: 'contents',
+      color: theme.fg,
+      fontFamily,
+    }),
+    key: css({
+      gridColumn: '1',
+      textAlign: layout.keyAlign ?? D.layout.table.keyAlign,
+      minWidth: 0,
+      maxWidth: layout.keyMax,
+      alignSelf: layout.align ?? 'baseline',
+      Margin: [myT, 0, myB, mxL],
+    }),
+    val: css({
+      gridColumn: '2',
+      textAlign: 'left',
+      minWidth: 0,
+      alignSelf: layout.align ?? D.layout.table.align,
+      Margin: [myT, mxR, myB, 0],
+    }),
+  };
+
+  return (
+    <div className={styles.base.class}>
+      <Cell
+        role={'key'}
+        layout={layout}
+        theme={props.theme}
+        debug={debug}
+        mono={mono}
+        enabled={props.enabled}
+        disabledOpacity={props.disabledOpacity}
+        truncate={truncate}
+        size={props.size}
+        style={styles.key}
+        href={item.href}
+        opacity={opacity.k}
+        cursor={toCellCursor(cursorPart, 'key')}
+        children={item.k}
+      />
+      <Cell
+        role={'val'}
+        layout={layout}
+        theme={props.theme}
+        debug={debug}
+        mono={mono}
+        enabled={props.enabled}
+        disabledOpacity={props.disabledOpacity}
+        truncate={truncate}
+        size={props.size}
+        userSelect={item.userSelect}
+        style={styles.val}
+        href={item.href}
+        opacity={opacity.v}
+        cursor={toCellCursor(cursorPart, 'value')}
+        children={item.v}
+      />
+    </div>
+  );
+};

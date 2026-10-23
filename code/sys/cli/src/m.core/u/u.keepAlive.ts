@@ -1,4 +1,4 @@
-import { type t, Rx } from '../common.ts';
+import { Rx, type t } from '../common.ts';
 
 /**
  * Keep a long-running CLI process alive until disposed.
@@ -6,7 +6,7 @@ import { type t, Rx } from '../common.ts';
  * Installs a SIGINT (Ctrl-C) handler, runs the optional callback with
  * the lifecycle, then blocks until `life.dispose()` is triggered.
  */
-export const keepAlive: t.CliLib['keepAlive'] = async (opts = {}) => {
+export const keepAlive: t.Cli.Lib['keepAlive'] = async (opts = {}) => {
   const { exitCode = 0, onStart } = opts;
   const life = opts.life ?? Rx.lifecycle();
 

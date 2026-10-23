@@ -6,16 +6,19 @@ type O = Record<string, unknown>;
 /** Options passed to the `Repo.get` method. */
 export type CrdtRepoGetOptions = { timeout?: t.Msecs };
 
-/** A loose late-bound input the resolves to a repo. */
+/** A loose late-bound input that resolves to a repo. */
 export type CrdtRepoInput = t.Crdt.Repo | undefined | CrdtGetRepoInput;
+/** Callback that resolves the current repository instance, if available. */
 export type CrdtGetRepoInput = () => t.Crdt.Repo | undefined;
 
 /**
  * A repository of CRDT documents:
  */
-export type CrdtRepo = t.LifecycleAsync &
-  CrdtRepoMethods &
-  CrdtRepoProps & {
+export type CrdtRepo =
+  & t.LifecycleAsync
+  & CrdtRepoMethods
+  & CrdtRepoProps
+  & {
     readonly sync: CrdtRepoProps['sync'] & { enable(enabled?: boolean): void };
   };
 
@@ -23,7 +26,7 @@ export type CrdtRepo = t.LifecycleAsync &
 export type CrdtRepoProps = {
   readonly status: t.CrdtRepoStatus;
 
-  /** Opaque identifier string's for uniqueness only; format is not a semantic contract. */
+  /** Opaque identifier strings for uniqueness only; format is not a semantic contract. */
   readonly id: {
     readonly instance: t.StringId;
     readonly peer: t.StringId;
@@ -46,7 +49,9 @@ export type CrdtRepoStatus = {
 
 /** Info about a repository store. */
 export type CrdtRepoStoreInfo = CrdtRepoStoreInfoFs | CrdtRepoStoreInfoIdb;
+/** Filesystem-backed repository store descriptor. */
 export type CrdtRepoStoreInfoFs = { kind: 'fs'; dir: t.StringDir };
+/** IndexedDB-backed repository store descriptor. */
 export type CrdtRepoStoreInfoIdb = {
   kind: 'indexed-db';
   database: t.StringName;
@@ -62,20 +67,22 @@ export type CrdtRepoMethods = {
   events(until?: t.UntilInput): t.CrdtRepoEvents;
 };
 
-/** Response from methods retrieveing doc/ref handles. */
+/** Response from methods retrieving doc/ref handles. */
 export type CrdtRefResult<T extends O> = CrdtRefOk<T> | CrdtRefFail;
+/** Successful document-ref lookup result. */
 export type CrdtRefOk<T extends O> = {
   readonly ok: true;
   readonly doc: t.CrdtRef<T>;
   readonly error?: undefined;
 };
+/** Failed document-ref lookup result. */
 export type CrdtRefFail = {
   readonly ok: false;
   readonly doc?: undefined;
   readonly error: t.CrdtRepoError;
 };
 
-/** Repo related errors. */
+/** Repo-related errors. */
 export type CrdtRepoErrorKind = 'NotFound' | 'Timeout' | 'Worker' | 'UNKNOWN';
 /** A standard Repo error. */
 export type CrdtRepoError = t.StdError & { kind: t.CrdtRepoErrorKind };

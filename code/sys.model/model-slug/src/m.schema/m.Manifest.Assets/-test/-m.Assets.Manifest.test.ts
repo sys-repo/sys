@@ -50,24 +50,24 @@ describe('SlugAssets.Manifest', () => {
   });
 
   describe('standard', () => {
-    it('validates a good manifest', () => {
+    it('validates a good manifest', async () => {
       const std = AssetsSchema.Manifest.standard();
-      const res = std['~standard'].validate(validManifest);
-      expect(res.ok).to.eql(true);
-      if (res.ok) {
+      const res = await std['~standard'].validate(validManifest);
+      expect(res.issues).to.eql(undefined);
+      if (res.issues === undefined) {
         expect(res.value).to.eql(validManifest);
       }
     });
 
-    it('reports issues for invalid manifests', () => {
+    it('reports issues for invalid manifests', async () => {
       const std = AssetsSchema.Manifest.standard();
-      const res = std['~standard'].validate({
+      const res = await std['~standard'].validate({
         ...validManifest,
         assets: [{ ...validManifest.assets[0], kind: 'audio' as const }],
       });
 
-      expect(res.ok).to.eql(false);
-      if (!res.ok) {
+      expect('issues' in res).to.eql(true);
+      if (res.issues) {
         expect(Array.isArray(res.issues)).to.eql(true);
         expect(res.issues.length > 0).to.eql(true);
       }

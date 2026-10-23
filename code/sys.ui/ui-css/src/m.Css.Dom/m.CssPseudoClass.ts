@@ -1,5 +1,4 @@
 import { Is, type t } from './common.ts';
-import type { CssPseudoClassLib } from './t.ts';
 
 /**
  * CSS Selectors Level 3 pseudo‑classes.
@@ -63,11 +62,11 @@ export const level4 = [
  *    https://www.w3.org/TR/selectors-3
  *    https://www.w3.org/TR/selectors-4
  */
-export const CssPseudoClass: CssPseudoClassLib = {
+export const CssPseudoClass: t.CssDom.PseudoClass.Lib = {
   level3: new Set(level3),
   level4: new Set(level4),
   all: new Set([...level3, ...level4]),
-  isClass(input: unknown): input is t.CssPseudoClass {
-    return Is.str(input) && this.all.has(input as t.CssPseudoClass);
+  isClass(input: unknown): input is t.CssDom.PseudoClass.Name {
+    return Is.str(input) && this.all.has(input as t.CssDom.PseudoClass.Name);
   },
 };

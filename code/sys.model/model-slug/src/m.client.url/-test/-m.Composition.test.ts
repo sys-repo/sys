@@ -15,7 +15,7 @@ describe('SlugUrl.Composition', () => {
     });
 
     it('respects manifestBase and manifestsDir overrides', () => {
-      const opts: t.SlugLoadOptions = {
+      const opts: t.SlugScopedLoadOptions = {
         urls: { manifestBase: 'https://manifest.example.com/' },
         layout: { manifestsDir: 'custom-manifests' },
       };
@@ -37,7 +37,7 @@ describe('SlugUrl.Composition', () => {
     });
 
     it('respects contentBase and contentDir overrides', () => {
-      const opts: t.SlugLoadOptions = {
+      const opts: t.SlugScopedLoadOptions = {
         urls: { contentBase: 'https://content.example.com/' },
         layout: { contentDir: 'custom-content' },
       };

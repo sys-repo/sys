@@ -1,5 +1,6 @@
 import { DenoDeps } from '@sys/driver-deno/runtime';
-import type { DenoFileLib, Dep as DenoDep } from '@sys/driver-deno/t';
+import type { DenoFile } from '@sys/driver-deno/t';
+import type * as TDenoDeps from '@sys/driver-deno/t';
 import { Fs } from '@sys/fs';
 import { Jsr } from '@sys/registry/jsr/client';
 import { c } from '@sys/cli';
@@ -21,7 +22,7 @@ export type PrepPaths = {
   rootDenoJson: string;
 };
 
-export type DenoFileVersionLib = Pick<DenoFileLib, 'workspaceVersion'>;
+export type DenoFileVersionLib = Pick<DenoFile.Lib, 'workspaceVersion'>;
 export type PublishedPackageVersion =
   | { kind: 'published'; version: string }
   | { kind: 'unpublished' };
@@ -113,10 +114,10 @@ export function augmentImportMapFromSpecifiers(
 }
 
 export function augmentTemplateDeps(
-  deps: DenoDep[],
+  deps: TDenoDeps.DenoDeps.Dep[],
   specifiers: string[],
   packageVersions: PackageVersions,
-): DenoDep[] {
+): TDenoDeps.DenoDeps.Dep[] {
   const next = [...deps];
 
   for (const specifier of specifiers) {
@@ -172,10 +173,10 @@ export function syncTemplatePackage(input: t.PkgNodeJson, source: t.PkgNodeJson)
 }
 
 export function syncTemplateDeps(
-  deps: DenoDep[],
+  deps: TDenoDeps.DenoDeps.Dep[],
   packageVersions: PackageVersions,
   source: t.PkgNodeJson,
-): DenoDep[] {
+): TDenoDeps.DenoDeps.Dep[] {
   const allSource = { ...(source.dependencies ?? {}), ...(source.devDependencies ?? {}) };
 
   return deps.map((dep) => {
@@ -427,7 +428,9 @@ export async function assertPublishedImportExports(
     const result = await published.exports(pkg, version);
     if (result.kind === 'unpublished') continue;
 
-    const keys = Object.keys(imports.imports).filter((key) => key === pkg || key.startsWith(`${pkg}/`));
+    const keys = Object.keys(imports.imports).filter((key) =>
+      key === pkg || key.startsWith(`${pkg}/`)
+    );
     const missing = keys
       .map((key) => {
         const exportKey = key === pkg ? '.' : `.${key.slice(pkg.length)}`;
@@ -439,7 +442,9 @@ export async function assertPublishedImportExports(
     if (missing.length > 0) {
       const available = Object.keys(result.exports).sort();
       throw new Error(
-        `Template import authority is ahead of published JSR exports for ${pkg}@${version}: missing ${missing.join(', ')}. Published exports: ${available.join(', ')}`,
+        `Template import authority is ahead of published JSR exports for ${pkg}@${version}: missing ${
+          missing.join(', ')
+        }. Published exports: ${available.join(', ')}`,
       );
     }
   }
@@ -507,10 +512,10 @@ function isSourceFile(path: string) {
 }
 
 function isBareSpecifier(specifier: string) {
-  return !specifier.startsWith('.')
-    && !specifier.startsWith('/')
-    && !specifier.startsWith('file:')
-    && !specifier.startsWith('data:');
+  return !specifier.startsWith('.') &&
+    !specifier.startsWith('/') &&
+    !specifier.startsWith('file:') &&
+    !specifier.startsWith('data:');
 }
 
 function stripComments(text: string) {

@@ -7,7 +7,7 @@ import { bindFoldMarks } from './u.bind.ts';
  * React hook that keeps Monaco fold regions ⇄ CRDT "fold" marks in sync.
  * Thin wrapper over the pure `bindFoldSync` function.
  */
-export const useFoldMarks: t.UseFoldMarks = (args) => {
+export const useFoldMarks: t.EditorFolding.Use = (args) => {
   const { editor, doc, path, bus$, enabled = true } = args;
   const pathKey = useMemo(() => Obj.hash(path), [path]);
 

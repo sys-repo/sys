@@ -1,4 +1,4 @@
-import type { CompositeHashLib } from './t.ts';
+import type { t } from './common.ts';
 
 import { FileHashUri as File } from './m.Uri.ts';
 import { builder } from './u.builder.ts';
@@ -12,11 +12,11 @@ export { FileHashUri } from './m.Uri.ts';
 /**
  * Tools for building composite hashes.
  */
-export const CompositeHash: CompositeHashLib = {
-  Uri: { File },
+export const CompositeHash: t.CompositeHash.Lib = Object.freeze({
+  Uri: Object.freeze({ File }),
   toComposite,
   builder,
   digest,
   verify,
   size,
-};
+});

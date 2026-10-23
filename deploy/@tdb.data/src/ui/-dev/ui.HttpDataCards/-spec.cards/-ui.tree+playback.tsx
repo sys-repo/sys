@@ -1,5 +1,6 @@
 import { renderTreePlaybackCard } from './-ui.tree+playback.card.tsx';
-import { type t, DataClient, Str } from './common.ts';
+import { DataClient, Str, type t } from './common.ts';
+import { responsePolicy } from './u.fixture.ts';
 
 type Params = {
   readonly kind: 'slug-tree:media:seq';
@@ -23,10 +24,12 @@ export const TreePlayback: t.ActionProbe.ProbeSpec<t.HttpDataCards.TEnv, Params>
   async run(e) {
     e.obj({ expand: { paths: ['$'] } });
 
+    const policy = responsePolicy(e.origin);
     const client = DataClient.fromDataset({
       origin: e.origin,
       dataset: e.dataset,
       docid: e.docid,
+      policy,
     });
 
     e.item({ k: 'origin', v: e.origin });
@@ -58,6 +61,7 @@ export const TreePlayback: t.ActionProbe.ProbeSpec<t.HttpDataCards.TEnv, Params>
       baseUrl: client.baseUrl,
       docid: ref as t.StringId,
       layout: client.layout,
+      policy,
     });
     const playback = await playbackClient.Timeline.Playback.load();
     if (!playback.ok) return e.result(playback);

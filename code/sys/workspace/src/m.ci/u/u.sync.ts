@@ -1,0 +1,207 @@
+import { WorkspacePrep } from '../../m.prep/mod.ts';
+import { runPhase } from '../../u.phase.ts';
+import { Cli, Fs, type t } from '../common.ts';
+import { Build } from '../m.Build/mod.ts';
+import { Fmt } from '../m.Fmt.ts';
+import { Jsr } from '../m.Jsr/mod.ts';
+import { Test } from '../m.Test/mod.ts';
+import { formatSyncResult } from './u.source.ts';
+
+type OTarget = {
+  readonly jsr: t.StringPath;
+  readonly build: t.StringPath;
+  readonly test: {
+    readonly linux: t.StringPath;
+    readonly windows: t.StringPath;
+  };
+};
+
+export type SyncDependencies = {
+  readonly ensureGraph: typeof WorkspacePrep.Graph.ensure;
+};
+
+const DEFAULT_DEPS: SyncDependencies = {
+  ensureGraph: WorkspacePrep.Graph.ensure,
+};
+
+export async function sync(args: t.WorkspaceCi.SyncArgs) {
+  return await syncWith(DEFAULT_DEPS, args);
+}
+
+/** Package-internal dependency seam for CI preparation. */
+export async function syncWith(deps: SyncDependencies, args: t.WorkspaceCi.SyncArgs) {
+  const cwd = args.cwd ?? Fs.cwd();
+  const silent = args.silent ?? false;
+  const sourcePaths = args.sourcePaths;
+  const versionFilter = args.versionFilter ?? 'all';
+  const ensureGraph = args.ensureGraph ?? true;
+  const targets = wrangle.targets(args.targets);
+  const on = args.on ?? wrangle.on(targets.jsr);
+  const jsrOn = args.jsrOn ?? wrangle.jsrOn();
+  const env = args.env ?? {};
+  const spinner = Cli.Spinner.create('');
+  const jsrPaths = await wrangle.jsrPaths(sourcePaths, cwd, args.jsrScopes);
+
+  try {
+    if (ensureGraph) {
+      await runPhase({
+        spinner,
+        label: 'ensuring workspace graph...',
+        silent,
+        fn: () => deps.ensureGraph({ cwd, silent: true }),
+      });
+    }
+
+    const jsr = await runPhase({
+      spinner,
+      label: 'syncing JSR workflow...',
+      silent,
+      fn() {
+        return Jsr.sync({
+          cwd,
+          env,
+          log: false,
+          on: jsrOn,
+          source: { paths: jsrPaths },
+          target: targets.jsr,
+          versionFilter,
+        });
+      },
+      done: (result) => formatSyncResult('jsr', result),
+    });
+
+    const build = await runPhase({
+      spinner,
+      label: 'syncing build workflow...',
+      silent,
+      fn() {
+        return Build.sync({
+          cwd,
+          env,
+          log: false,
+          on,
+          source: { paths: sourcePaths },
+          target: targets.build,
+        });
+      },
+      done: (result) => formatSyncResult('build', result),
+    });
+
+    const linux = await runPhase({
+      spinner,
+      label: 'syncing Linux test workflow...',
+      silent,
+      fn() {
+        return Test.Linux.sync({
+          cwd,
+          env,
+          log: false,
+          on,
+          source: { paths: sourcePaths },
+          target: targets.test.linux,
+        });
+      },
+      done: (result) => formatSyncResult('test:linux', result),
+    });
+
+    const windows = await runPhase({
+      spinner,
+      label: 'syncing Windows test workflow...',
+      silent,
+      fn() {
+        return Test.Windows.sync({
+          cwd,
+          log: false,
+          on,
+          source: { paths: sourcePaths },
+          target: targets.test.windows,
+        });
+      },
+      done: (result) => formatSyncResult('test:windows', result),
+    });
+
+    if (!silent) {
+      wrangle.log({
+        versionFilter,
+        final: args.final,
+        refreshedWorkspacePackageCount: args.prepared,
+        jsr,
+      });
+    }
+    return { jsr, build, test: { linux, windows } };
+  } finally {
+    spinner.stop();
+  }
+}
+
+const wrangle = {
+  async jsrPaths(paths: readonly t.StringPath[], cwd: t.StringDir, scopes?: readonly string[]) {
+    const results = await Promise.all(
+      paths.map(async (path) =>
+        (await Jsr.Is.publishable(path, cwd, { scopes })) ? path : undefined
+      ),
+    );
+    return results.filter((item): item is t.StringPath => !!item);
+  },
+
+  targets(targets: t.WorkspaceCi.SyncArgs['targets']): OTarget {
+    return {
+      jsr: targets?.jsr ?? '.github/workflows/jsr.yaml',
+      build: targets?.build ?? '.github/workflows/build.yaml',
+      test: {
+        linux: targets?.test?.linux ?? '.github/workflows/test.linux.yaml',
+        windows: targets?.test?.windows ?? '.github/workflows/test.windows.yaml',
+      },
+    };
+  },
+
+  on(jsrTarget: t.StringPath): t.WorkspaceCi.WorkflowOn {
+    return {
+      push: {
+        branches: ['main'],
+        paths_ignore: [jsrTarget],
+      },
+    };
+  },
+
+  jsrOn(): t.WorkspaceCi.WorkflowOn {
+    return {
+      push: {
+        tags: ['jsr-publish', 'jsr-publish-main'],
+      },
+      workflow_dispatch: true,
+    };
+  },
+
+  log(args: {
+    readonly versionFilter: t.WorkspaceCi.Jsr.VersionFilter;
+    readonly final?: boolean;
+    readonly refreshedWorkspacePackageCount?: number;
+    readonly jsr: t.WorkspaceCi.SyncResult;
+  }) {
+    const commit = args.versionFilter === 'ahead'
+      ? 'chore(ci): refresh ahead-only GitHub workflow outputs'
+      : 'chore(ci): refresh generated GitHub workflow outputs';
+    const suggestion = Cli.Fmt.Commit.suggestion(commit, {
+      title: false,
+      message: { color: 'gray' },
+    });
+    console.info();
+    console.info(`  ${suggestion}`);
+
+    if (!args.final || typeof args.refreshedWorkspacePackageCount !== 'number') {
+      console.info();
+      return;
+    }
+
+    console.info();
+    console.info(Cli.Fmt.hr('cyan'));
+    console.info(
+      Fmt.finalCommitSuggestion({
+        refreshedWorkspacePackageCount: args.refreshedWorkspacePackageCount,
+        jsrPublishModuleCount: args.jsr.count,
+      }),
+    );
+    console.info();
+  },
+} as const;

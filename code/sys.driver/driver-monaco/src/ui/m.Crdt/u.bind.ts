@@ -18,7 +18,7 @@ const logInfo = Log.logger('crdt: u.bind', { enabled: DEBUG_LOG });
  *  - A tiny "echo-guard" (`isPulling`) stops the two flows looping on each
  *    other while still keeping both worlds fully undoable.
  */
-export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
+export const bind: t.EditorCrdt.Lib['bind'] = async (args, until) => {
   const { editor, doc, path } = args;
   const life = Rx.lifecycle(until);
   const schedule = Schedule.make(life, 'micro');
@@ -161,7 +161,7 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
   /**
    * API:
    */
-  return Rx.toLifecycle<t.EditorCrdtBinding>(life, {
+  return Rx.toLifecycle<t.EditorCrdt.Binding.Instance>(life, {
     $,
     doc,
     path,
@@ -175,9 +175,9 @@ export const bind: t.EditorCrdtLib['bind'] = async (args, until) => {
 const wrangle = {
   noop(life: t.Lifecycle, doc: t.CrdtRef, path: t.ObjectPath) {
     const model = {} as any;
-    return Rx.toLifecycle<t.EditorCrdtBinding>(life, { $: Rx.EMPTY, doc, path, model });
+    return Rx.toLifecycle<t.EditorCrdt.Binding.Instance>(life, { $: Rx.EMPTY, doc, path, model });
   },
-  change(before: string, after: string): t.EventCrdtText['change'] {
+  change(before: string, after: string): t.EditorEvent.Crdt.Text['change'] {
     return {
       get before() {
         return before;

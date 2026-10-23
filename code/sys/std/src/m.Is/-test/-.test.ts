@@ -1,4 +1,5 @@
-import { type t, describe, expect, it } from '../../-test.ts';
+import { runInNewContext } from 'node:vm';
+import { describe, expect, it, type t } from '../../-test.ts';
 import {
   isEmptyRecord,
   isObject,
@@ -6,7 +7,9 @@ import {
   isPlainRecord,
   isPromise,
   isRecord,
+  isSymbol,
 } from '../../common.ts';
+import { Dispose } from '../../m.Dispose/mod.ts';
 import { Rx } from '../../m.Rx/mod.ts';
 import { Url } from '../../m.Url/mod.ts';
 import { Err } from '../../m.Err/mod.ts';
@@ -20,6 +23,7 @@ describe('Is (common flags)', () => {
     expect(Is.plainObject).to.eql(isPlainObject);
     expect(Is.plainRecord).to.eql(isPlainRecord);
     expect(Is.promise).to.eql(isPromise);
+    expect(Is.symbol).to.eql(isSymbol);
     expect(Is.num).to.eql(Is.number);
   });
 
@@ -61,6 +65,25 @@ describe('Is (common flags)', () => {
     }
   });
 
+  it('Is.waitableHandle', () => {
+    const test = (input: unknown, expected: boolean) => {
+      expect(Is.waitableHandle(input)).to.eql(expected);
+    };
+
+    test(undefined, false);
+    test(null, false);
+    test({}, false);
+    test({ finished: 123 }, false);
+    test({ finished: Promise.resolve() }, true);
+    test({ finished: { then: () => null } }, true);
+
+    const handle = { finished: Promise.resolve() } as unknown;
+    if (Is.waitableHandle(handle)) {
+      const finished: PromiseLike<unknown> = handle.finished;
+      expect(Is.promise(finished)).to.eql(true);
+    }
+  });
+
   it('Is.numeric', () => {
     const assert = (value: unknown, expected: boolean) => {
       expect(Is.numeric(value)).to.eql(expected);
@@ -96,6 +119,14 @@ describe('Is (common flags)', () => {
 
     const NON = ['', 123, true, BigInt(0), Symbol('foo'), {}, []];
     NON.forEach((v: any) => test(v, false));
+  });
+
+  it('Is.symbol', () => {
+    const symbol = Symbol('foo');
+    expect(Is.symbol(symbol)).to.eql(true);
+
+    const NON = ['', 123, true, null, undefined, BigInt(0), {}, []];
+    NON.forEach((value) => expect(Is.symbol(value)).to.eql(false));
   });
 
   it('Is.falsy', () => {
@@ -164,14 +195,22 @@ describe('Is (common flags)', () => {
   describe('Is.uint8Array', () => {
     const binary = new Uint8Array([1, 2, 3]);
 
-    it('is not Uint8Array', () => {
+    it('rejects non-views and forged view tags', () => {
       const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
       NON.forEach((v) => expect(Is.uint8Array(v)).to.eql(false));
       expect(Is.uint8Array(binary.buffer)).to.eql(false);
+      expect(Is.uint8Array({ [Symbol.toStringTag]: 'Uint8Array' })).to.eql(false);
+
+      const uint16 = new Uint16Array([1, 2, 3]);
+      Object.defineProperty(uint16, Symbol.toStringTag, { value: 'Uint8Array' });
+      expect(Is.uint8Array(uint16)).to.eql(false);
     });
 
-    it('is Uint8Array', () => {
+    it('admits same-realm and cross-realm Uint8Array values', () => {
+      const foreign = runInNewContext('new Uint8Array([1, 2, 3])');
+
       expect(Is.uint8Array(binary)).to.eql(true);
+      expect(Is.uint8Array(foreign)).to.eql(true);
     });
   });
 
@@ -258,24 +297,130 @@ describe('Is (common flags)', () => {
     });
   });
 
-  describe('Is.disposable', () => {
-    it('Is.disposable: true', () => {
-      const disposable = Rx.disposable();
-      const life = Rx.lifecycle();
-      expect(Is.disposable(disposable)).to.be.true;
-      expect(Is.disposable(life)).to.be.true;
+  describe('Is.lifecycleView', () => {
+    it('accepts observable terminal state without requiring authority', () => {
+      const lifecycle = Rx.lifecycle();
+      const plain: t.LifecycleView = {
+        disposed: false,
+        dispose$: Rx.subject<t.DisposeEvent>(),
+      };
+      const inherited = Object.create({
+        disposed: false,
+        dispose$: Rx.subject<t.DisposeEvent>(),
+      });
+      for (const input of [lifecycle, plain, inherited]) {
+        expect(Is.lifecycleView(input)).to.eql(true);
+      }
+
+      const input: unknown = plain;
+      if (Is.lifecycleView(input)) {
+        const view: t.LifecycleView = input;
+        expect(view.disposed).to.eql(false);
+      }
     });
 
-    it('Is.disposable: false', () => {
-      const NON = ['', 123, true, null, undefined, BigInt(0), Symbol('foo'), {}, []];
+    it('rejects malformed state and asynchronous category markers', () => {
+      const dispose$ = Rx.subject<t.DisposeEvent>();
+      const asyncLifecycle = Rx.lifecycleAsync();
+      const undefinedAsyncKey = {
+        disposed: false,
+        dispose$,
+        [Symbol.asyncDispose]: undefined,
+      };
+      const NON = [
+        '',
+        123,
+        true,
+        null,
+        undefined,
+        {},
+        [],
+        { dispose$ },
+        { disposed: false },
+        { disposed: 'false', dispose$ },
+        { disposed: false, dispose$: {} },
+        undefinedAsyncKey,
+        { disposed: false, dispose$, [Symbol.asyncDispose]: 123 },
+        { disposed: false, dispose$, [Symbol.asyncDispose]: async () => {} },
+        asyncLifecycle,
+      ];
+
+      NON.forEach((value) => expect(Is.lifecycleView(value)).to.eql(false));
+    });
+  });
+
+  describe('Is.disposable', () => {
+    it('accepts authority-only values and full lifecycles', () => {
+      const disposable: t.Disposable = {
+        dispose() {},
+        [Symbol.dispose]() {},
+      };
+      const life = Rx.lifecycle();
+      const inherited = Object.assign(
+        Object.create({
+          [Symbol.dispose]() {},
+        }),
+        { dispose() {} },
+      );
+      const undefinedAsyncKey = {
+        dispose() {},
+        [Symbol.dispose]() {},
+        [Symbol.asyncDispose]: undefined,
+      };
+
+      expect('dispose$' in disposable).to.eql(false);
+      expect('disposed' in disposable).to.eql(false);
+      expect(Is.disposable(disposable)).to.be.true;
+      expect(Is.disposable(life)).to.be.true;
+      expect(Is.disposable(inherited)).to.be.true;
+      expect(Is.disposable(undefinedAsyncKey)).to.be.true;
+    });
+
+    it('rejects missing, malformed, and opposite-protocol authority', () => {
+      const dispose$ = Rx.subject<t.DisposeEvent>();
+      const inheritedAsync = Object.assign(
+        Object.create({
+          [Symbol.asyncDispose]: async () => {},
+        }),
+        {
+          dispose() {},
+          [Symbol.dispose]() {},
+        },
+      );
+      const NON = [
+        '',
+        123,
+        true,
+        null,
+        undefined,
+        BigInt(0),
+        Symbol('foo'),
+        {},
+        [],
+        { dispose() {} },
+        { dispose() {}, dispose$ },
+        { dispose() {}, [Symbol.asyncDispose]: async () => {} },
+        { dispose() {}, [Symbol.dispose]: 123 },
+        { dispose() {}, [Symbol.dispose]() {}, [Symbol.asyncDispose]: 123 },
+        {
+          dispose() {},
+          [Symbol.dispose]() {},
+          [Symbol.asyncDispose]: async () => {},
+        },
+        inheritedAsync,
+        { [Symbol.dispose]() {} },
+      ];
       NON.forEach((value) => expect(Is.disposable(value)).to.eql(false));
     });
   });
 
   describe('Is.disposableLike', () => {
     it('Is.disposableLike: true (canonical + plain)', () => {
-      const disposable = Rx.disposable(); // canonical
-      const life = Rx.lifecycle(); // canonical
+      const disposable: t.Disposable = {
+        dispose() {},
+        [Symbol.dispose]() {},
+      };
+      const life = Rx.lifecycle();
       const plain = { dispose() {} }; // plain dispose-only
 
       expect(Is.disposableLike(disposable)).to.be.true;
@@ -283,7 +428,7 @@ describe('Is (common flags)', () => {
       expect(Is.disposableLike(plain)).to.be.true;
 
       // Cross-check boundary with canonical:
-      expect(Is.disposable(plain)).to.be.false; // no dispose$
+      expect(Is.disposable(plain)).to.be.false; // no protocol authority
     });
 
     it('Is.disposableLike: false (non-functions / non-objects)', () => {
@@ -539,9 +684,15 @@ describe('Is (common flags)', () => {
       expect(Is.until(null)).to.eql(false);
     });
 
-    it('accepts a Disposable', () => {
-      const disposable: t.Disposable = Rx.disposable();
-      expect(Is.until(disposable)).to.eql(true);
+    it('accepts lifecycle observation and state', () => {
+      const lifecycle = Rx.lifecycle();
+      const view: t.LifecycleView = {
+        disposed: false,
+        dispose$: Rx.subject<t.DisposeEvent>(),
+      };
+
+      expect(Is.until(lifecycle)).to.eql(true);
+      expect(Is.until(view)).to.eql(true);
     });
 
     it('accepts an Observable', () => {
@@ -554,18 +705,29 @@ describe('Is (common flags)', () => {
       expect(Is.until(subject)).to.eql(true);
     });
 
-    it('accepts arrays of until values', () => {
-      const d: t.Disposable = Rx.disposable();
-      const s: t.Subject<unknown> = Rx.subject();
-      expect(Is.until([d, s])).to.eql(true);
-      expect(Is.until([[d], [s]])).to.eql(true);
+    it('accepts an AbortSignal', () => {
+      const signal = new AbortController().signal;
+      expect(Is.until(signal)).to.eql(true);
+    });
+
+    it('accepts recursive arrays of until values', () => {
+      const lifecycle = Rx.lifecycle();
+      const view: t.LifecycleView = {
+        disposed: false,
+        dispose$: Rx.subject<t.DisposeEvent>(),
+      };
+      const subject: t.Subject<unknown> = Rx.subject();
+      const signal = new AbortController().signal;
+
+      expect(Is.until([lifecycle, view, subject, signal])).to.eql(true);
+      expect(Is.until([[lifecycle], [view, subject], [signal]])).to.eql(true);
     });
 
     it('rejects arrays containing non-until values', () => {
-      const d: t.Disposable = Rx.disposable();
-      expect(Is.until([d, undefined])).to.eql(false);
-      expect(Is.until([d, null])).to.eql(false);
-      expect(Is.until([d, 123])).to.eql(false);
+      const lifecycle = Rx.lifecycle();
+      expect(Is.until([lifecycle, undefined])).to.eql(false);
+      expect(Is.until([lifecycle, null])).to.eql(false);
+      expect(Is.until([lifecycle, 123])).to.eql(false);
     });
 
     it('rejects primitive and unrelated values', () => {
@@ -573,6 +735,76 @@ describe('Is (common flags)', () => {
       expect(Is.until('abc')).to.eql(false);
       expect(Is.until({})).to.eql(false);
       expect(Is.until(() => {})).to.eql(false);
+    });
+
+    it('rejects owners without state and direct async lifecycle objects', () => {
+      const dispose$ = Rx.subject<t.DisposeEvent>();
+      const authorityOnly: t.Disposable = { dispose() {}, [Symbol.dispose]() {} };
+      const disposable = { dispose() {}, dispose$, [Symbol.dispose]() {} };
+      const observableWithoutState = { dispose() {}, dispose$ };
+      const asyncLifecycle = Rx.lifecycleAsync();
+      const asyncProjection = Dispose.omitDispose(asyncLifecycle);
+      const hybrid = {
+        disposed: false,
+        dispose() {},
+        dispose$,
+        [Symbol.dispose]() {},
+        [Symbol.asyncDispose]: async () => {},
+      };
+      const nativeOnly = { [Symbol.dispose]() {} };
+
+      for (
+        const input of [
+          authorityOnly,
+          disposable,
+          observableWithoutState,
+          asyncLifecycle,
+          asyncProjection,
+          hybrid,
+          nativeOnly,
+        ]
+      ) {
+        expect(Is.until(input)).to.eql(false);
+        expect(Is.untilInput(input)).to.eql(false);
+      }
+      expect(Is.until(asyncLifecycle.dispose$)).to.eql(true);
+      expect(Is.untilInput(asyncLifecycle.dispose$)).to.eql(true);
+    });
+  });
+
+  describe('Is.untilInput', () => {
+    it('accepts undefined as an omitted API parameter', () => {
+      expect(Is.untilInput(undefined)).to.eql(true);
+    });
+
+    it('accepts concrete until values and recursive undefined placeholders', () => {
+      const lifecycle = Rx.lifecycle();
+      const view: t.LifecycleView = {
+        disposed: false,
+        dispose$: Rx.subject<t.DisposeEvent>(),
+      };
+      const subject: t.Subject<unknown> = Rx.subject();
+      const signal = new AbortController().signal;
+
+      expect(Is.untilInput(lifecycle)).to.eql(true);
+      expect(Is.untilInput(view)).to.eql(true);
+      expect(Is.untilInput(subject)).to.eql(true);
+      expect(Is.untilInput(signal)).to.eql(true);
+      expect(Is.untilInput([lifecycle, undefined, [view, subject, signal]])).to.eql(true);
+    });
+
+    it('rejects stateless disposal, null, primitives, and unrelated values', () => {
+      const disposable = {
+        dispose() {},
+        dispose$: Rx.subject<t.DisposeEvent>(),
+        [Symbol.dispose]() {},
+      };
+      expect(Is.untilInput(disposable)).to.eql(false);
+      expect(Is.untilInput([disposable])).to.eql(false);
+      expect(Is.untilInput(null)).to.eql(false);
+      expect(Is.untilInput(42)).to.eql(false);
+      expect(Is.untilInput('abc')).to.eql(false);
+      expect(Is.untilInput({})).to.eql(false);
     });
   });
 

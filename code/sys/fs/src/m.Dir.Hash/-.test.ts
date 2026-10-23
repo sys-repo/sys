@@ -46,7 +46,7 @@ describe('Dir.Hash', () => {
       }
     });
 
-    it('computer → with filtered set of files', async () => {
+    it('compute → with filtered set of files', async () => {
       const sample = await Sample.init();
       const dir = sample.dir;
 
@@ -63,7 +63,7 @@ describe('Dir.Hash', () => {
     it('compute → progress callback reports current/total for hashed files', async () => {
       const sample = await Sample.init();
       const dir = sample.dir;
-      const seen: t.DirHashComputeProgressEvent[] = [];
+      const seen: t.Dir.Hash.Compute.ProgressEvent[] = [];
 
       const res = await DirHash.compute(dir, {
         onProgress: (e) => {
@@ -141,7 +141,7 @@ describe('Dir.Hash', () => {
       const dir = sample.dir;
       const hash = (await DirHash.compute(dir)).hash;
       const keys = Object.keys(hash.parts);
-      (hash.parts as any)[keys[0]] = '0xHackedChange';
+      (hash.parts as t.DeepMutable<t.CompositeHashParts>)[keys[0]] = '0xHackedChange';
 
       const res = await DirHash.verify(dir, hash);
       expect(res.is.valid).to.eql(false);
@@ -152,7 +152,7 @@ describe('Dir.Hash', () => {
       const sample = await Sample.init();
       const dir = sample.dir;
       const hash = (await DirHash.compute(dir)).hash;
-      (hash.parts as any)['./_404_.html'] = '0x123'; // NB: this file does not exist - should not cause file-system load error.
+      (hash.parts as t.DeepMutable<t.CompositeHashParts>)['./_404_.html'] = '0x123'; // NB: this file does not exist - should not cause file-system load error.
 
       const res = await DirHash.verify(dir, hash);
       expect(res.is.valid).to.eql(false);
@@ -186,7 +186,8 @@ describe('Dir.Hash', () => {
         const dir = sample.dir;
         const test = async (json: t.Json) => {
           await sample.file.main.delete();
-          Deno.writeTextFile(sample.file.main.path, JSON.stringify(json));
+          const written = await Fs.writeJson(sample.file.main.path, json);
+          expect(written.error).to.eql(undefined);
           const res = await DirHash.verify(dir, './main.ts');
           expect(res.error?.message).to.include('File does not contain a { hash:');
         };

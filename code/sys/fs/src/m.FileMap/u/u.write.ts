@@ -1,0 +1,204 @@
+import { D, Delete, Fs, Path, type t } from '../common.ts';
+
+import { Data } from '../m.Data.ts';
+import { Is } from '../m.Is.ts';
+import { validate } from './u.validate.ts';
+
+export async function write(
+  map: t.FileMap,
+  dir: t.StringDir,
+  options: t.FileMap.Write.Options = {},
+): Promise<t.FileMap.Write.Result> {
+  const { force = D.force, dryRun = D.dryRun, ctx, processFile } = options;
+
+  // Validate the input FileMap once (fail fast with a clear error):
+  const parsed = validate(map);
+  if (parsed.error) throw parsed.error;
+  map = parsed.fileMap!;
+
+  const ops: t.FileMap.Write.Op.Any[] = [];
+  const pushOp = (op: t.FileMap.Write.Op.Any, forced?: boolean) => {
+    op = {
+      ...op,
+      forced: forced === true ? true : undefined,
+      dryRun: dryRun ? true : undefined,
+    };
+    ops.push(Delete.undefined(op));
+  };
+
+  for (const [origKey, dataUri] of Object.entries(map)) {
+    let relative = origKey as t.StringPath;
+
+    // Decode payload → normalize shape (text vs binary) by MIME.
+    const contentType = Data.contentType.fromUri(dataUri as t.StringUri);
+    const decoded = Data.decode(dataUri as t.StringUri);
+
+    const isText = Is.contentType.string(contentType);
+    let text: string | undefined;
+    let bytes: Uint8Array | undefined;
+
+    if (isText) {
+      text = typeof decoded === 'string' ? decoded : new TextDecoder().decode(decoded);
+      bytes = undefined;
+    } else {
+      bytes = typeof decoded === 'string' ? new TextEncoder().encode(decoded) : decoded;
+      text = undefined;
+    }
+
+    // Mutability flags for host processing:
+    let skipped = false;
+    let skippedReason: string | undefined;
+    let silentRename: boolean | undefined = false;
+    let prevPath: t.StringPath | undefined; // ← for rename modifications.
+    let changed = false; //                    ← set true if processFile calls e.modify().
+
+    const absolute = () => Path.resolve(Path.join(dir, relative));
+    const exists = async () => (await Fs.exists(absolute())) === true;
+
+    const args: t.FileMap.Write.Processor.Args = {
+      path: origKey as t.StringPath,
+      contentType,
+      get text() {
+        return text;
+      },
+      bytes,
+      target: {
+        dir,
+        get absolute() {
+          return absolute();
+        },
+        get relative() {
+          return relative;
+        },
+        get filename() {
+          return Path.basename(relative);
+        },
+        async exists() {
+          return exists();
+        },
+        rename(next, silent) {
+          prevPath = relative;
+          relative = next as t.StringPath;
+          silentRename = silent;
+        },
+      },
+      ctx,
+      skip(reason?: string) {
+        skipped = true;
+        skippedReason = reason;
+      },
+      modify(next: string | Uint8Array) {
+        changed = true;
+        if (isText) {
+          // Text branch:
+          if (typeof next !== 'string') {
+            throw new Error('Expected string content to update text-file');
+          }
+          text = next;
+          bytes = undefined;
+          return;
+        } else {
+          // Binary branch:
+          if (!(next instanceof Uint8Array)) {
+            throw new Error('Expected Uint8Array content to update binary-file');
+          }
+          bytes = next;
+          text = undefined;
+        }
+      },
+    };
+
+    // Host transforms:
+    if (processFile) {
+      await processFile(args);
+    }
+
+    // Existence check at the final (possibly renamed) path:
+    const existedBefore = await exists();
+    let wrote = false;
+    let forcedWrite = false;
+
+    /**
+     * Write:
+     */
+    if (!dryRun && !skipped) {
+      if (existedBefore && !force && !changed) {
+        // NO-OP: unchanged (skip recorded later in resolver)
+      } else {
+        await Fs.ensureDir(Path.dirname(absolute()));
+        const outBytes = isText ? new TextEncoder().encode(text ?? '') : bytes ?? new Uint8Array();
+        await Fs.write(absolute(), outBytes);
+        wrote = true;
+        forcedWrite = force && existedBefore;
+      }
+    }
+
+    // Compute write-kind:
+    const wouldWrite = dryRun && existedBefore && (changed || force);
+    let kind: t.FileMap.Write.Op.Any['kind'];
+    if (skipped) {
+      kind = 'skip';
+    } else if (!existedBefore) {
+      kind = 'create';
+    } else if (existedBefore && (wrote || wouldWrite)) {
+      kind = 'modify';
+    } else {
+      kind = 'skip'; // (unchanged)
+    }
+
+    // Resolve single op:
+    const forced = forcedWrite || (dryRun && force && existedBefore && kind === 'modify');
+    const common = {
+      dryRun: dryRun || undefined,
+      forced: forced || undefined,
+    } satisfies t.FileMap.Write.Op.Common;
+
+    // Attach renamed meta only on writes (create/modify) and only if path actually changed.
+    const renamed = prevPath && prevPath !== relative && (kind === 'create' || kind === 'modify')
+      ? Delete.undefined<t.FileMap.Write.Op.Renamed>({ from: prevPath, silent: silentRename })
+      : undefined;
+
+    let resolved: t.FileMap.Write.Op.Any;
+    if (kind === 'create') {
+      resolved = { kind: 'create', path: relative, renamed, ...common };
+    } else if (kind === 'modify') {
+      resolved = { kind: 'modify', path: relative, renamed, ...common };
+    } else {
+      resolved = {
+        kind: 'skip',
+        path: relative,
+        reason: skipped ? skippedReason : 'unchanged',
+        ...common,
+      };
+    }
+
+    pushOp(resolved, forcedWrite);
+  }
+
+  /**
+   * API:
+   */
+  let _total: t.FileMap.Write.Result['total'] | undefined;
+  return {
+    ops,
+    get total() {
+      return _total || (_total = wrangle.total(ops));
+    },
+  };
+}
+
+/**
+ * Helpers:
+ */
+const wrangle = {
+  total(ops: t.FileMap.Write.Op.Any[]): t.FileMap.Write.Result['total'] {
+    type Total = { [K in t.FileMap.Write.Op.Any['kind']]: number };
+    return ops.reduce<Total>(
+      (acc, o) => {
+        acc[o.kind] = (acc[o.kind] ?? 0) + 1;
+        return acc;
+      },
+      { create: 0, modify: 0, skip: 0 },
+    );
+  },
+} as const;

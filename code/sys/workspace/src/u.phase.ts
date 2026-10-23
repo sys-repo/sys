@@ -1,7 +1,7 @@
-import { type t, c, Cli, Time } from './common.ts';
+import { c, Cli, type t, Time } from './common.ts';
 
 export async function runPhase<T>(args: {
-  readonly spinner: t.CliSpinner.Instance;
+  readonly spinner: t.Cli.Spinner.Instance;
   readonly label: string;
   readonly silent: boolean;
   readonly render?: 'spinner' | 'line';

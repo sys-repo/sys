@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 import { Wrangle } from './u.wrangle.ts';
 import { FileHashUri } from './m.Uri.ts';
 
-export const digest: t.CompositeHashLib['digest'] = (parts, options = {}) => {
+export const digest: t.CompositeHash.Lib['digest'] = (parts, options = {}) => {
   const hashes: string[] = [];
   Object.keys(parts)
     .sort()

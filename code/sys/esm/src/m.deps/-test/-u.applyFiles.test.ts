@@ -1,7 +1,43 @@
-import { type t, Deps, describe, expect, Fs, it, Testing } from './common.ts';
+import { Deps, describe, expect, expectError, Fs, it, type t, Testing } from './common.ts';
 
 describe('Deps.applyFiles', () => {
   type DenoConfigJson = { imports?: Record<string, string>; tasks?: Record<string, string> };
+
+  it('YAML write failure → rejects and leaves later projection targets unchanged', async () => {
+    const fs = await Testing.dir('EsmDeps.applyFiles.writeFailure');
+    const depsPath = fs.join('deps.yaml');
+    const denoPath = fs.join('deno.json');
+    const importMapPath = fs.join('imports.json');
+    const packagePath = fs.join('package.json');
+    const entries = [
+      Deps.toEntry('npm:react@19.0.0', { target: ['deno.json', 'package.json'] }),
+    ];
+    await Fs.ensureDir(depsPath);
+    await Fs.writeJson(denoPath, { importMap: './imports.json' }, { throw: true });
+    await Fs.writeJson(importMapPath, { imports: { react: 'npm:react@18.2.0' } }, { throw: true });
+    await Fs.writeJson(packagePath, { dependencies: { react: '18.2.0' } }, { throw: true });
+    const targets = [denoPath, importMapPath, packagePath];
+    const before = [];
+    for (const path of targets) {
+      const file = await Fs.readText(path);
+      expect(file.ok).to.eql(true);
+      before.push(file.data);
+    }
+
+    await expectError(() =>
+      Deps.applyFiles(
+        { depsPath, denoFilePath: denoPath, packageFilePath: packagePath },
+        entries,
+      )
+    );
+    const after = [];
+    for (const path of targets) {
+      const file = await Fs.readText(path);
+      expect(file.ok).to.eql(true);
+      after.push(file.data);
+    }
+    expect(after).to.eql(before);
+  });
 
   it('writes deps.yaml and projected deno imports together', async () => {
     const fs = await Testing.dir('EsmDeps.applyFiles');
@@ -78,11 +114,13 @@ describe('Deps.applyFiles', () => {
     expect(depsFile.data).to.eql(res.yaml.yaml.text);
     expect(depsFile.data).to.include('subpaths:');
     expect(parsed.error).to.eql(undefined);
-    expect(parsed.data?.entries.map((entry) => ({
-      module: entry.module.toString(),
-      target: entry.target,
-      subpaths: entry.subpaths,
-    }))).to.eql([
+    expect(
+      parsed.data?.entries.map((entry) => ({
+        module: entry.module.toString(),
+        target: entry.target,
+        subpaths: entry.subpaths,
+      })),
+    ).to.eql([
       {
         module: 'jsr:@std/path@1.1.4',
         target: ['deno.json'],
@@ -145,6 +183,77 @@ describe('Deps.applyFiles', () => {
       '@local/ui': uiPath,
     });
     expect(packageFile.data?.dependencies).to.eql({ react: '19.0.0' });
+  });
+
+  it('projects package policy through deps.yaml and package.json', async () => {
+    const fs = await Testing.dir('EsmDeps.applyFiles.packagePolicy');
+    const depsPath = fs.join('deps.yaml');
+    const denoPath = fs.join('deno.json');
+    const packagePath = fs.join('package.json');
+    const entries = [Deps.toEntry('npm:react@19.2.6', { target: 'package.json' })];
+    const packageJson: t.EsmDeps.PackageJsonPolicy = {
+      overrides: {
+        'monaco-editor': { dompurify: '3.4.0' },
+      },
+    };
+
+    await Fs.writeJson(denoPath, { name: 'package-policy-app' });
+    await Fs.writeJson(packagePath, { name: 'package-policy-app' });
+
+    const res = await Deps.applyFiles(
+      { depsPath, denoFilePath: denoPath, packageFilePath: packagePath, packageJson },
+      entries,
+    );
+    const depsFile = await Fs.readText(depsPath);
+    const packageFile = await Fs.readJson<t.PkgNodeJson>(packagePath);
+    const parsed = await Deps.from(depsFile.data ?? '');
+
+    expect(res.package?.overrides).to.eql({
+      'monaco-editor': { dompurify: '3.4.0' },
+    });
+    expect(parsed.data?.packageJson).to.eql(packageJson);
+    expect(packageFile.data?.overrides).to.eql({
+      'monaco-editor': { dompurify: '3.4.0' },
+    });
+  });
+
+  it('uses top-level package policy as the single multi-file projection authority', async () => {
+    const fs = await Testing.dir('EsmDeps.applyFiles.packagePolicyAuthority');
+    const depsPath = fs.join('deps.yaml');
+    const denoPath = fs.join('deno.json');
+    const packagePath = fs.join('package.json');
+    const entries = [Deps.toEntry('npm:react@19.2.6', { target: 'package.json' })];
+
+    await Fs.writeJson(denoPath, { name: 'package-policy-authority-app' });
+    await Fs.writeJson(packagePath, { name: 'package-policy-authority-app' });
+
+    const res = await Deps.applyFiles(
+      {
+        depsPath,
+        denoFilePath: denoPath,
+        packageFilePath: packagePath,
+        yaml: {
+          groupBy: () => undefined,
+        },
+        packageJson: {
+          overrides: {
+            'monaco-editor': { dompurify: '3.4.0' },
+          },
+        },
+      },
+      entries,
+    );
+    const parsed = await Deps.from(res.yaml.yaml.text);
+    const packageFile = await Fs.readJson<t.PkgNodeJson>(packagePath);
+
+    expect(parsed.data?.packageJson).to.eql({
+      overrides: {
+        'monaco-editor': { dompurify: '3.4.0' },
+      },
+    });
+    expect(packageFile.data?.overrides).to.eql({
+      'monaco-editor': { dompurify: '3.4.0' },
+    });
   });
 
   it('does not write package.json unless a package target is explicitly provided', async () => {

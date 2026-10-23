@@ -1,4 +1,4 @@
-import { type t, Duration } from '../common.ts';
+import { Duration, type t } from '../common.ts';
 import type { TimecodeSliceBound, TimeWindow } from './t.ts';
 import { is } from './u.is.ts';
 import { parse } from './u.parse.ts';
@@ -11,7 +11,7 @@ import { toHms } from './u.ts';
  * - For raw strings: trims and normalizes spacing around the ".." delimiter.
  *   (No validation beyond single-delimiter split.)
  */
-export const toString: t.TimecodeSliceLib['toString'] = (slice = '') => {
+export const toString: t.Timecode.Slice.Lib['toString'] = (slice = '') => {
   if (typeof slice === 'string') {
     const raw = slice.trim();
     const i = raw.indexOf('..');
@@ -41,7 +41,7 @@ export const toString: t.TimecodeSliceLib['toString'] = (slice = '') => {
  * - Otherwise: emit absolute HH:MM:SS(.mmm) for both ends.
  * - Prefers explicit end when start is open (avoids returning just "..").
  */
-export const from: t.TimecodeSliceLib['from'] = (window: TimeWindow, total?: t.Msecs) => {
+export const from: t.Timecode.Slice.Lib['from'] = (window: TimeWindow, total?: t.Msecs) => {
   const { from, to } = window;
   const hasTotal = typeof total === 'number';
   const openStart = hasTotal && Number(from) === 0;
@@ -56,7 +56,7 @@ export const from: t.TimecodeSliceLib['from'] = (window: TimeWindow, total?: t.M
  * Split a slice string (e.g. "00:00:05..00:00:10", "..00:00:10", "00:00:05..")
  * into friendly {start,end} parts without validation.
  */
-export const split: t.TimecodeSliceLib['split'] = (input) => {
+export const split: t.Timecode.Slice.Lib['split'] = (input) => {
   // Normalize to a canonical string first (supports raw string or parsed slice)
   const s = typeof input === 'string' ? input.trim() : input ? toString(input) : '';
   if (!s) return { start: '', end: '' };
@@ -76,7 +76,7 @@ export const split: t.TimecodeSliceLib['split'] = (input) => {
 /**
  * Compute duration between slice bounds.
  */
-export const duration: t.TimecodeSliceLib['duration'] = (input, opts = {}) => {
+export const duration: t.Timecode.Slice.Lib['duration'] = (input, opts = {}) => {
   const { total, unit, round } = opts;
   const parsed = ensureParsed(input);
   if (!parsed) return undefined;
@@ -85,8 +85,9 @@ export const duration: t.TimecodeSliceLib['duration'] = (input, opts = {}) => {
   if (!win) return undefined;
 
   const ms = Math.max(0, Number(win.to) - Number(win.from)) as t.Msecs;
-  const text =
-    unit != null ? Duration.format(ms, unit, round ?? 0) : Duration.create(ms).format({ round });
+  const text = unit != null
+    ? Duration.format(ms, unit, round ?? 0)
+    : Duration.create(ms).format({ round });
 
   return { ms, text };
 };
@@ -95,7 +96,7 @@ export const duration: t.TimecodeSliceLib['duration'] = (input, opts = {}) => {
  * Compute formatted start/end summaries for a slice.
  * - Returns undefined if slice cannot be resolved.
  */
-export const positions: t.TimecodeSliceLib['positions'] = (input, opts = {}) => {
+export const positions: t.Timecode.Slice.Lib['positions'] = (input, opts = {}) => {
   const { total, round } = opts;
   const parsed = ensureParsed(input);
   if (!parsed) return undefined;

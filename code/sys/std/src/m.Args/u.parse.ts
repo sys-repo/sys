@@ -1,14 +1,16 @@
 import { type t } from './common.ts';
 
-type O = Record<string, any>;
+type O = Record<string, unknown>;
+
+type ParsedMutable = Record<string, unknown> & { _: string[] };
 
 /**
  * Parse command line arguments.
  */
 export function parseArgs<T extends O = O>(
   argv: string[] = [],
-  options: t.ParseArgsOptions = {},
-): t.ParsedArgs<T> {
+  options: t.Args.Parse.Options = {},
+): t.Args.Parse.Result<T> {
   const {
     boolean = [],
     string = [],
@@ -19,8 +21,7 @@ export function parseArgs<T extends O = O>(
   } = options;
 
   // The result object starts with an empty positional args array.
-  type TAny = Record<string, any>;
-  const result: t.ParsedArgs<TAny> = { _: [] };
+  const result: ParsedMutable = { _: [] };
 
   // Build alias lookup (both directions).
   const aliasMap: Record<string, string[]> = {};
@@ -193,7 +194,7 @@ export function parseArgs<T extends O = O>(
       if (existing === undefined) {
         result[k] = finalValue;
       } else if (Array.isArray(existing)) {
-        result[k].push(finalValue);
+        existing.push(finalValue);
       } else {
         result[k] = [existing, finalValue];
       }
@@ -201,5 +202,5 @@ export function parseArgs<T extends O = O>(
   }
 
   // Finish up.
-  return result as t.ParsedArgs<T>;
+  return result as t.Args.Parse.Result<T>;
 }

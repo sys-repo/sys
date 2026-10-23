@@ -1,7 +1,7 @@
 import { type t, isPlainObject } from './common.ts';
 import { Is } from './m.Is.ts';
 
-export const toObject: t.SignalLib['toObject'] = <T>(
+export const toObject: t.Signal.Lib['toObject'] = <T>(
   input: T,
   opts: t.SignalToObjectOptions = {},
 ): t.UnwrapSignals<T> => {

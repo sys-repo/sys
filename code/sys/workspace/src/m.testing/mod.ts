@@ -3,10 +3,13 @@
  * Test helpers for workspace structure.
  */
 import { Fs, Process } from './common.ts';
-import { Workspace as Base } from '../mod.Workspace.ts';
+import { Workspace as Base } from '../m.Workspace.ts';
 import type { t } from './common.ts';
 
-export const WorkspaceTesting: t.WorkspaceTesting.Test.Lib = {
+/**
+ * Test helpers that verify a workspace can run prep and produce a graph snapshot.
+ */
+export const WorkspaceTesting: t.WorkspaceTesting.Test.Lib = Object.freeze({
   async scripts(cwd = Fs.cwd()) {
     const output = await Process.invoke({
       cwd,
@@ -22,9 +25,15 @@ export const WorkspaceTesting: t.WorkspaceTesting.Test.Lib = {
       throw new Error(`Workspace.Test.scripts: missing or invalid graph snapshot at "${path}"`);
     }
   },
-};
+});
 
-export const Workspace = { ...Base, Test: WorkspaceTesting };
+/**
+ * Workspace runtime surface extended with structural test helpers.
+ */
+export const Workspace: t.WorkspaceTesting.Lib = Object.freeze({
+  ...Base,
+  Test: WorkspaceTesting,
+});
 
 /**
  * Helpers:

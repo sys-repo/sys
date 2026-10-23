@@ -15,7 +15,7 @@ const white = () => create('white');
 /**
  * A number between -1 (black) and 1 (white).
  */
-export function toGrayAlpha(value: number): t.RgbaColor {
+export function toGrayAlpha(value: number): t.Color.Rgba {
   if (value < -1) value = -1;
   if (value > 1) value = 1;
 
@@ -52,7 +52,7 @@ export function toGrayHex(value: number): string {
 /**
  * Converts a color to an alpha RGB value.
  */
-export function alpha(color: t.AlphaColorInput, alpha: t.Percent): t.RgbaColor {
+export function alpha(color: t.Color.AlphaInput, alpha: t.Percent): t.Color.Rgba {
   assertAlphaColorInput(color, 'Color.alpha');
   alpha = Math.max(0, Math.min(1, alpha));
   return create(color).setAlpha(alpha).toRgbString();
@@ -61,7 +61,7 @@ export function alpha(color: t.AlphaColorInput, alpha: t.Percent): t.RgbaColor {
 /**
  * Returns an alpha percentage of red.
  */
-export function ruby(input?: t.Percent | boolean): t.RgbaColor {
+export function ruby(input?: t.Percent | boolean): t.Color.Rgba {
   let percent = 0.1;
   if (input === false) percent = 0;
   if (input === true) percent = 0.1;
@@ -73,7 +73,7 @@ export function ruby(input?: t.Percent | boolean): t.RgbaColor {
  * Lightens the given color.
  * @param amount: 0..100
  */
-export function lighten(color: t.HexColor, amount: number): t.RgbColor {
+export function lighten(color: t.Color.Hex, amount: number): t.Color.Rgb {
   assertHexColor(color, 'Color.lighten');
   return create(color).lighten(amount).toRgbString();
 }
@@ -82,7 +82,7 @@ export function lighten(color: t.HexColor, amount: number): t.RgbColor {
  * Darkens the given color.
  * @param amount: 0..100
  */
-export function darken(color: t.HexColor, amount: number): t.RgbColor {
+export function darken(color: t.Color.Hex, amount: number): t.Color.Rgb {
   assertHexColor(color, 'Color.darken');
   return create(color).darken(amount).toRgbString();
 }
@@ -90,7 +90,7 @@ export function darken(color: t.HexColor, amount: number): t.RgbColor {
 /**
  * Convert the given string input as a color.
  */
-export function toHex(input: t.AlphaColorInput) {
+export function toHex(input: t.Color.AlphaInput) {
   if (!isAlphaColorInput(input)) return undefined;
   const color = tinycolor(input);
   return color.isValid() ? color.toHexString() : undefined;

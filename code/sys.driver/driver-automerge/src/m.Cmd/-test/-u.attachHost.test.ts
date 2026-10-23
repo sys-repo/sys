@@ -1,8 +1,10 @@
-import { describe, expect, it } from '../../-test.ts';
+import { afterAll, describe, expect, it, repoTailDrain } from '../../-test.ts';
 import { CrdtCmd } from '../mod.ts';
 import { Crdt, Fixture } from './u.fixture.ts';
 
-describe('Crdt.Cmd.attachHost', { sanitizeResources: false, sanitizeOps: false }, () => {
+repoTailDrain(afterAll);
+
+describe('Crdt.Cmd.attachHost', () => {
   it('exposes repo commands over the attached endpoint', async () => {
     const repo = Crdt.repo();
     const { port1, port2 } = new MessageChannel();

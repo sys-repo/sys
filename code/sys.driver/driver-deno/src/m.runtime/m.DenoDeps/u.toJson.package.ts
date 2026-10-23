@@ -1,11 +1,11 @@
-import { type t, Esm, isEmptyRecord, Obj } from './common.ts';
+import { Esm, isEmptyRecord, Obj, type t } from './common.ts';
 
 type D = { [key: string]: string };
 
 /**
  * Convert deps to a `package.json` format.
  */
-export function toPackageJson(deps?: t.Dep[]): t.PkgNodeJson {
+export function toPackageJson(deps?: t.DenoDeps.Dep[]): t.PkgNodeJson {
   const dependencies: D = {};
   const devDependencies: D = {};
 

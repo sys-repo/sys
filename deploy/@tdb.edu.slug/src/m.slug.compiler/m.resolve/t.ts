@@ -5,11 +5,11 @@ type NodeAlias = t.Alias.TableAnalysis | undefined;
 
 /** Slug resolver lenses for common YAML and object paths. */
 export type LensLib = {
-  readonly yaml: t.ObjLens<string>;
-  readonly alias: t.ObjLens<O>;
-  readonly data: t.ObjLens<O>;
-  readonly traits: t.ObjLens<t.SlugTrait[]>;
-  readonly tasks: t.ObjLens<t.Task[]>;
+  readonly yaml: t.Obj.Lens.Unbound<string>;
+  readonly alias: t.Obj.Lens.Unbound<O>;
+  readonly data: t.Obj.Lens.Unbound<O>;
+  readonly traits: t.Obj.Lens.Unbound<t.SlugTrait[]>;
+  readonly tasks: t.Obj.Lens.Unbound<t.Task[]>;
 };
 
 /** Resolver library surface. */

@@ -1,6 +1,6 @@
 {
   "name": "@sys/registry",
-  "version": "0.0.258",
+  "version": "0.0.329",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -15,7 +15,6 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
-    "./types": "./src/types.ts",
     "./jsr": "./src/m.jsr/m.client/mod.ts",
     "./jsr/client": "./src/m.jsr/m.client/mod.ts",
     "./jsr/server": "./src/m.jsr/m.server/mod.ts",

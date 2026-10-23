@@ -1,8 +1,8 @@
 import { parse as base, parseRange } from '@std/semver';
-import { type t, Err } from './common.ts';
+import { Err, type t } from './common.ts';
 import { Prefix } from './m.Prefix.ts';
 
-export const parse: t.SemverLib['parse'] = (input) => {
+export const parse: t.Semver.Lib['parse'] = (input) => {
   try {
     const version = base(Prefix.strip(input!));
     return { version };
@@ -13,7 +13,7 @@ export const parse: t.SemverLib['parse'] = (input) => {
   }
 };
 
-export const range: t.SemverLib['range'] = (input) => {
+export const range: t.Semver.Lib['range'] = (input) => {
   type R = t.SemverRangeResponse;
   const done = (range: t.SemverRange): R => ({ range, error: errors.toError() });
   const fail = (error: string, cause?: t.StdError): R => {

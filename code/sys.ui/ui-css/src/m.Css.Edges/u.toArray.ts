@@ -1,6 +1,6 @@
 import { Is, type t } from './common.ts';
 
-export const toArray: t.CssEdgesLib['toArray'] = (input, defaultValue) => {
+export const toArray: t.CssEdges.Lib['toArray'] = (input, defaultValue) => {
   const DEF = wrangle.defaultValue(defaultValue);
   const arr = wrangle.asArray(input, defaultValue).map((value) => {
     if (value === undefined) return DEF;
@@ -22,14 +22,14 @@ export const toArray: t.CssEdgesLib['toArray'] = (input, defaultValue) => {
   }
 };
 
-export const toArrayX: t.CssEdgesLib['toArrayX'] = (input, defaultValue) => {
+export const toArrayX: t.CssEdges.Lib['toArrayX'] = (input, defaultValue) => {
   let array = Array.isArray(input) ? input : [input];
   if (array.length === 1) array = [array[0], array[0]];
   const [left, right] = array;
   return toArray([null, right, null, left], defaultValue);
 };
 
-export const toArrayY: t.CssEdgesLib['toArrayY'] = (input, defaultValue) => {
+export const toArrayY: t.CssEdges.Lib['toArrayY'] = (input, defaultValue) => {
   let array = Array.isArray(input) ? input : [input];
   if (array.length === 1) array = [array[0], array[0]];
   const [top, bottom] = array;
@@ -40,13 +40,13 @@ export const toArrayY: t.CssEdgesLib['toArrayY'] = (input, defaultValue) => {
  * Helpers
  */
 const wrangle = {
-  defaultValue(value?: t.CssEdgeDefault) {
+  defaultValue(value?: t.CssEdges.Default) {
     if (value === undefined || value === null) return null;
     if (Is.num(value) || Is.str(value)) return value;
     return null;
   },
 
-  asArray(input: t.CssEdgesInput, defaultValue?: t.CssEdgeDefault) {
+  asArray(input: t.CssEdges.Input, defaultValue?: t.CssEdges.Default) {
     if (input === null || input === undefined) return [wrangle.defaultValue(defaultValue)];
     return Array.isArray(input) ? input : [input];
   },

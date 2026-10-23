@@ -1,9 +1,31 @@
 import { describe, expect, it } from '../../-test.ts';
-import { SlugClient } from '../mod.ts';
+import { SlugClient as SlugClientBase } from '../mod.ts';
 import { Dist } from '../u.io.Dist.ts';
 
-import { type t, Shard } from '../common.ts';
-import { jsonResponse, stubFetch, textResponse } from './u.fixture.ts';
+import { Hash, Http, Pkg, Shard, type t } from '../common.ts';
+import { jsonResponse, LOAD_OPTIONS, stubFetch, textResponse } from './u.fixture.ts';
+
+const SlugClient = {
+  ...SlugClientBase,
+  FromEndpoint: {
+    ...SlugClientBase.FromEndpoint,
+    Timeline: {
+      ...SlugClientBase.FromEndpoint.Timeline,
+      Bundle: {
+        load<P = unknown>(
+          baseUrl: t.StringUrl,
+          docid: t.StringId,
+          options: t.SlugScopedTimelineBundleLoadOptions = {},
+        ) {
+          return SlugClientBase.FromEndpoint.Timeline.Bundle.load<P>(baseUrl, docid, {
+            ...LOAD_OPTIONS,
+            ...options,
+          });
+        },
+      },
+    },
+  },
+};
 
 const baseUrl = 'http://example.com/';
 
@@ -18,22 +40,23 @@ const makeDist = (parts: string[]): t.DistPkg => {
     type: 'https://example.com/src/types/t.Pkg.dist.ts',
     pkg: { name: 'slug-client', version: '0.0.1' },
     build: {
-      time: 0 as t.UnixTimestamp,
+      time: 0,
       size: { total: 0, pkg: 0 },
       builder: 'slug-client@0.0.1',
       runtime: 'deno=1:v8=1:typescript=5',
       hash: { policy: 'https://jsr.io/@sys/fs/0.0.225/src/m.Pkg/m.Pkg.Dist.ts' },
     },
     hash: {
-      digest: 'sha256-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
-      parts: hashParts as t.CompositeHashParts,
+      scheme: 'sys.dist/v2',
+      digest: Hash.sha256(Pkg.Dist.Content.encode(hashParts)),
+      parts: hashParts,
     },
   };
 };
 
 describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   it('loads assets + playback and resolves normalized hrefs', async () => {
-    const docid = 'crdt:bundle-happy' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-happy';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
@@ -67,14 +90,14 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
     const beats: readonly t.Timecode.Playback.Beat<unknown>[] = [
       {
-        src: { kind: 'video', logicalPath: '/video/main', time: 0 as t.Msecs },
+        src: { kind: 'video', logicalPath: '/video/main', time: 0 },
         payload: null,
       },
     ];
 
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats,
     };
 
@@ -133,18 +156,18 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   });
 
   it('loads dist and timeline manifests from urls.manifestBase', async () => {
-    const docid = 'crdt:bundle-manifest-base' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-manifest-base';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const dist = makeDist([SlugClient.Url.playbackFilename(cleaned)]);
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats: [
         {
           src: {
             kind: 'video',
             logicalPath: '/video/main',
-            time: 0 as t.Msecs,
+            time: 0,
           },
           payload: null,
         },
@@ -175,59 +198,147 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
     }
   });
 
-  it('caches dist by manifestBase', async () => {
-    const docidA = 'crdt:bundle-dist-cache-a' as t.StringId;
-    const docidB = 'crdt:bundle-dist-cache-b' as t.StringId;
+  it('owned clients → Dist reuse, separate bases/clients and invalidation', async () => {
+    const policy = LOAD_OPTIONS.policy;
+    if (!policy) throw new Error('Expected fixture transport policy.');
+    using clientA = Http.fetcher({ policy });
+    using clientB = Http.fetcher({ policy });
+    const docidA = 'crdt:bundle-dist-cache-a';
+    const docidB = 'crdt:bundle-dist-cache-b';
     const cleanedA = SlugClient.Url.Util.cleanDocid(docidA);
     const cleanedB = SlugClient.Url.Util.cleanDocid(docidB);
-
-    const distA = makeDist([SlugClient.Url.playbackFilename(cleanedA)]);
-    const distB = makeDist([SlugClient.Url.playbackFilename(cleanedB)]);
-    const playbackA: t.SpecTimelineManifest = {
-      docid: cleanedA,
-      composition: [{ src: 'video/a' }] as t.Timecode.Composite.Spec,
-      beats: [],
-    };
-    const playbackB: t.SpecTimelineManifest = {
-      docid: cleanedB,
-      composition: [{ src: 'video/b' }] as t.Timecode.Composite.Spec,
-      beats: [],
-    };
-
+    const manifestA = 'http://manifests-a.example.com/';
+    const manifestB = 'http://manifests-b.example.com/';
+    const distUrlA = `${manifestA}-manifests/dist.json`;
+    const distUrlB = `${manifestB}-manifests/dist.json`;
+    const playbackKeyA = SlugClient.Url.playbackFilename(cleanedA);
+    const playbackKeyB = SlugClient.Url.playbackFilename(cleanedB);
+    const distA = makeDist([playbackKeyA]);
+    const distB = makeDist([playbackKeyB]);
+    const seen: string[] = [];
     const cleanup = stubFetch((url) => {
-      const res = jsonResponse;
-      if (url.includes('http://manifests-a.example.com/-manifests/dist.json')) return res(distA);
-      if (url.includes('http://manifests-b.example.com/-manifests/dist.json')) return res(distB);
-      if (url.includes(SlugClient.Url.playbackFilename(cleanedA))) return res(playbackA);
-      if (url.includes(SlugClient.Url.playbackFilename(cleanedB))) return res(playbackB);
-      if (url.includes(SlugClient.Url.assetsFilename(cleanedA))) {
-        throw new Error('assets manifest should not be fetched');
+      seen.push(url);
+      if (url === distUrlA) return jsonResponse(distA);
+      if (url === distUrlB) return jsonResponse(distB);
+      if (url === `${manifestA}-manifests/${playbackKeyA}`) {
+        return jsonResponse({ docid: cleanedA, composition: [], beats: [] });
       }
-      if (url.includes(SlugClient.Url.assetsFilename(cleanedB))) {
-        throw new Error('assets manifest should not be fetched');
+      if (url === `${manifestB}-manifests/${playbackKeyB}`) {
+        return jsonResponse({ docid: cleanedB, composition: [], beats: [] });
       }
       throw new Error(`Unexpected fetch: ${url}`);
     });
-
+    const load = (docid: t.StringId, manifestBase: t.StringUrl, client: t.HttpFetch.Instance) =>
+      SlugClientBase.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, {
+        client,
+        urls: { manifestBase },
+      });
+    const distRequests = () => seen.filter((url) => url.endsWith('/dist.json'));
     try {
-      Dist.invalidate(baseUrl);
-      const first = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docidA, {
-        urls: { manifestBase: 'http://manifests-a.example.com/' },
-      });
-      if (!first.ok) throw new Error('expected first bundle result');
+      const first = await load(docidA, manifestA, clientA);
+      if (!first.ok) throw new Error(first.error.message);
+      expect(first.value.docid).to.eql(cleanedA);
+      expect(distRequests()).to.eql([distUrlA]);
+      expect((await load(docidA, manifestA, clientA)).ok).to.eql(true);
+      expect(distRequests()).to.eql([distUrlA]);
 
-      const second = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docidB, {
-        urls: { manifestBase: 'http://manifests-b.example.com/' },
+      const otherBase = await load(docidB, manifestB, clientA);
+      if (!otherBase.ok) throw new Error(otherBase.error.message);
+      expect(otherBase.value.docid).to.eql(cleanedB);
+      expect((await load(docidA, manifestA, clientA)).ok).to.eql(true);
+      expect(distRequests()).to.eql([distUrlA, distUrlB]);
+      expect((await load(docidA, manifestA, clientB)).ok).to.eql(true);
+      expect(distRequests()).to.eql([distUrlA, distUrlB, distUrlA]);
+
+      Dist.invalidate(baseUrl);
+      expect((await load(docidA, manifestA, clientA)).ok).to.eql(true);
+      expect(distRequests()).to.eql([distUrlA, distUrlB, distUrlA, distUrlA]);
+      // Only Dist is cached: each successful bundle load still acquires its playback manifest.
+      expect(seen.filter((url) => url.endsWith(playbackKeyA))).to.have.length(5);
+      expect(seen.filter((url) => url.endsWith(playbackKeyB))).to.have.length(1);
+    } finally {
+      cleanup();
+    }
+  });
+
+  for (const failure of ['schema', 'http'] as const) {
+    it(`${failure} Dist refusal → retry and cache only the admitted observation`, async () => {
+      const policy = LOAD_OPTIONS.policy;
+      if (!policy) throw new Error('Expected fixture transport policy.');
+      using client = Http.fetcher({ policy });
+      const docid = `crdt:bundle-dist-retry-${failure}`;
+      const cleaned = SlugClient.Url.Util.cleanDocid(docid);
+      const playbackKey = SlugClient.Url.playbackFilename(cleaned);
+      const dist = makeDist([playbackKey]);
+      let distRequests = 0;
+      let playbackRequests = 0;
+      const cleanup = stubFetch((url) => {
+        if (url.endsWith('/dist.json')) {
+          if (++distRequests > 1) return jsonResponse(dist);
+          return failure === 'schema'
+            ? jsonResponse({})
+            : textResponse('Unavailable', { status: 503, statusText: 'Unavailable' });
+        }
+        if (url.endsWith(playbackKey)) {
+          playbackRequests++;
+          return jsonResponse({ docid: cleaned, composition: [], beats: [] });
+        }
+        throw new Error(`Unexpected fetch: ${url}`);
       });
-      if (!second.ok) throw new Error('expected second bundle result');
-      expect(second.value.docid).to.eql(cleanedB);
+      try {
+        const load = () =>
+          SlugClientBase.FromEndpoint.Timeline.Bundle.load(baseUrl, docid, { client });
+        const refused = await load();
+        expect(refused.ok).to.eql(false);
+        if (refused.ok) throw new Error('Expected invalid Dist refusal.');
+        expect(refused.error.kind).to.eql(failure);
+        expect(distRequests).to.eql(1);
+        expect(playbackRequests).to.eql(0);
+
+        const retried = await load();
+        if (!retried.ok) throw new Error(retried.error.message);
+        expect(retried.value.docid).to.eql(cleaned);
+        expect(distRequests).to.eql(2);
+        expect((await load()).ok).to.eql(true);
+        expect(distRequests).to.eql(2);
+        expect(playbackRequests).to.eql(2);
+      } finally {
+        cleanup();
+      }
+    });
+  }
+
+  it('policy-only transport → no client-owned Dist cache', async () => {
+    const docid = 'crdt:bundle-dist-uncached';
+    const cleaned = SlugClient.Url.Util.cleanDocid(docid);
+    const playbackKey = SlugClient.Url.playbackFilename(cleaned);
+    const dist = makeDist([playbackKey]);
+    let distRequests = 0;
+    const cleanup = stubFetch((url) => {
+      if (url.endsWith('/dist.json')) {
+        distRequests++;
+        return jsonResponse(dist);
+      }
+      if (url.endsWith(playbackKey)) {
+        return jsonResponse({ docid: cleaned, composition: [], beats: [] });
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+    try {
+      for (const attempt of [1, 2]) {
+        const result = await SlugClient.FromEndpoint.Timeline.Bundle.load(baseUrl, docid);
+        if (!result.ok) throw new Error(result.error.message);
+        expect(result.value.docid).to.eql(cleaned);
+        expect(distRequests).to.eql(attempt);
+      }
+      expect(distRequests).to.eql(2);
     } finally {
       cleanup();
     }
   });
 
   it('resolves hrefs against the provided assetBase', async () => {
-    const docid = 'crdt:bundle-basehref' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-basehref';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
@@ -252,13 +363,13 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats: [
         {
           src: {
             kind: 'video',
             logicalPath: '/video/main',
-            time: 0 as t.Msecs,
+            time: 0,
           },
           payload: null,
         },
@@ -311,7 +422,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   });
 
   it('rewrites production asset hosts using layout.shard policy + asset hash', async () => {
-    const docid = 'crdt:bundle-shard-rewrite-prod' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-shard-rewrite-prod';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const hash = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
     const expectedIndex = Shard.policy(64).pick(hash);
@@ -331,7 +442,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats: [],
     };
 
@@ -353,8 +464,9 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
         urls: { assetBase },
         layout: { shard: { video: { strategy: 'prefix-range', total: 64 } } },
       });
-      if (!result.ok)
+      if (!result.ok) {
         throw new Error(`expected bundle result (${result.error.kind}): ${result.error.message}`);
+      }
 
       const rewritten = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
       expect(rewritten?.href).to.eql(
@@ -366,7 +478,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   });
 
   it('does not rewrite shard host when assetBase host is localhost', async () => {
-    const docid = 'crdt:bundle-shard-rewrite-localhost' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-shard-rewrite-localhost';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const hash = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
 
@@ -385,7 +497,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats: [],
     };
 
@@ -417,7 +529,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   });
 
   it('rewrites localhost path to local shard directory when path policy is root-filename', async () => {
-    const docid = 'crdt:bundle-shard-rewrite-localhost-root' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-shard-rewrite-localhost-root';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const hash = 'dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd';
     const expectedIndex = Shard.policy(64).pick(hash);
@@ -437,7 +549,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats: [],
     };
 
@@ -480,7 +592,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   });
 
   it('rewrites production asset host and root-filename path from layout shard policy', async () => {
-    const docid = 'crdt:bundle-shard-rewrite-prod-root' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-shard-rewrite-prod-root';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
     const hash = 'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc';
     const expectedIndex = Shard.policy(64).pick(hash);
@@ -500,7 +612,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
 
     const playback: t.SpecTimelineManifest = {
       docid: cleaned,
-      composition: [{ src: 'video/main' }] as t.Timecode.Composite.Spec,
+      composition: [{ src: 'video/main' }],
       beats: [],
     };
 
@@ -531,8 +643,9 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
           },
         },
       });
-      if (!result.ok)
+      if (!result.ok) {
         throw new Error(`expected bundle result (${result.error.kind}): ${result.error.message}`);
+      }
 
       const rewritten = result.value.resolveAsset({ kind: 'video', logicalPath: '/video/main' });
       expect(rewritten?.href).to.eql(`https://${expectedIndex}.video.cdn.example.com/main.webm`);
@@ -542,7 +655,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   });
 
   it('returns http metadata when manifest fetch fails', async () => {
-    const docid = 'crdt:bundle-http' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-http';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const dist = makeDist([
@@ -558,11 +671,8 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
         });
       }
       if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
-        return jsonResponse({
-          docid: cleaned,
-          composition: [],
-          beats: [],
-        } as t.SpecTimelineManifest);
+        const playback: t.SpecTimelineManifest = { docid: cleaned, composition: [], beats: [] };
+        return jsonResponse(playback);
       }
       throw new Error(`Unexpected fetch: ${url}`);
     });
@@ -584,7 +694,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   });
 
   it('returns schema info when playback manifest is invalid', async () => {
-    const docid = 'crdt:bundle-schema' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-schema';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const assets: t.SpecTimelineAssetsManifest = {
@@ -596,7 +706,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
           hash: 'hash-asset',
           filename: 'asset.mp4',
           href: '/asset',
-        } as t.SpecTimelineAsset,
+        },
       ],
     };
 
@@ -610,10 +720,11 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
         return jsonResponse(assets);
       }
       if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
+        // Deliberately malformed wire payload: asset-shaped composition and missing beats.
         return jsonResponse({
           docid: cleaned,
           composition: assets.assets,
-        } as unknown as t.SpecTimelineManifest);
+        });
       }
       throw new Error(`Unexpected fetch: ${url}`);
     });
@@ -634,7 +745,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
   });
 
   it('reports schema errors when docids do not match', async () => {
-    const docid = 'crdt:bundle-docid' as t.StringId;
+    const docid: t.StringId = 'crdt:bundle-docid';
     const cleaned = SlugClient.Url.Util.cleanDocid(docid);
 
     const mismatchedAssets: t.SpecTimelineAssetsManifest = {
@@ -646,7 +757,7 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
           hash: 'hash-asset',
           filename: 'asset.mp4',
           href: '/asset',
-        } as t.SpecTimelineAsset,
+        },
       ],
     };
 
@@ -660,11 +771,8 @@ describe('SlugClient.FromEndpoint.Timeline.Bundle.load', () => {
         return jsonResponse(mismatchedAssets);
       }
       if (url.includes(SlugClient.Url.playbackFilename(cleaned))) {
-        return jsonResponse({
-          docid: cleaned,
-          composition: [],
-          beats: [],
-        } as t.SpecTimelineManifest);
+        const playback: t.SpecTimelineManifest = { docid: cleaned, composition: [], beats: [] };
+        return jsonResponse(playback);
       }
       throw new Error(`Unexpected fetch: ${url}`);
     });

@@ -123,6 +123,28 @@ describe('ServeFs', () => {
       });
     });
 
+    it('preserves optional info rows', async () => {
+      await withTmpDir(async (tmp) => {
+        const yamlPath = `${tmp}/${ServeFs.fileOf('test')}`;
+        await Fs.ensureDir(`${tmp}/${ServeFs.dir}`);
+        await Fs.write(
+          yamlPath,
+          Str.dedent(`
+            name: Test
+            dir: .
+            info:
+              foo: /foo/bar/
+          `).trimStart(),
+        );
+
+        const res = await ServeFs.loadLocation(yamlPath);
+        expect(res.ok).to.eql(true);
+        if (res.ok) {
+          expect(res.location.info).to.eql({ foo: '/foo/bar/' });
+        }
+      });
+    });
+
     it('resolves dir: ./dist → <cwd>/dist', async () => {
       await withTmpDir(async (tmp) => {
         // Create realistic structure:

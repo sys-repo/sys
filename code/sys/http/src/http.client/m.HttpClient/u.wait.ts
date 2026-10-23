@@ -4,7 +4,7 @@ import { type t, Time } from './common.ts';
  * Convenience: boolean probe with default options.
  * Returns true if reachable within the timeout, false otherwise.
  */
-export const isAlive: t.HttpClientLib['isAlive'] = async (url, opts = {}) => {
+export const isAlive: t.HttpClient.Lib['isAlive'] = async (url, opts = {}) => {
   try {
     await waitFor(url, opts);
     return true;
@@ -27,7 +27,7 @@ export function defaultHttpReady(res: Response): boolean {
  * Poll an HTTP endpoint until it responds per the readiness predicate.
  * Throws on timeout. On success, resolves with simple timing metadata.
  */
-export const waitFor: t.HttpClientLib['waitFor'] = async (url, opts = {}) => {
+export const waitFor: t.HttpClient.Lib['waitFor'] = async (url, opts = {}) => {
   const { timeout = 30_000, interval = 150 } = opts;
   const reqTimeout = opts.requestTimeout ?? Math.max(2000, interval * 2);
   const signal = opts.signal;
@@ -40,7 +40,7 @@ export const waitFor: t.HttpClientLib['waitFor'] = async (url, opts = {}) => {
   let lastStatus: number | undefined;
   const started = Date.now();
 
-  async function attempt(): Promise<t.HttpWaitResult | undefined> {
+  async function attempt(): Promise<t.HttpClient.Wait.Result | undefined> {
     if (signal?.aborted) throw new Error('Http.waitFor: aborted');
     try {
       const r = await attemptOnce({ url, method, headers, redirect, reqTimeout, predicate, signal });

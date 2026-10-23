@@ -1,4 +1,4 @@
-import { type t, Immutable, Rx, slug } from './common.ts';
+import { Immutable, Rx, slug, type t } from './common.ts';
 import { changePatches } from './u.client.proxy.doc.change.ts';
 import { Wire } from './u.wire.ts';
 
@@ -147,6 +147,7 @@ export function createDocProxy<T extends O = O>(
      * Lifecycle:
      */
     dispose: life.dispose,
+    [Symbol.dispose]: life[Symbol.dispose],
     get dispose$() {
       return life.dispose$;
     },

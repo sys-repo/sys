@@ -1,5 +1,4 @@
-import { Vite } from 'jsr:@sys/driver-vite';
-import { defineConfig } from 'npm:vite';
+import { Vite } from '@sys/driver-vite';
 
 const paths = Vite.Config.paths({
   app: {
@@ -8,4 +7,4 @@ const paths = Vite.Config.paths({
   },
 });
 
-export default defineConfig(async () => await Vite.Config.app({ paths }));
+export default Vite.Config.define(async () => await Vite.Config.app({ paths }));

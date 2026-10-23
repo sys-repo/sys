@@ -8,6 +8,6 @@ export declare namespace MyComponent {
   export type Props = {
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 }

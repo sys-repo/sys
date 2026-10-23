@@ -1,4 +1,4 @@
-import { type t, StdDate } from './common.ts';
+import { StdDate, type t } from './common.ts';
 import { Day } from './m.Date.Day.ts';
 import { Format } from './m.Date.Format.ts';
 import { Is } from './m.Date.Is.ts';
@@ -11,7 +11,7 @@ export { Day, Format };
 /**
  * Library: Tools for working with Dates.
  */
-export const Date: t.DateLib = {
+export const Date: t.Date.Lib = Object.freeze({
   Is,
   Day,
   Format,
@@ -25,4 +25,4 @@ export const Date: t.DateLib = {
   MINUTE,
   SECOND,
   WEEK,
-};
+});

@@ -1,13 +1,18 @@
-import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture } from '../../-test.ts';
+import { afterAll, beforeAll, describe, expect, it, makeWorkerFixture, Time } from '../../-test.ts';
 
-import { type t, CrdtIs } from '../common.ts';
+import { CrdtIs, type t } from '../common.ts';
 import { CrdtCmd } from '../mod.ts';
 import { Crdt } from './u.fixture.ts';
 
-describe('Crdt.Cmd.fromRepo', { sanitizeResources: false, sanitizeOps: false }, () => {
+describe('Crdt.Cmd.fromRepo', () => {
   let fixture: t.TestWorkerFixture;
   beforeAll(async () => void (fixture = await makeWorkerFixture()));
-  afterAll(() => fixture?.dispose());
+  afterAll(async () => {
+    await fixture?.dispose();
+
+    // @automerge/automerge-repo@2.5.6 leaves a non-cancellable 100ms throttle tail.
+    await Time.wait(110);
+  });
 
   /**
    * Shared assertion: `fromRepo` produces a working command client

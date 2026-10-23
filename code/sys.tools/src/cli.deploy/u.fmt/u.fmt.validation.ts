@@ -1,4 +1,4 @@
-import { type t, c, Str } from '../common.ts';
+import { c, Is, Str, type t } from '../common.ts';
 
 export function endpointValidation(
   check: t.DeployTool.Endpoint.Fs.YamlCheck,
@@ -26,7 +26,7 @@ export function endpointValidation(
 
   const kindOf = (e: unknown): string | undefined => {
     const k = (e as { readonly kind?: unknown }).kind;
-    return typeof k === 'string' ? k : undefined;
+    return Is.str(k) ? k : undefined;
   };
 
   const severityOf = (e: unknown): 'error' | 'warn' => {

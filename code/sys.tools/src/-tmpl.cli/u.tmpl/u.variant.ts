@@ -1,4 +1,4 @@
-import { type t, Fs, TmplEngine } from '../common.ts';
+import { Fs, type t, TmplEngine } from '../common.ts';
 import { deriveToolId, replaceTemplateTokens } from './u.ts';
 
 const YAML_VARIANT_DIR = './-tmpl.yaml-config';
@@ -49,7 +49,10 @@ const Inject = {
  * - replaces "__NAME__" tokens
  * - skips local variant payload when cloning a generated tool root
  */
-export function makeBaseTemplateProcessor(args: { name: string; id?: string }): t.FileMapProcessor {
+export function makeBaseTemplateProcessor(args: {
+  name: string;
+  id?: string;
+}): t.FileMap.Write.Processor.Method {
   const { name } = args;
   const id = args.id ?? deriveToolId(name);
   return (e) => {
@@ -75,7 +78,7 @@ async function applyYamlConfigVariant(args: { dir: t.StringDir; name: string; id
   const id = args.id ?? deriveToolId(args.name);
   const sourceDir = Fs.dirname(Fs.Path.fromFileUrl(import.meta.url));
   const overlayDir = Fs.join(sourceDir, YAML_VARIANT_DIR);
-  const processFile: t.FileMapProcessor = (e) => {
+  const processFile: t.FileMap.Write.Processor.Method = (e) => {
     if (e.target.filename.endsWith('.tmpl')) {
       e.target.rename(e.path.replace(/\.tmpl$/, ''), true);
     }
@@ -125,7 +128,9 @@ async function readTextOrThrow(path: t.StringPath): Promise<string> {
 }
 
 function insertAfterAnchor(text: string, anchor: string, block: string): string {
-  if (countOccurrences(text, anchor) !== 1) throw new Error(`Missing or duplicate anchor: ${anchor}`);
+  if (countOccurrences(text, anchor) !== 1) {
+    throw new Error(`Missing or duplicate anchor: ${anchor}`);
+  }
   if (text.includes(block)) return text;
   return text.replace(anchor, `${anchor}\n${block}`);
 }

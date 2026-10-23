@@ -1,27 +1,48 @@
-import { describe, expect, it, Cli } from '../../-test.ts';
+import { c, Cli, describe, expect, it } from '../../-test.ts';
 import { rootRows } from '../u.rows.ts';
 
 describe('Root Rows', () => {
-  it('renders the pi row with agent as a compatibility alias', () => {
+  it('renders the pi row with helpful aliases', () => {
     const row = rootRows('primary').find((item) => item.command === 'pi');
     expect(Cli.stripAnsi(row?.columns[0] ?? '')).to.contain('@sys/tools pi');
-    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← alias agent)');
+    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← aliases agent, harness)');
   });
 
-  it('renders multi-alias rows with a plural alias label', () => {
-    const row = rootRows('utility').find((item) => item.command === 'update');
-    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← aliases up, info)');
+  it('renders single-alias rows with a singular alias label', () => {
+    const row = rootRows('utility').find((item) => item.command === 'upgrade');
+    expect(Cli.stripAnsi(row?.columns[1] ?? '')).to.eql('(← alias up)');
   });
 
   it('filters rows by group without changing command formatting', () => {
-    expect(rootRows('primary').map((item) => item.command)).to.eql(['pi', 'tmpl', 'pull', 'serve', 'deploy']);
-    expect(rootRows('secondary').map((item) => item.command)).to.eql(['crdt', 'video', 'crypto', 'copy']);
-    expect(rootRows('utility').map((item) => item.command)).to.eql(['update']);
+    expect(rootRows('primary').map((item) => item.command)).to.eql([
+      'pi',
+      'tmpl',
+      'pull',
+      'serve',
+      'deploy',
+    ]);
+    expect(rootRows('secondary').map((item) => item.command)).to.eql([
+      'shell',
+      'crdt',
+      'video',
+      'crypto',
+      'copy',
+      'dsl',
+    ]);
+    expect(rootRows('utility').map((item) => item.command)).to.eql(['upgrade']);
   });
 
-  it('can highlight the update command when update attention is present', () => {
-    const row = rootRows('utility', { highlightCommand: 'update' }).find((item) => item.command === 'update');
-    expect(Cli.stripAnsi(row?.columns[0] ?? '')).to.contain('@sys/tools update');
-    expect(row?.columns[0]).to.contain('\x1b[36m');
+  it('renders upgrade attention with a green command label while preserving visible text', () => {
+    const normal = rootRows('utility').find((item) => item.command === 'upgrade');
+    const highlighted = rootRows('utility', { highlightCommand: 'upgrade' }).find((item) =>
+      item.command === 'upgrade'
+    );
+
+    expect(Cli.stripAnsi(highlighted?.columns[0] ?? '')).to.eql(
+      Cli.stripAnsi(normal?.columns[0] ?? ''),
+    );
+    expect(highlighted?.columns[0]).to.eql(
+      `${c.gray(c.dim('@sys/tools '))}${c.green('upgrade')}`,
+    );
   });
 });

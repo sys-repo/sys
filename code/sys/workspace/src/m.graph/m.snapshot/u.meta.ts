@@ -1,4 +1,4 @@
-import { type t, D, Obj } from './common.ts';
+import { D, Obj, type t } from './common.ts';
 
 type M = t.WorkspaceGraph.Snapshot.Meta;
 
@@ -17,13 +17,13 @@ export function meta(args: {
       '/graph': args.graphHash,
       '/graph:policy': args.hashPolicy ?? D.HASH_POLICY,
     },
-    generator: args.generator ? cloneGenerator(args.generator) : D.GENERATOR,
+    generator: cloneGenerator(args.generator ?? D.GENERATOR),
   };
 }
 
 function cloneGenerator(generator: M['generator']): M['generator'] {
   return {
-    pkg: Obj.clone(generator.pkg),
+    pkg: { name: generator.pkg.name, version: generator.pkg.version },
     types: Obj.clone(generator.types),
   };
 }

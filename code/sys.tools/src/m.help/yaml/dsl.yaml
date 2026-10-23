@@ -1,0 +1,62 @@
+id: dsl
+title: Tools DSL
+summary: |
+  Tools DSL: the root operating contract for agents changing `@sys/tools` owner
+  configs, command surfaces, and tool-specific DSL guidance.
+
+sections:
+  - label: Reading protocol
+    items:
+      - >-
+        Agents MUST read this root DSL layer before changing `@sys/tools` behavior
+        or owner-facing tool guidance.
+      - 'Command: `deno run -A jsr:@sys/tools dsl`.'
+      - Agents MUST NOT infer per-tool rules from the root layer.
+      - Agents MUST read the matching tool chapter when one exists.
+      - >-
+        If no chapter exists for the selected tool, use the owner help and source
+        inspection guardrails in this root layer.
+
+  - label: Rule
+    items:
+      - '`@sys/tools` is the standard CLI namespace for common system tool owners.'
+      - Root DSL owns package-wide routing, reading protocol, and chapter policy.
+      - Individual tools own their own config semantics and command behavior.
+      - >-
+        Keep package-wide rules small; add tool-specific guidance as chapters only
+        when a repeated failure or workflow earns it.
+      - Do not turn the root DSL into a catch-all tool manual.
+
+  - label: 'Chapter policy'
+    items:
+      - >-
+        Add per-tool chapters only when the tool has stable owner-facing semantics
+        that agents must apply repeatedly.
+      - >-
+        Prefer one chapter per root tool command, for example `serve`, `pull`, or
+        `deploy`.
+      - >-
+        A chapter should name the owner boundary, config authority, slot semantics,
+        and verification contract for that tool.
+      - >-
+        Failure follow-ups should land as reusable invariants, not one-off if/then
+        edge cases.
+
+  - label: 'Help and authority'
+    items:
+      - >-
+        Public `@sys/tools <tool> --help` output is the operator-facing command
+        reference for syntax, flags, and examples.
+      - >-
+        DSL chapters are the agent-facing contract for ownership boundaries,
+        config authority, safety rules, and verification.
+      - >-
+        For pass-through tools, `@sys/tools` owns wrapper behavior only; delegated
+        package help or DSL remains authoritative for delegated tool semantics.
+
+  - label: 'Current chapters'
+    items:
+      - 'Published chapters: `serve`, `deploy`.'
+      - >-
+        Use public `@sys/tools <tool> --help` and the matching source/type surface
+        when a tool-specific contract is still ambiguous.

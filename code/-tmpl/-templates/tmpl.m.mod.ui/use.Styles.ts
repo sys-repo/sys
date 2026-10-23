@@ -21,7 +21,7 @@ export function initStyles(props: P, opts: { life?: t.Lifecycle } = {}) {
   const theme = Color.theme(props.theme);
   const sheet = Style.Dom.stylesheet();
   const scope = `[data-component="${D.displayName}"]`;
-  const rule = (selector: string, css: t.CssValue) => sheet.rule(`${scope} ${selector}`, css);
+  const rule = (selector: string, css: t.Style.Value) => sheet.rule(`${scope} ${selector}`, css);
 
   rule('code', {
     backgroundColor: Color.alpha(theme.fg, 0.03),

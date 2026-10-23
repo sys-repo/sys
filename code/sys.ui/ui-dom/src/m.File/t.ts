@@ -1,113 +1,96 @@
 import type { t } from './common.ts';
 
-/**
- * Default constants used by the library.
- */
-export type FileLibDefaults = {
-  /**
-   * The default MIME type used when none is specified.
-   */
-  readonly mimetype: string;
-};
+type BrowserFile = InstanceType<typeof globalThis.File>;
 
 /**
  * Helpers for working with binary files in the browser.
  */
-export type FileLib = {
-  /**
-   * Default constants used by the library.
-   */
-  readonly DEFAULTS: FileLibDefaults;
+export declare namespace File {
+  /** Helpers for working with binary files in the browser. */
+  export type Lib = {
+    /** Default constants used by the library. */
+    readonly DEFAULTS: Defaults;
+
+    /** Tools for working with a file-size (bytes). */
+    readonly Size: Size.Lib;
+
+    /**
+     * Convert a Uint8Array to a Blob, preserving the visible range.
+     * - Zero-copy when backed by a real ArrayBuffer.
+     * - Falls back to a copy when backed by SharedArrayBuffer.
+     */
+    toBlob(data: Uint8Array, mimetype?: string): Blob;
+
+    /** Reads a Blob or File object into a Uint8Array. */
+    toUint8Array(input: Blob | BrowserFile): Promise<Uint8Array>;
+
+    /**
+     * Convert a BinaryFile-like object into a browser File.
+     * - Uses safe toBlob (handles SAB / offsets).
+     * - Preserves name, type, and lastModified.
+     */
+    toFile(args: ToFileArgs): BrowserFile;
+
+    /**
+     * Convert a File into a BinaryFile-like object.
+     * - Preserves name, type, and lastModified.
+     * - Supports optional hash computation.
+     */
+    fromFile(input: BrowserFile, opts?: FromFileOptions): Promise<t.BinaryFile>;
+
+    /**
+     * Convert a Blob into a BinaryFile-like object.
+     * - Extracts bytes, name (if provided), type, and lastModified.
+     * - Supports optional hash computation.
+     */
+    fromBlob(input: Blob, opts?: FromBlobOptions): Promise<t.BinaryFile>;
+
+    /** Initiates a file download in the browser. */
+    download(filename: string, data: Uint8Array | Blob, options?: DownloadOptions): Promise<void>;
+
+    /** Fetches a file from a URL and initiates a download in the browser. */
+    downloadUrl(url: string, filename: string): Promise<void>;
+  };
+
+  /** Default constants used by the library. */
+  export type Defaults = {
+    /** The default MIME type used when none is specified. */
+    readonly mimetype: string;
+  };
+
+  /** Arguments used to convert bytes into a browser File. */
+  export type ToFileArgs = {
+    bytes: Uint8Array;
+    name: string;
+    type?: string;
+    modifiedAt?: number;
+  };
+
+  /** Options used when converting a File into a binary-file shape. */
+  export type FromFileOptions = {
+    computeHash?: (bytes: Uint8Array) => string | Promise<string>;
+  };
+
+  /** Options used when converting a Blob into a binary-file shape. */
+  export type FromBlobOptions = FromFileOptions & {
+    name?: string;
+    defaultType?: string;
+    defaultModifiedAt?: number;
+  };
+
+  /** Options used when initiating a browser download. */
+  export type DownloadOptions = {
+    mimetype?: string;
+  };
 
   /**
    * Tools for working with a file-size (bytes).
    */
-  readonly Size: FileSizeLib;
-
-  /**
-   * Convert a Uint8Array to a Blob, preserving the visible range.
-   * - Zero-copy when backed by a real ArrayBuffer.
-   * - Falls back to a copy when backed by SharedArrayBuffer.
-   *
-   * @param data - The Uint8Array to convert.
-   * @param mimetype - Optional MIME type for the Blob. Defaults to DEFAULTS.mimetype.
-   * @returns A Blob representing the input data.
-   */
-  toBlob(data: Uint8Array, mimetype?: string): Blob;
-
-  /**
-   * Reads a Blob or File object into a Uint8Array.
-   *
-   * @param input - The Blob or File to read.
-   * @returns A Promise that resolves to a Uint8Array containing the file data.
-   */
-  toUint8Array(input: Blob | File): Promise<Uint8Array>;
-
-  /**
-   * Convert a BinaryFile-like object into a browser File.
-   * - Uses safe toBlob (handles SAB / offsets).
-   * - Preserves name, type, and lastModified.
-   */
-  toFile(args: { bytes: Uint8Array; name: string; type?: string; modifiedAt?: number }): File;
-
-  /**
-   * Convert a File into a BinaryFile-like object.
-   * - Preserves name, type, and lastModified.
-   * - Supports optional hash computation.
-   */
-  fromFile(
-    input: File,
-    opts?: {
-      computeHash?: (bytes: Uint8Array) => string | Promise<string>;
-    },
-  ): Promise<t.BinaryFile>;
-
-  /**
-   * Convert a Blob into a BinaryFile-like object.
-   * - Extracts bytes, name (if provided), type, and lastModified.
-   * - Supports optional hash computation.
-   */
-  fromBlob(
-    input: Blob,
-    opts?: {
-      name?: string;
-      defaultType?: string;
-      defaultModifiedAt?: number;
-      computeHash?: (bytes: Uint8Array) => string | Promise<string>;
-    },
-  ): Promise<t.BinaryFile>;
-
-  /**
-   * Initiates a file download in the browser.
-   *
-   * @param filename - The name to give the downloaded file.
-   * @param data - The data to download, as a Uint8Array or Blob.
-   * @param options - Optional parameters.
-   * @param options.mimetype - Optional MIME type for the Blob.
-   * @returns A Promise that resolves when the download has been initiated.
-   */
-  download(
-    filename: string,
-    data: Uint8Array | Blob,
-    options?: { mimetype?: string },
-  ): Promise<void>;
-
-  /**
-   * Fetches a file from a URL and initiates a download in the browser.
-   *
-   * @param url - The URL of the file to download.
-   * @param filename - The name to give the downloaded file.
-   * @returns A Promise that resolves when the download has been initiated.
-   */
-  downloadUrl(url: string, filename: string): Promise<void>;
-};
-
-/**
- * Tools for working with a file-size (bytes).
- */
-export type FileSizeLib = {
-  /**
-   * Convert bytes to a human-readable string, eg: 1337 → "1.34 kB".
-   */
-  toString: t.FormatBytes;
-};
+  export namespace Size {
+    /** Tools for working with a file-size (bytes). */
+    export type Lib = {
+      /** Convert bytes to a human-readable string, eg: 1337 → "1.34 kB". */
+      toString: t.FormatBytes;
+    };
+  }
+}

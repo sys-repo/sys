@@ -1,7 +1,8 @@
 import { describe, expect, it } from '../../../-test.ts';
-import { afterEach, beforeEach, DomMock, Testing } from '@sys/testing/server';
+import { afterEach, beforeEach, Testing } from '@sys/testing/server';
+import { DomMock } from '@sys/testing/server/dom';
 import { VIDEO } from '../../-VIDEO.ts';
-import { Http } from '../common.ts';
+import { createWarmVideo } from '../m.VideoWarmup.ts';
 import { VideoWarmup } from '../u.VideoWarmup.ts';
 import { Programme } from '../../ui.Programme/mod.ts';
 
@@ -70,7 +71,6 @@ describe('VideoWarmup', () => {
 
   it('preempts overlapping warm batches while service worker control is pending', async () => {
     const originalNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
-    const originalWarm = Http.Preload.warm;
     const listeners = new Map<EventListenerOrEventListenerObject, EventListener>();
     const warmed: string[] = [];
     const serviceWorker: {
@@ -107,7 +107,7 @@ describe('VideoWarmup', () => {
         value: serviceWorker,
       });
 
-      (Http.Preload as { warm: typeof Http.Preload.warm }).warm = async (input) => {
+      const WarmVideo = createWarmVideo(async (input) => {
         const ops = Array.isArray(input) ? input : [input];
         warmed.push(
           ...ops.map((item) => typeof item === 'string' ? item : item.url),
@@ -122,10 +122,7 @@ describe('VideoWarmup', () => {
             url: typeof item === 'string' ? item : item.url,
           })),
         };
-      };
-
-      const href = new URL('../m.VideoWarmup.ts', import.meta.url).href;
-      const { WarmVideo } = await import(`${href}?v=${Testing.slug()}`);
+      });
       const media = programmeMedia();
 
       const landing = WarmVideo.landing();
@@ -139,8 +136,6 @@ describe('VideoWarmup', () => {
       expect(warmed).to.not.include(VIDEO.Overview.src);
       expect(warmed).to.include(VIDEO.Programme.Intro.About.src);
     } finally {
-      (Http.Preload as { warm: typeof Http.Preload.warm }).warm = originalWarm;
-
       if (originalNavigator) {
         Object.defineProperty(globalThis, 'navigator', originalNavigator);
       } else {
@@ -151,11 +146,10 @@ describe('VideoWarmup', () => {
 
   it('does not mark urls completed unless the full media cache is confirmed ready', async () => {
     const restoreNavigator = installServiceWorker();
-    const originalWarm = Http.Preload.warm;
     const warmed: string[] = [];
 
     try {
-      (Http.Preload as { warm: typeof Http.Preload.warm }).warm = async (input) => {
+      const WarmVideo = createWarmVideo(async (input) => {
         const ops = Array.isArray(input) ? input : [input];
         warmed.push(...ops.map((item) => typeof item === 'string' ? item : item.url));
         return {
@@ -169,10 +163,7 @@ describe('VideoWarmup', () => {
             fullMediaCached: false,
           })),
         };
-      };
-
-      const href = new URL('../m.VideoWarmup.ts', import.meta.url).href;
-      const { WarmVideo } = await import(`${href}?v=${Testing.slug()}`);
+      });
 
       await WarmVideo.landing();
       await WarmVideo.landing();
@@ -184,7 +175,6 @@ describe('VideoWarmup', () => {
         VIDEO.Overview.src,
       ]);
     } finally {
-      (Http.Preload as { warm: typeof Http.Preload.warm }).warm = originalWarm;
       restoreNavigator();
     }
   });

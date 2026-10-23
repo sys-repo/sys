@@ -4,7 +4,7 @@ import type { t } from './common.ts';
  * Returns a shallow slice of the given object path.
  * Mirrors `Array.prototype.slice(start, end?)` (pure, half-open, negative indices supported).
  */
-export const slice: t.ObjPathLib['slice'] = (path, start, end?) => {
+export const slice: t.Obj.Path.Lib['slice'] = (path, start, end?) => {
   const { P, S, E } = wrangle.args([path, start, end]);
   return P.slice(S, E) as t.ObjectPath;
 };

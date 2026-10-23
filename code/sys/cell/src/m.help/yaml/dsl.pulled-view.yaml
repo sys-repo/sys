@@ -1,0 +1,86 @@
+id: pulled-view
+title: Pulled view
+summary: Add a view backed by content-pinned `@sys/tools/pull` materialization.
+
+sections:
+  - label: Rule
+    items: |
+      Classify "add a pulled view from <manifest-url> pinned by <scheme> <digest>" as `add: pulled view`.
+      Classify "materialize configured pulled views" as `refresh: pulled views`.
+      Treat add prompts as intent plus partial slots.
+      Treat refresh prompts as owner materialization, not Cell descriptor edits.
+      A manifest URL alone is insufficient artifact authority.
+      Do not guess or derive a missing content pin.
+      Configure first; materialize only when needed or approved.
+
+  - label: 'Slot policy'
+    items: |
+      `<manifest-url>` is the exact remote `dist.json` URL.
+      `<scheme>` must be `sys.dist/v2`.
+      `<digest>` is the independently published canonical payload identity, not a manifest checksum.
+      Reject pins calculated from the same download being configured.
+      Reject old manifest-byte pins; never relabel or automatically repin them.
+      Ask for `<name>`; view names are semantic/user-facing owner handles.
+      `<name>` is not a Cell descriptor field.
+      Prefer lowercase segmented names for owner-facing handles.
+      Avoid `_`, `/`, spaces, uppercase letters, and path-like values in view handles.
+      Do not derive `<name>` from the manifest URL.
+      Propose pull config: `./-config/@sys.tools.pull/view.yaml`.
+      Propose content-addressed store: `./.dist-store`.
+      Generation verification and sealing are point-in-time, not filesystem immutability.
+      Propose mutable projection: `./view/.pulled/<name>` with mode `replace`.
+      Do not use a raw view handle as a path segment without confirming concrete owner paths.
+      Before configuring or materializing, confirm the resolved absolute store and projection destinations.
+      Relative YAML `dir` resolves from an anchor two levels above the YAML directory.
+      Store and projection paths resolve beneath that `dir`, not the terminal's current directory.
+      If the config location or directory settings change, resolve destinations again before seeking confirmation.
+      See [Pull's path guidance](https://github.com/sys-repo/sys/blob/main/code/sys.tools/README.md#content-pinned-dist-bundles).
+
+  - label: 'Dialogue'
+    items:
+      - Do not restate the DSL contract to the user.
+      - Ask for every missing authority or semantic slot and confirm proposed paths.
+      - Do not present the proposed projection as a required user operand.
+      - |-
+          Example response when the prompt supplies `<manifest-url>` but not a content pin or `<name>`:
+          OK — I can prepare that pulled view once its publisher pin is supplied.
+          I’ll use:
+          manifest: `<manifest-url>`
+          pull config: `<pull-config-path>`
+          content-addressed store: `<store-path>`
+          mutable projection: `<project-path>`
+          Please provide the publisher's `sys.dist/v2` content digest and the view name.
+
+  - label: 'Owner flow'
+    items: |
+      Use owner CLI: `@sys/tools pull add`.
+      Pass `--config <pull-config-path>`.
+      Pass `--manifest <manifest-url>`.
+      Pass `--scheme sys.dist/v2 --digest <digest>`.
+      Pass `--store <store-path>`.
+      Pass `--project <project-path> --mode replace` when a mutable view projection is required.
+      Confirm that `replace` may delete the existing projection before promotion and does not promise rollback.
+      This creates or updates pull config; it does not pull files.
+      Do not hand-author `@sys/tools/pull` YAML.
+      Pulled-view setup does not change the Cell descriptor.
+      Do not put artifact authority, projection paths, or view registry entries in
+      `-config/@sys.cell/cell.yaml`.
+
+  - label: 'Materialize'
+    items:
+      - 'For `refresh: pulled views`, use confirmed pull config path(s).'
+      - >-
+          If the prompt does not identify pull config(s) and no project convention is established,
+          ask.
+      - Run one materialization per distinct pull config.
+      - 'Use owner CLI: `@sys/tools pull`.'
+      - Pass `--non-interactive`.
+      - Pass `--config <pull-config-path>`.
+      - Do not read `views.*` from `-config/@sys.cell/cell.yaml`.
+      - Do not edit `-config/@sys.cell/cell.yaml` for refresh-only materialization.
+      - >-
+          Verification remains with the stored generation, not its mutable projection. Pull can rewrite
+          projection HTML after promotion; default `@sys/tools/serve` does not verify payload bytes.
+      - >-
+          For content-pinned hosting, see the
+          [DistService guidance](https://github.com/sys-repo/sys/blob/main/code/sys/server/README.md#compose-the-dist-lifecycle-with-syscell).

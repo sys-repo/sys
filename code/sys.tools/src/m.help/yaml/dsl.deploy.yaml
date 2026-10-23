@@ -1,0 +1,143 @@
+id: deploy
+title: Deploy DSL
+summary: Deploy staging, snapshot replacement, R2 Files publishing, and force repair mode.
+
+sections:
+  - label: Rule
+    items:
+      - >-
+          `@sys/tools/deploy` owns endpoint YAML loading, staging orchestration,
+          publish-target resolution, operator help, and push reporting.
+      - >-
+          Deploy is snapshot replacement at the configured endpoint namespace; it is
+          not incremental remote filesystem copy.
+      - >-
+          Endpoint YAML is the owner-authored config authority; source inspection and
+          provider code are implementation authority, not replacement public syntax.
+      - >-
+          Keep provider-specific mechanics behind provider modules and provider-scoped
+          tests.
+
+  - label: Stage/push
+    items:
+      - Stage prepares local staging output and `dist.json` snapshot metadata.
+      - Push replicates already-staged output to the configured provider endpoint.
+      - '`stage+push` runs stage first and then the same push path.'
+      - >-
+          Force mode applies only to push behavior, including the push half of
+          `stage+push`; it must not change staging semantics.
+
+  - label: 'Config and staging authority'
+    items:
+      - >-
+          Endpoint syntax requests runtime authority: `${env:NAME}` requests environment
+          resolution, and `~` or `~/` source paths request HOME resolution.
+      - Ordinary paths request neither environment nor HOME authority.
+      - >-
+          Environment authority never grants HOME; an environment-resolved source
+          path using `~` or `~/` separately requests HOME authority.
+      - >-
+          `~user` remains literal path text. Invalid staging `~` paths fail before
+          HOME lookup because staging destinations are relative only.
+      - >-
+          Environment resolution is all-or-nothing and config-local: malformed refs
+          or unresolved requested values fail that endpoint YAML.
+      - >-
+          `mapping.shards` and `<shard>` templates are provider-neutral staging
+          behavior. Sparse sources stage the existing shards unless `requireAll` is
+          true, which requires every expanded source path.
+      - Generated staging indexes use local relative navigation from their destination.
+
+  - label: Snapshot
+    items:
+      - >-
+          Remote files under the configured deploy namespace that are absent from the
+          staged `dist.json` are stale deploy drift.
+      - >-
+          File-by-file deploy providers must prune stale remote files by default when
+          they can list and remove through their Files view.
+      - >-
+          Do not add a `publish.stale` deploy schema option for this baseline; that
+          would turn deploy into optional incremental remote filesystem behavior.
+      - >-
+          Use the Files API directly for workflows that intentionally mutate remote
+          storage incrementally.
+
+  - label: 'Provider boundaries'
+    items:
+      - >-
+          Generic endpoint-action code may orchestrate provider selection, capability
+          checks, and presentation, but must not contain provider publish mechanics.
+      - Provider mechanics live under the matching provider module.
+      - Noop is inert and resolves no publication target.
+      - Providerless endpoints stage locally and resolve no publication target.
+      - >-
+          R2 endpoint-action orchestration tests belong in the R2-scoped endpoint
+          action spec, not the generic endpoint-action spec.
+      - Public deploy YAML/API must not gain AWS/S3 vocabulary.
+
+  - label: 'R2 Files publishing'
+    items:
+      - R2 deploy publishing uses the Files client as the write boundary.
+      - >-
+          Writes go through `Files.Client.writeBytes`; do not add raw object-store
+          write loops in deploy.
+      - >-
+          Normal R2 push may read remote textual `dist.json` through the Files view
+          and skip unchanged files from manifest comparison.
+      - >-
+          `readOrigin` is optional for deploy skip detection; no-origin deploy may
+          API-read textual `dist.json` but must not become an arbitrary binary read
+          proxy.
+      - >-
+          Remote manifest read failures or invalid remote manifests fall back to
+          upload-all behavior.
+      - >-
+          Publish `dist.json` last in the publish phase, then prune stale remote-only
+          files through the Files remove boundary.
+
+  - label: 'Force repair mode'
+    items:
+      - Force push is an explicit repair mode for publish writes.
+      - >-
+          For R2, force means do not trust the remote manifest and rewrite all staged
+          publish files before writing `dist.json` last.
+      - >-
+          Force is not the prune switch; stale pruning follows deploy snapshot
+          replacement semantics.
+      - Force must not verify arbitrary remote bytes.
+      - Push reports should label forced positive writes as forced files.
+
+  - label: Publish reports
+    items:
+      - >-
+          Provider publish stats are per-file facts with statuses such as `written`
+          and `skipped`.
+      - >-
+          Push report counts must derive from provider publish file entries, not from
+          target cardinality or separate lossy counters.
+      - >-
+          Prune stats are separate facts for stale files removed from the remote
+          deploy namespace.
+      - >-
+          Green upload counts mean actual positive writes, not merely selected
+          targets.
+      - >-
+          Removed stale files should render as neutral or yellow cleanup, not green
+          uploads.
+
+  - label: Verification
+    items:
+      - >-
+          Test CLI parsing, non-interactive resolution, endpoint-action orchestration,
+          programmatic `Deploy.push`, resolved-target execution, and provider mechanics
+          at their matching seams.
+      - >-
+          Keep provider mechanics in provider tests; keep generic endpoint-action
+          tests provider-neutral.
+      - >-
+          R2 provider tests own stale listing, expected-set computation, Files remove
+          behavior, list failure, remove failure, and force+prune ordering.
+      - >-
+          Run focused deploy tests after changing deploy behavior, then the deploy
+          suite or package dry/check gate appropriate to the slice.

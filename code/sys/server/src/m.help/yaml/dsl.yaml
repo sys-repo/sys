@@ -1,0 +1,126 @@
+id: dsl
+title: Server DSL
+summary: |
+  Server DSL: the operating contract for agents using `@sys/server` primitives.
+  Read this root layer before using, changing, or composing a server primitive.
+  Then read the matching chapter from the chapter index.
+
+sections:
+  - label: Reading protocol
+    items: |
+      Agents MUST read this root DSL layer before using `@sys/server` primitives.
+      Agents MUST read this root DSL layer before changing or composing primitives.
+      Command: `deno run -ER jsr:@sys/server dsl`.
+      Agents MUST NOT read every chapter by default.
+      Agents MUST identify the intended server speech act.
+      Agents MUST choose the smallest matching primitive and chapter.
+      Use Speech acts, Decision protocol, and Mappings.
+      Agents MUST read each matching chapter before editing or composing.
+      Command: `deno run -ER jsr:@sys/server dsl <chapter>`.
+      If no chapter index entry matches, stop and ask or create a separate plan.
+
+  - label: Rule
+    items: |
+      `@sys/server` owns small server primitives, not app orchestration.
+      Treat `WebSocketServer` as a library primitive.
+      Do not treat it as a router, session layer, or framework.
+      Use public runtime imports for primitives.
+      Do not reach into private utility files from consumers.
+      Keep Deno mechanics truthful when a primitive wraps Deno runtime APIs.
+      Keep command grammar in `@sys/event/cmd`.
+      Do not invent a second command protocol.
+      Keep Cell, owner config, and handler construction outside low-level primitives.
+      Keep examples and tests real enough to prove transport and lifecycle contracts.
+      Use `FilesServer` only as a bounded Files-over-WebSocket facade.
+      Files grammar and backing APIs live in `@sys/model/files`.
+      If a request expands into app-server, routing, auth, sessions, or UI, stop.
+      If a request changes Files grammar, stop and use `@sys/model/files`.
+      Create a new plan rather than growing the primitive by implication.
+
+  - label: Decision protocol
+    items: |
+      Prompt asks for generic WebSocket command transport → read `dsl websocket`.
+      Prompt asks for typed Cmd grammar or generic handlers → read `dsl websocket.cmd`.
+      Prompt asks about close/dispose/finished/signal/until → read `dsl websocket.lifecycle`.
+      Prompt asks about process lifecycle → read `dsl websocket.lifecycle`.
+      Prompt asks about service status or Cell composition → read `dsl websocket.service`.
+      Prompt asks about hosted startup reporting or `silent` → read `dsl websocket.service`.
+      Prompt asks for bounded Files over WebSocket or `FilesServer` → read `dsl files.websocket`.
+      Prompt asks for the Files WebSocket sample → read `dsl files.websocket`.
+      Prompt asks for static files, proxy routes, or app-server routing → stop.
+      Static files, proxy routes, and app-server routing need the owning package or a new plan.
+      Prompt asks to change Files grammar, Files backings, or Files client APIs → stop.
+      Use the owning `@sys/model/files` layer, not `@sys/server`.
+      Prompt asks for sessions, auth, router, or a generic app client SDK → stop.
+      Create a plan rather than growing `@sys/server` by implication.
+      Prompt asks for an operational `@sys/server` CLI → stop.
+      The current executable surface is help/DSL only.
+
+  - label: Speech acts
+    items: |
+      inspect server package affordances
+      use a server primitive from @sys/server
+      add a WebSocket command server to <package>
+      start a hosted WebSocket command server for a standalone process
+      serve typed commands over WebSocket
+      bind Cmd<T> handlers to a WebSocket transport
+      expose a bounded Files backing over WebSocket
+      connect to a Files WebSocket service with Files.Client.websocket(url)
+      admit or reject WebSocket upgrade requests
+      attach a raw WebSocket hook without owning the command protocol
+      close or dispose a long-running server primitive safely
+      bind server lifetime to an external until signal
+      expose server status as a t.Service.Handle
+      adapt a server primitive as a Cell service endpoint
+      add a new server primitive under @sys/server/<subpath>
+
+  - label: Mappings
+    items: |
+      Caller-owned WebSocket command endpoint → `WebSocketServer.create(...)`.
+      Hosted WebSocket command endpoint → `WebSocketServer.start(...)`.
+      WebSocket primitive import → `@sys/server/websocket`.
+      Bounded Files/WebSocket service → `FilesServer.WebSocket.create(...)`.
+      Hosted Files/WebSocket service → `FilesServer.WebSocket.start(...)`.
+      Files server facade import → `@sys/server/files`.
+      Files/WebSocket client → `Files.Client.websocket(url)`.
+      Files model imports → `@sys/model/files` or `@sys/model/files/fs`.
+      Typed command handlers → `cmd.handlers` with `t.Cmd.Handler.Map`.
+      Optional shared command namespace → `cmd.ns`.
+      Upgrade admission → `accept(request)` before `Deno.upgradeWebSocket`.
+      Raw socket escape hatch → `onSocket(context)` after command endpoint/host creation.
+      Server lifetime → `close(reason?)`, `dispose(reason?)`, `finished`, and `signal`.
+      External lifecycle boundary → `until`.
+      `until` is accepted by `WebSocketServer.create(...)` and `start(...)`.
+      Hosted process lifecycle → `lifecycle: 'process'` in `WebSocketServer.start(...)`.
+      Hosted keyboard quit controls → `keyboard` in `WebSocketServer.start(...)`.
+      Service status → `status()` plus `CreateOptions.status` metadata.
+      Cell integration → a separate Cell service adapter calls `create(...)`.
+      Cell integration → pass `until: args.until` and own config/handlers in Cell.
+      New primitive → new `@sys/server/<subpath>` plan, type surface, and implementation.
+      New primitive → new contract tests.
+
+  - label: Command grammar
+    items: |
+      Root help: `deno run -ER jsr:@sys/server --help`.
+      DSL root: `deno run -ER jsr:@sys/server dsl`.
+      DSL chapter: `deno run -ER jsr:@sys/server dsl <chapter>`.
+      Skill projection: `deno run -ER jsr:@sys/server dsl <chapter> --format skill`.
+      Valid initial chapters: `websocket`, `websocket.cmd`, `websocket.lifecycle`.
+      Valid initial chapters: `websocket.service`, `files.websocket`.
+      Do not use `jsr:@sys/server/dsl` or any other DSL subpath.
+      Do not add operational commands such as `start`, `serve`, or `listen`.
+      Do not add operational commands to satisfy help-only use.
+
+  - label: Verification
+    items: |
+      Verify public imports, not private file paths.
+      For `WebSocketServer`, assert `await import('@sys/server/websocket')` works.
+      Assert that the import exposes `WebSocketServer`.
+      For `FilesServer`, assert `await import('@sys/server/files')` works.
+      Assert that the import exposes `FilesServer`.
+      Prefer package `deno task check` and targeted package tests.
+      Use real Deno/WebSocket behavior for transport and lifecycle contracts.
+      Keep root `src/mod.ts` library-first.
+      Ensure normal imports do not load help rendering dependencies.
+      Confirm `deno.json` exports do not include a public `./cli` route.
+      Confirm root help and DSL errors render clear guidance from bundled YAML resources.

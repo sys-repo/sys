@@ -1,4 +1,4 @@
-import { withTmpDir } from '../../-test/-fixtures.ts';
+import { withTmpDir } from '../../-test/u.fixture.ts';
 import { describe, expect, Fs, it, pkg } from '../../../-test.ts';
 import { migrate01 } from '../u.migrate.-01.ts';
 import { EndpointsFs } from '../mod.ts';

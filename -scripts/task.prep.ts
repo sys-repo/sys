@@ -1,4 +1,4 @@
-import type { CliSpinner } from '@sys/cli/t';
+import type { Cli as TCli } from '@sys/cli/t';
 import { Workspace } from '@sys/workspace';
 import { c, Cli, DenoFile, Fs, Process } from './common.ts';
 const TMPL_MODULE_PATH = './code/-tmpl' as const;
@@ -27,7 +27,7 @@ async function prepSubmodules() {
   // Run sequentially so workspace prep stays in the same deterministic package order
   // used elsewhere in the repo and submodule output remains easy to follow.
   for (const item of ws.children) {
-    if (item.path.dir === Fs.resolve(TMPL_MODULE_PATH)) continue;
+    if (isTmplModulePath(ws.dir, item.path.dir)) continue;
     const tasks = item.denofile.tasks;
     if (tasks) {
       if (tasks.prep) {
@@ -61,6 +61,11 @@ export function tmplPrepArgs(context: CommitContext) {
     '--version-source=published',
     `--commit-context=${commitContext}`,
   ] as const;
+}
+
+export function isTmplModulePath(workspaceDir: string, moduleDir: string) {
+  const target = Fs.resolve(workspaceDir, TMPL_MODULE_PATH);
+  return Fs.resolve(workspaceDir, moduleDir) === target;
 }
 
 async function runTaskOrThrow(path: string, command: string) {
@@ -118,7 +123,7 @@ export async function main(context: CommitContext = 'prep') {
 }
 
 async function runProcessPhase<T>(
-  spinner: CliSpinner.Instance,
+  spinner: TCli.Spinner.Instance,
   label: string,
   fn: () => Promise<T>,
   done: (res: T) => string,
@@ -135,7 +140,7 @@ async function runProcessPhase<T>(
   }
 }
 
-async function runPackageSyncPhase(spinner: CliSpinner.Instance, cwd: string) {
+async function runPackageSyncPhase(spinner: TCli.Spinner.Instance, cwd: string) {
   spinner.start(Cli.Fmt.spinnerText('syncing package metadata...'));
   try {
     const res = await syncPackageMetadata(cwd);

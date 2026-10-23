@@ -1,0 +1,80 @@
+id: m.mod.ui
+title: UI module template
+summary: |
+  Scaffold a React UI component module and wire its type/dev-harness pointers.
+
+sections:
+  - label: Rule
+    items: |
+      Use `m.mod.ui` for a React component module.
+      Do not use it when a controller/state boundary is needed.
+      Use `m.mod.ui.controller` when the component needs lifecycle or state.
+      Also use controller when the component needs controlled props.
+      The target directory should be the component module folder.
+      Common target shape: `<package>/src/ui/<ComponentName>`.
+      The component name must be a valid TypeScript/React identifier.
+      Ask before normalizing it.
+      Do not infer the component name from the folder.
+      Keep the human-supplied name unless they approve a change.
+
+  - label: UI type lane
+    items: |
+      The generated component type vocabulary is part of the UI scaffold contract.
+      Component files use the local `t` lane for React/component contracts such as `t.FC`.
+      Style props use `t.Style.Input`.
+      If generated vocabulary is missing, repair the nearest owning `common/t.ts` or template source.
+      Do not bypass the local type lane with one-off imports in generated component files.
+
+  - label: Speech acts
+    items: |
+      add a UI component named <ComponentName>
+      create a React component at <component-dir>
+      scaffold a component module
+      make a UI component for <concept>
+      add a component to the dev harness
+
+  - label: Slots
+    items: |
+      Required: `--dir <component-dir>`.
+      Required: `--name <ComponentName>`.
+      Run from the containing package root when using a relative `<component-dir>`.
+      Relative `<component-dir>` values resolve from the current working directory.
+      Absolute `<component-dir>` values are preserved.
+      `<ComponentName>` replaces the internal `MyComponent` placeholder.
+      If the prompt gives only a concept, ask for the component name.
+      Also ask for the target directory.
+      Ask when name casing, target folder, or UI package boundary is ambiguous.
+
+  - label: Command
+    items: |
+      Preview:
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <component-dir>`.
+      Add `m.mod.ui --name <ComponentName> --dry-run`.
+      Write:
+      `deno run -ERW jsr:@sys/tmpl --non-interactive --dir <component-dir>`.
+      Add `m.mod.ui --name <ComponentName>`.
+      Existing target with approval: add `--force`.
+      Do not use `jsr:@sys/tmpl/m.mod.ui`.
+
+  - label: Side effects
+    items: |
+      Creates `mod.ts`, `t.ts`, `common.ts`, `ui.tsx`, and scoped styles.
+      Also creates `-spec/` dev-harness files.
+      Replaces `MyComponent` with `--name`.
+      Applies replacement across TypeScript and TSX files in the new module.
+      Updates the nearest parent `types.ts` to include the component module `t.ts`.
+      When the dev-harness registry pattern exists, inserts an entry.
+      Registry path: `src/-test/-specs.ts`.
+      Removes the sample stub when present.
+      `--dry-run` previews copied files but does not run setup side effects.
+
+  - label: Verify
+    items: |
+      Confirm no `MyComponent` placeholder remains in the new module.
+      Confirm the nearest parent `types.ts` points at the component `t.ts`.
+      Confirm the updated `types.ts` is inside the intended package boundary.
+      When the package has a recognized dev-harness registry, inspect it.
+      Registry path: `src/-test/-specs.ts`.
+      Confirm it has an entry for the component.
+      Run the package `deno task check` and any UI/dev-harness tests that apply.
+      If the package root is missing, stop and ask; do not hand-wire guessed imports.

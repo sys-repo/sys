@@ -1,24 +1,29 @@
 import type { t } from '../common.ts';
 
-/**
- * Tools for working with network ports.
- */
+/** TCP port selection and availability checks. */
 export type PortLib = {
   /**
-   * Retrieves a port number based on the provided preference or defaults to a pre-selected port.
+   * Use the preferred nonzero TCP port if available, otherwise the first available higher port.
    *
-   * @param preference - A preferred port number, which will be used if available,
-   *                     otherwise the port number will be incremented until a free port is found.
-   * @param options - Additional options to modify retrieval behavior.
-   * @param options.throw - If `true`, an error will be thrown the given port preference is in use.
-   * @returns The selected port number.
-   * @throws Error if no valid port number is available and `options.throw` is `true`.
+   * Preferences must be integers in 0..65535; invalid values throw RangeError before network effects.
+   * `undefined` calls `random()`; `0` is returned without probing and lets the eventual listener
+   * allocate a port.
+   *
+   * Nonzero selection checks IPv4 wildcard and loopback addresses, plus IPv6 when supported.
+   * Search advances only over confirmed conflicts: the preference plus at most 10000 consecutive
+   * higher ports, capped at 65535. `{ throw: true }` rejects an occupied preference instead of
+   * searching; exhaustion always throws.
+   *
+   * Permission refusal and other non-conflict failures throw the original error without continuing,
+   * even with `{ throw: false }`. Restricted grants may therefore refuse selection rather than skip
+   * IPv6 checks. Successful probes close their listeners; cleanup failure also throws.
+   * Availability is checked only momentarily; no port is reserved.
    */
   get(preference?: t.PortNumber, options?: { throw?: boolean }): t.PortNumber;
 
-  /** Retrieve a random unused port number. */
+  /** Ask the OS for an ephemeral port and close its listener; the returned port is not reserved. */
   random(): t.PortNumber;
 
-  /** Determine if the given port number is currently in use. */
+  /** Conservative check: conflict or inability to establish availability returns true. */
   inUse(port: t.PortNumber): boolean;
 };

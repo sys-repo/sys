@@ -1,48 +1,44 @@
 # Type Schema
 
-"[Standard Schema](https://standardschema.dev)" (Typescript/JSONSchema) tools.
+Runtime schema construction and validation with inferred TypeScript types, JSON Schema, and
+[Standard Schema](https://standardschema.dev) integration.
 
-Runtime type definition builder for:
-- Runtime reflection via **JSONSchema**.
-- Static type checking via **Typescript** types (zero drift from the JSONSchema).
-- **JSR-safe** bundle export strategy (safely avoids "no slow types" constraint registry errors).
-- [Standard Schema](https://standardschema.dev) specification implementation.
+## Example
 
-
-### Refs:
-- [standardschema.dev](https://standardschema.dev)
-- [json-schema.org](https://json-schema.org)
-
-
-
-### Example
 ```ts
-import { Schema, type Static } from 'jsr:@sys/schema';
+import { Schema, Type, Value, type t } from 'jsr:@sys/schema';
 
-// Define the type:         // ← (is an augmented valid JSONSchema object)
-const T = Type.Object({
+const Person = Type.Object({
   id: Type.Integer(),
-  name: Type.Optional(Type.String({description: 'Display name.'})),
+  name: Type.Optional(Type.String({ description: 'Display name.' })),
 });
+type Person = t.Static<typeof Person>;
 
+const input = { id: 123, name: 'Ada', noise: 'removed' };
+const cleaned = Value.Clean(Person, Value.Clone(input));
+console.log(cleaned); // { id: 123, name: 'Ada' }
+console.log(Value.Check(Person, { id: 0 })); // true
 
-// Infer TS type:
-type T = Static<typeof T>;  // Invert proper TS type.
-
-const value = {
-  id: 123,
-  name: 'foo',
-  noise: '👋',
-};
-
-
-// Runtime validation:
-const cleaned = Value.Clean(T, Value.Clone(value));   // ← (remove values not in the type)
-const isValid = Value.Check(T, { id: 0 });            // ← true
-Value.Assert(T, { foo: 'fail' });                     // ← throws
-
-// Rollup of runtime pipeline steps into "safe parse":
-const result = Schema.try(() => Value.Parse(SampleSchema, value));
-// ↑ valid: { id: 123, name: 'foo' }
-
+const result = Schema.try(() => Value.Parse(Person, input));
+if (result.ok) {
+  const person: Person = result.value;
+  console.log(person.id);
+} else {
+  console.log(result.errors);
+}
 ```
+
+`Value.Clean` removes values outside the schema; clone first to preserve the input. `Value.Check`
+returns a boolean, while `Value.Assert` throws on invalid data. `Schema.try` returns
+`{ ok: true, value }` or `{ ok: false, errors }` for schema assertion failures. Unexpected errors
+are rethrown, not converted into validation results.
+
+## Entry points
+
+- [Root API](https://jsr.io/@sys/schema/doc/): `Schema`, `Type`, `Value`, and `type t`. Infer schema
+  types with `t.Static<typeof schema>`.
+- [`/recipe`](https://jsr.io/@sys/schema/doc/recipe/): schema recipes.
+- [`/testing`](https://jsr.io/@sys/schema/doc/testing/): schema testing helpers.
+- [`/t`](https://jsr.io/@sys/schema/doc/t/): type-only exports.
+
+References: [JSON Schema](https://json-schema.org) · [Standard Schema](https://standardschema.dev).

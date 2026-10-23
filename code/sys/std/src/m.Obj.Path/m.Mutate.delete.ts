@@ -5,7 +5,7 @@ type O = Record<string, unknown>;
 /**
  * Deletes the value at the given path if it exists.
  */
-export function del(subject: O, path: t.ObjectPath): t.ObjDiffOp | undefined {
+export function del(subject: O, path: t.ObjectPath): t.Obj.Path.Mutate.Op | undefined {
   if (path == null || path.length === 0) return;
 
   // Descend to the parent of the target.

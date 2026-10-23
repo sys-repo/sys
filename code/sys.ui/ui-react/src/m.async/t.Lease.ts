@@ -1,4 +1,4 @@
-import type { LeaseLib as StdLeaseLib } from '@sys/std/t';
+import type { Lease as StdLease } from '@sys/std/t';
 import type { t } from './common.ts';
 
 type S = string;
@@ -9,7 +9,7 @@ type S = string;
  * Provides "latest-wins" leases over arbitrary keys/tokens.
  * Only the most recent claimant for a given key is considered the owner.
  */
-export type LeaseLib = StdLeaseLib & {
+export type LeaseLib = StdLease.Lib & {
   /**
    * Create a React hook bound to a singleton lease instance.
    *

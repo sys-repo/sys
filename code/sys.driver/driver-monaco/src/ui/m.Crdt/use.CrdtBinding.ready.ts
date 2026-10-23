@@ -1,7 +1,7 @@
 import { type t, Bus, Rx, Schedule } from './common.ts';
 
 type Args = {
-  bus$: t.EditorEventBus;
+  bus$: t.EditorBus.Subject;
   foldMarks: boolean;
   editor: t.Monaco.Editor;
   monaco: t.Monaco.Monaco;
@@ -13,7 +13,7 @@ type Args = {
  * - If foldMarks is false → emit on the next RAF tick.
  * - If foldMarks is true  → wait once for 'editor:crdt:folding:ready'.
  */
-export function monitorReady(args: Args, onReady?: t.EditorCrdtBindingReadyHandler) {
+export function monitorReady(args: Args, onReady?: t.EditorCrdt.Binding.ReadyHandler) {
   const { bus$, foldMarks, editor, monaco, life } = args;
   if (life.disposed) return;
 

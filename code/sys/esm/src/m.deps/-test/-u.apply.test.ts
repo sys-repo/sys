@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, Testing } from './common.ts';
+import { describe, expect, expectError, Fs, it, Testing } from './common.ts';
 import { Deps } from '../mod.ts';
 
 describe('Deps.applyDeno', () => {
@@ -8,6 +8,24 @@ describe('Deps.applyDeno', () => {
     importMap?: string;
     tasks?: Record<string, string>;
   };
+
+  it('directory at the import-map target → rejects after writing the Deno config', async () => {
+    const fs = await Testing.dir('EsmDeps.applyDeno.writeFailure');
+    const denoPath = fs.join('deno.json');
+    const importMapPath = fs.join('imports.json');
+    const entry = Deps.toEntry('jsr:@std/path@1.0.8', { target: 'deno.json' });
+    await Fs.writeJson(denoPath, {
+      importMap: './imports.json',
+      imports: { stale: 'jsr:@std/fmt@1.0.0' },
+    }, { throw: true });
+    await Fs.ensureDir(importMapPath);
+
+    await expectError(() => Deps.applyDeno(denoPath, [entry]));
+    const config = await Fs.readJson<DenoConfigJson>(denoPath);
+    expect(config.ok).to.eql(true);
+    expect(config.data).to.eql({ importMap: './imports.json' });
+    expect(await Fs.Is.dir(importMapPath)).to.eql(true);
+  });
 
   it('writes inline imports when no importMap is declared', async () => {
     const fs = await Testing.dir('EsmDeps.applyDeno.inline');

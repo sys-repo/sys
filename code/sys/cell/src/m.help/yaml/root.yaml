@@ -1,0 +1,41 @@
+summary: |
+  A Cell is a folder with an explicit runtime contract.
+  Its ordinary files carry source material, owner configs, service/task descriptors,
+  and optional projections inside that folder boundary.
+  Agents must read `dsl` before changing `-config/@sys.cell/cell.yaml`, owner configs,
+  tasks, services, or routes, then read the matching DSL chapter.
+
+usage:
+  - deno run -ER   jsr:@sys/cell --help
+  - deno run -ER   jsr:@sys/cell dsl [chapter...] [--format human|skill]
+  - deno run -ER   jsr:@sys/cell info [dir]
+  - deno run -ERW  jsr:@sys/cell init [dir]
+  - deno run -ERW  jsr:@sys/cell migrate [dir]
+  - deno run -ERWN jsr:@sys/cell task <name> [dir]
+  - deno run -ERWN jsr:@sys/cell start [dir]
+  - deno run -ERWN jsr:@sys/cell start [dir] --mode <mode>
+  - deno run -ERWN jsr:@sys/cell start [dir] --reporter <auto|screen|raw>
+  - deno run -ERW --allow-run jsr:@sys/cell kill [dir]
+  - deno run -ERW --allow-run jsr:@sys/cell kill [dir] --mode <mode>
+
+commands:
+  - name: dsl
+    text: >-
+      read the Cell editing contract, owner boundaries, mappings,
+      and chapter index
+  - name: info
+    text: report descriptor facts without imports, probes, scans, or mutation
+  - name: init
+    text: initialize a folder as a Cell
+  - name: migrate
+    text: move a legacy descriptor to the canonical `-config/@sys.cell/cell.yaml` path
+  - name: task
+    text: run a named trusted task from tasks[]
+  - name: start
+    text: start a Cell's services
+  - name: kill
+    text: break-glass stop for running services
+
+options:
+  - name: -h, --help
+    text: show help

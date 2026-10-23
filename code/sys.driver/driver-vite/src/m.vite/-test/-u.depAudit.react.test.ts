@@ -1,5 +1,5 @@
 import { describe, expect, Fs, it, Path } from '../../-test.ts';
-import { DepAudit } from '../u.depAudit.react.ts';
+import { DepAudit } from '../u/u.depAudit.react.ts';
 
 describe('Vite.DepAudit', () => {
   it('reports a mixed-authority duplicate React wrapper graph', async () => {

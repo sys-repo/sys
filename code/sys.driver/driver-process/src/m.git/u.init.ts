@@ -1,4 +1,5 @@
-import { type t, checkVersion, Fs, isMissingBinaryError, Process } from './common.ts';
+import { checkVersion, Fs, isMissingBinaryError, type t } from './common.ts';
+import { invoke } from '../u.invoke.ts';
 
 const HINT_NOT_FOUND = 'git not found. Install Git and ensure it is on PATH.';
 const HINT_FAILED = 'git init failed. Ensure git is executable and on PATH.';
@@ -18,7 +19,7 @@ export const init: t.GitInitFn = async (opts = {}) => {
   }
 
   try {
-    const res = await Process.invoke({
+    const res = await invoke({
       cmd: git,
       args: ['init'],
       cwd,
