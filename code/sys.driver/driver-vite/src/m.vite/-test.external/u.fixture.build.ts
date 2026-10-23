@@ -77,8 +77,8 @@ export async function buildSample(args: {
 
   const resultPath = Fs.join(fs.dir, '.sys-vite-build-result.json');
 
-  // Importing fixture vite.config.ts in the test process loads Rolldown, whose SignalExit
-  // installs process signal listeners without a public removal API. Isolate that world here.
+  // Keep fixture config/toolchain imports and their process-global state in a disposable
+  // child, independent of whether the installed Rolldown version registers signal listeners.
   const childArgs = ['run', '-P=test', CHILD, fs.dir, resultPath];
   const child = await Process.capture({
     cmd: Deno.execPath(),

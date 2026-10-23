@@ -49,7 +49,7 @@ describe('Vite external-fixture lifecycle under local equivalent authority', () 
     expect(files.js.length > 0).to.eql(true);
   });
 
-  it('proves the child boundary remains load-bearing with a causal strict alarm', async () => {
+  it('proves the in-process build lifecycle completes with strict sanitizers', async () => {
     const result = await runFixtureProcess({
       label: 'Vite strict in-process build fixture',
       args: ['test', '-P=test', '--trace-leaks', STRICT_FIXTURE],
@@ -65,17 +65,14 @@ describe('Vite external-fixture lifecycle under local equivalent authority', () 
     expect(result.timeout).to.eql(undefined);
     expect(result.captureError).to.eql(undefined);
     expect(result.markerReached).to.eql(true);
-    expect(result.code).to.eql(1);
+    expect(result.code, result.text).to.eql(0);
     expect(result.signal).to.eql(undefined);
 
     for (const marker of Object.values(MARKERS)) {
       expect(stdout).to.include(marker);
       expect(stderr).to.not.include(marker);
     }
-    expect(stdout).to.include('Leaks detected');
-    expect(stdout).to.include('async operations to get the next signal');
-    // Attribute the signal leak to Rolldown without pinning its installed version.
-    expect(stdout).to.match(/SignalExit\.load \([^\r\n]*[/\\]node_modules[/\\]rolldown[/\\]/);
+    expect(stdout).to.not.include('Leaks detected');
     expect(stderr).to.not.include('Leaks detected');
   });
 });
