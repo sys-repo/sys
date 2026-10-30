@@ -30,8 +30,10 @@ function MyComponent(props: { text: string }) {
 }
 ```
 
-`Button` renders a `div` with `role="button"`, not a native button. Do not assume native keyboard
-activation or form behavior.
+`Button` is a styled rich-content control with a `div` root and `role="button"`. When enabled and
+active, it participates in the tab order and activates on Enter keydown or Space keyup. It is not a
+native form control and does not submit forms automatically; interactive descendants own their
+input.
 
 See the [API documentation](https://jsr.io/@sys/ui-components/doc) for component props and other
 leaves.

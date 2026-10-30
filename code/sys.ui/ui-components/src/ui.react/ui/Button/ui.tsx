@@ -59,8 +59,8 @@ export const Button: FC<P> = (props) => {
       cursor: enabled && active ? 'pointer' : 'default',
       userSelect: userSelect ? 'auto' : 'none',
       ':focus-visible': {
-        outline: `2px solid ${theme.fg}`,
-        outlineOffset: 2,
+        outline: `2px solid ${Color.BLUE}`,
+        outlineOffset: '2px',
       },
     }),
     body: css({

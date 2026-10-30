@@ -28,6 +28,10 @@ export declare namespace Button {
 
     /** Appearance: */
     theme?: t.CommonTheme;
+    /**
+     * Root styles. A supplied `:focus-visible` block replaces the entire default block.
+     * Use explicit outline-offset units; suppress the outline only with a visible replacement.
+     */
     style?: t.CssInput;
     margin?: t.CssEdgesInput;
     padding?: t.CssEdgesInput;

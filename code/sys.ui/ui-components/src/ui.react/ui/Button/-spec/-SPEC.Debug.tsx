@@ -1,11 +1,26 @@
 import type React from 'react';
 import { ObjectView } from '../../ObjectView/mod.ts';
 
-import { css, D, Is, LocalStorage, Signal, type t } from '../common.ts';
+import { css, D, Is, LocalStorage, Obj, Signal, type t } from '../common.ts';
 import { Button } from '../mod.ts';
 
+const VIEWS = ['single', 'variants'] as const;
+export type DebugView = (typeof VIEWS)[number];
+
 type P = t.Button.Props;
-type Storage = Pick<P, 'theme' | 'debug' | 'active'> & { enabled?: boolean; opacity?: t.Percent };
+type Storage = Pick<P, 'theme' | 'debug' | 'active'> & {
+  enabled?: boolean;
+  opacity?: t.Percent;
+  view: DebugView;
+};
+const defaults: Storage = {
+  theme: 'Dark',
+  debug: true,
+  enabled: D.enabled,
+  active: D.active,
+  opacity: D.opacity.enabled,
+  view: 'single',
+};
 
 /**
  * Types:
@@ -18,41 +33,42 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals() {
   const s = Signal.create;
-
-  const defaults: Storage = {
-    theme: 'Dark',
-    debug: true,
-    enabled: true,
-    active: true,
-    opacity: 1,
-  };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
-    enabled: s(snap.enabled),
-    active: s(snap.active ?? true),
-    opacity: s(snap.opacity),
+    enabled: s<P['enabled']>(snap.enabled ?? defaults.enabled),
+    active: s(snap.active ?? defaults.active),
+    opacity: s<P['opacity']>(snap.opacity ?? defaults.opacity),
+    view: s(snap.view ?? defaults.view),
   };
   const p = props;
   const api = {
     props,
-    listen() {
-      Signal.listen(props);
-    },
+    listen,
+    reset,
   };
+
+  function listen() {
+    Signal.listen(props, true);
+  }
+
+  function reset() {
+    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+  }
 
   Signal.effect(() => {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
       d.active = p.active.value;
+      d.view = p.view.value;
 
-      // NB: functions not storable.
-      d.enabled = Is.func(p.enabled.value) ? true : d.enabled;
-      d.opacity = Is.func(p.opacity.value) ? 1 : d.opacity;
+      // Callback modes are transient; persist serializable defaults instead.
+      d.enabled = Is.func(p.enabled.value) ? defaults.enabled : p.enabled.value;
+      d.opacity = Is.func(p.opacity.value) ? defaults.opacity : p.opacity.value;
     });
   });
 
@@ -75,7 +91,7 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  Signal.useRedrawEffect(() => debug.listen());
+  Signal.useRedrawEffect(debug.listen);
 
   /**
    * Render:
@@ -129,6 +145,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
+      <Button
+        block
+        label={() => `view: ${p.view.value}`}
+        onClick={() => Signal.cycle<DebugView>(p.view, VIEWS)}
+      />
+      <Button block label='(reset)' onClick={debug.reset} />
       <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
