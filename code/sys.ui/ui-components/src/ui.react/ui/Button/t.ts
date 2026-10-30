@@ -2,7 +2,8 @@ import type React from 'react';
 import type { t } from './common.ts';
 
 /**
- * Headless clickable button primitive.
+ * Styled rich-content button with keyboard focus and Enter/Space activation.
+ * Retains a div root for rich content; interactive descendants own their input.
  */
 export declare namespace Button {
   export type Content = React.JSX.Element | string | number | false;
@@ -16,8 +17,10 @@ export declare namespace Button {
     tooltip?: string;
 
     /** Boolean state: */
+    /** Disabled buttons leave the tab order and suppress activation. */
     enabled?: boolean | (() => boolean);
     opacity?: t.Percent | Prop.Callback<t.Percent>;
+    /** Inactive buttons leave the tab order and ignore interaction. */
     active?: boolean;
     block?: boolean;
     isOver?: boolean; // force the button into an "is-over" state.
@@ -38,6 +41,7 @@ export declare namespace Button {
     subscribe?: () => void;
 
     /** Events: */
+    /** Primary mouse/touch release, or a click event for keyboard/assistive activation. */
     onClick?: React.MouseEventHandler;
     onMouseDown?: React.MouseEventHandler;
     onMouseUp?: React.MouseEventHandler;
@@ -74,6 +78,7 @@ export declare namespace Button {
       readonly synthetic: React.MouseEvent;
       readonly modifiers: t.Keyboard.Modifier.Flags;
       readonly is: Flags;
+      /** Prevent propagation/default and cancel activation for this press. */
       cancel(): void;
     };
   }
