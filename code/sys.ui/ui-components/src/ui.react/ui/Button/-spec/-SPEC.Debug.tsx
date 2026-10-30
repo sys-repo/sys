@@ -1,11 +1,11 @@
-import React from 'react';
+import type React from 'react';
 import { ObjectView } from '../../ObjectView/mod.ts';
 
-import { type t, css, D, Is, LocalStorage, Signal } from '../common.ts';
+import { css, D, Is, LocalStorage, Signal, type t } from '../common.ts';
 import { Button } from '../mod.ts';
 
 type P = t.Button.Props;
-type Storage = Pick<P, 'theme' | 'debug'> & { enabled?: boolean; opacity?: t.Percent };
+type Storage = Pick<P, 'theme' | 'debug' | 'active'> & { enabled?: boolean; opacity?: t.Percent };
 
 /**
  * Types:
@@ -23,6 +23,7 @@ export function createDebugSignals() {
     theme: 'Dark',
     debug: true,
     enabled: true,
+    active: true,
     opacity: 1,
   };
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
@@ -32,6 +33,7 @@ export function createDebugSignals() {
     debug: s(snap.debug),
     theme: s(snap.theme),
     enabled: s(snap.enabled),
+    active: s(snap.active ?? true),
     opacity: s(snap.opacity),
   };
   const p = props;
@@ -46,6 +48,7 @@ export function createDebugSignals() {
     store.change((d) => {
       d.theme = p.theme.value;
       d.debug = p.debug.value;
+      d.active = p.active.value;
 
       // NB: functions not storable.
       d.enabled = Is.func(p.enabled.value) ? true : d.enabled;
@@ -103,6 +106,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Button
         block
+        label={() => `active: ${p.active.value}`}
+        onClick={() => Signal.toggle(p.active)}
+      />
+
+      <Button
+        block
         label={() => {
           const v = p.opacity.value;
           return `opacity: ${Is.func(v) ? 'ƒ' : v}`;
@@ -120,7 +129,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
 };

@@ -1,7 +1,7 @@
-import React from 'react';
+import type React from 'react';
 import { Button, ObjectView } from '../../u.ts';
 
-import { type t, css, D, Signal } from '../common.ts';
+import { css, D, Signal, type t } from '../common.ts';
 import { SwitchTheme } from '../mod.ts';
 
 type P = t.Switch.Props;
@@ -21,7 +21,8 @@ export function createDebugSignals() {
     debug: s(false),
     enabled: s<P['enabled']>(D.enabled),
     value: s<P['value']>(true),
-    theme: s<P['theme']>('Light'),
+    theme: s<t.CommonTheme>('Light'),
+    color: s<'blue' | 'green' | 'yellow' | undefined>(undefined),
   };
   const p = props;
   const api = {
@@ -31,15 +32,15 @@ export function createDebugSignals() {
       p.theme.value;
       p.value.value;
       p.enabled.value;
+      p.color.value;
+    },
+    get switchTheme(): P['theme'] {
+      const name = p.theme.value;
+      const color = p.color.value;
+      return color === undefined ? name : SwitchTheme.fromName(name)[color];
     },
     updateTheme(color: 'blue' | 'green' | 'yellow') {
-      const m = p.theme.value === 'Dark' ? SwitchTheme.dark : SwitchTheme.light;
-      let value = m.default;
-      if (color === 'green') value = m.green;
-      if (color === 'yellow') value = m.yellow;
-      if (color === 'blue') value = m.blue;
-
-      p.theme.value = value;
+      p.color.value = color;
     },
   };
 
@@ -78,7 +79,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme as any, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
       <Button
         block
@@ -104,7 +105,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.debug)}
       />
       <ObjectView
-        name={'debug'}
+        name='debug'
         data={Signal.toObject(p)}
         expand={['$']}
         style={{ marginTop: 10 }}

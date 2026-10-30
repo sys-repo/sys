@@ -1,7 +1,7 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { Switch } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -22,7 +22,7 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => (
         <Switch
           debug={p.debug.value}
-          theme={p.theme.value}
+          theme={debug.switchTheme}
           enabled={p.enabled.value}
           value={p.value.value}
           onMouseDown={(e) => {
