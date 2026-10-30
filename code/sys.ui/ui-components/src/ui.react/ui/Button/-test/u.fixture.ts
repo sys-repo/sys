@@ -41,28 +41,22 @@ export function compatibilityMouse(el: HTMLElement, type: string) {
   return event;
 }
 
+/** Single-contact adapter: this fixture owns the gesture lists and React dispatch. */
 export function touch(el: HTMLElement, type: TouchEventType, options: TouchOptions = {}) {
   const { identifier = 1, clientX = 0 } = options;
-  const point: Touch = {
+  const point = DomMock.Touch.point({
     identifier,
     target: el,
     clientX,
-    clientY: 0,
     pageX: clientX,
-    pageY: 0,
     screenX: clientX,
-    screenY: 0,
     radiusX: 1,
     radiusY: 1,
-    rotationAngle: 0,
     force: 1,
-  };
+  });
   const ended = type === 'touchend' || type === 'touchcancel';
   const touches = ended ? [] : [point];
-  const view = el.ownerDocument.defaultView!;
-  const event = new view.TouchEvent(type, {
-    bubbles: true,
-    cancelable: true,
+  const event = DomMock.Touch.event(el, type, {
     touches,
     targetTouches: touches,
     changedTouches: [point],
