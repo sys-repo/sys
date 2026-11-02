@@ -35,5 +35,49 @@ active, it participates in the tab order and activates on Enter keydown or Space
 native form control and does not submit forms automatically; interactive descendants own their
 input.
 
+### Button appearance and focus
+
+The root defaults to a 1px radius; override it with `style.borderRadius`, including `0` for square
+corners. Customize the default focus treatment through four root CSS tokens, without replacing its
+motion or preference handling:
+
+| Token                       | Controls                               | Default           |
+| --------------------------- | -------------------------------------- | ----------------- |
+| `--sys-button-focus-accent` | Arrival colour                         | Opaque blue       |
+| `--sys-button-focus-rest`   | Resting colour                         | Blue at 20% alpha |
+| `--sys-button-focus-width`  | Outline stroke width, not Button width | `2px`             |
+| `--sys-button-focus-offset` | Outline offset from the root edge      | `2px`             |
+
+```tsx
+<Button
+  style={{
+    '--sys-button-focus-accent': '#a855f7',
+    '--sys-button-focus-rest': '#887399',
+    '--sys-button-focus-width': '2px',
+    '--sys-button-focus-offset': '1px',
+  }}
+>
+  Run
+</Button>;
+```
+
+Use explicit CSS lengths for width and offset. Keep the width positive; `'0px'` offset puts the ring
+against the edge, while negative offsets move it inward. The default 2px offset plus 2px stroke
+paints 4px outside the root; it does not reserve margin or change layout width or height. Keep
+layout on the existing margin, padding and sizing surfaces, and corner shape on
+`style.borderRadius`.
+
+On native `:focus-visible`, the accent appears immediately, holds for 70ms, then settles over 220ms
+with `ease-out`. Each Button using the default treatment initializes its own palette and geometry.
+Choose resting colours for the actual surface; the dim default does not meet 3:1 contrast against
+white or Dark. Reduced motion skips the arrival; forced colours uses a static `Highlight` outline.
+Both preference modes retain the chosen width and offset. Explicit root animation settings,
+including longhands, preserve the caller's animation and keep default focus static. Timing and
+easing remain component-owned.
+
+Supplying `style[':focus-visible']` instead replaces the complete default treatment. The caller owns
+its indicator and motion/preference handling; no default focus variables or media rules are added.
+Keep a visible indicator and use explicit units for `outlineOffset`.
+
 See the [API documentation](https://jsr.io/@sys/ui-components/doc) for component props and other
 leaves.

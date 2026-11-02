@@ -2,6 +2,7 @@ import { type FC, useEffect, useRef, useState } from 'react';
 
 import { Color, css, D, Is, Signal, Style, type t } from './common.ts';
 import { Event, type PressState, toEventState } from './u.events.ts';
+import { focusStyle } from './u.focus.ts';
 import { Wrangle } from './u.ts';
 
 type P = t.Button.Props;
@@ -55,13 +56,10 @@ export const Button: FC<P> = (props) => {
       display: block ? 'block' : 'inline-block',
       minWidth: props.minWidth,
       maxWidth: props.maxWidth,
+      borderRadius: D.borderRadius,
       opacity: opacity,
       cursor: enabled && active ? 'pointer' : 'default',
       userSelect: userSelect ? 'auto' : 'none',
-      ':focus-visible': {
-        outline: `2px solid ${Color.BLUE}`,
-        outlineOffset: '2px',
-      },
     }),
     body: css({
       display: 'grid',
@@ -84,12 +82,14 @@ export const Button: FC<P> = (props) => {
     }),
   };
 
+  const rootStyle = focusStyle(styles.base, props.style);
+
   return (
     <div
       role='button'
       tabIndex={enabled && active ? 0 : -1}
       aria-disabled={!enabled || !active ? true : undefined}
-      className={css(styles.base, props.style).class}
+      className={rootStyle.class}
       title={props.tooltip}
       {...Event.handlers(eventState)}
     >
