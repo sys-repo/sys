@@ -1,8 +1,8 @@
 import type React from 'react';
+import { Dev } from '../../../dev/mod.ts';
 import { ObjectView } from '../../ObjectView/mod.ts';
 
 import { css, D, Is, LocalStorage, Obj, Signal, type t } from '../common.ts';
-import { Button } from '../mod.ts';
 
 const VIEWS = ['single', 'variants'] as const;
 export type DebugView = (typeof VIEWS)[number];
@@ -18,7 +18,7 @@ const defaults: Storage = {
   debug: true,
   enabled: D.enabled,
   active: D.active,
-  opacity: D.opacity.enabled,
+  opacity: undefined, // Let Button derive opacity from enabled until explicitly overridden.
   view: 'single',
 };
 
@@ -102,13 +102,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.enabled.value;
@@ -120,37 +120,38 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `active: ${p.active.value}`}
         onClick={() => Signal.toggle(p.active)}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.opacity.value;
-          return `opacity: ${Is.func(v) ? 'ƒ' : v}`;
+          if (Is.func(v)) return 'opacity: ƒ';
+          return Is.number(v) ? `opacity: ${v} (override)` : 'opacity: auto';
         }}
         onClick={() => {
           type F = t.Button.Prop.Callback<t.Percent>;
           const fn: F = (e) => (e.is.enabled ? (e.is.over ? 0.8 : 0.3) : 0.1);
-          Signal.cycle(p.opacity, [1, 0.1, fn]);
+          Signal.cycle(p.opacity, [undefined, 1, 0.1, fn]);
         }}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `view: ${p.view.value}`}
         onClick={() => Signal.cycle<DebugView>(p.view, VIEWS)}
       />
-      <Button block label='(reset)' onClick={debug.reset} />
+      <Dev.Button block label='(reset)' onClick={debug.reset} />
       <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );

@@ -7,7 +7,7 @@ type Stored = {
   debug: boolean;
   enabled: boolean;
   active: boolean;
-  opacity: number;
+  opacity?: number;
   view: 'single' | 'variants';
 };
 const storageKey = `dev:${D.displayName}`;
@@ -16,9 +16,9 @@ const defaults: Stored = {
   debug: true,
   enabled: true,
   active: true,
-  opacity: 1,
   view: 'single',
 };
+const defaultSignals = { ...defaults, opacity: undefined };
 const changed: Stored = {
   theme: 'Light',
   debug: false,
@@ -59,11 +59,11 @@ describe('Button spec: reset', () => {
 
     for (let i = 0; i < 2; i++) {
       debug.reset();
-      expect(Signal.toObject(debug.props)).to.eql(defaults);
+      expect(Signal.toObject(debug.props)).to.eql(defaultSignals);
       expect(persisted()).to.eql(defaults);
       for (const name of Obj.keys(refs)) expect(debug.props[name]).to.equal(refs[name]);
     }
-    expect(Signal.toObject(debugModule.createDebugSignals().props)).to.eql(defaults);
+    expect(Signal.toObject(debugModule.createDebugSignals().props)).to.eql(defaultSignals);
   });
 
   it('keeps callback modes transient, persists safe defaults, and clears them on reset', () => {
@@ -78,10 +78,10 @@ describe('Button spec: reset', () => {
     expect(p.enabled.value).to.equal(enabled);
     expect(p.opacity.value).to.equal(opacity);
     expect(persisted()).to.eql(defaults);
-    expect(Signal.toObject(debugModule.createDebugSignals().props)).to.eql(defaults);
+    expect(Signal.toObject(debugModule.createDebugSignals().props)).to.eql(defaultSignals);
 
     debug.reset();
-    expect(Signal.toObject(p)).to.eql(defaults);
+    expect(Signal.toObject(p)).to.eql(defaultSignals);
     expect(persisted()).to.eql(defaults);
   });
 });

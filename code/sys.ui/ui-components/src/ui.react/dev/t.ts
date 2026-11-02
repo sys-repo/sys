@@ -6,7 +6,20 @@ import type { t } from './common.ts';
 export declare namespace Dev {
   export type Lib = {
     readonly Help: t.DevHelp.Lib;
+    readonly Button: t.FC<Button.Props>;
   };
+
+  /** A neutral debug-row frame around the production Button. */
+  export namespace Button {
+    /**
+     * Forwarded unchanged to Button, including original style input.
+     * Default Button margin/padding extend its left edge 2px without moving the label;
+     * supplied margin/padding replace those defaults. The frame supplies compact line-height
+     * and non-clickable outline clearance. Allow 6px left and 4px right overhang inside the host
+     * panel; larger custom outlines need their own clearance. Font size is inherited.
+     */
+    export type Props = t.Button.Props;
+  }
 
   /**
    * Help and documentation composition helpers.
