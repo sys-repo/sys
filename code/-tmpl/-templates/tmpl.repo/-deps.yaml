@@ -83,11 +83,11 @@ package.json:
     dev: true
   - import: npm:@vitejs/plugin-react@6.1.2
     dev: true
-  - import: npm:rollup@4.64.12
+  - import: npm:rollup@4.67.2
     dev: true
   - import: npm:rollup-plugin-visualizer@7.1.1
     dev: true
-  - import: npm:vite@8.3.4
+  - import: npm:vite@8.3.5
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
