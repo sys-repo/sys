@@ -17,6 +17,7 @@
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
+    "./style/focus": "./src/m.style/m.FocusStyle/mod.ts",
     "./react": "./src/ui.react/mod.ts",
     "./react/action-probe": "./src/ui.react/ui/ActionProbe/mod.ts",
     "./react/anchor": "./src/ui.react/ui/Anchor/mod.ts",
@@ -135,4 +136,3 @@
     }
   }
 }
-

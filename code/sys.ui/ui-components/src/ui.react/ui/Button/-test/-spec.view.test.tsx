@@ -9,9 +9,10 @@ import {
   it,
   TestReact,
 } from '../../../-test.ts';
-import { Color, D, Is, Json, LocalStorage, Schedule, Signal, Style, type t } from '../common.ts';
+import { Color, D, Is, Json, LocalStorage, Schedule, Signal, type t } from '../common.ts';
 import { Root } from '../-spec/-ui.Root.tsx';
 import { button, key } from './u.fixture.ts';
+import { ruleText } from './u.fixture.focus.ts';
 
 type DebugModule = typeof import('../-spec/-SPEC.Debug.tsx');
 type Stored = {
@@ -47,11 +48,9 @@ describe('Button spec: view', () => {
       expect(res.container.querySelectorAll('[role="button"]').length).to.eql(1);
       expect(root.textContent).to.eql('👋 Hello Button');
       expect(res.container.querySelector('section')).to.eql(null);
-      const rule = Style.Dom.stylesheet().rules.items.find((r) =>
-        r.selector === `.${root.className}`
-      );
-      expect(rule?.rule).to.include('display: inline-block;');
-      expect(rule?.rule).not.to.include('padding');
+      const rule = ruleText(root);
+      expect(rule).to.include('display: inline-block;');
+      expect(rule).not.to.include('padding');
     } finally {
       React.act(() => res.dispose());
     }
@@ -86,7 +85,7 @@ describe('Button spec: view', () => {
         await Schedule.micro();
       });
       expect(debug.props.view.value).to.eql('variants');
-      expect(subject.querySelectorAll('[role="button"]').length).to.eql(4);
+      expect(subject.querySelectorAll('[role="button"]').length).to.eql(5);
       expect(stored()?.view).to.eql('variants');
       expect(debugModule.createDebugSignals().props.view.value).to.eql('variants');
 
@@ -136,7 +135,7 @@ describe('Button spec: view', () => {
         const roots = () => [...subject.querySelectorAll<HTMLElement>('[role="button"]')];
         const window = res.container.ownerDocument.defaultView!;
         const opacities = () => roots().map((el) => window.getComputedStyle(el).opacity);
-        const expected = (opacity: string) => Array(view === 'single' ? 1 : 4).fill(opacity);
+        const expected = (opacity: string) => Array(view === 'single' ? 1 : 5).fill(opacity);
 
         // Preserve a saved numeric override; reset restores production opacity behavior.
         expect(debug.props.opacity.value).to.eql(1);
@@ -184,6 +183,8 @@ describe('Button spec: view', () => {
           'SECTION',
           'DIV',
           'SECTION',
+          'DIV',
+          'SECTION',
         ]);
         const sections = [...frame.querySelectorAll<HTMLElement>('section')];
         const titles = sections.map((el) => el.firstElementChild!);
@@ -193,16 +194,11 @@ describe('Button spec: view', () => {
           'default · rounded / icon',
           'custom root · complete focus block',
           'child-owned · css inheritance through a wrapper',
+          'shared arrival · child-owned through a wrapper',
         ]);
-        const frameRule = Style.Dom.stylesheet().rules.items.find((r) =>
-          r.selector === `.${frame.className}`
-        );
-        expect(frameRule?.rule).not.to.include('gap:');
+        expect(ruleText(frame)).not.to.include('gap:');
         for (const title of titles) {
-          const rule = Style.Dom.stylesheet().rules.items.find((r) =>
-            r.selector === `.${title.className}`
-          );
-          expect(rule?.rule).to.include('margin-top: 2px;');
+          expect(ruleText(title)).to.include('margin-top: 2px;');
         }
 
         const open = button(sections[1]);
@@ -214,22 +210,18 @@ describe('Button spec: view', () => {
         expect(arrow.closest('[aria-hidden="true"]')?.previousSibling?.textContent).to.eql('Open');
 
         const dividers = [...frame.children].filter((el) => el.tagName === 'DIV');
-        expect(dividers.length).to.eql(3);
+        expect(dividers.length).to.eql(4);
         for (const divider of dividers) {
           expect(divider.getAttribute('aria-hidden')).to.eql('true');
           expect(divider.getAttribute('tabindex')).to.eql(null);
-          const rule = Style.Dom.stylesheet().rules.items.find((r) =>
-            r.selector === `.${divider.className}`
-          );
-          expect(rule?.rule).to.include(
-            `background-color: ${Color.alpha(Color.theme(theme).fg, 0.1)};`,
-          );
-          expect(rule?.rule).to.include('height: 1px;');
-          expect(rule?.rule).to.include('margin-left: -10px;');
-          expect(rule?.rule).to.include('margin-right: -10px;');
-          expect(rule?.rule).to.include('margin-top: 14px;');
-          expect(rule?.rule).to.include('margin-bottom: 0px;');
-          expect(rule?.rule).to.include('pointer-events: none;');
+          const rule = ruleText(divider);
+          expect(rule).to.include(`background-color: ${Color.alpha(Color.theme(theme).fg, 0.1)};`);
+          expect(rule).to.include('height: 1px;');
+          expect(rule).to.include('margin-left: -10px;');
+          expect(rule).to.include('margin-right: -10px;');
+          expect(rule).to.include('margin-top: 14px;');
+          expect(rule).to.include('margin-bottom: 0px;');
+          expect(rule).to.include('pointer-events: none;');
         }
       } finally {
         React.act(() => res.dispose());
@@ -241,13 +233,11 @@ describe('Button spec: view', () => {
     const res = await TestReact.render(<Root view='variants' enabled={false} active={false} />);
     try {
       const frame = res.container.firstElementChild!;
-      const rule = Style.Dom.stylesheet().rules.items.find((r) =>
-        r.selector === `.${frame.className}`
-      );
-      expect(rule?.rule).to.include('display: grid;');
-      expect(rule?.rule).not.to.include('padding');
+      const rule = ruleText(frame);
+      expect(rule).to.include('display: grid;');
+      expect(rule).not.to.include('padding');
       const roots = res.container.querySelectorAll<HTMLElement>('[role="button"]');
-      expect(roots.length).to.eql(4);
+      expect(roots.length).to.eql(5);
       for (const root of roots) {
         expect(root.tabIndex).to.eql(-1);
         expect(root.getAttribute('aria-disabled')).to.eql('true');

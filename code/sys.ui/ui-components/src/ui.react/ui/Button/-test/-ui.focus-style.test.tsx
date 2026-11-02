@@ -1,25 +1,11 @@
 import React from 'react';
 import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
-import { Color, css, Is, Style, type t } from '../common.ts';
+import { Color, css, Style, type t } from '../common.ts';
 import { Button } from '../mod.ts';
 import { FocusExamples } from '../-spec/-ui.FocusExamples.tsx';
-import { RunLabel } from '../-spec/-ui.RunLabel.tsx';
+import { RunLabel, runLabelFocus } from '../-spec/-ui.RunLabel.tsx';
 import { button, key } from './u.fixture.ts';
-
-/** Inspect emitted declarations, not mock focus-visible matching or painted appearance. */
-function ruleText(el: HTMLElement, pseudo = '') {
-  const selector = `.${el.className}${pseudo}`;
-  const rule = Style.Dom.stylesheet().rules.items.find((item) => item.selector === selector);
-  if (Is.nil(rule)) throw new Error(`Missing CSS rule: ${selector}`);
-  return rule.rule;
-}
-
-/** Inspect registered media declarations for this root, not browser preference matching. */
-function mediaRules(el: HTMLElement) {
-  return Style.Dom.stylesheet().rules.items
-    .filter((item) => item.selector === `.${el.className}` && item.rule.startsWith('@media'))
-    .map((item) => item.rule);
-}
+import { mediaRules, ruleText } from './u.fixture.focus.ts';
 
 describe('Button: focus styling', () => {
   DomMock.init({ beforeAll, afterAll });
@@ -35,18 +21,15 @@ describe('Button: focus styling', () => {
           'outline: var(--sys-button-focus-width) solid var(--sys-button-focus-rest);',
         );
         expect(rule).to.include(
-          'animation: 220ms ease-out 70ms 1 normal backwards running var(--sys-button-focus-animation);',
+          'animation: 220ms ease-out 70ms 1 normal backwards running var(--sys-focus-animation);',
         );
-        expect(ruleText(root)).to.include('border-radius: 1px;');
-        expect(ruleText(root)).to.include('--sys-button-focus-width: 2px;');
-        expect(ruleText(root)).to.include('--sys-button-focus-offset: 2px;');
-        expect(ruleText(root)).to.include(`--sys-button-focus-accent: ${Color.BLUE};`);
-        expect(ruleText(root)).to.include(
-          `--sys-button-focus-rest: ${Color.alpha(Color.BLUE, 0.2)};`,
-        );
-        expect(ruleText(root)).to.include(
-          '--sys-button-focus-animation: sys-button-focus-arrival;',
-        );
+        const base = ruleText(root);
+        expect(base).to.include('border-radius: 1px;');
+        expect(base).to.include('--sys-button-focus-width: 2px;');
+        expect(base).to.include('--sys-button-focus-offset: 2px;');
+        expect(base).to.include(`--sys-button-focus-accent: ${Color.BLUE};`);
+        expect(base).to.include(`--sys-button-focus-rest: ${Color.alpha(Color.BLUE, 0.2)};`);
+        expect(base).to.include('--sys-focus-animation: sys-focus-arrival-outline;');
         expect(rule).not.to.include('opacity');
         expect(rule).not.to.include('box-shadow');
         expect(root.tagName).to.eql('DIV');
@@ -89,6 +72,7 @@ describe('Button: focus styling', () => {
         expect(base).to.include('border-radius: 6px;');
         expect(base).to.include('box-shadow: 0 1px 3px black;');
         expect(base).not.to.include('--sys-button-focus');
+        expect(base).not.to.include('--sys-focus');
         expect(mediaRules(root)).to.eql([]);
         expect(root.textContent).to.eql('Runchild');
         React.act(() => root.focus());
@@ -128,10 +112,16 @@ describe('Button: focus styling', () => {
           'outline: var(--sys-button-focus-width) solid var(--sys-button-focus-rest);',
         );
         expect(focus).to.include('outline-offset: var(--sys-button-focus-offset);');
-        expect(focus).to.include('running var(--sys-button-focus-animation);');
+        expect(focus).to.include('running var(--sys-focus-animation);');
+        expect(base).to.include('--sys-focus-arrival-outline: var(--sys-button-focus-accent);');
+        expect(base).to.include(
+          '--sys-focus-forced-outline: var(--sys-button-focus-width) solid Highlight;',
+        );
+        expect(base).to.include('--sys-focus-forced-offset: var(--sys-button-focus-offset);');
         expect(mediaRules(root)).to.eql([
-          `@media (prefers-reduced-motion: reduce) { .${root.className} { --sys-button-focus-animation: none; } }`,
-          `@media (forced-colors: active) { .${root.className} { --sys-button-focus-animation: none; --sys-button-focus-rest: Highlight; } }`,
+          `@media (prefers-reduced-motion: reduce) { .${root.className} { --sys-focus-animation: none; } }`,
+          `@media (forced-colors: active) { .${root.className} { --sys-focus-animation: none; } }`,
+          `@media (forced-colors: active) { .${root.className}:focus-visible { outline: var(--sys-focus-forced-outline); outline-offset: var(--sys-focus-forced-offset); } }`,
         ]);
       } finally {
         React.act(() => res.dispose());
@@ -177,12 +167,11 @@ describe('Button: focus styling', () => {
       const root = button(res.container);
       expect(ruleText(root)).to.include('padding-top: 4px;');
       expect(ruleText(root)).not.to.include('--sys-button-focus');
+      expect(ruleText(root)).not.to.include('--sys-focus');
       expect(mediaRules(root)).to.eql([]);
-      expect(
-        Style.Dom.stylesheet().rules.items.some((item) =>
-          item.selector === `.${root.className}:focus-visible`
-        ),
-      ).to.eql(false);
+      const selector = `.${root.className}:focus-visible`;
+      const items = Style.Dom.stylesheet().rules.items;
+      expect(items.some((item) => item.selector === selector)).to.eql(false);
     } finally {
       React.act(() => res.dispose());
     }
@@ -226,14 +215,15 @@ describe('Button: focus styling', () => {
     const res = await TestReact.render(<FocusExamples />);
     try {
       const frames = Style.Dom.stylesheet().rules.items
-        .filter((item) => item.rule.startsWith('@keyframes sys-button-focus-arrival'))
+        .filter((item) => item.rule.startsWith('@keyframes sys-focus-arrival-outline'))
         .map((item) => item.rule);
       expect(frames).to.eql([
-        '@keyframes sys-button-focus-arrival { from { outline-color: var(--sys-button-focus-accent); } }',
+        '@keyframes sys-focus-arrival-outline { from { outline-color: var(--sys-focus-arrival-outline); } }',
       ]);
       const roots = res.container.querySelectorAll<HTMLElement>('[role="button"]');
-      for (const root of [roots[2], roots[3]]) {
+      for (const root of [roots[2], roots[3], roots[4]]) {
         expect(ruleText(root)).not.to.include('--sys-button-focus');
+        expect(ruleText(root)).not.to.include('--sys-focus');
         expect(ruleText(root, ':focus-visible')).not.to.include('--sys-button-focus');
         expect(mediaRules(root)).to.eql([]);
       }
@@ -245,8 +235,8 @@ describe('Button: focus styling', () => {
   });
 
   it('deduplicates rules and initializes per-Button palette and geometry', async () => {
-    const render = () =>
-      TestReact.render(
+    const render = () => {
+      return TestReact.render(
         <Button
           style={{
             '--sys-button-focus-accent': 'orange',
@@ -258,6 +248,7 @@ describe('Button: focus styling', () => {
           <Button>Run</Button>
         </Button>,
       );
+    };
     const first = await render();
     try {
       const count = Style.Dom.stylesheet().rules.length;
@@ -306,7 +297,7 @@ describe('Button: focus styling', () => {
     const res = await TestReact.render(<FocusExamples onClick={() => clicks++} />);
     try {
       const roots = res.container.querySelectorAll<HTMLElement>('[role="button"]');
-      expect(roots.length).to.eql(4);
+      expect(roots.length).to.eql(5);
       const root = roots[3];
       expect(ruleText(root)).to.include('--run-focus: 0;');
       const focus = ruleText(root, ':focus-visible');
@@ -324,6 +315,62 @@ describe('Button: focus styling', () => {
       key(root, 'keyup', ' ');
       expect(clicks).to.eql(1);
       expect(root.querySelector('[aria-hidden="true"]')).to.equal(indicator);
+    } finally {
+      React.act(() => res.dispose());
+    }
+  });
+
+  it('shared child arrival uses host activation, keeps its own animation and retains DOM identity', async () => {
+    const res = await TestReact.render(<FocusExamples />);
+    try {
+      const root = res.container.querySelectorAll<HTMLElement>('[role="button"]')[4];
+      expect(ruleText(root)).to.include('--run-arrival: none;');
+      expect(ruleText(root)).to.include('--run-arrival-visible: 0;');
+      expect(ruleText(root, ':focus-visible')).to.include(
+        '--run-arrival: sys-focus-arrival-outline;',
+      );
+      expect(ruleText(root, ':focus-visible')).to.include('--run-arrival-visible: 1;');
+      expect(mediaRules(root)).to.eql([]);
+      const indicator = root.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+      expect(indicator.parentElement?.parentElement?.tagName).to.eql('DIV');
+      expect(ruleText(indicator)).to.include('--sys-focus-animation: var(--run-arrival, none);');
+      expect(ruleText(indicator)).to.include('opacity: var(--run-arrival-visible, 0);');
+      expect(ruleText(indicator)).to.include('220ms ease-out 70ms 1 normal backwards');
+      expect(ruleText(indicator)).to.include('outline: 2px solid currentColor;');
+      expect(mediaRules(indicator).length).to.eql(3);
+      React.act(() => root.focus());
+      key(root, 'keydown', ' ');
+      key(root, 'keyup', ' ');
+      React.act(() => root.blur());
+      React.act(() => root.focus());
+      expect(root.querySelector('[aria-hidden="true"]')).to.equal(indicator);
+      // DOM identity and generated declarations do not prove browser animation replay.
+    } finally {
+      React.act(() => res.dispose());
+    }
+  });
+
+  it('renders the animated child independently through a neutral host with caller-owned animation', async () => {
+    const child = runLabelFocus('--independent-focus');
+    const host = css({ animation: 'caller-pulse 2s linear infinite' }, child.activation);
+    const res = await TestReact.render(
+      <div tabIndex={0} className={host.class}>
+        <div>
+          <RunLabel indicatorClass={child.class} />
+        </div>
+      </div>,
+    );
+    try {
+      expect(res.container.querySelector('[role="button"]')).to.eql(null);
+      const root = res.container.firstElementChild as HTMLElement;
+      const indicator = root.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+      expect(ruleText(root)).to.include('animation: caller-pulse 2s linear infinite;');
+      expect(indicator.className).to.eql(child.class);
+      expect(ruleText(indicator)).to.include('running var(--sys-focus-animation);');
+      expect(ruleText(indicator)).to.include('opacity: var(--independent-focus-visible, 0);');
+      expect(ruleText(root, ':focus-visible')).to.include(
+        '--independent-focus: sys-focus-arrival-outline;',
+      );
     } finally {
       React.act(() => res.dispose());
     }

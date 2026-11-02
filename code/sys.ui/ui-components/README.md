@@ -17,6 +17,8 @@ Start with the group that matches the interface:
   [Tabs](https://jsr.io/@sys/ui-components/doc/react/layout/tabs).
 - **Media:** [Media](https://jsr.io/@sys/ui-components/doc/react/media) and
   [Player](https://jsr.io/@sys/ui-components/doc/react/player).
+- **Focus styling:** `FocusStyle` from `@sys/ui-components/style/focus` shares the focus-arrival
+  policy with component-owned paint.
 
 ## Example
 
@@ -73,7 +75,7 @@ Choose resting colours for the actual surface; the dim default does not meet 3:1
 white or Dark. Reduced motion skips the arrival; forced colours uses a static `Highlight` outline.
 Both preference modes retain the chosen width and offset. Explicit root animation settings,
 including longhands, preserve the caller's animation and keep default focus static. Timing and
-easing remain component-owned.
+easing come from the shared `FocusStyle` policy; Button owns the paint.
 
 Supplying `style[':focus-visible']` instead replaces the complete default treatment. The caller owns
 its indicator and motion/preference handling; no default focus variables or media rules are added.

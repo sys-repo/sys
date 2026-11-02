@@ -2,6 +2,7 @@
  * @module
  * Public type surface for system UI components.
  */
+export type * from './m.style/m.FocusStyle/t.ts';
 export type * from './m.webfonts/t.ts';
 export type * from './ui.react/ui/ActionProbe/t.ts';
 export type * from './ui.react/ui/Anchor/t.ts';

@@ -44,7 +44,7 @@ export declare namespace Button {
      * Each Button using the default treatment initializes its own palette and geometry.
      * Reduced motion skips the arrival; forced colours uses a static `Highlight` outline
      * instead of the palette. Both retain the chosen width and offset. Timing and easing
-     * remain component-owned.
+     * come from the shared FocusStyle policy; Button owns the paint.
      *
      * Explicit root animation settings, including longhands, keep default focus static.
      * A supplied `:focus-visible` block replaces the entire default treatment, including

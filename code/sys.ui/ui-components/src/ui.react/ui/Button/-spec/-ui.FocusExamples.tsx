@@ -2,7 +2,7 @@ import { MdNorthEast } from 'react-icons/md';
 import { Icon } from '../../Icon/mod.ts';
 import { Color, css, type t } from '../common.ts';
 import { Button } from '../mod.ts';
-import { RunLabel } from './-ui.RunLabel.tsx';
+import { RunLabel, runLabelFocus } from './-ui.RunLabel.tsx';
 
 export type FocusExamplesProps = Pick<
   t.Button.Props,
@@ -28,6 +28,7 @@ export function FocusExamples(props: FocusExamplesProps) {
     }),
   };
   const buttonProps = { ...props, theme: theme.name };
+  const child = runLabelFocus('--run-arrival');
 
   return (
     <div className={styles.base.class}>
@@ -80,6 +81,24 @@ export function FocusExamples(props: FocusExamplesProps) {
         >
           <div>
             <RunLabel indicatorOpacity='var(--run-focus, 0)' />
+          </div>
+        </Button>
+      </section>
+
+      <div aria-hidden='true' className={styles.divider.class} />
+
+      <section className={styles.example.class}>
+        <div className={styles.label.class}>shared arrival · child-owned through a wrapper</div>
+        <Button
+          {...buttonProps}
+          block
+          style={{
+            ...child.activation,
+            ':focus-visible': { ...child.activation[':focus-visible'], outline: 'none' },
+          }}
+        >
+          <div>
+            <RunLabel indicatorClass={child.class} />
           </div>
         </Button>
       </section>
