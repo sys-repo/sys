@@ -69,7 +69,7 @@
     "vite": "npm:vite@8.3.4",
     "@sys/ui-components/react/splash": "jsr:@sys/ui-components@0.0.339/react/splash",
     "@sys/ui-dev/react/devharness": "jsr:@sys/ui-dev@0.0.368/react/devharness",
-    "@sys/ui-dev/react/devharness/t": "jsr:@sys/ui-dev@0.0.368/react/devharness/t"
+    "@sys/ui-dev/react/devharness/t": "jsr:@sys/ui-dev@0.0.368/react/devharness/t",
+    "@sys/ui-components/react/dev": "jsr:@sys/ui-components@0.0.339/react/dev"
   }
 }
-

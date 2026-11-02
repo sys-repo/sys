@@ -7,7 +7,15 @@ export declare namespace Dev {
   export type Lib = {
     readonly Help: t.DevHelp.Lib;
     readonly Button: t.FC<Button.Props>;
+    readonly ObjectView: t.FC<ObjectView.Props>;
   };
+
+  /**
+   * The existing object inspector, without added defaults or behavior.
+   */
+  export namespace ObjectView {
+    export type Props = t.ObjectViewProps;
+  }
 
   /** A neutral debug-row frame around the production Button. */
   export namespace Button {

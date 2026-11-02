@@ -59,6 +59,7 @@ deno.json:
         object-view,
         react/button,
         react/cropmarks,
+        react/dev,
         react/icon,
         react/key-value,
         react/object-view,
