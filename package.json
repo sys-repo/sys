@@ -13,13 +13,13 @@
   },
   "devDependencies": {
     "@deno/vite-plugin": "2.0.4",
-    "@oxc-project/runtime": "0.155.0",
+    "@oxc-project/runtime": "0.156.0",
     "@vitejs/plugin-react": "6.1.2",
-    "magic-string": "1.4.3",
+    "magic-string": "1.4.5",
     "prettier": "3.9.10",
-    "rollup": "4.64.12",
+    "rollup": "4.67.2",
     "rollup-plugin-visualizer": "7.1.1",
-    "vite": "8.3.4",
+    "vite": "8.3.5",
     "vite-plugin-wasm": "3.6.0"
   }
 }

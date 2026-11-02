@@ -15,23 +15,23 @@ deno.json:
   - import: jsr:@bradenmacdonald/s3-lite-client@0.9.6
   - import: jsr:@deno/loader@0.5.0
   - import: npm:chai@6.3.0
-  - import: npm:fake-indexeddb@6.2.6
+  - import: npm:fake-indexeddb@6.2.7
     subpaths: [ auto ]
   - import: npm:@vitejs/plugin-react@6.1.2
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.64.12
+  - import: npm:rollup@4.67.2
     dev: true
-  - import: npm:vite@8.3.4
+  - import: npm:vite@8.3.5
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
   - import: npm:rollup-plugin-visualizer@7.1.1
     dev: true
-  - import: npm:magic-string@1.4.3
+  - import: npm:magic-string@1.4.5
     dev: true
-  - import: npm:@oxc-project/runtime@0.155.0
+  - import: npm:@oxc-project/runtime@0.156.0
     dev: true
     subpaths: [ helpers/usingCtx ]
   - import: npm:parse5@8.0.1
@@ -50,16 +50,16 @@ deno.json:
   - import: npm:monaco-editor@0.57.0
   - import: npm:prosemirror-model@1.25.12
   - import: npm:prosemirror-state@1.4.4
-  - import: npm:prosemirror-view@1.42.6
+  - import: npm:prosemirror-view@1.42.8
   - import: npm:prosemirror-example-setup@1.2.3
   - import: npm:prosemirror-schema-basic@1.2.5
   - import: npm:yaml@2.9.1
   - import: npm:mdast-util-from-markdown@2.1.0
-  - import: npm:mdast-util-to-markdown@2.2.0
+  - import: npm:mdast-util-to-markdown@2.2.1
   - import: npm:mdast-util-gfm@3.1.0
   - import: npm:mdast-util-to-hast@13.2.1
   - import: npm:hast-util-sanitize@5.0.2
-  - import: npm:hast-util-to-html@9.0.5
+  - import: npm:hast-util-to-html@9.0.6
   - import: npm:mdast-util-frontmatter@2.0.1
   - import: npm:micromark-extension-frontmatter@2.0.0
   - import: npm:micromark-extension-gfm@3.0.0
@@ -75,15 +75,15 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.14.6
   - import: npm:hash-it@7.1.1
-  - import: npm:hono@4.13.13
+  - import: npm:hono@4.13.14
     subpaths: [ cors, types ]
-  - import: npm:ignore@7.0.13
+  - import: npm:ignore@7.0.14
   - import: npm:ora@9.4.1
   - import: npm:@earendil-works/pi-coding-agent@0.85.1
   - import: npm:@standard-schema/spec@1.1.0
-  - import: npm:typebox@1.4.2
+  - import: npm:typebox@1.4.3
     subpaths: [ error, value ]
-  - import: npm:@preact/signals-core@1.14.4
+  - import: npm:@preact/signals-core@1.14.5
   - import: npm:pretty-bytes@7.2.0
   - import: npm:rxjs@7.8.2
     subpaths: [ operators ]
@@ -95,7 +95,7 @@ deno.json:
   - import: npm:ws@8.22.0
   - import: npm:@types/ws@8.18.2
   - import: npm:csstype@3.2.3
-  - import: npm:bowser@2.14.1
+  - import: npm:bowser@2.15.0
   - import: npm:@svgdotjs/svg.js@3.2.8
   - import: npm:react-error-boundary@6.1.6
   - import: npm:react-inspector@9.0.0
@@ -108,17 +108,17 @@ package.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.64.12
+  - import: npm:rollup@4.67.2
     dev: true
-  - import: npm:vite@8.3.4
+  - import: npm:vite@8.3.5
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
   - import: npm:rollup-plugin-visualizer@7.1.1
     dev: true
-  - import: npm:magic-string@1.4.3
+  - import: npm:magic-string@1.4.5
     dev: true
-  - import: npm:@oxc-project/runtime@0.155.0
+  - import: npm:@oxc-project/runtime@0.156.0
     dev: true
     subpaths: [ helpers/usingCtx ]
   - import: npm:parse5@8.0.1
