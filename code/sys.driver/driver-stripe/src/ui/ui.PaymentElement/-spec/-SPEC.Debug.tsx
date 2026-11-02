@@ -1,6 +1,6 @@
 import React from 'react';
 import { readRuntimeConfig } from './-u.runtimeSession.ts';
-import { Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal, type t } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.PaymentElement.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { loadSession?: boolean };
@@ -87,22 +87,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button
         block
         label={() => `runtime session: ${p.loadSession.value ? 'enabled' : 'disabled'}`}
         onClick={() => Signal.toggle(p.loadSession)}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.ObjectView
         name={'runtime'}
         data={Obj.truncateStrings(readRuntimeConfig(), 80)}
         style={{ marginTop: 6 }}

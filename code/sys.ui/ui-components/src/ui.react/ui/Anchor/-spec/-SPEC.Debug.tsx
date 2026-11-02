@@ -1,7 +1,6 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { Samples, EXAMPLE_URL } from './-ui.Samples.tsx';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
+import { EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
 
 type P = t.Anchor.Props;
 type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled'> & {
@@ -100,24 +99,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{`${D.name}, A`}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `href: ${v.href ?? '(none)'}`}
         onClick={() => {
           Signal.cycle<P['href']>(p.href, [undefined, EXAMPLE_URL, '/relative/path', '#hash']);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value ?? `(undefined) ← default: ${D.enabled}`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `children: ${p.children.value ?? '(none)'}`}
         onClick={() => {
@@ -131,7 +130,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => {
           return `target: ${p.target.value ?? `(undefined) ← default: ${D.target}`}`;
@@ -140,7 +139,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle<P['target']>(p.target, [undefined, '_blank', '_self', '_parent', '_top']);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `download: ${p.download.value} ← default: ${D.download}`}
         onClick={() => Signal.toggle(p.download)}
@@ -153,8 +152,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>{'Debug'}</div>
 
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

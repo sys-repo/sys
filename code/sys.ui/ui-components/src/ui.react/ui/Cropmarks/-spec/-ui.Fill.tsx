@@ -1,8 +1,7 @@
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 import React from 'react';
-import { Button } from '../../u.ts';
-import { type t, css } from '../common.ts';
+import { css, Dev, type t } from './common.ts';
 
 /**
  * Component:
@@ -29,7 +28,7 @@ export const DebugFill: React.FC<DebugFillProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={`size.margin: ${size.margin ?? '<undefined>'}`}
         onClick={() => {
@@ -56,13 +55,13 @@ export const DebugFill: React.FC<DebugFillProps> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={`size.x: ${size.x ?? '<undefined>'}`}
         onClick={() => (p.size.value = { ...size, x: cycleBool(size.x) })}
       />
 
-      <Button
+      <Dev.Button
         block
         label={`size.y: ${size.y ?? '<undefined>'}`}
         onClick={() => (p.size.value = { ...size, y: cycleBool(size.y) })}

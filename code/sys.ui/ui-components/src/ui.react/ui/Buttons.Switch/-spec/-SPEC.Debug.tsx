@@ -1,7 +1,5 @@
 import type React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-
-import { css, D, Signal, type t } from '../common.ts';
+import { css, D, Dev, Signal, type t } from './common.ts';
 import { SwitchTheme } from '../mod.ts';
 
 type P = t.Switch.Props;
@@ -76,17 +74,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value ?? `<undefined> (default: ${D.enabled})`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `value: ${p.value.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle<P['value']>(p.value, [undefined, true, false])}
@@ -94,17 +92,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Theme Variations'}</div>
-      <Button block label={() => `blue (default)`} onClick={() => debug.updateTheme('blue')} />
-      <Button block label={() => `green`} onClick={() => debug.updateTheme('green')} />
-      <Button block label={() => `yellow`} onClick={() => debug.updateTheme('yellow')} />
+      <Dev.Button block label={() => `blue (default)`} onClick={() => debug.updateTheme('blue')} />
+      <Dev.Button block label={() => `green`} onClick={() => debug.updateTheme('green')} />
+      <Dev.Button block label={() => `yellow`} onClick={() => debug.updateTheme('yellow')} />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name='debug'
         data={Signal.toObject(p)}
         expand={['$']}

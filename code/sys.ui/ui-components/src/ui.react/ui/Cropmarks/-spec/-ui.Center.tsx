@@ -1,8 +1,7 @@
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 import React from 'react';
-import { Button } from '../../u.ts';
-import { type t, css } from '../common.ts';
+import { css, Dev, type t } from './common.ts';
 
 /**
  * Component:
@@ -29,7 +28,7 @@ export const DebugCenter: React.FC<DebugCenterProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={`size.width: ${size.width}`}
         onClick={() => {
@@ -38,7 +37,7 @@ export const DebugCenter: React.FC<DebugCenterProps> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={`size.height: ${size.height}`}
         onClick={() => {

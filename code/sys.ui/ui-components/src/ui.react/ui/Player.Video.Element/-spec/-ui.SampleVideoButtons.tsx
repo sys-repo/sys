@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '../../u.ts';
-import { type t, Color, css, Str, Time, Url } from '../common.ts';
+import { Color, css, Dev, Str, type t, Time, Url } from './common.ts';
 import { KeyValue } from '../../KeyValue/mod.ts';
 
 export const SAMPLE_BASEURLS = [
@@ -51,13 +50,13 @@ export const SampleVideoButtons: React.FC<SampleVideoButtonsProps> = (props) => 
       mono: true,
       k: `path ${i + 1}`,
       v: (
-        <Button
+        <Dev.Button
           label={`${Str.truncate(path, 40)} ${path === signal.value ? '🌳' : ''}`}
           onClick={() => (signal.value = path)}
         />
       ),
     })),
-    { k: <Button label={copied ? 'copied' : '(copy url)'} onClick={handleCopy} /> },
+    { k: <Dev.Button label={copied ? 'copied' : '(copy url)'} onClick={handleCopy} /> },
   ];
 
   return (

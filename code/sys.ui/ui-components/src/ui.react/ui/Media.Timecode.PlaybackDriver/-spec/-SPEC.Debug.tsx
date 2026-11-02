@@ -2,21 +2,20 @@ import type { HarnessProps } from '../-dev/-harness/t.ts';
 
 import React from 'react';
 import {
-  type t,
-  Json,
-  Button,
   Color,
   css,
   D,
+  Dev,
+  Json,
   LocalStorage,
   Obj,
-  ObjectView,
   Player,
   Signal,
   Str,
+  type t,
 } from './common.ts';
 import { OriginPanel } from './-ui.Origin.tsx';
-import { ORIGIN, resolveOriginUrls, type OriginEnv } from './-u.origin.ts';
+import { ORIGIN, type OriginEnv, resolveOriginUrls } from './-u.origin.ts';
 import { Sample } from './-u.loader.ts';
 import { LoadTimelinePanel } from './-ui.LoadTimelinePanel.tsx';
 import { PlayControls } from './-ui.PlayControls.tsx';
@@ -135,7 +134,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>
         <div>{D.name}</div>
       </div>
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -153,7 +152,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'(fetch / json)'}</div>
       </div>
 
-      <Button block label={() => `(unload)`} onClick={() => Sample.unload(debug)} />
+      <Dev.Button block label={() => `(unload)`} onClick={() => Sample.unload(debug)} />
       <LoadTimelinePanel
         theme={theme.name}
         style={{ marginTop: 10, marginBottom: 20, height: 300 }}
@@ -170,9 +169,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'ƒ TimelineController.<Cmd>'}</div>
         <div>{'(Player)'}</div>
       </div>
-      <Button block label={() => `play`} onClick={() => v.controller?.play()} />
-      <Button block label={() => `pause`} onClick={() => v.controller?.pause()} />
-      <Button block label={() => `toggle`} onClick={() => v.controller?.toggle()} />
+      <Dev.Button block label={() => `play`} onClick={() => v.controller?.play()} />
+      <Dev.Button block label={() => `pause`} onClick={() => v.controller?.pause()} />
+      <Dev.Button block label={() => `toggle`} onClick={() => v.controller?.toggle()} />
       <PlayControls debug={debug} />
       <Player.Video.Decks.UI
         decks={debug.decks}
@@ -188,16 +187,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'ƒ VideoDeck.<Cmd>'}</div>
         <div>{'(Signals)'}</div>
       </div>
-      <Button block label={() => `deck A: play`} onClick={() => debug.decks.A.play()} />
-      <Button block label={() => `deck A: pause`} onClick={() => debug.decks.A.pause()} />
-      <Button block label={() => `deck B: play`} onClick={() => debug.decks.B.play()} />
-      <Button block label={() => `deck B: pause`} onClick={() => debug.decks.B.pause()} />
+      <Dev.Button block label={() => `deck A: play`} onClick={() => debug.decks.A.play()} />
+      <Dev.Button block label={() => `deck A: pause`} onClick={() => debug.decks.A.pause()} />
+      <Dev.Button block label={() => `deck B: play`} onClick={() => debug.decks.B.play()} />
+      <Dev.Button block label={() => `deck B: pause`} onClick={() => debug.decks.B.pause()} />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView
         name={v.docid ? `playback-bundle( ${v.docid?.slice(-5)} )` : 'playback-bundle'}
         data={Signal.toObject(v.bundle)}
         style={{ marginTop: 5 }}
@@ -205,7 +209,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <VideoObjectView name={'video-A'} video={debug.decks.A} />
       <VideoObjectView name={'video-B'} video={debug.decks.B} />
-      <Button
+      <Dev.Button
         style={{ marginTop: 8 }}
         block
         label={() => 'copy debug'}
@@ -227,7 +231,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
 function VideoObjectView(props: { name?: string; video: t.VideoPlayerSignals }) {
   return (
-    <ObjectView
+    <Dev.ObjectView
       name={props.name}
       data={videoObjectData(props.video)}
       style={{ marginTop: 5 }}

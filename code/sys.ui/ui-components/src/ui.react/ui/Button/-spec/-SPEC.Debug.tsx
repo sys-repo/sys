@@ -1,8 +1,5 @@
 import type React from 'react';
-import { Dev } from '../../../dev/mod.ts';
-import { ObjectView } from '../../ObjectView/mod.ts';
-
-import { css, D, Is, LocalStorage, Obj, Signal, type t } from '../common.ts';
+import { css, D, Dev, Is, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 const VIEWS = ['single', 'variants'] as const;
 export type DebugView = (typeof VIEWS)[number];
@@ -152,7 +149,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<DebugView>(p.view, VIEWS)}
       />
       <Dev.Button block label='(reset)' onClick={debug.reset} />
-      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
     </div>
   );
 };

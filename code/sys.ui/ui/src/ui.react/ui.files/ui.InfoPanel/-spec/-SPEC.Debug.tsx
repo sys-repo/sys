@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Color, css, D, Err, LocalStorage, ObjectView, Signal, type t } from './common.ts';
+import { Color, css, D, Dev, Err, LocalStorage, Signal, type t } from './common.ts';
 import { Files } from '../../mod.ts';
 import { connect, disconnect } from './-u.connect.ts';
 
@@ -115,7 +115,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const title = p.title.value;
@@ -130,12 +130,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `subject animation: ${p.animation.value}`}
         onClick={() => Signal.toggle(p.animation)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -152,12 +152,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Transport'}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `transport.onConnect → connect(debug)`}
         onClick={() => void connect(debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `transport.onDisconnect → disconnect(debug)`}
         onClick={() => void disconnect(debug)}
@@ -169,26 +169,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <span className={Styles.titleDetail.class}>{'props.snapshot'}</span>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `snapshot: stopped`}
         onClick={() => p.snapshot.value = snapshots.stopped}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `snapshot: ready`}
         onClick={() => p.snapshot.value = snapshots.ready}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `snapshot: error`}
         onClick={() => p.snapshot.value = snapshots.error}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

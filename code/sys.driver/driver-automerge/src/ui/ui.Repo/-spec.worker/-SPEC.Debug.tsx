@@ -1,19 +1,18 @@
 import type React from 'react';
 import { spawnUiRepoWorker } from '../../-test.ui.ts';
 import {
-  Button,
   Color,
   css,
   D,
   Delete,
+  Dev,
   Dispose,
   LocalStorage,
   Obj,
-  ObjectView,
   Rx,
   Signal,
   type t,
-} from '../common.ts';
+} from './common.ts';
 import { Repo } from '../mod.ts';
 
 type Storage = { debug?: boolean; theme?: t.CommonTheme };
@@ -115,21 +114,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{`( Worker-Proxy )`}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.ObjectView
         name='repo'
         data={Delete.funcs({ ...Dispose.omitDispose(debug.repo) })}
         style={{ marginTop: 10 }}

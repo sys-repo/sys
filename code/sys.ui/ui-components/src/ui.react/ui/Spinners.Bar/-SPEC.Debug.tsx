@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Button, css, Signal } from '../u.ts';
-import { D } from './common.ts';
+import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.BarSpinnerProps;
 
@@ -63,19 +62,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div></div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `width: ${p.width.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['width']>(p.width, [undefined, 30, D.width, 300])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `transparentTrack: ${p.transparentTrack.value}`}
         onClick={() => Signal.toggle(p.transparentTrack)}

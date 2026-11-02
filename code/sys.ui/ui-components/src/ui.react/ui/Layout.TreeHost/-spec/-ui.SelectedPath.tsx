@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is, Button, KeyValue } from './common.ts';
+import { Color, css, D, Dev, Is, KeyValue, Obj, Rx, Signal, Str, type t } from './common.ts';
 
 export type SelectedPathProps = {
   title?: string;
@@ -43,7 +43,7 @@ export const SelectedPath: React.FC<SelectedPathProps> = (props) => {
 
   items.push({
     k: (
-      <Button
+      <Dev.Button
         label={hasPath ? '(root)' : '(empty)'}
         enabled={hasPath}
         onClick={() => (signal.value = undefined)}
@@ -55,7 +55,7 @@ export const SelectedPath: React.FC<SelectedPathProps> = (props) => {
     const isLast = i === path.length - 1;
     const k = `level-${i + 1}`;
     const v = (
-      <Button
+      <Dev.Button
         label={seg}
         onClick={segmentHandler(i)}
         style={{ fontWeight: isLast ? 'bold' : undefined }}

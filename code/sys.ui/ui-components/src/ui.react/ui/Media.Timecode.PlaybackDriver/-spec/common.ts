@@ -1,7 +1,7 @@
 import { DEFAULTS } from '../common.ts';
 
 /** Libs: */
-export { Button, ObjectView } from '../../u.ts';
+export { Dev } from '../../../dev/mod.ts';
 export * from '../common.ts';
 
 /** Components: */

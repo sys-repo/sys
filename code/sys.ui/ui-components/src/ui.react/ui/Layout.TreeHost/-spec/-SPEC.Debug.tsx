@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 import { SAMPLE_TREE_1, SAMPLE_TREE_2 } from './-u.sample.data.ts';
 import { PropNavMotion } from './-ui.prop.nav.motion.tsx';
@@ -119,17 +119,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const motion = p.parts.value?.nav?.motion;
-          const motionLabel =
-            motion?.kind === 'preset' ? `(${motion.preset}) ` : motion?.kind === 'custom' ? '(custom) ' : '';
+          const motionLabel = motion?.kind === 'preset'
+            ? `(${motion.preset}) `
+            : motion?.kind === 'custom'
+            ? '(custom) '
+            : '';
           return `${motionLabel}nav.width: ${p.nav.value?.width ?? D.nav.width}`;
         }}
         onClick={() => {
@@ -142,9 +145,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <PropSpinner debug={debug} />
 
       <hr />
-      <Button block label={() => `tree: sample-1`} onClick={() => (p.tree.value = SAMPLE_TREE_1)} />
-      <Button block label={() => `tree: sample-2`} onClick={() => (p.tree.value = SAMPLE_TREE_2)} />
-      <Button block label={() => `tree: (clear)`} onClick={() => (p.tree.value = undefined)} />
+      <Dev.Button
+        block
+        label={() => `tree: sample-1`}
+        onClick={() => (p.tree.value = SAMPLE_TREE_1)}
+      />
+      <Dev.Button
+        block
+        label={() => `tree: sample-2`}
+        onClick={() => (p.tree.value = SAMPLE_TREE_2)}
+      />
+      <Dev.Button block label={() => `tree: (clear)`} onClick={() => (p.tree.value = undefined)} />
 
       <hr />
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
@@ -156,16 +167,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <PropNavMotion debug={debug} />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `slot: empty ${p.customEmpty.value ? '🐚 (custom)' : '(default)'}`}
         onClick={() => Signal.toggle(p.customEmpty)}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

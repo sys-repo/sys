@@ -1,6 +1,6 @@
 import React from 'react';
 import { Foo } from './-ui.foobar.tsx';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { Color, css, Dev, Signal, type t } from './common.ts';
 
 export type PropSlotsProps = {
   debug: t.DebugSignals;
@@ -34,7 +34,7 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
   }) {
     const { label, slot, current, set } = args;
     return (
-      <Button
+      <Dev.Button
         block
         label={() => `slot: ${label} ${current() ? '🐚' : ''}`}
         onClick={() => {
@@ -94,7 +94,7 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
         current: () => p.slots.footer.body.value,
         set: (value) => (p.slots.footer.body.value = value),
       })}
-      <Button
+      <Dev.Button
         block
         label={() => `(clear)`}
         onClick={() => Signal.walk(p.slots, (e) => e.mutate(undefined))}

@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Button, css, Signal } from '../u.ts';
-import { D } from './common.ts';
+import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.ObjectViewProps;
 
@@ -85,33 +84,37 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'ObjectView'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={`theme: "${p.theme}"`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`fontSize: ${p.fontSize ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['fontSize']>(p.fontSize, [undefined, 14, 18, 32])}
       />
 
       <hr />
-      <Button block label={`sortKeys: ${p.sortKeys}`} onClick={() => Signal.toggle(p.sortKeys)} />
+      <Dev.Button
+        block
+        label={`sortKeys: ${p.sortKeys}`}
+        onClick={() => Signal.toggle(p.sortKeys)}
+      />
 
-      <Button
+      <Dev.Button
         block
         label={`showNonenumerable: ${p.showNonenumerable}`}
         onClick={() => Signal.toggle(p.showNonenumerable)}
       />
-      <Button
+      <Dev.Button
         block
         label={`showRootSummary: ${p.showRootSummary}`}
         onClick={() => Signal.toggle(p.showRootSummary)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={`expandPaths: ${p.expandPaths.value || '[ ]'}`}
         onClick={() => {

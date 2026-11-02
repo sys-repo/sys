@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal, Str } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, Str, type t } from './common.ts';
 
 type P = t.PathViewProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path' | 'prefix'> & { debugClickHandler?: boolean };
@@ -91,12 +90,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.path.value;
@@ -115,25 +114,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.path, values);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `prefix: ${p.prefix.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.prefix, ['path:', 'my-prefix:', undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: onClickHandler: ${p.debugClickHandler.value ? '(ƒ) ← true' : 'false'}`}
         onClick={() => Signal.toggle(p.debugClickHandler)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

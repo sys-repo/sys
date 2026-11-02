@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Cropmarks, css, ObjectView, pkg } from './common.ts';
+import { Color, Cropmarks, css, Dev, pkg, type t } from './common.ts';
 
 export type SplashProps = {
   debug?: boolean;
@@ -32,7 +32,7 @@ export const Splash: React.FC<SplashProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <Cropmarks theme={theme.name} borderOpacity={0.05}>
         <div className={styles.body.class}>
-          <ObjectView name={'splash'} data={pkg} expand={1} theme={theme.name} />
+          <Dev.ObjectView name={'splash'} data={pkg} expand={1} theme={theme.name} />
         </div>
       </Cropmarks>
     </div>

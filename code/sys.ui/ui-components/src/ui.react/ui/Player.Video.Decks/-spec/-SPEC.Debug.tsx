@@ -4,8 +4,7 @@ import {
   SAMPLE_PATHS,
   SampleVideoButtons,
 } from '../../Player.Video.Element/-spec/mod.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal, Url } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t, Url } from './common.ts';
 import { VideoDecks } from '../mod.ts';
 
 type P = t.VideoDecksProps;
@@ -93,9 +92,7 @@ export async function createDebugSignals() {
     });
   });
 
-  /**
-   *
-   */
+  /** */
   Signal.effect(() => {
     const hrefA = api.url('A');
     const hrefB = api.url('B');
@@ -139,24 +136,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `active: ${p.active.value}`}
         onClick={() => Signal.cycle(p.active, ['A', 'B'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `show: ${p.show.value}`}
         onClick={() => Signal.cycle(p.show, ['both', 'single'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.aspectRatio.value;
@@ -165,7 +162,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle(p.aspectRatio, [D.aspectRatio, '4/3', undefined])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `muted: ${p.muted.value ?? `(undefined) ← default: ${D.muted}`}`}
         onClick={() => Signal.toggle(p.muted)}
@@ -194,15 +191,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `baseUrl: ${p.baseUrl.value}`}
         onClick={() => Signal.cycle(p.baseUrl, SAMPLE_BASEURLS)}
       />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView
         name={'decks'}
         data={Signal.toObject(debug.decks)}
         style={{ marginTop: 6 }}

@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Button, css, Signal } from '../u.ts';
-import { D } from './common.ts';
+import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.BulletProps;
 
@@ -66,29 +65,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `size: ${p.size.value ?? `<undefined> (default: ${D.size})`}`}
         onClick={() => Signal.cycle(p.size, [16, 22, 64, undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `selected: ${p.selected.value ?? `<undefined> (default: ${D.selected})`}`}
         onClick={() => Signal.toggle(p.selected)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `filled: ${p.filled.value ?? `<undefined> (default: ${D.filled})`}`}
         onClick={() => Signal.toggle(p.filled)}

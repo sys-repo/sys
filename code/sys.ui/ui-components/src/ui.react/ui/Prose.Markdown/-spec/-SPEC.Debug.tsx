@@ -1,6 +1,5 @@
 import type React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Signal, type t } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Signal, type t } from './common.ts';
 import { MarkdownSample, type SampleKind } from './-samples/mod.ts';
 import { Sample } from './-ui.Sample.tsx';
 
@@ -101,7 +100,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -113,9 +112,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>Debug:</div>
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };
