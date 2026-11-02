@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Cropmarks, css, KeyValue, Obj, ObjectView } from '../common.ts';
+import { Color, Cropmarks, css, Dev, KeyValue, Obj, type t } from '../common.ts';
 import { toFrontmatter } from '../u.data.ts';
 
 export type FileContentProps = {
@@ -104,7 +104,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
         />
       )}
       {showObject && (
-        <ObjectView
+        <Dev.ObjectView
           theme={theme.name}
           name={'frontmatter'}
           data={Obj.truncateStrings(frontmatter, 40)}

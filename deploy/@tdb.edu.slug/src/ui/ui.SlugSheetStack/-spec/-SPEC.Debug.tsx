@@ -1,16 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  Num,
-  Button,
-  Color,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Signal,
-} from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Num, Obj, Signal, type t } from './common.ts';
 import { createFixture } from './u.fixture.tsx';
 
 type P = t.SlugSheetStackProps;
@@ -98,7 +87,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -106,7 +95,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Controller'}</div>
-      <Button
+      <Dev.Button
         block
         label={() => 'stack.push( sheet )'}
         onClick={() => {
@@ -115,14 +104,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
           fixture.push(label);
         }}
       />
-      <Button block label={() => 'stack.pop( )'} onClick={() => fixture.pop()} />
-      <Button block label={() => 'clear'} onClick={() => fixture.pop(Num.MAX_INT)} />
+      <Dev.Button block label={() => 'stack.pop( )'} onClick={() => fixture.pop()} />
+      <Dev.Button block label={() => 'clear'} onClick={() => fixture.pop(Num.MAX_INT)} />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView
         name={'controller.stack'}
         data={Signal.toObject(fixture.controller.stack)}
         expand={1}

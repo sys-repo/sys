@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Crdt, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { Crdt, css, D, Dev, LocalStorage, Signal, type t } from './common.ts';
 
 type P = t.EditorCanvasProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
@@ -89,25 +89,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `path: ${p.path.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.path, [undefined, ['project', 'panels'], ['foo']])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject({
           ...p,

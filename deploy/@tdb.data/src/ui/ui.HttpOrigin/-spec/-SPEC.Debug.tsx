@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
-import { Button, ObjectView } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { HttpOrigin } from '../mod.ts';
 
 type P = t.HttpOrigin.Props;
@@ -97,26 +96,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `env: ${v.env ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.HttpOriginBase.Env>(p.env, ['localhost', 'production'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `integrity: ${p.integrity.value}`}
         onClick={() => Signal.toggle(p.integrity)}
       />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
 
       <hr style={{ margin: '15px 0 20px 0' }} />
       <HttpOrigin.UI.Controlled

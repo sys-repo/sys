@@ -2,7 +2,7 @@ import React from 'react';
 import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { Dev } from '../../-dev/mod.ts';
 import { TreeSelectionCardOrchestrator, TreeSelectionController } from '../../m.effects/mod.ts';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { Color, css, D, LocalStorage, Obj, Signal, type t, UiDev } from './common.ts';
 import { PropSlots } from './-ui.prop.slots.tsx';
 
 type P = t.TreeHostProps;
@@ -135,7 +135,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
+      <UiDev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -169,9 +169,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <PropSlots debug={debug} />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <UiDev.Button
+        block
+        label={() => `debug: ${v.debug}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <UiDev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <UiDev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

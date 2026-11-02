@@ -1,19 +1,6 @@
 import React from 'react';
 import { parse } from 'yaml';
-import {
-  type t,
-  Button,
-  Crdt,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Rx,
-  Signal,
-  Url,
-  Yaml,
-} from '../common.ts';
+import { Crdt, css, D, Dev, LocalStorage, Obj, Rx, Signal, type t, Url, Yaml } from './common.ts';
 import { EditorPanel } from './-ui.EditorPanel.tsx';
 
 type P = t.CanvasProjectProps;
@@ -206,26 +193,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `show editor panel: ${p.showEditorPanel.value}`}
         onClick={() => Signal.toggle(p.showEditorPanel)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `show canvas: ${p.showCanvas.value}`}
         onClick={() => Signal.toggle(p.showCanvas)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `count: increment (${p.doc.value?.current.count})`}
         onClick={() => {
@@ -235,13 +222,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `reset`}
         onClick={() => {
@@ -252,7 +239,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `🐷 ƒ migrate `}
         onClick={() => {
@@ -266,7 +253,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject({ ...p, doc: p.doc.value?.current })}
         expand={['$']}

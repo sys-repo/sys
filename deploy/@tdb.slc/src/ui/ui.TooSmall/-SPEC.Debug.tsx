@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, Signal, Str } from './common.ts';
+import { css, Dev, Signal, Str, type t } from './-spec/common.ts';
 
 type P = t.TooSmallProps;
 
@@ -57,12 +57,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={styles.title.class}>
         <div>{'TooSmall'}</div>
       </div>
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const value = p.children.value;

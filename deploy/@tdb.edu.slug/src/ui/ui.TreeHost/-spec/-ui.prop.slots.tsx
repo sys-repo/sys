@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from '../common.ts';
+import { Color, css, Signal, type t, UiDev } from './common.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 export type PropSlotsProps = {
@@ -23,13 +23,12 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
   }) {
     const { label, current, set } = args;
     return (
-      <Button
+      <UiDev.Button
         block
         label={() => `slot: ${label} ${current() ? '🐚' : ''}`}
         onClick={() => {
-          const el = (
-            <div style={{ padding: 8, fontSize: 12, opacity: 0.8 }}>{`slot:${label}`}</div>
-          );
+          const el = <div style={{ padding: 8, fontSize: 12, opacity: 0.8 }}>{`slot:${label}`}
+          </div>;
           set(current() ? undefined : el);
         }}
       />
@@ -58,7 +57,7 @@ export const PropSlots: React.FC<PropSlotsProps> = (props) => {
         current: () => p.slots.nav.footer.value,
         set: (value) => (p.slots.nav.footer.value = value),
       })}
-      <Button
+      <UiDev.Button
         block
         label={() => `(clear)`}
         onClick={() => Signal.walk(p.slots, (e) => e.mutate(undefined))}

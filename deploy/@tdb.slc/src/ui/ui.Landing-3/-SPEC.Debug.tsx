@@ -1,7 +1,7 @@
 import React from 'react';
 import { Content } from '../../ui.content/mod.ts';
 import { pushStackContentButtons, screenBreakpointButton } from '../ui.Layout/-SPEC.tsx';
-import { type t, App, Button, css, ObjectView, Signal, Str } from './common.ts';
+import { App, css, Dev, Signal, Str, type t } from './-spec/common.ts';
 
 /**
  * Types:
@@ -54,10 +54,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'Landing-3'}</div>
-      <Button block label={`debug: ${d.debug}`} onClick={() => Signal.toggle(d.debug)} />
+      <Dev.Button block label={`debug: ${d.debug}`} onClick={() => Signal.toggle(d.debug)} />
       <hr />
       {screenBreakpointButton(app)}
-      <Button
+      <Dev.Button
         block
         label={`background.video.opacity: ${p.background.video.opacity}`}
         onClick={() => Signal.cycle(p.background.video.opacity, [undefined, 0.15, 0.3, 1])}
@@ -67,8 +67,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {pushStackContentButtons(app)}
 
       <hr />
-      <ObjectView block name={'dist'} data={wrangle.dist(app)} expand={1} />
-      <ObjectView name={'stack'} data={app.stack.items} expand={1} style={{ marginTop: 10 }} />
+      <Dev.ObjectView block name={'dist'} data={wrangle.dist(app)} expand={1} />
+      <Dev.ObjectView name={'stack'} data={app.stack.items} expand={1} style={{ marginTop: 10 }} />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal, STORAGE_KEY } from './common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './-spec/common.ts';
 
 type P = t.VideoBackgroundProps;
 type Storage = Pick<P, 'theme' | 'video' | 'playing' | 'opacity' | 'blur'>;
@@ -92,35 +92,40 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `video: ${p.video.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.video, [D.TUBES.src, 'vimeo/1068502644'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `playing: ${p.playing.value ?? '<undefined>'}`}
         onClick={() => Signal.toggle(p.playing)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `opacity: ${p.opacity.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.opacity, [0, 0.2, 0.4, 0.7, 1])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `blur: ${p.blur.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.blur, [0, 2, 8, 16])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={['$']} style={{ marginTop: 10 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={['$']}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

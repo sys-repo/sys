@@ -1,6 +1,6 @@
 import React from 'react';
 import { Content } from '../../ui.content/mod.ts';
-import { type t, Button, Signal } from './common.ts';
+import { Dev, Signal, type t } from './-spec/common.ts';
 
 export { Content };
 
@@ -19,7 +19,7 @@ export const updateForBreakpointSize = (dev: t.DevCtx, app: t.AppSignals) => {
  */
 export const pushStackButton = (app: t.AppSignals, stage: t.ContentStage) => {
   return (
-    <Button
+    <Dev.Button
       key={`stack.${stage}`}
       block
       label={`stack.push:( "${stage}" )`}
@@ -34,7 +34,7 @@ export const pushStackButton = (app: t.AppSignals, stage: t.ContentStage) => {
 export const pushStackContentButtons = (app: t.AppSignals) => {
   const clear = (leave: number) => {
     return (
-      <Button
+      <Dev.Button
         block
         key={`stack.clear(${leave ?? 0})`}
         label={`stack.clear${leave > 0 ? `( leave: ${leave} )` : ''}`}
@@ -50,7 +50,7 @@ export const pushStackContentButtons = (app: t.AppSignals) => {
     pushStackButton(app, 'Programme'),
     <React.Fragment key={'hr:pop'}>
       <hr />
-      <Button block label={`stack.pop`} onClick={() => app.stack.pop()} />
+      <Dev.Button block label={`stack.pop`} onClick={() => app.stack.pop()} />
     </React.Fragment>,
     clear(1),
     clear(0),
@@ -65,7 +65,7 @@ export const screenBreakpointButton = (app: t.AppSignals) => {
   const p = app.props;
   const list: T[] = ['Desktop', 'Intermediate', 'Mobile'];
   return (
-    <Button
+    <Dev.Button
       block
       label={`screen.breakpoint: ${p.screen.breakpoint ?? '<undefined>'}`}
       onClick={() => Signal.cycle<T>(p.screen.breakpoint, list)}
@@ -85,7 +85,7 @@ export function layerVideoPlayerButtons(app: t.AppSignals) {
     // const p = layer.media?.video.props;
     // if (!p) return null;
     return (
-      <Button
+      <Dev.Button
         block
         key={`${layer.id}.${index}`}
         // label={() => `[ ${layer.id} ]: playing: ${p.playing.value}`}

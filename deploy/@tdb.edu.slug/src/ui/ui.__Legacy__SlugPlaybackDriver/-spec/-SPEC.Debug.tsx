@@ -1,18 +1,6 @@
 import type React from 'react';
 import { LoadSample, SelectedPath } from '../../ui.TreeHost/-spec/mod.ts';
-import {
-  Button,
-  Color,
-  css,
-  D,
-  Effect,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Player,
-  Signal,
-  type t,
-} from '../common.ts';
+import { Color, css, D, Dev, Effect, LocalStorage, Obj, Player, Signal, type t } from './common.ts';
 import { Payload, PlayControls, SlugPlaybackDriver } from './mod.ts';
 
 type P = t.TreeHostProps;
@@ -170,16 +158,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <SelectedPath theme={theme.name} signal={p.selectedPath} style={{ MarginY: 15 }} />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
 
       <hr />
       <Payload controller={controller} />

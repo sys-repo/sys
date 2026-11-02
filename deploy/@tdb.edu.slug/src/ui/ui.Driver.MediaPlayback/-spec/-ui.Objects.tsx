@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, ObjectView, PlaybackDriver } from './common.ts';
+import { Dev, PlaybackDriver, type t } from './common.ts';
 
 export type HeadObjectProps = {
   readonly data: HeadObjectData;
@@ -32,7 +32,7 @@ export type PayloadObjectData = {
  */
 export const HeadObject: React.FC<HeadObjectProps> = (props) => {
   return (
-    <ObjectView
+    <Dev.ObjectView
       theme={props.theme}
       name={'head:media-playback'}
       data={props.data}
@@ -48,7 +48,7 @@ export const HeadObject: React.FC<HeadObjectProps> = (props) => {
 export const PayloadObject: React.FC<PayloadObjectProps> = (props) => {
   const payload = usePayload(props.data);
   return (
-    <ObjectView
+    <Dev.ObjectView
       theme={props.theme}
       name={'payload'}
       data={payload}

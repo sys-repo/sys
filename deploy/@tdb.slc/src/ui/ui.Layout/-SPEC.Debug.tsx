@@ -6,7 +6,7 @@ import {
   pushStackContentButtons,
   screenBreakpointButton,
 } from './-SPEC.u.tsx';
-import { type t, App, Button, css, ObjectView, Signal, Str } from './common.ts';
+import { App, css, Dev, Signal, Str, type t } from './-spec/common.ts';
 
 export { layerVideoPlayerButtons };
 
@@ -77,7 +77,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
   };
 
   const pushSample = (name: string, fn: () => t.Content) => {
-    return <Button block label={`stack.push:( "${name}" )`} onClick={() => app.stack.push(fn())} />;
+    return (
+      <Dev.Button
+        block
+        label={`stack.push:( "${name}" )`}
+        onClick={() => app.stack.push(fn())}
+      />
+    );
   };
 
   return (
@@ -87,12 +93,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{p.screen.breakpoint.value}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${app.props.debug.value}`}
         onClick={() => Signal.toggle(app.props.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
@@ -121,7 +127,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>{`Sample Configurations:`}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `- debug samples`}
         onClick={() => {
@@ -130,7 +136,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           app.stack.push(Sample.sample1());
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `- application ("SLC Product System")`}
         onClick={async () => {
@@ -140,8 +146,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'state:app'} data={app} expand={0} margin={[null, null, 4, null]} />
-      <ObjectView name={'stack'} data={app.stack.items} expand={1} />
+      <Dev.ObjectView name={'state:app'} data={app} expand={0} margin={[null, null, 4, null]} />
+      <Dev.ObjectView name={'stack'} data={app.stack.items} expand={1} />
     </div>
   );
 };

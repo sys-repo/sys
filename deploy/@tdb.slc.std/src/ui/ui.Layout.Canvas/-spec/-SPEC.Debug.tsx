@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { SampleButtons } from './-ui.buttons.tsx';
 
 type P = t.CanvasLayoutProps;
@@ -94,13 +94,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `borderRadius: ${p.borderRadius.value ?? D.borderRadius}`}
         onClick={() => Signal.cycle(p.borderRadius, [0, 5, 15, 30])}
@@ -111,13 +111,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <SampleButtons debug={debug} />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
         expand={['$']}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { App } from '../App/mod.ts';
-import { type t, Button, css, Signal, D } from './common.ts';
+import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.VideoBackgroundProps;
 
@@ -55,21 +55,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(d.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={`background.video.playing: ${bg.video.playing.value}`}
         onClick={() => {
           Signal.toggle(bg.video.playing);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`background.video.opacity: ${bg.video.opacity.value ?? '<undefined> (100%)'}`}
         onClick={() => {
