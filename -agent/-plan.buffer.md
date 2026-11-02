@@ -9,11 +9,10 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
-@sys.ui-components
-button-input-and-focus.plan.md
-- [ ] fix(ui-components): make Button keyboard-accessible
-- [ ] feat(std): add DomMock touch event fixtures
-- [ ] fix(ui-components): refine Button keyboard focus styling
+sys.ui-components
+shared-focus-style.plan.md
+- [ ] feat(ui-components): expose shared focus styling
+- [ ] feat(ui-components): add Switch focus arrival
 
 
 
