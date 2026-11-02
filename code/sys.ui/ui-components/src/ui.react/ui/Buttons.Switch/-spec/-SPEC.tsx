@@ -19,18 +19,20 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render(() => (
-        <Switch
-          debug={p.debug.value}
-          theme={debug.switchTheme}
-          enabled={p.enabled.value}
-          value={p.value.value}
-          onMouseDown={(e) => {
-            console.info(`⚡️ Switch.onMouseDown:`, e);
-            p.value.value = !Boolean(p.value.value);
-          }}
-        />
-      ));
+      .render(() => {
+        return (
+          <Switch
+            debug={p.debug.value}
+            theme={debug.switchTheme}
+            enabled={p.enabled.value}
+            value={p.value.value}
+            onToggle={(e) => {
+              console.info(`⚡️ Switch.onToggle:`, e);
+              p.value.value = e.next;
+            }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {
