@@ -20,14 +20,17 @@
     "jsr:@std/fs@^1.0.24": "1.0.24",
     "jsr:@std/html@^1.0.7": "1.0.7",
     "jsr:@std/http@1.1.4": "1.1.4",
+    "jsr:@std/internal@^1.0.12": "1.0.14",
     "jsr:@std/internal@^1.0.14": "1.0.14",
     "jsr:@std/io@~0.225.3": "0.225.3",
     "jsr:@std/json@^1.1.0": "1.1.0",
+    "jsr:@std/jsonc@1.0.2": "1.0.2",
     "jsr:@std/jsonc@1.0.3": "1.0.3",
     "jsr:@std/media-types@1.1.0": "1.1.0",
     "jsr:@std/media-types@^1.1.0": "1.1.0",
     "jsr:@std/net@^1.0.7": "1.0.7",
     "jsr:@std/path@*": "1.1.6",
+    "jsr:@std/path@1.1.4": "1.1.4",
     "jsr:@std/path@1.1.6": "1.1.6",
     "jsr:@std/path@^1.1.5": "1.1.6",
     "jsr:@std/path@^1.1.6": "1.1.6",
@@ -35,6 +38,11 @@
     "jsr:@std/streams@^1.2.0": "1.2.0",
     "jsr:@std/text@^1.0.19": "1.1.0",
     "jsr:@std/xml@0.2.0": "0.2.0",
+    "jsr:@sys/crypto@^0.0.221": "0.0.221",
+    "jsr:@sys/event@^0.0.95": "0.0.95",
+    "jsr:@sys/http@0.0.210": "0.0.210",
+    "jsr:@sys/net@^0.0.70": "0.0.70",
+    "jsr:@sys/std@^0.0.298": "0.0.298",
     "npm:@automerge/automerge-repo-network-websocket@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-indexeddb@2.5.6": "2.5.6",
     "npm:@automerge/automerge-repo-storage-nodefs@2.5.6": "2.5.6",
@@ -44,8 +52,10 @@
     "npm:@deno/vite-plugin@2.0.4": "2.0.4_vite@8.3.5_yaml@2.9.1",
     "npm:@earendil-works/pi-coding-agent@0.85.1": "0.85.1_ws@8.22.0",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.57.0_react@19.3.1_react-dom@19.3.1",
+    "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@noble/hashes@2.4.0": "2.4.0",
     "npm:@oxc-project/runtime@0.156.0": "0.156.0",
+    "npm:@preact/signals-core@1.13.0": "1.13.0",
     "npm:@preact/signals-core@1.14.5": "1.14.5",
     "npm:@preact/signals-react@3.12.0": "3.12.0_react@19.3.1",
     "npm:@sinclair/typebox-codegen@0.11.1": "0.11.1",
@@ -62,12 +72,14 @@
     "npm:bowser@2.15.0": "2.15.0",
     "npm:chai@6.3.0": "6.3.0",
     "npm:csstype@3.2.3": "3.2.3",
+    "npm:date-fns@4": "4.4.0",
     "npm:date-fns@4.4.0": "4.4.0",
     "npm:diff@9.0.0": "9.0.0",
     "npm:fake-indexeddb@6.2.7": "6.2.7",
     "npm:fast-json-patch@3.1.1": "3.1.1",
     "npm:gpt-tokenizer@3.4.0": "3.4.0",
     "npm:happy-dom@20.14.6": "20.14.6",
+    "npm:hash-it@7.0.2": "7.0.2",
     "npm:hash-it@7.1.1": "7.1.1",
     "npm:hast-util-sanitize@5.0.2": "5.0.2",
     "npm:hast-util-to-html@9.0.6": "9.0.6",
@@ -86,12 +98,14 @@
     "npm:ora@9.4.1": "9.4.1",
     "npm:parse5@8.0.1": "8.0.1",
     "npm:prettier@3.9.10": "3.9.10",
+    "npm:pretty-bytes@7.1.0": "7.1.0",
     "npm:pretty-bytes@7.2.0": "7.2.0",
     "npm:prosemirror-example-setup@1.2.3": "1.2.3",
     "npm:prosemirror-model@1.25.12": "1.25.12",
     "npm:prosemirror-schema-basic@1.2.5": "1.2.5",
     "npm:prosemirror-state@1.4.4": "1.4.4",
     "npm:prosemirror-view@1.42.8": "1.42.8",
+    "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.3.1": "19.3.1_react@19.3.1",
     "npm:react-error-boundary@6.1.6": "6.1.6_@types+react@19.3.0_react@19.3.1",
     "npm:react-icons@5.7.0": "5.7.0_react@19.3.1",
@@ -180,7 +194,7 @@
     "@std/fs@1.0.24": {
       "integrity": "f3061b45b81673a2bece689da041df32d174be064c89eb6397fb5718d3fb7877",
       "dependencies": [
-        "jsr:@std/internal",
+        "jsr:@std/internal@^1.0.14",
         "jsr:@std/path@^1.1.5"
       ]
     },
@@ -210,6 +224,9 @@
     "@std/json@1.1.0": {
       "integrity": "93330d3ed4054d6b1ffe54b075432c80a5f671be77277b978931e018014cb1cc"
     },
+    "@std/jsonc@1.0.2": {
+      "integrity": "909605dae3af22bd75b1cbda8d64a32cf1fd2cf6efa3f9e224aba6d22c0f44c7"
+    },
     "@std/jsonc@1.0.3": {
       "integrity": "9a4bb168c6b64e8e89944e45f96390a6e6e6865f59f02f0a70b24653911f2d64",
       "dependencies": [
@@ -222,10 +239,16 @@
     "@std/net@1.0.7": {
       "integrity": "e0b995738cfe2ed56f64591d400e55f143cff164efd690343f2deb4cf4d06d86"
     },
+    "@std/path@1.1.4": {
+      "integrity": "1d2d43f39efb1b42f0b1882a25486647cb851481862dc7313390b2bb044314b5",
+      "dependencies": [
+        "jsr:@std/internal@^1.0.12"
+      ]
+    },
     "@std/path@1.1.6": {
       "integrity": "c68485c2a4dfbb5ae3cc74fae4e8c4e5d874cf8a8ed12927917235c758b46cbe",
       "dependencies": [
-        "jsr:@std/internal"
+        "jsr:@std/internal@^1.0.14"
       ]
     },
     "@std/semver@1.0.8": {
@@ -239,6 +262,47 @@
     },
     "@std/xml@0.2.0": {
       "integrity": "e0b54ae29592bc1fc688109f78ef5c18680bf820ba8aa0a3990a115e709e58d2"
+    },
+    "@sys/crypto@0.0.221": {
+      "integrity": "572b347bb115f9fced892eba985d8654373d091b71a767a51c3007484681f69f",
+      "dependencies": [
+        "jsr:@sys/std",
+        "npm:@noble/hashes@2.0.1"
+      ]
+    },
+    "@sys/event@0.0.95": {
+      "integrity": "6e90c15f31ce4f4343b6582b78cf946df831178183a0a7424012cc6969adb82f",
+      "dependencies": [
+        "jsr:@sys/std"
+      ]
+    },
+    "@sys/http@0.0.210": {
+      "integrity": "f744d89a1d416eaa922a8db586be102ac98b4c1ee5a56e92912a59d715cab3d8",
+      "dependencies": [
+        "jsr:@sys/crypto",
+        "jsr:@sys/event",
+        "jsr:@sys/net",
+        "jsr:@sys/std"
+      ]
+    },
+    "@sys/net@0.0.70": {
+      "integrity": "5b6ce63dcaf24a55f104a6a7c82cda466ea067f84d928ee04689a8b0cb7d3404",
+      "dependencies": [
+        "jsr:@sys/std"
+      ]
+    },
+    "@sys/std@0.0.298": {
+      "integrity": "9858704270c73500e2bd96f3054e1235391e9c596b66384b03c69c67dc65e976",
+      "dependencies": [
+        "jsr:@std/datetime",
+        "jsr:@std/jsonc@1.0.2",
+        "jsr:@std/path@1.1.4",
+        "npm:@preact/signals-core@1.13.0",
+        "npm:date-fns@4",
+        "npm:hash-it@7.0.2",
+        "npm:pretty-bytes@7.1.0",
+        "npm:ramda"
+      ]
     }
   },
   "npm": {
@@ -962,6 +1026,9 @@
     "@noble/hashes@1.8.0": {
       "integrity": "sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A=="
     },
+    "@noble/hashes@2.0.1": {
+      "integrity": "sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw=="
+    },
     "@noble/hashes@2.4.0": {
       "integrity": "sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA=="
     },
@@ -974,13 +1041,16 @@
     "@pkgjs/parseargs@0.11.0": {
       "integrity": "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="
     },
+    "@preact/signals-core@1.13.0": {
+      "integrity": "sha512-slT6XeTCAbdql61GVLlGU4x7XHI7kCZV5Um5uhE4zLX4ApgiiXc0UYFvVOKq06xcovzp7p+61l68oPi563ARKg=="
+    },
     "@preact/signals-core@1.14.5": {
       "integrity": "sha512-vcRv7Ityz5JVmeiVqIluLFzT/PDS/AlhHUpw3/aUWqcVUs6bDGIPXE/6RSC4evBNWYvnniozg5Syfj33al3gkg=="
     },
     "@preact/signals-react@3.12.0_react@19.3.1": {
       "integrity": "sha512-o3zBSekC/RPcsHOYTLagjw6JX0ih5eMMFZE0AICEeuk7p3MrYOyEXxM7bmT1Uqi0jPy2pbuDQZTFXYe55IAFVg==",
       "dependencies": [
-        "@preact/signals-core",
+        "@preact/signals-core@1.14.5",
         "react",
         "use-sync-external-store"
       ]
@@ -1910,6 +1980,9 @@
         "ws"
       ]
     },
+    "hash-it@7.0.2": {
+      "integrity": "sha512-LmxjXNePQBK8mFwDcWO9/lhTugWlE6OZRlC4zEwvoy0Ek8vFY09xNBVMGdKJyRQhUsIFRuUbk5izMzC5d3M7xA=="
+    },
     "hash-it@7.1.1": {
       "integrity": "sha512-YnOSQIqlxGbaLHUljdlj8o+xWe8USTidhFsmXxeWNYYwZudM1/t9WC9oDxDTVMX6BxM23ORUBH3MIjNRoEdElw=="
     },
@@ -2764,6 +2837,9 @@
       "integrity": "sha512-skGHTH1Yb9QvaTC4hWnRTzEYtCpApF0UMBPz+t/0ZPzP8ihefo/btKd+QA7pUE0fEwA1SbS/NmhyEcstdXOIdA==",
       "bin": true
     },
+    "pretty-bytes@7.1.0": {
+      "integrity": "sha512-nODzvTiYVRGRqAOvE84Vk5JDPyyxsVk0/fbA/bq7RqlnhksGpset09XTxbpvLTIjoaF7K8Z8DG8yHtKGTPSYRw=="
+    },
     "pretty-bytes@7.2.0": {
       "integrity": "sha512-T2kroepGB5DRVbkN/nOpW03+VRWqdtJhZNuCW3wYk3chdPjgi4GcTBOaxWfHq1MIM0ypidxsSWbQaAiRpxnXmg=="
     },
@@ -2921,6 +2997,9 @@
         "long"
       ],
       "scripts": true
+    },
+    "ramda@0.32.0": {
+      "integrity": "sha512-GQWAHhxhxWBWA8oIBr1XahFVjQ9Fic6MK9ikijfd4TZHfE2+urfk+irVlR5VOn48uwMgM+loRRBJd6Yjsbc0zQ=="
     },
     "react-dom@19.3.1_react@19.3.1": {
       "integrity": "sha512-Y0bARz53lhEC1NMCASs0/j+faB/zqt3R8hpvg1e8+61ZVJ4UL0UdC4cBbXfZMcIuhrfgeILTLe+ZeBCavQPtKQ==",
