@@ -306,7 +306,11 @@ describe('Button: focus styling', () => {
       expect(focus).not.to.include('outline-offset');
       expect(focus).not.to.include('animation');
       const indicator = root.querySelector<HTMLElement>('[aria-hidden="true"]')!;
-      expect(ruleText(indicator)).to.include('opacity: var(--run-focus, 0);');
+      const rule = ruleText(indicator);
+      expect(rule).to.include('opacity: var(--run-focus, 0);');
+      expect(rule).to.include('outline: 2px solid currentColor;');
+      expect(rule).not.to.include('animation:');
+
       // Declarations/wiring only: mock focus does not prove browser selector matching/inheritance.
       React.act(() => root.focus());
       key(root, 'keydown', ' ');
@@ -324,20 +328,24 @@ describe('Button: focus styling', () => {
     const res = await TestReact.render(<FocusExamples />);
     try {
       const root = res.container.querySelectorAll<HTMLElement>('[role="button"]')[4];
-      expect(ruleText(root)).to.include('--run-arrival: none;');
-      expect(ruleText(root)).to.include('--run-arrival-visible: 0;');
-      expect(ruleText(root, ':focus-visible')).to.include(
-        '--run-arrival: sys-focus-arrival-outline;',
-      );
-      expect(ruleText(root, ':focus-visible')).to.include('--run-arrival-visible: 1;');
+      const base = ruleText(root);
+      const focus = ruleText(root, ':focus-visible');
+      expect(base).to.include('--run-arrival: none;');
+      expect(base).to.include('--run-arrival-visible: 0;');
+      expect(focus).to.include('--run-arrival: sys-focus-arrival-outline;');
+      expect(focus).to.include('--run-arrival-visible: 1;');
       expect(mediaRules(root)).to.eql([]);
+
       const indicator = root.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+      const rule = ruleText(indicator);
       expect(indicator.parentElement?.parentElement?.tagName).to.eql('DIV');
-      expect(ruleText(indicator)).to.include('--sys-focus-animation: var(--run-arrival, none);');
-      expect(ruleText(indicator)).to.include('opacity: var(--run-arrival-visible, 0);');
-      expect(ruleText(indicator)).to.include('220ms ease-out 70ms 1 normal backwards');
-      expect(ruleText(indicator)).to.include('outline: 2px solid currentColor;');
+      expect(rule).to.include('--sys-focus-animation: var(--run-arrival, none);');
+      expect(rule).to.include('opacity: var(--run-arrival-visible, 0);');
+      expect(rule).to.include('220ms ease-out 70ms 1 normal backwards');
+      expect(rule).to.include(`--sys-focus-arrival-outline: ${Color.BLUE};`);
+      expect(rule).to.include(`outline: 2px solid ${Color.alpha(Color.WHITE, 0.3)};`);
       expect(mediaRules(indicator).length).to.eql(3);
+
       React.act(() => root.focus());
       key(root, 'keydown', ' ');
       key(root, 'keyup', ' ');

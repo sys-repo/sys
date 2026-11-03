@@ -7,9 +7,13 @@ const indicator: t.Style.Props = {
   borderRadius: 6,
   pointerEvents: 'none',
 };
+const staticOutline: t.Style.Props = {
+  outline: '2px solid currentColor',
+  outlineOffset: '2px',
+};
 const paint: t.FocusStyle.Paint = {
   arrival: { outlineColor: Color.BLUE },
-  settled: { outline: '2px solid currentColor', outlineOffset: '2px' },
+  settled: { ...staticOutline, outline: `2px solid ${Color.alpha(Color.WHITE, 0.3)}` },
   forcedColors: { outline: '2px solid Highlight', outlineOffset: '2px' },
 };
 
@@ -21,7 +25,7 @@ export function RunLabel(props: {
   const styles = {
     body: css({ position: 'relative', display: 'grid', gap: '4px', padding: '10px 14px' }),
     caption: css({ fontSize: 12 }),
-    indicator: css({ ...indicator, ...paint.settled, opacity: props.indicatorOpacity ?? 0 }),
+    indicator: css({ ...indicator, ...staticOutline, opacity: props.indicatorOpacity ?? 0 }),
   };
   return (
     <div className={styles.body.class}>
