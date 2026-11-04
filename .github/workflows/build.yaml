@@ -18,8 +18,40 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: "@sys/dev"
+            path: code/sys.dev
+          - name: "@sys/ui-dev"
+            path: code/sys.ui/ui-dev
+          - name: "@sys/ui-components"
+            path: code/sys.ui/ui-components
+          - name: "@sys/driver-automerge"
+            path: code/sys.driver/driver-automerge
+          - name: "@sys/driver-monaco"
+            path: code/sys.driver/driver-monaco
+          - name: "@sys/driver-prosemirror"
+            path: code/sys.driver/driver-prosemirror
+          - name: "@sys/driver-stripe"
+            path: code/sys.driver/driver-stripe
+          - name: "@sys/ui"
+            path: code/sys.ui/ui
+          - name: "@sample/r2"
+            path: code/sys.driver/driver-cloudflare/-sample/deploy
+          - name: "@sys/driver-pi"
+            path: code/sys.driver/driver-pi
           - name: "@sys/driver-vite"
             path: code/sys.driver/driver-vite
+          - name: "@draft/shell"
+            path: deploy/@draft.shell
+          - name: "@tdb/data"
+            path: deploy/@tdb.data
+          - name: "@tdb/slc"
+            path: deploy/@tdb.slc
+          - name: "@tdb/slc-fs"
+            path: deploy/@tdb.slc.fs
+          - name: "@tdb/slc-std"
+            path: deploy/@tdb.slc.std
+          - name: "@tdb/edu-slug"
+            path: deploy/@tdb.edu.slug
     steps:
       - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'

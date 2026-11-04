@@ -3,15 +3,15 @@
   "version": "0.0.298",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/index.html",
+    "dev": "deno run -A   ./-scripts/task.main.ts --cmd=dev    --in=./src/index.html",
     "test": "deno test -P=test",
-    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/index.html",
-    "smoke:browser": "deno run -P=dev ./-scripts/task.browser-smoke.ts",
+    "build": "deno run -A ./-scripts/task.main.ts --cmd=build  --in=./src/index.html",
+    "smoke:browser": "deno run -A ./-scripts/task.browser-smoke.ts",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/ ./-scripts/ vite.config.ts",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "info": "deno run -P=dev   ./-scripts/task.main.ts --cmd=info",
+    "info": "deno run -A   ./-scripts/task.main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -67,4 +67,3 @@
     }
   }
 }
-

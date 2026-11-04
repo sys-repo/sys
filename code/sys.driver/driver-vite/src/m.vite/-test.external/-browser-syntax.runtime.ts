@@ -7,13 +7,7 @@ describe('Vite browser syntax runtime', () => {
     const res = await runProbe({
       name: 'browser-syntax-runtime',
       source: PROBE_SOURCE,
-      denoArgs: [
-        'run',
-        '-P=test',
-        '--no-lock',
-        '--allow-import=jsr.io,localhost',
-        '--node-modules-dir=auto',
-      ],
+      denoArgs: ['run', '-A', '--no-lock', '--node-modules-dir=auto'],
     });
     assertRunOk(res, 'browser syntax runtime probe failed');
 

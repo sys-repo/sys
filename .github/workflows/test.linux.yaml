@@ -33,10 +33,125 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: "@sys/driver-crdt"
+            path: code/sys.driver/driver-crdt
+          - name: "@sys/types"
+            path: code/sys/types
+          - name: "@sys/dev"
+            path: code/sys.dev
+          - name: "@sys/crdt"
+            path: code/sys/crdt
+          - name: "@sys/std"
+            path: code/sys/std
+          - name: "@sys/archive"
+            path: code/sys/archive
+          - name: "@sys/color"
+            path: code/sys/color
+          - name: "@sys/ui-css"
+            path: code/sys.ui/ui-css
+          - name: "@sys/event"
+            path: code/sys/event
+          - name: "@sys/ui-state"
+            path: code/sys.ui/ui-state
+          - name: "@sys/html"
+            path: code/sys/html
+          - name: "@sys/immutable"
+            path: code/sys/immutable
+          - name: "@sys/ui-dom"
+            path: code/sys.ui/ui-dom
+          - name: "@sys/net"
+            path: code/sys/net
+          - name: "@sys/process"
+            path: code/sys/process
+          - name: "@sys/text"
+            path: code/sys/text
+          - name: "@sys/cli"
+            path: code/sys/cli
+          - name: "@sys/crypto"
+            path: code/sys/crypto
+          - name: "@sys/fs"
+            path: code/sys/fs
+          - name: "@sys/driver-process"
+            path: code/sys.driver/driver-process
+          - name: "@sys/driver-signer"
+            path: code/sys.driver/driver-signer
+          - name: "@sys/testing"
+            path: code/sys/testing
+            browser: true
+          - name: "@sys/tmpl-engine"
+            path: code/sys/tmpl-engine
+          - name: "@sys/web"
+            path: code/sys/web
+          - name: "@sys/yaml"
+            path: code/sys/yaml
+          - name: "@sys/esm"
+            path: code/sys/esm
+          - name: "@sys/http"
+            path: code/sys/http
+          - name: "@sys/ui-react"
+            path: code/sys.ui/ui-react
+          - name: "@sys/ui-dev"
+            path: code/sys.ui/ui-dev
+          - name: "@sys/markdown"
+            path: code/sys/markdown
+          - name: "@sys/registry"
+            path: code/sys/registry
+          - name: "@sys/schema"
+            path: code/sys/schema
+          - name: "@sys/model"
+            path: code/sys.model/model
+          - name: "@sys/driver-cloudflare"
+            path: code/sys.driver/driver-cloudflare
+          - name: "@sys/model-slug"
+            path: code/sys.model/model-slug
+          - name: "@sys/ui-components"
+            path: code/sys.ui/ui-components
+          - name: "@sys/driver-automerge"
+            path: code/sys.driver/driver-automerge
+          - name: "@sys/driver-monaco"
+            path: code/sys.driver/driver-monaco
+          - name: "@sys/driver-prosemirror"
+            path: code/sys.driver/driver-prosemirror
+          - name: "@sys/driver-stripe"
+            path: code/sys.driver/driver-stripe
+            browser: true
+          - name: "@sys/ui"
+            path: code/sys.ui/ui
+          - name: "@sys/cell"
+            path: code/sys/cell
+            proofs: true
+          - name: "@sys/server"
+            path: code/sys/server
+          - name: "@sys/workspace"
+            path: code/sys/workspace
+          - name: "@sys/driver-deno"
+            path: code/sys.driver/driver-deno
+          - name: "@sys/tmpl"
+            path: code/-tmpl
+          - name: "@sample/r2"
+            path: code/sys.driver/driver-cloudflare/-sample/deploy
+          - name: "@sys/driver-pi"
+            path: code/sys.driver/driver-pi
           - name: "@sys/driver-vite"
             path: code/sys.driver/driver-vite
             proofs: true
             cache: true
+          - name: "@sys/tools"
+            path: code/sys.tools
+          - name: "@draft/shell"
+            path: deploy/@draft.shell
+          - name: "@tdb/data"
+            path: deploy/@tdb.data
+          - name: "@tdb/slc"
+            path: deploy/@tdb.slc
+          - name: "@tdb/slc-fs"
+            path: deploy/@tdb.slc.fs
+          - name: "@tdb/slc-std"
+            path: deploy/@tdb.slc.std
+          - name: "@tdb/edu-slug"
+            path: deploy/@tdb.edu.slug
+          - name: "@sample/proxy"
+            path: deploy/sample.proxy
     steps:
       - uses: actions/checkout@v5
       - name: 'Install ESM Runtime: Deno 2.x'

@@ -4,14 +4,14 @@
   "license": "MIT",
   "private": true,
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/-main.ts --cmd=dev    --in=./src/index.html",
+    "dev": "deno run -A   ./-scripts/-main.ts --cmd=dev    --in=./src/index.html",
     "test": "deno test -P=test",
-    "build": "deno run -P=dev ./-scripts/-main.ts --cmd=build  --in=./src/index.html",
+    "build": "deno run -A ./-scripts/-main.ts --cmd=build  --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/-main.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/-main.ts --cmd=clean",
-    "info": "deno run -P=dev   ./-scripts/-main.ts --cmd=info",
+    "info": "deno run -A   ./-scripts/-main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/-tmp.ts"
   },
   "exports": {
@@ -52,4 +52,3 @@
     }
   }
 }
-

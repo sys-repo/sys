@@ -7,13 +7,7 @@ describe('Vite disposal protocol compatibility runtime', () => {
     const res = await runProbe({
       name: 'dispose-protocol-compat.dev',
       source: DEV_PROBE_SOURCE,
-      denoArgs: [
-        'run',
-        '-P=test',
-        '--no-lock',
-        '--allow-import=jsr.io,localhost',
-        '--node-modules-dir=auto',
-      ],
+      denoArgs: ['run', '-A', '--no-lock', '--node-modules-dir=auto'],
     });
     assertRunOk(res, 'disposal protocol compatibility runtime probe failed');
 
@@ -36,13 +30,7 @@ describe('Vite disposal protocol compatibility runtime', () => {
     const res = await runProbe({
       name: 'dispose-protocol-compat.build',
       source: BUILD_PROBE_SOURCE,
-      denoArgs: [
-        'run',
-        '-P=test',
-        '--no-lock',
-        '--allow-import=jsr.io,localhost',
-        '--node-modules-dir=auto',
-      ],
+      denoArgs: ['run', '-A', '--no-lock', '--node-modules-dir=auto'],
     });
     assertRunOk(res, 'disposal protocol compatibility build probe failed');
 
