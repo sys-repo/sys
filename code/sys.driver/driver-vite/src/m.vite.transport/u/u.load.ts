@@ -118,23 +118,6 @@ export function denoLoaderLoadSpecifier(id: string, sourcefile: string) {
   return Path.toFileUrl(sourcefile).href;
 }
 
-export function mediaTypeToLoader(media: string) {
-  switch (media) {
-    case 'JSX':
-      return 'jsx';
-    case 'JavaScript':
-      return 'js';
-    case 'Json':
-      return 'json';
-    case 'TSX':
-      return 'tsx';
-    case 'TypeScript':
-      return 'ts';
-    default:
-      return 'js';
-  }
-}
-
 /**
  * Helpers:
  */
