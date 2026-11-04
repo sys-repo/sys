@@ -7,12 +7,23 @@ remain genuinely helpful—not brevity at the expense of understanding.
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
+@sys.ui
+passkey-panel.plan.md
+- [ ] feat(ui): add passkey sample diagnostic panel
 
 
-sys.ui-components
-shared-focus-style.plan.md
-- [ ] feat(ui-components): expose shared focus styling
-- [ ] feat(ui-components): add Switch focus arrival
+
+
+@sys.driver-vite
+linux-wsl-probe.plan.md
+- [x] c383f979c fix(driver-vite): isolate startup delivery lifetimes
+- [x] bc13dd19e fix(workspace): keep CI source selection caller-owned
+- [x] 40b0cb49c refactor(driver-vite): remove obsolete permission construction
+- [x] 0b879c4c5 refactor(driver-vite): remove obsolete tooling residue
+- [ ] fix(vite): align application launchers and restore full CI
+- [ ] chore(driver-vite): move test lane orchestration into scripts
+
+
 
 
 
