@@ -136,7 +136,7 @@ describe('Vite test lanes', () => {
 
   it('explicit proofs → common invocation without unit exclusions', () => {
     expect(tasks['test:run']).not.to.include('--ignore');
-    for (const flag of ['--frozen', '--cached-only', '--no-prompt']) {
+    for (const flag of ['-A', '--frozen', '--cached-only', '--no-prompt']) {
       expect(tasks['test:run']).to.include(flag);
     }
     const explicit = ['test:dist:pipeline', 'test:external', 'test:integrity'];

@@ -20,7 +20,7 @@ for (const sample of SAMPLES) {
           import { proveCandidate } from './src/m.vite/-test.external/u.fixture.candidate.ts';
           await proveCandidate('${sample}');
         `),
-        denoArgs: ['run', '-P=test', '--node-modules-dir=auto'],
+        denoArgs: ['run', '-A', '--node-modules-dir=auto'],
       });
       assertRunOk(res, `Candidate external consumer failed: ${sample}`);
     });

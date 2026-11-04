@@ -9,7 +9,7 @@
     "check": "deno check --node-modules-dir=auto src/*",
     "test": "deno task test:unit",
     "test:cache": "deno test --no-run --node-modules-dir=auto -P=test --frozen --no-prompt ./src ./src/-entry/-test.external/-graph.process.ts ./src/-entry/-test.external/-serve.cached.process.ts ./src/m.vite/-test.external/-candidate-consumer.ts ./src/m.vite.transport/-test/-loader.npm.proof.ts",
-    "test:run": "deno test --node-modules-dir=auto -P=test --frozen --cached-only --no-prompt",
+    "test:run": "deno test --node-modules-dir=auto -A --frozen --cached-only --no-prompt",
     "test:unit": "deno task test:run --ignore=./src/m.vite/-test/-build.test.ts,./src/m.vite/-test/-build.workspace-composition.test.ts,./src/m.vite/-test/-build.transitive-jsr.test.ts,./src/m.vite/-test/-build.failure-causes.test.ts,./src/m.vite/-test/-build.startup.test.ts,./src/m.vite/-test/-published-fixture-lifecycle.test.ts,./src/m.vite/-test/-bootstrap.handoff.test.ts,./src/m.vite/-test/-bridge.integration.test.ts,./src/m.vite/-test/-dev.test.ts,./src/m.vite.config/-test/-fromFile.test.ts,./src/m.vite.config/-test/-serverFs.test.ts,./src/m.vite.plugins/m.OptimizeImports/-test/-u.graph-proof.test.ts,./src/m.vite.plugins/m.HtmlIntegrity/-test/-html-integrity.build.test.ts",
     "test:proofs": "deno task test:entry:process && deno task test:candidate && deno task test:build && deno task test:bridge && deno task test:dev && deno task test:config:process && deno task test:graph && deno task test:loader && deno task test:integrity:build",
     "test:build": "deno task test:run --trace-leaks ./src/m.vite/-test/-build.test.ts ./src/m.vite/-test/-build.workspace-composition.test.ts ./src/m.vite/-test/-build.transitive-jsr.test.ts ./src/m.vite/-test/-build.failure-causes.test.ts ./src/m.vite/-test/-build.startup.test.ts ./src/m.vite/-test/-published-fixture-lifecycle.test.ts",
@@ -32,10 +32,10 @@
     "build": "deno task sample:build",
     "serve": "deno task sample:serve",
     "info": "deno task sample:info",
-    "sample:dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --dir=./src/-test/vite.sample-1",
-    "sample:build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build --dir=./src/-test/vite.sample-1",
+    "sample:dev": "deno run -A ./-scripts/task.main.ts --cmd=dev --dir=./src/-test/vite.sample-1",
+    "sample:build": "deno run -A ./-scripts/task.main.ts --cmd=build --dir=./src/-test/vite.sample-1",
     "sample:serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve --dir=./src/-test/vite.sample-1/dist",
-    "sample:info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info --dir=./src/-test/vite.sample-1",
+    "sample:info": "deno run -A ./-scripts/task.main.ts --cmd=info --dir=./src/-test/vite.sample-1",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
@@ -64,23 +64,11 @@
     ]
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
+    "clean": { "read": true, "write": true, "env": true },
     "entry-serve-proof": {
-      "read": [
-        "./.tmp/entry-serve-proof/dist"
-      ],
-      "net": [
-        "127.0.0.1:0"
-      ],
-      "env": [
-        "FORCE_COLOR",
-        "TERM",
-        "TERM_PROGRAM"
-      ]
+      "read": ["./.tmp/entry-serve-proof/dist"],
+      "net": ["127.0.0.1:0"],
+      "env": ["FORCE_COLOR", "TERM", "TERM_PROGRAM"]
     },
     "test": {
       "read": true,
@@ -90,15 +78,7 @@
       "run": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     },
     "dev": {
@@ -109,15 +89,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     }
   }

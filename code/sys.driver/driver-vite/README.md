@@ -26,10 +26,13 @@ to the project's `deno.json`:
 }
 ```
 
-These commands grant full authority to the parent launcher; the Vite child has separate grants
-below. In an existing `@sys/tmpl` workspace, reuse its tasks and dependency configuration. Bare
-imports need configured resolution, and tasks using `-P=dev` need a consumer-defined permission
-preset; an imported package does not supply one.
+These tasks launch the parent with `-A`. **Availability:** the
+[trusted-child policy](#trusted-vite-execution) is **unreleased workspace behavior**. Published
+`@sys/driver-vite@0.0.480` still constructs restricted children; using `-A` for the parent does not
+change that published child policy.
+
+In an existing `@sys/tmpl` workspace, retain its dependency configuration and use `-A` for Vite
+build/dev launchers. Bare imports still need configured resolution.
 
 Place `vite.config.ts` at the project root:
 
@@ -202,19 +205,34 @@ Policy rewrites workspace/import-map names; transport resolves and loads `jsr:`,
 specifiers. Module identity must remain stable and portable so relative imports chain correctly, not
 become cache-hash paths. Bundled output is ESM only.
 
-The child `deno run npm:vite` process does not use `-A`:
+### Trusted Vite execution
 
-- Build writes are scoped to output and cache roots, with config-cache access where required by the
-  Vite loader. Dev additionally permits writes beneath the consumer project root. Canonical paths
-  are included where needed.
-- Build network access is limited to `localhost`; dev permits local serving/startup addresses.
-  System access is limited to runtime queries, with `networkInterfaces` added for dev.
-- Run access is scoped to the active Deno executable. FFI access covers the `node_modules/.deno`
-  tree beside the nearest `package.json`, not just individual native packages.
-- Read and environment access remain broad, including Vite's `process.env` enumeration.
+This section describes **unreleased workspace behavior**.
 
-These are Deno API grants, not native subprocess or FFI confinement. Use trusted application code,
-configuration, and plugins.
+Vite configuration, plugins, and native dependencies are trusted executable build code. The Vite
+child runs with `deno run -A`, adopting the invoking user's ordinary Node-style process authority.
+The module's build/dev/info sample launchers and Vite execution tests use the same policy.
+
+External Deno callers must launch Vite-evaluating code with `-A` too. Ordinary `Vite.build({ cwd })`
+and `Vite.dev({ cwd })` load configuration in the caller before starting the child; making only the
+child unrestricted cannot fix a refused parent import. Public `Vite.Config.fromFile`, direct Vite
+imports, and CLI `info` stay in-process and caller-owned. The library does not elevate an
+already-running caller or retry failed operations with broader grants.
+
+This deliberately removes Deno's additional read/write/network/system restrictions for this trusted
+toolchain. Those restrictions previously caught accidental access, but the existing grants to launch
+Deno and load native libraries did not contain malicious dependencies. Deno documents both escape
+paths in its [security model](https://docs.deno.com/runtime/fundamentals/security/) and compares
+`-A` with ordinary Node execution in its
+[permissions reference](https://docs.deno.com/runtime/reference/permissions/).
+
+OS/CI isolation, repository access, and credential controls remain the security boundary. `-A`
+grants no additional OS privileges. Run only trusted build inputs in an environment whose accessible
+files, credentials, and network are appropriate for them. Static-file serving has a separate
+execution contract; its restricted permission proofs remain intact.
+
+Dependency selection, import-map authority, frozen/cache-only execution when requested, no-prompt
+behavior, cancellation, and awaited cleanup remain independent guarantees.
 
 ## Verification
 

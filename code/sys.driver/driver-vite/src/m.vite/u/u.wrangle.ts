@@ -51,14 +51,13 @@ const wrangle = {
   ) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
     const configLoader = wrangle.configLoaderArg(vite);
-    const permissions = await wrangle.permissions(paths, cmd ?? '', configLoader);
     const outDir = cmd === 'build' ? `--outDir=${Path.resolve(paths.cwd, paths.app.outDir)}` : '';
     const base = cmd === 'build' ? `--base=${paths.app.base}` : '';
     return [
       'run',
       '--no-prompt',
       ...(dependencyPolicy === 'frozen-cache' ? ['--frozen', '--cached-only'] : []),
-      ...permissions,
+      '-A',
       '--node-modules-dir',
       importMap ? `--import-map=${importMap}` : '',
       vite,
