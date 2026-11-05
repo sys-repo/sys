@@ -51,7 +51,7 @@
     "npm:@automerge/automerge@3.5.0": "3.5.0",
     "npm:@automerge/prosemirror@0.2.0": "0.2.0",
     "npm:@deno/vite-plugin@2.0.4": "2.0.4_vite@8.3.5_yaml@2.9.1",
-    "npm:@earendil-works/pi-coding-agent@0.85.1": "0.85.1_ws@8.22.0",
+    "npm:@earendil-works/pi-coding-agent@0.85.1": "0.85.1_ws@8.22.1",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.57.0_react@19.3.1_react-dom@19.3.1",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@noble/hashes@2.4.0": "2.4.0",
@@ -84,6 +84,7 @@
     "npm:hash-it@7.1.1": "7.1.1",
     "npm:hast-util-sanitize@5.0.2": "5.0.2",
     "npm:hast-util-to-html@9.0.6": "9.0.6",
+    "npm:hono@4.13.16": "4.13.16",
     "npm:ignore@7.0.14": "7.0.14",
     "npm:magic-string@1.4.5": "1.4.5",
     "npm:mdast-util-from-markdown@2.1.0": "2.1.0",
@@ -104,6 +105,7 @@
     "npm:prosemirror-model@1.25.12": "1.25.12",
     "npm:prosemirror-schema-basic@1.2.5": "1.2.5",
     "npm:prosemirror-state@1.4.4": "1.4.4",
+    "npm:prosemirror-view@1.42.9": "1.42.9",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.3.1": "19.3.1_react@19.3.1",
     "npm:react-error-boundary@6.1.6": "6.1.6_@types+react@19.3.0_react@19.3.1",
@@ -121,6 +123,7 @@
     "npm:typebox@1.4.3": "1.4.3",
     "npm:vite-plugin-wasm@3.6.0": "3.6.0_vite@8.3.5_yaml@2.9.1",
     "npm:vite@8.3.5": "8.3.5_yaml@2.9.1",
+    "npm:ws@8.22.1": "8.22.1",
     "npm:yaml@2.9.1": "2.9.1",
     "npm:yjs@13.6.33": "13.6.33"
   },
@@ -688,7 +691,7 @@
         "esbuild"
       ]
     },
-    "@earendil-works/pi-agent-core@0.85.1_ws@8.22.0": {
+    "@earendil-works/pi-agent-core@0.85.1_ws@8.22.1": {
       "integrity": "sha512-hIXIP3eAWueAYiAl8aMvWCvvZ8Q5gT3Dip5bE5uJyIGh4+YlWRjtMLI4BaeoXoSs93zndjue61u1B/vhefLnuA==",
       "dependencies": [
         "@earendil-works/chord",
@@ -700,7 +703,7 @@
         "yaml@2.9.0"
       ]
     },
-    "@earendil-works/pi-ai@0.85.1_ws@8.22.0": {
+    "@earendil-works/pi-ai@0.85.1_ws@8.22.1": {
       "integrity": "sha512-+VgVIJDkDO2efYJKEEqvPTH4zmnIaXdAppGbO+vKFA9qy5PdhFiAenuFAkU+oiCSfOC4dMHDyrjdQeL4ZoC5CQ==",
       "dependencies": [
         "@anthropic-ai/sdk",
@@ -716,7 +719,7 @@
       ],
       "bin": true
     },
-    "@earendil-works/pi-coding-agent@0.85.1_ws@8.22.0": {
+    "@earendil-works/pi-coding-agent@0.85.1_ws@8.22.1": {
       "integrity": "sha512-FGRN+OHbWaefBPGaTggAdLjrIHW+s2PzLyglz/5dfLzb9of7uuXMXYC0fJIeZTw+shS32o2cuQ9jF7YSDuL/oQ==",
       "dependencies": [
         "@earendil-works/chord",
@@ -2017,6 +2020,9 @@
     "highlight.js@10.7.3": {
       "integrity": "sha512-tzcUFauisWKNHaRkN4Wjl/ZA07gENAjFl3J/c480dprkGTg5EQstgaNFqBfUqCq54kZRIEcreTsAgF/m2quD7A=="
     },
+    "hono@4.13.16": {
+      "integrity": "sha512-AOLOEhvrV+iH92xXCnFr/5+3KjPKcI3xP63XJtX5spAnkznPdHijlIsUTpi7/9EhWqrTCekw5c5zh1K+YsVw7A=="
+    },
     "hosted-git-info@9.0.3": {
       "integrity": "sha512-Hc+ghLoSt6QaYZUv0WBiIvmMDZuZZ7oaDvdH8MbfOO4lOsxdXLEvuC6ePoGs9H1X9oCLyq6+NVN0MKqD+ydxyg==",
       "dependencies": [
@@ -2078,7 +2084,7 @@
     "isexe@2.0.0": {
       "integrity": "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw=="
     },
-    "isomorphic-ws@5.0.0_ws@8.22.0": {
+    "isomorphic-ws@5.0.0_ws@8.22.1": {
       "integrity": "sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==",
       "dependencies": [
         "ws"
@@ -2750,7 +2756,7 @@
         "wsl-utils"
       ]
     },
-    "openai@6.40.0_ws@8.22.0": {
+    "openai@6.40.0_ws@8.22.1": {
       "integrity": "sha512-MWtTjd/gQt4jpbji61NTgFWJLoY/PdRJ6wG9/ZDRMYNMlBKrCrSlkLI+KgHP1vR1qT6LKSAyAqIxno6lcK9JiA==",
       "dependencies": [
         "ws"
@@ -2968,8 +2974,8 @@
         "prosemirror-model"
       ]
     },
-    "prosemirror-view@1.42.8": {
-      "integrity": "sha512-ftDZjCs9AjAekXmCfJRn2U3IdlRCl0Yc4tZT1/jJWCsz4DiSifEBXtWmpJpw/4f1Rg328uAUQ+u2lCJ0+AVZkw==",
+    "prosemirror-view@1.42.9": {
+      "integrity": "sha512-bKbfzeKZOu2H2JQU2TaJmYu6EBcor3VnGIR4jR31cbEt1ztUnfUB6bKGV1+fJzOJdrVWR+tRU0208zM3oQx4wA==",
       "dependencies": [
         "prosemirror-model",
         "prosemirror-state",
@@ -3431,8 +3437,8 @@
         "strip-ansi@7.2.0"
       ]
     },
-    "ws@8.22.0": {
-      "integrity": "sha512-Ydggc987+RO0AnWtZ/7Wq9FtNvcrL1b/RO0ud9mWjUPgDrsAAwQSF51sm2hm1XofbU/4jkpGEsLFsZZxU+1DOg=="
+    "ws@8.22.1": {
+      "integrity": "sha512-oyL6OPYme/CmiFvNuGzeoxCJ4nOrZE2O1FwM9MWM1AsGri6nLXB2pg+lNA8aLeXMSav0J6eIVS1j6vUPzUtK9g=="
     },
     "wsl-utils@1.0.1": {
       "integrity": "sha512-c16PKLIRxBYpR3jSWsdS7SFp0COm5SOQdiFjY818dYFHJbMGuLBszpF07LBWmOS1uzrHa9VGdynsEgoeKy0oOQ==",

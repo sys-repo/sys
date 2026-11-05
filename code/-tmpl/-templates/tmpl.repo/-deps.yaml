@@ -81,9 +81,9 @@ package.json:
   - import: npm:react-icons@5.7.0
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:@vitejs/plugin-react@6.1.2
+  - import: npm:@vitejs/plugin-react@6.2.1
     dev: true
-  - import: npm:rollup@4.67.2
+  - import: npm:rollup@4.67.4
     dev: true
   - import: npm:rollup-plugin-visualizer@7.1.1
     dev: true
