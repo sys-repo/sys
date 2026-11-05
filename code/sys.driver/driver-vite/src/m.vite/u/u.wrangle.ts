@@ -16,7 +16,7 @@ export const Wrangle = {
     // Use the same Vite package for the executable, config loader, and import map.
     const vite = await wrangle.viteSpecifier(paths.cwd);
     const bootstrap = await Bootstrap.create(paths.cwd, vite);
-    const args = await wrangle.args(paths, arg, config, vite, bootstrap?.path, dependencyPolicy);
+    const args = wrangle.args(paths, arg, config, vite, bootstrap?.path, dependencyPolicy);
     const cmd = ['deno', ...args].join(' ');
     end({ importMap: bootstrap?.path ?? '', argCount: args.length });
     return {
@@ -41,7 +41,7 @@ export const Wrangle = {
 } as const;
 
 const wrangle = {
-  async args(
+  args(
     paths: t.ViteConfig.Paths,
     arg: string,
     config: string,
@@ -51,14 +51,13 @@ const wrangle = {
   ) {
     const [cmd, ...rest] = arg.trim().split(/\s+/).filter(Boolean);
     const configLoader = wrangle.configLoaderArg(vite);
-    const permissions = await wrangle.permissions(paths, cmd ?? '', configLoader);
     const outDir = cmd === 'build' ? `--outDir=${Path.resolve(paths.cwd, paths.app.outDir)}` : '';
     const base = cmd === 'build' ? `--base=${paths.app.base}` : '';
     return [
       'run',
       '--no-prompt',
       ...(dependencyPolicy === 'frozen-cache' ? ['--frozen', '--cached-only'] : []),
-      ...permissions,
+      '-A',
       '--node-modules-dir',
       importMap ? `--import-map=${importMap}` : '',
       vite,
@@ -69,50 +68,6 @@ const wrangle = {
       base,
       `--config=${config}`,
     ].filter(Boolean);
-  },
-
-  async permissions(paths: t.ViteConfig.Paths, cmd: string, configLoader: string) {
-    const ffiRoots = await wrangle.ffiRoots(paths.cwd);
-    const writeRoots = await wrangle.writeRoots(paths, cmd, configLoader);
-    const allowEnv = '--allow-env';
-    const allowFfi = `--allow-ffi=${ffiRoots.join(',')}`;
-    const allowRun = `--allow-run=${Deno.execPath()}`;
-    const allowWrite = `--allow-write=${writeRoots.join(',')}`;
-    const allowSysCommon = '--allow-sys=osRelease,homedir,uid,gid';
-    const allowNetBuild = '--allow-net=localhost';
-    const allowNetLocal = '--allow-net=localhost,127.0.0.1,0.0.0.0,[::1],[::]';
-    const common = [
-      allowEnv,
-      allowFfi,
-      '--allow-read',
-      allowSysCommon,
-      allowRun,
-      allowWrite,
-    ];
-    const allowSysDev = '--allow-sys=osRelease,homedir,uid,gid,networkInterfaces';
-
-    // Vite 8 / rolldown build can issue a localhost DNS lookup under Deno during config/runtime startup.
-    if (cmd === 'build') return [...common, allowNetBuild];
-    if (cmd === 'dev') {
-      return [
-        allowEnv,
-        allowFfi,
-        '--allow-read',
-        allowSysDev,
-        allowRun,
-        allowWrite,
-        allowNetLocal,
-      ];
-    }
-    return common;
-  },
-
-  async ffiRoots(cwd: string) {
-    const anchor = await wrangle.packageAnchor(cwd);
-    const root = Path.dirname(anchor);
-    const canonicalRoot = await wrangle.tryRealPath(root);
-    const roots = [root, canonicalRoot].filter(Boolean);
-    return [...new Set(roots.map((path) => Path.join(path, 'node_modules', '.deno')))];
   },
 
   env(cwd: string) {
@@ -175,33 +130,6 @@ const wrangle = {
   moduleStart(moduleUrl = import.meta.url) {
     if (!moduleUrl.startsWith('file:')) return '';
     return Path.dirname(Path.fromFileUrl(moduleUrl));
-  },
-
-  viteCacheDir(cwd: string) {
-    return Path.join(Path.resolve(cwd), 'node_modules', '.vite');
-  },
-
-  viteConfigTempDir(cwd: string) {
-    return Path.join(Path.resolve(cwd), 'node_modules', '.vite-temp');
-  },
-
-  async writeRoots(paths: t.ViteConfig.Paths, cmd: string, configLoader: string) {
-    const output = Path.resolve(paths.cwd, paths.app.outDir);
-    const cache = wrangle.viteCacheDir(paths.cwd);
-    const configTemp = cmd === 'build' && !configLoader
-      ? [wrangle.viteConfigTempDir(paths.cwd)]
-      : [];
-    const roots = cmd === 'build' ? [output, cache, ...configTemp] : [paths.cwd, output, cache];
-    const canonical = await Promise.all(roots.map((path) => wrangle.tryRealPath(path)));
-    return [...new Set([...roots, ...canonical.filter(Boolean)])];
-  },
-
-  async tryRealPath(path: string) {
-    try {
-      return await Fs.realPath(path);
-    } catch {
-      return '';
-    }
   },
 
   async packageAnchor(start: string) {

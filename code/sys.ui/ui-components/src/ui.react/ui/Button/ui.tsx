@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import { type FC, useEffect, useRef, useState } from 'react';
 
-import { type t, Color, css, D, Is, Signal, Style, useIsTouchSupported } from './common.ts';
-import { Event, toEventState } from './u.events.ts';
+import { Color, css, D, Is, Signal, Style, type t } from './common.ts';
+import { Event, type PressState, toEventState } from './u.events.ts';
+import { focusStyle } from './u.focus.ts';
 import { Wrangle } from './u.ts';
 
 type P = t.Button.Props;
@@ -9,7 +10,7 @@ type P = t.Button.Props;
 /**
  * Component
  */
-export const Button: React.FC<P> = (props) => {
+export const Button: FC<P> = (props) => {
   const {
     active = D.active,
     block = D.block,
@@ -18,19 +19,20 @@ export const Button: React.FC<P> = (props) => {
   } = props;
   const enabled = Wrangle.enabled(props);
   const label = wrangle.label(props);
-  const blurred = false;
 
   /**
    * Hooks:
    */
-  const isTouch = useIsTouchSupported();
+  const press = useRef<PressState>({ mouse: false });
   const overState = useState(false);
   const downState = useState(false);
+  const keyboardDownState = useState(false);
   const [over, setOver] = overState;
-  const [down, setDown] = downState;
+  const [down] = downState;
+  const [keyboardDown] = keyboardDownState;
 
-  const eventState = toEventState(props, overState, downState);
-  const is: t.Button.Flags = { over, down, enabled, disabled: !enabled };
+  const eventState = toEventState(props, overState, downState, keyboardDownState, press.current);
+  const is: t.Button.Flags = { over, down: down || keyboardDown, enabled, disabled: !enabled };
   const opacity = wrangle.opacity(props, is);
 
   /**
@@ -38,11 +40,9 @@ export const Button: React.FC<P> = (props) => {
    */
   Signal.useRedrawEffect(() => props.subscribe?.());
   useEffect(() => {
-    if (!active) {
-      setDown(false);
-      setOver(false);
-    }
-  }, [active]);
+    if (!active || !enabled) Event.reset(eventState);
+    if (!active) setOver(false);
+  }, [active, enabled]);
 
   /**
    * Render:
@@ -56,8 +56,9 @@ export const Button: React.FC<P> = (props) => {
       display: block ? 'block' : 'inline-block',
       minWidth: props.minWidth,
       maxWidth: props.maxWidth,
+      borderRadius: D.borderRadius,
       opacity: opacity,
-      cursor: enabled && active && !blurred ? 'pointer' : 'default',
+      cursor: enabled && active ? 'pointer' : 'default',
       userSelect: userSelect ? 'auto' : 'none',
     }),
     body: css({
@@ -69,24 +70,28 @@ export const Button: React.FC<P> = (props) => {
       }),
       transform: wrangle.pressedOffset({
         enabled,
-        over: !!(over || props.isOver),
-        down: !!(down || props.isDown),
+        // A held key supplies press feedback without changing physical hover truth.
+        over: !!(over || props.isOver || keyboardDown),
+        down: !!(is.down || props.isDown),
         pressedOffset,
       }),
-      opacity: blurred ? 0.15 : 1,
-      filter: `blur(${blurred ? 3 : 0}px) grayscale(${blurred ? 100 : 0}%)`,
+      opacity: 1,
+      // Preserve the filter's containing-block behavior, even at zero strength.
+      filter: 'blur(0px) grayscale(0%)',
       transition: 'opacity 0.1s ease',
     }),
   };
 
+  const rootStyle = focusStyle(styles.base, props.style);
+
   return (
     <div
-      role={'button'}
-      className={css(styles.base, props.style).class}
+      role='button'
+      tabIndex={enabled && active ? 0 : -1}
+      aria-disabled={!enabled || !active ? true : undefined}
+      className={rootStyle.class}
       title={props.tooltip}
-      //
-      onDoubleClick={props.onDoubleClick}
-      {...Event.handlers(eventState, isTouch)}
+      {...Event.handlers(eventState)}
     >
       <div className={styles.body.class}>
         {label && <div>{label}</div>}
@@ -121,7 +126,7 @@ const wrangle = {
 
   label(props: P) {
     const { label } = props;
-    return typeof label === 'function' ? label() : label;
+    return Is.func(label) ? label() : label;
   },
 
   opacity(props: P, is: t.Button.Flags): t.Percent {

@@ -1,52 +1,50 @@
-import { expect, Fs, Path, type t } from '../../../-test.ts';
-import { Wrangle } from '../u.wrangle.ts';
+import { expect, Fs, Path, type t } from '../../-test.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
 
 type ConsumerOptions = {
   packageJson?: { dependencies: Record<string, string> };
   imports?: Record<string, string>;
   project?: string;
 };
-type Command = Awaited<ReturnType<typeof Wrangle.command>>;
 
-/** Own the temporary consumer and every startup artifact created for it. */
+/**
+ * Own the temporary consumer and commands created through its `command()` method.
+ * Dispose directly created commands separately.
+ */
 export async function createConsumer(options: ConsumerOptions = {}) {
+  await using setup = new AsyncDisposableStack();
   const tmp = await Fs.makeTempDir({ prefix: 'vite.wrangle-' });
   const root = tmp.absolute;
+  setup.defer(async () => {
+    await Fs.remove(root, { log: false });
+  });
+
   const cwd = options.project ? Path.join(root, options.project) : root;
-  const commands: Command[] = [];
   const paths: t.ViteConfig.Paths = {
     cwd,
     app: { entry: 'index.html', outDir: 'dist', base: '.' },
   };
-  try {
-    await Fs.ensureDir(cwd);
-    if (options.packageJson) {
-      await Fs.writeJson(Path.join(root, 'package.json'), options.packageJson);
-    }
-    await Fs.writeJson(Path.join(root, 'deno.json'), {
-      workspace: [],
-      imports: options.imports ?? {},
-    });
-  } catch (error) {
-    await Fs.remove(root, { log: false });
-    throw error;
+  await Fs.ensureDir(cwd);
+  if (options.packageJson) {
+    await Fs.writeJson(Path.join(root, 'package.json'), options.packageJson, { throw: true });
   }
+  await Fs.writeJson(Path.join(root, 'deno.json'), {
+    workspace: [],
+    imports: options.imports ?? {},
+  }, { throw: true });
 
+  const cleanup = setup.move();
   return {
     root,
     cwd,
     paths,
     async command(arg: string) {
       const result = await Wrangle.command(paths, arg);
-      commands.push(result);
+      cleanup.defer(() => result.dispose());
       return result;
     },
     async [Symbol.asyncDispose]() {
-      try {
-        for (const command of commands) await command.dispose();
-      } finally {
-        await Fs.remove(root, { log: false });
-      }
+      await cleanup.disposeAsync();
     },
   } as const;
 }

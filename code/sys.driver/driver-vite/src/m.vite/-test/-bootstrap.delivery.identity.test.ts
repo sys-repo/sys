@@ -1,36 +1,26 @@
-import { describe, expect, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it, Path, type t } from '../../-test.ts';
 import { Wrangle } from '../u/u.wrangle.ts';
 
-describe('Bootstrap delivery identity world', () => {
-  it('build: equivalent inputs now derive stable delivery handle identity', async () => {
-    const ctx = await fixture('vite.bootstrap.identity.build-');
-    const first = await capture(ctx.paths, 'build');
-    const second = await capture(ctx.paths, 'build');
+describe('Bootstrap command delivery', () => {
+  for (const mode of ['build', 'dev'] as const) {
+    it(`${mode}: stable authority identity with independent delivery lifetimes`, async () => {
+      await using ctx = await fixture(`vite.bootstrap.identity.${mode}-`);
+      const arg = mode === 'build' ? mode : 'dev --port=4321 --host';
+      await using first = await capture(ctx.paths, arg);
+      await using second = await capture(ctx.paths, arg);
 
-    try {
-      expect(first.importMapPath).to.eql(second.importMapPath);
-      expect(first.moduleSyncPath).to.eql(second.moduleSyncPath);
-      expect(first.cmd).to.eql(second.cmd);
-    } finally {
+      expect(first.importMapPath).not.to.eql(second.importMapPath);
+      expect(Path.basename(first.importMapPath)).to.eql(Path.basename(second.importMapPath));
+      expect(first.moduleSyncPath).not.to.eql(second.moduleSyncPath);
+      expect(first.args).to.eql(second.args);
       await first.dispose();
-      await second.dispose();
-    }
-  });
-
-  it('dev: equivalent inputs now derive stable delivery handle identity', async () => {
-    const ctx = await fixture('vite.bootstrap.identity.dev-');
-    const first = await capture(ctx.paths, 'dev --port=4321 --host');
-    const second = await capture(ctx.paths, 'dev --port=4321 --host');
-
-    try {
-      expect(first.importMapPath).to.eql(second.importMapPath);
-      expect(first.moduleSyncPath).to.eql(second.moduleSyncPath);
-      expect(first.cmd).to.eql(second.cmd);
-    } finally {
-      await first.dispose();
-      await second.dispose();
-    }
-  });
+      expect(await Fs.exists(second.importMapPath)).to.eql(true);
+      // Pin the emitted shim bytes, including its trailing newline.
+      expect((await Fs.readText(Path.fromFileUrl(second.moduleSyncPath))).data).to.eql(
+        'export default false;\n',
+      );
+    });
+  }
 });
 
 async function fixture(prefix: string) {
@@ -48,7 +38,9 @@ async function fixture(prefix: string) {
   });
 
   return {
-    root,
+    async [Symbol.asyncDispose]() {
+      await Fs.remove(root);
+    },
     paths: {
       cwd: root,
       app: {
@@ -60,24 +52,19 @@ async function fixture(prefix: string) {
   };
 }
 
-async function capture(
-  paths: {
-    readonly cwd: string;
-    readonly app: { readonly entry: string; readonly outDir: string; readonly base: string };
-  },
-  arg: string,
-) {
+async function capture(paths: t.ViteConfig.Paths, arg: string) {
   const res = await Wrangle.command(paths, arg);
   const importMapArg = res.args.find((item) => item.startsWith('--import-map='));
   const importMapPath = importMapArg?.replace('--import-map=', '') ?? '';
   const importMap = importMapPath
-    ? await Fs.readJson<{ imports?: Record<string, string> }>(importMapPath)
+    ? await Fs.readJson<{ imports?: t.ViteStartup.Imports }>(importMapPath)
     : undefined;
 
   return {
-    cmd: res.cmd,
+    args: res.args.filter((arg) => !arg.startsWith('--import-map=')),
     importMapPath,
     moduleSyncPath: importMap?.data?.imports?.['#module-sync-enabled'] ?? '',
     dispose: res.dispose,
+    [Symbol.asyncDispose]: res.dispose,
   } as const;
 }

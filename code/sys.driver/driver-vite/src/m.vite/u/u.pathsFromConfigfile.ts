@@ -1,7 +1,7 @@
 import type { t } from '../common.ts';
 import { Path } from '@sys/fs/path';
 import { Perf } from '../../common/u.perf.ts';
-import { fromFile } from '../../m.vite.config/u/u.fromFile.ts';
+import { ViteConfig } from '../../m.vite.config/mod.ts';
 
 /**
  * Resolve Vite application paths from one configuration file.
@@ -12,7 +12,7 @@ export async function pathsFromConfigfile(cwd?: t.StringDir): Promise<t.ViteConf
   const filename = 'vite.config.ts';
   const path = Path.join(rootDir, filename);
 
-  const res = await fromFile(path);
+  const res = await ViteConfig.fromFile(path);
   let paths = res.paths;
 
   if (!paths) {

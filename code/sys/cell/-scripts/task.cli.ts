@@ -1,4 +1,8 @@
+import { Is, Path } from '../src/common.ts';
 import { CellCli } from '../src/m.cli/mod.ts';
+import { parseArgs } from '../src/m.cli/u/u.args.ts';
+import { setExitCode } from '../src/m.cli/u/u.exit.ts';
+import { startReporterFlag } from '../src/m.cli/m.run/u.reporter.ts';
 
 const Sample = {
   stripe: './-sample/cell.stripe',
@@ -7,9 +11,28 @@ const Sample = {
   init: './-sample/foo',
 } as const;
 
-const argv = devArgs(Deno.args);
-const res = await CellCli.run({ argv });
-if (res.kind === 'error' || res.kind === 'kill') Deno.exitCode = res.code;
+const VITE_SAMPLE = Path.fromFileUrl(new URL('../-sample/cell.vite', import.meta.url));
+type Run = (argv: readonly string[]) => Promise<number>;
+
+export async function main(
+  args: readonly string[] = Deno.args,
+  deps: { readonly runCli?: Run; readonly runVite?: Run } = {},
+): Promise<number> {
+  const normalized = args[0] === '--' ? args.slice(1) : args;
+  const argv = devArgs(normalized);
+  if (isViteStart(argv)) {
+    const run = deps.runVite ?? (await import('./u.cli.vite.ts')).runVite;
+    return run(argv);
+  }
+  return (deps.runCli ?? runCli)(argv);
+}
+
+if (import.meta.main) setExitCode(await main());
+
+async function runCli(argv: readonly string[]): Promise<number> {
+  const res = await CellCli.run({ argv });
+  return res.kind === 'error' || res.kind === 'kill' ? res.code : Deno.exitCode;
+}
 
 /**
  * Helpers:
@@ -35,7 +58,17 @@ function taskArgs(args: readonly string[]): readonly string[] {
 }
 
 function serviceSample(args: readonly string[]) {
-  return flagValue(args, '--mode') === 'dev' ? Sample.vite : Sample.stripe;
+  return parseArgs(args).mode === 'dev' ? Sample.vite : Sample.stripe;
+}
+
+/** Only the maintained Vite sample's valid dev-start route changes execution authority. */
+function isViteStart(argv: readonly string[]): boolean {
+  const args = parseArgs(argv);
+  const [command, dir] = args._;
+  return command === 'start' && args.mode === 'dev' && Is.str(dir) &&
+    Path.resolve(dir) === VITE_SAMPLE && args._.length === 2 &&
+    !args.help && !args.agent && !args.dryRun && !args.plan && !args.force &&
+    args.format === undefined && args.unknown.length === 0 && startReporterFlag(args.reporter).ok;
 }
 
 function withDefaultDir(
@@ -50,33 +83,10 @@ function hasHelp(args: readonly string[]) {
   return args.includes('-h') || args.includes('--help');
 }
 
-function flagValue(args: readonly string[], flag: string) {
-  const index = args.indexOf(flag);
-  if (index < 0) return undefined;
-  const value = args[index + 1];
-  return value && !value.startsWith('-') ? value : undefined;
-}
-
 function missingFlags(args: readonly string[], flags: readonly string[]) {
   return flags.filter((flag) => !args.includes(flag));
 }
 
 function hasPositionalDir(args: readonly string[], index: number) {
-  return positional(args).length > index;
-}
-
-function positional(args: readonly string[]) {
-  const result: string[] = [];
-  for (let i = 0; i < args.length; i += 1) {
-    const value = args[i];
-    if (value.startsWith('--')) {
-      const takesValue = value === '--format' || value === '--mode' || value === '--reporter';
-      const next = args[i + 1];
-      if (takesValue && next && !next.startsWith('-')) i += 1;
-      continue;
-    }
-    if (value.startsWith('-')) continue;
-    result.push(value);
-  }
-  return result;
+  return parseArgs(args)._.length > index;
 }

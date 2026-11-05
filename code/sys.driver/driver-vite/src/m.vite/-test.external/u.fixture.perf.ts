@@ -22,7 +22,6 @@ export type PerfRun = {
   readonly phase: 'phase.04/checkpoint-a';
   readonly scenario: PerfScenario;
   readonly runs: number;
-  readonly deliveryIdentityNote: string;
   readonly samples: readonly PerfSample[];
 };
 
@@ -42,8 +41,6 @@ export const Perf = {
       phase: 'phase.04/checkpoint-a',
       scenario,
       runs,
-      deliveryIdentityNote:
-        'Delivery identity is now deterministic; published-boundary build remains red for separate reasons.',
       samples,
     };
   },

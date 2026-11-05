@@ -24,6 +24,13 @@ export namespace WorkspaceCi {
     readonly cwd?: t.StringDir;
     /** Ordered source module paths used for workflow generation. */
     readonly sourcePaths: readonly t.StringPath[];
+    /**
+     * Select source paths for build/test workflows.
+     * Omit to include every path; otherwise, include only paths for which the filter returns true.
+     * Zero matches means zero modules: existing build/test workflow files are removed.
+     * Publishing is unaffected.
+     */
+    readonly filter?: (path: t.StringPath) => boolean;
     /** Optional version-based JSR module filter. */
     readonly versionFilter?: Jsr.VersionFilter;
     /** Optional package scopes allowed in the generated JSR publish workflow. */

@@ -19,9 +19,13 @@ const snapshotDomGlobals = () =>
 describe('DomMock public entry', () => {
   it('import → leaves DOM globals unchanged', async () => {
     const before = snapshotDomGlobals();
-    const entry = await import('@sys/std/testing/server/dom');
+    const { DomMock } = await import('@sys/std/testing/server/dom');
+    const target = new EventTarget();
+    const point = DomMock.Touch.point({ identifier: 1, target });
 
     expect(snapshotDomGlobals()).to.eql(before);
-    expect(Object.isFrozen(entry.DomMock)).to.eql(true);
+    expect(Object.isFrozen(DomMock)).to.eql(true);
+    expect(Object.isFrozen(DomMock.Touch)).to.eql(true);
+    expect(point.target).to.equal(target);
   });
 });

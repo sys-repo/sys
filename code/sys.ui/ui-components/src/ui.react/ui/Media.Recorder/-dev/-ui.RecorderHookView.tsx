@@ -1,7 +1,7 @@
 import React from 'react';
 import { Media } from '../../Media/mod.ts';
-import { Button, pkg, Str } from '../../u.ts';
-import { Color, css, JsrUrl, type t } from '../common.ts';
+import { pkg, Str } from '../../u.ts';
+import { Color, css, Dev, JsrUrl, type t } from './common.ts';
 import { Icons } from '../ui.Icons.ts';
 import { ExternalLink } from './-ui.ExternalLink.tsx';
 
@@ -84,7 +84,7 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
 
       <div className={styles.body.class}>
         {!is.started && (
-          <Button
+          <Dev.Button
             block
             theme={theme.name}
             label={'start recording'}
@@ -93,10 +93,10 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
           />
         )}
         {is.recording && (
-          <Button theme={theme.name} block label={'pause'} onClick={recorder.pause} />
+          <Dev.Button theme={theme.name} block label={'pause'} onClick={recorder.pause} />
         )}
         {is.paused && (
-          <Button
+          <Dev.Button
             theme={theme.name}
             block
             label={'resume'}
@@ -105,7 +105,7 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
         )}
 
         <div className={styles.row.actions.base.class}>
-          <Button
+          <Dev.Button
             block
             theme={theme.name}
             label={`stop & save ${strBytes}`}
@@ -116,7 +116,7 @@ export const RecorderHookView: React.FC<RecorderHookViewProps> = (props) => {
               Media.download(res.blob);
             }}
           />
-          <Button
+          <Dev.Button
             block
             theme={theme.name}
             label={is.started ? 'cancel' : 'reset'}

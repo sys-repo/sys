@@ -11,7 +11,7 @@
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
+    "info": "deno run -A ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "sample:create": "deno run -P=test ./-scripts/task.sample.create.ts",

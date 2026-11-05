@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, BulletList, Color, css, Json, ObjectView, Signal } from './common.ts';
+import { BulletList, Color, css, Dev, Json, Signal, type t } from './common.ts';
 
 type P = t.TreeHost.Props;
 
@@ -46,7 +46,7 @@ export const PropSpinner: React.FC<PropSlotsProps> = (props) => {
           if (next) p.spinner.value = next.value;
         }}
       />
-      {v.spinner && <ObjectView name={'prop.spinner'} data={v.spinner} fontSize={11} />}
+      {v.spinner && <Dev.ObjectView name={'prop.spinner'} data={v.spinner} fontSize={11} />}
     </div>
   );
 };

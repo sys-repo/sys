@@ -1,12 +1,12 @@
-import { describe, expect, Fs, it, Path, ROOT } from '../../../-test.ts';
-import { resolveFromImportMap } from '../../../-test/u.importMap.ts';
-import { Wrangle } from '../u.wrangle.ts';
-import { createConsumer, option, readImportMap } from './u.fixture.wrangle.ts';
+import { describe, expect, Fs, it, Path, ROOT } from '../../-test.ts';
+import { resolveFromImportMap } from '../../-test/u.importMap.ts';
+import { Wrangle } from '../u/u.wrangle.ts';
+import { createConsumer, option, readImportMap } from './fixture.u.wrangle.ts';
 
 const vite8 = { dependencies: { vite: '8.0.2' } };
 const vite7 = { dependencies: { vite: '7.3.1' } };
 
-describe('Vite.Wrangle', () => {
+describe('Vite.Wrangle command construction', () => {
   it('explicit frozen-cache policy → child flags without changing ordinary builds', async () => {
     await using consumer = await createConsumer({ packageJson: vite8 });
     const ordinary = await consumer.command('build');
@@ -20,7 +20,14 @@ describe('Vite.Wrangle', () => {
         '--frozen',
         '--cached-only',
       ]);
-      expect(constrained.args.slice(4)).to.eql(ordinary.args.slice(2));
+      const ordinaryMap = option(ordinary.args, '--import-map');
+      const constrainedMap = option(constrained.args, '--import-map');
+      expect(constrainedMap).not.to.eql(ordinaryMap);
+      expect(Path.basename(constrainedMap)).to.eql(Path.basename(ordinaryMap));
+      const expectedArgs = ordinary.args.slice(2).map((arg) =>
+        arg === `--import-map=${ordinaryMap}` ? `--import-map=${constrainedMap}` : arg
+      );
+      expect(constrained.args.slice(4)).to.eql(expectedArgs);
       expect(constrained.env).to.eql(ordinary.env);
 
       const { path, imports } = await readImportMap(constrained.args);
@@ -29,6 +36,7 @@ describe('Vite.Wrangle', () => {
       await constrained.dispose();
       expect(await Fs.exists(path)).to.eql(false);
       expect(await Fs.exists(moduleSyncPath)).to.eql(false);
+      expect(await Fs.exists(ordinaryMap)).to.eql(true);
       expect(await Fs.exists(consumer.root)).to.eql(true);
     } finally {
       await constrained.dispose();
@@ -92,19 +100,14 @@ describe('Vite.Wrangle', () => {
       expect(await Fs.exists(consumer.root)).to.eql(true);
     });
 
-    it('Vite 7 → default loader, no startup map, and a bounded config-cache write grant', async () => {
+    it('Vite 7 → default loader and no startup map', async () => {
       await using consumer = await createConsumer({ packageJson: vite7 });
       const { args } = await consumer.command('build');
-      const writes = option(args, '--allow-write').split(',');
 
       expect(args.filter((arg) => arg.startsWith('npm:vite@'))).to.eql(['npm:vite@7.3.1']);
       expect(args.some((arg) => arg.startsWith('--configLoader='))).to.eql(false);
       expect(args.some((arg) => arg.startsWith('--import-map='))).to.eql(false);
-      expect(writes).to.include(Path.join(consumer.root, 'dist'));
-      expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite'));
-      expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite-temp'));
-      expect(writes).to.not.include(consumer.root);
-      expect(writes).to.not.include(await Fs.realPath(consumer.root));
+      expect(args).to.include('-A');
     });
 
     for (const manifest of ['absent', 'without vite'] as const) {
@@ -123,17 +126,8 @@ describe('Vite.Wrangle', () => {
             expect(imports['vite/internal']).to.eql(`${driverVite}/internal`);
             expect(imports['vite/module-runner']).to.eql(`${driverVite}/module-runner`);
 
-            const writes = option(args, '--allow-write').split(',');
             expect(args).to.include('--no-prompt');
-            expect(args).to.not.include('-A');
-            expect(writes).to.include(Path.join(consumer.root, 'dist'));
-            expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite'));
-            expect(writes).to.not.include(Path.join(consumer.root, 'node_modules', '.vite-temp'));
-            if (mode === 'build') {
-              expect(writes).to.not.include(consumer.root);
-              expect(writes).to.not.include(await Fs.realPath(consumer.root));
-              expect(option(args, '--allow-net')).to.eql('localhost');
-            }
+            expect(args).to.include('-A');
           });
         }
       });
@@ -155,41 +149,17 @@ describe('Vite.Wrangle', () => {
     }
   });
 
-  describe('child permissions', () => {
-    it('build → output/cache writes, localhost DNS, and explicit runtime grants', async () => {
+  describe('trusted child execution', () => {
+    it('build → full permissions with explicit non-interactive execution', async () => {
       await using consumer = await createConsumer({ packageJson: vite8 });
       const { args } = await consumer.command('build');
-      const writes = option(args, '--allow-write').split(',');
-      const ffi = option(args, '--allow-ffi').split(',');
-
-      expect(writes).to.include(Path.join(consumer.root, 'dist'));
-      expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite'));
-      expect(writes).to.not.include(Path.join(consumer.root, 'node_modules', '.vite-temp'));
-      expect(writes).to.not.include(consumer.root);
-      expect(writes).to.not.include(await Fs.realPath(consumer.root));
-      expect(option(args, '--allow-net')).to.eql('localhost');
-      expect(args.some((arg) => arg.includes('0.0.0.0') || arg.includes('[::]'))).to.eql(false);
-      expect(option(args, '--allow-sys')).to.eql('osRelease,homedir,uid,gid');
-      expect(ffi).to.include(Path.join(consumer.root, 'node_modules', '.deno'));
-      expect(option(args, '--allow-run')).to.eql(Deno.execPath());
-      expect(args).to.include('--no-prompt');
-      expect(args).to.include('--allow-env');
-      expect(args).to.not.include('--allow-ffi');
-      expect(args).to.not.include('--allow-run');
-      expect(args).to.not.include('-A');
+      assertTrustedArgs(args);
     });
 
-    it('dev → consumer writes and local serving/network-interface grants', async () => {
+    it('dev → trusted arguments select native loader and generated import map', async () => {
       await using consumer = await createConsumer({ packageJson: vite8 });
       const { args } = await consumer.command('dev --port=1234 --host');
-      const writes = option(args, '--allow-write').split(',');
-
-      expect(writes).to.include(consumer.root);
-      expect(writes).to.include(Path.join(consumer.root, 'node_modules', '.vite'));
-      expect(args).to.include('--allow-env');
-      expect(option(args, '--allow-net')).to.eql('localhost,127.0.0.1,0.0.0.0,[::1],[::]');
-      expect(option(args, '--allow-sys')).to.eql('osRelease,homedir,uid,gid,networkInterfaces');
-      expect(option(args, '--allow-run')).to.eql(Deno.execPath());
+      assertTrustedArgs(args);
       expect(args).to.include('npm:vite@8.0.2');
       expect(args.some((arg) => arg.startsWith('--base='))).to.eql(false);
       expect(option(args, '--configLoader')).to.eql('native');
@@ -197,17 +167,21 @@ describe('Vite.Wrangle', () => {
       expect(await Fs.exists(path)).to.eql(true);
     });
 
-    it('a nested consumer owns cache writes, not the broader package anchor', async () => {
-      await using consumer = await createConsumer({
-        packageJson: vite8,
-        project: 'code/projects/foo',
-      });
+    it('nested consumer → trusted execution preserves the consumer configuration path', async () => {
+      const project = 'code/projects/foo';
+      await using consumer = await createConsumer({ packageJson: vite8, project });
       const { args } = await consumer.command('dev --port=1234 --host');
-      const writes = option(args, '--allow-write').split(',');
-
-      expect(writes).to.include(consumer.cwd);
-      expect(writes).to.include(Path.join(consumer.cwd, 'node_modules', '.vite'));
-      expect(writes).to.not.include(Path.join(consumer.root, 'node_modules', '.vite'));
+      expect(args).to.include('-A');
+      expect(option(args, '--config')).to.eql('vite.config.ts');
+      const anchor = await Wrangle.packageAnchor(consumer.cwd);
+      expect(anchor).to.eql(Path.join(consumer.root, 'package.json'));
     });
   });
 });
+
+function assertTrustedArgs(args: readonly string[]) {
+  expect(args.filter((arg) => arg === '-A')).to.have.length(1);
+  expect(args).to.include('--no-prompt');
+  expect(args.some((arg) => arg.startsWith('--allow-'))).to.eql(false);
+  expect(args.some((arg) => arg.startsWith('--deny-'))).to.eql(false);
+}

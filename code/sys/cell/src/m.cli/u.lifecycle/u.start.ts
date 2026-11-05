@@ -60,6 +60,7 @@ export function loadStartCell(dir?: string): Promise<t.Cell.Instance> {
 export async function startCell(
   cell: t.Cell.Instance,
   args: StartCellArgs = {},
+  deps: { createSession?: typeof CellSession.create } = {},
 ): Promise<StartCellResult> {
   const mode = args.mode ?? 'default';
   const shutdown = args.shutdown ?? createShutdownSignal();
@@ -73,7 +74,7 @@ export async function startCell(
   try {
     const sessionRoot = await canonicalRoot(cell.root);
     const plan = await Cell.Services.plan(cell, { mode });
-    session = await CellSession.create({
+    session = await (deps.createSession ?? CellSession.create)({
       root: sessionRoot,
       mode,
       pid: Deno.pid,
@@ -87,6 +88,12 @@ export async function startCell(
 
     args.onStarting?.(plan.services.length);
     started = await Cell.start(cell, { until: shutdown.signal, mode });
+    // Own service rejection before publishing readiness yields to filesystem I/O. Preserve the
+    // exact cause, but defer terminal arbitration so ready-boundary presentation keeps priority.
+    const servicesDone: Promise<ServiceOutcome> = Cell.Services.wait(started).then(
+      () => ({ kind: 'services', ok: true }),
+      (cause: unknown) => ({ kind: 'services', ok: false, cause }),
+    );
     await session.ready();
 
     const services = Fmt.Services.capture(started.services);
@@ -99,7 +106,7 @@ export async function startCell(
       return formatStartServiceBody(renderServices, options.width, terminal);
     };
     serviceText = render();
-    const completion = waitForStartOutcome(started, shutdown);
+    const completion = waitForStartOutcome(servicesDone, shutdown);
     if (shutdown.reason === undefined) args.onReady?.({ text: serviceText, render });
 
     const outcome = await completion;
@@ -166,25 +173,22 @@ type StartOutcome =
   | { readonly kind: 'services'; readonly ok: true }
   | { readonly kind: 'services'; readonly ok: false; readonly cause: unknown };
 
+type ServiceOutcome = Extract<StartOutcome, { kind: 'services' }>;
+
 type CleanupResult =
   | { readonly ok: true }
   | { readonly ok: false; readonly cause: unknown };
 
 /** Resolves the first shutdown or service outcome admitted by the shared terminal latch. */
 function waitForStartOutcome(
-  started: t.Cell.Services.Started,
+  services: Promise<ServiceOutcome>,
   shutdown: ShutdownSignal,
 ): Promise<StartOutcome> {
   return new Promise<StartOutcome>((resolve) => {
     void shutdown.done.then((reason) => resolve({ kind: 'shutdown', reason }));
-    void Cell.Services.wait(started).then(
-      () => {
-        if (shutdown.seal()) resolve({ kind: 'services', ok: true });
-      },
-      (cause) => {
-        if (shutdown.seal()) resolve({ kind: 'services', ok: false, cause });
-      },
-    );
+    void services.then((outcome) => {
+      if (shutdown.seal()) resolve(outcome);
+    });
   });
 }
 

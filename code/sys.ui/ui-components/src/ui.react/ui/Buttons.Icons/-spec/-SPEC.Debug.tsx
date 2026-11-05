@@ -1,7 +1,6 @@
 import React from 'react';
 import { Buttons } from '../../Buttons/mod.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Signal, type t } from './common.ts';
 
 type Storage = { theme?: t.CommonTheme; debug?: boolean; show: keyof t.ButtonsIcons.Lib };
 
@@ -78,7 +77,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -90,7 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         .map((key) => {
           const isCurrent = key === p.show.value;
           return (
-            <Button
+            <Dev.Button
               key={key}
               block
               label={() => `show: ${key} ${isCurrent ? '🌳' : ''}`}
@@ -100,12 +99,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         })}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

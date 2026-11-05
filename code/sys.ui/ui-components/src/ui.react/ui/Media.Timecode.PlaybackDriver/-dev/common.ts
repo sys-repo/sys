@@ -1,6 +1,7 @@
 import { type t, Time } from '../common.ts';
 
 /** Lib: */
+export { Dev as UiDev } from '../../../dev/mod.ts';
 export * from '../common.ts';
 export { PlaybackDriver } from '../m.Driver.ts';
 

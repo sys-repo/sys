@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, D, Obj, Signal } from './common.ts';
+import { Color, css, D, Dev, Obj, Signal, type t } from './common.ts';
 
 export type PropNavMotionProps = {
   debug: t.DebugSignals;
@@ -39,7 +39,7 @@ export const PropNavMotion: React.FC<PropNavMotionProps> = (props) => {
   function button(label: string, motion: t.TreeHost.PartNavMotion) {
     const active = Obj.eql(current, motion);
     return (
-      <Button
+      <Dev.Button
         block
         label={() => `nav.motion: ${label}${active ? ' *' : ''}`}
         onClick={() => setMotion(motion)}

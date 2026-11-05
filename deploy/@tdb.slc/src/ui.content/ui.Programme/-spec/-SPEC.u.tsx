@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css } from '../common.ts';
+import { css, Dev, type t } from './common.ts';
 import { Calc } from '../u.ts';
 
 export { Calc };
@@ -20,7 +20,7 @@ export const Styles = {
 export function videoPlayerButton(video?: t.VideoPlayerSignals) {
   if (!video) return <div>{`(no video player)`}</div>;
   return (
-    <Button
+    <Dev.Button
       block
       label={() => `[ Video ]: playing: ${video.props.playing.value}`}
       onClick={() => video.toggle()}
@@ -43,7 +43,7 @@ export function programmeSectionButtons(
   const config = (index: number) => {
     const children = content.media?.children ?? [];
     return (
-      <Button
+      <Dev.Button
         block
         label={() => {
           const title = children[index]?.title;

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { Config } from '../mod.ts';
 
 type P = t.MediaFiltersProps;
@@ -71,12 +70,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{'Media.Config.Filters'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debounce: ${p.debounce.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.debounce, [0, 250, 800, undefined])}
@@ -86,12 +85,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {filterValuesButtons(debug)}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
         expand={['$', '$.values']}
@@ -109,7 +108,7 @@ export function filterValuesButtons(debug: DebugSignals) {
 
   const btn = (filters: t.MediaFilterName[], label?: string) => {
     return (
-      <Button
+      <Dev.Button
         block
         label={() => label ?? filters.join(', ')}
         onClick={() => (p.values.value = Filters.values(filters))}
@@ -121,7 +120,11 @@ export function filterValuesButtons(debug: DebugSignals) {
     <React.Fragment>
       <div className={Styles.title.class}>{'Values'}</div>
 
-      <Button block label={`clear → <undefined>`} onClick={() => (p.values.value = undefined)} />
+      <Dev.Button
+        block
+        label={`clear → <undefined>`}
+        onClick={() => (p.values.value = undefined)}
+      />
       {btn(Obj.keys(Filters.config), 'all')}
       {btn(['brightness', 'contrast', 'saturate'])}
       {btn(['saturate', 'contrast', 'brightness'])}

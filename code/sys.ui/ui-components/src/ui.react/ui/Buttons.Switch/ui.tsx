@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
-import { Color, css, type t } from './common.ts';
+import { css, Is, type t } from './common.ts';
+import { focusStyle } from './u.focus.ts';
 import { SwitchTheme } from './u.theme.ts';
 import { SwitchThumb } from './ui.Thumb.tsx';
 import { SwitchTrack } from './ui.Track.tsx';
@@ -57,12 +58,10 @@ export const Switch: React.FC<t.Switch.Props> = (props) => {
       cursor: isEnabled ? 'pointer' : 'default',
       outline: 'none',
       ':focus': { outline: 'none' },
-      ':focus-visible': {
-        outline: 'none',
-        boxShadow: `0 0 0 3px ${toFocusRingColor(theme)}`,
-      },
     }),
   };
+
+  const focus = focusStyle(styles.base, theme, props.style);
 
   const handleOnClick = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
@@ -89,9 +88,9 @@ export const Switch: React.FC<t.Switch.Props> = (props) => {
   return (
     <button
       id={props.id}
-      className={css(styles.base, props.style).class}
-      type="button"
-      role="switch"
+      className={focus.class}
+      type='button'
+      role='switch'
       aria-checked={value}
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
@@ -112,13 +111,8 @@ export const Switch: React.FC<t.Switch.Props> = (props) => {
 /**
  * Helpers:
  */
-function toFocusRingColor(theme: t.Switch.Theme.Root): string {
-  const color = theme.trackColor.on;
-  return typeof color === 'string' ? Color.alpha(color, 0.28) : Color.toGrayAlpha(color);
-}
-
 function toTheme(input?: t.CommonTheme | Partial<t.Switch.Theme.Root>): t.Switch.Theme.Root {
   let theme = input || 'Light';
-  if (typeof theme === 'string') theme = SwitchTheme.fromName(theme as t.CommonTheme).blue;
+  if (Is.str(theme)) theme = SwitchTheme.fromName(theme).blue;
   return theme as t.Switch.Theme.Root;
 }

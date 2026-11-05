@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/web';
-import { type t, Button, css, D, LocalStorage, ObjectView, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Signal, type t } from './common.ts';
 
 export type SampleDoc = { text?: string };
 type P = t.TextPanelProps;
@@ -105,7 +105,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Persistent / CRDT'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.path.value;
@@ -122,34 +122,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `label: ${p.label.value ?? `<undefined> (default: ${D.label})`}`}
         onClick={() => Signal.cycle(p.label, [undefined, 'My Label', 'Description'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `padding: ${p.padding.value}`}
         onClick={() => Signal.cycle(p.padding, [0, 5, 15])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `scroll: ${p.scroll.value}`}
         onClick={() => Signal.toggle(p.scroll)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject({ ...p, doc: p.doc.value?.current })}
         expand={1}

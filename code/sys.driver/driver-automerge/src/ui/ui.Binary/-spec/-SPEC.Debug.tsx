@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createUiRepo } from '../../-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.BinaryFile.Props;
 type Storage = Pick<P, 'theme' | 'debug' | 'path'>;
@@ -89,26 +89,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `path: ${p.path.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.path, [undefined, ['files'], ['foo', 'bar']])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
         name={'debug'}
         data={{
           ...Signal.toObject(p),

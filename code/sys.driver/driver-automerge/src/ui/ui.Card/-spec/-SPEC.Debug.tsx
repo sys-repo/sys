@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { createUiRepo } from '../../-test.ui.ts';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.CardProps;
 type Storage = Pick<P, 'theme' | 'debug'> & { textbox?: string };
@@ -103,7 +103,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -113,17 +113,27 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {valueEditorButtons(debug)}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.Button block label={() => `redraw`} onClick={() => p.redraw.value++} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
 
-      <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 15 }} expand={0} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={wrangle.data(debug)}
+        style={{ marginTop: 15 }}
+        expand={0}
+      />
       {!!p.doc.value && (
-        <ObjectView name={'doc'} data={p.doc.value.current} style={{ marginTop: 5 }} expand={0} />
+        <Dev.ObjectView
+          name={'doc'}
+          data={p.doc.value.current}
+          style={{ marginTop: 5 }}
+          expand={0}
+        />
       )}
     </div>
   );
@@ -156,9 +166,9 @@ export function valueEditorButtons(debug: DebugSignals) {
 
   return (
     <React.Fragment>
-      <Button block label={() => `increment`} onClick={() => increment(1)} />
-      <Button block label={() => `decrement`} onClick={() => increment(-1)} />
-      <Button
+      <Dev.Button block label={() => `increment`} onClick={() => increment(1)} />
+      <Dev.Button block label={() => `decrement`} onClick={() => increment(-1)} />
+      <Dev.Button
         block
         label={() => {
           const doc = p.doc.value;

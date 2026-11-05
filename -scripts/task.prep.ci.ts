@@ -1,6 +1,6 @@
 import { Workspace } from '@sys/workspace';
 
-import { D } from './common.ts';
+import { D, Fs } from './common.ts';
 import { orderedWorkspacePaths } from './u.graph.ts';
 
 export type PrepCiOptions = {
@@ -14,9 +14,11 @@ export async function main(
   options: PrepCiOptions = {},
   sync: typeof Workspace.Ci.sync = Workspace.Ci.sync,
 ) {
+  const cwd = Fs.cwd();
+  const sourcePaths = await orderedWorkspacePaths();
   await sync({
-    cwd: Deno.cwd(),
-    sourcePaths: await orderedWorkspacePaths(),
+    cwd,
+    sourcePaths,
     jsrScopes: D.ci.jsrScopes,
     on: D.ci.on,
     ...(options.versionFilter !== undefined ? { versionFilter: options.versionFilter } : {}),

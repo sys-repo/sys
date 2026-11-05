@@ -59,6 +59,7 @@ deno.json:
         object-view,
         react/button,
         react/cropmarks,
+        react/dev,
         react/icon,
         react/key-value,
         react/object-view,
@@ -80,13 +81,13 @@ package.json:
   - import: npm:react-icons@5.7.0
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:@vitejs/plugin-react@6.1.2
+  - import: npm:@vitejs/plugin-react@6.2.1
     dev: true
-  - import: npm:rollup@4.64.12
+  - import: npm:rollup@4.67.4
     dev: true
   - import: npm:rollup-plugin-visualizer@7.1.1
     dev: true
-  - import: npm:vite@8.3.4
+  - import: npm:vite@8.3.5
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true

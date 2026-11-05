@@ -1,6 +1,6 @@
 import React from 'react';
 import { VIDEO } from '../../-VIDEO.ts';
-import { type t, Button, css, D, ObjectView, Player, Signal } from './common.ts';
+import { css, D, Dev, Player, Signal, type t } from './-spec/common.ts';
 
 type P = t.ConceptPlayerProps;
 
@@ -84,24 +84,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{'ConceptPlayer'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={`debug: ${p.debug.value ?? '<undefined>'}`}
         onClick={() => Signal.toggle(p.debug)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`columnAlign: ${p.columnAlign.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['columnAlign']>(p.columnAlign, ['Center', 'Right'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`columnVideoVisible: ${p.columnVideoVisible.value ?? '<undefined>'}`}
         onClick={() => Signal.toggle(p.columnVideoVisible)}
@@ -109,14 +109,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Media:'}</div>
-      <Button
+      <Dev.Button
         block
         label={`video.playing: ${p.columnVideo.value?.is.playing}`}
         onClick={() => p.columnVideo.value?.toggle()}
       />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={1} />
+      <Dev.ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={1} />
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Signal, type t } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.Chip.Props;
 type Storage = Pick<P, 'debug' | 'theme' | 'mono' | 'size'> & {
@@ -98,36 +97,36 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `size: ${v.size ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.Chip.Size>(p.size, ['xs', 'sm', 'md'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `mono: ${v.mono ?? `<undefined> (default: ${D.mono})`}`}
         onClick={() => Signal.cycle(p.mono, [true, false, undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `text: ${v.text}`}
         onClick={() => Signal.cycle(p.text, ['Option + Enter', 'Esc', '🐷 chip'])}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button
         block
         label={() => `container font-size: ${v.fontSize}px`}
         onClick={() => Signal.cycle(p.fontSize, [10, 12, 14, 16, 20])}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

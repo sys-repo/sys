@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Color, css, Player, Signal, Str, type t, VIDEO } from './common.ts';
+import { Color, css, Dev, Player, Signal, Str, type t, VIDEO } from './-spec/common.ts';
 
 /**
  * Types:
@@ -66,24 +66,24 @@ export const Debug: React.FC<P> = (props) => {
       label: css({ color: isCurrent ? Color.BLUE : undefined }),
     };
     return (
-      <Button block onClick={() => (s.src.value = src)}>
+      <Dev.Button block onClick={() => (s.src.value = src)}>
         <div className={styles.base.class}>
           <div className={styles.label.class}>{Str.truncate(label, 30)}</div>
           <div>{Str.truncate(src, 30)}</div>
         </div>
-      </Button>
+      </Dev.Button>
     );
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={`playing: ${p.video.props.playing.value ?? '<undefined>'}`}
         onClick={() => Signal.toggle(p.video.props.playing)}

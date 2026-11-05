@@ -5,20 +5,19 @@ import { createUiRepo } from '../../-test.ui.ts';
 import { LanguagesList } from '../../ui.MonacoEditor/-spec/-ui.ts';
 
 import {
-  type t,
   A,
-  Button,
   Crdt,
   css,
   D,
+  Dev,
   EditorFolding,
   LocalStorage,
   Obj,
-  ObjectView,
   Rx,
   Signal,
   Str,
-} from '../common.ts';
+  type t,
+} from './common.ts';
 
 type P = t.MonacoEditorProps;
 type Storage = Pick<P, 'language' | 'theme' | 'debug'> & {
@@ -147,20 +146,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `render: ${p.render.value}`}
         onClick={() => Signal.toggle(p.render)}
       />
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.path.value;
@@ -196,7 +195,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>{'Folding:'}</div>
 
-      <Button
+      <Dev.Button
         block
         enabled={() => !!p.editor.value}
         label={() => `fold: 2, 7`}
@@ -206,7 +205,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         enabled={() => !!p.editor.value}
         label={() => `unfold: 2, 7`}
@@ -216,7 +215,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
       {(p.hiddenAreas.value ?? []).length > 0 && (
-        <ObjectView
+        <Dev.ObjectView
           name={'hidden'}
           data={p.hiddenAreas.value ?? []}
           style={{ marginTop: 6 }}
@@ -226,23 +225,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Debug:'}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debounce: ${p.debounce.value}`}
         onClick={() => Signal.toggle(p.debounce)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `log event-bus: ${p.logEventBus.value}`}
         onClick={() => Signal.toggle(p.logEventBus)}
       />
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `(reset → reload)`}
         onClick={() => {
@@ -251,7 +250,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={{
           ...Signal.toObject(p),
@@ -277,7 +276,7 @@ export function AlterDocumentButtons(props: { debug: DebugSignals }) {
 
   return (
     <React.Fragment>
-      <Button
+      <Dev.Button
         block
         label={() => `replace: "Hello 👋"`}
         onClick={() => {
@@ -286,7 +285,7 @@ export function AlterDocumentButtons(props: { debug: DebugSignals }) {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `splice: +🌳 `}
         onClick={() => {
@@ -296,7 +295,7 @@ export function AlterDocumentButtons(props: { debug: DebugSignals }) {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `crdt: URI's `}
         onClick={() => {
@@ -305,7 +304,7 @@ export function AlterDocumentButtons(props: { debug: DebugSignals }) {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `(clear)`}
         onClick={() => {

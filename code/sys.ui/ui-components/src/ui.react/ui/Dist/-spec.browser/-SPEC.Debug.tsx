@@ -1,7 +1,6 @@
 import React from 'react';
 import { SAMPLE, SAMPLE_FILES_MODES, type SampleFilesMode } from '../-spec/-SAMPLE.dist.json.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Pkg, Signal, type t } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Pkg, Signal, type t } from './common.ts';
 import { Dist } from '../mod.ts';
 
 type P = t.Dist.Props;
@@ -102,7 +101,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -113,18 +112,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Samples'}</div>
         <div>{`dist.json`}</div>
       </div>
-      <Button
+      <Dev.Button
         block
         label={() => `👋 hello world`}
         onClick={() => (p.dist.value = SAMPLE.HelloWorld())}
       />
-      <Button block label={() => `(undefined)`} onClick={() => (p.dist.value = undefined)} />
+      <Dev.Button block label={() => `(undefined)`} onClick={() => (p.dist.value = undefined)} />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
 
       <Dist.UI debug={v.debug} dist={v.dist} style={{ height: 300, marginTop: 50 }} />
     </div>

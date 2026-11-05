@@ -1,65 +1,67 @@
+/** Test-runner registration for sync or async callbacks with runner-owned context. */
 export type TestHook = <T>(fn: (this: T) => void | Promise<void>) => void;
 
 /**
- * DOM mock contracts.
+ * Contracts for server-side DOM testing.
  */
-export namespace DomMock {
-  /**
-   * Represents the overall DOM Mock Library.
-   */
+export declare namespace DomMock {
+  /** DOM setup, teardown, and test fixtures. */
   export type Lib = {
-    /** DOM related test fakes. */
+    /** DOM object fakes. */
     readonly Fake: Fake.Lib;
 
-    /** Keyboard event utilities. */
+    /** Keyboard event construction and dispatch. */
     readonly Keyboard: Keyboard.Lib;
 
-    /** Mouse event utilities. */
+    /** Mouse event construction and dispatch. */
     readonly Mouse: Mouse.Lib;
 
-    /** Flag indicating if the environment is currently poly-filled with the dom-mocks. */
+    /** Touch-point and event construction without dispatch. */
+    readonly Touch: Touch.Lib;
+
+    /** Whether DomMock globals are installed. */
     readonly isPolyfilled: boolean;
 
-    /** Ensure `globalThis` is polyfilled with window/document. */
+    /**
+     * Install DOM globals, creating a window on first use and reusing it thereafter.
+     * A non-empty `url` creates another window; `unpolyfill` closes all created windows.
+     */
     polyfill(options?: { url?: string }): void;
 
-    /** Restores `globalThis` and closes detached DOM resources. */
+    /**
+     * Restore the original globals synchronously, then close every owned window.
+     * Await the returned promise to observe cleanup completion or failure.
+     */
     unpolyfill(): Promise<void>;
 
     /**
-     * Registers DomMock lifecycle with the test runner.
-     *
-     * Usage:
-     *   DomMock.init({ beforeAll, afterAll });
-     *
-     * Notes:
-     * - Keeps setup/teardown explicit at the call site.
-     * - Supports async hooks (Promise-returning) and runner-provided `this` context.
+     * Register async DOM setup and teardown with a test-runner hook pair.
+     * Use `beforeEach`/`afterEach` for per-test isolation, or `beforeAll`/`afterAll`
+     * for a shared suite DOM: `DomMock.init({ beforeAll, afterAll })`.
      */
     init(args: DomMockInitArgs): void;
   };
 
   /**
-   * DOM mock fake contracts.
+   * DOM object fakes for tests.
    */
   export namespace Fake {
-    /**
-     * DOM related test fakes.
-     */
+    /** Fake object constructors. */
     export type Lib = {
       /** Media stream and track fakes. */
       readonly Media: Media.Lib;
     };
 
     /**
-     * Media fake contracts.
+     * Media stream and track test doubles; no capture or playback.
      */
     export namespace Media {
-      /**
-       * Media stream and track fake helpers.
-       */
+      /** Media object construction without device access. */
       export type Lib = {
+        /** Create a stream fake with no tracks; adding or removing tracks is a no-op. */
         stream(input?: Partial<{ id: string; active: boolean }>): MediaStream;
+
+        /** Create a track fake; stopping it does not change its reported state. */
         track(
           input?: Partial<{
             id: string;
@@ -76,21 +78,18 @@ export namespace DomMock {
   }
 
   /**
-   * Mouse event utility contracts.
+   * Mouse event construction and dispatch in the installed mock DOM.
    */
   export namespace Mouse {
-    /** Dispatch result for mouse-event helpers. */
-    export type Dispatch = { readonly event: MouseEvent; readonly dispatched: boolean };
-
-    /** Result from the simple primary activation gesture. */
-    export type Activation = { readonly down: Dispatch; readonly up: Dispatch };
-
-    /** Helpers for testing mouse events in unit-tests. */
+    /** Event constructors, dispatch helpers, and down/up sequences. */
     export type Lib = {
-      /** Create a MouseEvent with inferred defaults and optional native init fields. */
+      /**
+       * Create a MouseEvent with `bubbles: true`, `cancelable: true`, and `button: 0`.
+       * Explicit `init` fields override these defaults.
+       */
       event(type: string, init?: MouseEventInit): MouseEvent;
 
-      /** Create and dispatch a MouseEvent to the given target. */
+      /** Create and dispatch an event to `el`, returning the event and dispatch result. */
       fire(el: EventTarget, type: string, init?: MouseEventInit): Dispatch;
 
       /** Dispatch a mousedown event. */
@@ -102,20 +101,53 @@ export namespace DomMock {
       /** Dispatch a click event. */
       click(el: EventTarget, init?: MouseEventInit): Dispatch;
 
-      /** Dispatch the simple primary mouse activation gesture: mousedown → mouseup. */
+      /** Dispatch mousedown → mouseup; no click is synthesized. */
       activate(el: EventTarget, init?: MouseEventInit): Activation;
     };
+
+    /** The event and `dispatchEvent` result: `false` when its default action was prevented. */
+    export type Dispatch = { readonly event: MouseEvent; readonly dispatched: boolean };
+
+    /** Results of the mousedown → mouseup sequence. */
+    export type Activation = { readonly down: Dispatch; readonly up: Dispatch };
   }
 
   /**
-   * Keyboard event utility contracts.
+   * Touch fixtures without gesture tracking or browser default actions.
+   */
+  export namespace Touch {
+    /** Touch constructors; callers own contact lists and dispatch. */
+    export type Lib = {
+      /**
+       * Create plain touch data, not a native Touch instance.
+       * Identifier and target are required; optional numeric fields default to zero without inference.
+       */
+      point(init: TouchInit): globalThis.Touch;
+
+      /**
+       * Create an event in the target element's owning window without dispatching it.
+       * Defaults to bubbling and cancelable. Omitted lists are empty; supplied lists retain
+       * their independent membership, including on end/cancel. No contacts are inferred.
+       * Throws if the target's document has no window.
+       */
+      event(target: Element, type: EventType, init?: TouchEventInit): TouchEvent;
+    };
+
+    /** Native touch lifecycle event names. */
+    export type EventType = 'touchstart' | 'touchmove' | 'touchend' | 'touchcancel';
+  }
+
+  /**
+   * Keyboard event construction and document dispatch in the installed mock DOM.
    */
   export namespace Keyboard {
-    /**
-     * Helpers for testing keyboard events in unit-tests.
-     */
+    /** Keyboard fixtures with inferred key codes and explicit overrides. */
     export type Lib = {
-      /** Create a KeyboardEvent with inferred defaults and optional native init fields. */
+      /**
+       * Create a KeyboardEvent, defaulting to key `z`.
+       * Infer missing `code` and `keyCode` from the resolved key.
+       * Init objects merge left to right; their fields override positional key/code values.
+       */
       event(
         type: string,
         key?: string,
@@ -130,7 +162,7 @@ export namespace DomMock {
       /** Create a keyup KeyboardEvent. */
       keyupEvent(key?: string, keyCode?: number | EventInit, init?: EventInit): KeyboardEvent;
 
-      /** Dispatch a KeyboardEvent to the document. */
+      /** Dispatch to the installed document; omitted input creates a keydown event for `z`. */
       fire(event?: KeyboardEvent): void;
     };
 
@@ -139,6 +171,7 @@ export namespace DomMock {
   }
 }
 
+/** One matching setup/teardown hook pair: per-test or per-suite. */
 export type DomMockInitArgs =
   | {
     readonly beforeEach: TestHook;

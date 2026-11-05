@@ -105,15 +105,69 @@ describe('@sys/cell/cli start lifecycle', () => {
       'CellCli.start.process-interrupt-cleanup',
       'ready-fails-close',
     );
-    const child = spawnCellStart(fixture.root, fixture.runtime);
+    const child = spawnCellStart(fixture.root, fixture.runtime, 'piped');
+    const output = child.output();
 
     try {
       await waitForProcessSession(fixture.root, fixture.runtime, child.pid, 'ready');
       child.kill('SIGINT');
-      const status = await child.status;
-      expect(status.code).to.eql(130);
+      const result = await output;
+      const decoder = new TextDecoder();
+      const text = `${decoder.decode(result.stdout)}\n${decoder.decode(result.stderr)}`;
+      expect(result.code, text).to.eql(130);
+      expect(text).to.contain('service-close-failed');
     } finally {
       await cleanup(child);
+      await output;
+    }
+  });
+
+  it('interrupt during ready publication → service rejection stays owned through cleanup failure', async () => {
+    const cell = await holdingCell('CellCli.start.ready-publication-interrupt');
+    const runtime = await Testing.dir('CellCli.start.ready-publication-runtime');
+    const shutdown = createShutdownSignal();
+    const closeFailure = new Error('service-close-failed');
+    const unhandled: unknown[] = [];
+    const onUnhandled = (event: PromiseRejectionEvent) => {
+      // Record rather than crash the test process; the assertion below must reject every leak.
+      event.preventDefault();
+      unhandled.push(event.reason);
+    };
+    let thrown: unknown;
+
+    resetState();
+    state.__cellStartCloseFailure = closeFailure;
+    globalThis.addEventListener('unhandledrejection', onUnhandled);
+    try {
+      await startCell(cell, { shutdown }, {
+        async createSession(input) {
+          const session = await CellSession.create(input, { dir: runtime.dir });
+          return {
+            ...session,
+            async ready() {
+              await session.ready();
+              // A parent can observe the ready file and interrupt before its write settles.
+              // Hold that boundary across a turn so a missing rejection owner cannot hide.
+              shutdown.interrupt();
+              await Time.delay(0);
+            },
+          };
+        },
+      });
+    } catch (error) {
+      thrown = error;
+    } finally {
+      globalThis.removeEventListener('unhandledrejection', onUnhandled);
+      shutdown.dispose();
+    }
+
+    try {
+      expect(unhandled).to.eql([]);
+      expect(thrown).to.equal(closeFailure);
+      expect(shutdown.reason).to.eql('keyboard:interrupt');
+      expect(state.__cellStartCloseReasons).to.eql(['keyboard:interrupt']);
+    } finally {
+      resetState();
     }
   });
 

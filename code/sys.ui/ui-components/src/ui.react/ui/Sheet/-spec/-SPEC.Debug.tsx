@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Button, css, Signal } from '../../u.ts';
-import { D } from '../common.ts';
+import { css, D, Dev, Signal, type t } from './common.ts';
 
 type P = t.SheetProps;
 
@@ -61,25 +60,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'Mobile Sheet'}</div>
-      <Button
+      <Dev.Button
         block
         label={`debug.showing: ${d.showing}`}
         onClick={() => Signal.toggle(d.showing)}
       />
       <hr />
-      <Button
+      <Dev.Button
         block
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle<P['theme']>(d.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`orientation: ${d.orientation.value ?? '<undefined>'}`}
         onClick={() => {
           Signal.cycle<P['orientation']>(d.orientation, [...D.orientation.all, undefined]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`edgeMargin: ${d.edgeMargin.value ?? '<undefined>'}`}
         onClick={() => {

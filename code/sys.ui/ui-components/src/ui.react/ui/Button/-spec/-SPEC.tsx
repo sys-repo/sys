@@ -1,7 +1,7 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
-import { Button } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { Root } from './-ui.Root.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -22,14 +22,16 @@ export default Spec.describe(D.displayName, (e) => {
       .render(() => {
         const v = Signal.toObject(p);
         return (
-          <Button
+          <Root
+            view={v.view}
             debug={v.debug}
             theme={v.theme}
             enabled={v.enabled}
+            active={v.active}
             opacity={v.opacity}
             onClick={(e) => console.info(`⚡️ onClick:`, e)}
             onMouse={(e) => console.info('⚡️ onMouse', e)}
-          >{`👋 Hello Button`}</Button>
+          />
         );
       });
   });

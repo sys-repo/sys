@@ -33,6 +33,7 @@ export async function syncWith(deps: SyncDependencies, args: t.WorkspaceCi.SyncA
   const cwd = args.cwd ?? Fs.cwd();
   const silent = args.silent ?? false;
   const sourcePaths = args.sourcePaths;
+  const paths = args.filter ? sourcePaths.filter(args.filter) : sourcePaths;
   const versionFilter = args.versionFilter ?? 'all';
   const ensureGraph = args.ensureGraph ?? true;
   const targets = wrangle.targets(args.targets);
@@ -80,7 +81,7 @@ export async function syncWith(deps: SyncDependencies, args: t.WorkspaceCi.SyncA
           env,
           log: false,
           on,
-          source: { paths: sourcePaths },
+          source: { paths },
           target: targets.build,
         });
       },
@@ -97,7 +98,7 @@ export async function syncWith(deps: SyncDependencies, args: t.WorkspaceCi.SyncA
           env,
           log: false,
           on,
-          source: { paths: sourcePaths },
+          source: { paths },
           target: targets.test.linux,
         });
       },
@@ -113,7 +114,7 @@ export async function syncWith(deps: SyncDependencies, args: t.WorkspaceCi.SyncA
           cwd,
           log: false,
           on,
-          source: { paths: sourcePaths },
+          source: { paths },
           target: targets.test.windows,
         });
       },

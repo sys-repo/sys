@@ -1,16 +1,38 @@
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
-
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly
 understand what matters and act correctly?
-
 Verify claims against source. Flag misleading promises, missing context, repetition, and misplaced detail. Preserve essential caveats. Seek the fewest words that
 remain genuinely helpful—not brevity at the expense of understanding.
-
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
----------------------------------------------------------------------------------------------------------
+@sys.ui
+passkey-panel.plan.md
+- [ ] feat(ui): add passkey sample diagnostic panel
+
+
+
+
+@sys.driver-vite
+linux-wsl-probe.plan.md
+- [x] c383f979c fix(driver-vite): isolate startup delivery lifetimes
+- [x] bc13dd19e fix(workspace): keep CI source selection caller-owned
+- [x] 40b0cb49c refactor(driver-vite): remove obsolete permission construction
+- [x] 0b879c4c5 refactor(driver-vite): remove obsolete tooling residue
+- [ ] fix(vite): align application launchers and restore full CI
+- [ ] chore(driver-vite): move test lane orchestration into scripts
+
+
+
+
+
+@sys.driver-pi
+compile-cache-preload.plan.md
+- [ ] test(driver-pi): prove scoped compile-cache preloading
+- [ ] fix(driver-pi): preload scoped compile-cache compatibility
+- [ ] fix(driver-pi): adopt Pi 1.4.0 with verified Deno compatibility
+
 
 
 1. workspace-ci-closeout.plan.md

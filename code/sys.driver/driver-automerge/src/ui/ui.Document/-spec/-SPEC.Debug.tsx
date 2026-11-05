@@ -2,18 +2,17 @@ import React from 'react';
 import { spawnUiRepoWorker } from '../../-test.ui.ts';
 import { Repo } from '../../ui.Repo/mod.ts';
 import {
-  type t,
-  Button,
   Color,
   css,
   D,
+  Dev,
   LocalStorage,
   Obj,
-  ObjectView,
   Rx,
   Signal,
   STORAGE_KEY,
-} from '../common.ts';
+  type t,
+} from './common.ts';
 
 type P = t.Document.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -118,7 +117,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr style={{ marginTop: 20, marginBottom: 20 }} />
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `render: ${p.render.value}`}
         onClick={() => Signal.toggle(p.render)}
@@ -126,29 +125,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `change: increment`}
         onClick={() => doc?.change((d) => (d.count = (d.count ?? 0) + 1))}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `change: decrement`}
         onClick={() => doc?.change((d) => (d.count = (d.count ?? 0) - 1))}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView
         name={'doc'}
         data={Obj.truncateStrings(Signal.toObject(p.doc.value?.current))}
         style={{ marginTop: 10 }}

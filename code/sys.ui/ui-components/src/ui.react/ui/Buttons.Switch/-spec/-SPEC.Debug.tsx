@@ -1,7 +1,5 @@
-import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-
-import { type t, css, D, Signal } from '../common.ts';
+import type React from 'react';
+import { css, D, Dev, Signal, type t } from './common.ts';
 import { SwitchTheme } from '../mod.ts';
 
 type P = t.Switch.Props;
@@ -21,7 +19,8 @@ export function createDebugSignals() {
     debug: s(false),
     enabled: s<P['enabled']>(D.enabled),
     value: s<P['value']>(true),
-    theme: s<P['theme']>('Light'),
+    theme: s<t.CommonTheme>('Light'),
+    color: s<'blue' | 'green' | 'yellow' | undefined>(undefined),
   };
   const p = props;
   const api = {
@@ -31,15 +30,15 @@ export function createDebugSignals() {
       p.theme.value;
       p.value.value;
       p.enabled.value;
+      p.color.value;
+    },
+    get switchTheme(): P['theme'] {
+      const name = p.theme.value;
+      const color = p.color.value;
+      return color === undefined ? name : SwitchTheme.fromName(name)[color];
     },
     updateTheme(color: 'blue' | 'green' | 'yellow') {
-      const m = p.theme.value === 'Dark' ? SwitchTheme.dark : SwitchTheme.light;
-      let value = m.default;
-      if (color === 'green') value = m.green;
-      if (color === 'yellow') value = m.yellow;
-      if (color === 'blue') value = m.blue;
-
-      p.theme.value = value;
+      p.color.value = color;
     },
   };
 
@@ -75,17 +74,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
-        onClick={() => Signal.cycle<t.CommonTheme>(p.theme as any, ['Light', 'Dark'])}
+        onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value ?? `<undefined> (default: ${D.enabled})`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `value: ${p.value.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle<P['value']>(p.value, [undefined, true, false])}
@@ -93,18 +92,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Theme Variations'}</div>
-      <Button block label={() => `blue (default)`} onClick={() => debug.updateTheme('blue')} />
-      <Button block label={() => `green`} onClick={() => debug.updateTheme('green')} />
-      <Button block label={() => `yellow`} onClick={() => debug.updateTheme('yellow')} />
+      <Dev.Button block label={() => `blue (default)`} onClick={() => debug.updateTheme('blue')} />
+      <Dev.Button block label={() => `green`} onClick={() => debug.updateTheme('green')} />
+      <Dev.Button block label={() => `yellow`} onClick={() => debug.updateTheme('yellow')} />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
-        name={'debug'}
+      <Dev.ObjectView
+        name='debug'
         data={Signal.toObject(p)}
         expand={['$']}
         style={{ marginTop: 10 }}

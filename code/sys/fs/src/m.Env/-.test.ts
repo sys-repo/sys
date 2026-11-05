@@ -18,6 +18,26 @@ describe('Env', () => {
       }
     };
 
+    it('search:"none" → ignores dotenv and preserves live process values, empty and missing keys', async () => {
+      const root = (await Fs.makeTempDir()).absolute;
+      try {
+        await Fs.write(Fs.join(root, '.env'), `${PROCESS_ENV_KEY}="dotenv"\n`);
+        await withProcessEnv(async () => {
+          const env = await Env.load({ cwd: root, search: 'none' });
+          expect(env.get(PROCESS_ENV_KEY)).to.eql(PROCESS_ENV_VALUE);
+          expect(env.has(PROCESS_ENV_KEY)).to.eql(true);
+          Deno.env.set(PROCESS_ENV_KEY, '');
+          expect(env.get(PROCESS_ENV_KEY)).to.eql('');
+          expect(env.has(PROCESS_ENV_KEY)).to.eql(true);
+          Deno.env.delete(PROCESS_ENV_KEY);
+          expect(env.get(PROCESS_ENV_KEY)).to.eql('');
+          expect(env.has(PROCESS_ENV_KEY)).to.eql(false);
+        });
+      } finally {
+        await Fs.remove(root);
+      }
+    });
+
     it('search:"cwd" loads only cwd .env', async () => {
       const root = (await Fs.makeTempDir()).absolute;
       try {

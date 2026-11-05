@@ -1,8 +1,7 @@
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 import React from 'react';
-import { Button } from '../../u.ts';
-import { type t, css } from '../common.ts';
+import { css, Dev, type t } from './common.ts';
 
 export type DebugPercentProps = {
   debug: DebugSignals;
@@ -35,7 +34,7 @@ export const DebugPercent: React.FC<DebugPercentProps> = (props) => {
   const styles = { base: css({}) };
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = size.aspectRatio;
@@ -51,7 +50,7 @@ export const DebugPercent: React.FC<DebugPercentProps> = (props) => {
           p.size.value = { ...size, aspectRatio };
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`width: ${size.width ? `${size.width}%` : '(auto)'}`}
         onClick={() => {
@@ -61,7 +60,7 @@ export const DebugPercent: React.FC<DebugPercentProps> = (props) => {
           p.size.value = { ...size, width: next };
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`height: ${size.height ? `${size.height}%` : '(auto)'}`}
         onClick={() => {
@@ -71,7 +70,7 @@ export const DebugPercent: React.FC<DebugPercentProps> = (props) => {
           p.size.value = { ...size, height: next };
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`maxWidth: ${size.maxWidth ? `${size.maxWidth}%` : '(auto)'}`}
         onClick={() => {
@@ -79,7 +78,7 @@ export const DebugPercent: React.FC<DebugPercentProps> = (props) => {
           p.size.value = { ...size, maxWidth };
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`maxHeight: ${size.maxHeight ? `${size.maxHeight}%` : '(auto)'}`}
         onClick={() => {

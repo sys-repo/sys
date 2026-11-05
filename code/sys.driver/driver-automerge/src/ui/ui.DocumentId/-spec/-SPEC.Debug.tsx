@@ -2,19 +2,7 @@ import React from 'react';
 
 import { spawnUiRepoWorker } from '../../-test.ui.ts';
 import { Repo } from '../../ui.Repo/mod.ts';
-import {
-  type t,
-  Button,
-  css,
-  D,
-  Is,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Rx,
-  Signal,
-  STORAGE_KEY,
-} from '../common.ts';
+import { css, D, Dev, Is, LocalStorage, Obj, Rx, Signal, STORAGE_KEY, type t } from './common.ts';
 
 type Doc = { count?: number };
 type P = t.DocumentId.Props;
@@ -157,17 +145,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `label: ${p.label.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.label, [undefined, 'My Descriptive Label', 'Description'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.placeholder.value;
@@ -175,42 +163,42 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.cycle(p.placeholder, [undefined, 'My Placeholder', ''])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.autoFocus)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `readOnly: ${p.readOnly.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.readOnly)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `url: ${Is.func(p.url.value) ? 'ƒ' : p.url.value}`}
         onClick={() => Signal.cycle(p.url, [true, false, sampleUrlFactory])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `urlKey: ${p.urlKey.value ?? `<undefined> (default: ${D.urlKey})`}`}
         onClick={() => Signal.cycle(p.urlKey, [D.urlKey, 'my-key', undefined])}
       />
 
       <hr />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <Button
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = Boolean(p.controlled.value);
@@ -221,12 +209,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
           location.reload();
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `pass repo: ${p.passRepo.value}`}
         onClick={() => Signal.toggle(p.passRepo)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.storageKey.value;
@@ -239,21 +227,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `change: count++`}
         onClick={() => p.doc.value?.change((d) => (d.count = (d.count ?? 0) + 1))}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `change: count--`}
         onClick={() => p.doc.value?.change((d) => (d.count = (d.count ?? 0) - 1))}
       />
 
       <hr />
-      <ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 10 }} />
-      <ObjectView name={'path'} data={p.path.value ?? []} style={{ marginTop: 5 }} />
-      <ObjectView
+      <Dev.ObjectView name={'debug'} data={wrangle.data(debug)} style={{ marginTop: 10 }} />
+      <Dev.ObjectView name={'path'} data={p.path.value ?? []} style={{ marginTop: 5 }} />
+      <Dev.ObjectView
         name={v.doc ? `doc(${v.doc.id.slice(-5)})` : 'doc'}
         data={Obj.truncateStrings(v.doc?.current)}
         style={{ marginTop: 5 }}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, Obj, Signal, STORAGE_KEY } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
 import { FontFamily } from './-ui.FontFamily.tsx';
 import { FontStyle } from './-ui.FontStyle.tsx';
 
@@ -94,7 +94,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -107,7 +107,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <FontStyle debug={debug} />
 
       <hr />
-      <Button block label={() => '(reset)'} onClick={debug.reset} />
+      <Dev.Button block label={() => '(reset)'} onClick={debug.reset} />
     </div>
   );
 };

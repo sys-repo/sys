@@ -2,17 +2,7 @@ import { ServerInfo } from '@sys/driver-automerge/ws/client';
 import React from 'react';
 
 import { createUiRepo } from '../../-test.ui.repo.ts';
-import {
-  type t,
-  Button,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Signal,
-  STORAGE_KEY,
-} from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
 
 type P = t.Repo.SyncSwitch.Props;
 type Storage = Pick<P, 'theme' | 'debug' | 'storageKey' | 'mode'> & { noRepo?: boolean };
@@ -123,12 +113,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `mode: ${p.mode.value ?? `<undefined> (default)`}`}
         onClick={() => {
@@ -141,7 +131,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'SyncServer Info'}</div>
         <div>{'meta-data'}</div>
       </div>
-      <Button
+      <Dev.Button
         block
         label={() => `pull: <repo.sync.urls>`}
         onClick={async () => {
@@ -150,18 +140,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: no-repo: ${p.noRepo.value}`}
         onClick={() => Signal.toggle(p.noRepo)}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.storageKey.value;
@@ -172,10 +162,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
           s.value = s.value ? undefined : STORAGE_KEY.DEV.SUBJECT;
         }}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
 
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
-      <ObjectView name={'repo'} data={debug.repo} expand={0} style={{ marginTop: 5 }} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 15 }}
+      />
+      <Dev.ObjectView name={'repo'} data={debug.repo} expand={0} style={{ marginTop: 5 }} />
     </div>
   );
 };

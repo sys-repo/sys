@@ -3,15 +3,15 @@
   "version": "0.0.368",
   "license": "MIT",
   "tasks": {
-    "dev": "deno run -P=dev   ./-scripts/task.main.ts --cmd=dev    --in=./src/ui.react.devharness/index.html --port=1236",
-    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build  --in=./src/ui.react.devharness/index.html",
+    "dev": "deno run -A   ./-scripts/task.main.ts --cmd=dev    --in=./src/ui.react.devharness/index.html --port=1236",
+    "build": "deno run -A ./-scripts/task.main.ts --cmd=build  --in=./src/ui.react.devharness/index.html",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "test": "deno test -P=test",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "check:frozen": "deno check --frozen --cached-only -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "info": "deno run -P=dev   ./-scripts/task.main.ts --cmd=info",
+    "info": "deno run -A   ./-scripts/task.main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {

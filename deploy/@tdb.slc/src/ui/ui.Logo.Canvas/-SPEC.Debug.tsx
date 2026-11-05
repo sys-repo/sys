@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  asArray,
-  Button,
-  CanvasPanel,
-  css,
-  D,
-  ObjectView,
-  ReactEvent,
-  Signal,
-} from './common.ts';
+import { asArray, CanvasPanel, css, D, Dev, ReactEvent, Signal, type t } from './-spec/common.ts';
 import { Selection } from './m.Selection.ts';
 
 /**
@@ -76,14 +66,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={`width: ${p.width.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.width, [undefined, 280, 400])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
@@ -91,7 +81,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {canvasSelectedButton(p.selected)}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const value = Selection.animation(p.selectionAnimation.value);
@@ -104,7 +94,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           p.selectionAnimation.value = next;
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `selectionAnimation: (set false)`}
         onClick={() => (p.selectionAnimation.value = false)}
@@ -114,7 +104,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {canvasSelectedButtonList(p.selected, p.selectionAnimation)}
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(debug.props)} expand={{ paths: ['$'] }} />
+      <Dev.ObjectView
+        name={'props'}
+        data={Signal.toObject(debug.props)}
+        expand={{ paths: ['$'] }}
+      />
     </div>
   );
 };
@@ -124,7 +118,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
  */
 export function canvasSelectedButton(signal: t.Signal<P['selected']>) {
   return (
-    <Button
+    <Dev.Button
       block
       label={() => {
         const value = signal.value;
@@ -145,7 +139,7 @@ export function canvasSelectedButtonList(
 ) {
   const buttons = CanvasPanel.all.map((panel) => {
     return (
-      <Button
+      <Dev.Button
         block
         key={panel}
         label={() => `- ${panel}`}

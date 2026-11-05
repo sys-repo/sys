@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '../../u.ts';
-import { type t, Color, css } from './common.ts';
+import { Color, css, Dev, type t } from './common.ts';
 import { SAMPLE, type SampleKind } from './-samples.tsx';
 
 import type { DebugSignals } from './-SPEC.Debug.tsx';
@@ -33,7 +32,7 @@ export const SampleButtons: React.FC<P> = (props) => {
     const isSelected = p.sample.value === kind;
     const text = label ?? `sample: ${kind}`;
     const prefix = isSelected ? '🌳 ' : '';
-    return <Button block label={`${prefix}${text}`} onClick={() => selectSample(kind)} />;
+    return <Dev.Button block label={`${prefix}${text}`} onClick={() => selectSample(kind)} />;
   };
 
   return (

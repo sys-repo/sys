@@ -1,6 +1,6 @@
 import React from 'react';
 import { SpecStyles } from './-u.styles.ts';
-import { type t, BulletList, Button, Color, css, Signal } from './common.ts';
+import { BulletList, Color, css, Dev, Signal, type t } from './common.ts';
 
 export type FontStyleProps = {
   debug: t.DebugSignals;
@@ -53,7 +53,7 @@ export const FontStyle: React.FC<FontStyleProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={SpecStyles.title.class}>Font Style</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `italic: ${resolved.italic}`}
         onClick={() => Signal.toggle(p.italic)}

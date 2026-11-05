@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '../../u.ts';
-import { Color, css, type t } from './common.ts';
+import { Color, css, Dev, type t } from './common.ts';
 
 export type SamplesProps = {
   debug: t.DebugSignals;
@@ -32,7 +31,7 @@ export const Samples: React.FC<P> = (props) => {
     },
   ) {
     return (
-      <Button
+      <Dev.Button
         block
         label={label}
         onClick={() => {

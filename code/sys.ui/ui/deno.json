@@ -4,16 +4,16 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
-    "dev": "deno run -P=dev ./-scripts/task.cell.ts --mode dev --reporter auto",
+    "dev": "deno run -A ./-scripts/task.cell.ts --mode dev --reporter auto",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.cell.ts --reporter auto",
     "kill": "deno task kill:dev && deno task kill:serve",
     "kill:dev": "deno run -P=dev @sys/cell kill . --mode dev",
     "kill:serve": "deno run -P=dev @sys/cell kill . --mode default",
     "dry": "deno publish --allow-dirty --dry-run",
-    "check": "deno check -- ./src/ ./-scripts/*",
+    "check": "deno check -- ./src/ ./-sample/passkey/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
+    "info": "deno run -A ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "publish": {
@@ -59,4 +59,3 @@
     }
   }
 }
-

@@ -1,9 +1,7 @@
 import React from 'react';
 import { StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
-import { Button, ObjectView } from '../../u.ts';
-
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { FILTER_SAMPLES } from './-u.samples.ts';
 
 const STORAGE_KEY = `dev:${D.displayName}`;
@@ -146,12 +144,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `stream (raw): ${p.stream.value?.id}`}
         onClick={async () => {
@@ -161,7 +159,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.borderRadius.value;
@@ -169,7 +167,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.cycle(p.borderRadius, [undefined, 5, 10, 30])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.aspectRatio.value;
@@ -178,7 +176,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle(p.aspectRatio, [undefined, '16/9', '16/10', '21/9'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `muted: ${p.muted.value}`}
         onClick={() => Signal.toggle(p.muted)}
@@ -188,13 +186,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {filterSampleButtons(p.filter)}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };
@@ -205,7 +208,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 export function filterSampleButtons(signal: t.Signal<P['filter']>) {
   const btn = (label: string, filter?: string) => {
     return (
-      <Button
+      <Dev.Button
         key={`${label}.${filter}`}
         block
         label={() => label}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Is, Time, Button, css, dur, Json, KeyValue, Str, Timecode } from '../common.ts';
+import { css, dur, Is, Json, KeyValue, Str, type t, Time, Timecode, UiDev } from '../common.ts';
 import { toIssueItems } from './ui.InfoPanel.u.tsx';
 
 type O = Record<string, unknown>;
@@ -111,7 +111,13 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   hr();
   items.push({
     k: 'Clipboard',
-    v: <Button label={copied ? '(copied) ✔' : 'Copy'} theme={props.theme} onClick={handleCopy} />,
+    v: (
+      <UiDev.Button
+        label={copied ? '(copied) ✔' : 'Copy'}
+        theme={props.theme}
+        onClick={handleCopy}
+      />
+    ),
   });
   items.push(...toIssueItems(resolved));
 

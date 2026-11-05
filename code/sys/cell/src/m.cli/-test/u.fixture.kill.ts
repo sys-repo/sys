@@ -157,14 +157,14 @@ export async function runRootCellCli(
   });
 }
 
-export function spawnCellStart(root: string, runtime: string) {
+export function spawnCellStart(root: string, runtime: string, output: 'null' | 'piped' = 'null') {
   return new Deno.Command(Deno.execPath(), {
     args: ['run', '-P=test', './src/m.cli/mod.ts', 'start', root],
     cwd: Deno.cwd(),
     env: { [CellSession.D.env]: runtime },
     stdin: 'null',
-    stdout: 'null',
-    stderr: 'null',
+    stdout: output,
+    stderr: output,
   }).spawn();
 }
 

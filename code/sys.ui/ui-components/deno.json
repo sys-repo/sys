@@ -5,18 +5,19 @@
   "tasks": {
     "test": "deno test -P=test",
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
-    "dev": "deno run -P=dev ./-scripts/task.main.ts --cmd=dev --in=./src/index.html --port=1235",
-    "build": "deno run -P=dev ./-scripts/task.main.ts --cmd=build --in=./src/index.html",
+    "dev": "deno run -A ./-scripts/task.main.ts --cmd=dev --in=./src/index.html --port=1235",
+    "build": "deno run -A ./-scripts/task.main.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.main.ts --cmd=serve",
     "check": "deno check src/",
     "dry": "deno publish --allow-dirty --dry-run",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "info": "deno run -P=dev ./-scripts/task.main.ts --cmd=info",
+    "info": "deno run -A ./-scripts/task.main.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
+    "./style/focus": "./src/m.style/m.FocusStyle/mod.ts",
     "./react": "./src/ui.react/mod.ts",
     "./react/action-probe": "./src/ui.react/ui/ActionProbe/mod.ts",
     "./react/anchor": "./src/ui.react/ui/Anchor/mod.ts",
@@ -135,4 +136,3 @@
     }
   }
 }
-

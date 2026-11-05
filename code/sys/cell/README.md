@@ -59,6 +59,22 @@ schemas, or TypeScript type surfaces.
 
 <p>&nbsp;</p>
 
+### Repository development launcher
+
+From `code/sys/cell`, `deno task cli start --mode dev` starts the maintained `-sample/cell.vite`
+sample in a trusted Deno child (`-A`). The `cli` task retains `-P=cli` for other commands and custom
+Cell directories. This trusts Vite configuration and plugins; it does not confine them.
+
+On macOS/Linux, the launcher forwards the first `SIGINT`/`SIGTERM`, translates `SIGHUP` into
+`SIGTERM`, and relays terminal resize independently. Duplicate shutdown signals do not interrupt
+cleanup or extend its five-second grace period. If cleanup stalls, the launcher sends `SIGKILL`
+once to its owned process group and waits up to five more seconds for child settlement. Surviving
+descendants are also terminated when the leader exits before that deadline.
+
+Interactive launches use `stty` to capture and restore the original terminal input mode, including
+after forced termination. Forced exit cannot run graceful service cleanup and may leave stale Cell
+session metadata; process ownership is never inferred from a port number.
+
 ### Command Line `--help`
 
 <!-- Sync note: this block mirrors the plain @sys/cell --help body. Refresh via: cd code/sys/cell && deno task cli --help. -->
@@ -207,6 +223,12 @@ deno run -ERWN jsr:@sys/cell task <task-name> .
 deno run -ERWN jsr:@sys/cell start --reporter auto
 deno run -ERWN jsr:@sys/cell start . --mode dev --reporter auto
 ```
+
+These are baseline Cell permissions; declared tasks and services may require more. `--mode dev`
+selects service variants, not process permissions. Vite-backed services evaluate configuration in
+the caller: follow the owner's
+[trusted Vite execution contract](../../sys.driver/driver-vite/README.md#trusted-vite-execution).
+The repository sample launcher above is not part of the public CLI.
 
 `--reporter auto` is the default: interactive terminals use the Cell-owned responsive screen, while
 non-interactive output remains append-only. Use `--reporter raw` to preserve terminal history or

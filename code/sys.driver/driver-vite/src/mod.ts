@@ -9,9 +9,12 @@
  * This keeps Vite behavior consistent across monorepos and external JSR
  * consumers without call-site-specific import hacks.
  *
+ * Importing the driver does not initialize bundler plugins or the Deno loader.
+ * Explicit configuration calls load the toolchain in the caller; build/dev with supplied
+ * paths leave configuration evaluation to the trusted Vite child.
+ *
  * It does not redefine Vite. The goal is to preserve normal Vite behavior
  * while making the Deno boundary stable and resolvable.
- *
  */
 export { pkg } from './pkg.ts';
 
