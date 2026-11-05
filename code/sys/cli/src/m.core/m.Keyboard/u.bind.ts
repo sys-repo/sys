@@ -1,10 +1,12 @@
-import { keypress } from '@cliffy/keypress';
+import { input } from './u.input.ts';
+import { registerShutdownCompletion } from './u.shutdown.ts';
+import type { KeyboardInput } from './t.input.ts';
 import { Is } from '@sys/std/is/server';
 import type { t } from './common.ts';
 import { Is as CliIs } from '../m.Is/mod.ts';
 import { Is as KeyboardIs } from './m.Is.ts';
 
-type KeypressOwner = ReturnType<typeof keypress>;
+type KeypressOwner = KeyboardInput;
 
 type OptionsSnapshot = Readonly<{
   onKey?: t.CliKeyboard.Bind.Options['onKey'];
@@ -22,7 +24,7 @@ export type BindDependencies = Readonly<{
 
 const DEFAULT_DEPS: BindDependencies = Object.freeze({
   isTerminal: () => CliIs.terminal('stdin'),
-  keypress,
+  keypress: input,
 });
 
 const NativePromise = Promise;
@@ -41,6 +43,9 @@ const REACTION_CONSTRUCTOR_DESCRIPTOR = freeze({
 });
 const RETAINED_KEYPRESS_OWNERS = new Set<KeypressOwner>();
 
+/**
+ * Bind terminal controls without acquiring input when stdin fails the terminal check.
+ */
 export function bind(options: t.CliKeyboard.Bind.Options): t.CliKeyboard.Bind.Handle | undefined {
   return bindWith(options, DEFAULT_DEPS);
 }
@@ -118,8 +123,9 @@ export function bindWith(
   // gates new work immediately, while a failed lower disposal remains retryable.
   const dispose = () => {
     stopRequested = true;
-    if (disposalAccepted) return;
     try {
+      // Native disposal can be accepted before deferred release fails; retain retry authority.
+      if (disposalAccepted && (!keys.finished || keys.disposed)) return;
       if (!keys.disposed) keys.dispose();
     } catch {
       const error = new Error('Keyboard disposal failed.');
@@ -155,6 +161,22 @@ export function bindWith(
     } catch {
       recordListenerFailure('Keyboard error handler failed.');
     }
+  };
+
+  const finishInput = async () => {
+    // A retry may replace a rejected attempt while finalization is already awaiting it.
+    let attempt: Promise<void> | undefined;
+    do {
+      attempt = keys.finished;
+      try {
+        await attempt;
+      } catch {
+        disposalFailure ??= new Error('Keyboard disposal failed.');
+      }
+      if (keys.releaseFailure) disposalFailure ??= new Error('Keyboard disposal failed.');
+      const failure = keys.takeInputFailure?.();
+      if (failure) await reportListenerFailure(KeyboardIs.unavailableError(failure.cause));
+    } while (attempt !== keys.finished);
   };
 
   const listening = (async () => {
@@ -207,8 +229,9 @@ export function bindWith(
     } catch {
       recordListenerFailure('Keyboard listener failed.');
     } finally {
-      listenerSettled = true;
       attemptDispose();
+      await finishInput();
+      listenerSettled = true;
       settleFinished();
     }
   })();
@@ -227,7 +250,31 @@ export function bindWith(
     throw bindingError();
   }
 
-  return { dispose, finished };
+  const handle = { dispose, finished };
+  let joining: Promise<void> | undefined;
+  const joinShutdown = async () => {
+    let priorFailure: unknown;
+    try {
+      await finished;
+    } catch (cause) {
+      priorFailure = cause;
+    }
+    try {
+      // A retry can start after finishInput returns but before this outer join resumes.
+      let attempt: Promise<void> | undefined;
+      do {
+        attempt = keys.finished;
+        await finishInput();
+      } while (attempt !== keys.finished);
+    } finally {
+      joining = undefined;
+    }
+    const failure = priorFailure ?? listenerFailure ?? disposalFailure;
+    if (failure) throw failure;
+  };
+  // Concurrent retries must also join any late error callback admitted during release.
+  registerShutdownCompletion(handle, () => joining ??= joinShutdown());
+  return handle;
 }
 
 /**

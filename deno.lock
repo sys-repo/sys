@@ -4,6 +4,7 @@
     "jsr:@bradenmacdonald/s3-lite-client@0.9.6": "0.9.6",
     "jsr:@cliffy/ansi@^1.3.1": "1.3.1",
     "jsr:@cliffy/internal@^1.3.1": "1.3.1",
+    "jsr:@cliffy/keycode@1.3.1": "1.3.1",
     "jsr:@cliffy/keycode@^1.3.1": "1.3.1",
     "jsr:@cliffy/keypress@1.3.1": "1.3.1",
     "jsr:@cliffy/prompt@1.3.1": "1.3.1",
@@ -148,7 +149,7 @@
       "integrity": "4fddde2091d367748ad38aa9af96bf2c0767cf6942408bcbb01eaa67aaa52742",
       "dependencies": [
         "jsr:@cliffy/internal",
-        "jsr:@cliffy/keycode"
+        "jsr:@cliffy/keycode@^1.3.1"
       ]
     },
     "@cliffy/prompt@1.3.1": {
@@ -156,7 +157,7 @@
       "dependencies": [
         "jsr:@cliffy/ansi",
         "jsr:@cliffy/internal",
-        "jsr:@cliffy/keycode",
+        "jsr:@cliffy/keycode@^1.3.1",
         "jsr:@std/assert",
         "jsr:@std/fmt",
         "jsr:@std/io",
@@ -3490,6 +3491,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@bradenmacdonald/s3-lite-client@0.9.6",
+      "jsr:@cliffy/keycode@1.3.1",
       "jsr:@cliffy/keypress@1.3.1",
       "jsr:@cliffy/prompt@1.3.1",
       "jsr:@cliffy/table@1.3.1",
