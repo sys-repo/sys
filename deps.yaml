@@ -17,11 +17,11 @@ deno.json:
   - import: npm:chai@6.3.0
   - import: npm:fake-indexeddb@6.2.7
     subpaths: [ auto ]
-  - import: npm:@vitejs/plugin-react@6.1.2
+  - import: npm:@vitejs/plugin-react@6.2.1
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.67.2
+  - import: npm:rollup@4.67.4
     dev: true
   - import: npm:vite@8.3.5
     dev: true
@@ -31,10 +31,10 @@ deno.json:
     dev: true
   - import: npm:magic-string@1.4.5
     dev: true
-  - import: npm:@oxc-project/runtime@0.156.0
+  - import: npm:@oxc-project/runtime@0.157.0
     dev: true
     subpaths: [ helpers/usingCtx ]
-  - import: npm:parse5@8.0.1
+  - import: npm:parse5@8.1.0
   - import: npm:@noble/hashes@2.4.0
     subpaths: [ legacy.js, sha2.js ]
   - import: npm:@sinclair/typebox-codegen@0.11.1
@@ -50,7 +50,7 @@ deno.json:
   - import: npm:monaco-editor@0.57.0
   - import: npm:prosemirror-model@1.25.12
   - import: npm:prosemirror-state@1.4.4
-  - import: npm:prosemirror-view@1.42.8
+  - import: npm:prosemirror-view@1.42.9
   - import: npm:prosemirror-example-setup@1.2.3
   - import: npm:prosemirror-schema-basic@1.2.5
   - import: npm:yaml@2.9.1
@@ -76,7 +76,7 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.14.6
   - import: npm:hash-it@7.1.1
-  - import: npm:hono@4.13.14
+  - import: npm:hono@4.13.16
     subpaths: [ cors, types ]
   - import: npm:ignore@7.0.14
   - import: npm:ora@9.4.1
@@ -88,12 +88,12 @@ deno.json:
   - import: npm:pretty-bytes@7.2.0
   - import: npm:rxjs@7.8.2
     subpaths: [ operators ]
-  - import: npm:shiki@4.5.0
+  - import: npm:shiki@4.6.0
   - import: npm:strip-ansi@7.2.0
   - import: npm:tinycolor2@1.6.0
   - import: npm:ts-essentials@10.2.1
   - import: npm:@stripe/stripe-js@9.17.0
-  - import: npm:ws@8.22.0
+  - import: npm:ws@8.22.1
   - import: npm:@types/ws@8.18.2
   - import: npm:csstype@3.2.3
   - import: npm:bowser@2.15.0
@@ -105,11 +105,11 @@ deno.json:
     subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
   - import: npm:@preact/signals-react@3.12.0
 package.json:
-  - import: npm:@vitejs/plugin-react@6.1.2
+  - import: npm:@vitejs/plugin-react@6.2.1
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.67.2
+  - import: npm:rollup@4.67.4
     dev: true
   - import: npm:vite@8.3.5
     dev: true
@@ -119,10 +119,10 @@ package.json:
     dev: true
   - import: npm:magic-string@1.4.5
     dev: true
-  - import: npm:@oxc-project/runtime@0.156.0
+  - import: npm:@oxc-project/runtime@0.157.0
     dev: true
     subpaths: [ helpers/usingCtx ]
-  - import: npm:parse5@8.0.1
+  - import: npm:parse5@8.1.0
   - import: npm:@automerge/automerge-repo@2.5.6
   - import: npm:monaco-editor@0.57.0
   - import: npm:react-icons@5.7.0

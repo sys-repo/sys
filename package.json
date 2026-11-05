@@ -6,18 +6,18 @@
     "@types/react-dom": "19.3.0",
     "monaco-editor": "0.57.0",
     "motion": "12.43.0",
-    "parse5": "8.0.1",
+    "parse5": "8.1.0",
     "react": "19.3.1",
     "react-dom": "19.3.1",
     "react-icons": "5.7.0"
   },
   "devDependencies": {
     "@deno/vite-plugin": "2.0.4",
-    "@oxc-project/runtime": "0.156.0",
-    "@vitejs/plugin-react": "6.1.2",
+    "@oxc-project/runtime": "0.157.0",
+    "@vitejs/plugin-react": "6.2.1",
     "magic-string": "1.4.5",
     "prettier": "3.9.10",
-    "rollup": "4.67.2",
+    "rollup": "4.67.4",
     "rollup-plugin-visualizer": "7.1.1",
     "vite": "8.3.5",
     "vite-plugin-wasm": "3.6.0"
