@@ -236,24 +236,29 @@ behavior, cancellation, and awaited cleanup remain independent guarantees.
 
 ## Verification
 
-Run from this package. Choose the task for the boundary being changed:
+Run from this package. If test dependencies are not cached, run `deno task test:cache` first; it
+prepares and type-checks the test graph without running tests.
 
-| Command                        | Coverage                                                                                                             |
-| ------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| `deno task test`               | Unit contracts, formatters, command construction, local transforms, and cleanup. Excludes real-build/process proofs. |
-| `deno task test:proofs`        | Real builds, child startup/configuration, module graphs, loaders, and live dev lifecycles.                           |
-| `deno task test:integrity`     | Written-byte checks, build refusals, and [browser integrity controls](#integrity-checks).                            |
-| `deno task test:dist:pipeline` | Content-pin stability, projection/materialization, pinned serving, and SRI byte matching—not browser enforcement.    |
-| `deno task test:external`      | External-consumer, generated-project, and runtime/browser regression scenarios.                                      |
-| `deno task smoke`              | JSR version preflight, fixture preparation, then `test:external` for published-consumer checks.                      |
+Choose the task for the boundary being changed:
 
-[deno.json](./deno.json) defines task composition and focused sub-tasks. Linux CI runs `test:proofs`
-separately; package `ci` includes it and `test:external`. The Dist pipeline task is separate from
-both routine tests and `test:proofs`; run it for changes to the distribution contract.
+| Command                        | Coverage                                                                                                          |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `deno task test`               | Unit contracts and task-runner subprocess checks. Excludes the separate proof lanes.                              |
+| `deno task test:proofs`        | Real builds, child startup/configuration, module graphs, loaders, and live dev lifecycles.                        |
+| `deno task test:integrity`     | Written-byte checks, build refusals, and [browser integrity controls](#integrity-checks).                         |
+| `deno task test:dist:pipeline` | Content-pin stability, projection/materialization, pinned serving, and SRI byte matching—not browser enforcement. |
+| `deno task test:external`      | External-consumer, generated-project, and runtime/browser regression scenarios.                                   |
+| `deno task smoke`              | JSR version preflight, fixture preparation, then `test:external` for published-consumer checks.                   |
 
-A green unit run is not a green proof aggregate or full CI run. Parent test invocations use frozen,
-cache-only resolution without prompts; those flags do not constrain every loader or child. Local
-checks do not establish published-package behavior.
+See [deno.json](./deno.json) for focused tasks. Use a named task for filtering or `test:run` for
+arbitrary test files. Arguments to `test:proofs` reach only its final lane.
+
+Linux CI runs `test` and `test:proofs`; package `ci` also runs `test:external`. `test:integrity` and
+`test:dist:pipeline` remain separate tasks.
+
+A passing default suite is not a passing proof aggregate or full CI run. The test runner uses
+frozen, cache-only Deno resolution without permission prompts; those flags do not constrain every
+loader or child. Local checks do not establish published-package behavior.
 
 See the [API documentation](https://jsr.io/@sys/driver-vite/doc) for programmatic entry, service,
 and plugin surfaces, and [JSR's Vite guide](https://jsr.io/docs/with/vite) for registry integration.
