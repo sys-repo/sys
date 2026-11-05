@@ -1,3 +1,6 @@
+
+
+
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly
@@ -7,21 +10,19 @@ remain genuinely helpful—not brevity at the expense of understanding.
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
+
+@sys
+deno-api-containment.plan.md
+- [x] 5d789e432 docs(sys): map Deno capability owners and public facades
+- [x] b328700ab docs(sys): checkpoint direct Deno usage audit
+- [ ] docs(sys): audit direct Deno usage across the repository
+- [ ] docs(sys): design capability-sized Deno containment migrations
+
+
 @sys.ui
 passkey-panel.plan.md
 - [ ] feat(ui): add passkey sample diagnostic panel
 
-
-
-
-@sys.driver-vite
-linux-wsl-probe.plan.md
-- [x] c383f979c fix(driver-vite): isolate startup delivery lifetimes
-- [x] bc13dd19e fix(workspace): keep CI source selection caller-owned
-- [x] 40b0cb49c refactor(driver-vite): remove obsolete permission construction
-- [x] 0b879c4c5 refactor(driver-vite): remove obsolete tooling residue
-- [ ] fix(vite): align application launchers and restore full CI
-- [ ] chore(driver-vite): move test lane orchestration into scripts
 
 
 
