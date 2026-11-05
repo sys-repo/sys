@@ -47,8 +47,8 @@ export declare namespace Env {
       search?: Search;
     };
 
-    /** `.env` file lookup strategy. */
-    export type Search = 'cwd' | 'upward';
+    /** `.env` file lookup strategy. `none` reads only the running process, without file lookup. */
+    export type Search = 'cwd' | 'upward' | 'none';
   }
 
   /**
