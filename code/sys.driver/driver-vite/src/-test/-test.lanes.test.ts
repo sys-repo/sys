@@ -254,7 +254,11 @@ function assertProofs(actual: readonly (readonly string[])[]) {
       './src/m.vite/-test/-bridge.integration.test.ts',
     ],
     ['./src/m.vite/-test/-dev.test.ts'],
-    ['./src/m.vite.config/-test/-fromFile.test.ts', './src/m.vite.config/-test/-serverFs.test.ts'],
+    [
+      './src/m.vite.config/-test/-import-boundary.test.ts',
+      './src/m.vite.config/-test/-fromFile.test.ts',
+      './src/m.vite.config/-test/-serverFs.test.ts',
+    ],
     ['./src/m.vite.plugins/m.OptimizeImports/-test/-u.graph-proof.test.ts'],
     ['./src/m.vite.transport/-test/-loader.npm.proof.ts'],
     ['./src/m.vite.plugins/m.HtmlIntegrity/-test/-html-integrity.build.test.ts'],

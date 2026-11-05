@@ -1,6 +1,6 @@
 import { Perf } from '../../common/u.perf.ts';
 import { Fs, Path, type t } from '../common.ts';
-import { type LoadResponse, RequestedModuleType, Workspace } from '@deno/loader';
+import type { LoadResponse, Workspace } from '@deno/loader';
 import { TransformCache } from './u.cache.ts';
 import { toViteNpmSpecifier } from './u.npm.ts';
 import { canonicalRemoteSpecifier, parseDenoSpecifier, toDenoSpecifier } from './u.specifier.ts';
@@ -158,10 +158,14 @@ async function loadWithDenoLoader(
 const wrangle = {
   loader: (() => {
     let current: ReturnType<Workspace['createLoader']> | undefined;
-    return () => current ??= new Workspace().createLoader();
+    return async () => {
+      const { Workspace } = await import('@deno/loader');
+      return current ??= new Workspace().createLoader();
+    };
   })(),
 
   async load(specifier: string) {
+    const { RequestedModuleType } = await import('@deno/loader');
     const denoLoader = await wrangle.loader();
     return await denoLoader.load(specifier, RequestedModuleType.Default);
   },

@@ -1,4 +1,4 @@
-// Keep the launcher graph narrow; the module's common runtime barrel also loads Vite tooling.
+// Keep the launcher graph narrow; task routing does not need the driver runtime.
 import { Env } from '@sys/fs/env';
 import { Path } from '@sys/fs/path';
 import type { Env as TEnv } from '@sys/fs/t';
@@ -28,6 +28,7 @@ export const lanes = {
   ],
   dev: ['./src/m.vite/-test/-dev.test.ts'],
   'config:process': [
+    './src/m.vite.config/-test/-import-boundary.test.ts',
     './src/m.vite.config/-test/-fromFile.test.ts',
     './src/m.vite.config/-test/-serverFs.test.ts',
   ],
