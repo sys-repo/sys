@@ -1,6 +1,7 @@
 import { Is, Path } from '../src/common.ts';
 import { CellCli } from '../src/m.cli/mod.ts';
 import { parseArgs } from '../src/m.cli/u/u.args.ts';
+import { setExitCode } from '../src/m.cli/u/u.exit.ts';
 import { startReporterFlag } from '../src/m.cli/m.run/u.reporter.ts';
 
 const Sample = {
@@ -26,7 +27,7 @@ export async function main(
   return (deps.runCli ?? runCli)(argv);
 }
 
-if (import.meta.main) Deno.exitCode = await main();
+if (import.meta.main) setExitCode(await main());
 
 async function runCli(argv: readonly string[]): Promise<number> {
   const res = await CellCli.run({ argv });

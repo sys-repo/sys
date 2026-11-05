@@ -4,6 +4,7 @@
  */
 import type { t } from './common.ts';
 import { run } from './m.run/mod.ts';
+import { setExitCode } from './u/u.exit.ts';
 
 /**
  * Cell operator CLI.
@@ -15,5 +16,5 @@ export const CellCli: t.CellCli.Lib = Object.freeze({ run });
  */
 if (import.meta.main) {
   const res = await CellCli.run({ argv: Deno.args });
-  if (res.kind === 'error' || res.kind === 'kill') Deno.exitCode = res.code;
+  if (res.kind === 'error' || res.kind === 'kill') setExitCode(res.code);
 }

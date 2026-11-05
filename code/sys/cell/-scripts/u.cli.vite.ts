@@ -1,7 +1,7 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { constants } from 'node:os';
 import { kill } from 'node:process';
-import { Is, Path } from '../src/common.ts';
+import { Cli, Is, Path } from '../src/m.cli/common.ts';
 
 const ENTRY = Path.fromFileUrl(new URL('../src/m.cli/mod.ts', import.meta.url));
 const SHUTDOWN_GRACE = 5_000;
@@ -10,7 +10,7 @@ const KILL_SETTLE = 5_000;
 /** Run the trusted sample; the optional entry is a module-local process-proof seam. */
 export async function runVite(argv: readonly string[], entry = ENTRY): Promise<number> {
   const posix = Deno.build.os !== 'windows';
-  const terminal = posix && Deno.stdin.isTerminal() ? await stty(['-g']) : undefined;
+  const terminal = posix && Cli.Is.terminal('stdin') ? await stty(['-g']) : undefined;
   const bindings: Array<{ signal: Deno.Signal; handler: () => void }> = [];
   const failures: unknown[] = [];
   let child: ChildProcess | undefined;
@@ -109,6 +109,8 @@ export async function runVite(argv: readonly string[], entry = ENTRY): Promise<n
   return code;
 }
 
+// Mixed stdio is essential: Process.capture cannot inherit stdin; Process.inherit cannot
+// capture the saved mode. Keep the native terminal adapter local to this launcher.
 async function stty(args: readonly string[]): Promise<string> {
   const child = new Deno.Command('stty', {
     args: [...args],

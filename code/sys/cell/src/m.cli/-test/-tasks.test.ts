@@ -11,6 +11,12 @@ describe('@sys/cell sample task projection', () => {
 
     expect(tasks.cli).to.eql('deno run -P=cli ./-scripts/task.cli.ts');
     expect(tasks['test:proofs']).to.eql('deno task test:cli:vite');
+    expect(tasks['test:cli:vite']).to.eql(
+      'deno test -P=test --trace-leaks ./src/m.cli/-test/-task.cli.vite.process.ts',
+    );
+    expect(tasks['test:cli:vite:signals']).to.eql(
+      'deno test -P=test --trace-leaks ./src/m.cli/-test/-task.cli.vite.signals.process.ts',
+    );
     expect(tasks['sample:stripe']).to.eql(
       'deno run -P=sample @sys/cell start ./-sample/cell.stripe --reporter auto',
     );

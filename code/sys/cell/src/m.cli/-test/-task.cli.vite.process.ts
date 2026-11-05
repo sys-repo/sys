@@ -2,9 +2,8 @@ import { kill } from 'node:process';
 import { Process } from '@sys/process/process';
 import { describe, expect, Fs, it, Testing, Time } from '../../-test.ts';
 import { CellSession } from '../u/u.session.ts';
-import { Cli, stripAnsi } from '../common.ts';
 import { sessionOf, sessionRoot, writeSession } from './u.fixture.kill.ts';
-import { spawnCliProof } from './u.fixture.cli.vite.ts';
+import { proveVitePty, spawnCliProof } from './u.fixture.cli.vite.ts';
 
 /** Real maintained sample: intentionally separate from routine unit discovery. */
 describe('@sys/cell development CLI Vite process', () => {
@@ -144,50 +143,53 @@ describe('@sys/cell development CLI Vite process', () => {
 });
 
 describe('@sys/cell development CLI Vite PTY', () => {
-  for (const mode of ['keyboard', 'forced'] as const) {
+  // Animated OS signals remain executable in test:cli:vite:signals; no assertions are relaxed.
+  for (const mode of ['keyboard', 'keyboard-ci', 'forced'] as const) {
     it(`real PTY → screen resize and ${mode} shutdown restore input mode`, async () => {
-      assertPortFree();
-      const runtime = await Testing.dir('CellCli.vite.pty');
-      const entry = './src/m.cli/-test/u.fixture.cli.vite.pty.ts';
-      const args = Deno.build.os === 'darwin'
-        ? ['-q', '/dev/null', Deno.execPath(), 'run', '-P=test', entry, mode]
-        : ['-q', '-e', '-c', `exec "$CELL_PTY_DENO" run -P=test ${entry} ${mode}`, '/dev/null'];
-      const proof = spawnCliProof(args, {
-        [CellSession.D.env]: runtime.dir,
-        CELL_PTY_DENO: Deno.execPath(),
-        TERM: 'xterm-256color',
-      }, 'script');
-      try {
-        await Time.waitFor(() => {
-          if (proof.failure) throw proof.failure;
-          if (proof.status) {
-            throw new Error(`PTY exited before keyboard readiness:\n${proof.output}`);
-          }
-          for (const owner of proof.output.matchAll(/PTY_OWNER:(\d+)/g)) {
-            proof.ownGroup(Number(owner[1]));
-          }
-          return proof.output.includes(
-            mode === 'forced' ? 'PTY_FORCED_READY' : 'PTY_KEYBOARD_READY',
-          );
-        }, { interval: 100, timeout: 120_000 });
-        const resize = proof.output.split('PTY_RESIZE_BEGIN')[1]?.split('PTY_RESIZE_END')[0] ?? '';
-        // Terminal repaint is the contract here: assert a real frame arrived after a kernel
-        // window-size change, then measure its rendered rows independently of ANSI styling.
-        expect(resize).to.contain('\u001b[?2026h');
-        expect(stripAnsi(resize)).to.contain('view --mode=dev');
-        const rows = resize.split(/\u001b\[\d+;1H\u001b\[2K/).slice(1);
-        expect(rows.length).to.be.greaterThan(0);
-        for (const row of rows) {
-          expect(Cli.Fmt.Text.Width.measure(stripAnsi(row).trim())).to.be.at.most(47);
-        }
-        if (mode === 'keyboard') proof.child.stdin!.write('\u0003');
-        const status = await Time.waitFor(() => proof.status, { interval: 50, timeout: 15_000 });
-        expect(status, proof.output).to.eql({ code: 0, signal: null });
-        expect(proof.output).to.contain('PTY_RESTORED');
-      } finally {
-        await proof.stop();
-      }
+      await proveVitePty(mode);
     });
+  }
+});
+
+describe('@sys/cell CLI animated terminal outcomes PTY', () => {
+  for (const entry of ['cli', 'root', 'script'] as const) {
+    for (const mode of ['startup-failure', 'cleanup-failure', 'success'] as const) {
+      it(`${entry}: ${mode} preserves status and completes cleanup`, async () => {
+        const runtime = await Testing.dir('CellCli.terminal');
+        const fixture = './src/m.cli/-test/u.fixture.cli.terminal.pty.ts';
+        const args = Deno.build.os === 'darwin'
+          ? ['-q', '/dev/null', Deno.execPath(), 'run', '-P=test', fixture, entry, mode]
+          : [
+            '-q',
+            '-e',
+            '-c',
+            `exec "$CELL_PTY_DENO" run -P=test ${fixture} ${entry} ${mode}`,
+            '/dev/null',
+          ];
+        const proof = spawnCliProof(args, {
+          [CellSession.D.env]: runtime.dir,
+          CELL_PTY_DENO: Deno.execPath(),
+          TERM: 'xterm-256color',
+        }, 'script');
+        try {
+          const status = await Time.waitFor(() => {
+            if (proof.failure) throw proof.failure;
+            for (const owner of proof.output.matchAll(/PTY_OWNER:(\d+)/g)) {
+              proof.ownGroup(Number(owner[1]));
+            }
+            return proof.status;
+          }, { interval: 50, timeout: 30_000 });
+          expect(status, proof.output).to.eql({ code: 0, signal: null });
+          // A real animated spinner installed cursor-exit hooks, not merely a screen reporter.
+          expect(proof.output).to.contain('\u001b[?25l');
+          if (mode !== 'success') expect(proof.output).to.contain(`pty-${mode}`);
+          expect(proof.output).to.contain('PTY_CLEAN');
+          expect(proof.output).to.contain('PTY_STATUS_OK');
+        } finally {
+          await proof.stop();
+        }
+      });
+    }
   }
 });
 

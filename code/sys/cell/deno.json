@@ -8,6 +8,7 @@
     "test:help": "deno test -P=test --trace-leaks ./src/m.help/-test ./src/m.cli/-test/-dsl.test.ts",
     "test:proofs": "deno task test:cli:vite",
     "test:cli:vite": "deno test -P=test --trace-leaks ./src/m.cli/-test/-task.cli.vite.process.ts",
+    "test:cli:vite:signals": "deno test -P=test --trace-leaks ./src/m.cli/-test/-task.cli.vite.signals.process.ts",
     "test:deploy:authority": "deno run --check -P=test-deploy-authority --cached-only --frozen --no-prompt --ignore-env --deny-env --deny-net --deny-run --deny-sys --deny-ffi ./src/m.cell/-test/-u.sample.deploy.authority.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",

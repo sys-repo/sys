@@ -1,18 +1,28 @@
 import { spawn } from 'node:child_process';
 import { kill } from 'node:process';
 import { expect, Fs, Time } from '../../-test.ts';
+import { Cli } from '../common.ts';
 import { CellSession } from '../u/u.session.ts';
 import { sessionRoot } from './u.fixture.kill.ts';
-import { killOwnedGroup } from './u.fixture.cli.vite.ts';
+import { killOwnedGroup, stty } from './u.fixture.cli.vite.ts';
 
 // Executed inside the OS `script` PTY. Neither the wrapper nor its trusted child is mocked.
-expect(Deno.stdin.isTerminal() && Deno.stdout.isTerminal()).to.eql(true);
+expect(Cli.Is.interactive()).to.eql(true);
 await stty(['cols', '100', 'rows', '30']);
 const before = await stty(['-g']);
 const root = await sessionRoot(Fs.resolve('./-sample/cell.vite'));
 const dir = Deno.env.get(CellSession.D.env)!;
 const owned = new Set<number>();
 const forced = Deno.args[0] === 'forced';
+const signal = Deno.args[0] === 'sigint'
+  ? 'SIGINT'
+  : Deno.args[0] === 'sigterm'
+  ? 'SIGTERM'
+  : undefined;
+// Exercise both spinner/cursor-exit hooks and CI's non-animated presentation on every host.
+const env = Deno.env.toObject();
+if (Deno.args[0] === 'keyboard-ci') env.CI = 'true';
+else delete env.CI;
 const child = spawn(Deno.execPath(), [
   'run',
   '-P=cli',
@@ -20,7 +30,7 @@ const child = spawn(Deno.execPath(), [
   'start',
   '--mode',
   'dev',
-], { stdio: 'inherit' });
+], { env, stdio: 'inherit' });
 let status: { code: number | null; signal: string | null } | undefined;
 let failure: Error | undefined;
 child.on('error', (error) => (failure = error));
@@ -50,13 +60,16 @@ try {
     for (const pid of owned) kill(-pid, 'SIGSTOP');
     child.kill('SIGTERM');
     console.info('PTY_FORCED_READY');
+  } else if (signal) {
+    console.info('PTY_SIGNAL_READY');
+    expect(child.kill(signal)).to.eql(true);
   } else {
     console.info('PTY_KEYBOARD_READY');
     // The outer proof writes a real Ctrl+C byte through the PTY master.
   }
   const exited = await Time.waitFor(() => status, { interval: 50, timeout: 10_000 });
-  // Direct Cell PTY characterization returns 0 on keyboard quit, unlike OS-signal exit 130.
-  expect(exited).to.eql({ code: forced ? 137 : 0, signal: null });
+  // Keyboard and OS-signal interrupts share Cell's exit-130 contract on every platform.
+  expect(exited).to.eql({ code: forced ? 137 : 130, signal: null });
   expect(await stty(['-g'])).to.eql(before);
   const sessions = await CellSession.list(root, { dir });
   expect(sessions.length).to.eql(forced ? 1 : 0);
@@ -73,21 +86,4 @@ try {
   if (!status) child.kill('SIGTERM');
   await Time.waitFor(() => status, { interval: 50, timeout: 10_000 });
   await stty([before]);
-}
-
-async function stty(args: readonly string[]) {
-  const command = new Deno.Command('stty', {
-    args: [...args],
-    stdin: 'inherit',
-    stdout: 'piped',
-    stderr: 'piped',
-  }).spawn();
-  const timer = setTimeout(() => command.kill('SIGKILL'), 2_000);
-  try {
-    const result = await command.output();
-    expect(result.code, new TextDecoder().decode(result.stderr)).to.eql(0);
-    return new TextDecoder().decode(result.stdout).trim();
-  } finally {
-    clearTimeout(timer);
-  }
 }
