@@ -11,6 +11,9 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
+
+  
+
 @sys
 deno-api-containment.plan.md
 - [x] 5d789e432 docs(sys): map Deno capability owners and public facades
@@ -21,8 +24,10 @@ deno-api-containment.plan.md
 
 @sys.ui
 passkey-panel.plan.md
-- [ ] feat(ui): add passkey sample diagnostic panel
-
+- [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
+- [ ] chore(ui): scaffold stateful passkey sample
+- [ ] feat(ui): add passkey sample orchestration
+- [ ] feat(ui): add live passkey sample harness
 
 
 
@@ -30,9 +35,13 @@ passkey-panel.plan.md
 
 @sys.driver-pi
 compile-cache-preload.plan.md
-- [ ] test(driver-pi): prove scoped compile-cache preloading
+- [ ] test(driver-pi): falsify compile-cache preload containment
+- [ ] test(driver-pi): prove official Pi preload startup
+- [ ] feat(process): support bounded child input for capture
+- [ ] test(driver-pi): prove official Pi preload compatibility
 - [ ] fix(driver-pi): preload scoped compile-cache compatibility
 - [ ] fix(driver-pi): adopt Pi 1.4.0 with verified Deno compatibility
+
 
 
 
@@ -157,7 +166,7 @@ r2-web-exposure.plan.md
 
 @sys.driver-pi
 start-ui-release-evidence.plan.md
-  ...
+...
 - [x] c39511c15 [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
 - [ ] GATE release owner selects versioned artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
 - [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
