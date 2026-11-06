@@ -9,19 +9,27 @@ export default Spec.describe(D.displayName, (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Passkey.UI debug={v.debug} theme={v.theme} />;
+    return (
+      <Passkey.UI
+        snapshot={v.fixture.snapshot}
+        {...(v.callbacksEnabled ? debug.actions : {})}
+        debug={v.debug}
+        theme={v.theme}
+      />
+    );
   }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    update();
-    function update() {
+    const stopRedraw = Signal.effect(() => {
       debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
+      void ctx.redraw();
+    });
+    ctx.dispose$.subscribe(() => {
+      stopRedraw();
+      debug.dispose();
+    });
     Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.subject
