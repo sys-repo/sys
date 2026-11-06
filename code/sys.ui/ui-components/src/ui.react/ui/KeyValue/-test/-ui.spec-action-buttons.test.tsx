@@ -36,13 +36,19 @@ describe('KeyValue spec UI: action buttons', () => {
       expect(debug.props.sample.value).to.eql('action-buttons');
 
       const items = debug.props.items.value!;
-      expect(items.length).to.eql(4);
+      expect(items.length).to.eql(6);
       expect(new Set(items.map((item) => item.id)).size).to.eql(items.length);
       const res = await TestReact.render(<KeyValue.UI items={items} />);
       try {
         const actions = Array.from(res.container.querySelectorAll<HTMLElement>('[role="button"]'));
-        expect(actions.map((el) => el.textContent)).to.eql(['Save', 'Save a Copy', 'Delete']);
-        expect(actions.map((el) => el.tabIndex)).to.eql([0, 0, -1]);
+        expect(actions.map((el) => el.textContent)).to.eql([
+          'Save',
+          'Save a Copy',
+          'Delete',
+          'Cancel',
+          'Save',
+        ]);
+        expect(actions.map((el) => el.tabIndex)).to.eql([0, 0, -1, 0, 0]);
         expect(actions[2].getAttribute('aria-disabled')).to.eql('true');
       } finally {
         React.act(() => res.dispose());
@@ -52,4 +58,27 @@ describe('KeyValue spec UI: action buttons', () => {
       debug.props.sample.value = previousSample;
     }
   });
+
+  for (const kind of ['spaced', 'table'] as const) {
+    it(`${kind}: action sample → divider and an unlabeled Cancel/Save pair`, async () => {
+      const items = SAMPLE.items('action-buttons')!;
+      expect(items.at(-2)?.kind).to.eql('hr');
+      expect(items.at(-1)).to.include({ k: '' });
+      const res = await TestReact.render(
+        <KeyValue.UI items={items.slice(-2)} layout={{ kind }} />,
+      );
+      try {
+        expect(res.container.textContent).to.eql('CancelSave');
+        const actions = Array.from(res.container.querySelectorAll<HTMLElement>('[role="button"]'));
+        expect(actions.map((el) => el.textContent)).to.eql(['Cancel', 'Save']);
+        const group = actions[0].parentElement!;
+        expect(actions[1].parentElement).to.equal(group);
+        const style = group.ownerDocument.defaultView!.getComputedStyle(group);
+        expect(style.display).to.eql('inline-flex');
+        expect(style.gap).to.eql('8px');
+      } finally {
+        React.act(() => res.dispose());
+      }
+    });
+  }
 });

@@ -14,6 +14,7 @@ export type SampleKind =
 const mono = true;
 const Styles = {
   nestedKey: css({ marginLeft: 20 }),
+  actions: css({ display: 'inline-flex', alignItems: 'center', gap: 8 }),
 } as const;
 
 /**
@@ -105,6 +106,16 @@ function actionButtons(): t.KeyValue.Item[] {
           enabled={false}
           onClick={() => logAction('delete')}
         />
+      ),
+    },
+    { kind: 'hr' },
+    {
+      k: '',
+      v: (
+        <div className={Styles.actions.class}>
+          <KeyValue.ActionButton label='Cancel' onClick={() => logAction('cancel')} />
+          <KeyValue.ActionButton label='Save' onClick={() => logAction('save')} />
+        </div>
       ),
     },
   ];
