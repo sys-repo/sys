@@ -5,7 +5,7 @@ export const Intent: t.FC<t.PasskeyIntentProps> = (props) => {
   const { intent } = props;
   const theme = Color.theme();
   const styles = {
-    base: css({ marginTop: 8 }),
+    base: css({ marginTop: 8, marginLeft: 15 }),
   };
 
   return (
@@ -19,8 +19,8 @@ export const Intent: t.FC<t.PasskeyIntentProps> = (props) => {
         theme={theme.name}
         layout={{ kind: 'table' }}
         items={[
-          { id: 'last-intent', k: 'Last intent:', v: intent?.action ?? 'none' },
-          { id: 'events', k: 'Events:', v: intent?.count ?? 0 },
+          { id: 'last-intent', k: 'last intent: ⚡️', v: intent?.action ?? 'none' },
+          { id: 'events', k: 'events:', v: intent?.count ?? 0 },
         ]}
       />
     </div>

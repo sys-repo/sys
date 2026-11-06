@@ -118,7 +118,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>
-        <div>Property State</div>
+        <div>Property States</div>
         <div>(Simulated)</div>
       </div>
       {Fixtures.map((fixture) => (
