@@ -111,11 +111,11 @@ describe('Passkey diagnostic panel', () => {
     });
     try {
       expect(buttons(res.container).map((el) => el.textContent)).to.eql([
-        'Create with passkey',
-        'Sign in',
+        'Create with Passkey',
+        'Sign In',
       ]);
-      const create = button(res.container, 'Create with passkey');
-      const signIn = button(res.container, 'Sign in');
+      const create = button(res.container, 'Create with Passkey');
+      const signIn = button(res.container, 'Sign In');
       expect(create.tabIndex).to.eql(0);
       press(create, 'Enter');
       press(signIn, ' ');
@@ -140,13 +140,13 @@ describe('Passkey diagnostic panel', () => {
     const res = await renderPanel(props);
     try {
       expect(buttons(res.container).map((el) => el.textContent)).to.eql([
-        'Add passkey',
-        'Sign out',
+        'Add Passkey',
+        'Sign Out',
       ]);
       expect(res.container.textContent).to.contain('principal-test-01');
       expect(res.container.textContent).to.contain('Unknown');
-      press(button(res.container, 'Add passkey'), 'Enter');
-      press(button(res.container, 'Sign out'), ' ');
+      press(button(res.container, 'Add Passkey'), 'Enter');
+      press(button(res.container, 'Sign Out'), ' ');
       expect(intents).to.eql(['add-passkey', 'sign-out']);
       expect(res.container.textContent).to.contain('Signed in');
       res.update({
@@ -265,8 +265,8 @@ describe('Passkey diagnostic panel', () => {
       onSignOut: () => count++,
     });
     try {
-      expect(button(res.container, 'Add passkey').getAttribute('aria-disabled')).to.eql('true');
-      const signOut = button(res.container, 'Sign out');
+      expect(button(res.container, 'Add Passkey').getAttribute('aria-disabled')).to.eql('true');
+      const signOut = button(res.container, 'Sign Out');
       expect(signOut.tabIndex).to.eql(0);
       press(signOut, 'Enter');
       expect(count).to.eql(1);
@@ -333,7 +333,7 @@ describe('Passkey diagnostic panel', () => {
         ...callbacks,
       });
       expect(element(res.container, '[role="status"][aria-label="Last result"]')).to.equal(result);
-      expect(result.textContent).to.contain('Add passkey');
+      expect(result.textContent).to.contain('Add Passkey');
       expect(result.textContent).to.contain('Request did not complete');
       expect(res.container.textContent).to.contain('principal-test-01');
       expect(res.container.textContent).to.contain('Signed in');
@@ -346,7 +346,7 @@ describe('Passkey diagnostic panel', () => {
     const props = { snapshot: signedOut, ...callbacks };
     const res = await renderPanel(props);
     try {
-      const action = button(res.container, 'Sign in');
+      const action = button(res.container, 'Sign In');
       const operation = element(res.container, '[role="status"][aria-label="Operation"]');
       const result = element(res.container, '[role="status"][aria-label="Last result"]');
       const slot = element(res.container, '[data-spinner-slot]');
@@ -360,7 +360,7 @@ describe('Passkey diagnostic panel', () => {
           operation: { kind: 'pending', action: 'sign-in', phase: 'Verifying response' },
         },
       });
-      expect(button(res.container, 'Sign in')).to.equal(action);
+      expect(button(res.container, 'Sign In')).to.equal(action);
       expect(document.activeElement).to.equal(action);
       expect(action.tabIndex).to.eql(-1);
       expect(view.getComputedStyle(slot).display).not.to.eql('none');
@@ -371,7 +371,7 @@ describe('Passkey diagnostic panel', () => {
           result: { kind: 'failure', action: 'sign-in', summary: 'Request did not complete' },
         },
       });
-      expect(button(res.container, 'Sign in')).to.equal(action);
+      expect(button(res.container, 'Sign In')).to.equal(action);
       expect(document.activeElement).to.equal(action);
       expect(action.tabIndex).to.eql(0);
       expect(element(res.container, '[role="status"][aria-label="Operation"]')).to.equal(operation);
@@ -387,12 +387,12 @@ describe('Passkey diagnostic panel', () => {
   it('focused action removed → no custom focus reassignment', async () => {
     const res = await renderPanel({ snapshot: signedOut, ...callbacks });
     try {
-      const action = button(res.container, 'Sign in');
+      const action = button(res.container, 'Sign In');
       React.act(() => action.focus());
       res.update({ snapshot: signedIn, ...callbacks });
       expect(res.container.contains(document.activeElement)).to.eql(false);
       expect(buttons(res.container).includes(action)).to.eql(false);
-      const add = button(res.container, 'Add passkey');
+      const add = button(res.container, 'Add Passkey');
       React.act(() => add.focus());
       res.update({
         snapshot: { ...signedOut, authentication: { kind: 'checking' } },
@@ -410,7 +410,7 @@ describe('Passkey diagnostic panel', () => {
     const outside = document.createElement('button');
     document.body.append(outside);
     try {
-      React.act(() => button(res.container, 'Sign in').focus());
+      React.act(() => button(res.container, 'Sign In').focus());
       React.act(() => outside.focus());
       res.update({ snapshot: signedIn, ...callbacks });
       expect(document.activeElement).to.equal(outside);
@@ -489,7 +489,7 @@ describe('Passkey diagnostic panel', () => {
       const result = element(res.container, '[role="status"][aria-label="Last result"]');
       expect(view.getComputedStyle(operation).textAlign).to.eql('right');
       expect(view.getComputedStyle(result).textAlign).to.eql('right');
-      const action = button(res.container, 'Create with passkey').parentElement!;
+      const action = button(res.container, 'Create with Passkey').parentElement!;
       expect(view.getComputedStyle(action).justifyItems).to.eql('end');
       res.update({ snapshot: signedOut });
       expect(action.textContent).to.contain('Action not connected');

@@ -91,7 +91,7 @@ describe('Passkey harness fixtures', () => {
         return title;
       };
       assertTitleColor(D.name);
-      const label = assertTitleColor('Property State');
+      const label = assertTitleColor('Property States');
       const qualifier = assertTitleColor('(Simulated)');
       const title = label.parentElement!;
       expect(qualifier.parentElement).to.equal(title);
@@ -101,7 +101,7 @@ describe('Passkey harness fixtures', () => {
       expect(debug.props.theme.value).to.eql('Light');
       expect(res.container.textContent).to.contain('theme: Light');
       assertTitleColor(D.name);
-      assertTitleColor('Property State');
+      assertTitleColor('Property States');
       assertTitleColor('(Simulated)');
       assertTitleColor('Action callbacks');
     } finally {
@@ -118,22 +118,26 @@ describe('Passkey harness fixtures', () => {
       const toggle = button(res.container, 'callbacks: record intent only');
       expect(note.previousElementSibling?.contains(toggle)).to.eql(true);
       expect(note.nextElementSibling?.tagName).to.eql('HR');
-      expect(note.textContent).to.eql('Last intent:noneEvents:0');
+      const expectIntent = (action: string, count: number) => {
+        expect(note.textContent).to.contain(action);
+        expect(note.textContent?.match(/\d+/g)).to.eql([`${count}`]);
+      };
+      expectIntent('none', 0);
 
       await React.act(async () => {
         debug.actions.onCreateAccount();
         debug.actions.onSignIn();
       });
-      expect(note.textContent).to.eql('Last intent:sign-inEvents:2');
+      expectIntent('sign-in', 2);
       expect(debug.props.fixture.value.snapshot.authentication.kind).to.eql('signed-out');
       await React.act(async () => press(toggle, 'Enter'));
-      expect(note.textContent).to.eql('Last intent:sign-inEvents:2');
+      expectIntent('sign-in', 2);
       await React.act(async () => debug.select(Fixtures[1]));
-      expect(note.textContent).to.eql('Last intent:noneEvents:0');
+      expectIntent('none', 0);
       await React.act(async () => debug.actions.onAddPasskey());
-      expect(note.textContent).to.eql('Last intent:add-passkeyEvents:1');
+      expectIntent('add-passkey', 1);
       await React.act(async () => press(button(res.container, '(reset)'), 'Enter'));
-      expect(note.textContent).to.eql('Last intent:noneEvents:0');
+      expectIntent('none', 0);
     } finally {
       React.act(() => res.dispose());
       debug.dispose();
@@ -163,7 +167,7 @@ describe('Passkey harness fixtures', () => {
     const debug = createDebugSignals();
     const res = await TestReact.render(<Debug debug={debug} />);
     try {
-      expect(res.container.textContent).to.contain('Property State');
+      expect(res.container.textContent).to.contain('Property States');
       expect(res.container.textContent).to.contain('(Simulated)');
       const selected = () =>
         buttons(res.container)

@@ -43,8 +43,8 @@ export async function main() {
    */
   async function renderDev() {
     const { render, useKeyboard } = await import('@sys/ui-dev/react/devharness');
-    const { Specs } = await import('./-specs.ts');
-    const el = await render(pkg, Specs, {
+    const { specsFor } = await import('./-specs.ts');
+    const el = await render(pkg, specsFor(location.href), {
       style: { Absolute: 0 },
       hr: (e) => e.byRegex(/(?:^|:\s*|\/)-sample(?:\/|$)/),
     });
