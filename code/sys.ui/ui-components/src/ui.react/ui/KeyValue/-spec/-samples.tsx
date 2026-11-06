@@ -1,7 +1,15 @@
 import { Bullet, Chip, Color, css, Str, type t } from './common.ts';
 import { Foo } from './-ui.Foo.tsx';
+import { KeyValue } from '../mod.ts';
 
-export type SampleKind = 'comprehensive' | 'simple' | 'opacity' | 'links' | 'recursive' | 'reorder';
+export type SampleKind =
+  | 'comprehensive'
+  | 'simple'
+  | 'action-buttons'
+  | 'opacity'
+  | 'links'
+  | 'recursive'
+  | 'reorder';
 
 const mono = true;
 const Styles = {
@@ -15,6 +23,7 @@ export const SAMPLE = {
   items(sample?: SampleKind): t.KeyValue.Item[] | undefined {
     if (sample === 'comprehensive') return withSampleIds(sample, comprehensive());
     if (sample === 'simple') return withSampleIds(sample, simple());
+    if (sample === 'action-buttons') return withSampleIds(sample, actionButtons());
     if (sample === 'opacity') return withSampleIds(sample, opacity());
     if (sample === 'links') return withSampleIds(sample, links());
     if (sample === 'recursive') return withSampleIds(sample, recursive());
@@ -74,7 +83,35 @@ function comprehensive(): t.KeyValue.Item[] {
     { k: 'theme', v: 'Dark' },
     { k: 'element', v: <Foo /> },
     { k: 'chip', v: <Chip.UI>1,234 dB</Chip.UI> },
+
+    { kind: 'hr' },
+    { k: 'action', v: <KeyValue.ActionButton label='Save' onClick={() => logAction('save')} /> },
   ];
+}
+
+function actionButtons(): t.KeyValue.Item[] {
+  return [
+    { kind: 'title', v: 'Action Buttons' },
+    { k: 'save', v: <KeyValue.ActionButton label='Save' onClick={() => logAction('save')} /> },
+    {
+      k: 'save a copy',
+      v: <KeyValue.ActionButton label='Save a Copy' onClick={() => logAction('save-copy')} />,
+    },
+    {
+      k: 'delete (disabled)',
+      v: (
+        <KeyValue.ActionButton
+          label='Delete'
+          enabled={false}
+          onClick={() => logAction('delete')}
+        />
+      ),
+    },
+  ];
+}
+
+function logAction(action: string) {
+  console.info('⚡️ KeyValue.ActionButton:', action);
 }
 
 function opacity(): t.KeyValue.Item[] {

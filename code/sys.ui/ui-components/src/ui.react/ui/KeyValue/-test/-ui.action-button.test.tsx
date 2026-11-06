@@ -9,6 +9,18 @@ describe('KeyValue.ActionButton: shared Button integration', () => {
   // Generated stylesheet rules share the document's lifetime.
   DomMock.init({ beforeAll, afterAll });
 
+  it('compact focus → 1px offset with the shared 2px stroke', async () => {
+    const res = await TestReact.render(<KeyValue.ActionButton label='Run' />);
+    try {
+      const action = selectElement(res.container, '[role="button"]');
+      const style = action.ownerDocument.defaultView!.getComputedStyle(action);
+      expect(style.getPropertyValue('--sys-button-focus-offset').trim()).to.eql('1px');
+      expect(style.getPropertyValue('--sys-button-focus-width').trim()).to.eql('2px');
+    } finally {
+      React.act(() => res.dispose());
+    }
+  });
+
   for (const reorder of [false, true]) {
     const layout = reorder ? 'reorder' : 'static';
     it(`${layout}: keyboard action → pressed feedback, without cursor movement`, async () => {
