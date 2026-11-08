@@ -56,7 +56,6 @@ export const Button: FC<P> = (props) => {
       display: block ? 'block' : 'inline-block',
       minWidth: props.minWidth,
       maxWidth: props.maxWidth,
-      borderRadius: D.borderRadius,
       opacity: opacity,
       cursor: enabled && active ? 'pointer' : 'default',
       userSelect: userSelect ? 'auto' : 'none',

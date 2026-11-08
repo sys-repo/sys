@@ -1,6 +1,7 @@
 /**
  * @module
- * Shared CSS focus arrival; each control or indicator owns its paint.
+ * Shared CSS focus arrival; each control or indicator selects its paint.
+ * `outline(prefix)` supplies the common Button/Anchor outline recipe with control-owned tokens.
  *
  * Without `via`, the target paints its own native `:focus-visible` indication.
  * With `via`, an ancestor's native `:focus-visible` activates a separate indicator.

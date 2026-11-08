@@ -1,11 +1,36 @@
 import { afterAll, beforeAll, describe, expect, expectTypeOf, it } from '@sys/testing/server';
 import { DomMock } from '@sys/testing/server/dom';
 import { FocusStyle } from '@sys/ui-components/style/focus';
-import { css, Obj, Style, type t } from '../common.ts';
+import { Color, css, Obj, Style, type t } from '../common.ts';
 import { base, focus, halo, outline, rules } from './u.fixture.ts';
 
 describe('FocusStyle', () => {
   DomMock.init({ beforeAll, afterAll });
+
+  it('standard outline recipe → one palette and geometry with caller-owned token names', () => {
+    const recipe = FocusStyle.outline('--example-focus');
+    expectTypeOf(recipe).toEqualTypeOf<t.FocusStyle.Outline>();
+    expect(recipe).to.eql({
+      base: { borderRadius: 1 },
+      paint: {
+        defaults: {
+          '--example-focus-accent': Color.BLUE,
+          '--example-focus-rest': Color.alpha(Color.BLUE, 0.2),
+          '--example-focus-width': '2px',
+          '--example-focus-offset': '2px',
+        },
+        arrival: { outlineColor: 'var(--example-focus-accent)' },
+        settled: {
+          outline: 'var(--example-focus-width) solid var(--example-focus-rest)',
+          outlineOffset: 'var(--example-focus-offset)',
+        },
+        forcedColors: {
+          outline: 'var(--example-focus-width) solid Highlight',
+          outlineOffset: 'var(--example-focus-offset)',
+        },
+      },
+    });
+  });
 
   it('types the three consumers without component props or a recomposable result', () => {
     const button = FocusStyle.compose({ base: { borderRadius: 1 }, paint: outline });
@@ -37,6 +62,23 @@ describe('FocusStyle', () => {
       { outlineColor: 'var(--sys-focus-arrival-outline)' },
     ]);
     expect(frames[0].selector).to.eql('from');
+  });
+
+  it('composes settled link decoration with the outline and replaces both on caller override', () => {
+    const paint: t.FocusStyle.Paint = {
+      ...outline,
+      settled: { ...outline.settled, textDecoration: 'underline solid currentColor' },
+    };
+    const result = FocusStyle.compose({ paint });
+    expect(focus(result)).to.include(paint.settled);
+    expect(base(result)).not.to.have.property('textDecoration');
+
+    for (const replacement of [{ outline: '3px dotted red' }, {}, undefined]) {
+      const custom = FocusStyle.compose({ paint, style: { ':focus-visible': replacement } });
+      expect(focus(custom)).to.eql(replacement);
+      expect(Obj.keys(base(custom)).filter((key) => key.startsWith('--sys-focus'))).to.eql([]);
+      expect(rules(custom).filter((item) => item.rule.startsWith('@media'))).to.eql([]);
+    }
   });
 
   it('registers preferences against the final composed target after ordinary declarations', () => {
@@ -144,6 +186,48 @@ describe('FocusStyle', () => {
       expect(focus(result)).to.include(outline.settled);
     });
   }
+
+  for (const { name, style } of animations) {
+    it(`preserves caller hover ${name} animation and keeps default focus static`, () => {
+      const result = FocusStyle.compose({
+        base: { ':hover': { color: 'blue' } },
+        style: [false, css({ ':hover': style })],
+        paint: outline,
+      });
+      const hover = Style.Dom.stylesheet().rules.items.find((item) => {
+        return item.selector === `.${result.class}:hover`;
+      });
+      expect(hover?.style).to.include(style);
+      expect(focus(result)?.animation).to.eql(undefined);
+      expect(focus(result)).to.include(outline.settled);
+    });
+  }
+
+  for (const pseudo of [':focus', ':active', ':focus-within'] as const) {
+    it(`${pseudo}: caller animation ownership applies to self and child paint targets`, () => {
+      const style: t.Style.Value = {};
+      style[pseudo] = { animationName: 'caller' };
+      const self = FocusStyle.compose({ paint: outline, style });
+      const child = FocusStyle.compose({ paint: outline, style, via: '--animated-child' });
+      expect(focus(self)?.animation).to.eql(undefined);
+      expect(base(child).animation).to.eql(undefined);
+      expect(base(child)).to.include(outline.settled);
+    });
+  }
+
+  it('cleared animations and pseudo-element animations do not own the target animation', () => {
+    const result = FocusStyle.compose({
+      paint: outline,
+      style: {
+        animation: undefined,
+        ':hover': { animationName: undefined },
+        '::placeholder': { animation: 'placeholder 2s linear infinite' },
+      },
+    });
+    expect(focus(result)?.animation).to.eql(
+      '220ms ease-out 70ms 1 normal backwards running var(--sys-focus-animation)',
+    );
+  });
 
   it('binds ancestor entry/exit to the child animation as well as indicator visibility', () => {
     const child = FocusStyle.compose({ paint: outline, via: '--run-focus' });

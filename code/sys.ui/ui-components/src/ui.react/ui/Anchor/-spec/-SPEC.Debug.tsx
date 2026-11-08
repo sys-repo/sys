@@ -1,10 +1,11 @@
-import React from 'react';
+import type React from 'react';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
 
 type P = t.Anchor.Props;
 type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled'> & {
   children?: string;
+  focusExamples: boolean;
 };
 
 const defaults: Storage = {
@@ -14,18 +15,19 @@ const defaults: Storage = {
   target: D.target,
   download: D.download,
   children: EXAMPLE_URL,
+  focusExamples: false,
 };
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
  * Signals:
  */
-export async function createDebugSignals() {
+export function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
@@ -37,6 +39,7 @@ export async function createDebugSignals() {
     target: s(snap.target),
     download: s(snap.download === true),
     children: s(snap.children),
+    focusExamples: s(snap.focusExamples ?? defaults.focusExamples),
   };
   const p = props;
   const api = {
@@ -61,6 +64,7 @@ export async function createDebugSignals() {
       d.target = p.target.value;
       d.download = p.download.value ? true : undefined;
       d.children = p.children.value;
+      d.focusExamples = p.focusExamples.value;
     });
   });
 
@@ -92,7 +96,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
@@ -146,14 +149,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>{'Sample States:'}</div>
+      <Dev.Button
+        block
+        label={() => `focus examples: ${v.focusExamples}`}
+        onClick={() => Signal.toggle(p.focusExamples)}
+      />
+      <div className={css(Styles.title, { marginTop: 22 }).class}>Sample States:</div>
       <Samples debug={debug} theme={theme.name} />
 
       <hr />
-      <div className={Styles.title.class}>{'Debug'}</div>
+      <div className={Styles.title.class}>Debug</div>
 
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
-      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

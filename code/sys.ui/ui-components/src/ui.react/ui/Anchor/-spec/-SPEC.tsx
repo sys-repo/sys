@@ -1,14 +1,16 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
+import { D } from './common.ts';
 import { Anchor } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { FocusExamples } from './-ui.FocusExamples.tsx';
 
-export default Spec.describe(D.displayName, async (e) => {
-  const debug = await createDebugSignals();
+export default Spec.describe(D.displayName, (e) => {
+  const debug = createDebugSignals();
   const p = debug.props;
 
   function Root() {
     const v = Signal.toObject(p);
+    if (v.focusExamples) return <FocusExamples theme={v.theme} enabled={v.enabled} />;
     return (
       <Anchor.UI
         theme={v.theme}
@@ -16,8 +18,9 @@ export default Spec.describe(D.displayName, async (e) => {
         enabled={v.enabled}
         target={v.target}
         download={v.download}
-        children={v.children}
-      />
+      >
+        {v.children}
+      </Anchor.UI>
     );
   }
 
@@ -35,7 +38,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
     ctx.host.tracelineColor(0.05);
     ctx.subject
-      .size([360, null])
+      .size()
       .display('grid')
       .render(() => <Root />);
   });

@@ -13,7 +13,6 @@ export const DEFAULTS = {
   active: true,
   block: false,
   userSelect: false,
-  borderRadius: 1,
   pressedOffset: [0, 1] as [number, number],
   opacity: { enabled: 1, disabled: 0.3 },
 } as const;

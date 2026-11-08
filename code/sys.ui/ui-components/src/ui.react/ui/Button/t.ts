@@ -44,9 +44,10 @@ export declare namespace Button {
      * Each Button using the default treatment initializes its own palette and geometry.
      * Reduced motion skips the arrival; forced colours uses a static `Highlight` outline
      * instead of the palette. Both retain the chosen width and offset. Timing and easing
-     * come from the shared FocusStyle policy; Button owns the paint.
+     * come from FocusStyle.compose; Button and Anchor select the same FocusStyle.outline recipe.
      *
-     * Explicit root animation settings, including longhands, keep default focus static.
+     * Explicit root or supported pseudo-class animation settings, including longhands,
+     * keep default focus static.
      * A supplied `:focus-visible` block replaces the entire default treatment, including
      * its motion/preference policy. The caller then owns the visible focus indicator.
      * Use explicit outline-offset units; suppress the outline only with a visible replacement.
@@ -74,7 +75,9 @@ export declare namespace Button {
     onMouse?: Mouse.Handler;
   };
 
-  /** Dynamic prop callback details. */
+  /**
+   * Dynamic prop callback details.
+   */
   export namespace Prop {
     /** Callback used by a button to dynamically evaluate a prop value on redraw. */
     export type Callback<T> = (e: CallbackArgs) => T;
@@ -90,7 +93,9 @@ export declare namespace Button {
     readonly down: boolean;
   };
 
-  /** Mouse event rollup details. */
+  /**
+   * Mouse event rollup details.
+   */
   export namespace Mouse {
     /** Handler for general mouse button event rollup. */
     export type Handler = (e: Args) => void;

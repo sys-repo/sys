@@ -1,4 +1,5 @@
 import { css, Is, Obj, Style, type t } from './common.ts';
+import { outline } from './u.outline.ts';
 
 type Input = t.FocusStyle.Input & { via?: `--${string}` };
 
@@ -9,7 +10,7 @@ const animation = `220ms ease-out 70ms 1 normal backwards running var(${animatio
 /**
  * One focus-arrival policy, composed at the final paint target.
  */
-export const FocusStyle: t.FocusStyle.Lib = { compose };
+export const FocusStyle: t.FocusStyle.Lib = { outline, compose };
 
 /**
  * Helpers:
@@ -21,9 +22,11 @@ function compose(input: Input): t.FocusStyle.Target | t.FocusStyle.Child {
   const caller: t.Style.Value = css(style).style;
   if (!via && Obj.hasOwn(caller, ':focus-visible')) return { class: css(base, style).class };
 
-  const animationProperty = /^(?:animation|WebkitAnimation|MozAnimation|msAnimation|OAnimation)/;
-  const ownsAnimation = Obj.keys(caller).some((key) => {
-    return animationProperty.test(key) && !Is.nil(caller[key]);
+  // Match the substrate's direct pseudo-class rules, not nested or pseudo-element targets.
+  const ownsAnimation = hasAnimation(caller) || Obj.keys(caller).some((key) => {
+    if (!Style.Dom.PseudoClass.isClass(key) || key.startsWith('::')) return false;
+    const pseudo = caller[key];
+    return !Is.nil(pseudo) && hasAnimation(pseudo);
   });
   const recipe = toPaint(paint);
   const active = { ...paint.settled, animation: ownsAnimation ? undefined : animation };
@@ -61,6 +64,12 @@ function compose(input: Input): t.FocusStyle.Target | t.FocusStyle.Child {
   const inactive: t.Style.Props = { [via]: 'none', [visible]: 0 };
   const focused: t.Style.Props = { [via]: recipe.name, [visible]: 1 };
   return { ...target, activation: { ...inactive, ':focus-visible': focused } };
+}
+
+/** Any explicit animation setting reserves the target's animation channel for the caller. */
+function hasAnimation(style: t.Style.Props): boolean {
+  const property = /^(?:animation|WebkitAnimation|MozAnimation|msAnimation|OAnimation)/;
+  return Obj.keys(style).some((key) => property.test(key) && !Is.nil(style[key]));
 }
 
 /** Separate stable paint structure from target-local values, including preference-only paint. */

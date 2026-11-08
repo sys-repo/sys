@@ -1,4 +1,7 @@
 import { Color, css, D, type t, usePointer } from './common.ts';
+import { focusStyle } from './u.focus.ts';
+
+type AnchorLinkProps = t.Anchor.Props & { href: string };
 
 export const Anchor: t.FC<t.Anchor.Props> = (props) => {
   const href = props.href;
@@ -7,8 +10,6 @@ export const Anchor: t.FC<t.Anchor.Props> = (props) => {
   if (!enabled) return <AnchorLinkDisabled {...props} href={href} />;
   return <AnchorLinkEnabled {...props} href={href} />;
 };
-
-type AnchorLinkProps = t.Anchor.Props & { href: string };
 
 const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
   const pointer = usePointer();
@@ -26,13 +27,13 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
       transition: 'text-decoration-color 100ms ease',
       transform: `translateY(${pointer.is.down ? 1 : 0}px)`,
       ':hover': { textDecoration: 'underline solid currentColor' },
-      ':focus-visible': { textDecoration: 'underline solid currentColor' },
     }),
   };
+  const focus = focusStyle(styles.base, style);
 
   return (
     <a
-      className={css(styles.base, style).class}
+      className={focus.class}
       href={href}
       target={target}
       rel={rel}
@@ -53,7 +54,6 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
 };
 
 const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
-  const theme = Color.theme(props.theme);
   const { title, children, style } = props;
   const opacity = props.disabledOpacity === false
     ? undefined
@@ -87,7 +87,7 @@ const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
       title={title}
       download={undefined}
       tabIndex={-1}
-      aria-disabled={true}
+      aria-disabled
       onClick={onClick}
       onKeyDown={onKeyDown}
     >

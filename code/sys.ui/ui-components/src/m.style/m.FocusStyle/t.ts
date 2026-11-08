@@ -4,8 +4,15 @@ import type { t } from './common.ts';
  * Shared CSS focus arrival, independent of component markup and interaction state.
  */
 export declare namespace FocusStyle {
-  /** Final-target composition; apply the returned class directly, without another css(...) call. */
+  /** Shared paint and terminal composition; apply compose(...).class without recomposition. */
   export type Lib = {
+    /**
+     * Standard outline: 1px root radius, opaque blue arrival, 20%-blue rest, 2px stroke and offset.
+     * `prefix` owns the `-accent`, `-rest`, `-width` and `-offset` CSS tokens, reset per target.
+     * Use a control-owned prefix, not the internal `--sys-focus-*` namespace.
+     * Resting contrast is below 3:1 on white/Dark; callers own suitability for their surface.
+     */
+    outline(prefix: `--${string}`): Outline;
     /**
      * Compose an indicator activated by an ancestor's native :focus-visible binding.
      * `via` names an application-owned custom property; reserve it and `${via}-visible`
@@ -23,9 +30,18 @@ export declare namespace FocusStyle {
   export type Input = {
     /** Lower-priority component layout, before default focus declarations. */
     base?: t.Style.Input;
-    /** Original caller input, applied last; caller-owned animation makes default focus static. */
+    /**
+     * Original caller input, applied last; root or supported pseudo-class animation makes default
+     * focus static.
+     */
     style?: t.Style.Input;
     paint: Paint;
+  };
+
+  /** Ordinary root geometry stays separate from replaceable focus paint. */
+  export type Outline = {
+    readonly base: { readonly borderRadius: number };
+    readonly paint: Paint;
   };
 
   /** Component-owned paint; keep arrival and settled geometry identical. */
@@ -33,7 +49,7 @@ export declare namespace FocusStyle {
     /** Per-target palette/geometry tokens, omitted when caller focus replaces the default. */
     defaults?: { [key: `--${string}`]: string | number };
     arrival: Pick<t.Style.Props, 'outlineColor' | 'boxShadow'>;
-    settled: Pick<t.Style.Props, 'outline' | 'outlineOffset' | 'boxShadow'>;
+    settled: Pick<t.Style.Props, 'outline' | 'outlineOffset' | 'boxShadow' | 'textDecoration'>;
     /** A visible system-colour outline, not shadow alone; normal UA adjustment remains enabled. */
     forcedColors: Pick<t.Style.Props, 'outline' | 'outlineOffset' | 'boxShadow'>;
   };

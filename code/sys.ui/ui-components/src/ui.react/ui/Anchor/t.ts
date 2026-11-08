@@ -11,7 +11,8 @@ export declare namespace Anchor {
      * Callers own href parsing and validation policy.
      */
     href?: string;
-    target?: Target | (string & {});
+    /** Retain standard-target completion while accepting named browsing contexts. */
+    target?: Target | (string & Record<never, never>);
     rel?: string;
     title?: string;
     download?: boolean | string;
@@ -28,6 +29,13 @@ export declare namespace Anchor {
 
     /** Appearance: */
     theme?: t.CommonTheme;
+    /**
+     * Uses Button's shared outline recipe and 1px root radius; override radius with `borderRadius`.
+     * Customize outline paint with `--sys-anchor-focus-` tokens:
+     * `accent`, `rest`, `width`, `offset`. Use explicit CSS lengths for width/offset.
+     * The 20%-blue resting colour has low contrast on white/Dark; choose for the actual surface.
+     * A supplied `:focus-visible` block replaces the entire default focus policy and underline.
+     */
     style?: t.CssInput;
 
     /**
