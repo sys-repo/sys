@@ -17,7 +17,13 @@ export function renderTreeRefSelector<TParams extends Record<string, unknown>>(
   const visible = toVisible(props.totalVisible);
   const rows = toRows(refs, props.ensureRefs ?? [], visible);
 
-  e.element(<BulletList.UI selected={props.selected} items={rows} onSelect={(ev) => props.onSelect?.(ev.id)} />);
+  e.element(
+    <BulletList.UI
+      selected={props.selected ?? []}
+      items={rows}
+      onActivate={(ev) => props.onSelect?.(ev.id)}
+    />,
+  );
 }
 
 function toRows(refs: string[], ensureRefs: string[], visible: number | null): t.BulletList.Item[] {

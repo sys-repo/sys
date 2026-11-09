@@ -7,6 +7,23 @@ describe('Button: keyboard accessibility', () => {
   // Generated stylesheet rules share the document's lifetime.
   DomMock.init({ beforeAll, afterAll });
 
+  for (const pressed of [true, false, undefined]) {
+    it(`controlled aria-pressed=${pressed} → forward state without visual press coupling`, async () => {
+      const res = await TestReact.render(<Button aria-pressed={pressed} label='Choice' />);
+      try {
+        const root = button(res.container);
+        expect(root.getAttribute('aria-pressed')).to.eql(
+          pressed === undefined ? null : String(pressed),
+        );
+        expect(root.getAttribute('aria-disabled')).to.eql(null);
+        const view = root.ownerDocument.defaultView!;
+        expect(view.getComputedStyle(root.firstElementChild!).transform).to.eql('');
+      } finally {
+        React.act(() => res.dispose());
+      }
+    });
+  }
+
   it('preserves rich content and caller layout while adding keyboard focus', async () => {
     const res = await TestReact.render(
       <Button label={() => 'Run'} block padding={4} style={{ minWidth: 120 }}>

@@ -37,10 +37,10 @@ export const Mounts: t.FC<t.Mounts.Props> = (props) => {
       {is.ready && (
         <BulletList.UI
           theme={theme.name}
-          selected={state.selected.value}
+          selected={state.selected.value ?? []}
           items={items}
-          onSelect={(e) => {
-            const next = e.id as t.StringId;
+          onActivate={(e) => {
+            const next = e.id;
             state.selected.value = next;
             props.onSelect?.(next);
           }}

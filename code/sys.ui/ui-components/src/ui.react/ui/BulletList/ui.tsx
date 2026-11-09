@@ -1,8 +1,9 @@
-import { type t, Bullet, Button, Color, css, Keyboard, Num } from './common.ts';
+import { type t, Bullet, Button, Color, css, Is, Keyboard, Num } from './common.ts';
 
-type P = t.BulletList.Props;
-
-export const BulletList: t.FC<P> = (props) => {
+/**
+ * Render actions or controlled pressed choices in ordinary list and Tab order.
+ */
+export const BulletList: t.BulletList.Lib['UI'] = (props) => {
   const { debug = false, selected } = props;
   const items = props.items ?? [];
   const columns = wrangle.columns(props.columns);
@@ -16,6 +17,9 @@ export const BulletList: t.FC<P> = (props) => {
       backgroundColor: Color.ruby(debug),
       color: theme.fg,
       lineHeight: 1.6,
+      margin: 0,
+      padding: 0,
+      listStyle: 'none',
       display: 'grid',
       gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
     }),
@@ -33,32 +37,35 @@ export const BulletList: t.FC<P> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, props.style).class}>
+    <ul role='list' className={css(styles.base, props.style).class}>
       {items.map((item) => {
         if (item.kind === 'content') {
-          return <div key={item.key}>{item.render()}</div>;
+          return <li key={item.key}>{item.render()}</li>;
         }
 
         const id = item.id;
         const enabled = item.enabled ?? true;
         const label = item.label ?? id;
         return (
-          <Button
-            key={id}
-            theme={theme.name}
-            enabled={enabled}
-            onMouse={(e) => handleSelect(props.onSelect, id, e)}
-          >
-            <div className={styles.row.class}>
-              <div className={styles.bullet.class}>
-                <Bullet theme={theme.name} selected={isSelected(selected, id)} />
+          <li key={id}>
+            <Button
+              block
+              theme={theme.name}
+              enabled={enabled}
+              aria-pressed={selected === undefined ? undefined : isSelected(selected, id)}
+              onClick={(e) => props.onActivate?.(toActivateEvent(id, Keyboard.modifiers(e)))}
+            >
+              <div className={styles.row.class}>
+                <div aria-hidden='true' className={styles.bullet.class}>
+                  <Bullet theme={theme.name} selected={isSelected(selected, id)} />
+                </div>
+                <div>{label}</div>
               </div>
-              <div>{label}</div>
-            </div>
-          </Button>
+            </Button>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 };
 
@@ -72,21 +79,14 @@ const wrangle = {
 };
 
 function isSelected(selected: t.BulletList.Selected | undefined, id: string): boolean {
-  if (Array.isArray(selected)) return selected.includes(id);
-  return selected === id;
+  if (selected === undefined) return false;
+  return Is.string(selected) ? selected === id : selected.includes(id);
 }
 
-function handleSelect(
-  onSelect: t.BulletList.Props['onSelect'],
-  id: string,
-  e: t.Button.Mouse.Args,
-): void {
-  if (e.action !== 'MouseDown') return;
-  if (!e.is.enabled) return;
-  onSelect?.(toSelectEvent(id, e.modifiers));
-}
-
-function toSelectEvent(id: string, modifiers: t.Keyboard.Modifier.Flags): t.BulletList.OnSelectArgs {
+function toActivateEvent<Id extends string>(
+  id: Id,
+  modifiers: t.Keyboard.Modifier.Flags,
+): t.BulletList.Activate.Args<Id> {
   return {
     id,
     modifiers,

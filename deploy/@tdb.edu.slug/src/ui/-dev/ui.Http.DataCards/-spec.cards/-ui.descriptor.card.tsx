@@ -52,7 +52,7 @@ function KindSelector(props: SelectorProps) {
     <BulletList.UI
       selected={props.selected}
       items={items}
-      onSelect={(ev) => {
+      onActivate={(ev) => {
         if (!isDescriptorMode(ev.id)) return;
         props.onChange?.(ev.id);
       }}

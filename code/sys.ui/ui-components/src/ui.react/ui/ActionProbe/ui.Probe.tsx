@@ -120,6 +120,7 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
       onMouseUp={() => setActOnClickDown(false)}
       onMouseLeave={() => setActOnClickDown(false)}
       onKeyDown={(e) => {
+        if (e.defaultPrevented) return;
         if (!wrangle.shouldActOnKeydown(e, actOn)) return;
         if (!canRun || spinning || runRef.current) return;
         e.preventDefault();

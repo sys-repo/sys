@@ -22,6 +22,8 @@ export declare namespace Button {
     opacity?: t.Percent | Prop.Callback<t.Percent>;
     /** Inactive buttons leave the tab order and ignore interaction. */
     active?: boolean;
+    /** Caller-owned toggle state; omitted for actions, independent of physical press styling. */
+    'aria-pressed'?: boolean;
     block?: boolean;
     isOver?: boolean; // force the button into an "is-over" state.
     isDown?: boolean; // force the button into an "is-down" state.

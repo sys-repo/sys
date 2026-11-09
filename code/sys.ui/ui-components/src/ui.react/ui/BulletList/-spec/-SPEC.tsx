@@ -1,5 +1,5 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
-import { type t, css, D, Str } from './common.ts';
+import { css, D, Str } from './common.ts';
 import { BulletList } from '../mod.ts';
 import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
 
@@ -17,7 +17,7 @@ export default Spec.describe(D.displayName, async (e) => {
       <BulletList.UI
         debug={v.debug}
         theme={v.theme}
-        selected={v.selected}
+        selected={v.selected ?? []}
         columns={v.columns}
         items={[
           { id: 'localhost' },
@@ -31,8 +31,8 @@ export default Spec.describe(D.displayName, async (e) => {
           { id: 'long', label: Str.Lorem.words(10) },
           { id: 'disabled', enabled: false },
         ]}
-        onSelect={(e) => {
-          if (e.is.command) {
+        onActivate={(e) => {
+          if (v.multiple || e.is.command) {
             p.selected.value = BulletList.toggle(p.selected.value, e.id);
             return;
           }

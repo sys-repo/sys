@@ -2,12 +2,13 @@ import React from 'react';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.BulletList.Props;
-type Storage = Pick<P, 'debug' | 'theme' | 'selected' | 'columns'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'selected' | 'columns'> & { multiple: boolean };
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   selected: 'localhost',
   columns: 1,
+  multiple: false,
 };
 
 /**
@@ -29,6 +30,7 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     selected: s(snap.selected),
     columns: s(snap.columns),
+    multiple: s(snap.multiple ?? defaults.multiple),
   };
   const p = props;
   const api = {
@@ -51,6 +53,7 @@ export async function createDebugSignals() {
       d.debug = p.debug.value;
       d.selected = p.selected.value;
       d.columns = p.columns.value;
+      d.multiple = p.multiple.value;
     });
   });
 
@@ -98,6 +101,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `columns: ${v.columns}`}
         onClick={() => Signal.cycle<number>(p.columns, [1, 2, 3])}
+      />
+
+      <Dev.Button
+        block
+        label={() => `multiple: ${v.multiple} (Enter/Space ${v.multiple ? 'toggles' : 'selects'})`}
+        onClick={() => Signal.toggle(p.multiple)}
       />
 
       <hr />

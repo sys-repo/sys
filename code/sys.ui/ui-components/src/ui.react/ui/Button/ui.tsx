@@ -88,6 +88,7 @@ export const Button: FC<P> = (props) => {
       role='button'
       tabIndex={enabled && active ? 0 : -1}
       aria-disabled={!enabled || !active ? true : undefined}
+      aria-pressed={props['aria-pressed']}
       className={rootStyle.class}
       title={props.tooltip}
       {...Event.handlers(eventState)}

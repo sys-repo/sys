@@ -68,7 +68,7 @@ export const FontStyle: React.FC<FontStyleProps> = (props) => {
           id: String(weight),
           label: `weight: ${weight}`,
         }))}
-        onSelect={(e) => (p.weight.value = Number(e.id) as t.FontWeight)}
+        onActivate={(e) => (p.weight.value = Number(e.id) as t.FontWeight)}
       />
     </div>
   );

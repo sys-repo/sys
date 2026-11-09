@@ -22,9 +22,9 @@ export function renderTreeRefSelector<TParams extends O>(
   e.element(
     <BulletList.UI
       theme={e.theme}
-      selected={props.selected}
+      selected={props.selected ?? []}
       items={rows}
-      onSelect={(ev) => props.onSelect?.(ev.id)}
+      onActivate={(ev) => props.onSelect?.(ev.id)}
     />
   );
 }
