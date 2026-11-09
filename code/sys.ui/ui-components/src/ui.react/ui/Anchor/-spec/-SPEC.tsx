@@ -1,28 +1,11 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from './common.ts';
-import { Anchor } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { FocusExamples } from './-ui.FocusExamples.tsx';
+import { Root } from './-ui.Root.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
-
-  function Root() {
-    const v = Signal.toObject(p);
-    if (v.focusExamples) return <FocusExamples theme={v.theme} enabled={v.enabled} />;
-    return (
-      <Anchor.UI
-        theme={v.theme}
-        href={v.href}
-        enabled={v.enabled}
-        target={v.target}
-        download={v.download}
-      >
-        {v.children}
-      </Anchor.UI>
-    );
-  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -40,7 +23,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render(() => <Root />);
+      .render(() => <Root {...Signal.toObject(p)} />);
   });
 
   e.it('ui:debug', (e) => {

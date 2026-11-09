@@ -1,5 +1,6 @@
 import { Color, css, D, type t, usePointer } from './common.ts';
 import { focusStyle } from './u.focus.ts';
+import { Content } from './ui.Content.tsx';
 
 type AnchorLinkProps = t.Anchor.Props & { href: string };
 
@@ -14,7 +15,7 @@ export const Anchor: t.FC<t.Anchor.Props> = (props) => {
 const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
   const pointer = usePointer();
   const theme = Color.theme(props.theme);
-  const { href, title, tabIndex, children, style } = props;
+  const { href, title, tabIndex, style } = props;
   const target = props.target ?? D.target;
   const download = props.download ?? D.download;
   const rel = toRel({ ...props, target });
@@ -41,6 +42,7 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
       download={download}
       tabIndex={tabIndex}
       aria-disabled={props['aria-disabled']}
+      aria-describedby={props['aria-describedby']}
       {...pointer.handlers}
       onClick={props.onClick}
       onMouseDown={props.onMouseDown}
@@ -48,13 +50,13 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
       onKeyDown={props.onKeyDown}
       onKeyUp={props.onKeyUp}
     >
-      {children}
+      <Content icons={props.icons}>{props.children}</Content>
     </a>
   );
 };
 
 const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
-  const { title, children, style } = props;
+  const { title, style } = props;
   const opacity = props.disabledOpacity === false
     ? undefined
     : (props.disabledOpacity ?? D.disabledOpacity);
@@ -88,10 +90,11 @@ const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
       download={undefined}
       tabIndex={-1}
       aria-disabled
+      aria-describedby={props['aria-describedby']}
       onClick={onClick}
       onKeyDown={onKeyDown}
     >
-      {children}
+      <Content icons={props.icons}>{props.children}</Content>
     </a>
   );
 };

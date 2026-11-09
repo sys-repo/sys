@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from 'react';
 import { Color, css, Dev, type t } from './common.ts';
 
 export type SamplesProps = {
@@ -28,6 +28,7 @@ export const Samples: React.FC<P> = (props) => {
       target?: t.Anchor.Target;
       download?: boolean;
       children?: string;
+      link?: t.DebugValues['link'];
     },
   ) {
     return (
@@ -40,6 +41,8 @@ export const Samples: React.FC<P> = (props) => {
           p.target.value = next.target;
           p.download.value = next.download ?? false;
           p.children.value = next.children;
+          p.link.value = next.link;
+          p.examples.value = 'none';
         }}
       />
     );
@@ -60,6 +63,26 @@ export const Samples: React.FC<P> = (props) => {
         target: '_blank',
         download: false,
         children: 'opens in new tab',
+      })}
+      {sample('sample: arrow →', {
+        href: EXAMPLE_URL,
+        children: 'Example website',
+        link: { openIn: 'self' },
+      })}
+      {sample('sample: arrow ↗ (new tab)', {
+        href: EXAMPLE_URL,
+        children: 'Example website',
+        link: { openIn: 'new-tab' },
+      })}
+      {sample('sample: globe + →', {
+        href: EXAMPLE_URL,
+        children: 'Example website',
+        link: { resource: 'web', openIn: 'self' },
+      })}
+      {sample('sample: globe + ↗ (new tab)', {
+        href: EXAMPLE_URL,
+        children: 'Example website',
+        link: { resource: 'web', openIn: 'new-tab' },
       })}
       {sample('sample: download (/dist.json)', {
         href: '/dist.json',

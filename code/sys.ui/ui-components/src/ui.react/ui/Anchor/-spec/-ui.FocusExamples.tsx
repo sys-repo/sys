@@ -2,6 +2,7 @@ import { Button } from '../../Button/mod.ts';
 import { KeyValue } from '../../KeyValue/mod.ts';
 import { Color, css, Style, type t } from './common.ts';
 import { A } from '../mod.ts';
+import { exampleStyles } from './-u.exampleStyles.ts';
 
 type Props = Pick<t.Anchor.Props, 'theme' | 'enabled'>;
 
@@ -10,14 +11,8 @@ export function FocusExamples(props: Props) {
   const theme = Color.theme(props.theme);
   const link = { theme: theme.name, enabled: props.enabled, href: '#anchor-focus-target' };
   const styles = {
-    base: css({ display: 'grid', width: 360, color: theme.fg, lineHeight: 1.6 }),
-    label: css({ fontSize: 12, opacity: 0.65, marginTop: 2 }),
-    divider: css({
-      Margin: [14, -10, 0, -10],
-      height: 1,
-      backgroundColor: Color.alpha(theme.fg, 0.1),
-      pointerEvents: 'none',
-    }),
+    ...exampleStyles(theme.fg),
+    base: css({ display: 'grid', width: 360, color: theme.fg }),
     paragraph: css({ margin: 0, width: 220 }),
     clipped: css({ width: 220, overflow: 'hidden', whiteSpace: 'nowrap' }),
   };
@@ -30,16 +25,18 @@ export function FocusExamples(props: Props) {
       <div className={css(styles.label, { marginBottom: 14 }).class}>
         Tab / Shift+Tab. Check settled focus, zoom, reduced motion and forced colours.
       </div>
-      <section>
+      <section id='anchor-focus-target' className={styles.example.class}>
         <div className={styles.label.class}>shared outline · Button / Anchor</div>
-        <Button theme={theme.name} enabled={props.enabled}>Button</Button>
-        {' · '}
-        <A {...link}>Anchor</A>
+        <div>
+          <Button theme={theme.name} enabled={props.enabled}>Button</Button>
+          {' · '}
+          <A {...link}>Anchor</A>
+        </div>
       </section>
 
       <div aria-hidden='true' className={styles.divider.class} />
 
-      <section>
+      <section className={styles.example.class}>
         <div className={styles.label.class}>inline · multiline</div>
         <p className={styles.paragraph.class}>
           Before <A {...link}>a longer link that wraps naturally across several lines</A> after.
@@ -48,7 +45,7 @@ export function FocusExamples(props: Props) {
 
       <div aria-hidden='true' className={styles.divider.class} />
 
-      <section>
+      <section className={styles.example.class}>
         <div className={styles.label.class}>clipped host · no layout compensation</div>
         <div className={styles.clipped.class}>
           <A {...link}>A long link inside an overflow-hidden host</A>
@@ -57,7 +54,7 @@ export function FocusExamples(props: Props) {
 
       <div aria-hidden='true' className={styles.divider.class} />
 
-      <section>
+      <section className={styles.example.class}>
         <div className={styles.label.class}>KeyValue · truncated cell</div>
         <KeyValue.UI
           theme={theme.name}
@@ -75,45 +72,50 @@ export function FocusExamples(props: Props) {
 
       <div aria-hidden='true' className={styles.divider.class} />
 
-      <section>
+      <section className={styles.example.class}>
         <div className={styles.label.class}>caller focus · complete replacement</div>
-        <A
-          {...link}
-          style={{ ':focus-visible': { outline: '2px dashed currentColor', outlineOffset: '0px' } }}
-        >
-          Custom outline
-        </A>
+        <div>
+          <A
+            {...link}
+            style={{
+              ':focus-visible': { outline: '2px dashed currentColor', outlineOffset: '0px' },
+            }}
+          >
+            Custom outline
+          </A>
+        </div>
       </section>
 
       <div aria-hidden='true' className={styles.divider.class} />
 
-      <section>
+      <section className={styles.example.class}>
         <div className={styles.label.class}>caller hover animation · hover while tabbing here</div>
-        <A
-          {...link}
-          style={{
-            ':hover': { animation: 'sys-anchor-spec-hover 1s ease-in-out infinite alternate' },
-          }}
-        >
-          Caller-owned text glow
-        </A>
+        <div>
+          <A
+            {...link}
+            style={{
+              ':hover': { animation: 'sys-anchor-spec-hover 1s ease-in-out infinite alternate' },
+            }}
+          >
+            Caller-owned text glow
+          </A>
+        </div>
       </section>
 
       <div aria-hidden='true' className={styles.divider.class} />
 
-      <section>
+      <section className={styles.example.class}>
         <div className={styles.label.class}>native links · Enter / modifier / middle click</div>
-        <A {...link} href='https://example.com' target='_blank'>New tab ↗</A>
-        {' · '}
-        <A {...link} href='/dist.json' download>Download</A>
-        {' · '}
-        <A {...link} enabled={false}>Disabled</A>
-        {' · '}
-        <A href=''>No href</A>
+        <div>
+          <A {...link} href='https://example.com' target='_blank'>New tab ↗</A>
+          {' · '}
+          <A {...link} href='/dist.json' download>Download</A>
+          {' · '}
+          <A {...link} enabled={false}>Disabled</A>
+          {' · '}
+          <A href=''>No href</A>
+        </div>
       </section>
-      <div id='anchor-focus-target' className={css(styles.label, { marginTop: 16 }).class}>
-        Local navigation target
-      </div>
     </div>
   );
 }

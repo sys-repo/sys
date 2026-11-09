@@ -3,34 +3,38 @@ import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.
 import { EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
 
 type P = t.Anchor.Props;
-type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled'> & {
+type Examples = 'none' | 'focus' | 'links';
+export type DebugValues = Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled'> & {
   children?: string;
-  focusExamples: boolean;
+  examples: Examples;
+  /** Undefined selects native Anchor.UI; an object selects Anchor.Link. */
+  link?: Pick<t.Anchor.Link.Props, 'resource' | 'openIn'>;
 };
+/** Old flags are read once, then removed when the union is persisted. */
+type Stored = Partial<DebugValues> & { focusExamples?: boolean; linkExamples?: boolean };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
-const defaults: Storage = {
+const defaults: DebugValues = {
   theme: 'Dark',
   href: EXAMPLE_URL,
   enabled: D.enabled,
   target: D.target,
   download: D.download,
   children: EXAMPLE_URL,
-  focusExamples: false,
+  examples: 'none',
+  link: undefined,
 };
-
-/**
- * Types:
- */
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
  * Signals:
  */
 export function createDebugSignals() {
   const s = Signal.create;
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const store = LocalStorage.immutable<Stored>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const examples = snap.examples ??
+    (snap.linkExamples ? 'links' : snap.focusExamples ? 'focus' : defaults.examples);
 
   const props = {
     theme: s(snap.theme),
@@ -39,7 +43,8 @@ export function createDebugSignals() {
     target: s(snap.target),
     download: s(snap.download === true),
     children: s(snap.children),
-    focusExamples: s(snap.focusExamples ?? defaults.focusExamples),
+    examples: s<Examples>(examples),
+    link: s(snap.link),
   };
   const p = props;
   const api = {
@@ -64,7 +69,10 @@ export function createDebugSignals() {
       d.target = p.target.value;
       d.download = p.download.value ? true : undefined;
       d.children = p.children.value;
-      d.focusExamples = p.focusExamples.value;
+      d.examples = p.examples.value;
+      d.link = p.link.value;
+      delete d.focusExamples;
+      delete d.linkExamples;
     });
   });
 
@@ -100,7 +108,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{`${D.name}, A`}</div>
+      <div className={Styles.title.class}>{v.link ? `${D.name}.Link` : `${D.name}, A`}</div>
 
       <Dev.Button
         block
@@ -133,26 +141,52 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Dev.Button
-        block
-        label={() => {
-          return `target: ${p.target.value ?? `(undefined) ← default: ${D.target}`}`;
-        }}
-        onClick={() => {
-          Signal.cycle<P['target']>(p.target, [undefined, '_blank', '_self', '_parent', '_top']);
-        }}
-      />
-      <Dev.Button
-        block
-        label={() => `download: ${p.download.value} ← default: ${D.download}`}
-        onClick={() => Signal.toggle(p.download)}
-      />
+      {v.link
+        ? (
+          <>
+            <Dev.Button
+              block
+              label={() => `openIn: ${p.link.value?.openIn ?? D.link.openIn}`}
+              onClick={() => {
+                const link = p.link.value;
+                p.link.value = { ...link, openIn: link?.openIn === 'new-tab' ? 'self' : 'new-tab' };
+              }}
+            />
+            <Dev.Button
+              block
+              label={() => `resource: ${p.link.value?.resource ?? '(none)'}`}
+              onClick={() => {
+                const link = p.link.value;
+                p.link.value = { ...link, resource: link?.resource ? undefined : 'web' };
+              }}
+            />
+          </>
+        )
+        : (
+          <>
+            <Dev.Button
+              block
+              label={() => {
+                return `target: ${p.target.value ?? `(undefined) ← default: ${D.target}`}`;
+              }}
+              onClick={() => {
+                const targets = [undefined, '_blank', '_self', '_parent', '_top'];
+                Signal.cycle<P['target']>(p.target, targets);
+              }}
+            />
+            <Dev.Button
+              block
+              label={() => `download: ${p.download.value} ← default: ${D.download}`}
+              onClick={() => Signal.toggle(p.download)}
+            />
+          </>
+        )}
 
       <hr />
       <Dev.Button
         block
-        label={() => `focus examples: ${v.focusExamples}`}
-        onClick={() => Signal.toggle(p.focusExamples)}
+        label={() => `examples: ${v.examples}`}
+        onClick={() => Signal.cycle<Examples>(p.examples, ['none', 'focus', 'links'])}
       />
       <div className={css(Styles.title, { marginTop: 22 }).class}>Sample States:</div>
       <Samples debug={debug} theme={theme.name} />
