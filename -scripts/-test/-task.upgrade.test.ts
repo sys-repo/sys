@@ -1,14 +1,15 @@
 import { describe, expect, expectError, it } from '@sys/testing/server';
 import { PATH, syncPiAgentImport } from '../../code/sys.driver/driver-pi/-scripts/-prep.u.ts';
 import { PI_AGENT_IMPORT_BASE } from '../../code/sys.driver/driver-pi/src/m.cli/u/u.resolve.pkg.ts';
-import { Fs, Is, Str } from '../common.ts';
+import { Fs, Is, Str, type t, Time } from '../common.ts';
 import { main } from '../task.upgrade.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../..');
 const path = PATH.fromRoot(root);
+const success: t.Process.InheritOutput = { success: true, code: 0, signal: null };
 
 describe('scripts/task.upgrade', () => {
-  it('canonical apply → awaits metadata refresh against the newly written dependency', async () => {
+  it('canonical apply → refresh newly written metadata → install from the repository root', async () => {
     const fixture = (await Fs.makeTempDir({ prefix: 'upgrade.pi.' })).absolute;
     const target = PATH.fromRoot(fixture);
     const calls: string[] = [];
@@ -38,9 +39,15 @@ describe('scripts/task.upgrade', () => {
           expect(result.specifier).to.eql(`${PI_AGENT_IMPORT_BASE}@123.456.789`);
           calls.push('refreshed');
         },
+        invoke(input) {
+          expect(input).to.eql({ cmd: Deno.execPath(), args: ['install'], cwd: root });
+          expect(calls).to.eql(['applied', 'refreshed']);
+          calls.push('installed');
+          return Promise.resolve(success);
+        },
       });
       expect(actual).to.equal(applied);
-      expect(calls).to.eql(['applied', 'refreshed']);
+      expect(calls).to.eql(['applied', 'refreshed', 'installed']);
       expect((await Fs.readText(target.resolvePkgFile)).data).to.include(
         "const PI_AGENT_IMPORT_VERSION = '123.456.789' as const;",
       );
@@ -49,13 +56,14 @@ describe('scripts/task.upgrade', () => {
     }
   });
 
-  it('help, dry-run, or another manifest → no metadata refresh', async () => {
+  it('help, dry-run, cancelled selection, or another manifest → no refresh or install', async () => {
     for (const kind of ['help', 'plan', 'bump'] as const) {
       await main([], {
         run: () => Promise.resolve({ kind }),
         refresh: () => {
           throw new Error('Unexpected metadata mutation');
         },
+        invoke: unexpectedInstall,
       });
     }
     await main([], {
@@ -67,6 +75,7 @@ describe('scripts/task.upgrade', () => {
       refresh: () => {
         throw new Error('Unexpected metadata mutation');
       },
+      invoke: unexpectedInstall,
     });
   });
 
@@ -78,6 +87,7 @@ describe('scripts/task.upgrade', () => {
         refresh: () => {
           throw new Error('Unexpected metadata mutation');
         },
+        invoke: unexpectedInstall,
       })
     );
     expect(failedUpgrade).to.equal(failure);
@@ -87,8 +97,62 @@ describe('scripts/task.upgrade', () => {
         run: () =>
           Promise.resolve({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } }),
         refresh: () => Promise.reject(failure),
+        invoke: unexpectedInstall,
       })
     );
     expect(failedRefresh).to.equal(failure);
   });
+
+  it('pending install → upgrade waits for completion', async () => {
+    const install = Promise.withResolvers<t.Process.InheritOutput>();
+    let completed = false;
+    const pending = (async () => {
+      await main([], {
+        run: () =>
+          Promise.resolve({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } }),
+        refresh: () => Promise.resolve(),
+        invoke: () => install.promise,
+      });
+      completed = true;
+    })();
+
+    try {
+      await Time.wait(0);
+      expect(completed).to.eql(false);
+    } finally {
+      install.resolve(success);
+      await pending;
+    }
+    expect(completed).to.eql(true);
+  });
+
+  it('unsuccessful install → upgrade rejects with the exit status and retained-write warning', async () => {
+    const error = await expectError(() =>
+      main([], {
+        run: () =>
+          Promise.resolve({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } }),
+        refresh: () => Promise.resolve(),
+        invoke: () => Promise.resolve({ success: false, code: 17, signal: null }),
+      })
+    );
+    expect(error.message).to.include('deno install failed (exit 17)');
+    expect(error.message).to.include('dependency changes are retained');
+  });
+
+  it('install spawn rejection → propagate the original error', async () => {
+    const failure = new Error('controlled spawn failure');
+    const error = await expectError(() =>
+      main([], {
+        run: () =>
+          Promise.resolve({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } }),
+        refresh: () => Promise.resolve(),
+        invoke: () => Promise.reject(failure),
+      })
+    );
+    expect(error).to.equal(failure);
+  });
 });
+
+function unexpectedInstall(): Promise<t.Process.InheritOutput> {
+  throw new Error('Unexpected dependency installation');
+}
