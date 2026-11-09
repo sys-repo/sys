@@ -14,6 +14,8 @@ import {
 import { Harness } from '../../-test.ui.ts';
 import { SpecLinks, SpecNames } from '../../-u.navigation.ts';
 import { WebAuthnLink } from '../../-ui.Links.tsx';
+import { Color, Schedule } from '../../common.ts';
+import { Style } from '@sys/ui-css';
 import { Specs, specsFor } from '../../../../src/-test/-specs.ts';
 import { createDebugSignals, Debug } from '../-spec.integration/-SPEC.Debug.tsx';
 import { STORAGE_KEY } from '../-spec.integration/common.ts';
@@ -47,10 +49,9 @@ describe('passkey integration scaffold', () => {
     const debug = createViewDebug();
     const res = await TestReact.render(<ViewDebug debug={debug} />);
     try {
-      const link = element(res.container, 'a');
+      const link = assertSpecLink(res.container, 'sample');
       const url = new URL(link.getAttribute('href')!, 'https://example.test/ui/');
       expect(url.searchParams.get('dev')).to.eql(SpecNames.sample);
-      expect(link.getAttribute('target')).to.eql(null);
     } finally {
       React.act(() => res.dispose());
       debug.dispose();
@@ -102,7 +103,7 @@ describe('passkey integration scaffold', () => {
     }
   });
 
-  it('host reference → W3C WebAuthn Recommendation in a secure new tab', async () => {
+  it('host reference → WebAuthn destination, _blank safeguards, and host styling', async () => {
     for (const theme of ['Light', 'Dark'] as const) {
       const res = await TestReact.render(<WebAuthnLink theme={theme} />);
       try {
@@ -112,7 +113,25 @@ describe('passkey integration scaffold', () => {
         const rel = link.getAttribute('rel')?.split(' ');
         expect(rel).to.contain('noopener');
         expect(rel).to.contain('noreferrer');
-        expect(link.getAttribute('title')).to.contain('opens in a new tab');
+        const title = link.getAttribute('title');
+        expect(title).to.eql('Web Authentication Level 3 — W3C specification (opens in a new tab)');
+        expect(link.textContent).to.eql('WebAuthn · W3C');
+        expect(link.querySelectorAll('[aria-hidden="true"] svg').length).to.eql(2);
+        expect(link.querySelectorAll('svg').length).to.eql(2);
+        expect(link.querySelector('div')).to.eql(null);
+        expect(res.container.querySelectorAll('a').length).to.eql(1);
+        expect(link.tabIndex).to.eql(0);
+        expect(link.querySelector('a, button, [tabindex]')).to.eql(null);
+        const hintId = link.getAttribute('aria-describedby')!;
+        const hint = link.ownerDocument.getElementById(hintId)!;
+        expect(hint.textContent).to.eql('Opens in a new tab');
+        expect(hint.hidden).to.eql(true);
+        expect(link.nextElementSibling).to.equal(hint);
+        expect(res.container.querySelectorAll('[hidden]').length).to.eql(1);
+        const rule = Style.Dom.stylesheet().rules.items.find((item) => {
+          return item.selector === `.${link.className}`;
+        });
+        expect(rule?.style).to.include({ color: Color.theme(theme).fg, fontSize: 12 });
       } finally {
         React.act(() => res.dispose());
       }
@@ -125,21 +144,29 @@ describe('passkey integration scaffold', () => {
     debug.props.debug.value = false;
     const res = await TestReact.render(<Debug debug={debug} />);
     try {
-      const link = element(res.container, 'a');
-      expect(link.textContent).to.contain('view:pure');
-      expect(link.getAttribute('href')).to.eql(SpecLinks.view.href);
-      expect(link.getAttribute('target')).to.eql(null);
-      expect(res.container.querySelectorAll('a').length).to.eql(1);
+      const link = assertSpecLink(res.container, 'view');
+      const url = new URL(link.getAttribute('href')!, 'https://example.test/ui/');
+      expect(url.searchParams.get('dev')).to.eql(SpecNames.view);
       expect(res.container.textContent).not.to.contain('Property States');
-      await React.act(async () => press(button(res.container, 'theme: Dark'), 'Enter'));
+      await React.act(async () => {
+        press(button(res.container, 'theme: Dark'), 'Enter');
+        await Schedule.micro();
+      });
       expect(debug.props.theme.value).to.eql('Light');
-      await React.act(async () => press(button(res.container, 'debug: false'), 'Enter'));
+      expect(assertSpecLink(res.container, 'view')).to.equal(link);
+      await React.act(async () => {
+        press(button(res.container, 'debug: false'), 'Enter');
+        await Schedule.micro();
+      });
       expect(debug.props.debug.value).to.eql(true);
       const controls = buttons(res.container);
-      expect(controls.indexOf(button(res.container, 'debug: true'))).to.eql(
-        controls.indexOf(button(res.container, '(reset)')) - 1,
-      );
-      await React.act(async () => press(button(res.container, '(reset)'), 'Enter'));
+      const debugIndex = controls.indexOf(button(res.container, 'debug: true'));
+      const resetIndex = controls.indexOf(button(res.container, '(reset)'));
+      expect(debugIndex).to.eql(resetIndex - 1);
+      await React.act(async () => {
+        press(button(res.container, '(reset)'), 'Enter');
+        await Schedule.micro();
+      });
       expect(debug.props.theme.value).to.eql('Dark');
       expect(debug.props.debug.value).to.eql(false);
     } finally {
@@ -148,3 +175,27 @@ describe('passkey integration scaffold', () => {
     }
   });
 });
+
+/** Consumer DOM/CSS contracts only; browser navigation and focus geometry need visual verification. */
+function assertSpecLink(container: HTMLElement, to: keyof typeof SpecLinks) {
+  const link = element(container, 'a');
+  expect(link.getAttribute('href')).to.eql(SpecLinks[to].href);
+  expect(link.textContent).to.eql(SpecLinks[to].label);
+  expect(link.getAttribute('target')).to.eql('_self');
+  expect(container.querySelectorAll('a').length).to.eql(1);
+  expect(link.querySelectorAll('[aria-hidden="true"] svg').length).to.eql(1);
+  expect(link.querySelectorAll('svg').length).to.eql(1);
+  expect(link.hasAttribute('aria-describedby')).to.eql(false);
+  expect(link.hasAttribute('title')).to.eql(false);
+  expect(link.hasAttribute('download')).to.eql(false);
+  expect(link.tabIndex).to.eql(0);
+  expect(link.querySelector('a, button, [tabindex]')).to.eql(null);
+  const rules = Style.Dom.stylesheet().rules.items;
+  const rule = rules.find((item) => item.selector === `.${link.className}`);
+  expect(rule?.style).to.include({
+    textDecoration: `underline dashed ${Color.alpha(Color.theme('Light').fg, 0.25)}`,
+  });
+  const focus = rules.find((item) => item.selector === `.${link.className}:focus-visible`);
+  expect(focus?.rule).to.include('outline:');
+  return link;
+}

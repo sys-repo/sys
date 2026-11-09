@@ -93,6 +93,7 @@ describe('Passkey diagnostic panel', () => {
           authentication.kind === 'signed-in';
         expect(items.some((item) => item.id === 'actions-divider')).to.eql(hasActions);
         expect(items.some((item) => item.id === 'context-divider')).to.eql(true);
+        expect(items.find((item) => item.id === 'rp-id')).to.include({ k: 'Relying Party ID' });
         if (!hasActions) {
           expect(items.slice(0, 2).map((item) => item.id)).to.eql(['title', 'authentication']);
         }

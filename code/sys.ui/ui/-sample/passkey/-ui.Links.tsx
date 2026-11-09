@@ -1,3 +1,4 @@
+import { Dev } from '@sys/ui-components/react/dev';
 import { Anchor, Color, css, type t } from './common.ts';
 import { SpecLinks } from './-u.navigation.ts';
 
@@ -9,9 +10,9 @@ export const SpecLink: t.FC<SpecLinkProps> = (props) => {
   const link = SpecLinks[props.to];
   const theme = Color.theme();
   return (
-    <Anchor.UI href={link.href} theme={theme.name}>
-      {link.label} <span aria-hidden='true'>→</span>
-    </Anchor.UI>
+    <Dev.Link href={link.href} openIn='self' theme={theme.name}>
+      {link.label}
+    </Dev.Link>
   );
 };
 
@@ -20,14 +21,15 @@ export const WebAuthnLink: t.FC<WebAuthnLinkProps> = (props) => {
   const theme = Color.theme(props.theme);
   const style = css({ color: theme.fg, fontSize: 12 });
   return (
-    <Anchor.UI
+    <Anchor.Link
       href='https://www.w3.org/TR/webauthn-3/'
-      target='_blank'
-      title='Web Authentication Level 3 — W3C Recommendation (opens in a new tab)'
+      resource='web'
+      openIn='new-tab'
+      title='Web Authentication Level 3 — W3C specification (opens in a new tab)'
       theme={theme.name}
       style={style}
     >
-      WebAuthn · W3C <span aria-hidden='true'>↗</span>
-    </Anchor.UI>
+      WebAuthn · W3C
+    </Anchor.Link>
   );
 };

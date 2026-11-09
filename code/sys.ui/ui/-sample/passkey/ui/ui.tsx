@@ -88,7 +88,7 @@ export const Passkey: t.FC<t.Passkey.Props> = (props) => {
     { id: 'context-divider', kind: 'hr' },
     { id: 'context-title', kind: 'title', v: 'Context' },
     { id: 'origin', k: 'Origin', v: value(displayConfig(context.origin, 'Unknown')) },
-    { id: 'rp-id', k: 'RP ID', v: value(displayConfig(context.rpId, 'Not configured')) },
+    { id: 'rp-id', k: 'Relying Party ID', v: value(displayConfig(context.rpId, 'Not configured')) },
     { id: 'web-authn', k: 'WebAuthn', v: value(availabilityText(context.webAuthn)) },
     { id: 'verifier', k: 'Verifier', v: value(availabilityText(context.verifier)) },
   );

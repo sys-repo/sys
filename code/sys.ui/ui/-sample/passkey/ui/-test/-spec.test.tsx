@@ -91,8 +91,9 @@ describe('Passkey harness fixtures', () => {
         return title;
       };
       assertTitleColor(D.name);
+      assertTitleColor('(view:pure)');
       const label = assertTitleColor('Property States');
-      const qualifier = assertTitleColor('(Simulated)');
+      const qualifier = assertTitleColor('(simulated)');
       const title = label.parentElement!;
       expect(qualifier.parentElement).to.equal(title);
       expect(view.getComputedStyle(title).justifyContent).to.eql('space-between');
@@ -101,8 +102,9 @@ describe('Passkey harness fixtures', () => {
       expect(debug.props.theme.value).to.eql('Light');
       expect(res.container.textContent).to.contain('theme: Light');
       assertTitleColor(D.name);
+      assertTitleColor('(view:pure)');
       assertTitleColor('Property States');
-      assertTitleColor('(Simulated)');
+      assertTitleColor('(simulated)');
       assertTitleColor('Action callbacks');
     } finally {
       React.act(() => res.dispose());
@@ -168,7 +170,7 @@ describe('Passkey harness fixtures', () => {
     const res = await TestReact.render(<Debug debug={debug} />);
     try {
       expect(res.container.textContent).to.contain('Property States');
-      expect(res.container.textContent).to.contain('(Simulated)');
+      expect(res.container.textContent).to.contain('(simulated)');
       const selected = () =>
         buttons(res.container)
           .map((el) => el.textContent)

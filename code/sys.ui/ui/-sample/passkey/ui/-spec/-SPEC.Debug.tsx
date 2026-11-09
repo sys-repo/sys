@@ -111,7 +111,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
         <div>{D.name}</div>
-        <div>(Pure)</div>
+        <div>(view:pure)</div>
       </div>
       <div>
         <SpecLink to='sample' />
@@ -126,7 +126,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>
         <div>Property States</div>
-        <div>(Simulated)</div>
+        <div>(simulated)</div>
       </div>
       {Fixtures.map((fixture) => (
         <Dev.Button
