@@ -9,6 +9,7 @@ import {
   expect,
   it,
   LocalStorage,
+  Schedule,
   STORAGE_KEY,
   type t,
   TestReact,
@@ -98,7 +99,10 @@ describe('Passkey harness fixtures', () => {
       expect(qualifier.parentElement).to.equal(title);
       expect(view.getComputedStyle(title).justifyContent).to.eql('space-between');
       assertTitleColor('Action callbacks');
-      await React.act(async () => press(button(res.container, 'theme: Dark'), 'Enter'));
+      await React.act(async () => {
+        press(button(res.container, 'theme: Dark'), 'Enter');
+        await Schedule.micro();
+      });
       expect(debug.props.theme.value).to.eql('Light');
       expect(res.container.textContent).to.contain('theme: Light');
       assertTitleColor(D.name);
@@ -129,16 +133,29 @@ describe('Passkey harness fixtures', () => {
       await React.act(async () => {
         debug.actions.onCreateAccount();
         debug.actions.onSignIn();
+        await Schedule.micro();
       });
       expectIntent('sign-in', 2);
       expect(debug.props.fixture.value.snapshot.authentication.kind).to.eql('signed-out');
-      await React.act(async () => press(toggle, 'Enter'));
+      await React.act(async () => {
+        press(toggle, 'Enter');
+        await Schedule.micro();
+      });
       expectIntent('sign-in', 2);
-      await React.act(async () => debug.select(Fixtures[1]));
+      await React.act(async () => {
+        debug.select(Fixtures[1]);
+        await Schedule.micro();
+      });
       expectIntent('none', 0);
-      await React.act(async () => debug.actions.onAddPasskey());
+      await React.act(async () => {
+        debug.actions.onAddPasskey();
+        await Schedule.micro();
+      });
       expectIntent('add-passkey', 1);
-      await React.act(async () => press(button(res.container, '(reset)'), 'Enter'));
+      await React.act(async () => {
+        press(button(res.container, '(reset)'), 'Enter');
+        await Schedule.micro();
+      });
       expectIntent('none', 0);
     } finally {
       React.act(() => res.dispose());
@@ -155,9 +172,15 @@ describe('Passkey harness fixtures', () => {
       const reset = button(res.container, '(reset)');
       expect(controls.indexOf(toggle)).to.eql(controls.indexOf(reset) - 1);
       const previous = debug.props.debug.value;
-      await React.act(async () => press(toggle, 'Enter'));
+      await React.act(async () => {
+        press(toggle, 'Enter');
+        await Schedule.micro();
+      });
       expect(debug.props.debug.value).to.eql(!previous);
-      await React.act(async () => press(reset, 'Enter'));
+      await React.act(async () => {
+        press(reset, 'Enter');
+        await Schedule.micro();
+      });
       expect(debug.props.debug.value).to.eql(D.debug);
     } finally {
       React.act(() => res.dispose());
@@ -177,16 +200,23 @@ describe('Passkey harness fixtures', () => {
           .filter((label) => label?.includes('🌳'));
       expect(selected()).to.eql(['Signed out 🌳']);
       const failed = button(res.container, 'Add failed; session preserved');
-      await React.act(async () => press(failed, 'Enter'));
+      await React.act(async () => {
+        press(failed, 'Enter');
+        await Schedule.micro();
+      });
       expect(debug.props.fixture.value.id).to.eql('failed-add');
       expect(debug.props.fixture.value.snapshot.authentication.kind).to.eql('signed-in');
       expect(selected()).to.eql(['Add failed; session preserved 🌳']);
-      await React.act(async () =>
-        press(button(res.container, 'callbacks: record intent only'), ' ')
-      );
+      await React.act(async () => {
+        press(button(res.container, 'callbacks: record intent only'), ' ');
+        await Schedule.micro();
+      });
       expect(debug.props.callbacksEnabled.value).to.eql(false);
       expect(res.container.textContent).to.contain('callbacks: not supplied');
-      await React.act(async () => press(button(res.container, '(reset)'), 'Enter'));
+      await React.act(async () => {
+        press(button(res.container, '(reset)'), 'Enter');
+        await Schedule.micro();
+      });
       expect(debug.props.fixture.value.id).to.eql('signed-out');
       expect(debug.props.callbacksEnabled.value).to.eql(true);
       expect(selected()).to.eql(['Signed out 🌳']);
