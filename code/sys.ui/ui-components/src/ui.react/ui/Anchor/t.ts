@@ -47,6 +47,14 @@ export declare namespace Anchor {
     /** Appearance: */
     theme?: t.CommonTheme;
     /**
+     * Enables single-line ellipsis for the whole anchor, not just its label.
+     * Uses inline-block; constrain width with style.width or style.maxWidth.
+     * Full children remain in the DOM, but trailing markers may be clipped.
+     * Caller styles can override truncation. Omitted/false adds no truncation styles.
+     * @default false
+     */
+    truncate?: boolean;
+    /**
      * Uses Button's shared outline recipe and 1px root radius; override radius with `borderRadius`.
      * Customize outline paint with `--sys-anchor-focus-` tokens:
      * `accent`, `rest`, `width`, `offset`. Use explicit CSS lengths for width/offset.

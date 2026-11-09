@@ -43,7 +43,7 @@ describe('@sys/ui-components/react/dev: Dev.Divider', () => {
         expect(rule).to.include(`background-color: ${Color.alpha(Color.theme(theme).fg, 0.1)};`);
         expect(rule).to.include('pointer-events: none;');
 
-        const counts = [4, 6, 11];
+        const counts = [4, 6, 12];
         for (const [index, frame] of frames.entries()) {
           const children = [...frame.children];
           const rules = children.filter((el) => el.getAttribute('aria-hidden') === 'true');

@@ -66,7 +66,7 @@ describe('Anchor spec: shared examples control and presentation', () => {
     try {
       const controls = [...res.container.querySelectorAll<HTMLElement>('[role="button"]')];
       const samples = controls.filter((el) => el.textContent?.startsWith('sample:'));
-      expect(samples.length).to.eql(10);
+      expect(samples.length).to.eql(11);
       for (const mode of ['focus', 'links'] as const) {
         for (const sample of samples) {
           await act(async () => {

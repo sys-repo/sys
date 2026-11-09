@@ -8,7 +8,7 @@ import {
   it,
   TestReact,
 } from '../../../-test.ts';
-import { D, Is, Json, Schedule, Signal } from '../common.ts';
+import { D, Is, Json, LocalStorage, Schedule, Signal, Style } from '../common.ts';
 import type { t } from '../-spec/common.ts';
 import { Root } from '../-spec/-ui.Root.tsx';
 import { EXAMPLE_URL } from '../-spec/-ui.Samples.tsx';
@@ -119,6 +119,168 @@ describe('Anchor spec: sample states', () => {
     }
   });
 
+  it('truncated-link preset → one click selects a long label and a 120px ellipsis constraint', async () => {
+    const res = await setup();
+    const { debug, subject, panel } = res;
+    const longLabel = 'Example website with a longer descriptive label for testing truncation';
+    try {
+      for (const examples of ['none', 'focus', 'links'] as const) {
+        await act(async () => {
+          debug.props.examples.value = examples;
+          debug.props.truncate.value = false;
+          debug.props.maxWidth.value = 320;
+          debug.props.href.value = undefined;
+          debug.props.enabled.value = false;
+          debug.props.download.value = true;
+          debug.props.link.value = { resource: 'web', openIn: 'new-tab' };
+          await Schedule.micro();
+        });
+        await click(panel, 'sample: truncated link');
+        const anchor = subject.querySelector('a')!;
+        expect(subject.firstElementChild).to.equal(anchor);
+        expect(subject.querySelectorAll('a').length).to.eql(1);
+        expect(anchor.textContent).to.eql(longLabel);
+        expect(anchor.getAttribute('href')).to.eql(EXAMPLE_URL);
+        expect(anchor.hasAttribute('aria-disabled')).to.eql(false);
+        expect(anchor.hasAttribute('download')).to.eql(false);
+        const declarations = [
+          'max-width: 120px;',
+          'display: inline-block;',
+          'overflow: hidden;',
+          'white-space: nowrap;',
+          'text-overflow: ellipsis;',
+        ];
+        for (const declaration of declarations) {
+          expect(ruleText(anchor)).to.include(declaration);
+        }
+        expect(labels(panel)).to.include('truncate: true');
+        expect(labels(panel).slice(-2)).to.eql(['maxWidth: 120px', '(reset)']);
+        expect(stored()).to.include({
+          examples: 'none',
+          truncate: true,
+          maxWidth: 120,
+          children: longLabel,
+        });
+        expect(debug.props.link.value).to.eql(undefined);
+      }
+      const reopened = Signal.toObject(debugModule.createDebugSignals().props);
+      expect(reopened).to.include({ truncate: true, maxWidth: 120, children: longLabel });
+      await click(panel, 'truncate: true');
+      const anchor = subject.querySelector('a')!;
+      expect(anchor.textContent).to.eql(longLabel);
+      expect(ruleText(anchor)).not.to.include('max-width:');
+      expect(ruleText(anchor)).not.to.include('text-overflow:');
+    } finally {
+      act(() => res.dispose());
+    }
+  });
+
+  for (const sample of ['sample: default link', 'sample: globe + ↗ (new tab)']) {
+    it(`${sample} → truncation reveals an independent, persisted width control`, async () => {
+      const res = await setup();
+      const { subject, panel } = res;
+      const anchor = () => subject.querySelector('a')!;
+      const hasWidthControl = () => labels(panel).some((label) => label.startsWith('maxWidth:'));
+      try {
+        await click(panel, sample);
+        const label = anchor().textContent;
+        expect(labels(panel)).to.include('truncate: false');
+        expect(hasWidthControl()).to.eql(false);
+        expect(ruleText(anchor())).not.to.include('max-width:');
+
+        await click(panel, 'truncate: false');
+        expect(labels(panel).slice(-2)).to.eql(['maxWidth: none', '(reset)']);
+        expect(anchor().textContent).to.eql(label);
+        expect(ruleText(anchor())).to.include('text-overflow: ellipsis;');
+        expect(ruleText(anchor())).not.to.include('max-width:');
+        const widths = [[undefined, 120], [120, 180], [180, 320], [320, undefined]] as const;
+        for (const [current, next] of widths) {
+          await click(panel, `maxWidth: ${current ? `${current}px` : 'none'}`);
+          expect(labels(panel)).to.include(`maxWidth: ${next ? `${next}px` : 'none'}`);
+          if (next) expect(ruleText(anchor())).to.include(`max-width: ${next}px;`);
+          else expect(ruleText(anchor())).not.to.include('max-width:');
+        }
+        await click(panel, 'maxWidth: none');
+        await click(panel, 'maxWidth: 120px');
+        expect(stored()).to.include({ truncate: true, maxWidth: 180 });
+        const reopened = Signal.toObject(debugModule.createDebugSignals().props);
+        expect(reopened).to.include({ truncate: true, maxWidth: 180 });
+
+        await click(panel, 'truncate: true');
+        expect(hasWidthControl()).to.eql(false);
+        expect(ruleText(anchor())).not.to.include('max-width:');
+        expect(ruleText(anchor())).not.to.include('text-overflow:');
+        expect(stored()).to.include({ truncate: false, maxWidth: 180 });
+        expect(anchor().textContent).to.eql(label);
+        await click(panel, 'truncate: false');
+        expect(labels(panel)).to.include('maxWidth: 180px');
+        expect(ruleText(anchor())).to.include('max-width: 180px;');
+
+        // Selecting another preset preserves these independent exploration controls.
+        await click(panel, 'sample: default link');
+        await click(panel, `children: ${EXAMPLE_URL}`);
+        await click(panel, 'children: link label');
+        const longLabel = 'Example website with a longer descriptive label for testing truncation';
+        expect(anchor().textContent).to.eql(longLabel);
+        expect(ruleText(anchor())).to.include('max-width: 180px;');
+        expect(ruleText(anchor())).to.include('text-overflow: ellipsis;');
+        expect(anchor().getAttribute('href')).to.eql(EXAMPLE_URL);
+        expect(subject.firstElementChild).to.equal(anchor());
+        expect(subject.querySelectorAll('a').length).to.eql(1);
+
+        await click(panel, '(reset)');
+        expect(labels(panel)).to.include(`truncate: ${D.truncate}`);
+        expect(hasWidthControl()).to.eql(false);
+        expect(stored()).to.include({ truncate: D.truncate });
+        expect(stored()).not.to.have.property('maxWidth');
+        expect(ruleText(anchor())).not.to.include('max-width:');
+        expect(ruleText(anchor())).not.to.include('text-overflow:');
+      } finally {
+        act(() => res.dispose());
+      }
+    });
+  }
+
+  it('legacy preferences → truncation defaults without inventing a width constraint', () => {
+    const store = LocalStorage.immutable<Partial<t.DebugValues>>(storageKey, {});
+    const previous = store.current;
+    try {
+      store.reset({ theme: 'Light', href: EXAMPLE_URL });
+      const debug = debugModule.createDebugSignals();
+      expect(Signal.toObject(debug.props)).to.include({
+        theme: 'Light',
+        truncate: D.truncate,
+        maxWidth: undefined,
+      });
+      expect(stored()).to.include({ truncate: D.truncate });
+      expect(stored()).not.to.have.property('maxWidth');
+    } finally {
+      store.reset(previous);
+    }
+  });
+
+  it('single-sample truncation controls leave fixed comparison views unchanged', async () => {
+    const res = await setup();
+    const { subject, panel } = res;
+    try {
+      await click(panel, 'examples: none');
+      for (const mode of ['focus', 'links']) {
+        const before = subject.innerHTML;
+        await click(panel, 'truncate: false');
+        await click(panel, 'maxWidth: none');
+        expect(subject.innerHTML).to.eql(before);
+        await click(panel, 'maxWidth: 120px');
+        await click(panel, 'maxWidth: 180px');
+        await click(panel, 'maxWidth: 320px');
+        await click(panel, 'truncate: true');
+        expect(subject.innerHTML).to.eql(before);
+        await click(panel, `examples: ${mode}`);
+      }
+    } finally {
+      act(() => res.dispose());
+    }
+  });
+
   async function setup() {
     const debug = debugModule.createDebugSignals();
     debug.reset();
@@ -160,4 +322,12 @@ async function click(panel: Element, label: string) {
 
 function stored() {
   return Json.parse<Partial<t.DebugValues>>(localStorage.getItem(storageKey) ?? undefined);
+}
+
+function ruleText(element: Element) {
+  const rule = Style.Dom.stylesheet().rules.items.find((item) => {
+    return item.selector === `.${element.className}`;
+  });
+  if (Is.nil(rule)) throw new Error(`Missing CSS rule: ${element.className}`);
+  return rule.rule;
 }

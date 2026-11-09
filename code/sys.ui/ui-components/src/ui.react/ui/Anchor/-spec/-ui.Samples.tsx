@@ -9,6 +9,8 @@ export type SamplesProps = {
 type P = SamplesProps;
 
 export const EXAMPLE_URL = 'https://example.com';
+export const EXAMPLE_LONG_LABEL =
+  'Example website with a longer descriptive label for testing truncation';
 
 /**
  * Component:
@@ -27,6 +29,8 @@ export const Samples: React.FC<P> = (props) => {
       enabled?: boolean;
       target?: t.Anchor.Target;
       download?: boolean;
+      truncate?: boolean;
+      maxWidth?: t.DebugValues['maxWidth'];
       children?: string;
       link?: t.DebugValues['link'];
     },
@@ -40,6 +44,8 @@ export const Samples: React.FC<P> = (props) => {
           p.enabled.value = next.enabled ?? true;
           p.target.value = next.target;
           p.download.value = next.download ?? false;
+          p.truncate.value = next.truncate ?? p.truncate.value;
+          p.maxWidth.value = next.maxWidth ?? p.maxWidth.value;
           p.children.value = next.children;
           p.link.value = next.link;
           p.examples.value = 'none';
@@ -56,6 +62,12 @@ export const Samples: React.FC<P> = (props) => {
         target: undefined,
         download: false,
         children: EXAMPLE_URL,
+      })}
+      {sample('sample: truncated link', {
+        href: EXAMPLE_URL,
+        children: EXAMPLE_LONG_LABEL,
+        truncate: true,
+        maxWidth: 120,
       })}
       {sample('sample: new tab', {
         href: EXAMPLE_URL,

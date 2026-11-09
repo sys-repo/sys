@@ -1,15 +1,19 @@
 import type React from 'react';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
-import { EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
+import { EXAMPLE_LONG_LABEL, EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
 
 type P = t.Anchor.Props;
 type Examples = 'none' | 'focus' | 'links';
-export type DebugValues = Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled'> & {
-  children?: string;
-  examples: Examples;
-  /** Undefined selects native Anchor.UI; an object selects Anchor.Link. */
-  link?: Pick<t.Anchor.Link.Props, 'resource' | 'openIn'>;
-};
+export type DebugValues =
+  & Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled' | 'truncate'>
+  & {
+    children?: string;
+    /** Harness width constraint, applied only while truncation is enabled. */
+    maxWidth?: 120 | 180 | 320;
+    examples: Examples;
+    /** Undefined selects native Anchor.UI; an object selects Anchor.Link. */
+    link?: Pick<t.Anchor.Link.Props, 'resource' | 'openIn'>;
+  };
 /** Old flags are read once, then removed when the union is persisted. */
 type Stored = Partial<DebugValues> & { focusExamples?: boolean; linkExamples?: boolean };
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
@@ -19,6 +23,8 @@ const defaults: DebugValues = {
   theme: 'Dark',
   href: EXAMPLE_URL,
   enabled: D.enabled,
+  truncate: D.truncate,
+  maxWidth: undefined,
   target: D.target,
   download: D.download,
   children: EXAMPLE_URL,
@@ -40,6 +46,8 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     href: s(snap.href),
     enabled: s(snap.enabled ?? D.enabled),
+    truncate: s(snap.truncate ?? D.truncate),
+    maxWidth: s(snap.maxWidth),
     target: s(snap.target),
     download: s(snap.download === true),
     children: s(snap.children),
@@ -66,6 +74,8 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.href = p.href.value;
       d.enabled = p.enabled.value;
+      d.truncate = p.truncate.value;
+      d.maxWidth = p.maxWidth.value;
       d.target = p.target.value;
       d.download = p.download.value ? true : undefined;
       d.children = p.children.value;
@@ -129,12 +139,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Dev.Button
         block
+        label={() => `truncate: ${v.truncate}`}
+        onClick={() => Signal.toggle(p.truncate)}
+      />
+      <Dev.Button
+        block
         label={() => `children: ${p.children.value ?? '(none)'}`}
         onClick={() => {
           Signal.cycle<string | undefined>(p.children, [
             undefined,
             EXAMPLE_URL,
             'link label',
+            EXAMPLE_LONG_LABEL,
             'plain text (passthrough)',
           ]);
         }}
@@ -194,6 +210,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>Debug</div>
 
+      {v.truncate && (
+        <Dev.Button
+          block
+          label={() => `maxWidth: ${v.maxWidth ? `${v.maxWidth}px` : 'none'}`}
+          onClick={() => {
+            return Signal.cycle<DebugValues['maxWidth']>(p.maxWidth, [undefined, 120, 180, 320]);
+          }}
+        />
+      )}
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
       <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
     </div>

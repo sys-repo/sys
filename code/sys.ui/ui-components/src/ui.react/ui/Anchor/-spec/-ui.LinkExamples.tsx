@@ -16,6 +16,7 @@ export const LinkExamples: t.FC<Props> = (props) => {
     </>
   );
   const longLabel = <>{label} with a longer descriptive label</>;
+  const overflowLabel = <>{label} documentationAndImplementationDetails</>;
   const styles = {
     ...exampleStyles(),
     base: css({ width: 480, color: theme.fg, display: 'grid', fontSize: 14 }),
@@ -129,9 +130,25 @@ export const LinkExamples: t.FC<Props> = (props) => {
       <Dev.Divider theme={theme.name} />
 
       <section aria-label='Clipping' className={styles.example.class}>
-        <div className={styles.label.class}>Clipping test / intentionally cut off at 180px</div>
+        <div className={styles.label.class}>Default link / host clipping / 180px</div>
         <div className={css({ width: 180, overflow: 'hidden', whiteSpace: 'nowrap' }).class}>
-          <Anchor.Link {...native} resource='web'>{longLabel}</Anchor.Link>
+          <Anchor.Link {...native} resource='web'>{overflowLabel}</Anchor.Link>
+        </div>
+      </section>
+
+      <Dev.Divider theme={theme.name} />
+
+      <section aria-label='Ellipsis' className={styles.example.class}>
+        <div className={styles.label.class}>Link ellipsis / 180px</div>
+        <div>
+          <Anchor.Link
+            {...native}
+            resource='web'
+            truncate
+            style={{ width: 180 }}
+          >
+            {overflowLabel}
+          </Anchor.Link>
         </div>
       </section>
     </div>

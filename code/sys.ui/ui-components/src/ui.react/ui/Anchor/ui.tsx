@@ -4,6 +4,13 @@ import { Content } from './ui.Content.tsx';
 
 type AnchorLinkProps = t.Anchor.Props & { href: string };
 
+const truncation: t.CssValue = {
+  display: 'inline-block',
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+};
+
 export const Anchor: t.FC<t.Anchor.Props> = (props) => {
   const href = props.href;
   if (!href) return props.children;
@@ -30,7 +37,7 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
       ':hover': { textDecoration: 'underline solid currentColor' },
     }),
   };
-  const focus = focusStyle(styles.base, style);
+  const focus = focusStyle([styles.base, (props.truncate ?? D.truncate) && truncation], style);
 
   return (
     <a
@@ -82,7 +89,7 @@ const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
 
   return (
     <a
-      className={css(styles.base, style).class}
+      className={css(styles.base, (props.truncate ?? D.truncate) && truncation, style).class}
       href={undefined}
       target={undefined}
       rel={undefined}
