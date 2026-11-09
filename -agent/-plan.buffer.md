@@ -1,6 +1,3 @@
-
-
-
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly
@@ -11,7 +8,25 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
+@sys.ui-components
+link-grammar.plan.md
+- [x] c0f7c7896 feat(ui-components)!: support span roots and CSS sizes in Icon
+- [x] 30bd6589c feat(ui-components): add shared Anchor link grammar
+- [x] b81b4a7d4 fix(ui-components): unify specimen dividers with Dev.Divider
+- [x] d990e2068 fix(ui-components): respect theme in Run focus specimen
+- [x] 31ae324da feat(ui-components): add opt-in Anchor truncation
+- [x] 60ceb95be feat(ui-components): expose Dev.Link alias
+- [x] a19bbeb85 feat(ui): adopt shared Passkey links and refine specimen labels
 
+
+
+@sys.ui
+passkey-panel.plan.md
+- [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
+- [x] 1e48de614 style(ui): refine passkey debug panel labels and intent spacing
+- [ ] chore(ui): scaffold passkey integration spec and view navigation
+- [ ] feat(ui): add passkey integration specimen and view navigation
+- [ ] feat(ui): connect real passkey operations in sample
   
 
 @sys
@@ -22,12 +37,6 @@ deno-api-containment.plan.md
 - [ ] docs(sys): design capability-sized Deno containment migrations
 
 
-@sys.ui
-passkey-panel.plan.md
-- [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
-- [ ] chore(ui): scaffold stateful passkey sample
-- [ ] feat(ui): add passkey sample orchestration
-- [ ] feat(ui): add live passkey sample harness
 
 
 
