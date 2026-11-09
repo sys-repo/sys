@@ -9,7 +9,15 @@ export declare namespace Dev {
     readonly Button: t.FC<Button.Props>;
     readonly Divider: t.FC<Divider.Props>;
     readonly ObjectView: t.FC<ObjectView.Props>;
+    readonly Link: t.FC<Link.Props>;
   };
+
+  /**
+   * Literal alias of Anchor.Link, without added defaults or behavior.
+   */
+  export namespace Link {
+    export type Props = t.Anchor.Link.Props;
+  }
 
   /**
    * The existing object inspector, without added defaults or behavior.
