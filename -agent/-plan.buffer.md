@@ -8,17 +8,6 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
-@sys.ui-components
-link-grammar.plan.md
-- [x] c0f7c7896 feat(ui-components)!: support span roots and CSS sizes in Icon
-- [x] 30bd6589c feat(ui-components): add shared Anchor link grammar
-- [x] b81b4a7d4 fix(ui-components): unify specimen dividers with Dev.Divider
-- [x] d990e2068 fix(ui-components): respect theme in Run focus specimen
-- [x] 31ae324da feat(ui-components): add opt-in Anchor truncation
-- [x] 60ceb95be feat(ui-components): expose Dev.Link alias
-- [x] a19bbeb85 feat(ui): adopt shared Passkey links and refine specimen labels
-
-
 
 @sys.ui
 passkey-panel.plan.md
