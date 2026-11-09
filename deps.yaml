@@ -21,20 +21,20 @@ deno.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.67.4
+  - import: npm:rollup@4.68.0
     dev: true
-  - import: npm:vite@8.3.5
+  - import: npm:vite@8.3.6
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
-  - import: npm:rollup-plugin-visualizer@7.1.1
+  - import: npm:rollup-plugin-visualizer@7.1.2
     dev: true
   - import: npm:magic-string@1.4.5
     dev: true
   - import: npm:@oxc-project/runtime@0.157.0
     dev: true
     subpaths: [ helpers/usingCtx ]
-  - import: npm:parse5@8.1.0
+  - import: npm:parse5@8.1.1
   - import: npm:@noble/hashes@2.4.0
     subpaths: [ legacy.js, sha2.js ]
   - import: npm:@sinclair/typebox-codegen@0.11.1
@@ -55,7 +55,7 @@ deno.json:
   - import: npm:prosemirror-schema-basic@1.2.5
   - import: npm:yaml@2.9.1
   - import: npm:mdast-util-from-markdown@2.1.0
-  - import: npm:mdast-util-to-markdown@2.2.1
+  - import: npm:mdast-util-to-markdown@2.2.3
   - import: npm:mdast-util-gfm@3.1.0
   - import: npm:mdast-util-to-hast@13.2.1
   - import: npm:hast-util-sanitize@5.0.2
@@ -76,13 +76,13 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.14.6
   - import: npm:hash-it@7.1.1
-  - import: npm:hono@4.13.16
+  - import: npm:hono@4.13.17
     subpaths: [ cors, types ]
   - import: npm:ignore@7.0.14
   - import: npm:ora@9.4.1
   - import: npm:@earendil-works/pi-coding-agent@0.85.1
   - import: npm:@standard-schema/spec@1.1.0
-  - import: npm:typebox@1.4.3
+  - import: npm:typebox@1.4.5
     subpaths: [ error, value ]
   - import: npm:@preact/signals-core@1.14.5
   - import: npm:pretty-bytes@7.2.0
@@ -109,20 +109,20 @@ package.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.67.4
+  - import: npm:rollup@4.68.0
     dev: true
-  - import: npm:vite@8.3.5
+  - import: npm:vite@8.3.6
     dev: true
   - import: npm:vite-plugin-wasm@3.6.0
     dev: true
-  - import: npm:rollup-plugin-visualizer@7.1.1
+  - import: npm:rollup-plugin-visualizer@7.1.2
     dev: true
   - import: npm:magic-string@1.4.5
     dev: true
   - import: npm:@oxc-project/runtime@0.157.0
     dev: true
     subpaths: [ helpers/usingCtx ]
-  - import: npm:parse5@8.1.0
+  - import: npm:parse5@8.1.1
   - import: npm:@automerge/automerge-repo@2.5.6
   - import: npm:monaco-editor@0.57.0
   - import: npm:react-icons@5.7.0
