@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { Color, css, type t } from './common.ts';
+import { Color, css, Dev, type t } from './common.ts';
 import { Anchor } from '../mod.ts';
 import { exampleStyles } from './-u.exampleStyles.ts';
 
@@ -9,15 +9,15 @@ type Kind = 'plain' | 'arrow-only' | 'resource-plus-arrow';
 /** Bounded visual/keyboard/AT specimens, not a claim of browser or accessibility proof. */
 export const LinkExamples: t.FC<Props> = (props) => {
   const theme = Color.theme(props.theme);
-  const native = { theme: theme.name, enabled: props.enabled, href: '#anchor-link-destination' };
+  const native = { theme: theme.name, enabled: props.enabled, href: 'https://example.com' };
   const label = (
     <>
-      Read the <strong>WebAuthn</strong> specification
+      <strong>Example</strong> website
     </>
   );
   const longLabel = <>{label} with a longer descriptive label</>;
   const styles = {
-    ...exampleStyles(theme.fg),
+    ...exampleStyles(),
     base: css({ width: 480, color: theme.fg, display: 'grid', fontSize: 14 }),
     prose: css({ margin: 0 }),
   };
@@ -39,9 +39,8 @@ export const LinkExamples: t.FC<Props> = (props) => {
     <div className={styles.base.class}>
       {(['plain', 'arrow-only', 'resource-plus-arrow'] as const).map((kind, index) => (
         <Fragment key={kind}>
-          {index > 0 && <div aria-hidden='true' className={styles.divider.class} />}
+          {index > 0 && <Dev.Divider theme={theme.name} />}
           <section
-            id={index === 0 ? 'anchor-link-destination' : undefined}
             aria-label={`${kind} / standalone`}
             className={styles.example.class}
           >
@@ -49,36 +48,38 @@ export const LinkExamples: t.FC<Props> = (props) => {
             <div>{link(kind)}</div>
           </section>
 
-          <div aria-hidden='true' className={styles.divider.class} />
+          <Dev.Divider theme={theme.name} />
 
           <section aria-label={`${kind} / prose`} className={styles.example.class}>
             <div className={styles.label.class}>{`${kind} / prose`}</div>
-            <p className={styles.prose.class}>Before {link(kind)} and after the reference.</p>
+            <p className={styles.prose.class}>See the {link(kind)} for more information.</p>
           </section>
         </Fragment>
       ))}
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section aria-label='Wrapping' className={styles.example.class}>
         <div className={styles.label.class}>Rich label / constrained wrapping</div>
         <p className={css(styles.prose, { maxWidth: 240 }).class}>
-          Before <Anchor.Link {...native} resource='web'>{longLabel}</Anchor.Link> after.
+          See the <Anchor.Link {...native} resource='web'>{longLabel}</Anchor.Link>{' '}
+          for more information.
         </p>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section aria-label='RTL and host size' className={styles.example.class}>
         <div className={styles.label.class}>
           RTL container / 12px host / logical marker positions
         </div>
         <p dir='rtl' className={css(styles.prose, { fontSize: 12, maxWidth: 180 }).class}>
-          Before <Anchor.Link {...native} resource='web'>{label}</Anchor.Link> after.
+          See the <Anchor.Link {...native} resource='web'>{label}</Anchor.Link>{' '}
+          for more information.
         </p>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section aria-label='Opening help' className={styles.example.class}>
         <div className={styles.label.class}>
@@ -99,7 +100,7 @@ export const LinkExamples: t.FC<Props> = (props) => {
         </div>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section aria-label='Unavailable references' className={styles.example.class}>
         <div className={styles.label.class}>Disabled resource / missing destination</div>
@@ -114,7 +115,7 @@ export const LinkExamples: t.FC<Props> = (props) => {
         </div>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section aria-label='Caller focus' className={styles.example.class}>
         <div className={styles.label.class}>Caller focus clear</div>
@@ -125,7 +126,7 @@ export const LinkExamples: t.FC<Props> = (props) => {
         </div>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section aria-label='Clipping' className={styles.example.class}>
         <div className={styles.label.class}>Clipping test / intentionally cut off at 180px</div>

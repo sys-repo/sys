@@ -34,12 +34,12 @@ describe('Anchor spec: link grammar', () => {
           expect(divider.hasAttribute('tabindex')).to.eql(false);
           expect(divider.childElementCount).to.eql(0);
           expect(declarations(divider)).to.include({
-            height: 3,
+            height: 5,
             backgroundColor: Color.alpha(Color.theme(theme).fg, 0.1),
             marginTop: 14,
-            marginRight: -10,
+            marginRight: -25,
             marginBottom: 10,
-            marginLeft: -10,
+            marginLeft: -25,
             pointerEvents: 'none',
           });
         }
@@ -66,10 +66,10 @@ describe('Anchor spec: link grammar', () => {
               expect(section.querySelector('p a')).to.equal(link);
               expect(declarations(section.querySelector('p')!)).not.to.have.property('maxWidth');
             }
-            expect(link.textContent).to.eql('Read the WebAuthn specification');
+            expect(link.textContent).to.eql('Example website');
             expect(link.getAttribute('target')).to.eql(target);
             expect(link.querySelectorAll('[aria-hidden="true"]').length).to.eql(count);
-            expect(link.querySelector('strong')?.textContent).to.eql('WebAuthn');
+            expect(link.querySelector('strong')?.textContent).to.eql('Example');
             expect(link.textContent).not.to.contain(D.link.openHint);
             expect(link.querySelector('div')).to.eql(null);
           }
@@ -88,12 +88,13 @@ describe('Anchor spec: link grammar', () => {
           overflow: 'hidden',
           whiteSpace: 'nowrap',
         });
-        const destination = frame.querySelector('#anchor-link-destination')!;
-        const destinationLink = destination.querySelector('a');
-        expect(destination).to.equal(sections[0]);
-        expect(destinationLink?.getAttribute('href')).to.eql('#anchor-link-destination');
-        expect(destination.hasAttribute('tabindex')).to.eql(false);
-        expect(frame.textContent).not.to.include('Local links land here.');
+        const navigableLinks = [...frame.querySelectorAll('a[href]')];
+        expect(navigableLinks.length).to.eql(12);
+        for (const link of navigableLinks) {
+          expect(link.getAttribute('href')).to.eql('https://example.com');
+        }
+        expect(frame.querySelector('#anchor-link-destination')).to.eql(null);
+        expect(frame.textContent).not.to.include('WebAuthn');
         expect(frame.querySelector('a[title=""]')?.hasAttribute('aria-describedby')).to.eql(true);
       } finally {
         act(() => res.dispose());

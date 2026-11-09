@@ -1,6 +1,6 @@
 import { MdNorthEast } from 'react-icons/md';
 import { Icon } from '../../Icon/mod.ts';
-import { Color, css, type t } from '../common.ts';
+import { Color, css, Dev, type t } from './common.ts';
 import { Button } from '../mod.ts';
 import { RunLabel, runLabelFocus } from './-ui.RunLabel.tsx';
 
@@ -17,15 +17,9 @@ export function FocusExamples(props: FocusExamplesProps) {
   const styles = {
     base: css({ display: 'grid', color: theme.fg }),
     example: css({ display: 'grid', justifyItems: 'start', gap: '10px' }),
-    label: css({ fontSize: 12, opacity: 0.25, marginTop: 2 }),
+    label: css({ fontSize: 12, opacity: 0.25 }),
     openLabel: css({ display: 'inline-flex', alignItems: 'center', gap: 4 }),
     icon: css({ display: 'grid' }),
-    divider: css({
-      Margin: [14, -10, 0, -10],
-      height: 1,
-      backgroundColor: Color.alpha(theme.fg, 0.1),
-      pointerEvents: 'none',
-    }),
   };
   const buttonProps = { ...props, theme: theme.name };
   const child = runLabelFocus('--run-arrival');
@@ -37,7 +31,7 @@ export function FocusExamples(props: FocusExamplesProps) {
         <Button {...buttonProps}>👋 Hello Button</Button>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>default · rounded / icon</div>
@@ -51,7 +45,7 @@ export function FocusExamples(props: FocusExamplesProps) {
         </Button>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>custom root · complete focus block</div>
@@ -67,7 +61,7 @@ export function FocusExamples(props: FocusExamplesProps) {
         </Button>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>child-owned · css inheritance through a wrapper</div>
@@ -85,7 +79,7 @@ export function FocusExamples(props: FocusExamplesProps) {
         </Button>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>shared arrival · child-owned through a wrapper</div>

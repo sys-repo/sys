@@ -7,6 +7,7 @@ export declare namespace Dev {
   export type Lib = {
     readonly Help: t.DevHelp.Lib;
     readonly Button: t.FC<Button.Props>;
+    readonly Divider: t.FC<Divider.Props>;
     readonly ObjectView: t.FC<ObjectView.Props>;
   };
 
@@ -17,7 +18,9 @@ export declare namespace Dev {
     export type Props = t.ObjectViewProps;
   }
 
-  /** A neutral debug-row frame around the production Button. */
+  /**
+   * A neutral debug-row frame around the production Button.
+   */
   export namespace Button {
     /**
      * Forwarded unchanged to Button, including original style input.
@@ -27,6 +30,19 @@ export declare namespace Dev {
      * panel; larger custom outlines need their own clearance. Font size is inherited.
      */
     export type Props = t.Button.Props;
+  }
+
+  /**
+   * Decorative specimen break, not a semantic thematic break or interactive separator.
+   */
+  export namespace Divider {
+    /**
+     * Defaults to a 5px rule at 0.1 foreground alpha, extending 25px past each horizontal edge.
+     * Owns 14px top / 10px bottom spacing; the host must allow the overhang.
+     * Caller style composes last using css; raw undefined declarations clear matching defaults.
+     * Margin: undefined does not clear expanded margins; pre-transforming style can discard clears.
+     */
+    export type Props = { theme?: t.CommonTheme; style?: t.CssInput };
   }
 
   /**

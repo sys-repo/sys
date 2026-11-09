@@ -198,7 +198,7 @@ describe('Button spec: view', () => {
         ]);
         expect(ruleText(frame)).not.to.include('gap:');
         for (const title of titles) {
-          expect(ruleText(title)).to.include('margin-top: 2px;');
+          expect(ruleText(title)).not.to.include('margin-top:');
         }
 
         const open = button(sections[1]);
@@ -216,11 +216,11 @@ describe('Button spec: view', () => {
           expect(divider.getAttribute('tabindex')).to.eql(null);
           const rule = ruleText(divider);
           expect(rule).to.include(`background-color: ${Color.alpha(Color.theme(theme).fg, 0.1)};`);
-          expect(rule).to.include('height: 1px;');
-          expect(rule).to.include('margin-left: -10px;');
-          expect(rule).to.include('margin-right: -10px;');
+          expect(rule).to.include('height: 5px;');
+          expect(rule).to.include('margin-left: -25px;');
+          expect(rule).to.include('margin-right: -25px;');
           expect(rule).to.include('margin-top: 14px;');
-          expect(rule).to.include('margin-bottom: 0px;');
+          expect(rule).to.include('margin-bottom: 10px;');
           expect(rule).to.include('pointer-events: none;');
         }
       } finally {

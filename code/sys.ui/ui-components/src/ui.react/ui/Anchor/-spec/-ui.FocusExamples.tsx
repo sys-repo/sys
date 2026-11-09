@@ -1,7 +1,7 @@
 import { Button } from '../../Button/mod.ts';
 import { KeyValue } from '../../KeyValue/mod.ts';
-import { Color, css, Style, type t } from './common.ts';
-import { A } from '../mod.ts';
+import { Color, css, Dev, Style, type t } from './common.ts';
+import { A, Anchor } from '../mod.ts';
 import { exampleStyles } from './-u.exampleStyles.ts';
 
 type Props = Pick<t.Anchor.Props, 'theme' | 'enabled'>;
@@ -11,7 +11,7 @@ export function FocusExamples(props: Props) {
   const theme = Color.theme(props.theme);
   const link = { theme: theme.name, enabled: props.enabled, href: '#anchor-focus-target' };
   const styles = {
-    ...exampleStyles(theme.fg),
+    ...exampleStyles(),
     base: css({ display: 'grid', width: 360, color: theme.fg }),
     paragraph: css({ margin: 0, width: 220 }),
     clipped: css({ width: 220, overflow: 'hidden', whiteSpace: 'nowrap' }),
@@ -34,7 +34,7 @@ export function FocusExamples(props: Props) {
         </div>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>inline · multiline</div>
@@ -43,7 +43,7 @@ export function FocusExamples(props: Props) {
         </p>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>clipped host · no layout compensation</div>
@@ -52,7 +52,7 @@ export function FocusExamples(props: Props) {
         </div>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>KeyValue · truncated cell</div>
@@ -70,7 +70,7 @@ export function FocusExamples(props: Props) {
         />
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>caller focus · complete replacement</div>
@@ -86,7 +86,7 @@ export function FocusExamples(props: Props) {
         </div>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>caller hover animation · hover while tabbing here</div>
@@ -102,12 +102,14 @@ export function FocusExamples(props: Props) {
         </div>
       </section>
 
-      <div aria-hidden='true' className={styles.divider.class} />
+      <Dev.Divider theme={theme.name} />
 
       <section className={styles.example.class}>
         <div className={styles.label.class}>native links · Enter / modifier / middle click</div>
         <div>
-          <A {...link} href='https://example.com' target='_blank'>New tab ↗</A>
+          <Anchor.Link {...link} href='https://example.com' openIn='new-tab'>
+            New tab
+          </Anchor.Link>
           {' · '}
           <A {...link} href='/dist.json' download>Download</A>
           {' · '}

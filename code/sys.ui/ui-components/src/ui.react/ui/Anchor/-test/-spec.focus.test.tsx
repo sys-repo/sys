@@ -47,12 +47,12 @@ describe('Anchor spec: focus examples', () => {
           expect(divider.hasAttribute('tabindex')).to.eql(false);
           expect(divider.childElementCount).to.eql(0);
           expect(declarations(divider)).to.include({
-            height: 3,
+            height: 5,
             backgroundColor: Color.alpha(Color.theme(theme).fg, 0.1),
             marginTop: 14,
-            marginRight: -10,
+            marginRight: -25,
             marginBottom: 10,
-            marginLeft: -10,
+            marginLeft: -25,
             pointerEvents: 'none',
           });
         }
@@ -78,6 +78,13 @@ describe('Anchor spec: focus examples', () => {
       expect(cell?.getAttribute('target')).to.eql(null);
       const external = res.container.querySelector<HTMLAnchorElement>('a[target="_blank"]')!;
       expect(external.rel).to.eql('noopener noreferrer');
+      expect(external.getAttribute('href')).to.eql('https://example.com');
+      expect(external.textContent).to.eql('New tab');
+      expect(external.querySelectorAll('span[aria-hidden="true"] svg').length).to.eql(1);
+      const hint = external.nextElementSibling!;
+      expect(hint.hasAttribute('hidden')).to.eql(true);
+      expect(hint.textContent).to.eql('Opens in a new tab');
+      expect(external.getAttribute('aria-describedby')).to.eql(hint.id);
       expect(res.container.querySelector('a[download]')?.getAttribute('href')).to.eql('/dist.json');
       const disabled = res.container.querySelector<HTMLAnchorElement>('a[aria-disabled="true"]')!;
       expect(disabled.hasAttribute('href')).to.eql(false);
@@ -89,6 +96,23 @@ describe('Anchor spec: focus examples', () => {
       expect(target.hasAttribute('tabindex')).to.eql(false);
       expect(res.container.textContent).not.to.include('Local navigation target');
       // Rendering/attributes only: browser layout, focus heuristics and navigation remain manual proof.
+    } finally {
+      act(() => res.dispose());
+    }
+  });
+
+  it('disabling the examples removes the new-tab marker, hint, and navigation', async () => {
+    const res = await TestReact.render(<FocusExamples theme='Dark' enabled={false} />);
+    try {
+      const links = [...res.container.querySelectorAll<HTMLAnchorElement>('a')];
+      const external = links.find((el) => el.textContent === 'New tab')!;
+      expect(external.getAttribute('aria-disabled')).to.eql('true');
+      expect(external.tabIndex).to.eql(-1);
+      expect(external.hasAttribute('href')).to.eql(false);
+      expect(external.hasAttribute('target')).to.eql(false);
+      expect(external.hasAttribute('aria-describedby')).to.eql(false);
+      expect(external.querySelector('svg')).to.eql(null);
+      expect(res.container.querySelector('[hidden]')).to.eql(null);
     } finally {
       act(() => res.dispose());
     }
