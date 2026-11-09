@@ -324,39 +324,41 @@ describe('Button: focus styling', () => {
     }
   });
 
-  it('shared child arrival uses host activation, keeps its own animation and retains DOM identity', async () => {
-    const res = await TestReact.render(<FocusExamples />);
-    try {
-      const root = res.container.querySelectorAll<HTMLElement>('[role="button"]')[4];
-      const base = ruleText(root);
-      const focus = ruleText(root, ':focus-visible');
-      expect(base).to.include('--run-arrival: none;');
-      expect(base).to.include('--run-arrival-visible: 0;');
-      expect(focus).to.include('--run-arrival: sys-focus-arrival-outline;');
-      expect(focus).to.include('--run-arrival-visible: 1;');
-      expect(mediaRules(root)).to.eql([]);
+  for (const theme of [undefined, 'Light', 'Dark'] as const) {
+    it(`${theme ?? 'default'}: shared child arrival retains themed paint, host activation and DOM identity`, async () => {
+      const res = await TestReact.render(<FocusExamples theme={theme} />);
+      try {
+        const root = res.container.querySelectorAll<HTMLElement>('[role="button"]')[4];
+        const base = ruleText(root);
+        const focus = ruleText(root, ':focus-visible');
+        expect(base).to.include('--run-arrival: none;');
+        expect(base).to.include('--run-arrival-visible: 0;');
+        expect(focus).to.include('--run-arrival: sys-focus-arrival-outline;');
+        expect(focus).to.include('--run-arrival-visible: 1;');
+        expect(mediaRules(root)).to.eql([]);
 
-      const indicator = root.querySelector<HTMLElement>('[aria-hidden="true"]')!;
-      const rule = ruleText(indicator);
-      expect(indicator.parentElement?.parentElement?.tagName).to.eql('DIV');
-      expect(rule).to.include('--sys-focus-animation: var(--run-arrival, none);');
-      expect(rule).to.include('opacity: var(--run-arrival-visible, 0);');
-      expect(rule).to.include('220ms ease-out 70ms 1 normal backwards');
-      expect(rule).to.include(`--sys-focus-arrival-outline: ${Color.BLUE};`);
-      expect(rule).to.include(`outline: 2px solid ${Color.alpha(Color.WHITE, 0.3)};`);
-      expect(mediaRules(indicator).length).to.eql(3);
+        const indicator = root.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+        const rule = ruleText(indicator);
+        expect(indicator.parentElement?.parentElement?.tagName).to.eql('DIV');
+        expect(rule).to.include('--sys-focus-animation: var(--run-arrival, none);');
+        expect(rule).to.include('opacity: var(--run-arrival-visible, 0);');
+        expect(rule).to.include('220ms ease-out 70ms 1 normal backwards');
+        expect(rule).to.include(`--sys-focus-arrival-outline: ${Color.BLUE};`);
+        expect(rule).to.include(`outline: 2px solid ${Color.alpha(Color.theme(theme).fg, 0.3)};`);
+        expect(mediaRules(indicator).length).to.eql(3);
 
-      React.act(() => root.focus());
-      key(root, 'keydown', ' ');
-      key(root, 'keyup', ' ');
-      React.act(() => root.blur());
-      React.act(() => root.focus());
-      expect(root.querySelector('[aria-hidden="true"]')).to.equal(indicator);
-      // DOM identity and generated declarations do not prove browser animation replay.
-    } finally {
-      React.act(() => res.dispose());
-    }
-  });
+        React.act(() => root.focus());
+        key(root, 'keydown', ' ');
+        key(root, 'keyup', ' ');
+        React.act(() => root.blur());
+        React.act(() => root.focus());
+        expect(root.querySelector('[aria-hidden="true"]')).to.equal(indicator);
+        // DOM identity and generated declarations do not prove browser animation replay.
+      } finally {
+        React.act(() => res.dispose());
+      }
+    });
+  }
 
   it('renders the animated child independently through a neutral host with caller-owned animation', async () => {
     const child = runLabelFocus('--independent-focus');

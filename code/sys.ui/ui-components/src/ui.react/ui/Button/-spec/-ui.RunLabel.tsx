@@ -11,11 +11,6 @@ const staticOutline: t.Style.Props = {
   outline: '2px solid currentColor',
   outlineOffset: '2px',
 };
-const paint: t.FocusStyle.Paint = {
-  arrival: { outlineColor: Color.BLUE },
-  settled: { ...staticOutline, outline: `2px solid ${Color.alpha(Color.WHITE, 0.3)}` },
-  forcedColors: { outline: '2px solid Highlight', outlineOffset: '2px' },
-};
 
 /** Independent presentation: accepts a CSS value or final indicator class, never focus state. */
 export function RunLabel(props: {
@@ -37,6 +32,12 @@ export function RunLabel(props: {
 }
 
 /** Child-owned paint; the composition site binds native host focus using the returned declarations. */
-export function runLabelFocus(via: `--${string}`) {
+export function runLabelFocus(via: `--${string}`, theme?: t.CommonTheme) {
+  const { fg } = Color.theme(theme);
+  const paint: t.FocusStyle.Paint = {
+    arrival: { outlineColor: Color.BLUE },
+    settled: { ...staticOutline, outline: `2px solid ${Color.alpha(fg, 0.3)}` },
+    forcedColors: { outline: '2px solid Highlight', outlineOffset: '2px' },
+  };
   return FocusStyle.compose({ base: indicator, paint, via });
 }

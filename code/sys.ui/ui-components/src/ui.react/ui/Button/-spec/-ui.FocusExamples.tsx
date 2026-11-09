@@ -22,7 +22,7 @@ export function FocusExamples(props: FocusExamplesProps) {
     icon: css({ display: 'grid' }),
   };
   const buttonProps = { ...props, theme: theme.name };
-  const child = runLabelFocus('--run-arrival');
+  const child = runLabelFocus('--run-arrival', theme.name);
 
   return (
     <div className={styles.base.class}>
