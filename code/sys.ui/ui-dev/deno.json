@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-dev",
-  "version": "0.0.368",
+  "version": "0.0.369",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -A   ./-scripts/task.main.ts --cmd=dev    --in=./src/ui.react.devharness/index.html --port=1236",
@@ -55,3 +55,4 @@
     }
   }
 }
+

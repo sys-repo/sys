@@ -1,6 +1,6 @@
 {
   "name": "@tdb/edu-slug",
-  "version": "0.0.186",
+  "version": "0.0.187",
   "license": "CC-BY-4.0",
   "tasks": {
     "dev": "deno run -A ./-scripts/-vite.ts --cmd=dev --in=./src/index.html",
@@ -52,3 +52,4 @@
     }
   }
 }
+

@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-automerge",
-  "version": "0.0.336",
+  "version": "0.0.337",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -A   ./-scripts/task.main.ts --cmd=dev    --in=./src/index.html",
@@ -62,3 +62,4 @@
     }
   }
 }
+

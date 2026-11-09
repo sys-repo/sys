@@ -1,6 +1,6 @@
 {
   "name": "@tdb/slc-std",
-  "version": "0.0.161",
+  "version": "0.0.162",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -A ./-scripts/-vite.ts --cmd=dev --in=./src/index.html",
@@ -50,3 +50,4 @@
     }
   }
 }
+

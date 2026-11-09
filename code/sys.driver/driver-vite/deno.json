@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-vite",
-  "version": "0.0.480",
+  "version": "0.0.481",
   "license": "MIT",
   "tasks": {
     "ci": "deno task check && deno task test && deno task test:proofs && deno task test:external && deno task clean",
@@ -65,11 +65,23 @@
     ]
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "entry-serve-proof": {
-      "read": ["./.tmp/entry-serve-proof/dist"],
-      "net": ["127.0.0.1:0"],
-      "env": ["FORCE_COLOR", "TERM", "TERM_PROGRAM"]
+      "read": [
+        "./.tmp/entry-serve-proof/dist"
+      ],
+      "net": [
+        "127.0.0.1:0"
+      ],
+      "env": [
+        "FORCE_COLOR",
+        "TERM",
+        "TERM_PROGRAM"
+      ]
     },
     "test": {
       "read": true,
@@ -79,7 +91,15 @@
       "run": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     },
     "dev": {
@@ -90,8 +110,17 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     }
   }
 }
+

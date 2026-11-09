@@ -1,6 +1,6 @@
 {
   "name": "@sample/r2",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "MIT",
   "private": true,
   "tasks": {
@@ -20,18 +20,32 @@
     "./t": "./src/types.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
     "push": {
       "read": true,
       "write": true,
       "env": true,
-      "net": ["1e6ec0395407e49eef7ee54f667d61de.r2.cloudflarestorage.com:443"]
+      "net": [
+        "1e6ec0395407e49eef7ee54f667d61de.r2.cloudflarestorage.com:443"
+      ]
     },
     "serve": {
       "read": true,
       "env": true,
-      "net": ["127.0.0.1:8080", "1e6ec0395407e49eef7ee54f667d61de.r2.cloudflarestorage.com:443"]
+      "net": [
+        "127.0.0.1:8080",
+        "1e6ec0395407e49eef7ee54f667d61de.r2.cloudflarestorage.com:443"
+      ]
     }
   }
 }
+

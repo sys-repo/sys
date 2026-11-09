@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@tdb/data',
-  version: '0.0.118',
+  version: '0.0.119',
 });

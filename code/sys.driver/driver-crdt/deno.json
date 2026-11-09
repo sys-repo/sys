@@ -1,6 +1,6 @@
 {
   "name": "@sys/driver-crdt",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "exports": {},
   "tasks": {
@@ -13,7 +13,17 @@
     "probe:repo": "deno run -P=probe --frozen ./src/-test/u/u.probe.repo.ts"
   },
   "permissions": {
-    "test": { "read": true, "env": true, "run": ["deno"] },
-    "probe": { "read": true, "env": true }
+    "test": {
+      "read": true,
+      "env": true,
+      "run": [
+        "deno"
+      ]
+    },
+    "probe": {
+      "read": true,
+      "env": true
+    }
   }
 }
+
