@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
-import { type t } from '../common.ts';
+import { Bullet, type t } from '../common.ts';
 import { BulletList } from '../mod.ts';
 import { key } from '../../Button/-test/u.fixture.ts';
 
@@ -21,10 +21,18 @@ describe('BulletList controlled selection', () => {
         />
       );
     }
-    const res = await TestReact.render(<Root />);
+    const res = await TestReact.render(
+      <>
+        <Root />
+        <Bullet filled />
+      </>,
+    );
     try {
       const [a, empty] = res.container.querySelectorAll<HTMLElement>('[role="button"]');
+      const command = res.container.lastElementChild!.firstElementChild!.outerHTML;
+      const inactive = marker(empty);
       const before = paint(a);
+      expect(command).not.to.eql(inactive);
       expect(states(res.container)).to.eql(['false', 'false']);
       React.act(() => a.click());
       expect(events).to.eql(['a']);
@@ -40,18 +48,71 @@ describe('BulletList controlled selection', () => {
       expect(states(res.container)).to.eql(['false', 'true']);
       expect(paint(a)).to.eql(before);
       expect(paint(empty)).not.to.eql(before);
+      const active = marker(empty);
+      expect(command).not.to.eql(active);
       React.act(() => update([]));
       expect(states(res.container)).to.eql(['false', 'false']);
       React.act(() => update(undefined));
       expect(states(res.container)).to.eql([null, null]);
+      expect(marker(a)).to.eql(command);
+      expect(marker(empty)).to.eql(command);
       React.act(() => empty.click());
       expect(events).to.eql(['a', '']);
       expect(states(res.container)).to.eql([null, null]);
-      expect(paint(empty)).to.eql(before);
+      expect(marker(empty)).to.eql(command);
     } finally {
       React.act(() => res.dispose());
     }
   });
+
+  for (const theme of ['Light', 'Dark'] as const) {
+    it(`${theme}: commands → neutral filled markers without selected-state semantics`, async () => {
+      const events: string[] = [];
+      const items = [{ id: 'a' }, { id: 'disabled', enabled: false }];
+      const res = await TestReact.render(
+        <>
+          <BulletList.UI theme={theme} items={items} onActivate={({ id }) => events.push(id)} />
+          <BulletList.UI theme={theme} items={items} selected={[]} />
+          <BulletList.UI theme={theme} items={items} selected={['a', 'disabled']} />
+          <div data-reference='markers'>
+            <Bullet theme={theme} filled />
+            <Bullet theme={theme} />
+            <Bullet theme={theme} selected />
+          </div>
+        </>,
+      );
+      try {
+        const [commands, choices, selected] = res.container.querySelectorAll('ul');
+        const buttons = [...commands.querySelectorAll<HTMLElement>('[role="button"]')];
+        const reference = res.container.querySelector('[data-reference="markers"]')!;
+        const [command, inactive, active] = [...reference.children].map((bullet) => {
+          return bullet.firstElementChild!.outerHTML;
+        });
+        expect(command).not.to.eql(inactive);
+        expect(command).not.to.eql(active);
+        expect(states(commands)).to.eql([null, null]);
+        expect(states(choices)).to.eql(['false', 'false']);
+        expect(states(selected)).to.eql(['true', 'true']);
+        for (const button of buttons) {
+          expect(marker(button)).to.eql(command);
+          React.act(() => button.click());
+          expect(marker(button)).to.eql(command);
+        }
+        expect(events).to.eql(['a']);
+        expect(states(commands)).to.eql([null, null]);
+        expect(buttons[1].getAttribute('aria-disabled')).to.eql('true');
+        expect(buttons[1].tabIndex).to.eql(-1);
+        for (const button of choices.querySelectorAll<HTMLElement>('[role="button"]')) {
+          expect(marker(button)).to.eql(inactive);
+        }
+        for (const button of selected.querySelectorAll<HTMLElement>('[role="button"]')) {
+          expect(marker(button)).to.eql(active);
+        }
+      } finally {
+        React.act(() => res.dispose());
+      }
+    });
+  }
 
   it('semantic list → inert content cells and hidden markers, with ordinary button Tab stops', async () => {
     const events: string[] = [];
@@ -126,4 +187,9 @@ function states(container: HTMLElement) {
 function paint(button: HTMLElement) {
   const glyph = button.querySelector('[aria-hidden="true"] > div > div')!;
   return button.ownerDocument.defaultView!.getComputedStyle(glyph).backgroundColor;
+}
+
+/** Compare public Bullet output without duplicating its paint recipe. */
+function marker(button: HTMLElement) {
+  return button.querySelector('[aria-hidden="true"] > div > div')!.outerHTML;
 }

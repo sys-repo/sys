@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
-import { D, Is, Style, type t } from '../common.ts';
+import { Button, D, Is, Style, type t } from '../common.ts';
 import { BulletList } from '../mod.ts';
 
 const items: readonly t.BulletList.Item[] = [
@@ -104,6 +104,47 @@ describe('BulletList layout declarations (not browser geometry)', () => {
       expect(style(list).overflow).not.to.eql('hidden');
     } finally {
       React.act(() => res.dispose());
+    }
+  });
+
+  it('item padding → Button-owned insets, stable across focus, without padding content cells', async () => {
+    const values: readonly t.Button.Props['padding'][] = [undefined, 0, [0, 8]];
+    const rows: readonly t.BulletList.Item[] = [
+      { id: 'action', label: 'Action' },
+      { id: 'disabled', label: 'Disabled', enabled: false },
+      { kind: 'content', key: 'help', render: () => 'Content' },
+    ];
+    for (const itemPadding of values) {
+      const res = await TestReact.render(
+        <>
+          <BulletList.UI items={rows} itemPadding={itemPadding} />
+          <Button padding={itemPadding}>Reference</Button>
+        </>,
+      );
+      try {
+        const list = res.container.querySelector('ul')!;
+        const reference = style(res.container.lastElementChild!);
+        const buttons = [...list.querySelectorAll<HTMLElement>('[role="button"]')];
+        const edges = ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft'] as const;
+        for (const button of buttons) {
+          const actual = style(button);
+          for (const edge of edges) {
+            expect(actual[edge]).to.eql(reference[edge]);
+          }
+          for (const token of ['--sys-button-focus-width', '--sys-button-focus-offset']) {
+            expect(actual.getPropertyValue(token)).to.eql(reference.getPropertyValue(token));
+          }
+        }
+        const before = buttons[0].className;
+        React.act(() => buttons[0].focus());
+        expect(buttons[0].ownerDocument.activeElement).to.equal(buttons[0]);
+        expect(buttons[0].className).to.eql(before);
+        expect(style(buttons[0]).paddingLeft).to.eql(reference.paddingLeft);
+        expect(style(list).paddingLeft).to.eql('0px');
+        expect(emitted(list.lastElementChild!)).not.to.include('padding');
+      } finally {
+        React.act(() => res.dispose());
+      }
     }
   });
 

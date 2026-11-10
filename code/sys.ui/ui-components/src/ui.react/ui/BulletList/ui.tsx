@@ -55,6 +55,7 @@ export const BulletList: t.BulletList.Lib['UI'] = (props) => {
               block
               theme={theme.name}
               enabled={enabled}
+              padding={props.itemPadding}
               aria-pressed={selected === undefined ? undefined : isSelected(selected, id)}
               onClick={(e) => props.onActivate?.(toActivateEvent(id, Keyboard.modifiers(e)))}
             >
@@ -63,6 +64,7 @@ export const BulletList: t.BulletList.Lib['UI'] = (props) => {
                   <Bullet
                     theme={theme.name}
                     selected={isSelected(selected, id)}
+                    filled={selected === undefined}
                     style={{ width: D.markerSize, height: D.markerSize }}
                   />
                 </div>

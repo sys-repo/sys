@@ -25,9 +25,15 @@ export declare namespace BulletList {
   /** List props; activation never changes selection without a caller update. */
   export type Props<Id extends string = string> = {
     items: readonly Item<Id>[];
+    /**
+     * Omitted/undefined: Bullet's subtle filled markers, without pressed state.
+     * Defined (including []): Bullet's inactive/selected markers with controlled aria-pressed.
+     */
     selected?: Selected<Id>;
     /** Default md; xs/sm are opt-in dense presentations, not minimum target-size guarantees. */
     size?: Size;
+    /** Action-button padding; omitted keeps Button defaults. Content cells are unchanged. */
+    itemPadding?: t.Button.Props['padding'];
     /**
      * Equal-width, row-major columns (default 1); no automatic collapse.
      * Finite values are floored and clamped to 1..cell count (1 when empty).
