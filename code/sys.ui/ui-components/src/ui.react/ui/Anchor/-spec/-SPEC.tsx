@@ -2,6 +2,7 @@ import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from './common.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Root } from './-ui.Root.tsx';
+import { StandardLink } from './-ui.StandardLink.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -20,6 +21,9 @@ export default Spec.describe(D.displayName, (e) => {
     Harness.Theme.signalEffect(ctx, p.theme, 1);
 
     ctx.host.tracelineColor(0.05);
+    ctx.host.footer
+      .padding([12, 16])
+      .render(() => <StandardLink theme={p.theme.value} />);
     ctx.subject
       .size()
       .display('grid')
