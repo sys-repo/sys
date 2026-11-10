@@ -13,10 +13,18 @@ export declare namespace Dev {
   };
 
   /**
-   * Literal alias of Anchor.Link, without added defaults or behavior.
+   * Anchor.Link with resource='web' by default.
+   * Caller props take precedence: resource={undefined} omits the globe.
+   * Opening context and all other behavior remain owned by Anchor.Link.
    */
   export namespace Link {
-    export type Props = t.Anchor.Link.Props;
+    export type Props = Omit<t.Anchor.Link.Props, 'resource'> & {
+      /**
+       * Resource identity, not origin, trust, or availability.
+       * Omitted defaults to web; explicitly pass undefined for no resource marker.
+       */
+      resource?: t.Anchor.Link.Props['resource'];
+    };
   }
 
   /**

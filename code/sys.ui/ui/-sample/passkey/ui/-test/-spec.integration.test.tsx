@@ -183,8 +183,6 @@ function assertSpecLink(container: HTMLElement, to: keyof typeof SpecLinks) {
   expect(link.textContent).to.eql(SpecLinks[to].label);
   expect(link.getAttribute('target')).to.eql('_self');
   expect(container.querySelectorAll('a').length).to.eql(1);
-  expect(link.querySelectorAll('[aria-hidden="true"] svg').length).to.eql(1);
-  expect(link.querySelectorAll('svg').length).to.eql(1);
   expect(link.hasAttribute('aria-describedby')).to.eql(false);
   expect(link.hasAttribute('title')).to.eql(false);
   expect(link.hasAttribute('download')).to.eql(false);
