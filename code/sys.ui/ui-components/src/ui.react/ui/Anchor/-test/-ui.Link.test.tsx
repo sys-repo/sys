@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { LuArrowRight, LuArrowUpRight } from 'react-icons/lu';
+import { LuArrowRight, LuArrowUpRight, LuGlobe } from 'react-icons/lu';
 import { Html } from '@sys/html';
 import {
   act,
@@ -89,19 +89,25 @@ describe('Anchor.Link', () => {
     }
   }
 
-  it('opening direction agrees with the requested context and native focus styling stays shared', async () => {
+  it('web resource and opening context → ordered decorative glyphs and shared focus styling', async () => {
     for (const [openIn, Arrow] of [['self', LuArrowRight], ['new-tab', LuArrowUpRight]] as const) {
       const res = await TestReact.render(
         <>
           <A href={href}>Plain</A>
-          <Link href={href} openIn={openIn}>Semantic</Link>
+          <Link href={href} resource='web' openIn={openIn}>Semantic</Link>
         </>,
       );
       try {
         const [plain, semantic] = res.container.querySelectorAll('a');
         expect(semantic.className).to.eql(plain.className);
-        const markup = semantic.querySelector('svg')?.outerHTML;
-        expect(markup).to.eql(renderToStaticMarkup(<Arrow size={D.iconSize} />));
+        const markers = semantic.querySelectorAll('[aria-hidden="true"]');
+        expect(markers.length).to.eql(2);
+        expect(semantic.firstElementChild).to.equal(markers[0]);
+        expect(semantic.lastElementChild).to.equal(markers[1]);
+        const globe = markers[0].querySelector('svg')?.outerHTML;
+        const arrow = markers[1].querySelector('svg')?.outerHTML;
+        expect(globe).to.eql(renderToStaticMarkup(<LuGlobe size={D.iconSize} />));
+        expect(arrow).to.eql(renderToStaticMarkup(<Arrow size={D.iconSize} />));
       } finally {
         act(() => res.dispose());
       }
