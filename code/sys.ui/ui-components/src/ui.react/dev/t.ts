@@ -10,7 +10,32 @@ export declare namespace Dev {
     readonly Divider: t.FC<Divider.Props>;
     readonly ObjectView: t.FC<ObjectView.Props>;
     readonly Link: t.FC<Link.Props>;
+    readonly List: <Id extends string = string>(props: List.Props<Id>) => t.ReactNode;
   };
+
+  /**
+   * Compact row-method authoring over BulletList; state remains caller-owned.
+   */
+  export namespace List {
+    /** Presentation is forwarded unchanged; defaults are sm and padding [0, 8, 0, 5]. */
+    export type Props<Id extends string = string> =
+      & Pick<t.BulletList.Props<Id>, 'theme' | 'style' | 'size' | 'itemPadding' | 'columns'>
+      & {
+        items: readonly Item<Id>[];
+        /** Undefined: commands; defined (including []): controlled choices. Never auto-toggled. */
+        selected?: t.BulletList.Selected<NoInfer<Id>>;
+      };
+
+    /** Stable unique ID and explicit non-interactive label; callers supply a non-empty name. */
+    export type Item<Id extends string = string> =
+      & Pick<t.BulletList.Item.Action<Id>, 'id' | 'enabled'>
+      & {
+        /** Strings remain literal; rich presentation uses explicit non-interactive React nodes. */
+        label: t.ReactNode;
+        /** One method per eligible activation, including reselection; callers own async/errors. */
+        onActivate: t.BulletList.Activate.Handler<NoInfer<Id>>;
+      };
+  }
 
   /**
    * Anchor.Link with resource='web' by default.
