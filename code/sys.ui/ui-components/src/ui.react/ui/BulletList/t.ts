@@ -13,6 +13,9 @@ export declare namespace BulletList {
     ) => readonly Id[];
   };
 
+  /** Host-relative text and marker sizes; md retains the host's text size. */
+  export type Size = 'xs' | 'sm' | 'md';
+
   /** A controlled choice or set; undefined omits selection semantics, while [] selects nothing. */
   export type Selected<Id extends string = string> = Id | readonly Id[];
 
@@ -23,9 +26,17 @@ export declare namespace BulletList {
   export type Props<Id extends string = string> = {
     items: readonly Item<Id>[];
     selected?: Selected<Id>;
+    /** Default md; xs/sm are opt-in dense presentations, not minimum target-size guarantees. */
+    size?: Size;
+    /**
+     * Equal-width, row-major columns (default 1); no automatic collapse.
+     * Finite values are floored and clamped to 1..cell count (1 when empty).
+     * Non-finite values fall back to 1.
+     */
     columns?: number;
     debug?: boolean;
     theme?: t.CommonTheme;
+    /** Root styles; an explicit fontSize overrides the named size. */
     style?: t.CssInput;
     onActivate?: Activate.Handler<NoInfer<Id>>;
   };
@@ -38,6 +49,7 @@ export declare namespace BulletList {
     export type Action<Id extends string = string> = {
       kind?: 'item';
       id: Id;
+      /** Caller-supplied label styles can override wrapping. */
       label?: t.ReactNode;
       enabled?: boolean;
     };
