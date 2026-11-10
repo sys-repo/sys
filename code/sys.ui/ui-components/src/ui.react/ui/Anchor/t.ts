@@ -46,6 +46,8 @@ export declare namespace Anchor {
 
     /** Appearance: */
     theme?: t.CommonTheme;
+    /** Use monospace; omitted/false inherits the surrounding font. Caller style takes precedence. */
+    mono?: boolean;
     /**
      * Enables single-line ellipsis for the whole anchor, not just its label.
      * Uses inline-block; constrain width with style.width or style.maxWidth.

@@ -30,6 +30,7 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
   const styles = {
     base: css({
       color: 'inherit',
+      fontFamily: (props.mono ?? D.mono) ? 'monospace' : undefined,
       textDecoration: `underline dashed ${underline}`,
       textUnderlineOffset: '3px',
       transition: 'text-decoration-color 100ms ease',
@@ -70,6 +71,7 @@ const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
   const styles = {
     base: css({
       color: 'inherit',
+      fontFamily: (props.mono ?? D.mono) ? 'monospace' : undefined,
       textDecoration: 'none',
       opacity,
       cursor: 'default',

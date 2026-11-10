@@ -16,6 +16,7 @@ export const D = {
   disabledOpacity: 0.3 as t.Percent,
   target: undefined satisfies P['target'],
   download: false satisfies P['download'],
+  mono: false satisfies P['mono'],
   truncate: false satisfies P['truncate'],
   iconSize: '1em' satisfies t.IconProps['size'],
   iconGap: { leading: 3, trailing: 2 },
