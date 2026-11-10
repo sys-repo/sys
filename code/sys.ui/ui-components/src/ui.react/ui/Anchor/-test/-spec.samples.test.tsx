@@ -164,7 +164,7 @@ describe('Anchor spec: sample states', () => {
     }
   });
 
-  it('sample list → public BulletList small size and horizontal row insets', async () => {
+  it('sample commands → compact Light panel presentation independent of the subject theme', async () => {
     const res = await setup();
     try {
       const reference = await TestReact.render(
@@ -176,13 +176,18 @@ describe('Anchor spec: sample states', () => {
         />,
       );
       try {
-        const list = res.panel.querySelector('ul')!;
-        expect(list.className).to.eql(reference.container.querySelector('ul')!.className);
-        const expected = reference.container.querySelector('[role="button"]')!.className;
-        for (const row of list.querySelectorAll<HTMLElement>('[role="button"]')) {
-          expect(row.className).to.eql(expected);
-          act(() => row.focus());
-          expect(row.className).to.eql(expected);
+        const expectedList = reference.container.querySelector('ul')!.className;
+        const expectedRow = reference.container.querySelector('[role="button"]')!.className;
+        for (const theme of ['Light', 'Dark'] as const) {
+          await act(async () => void (res.debug.props.theme.value = theme));
+          const list = res.panel.querySelector('ul')!;
+          expect(list.className).to.eql(expectedList);
+          for (const row of list.querySelectorAll<HTMLElement>('[role="button"]')) {
+            expect(row.className).to.eql(expectedRow);
+            act(() => row.focus());
+            expect(row.className).to.eql(expectedRow);
+            expect(row.hasAttribute('aria-pressed')).to.eql(false);
+          }
         }
       } finally {
         act(() => reference.dispose());

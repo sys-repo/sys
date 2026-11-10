@@ -1,15 +1,12 @@
 import type React from 'react';
-import { BulletList } from '../../BulletList/mod.ts';
-import { Color, css, D, Is, type t } from './common.ts';
+import { Color, css, D, Dev, type t } from './common.ts';
 
 export type SamplesProps = {
   debug: t.DebugSignals;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
-type Sample = {
-  id: string;
-  label: string;
+type Sample = Pick<t.Dev.List.Item, 'id' | 'label'> & {
   next:
     & Pick<
       t.DebugValues,
@@ -149,30 +146,26 @@ export const Samples: React.FC<SamplesProps> = (props) => {
   const p = props.debug.props;
   const theme = Color.theme(props.theme);
   const styles = { base: css({ color: theme.fg }) };
+  const items: readonly t.Dev.List.Item[] = samples.map(({ id, label, next }) => ({
+    id,
+    label,
+    onActivate: () => {
+      p.href.value = next.href;
+      p.enabled.value = next.enabled ?? true;
+      p.target.value = next.target;
+      p.download.value = next.download ?? false;
+      p.mono.value = next.mono ?? p.mono.value;
+      p.truncate.value = next.truncate ?? p.truncate.value;
+      p.maxWidth.value = next.maxWidth ?? p.maxWidth.value;
+      p.children.value = next.children;
+      p.link.value = next.link;
+      p.examples.value = 'none';
+    },
+  }));
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <BulletList.UI
-        theme={theme.name}
-        size='sm'
-        itemPadding={[0, 8, 0, 5]}
-        items={samples.map(({ id, label }) => ({ id, label }))}
-        onActivate={({ id }) => {
-          const sample = samples.find((sample) => sample.id === id);
-          if (Is.nil(sample)) return;
-          const { next } = sample;
-          p.href.value = next.href;
-          p.enabled.value = next.enabled ?? true;
-          p.target.value = next.target;
-          p.download.value = next.download ?? false;
-          p.mono.value = next.mono ?? p.mono.value;
-          p.truncate.value = next.truncate ?? p.truncate.value;
-          p.maxWidth.value = next.maxWidth ?? p.maxWidth.value;
-          p.children.value = next.children;
-          p.link.value = next.link;
-          p.examples.value = 'none';
-        }}
-      />
+      <Dev.List theme={theme.name} items={items} />
     </div>
   );
 };

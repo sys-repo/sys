@@ -132,17 +132,16 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>Samples</div>
-      {(['standard', 'stress', 'empty'] as const).map((sample) => {
-        return (
-          <Dev.Button
-            key={sample}
-            block
-            label={`sample: ${sample}`}
-            onClick={() => p.sample.value = sample}
-          />
-        );
-      })}
+      <div className={Styles.title.class}>Sample States</div>
+      <Dev.List
+        theme={theme.name}
+        selected={v.sample}
+        items={(['standard', 'stress', 'empty'] as const).map((sample) => ({
+          id: sample,
+          label: sample,
+          onActivate: () => p.sample.value = sample,
+        }))}
+      />
 
       <hr />
       <div className={Styles.title.class}>Debug</div>
