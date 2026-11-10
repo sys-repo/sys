@@ -99,6 +99,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
+  const items = Fixtures.map((fixture) => ({
+    id: fixture.id,
+    label: fixture.label,
+    onActivate: () => debug.select(fixture),
+  }));
+
   /**
    * Render:
    */
@@ -128,14 +134,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>Property States</div>
         <div>(simulated)</div>
       </div>
-      {Fixtures.map((fixture) => (
-        <Dev.Button
-          key={fixture.id}
-          block
-          label={() => `${fixture.label}${fixture.id === v.fixture.id ? ' 🌳' : ''}`}
-          onClick={() => debug.select(fixture)}
-        />
-      ))}
+      <Dev.List theme={theme.name} selected={v.fixture.id} items={items} />
       <hr />
       <div className={Styles.title.class}>Action callbacks</div>
       <Dev.Button
