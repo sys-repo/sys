@@ -64,9 +64,8 @@ describe('Anchor spec: shared examples control and presentation', () => {
     const { Debug } = debugModule;
     const res = await TestReact.render(<Debug debug={debug} />);
     try {
-      const controls = [...res.container.querySelectorAll<HTMLElement>('[role="button"]')];
-      const samples = controls.filter((el) => el.textContent?.startsWith('sample:'));
-      expect(samples.length).to.eql(11);
+      const samples = [...res.container.querySelectorAll<HTMLElement>('ul [role="button"]')];
+      expect(samples.map((el) => el.textContent)).to.include('Dev.Link (default)');
       for (const mode of ['focus', 'links'] as const) {
         for (const sample of samples) {
           await act(async () => {

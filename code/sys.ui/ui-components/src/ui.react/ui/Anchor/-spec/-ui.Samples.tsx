@@ -1,6 +1,6 @@
 import type React from 'react';
 import { BulletList } from '../../BulletList/mod.ts';
-import { Color, css, Is, type t } from './common.ts';
+import { Color, css, D, Is, type t } from './common.ts';
 
 export type SamplesProps = {
   debug: t.DebugSignals;
@@ -13,7 +13,7 @@ type Sample = {
   next:
     & Pick<
       t.DebugValues,
-      'href' | 'enabled' | 'target' | 'truncate' | 'maxWidth' | 'children' | 'link'
+      'href' | 'enabled' | 'target' | 'mono' | 'truncate' | 'maxWidth' | 'children' | 'link'
     >
     & { download?: boolean };
 };
@@ -25,18 +25,24 @@ export const EXAMPLE_LONG_LABEL =
 const samples: readonly Sample[] = [
   {
     id: 'default',
-    label: 'sample: default link',
+    label: 'default link',
     next: {
       href: EXAMPLE_URL,
       enabled: true,
       target: undefined,
       download: false,
+      mono: D.mono,
       children: EXAMPLE_URL,
     },
   },
   {
+    id: 'mono',
+    label: 'monospace link',
+    next: { href: EXAMPLE_URL, children: EXAMPLE_URL, mono: true },
+  },
+  {
     id: 'truncated',
-    label: 'sample: truncated link',
+    label: 'truncated link',
     next: {
       href: EXAMPLE_URL,
       children: EXAMPLE_LONG_LABEL,
@@ -46,7 +52,7 @@ const samples: readonly Sample[] = [
   },
   {
     id: 'new-tab',
-    label: 'sample: new tab',
+    label: 'new tab',
     next: {
       href: EXAMPLE_URL,
       enabled: true,
@@ -57,17 +63,17 @@ const samples: readonly Sample[] = [
   },
   {
     id: 'arrow-self',
-    label: 'sample: arrow →',
+    label: 'arrow →',
     next: { href: EXAMPLE_URL, children: 'Example website', link: { openIn: 'self' } },
   },
   {
     id: 'arrow-new-tab',
-    label: 'sample: arrow ↗ (new tab)',
+    label: 'arrow ↗ (new tab)',
     next: { href: EXAMPLE_URL, children: 'Example website', link: { openIn: 'new-tab' } },
   },
   {
     id: 'globe-self',
-    label: 'sample: globe + →',
+    label: 'globe + →',
     next: {
       href: EXAMPLE_URL,
       children: 'Example website',
@@ -76,7 +82,7 @@ const samples: readonly Sample[] = [
   },
   {
     id: 'globe-new-tab',
-    label: 'sample: globe + ↗ (new tab)',
+    label: 'globe + ↗ (new tab)',
     next: {
       href: EXAMPLE_URL,
       children: 'Example website',
@@ -84,8 +90,17 @@ const samples: readonly Sample[] = [
     },
   },
   {
+    id: 'dev-link',
+    label: 'Dev.Link (default)',
+    next: {
+      href: EXAMPLE_URL,
+      children: 'Example website',
+      link: { api: 'dev', resource: 'default' },
+    },
+  },
+  {
     id: 'download',
-    label: 'sample: download (/dist.json)',
+    label: 'download (/dist.json)',
     next: {
       href: '/dist.json',
       enabled: true,
@@ -96,7 +111,7 @@ const samples: readonly Sample[] = [
   },
   {
     id: 'disabled',
-    label: 'sample: disabled link',
+    label: 'disabled link',
     next: {
       href: EXAMPLE_URL,
       enabled: false,
@@ -107,7 +122,7 @@ const samples: readonly Sample[] = [
   },
   {
     id: 'text-only',
-    label: 'sample: text-only (no href)',
+    label: 'text-only (no href)',
     next: {
       href: undefined,
       enabled: true,
@@ -118,7 +133,7 @@ const samples: readonly Sample[] = [
   },
   {
     id: 'empty',
-    label: 'sample: empty child',
+    label: 'empty child',
     next: {
       href: undefined,
       enabled: true,
@@ -139,6 +154,8 @@ export const Samples: React.FC<SamplesProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <BulletList.UI
         theme={theme.name}
+        size='sm'
+        itemPadding={[0, 8, 0, 5]}
         items={samples.map(({ id, label }) => ({ id, label }))}
         onActivate={({ id }) => {
           const sample = samples.find((sample) => sample.id === id);
@@ -148,6 +165,7 @@ export const Samples: React.FC<SamplesProps> = (props) => {
           p.enabled.value = next.enabled ?? true;
           p.target.value = next.target;
           p.download.value = next.download ?? false;
+          p.mono.value = next.mono ?? p.mono.value;
           p.truncate.value = next.truncate ?? p.truncate.value;
           p.maxWidth.value = next.maxWidth ?? p.maxWidth.value;
           p.children.value = next.children;

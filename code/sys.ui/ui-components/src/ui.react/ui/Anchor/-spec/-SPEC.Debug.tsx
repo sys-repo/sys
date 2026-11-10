@@ -3,26 +3,16 @@ import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.
 import { EXAMPLE_LONG_LABEL, EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
 
 type P = t.Anchor.Props;
-type Examples = 'none' | 'focus' | 'links';
-export type DebugValues =
-  & Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled' | 'truncate'>
-  & {
-    children?: string;
-    /** Harness width constraint, applied only while truncation is enabled. */
-    maxWidth?: 120 | 180 | 320;
-    examples: Examples;
-    /** Undefined selects native Anchor.UI; an object selects Anchor.Link. */
-    link?: Pick<t.Anchor.Link.Props, 'resource' | 'openIn'>;
-  };
 /** Old flags are read once, then removed when the union is persisted. */
-type Stored = Partial<DebugValues> & { focusExamples?: boolean; linkExamples?: boolean };
+type Stored = Partial<t.DebugValues> & { focusExamples?: boolean; linkExamples?: boolean };
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
-const defaults: DebugValues = {
+const defaults: t.DebugValues = {
   theme: 'Dark',
   href: EXAMPLE_URL,
   enabled: D.enabled,
+  mono: D.mono,
   truncate: D.truncate,
   maxWidth: undefined,
   target: D.target,
@@ -46,12 +36,13 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     href: s(snap.href),
     enabled: s(snap.enabled ?? D.enabled),
+    mono: s(snap.mono ?? D.mono),
     truncate: s(snap.truncate ?? D.truncate),
     maxWidth: s(snap.maxWidth),
     target: s(snap.target),
     download: s(snap.download === true),
     children: s(snap.children),
-    examples: s<Examples>(examples),
+    examples: s<t.DebugExamples>(examples),
     link: s(snap.link),
   };
   const p = props;
@@ -74,6 +65,7 @@ export function createDebugSignals() {
       d.theme = p.theme.value;
       d.href = p.href.value;
       d.enabled = p.enabled.value;
+      d.mono = p.mono.value;
       d.truncate = p.truncate.value;
       d.maxWidth = p.maxWidth.value;
       d.target = p.target.value;
@@ -118,7 +110,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{v.link ? `${D.name}.Link` : `${D.name}, A`}</div>
+      <div className={Styles.title.class}>{D.name}</div>
 
       <Dev.Button
         block
@@ -136,6 +128,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `enabled: ${p.enabled.value ?? `(undefined) ← default: ${D.enabled}`}`}
         onClick={() => Signal.toggle(p.enabled)}
+      />
+      <Dev.Button
+        block
+        label={() => `mono: ${v.mono}`}
+        onClick={() => Signal.toggle(p.mono)}
       />
       <Dev.Button
         block
@@ -173,7 +170,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
               label={() => `resource: ${p.link.value?.resource ?? '(none)'}`}
               onClick={() => {
                 const link = p.link.value;
-                p.link.value = { ...link, resource: link?.resource ? undefined : 'web' };
+                if (link?.api === 'dev') {
+                  const next = { default: 'web', web: 'none', none: 'default' } as const;
+                  p.link.value = { ...link, resource: next[link.resource] };
+                } else {
+                  p.link.value = { ...link, resource: link?.resource ? undefined : 'web' };
+                }
               }}
             />
           </>
@@ -202,12 +204,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button
         block
         label={() => `examples: ${v.examples}`}
-        onClick={() => Signal.cycle<Examples>(p.examples, ['none', 'focus', 'links'])}
+        onClick={() => Signal.cycle<t.DebugExamples>(p.examples, ['none', 'focus', 'links'])}
       />
-      <div className={css(Styles.title, { marginTop: 22 }).class}>Sample States:</div>
+      <div className={css(Styles.title, { marginTop: 22 }).class}>Sample States</div>
       <Samples debug={debug} theme={theme.name} />
 
-      <hr />
+      <hr className={css({ marginTop: 22 }).class} />
       <div className={Styles.title.class}>Debug</div>
 
       {v.truncate && (
@@ -215,7 +217,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           block
           label={() => `maxWidth: ${v.maxWidth ? `${v.maxWidth}px` : 'none'}`}
           onClick={() => {
-            return Signal.cycle<DebugValues['maxWidth']>(p.maxWidth, [undefined, 120, 180, 320]);
+            return Signal.cycle<t.DebugValues['maxWidth']>(p.maxWidth, [undefined, 120, 180, 320]);
           }}
         />
       )}
