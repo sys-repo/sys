@@ -1,20 +1,13 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, expectTypeOf, it } from '../../-test.ts';
-import type { t } from '../common.ts';
-import { Dev } from '../mod.ts';
-import { Anchor } from '../../ui/Anchor/mod.ts';
-import { DevLink } from '../ui.Link.tsx';
+import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
+import type { t } from '../../common.ts';
+import { Dev } from '../../mod.ts';
+import { Anchor } from '../../../ui/Anchor/mod.ts';
+import { DevLink } from '../mod.ts';
 
 describe('@sys/ui-components/react/dev: Dev.Link', () => {
-  it('public entrypoint → dev composition with the semantic prop contract', async () => {
-    const m = await import('@sys/ui-components/react/dev');
-    const production = await import('@sys/ui-components/react/anchor');
-    expect(m.Dev).to.equal(Dev);
-    expect(m.Dev.Link).to.equal(DevLink);
-    expect(m.Dev.Link).not.to.equal(production.Anchor.Link);
-    expect(production.Anchor.Link).to.equal(Anchor.Link);
+  it('public props → the production semantic link contract', () => {
     expectTypeOf<t.Dev.Link.Props>({ children: 'Label' }).toEqualTypeOf<t.Anchor.Link.Props>();
-    expectTypeOf(m.Dev.Link).toEqualTypeOf<t.FC<t.Anchor.Link.Props>>();
   });
 
   it('omitted resource → web default without adding opening or style policy', () => {

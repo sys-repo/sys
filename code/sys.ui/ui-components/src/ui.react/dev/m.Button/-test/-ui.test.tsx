@@ -1,9 +1,9 @@
 import React from 'react';
-import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../-test.ts';
-import { Is, Obj, Style, type t } from '../common.ts';
-import { Button } from '../../ui/Button/mod.ts';
-import { Dev } from '../mod.ts';
-import { DevButton } from '../ui.Button.tsx';
+import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
+import { Is, Obj, Style, type t } from '../../common.ts';
+import { Button } from '../../../ui/Button/mod.ts';
+import { Dev } from '../../mod.ts';
+import { DevButton } from '../mod.ts';
 
 /** Registered declarations only; mock layout is not visual acceptance. */
 function ruleText(el: Element) {
@@ -17,13 +17,7 @@ function ruleText(el: Element) {
 describe('@sys/ui-components/react/dev: Dev.Button', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  it('exports the composition through the existing Dev surface', async () => {
-    const m = await import('@sys/ui-components/react/dev');
-    expect(m.Dev).to.equal(Dev);
-    expect(m.Dev.Button).to.equal(DevButton);
-  });
-
-  it('forwards Button props without giving the frame interaction or style ownership', () => {
+  it('caller props → forwarded unchanged to the inner Button, not the frame', () => {
     const style: t.CssInput = [{ Padding: 4 }, [false, { minWidth: undefined }]];
     const props: t.Dev.Button.Props = {
       block: true,

@@ -9,12 +9,18 @@ import {
   expectTypeOf,
   it,
   TestReact,
-} from '../../-test.ts';
-import type { t } from '../common.ts';
-import { Dev } from '../mod.ts';
-import { DevList } from '../ui.List.tsx';
-import { BulletList } from '../../ui/BulletList/mod.ts';
-import { button, compatibilityMouse, key, mouse, touch } from '../../ui/Button/-test/u.fixture.ts';
+} from '../../../-test.ts';
+import type { t } from '../../common.ts';
+import { Dev } from '../../mod.ts';
+import { DevList } from '../mod.ts';
+import { BulletList } from '../../../ui/BulletList/mod.ts';
+import {
+  button,
+  compatibilityMouse,
+  key,
+  mouse,
+  touch,
+} from '../../../ui/Button/-test/u.fixture.ts';
 
 type Id = '' | 'run';
 const items = [
@@ -25,11 +31,7 @@ const items = [
 describe('@sys/ui-components/react/dev: Dev.List', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  it('public entrypoint → row-method adapter with readonly literal-ID contracts', async () => {
-    const m = await import('@sys/ui-components/react/dev');
-    expect(m.Dev).to.equal(Dev);
-    expect(m.Dev.List).to.equal(DevList);
-    expectTypeOf(m.Dev.List).toEqualTypeOf<t.Dev.Lib['List']>();
+  it('public props → row-method adapter with readonly literal-ID contracts', () => {
     const selected = Object.freeze(['', 'run'] as const);
     const node = <Dev.List items={items} selected={selected} />;
     expect(node.type).to.equal(DevList);

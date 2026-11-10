@@ -1,4 +1,4 @@
-import { Color, css, type t } from './common.ts';
+import { Color, css, type t } from '../common.ts';
 
 /** Decorative section break for dev specimens, including their horizontal overhang. */
 export const DevDivider = (props: t.Dev.Divider.Props) => {

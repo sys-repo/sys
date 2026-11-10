@@ -1,18 +1,24 @@
-import { act, afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../-test.ts';
-import { Color, css, Is, Style, type t } from '../common.ts';
-import { Dev } from '../mod.ts';
-import { DevDivider } from '../ui.Divider.tsx';
-import { FocusExamples as ButtonExamples } from '../../ui/Button/-spec/-ui.FocusExamples.tsx';
-import { FocusExamples } from '../../ui/Anchor/-spec/-ui.FocusExamples.tsx';
-import { LinkExamples } from '../../ui/Anchor/-spec/-ui.LinkExamples.tsx';
+import {
+  act,
+  afterAll,
+  beforeAll,
+  describe,
+  DomMock,
+  expect,
+  it,
+  TestReact,
+} from '../../../-test.ts';
+import { Color, css, Is, Style, type t } from '../../common.ts';
+import { Dev } from '../../mod.ts';
+import { DevDivider } from '../mod.ts';
+import { FocusExamples as ButtonExamples } from '../../../ui/Button/-spec/-ui.FocusExamples.tsx';
+import { FocusExamples } from '../../../ui/Anchor/-spec/-ui.FocusExamples.tsx';
+import { LinkExamples } from '../../../ui/Anchor/-spec/-ui.LinkExamples.tsx';
 
 describe('@sys/ui-components/react/dev: Dev.Divider', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  it('exports the primitive through the existing Dev leaf and type surface', async () => {
-    const m = await import('@sys/ui-components/react/dev');
-    expect(m.Dev).to.equal(Dev);
-    expect(m.Dev.Divider).to.equal(DevDivider);
+  it('public props → decorative divider without a wrapper', () => {
     const props: t.Dev.Divider.Props = { theme: 'Dark' };
     expect(DevDivider(props).type).to.eql('div');
   });

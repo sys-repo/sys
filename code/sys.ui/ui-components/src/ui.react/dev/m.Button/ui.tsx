@@ -1,5 +1,5 @@
-import { css, type t } from './common.ts';
-import { Button } from '../ui/Button/mod.ts';
+import { css, type t } from '../common.ts';
+import { Button } from '../../ui/Button/mod.ts';
 
 const D = {
   margin: [0, 0, 0, -2],

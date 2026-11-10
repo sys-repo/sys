@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
-import { BulletList } from '../ui/BulletList/mod.ts';
+import type { t } from '../common.ts';
+import { BulletList } from '../../ui/BulletList/mod.ts';
 
 /**
  * Bind row methods to the production list without owning selection or interaction state.

@@ -1,5 +1,5 @@
-import type { t } from './common.ts';
-import { Anchor } from '../ui/Anchor/mod.ts';
+import type { t } from '../common.ts';
+import { Anchor } from '../../ui/Anchor/mod.ts';
 
 /**
  * Dev resource default; navigation, markers, and accessibility remain owned by Anchor.Link.
