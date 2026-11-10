@@ -1,9 +1,115 @@
 import { Yaml } from '@sys/yaml';
-import { describe, expect, expectError, Fs, it, type Jsr, type t, Testing } from '../../-test.ts';
+import {
+  describe,
+  Err,
+  expect,
+  expectError,
+  Fs,
+  Is,
+  it,
+  type Jsr,
+  Str,
+  type t,
+  Testing,
+} from '../../-test.ts';
 import { WorkspaceCi } from '../mod.ts';
 import { textWith } from './u/u.text.ts';
 
+type CacheWorkflow = {
+  readonly jobs: Record<string, {
+    readonly strategy: {
+      readonly matrix: {
+        readonly include: readonly {
+          readonly name: string;
+          readonly path: string;
+          readonly version: string;
+          readonly cache?: boolean;
+        }[];
+      };
+    };
+    readonly steps: readonly {
+      readonly if?: string;
+      readonly run?: string;
+      readonly 'continue-on-error'?: boolean | string;
+    }[];
+  }>;
+};
+
 describe('WorkspaceCi.Jsr', () => {
+  it('declared cache tasks → prepare before publish tests across strata and survive regeneration', async () => {
+    const fs = await Testing.dir('WorkspaceCi.Jsr.cache');
+    const cases = [
+      { name: 'ordinary', task: undefined, cache: undefined },
+      { name: 'empty', task: '', cache: undefined },
+      { name: 'whitespace', task: '  ', cache: undefined },
+      { name: 'non-string', task: 1, cache: undefined },
+      { name: 'cached', task: 'deno task check', cache: true },
+      { name: 'cached-other', task: 'deno task info', cache: true },
+    ];
+    const paths = cases.map(({ name }) => `code/${name}`);
+    for (const item of cases) {
+      const tasks: Record<string, string | number> = { test: 'deno task info' };
+      if (!Is.nil(item.task)) tasks['test:cache'] = item.task;
+      await Fs.writeJson(fs.join('code', item.name, 'deno.json'), {
+        name: `@scope/${item.name}`,
+        version: '1.0.0',
+        tasks,
+      });
+    }
+    await Fs.writeJson(fs.join('deno.graph.json'), {
+      graph: {
+        orderedPaths: paths,
+        edges: [{ from: 'code/cached', to: 'code/cached-other' }],
+      },
+    });
+
+    const yaml = await WorkspaceCi.Jsr.text({ cwd: fs.dir, paths });
+    const parsed = Yaml.parse<CacheWorkflow>(yaml);
+    expect(parsed.error).to.eql(undefined);
+    if (!parsed.data) throw Err.std('Missing publish workflow');
+    const jobs = Object.values(parsed.data.jobs);
+    expect(jobs).to.have.length(2);
+    expect(jobs.flatMap((job) => job.strategy.matrix.include)).to.eql(
+      cases.map(({ name, cache }) => ({
+        name: `@scope/${name}`,
+        path: `code/${name}`,
+        version: '1.0.0',
+        ...(cache ? { cache: true } : {}),
+      })),
+    );
+    for (const { steps } of jobs) {
+      const cache = steps.filter((step) => step.run?.includes('deno task test:cache'));
+      expect(cache).to.have.length(1);
+      const step = cache[0];
+      if (!step) throw Err.std('Missing cache step');
+      expect(step.if).to.eql('${{ matrix.cache == true }}');
+      expect(step.run?.trim()).to.eql(Str.dedent(`
+        cd "\${{ matrix.path }}"
+        deno task test:cache
+      `));
+      expect(step['continue-on-error'] ?? false).to.eql(false);
+      const install = steps.findIndex((item) => item.run?.includes('if deno task install; then'));
+      const publish = steps.findIndex((item) => item.run?.includes('deno task test --frozen'));
+      expect(install >= 0 && install < steps.indexOf(step), 'install precedes preparation').to.eql(
+        true,
+      );
+      expect(publish > steps.indexOf(step), 'preparation precedes publishing tests').to.eql(true);
+      expect(steps[publish]?.if, 'default success condition blocks publishing after cache failure')
+        .to.eql(undefined);
+      expect(steps[publish]?.['continue-on-error'] ?? false).to.eql(false);
+      const run = steps[publish]?.run ?? '';
+      expect(run.indexOf('deno task test --frozen')).to.be.lessThan(
+        run.indexOf('if deno publish; then'),
+      );
+    }
+
+    const args = { cwd: fs.dir, source: { paths }, target: '.github/workflows/jsr.yaml' };
+    await Fs.write(fs.join(args.target), 'stale workflow');
+    expect((await WorkspaceCi.Jsr.sync(args)).kind).to.eql('written');
+    expect((await Fs.readText(fs.join(args.target))).data).to.eql(yaml);
+    expect((await WorkspaceCi.Jsr.sync(args)).kind).to.eql('unchanged');
+  });
+
   it('builds YAML from ordered module paths', async () => {
     const fs = await Testing.dir('WorkspaceCi.Jsr.text');
     const a = fs.join('code/sys/alpha');

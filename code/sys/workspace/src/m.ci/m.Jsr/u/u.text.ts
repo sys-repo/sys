@@ -162,6 +162,13 @@ function renderSteps() {
         run: deno info && deno --version
     `).trim(),
     JSR_MAIN_GUARD_STEP.trim(),
+    Str.dedent(`
+      - name: cache test dependencies → "\${{ matrix.name }}"
+        if: \${{ matrix.cache == true }}
+        run: |
+          cd "\${{ matrix.path }}"
+          deno task test:cache
+    `).trim(),
     JSR_MATRIX_BODY_TEMPLATE,
   ].join('\n\n');
 }

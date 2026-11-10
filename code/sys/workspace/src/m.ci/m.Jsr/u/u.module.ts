@@ -4,11 +4,13 @@ export type Module = {
   readonly path: t.StringPath;
   readonly name: t.StringPkgName;
   readonly version: t.StringSemver;
+  readonly cache: boolean;
 };
 
 type DenoJson = {
   readonly name?: string;
   readonly version?: string;
+  readonly tasks?: unknown;
 };
 
 export async function loadModule(cwd: t.StringDir, path: t.StringPath): Promise<Module> {
@@ -29,9 +31,15 @@ export async function loadModule(cwd: t.StringDir, path: t.StringPath): Promise<
     throw new Error(`Module deno.json is missing "version": ${resolved}`);
   }
 
+  // Match Linux CI: a non-empty task declaration opts into package-owned preparation.
+  const tasks = Is.record<Record<string, unknown>>(file.tasks) ? file.tasks : undefined;
+  const task = tasks?.['test:cache'];
+  const cache = Is.str(task) && task.trim().length > 0;
+
   return {
     path,
     name,
     version,
+    cache,
   } as const;
 }
