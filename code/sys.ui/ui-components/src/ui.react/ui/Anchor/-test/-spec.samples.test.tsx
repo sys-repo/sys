@@ -12,6 +12,7 @@ import { D, Is, Json, LocalStorage, Schedule, Signal, Style } from '../common.ts
 import type { t } from '../-spec/common.ts';
 import { Root } from '../-spec/-ui.Root.tsx';
 import { EXAMPLE_URL } from '../-spec/-ui.Samples.tsx';
+import { key } from '../../Button/-test/u.fixture.ts';
 
 type DebugModule = typeof import('../-spec/-SPEC.Debug.tsx');
 type Link = NonNullable<t.DebugValues['link']>;
@@ -22,6 +23,102 @@ describe('Anchor spec: sample states', () => {
   let debugModule: DebugModule;
   beforeAll(async () => {
     debugModule = await import('../-spec/-SPEC.Debug.tsx');
+  });
+
+  it('sample actions → semantic list, unchanged patches, and no remembered selection', async () => {
+    const res = await setup();
+    const { debug, panel } = res;
+    const p = debug.props;
+    const cases: readonly [string, Partial<t.DebugValues>][] = [
+      ['sample: default link', { children: EXAMPLE_URL }],
+      ['sample: truncated link', {
+        children: 'Example website with a longer descriptive label for testing truncation',
+        maxWidth: 120,
+      }],
+      ['sample: new tab', { target: '_blank', children: 'opens in new tab' }],
+      ['sample: arrow →', { children: 'Example website', link: { openIn: 'self' } }],
+      ['sample: arrow ↗ (new tab)', { children: 'Example website', link: { openIn: 'new-tab' } }],
+      ['sample: globe + →', {
+        children: 'Example website',
+        link: { resource: 'web', openIn: 'self' },
+      }],
+      ['sample: globe + ↗ (new tab)', {
+        children: 'Example website',
+        link: { resource: 'web', openIn: 'new-tab' },
+      }],
+      ['sample: download (/dist.json)', {
+        href: '/dist.json',
+        download: true,
+        children: 'download dist.json',
+      }],
+      ['sample: disabled link', {
+        enabled: false,
+        target: '_blank',
+        children: 'disabled link',
+      }],
+      ['sample: text-only (no href)', { href: undefined, children: 'plain text (passthrough)' }],
+      ['sample: empty child', { href: undefined, children: undefined }],
+    ];
+    try {
+      const list = panel.querySelector('ul')!;
+      expect(list, 'samples use a semantic list').not.to.eql(null);
+      expect([...list.children].map((el) => el.tagName)).to.eql(cases.map(() => 'LI'));
+      const buttons = [...list.querySelectorAll<HTMLElement>('[role="button"]')];
+      expect(buttons.map((el) => el.textContent)).to.eql(cases.map(([label]) => label));
+      expect(buttons.map((el) => el.tabIndex)).to.eql(cases.map(() => 0));
+      function pressed() {
+        const current = panel.querySelectorAll('ul [role="button"]');
+        return [...current].map((el) => el.getAttribute('aria-pressed'));
+      }
+      expect(pressed()).to.eql(cases.map(() => null));
+
+      for (const [label, expected] of cases) {
+        await act(async () => {
+          p.theme.value = 'Light';
+          p.truncate.value = true;
+          p.maxWidth.value = 180;
+          p.examples.value = 'links';
+          p.href.value = '/previous';
+          p.enabled.value = false;
+          p.download.value = true;
+          p.target.value = '_top';
+          p.children.value = 'Previous';
+          p.link.value = { resource: 'web', openIn: 'new-tab' };
+        });
+        await click(panel, label);
+        expect(Signal.toObject(p), label).to.eql({
+          theme: 'Light',
+          href: EXAMPLE_URL,
+          enabled: true,
+          truncate: true,
+          maxWidth: 180,
+          target: undefined,
+          download: false,
+          children: undefined,
+          examples: 'none',
+          link: undefined,
+          ...expected,
+        });
+        expect(pressed()).to.eql(cases.map(() => null));
+        expect(stored()).to.include({ theme: 'Light', truncate: true, examples: 'none' });
+      }
+
+      for (const input of ['Enter', ' ']) {
+        const button = buttons[0];
+        await act(async () => {
+          button.focus();
+          key(button, 'keydown', input);
+          key(button, 'keyup', input);
+          await Schedule.micro();
+        });
+        expect(p.href.value).to.eql(EXAMPLE_URL);
+        await click(panel, `children: ${EXAMPLE_URL}`);
+        expect(p.children.value).to.eql('link label');
+        expect(pressed()).to.eql(cases.map(() => null));
+      }
+    } finally {
+      act(() => res.dispose());
+    }
   });
 
   it('arrow and globe samples render semantic links and persist their configuration', async () => {
