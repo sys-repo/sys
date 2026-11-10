@@ -1,7 +1,7 @@
-import { describe, expect, expectError, it } from '@sys/testing/server';
+import { afterEach, beforeEach, describe, expect, expectError, it } from '@sys/testing/server';
 import { PATH, syncPiAgentImport } from '../../code/sys.driver/driver-pi/-scripts/-prep.u.ts';
 import { PI_AGENT_IMPORT_BASE } from '../../code/sys.driver/driver-pi/src/m.cli/u/u.resolve.pkg.ts';
-import { Fs, Is, Str, type t, Time } from '../common.ts';
+import { Cli, Fs, Is, Str, type t, Time } from '../common.ts';
 import { main } from '../task.upgrade.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../..');
@@ -9,6 +9,21 @@ const path = PATH.fromRoot(root);
 const success: t.Process.InheritOutput = { success: true, code: 0, signal: null };
 
 describe('scripts/task.upgrade', () => {
+  let commands: string[];
+  let info: typeof console.info;
+  beforeEach(() => {
+    commands = [];
+    info = console.info;
+    console.info = (...args: unknown[]) => {
+      // Observe actionable commands, not prose, layout, or console-call boundaries.
+      const text = Cli.stripAnsi(args.map(String).join(' '));
+      commands.push(...text.match(/\bdeno task [\w:-]+/g) ?? []);
+    };
+  });
+  afterEach(() => {
+    console.info = info;
+  });
+
   it('canonical apply → refresh newly written metadata → install from the repository root', async () => {
     const fixture = (await Fs.makeTempDir({ prefix: 'upgrade.pi.' })).absolute;
     const target = PATH.fromRoot(fixture);
@@ -77,6 +92,7 @@ describe('scripts/task.upgrade', () => {
       },
       invoke: unexpectedInstall,
     });
+    expect(commands).to.eql([]);
   });
 
   it('upgrade rejection → no refresh; refresh rejection → task rejects with the original error', async () => {
@@ -101,9 +117,10 @@ describe('scripts/task.upgrade', () => {
       })
     );
     expect(failedRefresh).to.equal(failure);
+    expect(commands).to.eql([]);
   });
 
-  it('pending install → upgrade waits for completion', async () => {
+  it('pending install → no guidance; successful install → each next-step command once', async () => {
     const install = Promise.withResolvers<t.Process.InheritOutput>();
     let completed = false;
     const pending = (async () => {
@@ -119,11 +136,13 @@ describe('scripts/task.upgrade', () => {
     try {
       await Time.wait(0);
       expect(completed).to.eql(false);
+      expect(commands).to.eql([]);
     } finally {
       install.resolve(success);
       await pending;
     }
     expect(completed).to.eql(true);
+    expect(commands.sort()).to.eql(['deno task bump', 'deno task prep']);
   });
 
   it('unsuccessful install → upgrade rejects with the exit status and retained-write warning', async () => {
@@ -137,6 +156,7 @@ describe('scripts/task.upgrade', () => {
     );
     expect(error.message).to.include('deno install failed (exit 17)');
     expect(error.message).to.include('dependency changes are retained');
+    expect(commands).to.eql([]);
   });
 
   it('install spawn rejection → propagate the original error', async () => {
@@ -150,6 +170,7 @@ describe('scripts/task.upgrade', () => {
       })
     );
     expect(error).to.equal(failure);
+    expect(commands).to.eql([]);
   });
 });
 

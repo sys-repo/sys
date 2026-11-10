@@ -1,6 +1,6 @@
 import { WorkspaceCli } from '@sys/workspace/cli';
 import { PATH, syncPiAgentImport } from '../code/sys.driver/driver-pi/-scripts/-prep.u.ts';
-import { Err, Fs, Process, type t } from './common.ts';
+import { c, Err, Fs, Process, Str, type t } from './common.ts';
 
 type UpgradeResult =
   | { readonly kind: Exclude<t.WorkspaceCli.Result['kind'], 'apply'> }
@@ -29,6 +29,15 @@ export async function main(argv: readonly string[], lib: Lib = {
     if (!install.success) {
       throw Err.std(`deno install failed (exit ${install.code}); dependency changes are retained.`);
     }
+    console.info();
+    console.info(Str.dedent(`
+      Dependencies installed. Workspace preparation and verification remain.
+
+      Next: ${c.cyan('deno task prep')}
+            ${c.gray('Refresh generated artifacts, including CI workflows.')}
+
+      If proceeding through ${c.cyan('deno task bump')}, its post-bump preparation handles this.
+    `));
   }
   return result;
 }
