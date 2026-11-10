@@ -6,6 +6,20 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
+@sys.ui-components
+dev-list-controls.plan.md
+- [x] [bullet-list-interaction.plan.md](./bullet-list-interaction.plan.md)
+- [ ] fix(ui-components): render neutral filled markers for BulletList actions
+- [ ] feat(ui-components): add opt-in monospace anchors
+- [ ] feat(ui-components): expose BulletList item padding
+- [ ] feat(ui-components): add Dev.List for controlled choices and commands
+- [ ] refactor(ui-components): adopt Dev.List in BulletList and Anchor specimens
+- [ ] refactor(ui): adopt Dev.List for passkey fixture selection
+- [ ] feat(ui-components): add shared Markdown label presentation to Dev.List
+
+
+
+
 
 @sys.ui
 passkey-panel.plan.md
@@ -207,5 +221,6 @@ cmd-first-kernels.plan.md
 @sys.driver-vite
 ci-proof-lane-repair.plan.md
 - [x] 02f3ae9b5 fix(ci): preserve explicit proof lanes through workflow generation
+
 
 
