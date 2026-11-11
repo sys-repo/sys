@@ -5,6 +5,8 @@ import { actionLabel } from './u.actions.ts';
 export const Operation: t.FC<t.Passkey.OperationProps> = (props) => {
   const { operation } = props;
   const pending = operation.kind === 'pending';
+  let text = 'Idle';
+  if (operation.kind === 'pending') text = `${actionLabel(operation.action)}: ${operation.phase}`;
 
   /**
    * Render:
@@ -29,9 +31,7 @@ export const Operation: t.FC<t.Passkey.OperationProps> = (props) => {
   return (
     <div className={styles.base.class}>
       <div role='status' aria-label='Operation' aria-atomic='true' className={styles.status.class}>
-        {operation.kind === 'pending'
-          ? `${actionLabel(operation.action)}: ${operation.phase}`
-          : 'Idle'}
+        {text}
       </div>
       <div data-spinner-slot='' aria-hidden='true' className={styles.spinner.class}>
         {pending && (

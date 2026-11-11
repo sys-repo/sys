@@ -1,130 +1,108 @@
-import { Color, css, D, Is, KeyValue, type t } from './common.ts';
+import React from 'react';
+import { Color, css, D, KeyValue, Spinners, type t } from './common.ts';
 import { actionsOf } from './u.actions.ts';
-import { Action } from './ui.Action.tsx';
-import { EmptyValue } from './ui.EmptyValue.tsx';
-import { Operation } from './ui.Operation.tsx';
-import { Result } from './ui.Result.tsx';
-import { Warning } from './ui.Warning.tsx';
+import { Actions } from './ui.Actions.tsx';
+import { Context } from './ui.Context.tsx';
+import { Status } from './ui.Status.tsx';
 
 /**
- * Project supplied passkey observations and emit intent without owning authentication.
+ * Compose the same independent sections without owning authentication or duplicating their rows.
  */
 export const Passkey: t.FC<t.Passkey.Props> = (props) => {
-  const { debug = D.debug, snapshot } = props;
-  const { authentication, operation, context, result } = snapshot;
+  const { debug = D.debug, snapshot, sections = D.sections } = props;
   const theme = Color.theme(props.theme);
-  const actions = actionsOf(props);
-  const pending = operation.kind === 'pending';
-
-  const styles = {
-    base: css({
-      backgroundColor: Color.ruby(debug ? 0.1 : 0),
-      color: theme.fg,
-      padding: 0,
-      minWidth: 0,
-    }),
-    value: css({ minWidth: 0, overflowWrap: 'anywhere', whiteSpace: 'normal' }),
+  const { authentication, operation, context: configuration, result } = snapshot;
+  const requests: t.Passkey.ActionsProps = {
+    authentication,
+    operation,
+    context: configuration,
+    onCreateAccount: props.onCreateAccount,
+    onSignIn: props.onSignIn,
+    onAddPasskey: props.onAddPasskey,
+    onSignOut: props.onSignOut,
+    theme: theme.name,
   };
+  const actions = (sections.actions ?? D.sections.actions) && actionsOf(requests).length > 0;
+  const status = sections.status ?? D.sections.status;
+  const context = sections.context ?? D.sections.context;
+  if (!actions && !status && !context) return null;
 
-  const value = (text: string) => <div className={styles.value.class}>{text}</div>;
-  const items: t.KeyValue.Item[] = [
-    { id: 'title', kind: 'title', y: [0, 1], v: D.name },
-    ...actions.map((action): t.KeyValue.Item => ({
-      id: action.id,
-      k: action.key,
-      v: (
-        <Action
-          label={action.label}
-          reason={action.reason}
-          pending={pending}
-          onClick={action.onClick}
-          theme={theme.name}
-        />
-      ),
-    })),
-  ];
-
-  if (actions.length > 0) items.push({ id: 'actions-divider', kind: 'hr' });
-  items.push(
-    {
-      id: 'authentication',
-      k: 'Authentication',
-      v: authentication.kind === 'unknown'
-        ? (
-          <Warning
-            message={authenticationText(authentication)}
-            ariaLabel='Authentication unknown'
-            theme={theme.name}
-          />
-        )
-        : value(authenticationText(authentication)),
-    },
-    {
-      id: 'principal',
-      k: 'Principal',
-      v: authentication.kind === 'signed-in' ? value(authentication.principal) : <EmptyValue />,
-    },
+  const base = css({
+    backgroundColor: Color.ruby(debug ? 0.1 : 0),
+    color: theme.fg,
+    padding: 0,
+    minWidth: 0,
+  });
+  // Reserve space within the existing title line, never a new pending-only row.
+  const titlePending = !status && operation.kind === 'pending';
+  const activityStyle = css({
+    display: 'inline-grid',
+    verticalAlign: 'middle',
+    width: D.spinner.width,
+    height: D.spinner.height,
+  });
+  const elSpinner = titlePending && (
+    <div aria-hidden='true'>
+      <Spinners.Bar width={D.spinner.width} height={D.spinner.height} theme={theme.name} />
+    </div>
   );
-
-  if (authentication.kind === 'signed-in') {
-    items.push({
-      id: 'credential-count',
-      k: 'Registered keys',
-      v: value(
-        authentication.credentialCount === undefined
-          ? 'Unknown'
-          : String(authentication.credentialCount),
-      ),
-    });
-  }
-
-  items.push(
-    {
-      id: 'operation',
-      k: 'Operation',
-      v: <Operation operation={operation} theme={theme.name} />,
-    },
-    { id: 'result', k: 'Last result', v: <Result result={result} /> },
-    { id: 'context-divider', kind: 'hr' },
-    { id: 'context-title', kind: 'title', v: 'Context' },
-    { id: 'origin', k: 'Origin', v: value(displayConfig(context.origin, 'Unknown')) },
-    { id: 'rp-id', k: 'Relying Party ID', v: value(displayConfig(context.rpId, 'Not configured')) },
-    { id: 'web-authn', k: 'WebAuthn', v: value(availabilityText(context.webAuthn)) },
-    { id: 'verifier', k: 'Verifier', v: value(availabilityText(context.verifier)) },
+  const elActivity = (
+    <div
+      key='activity'
+      data-passkey-title-spinner=''
+      className={activityStyle.class}
+      role={titlePending ? 'progressbar' : undefined}
+      aria-label={titlePending ? 'Passkey operation in progress' : undefined}
+    >
+      {elSpinner}
+    </div>
   );
-
-  return (
-    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
+  const appearance = { theme: theme.name };
+  const divider = (before: string) => (
+    <div key='divider' data-passkey-divider={before} aria-hidden='true'>
       <KeyValue.UI
-        items={items}
-        layout={{ kind: 'spaced', columnGap: 12, align: 'start' }}
+        items={[{ id: `${before}-divider`, kind: 'hr', y: 5 + D.layout.rowGap }]}
         theme={theme.name}
       />
     </div>
   );
+
+  const elTitle = (
+    <KeyValue.UI
+      key='title'
+      items={[{ id: 'title', kind: 'title', y: [0, 1], v: [D.name, elActivity] }]}
+      theme={theme.name}
+      style={{ marginBottom: D.layout.rowGap }}
+    />
+  );
+  const elActions = actions && <Actions key='actions' {...requests} />;
+  const elStatusDivider = actions && divider('status');
+  const elStatus = status && (
+    <React.Fragment key='status'>
+      {elStatusDivider}
+      <Status
+        key='content'
+        authentication={authentication}
+        operation={operation}
+        result={result}
+        {...appearance}
+      />
+    </React.Fragment>
+  );
+  const elContextDivider = (actions || status) && divider('context');
+  const elContext = context && (
+    <React.Fragment key='context'>
+      {elContextDivider}
+      <Context key='content' context={snapshot.context} {...appearance} />
+    </React.Fragment>
+  );
+
+  return (
+    <div className={css(base, props.style).class} data-component={D.displayName}>
+      {elTitle}
+      {elActions}
+      {elStatus}
+      {elContext}
+    </div>
+  );
 };
-
-/**
- * Helpers:
- */
-function authenticationText(value: t.Passkey.Authentication): string {
-  switch (value.kind) {
-    case 'checking':
-      return 'Checking session';
-    case 'unknown':
-      return `Unknown: ${value.summary}`;
-    case 'signed-out':
-      return 'Signed out';
-    case 'signed-in':
-      return 'Signed in';
-  }
-}
-
-function availabilityText(value: t.Passkey.Availability): string {
-  if (value.kind === 'available') return 'Available';
-  return `${value.kind === 'unknown' ? 'Unknown' : 'Unavailable'}: ${value.reason}`;
-}
-
-function displayConfig(value: string | undefined, fallback: string): string {
-  return value && !Is.blank(value) ? value : fallback;
-}

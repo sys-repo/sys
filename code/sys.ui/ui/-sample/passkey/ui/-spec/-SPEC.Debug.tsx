@@ -19,7 +19,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
  * Signals:
- * Theme/debug persist; state presets, callback toggle, and captured intent remain ephemeral.
+ * Theme/debug persist; fixtures, callbacks, intent, and section display remain ephemeral.
  */
 export function createDebugSignals() {
   const s = Signal.create;
@@ -31,6 +31,8 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     fixture: s<t.PasskeyFixture>(Fixtures[0]),
     callbacksEnabled: s(true),
+    view: s<t.PasskeySpecView>('panel'),
+    sections: s<t.Passkey.Sections>(D.sections),
     intent: s<t.PasskeyIntent | undefined>(undefined),
   };
   const p = props;
@@ -59,6 +61,8 @@ export function createDebugSignals() {
     p.theme.value = defaults.theme;
     p.debug.value = defaults.debug;
     p.callbacksEnabled.value = true;
+    p.view.value = 'panel';
+    p.sections.value = D.sections;
     select(Fixtures[0]);
   }
 
@@ -143,6 +147,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.toggle(p.callbacksEnabled)}
       />
       <Intent intent={v.intent} />
+
+      <hr />
+      <div className={Styles.title.class}>Presentation</div>
+      <Dev.Button
+        block
+        label={() => `display: ${v.view}`}
+        onClick={() => {
+          Signal.cycle<t.PasskeySpecView>(p.view, ['panel', 'actions', 'status', 'context']);
+        }}
+      />
+      {v.view === 'panel' && (['actions', 'status', 'context'] as const).map((name) => (
+        <Dev.Button
+          key={name}
+          block
+          label={() => `show ${name}: ${v.sections[name] ?? D.sections[name]}`}
+          onClick={() => {
+            p.sections.value = {
+              ...p.sections.value,
+              [name]: !(p.sections.value[name] ?? D.sections[name]),
+            };
+          }}
+        />
+      ))}
 
       <hr />
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

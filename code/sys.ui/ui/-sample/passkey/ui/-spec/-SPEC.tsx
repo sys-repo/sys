@@ -9,14 +9,40 @@ export default Spec.describe(D.displayName, (e) => {
 
   function Root({ debug }: t.DebugProps) {
     const v = Signal.toObject(debug.props);
-    return (
-      <Passkey.UI
-        snapshot={v.fixture.snapshot}
-        {...(v.callbacksEnabled ? debug.actions : {})}
-        debug={v.debug}
-        theme={v.theme}
-      />
-    );
+    const { authentication, operation, context, result } = v.fixture.snapshot;
+    const appearance = { debug: v.debug, theme: v.theme };
+    const callbacks = v.callbacksEnabled ? debug.actions : {};
+    switch (v.view) {
+      case 'actions':
+        return (
+          <Passkey.UI
+            snapshot={v.fixture.snapshot}
+            sections={{ actions: true, status: false, context: false }}
+            {...callbacks}
+            {...appearance}
+          />
+        );
+      case 'status':
+        return (
+          <Passkey.UI.Status
+            authentication={authentication}
+            operation={operation}
+            result={result}
+            {...appearance}
+          />
+        );
+      case 'context':
+        return <Passkey.UI.Context context={context} {...appearance} />;
+      case 'panel':
+        return (
+          <Passkey.UI
+            snapshot={v.fixture.snapshot}
+            sections={v.sections}
+            {...callbacks}
+            {...appearance}
+          />
+        );
+    }
   }
 
   e.it('init', (e) => {

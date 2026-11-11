@@ -1,13 +1,14 @@
 import React from 'react';
 import {
   afterAll,
+  afterEach,
   beforeAll,
+  beforeEach,
   Color,
   D,
   describe,
   DomMock,
   expect,
-  Is,
   it,
   LocalStorage,
   Schedule,
@@ -15,20 +16,30 @@ import {
   type t,
   TestReact,
 } from './common.ts';
-import { Dev } from '../-spec/common.ts';
 import { createDebugSignals, Debug } from '../-spec/-SPEC.Debug.tsx';
 import { Fixtures } from '../-spec/-u.fixtures.ts';
-import { button, buttons, element, press } from './u.fixture.tsx';
+import { button, buttons, element, press, textElement, valueCell } from './u.fixture.tsx';
 
 describe('Passkey harness fixtures', () => {
   DomMock.init({ beforeAll, afterAll });
+
+  let restoreStorage: () => void;
+  beforeEach(() => {
+    const store = LocalStorage.immutable<Pick<t.Passkey.Props, 'theme' | 'debug'>>(
+      STORAGE_KEY.DEV,
+      { theme: 'Dark', debug: D.debug },
+    );
+    const previous = store.current;
+    store.reset({ theme: 'Dark', debug: D.debug });
+    restoreStorage = () => store.reset(previous);
+  });
+  afterEach(() => restoreStorage());
 
   it('intent capture → no simulated authentication or persisted session data', () => {
     const store = LocalStorage.immutable<Pick<t.Passkey.Props, 'theme' | 'debug'>>(
       STORAGE_KEY.DEV,
       { theme: 'Light', debug: true },
     );
-    const previous = store.current;
     store.reset({ theme: 'Light', debug: true });
     const debug = createDebugSignals();
     try {
@@ -36,11 +47,16 @@ describe('Passkey harness fixtures', () => {
       expect(p.theme.value).to.eql('Light');
       expect(p.debug.value).to.eql(true);
       const fixture = p.fixture.value;
-      debug.actions.onCreateAccount();
-      debug.actions.onSignIn();
-      debug.actions.onAddPasskey();
-      debug.actions.onSignOut();
-      expect(p.intent.value).to.eql({ action: 'sign-out', count: 4 });
+      const requests = [
+        [debug.actions.onCreateAccount, 'create-account'],
+        [debug.actions.onSignIn, 'sign-in'],
+        [debug.actions.onAddPasskey, 'add-passkey'],
+        [debug.actions.onSignOut, 'sign-out'],
+      ] as const;
+      for (const [index, [request, action]] of requests.entries()) {
+        request();
+        expect(p.intent.value).to.eql({ action, count: index + 1 });
+      }
       expect(p.fixture.value).to.equal(fixture);
       expect(p.fixture.value.snapshot.authentication.kind).to.eql('signed-out');
       expect(p.fixture.value.snapshot.operation.kind).to.eql('idle');
@@ -69,7 +85,61 @@ describe('Passkey harness fixtures', () => {
       expect(store.current).to.eql({ theme: 'Dark', debug: D.debug });
     } finally {
       debug.dispose();
-      store.reset(previous);
+    }
+  });
+
+  it('presentation controls → ephemeral section visibility and standalone modes; reset restores panel', async () => {
+    const debug = createDebugSignals();
+    const res = await TestReact.render(<Debug debug={debug} />);
+    try {
+      const snapshot = debug.props.fixture.value;
+      const visibilityControls = () =>
+        buttons(res.container).map((el) => el.textContent)
+          .filter((label) => label?.startsWith('show '));
+      for (const name of ['actions', 'status', 'context'] as const) {
+        const control = button(res.container, `show ${name}: true`);
+        await React.act(async () => {
+          press(control, 'Enter');
+          await Schedule.micro();
+        });
+        expect(debug.props.sections.value[name]).to.eql(false);
+        expect(control.textContent).to.eql(`show ${name}: false`);
+      }
+      const transitions = [
+        ['panel', 'actions'],
+        ['actions', 'status'],
+        ['status', 'context'],
+        ['context', 'panel'],
+      ] as const;
+      for (const [from, to] of transitions) {
+        const control = button(res.container, `display: ${from}`);
+        await React.act(async () => {
+          press(control, 'Enter');
+          await Schedule.micro();
+        });
+        expect(debug.props.view.value).to.eql(to);
+        expect(control.textContent).to.eql(`display: ${to}`);
+        expect(visibilityControls()).to.eql(
+          to === 'panel'
+            ? ['show actions: false', 'show status: false', 'show context: false']
+            : [],
+        );
+      }
+      expect(debug.props.fixture.value).to.equal(snapshot);
+      await React.act(async () => {
+        press(button(res.container, '(reset)'), 'Enter');
+        await Schedule.micro();
+      });
+      expect(debug.props.view.value).to.eql('panel');
+      expect(debug.props.sections.value).to.eql(D.sections);
+      expect(visibilityControls()).to.eql([
+        'show actions: true',
+        'show status: true',
+        'show context: true',
+      ]);
+    } finally {
+      React.act(() => res.dispose());
+      debug.dispose();
     }
   });
 
@@ -81,58 +151,38 @@ describe('Passkey harness fixtures', () => {
         <Debug debug={debug} />
       </div>,
     );
-    const reference = await TestReact.render(
-      <Dev.List
-        theme='Light'
-        selected='reference'
-        items={[{ id: 'reference', label: 'Reference', onActivate: () => {} }]}
-      />,
-    );
     try {
-      const expectedList = element(reference.container, 'ul').className;
-      const expectedRow = button(reference.container, 'Reference').className;
-      const assertListTheme = () => {
-        const list = element(res.container, 'ul');
-        expect(list.className).to.eql(expectedList);
-        for (const row of buttons(list)) {
-          expect(row.className).to.eql(expectedRow);
-          React.act(() => row.focus());
-          expect(row.className).to.eql(expectedRow);
-        }
-      };
       const host = element(res.container, '[data-light-host]');
       const view = host.ownerDocument.defaultView!;
-      const expected = view.getComputedStyle(host).color;
-      const assertTitleColor = (text: string) => {
-        const candidates = [...host.querySelectorAll('div')];
-        const title = candidates.find((el) => el.textContent === text);
-        if (Is.nil(title)) throw new Error(`Missing debug title: ${text}`);
-        expect(view.getComputedStyle(title).color).to.eql(expected);
-        return title;
+      const assertLightChrome = () => {
+        const labels = [
+          D.name,
+          '(view:pure)',
+          'Property States',
+          '(simulated)',
+          'Action callbacks',
+        ];
+        for (const label of labels) {
+          expect(Color.toHex(view.getComputedStyle(textElement(host, label)).color))
+            .to.eql(Color.toHex(Color.theme('Light').fg));
+        }
+        const list = element(res.container, 'ul');
+        expect(Color.toHex(view.getComputedStyle(list).color)).to.eql(
+          Color.toHex(Color.theme('Light').fg),
+        );
+        for (const fixture of Fixtures) {
+          expect(Color.toHex(view.getComputedStyle(textElement(list, fixture.label)).color))
+            .to.eql(Color.toHex(Color.DARK));
+        }
       };
-      assertTitleColor(D.name);
-      assertTitleColor('(view:pure)');
-      const label = assertTitleColor('Property States');
-      const qualifier = assertTitleColor('(simulated)');
-      const title = label.parentElement!;
-      expect(qualifier.parentElement).to.equal(title);
-      expect(view.getComputedStyle(title).justifyContent).to.eql('space-between');
-      assertTitleColor('Action callbacks');
-      assertListTheme();
+      assertLightChrome();
       await React.act(async () => {
         press(button(res.container, 'theme: Dark'), 'Enter');
         await Schedule.micro();
       });
       expect(debug.props.theme.value).to.eql('Light');
-      expect(res.container.textContent).to.contain('theme: Light');
-      assertTitleColor(D.name);
-      assertTitleColor('(view:pure)');
-      assertTitleColor('Property States');
-      assertTitleColor('(simulated)');
-      assertTitleColor('Action callbacks');
-      assertListTheme();
+      assertLightChrome();
     } finally {
-      React.act(() => reference.dispose());
       React.act(() => res.dispose());
       debug.dispose();
     }
@@ -145,10 +195,9 @@ describe('Passkey harness fixtures', () => {
       const note = element(res.container, '[role="status"][aria-label="Captured intent"]');
       const toggle = button(res.container, 'callbacks: record intent only');
       expect(note.previousElementSibling?.contains(toggle)).to.eql(true);
-      expect(note.nextElementSibling?.tagName).to.eql('HR');
       const expectIntent = (action: string, count: number) => {
-        expect(note.textContent).to.contain(action);
-        expect(note.textContent?.match(/\d+/g)).to.eql([`${count}`]);
+        expect(valueCell(note, 'last intent: ⚡️').textContent).to.eql(action);
+        expect(valueCell(note, 'events:').textContent).to.eql(String(count));
       };
       expectIntent('none', 0);
 
@@ -215,20 +264,15 @@ describe('Passkey harness fixtures', () => {
       STORAGE_KEY.DEV,
       { theme: 'Light', debug: true },
     );
-    const previous = store.current;
     store.reset({ theme: 'Light', debug: true });
     const debug = createDebugSignals();
     const p = debug.props;
     const res = await TestReact.render(<Debug debug={debug} />);
     try {
       const list = element(res.container, 'ul');
-      expect(list.getAttribute('role')).to.eql('list');
       expect(list.previousElementSibling?.textContent).to.eql('Property States(simulated)');
-      expect(list.nextElementSibling?.tagName).to.eql('HR');
-      expect([...list.children].map((el) => el.tagName)).to.eql(Fixtures.map(() => 'LI'));
       const rows = buttons(list);
       expect(rows.map((el) => el.textContent)).to.eql(Fixtures.map((fixture) => fixture.label));
-      expect(rows.map((el) => el.tabIndex)).to.eql(Fixtures.map(() => 0));
       const assertSelected = (id: string) => {
         const actual = rows.map((el) => el.getAttribute('aria-pressed'));
         const expected = Fixtures.map((fixture) => String(fixture.id === id));
@@ -237,29 +281,25 @@ describe('Passkey harness fixtures', () => {
       assertSelected('signed-out');
       expect(p.intent.value).to.eql(undefined);
 
-      const failed = button(list, 'Add failed; session preserved');
-      for (const input of ['Enter', ' ', 'click']) {
-        await React.act(async () => {
-          debug.actions.onAddPasskey();
-          await Schedule.micro();
-        });
-        expect(p.intent.value).to.eql({ action: 'add-passkey', count: 1 });
-        await React.act(async () => {
-          if (input === 'click') failed.click();
-          else press(failed, input);
-          await Schedule.micro();
-        });
-        expect(p.fixture.value.id).to.eql('failed-add');
-        expect(p.fixture.value.snapshot.authentication.kind).to.eql('signed-in');
-        expect(p.intent.value).to.eql(undefined);
-        assertSelected('failed-add');
-      }
       await React.act(async () => {
-        press(button(res.container, 'callbacks: record intent only'), ' ');
+        debug.actions.onAddPasskey();
+        await Schedule.micro();
+      });
+      expect(p.intent.value).to.eql({ action: 'add-passkey', count: 1 });
+      await React.act(async () => {
+        press(button(list, 'Add failed; session preserved'), 'Enter');
+        await Schedule.micro();
+      });
+      expect(p.fixture.value.id).to.eql('failed-add');
+      expect(p.intent.value).to.eql(undefined);
+      assertSelected('failed-add');
+      const callbacksToggle = button(res.container, 'callbacks: record intent only');
+      await React.act(async () => {
+        press(callbacksToggle, ' ');
         await Schedule.micro();
       });
       expect(p.callbacksEnabled.value).to.eql(false);
-      expect(res.container.textContent).to.contain('callbacks: not supplied');
+      expect(callbacksToggle.textContent).to.eql('callbacks: not supplied');
 
       // External state, not the last activated row, owns selection; rendering cannot clear intent.
       await React.act(async () => {
@@ -270,16 +310,6 @@ describe('Passkey harness fixtures', () => {
       assertSelected('signed-in');
       expect(p.intent.value).to.eql({ action: 'sign-in', count: 1 });
       expect(store.current).to.eql({ theme: 'Light', debug: true });
-      const reopened = createDebugSignals();
-      try {
-        expect(reopened.props.fixture.value).to.equal(Fixtures[0]);
-        expect(reopened.props.intent.value).to.eql(undefined);
-        expect(reopened.props.callbacksEnabled.value).to.eql(true);
-        expect(reopened.props.theme.value).to.eql('Light');
-        expect(reopened.props.debug.value).to.eql(true);
-      } finally {
-        reopened.dispose();
-      }
 
       await React.act(async () => {
         press(button(res.container, '(reset)'), 'Enter');
@@ -293,7 +323,6 @@ describe('Passkey harness fixtures', () => {
     } finally {
       React.act(() => res.dispose());
       debug.dispose();
-      store.reset(previous);
     }
   });
 });

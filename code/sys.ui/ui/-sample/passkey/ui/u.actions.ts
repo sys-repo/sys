@@ -1,4 +1,4 @@
-import { Is, type t } from './common.ts';
+import { D, Is, type t } from './common.ts';
 
 type Action = {
   readonly id: t.Passkey.Action;
@@ -9,8 +9,8 @@ type Action = {
 };
 
 /** Project only actions appropriate to the supplied session; never execute or serialize work. */
-export function actionsOf(props: t.Passkey.Props): readonly Action[] {
-  const { authentication } = props.snapshot;
+export function actionsOf(props: t.Passkey.ActionsProps): readonly Action[] {
+  const { authentication } = props;
   switch (authentication.kind) {
     case 'signed-out':
       return [
@@ -27,7 +27,7 @@ export function actionsOf(props: t.Passkey.Props): readonly Action[] {
   }
 
   function action(id: t.Passkey.Action, key: string, onClick?: () => void): Action {
-    const reason = disabledReason(props.snapshot, id, onClick);
+    const reason = disabledReason(props, id, onClick);
     return { id, key, label: actionLabel(id), reason, onClick: reason ? undefined : onClick };
   }
 }
@@ -47,11 +47,11 @@ export function actionLabel(action: t.Passkey.Action): string {
 
 /** Sign-out needs a supplied session callback, not browser ceremony prerequisites. */
 function disabledReason(
-  snapshot: t.Passkey.Snapshot,
+  snapshot: Pick<t.Passkey.Snapshot, 'operation' | 'context'>,
   action: t.Passkey.Action,
   callback?: () => void,
 ) {
-  if (snapshot.operation.kind === 'pending') return 'Operation in progress';
+  if (snapshot.operation.kind === 'pending') return D.pendingReason;
   if (!callback) return 'Action not connected';
   if (action === 'sign-out') return;
   const { origin, rpId, webAuthn, verifier } = snapshot.context;

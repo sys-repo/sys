@@ -1,5 +1,5 @@
 import React from 'react';
-import { DomMock, type t, TestReact } from './common.ts';
+import { DomMock, Is, type t, TestReact } from './common.ts';
 import { Passkey } from '../mod.ts';
 
 /** Test-owned observations, independent of the interactive harness fixtures. */
@@ -48,6 +48,22 @@ export function button(container: HTMLElement, label: string): HTMLElement {
 
 export function buttons(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>('[role="button"]'));
+}
+
+/** Find authored text without depending on generated classes or wrapper depth. */
+export function textElement(container: HTMLElement, text: string): HTMLElement {
+  const el = [...container.querySelectorAll<HTMLElement>('div')].find((el) =>
+    el.childElementCount === 0 && el.textContent === text
+  );
+  if (Is.nil(el)) throw new Error(`Missing text: ${text}`);
+  return el;
+}
+
+/** A plain KeyValue key and its adjacent value cell. */
+export function valueCell(container: HTMLElement, label: string): Element {
+  const value = textElement(container, label).nextElementSibling;
+  if (Is.nil(value)) throw new Error(`Missing value for: ${label}`);
+  return value;
 }
 
 export function press(el: HTMLElement, key: string) {

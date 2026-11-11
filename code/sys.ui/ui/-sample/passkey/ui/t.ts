@@ -4,15 +4,51 @@ import type { t } from './common.ts';
  * Sample-local passkey diagnostics: supplied observations and action intent, not authentication IO.
  */
 export declare namespace Passkey {
-  export type Lib = { readonly UI: t.FC<Props> };
+  export type Lib = { readonly UI: UI };
 
-  /** Pure view input. Callbacks request work; only a new snapshot changes displayed facts. */
-  export type Props = {
+  /** Callable aggregate and independent diagnostic sections; no parent mount is required. */
+  export type UI = t.FC<Props> & {
+    readonly Actions: t.FC<ActionsProps>;
+    readonly Status: t.FC<StatusProps>;
+    readonly Context: t.FC<ContextProps>;
+  };
+
+  /** Pure panel with a title; pending activity moves to the title when Status is hidden. */
+  export type Props = Appearance & Callbacks & {
     snapshot: Snapshot;
+    /** Presentation only; omitted members remain visible. Does not alter action eligibility. */
+    sections?: Sections;
+  };
+
+  /** Default order is Actions → Status → Context; use standalone sections for custom placement. */
+  export type Sections = {
+    readonly actions?: boolean;
+    readonly status?: boolean;
+    readonly context?: boolean;
+  };
+
+  /** Unframed request controls; host owns progress feedback. Empty while authentication is uncertain. */
+  export type ActionsProps =
+    & Appearance
+    & Callbacks
+    & Pick<Snapshot, 'authentication' | 'operation' | 'context'>;
+
+  /** Supplied authentication, operation, and result; owns detailed operation feedback when mounted. */
+  export type StatusProps = Appearance & Pick<Snapshot, 'authentication' | 'operation' | 'result'>;
+
+  /** Configuration and prerequisite observations; documentation keys never turn values into links. */
+  export type ContextProps = Appearance & Pick<Snapshot, 'context'>;
+
+  /** Intent emission only; the renderer never performs authentication IO. */
+  export type Callbacks = {
     onCreateAccount?: () => void;
     onSignIn?: () => void;
     onAddPasskey?: () => void;
     onSignOut?: () => void;
+  };
+
+  /** Explicit presentation inputs shared by the aggregate and independent sections. */
+  export type Appearance = {
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.Style.Input;

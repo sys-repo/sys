@@ -9,6 +9,7 @@ import {
   DomMock,
   type Event,
   expect,
+  Is,
   it,
   LocalStorage,
   Rx,
@@ -152,6 +153,50 @@ describe('passkey cached-spec context lifetime', () => {
     });
   }
 
+  it('pure subject → framed Actions-only, standalone sections, and aggregate visibility', async () => {
+    const suite = (await import('../-spec/-SPEC.tsx')).default;
+    const host = controller();
+    try {
+      await load(host.events, suite);
+      const debug = await debugOf<ViewSignals>(host.events);
+      const fixture = Fixtures.find((fixture) => fixture.id === 'authenticator');
+      if (Is.nil(fixture)) throw new Error('Missing pending fixture');
+      debug.select(fixture);
+      for (const view of ['panel', 'actions', 'status', 'context'] as const) {
+        debug.props.view.value = view;
+        debug.props.sections.value = { context: false };
+        const props = (await host.events.info.get()).render.props!;
+        const subject = await render(host.events, props.subject.renderer);
+        if (!React.isValidElement(subject)) {
+          throw new Error('Expected the registered React subject');
+        }
+        const res = await TestReact.render(subject);
+        try {
+          const expected = view === 'panel' ? ['actions', 'status'] : [view];
+          expect(
+            [...res.container.querySelectorAll('[data-passkey-section]')].map((el) =>
+              el.getAttribute('data-passkey-section')
+            ),
+          ).to.eql(expected);
+          const titles = [...res.container.querySelectorAll('div')].filter((el) =>
+            el.children.length === 0 && el.textContent === 'Passkey'
+          );
+          expect(titles.length).to.eql(view === 'panel' || view === 'actions' ? 1 : 0);
+          expect(res.container.querySelectorAll('[role="progressbar"]').length).to.eql(
+            view === 'actions' ? 1 : 0,
+          );
+          expect(res.container.querySelectorAll('[aria-label="Operation"]').length).to.eql(
+            view === 'panel' || view === 'status' ? 1 : 0,
+          );
+        } finally {
+          React.act(() => res.dispose());
+        }
+      }
+    } finally {
+      host.dispose();
+    }
+  });
+
   it('pure view → re-entry clears fixture/intent state without changing the previous context', async () => {
     const suite = (await import('../-spec/-SPEC.tsx')).default;
     const first = controller();
@@ -162,6 +207,8 @@ describe('passkey cached-spec context lifetime', () => {
       a.select(Fixtures[1]);
       a.actions.onSignIn();
       a.props.callbacksEnabled.value = false;
+      a.props.view.value = 'context';
+      a.props.sections.value = { actions: false, status: false, context: false };
       const intent = a.props.intent.value;
       first.dispose();
 
@@ -170,6 +217,9 @@ describe('passkey cached-spec context lifetime', () => {
       expect(b.props.fixture.value).to.equal(Fixtures[0]);
       expect(b.props.intent.value).to.eql(undefined);
       expect(b.props.callbacksEnabled.value).to.eql(true);
+      expect(b.props.view.value).to.eql('panel');
+      expect(b.props.sections.value).to.eql({ actions: true, status: true, context: true });
+      expect(a.props.view.value).to.eql('context');
       expect(a.props.fixture.value).to.equal(Fixtures[1]);
       expect(a.props.intent.value).to.equal(intent);
       expect(a.props.callbacksEnabled.value).to.eql(false);
