@@ -6,6 +6,12 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
+@sys.ui-components
+inline-label.plan.md
+- [ ] chore(ui-components): scaffold Text.Label primitive
+- [ ] feat(ui-components): add non-interactive inline Markdown labels
+- [ ] refactor(ui-components): compose Anchor sample labels with Text.Label
+
 
 
 @sys.ui
@@ -13,12 +19,14 @@ passkey-panel.plan.md
 - [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
 - [x] 1e48de614 style(ui): refine passkey debug panel labels and intent spacing
 - [x] 429560650 chore(ui): scaffold passkey integration spec and view navigation
-- [x] bc242cbd3 [link-grammar.plan.md](../@sys.ui-components/link-grammar.plan.md)
-- [ ] feat(ui): expose composable passkey diagnostic sections
-- [ ] feat(ui): compose passkey UI in integration specimen
+- [x] bc242cbd3 link-grammar.plan.md
+- [x] b3659c530 feat(ui): expose composable passkey diagnostic sections
+- [x] 5bb4c79dc feat(ui): compose passkey UI in integration specimen
+- [x] 8ba1a4939 feat(passkey): add UI-independent WebAuthn ceremonies
+- [ ] feat(passkey): define account service contracts
+- [ ] feat(passkey): add sample account service for Cell
+- [ ] feat(passkey): add reusable account runtime
 - [ ] feat(ui): connect real passkey operations in sample
-
-
 
 
 @sys
@@ -29,14 +37,9 @@ deno-api-containment.plan.md
 - [ ] docs(sys): design capability-sized Deno containment migrations
 
 
-
-
-
-
-
 @sys.driver-pi
 compile-cache-preload.plan.md
-- [ ] test(driver-pi): falsify compile-cache preload containment
+- [ ] test(driver-pi): prove scoped compile-cache preloading
 - [ ] test(driver-pi): prove official Pi preload startup
 - [ ] feat(process): support bounded child input for capture
 - [ ] test(driver-pi): prove official Pi preload compatibility
