@@ -1,16 +1,21 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
-import { Color, css, D, type t } from './common.ts';
+import { D, type t } from './common.ts';
+import { Passkey } from '../mod.ts';
 import { WebAuthnLink } from '../../-ui.Links.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
+/** Unconnected observations, not a simulated session or a runtime state store. */
+const snapshot: t.Passkey.Snapshot = {
+  authentication: { kind: 'unknown', summary: 'Passkey operations are not connected' },
+  operation: { kind: 'idle' },
+  context: {
+    webAuthn: { kind: 'unknown', reason: 'Not inspected' },
+    verifier: { kind: 'unavailable', reason: 'No verifier connected' },
+  },
+};
+
 export default Spec.describe(D.displayName, (e) => {
   const contexts = new WeakMap<ReturnType<typeof Spec.ctx>, t.DebugSignals>();
-
-  function Root({ debug }: t.DebugProps) {
-    const v = Signal.toObject(debug.props);
-    const style = css({ color: Color.theme(v.theme).fg, padding: 20 });
-    return <div className={style.class}>Hello world</div>;
-  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
@@ -25,7 +30,7 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size([360, null])
       .display('grid')
-      .render(() => <Root debug={debug} />);
+      .render(() => <Passkey.UI snapshot={snapshot} debug={p.debug.value} theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {

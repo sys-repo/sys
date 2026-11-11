@@ -13,10 +13,13 @@ import {
   it,
   LocalStorage,
   Rx,
+  type t,
   TestReact,
   type TestSuiteModel,
 } from './common.ts';
 import { Harness } from '../../-test.ui.ts';
+import { Passkey } from '../mod.ts';
+import { buttons, element, valueCell } from './u.fixture.tsx';
 import type { DebugSignals } from '../-spec.integration/-SPEC.Debug.tsx';
 import type { DebugValues } from '../-spec.integration/-t.ts';
 import { STORAGE_KEY as INTEGRATION_STORAGE } from '../-spec.integration/common.ts';
@@ -29,7 +32,7 @@ const specimens = [
     name: 'integration',
     load: () => import('../-spec.integration/-SPEC.tsx'),
     key: INTEGRATION_STORAGE.DEV,
-    text: 'Hello world',
+    text: 'Unknown: Passkey operations are not connected',
   },
   {
     name: 'pure view',
@@ -129,7 +132,8 @@ describe('passkey cached-spec context lifetime', () => {
         const res = await TestReact.render(<>{subject}{footer}</>);
         try {
           expect(res.container.textContent).to.contain(specimen.text);
-          expect(res.container.querySelector('a')?.getAttribute('target')).to.eql('_blank');
+          const reference = element(res.container, 'a[href="https://www.w3.org/TR/webauthn-3/"]');
+          expect(reference.getAttribute('target')).to.eql('_blank');
           const subjectRoot = res.container.firstElementChild!;
           const style = subjectRoot.ownerDocument.defaultView!.getComputedStyle(subjectRoot);
           expect(Color.toHex(style.color)).to.eql(Color.toHex(Color.theme('Light').fg));
@@ -152,6 +156,63 @@ describe('passkey cached-spec context lifetime', () => {
       }
     });
   }
+
+  it('integration subject → plain panel props, unconnected facts, and appearance-only reset', async () => {
+    const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
+    const store = LocalStorage.immutable<DebugValues>(INTEGRATION_STORAGE.DEV, initial);
+    const previous = store.current;
+    const host = controller();
+    store.reset(initial);
+    const snapshot: t.Passkey.Snapshot = {
+      authentication: { kind: 'unknown', summary: 'Passkey operations are not connected' },
+      operation: { kind: 'idle' },
+      context: {
+        webAuthn: { kind: 'unknown', reason: 'Not inspected' },
+        verifier: { kind: 'unavailable', reason: 'No verifier connected' },
+      },
+    };
+    try {
+      await load(host.events, suite);
+      const debug = await debugOf<DebugSignals>(host.events);
+      for (const theme of ['Light', 'Dark'] as const) {
+        debug.props.theme.value = theme;
+        debug.props.debug.value = true;
+        const props = (await host.events.info.get()).render.props!;
+        const subject = await render(host.events, props.subject.renderer);
+        if (!React.isValidElement<t.Passkey.Props>(subject)) {
+          throw new Error('Expected the registered React subject');
+        }
+        expect(subject.type).to.equal(Passkey.UI);
+        expect(subject.props).to.eql({ snapshot, theme, debug: true });
+
+        // Mount the registered panel directly, without harness state or preference-store props.
+        const res = await TestReact.render(subject);
+        try {
+          expect(valueCell(res.container, 'Authentication').textContent).to.eql(
+            '⚠ Unknown: Passkey operations are not connected',
+          );
+          expect(valueCell(res.container, 'Operation').textContent).to.eql('Idle');
+          expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
+          expect(valueCell(res.container, 'Verifier').textContent).to.eql(
+            'Unavailable: No verifier connected',
+          );
+          expect(buttons(res.container)).to.eql([]);
+        } finally {
+          React.act(() => res.dispose());
+        }
+      }
+      debug.reset();
+      const props = (await host.events.info.get()).render.props!;
+      const subject = await render(host.events, props.subject.renderer);
+      if (!React.isValidElement<t.Passkey.Props>(subject)) {
+        throw new Error('Expected the registered React subject');
+      }
+      expect(subject.props).to.eql({ snapshot, ...initial });
+    } finally {
+      host.dispose();
+      store.reset(previous);
+    }
+  });
 
   it('pure subject → framed Actions-only, standalone sections, and aggregate visibility', async () => {
     const suite = (await import('../-spec/-SPEC.tsx')).default;
