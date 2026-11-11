@@ -164,7 +164,7 @@ describe('Anchor spec: sample states', () => {
     }
   });
 
-  it('sample commands → compact Light panel presentation independent of the subject theme', async () => {
+  it('sample commands → two-column Light panel independent of the subject theme', async () => {
     const res = await setup();
     try {
       const reference = await TestReact.render(
@@ -172,7 +172,8 @@ describe('Anchor spec: sample states', () => {
           theme='Light'
           size='sm'
           itemPadding={[0, 8, 0, 5]}
-          items={[{ id: 'reference', label: 'Reference' }]}
+          columns={2}
+          items={[{ id: 'reference', label: 'Reference' }, { id: 'other', label: 'Other' }]}
         />,
       );
       try {
@@ -181,6 +182,9 @@ describe('Anchor spec: sample states', () => {
         for (const theme of ['Light', 'Dark'] as const) {
           await act(async () => void (res.debug.props.theme.value = theme));
           const list = res.panel.querySelector('ul')!;
+          const view = list.ownerDocument.defaultView!;
+          const columns = view.getComputedStyle(list).gridTemplateColumns;
+          expect(columns).to.eql('repeat(2, minmax(0, 1fr))');
           expect(list.className).to.eql(expectedList);
           for (const row of list.querySelectorAll<HTMLElement>('[role="button"]')) {
             expect(row.className).to.eql(expectedRow);

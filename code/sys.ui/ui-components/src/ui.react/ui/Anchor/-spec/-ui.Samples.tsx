@@ -165,7 +165,7 @@ export const Samples: React.FC<SamplesProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Dev.List theme={theme.name} items={items} />
+      <Dev.List theme={theme.name} columns={2} items={items} />
     </div>
   );
 };
