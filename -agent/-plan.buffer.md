@@ -9,13 +9,15 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 @sys.ui-components
 dev-list-controls.plan.md
 - [x] [bullet-list-interaction.plan.md](./bullet-list-interaction.plan.md)
-- [ ] fix(ui-components): render neutral filled markers for BulletList actions
-- [ ] feat(ui-components): add opt-in monospace anchors
-- [ ] feat(ui-components): expose BulletList item padding
-- [ ] feat(ui-components): add Dev.List for controlled choices and commands
-- [ ] refactor(ui-components): adopt Dev.List in BulletList and Anchor specimens
-- [ ] refactor(ui): adopt Dev.List for passkey fixture selection
-- [ ] feat(ui-components): add shared Markdown label presentation to Dev.List
+- [x] 2826fbbba feat(ui-components): add BulletList item padding and neutral action markers
+- [x] 76acf12ed feat(ui-components): add Anchor standards reference footer
+- [x] eba6f07ee feat(ui-components): add opt-in monospace anchors
+- [x] e2c36ae37 feat(ui-components): expand Anchor reference specimen controls
+- [x] 5b224be0a feat(ui-components): add Dev.List for controlled choices and commands
+- [x] e0b160c32 refactor(ui-components): adopt Dev.List in BulletList and Anchor specimens
+- [x] aed4552ca refactor(ui-components): colocate Dev primitive implementations and contracts
+- [x] e0cee8f82 refactor(ui): adopt Dev.List for passkey fixture selection
+- [x] 9128e5fbf style(ui-components): arrange Anchor sample states in two columns
 
 
 
