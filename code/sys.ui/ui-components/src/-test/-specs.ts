@@ -40,6 +40,7 @@ export const SpecsComponents = {
 
   [`${ns}: Text.Input`]: () => import('../ui.react/ui/Text.Input/-spec/-SPEC.tsx'),
   [`${ns}: Text.Ellipsize`]: () => import('../ui.react/ui/Text.Ellipsize/-spec/-SPEC.tsx'),
+  [`${ns}: Text.Label`]: () => import('../ui.react/ui/Text.Label/-spec/-SPEC.tsx'),
 
   [`${ns}: Prose.Measure`]: () => import('../ui.react/ui/Prose.Measure/-spec/-SPEC.tsx'),
   [`${ns}: Prose.Manuscript`]: () => import('../ui.react/ui/Prose.Manuscript/-spec/-SPEC.tsx'),
