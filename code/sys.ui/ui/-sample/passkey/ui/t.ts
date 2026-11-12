@@ -95,6 +95,10 @@ export declare namespace Passkey {
     | { readonly kind: 'signed-out' }
     | {
       readonly kind: 'signed-in';
+      /**
+       * Host-supplied display identity for the authenticated account in its security domain.
+       * Does not imply WebAuthn user-handle or credential-ID semantics; rendered verbatim.
+       */
       readonly principal: string;
       /** Verifier-known non-negative integer; absent means unknown, not zero. */
       readonly credentialCount?: number;

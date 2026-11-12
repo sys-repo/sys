@@ -6,6 +6,7 @@ import { Warning } from './ui.Warning.tsx';
 
 /** Renderer-authored documentation destinations, never derived from supplied identity values. */
 const references = {
+  // RFC 4949's general identity/account sense; informational, not a WebAuthn definition.
   principal: 'https://www.rfc-editor.org/rfc/rfc4949.html#page-232',
   credentials: 'https://www.w3.org/TR/webauthn-3/#credential-record',
 } as const;
