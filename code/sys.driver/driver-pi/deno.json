@@ -13,6 +13,7 @@
     "test:compat:preload": "deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-host.preload.ts",
     "test:compat:admit": "deno run --frozen --cached-only --no-prompt -P=test-host ./-scripts/-test.external/-host.admit.ts",
     "test:compat:host": "deno task test:reporting:host --",
+    "test:compat:startup": "deno task test:reporting:host -- --pi-version=1.4.0 --preload-startup",
     "test:zip:permissions": "deno test --frozen --cached-only --no-prompt -P=test-host --trace-leaks ./-scripts/-test.external/-zip.permission.ts",
     "test:reset:process": "deno test --frozen --cached-only --no-prompt -P=test-reset-process --trace-leaks ./-scripts/-test.external/-task.start.gui.reset.process-proof.ts",
     "test:profiles": "deno test -P=test ./src/m.cli/m.profiles/-test && deno task test:profiles:process",
@@ -327,4 +328,3 @@
     }
   }
 }
-

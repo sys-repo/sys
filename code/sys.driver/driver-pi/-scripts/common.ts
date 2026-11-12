@@ -12,6 +12,7 @@ export { Err } from '@sys/std/error';
 export { Is } from '@sys/std/is';
 export { Json } from '@sys/std/json';
 export { Obj } from '@sys/std/obj';
+export { Path } from '@sys/std/path';
 export { Semver } from '@sys/std/semver';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';

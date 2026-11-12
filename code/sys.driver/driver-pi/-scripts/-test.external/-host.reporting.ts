@@ -1,11 +1,25 @@
-import { Path } from '@sys/std/path';
 import { Raw } from '../../src/m.cli/m.raw/mod.ts';
 import { resolveRun } from '../../src/m.cli/m.profiles/u/u.resolve.run.ts';
 import { withInherit } from '../../src/m.cli/u/u.inherit.ts';
 import { PiSandboxReport } from '../../src/m.cli/u/u.report.sandbox.ts';
 import { PiArgs } from '../../src/m.cli/u/u.args.ts';
 import { resolvePkg } from '../../src/m.cli/u/u.resolve.pkg.ts';
-import { describe, Err, expect, Fs, Is, it, Json, Obj, Process, Str, type t } from '../common.ts';
+import {
+  Cli,
+  describe,
+  Err,
+  expect,
+  Fs,
+  Is,
+  it,
+  Json,
+  Obj,
+  Path,
+  Process,
+  Str,
+  type t,
+} from '../common.ts';
+import { expectLoaderProbe, prepareLoaderProbe, prepareStartup } from './u.host.startup.ts';
 import {
   expectCompleteExit,
   HOST_DENIED,
@@ -19,22 +33,32 @@ const PREFIX = 'SYS_REPORT_HOST ';
 const SECRET = 'REPORT_HOST_SECRET_SENTINEL';
 const SHUTDOWN = 'SYS_REPORT_HOST_SHUTDOWN ';
 const TEMP_ENV = ['TMPDIR', 'TMP', 'TEMP'] as const;
+const STARTUP = Deno.args.includes('--preload-startup');
 
 /** One real-host capstone; the unit suites own the input and rendering permutations. */
 describe('Pi: launcher reporting host', () => {
   it('admitted release → isolated npm CLI assembles inputs, loads tools, and shuts down', async () => {
     const cwd = Fs.resolve(import.meta.dirname ?? '.', '../..');
-    const selection = selectHost(Deno.args, await resolvePkg({ cwd }));
+    const selection = selectHost(
+      Deno.args.filter((arg) => arg !== '--preload-startup'),
+      await resolvePkg({ cwd }),
+    );
     const { pkg, version } = selection;
+    if (STARTUP) expect(version, 'bounded official-launcher candidate').to.eql('1.4.0');
     const admitted = await requireAdmittedHost(pkg, version);
     console.info(
       Json.stringify({ pi: admitted.artifact, deno: Deno.version, platform: Deno.build }),
     );
-    await using fixture = await createHostFixture();
+    await using fixture = await createHostFixture(STARTUP);
     const { root } = fixture;
+    if (STARTUP) {
+      await Fs.writeJson(Fs.join(root, 'artifact.json'), admitted.artifact, { throw: true });
+    }
     await Fs.copy(admitted.paths.cache, PiArgs.toDenoDir(root), { throw: true });
     await Fs.copyFile(admitted.paths.config, Fs.join(root, 'deno.json'), { throw: true });
     await Fs.copyFile(admitted.paths.lock, Fs.join(root, 'deno.lock'), { throw: true });
+    const startup = STARTUP ? await prepareStartup(root, admitted.paths.cache) : undefined;
+    const probe = await prepareLoaderProbe(root, STARTUP);
     const config = Fs.join(root, 'profile.yaml');
     const extension = Fs.join(root, 'observe.ts');
 
@@ -55,7 +79,7 @@ describe('Pi: launcher reporting host', () => {
       admitted.paths.root,
       admitted.paths.receipt,
     ];
-    await Fs.write(extension, observerSource(config, outside), { throw: true });
+    await Fs.write(extension, observerSource(config, outside, probe), { throw: true });
 
     const resolved = await resolveRun({
       cwd: { invoked: root, root },
@@ -88,15 +112,25 @@ describe('Pi: launcher reporting host', () => {
     expect(report.data).to.contain('- observation: launch-input');
     expect(report.data).to.contain(`- upstream selection: ${pkg}`);
 
-    const output = await fixture.capture({
-      ...resolved,
-      args: [...resolved.args, '--extension', extension],
-    });
+    const input = { ...resolved, args: [...resolved.args, '--extension', extension] };
+    if (startup) {
+      const baseline = await fixture.capture(input);
+      if (baseline.success) {
+        throw Err.std('Unmodified host works; reassess rather than install a shim.');
+      }
+      expect(Cli.stripAnsi(baseline.text.stderr)).to.include(
+        "SyntaxError: The requested module 'node:module' does not provide an export named 'enableCompileCache'",
+      );
+      expect(baseline.code).to.eql(1);
+      expect(baseline.text.stdout).to.eql('');
+    }
+    const output = await fixture.capture(input, startup?.preload);
     const extensions = resolved.args.flatMap((arg, i) =>
       arg === '--extension' ? [resolved.args[i + 1]] : []
     );
     expect(extensions, 'only the generated filesystem extension is enabled').to.have.length(1);
     expectHostAssembly(output, config, extensions[0], outside);
+    await startup?.verify(output);
   });
 
   it('fixture scope → restores the parent temp environment after success and failure', async () => {
@@ -121,7 +155,7 @@ describe('Pi: launcher reporting host', () => {
 });
 
 /** Own the child and its files together: uncertain settlement must retain the fixture. */
-async function createHostFixture() {
+async function createHostFixture(retain = false) {
   const packageRoot = Fs.resolve(import.meta.dirname ?? '.', '../..');
   const parent = Fs.join(packageRoot, '.tmp');
   await Fs.ensureDir(parent);
@@ -129,6 +163,9 @@ async function createHostFixture() {
   const tmp = Fs.join(root, 'tmp');
   await Fs.ensureDir(tmp);
   let unsettled = false;
+  let baselineArgs: readonly string[] | undefined;
+  let baselineEnv: t.Process.Env | undefined;
+  if (retain) console.info(`STARTUP evidence retained: ${root}`);
 
   // Both resolveRun and Raw.run read parent temp variables while assembling authority.
   // This single-host test owns that process-local scope for the fixture's entire lifetime.
@@ -138,7 +175,7 @@ async function createHostFixture() {
   return {
     root,
     tmp,
-    async capture(input: t.PiCli.RunArgs): Promise<t.Process.CaptureOutput> {
+    async capture(input: t.PiCli.RunArgs, preload?: string): Promise<t.Process.CaptureOutput> {
       const captures: t.Process.CaptureOutput[] = [];
       await withInherit(async (request) => {
         expect(request.cmd, 'preserve the Deno subprocess boundary').to.eql('deno');
@@ -159,6 +196,22 @@ async function createHostFixture() {
           }
         }
         const args = isolateHostArgs(request.args, input.pkg!, root);
+        expect(args.some((arg) => arg.startsWith('--preload')), 'no other preloads').to.eql(false);
+        if (preload) {
+          expect(args, 'only the preload flag may differ from baseline').to.eql(baselineArgs);
+          expect(request.env, 'same isolated environment').to.eql(baselineEnv);
+          expect(Path.Is.within(root, preload), 'owned adapter only').to.eql(true);
+          args.splice(args.indexOf(input.pkg!), 0, `--preload=${preload}`);
+        } else {
+          baselineArgs = [...args];
+          baselineEnv = { ...request.env };
+        }
+        const argv = args.slice(args.indexOf(input.pkg!) + 1);
+        const expected = Fs.join(root, 'loader-argv.json');
+        await Fs.writeJson(expected, argv, { throw: true });
+        expect((await Fs.readJson(expected)).data, 'checked observer input before spawn').to.eql(
+          argv,
+        );
         unsettled = true;
         const output = await Process.capture({
           ...request,
@@ -173,8 +226,37 @@ async function createHostFixture() {
         captures.push(output);
         unsettled = output.outcome === 'failed' ||
           (output.outcome !== 'failed-to-start' && output.status === null);
+        if (retain) {
+          await Fs.write(
+            Fs.join(root, preload ? 'startup.json' : 'baseline.json'),
+            Json.stringify({
+              deno: Deno.version,
+              platform: Deno.build,
+              executable: Deno.execPath(),
+              args,
+              env: request.env,
+              ...('error' in output ? { error: Err.std(output.error) } : {}),
+              ...Obj.pick(
+                output,
+                'outcome',
+                'code',
+                'signal',
+                'termination',
+                'stdoutTruncated',
+                'stderrTruncated',
+                'text',
+              ),
+            }),
+            { throw: true },
+          );
+        }
         reportHostOutput(output);
         expectCompleteExit(output);
+        expect(output.signal).to.eql(null);
+        expect(output.termination).to.eql({ reason: null, actions: [] });
+        expect(Cli.stripAnsi(output.text.stderr), 'permission denial stops the proof').not.to.match(
+          /NotCapable|PermissionDenied|Requires .+ access/,
+        );
         if (output.outcome !== 'exited') throw Err.std(`Host did not exit: ${output.outcome}`);
         return { code: output.code, success: output.success, signal: output.signal };
       }, () => Raw.run(input));
@@ -190,7 +272,7 @@ async function createHostFixture() {
       if (unsettled) {
         throw Err.std(`Host settlement unconfirmed; fixture retained at ${root}`);
       }
-      await Fs.remove(root);
+      if (!retain) await Fs.remove(root);
     },
   };
 }
@@ -204,6 +286,9 @@ function expectHostAssembly(
 ) {
   expect(output.success, output.text.stderr).to.eql(true);
   const text = `${output.text.stdout}\n${output.text.stderr}`;
+  expect(text, 'extension errors cannot hide behind a zero exit').not.to.include(
+    '"type":"extension_error"',
+  );
   const lines = text.split('\n').filter((line) => line.startsWith(PREFIX));
   expect(lines, text).to.have.length(1);
   const observed: unknown = Json.parse(lines[0].slice(PREFIX.length));
@@ -240,8 +325,10 @@ function expectHostAssembly(
     );
     expect(observed.active, `filesystem tool ${name} is active`).to.include(name);
   }
+  expectLoaderProbe(observed.loader, output, Fs.dirname(profile), STARTUP);
   const shutdown = text.split('\n').filter((line) => line.startsWith(SHUTDOWN));
-  expect(shutdown, 'one cooperative RPC shutdown observation').to.have.length(1);
+  // The event proves shutdown was observed, not whether the request or EOF caused it.
+  expect(shutdown, 'one session_shutdown event with null stdin').to.have.length(1);
   expect(Json.parse(shutdown[0].slice(SHUTDOWN.length))).to.eql({ profile });
 }
 
@@ -249,12 +336,13 @@ function expectHostAssembly(
  * Emit positions/booleans, never prompt bodies. session_start is not provider-payload evidence.
  * No generation request is submitted. Offline flags and child-side denials forbid startup traffic.
  */
-function observerSource(profile: t.StringPath, outside: readonly string[]) {
+function observerSource(profile: t.StringPath, outside: readonly string[], probe: string) {
   return Str.dedent(`
+    import { createRequire } from 'node:module';
     export default function (pi) {
       const profile = ${Json.stringify(profile)};
       pi.on('session_shutdown', () => {
-        console.log(${Json.stringify(SHUTDOWN)} + JSON.stringify({ profile }));
+        console.info(${Json.stringify(SHUTDOWN)} + JSON.stringify({ profile }));
       });
       pi.on('session_start', async (_event, ctx) => {
         const text = ctx.getSystemPrompt();
@@ -268,7 +356,11 @@ function observerSource(profile: t.StringPath, outside: readonly string[]) {
           const write = await Deno.permissions.query({ name: 'write', path });
           filesystem.push({ path, readGranted: read.state === 'granted', writeGranted: write.state === 'granted' });
         }
-        console.log(${Json.stringify(PREFIX)} + JSON.stringify({
+        // Native require → ESM keeps these files outside jiti's import transforms/VM.
+        const loadProbe = createRequire(${Json.stringify(probe)});
+        const loader = await loadProbe('./loader-probe.mjs').observe();
+        console.info(${Json.stringify(PREFIX)} + JSON.stringify({
+          loader,
           positions: {
             base: text.indexOf('You are an expert coding assistant.'),
             system: text.indexOf('${SECRET}_SYSTEM'),
@@ -287,6 +379,7 @@ function observerSource(profile: t.StringPath, outside: readonly string[]) {
           tools: pi.getAllTools().map((tool) => ({ name: tool.name, path: tool.sourceInfo.path })),
           active: pi.getActiveTools(),
         }));
+        // Request shutdown; null-stdin EOF can independently cause the observed exit.
         ctx.shutdown();
       });
     }
