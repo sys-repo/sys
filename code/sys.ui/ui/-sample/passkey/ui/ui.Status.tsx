@@ -1,8 +1,14 @@
-import { Bullet, Color, css, D, KeyValue, type t } from './common.ts';
+import { Anchor, Bullet, Color, css, D, KeyValue, type t } from './common.ts';
 import { EmptyValue } from './ui.EmptyValue.tsx';
 import { Operation } from './ui.Operation.tsx';
 import { Result } from './ui.Result.tsx';
 import { Warning } from './ui.Warning.tsx';
+
+/** Renderer-authored documentation destinations, never derived from supplied identity values. */
+const references = {
+  principal: 'https://www.rfc-editor.org/rfc/rfc4949.html#page-232',
+  credentials: 'https://www.w3.org/TR/webauthn-3/#credential-record',
+} as const;
 
 /**
  * Authentication observations are independent of operation outcomes and prerequisite readiness.
@@ -15,6 +21,9 @@ export const Status: t.FC<t.Passkey.StatusProps> = (props) => {
     value: css({ minWidth: 0, overflowWrap: 'anywhere', whiteSpace: 'normal' }),
   };
   const value = (text: string) => <div className={styles.value.class}>{text}</div>;
+  const key = (label: string, href: string) => (
+    <Anchor.Link href={href} openIn='new-tab' theme={theme.name}>{label}</Anchor.Link>
+  );
   const items: t.KeyValue.Item[] = [
     {
       id: 'authentication',
@@ -23,14 +32,18 @@ export const Status: t.FC<t.Passkey.StatusProps> = (props) => {
     },
     {
       id: 'principal',
-      k: 'Principal',
+      k: key('Principal', references.principal),
       v: authentication.kind === 'signed-in' ? value(authentication.principal) : <EmptyValue />,
     },
   ];
   if (authentication.kind === 'signed-in') {
     const count = authentication.credentialCount;
     const text = count === undefined ? 'Unknown' : String(count);
-    items.push({ id: 'credential-count', k: 'Registered keys', v: value(text) });
+    items.push({
+      id: 'credential-count',
+      k: key('Registered credentials', references.credentials),
+      v: value(text),
+    });
   }
   items.push(
     { id: 'operation', k: 'Operation', v: <Operation operation={operation} theme={theme.name} /> },

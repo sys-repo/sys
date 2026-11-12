@@ -109,7 +109,7 @@ describe('Passkey diagnostic panel', () => {
         'Sign Out',
       ]);
       expect(valueCell(res.container, 'Principal').textContent).to.eql('principal-test-01');
-      expect(valueCell(res.container, 'Registered keys').textContent).to.eql('Unknown');
+      expect(valueCell(res.container, 'Registered credentials').textContent).to.eql('Unknown');
       press(button(res.container, 'Add Passkey'), 'Enter');
       press(button(res.container, 'Sign Out'), ' ');
       expect(intents).to.eql(['add-passkey', 'sign-out']);
@@ -121,7 +121,7 @@ describe('Passkey diagnostic panel', () => {
           authentication: { kind: 'signed-in', principal: 'principal-test-01', credentialCount: 0 },
         },
       });
-      expect(valueCell(res.container, 'Registered keys').textContent).to.eql('0');
+      expect(valueCell(res.container, 'Registered credentials').textContent).to.eql('0');
     } finally {
       res.dispose();
     }

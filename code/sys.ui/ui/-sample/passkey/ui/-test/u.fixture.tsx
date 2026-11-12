@@ -59,9 +59,13 @@ export function textElement(container: HTMLElement, text: string): HTMLElement {
   return el;
 }
 
-/** A plain KeyValue key and its adjacent value cell. */
+/** A plain or linked KeyValue key and its adjacent value cell. */
 export function valueCell(container: HTMLElement, label: string): Element {
-  const value = textElement(container, label).nextElementSibling;
+  const anchor = [...container.querySelectorAll<HTMLAnchorElement>('a')].find((el) =>
+    el.textContent === label
+  );
+  const key = anchor ? anchor.parentElement : textElement(container, label);
+  const value = key?.nextElementSibling;
   if (Is.nil(value)) throw new Error(`Missing value for: ${label}`);
   return value;
 }

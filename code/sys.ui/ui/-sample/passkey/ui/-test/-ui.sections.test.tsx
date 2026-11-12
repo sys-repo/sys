@@ -55,7 +55,9 @@ describe('Passkey diagnostic sections', () => {
           expect(res.container.querySelectorAll('[role="status"]').length).to.eql(
             sections.status ? 2 : 0,
           );
-          expect(res.container.querySelectorAll('a').length).to.eql(sections.context ? 3 : 0);
+          expect(res.container.querySelectorAll('a').length).to.eql(
+            (sections.context ? 3 : 0) + (sections.status ? 1 : 0),
+          );
           res.update({
             snapshot: {
               ...signedOut,
@@ -235,7 +237,7 @@ describe('Passkey diagnostic sections', () => {
           } else if (name === 'status') {
             expect(valueCell(root, 'Authentication').textContent).to.eql('Signed in');
             expect(valueCell(root, 'Principal').textContent).to.eql('principal-test-01');
-            expect(valueCell(root, 'Registered keys').textContent).to.eql('Unknown');
+            expect(valueCell(root, 'Registered credentials').textContent).to.eql('Unknown');
             expect(root.querySelectorAll('[role="status"]').length).to.eql(2);
             expect(buttons(root)).to.eql([]);
           } else {
@@ -474,6 +476,54 @@ describe('Passkey diagnostic sections', () => {
           const view = decoration.ownerDocument.defaultView!;
           expect(painted.map((el) => Color.toHex(view.getComputedStyle(el).backgroundColor)))
             .to.eql([Color.toHex(green ? Color.GREEN : Color.theme(theme).bg)]);
+        }
+      } finally {
+        res.dispose();
+      }
+    });
+
+    it(`${theme} Status → fixed documentation links preserve supplied identity and credential counts`, async () => {
+      const principal = 'https://identity.example.test/<principal>';
+      const props = { sections: { actions: false, context: false }, theme };
+      const res = await renderPanel({ ...props, snapshot: signedOut });
+      try {
+        const states: readonly [t.Passkey.Authentication, string | undefined][] = [
+          [{ kind: 'signed-out' }, undefined],
+          [{ kind: 'checking' }, undefined],
+          [{ kind: 'unknown', summary: 'Lookup failed' }, undefined],
+          [{ kind: 'signed-in', principal }, 'Unknown'],
+          [{ kind: 'signed-in', principal, credentialCount: 0 }, '0'],
+          [{ kind: 'signed-in', principal, credentialCount: 2 }, '2'],
+          [{ kind: 'signed-out' }, undefined],
+        ];
+        for (const [authentication, count] of states) {
+          res.update({ ...props, snapshot: { ...signedOut, authentication } });
+          const anchors = [...res.container.querySelectorAll<HTMLAnchorElement>('a')];
+          const references = [
+            ['Principal', 'https://www.rfc-editor.org/rfc/rfc4949.html#page-232'],
+            ...(authentication.kind === 'signed-in'
+              ? [['Registered credentials', 'https://www.w3.org/TR/webauthn-3/#credential-record']]
+              : []),
+          ];
+          expect(anchors.map((el) => [el.textContent, el.href])).to.eql(references);
+          for (const anchor of anchors) {
+            expect(anchor.target).to.eql('_blank');
+            expect(anchor.rel.split(' ').sort()).to.eql(['noopener', 'noreferrer']);
+            const ids = anchor.getAttribute('aria-describedby')!.split(' ');
+            expect(ids.length).to.eql(1);
+            const hint = document.getElementById(ids[0])!;
+            expect(hint.hidden).to.eql(true);
+            expect(hint.textContent).to.eql('Opens in a new tab');
+            const value = anchor.parentElement!.nextElementSibling!;
+            expect(value.querySelector('a')).to.eql(null);
+          }
+          const identity = valueCell(res.container, 'Principal');
+          expect(identity.textContent).to.eql(
+            authentication.kind === 'signed-in' ? principal : '-',
+          );
+          if (authentication.kind === 'signed-in') {
+            expect(valueCell(res.container, 'Registered credentials').textContent).to.eql(count);
+          }
         }
       } finally {
         res.dispose();
