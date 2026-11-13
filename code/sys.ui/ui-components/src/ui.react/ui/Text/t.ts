@@ -7,5 +7,6 @@ export declare namespace Text {
   export type Lib = {
     readonly Input: t.TextInput.Lib;
     readonly Ellipsize: t.TextEllipsize.Lib;
+    readonly Label: t.TextLabel.Lib;
   };
 }

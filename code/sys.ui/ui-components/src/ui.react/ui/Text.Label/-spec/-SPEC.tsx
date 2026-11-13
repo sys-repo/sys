@@ -1,7 +1,7 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from './common.ts';
-import { TextLabel } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { Samples } from './-ui.Samples.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <TextLabel.UI debug={v.debug} theme={v.theme} />;
+    return <Samples {...v} />;
   }
 
   e.it('init', (e) => {
@@ -24,8 +24,8 @@ export default Spec.describe(D.displayName, async (e) => {
     Signal.effect(update);
     Harness.Theme.signalEffect(ctx, p.theme, 1);
 
+    ctx.host.tracelineColor(0.03);
     ctx.subject
-      .size([360, null])
       .display('grid')
       .render(() => <Root />);
   });
