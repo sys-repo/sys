@@ -30,6 +30,8 @@ export function Root(props: { debug: t.DebugSignals }) {
       { id: 'short', label: 'Short' },
       { id: 'wrapped', label: 'A longer label that wraps beside its short neighbor' },
       { id: 'token', label: 'LongUnbrokenToken'.repeat(6) },
+      { id: 'formatted', label: 'Run **build** with *production* settings and `--release`.' },
+      { id: 'code', label: '`/-sample/long-directory-name/example.bundle.js.map`' },
       {
         id: 'break',
         label: (
@@ -56,7 +58,7 @@ export function Root(props: { debug: t.DebugSignals }) {
       },
       {
         id: 'disabled',
-        label: 'Disabled wrapped label for first-line marker alignment',
+        label: 'Disabled **wrapped label** with `--offline` for first-line marker alignment',
         enabled: false,
       },
     ],

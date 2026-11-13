@@ -16,7 +16,11 @@ export type Props<Id extends string = string> =
 export type Item<Id extends string = string> =
   & Pick<t.BulletList.Item.Action<Id>, 'id' | 'enabled'>
   & {
-    /** Strings remain literal; rich presentation uses explicit non-interactive React nodes. */
+    /**
+     * Forwarded unchanged to BulletList: strings use Text.Label's inline Markdown subset, including
+     * CommonMark escapes/entities. For literal notation use ``<span>{'**literal** `code`'}</span>``.
+     * Other non-interactive React nodes pass through unchanged.
+     */
     label: t.ReactNode;
     /** One method per eligible activation, including reselection; callers own async/errors. */
     onActivate: t.BulletList.Activate.Handler<NoInfer<Id>>;

@@ -51,11 +51,17 @@ export declare namespace BulletList {
    * Action and content cells.
    */
   export namespace Item {
-    /** Non-interactive rich label, falling back to id; the caller supplies a non-empty name. */
+    /** Non-interactive label; missing/null uses a literal id. Callers supply a non-empty name. */
     export type Action<Id extends string = string> = {
       kind?: 'item';
       id: Id;
-      /** Caller-supplied label styles can override wrapping. */
+      /**
+       * Strings use Text.Label for one CommonMark paragraph: strong, emphasis and Chip-backed code.
+       * Escapes/entities affect displayed text. Unsupported inline spans stay literal;
+       * other document shapes render wholly literal.
+       * Other nodes pass through unchanged and must be non-interactive.
+       * For literal notation use ``<span>{'**literal** `code`'}</span>``.
+       */
       label?: t.ReactNode;
       enabled?: boolean;
     };

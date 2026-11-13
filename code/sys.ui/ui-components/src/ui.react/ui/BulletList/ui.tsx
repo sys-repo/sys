@@ -1,3 +1,4 @@
+import { TextLabel } from '../Text.Label/mod.ts';
 import { Bullet, Button, Color, css, D, Is, Keyboard, Num, type t } from './common.ts';
 
 /**
@@ -48,7 +49,9 @@ export const BulletList: t.BulletList.Lib['UI'] = (props) => {
 
         const id = item.id;
         const enabled = item.enabled ?? true;
-        const label = item.label ?? id;
+        const label = Is.string(item.label)
+          ? <TextLabel.UI value={item.label} />
+          : item.label ?? id;
         return (
           <li key={id} className={styles.cell.class}>
             <Button

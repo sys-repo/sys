@@ -132,11 +132,11 @@ describe('BulletList controlled selection', () => {
       expect(list.getAttribute('role')).to.eql('list');
       expect([...list.children].map((el) => el.tagName)).to.eql(['LI', 'LI', 'LI']);
       const buttons = [...list.querySelectorAll<HTMLElement>('[role="button"]')];
-      expect(buttons.map((el) => el.textContent)).to.eql(['Run `foo`', 'fallback']);
+      expect(buttons.map((el) => el.textContent)).to.eql(['Run foo', 'fallback']);
       expect(buttons.map((el) => el.tabIndex)).to.eql([0, 0]);
       expect(list.querySelectorAll('[tabindex]').length).to.eql(2);
       expect(list.querySelectorAll('[aria-hidden="true"]').length).to.eql(2);
-      expect(list.querySelector('code')).to.eql(null);
+      expect(list.querySelector('code')?.textContent).to.eql('foo');
       expect(list.children[1].querySelector('[role="button"]')).to.eql(null);
       React.act(() => list.querySelector('a')!.click());
       expect(events).to.eql([]);

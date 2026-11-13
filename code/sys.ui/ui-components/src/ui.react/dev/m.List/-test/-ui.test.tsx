@@ -89,18 +89,30 @@ describe('@sys/ui-components/react/dev: Dev.List', () => {
     expect(DevList({ items, itemPadding: undefined }).props.itemPadding).to.eql([0, 8, 0, 5]);
   });
 
-  it('labels → literal strings and explicit non-interactive nodes, rendered by BulletList', () => {
+  it('labels → unchanged forwarding and shared formatting, with explicit literal/rich nodes', () => {
+    const literal = <span>{'**literal** `code`'}</span>;
+    const rich = <strong>Explicit rich label</strong>;
     const rows = [
-      { id: 'literal', label: '**literal** `code`', onActivate: () => {} },
-      { id: '', label: <strong>Explicit rich label</strong>, onActivate: () => {} },
+      { id: 'formatted', label: '**Run** `build`', onActivate: () => {} },
+      { id: 'literal', label: literal, onActivate: () => {} },
+      { id: '', label: rich, onActivate: () => {} },
+      { id: 'escaped', label: '\\*literal\\* &amp;amp;', onActivate: () => {} },
     ] as const;
+    const inner = DevList({ items: rows });
+    expect(inner.props.items[0].label).to.eql(rows[0].label);
+    expect(inner.props.items[1].label).to.equal(literal);
+    expect(inner.props.items[2].label).to.equal(rich);
+    expect(inner.props.items[3].label).to.eql(rows[3].label);
     const actual = renderToStaticMarkup(<Dev.List items={rows} />);
     const expected = renderToStaticMarkup(
       <BulletList.UI items={rows} size='sm' itemPadding={[0, 8, 0, 5]} />,
     );
     expect(actual).to.eql(expected);
-    expect(actual).to.include('**literal** `code`');
+    expect(actual).to.include('<strong>Run</strong>');
+    expect(actual).to.include('>build</code>');
+    expect(actual).to.include('<span>**literal** `code`</span>');
     expect(actual).to.include('<strong>Explicit rich label</strong>');
+    expect(actual).to.include('*literal* &amp;amp;');
     const empty = renderToStaticMarkup(<Dev.List items={[]} />);
     const emptyList = renderToStaticMarkup(
       <BulletList.UI items={[]} size='sm' itemPadding={[0, 8, 0, 5]} />,
