@@ -94,7 +94,17 @@ export namespace Signal {
  * of signal effect listeners.
  */
 export type SignalListeners = t.Lifecycle & {
+  /** Retained effect disposers; cleared before collection-owned effect teardown. */
   readonly count: number;
+
+  /**
+   * Activate synchronously while live; return this collection for chaining.
+   * Registration closes when this collection observes lifecycle disposal;
+   * lifetime-bridge teardown may run first. Once closed, registration is a no-op
+   * and callbacks cannot start again.
+   * Disposal during activation releases the effect as soon as activation returns.
+   * Failed activation propagates its error without retaining a listener.
+   */
   effect(fn: t.SignalEffectFn): SignalListeners;
 };
 
