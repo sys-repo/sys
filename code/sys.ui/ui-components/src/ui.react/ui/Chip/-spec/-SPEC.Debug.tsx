@@ -1,10 +1,12 @@
-import React from 'react';
+import type React from 'react';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.Chip.Props;
-type Storage = Pick<P, 'debug' | 'theme' | 'mono' | 'size'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'mono' | 'size' | 'truncate'> & {
   fontSize: number;
   text: string;
+  width: number;
+  examples: boolean;
 };
 const defaults: Storage = {
   debug: false,
@@ -13,6 +15,9 @@ const defaults: Storage = {
   size: 'sm',
   fontSize: 12,
   text: 'Option + Enter',
+  truncate: D.truncate,
+  width: 240,
+  examples: false,
 };
 
 /**
@@ -36,6 +41,9 @@ export async function createDebugSignals() {
     size: s(snap.size),
     fontSize: s(snap.fontSize),
     text: s(snap.text),
+    truncate: s<P['truncate']>(snap.truncate ?? D.truncate),
+    width: s(snap.width ?? defaults.width),
+    examples: s(snap.examples ?? defaults.examples),
   };
   const p = props;
   const api = {
@@ -60,6 +68,9 @@ export async function createDebugSignals() {
       d.size = p.size.value;
       d.fontSize = p.fontSize.value;
       d.text = p.text.value;
+      d.truncate = p.truncate.value;
+      d.width = p.width.value;
+      d.examples = p.examples.value;
     });
   });
 
@@ -119,6 +130,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <Dev.Button
+        block
+        label={() => `truncate: ${v.truncate ?? `(default: ${D.truncate})`}`}
+        onClick={() => Signal.cycle(p.truncate, [true, false, undefined])}
+      />
+      <Dev.Button
+        block
+        label={() => `width: ${v.width}px`}
+        onClick={() => Signal.cycle(p.width, [120, 180, 240, 360])}
+      />
+      <Dev.Button
+        block
+        label={() => `overflow examples: ${v.examples}`}
+        onClick={() => {
+          Signal.toggle(p.examples);
+          if (p.examples.value) p.truncate.value = true;
+        }}
+      />
+
+      <hr />
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Dev.Button
         block
@@ -126,7 +157,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle(p.fontSize, [10, 12, 14, 16, 20])}
       />
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
-      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

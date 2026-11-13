@@ -1,7 +1,8 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
-import { D, type t } from './common.ts';
+import { D } from './common.ts';
 import { Chip } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { Overflow } from './-ui.Overflow.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -9,9 +10,16 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    if (v.examples) return <Overflow {...v} />;
     return (
-      <div style={{ fontSize: v.fontSize }}>
-        <Chip.UI debug={v.debug} theme={v.theme} size={v.size} mono={v.mono}>
+      <div style={{ fontSize: v.fontSize, width: v.truncate ? v.width : undefined }}>
+        <Chip.UI
+          debug={v.debug}
+          theme={v.theme}
+          size={v.size}
+          mono={v.mono}
+          truncate={v.truncate}
+        >
           {v.text}
         </Chip.UI>
       </div>
