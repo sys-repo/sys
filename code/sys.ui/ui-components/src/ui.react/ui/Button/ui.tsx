@@ -62,6 +62,7 @@ export const Button: FC<P> = (props) => {
     }),
     body: css({
       display: 'grid',
+      gridTemplateColumns: 'minmax(0, 1fr)',
       color: wrangle.color({
         enabled,
         over: !!(over || props.isOver),
