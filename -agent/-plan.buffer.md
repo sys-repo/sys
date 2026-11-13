@@ -6,11 +6,24 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
+@sys.tmpl
+ui-template-maintenance.plan.md
+- [ ] fix(std): close signal listener registration on disposal
+- [ ] fix(tmpl): correct UI scaffold lifecycle ownership
+- [ ] fix(tmpl): preserve scoped-style appearance across themes
+- [ ] fix(ui-components): adopt verified specimen lifecycle ownership
+- [ ] fix(ui-components): isolate matching scoped styles without changing paint
+
+
 @sys.ui-components
 inline-label.plan.md
-- [ ] chore(ui-components): scaffold Text.Label primitive
+- [x] 818703253 chore(ui-components): scaffold Text.Label primitive
+- [x] f9e610573 fix(ui-components): constrain Button content grid
+- [x] a185888de feat(ui-components): add bounded Chip ellipsis
 - [ ] feat(ui-components): add non-interactive inline Markdown labels
-- [ ] refactor(ui-components): compose Anchor sample labels with Text.Label
+- [ ] feat(ui-components): render BulletList string labels with Text.Label
+- [ ] refactor(ui-components): format Anchor sample labels through BulletList
+
 
 
 
