@@ -96,6 +96,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
+  // Match current knobs, not the last preset clicked; custom combinations select neither row.
+  const truncate = v.truncate ?? D.truncate;
+  const selected = !v.examples && !truncate ? 'single' : v.examples && truncate ? 'overflow' : [];
+
   /**
    * Render:
    */
@@ -143,13 +147,37 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button
         block
         label={() => `overflow examples: ${v.examples}`}
-        onClick={() => {
-          Signal.toggle(p.examples);
-          if (p.examples.value) p.truncate.value = true;
-        }}
+        onClick={() => Signal.toggle(p.examples)}
       />
 
       <hr />
+      <div className={Styles.title.class}>Sample States</div>
+      <Dev.List
+        theme={theme.name}
+        columns={1}
+        selected={selected}
+        items={[
+          {
+            id: 'single',
+            label: 'Single chip (unclipped)',
+            onActivate: () => {
+              p.examples.value = false;
+              p.truncate.value = false;
+            },
+          },
+          {
+            id: 'overflow',
+            label: 'Overflow examples (bounded)',
+            onActivate: () => {
+              p.examples.value = true;
+              p.truncate.value = true;
+            },
+          },
+        ]}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>Debug</div>
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Dev.Button
         block

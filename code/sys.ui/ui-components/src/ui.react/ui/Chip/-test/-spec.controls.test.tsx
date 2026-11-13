@@ -50,12 +50,54 @@ describe('Chip specimen: overflow controls', () => {
     });
   });
 
+  it('sample states → paired changes, preserved knobs, and selection derived from current values', async () => {
+    const debug = await createDebugSignals();
+    const res = await TestReact.render(<Debug debug={debug} />);
+    const single = 'Single chip (unclipped)';
+    const overflow = 'Overflow examples (bounded)';
+    const selected = () =>
+      [single, overflow].map((label) => button(res.container, label).getAttribute('aria-pressed'));
+    try {
+      expect(selected()).to.eql(['true', 'false']);
+
+      await click(res.container, overflow);
+      expect(storedValues()).to.eql({ ...legacy, examples: true, truncate: true, width: 240 });
+      expect(selected()).to.eql(['false', 'true']);
+
+      await click(res.container, 'truncate: true');
+      expect(debug.props.examples.value).to.eql(true);
+      expect(selected()).to.eql(['false', 'false']);
+
+      await click(res.container, overflow);
+      expect(selected()).to.eql(['false', 'true']);
+      await click(res.container, 'overflow examples: true');
+      expect(debug.props.truncate.value).to.eql(true);
+      expect(selected()).to.eql(['false', 'false']);
+
+      await click(res.container, single);
+      expect(storedValues()).to.eql({ ...legacy, examples: false, truncate: false, width: 240 });
+      expect(selected()).to.eql(['true', 'false']);
+      await click(res.container, 'truncate: false');
+      expect(debug.props.truncate.value).to.eql(undefined);
+      expect(selected()).to.eql(['true', 'false']);
+
+      await click(res.container, overflow);
+      await click(res.container, '(reset)');
+      expect(selected()).to.eql(['true', 'false']);
+    } finally {
+      act(() => res.dispose());
+    }
+  });
+
   it('overflow controls → serialized choices and reset defaults', async () => {
     const debug = await createDebugSignals();
     const res = await TestReact.render(<Debug debug={debug} />);
     try {
       await click(res.container, 'overflow examples: false');
-      expect(Signal.toObject(debug.props)).to.include({ examples: true, truncate: true });
+      expect(Signal.toObject(debug.props)).to.include({ examples: true, truncate: D.truncate });
+      await click(res.container, `truncate: ${D.truncate}`);
+      await click(res.container, `truncate: (default: ${D.truncate})`);
+      expect(debug.props.truncate.value).to.eql(true);
 
       await click(res.container, 'width: 240px');
       expect(storedValues()).to.eql({ ...legacy, examples: true, truncate: true, width: 360 });
@@ -85,12 +127,16 @@ function storedValues(): unknown {
   return JSON.parse(json);
 }
 
-async function click(container: HTMLElement, label: string) {
+function button(container: HTMLElement, label: string) {
   const controls = [...container.querySelectorAll<HTMLElement>('[role="button"]')];
   const control = controls.find((element) => element.textContent === label);
   if (Is.nil(control)) throw new Error(`Missing Chip control: ${label}`);
+  return control;
+}
+
+async function click(container: HTMLElement, label: string) {
   await act(async () => {
-    control.click();
+    button(container, label).click();
     await Schedule.micro();
   });
 }
