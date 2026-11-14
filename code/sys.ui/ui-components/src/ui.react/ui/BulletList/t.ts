@@ -34,6 +34,8 @@ export declare namespace BulletList {
     size?: Size;
     /** Action-button padding; omitted keeps Button defaults. Content cells are unchanged. */
     itemPadding?: t.Button.Props['padding'];
+    /** Bullet appearance overrides. */
+    bullet?: Pick<t.BulletProps, 'borderOpacity'>;
     /**
      * Equal-width, row-major columns (default 1); no automatic collapse.
      * Finite values are floored and clamped to 1..cell count (1 when empty).

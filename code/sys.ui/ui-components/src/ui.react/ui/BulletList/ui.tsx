@@ -68,6 +68,7 @@ export const BulletList: t.BulletList.Lib['UI'] = (props) => {
                     theme={theme.name}
                     selected={isSelected(selected, id)}
                     filled={selected === undefined}
+                    borderOpacity={props.bullet?.borderOpacity ?? D.bullet.borderOpacity}
                     style={{ width: D.markerSize, height: D.markerSize }}
                   />
                 </div>

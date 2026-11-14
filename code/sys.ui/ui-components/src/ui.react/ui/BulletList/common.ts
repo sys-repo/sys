@@ -18,6 +18,7 @@ export const D = {
   // Separate items while clearing Button's default 2px outline + 2px offset at dense sizes.
   rowGap: 'max(0.375em, 6px)',
   markerSize: '0.5em',
+  bullet: { borderOpacity: 0.28 },
   markerGap: '0.5em',
   columnGap: '1em',
 } as const;

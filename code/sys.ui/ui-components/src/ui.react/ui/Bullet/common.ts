@@ -1,4 +1,4 @@
-import { pkg, Pkg } from '../common.ts';
+import { Pkg, pkg } from '../common.ts';
 export * from '../common.ts';
 
 /**
@@ -9,6 +9,7 @@ export const DEFAULTS = {
   name,
   displayName: Pkg.toString(pkg, name, false),
   size: 8,
+  borderOpacity: 0.16,
   selected: false,
   filled: false,
 } as const;

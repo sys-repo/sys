@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
-import { Button, D, Is, Style, type t } from '../common.ts';
+import { Button, Color, D, Is, Style, type t } from '../common.ts';
 import { BulletList } from '../mod.ts';
 
 const items: readonly t.BulletList.Item[] = [
@@ -172,6 +172,27 @@ describe('BulletList layout declarations (not browser geometry)', () => {
         } finally {
           React.act(() => res.dispose());
         }
+      }
+    }
+  });
+
+  it('bullet appearance → 28% default; explicit border opacity, including zero, reaches Bullet', async () => {
+    const fg = Color.theme('Light').fg;
+    const cases = [
+      [undefined, 0.28],
+      [{}, 0.28],
+      [{ borderOpacity: 0 }, 0],
+      [{ borderOpacity: 0.6 }, 0.6],
+    ] as const;
+    for (const [bullet, expected] of cases) {
+      const res = await TestReact.render(
+        <BulletList.UI theme='Light' items={[{ id: 'a' }]} selected={[]} bullet={bullet} />,
+      );
+      try {
+        const glyph = res.container.querySelector('[aria-hidden="true"] > div > div')!;
+        expect(emitted(glyph)).to.include(`border: solid 1px ${Color.alpha(fg, expected)};`);
+      } finally {
+        React.act(() => res.dispose());
       }
     }
   });

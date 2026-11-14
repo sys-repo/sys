@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
-import { Bullet, type t } from '../common.ts';
+import { Bullet, D, type t } from '../common.ts';
 import { BulletList } from '../mod.ts';
 import { key } from '../../Button/-test/u.fixture.ts';
 
@@ -24,7 +24,7 @@ describe('BulletList controlled selection', () => {
     const res = await TestReact.render(
       <>
         <Root />
-        <Bullet filled />
+        <Bullet borderOpacity={D.bullet.borderOpacity} filled />
       </>,
     );
     try {
@@ -75,9 +75,9 @@ describe('BulletList controlled selection', () => {
           <BulletList.UI theme={theme} items={items} selected={[]} />
           <BulletList.UI theme={theme} items={items} selected={['a', 'disabled']} />
           <div data-reference='markers'>
-            <Bullet theme={theme} filled />
-            <Bullet theme={theme} />
-            <Bullet theme={theme} selected />
+            <Bullet theme={theme} borderOpacity={D.bullet.borderOpacity} filled />
+            <Bullet theme={theme} borderOpacity={D.bullet.borderOpacity} />
+            <Bullet theme={theme} borderOpacity={D.bullet.borderOpacity} selected />
           </div>
         </>,
       );
