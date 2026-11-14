@@ -28,22 +28,28 @@ describe('BulletList specimen controls', () => {
       const list = heading?.nextElementSibling;
       expect(list?.tagName).to.eql('UL');
       const samples = [...list!.querySelectorAll<HTMLElement>('[role="button"]')];
-      expect(samples.map((el) => el.textContent)).to.eql(['standard', 'stress', 'empty']);
+      expect(samples.map((el) => el.textContent)).to.eql([
+        'Standard',
+        'Markdown labels',
+        'Layout stress',
+        'Empty',
+      ]);
       const pressed = () => samples.map((el) => el.getAttribute('aria-pressed'));
-      expect(pressed()).to.eql(['true', 'false', 'false']);
-      const lastSample = children.find((el) => el.contains(samples[2]));
+      expect(pressed()).to.eql(['true', 'false', 'false', 'false']);
+      const lastSample = children.find((el) => el.contains(samples[3]));
       expect(lastSample?.nextElementSibling?.tagName).to.eql('HR');
       const debugHeading = children.find((el) => el.textContent === 'Debug');
       expect(debugHeading?.nextElementSibling?.textContent).to.eql('debug: false');
 
       const activations = [
-        ['stress', 'Enter'],
-        ['empty', ' '],
-        ['standard', undefined],
-        ['standard', undefined],
+        ['stress', 'Layout stress', 'Enter'],
+        ['empty', 'Empty', ' '],
+        ['standard', 'Standard', undefined],
+        ['standard', 'Standard', undefined],
+        ['markdown', 'Markdown labels', 'Enter'],
       ] as const;
-      for (const [sample, input] of activations) {
-        const button = samples.find((el) => el.textContent === sample);
+      for (const [sample, label, input] of activations) {
+        const button = samples.find((el) => el.textContent === label);
         if (Is.nil(button)) throw new Error(`Missing sample: ${sample}`);
         await React.act(async () => {
           if (Is.str(input)) {
@@ -58,20 +64,19 @@ describe('BulletList specimen controls', () => {
         expect(pressed()).to.eql(samples.map((el) => String(el === button)));
       }
       await React.act(async () => {
-        p.sample.value = 'stress';
         p.selected.value = 'standard';
       });
-      expect(pressed()).to.eql(['false', 'true', 'false']);
+      expect(pressed()).to.eql(['false', 'true', 'false', 'false']);
       const reopened = await createDebugSignals();
       expect(Signal.toObject(reopened.props)).to.eql({
         ...baseline,
-        sample: 'stress',
+        sample: 'markdown',
         selected: 'standard',
       });
       const reset = buttons.find((el) => el.textContent === '(reset)');
       if (Is.nil(reset)) throw new Error('Missing reset control');
       await React.act(async () => reset.click());
-      expect(pressed()).to.eql(['true', 'false', 'false']);
+      expect(pressed()).to.eql(['true', 'false', 'false', 'false']);
       expect(p.selected.value).to.eql('localhost');
 
       const rtl = buttons.find((el) => el.textContent === 'rtl: false');
@@ -79,6 +84,37 @@ describe('BulletList specimen controls', () => {
       await React.act(async () => rtl.click());
       expect(p.rtl.value).to.eql(true);
       expect(rtl.textContent).to.eql('rtl: true');
+    } finally {
+      React.act(() => res.dispose());
+    }
+  });
+
+  it('Markdown sample → formatted strings, literal boundaries and a disabled action', async () => {
+    const { createDebugSignals } = await import('../-spec/-SPEC.Debug.tsx');
+    const { Root } = await import('../-spec/-ui.Root.tsx');
+    const debug = await createDebugSignals();
+    debug.reset();
+    debug.props.sample.value = 'markdown';
+    const res = await TestReact.render(<Root debug={debug} />);
+    try {
+      const buttons = [...res.container.querySelectorAll<HTMLElement>('[role="button"]')];
+      expect(buttons.map((el) => el.textContent)).to.eql([
+        'Run build with production settings and --release.',
+        'deno task build',
+        'Save [**help**](/-sample/help)',
+        'Keep **literal** `notation`',
+        'Disabled action with --offline',
+      ]);
+      const [formatted, code, unsupported, literal, disabled] = buttons;
+      expect(formatted.querySelector('strong')?.textContent).to.eql('build');
+      expect(formatted.querySelector('em')?.textContent).to.eql('production');
+      expect(formatted.querySelector('code')?.textContent).to.eql('--release');
+      expect(code.querySelector('code')?.textContent).to.eql('deno task build');
+      expect(unsupported.querySelector('a, strong')).to.eql(null);
+      expect(literal.querySelector('strong, code')).to.eql(null);
+      expect(disabled.querySelector('strong')?.textContent).to.eql('action');
+      expect(disabled.querySelector('code')?.textContent).to.eql('--offline');
+      expect(disabled.getAttribute('aria-disabled')).to.eql('true');
     } finally {
       React.act(() => res.dispose());
     }

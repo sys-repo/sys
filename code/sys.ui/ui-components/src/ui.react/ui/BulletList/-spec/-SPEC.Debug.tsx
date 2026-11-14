@@ -7,7 +7,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'selected' | 'columns' | 'size'> & {
   width: number;
   fontSize: number;
   rtl: boolean;
-  sample: 'standard' | 'stress' | 'empty';
+  sample: 'standard' | 'markdown' | 'stress' | 'empty';
 };
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
@@ -136,10 +136,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.List
         theme={theme.name}
         selected={v.sample}
-        items={(['standard', 'stress', 'empty'] as const).map((sample) => ({
-          id: sample,
-          label: sample,
-          onActivate: () => p.sample.value = sample,
+        items={([
+          { id: 'standard', label: 'Standard' },
+          { id: 'markdown', label: 'Markdown labels' },
+          { id: 'stress', label: 'Layout stress' },
+          { id: 'empty', label: 'Empty' },
+        ] as const).map(({ id, label }) => ({
+          id,
+          label,
+          onActivate: () => p.sample.value = id,
         }))}
       />
 
