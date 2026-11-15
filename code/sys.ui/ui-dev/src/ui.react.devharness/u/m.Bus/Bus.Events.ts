@@ -147,6 +147,7 @@ export function BusEvents(args: {
    * Reset (unload).
    */
   const reset: t.DevEvents['reset'] = {
+    before$: RxBus.payload<t.DevResetBeforeEvent>($, 'sys.dev/reset:before'),
     req$: RxBus.payload<t.DevResetReqEvent>($, 'sys.dev/reset:req'),
     res$: RxBus.payload<t.DevResetResEvent>($, 'sys.dev/reset:res'),
     async fire(options = {}) {

@@ -86,12 +86,16 @@ export function BusController(args: {
 
     try {
       const spec = e.bundle ? await Test.bundle(e.bundle) : undefined;
-      await events.reset.fire();
+      if (events.disposed) return;
+      const reset = await events.reset.fire();
+      if (reset.error) throw new Error(reset.error);
+      if (events.disposed) return;
       await state.change('spec:load', (draft) => (draft.spec = spec));
     } catch (err: any) {
       error = err.message;
     }
 
+    if (events.disposed) return;
     const info = state.current;
     bus.fire({
       type: 'sys.dev/load:res',
@@ -100,22 +104,47 @@ export function BusController(args: {
   });
 
   /**
-   * Context: Reset.
+   * Context: Reset. Serialize requests so reentrant reset cannot overtake retirement observers.
    */
-  events.reset.req$.subscribe(async (e) => {
-    const { tx } = e;
-
-    await state.change('reset', (draft) => {
-      draft.instance.session = Id.ctx.create();
-      Ctx.resetInfo(draft);
-    });
-    await Ctx.current();
-
-    bus.fire({
-      type: 'sys.dev/reset:res',
-      payload: { tx, instance, info: state.current },
-    });
+  const resetQueue: t.DevResetReq[] = [];
+  let resetting = false;
+  dispose$.subscribe(() => (resetQueue.length = 0));
+  events.reset.req$.subscribe((e) => {
+    resetQueue.push(e);
+    if (!resetting) void drainResets();
   });
+
+  async function drainResets() {
+    resetting = true;
+    try {
+      while (resetQueue.length > 0 && !events.disposed) {
+        const { tx } = resetQueue.shift()!;
+        let error: string | undefined;
+        try {
+          bus.fire({ type: 'sys.dev/reset:before', payload: { tx, instance } });
+          if (events.disposed) return;
+
+          await state.change('reset', (draft) => {
+            draft.instance.session = Id.ctx.create();
+            Ctx.resetInfo(draft);
+          });
+          if (events.disposed) return;
+          await Ctx.current();
+        } catch (err) {
+          error = Is.error(err) ? err.message : String(err);
+        }
+
+        if (events.disposed) return;
+        bus.fire({
+          type: 'sys.dev/reset:res',
+          payload: { tx, instance, info: state.current, error },
+        });
+      }
+    } finally {
+      resetQueue.length = 0;
+      resetting = false;
+    }
+  }
 
   /**
    * Run the test suite.
