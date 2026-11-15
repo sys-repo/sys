@@ -50,9 +50,9 @@ export function buttons(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>('[role="button"]'));
 }
 
-/** Find authored text without depending on generated classes or wrapper depth. */
+/** Find a text leaf without depending on its tag, generated classes or wrapper depth. */
 export function textElement(container: HTMLElement, text: string): HTMLElement {
-  const el = [...container.querySelectorAll<HTMLElement>('div')].find((el) =>
+  const el = [...container.querySelectorAll<HTMLElement>('*')].find((el) =>
     el.childElementCount === 0 && el.textContent === text
   );
   if (Is.nil(el)) throw new Error(`Missing text: ${text}`);
