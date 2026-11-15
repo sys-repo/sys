@@ -1,3 +1,5 @@
+
+
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
@@ -13,17 +15,6 @@ ui-template-maintenance.plan.md
 - [ ] fix(tmpl): preserve scoped-style appearance across themes
 - [ ] fix(ui-components): adopt verified specimen lifecycle ownership
 - [ ] fix(ui-components): isolate matching scoped styles without changing paint
-
-
-@sys.ui-components
-inline-label.plan.md
-- [x] 818703253 chore(ui-components): scaffold Text.Label primitive
-- [x] f9e610573 fix(ui-components): constrain Button content grid
-- [x] a185888de feat(ui-components): add bounded Chip ellipsis
-- [ ] feat(ui-components): add non-interactive inline Markdown labels
-- [ ] feat(ui-components): render BulletList string labels with Text.Label
-- [ ] refactor(ui-components): format Anchor sample labels through BulletList
-
 
 
 
