@@ -20,6 +20,7 @@ export default Spec.describe(D.displayName, (e) => {
     Signal.effect(update);
     Harness.Theme.signalEffect(ctx, p.theme, 1);
 
+    ctx.debug.width(480);
     ctx.host.tracelineColor(0.05);
     ctx.host.footer
       .padding([12, 16])

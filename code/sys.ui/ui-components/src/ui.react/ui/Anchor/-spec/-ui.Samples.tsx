@@ -88,7 +88,7 @@ const samples: readonly Sample[] = [
   },
   {
     id: 'dev-link',
-    label: 'Dev.Link (default)',
+    label: '`Dev.Link` (default)',
     next: {
       href: EXAMPLE_URL,
       children: 'Example website',
@@ -97,7 +97,7 @@ const samples: readonly Sample[] = [
   },
   {
     id: 'download',
-    label: 'download (/dist.json)',
+    label: 'download (`/dist.json`)',
     next: {
       href: '/dist.json',
       enabled: true,

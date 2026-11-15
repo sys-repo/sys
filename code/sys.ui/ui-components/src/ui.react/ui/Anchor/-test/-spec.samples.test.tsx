@@ -71,6 +71,8 @@ describe('Anchor spec: sample states', () => {
       expect([...list.children].map((el) => el.tagName)).to.eql(cases.map(() => 'LI'));
       const buttons = [...list.querySelectorAll<HTMLElement>('[role="button"]')];
       expect(buttons.map((el) => el.textContent)).to.eql(cases.map(([label]) => label));
+      const tokens = [...list.querySelectorAll('code')].map((el) => el.textContent);
+      expect(tokens).to.eql(['Dev.Link', '/dist.json']);
       expect(buttons.map((el) => el.tabIndex)).to.eql(cases.map(() => 0));
       function pressed() {
         const current = panel.querySelectorAll('ul [role="button"]');
