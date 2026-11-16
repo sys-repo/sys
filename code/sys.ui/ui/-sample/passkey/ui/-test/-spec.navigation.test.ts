@@ -1,14 +1,14 @@
-import { describe, DevArgs, expect, it } from './common.ts';
+import { describe, DevArgs, expect, it, Obj } from './common.ts';
 import { Specs, specsFor } from '../../../../src/-test/-specs.ts';
-import { SpecLinks, SpecNames } from '../../-u.navigation.ts';
+import { SpecLinks, SpecNames } from '../../-spec/-u.navigation.ts';
 
 const base = 'https://example.test/ui/';
 const route = (key: string, value: string) => `${base}?${new URLSearchParams({ [key]: value })}`;
 
 describe('passkey specimen navigation', () => {
   it('index and unknown routes → only the listed specs', () => {
-    expect(Object.keys(Specs)).to.contain(SpecNames.sample);
-    expect(Object.keys(Specs)).not.to.contain(SpecNames.view);
+    expect(Obj.keys(Specs)).to.contain(SpecNames.sample);
+    expect(Obj.keys(Specs)).not.to.contain(SpecNames.view);
     const indexRoutes = [
       base,
       `${base}?dev`,
@@ -41,7 +41,7 @@ describe('passkey specimen navigation', () => {
     const url = new URL(route('dev', SpecNames.sample));
     url.searchParams.set('d', SpecNames.view);
     const before = url.href;
-    expect(Object.keys(specsFor(url))).to.contain(SpecNames.view);
+    expect(Obj.keys(specsFor(url))).to.contain(SpecNames.view);
     expect(url.href).to.eql(before);
     url.searchParams.set('d', '');
     expect(specsFor(url)).to.equal(Specs);

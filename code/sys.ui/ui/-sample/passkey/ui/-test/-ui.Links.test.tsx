@@ -1,8 +1,8 @@
 import React from 'react';
 import { Dev } from '@sys/ui-components/react/dev';
 import { afterAll, beforeAll, Color, describe, DomMock, expect, it, TestReact } from './common.ts';
-import { SpecLink } from '../../-ui.Links.tsx';
-import { SpecLinks } from '../../-u.navigation.ts';
+import { SpecLink } from '../../-spec/-ui.Links.tsx';
+import { SpecLinks } from '../../-spec/-u.navigation.ts';
 
 describe('Passkey specimen links', () => {
   DomMock.init({ beforeAll, afterAll });

@@ -1,6 +1,6 @@
 import type React from 'react';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
-import { SpecLink } from '../../-ui.Links.tsx';
+import { SpecLink } from '../../-spec/-ui.Links.tsx';
 
 const defaults: t.DebugValues = { debug: D.debug, theme: 'Dark' };
 

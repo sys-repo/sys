@@ -17,7 +17,7 @@ import {
   TestReact,
   type TestSuiteModel,
 } from './common.ts';
-import { Harness } from '../../-test.ui.ts';
+import { Harness } from '../../../-test.ui.ts';
 import { Passkey } from '../mod.ts';
 import { buttons, element, valueCell } from './u.fixture.tsx';
 import type { DebugSignals } from '../-spec.integration/-SPEC.Debug.tsx';

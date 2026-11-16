@@ -2,19 +2,21 @@ import React from 'react';
 import {
   afterAll,
   beforeAll,
+  Color,
   describe,
   DomMock,
   expect,
   it,
   LocalStorage,
+  Obj,
+  Schedule,
   STORAGE_KEY as VIEW_STORAGE_KEY,
   type t,
   TestReact,
 } from './common.ts';
-import { Harness } from '../../-test.ui.ts';
-import { SpecLinks, SpecNames } from '../../-u.navigation.ts';
-import { WebAuthnLink } from '../../-ui.Links.tsx';
-import { Color, Schedule } from '../../common.ts';
+import { Harness } from '../../../-test.ui.ts';
+import { SpecLinks, SpecNames } from '../../-spec/-u.navigation.ts';
+import { WebAuthnLink } from '../../-spec/-ui.Links.tsx';
 import { Style } from '@sys/ui-css';
 import { Specs, specsFor } from '../../../../src/-test/-specs.ts';
 import { createDebugSignals, Debug } from '../-spec.integration/-SPEC.Debug.tsx';
@@ -84,7 +86,7 @@ describe('passkey integration scaffold', () => {
       debug.props.debug.value = true;
       view.reset();
       expect(store.current).to.eql({ theme: 'Light', debug: true });
-      expect(Object.keys(debug.props)).to.eql(['debug', 'theme']);
+      expect(Obj.keys(debug.props)).to.eql(['debug', 'theme']);
       debug.dispose();
       debug.props.theme.value = 'Dark';
       expect(store.current).to.eql({ theme: 'Light', debug: true });

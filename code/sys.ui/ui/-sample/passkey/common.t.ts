@@ -1,2 +1,2 @@
-export type * from '../../src/common.t.ts';
+export type * from '@sys/types';
 export type * from './types.ts';

@@ -1,7 +1,7 @@
-import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec } from '../../../-test.ui.ts';
 import { D, type t } from './common.ts';
 import { Passkey } from '../mod.ts';
-import { WebAuthnLink } from '../../-ui.Links.tsx';
+import { WebAuthnLink } from '../../-spec/-ui.Links.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 /** Unconnected observations, not a simulated session or a runtime state store. */
