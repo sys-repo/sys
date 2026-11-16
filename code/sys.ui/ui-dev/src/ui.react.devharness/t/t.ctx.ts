@@ -51,16 +51,20 @@ export type DevCtx = {
  */
 export type DevCtxIs = {
   readonly initial: boolean; // Flag indicating if this is the initial run (or first run after a reset).
+  /**
+   * Whether a new specimen attachment may begin now.
+   * Closed through reset/replacement response delivery; reopens only when all transitions exit
+   * and the context/controller remain live. Disposal is terminal; unbound contexts remain closed.
+   * Re-read `ctx.is.attachable` at acquisition boundaries; do not cache `ctx.is`.
+   * This is not a reservation, reset success, cancellation, or permission to mutate context state.
+   */
+  readonly attachable: boolean;
 };
 
-/**
- * A safe function mutator.
- */
+/** Mutates a draft of specimen state. */
 export type DevCtxStateMutator<T extends O> = (draft: T) => t.IgnoredResult;
 
-/**
- * Immutable context state.
- */
+/** Specimen state handle; update through `change`. */
 export type DevCtxState<T extends O> = {
   current: T;
   change(fn: DevCtxStateMutator<T>): Promise<T>;
