@@ -1,4 +1,5 @@
 import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { EXAMPLE_LONG_LABEL, EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
 
@@ -46,11 +47,25 @@ export function createDebugSignals() {
     link: s(snap.link),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.href = p.href.value;
+        d.enabled = p.enabled.value;
+        d.mono = p.mono.value;
+        d.truncate = p.truncate.value;
+        d.maxWidth = p.maxWidth.value;
+        d.target = p.target.value;
+        d.download = p.download.value ? true : undefined;
+        d.children = p.children.value;
+        d.examples = p.examples.value;
+        d.link = p.link.value;
+        delete d.focusExamples;
+        delete d.linkExamples;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -60,25 +75,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.href = p.href.value;
-      d.enabled = p.enabled.value;
-      d.mono = p.mono.value;
-      d.truncate = p.truncate.value;
-      d.maxWidth = p.maxWidth.value;
-      d.target = p.target.value;
-      d.download = p.download.value ? true : undefined;
-      d.children = p.children.value;
-      d.examples = p.examples.value;
-      d.link = p.link.value;
-      delete d.focusExamples;
-      delete d.linkExamples;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

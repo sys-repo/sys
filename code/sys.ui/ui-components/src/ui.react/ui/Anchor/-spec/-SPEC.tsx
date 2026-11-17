@@ -11,24 +11,27 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    update();
-    function update() {
-      debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-
     ctx.debug.width(480);
-    ctx.host.tracelineColor(0.05);
-    ctx.host.footer
-      .padding([12, 16])
-      .render(() => <StandardLink theme={p.theme.value} />);
-    ctx.subject
-      .size()
-      .display('grid')
-      .render(() => <Root {...Signal.toObject(p)} />);
+    debug.attach(ctx, {
+      subject: {
+        size: undefined,
+        display: 'grid',
+        render: () => <Root {...Signal.toObject(p)} />,
+      },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          ctx.host.tracelineColor(0.05);
+          ctx.host.footer
+            .padding([12, 16])
+            .render(() => <StandardLink theme={p.theme.value} />);
+        },
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {

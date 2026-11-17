@@ -1,11 +1,15 @@
 import {
   act,
   afterAll,
+  afterEach,
   beforeAll,
+  beforeEach,
   describe,
   DomMock,
   expect,
+  hostFixture,
   it,
+  storageFixture,
   TestReact,
 } from '../../../-test.ts';
 import { D, Is, Json, LocalStorage, Schedule, Style, type t } from '../common.ts';
@@ -17,7 +21,15 @@ type Stored = Pick<t.Anchor.Props, 'theme' | 'href'> & { examples?: 'none' | 'fo
 const storageKey = `dev:${D.displayName}`;
 
 describe('Anchor spec: shared examples control and presentation', () => {
-  DomMock.init({ beforeAll, afterAll });
+  let storage: ReturnType<typeof storageFixture>;
+  let host: Awaited<ReturnType<typeof hostFixture>>;
+  beforeAll(() => void (storage = storageFixture()));
+  beforeEach(async () => void (host = await hostFixture()));
+  afterEach(() => host[Symbol.dispose]());
+  afterAll(async () => {
+    storage[Symbol.dispose]();
+    await DomMock.unpolyfill();
+  });
   let debugModule: DebugModule;
   beforeAll(async () => {
     // Bind Debug's module-level styles to the test document, not the server-side dummy sheet.
@@ -28,6 +40,7 @@ describe('Anchor spec: shared examples control and presentation', () => {
     const legacy: Stored = { theme: 'Dark', href: 'https://example.com' };
     LocalStorage.immutable<Stored>(storageKey, legacy).reset(legacy);
     const debug = debugModule.createDebugSignals();
+    debug.attach(host.ctx, {});
     expect(debug.props.examples.value).to.eql('none');
     const { Debug } = debugModule;
     const res = await TestReact.render(<Debug debug={debug} />);
@@ -61,6 +74,7 @@ describe('Anchor spec: shared examples control and presentation', () => {
   it('every sample selection leaves either examples mode and persists the single view', async () => {
     const debug = debugModule.createDebugSignals();
     debug.reset();
+    debug.attach(host.ctx, {});
     const { Debug } = debugModule;
     const res = await TestReact.render(<Debug debug={debug} />);
     try {
@@ -101,6 +115,7 @@ describe('Anchor spec: shared examples control and presentation', () => {
       const store = LocalStorage.immutable(storageKey, initial);
       store.reset(initial);
       const debug = debugModule.createDebugSignals();
+      using _attachment = debug.attach(host.ctx, {});
       expect(debug.props.examples.value).to.eql(expected);
       expect(debug.props.theme.value).to.eql('Dark');
       expect(store.current).to.include({ examples: expected });
