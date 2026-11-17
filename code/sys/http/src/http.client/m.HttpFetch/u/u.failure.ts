@@ -1,4 +1,16 @@
 import { Err, Is, type t, toHeaders } from '../common.ts';
+import type { FailureKind, NominalFailure } from './t.ts';
+
+type FailureResponseArgs = {
+  readonly method: string;
+  readonly safeUrl: t.StringUrl;
+  readonly status: t.HttpStatusCode;
+  readonly statusText: string;
+  readonly headers: Headers;
+  readonly cause: t.StdError;
+  readonly checksum?: t.HttpFetch.ResponseChecksum;
+  readonly policyFailure?: FailureKind;
+};
 
 const NOMINAL = new WeakSet<object>();
 
@@ -18,23 +30,6 @@ const FAILURE = {
   t.HttpFetch.ResponsePolicy.FailureKind,
   { readonly status: t.HttpStatusCode; readonly statusText: string }
 >;
-
-export type FailureKind = t.HttpFetch.ResponsePolicy.FailureKind;
-
-export type NominalFailure = Error & {
-  readonly policyFailure: FailureKind;
-};
-
-type FailureResponseArgs = {
-  readonly method: string;
-  readonly safeUrl: t.StringUrl;
-  readonly status: t.HttpStatusCode;
-  readonly statusText: string;
-  readonly headers: Headers;
-  readonly cause: t.StdError;
-  readonly checksum?: t.HttpFetch.ResponseChecksum;
-  readonly policyFailure?: FailureKind;
-};
 
 /** Create one private owner-authenticated policy failure. */
 export function policyFailure(kind: FailureKind): NominalFailure {

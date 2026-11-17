@@ -1,36 +1,23 @@
-import { D, Is, slug, type t, Time } from '../common.ts';
+import { slug, type t } from '../common.ts';
 
-/** Create a Cmd client error with command metadata. */
-export function cmdError(
-  kind: t.Cmd.Error.Kind,
-  message: string,
-  meta: t.Cmd.Error.Meta,
-): t.Cmd.Error.Instance {
-  const error = new Error(message) as t.DeepMutable<t.Cmd.Error.Instance>;
-  error.name = kind;
-  error.cmd = meta;
-  error.ns = meta.ns;
-  return error;
+/** Construct a bounded diagnostic using only owner-selected facts. */
+export function failure(
+  kind: t.HttpCmd.FailureKind,
+  dispatch: t.HttpCmd.Error['dispatch'] = 'not-dispatched',
+  status?: number,
+): t.HttpCmd.Error {
+  const error = new Error(`HTTP command failed: ${kind}.`);
+  delete error.stack;
+  Object.defineProperties(error, {
+    name: { value: 'HttpCmdError', enumerable: true },
+    kind: { value: kind, enumerable: true },
+    dispatch: { value: dispatch, enumerable: true },
+    ...(status === undefined ? {} : { status: { value: status, enumerable: true } }),
+  });
+  return Object.freeze(error) as t.HttpCmd.Error;
 }
 
-/** Create an HTTP Cmd request id. */
+/** Create a canonical request correlation id, never public failure metadata. */
 export function createId(): t.Cmd.ReqId {
-  return `req-${slug()}` as t.Cmd.ReqId;
-}
-
-/** Build JSON request headers for the HTTP Cmd client. */
-export function requestHeaders(input: HeadersInit | undefined): Headers {
-  const headers = new Headers(input);
-  if (!headers.has('content-type')) headers.set('content-type', D.Json.contentType);
-  if (!headers.has('accept')) headers.set('accept', D.Json.accept);
-  return headers;
-}
-
-/** Start an optional cancellable client timeout. */
-export function startTimeout(
-  timeout: t.Msecs | undefined,
-  fn: () => void,
-): t.Time.Delay.Promise | undefined {
-  if (!Is.number(timeout)) return undefined;
-  return Time.delay(timeout, fn);
+  return `req-${slug()}`;
 }

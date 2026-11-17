@@ -1,13 +1,5 @@
-import { Arr, Is, Num, Obj, type t, Url } from '../common.ts';
-
-export type ValidatedPolicy = {
-  readonly maxBytes: t.NumberBytes;
-  readonly timeout: t.Msecs;
-  readonly maxRedirects: number;
-  readonly progressInterval: t.Msecs;
-  readonly sourceOrigins: ReadonlySet<string>;
-  readonly credentialOrigins: ReadonlySet<string>;
-};
+import { Is, Num, Obj, type t, Url } from '../common.ts';
+import type { ValidatedPolicy } from './t.ts';
 
 type PolicyValidation =
   | { readonly ok: true; readonly value: ValidatedPolicy }
@@ -100,7 +92,7 @@ function validate(input: unknown): PolicyValidation {
   if (!isSafeInt(value.timeout, 1)) return { ok: false };
   if (!isSafeInt(value.maxRedirects, 0)) return { ok: false };
   if (!isSafeInt(value.progressInterval, 1)) return { ok: false };
-  if (!Arr.isArray(value.sourceOrigins) || !Arr.isArray(value.credentialOrigins)) {
+  if (!Is.array(value.sourceOrigins) || !Is.array(value.credentialOrigins)) {
     return { ok: false };
   }
   if (value.sourceOrigins.length === 0) return { ok: false };
@@ -127,14 +119,9 @@ function validateOrigins(input: readonly t.StringUrl[]): ReadonlySet<string> | u
   const origins = new Set<string>();
   for (const item of input) {
     if (!Is.str(item) || item !== item.trim()) return;
-    try {
-      const url = new URL(item);
-      if (!isHttp(url) || url.username || url.password || item !== url.origin) return;
-      if (origins.has(url.origin)) return;
-      origins.add(url.origin);
-    } catch {
-      return;
-    }
+    const url = parseUrl(item);
+    if (!url || item !== url.origin || origins.has(url.origin)) return;
+    origins.add(url.origin);
   }
   return origins;
 }

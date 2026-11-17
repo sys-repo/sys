@@ -1,5 +1,6 @@
 export { Args } from '@sys/std/args';
 export { Arr } from '@sys/std/arr';
+export { Bytes } from '@sys/std/bytes';
 export { Err } from '@sys/std/error';
 export { Is, isObject, isRecord } from '@sys/std/is';
 export { Json } from '@sys/std/json';

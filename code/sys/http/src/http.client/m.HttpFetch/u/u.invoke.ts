@@ -1,40 +1,12 @@
 import { Err, Is, type t } from '../common.ts';
+import type { InvokeFetch, InvokeFetchArgs, InvokeFetchDependencies } from './t.ts';
 import { discardHeadBody, readBody } from './u.body.ts';
 import { failureResponse, isPolicyFailure, policyFailureResponse } from './u.failure.ts';
 import { requestHeaders } from './u.headers.ts';
-import {
-  inputHref,
-  parseUrl,
-  resolveRedirect,
-  safeHref,
-  type ValidatedPolicy,
-  validateInit,
-} from './u.input.ts';
+import { inputHref, parseUrl, resolveRedirect, safeHref, validateInit } from './u.input.ts';
 import { CANCELLED, createOperation } from './u.operation.ts';
 
 const REDIRECT_STATUS = new Set([301, 302, 303, 307, 308]);
-
-export type InvokeFetchArgs<T> = {
-  readonly contentType: t.StringContentType;
-  readonly contentTypePolicy: t.HttpFetch.CreateOptions['contentTypePolicy'];
-  readonly method: 'GET' | 'HEAD';
-  readonly input: t.FetchInput;
-  readonly init: t.HttpFetch.Init;
-  readonly options: t.HttpFetch.Options;
-  readonly policy?: ValidatedPolicy;
-  readonly externalSignal: AbortSignal;
-  readonly defaultHeaders: () => Headers;
-  readonly decode: (bytes: Uint8Array<ArrayBuffer>, response: Response) => Promise<T>;
-  readonly checksumSource: 'bytes' | 'value';
-};
-
-export type InvokeFetch = <T>(args: InvokeFetchArgs<T>) => Promise<t.HttpFetch.Response<T>>;
-
-type ChecksumModule = Pick<typeof import('./u.checksum.ts'), 'verifyChecksum'>;
-
-export type InvokeFetchDependencies = {
-  readonly loadChecksum: () => Promise<ChecksumModule>;
-};
 
 const DEFAULT_DEPS: InvokeFetchDependencies = {
   loadChecksum: () => import('./u.checksum.ts'),

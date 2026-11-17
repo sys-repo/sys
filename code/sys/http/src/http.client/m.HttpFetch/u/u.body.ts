@@ -1,6 +1,6 @@
+import { readBytes } from '../../../u/u.body.ts';
 import { Is, Num, type t } from '../common.ts';
-import type { ValidatedPolicy } from './u.input.ts';
-import type { Operation } from './u.operation.ts';
+import type { Operation, ValidatedPolicy } from './t.ts';
 
 type ReadBodyArgs = {
   readonly operation: Operation;
@@ -21,92 +21,35 @@ export async function discardHeadBody(
   return new Uint8Array();
 }
 
-/** Read one successful body within byte, time, and progress bounds. */
-export async function readBody(args: ReadBodyArgs): Promise<Uint8Array<ArrayBuffer>> {
+/** Read one successful body within Fetch-owned byte, time, and progress policy. */
+export function readBody(args: ReadBodyArgs): Promise<Uint8Array<ArrayBuffer>> {
   const { operation, response, policy, requestedUrl, finalUrl, onProgress } = args;
   const total = contentLength(response.headers);
   if (total !== undefined && total > policy.maxBytes) {
     void operation.cancelResponse(response).catch(() => undefined);
     operation.fail('response-too-large');
   }
-
-  const body = response.body;
-  if (!body) {
-    emitProgress(operation, onProgress, {
-      requestedUrl,
-      finalUrl,
-      loaded: 0,
-      total,
-      complete: true,
-    });
-    return new Uint8Array();
-  }
-
-  let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
-  const chunks: Uint8Array[] = [];
-  let loaded = 0;
-  let lastProgress = Number.NEGATIVE_INFINITY;
-
-  try {
-    reader = body.getReader();
-    while (true) {
-      const item = await operation.race(reader.read());
-      operation.throwIfStopped();
-
-      if (item.done) {
-        emitProgress(operation, onProgress, {
-          requestedUrl,
-          finalUrl,
-          loaded,
-          total,
-          complete: true,
-        });
-        return concat(chunks, loaded);
-      }
-
-      const chunk = item.value;
-      if (!Is.uint8Array(chunk)) throw new Error('Fetch response body produced a non-byte chunk');
-      if (chunk.byteLength > policy.maxBytes - loaded) {
-        const observed = loaded + chunk.byteLength;
-        if (Num.Is.safeInt(observed)) {
-          emitProgress(operation, onProgress, {
-            requestedUrl,
-            finalUrl,
-            loaded: observed,
-            total,
-            complete: false,
-          });
-        }
-        void operation.cancelReader(body, reader);
-        operation.fail('response-too-large');
-      }
-
-      loaded += chunk.byteLength;
-      chunks.push(chunk.slice());
-
+  let lastProgress = -Num.INFINITY;
+  const progress = (loaded: number, complete: boolean) => {
+    emitProgress(operation, onProgress, { requestedUrl, finalUrl, loaded, total, complete });
+  };
+  return readBytes({
+    body: response.body,
+    operation,
+    maxBytes: policy.maxBytes,
+    overflow(observed) {
+      if (Num.Is.safeInt(observed)) progress(observed, false);
+      return operation.fail('response-too-large');
+    },
+    onChunk(loaded) {
       const now = performance.now();
       if (now - lastProgress >= policy.progressInterval) {
-        emitProgress(operation, onProgress, {
-          requestedUrl,
-          finalUrl,
-          loaded,
-          total,
-          complete: false,
-        });
+        progress(loaded, false);
         lastProgress = now;
       }
-    }
-  } catch (cause: unknown) {
-    if (reader) void operation.cancelReader(body, reader);
-    else void operation.cancelResponse(response).catch(() => undefined);
-    throw cause;
-  } finally {
-    try {
-      reader?.releaseLock();
-    } catch {
-      // A hostile pending read may retain the lock after deadline settlement.
-    }
-  }
+    },
+    onComplete: (loaded) => progress(loaded, true),
+  });
 }
 
 function emitProgress(
@@ -115,29 +58,21 @@ function emitProgress(
   event: t.HttpFetch.ResponsePolicy.ProgressEvent,
 ): void {
   if (!handler) return;
-
-  let output: unknown;
   try {
-    output = handler(event);
-  } catch {
-    operation.fail('progress-failure');
-  }
-
-  operation.throwIfStopped();
-  let isThenable = false;
-  try {
-    isThenable = Is.promise(output);
-  } catch {
-    operation.fail('progress-failure');
-  }
-  if (isThenable) {
-    try {
-      Promise.resolve(output).catch(() => undefined);
-    } catch {
-      // The policy failure below owns callback classification.
+    const output = handler(event);
+    // Latch elapsed time without skipping rejection observation when the callback stopped us.
+    operation.checkDeadline();
+    if (!Is.promise(output)) {
+      operation.throwIfStopped();
+      return;
     }
-    operation.fail('progress-failure');
+    // Async callbacks are forbidden, but their rejection must still be observed.
+    Promise.resolve(output).catch(() => undefined);
+  } catch {
+    // Callback execution and thenable inspection share one failure policy.
   }
+  // fail preserves a cancellation/deadline already latched by the callback or checkpoint.
+  operation.fail('progress-failure');
 }
 
 function contentLength(headers: Headers): t.NumberBytes | undefined {
@@ -145,14 +80,4 @@ function contentLength(headers: Headers): t.NumberBytes | undefined {
   if (!Is.str(input) || !/^\d+$/.test(input)) return;
   const value = Number(input);
   return Num.Is.safeInt(value) ? value : undefined;
-}
-
-function concat(chunks: readonly Uint8Array[], length: number): Uint8Array<ArrayBuffer> {
-  const output = new Uint8Array(new ArrayBuffer(length));
-  let offset = 0;
-  chunks.forEach((chunk) => {
-    output.set(chunk, offset);
-    offset += chunk.byteLength;
-  });
-  return output;
 }

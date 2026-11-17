@@ -6,6 +6,7 @@ import type { FilesStatic as TFilesStatic } from '@sys/model/files/static/t';
 import { describe, expect, it, Json, Pkg, type t, Testing } from '../../-test.ts';
 import { Fetch } from '../../http.client/m.HttpFetch/mod.ts';
 import { HttpCmd } from '../mod.ts';
+import { expectFailure } from './u.fixture.ts';
 
 const HASH = {
   foo: `sha256-${'1'.repeat(64)}`,
@@ -41,6 +42,10 @@ describe('HttpCmd + FilesStatic dist integration', () => {
         if (!backing) throw new Error('FilesStatic backing not initialized.');
         return HttpCmd.handle(request, {
           path: ROUTE.cmd,
+          policy: {
+            maxBytes: { request: 1024 * 1024, response: 8 * 1024 * 1024 },
+            timeout: 30_000,
+          },
           cmd: { ns: Files.Cmd.ns, handlers: backing.handlers },
         });
       }
@@ -48,8 +53,8 @@ describe('HttpCmd + FilesStatic dist integration', () => {
       return new Response('Not found', { status: 404 });
     });
 
-    const origin = server.url.toURL().origin as t.StringUrl;
-    const cmdUrl = `${origin}${ROUTE.cmd}` as t.StringUrl;
+    const origin: t.StringUrl = server.url.toURL().origin;
+    const cmdUrl: t.StringUrl = `${origin}${ROUTE.cmd}`;
     const client = HttpCmd.client<
       TFiles.Cmd.Name,
       TFiles.Cmd.Payload,
@@ -57,9 +62,12 @@ describe('HttpCmd + FilesStatic dist integration', () => {
     >({
       url: cmdUrl,
       ns: Files.Cmd.ns,
-      timeout: 1_000,
+      policy: {
+        maxBytes: { request: 1024 * 1024, response: 8 * 1024 * 1024 },
+        timeout: 1_000,
+      },
     });
-    const manifestUrl = `${origin}${ROUTE.dist}` as t.StringUrl;
+    const manifestUrl: t.StringUrl = `${origin}${ROUTE.dist}`;
     const manifestFetch = Fetch.make({
       policy: {
         maxBytes: 1024 * 1024,
@@ -159,17 +167,14 @@ describe('HttpCmd + FilesStatic dist integration', () => {
         },
       ]);
 
-      const denied = await expectRemoteCmdError(
+      const denied = await expectFailure(
         () => client.send(Files.Cmd.Name.read, { path: 'notes/baz.md' }),
-        Files.Cmd.Name.read,
+        'remote',
       );
-      expect(denied.message).to.eql('Read denied: notes/baz.md');
+      expect(denied.status).to.eql(500);
 
-      const watch = await expectRemoteCmdError(
-        () => client.send(Files.Cmd.Name.watch, {}),
-        Files.Cmd.Name.watch,
-      );
-      expect(watch.message).to.eql('Static dist backing does not support watch');
+      const watch = await expectFailure(() => client.send(Files.Cmd.Name.watch, {}), 'remote');
+      expect(watch.status).to.eql(500);
 
       const getRequests = requests.filter((request) => request.startsWith('GET '));
       expect(getRequests).to.eql([`GET ${ROUTE.dist}`]);
@@ -208,21 +213,4 @@ function part(hash: t.StringHash, size: t.NumberBytes): t.StringFileHashUri {
 
 function entryPaths(entries: readonly TFiles.Entry[]): readonly TFiles.String.Path[] {
   return entries.map((entry) => entry.path);
-}
-
-async function expectRemoteCmdError(
-  fn: () => Promise<unknown>,
-  name: TFiles.Cmd.Name,
-): Promise<t.Cmd.Error.Instance> {
-  try {
-    await fn();
-  } catch (error) {
-    expect(error).to.be.instanceOf(Error);
-    const err = error as t.Cmd.Error.Instance;
-    expect(err.name).to.eql('CmdError.Remote');
-    expect(err.cmd?.name).to.eql(name);
-    expect(err.cmd?.ns).to.eql(Files.Cmd.ns);
-    return err;
-  }
-  throw new Error(`Expected remote Cmd error for ${name}.`);
 }
