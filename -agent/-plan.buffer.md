@@ -1,5 +1,6 @@
 
 
+
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
@@ -10,9 +11,13 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 @sys.tmpl
 ui-template-maintenance.plan.md
-- [ ] fix(std): close signal listener registration on disposal
-- [ ] fix(tmpl): correct UI scaffold lifecycle ownership
-- [ ] fix(tmpl): preserve scoped-style appearance across themes
+- [x] 1d532c559 fix(std): close signal listener registration on disposal
+- [x] 19dc218dd fix(ui-dev): retire specimen attachments before reset publication
+- [x] e608035ff fix(ui-dev): close specimen admission during retirement
+- [x] fa683998e feat(ui-dev): own specimen attachment lifetimes
+- [x] 519b15ea8 fix(tmpl): correct UI scaffold lifecycle ownership
+- [x] 41db307d7 feat(ui-react): register stylesheet rules from React
+- [x] 917bd0922 fix(tmpl): preserve scoped-style appearance across themes
 - [ ] fix(ui-components): adopt verified specimen lifecycle ownership
 - [ ] fix(ui-components): isolate matching scoped styles without changing paint
 
@@ -23,12 +28,13 @@ passkey-panel.plan.md
 - [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
 - [x] 1e48de614 style(ui): refine passkey debug panel labels and intent spacing
 - [x] 429560650 chore(ui): scaffold passkey integration spec and view navigation
-- [x] bc242cbd3 link-grammar.plan.md
+- [x] bc242cbd3 [link-grammar.plan.md](../@sys.ui-components/link-grammar.plan.md)
 - [x] b3659c530 feat(ui): expose composable passkey diagnostic sections
 - [x] 5bb4c79dc feat(ui): compose passkey UI in integration specimen
 - [x] 8ba1a4939 feat(passkey): add UI-independent WebAuthn ceremonies
-- [ ] feat(passkey): define account service contracts
-- [ ] feat(passkey): add sample account service for Cell
+- [x] c7e4d6686 feat(passkey): define account service contracts
+- [x] aba8774ff feat(http)!: bound unary HttpCmd transport
+- [ ] feat(passkey): add minimal reference account service
 - [ ] feat(passkey): add reusable account runtime
 - [ ] feat(ui): connect real passkey operations in sample
 
