@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.BulletProps;
@@ -22,17 +23,17 @@ export function createDebugSignals() {
     filled: s<P['filled']>(),
   };
   const p = props;
-  const api = {
-    props,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.size.value;
-      p.selected.value;
-      p.filled.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    p.debug.value;
+    p.theme.value;
+    p.size.value;
+    p.selected.value;
+    p.filled.value;
+  }
+
+  return { props, listen, attach };
 }
 
 const Styles = {

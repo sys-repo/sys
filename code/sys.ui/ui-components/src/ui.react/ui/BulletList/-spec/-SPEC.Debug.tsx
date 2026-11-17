@@ -1,4 +1,5 @@
 import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.BulletList.Props;
@@ -46,11 +47,22 @@ export async function createDebugSignals() {
     sample: s(snap.sample ?? defaults.sample),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.selected = p.selected.value;
+        d.columns = p.columns.value;
+        d.size = p.size.value;
+        d.multiple = p.multiple.value;
+        d.width = p.width.value;
+        d.fontSize = p.fontSize.value;
+        d.rtl = p.rtl.value;
+        d.sample = p.sample.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -60,22 +72,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.selected = p.selected.value;
-      d.columns = p.columns.value;
-      d.size = p.size.value;
-      d.multiple = p.multiple.value;
-      d.width = p.width.value;
-      d.fontSize = p.fontSize.value;
-      d.rtl = p.rtl.value;
-      d.sample = p.sample.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

@@ -1,15 +1,36 @@
 import React from 'react';
-import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  hostFixture,
+  it,
+  storageFixture,
+  TestReact,
+} from '../../../-test.ts';
 import { Is, Signal } from '../common.ts';
 import { key } from '../../Button/-test/u.fixture.ts';
 
 describe('BulletList specimen controls', () => {
-  DomMock.init({ beforeAll, afterAll });
+  let storage: ReturnType<typeof storageFixture>;
+  let host: Awaited<ReturnType<typeof hostFixture>>;
+  beforeAll(() => void (storage = storageFixture()));
+  beforeEach(async () => void (host = await hostFixture()));
+  afterEach(() => host[Symbol.dispose]());
+  afterAll(async () => {
+    storage[Symbol.dispose]();
+    await DomMock.unpolyfill();
+  });
 
   it('sample choices → controlled sample state, persistence, and reset without changing subject controls', async () => {
     const { createDebugSignals, Debug } = await import('../-spec/-SPEC.Debug.tsx');
     const debug = await createDebugSignals();
     debug.reset();
+    debug.attach(host.ctx, {});
     const p = debug.props;
     p.size.value = 'sm';
     p.columns.value = 2;
@@ -63,9 +84,7 @@ describe('BulletList specimen controls', () => {
         expect(Signal.toObject(p)).to.eql({ ...baseline, sample });
         expect(pressed()).to.eql(samples.map((el) => String(el === button)));
       }
-      await React.act(async () => {
-        p.selected.value = 'standard';
-      });
+      await React.act(async () => void (p.selected.value = 'standard'));
       expect(pressed()).to.eql(['false', 'true', 'false', 'false']);
       const reopened = await createDebugSignals();
       expect(Signal.toObject(reopened.props)).to.eql({
@@ -94,6 +113,7 @@ describe('BulletList specimen controls', () => {
     const { Root } = await import('../-spec/-ui.Root.tsx');
     const debug = await createDebugSignals();
     debug.reset();
+    debug.attach(host.ctx, {});
     debug.props.sample.value = 'markdown';
     const res = await TestReact.render(<Root debug={debug} />);
     try {
