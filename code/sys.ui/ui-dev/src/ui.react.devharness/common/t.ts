@@ -9,6 +9,7 @@ export type { IconType } from 'react-icons';
  */
 export type * from '@sys/types';
 export type { Color } from '@sys/color/t';
+export type { SignalEffectFn, SignalListeners } from '@sys/std/t';
 
 export type {
   SpecImport,
