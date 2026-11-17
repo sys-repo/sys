@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { type t, Color, css, D, Is, Keyboard, Time } from './common.ts';
+import { Color, css, D, Is, Keyboard, type t, Time } from './common.ts';
 import { Body } from './ui.Probe.Body.tsx';
 import { Header } from './ui.Probe.Header.tsx';
 import { useProbeRenderModel } from './use.RenderModel.ts';
@@ -16,7 +16,6 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   props: t.ActionProbe.ProbeProps<TEnv, TParams>,
 ) => {
   const {
-    debug = false,
     spec,
     env,
     runRequest,
@@ -31,7 +30,8 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   const runRef = useRef(false);
   const runRequestRef = useRef(runRequest);
   const didMountRef = useRef(false);
-  const { componentAttr } = useScopedStyles(props);
+  const theme = Color.theme(props.theme);
+  const scoped = useScopedStyles({ component: D.componentAttr, theme });
   const { blocks, getParams } = useProbeRenderModel({ spec, env, theme: props.theme });
   const { run, canRun } = useProbeRun({
     run: spec.run,
@@ -84,11 +84,9 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
   /**
    * Render
    */
-  const theme = Color.theme(props.theme);
-  const focusedShadow =
-    theme.name === 'Dark'
-      ? `0 3px 35px ${Color.alpha(Color.BLACK, 0.45)}`
-      : `0 3px 35px ${Color.alpha(Color.DARK, 0.12)}`;
+  const focusedShadow = theme.name === 'Dark'
+    ? `0 3px 35px ${Color.alpha(Color.BLACK, 0.45)}`
+    : `0 3px 35px ${Color.alpha(Color.DARK, 0.12)}`;
   const styles = {
     base: css({
       color: theme.fg,
@@ -108,8 +106,8 @@ export const Probe = <TEnv extends EnvObject, TParams extends ParamsObject>(
 
   return (
     <div
-      data-component={componentAttr}
-      className={css(styles.base, props.style).class}
+      data-component={D.componentAttr}
+      className={css(styles.base, scoped, props.style).class}
       tabIndex={0}
       onFocus={props.onFocus}
       onBlur={() => {
@@ -173,8 +171,9 @@ const wrangle = {
     return wrangle.acts(actOn).some((kind) => {
       if (kind === null) return false;
       if (kind === 'Cmd+Enter') return Keyboard.Is.command(e) && e.key === 'Enter';
-      if (kind === 'Enter')
+      if (kind === 'Enter') {
         return e.key === 'Enter' && !Keyboard.Is.modified(Keyboard.modifiers(e));
+      }
       return false;
     });
   },

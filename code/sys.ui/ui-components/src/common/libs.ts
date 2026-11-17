@@ -37,4 +37,5 @@ export {
   usePointer,
   useRev,
   useSizeObserver,
+  useStylesheetRule,
 } from '@sys/ui-react';
