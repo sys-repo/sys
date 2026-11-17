@@ -7,5 +7,5 @@ export { Schedule } from '@sys/std/async';
 export { Rx } from '@sys/std/rx';
 export { Time } from '@sys/std/time';
 export { Timecode } from '@sys/std/timecode';
-export { Color, css } from '@sys/ui-css';
+export { Color, css, Style } from '@sys/ui-css';
 export { Kbd } from '@sys/ui-dom';
