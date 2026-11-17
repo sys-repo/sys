@@ -21,7 +21,7 @@ deno.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.68.2
+  - import: npm:rollup@4.68.3
     dev: true
   - import: npm:vite@8.3.8
     dev: true
@@ -51,13 +51,13 @@ deno.json:
   - import: npm:prosemirror-model@1.25.13
   - import: npm:prosemirror-state@1.4.4
   - import: npm:prosemirror-view@1.42.9
-  - import: npm:prosemirror-example-setup@1.2.3
+  - import: npm:prosemirror-example-setup@1.2.4
   - import: npm:prosemirror-schema-basic@1.2.5
   - import: npm:yaml@2.9.1
   - import: npm:mdast-util-from-markdown@2.1.0
   - import: npm:mdast-util-to-markdown@2.2.3
   - import: npm:mdast-util-gfm@3.1.0
-  - import: npm:mdast-util-to-hast@13.2.1
+  - import: npm:mdast-util-to-hast@13.2.2
   - import: npm:hast-util-sanitize@5.0.2
   - import: npm:hast-util-to-html@9.0.6
   - import: npm:mdast-util-frontmatter@2.0.1
@@ -109,7 +109,7 @@ package.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.68.2
+  - import: npm:rollup@4.68.3
     dev: true
   - import: npm:vite@8.3.8
     dev: true
