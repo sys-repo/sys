@@ -2,7 +2,43 @@ import React from 'react';
 import { Harness, type t as Dev } from '@sys/ui-dev/react/devharness';
 import type { TestSuiteModel } from '@sys/testing/t';
 import { DomMock, expect } from '../-test.ts';
-import { Is, Json, LocalStorage, Rx, type t } from '../common.ts';
+import { Is, Json, LocalStorage, Obj, Rx, type t } from '../common.ts';
+
+/** Load the real specimen inside isolated storage; own setup and observation, not its wiring. */
+export async function specimenFixture<T>(
+  key: string,
+  load: () => Promise<{ default: TestSuiteModel }>,
+) {
+  await using setup = new AsyncDisposableStack();
+  setup.defer(DomMock.unpolyfill);
+  const storage = setup.use(storageFixture());
+  const { default: suite } = await load();
+  await suite.init();
+  const writes = setup.use(projectionFixture(key));
+  const host = setup.use(await hostFixture(suite));
+  await host.run();
+  const debug = await host.debug<T>();
+  const resources = setup.move();
+  return {
+    host,
+    debug,
+    read: () => storage.read(key),
+    observe() {
+      const { host: paint, subject } = host.ctx.toObject().props;
+      return {
+        writes: writes.count,
+        redraws: host.redraws,
+        size: Obj.clone(subject.size),
+        paint: {
+          host: paint.backgroundColor,
+          subject: subject.backgroundColor,
+          traceline: paint.tracelineColor,
+        },
+      };
+    },
+    [Symbol.asyncDispose]: () => resources.disposeAsync(),
+  };
+}
 
 /** Install storage before factory access; DomMock alone leaves ambient localStorage intact. */
 export function storageFixture() {
@@ -78,6 +114,10 @@ export async function hostFixture(suite?: TestSuiteModel) {
       const result = await controller.run.fire();
       expect(result.error).to.eql(undefined);
       expect(result.info?.run.results?.ok).to.eql(true);
+    },
+    async reset() {
+      const result = await controller.reset.fire();
+      expect(result.error).to.eql(undefined);
     },
     async init() {
       const test = suite?.state.tests.find((test) => test.description === 'init');

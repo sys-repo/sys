@@ -1,11 +1,20 @@
 import { Spec } from '@sys/ui-dev/react/devharness';
-import { afterAll, describe, DomMock, expect, it, TestReact } from '../-test.ts';
+import {
+  afterAll,
+  describe,
+  DomMock,
+  expect,
+  hostFixture,
+  it,
+  projectionFixture,
+  storageFixture,
+  TestReact,
+} from '../ui.react/-test.ts';
 import { Color, Signal } from '../common.ts';
 import { D as Label, STORAGE_KEY } from '../ui.react/ui/Text.Label/common.ts';
 import { D as Manuscript } from '../ui.react/ui/Prose.Manuscript/common.ts';
 import type { DebugSignals as LabelDebug } from '../ui.react/ui/Text.Label/-spec/-SPEC.Debug.tsx';
 import type { DebugSignals as ManuscriptDebug } from '../ui.react/ui/Prose.Manuscript/-spec/-SPEC.Debug.tsx';
-import { hostFixture, projectionFixture, storageFixture } from './u.fixture.specimen-lifecycle.ts';
 
 describe('Consumer specimens: attachment-owned effects', () => {
   afterAll(DomMock.unpolyfill);

@@ -7,12 +7,13 @@ import {
   describe,
   DomMock,
   expect,
+  hostFixture,
   it,
+  storageFixture,
   TestReact,
 } from '../../../-test.ts';
 import { D, Is, LocalStorage, Schedule, Signal, STORAGE_KEY, type t } from '../common.ts';
 import { Samples } from '../-spec/-ui.Samples.tsx';
-import { hostFixture, storageFixture } from '../../../../-test/u.fixture.specimen-lifecycle.ts';
 
 type DebugModule = typeof import('../-spec/-SPEC.Debug.tsx');
 const legacy = { debug: true, theme: 'Light' } as const;

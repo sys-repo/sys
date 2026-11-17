@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { ActionProbe } from '../mod.ts';
 import { renderSamples } from './-u.samples.tsx';
@@ -48,12 +49,17 @@ export async function createDebugSignals() {
   };
   const p = props;
   p.result.title.value = defaults.resultPlaceholder;
-  const api = {
-    props,
-    action,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.env = p.env.value;
+        d.actOn = p.actOn.value;
+        d.sizeMode = p.sizeMode.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -65,17 +71,7 @@ export async function createDebugSignals() {
     p.result.title.value = defaults.resultPlaceholder;
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.env = p.env.value;
-      d.actOn = p.actOn.value;
-      d.sizeMode = p.sizeMode.value;
-    });
-  });
-
-  return api;
+  return { props, action, listen, reset, attach };
 }
 
 const Styles = {
