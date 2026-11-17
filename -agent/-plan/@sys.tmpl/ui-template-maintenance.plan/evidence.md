@@ -231,6 +231,231 @@ unaffected. Optional correction belongs in this fixture and
 prove one attempt, visible timeout error, recovered controls, and unmount cancellation. No new
 runner abstraction is warranted. GO does not mean defect-free or universal compatibility.
 
+## Consumer scoped-style verification
+
+Scope: ActionProbe and Prose.Manuscript only, against source baseline `424278663`. The production
+migration preserves component identities and the distinct code line-heights (1.9 and 1), retains
+ETBook loading and separate Manuscript declaration modules, and composes root bindings caller-last.
+No template source, embedded bundle, dependency projection, specimen lifetime, or persistence policy
+was changed. Template generation in the browser orchestrator is temporary fixture setup, not a new
+template implementation, regeneration of the embedded bundle, or release.
+
+After restoring both executed source controls, the focused command below passed **6 suites / 45
+steps**. This includes seven new scoped-style steps plus unchanged activation, signal, renderer, and
+API coverage. Before retiring the one-off browser harness, `deno task check --quiet` from
+`code/sys.ui/ui-components` passed with that fixture included. Exact-file lint and format checks
+passed for the 14 then-extant source/test files; `git diff --check` passed. These are workspace
+typing/DOM receipts, separate from the computed-paint receipt below.
+
+```sh
+cd code/sys.ui/ui-components
+deno task check --quiet
+deno task test --trace-leaks src/-test/-scoped-styles.test.tsx src/ui.react/ui/ActionProbe/-test/-ui.keyboard.test.tsx src/ui.react/ui/ActionProbe/-test/-m.Signals.test.ts src/ui.react/ui/ActionProbe/-test/-m.Renderer.test.ts src/ui.react/ui/ActionProbe/-test/-.test.ts src/ui.react/ui/Prose.Manuscript/-test/-.test.ts
+```
+
+Executed sensitivity controls failed the intended assertions, with five other scoped-style steps
+still passing: omitting ActionProbe's root composition lost its foreground binding; omitting
+Manuscript heading registration failed the initial child-layout observation. Both source changes
+were restored before the green run. Recovery copies are
+`.tmp/consumer-scoped-styles.before-root-control.tsx` and
+`.tmp/consumer-scoped-styles.before-heading-control.ts`; exact-file pre-format copies use
+`.tmp/consumer-scoped-styles.prefmt.*`.
+
+### One-off browser acceptance: human-run PASS
+
+The human supplied a completed terminal receipt from `deno task test:scoped-styles`, run in
+`code/sys.ui/ui-components` after adding the explicitly reviewed subprocess preset. Ordinary test
+permissions remained unchanged; the temporary generated build used `-P=dev`, not `-A`. This
+successful run supersedes the earlier `NotCapable: Requires run access to "deno"` blocker. The
+agent's separate attempt was aborted and is not a passing receipt.
+
+- Generated package `check` and `build`: **passed**.
+- Browser test: **1 passed / 0 failed, 16s**; **140 complete paint comparisons**, loaded ET Book,
+  and restored line-height/color sensitivity controls.
+- Outer integration test: **1 passed / 0 failed, 2m24s**, including generated workspace setup/build.
+- Browser UA reported `HeadlessChrome/157.0.0.0` on macOS. This is a reduced UA, not an exact Chrome
+  build-version receipt.
+
+The receiver checked every expected phase/sample/target identity and all 28 computed properties:
+actual consumer roots/code/headings, both themes and mount orders, transitions, remounts, nested
+same-owner roots, and caller precedence. Baselines independently transcribed isolated recipes from
+`424278663`; unchanged inner content/layout and Color/CSS substrate were shared. This is bounded
+consumer computed-paint evidence, not a whole-component/substrate audit, a new manual browser
+matrix, or published-consumer compatibility. Provenance is the human-supplied terminal transcript
+plus the inspected receiver contract; full report JSON was not archived.
+
+### Retained regression boundary
+
+At the human's explicit request, the multi-minute integration harness was retired after this proof,
+not retained as permanent CI or a further completion gate. Removed:
+
+- `code/sys.ui/ui-components/src/-test/-scoped-styles.build.ts`;
+- `code/sys.ui/ui-components/src/-test/scoped-styles/{-browser.ts,u.baseline.ts,ui.tsx}`;
+- the dedicated `test:scoped-styles` task and `scoped-styles` permission preset.
+
+The fast `src/-test/-scoped-styles.test.tsx` and existing consumer regressions remain. Production
+source was not changed by this retirement. Exact recovery copies of the four proof files and the
+pre-retirement module config use `.tmp/consumer-scoped-styles.retired.*`. These local copies are
+outside test discovery and the commit unit, not durable or directly executable browser fixtures. No
+further slow run was performed for cleanup.
+
+After retirement, the owner check passed again; the retained focused command passed **6 suites / 45
+steps / 0 failures in 2s**. The new scoped-style suite itself took **52ms**.
+
+### Consumer review adjudication and final test hardening
+
+The supplied blind review returned GO with no production blockers. Adjudication retained the
+production design unchanged and accepted two optional findings: strengthen declaration/reference
+coverage in the retained test, and exclude behavior-neutral `deno.json` churn from the source
+commit. That was the review recommendation, not the eventual commit manifest: `55d4cea12` landed 12
+paths, including `code/sys.ui/ui-components/deno.json`. The reconciliation preserves that actual
+history; plan artifacts remain a separate commit concern.
+
+`expectPalette` now checks `color` → foreground, `background-color` → background, and the complete
+border declaration → border variable, in addition to distinct references and root-bound values.
+Declaration-boundary matching prevents `color` from matching inside `background-color`.
+
+A temporary test-side transformation swapped foreground/background references in the observed rule
+text without changing root bindings or production source. The old assertions passed all seven steps;
+the strengthened assertions failed all seven at the declaration mapping. The control was removed,
+then the owner check and focused **6 suites / 45 steps / 0 failures** passed again in **2s**; the
+scoped-style suite took **58ms**. Exact-file lint/format checks passed for all ten extant
+source/test files, and `git diff --check` passed. No browser rerun, new suite, or permanent test
+harness was added. The test's pre-change recovery copy is
+`.tmp/consumer-scoped-styles.before-reference-mapping.test.tsx`.
+
+## Lifecycle pilot preparation evidence
+
+Step 2 prepares Text.Label + Prose.Manuscript; it does not implement either consumer. Baseline HEAD
+was `ce341a391`. Relevant template, owner, and consumer source had no worktree delta. The
+preparation kept ActionProbe and the remaining inventory outside the pilot and assigned a separate
+future arc item to that remaining migration. No staging, commit, source migration, or dependency
+refresh occurred.
+
+### Authored/embedded parity and generated entrypoints
+
+Personally executed from `code/-tmpl`:
+
+```sh
+deno task test --trace-leaks src/-tests/-m.mod.ui.parity.test.ts .tmp/-ui-lifecycle-entrypoints.test.ts
+```
+
+Observed **2 suites / 4 steps / 0 failures in 1m45s**: three parity steps and one generated check
+step. The named probe path in that historical command was subsequently retired; it is not a current
+runnable command. The existing parity test covered both UI templates' specimen/debug/type files,
+plain UI/styles, `pkg/src/common/t.ts`, and the package UI library barrel.
+
+Artifact attribution:
+
+- `code/-tmpl/src/m.tmpl/-bundle.json` blob: `78471c59ca64f13434f00f4499c4e63673a3eafa`.
+- Authored plain `-spec/-SPEC.tsx` blob: `6c087230f26a4fa4682a4818f94b9dbc7ca13aa4`.
+- Authored controller `-spec/-SPEC.tsx` blob: `8384f2ee167d8d30407d7f8472dd43004a296f97`.
+- `makeTmpl` materialized the embedded `repo`, `pkg`, `m.mod.ui`, and `m.mod.ui.controller`
+  products. Existing package/component initializers named the package
+  `@fixture/lifecycle-entrypoints` and components `LifecyclePlain` and `LifecycleController`.
+- Generated package at execution:
+  `/var/folders/7n/9zpvp0kn44b4stg0zt55j8jr0000gp/T/workspace-16704b8aa56ed7c2/code/example`. Normal
+  probe cleanup removed its temporary workspace after the check; it is not a retained app.
+
+The generated package's existing `deno task check` ran with these explicit additional targets:
+
+- `src/ui/LifecyclePlain/-spec/-SPEC.tsx`
+- `src/ui/LifecyclePlain/-spec/-SPEC.Debug.tsx`
+- `src/ui/LifecyclePlain/-spec/-t.ts`
+- `src/ui/LifecycleController/-spec/-SPEC.tsx`
+- `src/ui/LifecycleController/-spec/-SPEC.Debug.tsx`
+- `src/ui/LifecycleController/-spec/-t.ts`
+- `src/common/t.ts`
+
+All were visibly checked with no type errors. The task also checked its normal generated source,
+script, and Vite-config targets. The probe asserted byte-identical generated package `deno.json`
+before and after the check. No template, bundle, generated source, or check-task correction was
+needed.
+
+Dependency authority was localized using the existing `TmplTesting.LocalRepoAuthorities.rewrite`
+helper, with the current workspace import map, package authority, and exported source modules:
+
+- `@sys/ui-dev/react/devharness` →
+  `/Users/phil/code/org.sys/sys/code/sys.ui/ui-dev/src/ui.react.devharness/mod.ts`
+- `@sys/ui-dev/react/devharness/t` →
+  `/Users/phil/code/org.sys/sys/code/sys.ui/ui-dev/src/ui.react.devharness/types.ts`
+- `@sys/ui-react` → `/Users/phil/code/org.sys/sys/code/sys.ui/ui-react/src/mod.ts`
+- `@sys/ui-components/react/dev` →
+  `/Users/phil/code/org.sys/sys/code/sys.ui/ui-components/src/ui.react/dev/mod.ts`
+
+Harness and Dev-control mappings were asserted against `import.meta.resolve`; the receipt printed
+all four mappings. This closes the named generated lifecycle-entrypoint evidence gap against these
+workspace dependencies. It does not prove published dependency compatibility, controller Strict Mode
+replay, consumer adoption, storage durability, or browser paint. No browser/build run was performed.
+
+The one-off test was copied exactly to `.tmp/ui-lifecycle-entrypoints.step2.probe.ts`, then removed
+from `code/-tmpl/.tmp/`. The recovery copy is outside discovery/commit scope and retains its
+original relative imports; it is evidence, not a directly executable fixture at the new location. Do
+not add this 1m45s materialization/check pass to permanent migration CI or repeat it absent changed
+inputs. After retirement, the existing parity task alone passed **1 suite / 3 steps / 0 failures in
+42ms**.
+
+### Unchanged consumer baseline and proof allocation
+
+Personally executed from `code/sys.ui/ui-components`:
+
+```sh
+deno task test --trace-leaks src/ui.react/ui/Text.Label/-test/-spec.test.tsx src/ui.react/ui/Prose.Manuscript/-test/-.test.ts
+```
+
+Observed **2 suites / 4 steps / 0 failures in 658ms**. This is pre-migration behavior evidence:
+Text.Label's three control/hydration/composition steps and Manuscript's one API step. It is not
+attachment or detached-silence proof. It also does not establish storage isolation: the existing
+Label test uses global `localStorage`, which `DomMock.init` does not replace. The historical PASS
+stands, but must not be described as an isolated-storage run. Install explicit isolation before
+future consumer runs; this reconciliation did not rerun that baseline.
+
+Source inspection found two details that constrain the pilot:
+
+- `LocalStorage.immutable` may seed missing serialized defaults at construction and uses a keyed
+  registry. An inert attachment owner must prevent reactive persistence acquisition, not forbid this
+  existing initialization write or promise a fresh read for every factory.
+- Text.Label currently omits subject size and applies its initial traceline after theme setup;
+  Manuscript uses `size('fill')` with the harness's default margin. Neither should inherit the
+  template's `[360, null]` size. Theme-only synchronization and redraw must remain separate.
+
+The plan's seven-path pilot boundary allocates permanent proof to the existing Text.Label tests, one
+small integration file for the two actual suites, and one thin shared test fixture. Lifecycle
+mechanism tests remain at the owner; one representative consumer sharing check is enough. The
+planned consumer assertions and negative controls have not been implemented or run. No consumer
+source or retained test was changed in this preparation pass.
+
+### Pilot preparation review and reconciliation
+
+The human supplied a bounded blind-review report with **GO for this preparation contract**, no
+material blockers, and no implementation or Git authorization. The prompt recommended `gpt-6.1-sol`
+at `high`; the supplied report does not independently identify its actual runtime model/effort. Its
+final implementation recommendation is prospective, not reviewer provenance.
+
+The reviewer reported source/history inspection at `ce341a391` and a passing `git diff --check`; no
+tests, probes, browser runs, or materialization were executed in that review. Its failure sequences
+were hypothetical wiring mistakes, not observed failures. The report supports the existing
+owner/consumer proof split and leaves published compatibility, browser behavior, and consumer
+adoption unproven.
+
+Reconciliation retained the design and accepted these source-grounded clarifications:
+
+- `code/sys/std/src/m.Testing.DomMock/u.polyfill.ts` installs DOM globals but not `localStorage`.
+  Label's existing test accesses global storage. Explicit installation/restoration of isolated
+  storage belongs in pilot test setup before store/factory access, not in the production owner.
+- `code/sys.ui/ui-dev/src/ui.react.devharness/u/m.Ctx/Ctx.Props.Subject.ts::size` defaults fill
+  margins to **50**. Preserve Manuscript's omitted margin rather than adding an explicit override.
+- `code/sys.ui/ui-dev/src/ui.react.devharness/u/m.Theme/mod.ts::Theme.signalEffect` is the current
+  navigation target, not `u.signalEffect.ts`. Label's initial traceline override must not be
+  reapplied on later theme changes; retain `Theme.background` behavior.
+- Keep the shared fixture limited to controller/storage setup actually reused by integration and
+  Label's attached control test. The seven-path boundary is not a quota. Retain existing assertions
+  and count projection attempts where storage deduplication could hide duplicate ownership.
+
+These source surfaces were reopened during reconciliation. No production change or additional
+runtime proof was needed for the documentation corrections. No further review was commissioned; a
+readiness check and explicit implementation authorization remain separate.
+
 ## Operational recovery
 
 The retained example was:
