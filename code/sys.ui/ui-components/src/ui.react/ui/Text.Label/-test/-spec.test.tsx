@@ -12,12 +12,18 @@ import {
 } from '../../../-test.ts';
 import { D, Is, LocalStorage, Schedule, Signal, STORAGE_KEY, type t } from '../common.ts';
 import { Samples } from '../-spec/-ui.Samples.tsx';
+import { hostFixture, storageFixture } from '../../../../-test/u.fixture.specimen-lifecycle.ts';
 
 type DebugModule = typeof import('../-spec/-SPEC.Debug.tsx');
 const legacy = { debug: true, theme: 'Light' } as const;
 
 describe('Text.Label specimen: controls and real composition', () => {
-  DomMock.init({ beforeAll, afterAll });
+  let storage: ReturnType<typeof storageFixture>;
+  beforeAll(() => void (storage = storageFixture()));
+  afterAll(async () => {
+    storage[Symbol.dispose]();
+    await DomMock.unpolyfill();
+  });
   let Debug: DebugModule['Debug'];
   let createDebugSignals: DebugModule['createDebugSignals'];
   let store: t.LocalStorage.Immutable<t.JsonMapLikeU>;
@@ -35,6 +41,8 @@ describe('Text.Label specimen: controls and real composition', () => {
 
   it('legacy snapshot → retained knobs, new defaults and serialized reset', async () => {
     const debug = await createDebugSignals();
+    using host = await hostFixture();
+    debug.attach(host.ctx, {});
     expect(Signal.toObject(debug.props)).to.include({
       ...legacy,
       overflow: D.overflow,
@@ -42,11 +50,12 @@ describe('Text.Label specimen: controls and real composition', () => {
       fontSize: 12,
     });
     const res = await TestReact.render(<Debug debug={debug} />);
+    const { container } = res;
     try {
-      await click(res.container, 'overflow: flow');
-      await click(res.container, 'width: 240px');
-      await click(res.container, 'font-size: 12px');
-      await click(res.container, 'Long code only');
+      await click(container, 'overflow: flow');
+      await click(container, 'width: 240px');
+      await click(container, 'font-size: 12px');
+      await click(container, 'Long code only');
       expect(stored()).to.eql({
         ...legacy,
         value: '`/-sample/long-directory-name/example.bundle.js.map`',
@@ -54,13 +63,13 @@ describe('Text.Label specimen: controls and real composition', () => {
         width: 360,
         fontSize: 14,
       });
-      expect(control(res.container, 'Long code only').getAttribute('aria-pressed')).to.eql('true');
+      expect(control(container, 'Long code only').getAttribute('aria-pressed')).to.eql('true');
       await act(async () => {
         debug.props.value.value = 'custom value';
         await Schedule.micro();
       });
-      expect(control(res.container, 'Long code only').getAttribute('aria-pressed')).to.eql('false');
-      await click(res.container, '(reset)');
+      expect(control(container, 'Long code only').getAttribute('aria-pressed')).to.eql('false');
+      await click(container, '(reset)');
       expect(stored()).to.eql({
         debug: false,
         theme: 'Dark',
@@ -69,9 +78,8 @@ describe('Text.Label specimen: controls and real composition', () => {
         width: 240,
         fontSize: 12,
       });
-      expect(control(res.container, 'Supported formatting').getAttribute('aria-pressed')).to.eql(
-        'true',
-      );
+      const selected = control(container, 'Supported formatting');
+      expect(selected.getAttribute('aria-pressed')).to.eql('true');
     } finally {
       act(() => res.dispose());
     }
@@ -90,29 +98,29 @@ describe('Text.Label specimen: controls and real composition', () => {
     expect(Signal.toObject(debug.props)).to.eql(saved);
   });
 
-  it('fixtures → actual labels in both Button slots, list and outer Anchor; host owns activation', async () => {
+  it('samples → labels compose in buttons, list and anchor; host owns activation', async () => {
     const value = 'Run **build** with `code`';
-    const res = await TestReact.render(
-      <Samples value={value} width={240} fontSize={12} theme='Dark' />,
-    );
+    const element = <Samples value={value} width={240} fontSize={12} theme='Dark' />;
+    const res = await TestReact.render(element);
+    const { container } = res;
     try {
-      const labels = res.container.querySelectorAll(`[data-component="${D.displayName}"]`);
+      const labels = container.querySelectorAll(`[data-component="${D.displayName}"]`);
       expect(labels.length).to.eql(15);
-      const buttons = [...res.container.querySelectorAll<HTMLElement>('[role="button"]')];
+      const buttons = [...container.querySelectorAll<HTMLElement>('[role="button"]')];
       const actions = buttons.filter((element) => element.textContent === 'Run build with code');
       expect(actions.length).to.eql(4); // Two slots, one enabled list row, one disabled row.
-      expect(res.container.textContent).to.include('Activations: 0');
+      expect(container.textContent).to.include('Activations: 0');
       act(() => actions[0].click());
-      expect(res.container.textContent).to.include('Activations: 1');
+      expect(container.textContent).to.include('Activations: 1');
       act(() => actions[3].click());
-      expect(res.container.textContent).to.include('Activations: 1');
-      const anchor = res.container.querySelector('a');
+      expect(container.textContent).to.include('Activations: 1');
+
+      const anchor = container.querySelector('a');
+      const code = anchor?.querySelector('code');
       expect(anchor?.getAttribute('href')).to.eql('#text-label-sample');
-      expect(anchor?.querySelector('code')?.textContent).to.eql(
-        '/-sample/long-directory-name/example.bundle.js.map',
-      );
-      expect(res.container.textContent).to.include('Save [**help**](/-sample/help)');
-      expect(res.container.textContent).to.include('# **Literal heading**');
+      expect(code?.textContent).to.eql('/-sample/long-directory-name/example.bundle.js.map');
+      expect(container.textContent).to.include('Save [**help**](/-sample/help)');
+      expect(container.textContent).to.include('# **Literal heading**');
     } finally {
       act(() => res.dispose());
     }

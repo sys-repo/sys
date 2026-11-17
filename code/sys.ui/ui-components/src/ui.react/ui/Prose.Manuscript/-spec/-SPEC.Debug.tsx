@@ -1,4 +1,5 @@
-import React from 'react';
+import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type Storage = Pick<t.ProseManuscript.Props, 'debug' | 'theme'>;
@@ -26,11 +27,14 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -40,14 +44,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -92,7 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
       <Dev.ObjectView
-        name={'debug'}
+        name='debug'
         data={Signal.toObject(p)}
         expand={0}
         style={{ marginTop: 20 }}
