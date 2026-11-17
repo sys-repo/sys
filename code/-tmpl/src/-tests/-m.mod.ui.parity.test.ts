@@ -10,7 +10,7 @@ const cases = [
     name: 'm.mod.ui.controller',
     paths: ['-spec/-SPEC.tsx', '-spec/-SPEC.Debug.tsx', '-spec/-t.ts'],
   },
-  { name: 'pkg', paths: ['src/common/t.ts'] },
+  { name: 'pkg', paths: ['src/common/t.ts', 'src/ui/common/libs.ts'] },
 ] as const;
 
 describe('UI templates: embedded/source parity', () => {

@@ -1,14 +1,14 @@
-import { type t, Color, css, D } from './common.ts';
+import { Color, css, D, type t } from './common.ts';
 import { useScopedStyles } from './use.Styles.ts';
 
 export const MyComponent: t.FC<t.MyComponent.Props> = (props) => {
-  const { debug = false } = props;
-  useScopedStyles(props); // ← 🐷 delete if not using CSS scoped styles.
+  const component = D.displayName;
+  const theme = Color.theme(props.theme);
+  const scoped = useScopedStyles({ component, theme }); // ← 🐷 optional scoped styles.
 
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       backgroundColor: Color.ruby(0),
@@ -18,7 +18,7 @@ export const MyComponent: t.FC<t.MyComponent.Props> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, props.style).class} data-component={D.displayName}>
+    <div className={css(styles.base, scoped, props.style).class} data-component={component}>
       <div>{`🐷 ${D.displayName}`}</div>
     </div>
   );

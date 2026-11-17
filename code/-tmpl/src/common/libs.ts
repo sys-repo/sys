@@ -27,7 +27,7 @@ export { TmplEngine } from '@sys/tmpl-engine';
  */
 export { Color, css, Style } from '@sys/ui-css';
 export { LocalStorage } from '@sys/ui-dom';
-export { Signal } from '@sys/ui-react';
+export { Signal, useStylesheetRule } from '@sys/ui-react';
 export { Button } from '@sys/ui-components/react/button';
 export { KeyValue } from '@sys/ui-components/react/key-value';
 export { ObjectView } from '@sys/ui-components/react/object-view';
