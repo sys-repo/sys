@@ -13,8 +13,24 @@ ui-template-maintenance.plan.md
 - [x] cf117701f fix(ui-components): bind Anchor specimen effects to attachments
 - [x] 6d4d9c028 fix(ui-components): bind Bullet and BulletList specimen effects to attachments
 - [x] 0f0c14660 fix(ui-components): bind Button family specimen effects to attachments
-- [ ] fix(ui-components): bind Dist and Dist.Browser specimen effects to attachments
-- [ ] fix(ui-components): migrate remaining specimen lifecycle call-sites
+- [x] bb8f0d129 fix(ui-components): bind Dist and Dist.Browser specimen effects to attachments
+- [ ] fix(ui-components): bind Chip and Cropmarks specimen effects to attachments
+- [ ] fix(ui-components): bind ErrorBoundary, FadeElement, and Http.Origin specimen effects to attachments
+- [ ] fix(ui-components): bind Icon.Swatches, IFrame, and Image.Svg specimen effects to attachments
+- [ ] fix(ui-components): bind KeyValue family and Layout.CenterColumn specimen effects to attachments
+- [ ] fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
+- [ ] fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
+- [ ] fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
+- [ ] fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
+- [ ] fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
+- [ ] fix(ui-components): bind video deck and element specimen effects to attachments
+- [ ] fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
+- [ ] fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
+- [ ] fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
+- [ ] fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
+- [ ] fix(ui-components): bind webfont and CSS specimen effects to attachments
+- [ ] fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
+- [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across other sys packages
 
 ## Specimen lifecycle migration inventory
 
@@ -51,27 +67,23 @@ are relative to `code/sys.ui/ui-components/src/ui.react/ui/`; paths beginning wi
 
 - [ ] ErrorBoundary — `ErrorBoundary/-spec/`; error/reset callbacks.
 - [ ] FadeElement — `FadeElement/`; reactive subject size; no factory persistence.
-
 - [ ] Http.Origin — `Http.Origin/-spec/`; controller, controlled branches, and reactive width.
 
 - [ ] Icon — `Icon/-spec/`; legacy `e.state` renderer and stub Debug; no signal factory.
-
 - [ ] Icon.Swatches — `Icon.Swatches/-spec/`.
 - [ ] IFrame — `IFrame/`; host-image effect and module-level `location`; no persistence.
 - [ ] Image.Svg — `Image.Svg/`; reactive size and static/async imports; no persistence.
 
 - [ ] KeyValue — `KeyValue/-spec/`; repeated size/update setup; existing action tests.
 - [ ] KeyValue.Switches — `KeyValue.Switches/-spec/`; keyboard/cursor hooks and reorder callbacks.
-
 - [ ] Layout.CenterColumn — `Layout.CenterColumn/-spec/`; column-sync effect and traceline.
+
 - [ ] Layout.RectGrid — `Layout.RectGrid/-spec/`.
 - [ ] Layout.SplitPane — `Layout.SplitPane/-spec/`.
-
 - [ ] Layout.Tabs — `Layout.Tabs/-spec/`.
 - [ ] Layout.TreeHost — `Layout.TreeHost/-spec/`; path-observer effect and nested slots.
 
 - [ ] Media.AudioWaveform — `Media.AudioWaveform/-spec/`.
-
 - [ ] Media.Config.Filters — `Media.Config/-spec.filters/`; direct debounced storage write.
 - [ ] Media.Config.Slider — `Media.Config/-spec.slider/`; no factory persistence.
 - [ ] Media.Config.Zoom — `Media.Config/-spec.zoom/`; debounced callback writes storage directly.
@@ -81,13 +93,11 @@ are relative to `code/sys.ui/ui-components/src/ui.react/ui/`; paths beginning wi
 
 - [ ] Media.Timecode.PlaybackDriver — `Media.Timecode.PlaybackDriver/-spec/`; factory starts a saved
       document load; separate loader/controller/deck lifetimes need inspection.
-
 - [ ] Media.Video — `Media.Video/-spec/`; direct config writes, device selection, sizing.
 
 - [ ] ObjectView — `ObjectView/`; optional factory-init callback; no factory persistence.
 - [ ] Ownership — `Ownership/-spec/`.
 - [ ] PathView — `PathView/-spec/`.
-
 - [ ] Player.Video.Controls — `Player.Video.Controls/-spec/`; video signals and reactive width.
 
 - [ ] Player.Video.Decks — `Player.Video.Decks/-spec/`; deck creation and separate URL-sync effect.
@@ -95,14 +105,11 @@ are relative to `code/sys.ui/ui-components/src/ui.react/ui/`; paths beginning wi
       branches, and an additional factory synchronization effect.
 
 - [ ] Player.YouTube — `Player.YouTube/-spec/`.
-
 - [ ] Preload — `Preload/`; no subject renderer; explicit portal action; no factory persistence.
-
 - [ ] Prose.Markdown — `Prose.Markdown/-spec/`; reactive viewport size and sample renderers.
 - [ ] Prose.Measure — `Prose.Measure/-spec/`.
 
 - [ ] Sheet — `Sheet/-spec/`; preserve showing/animation interaction; inspect snapshot mutation.
-
 - [ ] Slider — `Slider/-spec/`.
 - [ ] Spinners.Bar — `Spinners.Bar/`.
 - [ ] Splash — `Splash/-spec/`.
@@ -112,10 +119,9 @@ are relative to `code/sys.ui/ui-components/src/ui.react/ui/`; paths beginning wi
 
 - [ ] TreeView.Index — `TreeView.Index/-spec/`; extra path-observer effect and YAML-derived tree.
 - [ ] TreeView.Index.Item — `TreeView.Index.Item/-spec/`.
-
 - [ ] VimeoBackground — `VimeoBackground/`; ready callback retains player API.
-
 - [ ] Dev.Help.Markdown — `ui.react/dev/m.Help.Markdown/-spec/`.
+
 - [ ] WebFonts — `m.webfonts/-spec/`; uses a separate specimen Root.
 - [ ] CSS.Container — `-sample/-css-container/`; redraw effect has no signal reads; no persistence.
 - [ ] CSS.Scroll — `-sample/-css-Scroll/-spec/`.
@@ -123,15 +129,16 @@ are relative to `code/sys.ui/ui-components/src/ui.react/ui/`; paths beginning wi
 
 - [ ] React.usePointer — `-sample/-dom-usePointer/`; debug footer sample; no factory persistence.
 - [ ] React.useSizeObserver — `-sample/-dom-useSizeObserver/`; bare rect; no persistence/theme.
-
 - [ ] Std.Schedule — `-sample/-std-Schedule/`; factory schedules an async run before attachment.
 
 An unchecked entry awaits assessment or migration; check it only for verified adoption or a
 justified, source-reviewed no-change outcome. Deferred work remains unchecked with its reason. Flags
 are inspection notes, not approved policy changes; absence of a flag does not establish behavioral
-equivalence. The Dist/Dist.Browser item covers its selected pair; the final arc placeholder reserves
-the remaining 51, not a bulk commit. Follow the re-entry boundary and workbook below before further
-implementation.
+equivalence. The 16 unchecked ui-components arc items map in order to the 16 unchecked inventory groups, covering
+all 51 remaining entries exactly once. Icon belongs to the third group's source-reviewed no-change
+disposition; its commit subject names only the specimens needing migration. Inventory boundaries
+are single blank lines; checked historical blocks are not future groups. These are proposed landing
+units, not bulk-migration authority. Follow the re-entry boundary and workbook before implementation.
 
 Inventory provenance: the shallow scan at `ce341a391` found **62 specimen/debug pairs**: 54 UI
 specimens, one development helper, one webfont specimen, and six samples. All were registered by
@@ -144,9 +151,10 @@ scope.
 
 ## Re-entry boundary
 
-The opening arc is the sole landing ledger. The human selected **Dist and Dist.Browser** as the next
-bounded unit under the workbook. The other **51 candidates remain paused** until human selection; no
-bulk migration is authorized. Readiness does not authorize implementation.
+The opening arc is the sole landing ledger. **Dist and Dist.Browser landed at `bb8f0d129`.** The
+remaining **51 entries are organized into 16 accepted execution-sized groups**, mapped in order to
+the unchecked arc items. No next group is selected for implementation; human selection and explicit
+implementation authorization remain required. Readiness does not authorize implementation.
 
 ### Dist and Dist.Browser unit
 
@@ -219,7 +227,7 @@ follow-up remains. The earlier observed `591948541` identity is superseded. That
 granted no permission to change templates, ActionProbe, or retained tests.
 
 On return, reopen this boundary and workbook, inspect Git/source freshness, and select the next
-bounded unit with the human before implementation. Do not interpret the remaining placeholder as
+bounded unit with the human before implementation. Do not interpret a planned arc item as
 approval for a batch. Historical proof is not a substitute for that unit's own verification.
 
 Use the workbook below for future authorized units. Historical consumer receipts preserve contracts
@@ -757,3 +765,16 @@ records removal of lint suppressions without changing factory signatures or work
   source-code commits. No staging, commit, profile change, or temporary-root deletion is implicit.
 - Review the retained-fixture profile grant separately at closeout; its path and recovery anchors
   are in the evidence record. This cleanup remains independent of scoped-style acceptance.
+
+## TODO — expand beyond ui-components
+
+- [ ] After the ui-components groups, scan all other packages in this `sys` repository for UI
+      specimens and related lifecycle call-sites. Inspect discovered entrypoints, debug factories,
+      and ownership helpers; filename or keyword matches establish candidates, not migration need.
+- [ ] Build follow-on lists by package with source-reviewed migration or no-change dispositions,
+      ownership constraints, distinctive proof requirements, and execution-sized groups mapped to
+      proposed commits. Preserve independent React/resource/command lifetimes; do not infer work
+      from component complexity alone.
+
+This is future discovery and planning work, not authorization to scan now or migrate other packages.
+Select and authorize follow-on implementation separately under the migration workbook.

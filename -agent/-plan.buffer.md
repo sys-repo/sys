@@ -16,9 +16,28 @@ ui-template-maintenance.plan.md
 - [x] 41db307d7 feat(ui-react): register stylesheet rules from React
 - [x] 917bd0922 fix(tmpl): preserve scoped-style appearance across themes
 - [x] 55d4cea12 fix(ui-components): isolate matching scoped styles without changing paint
-- [ ] fix(ui-components): bind Label and Manuscript specimen effects to attachments
-- [ ] fix(ui-components): bind ActionProbe specimen effects to attachments
-- [ ] fix(ui-components): migrate remaining specimen lifecycle call-sites
+- [x] 1035f21b7 fix(ui-components): bind Label and Manuscript specimen effects to attachments
+- [x] f2a31856b fix(ui-components): bind ActionProbe specimen effects to attachments
+- [x] cf117701f fix(ui-components): bind Anchor specimen effects to attachments
+- [x] 6d4d9c028 fix(ui-components): bind Bullet and BulletList specimen effects to attachments
+- [x] 0f0c14660 fix(ui-components): bind Button family specimen effects to attachments
+- [x] bb8f0d129 fix(ui-components): bind Dist and Dist.Browser specimen effects to attachments
+- [ ] fix(ui-components): bind Chip and Cropmarks specimen effects to attachments
+- [ ] fix(ui-components): bind ErrorBoundary, FadeElement, and Http.Origin specimen effects to attachments
+- [ ] fix(ui-components): bind Icon.Swatches, IFrame, and Image.Svg specimen effects to attachments
+- [ ] fix(ui-components): bind KeyValue family and Layout.CenterColumn specimen effects to attachments
+- [ ] fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
+- [ ] fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
+- [ ] fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
+- [ ] fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
+- [ ] fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
+- [ ] fix(ui-components): bind video deck and element specimen effects to attachments
+- [ ] fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
+- [ ] fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
+- [ ] fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
+- [ ] fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
+- [ ] fix(ui-components): bind webfont and CSS specimen effects to attachments
+- [ ] fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
 
 
 
@@ -33,9 +52,12 @@ passkey-panel.plan.md
 - [x] 8ba1a4939 feat(passkey): add UI-independent WebAuthn ceremonies
 - [x] c7e4d6686 feat(passkey): define account service contracts
 - [x] aba8774ff feat(http)!: bound unary HttpCmd transport
+- [x] ef977e043 chore(deps): add SimpleWebAuthn server 14.1.0
+- [ ] feat(crypto): add strict Ed25519 public-key validation
 - [ ] feat(passkey): add minimal reference account service
 - [ ] feat(passkey): add reusable account runtime
 - [ ] feat(ui): connect real passkey operations in sample
+
 
 
 @sys
