@@ -1,4 +1,4 @@
-import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { Switch } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
@@ -7,32 +7,34 @@ export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    return (
+      <Switch
+        debug={p.debug.value}
+        theme={debug.switchTheme}
+        enabled={p.enabled.value}
+        value={p.value.value}
+        onToggle={(e) => {
+          console.info(`⚡️ Switch.onToggle:`, e);
+          p.value.value = e.next;
+        }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Harness.Theme.signalEffect(ctx, p.theme);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: undefined, display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size()
-      .display('grid')
-      .render(() => {
-        return (
-          <Switch
-            debug={p.debug.value}
-            theme={debug.switchTheme}
-            enabled={p.enabled.value}
-            value={p.value.value}
-            onToggle={(e) => {
-              console.info(`⚡️ Switch.onToggle:`, e);
-              p.value.value = e.next;
-            }}
-          />
-        );
-      });
   });
 
   e.it('ui:debug', (e) => {

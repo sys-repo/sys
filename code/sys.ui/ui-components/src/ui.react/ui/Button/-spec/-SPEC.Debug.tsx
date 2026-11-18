@@ -1,4 +1,5 @@
 import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, Is, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 const VIEWS = ['single', 'variants'] as const;
@@ -42,11 +43,20 @@ export function createDebugSignals() {
     view: s(snap.view ?? defaults.view),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.active = p.active.value;
+        d.view = p.view.value;
+
+        // Callback modes are transient; persist serializable defaults instead.
+        d.enabled = Is.func(p.enabled.value) ? defaults.enabled : p.enabled.value;
+        d.opacity = Is.func(p.opacity.value) ? defaults.opacity : p.opacity.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -56,20 +66,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.active = p.active.value;
-      d.view = p.view.value;
-
-      // Callback modes are transient; persist serializable defaults instead.
-      d.enabled = Is.func(p.enabled.value) ? defaults.enabled : p.enabled.value;
-      d.opacity = Is.func(p.opacity.value) ? defaults.opacity : p.opacity.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

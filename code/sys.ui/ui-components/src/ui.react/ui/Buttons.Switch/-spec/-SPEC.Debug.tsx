@@ -1,4 +1,5 @@
 import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, Signal, type t } from './common.ts';
 import { SwitchTheme } from '../mod.ts';
 
@@ -23,15 +24,20 @@ export function createDebugSignals() {
     color: s<'blue' | 'green' | 'yellow' | undefined>(undefined),
   };
   const p = props;
-  const api = {
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    p.debug.value;
+    p.theme.value;
+    p.value.value;
+    p.enabled.value;
+    p.color.value;
+  }
+
+  return {
     props,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.value.value;
-      p.enabled.value;
-      p.color.value;
-    },
+    listen,
+    attach,
     get switchTheme(): P['theme'] {
       const name = p.theme.value;
       const color = p.color.value;
@@ -41,8 +47,6 @@ export function createDebugSignals() {
       p.color.value = color;
     },
   };
-
-  return api;
 }
 
 const Styles = {

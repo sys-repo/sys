@@ -1,5 +1,16 @@
-import { afterAll, beforeAll, beforeEach, describe, DomMock, expect, it } from '../../../-test.ts';
-import { D, Json, LocalStorage, Obj, Signal, type t } from '../common.ts';
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  hostFixture,
+  it,
+  storageFixture,
+} from '../../../-test.ts';
+import { D, Json, Obj, Signal, type t } from '../common.ts';
 
 type DebugModule = typeof import('../-spec/-SPEC.Debug.tsx');
 type Stored = {
@@ -30,15 +41,26 @@ const changed: Stored = {
 const persisted = () => Json.parse<Stored>(localStorage.getItem(storageKey) ?? undefined);
 
 describe('Button spec: reset', () => {
-  DomMock.init({ beforeAll, afterAll });
   let debugModule: DebugModule;
+  let storage: ReturnType<typeof storageFixture>;
+  let host: Awaited<ReturnType<typeof hostFixture>>;
   beforeAll(async () => {
+    storage = storageFixture();
     debugModule = await import('../-spec/-SPEC.Debug.tsx');
   });
-  beforeEach(() => LocalStorage.immutable<Stored>(storageKey, defaults).reset(defaults));
+  beforeEach(async () => {
+    storage.seed(storageKey, defaults);
+    host = await hostFixture();
+  });
+  afterEach(() => host[Symbol.dispose]());
+  afterAll(async () => {
+    storage[Symbol.dispose]();
+    await DomMock.unpolyfill();
+  });
 
   it('persists current serializable values, including false and zero, before reset', () => {
     const debug = debugModule.createDebugSignals();
+    debug.attach(host.ctx, {});
     const p = debug.props;
     p.theme.value = changed.theme;
     p.debug.value = changed.debug;
@@ -52,8 +74,9 @@ describe('Button spec: reset', () => {
   });
 
   it('resets every value without replacing signals and is safe to repeat', () => {
-    LocalStorage.immutable<Stored>(storageKey, defaults).reset(changed);
+    storage.seed(storageKey, changed);
     const debug = debugModule.createDebugSignals();
+    debug.attach(host.ctx, {});
     const refs = { ...debug.props };
     expect(Signal.toObject(debug.props)).to.eql(changed);
 
@@ -68,6 +91,7 @@ describe('Button spec: reset', () => {
 
   it('keeps callback modes transient, persists safe defaults, and clears them on reset', () => {
     const debug = debugModule.createDebugSignals();
+    debug.attach(host.ctx, {});
     const p = debug.props;
     p.enabled.value = false;
     p.opacity.value = 0.1;
