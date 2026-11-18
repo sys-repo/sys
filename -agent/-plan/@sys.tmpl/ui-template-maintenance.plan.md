@@ -8,107 +8,372 @@ ui-template-maintenance.plan.md
 - [x] 41db307d7 feat(ui-react): register stylesheet rules from React
 - [x] 917bd0922 fix(tmpl): preserve scoped-style appearance across themes
 - [x] 55d4cea12 fix(ui-components): isolate matching scoped styles without changing paint
-- [ ] fix(ui-components): adopt verified specimen lifecycle ownership
+- [x] 1035f21b7 fix(ui-components): bind Label and Manuscript specimen effects to attachments
+- [x] f2a31856b fix(ui-components): bind ActionProbe specimen effects to attachments
+- [x] cf117701f fix(ui-components): bind Anchor specimen effects to attachments
+- [x] 6d4d9c028 fix(ui-components): bind Bullet and BulletList specimen effects to attachments
+- [x] 0f0c14660 fix(ui-components): bind Button family specimen effects to attachments
+- [ ] fix(ui-components): bind Dist and Dist.Browser specimen effects to attachments
 - [ ] fix(ui-components): migrate remaining specimen lifecycle call-sites
 
 ## Specimen lifecycle migration inventory
 
-Shallow scan at `ce341a391` found **62 specimen/debug pairs**: 54 UI specimens, one development
-helper, one webfont specimen, and six samples. All 62 are registered by `src/-test/-specs.ts`;
-filename discovery and the package-wide `Spec.describe` search found the same entrypoint set. Each
-entrypoint was opened; debug factories were inspected selectively for obvious differences. No
-`Spec.attachments` reference was found in the package source search. This establishes candidate
-extent, not behavioral equivalence or a complete effect/resource audit. Recheck after source
-changes.
+**11 adopted / 51 remaining.** Checkboxes record consumer disposition, not commit landing. UI paths
+are relative to `code/sys.ui/ui-components/src/ui.react/ui/`; paths beginning with `ui.react/`,
+`m.webfonts/`, or `-sample/` are relative to `code/sys.ui/ui-components/src/`.
 
-These checkboxes track consumer disposition, not commit landing. An unchecked entry awaits
-assessment or migration; check it only for verified adoption or a justified, source-reviewed
-no-change outcome. Deferred work remains unchecked with its reason. Flags below are inspection
-notes, not approved policy changes; absence of a flag does not establish equivalence.
+- [x] Text.Label — `Text.Label/-spec/`; verified attachment adoption with controls, samples,
+      fallback hydration, and traceline preserved.
+- [x] Prose.Manuscript — `Prose.Manuscript/-spec/`; verified attachment adoption with Light default
+      and fill/grid layout preserved.
+- [x] ActionProbe — `ActionProbe/-spec/`; verified attachment-owned automatic effects, retained
+      sizing/preferences, and unchanged direct command persistence while detached.
+- [x] Anchor — `Anchor/-spec/`; verified attachment adoption with synchronous factory, legacy
+      preference projection, explicit size clear, initial traceline, and host footer preserved.
+- [x] Bullet — `Bullet/`; verified attachment-owned host effects, retained synchronous ephemeral
+      signals, explicit size clear, and no persistence or debug reset API.
+- [x] BulletList — `BulletList/-spec/`; verified attachment-owned preference projection, theme,
+      reactive width/redraw, retained async factory, and control/persistence behavior.
+- [x] Button — `Button/-spec/`; verified attachment adoption with synchronous setup, legacy view
+      fallback, reset identity, transient callback normalization, controls, and event forwarding.
+- [x] Buttons.Icons — `Buttons.Icons/-spec/`; verified shared preference projection and attached
+      theme/redraw with selected icon and click callback preserved.
+- [x] Buttons.Switch — `Buttons.Switch/-spec/`; verified synchronous ephemeral attachments, derived
+      palette, retained color/value/enabled state, and controlled toggle; no persistence/reset.
 
-Each directory below contains both `-SPEC.tsx` and `-SPEC.Debug.tsx`. The UI paths are relative to
-`code/sys.ui/ui-components/src/ui.react/ui/`; the other paths have their own stated base.
-
-### First pilot
-
-- [ ] Text.Label — `Text.Label/-spec/`; retain controls, samples, fallback hydration, and traceline.
-- [ ] Prose.Manuscript — `Prose.Manuscript/-spec/`; retain Light default and fill/grid layout.
-
-### Remaining UI specimens
-
-- [ ] ActionProbe — `ActionProbe/-spec/`; direct action persistence and reactive size-mode behavior.
-- [ ] Anchor — `Anchor/-spec/`; host footer renderer and standard-link behavior.
-- [ ] Bullet — `Bullet/`.
-- [ ] BulletList — `BulletList/-spec/`; reactive subject width and real control coverage.
-- [ ] Button — `Button/-spec/`; view/reset controls and event callbacks.
-- [ ] Buttons.Icons — `Buttons.Icons/-spec/`.
-- [ ] Buttons.Switch — `Buttons.Switch/-spec/`; derived switch palette; no factory persistence.
 - [ ] Chip — `Chip/-spec/`; examples branch, overflow controls, and traceline.
 - [ ] Cropmarks — `Cropmarks/-spec/`.
-- [ ] Dist — `Dist/-spec/`; additional factory effect replaces sample dist data.
-- [ ] Dist.Browser — `Dist/-spec.browser/`; sample-data effect and React browser controller.
+
+- [x] Dist — `Dist/-spec/`; verified shared sample/projection lifetimes, retained async setup,
+      files/view driver behavior, explicit data, and attached host effects.
+- [x] Dist.Browser — `Dist/-spec.browser/`; verified shared sample/projection lifetimes,
+      unchanged-driver reconnect, and React-owned selection/filter controller.
+
 - [ ] ErrorBoundary — `ErrorBoundary/-spec/`; error/reset callbacks.
 - [ ] FadeElement — `FadeElement/`; reactive subject size; no factory persistence.
+
 - [ ] Http.Origin — `Http.Origin/-spec/`; controller, controlled branches, and reactive width.
+
 - [ ] Icon — `Icon/-spec/`; legacy `e.state` renderer and stub Debug; no signal factory.
+
 - [ ] Icon.Swatches — `Icon.Swatches/-spec/`.
 - [ ] IFrame — `IFrame/`; host-image effect and module-level `location`; no persistence.
 - [ ] Image.Svg — `Image.Svg/`; reactive size and static/async imports; no persistence.
+
 - [ ] KeyValue — `KeyValue/-spec/`; repeated size/update setup; existing action tests.
 - [ ] KeyValue.Switches — `KeyValue.Switches/-spec/`; keyboard/cursor hooks and reorder callbacks.
+
 - [ ] Layout.CenterColumn — `Layout.CenterColumn/-spec/`; column-sync effect and traceline.
 - [ ] Layout.RectGrid — `Layout.RectGrid/-spec/`.
 - [ ] Layout.SplitPane — `Layout.SplitPane/-spec/`.
+
 - [ ] Layout.Tabs — `Layout.Tabs/-spec/`.
 - [ ] Layout.TreeHost — `Layout.TreeHost/-spec/`; path-observer effect and nested slots.
+
 - [ ] Media.AudioWaveform — `Media.AudioWaveform/-spec/`.
+
 - [ ] Media.Config.Filters — `Media.Config/-spec.filters/`; direct debounced storage write.
 - [ ] Media.Config.Slider — `Media.Config/-spec.slider/`; no factory persistence.
 - [ ] Media.Config.Zoom — `Media.Config/-spec.zoom/`; debounced callback writes storage directly.
+
 - [ ] Media.Devices — `Media.Devices/-spec/`; React selection-storage hook and narrow sizing.
 - [ ] Media.Recorder — `Media.Recorder/-spec/`; direct writes, recorder/device hooks, stream.
+
 - [ ] Media.Timecode.PlaybackDriver — `Media.Timecode.PlaybackDriver/-spec/`; factory starts a saved
       document load; separate loader/controller/deck lifetimes need inspection.
+
 - [ ] Media.Video — `Media.Video/-spec/`; direct config writes, device selection, sizing.
+
 - [ ] ObjectView — `ObjectView/`; optional factory-init callback; no factory persistence.
 - [ ] Ownership — `Ownership/-spec/`.
 - [ ] PathView — `PathView/-spec/`.
+
 - [ ] Player.Video.Controls — `Player.Video.Controls/-spec/`; video signals and reactive width.
+
 - [ ] Player.Video.Decks — `Player.Video.Decks/-spec/`; deck creation and separate URL-sync effect.
 - [ ] Player.Video.Element — `Player.Video.Element/-spec/`; player signals, controlled/uncontrolled
       branches, and an additional factory synchronization effect.
+
 - [ ] Player.YouTube — `Player.YouTube/-spec/`.
+
 - [ ] Preload — `Preload/`; no subject renderer; explicit portal action; no factory persistence.
+
 - [ ] Prose.Markdown — `Prose.Markdown/-spec/`; reactive viewport size and sample renderers.
 - [ ] Prose.Measure — `Prose.Measure/-spec/`.
+
 - [ ] Sheet — `Sheet/-spec/`; preserve showing/animation interaction; inspect snapshot mutation.
+
 - [ ] Slider — `Slider/-spec/`.
 - [ ] Spinners.Bar — `Spinners.Bar/`.
 - [ ] Splash — `Splash/-spec/`.
+
 - [ ] Text.Ellipsize — `Text.Ellipsize/-spec/`; reactive width; no existing harness-theme effect.
 - [ ] Text.Input — `Text.Input/-spec/`; host background write is mixed into broad redraw effect.
+
 - [ ] TreeView.Index — `TreeView.Index/-spec/`; extra path-observer effect and YAML-derived tree.
 - [ ] TreeView.Index.Item — `TreeView.Index.Item/-spec/`.
+
 - [ ] VimeoBackground — `VimeoBackground/`; ready callback retains player API.
-
-### Other package-owned specimens
-
-Paths here are relative to `code/sys.ui/ui-components/src/`. Registry label `SpecsExternal` does not
-put these package-owned call-sites outside the agreed scope.
 
 - [ ] Dev.Help.Markdown — `ui.react/dev/m.Help.Markdown/-spec/`.
 - [ ] WebFonts — `m.webfonts/-spec/`; uses a separate specimen Root.
 - [ ] CSS.Container — `-sample/-css-container/`; redraw effect has no signal reads; no persistence.
 - [ ] CSS.Scroll — `-sample/-css-Scroll/-spec/`.
 - [ ] React.useWebFont — `-sample/-css-useWebFont/`.
+
 - [ ] React.usePointer — `-sample/-dom-usePointer/`; debug footer sample; no factory persistence.
 - [ ] React.useSizeObserver — `-sample/-dom-useSizeObserver/`; bare rect; no persistence/theme.
+
 - [ ] Std.Schedule — `-sample/-std-Schedule/`; factory schedules an async run before attachment.
 
-The first unchecked commit is the Text.Label + Prose.Manuscript pilot. The following commit item
-reserves the remaining inventory; refine its cohorts and landing units before later implementation.
-It is not bulk-migration authority. Pilot acceptance does not complete the inventory or that later
-item; these disposition checkboxes do not replace the opening commit ledger.
+An unchecked entry awaits assessment or migration; check it only for verified adoption or a
+justified, source-reviewed no-change outcome. Deferred work remains unchecked with its reason. Flags
+are inspection notes, not approved policy changes; absence of a flag does not establish behavioral
+equivalence. The Dist/Dist.Browser item covers its selected pair; the final arc placeholder reserves
+the remaining 51, not a bulk commit. Follow the re-entry boundary and workbook below before further
+implementation.
+
+Inventory provenance: the shallow scan at `ce341a391` found **62 specimen/debug pairs**: 54 UI
+specimens, one development helper, one webfont specimen, and six samples. All were registered by
+`src/-test/-specs.ts`; filename discovery and the package-wide `Spec.describe` search agreed. Each
+entrypoint was opened; debug factories were inspected selectively. At that baseline, the package
+source search had no `Spec.attachments` matches. This establishes extent, not a complete ownership
+audit; recheck after source changes. Each listed directory contains `-SPEC.tsx` and
+`-SPEC.Debug.tsx`. Registry label `SpecsExternal` does not put package-owned call-sites outside
+scope.
+
+## Re-entry boundary
+
+The opening arc is the sole landing ledger. The human selected **Dist and Dist.Browser** as the next
+bounded unit under the workbook. The other **51 candidates remain paused** until human selection; no
+bulk migration is authorized. Readiness does not authorize implementation.
+
+### Dist and Dist.Browser unit
+
+Scope: `Dist/-spec/` and `Dist/-spec.browser/`, plus affected consumer tests under `Dist/-test/`.
+Bind automatic preference projection and sample synchronization to the factory's live attachment
+lifetime; bind host theme and tracked redraw separately. Preserve async factory/suite setup,
+signal/store identity, reset, explicit sample/undefined controls, and the existing `updateDist`
+member. Both factories use the same storage key: retain field-wise projection and preserve fields
+owned only by the other specimen, including `debugView`, and unrelated stored fields.
+
+Sample synchronization is not ordinary persistence. Preserve the initial sample normalization before
+the async factory resolves, without starting a permanent factory effect or automatic storage
+projection. Preserve its actual driver dependencies: sample-files mode in both factories, plus
+`debugView` in Dist even though that value is not passed to the sample builder. A direct `dist`
+assignment, theme/debug change, extra host, or unchanged-driver reconnect must not regenerate the
+sample. Reconnect retains current data when drivers are unchanged and reconciles changed drivers
+without rehydrating storage; detached automatic projection/synchronization must be inert. Later
+explicit selection commands acknowledge current drivers and win over earlier detached driver
+changes; reset shares that bookkeeping. Subsequent driver changes must still regenerate samples.
+Keep sample synchronization dependencies distinct from persistence reads so projection cannot create
+a self-overwriting loop. Use bounded local state as needed, not a new owner API or framework.
+
+Use suite-local `Root()` and `render: () => <Root />` in both suites. Preserve Dist's `[360, null]`
+and Browser's `[360, 300]` sizes, grid, subject-Light alpha 1, debug-panel previews, controls, and
+callbacks. Browser's `Dist.useBrowserController` remains React-owned inside its stable Root, with
+selection/filter forwarding and bottom toolbar unchanged. Do not change component/controller code,
+synthetic sample data or trust semantics, storage keys, dependencies, public APIs, or sibling
+consumers. Remove duplicate imperative redraw setup rather than retaining two initial paths.
+
+Use small temporary actual-suite probes colocated in `Dist/-test/`, with isolated storage and
+existing host mechanics. Cover attachment replacement/retirement/reconnect, detached inertness,
+retained explicit data, driver-triggered sample replacement, shared-key field preservation, and
+mounted Browser selection/filter behavior. Exercise useful restored controls, especially missing
+projection and unintended sample replacement; do not copy a full lifecycle matrix. Keep lasting
+behavior regressions only when earned under rule 4; remove temporary probes/exclusive helpers and
+record proof in the same pass. Retain the existing sample-observation contract: display fixtures are
+not trusted artifact evidence. Revalidate retained `Dist/-test/` tests, package check, scoped
+formatting/lint, and diff checks; disclose inherited diagnostics without suppressions. The
+[Dist pair proof](./ui-template-maintenance.plan/evidence.md#dist-and-distbrowser-attachment-proof)
+records executed temporary journeys, restored controls, the narrow retained sample contract, and
+verification limits.
+
+### Button family unit
+
+Scope: the three selected `-spec/` pairs and their affected consumer tests. Bind automatic
+preference projection for Button and Icons to shared attachments; Switch stays ephemeral with no
+persistence or invented reset. Bind host theme and tracked redraw separately, preserving each
+existing theme alpha, explicit size clear, grid layout, synchronous setup, controls, renderers, and
+event callbacks. Preserve Button's legacy view fallback, signal identity on reset, false/zero
+values, and transient callback-valued enabled/opacity normalization. Preserve Icons' selected icon
+and Switch's independent theme name, color selection, derived palette, and toggle behavior. Apply
+workbook callback syntax only within the selected work; no component redesign, public API,
+dependency, or older-template edits.
+
+Adapt Button's persistence-dependent reset/view tests to real attachments and isolated storage;
+review retention under workbook rule 4 rather than preserving cosmetic assertions by default. Use
+temporary actual-suite probes for replacement, retirement, disposal, reconnect, retained state, and
+detached projection/redraw/theme inertness. Exercise useful restored negative controls; record proof
+and limits, remove probes/exclusive helpers, then rerun retained Button/Switch consumer tests,
+package check, scoped formatting/lint, and diff checks in the same pass. New permanent lifecycle
+matrices are not the default.
+[Button family proof](./ui-template-maintenance.plan/evidence.md#button-family-attachment-proof)
+records the temporary actual-suite journeys, restored controls, retention decisions, and final
+checks.
+
+Historical scope mapping: the proposed
+`refactor(ui-components): use method syntax for Bullet specimen renderer` is included in `6d4d9c028`
+with the pair's migration. Its `render()` method was verified in that commit; no separate renderer
+follow-up remains. The earlier observed `591948541` identity is superseded. That callback-form pass
+granted no permission to change templates, ActionProbe, or retained tests.
+
+On return, reopen this boundary and workbook, inspect Git/source freshness, and select the next
+bounded unit with the human before implementation. Do not interpret the remaining placeholder as
+approval for a batch. Historical proof is not a substitute for that unit's own verification.
+
+Use the workbook below for future authorized units. Historical consumer receipts preserve contracts
+and proof limits; they do not establish permanent assertion exemptions or current callback style. A
+migration may confirm the workbook without changing it. No new framework or gate is required.
+
+## Migration workbook
+
+1. Inspect each specimen/debug pair and its helpers. Classify automatic/reactive effects, explicit
+   commands, and independently owned React/async work; shared ancestry proves none of their
+   ownership policies. Identify existing behavior assertions before changing wiring.
+2. Bind automatic specimen preference projection to the shared attachment generation and host
+   effects to one attachment per init. Preserve explicit command semantics and independent owners by
+   default; direct writes alone do not require a new policy decision. Escalate when a behavior
+   change or unresolved ownership is actually required. Retain signals/store refs across
+   disconnection rather than rehydrating on reconnect. Match the UI template's factory shape:
+   declare `const { attach } = Spec.attachments({ shared() { ... } });` after `props`/`p`, keep
+   `listen`/`reset` as local functions, then `return { props, listen, reset, attach }` (plus any
+   consumer-owned members). Do not inline the owner inside the returned API or end it with
+   `}).attach`. Keep existing legacy-field normalization/deletion inside the shared projection;
+   attachment migration does not authorize removing storage compatibility. For ephemeral factories,
+   use `const { attach } = Spec.attachments()` with no invented shared callback, persistence, or
+   reset API; return only their existing members plus `attach`.
+3. Preserve consumer additions, not template defaults. Omitted size leaves inherited size alone; an
+   existing explicit size clear must remain explicit. Omitted fill margin retains the harness
+   default. Keep theme and redraw separate, and initial-only paint overrides independent of later
+   reactive theme updates. Do not copy owner machinery.
+4. **Prove broadly during migration; retain narrowly by exception.** Ordinary specimen migrations
+   default to no new permanent per-specimen test. Temporary actual-suite probes establish ownership,
+   retirement, reconnect, and behavior preservation; their usefulness during refactoring does not
+   establish lasting value. For every retained test family, name the consequential behavior failure,
+   its user or developer-tool impact, and why existing owner/consumer tests do not protect it. A
+   demonstrated fault is sensitivity evidence, not automatic retention authority. Protect real
+   runtime regressions at the narrowest responsible owner; do not create an abstraction merely to
+   make specimen probes look reusable.
+
+   **Apply the harmless-change test:** would changing examples, default appearance, layout, or
+   incidental configuration break the test without breaking the named behavior? If so, remove or
+   refocus the assertion; do not maintain specimen and test in lockstep. Removing a specimen feature
+   may legitimately remove its dedicated regression test—never preserve sample code for the test.
+   Specimen shape, exact reset samples, renderer/data identities, and configuration catalogues are
+   migration evidence by default, unless independently required by an observable contract. Signal
+   identity and sample-object identity are not interchangeable obligations.
+
+   Storage seeds are inputs, not shape assertions, but must establish only the relevant scenario
+   plus necessary isolation, not mirror the specimen schema. Use a concrete starting value when a
+   transition needs it; do not freeze today's defaults or export/import them just to synchronize an
+   oracle. Testing when data is replaced differs from revalidating its sample contents. Do not test
+   the test's assertions, scaffolding, or chosen examples as a permanent substitute for behavior.
+   Delete unearned coverage before extracting mechanics. Shorter code, helpers, green runs, review
+   approval, and the label "regression" do not earn retention. Review pre-existing assertions too.
+5. Fixtures own storage isolation, suite loading, controller setup/cleanup, and stable observations.
+   Keep meaningful mutations and semantic assertions visible in the test. Use real imported suites;
+   never reconstruct the attachment wiring in the fixture. Capture write attempts before
+   deduplication and copy mutable observation data rather than retaining live context aliases.
+   Expose earned helpers through the narrowest existing test-only barrel owning their domain, not
+   production or an unrelated broader toolkit. Keep dependencies one-way: fixture implementations
+   must not import the barrel exporting them. Update existing callers together; do not add aliases
+   or a new namespace merely to shorten paths. Choose the smallest truthful fixture: non-persistent
+   specimens use host-only setup, not an invented storage key or a growing option catalogue.
+6. **Completion includes a separate retention-and-residue pass.** After implementation and proof,
+   and again after the last review correction, stop adding coverage and reassess every touched test
+   under rule 4. Pruning line count is not this assessment. Review each assertion's failure meaning,
+   not merely whether the file was labelled temporary; also inspect seeds, variants, identity
+   checks, and helpers for incidental coupling. Keep lifecycle-mechanism coverage at its owner.
+
+   Restore bounded negative controls, record executed proof and limits, and delete migration-only
+   probes, unearned assertions, and exclusively used setup before declaring completion. Preserve the
+   smallest justified behavioral regressions, then rerun retained affected tests and checks against
+   the final tree. Do not count a failure of equivalent object identity as data loss, or a manually
+   invoked factory sequence as proof of a reachable UI interaction. Report briefly what was removed,
+   what remains, why it matters, and any verification limits. An unresolved retention decision must
+   be disclosed, not silently promoted into permanent coverage. Any commissioned review must use the
+   mandatory migration-review brief below; a correctness-only verdict does not settle retention.
+
+   Do not wait for the human to request cleanup after handoff. Owner tests do not prove consumer
+   wiring: retiring a probe deliberately trades ongoing per-consumer wiring coverage for recorded
+   migration-time evidence. No universal lifecycle matrix, specimen-shape mirror, or
+   exception-option catalogue. Record only verified inventory dispositions.
+7. Preserve each factory's existing setup contract: synchronous stays synchronous; promise-returning
+   stays promise-returning even when its current body is synchronous. Awaited prerequisites and
+   attachment-owned reactive work are different contracts; effects are not a substitute for setup
+   readiness. Do not propagate per-factory `require-await` suppressions, dummy awaits, promise
+   wrappers, or compatibility helpers merely to satisfy lint. Compare diagnostics with the existing
+   code and distinguish inherited findings from introduced regressions. Broader lint-policy changes
+   are separate work, not an implicit prerequisite for lifecycle migration. Keep effect callbacks
+   synchronous and inspect called APIs' return contracts.
+8. **Callback form: one-line expression, otherwise a block; named object callbacks use methods.**
+   - If the entire single-expression arrow fits on one formatted line, keep it on one line without a
+     block: `render: () => <Root />` or `() => void ctx.subject.size([p.width.value, null])`.
+   - **NEVER use multiline expression-bodied arrows**, including `() => (` JSX renderers.
+   - **Multiline named object callbacks MUST use method syntax:** `render() { return (...); }`, with
+     the method and JSX formatted normally. Do not use `render: () => { ... }` instead.
+   - Anonymous callbacks, such as entries in `effects` or test handlers, still use arrows. When
+     multiline or multi-statement, use a block and explicit `return` if a value is required.
+   - Use `void` only when an expression body's value must be discarded. Inside a block, write
+     `debug.listen();` then `ctx.redraw();`, without redundant `void`. Neither form handles promise
+     rejection. Preserve lexical `this`/`arguments` semantics; if method conversion would change
+     them, stop and resolve the contract rather than silently changing behavior.
+   - Inspect the formatted diff before handoff. The authored UI templates and older consumers are
+     ownership examples, not blanket callback-form exemplars. In particular, the two templates'
+     block-bodied `void ctx.redraw()` and ActionProbe's corresponding redraw and multiline `actOn`
+     arrow predate this rule and MUST NOT be copied. Corrections to those sources require separate
+     authorization; this rule governs new work without silently expanding its scope.
+
+### Mandatory migration-review brief (TMIND)
+
+When commissioning a review of a unit in this workbook, the prompt **must explicitly include the
+retention examination and output below**. Merely saying "S-tier", "minimal", or "review the tests"
+is insufficient. This specifies review content, not an automatic extra review round. Canonical
+blind-review calibration, prompt format, independence, authority, and mutation boundaries still
+apply; do not supply prior verdicts or tell the reviewer which tests it should approve or delete.
+
+**How to write the brief:** identify the exact arc item, attributable source changes, and all newly
+retained or modified tests, including untracked files and relevant fixture dependencies. Include
+review-correction additions, not only the original migration diff. Require TMIND from both a
+correctness skeptic and a future-maintainer viewpoint. Ask the reviewer to distinguish component
+behavior, consequential developer-tool behavior, and temporary specimen-migration observations;
+current implementation and plan prose do not establish a durable contract by themselves.
+
+**What the reviewer must examine:**
+
+- For each retained test family, what consequential failure does it detect, who experiences it, and
+  why is the responsible owner not already adequately tested? Establish an actual use path or an
+  independently required command contract. A synthetic factory sequence alone does not prove UI
+  reachability; missing evidence is a limit, not proof that the behavior is valuable or useless.
+- Make the strongest case for **deleting the test entirely** after migration. What distinct
+  protection would be lost? Inspect every assertion and its setup, including storage seeds, variant
+  loops, reset expectations, sample equality, and reference identity. Distinguish a bad user result
+  from an equivalent reconstruction or changed example. Fault detection alone does not justify the
+  ongoing maintenance cost.
+- Apply rule 4's harmless-change test. Find assertions that force specimen/test lockstep, duplicate
+  owner coverage, or revalidate test scaffolding rather than behavior. Do not reject concrete inputs
+  merely for being literals; identify their causal role. Do not preserve shape checks by importing
+  defaults, moving them into a helper, or extracting a new production abstraction.
+- Check the counter-risk: would proposed deletion lose a genuine behavior regression? Keep the
+  smallest meaningful protection at its existing owner. No deletion quota, line-count target,
+  mandatory per-specimen matrix, or demand for new tests simply because coverage can be imagined.
+
+**What the review must return:** give an overall verdict and separate conclusions on behavioral
+correctness and permanent-test retention. Include a compact **keep / narrow / remove** disposition
+for each retained test family, with its concrete behavior justification or incidental coupling. For
+a material finding, name the exact path/assertion or symbol, failure or harmless-change sequence,
+impact, smallest coherent correction/deletion, and closing verification. Separate executed evidence,
+source-derived scenarios, and historical receipts. A clean result is valid, but "tests pass" or
+"regression coverage is valuable" is not a retention assessment. Complete both examinations even
+when a correctness blocker is found; disclose any examination not completed.
+
+**After review:** adjudicate both correctness and retention findings within current authorization.
+New regression assertions added to close findings are not exempt from rules 4 and 6. After the last
+correction, perform the retention/residue pass and final retained-tree verification before handoff.
+Do not repeatedly commission broad reviews or preserve new test residue merely because it was added
+in response to review. Carry unresolved retention decisions explicitly; do not call cleanup
+complete.
 
 ## Purpose and boundaries
 
@@ -330,7 +595,7 @@ permission to remove a specimen's later behavior. Plan approval does not authori
   exceptions. Do not solve every migration during discovery or claim filename/text matches prove
   equivalence.
 - Migrate **Text.Label + Prose.Manuscript first** after preparation and implementation
-  authorization. ActionProbe belongs to the remaining cohort, not this pilot and not a silently
+  authorization. ActionProbe follows in its own landing unit, not this pilot and not a silently
   dropped exception.
 - Inspect each candidate before changing it. Shared template ancestry is a starting point, not proof
   that current effects, storage, callbacks, or layout are equivalent. Bring policy differences to
@@ -350,11 +615,12 @@ Known surfaces and behavior to preserve:
   the Light specimen default, fill/grid layout, controls, renderer, storage fields, and signal
   identity. Its existing API test is not lifecycle integration proof; production styles/font loading
   stay out of this change.
-- **ActionProbe, later:** `ActionProbe/-spec/-SPEC.tsx`, `ActionProbe/-spec/-SPEC.Debug.tsx`,
-  `ActionProbe/m.Signals.ts`, and `ActionProbe/m.Signals.persist.ts` are inspection surfaces, not
-  pilot edit targets. `resultVisible()` and `reset()` write storage directly; the specimen also owns
-  reactive size-mode behavior. Moving only its debug effect cannot establish disconnected storage
-  silence. Resolve its policy before adoption without changing the public signal API by inference.
+- **ActionProbe:** migrate `ActionProbe/-spec/-SPEC.tsx` and `ActionProbe/-spec/-SPEC.Debug.tsx`
+  separately from the pilot. The human-approved boundary keeps `resultVisible()` and `reset()` as
+  explicit commands with direct persistence, including while detached. `ActionProbe/m.Signals.ts`
+  and `ActionProbe/m.Signals.persist.ts` remain inspection surfaces, not edit targets. Bind
+  automatic debug preference projection and host theme, redraw, and size-mode synchronization to
+  attachments; do not promise silence for explicit commands.
 
 #### D2 — retain state, bound side effects
 
@@ -377,29 +643,36 @@ The pilot follows the existing lifecycle contract:
 
 #### D3 — minimal, durable proof
 
-The coverage below is an acceptance contract, not a repeated test matrix for every consumer:
+The coverage below is an acceptance contract, not a repeated test matrix for every consumer.
+`-test/-specimen-lifecycle.test.tsx` contains concrete pilot integration journeys, not universal
+coverage for the remaining inventory. Reuse controller/storage setup where it is actually shared; do
+not copy these journeys or add a mandatory lifecycle matrix for each migration. Each later consumer
+still needs bounded evidence of its actual wiring and distinctive behavior, not a permanent test
+file. Ordinary migrations default to temporary actual-suite probes under the workbook's retention
+rule. The already-landed pilot and ActionProbe coverage is not a template for future additions;
+pruning already-landed tests requires separately authorized consumer work.
 
 - Keep lifecycle-mechanism coverage at its owner (`m.Spec/-u.attachments.test.ts` and the admission/
   retirement tests). Reuse the existing template lifecycle proof for shared template policy; do not
   copy its full dual-host, reentrancy, failure, or hydration matrix into each consumer.
 - Prove actual consumer wiring through real specimen initialization and retirement, not only a
-  manually attached debug factory. Use the smallest integration coverage that detects missing or
-  escaped redraw/theme/persistence ownership and preserves each consumer's distinctive behavior.
-- Cover the pilot's creation/hydration, first attach, shared-host continuity, last-detach silence,
-  reconnect, repeat init/replacement, and harness reset/disposal across the appropriate owner and
-  consumer layers. Explicitly distinguish harness reset from the debug reset control. Existing owner
-  proof does not by itself establish that a particular consumer wires the owner correctly.
+  manually attached debug factory. Use temporary integration probes to detect missing or escaped
+  redraw/theme/persistence ownership and verify preservation of each consumer's behavior. Permanent
+  consumer coverage requires the separate retention justification in the workbook.
+- The pilot covered creation/hydration, first attach, shared-host continuity, last-detach silence,
+  reconnect, repeat init/replacement, and harness reset/disposal across owner and consumer layers.
+  This historical allocation is not a mandatory matrix for later consumers. Distinguish harness
+  reset from the debug reset control; owner proof alone does not establish consumer wiring.
 - Prefer extending existing tests. Retain strong control, default/fallback, serialized-preference,
   and signal-identity assertions. Observe actual storage bytes where persistence is the contract;
   when testing duplicate effects, count projection attempts rather than trusting deduplicated
   writes.
-- Every added permanent assertion must pin a current behavior or wiring regression. Use narrow
-  red/green or sensitivity evidence when practical; do not retain checks for obsolete code shape,
-  copy-pasted mechanism suites, or a generic migration-test framework.
-- Temporary migration probes may be removed with their unused setup after preserving necessary
-  durable regressions and recording bounded evidence. Rerun affected tests after removal. A passing
-  assertion is not itself a reason to delete it; retain the narrowest regression for a discovered
-  bug.
+- Use narrow red/green or sensitivity evidence when practical. Sensitivity establishes that a test
+  detects a fault, not that its permanent maintenance cost is justified. Do not retain checks for
+  obsolete code shape, copied mechanism suites, or a generic migration-test framework.
+- Before handoff, record migration evidence and remove temporary probes and exclusively used setup.
+  Preserve justified durable regressions, then rerun the retained affected tests and checks. This
+  cleanup belongs to the same authorized implementation pass, not a later human request.
 - Use focused consumer tests and the owner check. Keep generated authored/embedded parity and named
   generated `-SPEC.tsx`/debug-factory type checks as separate artifact evidence, with dependency
   authority named. The step-2 receipt closes that artifact gap for its recorded baseline; it is not
@@ -407,107 +680,67 @@ The coverage below is an acceptance contract, not a repeated test matrix for eve
 - No browser harness, permanent migration CI workload, dependency refresh, or bundle rewrite merely
   to establish this cleanup. Finish with a residue pass over touched files, tests, and fixtures.
 
-#### Pilot file and proof boundary
+#### Historical pilot contracts
 
-Landing unit: `fix(ui-components): adopt verified specimen lifecycle ownership` covers Text.Label
-and Prose.Manuscript only, plus the short learned workbook. The next arc item retains the other 60
-candidate pairs; discovery flags are not authorization to redesign or mechanically migrate them.
-Plan/evidence records stay separate from the source-code commit.
+Text.Label and Prose.Manuscript retained promise-returning factories, signal identity, defaults,
+storage keys/fields, controls, and component behavior. Label leaves subject size omitted, uses grid
+and its Samples renderer, and applies initial traceline 0.03 after theme setup. Later theme changes
+retain harness defaults, including Dark 0.08. Manuscript retains fill/grid with omitted margin,
+preserving the harness default of 50.
 
-Planned source/test unit: seven paths under `code/sys.ui/ui-components/src/`:
+The pilot's seven-path source/test boundary, actual-suite journeys, storage isolation, two-host
+proof, negative controls, and verification commands are recorded in the
+[pilot receipt](./ui-template-maintenance.plan/evidence.md#consumer-lifecycle-pilot-verification).
+Those retained tests were a historical pilot decision, not a requirement to reproduce per-consumer
+lifecycle matrices or preserve every inherited assertion. Workbook rule 4 governs retention review.
 
-- `ui.react/ui/Text.Label/-spec/-SPEC.tsx`
-- `ui.react/ui/Text.Label/-spec/-SPEC.Debug.tsx`
-- `ui.react/ui/Prose.Manuscript/-spec/-SPEC.tsx`
-- `ui.react/ui/Prose.Manuscript/-spec/-SPEC.Debug.tsx`
-- `ui.react/ui/Text.Label/-test/-spec.test.tsx` — extend existing controls/storage coverage.
-- `-test/-specimen-lifecycle.test.tsx` — new bounded integration coverage for the two actual suites.
-- `-test/u.fixture.specimen-lifecycle.ts` — thin controller/storage setup shared by the integration
-  tests and Label's attached control test; no migration registry, production seam, owner-internal
-  import, or copied lifecycle engine. Seven paths are a boundary, not a quota: omit unused fixture
-  generalization.
+#### Historical ActionProbe contracts
 
-Implementation constraints:
+ActionProbe distinguishes automatic projection from explicit detached command persistence. The
+public Signals API, async setup, React ownership, controls, sample callbacks, and unrelated storage
+fields remain intact. Shared projection owns theme/debug/env/actOn/sizeMode, not result visibility.
+Its attachment preserves fill-y margin 100, auto size [null, null], grid, and both 420 widths.
 
-- Import `Spec` through each debug factory's existing `../../-test.ui.ts` barrel and expose the
-  factory-local `attach`. Move the existing storage projection into `shared()` without altering its
-  fields. Keep the promise-returning factory API, `props`, `listen`, and `reset` contracts.
-- Replace unmanaged specimen effects with one attachment per init. Theme reads only `p.theme.value`;
-  redraw listens to the same knobs as before. Do not add a second initial `update()` path.
-- Text.Label's subject specifies `display: 'grid'` and its existing Samples renderer, with no size
-  property. Preserve its initial `ctx.host.tracelineColor(0.03)` after theme setup and subsequent
-  theme behavior. Later theme changes use `Harness.Theme.background` without reapplying the initial
-  traceline override. The existing `Theme.signalEffect` lives in `u/m.Theme/mod.ts` under the
-  devharness owner. Do not import the template's fixed size or clear an inherited size implicitly.
-- Manuscript retains `size: 'fill'`, grid display, and its renderer. Omit margin to retain the
-  existing harness default of **50** from `CtxPropsSubject.size`; do not substitute the template's
-  centered size or other explicit margins.
-- No changes to component UI/styles/fonts, Samples, storage keys, defaults/fallbacks, type barrels,
-  package configuration, ActionProbe, the attachment owner, or templates/bundle are planned. If
-  inspection reveals another necessary production delta or a behavior mismatch, report it first.
+The retained journey protects automatic-effect retirement versus detached visibility/reset commands
+and reconnect from retained signals. Layout/configuration catalogues were not retained. Shared
+fixture mechanics remain in `src/-test/u.fixture.specimen-lifecycle.ts`, exported through
+`src/ui.react/-test.ts` with one-way imports; no wiring or assertion matrix belongs in the fixture.
+The [ActionProbe receipt](./ui-template-maintenance.plan/evidence.md#actionprobe-attachment-proof)
+owns the seven-file proof boundary, executed commands, controls, lint findings, and evidence limits.
+Older callback syntax is not current guidance; apply workbook rule 8 to new authorized work.
 
-Minimal proof allocation:
+#### Historical Anchor and Bullet/BulletList contracts
 
-- Keep all three existing Text.Label specimen tests and their assertions. Give the persistence/
-  control case a live attachment; keep hydration and real composition coverage rather than replacing
-  them with generic lifecycle checks. Explicitly install isolated storage before any store/factory
-  access: `DomMock.init` does not replace global `localStorage`. Restore the global descriptor and
-  monitored store methods during teardown; never touch ambient HOME-backed storage or manipulate the
-  private registry.
-- In the new integration file, exercise each actual imported suite through real controller init, not
-  a handwritten imitation. One compact lifecycle journey per consumer should pin its subject
-  configuration/rendering, attached redraw/theme/persistence, repeat-init ownership, retirement,
-  detached silence, and reconnect with retained signal identity. Preserve unrelated stored fields.
-- Exercise two-host sharing once with Text.Label, counting projection attempts before immutable
-  deduplication, then retire the hosts independently. Do not repeat that machinery matrix for
-  Manuscript. Check that unrelated knobs preserve custom host paint and retired signals cannot
-  repaint a successor. Cover harness reset, replacement, and disposal across the small pilot suite,
-  not every transition for every consumer.
-- Add Manuscript's default/theme/debug-reset assertions within its integration journey; do not
-  create another control suite. Keep its existing `-test/-.test.ts` API test unchanged and run it as
-  a smoke check. Label's existing control/composition assertions remain its distinctive behavior
-  oracle.
-- Existing `m.Spec/-u.attachments.test.ts`, admission/retirement tests, and template lifecycle tests
-  own reentrancy, closed admission, exception paths, general sharing, and storage-failure policy. Do
-  not copy those tests or add fresh-worker hydration/browser proof for unchanged consumer policy.
-- Demonstrate sensitivity to a missing shared persistence projection and an escaped specimen effect
-  using the smallest restored negative controls. No permanent test should assert a particular call
-  count or source spelling unless it is itself the observable contract.
+- Anchor retains synchronous setup, legacy examples precedence/deletion, signal identity, explicit
+  subject size clear, grid, debug width 480, initial traceline 0.05, and host footer padding [12,
+  16]. The footer reads current theme as host chrome. See the
+  [migration and retention receipt](./ui-template-maintenance.plan/evidence.md#anchor-attachment-proof)
+  for executed commands, negative controls, pruning, and test renames.
+- Bullet remains synchronous and ephemeral, with no storage or reset API. BulletList remains async,
+  with shared preference projection and reactive width. Their separate implementations share a
+  landing, not a persistence policy. See the
+  [pair receipt](./ui-template-maintenance.plan/evidence.md#bullet-and-bulletlist-attachment-proof).
 
-Verification after authorized implementation, from `code/sys.ui/ui-components`:
+Both units retired temporary lifecycle probes in the implementation pass. Their receipts are
+historical wiring evidence, not ongoing protection of every consumer attachment. Statements that
+existing assertions were preserved describe those passes only, not retention authority. The
+workbook's rule 4 governs future review; already-landed test pruning requires separate
+authorization.
 
-```sh
-deno task test --trace-leaks src/-test/-specimen-lifecycle.test.tsx src/ui.react/ui/Text.Label/-test/-spec.test.tsx src/ui.react/ui/Prose.Manuscript/-test/-.test.ts
-deno task check --quiet
-```
+#### Fixture and setup lessons
 
-Use exact-file fmt/lint for the seven touched files and `git diff --check`. The residue review must
-exclude duplicate owner tests, redundant migration setup, weakening of old assertions, changed
-component behavior, and inclusion of the one-off artifact probe. Record proof limits and update only
-the two pilot inventory dispositions; the remaining 60 stay independently assessed.
+Use literal suite imports and public storage-ref seeding; isolated storage does not promise a fresh
+immutable registry. Retain raw transport observation after controller disposal so escaped redraws
+remain visible. The fixture's public `Event` type is clarity, not a new safety guarantee; `DevEvent`
+narrowing was rejected because the bus accepts general events. Do not restore arbitrary waits,
+cache-busting loaders, or redundant cleanup wrappers.
 
-#### Pilot workbook and review reconciliation
-
-The pilot should leave only a short, evidence-backed workbook:
-
-1. Inspect the specimen/debug pair and its helpers; identify effects, direct writes, and existing
-   behavior assertions.
-2. Assign each effect to the shared factory, one attachment, or its existing independent owner; stop
-   for an unresolved policy difference.
-3. Use `Spec.attachments` while retaining the consumer's additions; do not copy owner machinery or
-   restore template boilerplate.
-4. Prove consumer wiring and preserved behavior, then remove redundant migration-only setup and
-   record the disposition in the inventory.
-
-The inventory and file/proof boundary above prepare a two-consumer pilot, not a bulk migration.
-Step-2 artifact evidence and the unchanged consumer-test baseline are recorded in the evidence file.
-The supplied bounded review reported GO for preparation with no material blockers; reconciliation
-retained the design and clarified storage isolation, margin/traceline preservation, and fixture
-restraint. See the
-[review receipt](./ui-template-maintenance.plan/evidence.md#pilot-preparation-review-and-reconciliation)
-for provenance and limits. Review acceptance is not consumer adoption or a readiness verdict. A
-readiness check and explicit implementation authorization remain separate; no consumer migration or
-Git-mutation authority follows from this reconciliation.
+The
+[fixture/async-boundary receipt](./ui-template-maintenance.plan/evidence.md#fixture-refinement-and-async-boundary-review)
+records those decisions and the inspected Automerge worker-readiness examples. These support setup
+contract preservation, not an endorsement of those consumers' resource ownership. The
+[final pilot receipt](./ui-template-maintenance.plan/evidence.md#blind-review-disposition-and-final-verification)
+records removal of lint suppressions without changing factory signatures or workspace lint policy.
 
 ## Execution discipline
 
