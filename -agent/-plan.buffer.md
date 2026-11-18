@@ -1,6 +1,3 @@
-
-
-
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
@@ -18,8 +15,10 @@ ui-template-maintenance.plan.md
 - [x] 519b15ea8 fix(tmpl): correct UI scaffold lifecycle ownership
 - [x] 41db307d7 feat(ui-react): register stylesheet rules from React
 - [x] 917bd0922 fix(tmpl): preserve scoped-style appearance across themes
-- [ ] fix(ui-components): adopt verified specimen lifecycle ownership
-- [ ] fix(ui-components): isolate matching scoped styles without changing paint
+- [x] 55d4cea12 fix(ui-components): isolate matching scoped styles without changing paint
+- [ ] fix(ui-components): bind Label and Manuscript specimen effects to attachments
+- [ ] fix(ui-components): bind ActionProbe specimen effects to attachments
+- [ ] fix(ui-components): migrate remaining specimen lifecycle call-sites
 
 
 
