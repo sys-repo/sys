@@ -1,16 +1,18 @@
 # @sys/crypto
 
-Compute hashes, format digests, and sign or verify data with Ed25519.
+Compute hashes, validate curve public keys, format digests, and sign or verify data with Ed25519.
 
 Import the operation you need:
 
 - [`/hash`](https://jsr.io/@sys/crypto/doc/hash): SHA-256, SHA-1, and composite hashes.
+- [`/curves`](https://jsr.io/@sys/crypto/doc/curves): strict Ed25519 public-key validation;
+  [contract and limits](./src/m.Curves/README.md).
 - [`/sign/ed25519`](https://jsr.io/@sys/crypto/doc/sign/ed25519): `SignEd25519` key generation,
   signing, and verification; also exported from `/sign`.
 - [`/fmt`](https://jsr.io/@sys/crypto/doc/fmt): console formatting for hash data.
 
-The root exports package metadata, types, and `FileHashUri`. Import `Hash` and the signing libraries
-from their subpaths, not the root. `/t` is the type-only entry.
+The root exports package metadata, types, and `FileHashUri`. Import `Hash`, `Curves`, and the
+signing libraries from their subpaths, not the root. `/t` is the type-only entry.
 
 ## Hash a value
 

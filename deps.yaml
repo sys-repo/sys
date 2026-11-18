@@ -37,6 +37,8 @@ deno.json:
     dev: true
     subpaths: [ helpers/usingCtx ]
   - import: npm:parse5@8.1.1
+  - import: npm:@noble/curves@2.4.0
+    subpaths: [ ed25519.js ]
   - import: npm:@noble/hashes@2.4.0
     subpaths: [ legacy.js, sha2.js ]
   - import: npm:@sinclair/typebox-codegen@0.11.1

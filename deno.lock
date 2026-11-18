@@ -53,6 +53,7 @@
     "npm:@deno/vite-plugin@2.0.4": "2.0.4_vite@8.3.8_yaml@2.9.1",
     "npm:@earendil-works/pi-coding-agent@0.85.1": "0.85.1_ws@8.23.0",
     "npm:@monaco-editor/react@4.7.0": "4.7.0_monaco-editor@0.57.0_react@19.3.1_react-dom@19.3.1",
+    "npm:@noble/curves@2.4.0": "2.4.0",
     "npm:@noble/hashes@2.0.1": "2.0.1",
     "npm:@noble/hashes@2.4.0": "2.4.0",
     "npm:@oxc-project/runtime@0.158.0": "0.158.0",
@@ -1051,6 +1052,12 @@
         "@emnapi/core",
         "@emnapi/runtime",
         "@tybys/wasm-util"
+      ]
+    },
+    "@noble/curves@2.4.0": {
+      "integrity": "sha512-P4/62zrgfH33CneE3Dn4WhJVA22YUU0eR51wKIan4NVRvwsA0YnPTwWGpNbpuacSujmSFLvyzpyuR30+fbq2Ew==",
+      "dependencies": [
+        "@noble/hashes@2.4.0"
       ]
     },
     "@noble/hashes@1.8.0": {
@@ -3750,6 +3757,7 @@
       "npm:@deno/vite-plugin@2.0.4",
       "npm:@earendil-works/pi-coding-agent@0.85.1",
       "npm:@monaco-editor/react@4.7.0",
+      "npm:@noble/curves@2.4.0",
       "npm:@noble/hashes@2.4.0",
       "npm:@oxc-project/runtime@0.158.0",
       "npm:@preact/signals-core@1.14.5",
