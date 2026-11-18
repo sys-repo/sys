@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Pkg, Signal, type t } from './common.ts';
 import { Dist } from '../mod.ts';
 import { SAMPLE, SAMPLE_FILES_MODES, type SampleFilesMode } from './-SAMPLE.dist.json.ts';
@@ -42,12 +43,26 @@ export async function createDebugSignals() {
     dist: s(snap.dist),
   };
   const p = props;
-  const api = {
-    props,
-    updateDist,
-    listen,
-    reset,
-  };
+  let sample = { files: p.sampleFilesMode.value, view: p.debugView.value };
+  // Preserve factory-time normalization without starting automatic work before attachment.
+  p.dist.value = SAMPLE.HelloWorld({ files: sample.files });
+
+  const { attach } = Spec.attachments({
+    shared(e) {
+      // Independent dependencies: projecting dist must not regenerate an explicit selection.
+      const effects = Signal.listeners(e.life);
+      effects.effect(syncSample);
+      effects.effect(() => {
+        store.change((d) => {
+          d.debug = p.debug.value;
+          d.debugView = p.debugView.value;
+          d.sampleFilesMode = p.sampleFilesMode.value;
+          d.theme = p.theme.value;
+          d.dist = p.dist.value;
+        });
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -55,28 +70,25 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    selectDist(p.dist.value);
   }
 
   function updateDist() {}
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.debug = p.debug.value;
-      d.debugView = p.debugView.value;
-      d.sampleFilesMode = p.sampleFilesMode.value;
-      d.theme = p.theme.value;
-      d.dist = p.dist.value;
-    });
-  });
+  function selectDist(dist: P['dist']) {
+    // Explicit selections supersede earlier detached driver changes.
+    sample = { files: p.sampleFilesMode.value, view: p.debugView.value };
+    p.dist.value = dist;
+  }
 
-  Signal.effect(() => {
+  function syncSample() {
     const files = p.sampleFilesMode.value;
-    const debugView = p.debugView.value;
+    const view = p.debugView.value;
+    if (files === sample.files && view === sample.view) return;
+    selectDist(SAMPLE.HelloWorld({ files }));
+  }
 
-    p.dist.value = SAMPLE.HelloWorld({ files });
-  });
-
-  return api;
+  return { props, listen, reset, updateDist, selectDist, attach };
 }
 
 const Styles = {
@@ -140,9 +152,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button
         block
         label={() => `👋 hello world`}
-        onClick={() => (p.dist.value = SAMPLE.HelloWorld())}
+        onClick={() => debug.selectDist(SAMPLE.HelloWorld())}
       />
-      <Dev.Button block label={() => `(undefined)`} onClick={() => (p.dist.value = undefined)} />
+      <Dev.Button block label={() => `(undefined)`} onClick={() => debug.selectDist(undefined)} />
 
       <hr />
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
