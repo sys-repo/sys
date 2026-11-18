@@ -1,8 +1,8 @@
 import type { t } from './common.ts';
 
 /**
- * Verifier-independent account operations. Wire material stays private to the service/client binding;
- * only Facts and Session are observations. See README.md for commit and recovery obligations.
+ * Verifier-independent account contracts. Wire material stays private to the service/client binding;
+ * only Facts and Session are observations. See README.contract.md for commit and recovery obligations.
  */
 export declare namespace Accounts {
   /** Strict admission of bounded, decoded JSON; undefined means invalid, never service rejection. */
@@ -114,7 +114,7 @@ export declare namespace Accounts {
 
   /**
    * WebAuthn Level 3 JSON dictionaries, not a private encoding or a verifier vendor's types.
-   * Options use the native dictionaries with only the credProps extension requested in this draft.
+   * Options use the native dictionaries with only the credProps extension requested by this contract.
    * Response declarations cover native toJSON() data; extension results remain uninterpreted/private.
    */
   export namespace Wire {

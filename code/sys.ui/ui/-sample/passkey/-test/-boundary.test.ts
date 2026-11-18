@@ -5,7 +5,13 @@ const root = Path.resolve(import.meta.dirname!, '..');
 
 /** Local graph guards; external packages' transitive dependencies are not traversed. */
 describe('passkey core/UI boundary', () => {
-  for (const entry of ['common.ts', 'm.WebAuthn/mod.ts', 'm.Accounts/mod.ts']) {
+  const entries = [
+    'common.ts',
+    'm.WebAuthn/mod.ts',
+    'm.Accounts/mod.ts',
+    'm.AccountService/mod.ts',
+  ];
+  for (const entry of entries) {
     it(`${entry} → no UI or harness runtime dependencies`, async () => {
       await EsmAssert.runtimeGraphBoundary({
         entry: Path.join(root, entry),
