@@ -41,10 +41,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "react"
   },
-  "fmt": {
-    "singleQuote": true,
-    "lineWidth": 100
-  },
+  "fmt": { "singleQuote": true, "lineWidth": 100 },
   "nodeModulesDir": "auto",
   "importMap": "imports.json",
   "workspace": [
@@ -115,11 +112,7 @@
     }
   },
   "exclude": [".pi"],
-  "test": {
-    "permissions": "test",
-    "sanitizeOps": true,
-    "sanitizeResources": true
-  },
+  "test": { "permissions": "test", "sanitizeOps": true, "sanitizeResources": true },
   "permissions": {
     "test": { "read": true, "write": true, "run": true, "env": true },
     "dev": { "read": true, "write": true, "run": true, "env": true, "net": true },
