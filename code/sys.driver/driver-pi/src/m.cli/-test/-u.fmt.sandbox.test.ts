@@ -96,14 +96,14 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
         write: { summary: ['cwd'], detail: ['/tmp/pi-cli-test/out'] },
       };
       const tools = ['read', 'write', 'bash'];
-      const raw = PiSandboxFmt.table(input, { width: 80, tools });
+      const raw = PiSandboxFmt.table(input, { width: 80, tools, terminal: false });
       const text = Cli.stripAnsi(raw);
 
       expect(text).to.match(/permissions\s+allow-all/);
       expect(text).to.match(/read\s+all/);
       expect(text).to.match(/write\s+all/);
       expect(text).not.to.contain('write:cwd');
-      const header = PiSandboxFmt.header('allow-all', { width: 80, tools });
+      const header = PiSandboxFmt.header('allow-all', { width: 80, tools, terminal: false });
       expect(lines(raw).slice(0, 2)).to.eql(header.slice(0, 2));
       expect(lines(raw)[0]).to.contain(c.bold(c.yellow('sys:pi')));
       expect(text).to.contain('Deno permissions   allow-all');
@@ -168,17 +168,46 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
   });
 
   describe('application and selected-tool identity', () => {
+    it('terminal → underlined version links to its exact JSR release; piped output stays unlinked', () => {
+      const width = 80;
+      const url = new URL(`https://jsr.io/${pkg.name}@${pkg.version}`);
+      const link = Cli.Fmt.hyperlink(pkg.version, url, { underline: true });
+      for (const permissions of ['scoped', 'allow-all'] as const) {
+        const color = permissions === 'allow-all' ? c.yellow : c.cyan;
+        const sandbox = { permissions, cwd: { invoked: '/tmp/report', root: '/tmp/report' } };
+        for (const terminal of [true, false]) {
+          const [header] = PiSandboxFmt.header(permissions, { width, terminal });
+          const [sheet] = PiSandboxFmt.table(sandbox, { width, terminal }).split('\n');
+          const version = c.dim(color(terminal ? link : pkg.version));
+          const gap = ' '.repeat(width - 1 - 'sys:pi'.length - pkg.version.length);
+          expect(header).to.eql(`${PiSandboxFmt.title(permissions)}${gap}${version}`);
+          expect(sheet).to.eql(header);
+          expect(Cli.Fmt.Text.Width.measure(header)).to.eql(width - 1);
+        }
+      }
+    });
+
+    it('linked version → retains width fallbacks without emitting a hidden link', () => {
+      const render = (width: number) =>
+        PiSandboxFmt.header('scoped', { width: width + 1, terminal: true, tools: ['read'] })[0];
+      const full = `sys:pi read · ${pkg.version}`;
+      const versionOnly = `sys:pi ${pkg.version}`;
+      expect(Cli.stripAnsi(render(full.length))).to.eql(full);
+      expect(Cli.stripAnsi(render(versionOnly.length))).to.eql(versionOnly);
+      expect(render(versionOnly.length - 1)).to.eql(PiSandboxFmt.title('scoped'));
+    });
+
     it('scoped header → bright tool detail and dim package provenance', () => {
       const width = 80;
       const tools = ['read', 'write', 'bash'];
       const raw = PiSandboxFmt.table({
         permissions: 'scoped',
         cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-      }, { width, tools });
+      }, { width, tools, terminal: false });
       const rawLines = lines(raw);
       const text = Cli.stripAnsi(raw);
 
-      const header = PiSandboxFmt.header('scoped', { width, tools });
+      const header = PiSandboxFmt.header('scoped', { width, tools, terminal: false });
       expect(rawLines.slice(0, 2)).to.eql(header.slice(0, 2));
       expect(rawLines[0]).to.contain(c.bold(c.cyan('sys:pi')));
       expect(rawLines[0]).not.to.contain('scoped');

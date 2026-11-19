@@ -149,12 +149,19 @@ function printProfileRoot(
   deps: MenuDependencies,
 ) {
   clearInteractiveScreen(deps.isTerminal);
-  printProfileHeader(input.allowAll, deps.screenSize().width, input.notice);
+  printProfileHeader(input, deps, deps.screenSize().width);
 }
 
-function printProfileHeader(allowAll?: boolean, width?: number, notice?: string) {
-  const permissions = allowAll === true ? 'allow-all' : 'scoped';
-  console.info(PiSandboxFmt.header(permissions, { width, notice }).join('\n'));
+function printProfileHeader(
+  input: { allowAll?: boolean; notice?: string },
+  deps: MenuDependencies,
+  width: number,
+) {
+  const permissions = input.allowAll === true ? 'allow-all' : 'scoped';
+  const terminal = deps.isTerminal('stdout');
+  console.info(
+    PiSandboxFmt.header(permissions, { width, terminal, notice: input.notice }).join('\n'),
+  );
 }
 
 function menuArgs(cwd: t.StringDir) {
@@ -252,7 +259,7 @@ function printProfileScreen(input: ProfileScreen, deps: MenuDependencies) {
   clearInteractiveScreen(deps.isTerminal);
   const width = deps.screenSize().width;
   if (input.kind === 'invalid') {
-    printProfileHeader(input.allowAll, width);
+    printProfileHeader(input, deps, width);
     return;
   }
   console.info(

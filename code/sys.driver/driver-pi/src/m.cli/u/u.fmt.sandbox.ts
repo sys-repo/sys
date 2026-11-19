@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Is, Num, Path, pkg, Str, type t } from '../common.ts';
+import { c, Cli, Fs, Is, JsrUrl, Num, Path, pkg, Str, type t } from '../common.ts';
 import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
 import { PiAuthority } from './u.authority.ts';
 
@@ -7,6 +7,8 @@ type PiSandboxHeaderOptions = {
   readonly width?: number;
   readonly tools?: readonly string[];
   readonly notice?: string;
+  /** Terminal-output override for deterministic rendering tests. */
+  readonly terminal?: boolean;
 };
 
 type PiSandboxTableOptions = {
@@ -74,8 +76,9 @@ export const PiSandboxFmt = {
     opts: PiSandboxHeaderOptions = {},
   ): readonly string[] {
     const renderWidth = sandboxRenderWidth(opts.width);
+    const terminal = opts.terminal ?? Cli.Is.terminal('stdout');
     return [
-      ...identityRows(permissions, renderWidth, opts.tools),
+      ...identityRows(permissions, renderWidth, terminal, opts.tools),
       ...renderRows(authorityRows(permissions), renderWidth).split('\n'),
       ...closingRows(renderWidth, opts.notice),
     ];
@@ -88,10 +91,10 @@ export const PiSandboxFmt = {
     rows.push([c.gray('Report snapshot'), formatSnapshot(input.launch?.stage)]);
 
     const root = runtimeRoot(input.cwd);
+    const terminal = opts.terminal ?? Cli.Is.terminal('stdout');
     let reportLink: ReportLink | undefined;
 
     if (input.report) {
-      const terminal = opts.terminal ?? Cli.Is.terminal('stdout');
       reportLink = terminal ? prepareReportLink(input.report, contentBudget) : undefined;
       const report = terminal
         ? (reportLink?.display ?? '')
@@ -115,11 +118,7 @@ export const PiSandboxFmt = {
       }
     }
 
-    const header = identityRows(
-      input.permissions,
-      renderWidth,
-      opts.tools,
-    );
+    const header = identityRows(input.permissions, renderWidth, terminal, opts.tools);
     const tableText = renderRows(rows, renderWidth);
     const body = reportLink
       ? tableText.replace(
@@ -142,11 +141,14 @@ export const PiSandboxFmt = {
 function identityRows(
   permissions: t.PiCli.PermissionMode,
   width: number,
+  terminal: boolean,
   tools?: readonly string[],
 ): readonly string[] {
+  const url = new URL(JsrUrl.Pkg.web(pkg.name, pkg.version));
   return Cli.Fmt.Header.rows({
     pkg,
     width,
+    version: terminal ? Cli.Fmt.hyperlink(pkg.version, url, { underline: true }) : pkg.version,
     tone: permissions === 'allow-all' ? 'yellow' : 'cyan',
     title: PiSandboxFmt.title(permissions),
     detail: tools?.length === 0 ? 'tools:none' : tools?.join(', '),

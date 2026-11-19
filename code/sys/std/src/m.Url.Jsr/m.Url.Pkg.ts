@@ -5,9 +5,7 @@ import type { JsrUrl } from './t.ts';
 export const Pkg: JsrUrl.Pkg.Lib = Object.freeze({
   Is,
 
-  web(name) {
-    return `${origin}/${name}`;
-  },
+  web: (name, version) => `${origin}/${name}${version ? `@${version}` : ''}`,
 
   metadata(name) {
     return `${origin}/${name}/meta.json`;

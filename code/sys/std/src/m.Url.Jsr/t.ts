@@ -21,8 +21,8 @@ export declare namespace JsrUrl {
       /** Package-scoped type predicates. */
       readonly Is: IsLib;
 
-      /** URL for the package's canonical JSR web page. */
-      web(name: t.StringPkgName): t.StringUrl;
+      /** URL for the package's canonical JSR web page, optionally pinned to a release. */
+      web(name: t.StringPkgName, version?: t.StringSemver): t.StringUrl;
 
       /**
        * URL for meta-data information about a package as a whole.
