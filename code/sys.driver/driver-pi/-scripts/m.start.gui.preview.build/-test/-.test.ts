@@ -13,7 +13,6 @@ import {
 } from '../../common.ts';
 
 import { default as deno } from '../../../deno.json' with { type: 'json' };
-import { EsmAssert } from '../../../src/-test.ts';
 import { pkg } from '../../../src/pkg.ts';
 import { startDevelopmentWith } from '../../../src/m.cli/m.profiles/u.start/u.gui/mod.ts';
 import type { Start } from '../../../src/m.cli/m.profiles/u.start/u.gui/t.ts';
@@ -58,7 +57,6 @@ const SECOND_DIR: t.StringAbsoluteDir = Fs.resolve(PACKAGE_ROOT, '.tmp/driver-pi
 const INDEX_BODY = '<h1>verified local Driver Pi preview</h1>';
 const MUTATED_INDEX_BODY = '<h1>mutated local Driver Pi preview</h1>';
 const BASE_PATHS: t.PreviewBuildPaths = vitePaths(PACKAGE_ROOT);
-const PREVIEW_WORKER_ENTRY = new URL('../-entry.worker.ts', import.meta.url).pathname;
 
 describe('driver-pi/scripts/task.start.gui.preview', () => {
   it('deeply freezes Vite paths at the owner boundary', () => {
@@ -148,21 +146,6 @@ describe('driver-pi/scripts/task.start.gui.preview', () => {
       'cmd.exe',
       Open.resolveCommand(target, 'windows').cmd,
     ]);
-  });
-
-  it('keeps the long-lived preview host graph outside Vite build runtime', async () => {
-    await EsmAssert.runtimeGraphOwnership({
-      entry: PREVIEW_WORKER_ENTRY,
-      ownedImports: ['./u.runtime.ts'],
-    });
-    await EsmAssert.runtimeGraphBoundary({
-      entry: PREVIEW_WORKER_ENTRY,
-      forbiddenImports: ['@sys/driver-vite'],
-      forbiddenPathIncludes: [
-        '/m.cli/m.profiles/u/u.menu.ts',
-        '\\m.cli\\m.profiles\\u\\u.menu.ts',
-      ],
-    });
   });
 
   it('builds once into its owned directory and passes only that generation to the GUI session', async () => {

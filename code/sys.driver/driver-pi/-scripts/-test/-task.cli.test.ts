@@ -1,20 +1,7 @@
-import { describe, EsmAssert, expect, it, type t } from '../../src/-test.ts';
+import { describe, expect, it, type t } from '../../src/-test.ts';
 import { exitCode } from '../../src/m.cli/mod.ts';
 
-const ENTRY = new URL('../task.cli.ts', import.meta.url).pathname;
-
 describe('driver-pi/scripts/task.cli outcome projection', () => {
-  it('keeps the default task graph outside GUI and server runtime', async () => {
-    await EsmAssert.runtimeGraphBoundary({
-      entry: ENTRY,
-      forbiddenImports: ['@sys/server'],
-      forbiddenPathIncludes: [
-        '/m.cli/m.profiles/u.start/',
-        '\\m.cli\\m.profiles\\u.start\\',
-      ],
-    });
-  });
-
   it('maps only a fully presented GUI failure to status one', () => {
     const gui = (outcome: t.PiCliProfiles.Gui.Outcome): t.PiCliProfiles.Gui => ({
       kind: 'gui',

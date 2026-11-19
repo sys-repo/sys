@@ -1,4 +1,3 @@
-export { EsmAssert } from '@sys/esm/testing';
 export { type SelectPromptDependency, withSelectPrompt } from '@sys/cli/testing';
 export { Pkg as FsPkg } from '@sys/fs/pkg';
 export type { FsRooted } from '@sys/fs/t';
