@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { DebugCenter } from './-ui.Center.tsx';
 import { DebugFill } from './-ui.Fill.tsx';
@@ -35,11 +36,16 @@ export function createDebugSignals() {
     size: s(snap.size),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.size = p.size.value;
+        d.subjectOnly = p.subjectOnly.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -49,16 +55,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.size = p.size.value;
-      d.subjectOnly = p.subjectOnly.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

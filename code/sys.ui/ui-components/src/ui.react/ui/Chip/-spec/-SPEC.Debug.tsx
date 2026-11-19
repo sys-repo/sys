@@ -1,4 +1,5 @@
 import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.Chip.Props;
@@ -46,11 +47,21 @@ export async function createDebugSignals() {
     examples: s(snap.examples ?? defaults.examples),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.mono = p.mono.value;
+        d.size = p.size.value;
+        d.fontSize = p.fontSize.value;
+        d.text = p.text.value;
+        d.truncate = p.truncate.value;
+        d.width = p.width.value;
+        d.examples = p.examples.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -60,21 +71,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.mono = p.mono.value;
-      d.size = p.size.value;
-      d.fontSize = p.fontSize.value;
-      d.text = p.text.value;
-      d.truncate = p.truncate.value;
-      d.width = p.width.value;
-      d.examples = p.examples.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
