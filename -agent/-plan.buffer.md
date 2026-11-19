@@ -1,3 +1,5 @@
+
+
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
@@ -68,15 +70,10 @@ deno-api-containment.plan.md
 - [ ] docs(sys): design capability-sized Deno containment migrations
 
 
-@sys.driver-pi
-compile-cache-preload.plan.md
-- [ ] test(driver-pi): prove scoped compile-cache preloading
-- [ ] test(driver-pi): prove official Pi preload startup
-- [ ] feat(process): support bounded child input for capture
-- [ ] test(driver-pi): prove official Pi preload compatibility
-- [ ] fix(driver-pi): preload scoped compile-cache compatibility
-- [ ] fix(driver-pi): adopt Pi 1.4.0 with verified Deno compatibility
 
+@sys.tmpl
+workspace-authority-discovery.plan.md
+- [ ] perf(tmpl): bound local workspace authority discovery to authored inputs
 
 
 
