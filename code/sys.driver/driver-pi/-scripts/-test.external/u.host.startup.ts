@@ -10,7 +10,7 @@ type Manifest = {
 };
 
 /** Test-only materialization and evidence checks; never selects or imports a Pi executable. */
-export async function prepareStartup(root: string, admittedCache: string) {
+export async function prepareStartup(root: string, admittedCache: string, version: string) {
   const sources = preloadSources({ lifetime: 'startup' });
   const hashes: Record<string, string> = {};
   for (const [name, source] of Obj.entries(sources)) {
@@ -21,12 +21,12 @@ export async function prepareStartup(root: string, admittedCache: string) {
   }
 
   // Verification uses the admission lane's known layout, never the hook's matching algorithm.
-  // The unchanged generator selects solely by the child's Deno.mainModule and observed importer.
-  const relative = 'npm/registry.npmjs.org/@earendil-works/pi-coding-agent/1.4.0';
+  // Production reads the actual Deno.mainModule; it does not reconstruct this cache path.
+  const relative = `npm/registry.npmjs.org/@earendil-works/pi-coding-agent/${version}`;
   const packageDir = Fs.join(PiArgs.toDenoDir(root), relative);
   const manifest = await Fs.readJson<Manifest>(Fs.join(packageDir, 'package.json'));
   expect(manifest.data?.name).to.eql('@earendil-works/pi-coding-agent');
-  expect(manifest.data?.version).to.eql('1.4.0');
+  expect(manifest.data?.version).to.eql(version);
   expect(manifest.data?.type).to.eql('module');
   expect(manifest.data?.bin.pi).to.eql('dist/bundle/cli.js');
   const launcher = Fs.join(packageDir, manifest.data!.bin.pi);

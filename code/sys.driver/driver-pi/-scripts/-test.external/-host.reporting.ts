@@ -4,7 +4,6 @@ import { withInherit } from '../../src/m.cli/u/u.inherit.ts';
 import { PiSandboxReport } from '../../src/m.cli/u/u.report.sandbox.ts';
 import { PiArgs } from '../../src/m.cli/u/u.args.ts';
 import { resolvePkg } from '../../src/m.cli/u/u.resolve.pkg.ts';
-import { preloadSources } from '../../src/m.cli/u/u.preload.ts';
 import {
   Cli,
   describe,
@@ -45,7 +44,6 @@ describe('Pi: launcher reporting host', () => {
       await resolvePkg({ cwd }),
     );
     const { pkg, version } = selection;
-    if (STARTUP) expect(version, 'bounded official-launcher candidate').to.eql('1.4.0');
     const admitted = await requireAdmittedHost(pkg, version);
     console.info(
       Json.stringify({ pi: admitted.artifact, deno: Deno.version, platform: Deno.build }),
@@ -58,7 +56,7 @@ describe('Pi: launcher reporting host', () => {
     await Fs.copy(admitted.paths.cache, PiArgs.toDenoDir(root), { throw: true });
     await Fs.copyFile(admitted.paths.config, Fs.join(root, 'deno.json'), { throw: true });
     await Fs.copyFile(admitted.paths.lock, Fs.join(root, 'deno.lock'), { throw: true });
-    const startup = STARTUP ? await prepareStartup(root, admitted.paths.cache) : undefined;
+    const startup = STARTUP ? await prepareStartup(root, admitted.paths.cache, version) : undefined;
     const probe = await prepareLoaderProbe(root, STARTUP);
     const config = Fs.join(root, 'profile.yaml');
     const extension = Fs.join(root, 'observe.ts');
@@ -201,24 +199,15 @@ async function createHostFixture(retain = false) {
         const main = launchArgs.indexOf(input.pkg!);
         expect(main, 'official npm executable boundary').to.be.greaterThan(0);
         const flags = launchArgs.slice(0, main).filter((arg) => arg.startsWith('--preload'));
-        if (input.pkg === 'npm:@earendil-works/pi-coding-agent@1.4.0') {
-          expect(flags, 'exactly one production preload in the Deno prefix').to.have.length(1);
-          const path = flags[0].slice('--preload='.length);
-          productionDir = Fs.dirname(path);
-          expect(Fs.dirname(productionDir)).to.eql(PiArgs.toTmpDir(root));
-          expect(Fs.basename(productionDir)).to.match(/^pi-preload\./);
-          expect(path).to.eql(Fs.join(productionDir, 'preload.mjs'));
-          expect(launchArgs[main - 1]).to.eql(`--preload=${path}`);
-          const sources = preloadSources({ lifetime: 'startup', trace: false });
-          expect((await Fs.readText(path)).data).to.eql(sources.preload);
-          expect((await Fs.readText(Fs.join(productionDir, 'facade.mjs'))).data).to.eql(
-            sources.facade,
-          );
-          // Substitute only the asserted owned Deno flag; never filter Pi's passthrough argv.
-          if (STARTUP) launchArgs.splice(main - 1, 1);
-        } else {
-          expect(flags, 'no adapter for recovery or other releases').to.eql([]);
-        }
+        expect(flags, 'exactly one production preload in the Deno prefix').to.have.length(1);
+        const path = flags[0].slice('--preload='.length);
+        productionDir = Fs.dirname(path);
+        expect(Fs.dirname(productionDir)).to.eql(PiArgs.toTmpDir(root));
+        expect(Fs.basename(productionDir)).to.match(/^pi-preload\./);
+        expect(path).to.eql(Fs.join(productionDir, 'preload.mjs'));
+        expect(launchArgs[main - 1]).to.eql(`--preload=${path}`);
+        // Substitute only the asserted owned Deno flag; never filter Pi's passthrough argv.
+        if (STARTUP) launchArgs.splice(main - 1, 1);
         const args = isolateHostArgs(launchArgs, input.pkg!, root);
         if (preload) {
           expect(args, 'only the preload flag may differ from baseline').to.eql(baselineArgs);

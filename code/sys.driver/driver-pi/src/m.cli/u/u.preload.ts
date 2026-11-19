@@ -1,13 +1,19 @@
 import { Fs, Json, Str } from '../common.ts';
 import { PI_AGENT_IMPORT_BASE } from './u.resolve.pkg.ts';
 
-/**
- * Materialize only for the inspected bootstrap: it calls the fallback before other runtime work.
- * Active hooks can admit imports/attributes rejected without them; a changed bootstrap needs
- * a new containment assessment, not just a wider version guard.
- */
+// Complete entry contract: no other imports or work can run before synchronous deregistration.
+// Match source, not a release number; dependency upgrades need no adapter-version maintenance.
+const BOOTSTRAP = Str.dedent(`
+  #!/usr/bin/env node
+  import { createRequire, enableCompileCache } from "node:module";
+
+  enableCompileCache();
+  createRequire(import.meta.url)("./cli-runtime.js");
+`);
+
+/** Materialize for the official package; the child checks capability and bootstrap before hooking. */
 export async function writePreload(tmp: string, pkg: string) {
-  if (pkg !== `${PI_AGENT_IMPORT_BASE}@1.4.0`) return undefined;
+  if (pkg !== PI_AGENT_IMPORT_BASE && !pkg.startsWith(`${PI_AGENT_IMPORT_BASE}@`)) return undefined;
   await Fs.ensureDir(tmp);
   const dir = (await Fs.makeTempDir({ dir: tmp, prefix: 'pi-preload.' })).absolute;
   try {
@@ -32,13 +38,17 @@ export async function removePreload(dir: string) {
   }
 }
 
-/** Shared generator; alternate lifetime/module and tracing are diagnostic test seams only. */
+/** Shared generator; alternate lifetime/module/bootstrap and tracing are diagnostic seams only. */
 export function preloadSources(options: {
   lifetime: 'persistent' | 'startup';
   module?: string;
+  bootstrap?: string;
   trace?: boolean;
 }) {
   const module = Json.stringify(options.module ?? 'node:module');
+  const bootstrap = Json.stringify(
+    (options.bootstrap ?? BOOTSTRAP).replaceAll('\r\n', '\n').trim(),
+  );
   const trace = options.trace !== false;
   // Native JSON is the isolated child's diagnostic wire format; add no loader dependencies.
   const resolveTrace = trace
@@ -54,6 +64,7 @@ export function preloadSources(options: {
     import * as Module from ${module};
 
     const main = Deno.mainModule;
+    const bootstrap = ${bootstrap};
     const facade = new URL('./facade.mjs', import.meta.url).href;
     let hook;
     export function disable() {
@@ -64,9 +75,14 @@ export function preloadSources(options: {
     }
 
     ${trace ? "console.info('PRELOAD main ' + main);" : ''}
+    // Approved native-read boundary: keep this isolated preload dependency-free.
+    // Inspect only the actual entry, under existing permissions, before any hook exists.
     if ('enableCompileCache' in Module) {
       // Preserve present values, including invalid ones: the original caller owns their errors.
       ${trace ? "console.info('PRELOAD present');" : ''}
+    } else if (Deno.readTextFileSync(new URL(main)).replaceAll('\\r\\n', '\\n').trim() !== bootstrap) {
+      // Unknown entries run natively; never open an unbounded loader window.
+      ${trace ? "console.info('PRELOAD unmatched bootstrap');" : ''}
     } else {
       if (!('registerHooks' in Module)) throw new Error('Missing node:module.registerHooks');
       hook = Module.registerHooks({

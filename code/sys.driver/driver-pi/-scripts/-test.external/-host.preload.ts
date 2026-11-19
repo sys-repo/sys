@@ -19,6 +19,7 @@ import { preloadSources } from '../../src/m.cli/u/u.preload.ts';
 type Mode = 'none' | 'persistent' | 'startup';
 type Files = Readonly<Record<string, string>>;
 type RunOptions = {
+  productionBootstrap?: boolean;
   module?: string;
   facade?: 'syntax' | 'evaluation' | 'missing-dependency';
   blockWrite?: 'preload.mjs' | 'facade.mjs';
@@ -66,6 +67,7 @@ describe('Pi: scoped compile-cache preload investigation', () => {
     // A crash, failed assertion, permission denial, or incomplete child never leaves a success receipt.
     await verdict('blocked/inconclusive', 'Investigation has not completed.');
 
+    await proveBootstrapGate();
     await proveLinkAndWindow();
     await proveControls();
     await proveMatchingAndRepetition();
@@ -80,6 +82,110 @@ describe('Pi: scoped compile-cache preload investigation', () => {
         'in-window unrelated work are disqualified. Injected ESM hook exceptions are suppressed; ' +
         'no general hook-error guarantee. Official npm-bin startup remains untested.',
     );
+
+    async function proveBootstrapGate() {
+      // Independent complete production entry; no diagnostic bootstrap override in these runs.
+      const entry = Str.dedent(`
+        #!/usr/bin/env node
+        import { createRequire, enableCompileCache } from "node:module";
+
+        enableCompileCache();
+        createRequire(import.meta.url)("./cli-runtime.js");
+      `);
+      const files = {
+        'cli.mjs': entry,
+        'cli-runtime.js': "console.info('RUNTIME entered');",
+        'neighbor.mjs': "console.info('NEIGHBOR executed');",
+      };
+      for (const newline of ['\n', '\r\n']) {
+        const adapted = await run('production-bootstrap', 'startup', {
+          ...files,
+          // Line endings and terminal newlines are not executable changes.
+          'cli.mjs': entry.replaceAll('\n', newline) + newline,
+        }, { productionBootstrap: true });
+        expectSuccess(adapted);
+        expectBefore(adapted, 'PRELOAD registered', 'PRELOAD deregistered');
+        expectBefore(adapted, 'PRELOAD deregistered', 'RUNTIME entered');
+        expect(events(adapted, 'PRELOAD resolve ')).to.have.length(3);
+      }
+
+      for (
+        const changed of [
+          entry.replace('enableCompileCache();', "enableCompileCache('directory');"),
+          entry.replace(
+            'enableCompileCache();',
+            "await import('./neighbor.mjs'); enableCompileCache();",
+          ),
+          `${entry}\nimport './neighbor.mjs';`,
+        ]
+      ) {
+        const rejected = await run('changed-bootstrap', 'startup', {
+          ...files,
+          'cli.mjs': changed,
+        }, { productionBootstrap: true });
+        expectMissingExport(rejected);
+        expect(rejected.stdout).to.include('PRELOAD unmatched bootstrap');
+        expect(events(rejected, 'PRELOAD resolve ')).to.eql([]);
+        expect(rejected.stdout).not.to.include('PRELOAD registered');
+        expect(rejected.stdout).not.to.include('RUNTIME entered');
+        expect(rejected.stdout).not.to.include('NEIGHBOR executed');
+      }
+
+      const native = await run('native-bootstrap', 'startup', {
+        'cli.mjs': "console.info('MAIN unadapted'); await import('./neighbor.mjs');",
+        'neighbor.mjs': "console.info('NEIGHBOR executed');",
+      }, { productionBootstrap: true });
+      expectSuccess(native);
+      expect(native.stdout).to.include('MAIN unadapted');
+      expect(native.stdout).to.include('NEIGHBOR executed');
+      expect(native.stdout).to.include('PRELOAD unmatched bootstrap');
+      expect(native.stdout).not.to.include('PRELOAD registered');
+
+      for (
+        const [name, operation, reason] of [
+          ['bare', "await import('neighbor' + '.mjs');", 'Import "neighbor.mjs" not a dependency'],
+          [
+            'attribute',
+            "await import('./neighbor.mjs', { with: { unsupported: 'value' } });",
+            '"unsupported" attribute is not supported.',
+          ],
+        ]
+      ) {
+        for (const mode of ['none', 'startup'] as const) {
+          const rejected = await run(`unmatched-${name}`, mode, {
+            'cli.mjs': operation,
+            'neighbor.mjs': "console.info('NEIGHBOR executed');",
+          }, { productionBootstrap: true });
+          expect(rejected.code).to.eql(1);
+          expect(rejected.stderr).to.include(reason);
+          expect(rejected.stdout).not.to.include('PRELOAD registered');
+          expect(rejected.stdout).not.to.include('NEIGHBOR executed');
+        }
+      }
+
+      // Fault injection proves read ordering without requesting or broadening child permissions.
+      for (const present of [false, true]) {
+        const observed = await run('entry-read-failure', 'startup', {
+          'controlled.mjs': Str.dedent(`
+            ${present ? 'export const enableCompileCache = undefined;' : ''}
+            Deno.readTextFileSync = () => { throw new Error('ENTRY read failure'); };
+            export function registerHooks() { throw new Error('Unexpected hook installation'); }
+          `),
+          'cli.mjs': "console.info('MAIN unadapted');",
+        }, { productionBootstrap: true, module: './controlled.mjs' });
+        expect(observed.stdout).not.to.include('PRELOAD registered');
+        expect(observed.stderr).not.to.include('Unexpected hook installation');
+        if (present) {
+          expectSuccess(observed);
+          expect(observed.stdout).to.include('PRELOAD present');
+          expect(observed.stdout).to.include('MAIN unadapted');
+        } else {
+          expect(observed.code).to.eql(1);
+          expect(observed.stderr).to.include('Error: ENTRY read failure');
+          expect(observed.stdout).not.to.include('MAIN unadapted');
+        }
+      }
+    }
 
     async function proveLinkAndWindow() {
       const files = {
@@ -533,7 +639,7 @@ describe('Pi: scoped compile-cache preload investigation', () => {
       expect(environment()).to.eql(before);
       const [left, right] = pair;
       expect(left.root).not.to.eql(right.root);
-      expect(left.artifacts['preload.mjs']).to.eql(right.artifacts['preload.mjs']);
+      // Diagnostic preloads carry each fixture's distinct bootstrap; facade behavior is identical.
       expect(left.artifacts['facade.mjs']).to.eql(right.artifacts['facade.mjs']);
       expect(left.artifacts['cli.mjs']).not.to.eql(right.artifacts['cli.mjs']);
       for (const key of ['HOME', 'DENO_DIR', 'TMPDIR', 'TMP', 'TEMP']) {
@@ -586,6 +692,8 @@ describe('Pi: scoped compile-cache preload investigation', () => {
       const generated = preloadSources({
         lifetime: mode === 'startup' ? 'startup' : 'persistent',
         module: options.module,
+        // Synthetic falsification graphs are not production-eligible bootstraps.
+        bootstrap: options.productionBootstrap ? undefined : files['cli.mjs'],
       });
       const facade = options.facade === 'syntax'
         ? 'export const = ;'

@@ -7,15 +7,14 @@ deno task test:compat:admit
 deno task test:compat:host
 ```
 
-Both default to dependency authority. To investigate one exact official release, pass the same
-`--pi-version` to both tasks. For example, the historical negative reproduction is:
+Both default to dependency authority. To investigate another official release, pass the same
+`--pi-version` to both tasks. For example, the recovery control is:
 
 ```sh
-deno task test:compat:admit --pi-version=0.86.1
-deno task test:compat:host --pi-version=0.86.1
+deno task test:compat:admit --pi-version=0.85.1
+deno task test:compat:host --pi-version=0.85.1
 ```
 
-On Deno 2.9.7 this verification **fails**, with the npm CLI's missing `enableCompileCache` export.
 There is no expected-failure acceptance mode or assertion that an old release must fail forever. Use
 `deno task test:compat:unit` for the small input/argv regressions.
 
@@ -66,37 +65,46 @@ candidate pass.
   does not establish remote-provider compatibility. A passing recovery control does not establish
   compatibility of the current dependency-selected release.
 
-## Scoped Pi 1.4.0 startup preload proof
+## Bootstrap-scoped preload proof
 
-The startup and quiet-production host checks passed on **Deno 2.9.8, aarch64-apple-darwin**. This
-records a verified runtime, not a supported minimum or a guarantee for other Deno versions.
-Admission metadata alone is not startup proof.
+The production adapter is not version-gated. Root `deno task upgrade` updates `deps.yaml`, import
+projections, the generated release fallback and installed dependencies. Package `prep` / `prep:deps`
+refresh that same fallback; no adapter version needs editing. Normal upgrade policy and standdown
+still apply.
+
+Official 1.4.0 and 1.5.2 hosts have passed on **Deno 2.9.8, aarch64-apple-darwin**. This records
+verified releases and a runtime, not an allowlist, supported minimum or future compatibility
+promise. Admission metadata alone is not startup proof.
+
+After admission, run against the current dependency selection:
 
 ```sh
 deno task test:compat:preload
-deno task test:compat:admit --pi-version=1.4.0
 deno task test:compat:startup
-deno task test:compat:host --pi-version=1.4.0
+deno task test:compat:host
 ```
 
-`test:compat:preload` owns synthetic lifetime, failure, identity and concurrency controls; it does
-not execute Pi. The startup task pins Pi 1.4.0, and the explicit host version keeps this recipe
-release-specific even after dependency authority changes. The default-selection recipe above tests
-that authority separately.
+The startup and host tasks both accept `--pi-version` for explicit release investigations.
+`test:compat:preload` owns synthetic bootstrap eligibility, lifetime, failure, identity and
+concurrency controls; it does not execute Pi. Production-guard controls use the default bootstrap
+contract; other synthetic graphs pass explicit diagnostic bootstrap sources to preserve adverse
+controls.
 
 The synthetic controls show why the startup window is a safety requirement: persistent hooks and
 unrelated loading before deregistration accept bare imports and import attributes that baseline
-execution rejects. Support depends on the inspected bootstrap calling the fallback before other
-runtime work. Any bootstrap change requires a new containment assessment, not merely extending the
-version guard.
+execution rejects. Before installing any hook, the preload reads the actual `Deno.mainModule` and
+compares its complete source with the closed bootstrap contract, normalizing CRLF and surrounding
+whitespace only. That bootstrap calls the fallback before other runtime work. No version comparison,
+package resolver or cached approval stands in for this check.
 
 The startup task reuses this reporting-host fixture and the production generator with diagnostic
-tracing enabled. Before substitution it asserts exactly one owned production preload, its position
-immediately before the npm executable, and both materialized source files. It removes only that
-Deno-prefix flag, preserving Pi passthrough arguments. Two fresh children then use the same admitted
-fixture and launch vector, differing only by the diagnostic `--preload` flag. The no-preload child
-must expose the missing-export baseline; if it works, stop and reassess instead of adding an
-obsolete shim. The candidate must initialize and settle successfully.
+tracing enabled. Before substitution it asserts exactly one owned production preload and its
+position immediately before the npm executable. It removes only that Deno-prefix flag, preserving Pi
+passthrough arguments. Two fresh children then use the same admitted fixture and launch vector,
+differing only by the diagnostic `--preload` flag. The no-preload child must expose the
+missing-export baseline; if it works, stop and reassess instead of adding an obsolete shim. The
+candidate must initialize and settle successfully. The separate quiet production run executes the
+materialized adapter without substitution.
 
 Assertions cover the complete five-line official bootstrap, resolved npm-bin identity, exactly three
 active hook edges, synchronous deregistration before runtime loading, real `createRequire` identity,
@@ -113,22 +121,27 @@ reporting fixture's child restrictions and shared evidence limits apply unchange
 
 ### Production, recovery and lifecycle checks
 
-For exactly `npm:@earendil-works/pi-coding-agent@1.4.0`, the launcher creates a quiet, per-launch
-Deno preload before the untouched official npm executable. When `node:module` lacks the named
-`enableCompileCache` export, only the main import receives a facade preserving the real exports. Its
-zero-argument fallback returns disabled status and synchronously deregisters the hook before Pi
-loads its runtime. Present exports, including invalid values, are not replaced. Other package
-selections receive no preload; this is not a general Node compatibility layer.
+For the official Pi package, the launcher creates a quiet, per-launch Deno preload before the
+untouched npm executable, regardless of selected version. When `node:module` lacks the named
+`enableCompileCache` export and the entry matches the bootstrap contract, only the main import
+receives a facade preserving the real exports. Its zero-argument fallback returns disabled status
+and synchronously deregisters the hook before Pi loads its runtime.
+
+Present exports, including invalid values, are not replaced and require no entry read. Unmatched
+entries run with native loader behavior, without hooks; an incompatible upstream rewrite may still
+fail natively. Entry-read failures propagate before registration. The single native read is an
+approved boundary exception to keep this preload dependency-free, under existing permissions.
+Foreign packages receive no preload. This is not a general Node compatibility layer.
 
 Owned adapter files live under `.pi/@sys/tmp/pi-preload.*`. They are removed after known pre-spawn
 failure or confirmed child exit. An uncertain launch/status rejection retains and reports the
 folder; cleanup failure is reported without replacing the original error or exit status. Child
 permissions and inherited terminal IO are unchanged.
 
-`test:compat:host --pi-version=1.4.0` runs the quiet production adapter without substitution and
-checks cleanup after confirmed child exit. `--pi-version=0.85.1` exercises recovery with no adapter.
-Raw-run unit tests own pre-spawn failure, uncertain-settlement retention/reporting, cleanup-failure,
-exit-status, concurrent-launch, and exact-selection assertions. `test:host` reuses the admitted
-cache/lock for the canonical ZIP host, adds frozen/offline restrictions without replacing the
-production preload, and verifies the public queue binding and generated extraction with a scripted
-local provider.
+`test:compat:host` runs the quiet production preload without substitution and checks cleanup after
+confirmed child exit. `--pi-version=0.85.1` exercises recovery through an unmatched bootstrap with
+native loader behavior. Raw-run unit tests own successive manifest selections, pre-spawn failure,
+uncertain-settlement retention/reporting, cleanup-failure, exit-status and concurrent-launch
+assertions. `test:host` reuses the admitted cache/lock for the canonical ZIP host, adds
+frozen/offline restrictions without replacing the production preload, and verifies the public queue
+binding and generated extraction with a scripted local provider.

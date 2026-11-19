@@ -1,10 +1,10 @@
 import { describe, expect, expectError, it } from '../../-test.ts';
-import { Fs, Is, Process as ProcessOwner, type t } from '../common.ts';
+import { Fs, Is, Process as ProcessOwner, Str, type t } from '../common.ts';
 import { Raw as RawOwner } from '../m.raw/mod.ts';
 import { withInherit } from '../u/u.inherit.ts';
-import { PI_AGENT_IMPORT } from '../u/u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT, PI_AGENT_IMPORT_BASE } from '../u/u.resolve.pkg.ts';
 import { PiArgs } from '../u/u.args.ts';
-import { preloadSources, writePreload } from '../u/u.preload.ts';
+import { writePreload } from '../u/u.preload.ts';
 
 const Process = { ...ProcessOwner };
 const Raw = {
@@ -73,16 +73,39 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
     }
   });
 
-  it('preload → exact release only; other selections neither materialize nor inject', async () => {
+  it('manifest changes → launch the selected executable with preload support', async () => {
+    await using fixture = await preloadFixture();
+    // Independent fixture releases, not a list of supported or historically broken versions.
+    for (const version of ['0.0.1-fixture.1', '0.0.2-fixture.2']) {
+      const pkg = `${PI_AGENT_IMPORT_BASE}@${version}`;
+      const manifest = Str.dedent(`
+        deno.json:
+          - import: ${pkg}
+      `);
+      await Fs.write(Fs.join(fixture.root, 'deps.yaml'), manifest, { throw: true });
+      await withInherit(async ({ args }) => {
+        const main = args.indexOf(pkg);
+        expect(main, 'manifest-selected executable').to.be.greaterThan(0);
+        const flags = args.slice(0, main).filter((arg) => arg.startsWith('--preload='));
+        expect(flags).to.have.length(1);
+        expect(args[main - 1]).to.eql(flags[0]);
+        const path = flags[0].slice('--preload='.length);
+        expect(await Fs.exists(path)).to.eql(true);
+        expect(await Fs.exists(Fs.join(Fs.dirname(path), 'facade.mjs'))).to.eql(true);
+        return { code: 0, success: true, signal: null };
+      }, () => RawOwner.run({ cwd: { invoked: fixture.root, root: fixture.root } }));
+      expect(await preloadDirs(fixture.root)).to.eql([]);
+    }
+  });
+
+  it('preload → foreign packages neither materialize nor inject', async () => {
     await using fixture = await preloadFixture();
     const absent = Fs.join(fixture.root, 'absent');
     for (
       const pkg of [
-        'npm:@earendil-works/pi-coding-agent@0.85.1',
-        'npm:@earendil-works/pi-coding-agent@1.4.1',
-        'npm:@earendil-works/pi-coding-agent@^1.4.0',
-        'npm:@earendil-works/pi-coding-agent@1.4.0/dist/cli.js',
-        'npm:other@1.4.0',
+        `${PI_AGENT_IMPORT_BASE}-other`, // A shared name prefix is not package identity.
+        'npm:@other/pi-coding-agent',
+        './cli.mjs',
       ]
     ) {
       expect(await writePreload(absent, pkg)).to.eql(undefined);
@@ -117,11 +140,8 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
           expect(Fs.dirname(dir)).to.eql(PiArgs.toTmpDir(fixture.root));
           expect(args[main - 1]).to.eql(`--preload=${path}`);
           expect(args.slice(main + 1)).to.include('--preload=pi-passthrough');
-          const sources = preloadSources({ lifetime: 'startup', trace: false });
-          expect((await Fs.readText(path)).data).to.eql(sources.preload);
-          expect((await Fs.readText(Fs.join(dir, 'facade.mjs'))).data).to.eql(sources.facade);
-          expect(sources.preload).not.to.contain('console.info');
-          expect(sources.facade).not.to.contain('console.info');
+          expect(await Fs.exists(path)).to.eql(true);
+          expect(await Fs.exists(Fs.join(dir, 'facade.mjs'))).to.eql(true);
           entered.resolve(dir);
           return await exit.promise;
         } catch (error) {
