@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-components",
-  "version": "0.0.341",
+  "version": "0.0.342",
   "license": "MIT",
   "tasks": {
     "prep": "deno run -P=dev ./-scripts/task.prep.ts",
