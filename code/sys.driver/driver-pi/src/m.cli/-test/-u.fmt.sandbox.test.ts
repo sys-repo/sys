@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { c, Cli, Path, pkg, Str, type t } from '../common.ts';
 import { PiSandboxFmt } from '../u/u.fmt.sandbox.ts';
+import { PI_AGENT_IMPORT_BASE } from '../u/u.resolve.pkg.ts';
 
 type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
   readonly permissions?: t.PiCli.PermissionMode;
@@ -121,10 +122,11 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
   describe('readable launch sheet', () => {
     for (const stage of ['preview', 'launch-input'] as const) {
       it(`${stage} → complete specimen with settings, not runtime attestation`, () => {
+        const sampleVersion = '7.8.9'; // Synthetic display input, never the dependency selection.
         const launch: t.PiCli.LaunchIdentity = {
           stage,
           resolvedAt: '2001-02-03T04:05:06.000Z',
-          upstream: 'unknown',
+          upstream: `${PI_AGENT_IMPORT_BASE}@${sampleVersion}`,
           upstreamExplicit: false,
           profile: '/tmp/report/profile.yaml',
           system: 'default',
@@ -141,6 +143,7 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
         const body = lines(text).slice(2, -1).map((line) => line.trimEnd()).join('\n');
 
         expect(body).to.eql(Str.dedent(`
+          Pi version         ${sampleVersion}
           Deno permissions   scoped
           Process sandbox    not provided by Pi-Driver
           Outer sandbox      <unknown>
@@ -164,6 +167,35 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
       expect(row).not.to.contain(c.green('<unknown>'));
       expect(raw).to.contain(c.yellow('not provided by Pi-Driver'));
       expect(raw).not.to.contain('Report snapshot');
+    });
+  });
+
+  describe('selected Pi version', () => {
+    const redacted = 'custom (redacted; identity unknown)';
+
+    it('unresolved and custom selections → no numeric identity', () => {
+      const cases = [
+        ['unknown', '<unknown>'],
+        [redacted, redacted],
+        [`${PI_AGENT_IMPORT_BASE}@latest`, redacted],
+      ];
+      for (const [upstream, expected] of cases) {
+        const rows = PiSandboxFmt.header('scoped', { upstream, width: 80 });
+        const row = rows.map(Cli.stripAnsi).find((line) => line.startsWith('Pi version'));
+        expect(row?.trim().split(/\s{2,}/)).to.eql(['Pi version', expected]);
+      }
+    });
+
+    it('credential-bearing selection → redacted even in raw narrow-terminal output', () => {
+      const secret = 'PRIVATE_PACKAGE_TOKEN';
+      const upstream = `https://user:${secret}@example.com/agent.ts`;
+      const width = 16;
+      const rows = PiSandboxFmt.header('scoped', { upstream, width, terminal: true });
+      const raw = rows.join('\n');
+      expect(raw).not.to.contain(secret);
+      const text = Str.replaceAll(Cli.stripAnsi(raw), /\s+/g, ' ').after;
+      expect(text).to.contain(`Pi version ${redacted}`);
+      for (const row of rows) expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width - 1);
     });
   });
 
@@ -301,7 +333,8 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
 
       const renderWidth = width - 1;
       expectHeaderFrame(text, renderWidth);
-      expect(output.slice(2, 7).map((line) => line.trimEnd())).to.eql(lines(Str.dedent(`
+      expect(output.slice(2, 8).map((line) => line.trimEnd())).to.eql(lines(Str.dedent(`
+        Pi version         <unknown>
         Deno permissions   scoped
         Process sandbox    not provided by Pi-Driver
         Outer sandbox      <unknown>

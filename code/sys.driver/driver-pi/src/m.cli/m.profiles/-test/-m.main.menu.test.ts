@@ -4,7 +4,7 @@ import { Process as ProcessOwner } from '../../common.ts';
 import { mainWith as mainWithOwner } from '../m.main.ts';
 import { Profiles as ProfilesOwner } from '../mod.ts';
 import { withInherit } from '../../u/u.inherit.ts';
-import { PI_AGENT_IMPORT, PI_AGENT_IMPORT_BASE } from '../../u/u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT_BASE } from '../../u/u.resolve.pkg.ts';
 import { PiSandboxReport } from '../../u/u.report.sandbox.ts';
 
 type MainWithDeps = NonNullable<Parameters<typeof mainWithOwner>[1]>;
@@ -118,13 +118,21 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
     const events: string[] = [];
     const frames: string[] = [];
     const reports: Array<{ path: t.StringPath; sandbox: t.PiCli.SandboxSummary }> = [];
-    const selectedPkg = `${PI_AGENT_IMPORT_BASE}@0.83.0` as const;
+    const workspaceVersion = '2.3.4';
+    const overrideVersion = '7.8.9';
+    const workspacePkg = `${PI_AGENT_IMPORT_BASE}@${workspaceVersion}`;
+    const selectedPkg = `${PI_AGENT_IMPORT_BASE}@${overrideVersion}`;
     let topLevelCount = 0;
     let launchCount = 0;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
       await Fs.ensureDir(Fs.dirname(config));
       await Fs.write(config, 'sandbox: {}\n');
+      const deps = Str.dedent(`
+        deno.json:
+          - import: ${workspacePkg}
+      `);
+      await Fs.write(Fs.join(cwd, 'deps.yaml'), deps);
       console.info = (value?: unknown) => calls.push(String(value ?? ''));
       screen.repaint = (frame) => {
         frames.push(frame);
@@ -179,6 +187,10 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       expect(frame).to.contain('sys:pi');
       expect(frame).to.match(/Report snapshot\s+launch settings/);
       expect(printed).to.match(/Report snapshot\s+preview settings/);
+      const versionOf = (sheet: string) => sheet.match(/^Pi version\s+(.+)$/m)?.[1].trim();
+      const menus = calls.map(Cli.stripAnsi).filter((sheet) => sheet.startsWith('sys:pi'));
+      expect(menus.map(versionOf)).to.eql([workspaceVersion, workspaceVersion]);
+      expect(versionOf(frame), 'launch').to.eql(overrideVersion);
       expect(frame).to.match(/Deno permissions\s+scoped/);
       expect(frame).to.contain('.sandbox.log.md');
       expect(printed.match(/Report snapshot/g)?.length).to.eql(1);
@@ -202,7 +214,7 @@ describe(`@sys/driver-pi/cli/Profiles/m.main/menu`, () => {
       expect(previewText.ok).to.eql(true);
       expect(launchText.ok).to.eql(true);
       expect(previewText.data).to.contain('- observation: preview');
-      expect(previewText.data).to.contain(`- upstream selection: ${PI_AGENT_IMPORT}`);
+      expect(previewText.data).to.contain(`- upstream selection: ${workspacePkg}`);
       expect(launchText.data).to.contain('- observation: launch-input');
       expect(launchText.data).to.contain(`- upstream selection: ${selectedPkg}`);
       expect(launchText.data).to.contain('- selected tools: unknown');
