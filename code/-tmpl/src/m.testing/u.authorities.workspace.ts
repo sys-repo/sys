@@ -73,7 +73,9 @@ async function buildWorkspaceAuthorities(
 async function findBareImports(root: string) {
   const specifiers = new Set<string>();
   const glob = Fs.glob(root);
-  const files = await glob.find('**/*.{ts,tsx,js,jsx,mts,mtsx}', { includeDirs: false });
+  // Prune only member-local scratch, launcher cache and installed dependency roots.
+  const exclude = ['.tmp', '.pi/@sys/tmp', 'node_modules'].map((dir) => Fs.join(root, dir));
+  const files = await glob.find('**/*.{ts,tsx,js,jsx,mts,mtsx}', { exclude, includeDirs: false });
 
   for (const file of files) {
     const res = await Fs.readText(file.path);
