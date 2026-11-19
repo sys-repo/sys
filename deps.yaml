@@ -23,7 +23,7 @@ deno.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.68.3
+  - import: npm:rollup@4.68.4
     dev: true
   - import: npm:vite@8.3.8
     dev: true
@@ -33,7 +33,7 @@ deno.json:
     dev: true
   - import: npm:magic-string@1.4.5
     dev: true
-  - import: npm:@oxc-project/runtime@0.158.0
+  - import: npm:@oxc-project/runtime@0.159.0
     dev: true
     subpaths: [ helpers/usingCtx ]
   - import: npm:parse5@8.1.1
@@ -80,7 +80,7 @@ deno.json:
   - import: npm:fast-json-patch@3.1.1
   - import: npm:happy-dom@20.14.6
   - import: npm:hash-it@7.1.1
-  - import: npm:hono@4.13.18
+  - import: npm:hono@4.13.19
     subpaths: [ cors, types ]
   - import: npm:ignore@7.0.14
   - import: npm:ora@9.4.1
@@ -113,7 +113,7 @@ package.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.68.3
+  - import: npm:rollup@4.68.4
     dev: true
   - import: npm:vite@8.3.8
     dev: true
@@ -123,7 +123,7 @@ package.json:
     dev: true
   - import: npm:magic-string@1.4.5
     dev: true
-  - import: npm:@oxc-project/runtime@0.158.0
+  - import: npm:@oxc-project/runtime@0.159.0
     dev: true
     subpaths: [ helpers/usingCtx ]
   - import: npm:parse5@8.1.1
