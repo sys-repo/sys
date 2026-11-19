@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { HttpOrigin } from '../mod.ts';
 import { Sample, type SampleName } from './-samples.ts';
@@ -45,14 +46,20 @@ export async function createDebugSignals() {
     width: s(snap.width),
   };
   const p = props;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.env = p.env.value;
+        d.verify = p.verify.value;
+        d.controlled = p.controlled.value;
+        d.sample = p.sample.value;
+        d.width = p.width.value;
+      });
+    },
+  });
   const controller = HttpOrigin.controller({ env: p.env });
-  const api = {
-    props,
-    controller,
-    listen,
-    reset,
-    sample,
-  };
 
   function listen() {
     Signal.listen(props, true);
@@ -68,19 +75,7 @@ export async function createDebugSignals() {
     return key ? Sample[key] : undefined;
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.env = p.env.value;
-      d.verify = p.verify.value;
-      d.controlled = p.controlled.value;
-      d.sample = p.sample.value;
-      d.width = p.width.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach, controller, sample };
 }
 
 const Styles = {
@@ -137,14 +132,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button
         block
         label={() => `sample: ${p.sample.value ?? '(undefined)'}`}
-        onClick={() =>
+        onClick={() => {
           Signal.cycle<SampleName | undefined>(p.sample, [
             'overflow',
             'cdn',
             'fs.db.team',
             'media',
             undefined,
-          ])}
+          ]);
+        }}
       />
       <Dev.Button
         block

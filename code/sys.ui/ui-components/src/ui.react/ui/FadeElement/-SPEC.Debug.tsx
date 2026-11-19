@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { Color, css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.FadeElementProps;
@@ -20,17 +21,17 @@ export function createDebugSignals() {
     duration: s<P['duration']>(1500), // NB: super slow for clarity while debugging.
     children: s<P['children']>('👋 Hello'),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.fixedSize.value;
-      p.theme.value;
-      p.children.value;
-      p.duration.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.fixedSize.value;
+    p.theme.value;
+    p.children.value;
+    p.duration.value;
+  }
+
+  return { props, listen, attach };
 }
 
 /**

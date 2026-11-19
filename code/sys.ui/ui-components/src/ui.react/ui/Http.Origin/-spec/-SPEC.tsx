@@ -1,13 +1,17 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { HttpOrigin } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
   const p = debug.props;
 
   function Root() {
+    return p.controlled.value ? <RootControlled /> : <RootUncontrolled />;
+  }
+
+  function RootUncontrolled() {
     const v = Signal.toObject(p);
     const props = debug.controller.view();
     return (
@@ -37,20 +41,17 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    update();
-    function update() {
-      ctx.subject.size([p.width.value, null]);
-      debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-
-    ctx.subject
-      //
-      .display('grid')
-      .render(() => (p.controlled.value ? <RootControlled /> : <Root />));
+    debug.attach(ctx, {
+      subject: { display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          ctx.subject.size([p.width.value, null]);
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {
