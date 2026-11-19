@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, Icons, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { IconSwatches } from '../mod.ts';
 
@@ -38,11 +39,18 @@ export function createDebugSignals() {
     items: s<t.IconSwatchItem[]>(),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.minSize = p.minSize.value;
+        d.maxSize = p.maxSize.value;
+        d.percent = p.percent.value;
+        d.selected = p.selected.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -58,19 +66,8 @@ export function createDebugSignals() {
     setIcons();
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.minSize = p.minSize.value;
-      d.maxSize = p.maxSize.value;
-      d.percent = p.percent.value;
-      d.selected = p.selected.value;
-    });
-  });
-
   setIcons();
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

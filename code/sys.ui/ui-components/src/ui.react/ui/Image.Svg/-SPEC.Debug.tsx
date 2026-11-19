@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { Color, css, Dev, Signal, type t } from './-spec/common.ts';
 
 /**
@@ -22,19 +23,19 @@ export function createDebugSignals() {
     importStyle: s<DebugImportStyle>('Function → Promise'),
     image: s<DebugImage>('Small'),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.width.value;
-      p.image.value;
-      p.color.value;
-      p.image.value;
-      p.importStyle.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.width.value;
+    p.image.value;
+    p.color.value;
+    p.image.value;
+    p.importStyle.value;
+  }
+
+  return { props, listen, attach };
 }
 
 /**

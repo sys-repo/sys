@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { Color, css, Dev, Signal, Str, type t } from './-spec/common.ts';
 
 const local = new URL(`${location.origin}${location.pathname}`);
@@ -24,18 +25,19 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     loading: s<t.IFrameProps['loading']>(),
     sandbox: s<t.IFrameSandbox[] | undefined>(),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.src.value;
-      p.showBackground.value;
-      p.allowFullScreen.value;
-      p.loading.value;
-      p.sandbox.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.src.value;
+    p.showBackground.value;
+    p.allowFullScreen.value;
+    p.loading.value;
+    p.sandbox.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }
