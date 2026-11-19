@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Bullet, Button, Color, css, Languages } from '../common.ts';
+import { Bullet, Color, css, Dev, Languages, type t } from './common.ts';
 
 export type LanguagesListProps = {
   current?: t.EditorLanguage;
@@ -64,7 +64,7 @@ function Language(props: {
   return (
     <div key={language} className={styles.base.class}>
       <Bullet selected={isSelected} />
-      <Button block label={() => language} onClick={() => onSelect?.({ language })} />
+      <Dev.Button block label={() => language} onClick={() => onSelect?.({ language })} />
     </div>
   );
 }

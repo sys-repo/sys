@@ -1,9 +1,8 @@
-import { Button } from '../../u.ts';
 import { Anchor } from '../../Anchor/mod.ts';
 import { Buttons as ButtonFamily } from '../../Buttons/mod.ts';
 import { Chip } from '../../Chip/mod.ts';
 import { ProseMarkdown } from '../mod.ts';
-import { css, type t } from './common.ts';
+import { css, Dev, type t } from './common.ts';
 import { MarkdownSample, type SampleItem, type SampleKind } from './-samples/mod.ts';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
@@ -31,7 +30,7 @@ function Buttons(props: SampleButtonsProps) {
     const sample = MarkdownSample.get(kind);
     const selected = p.sample.value === kind;
     return (
-      <Button
+      <Dev.Button
         key={kind}
         block
         label={renderButtonLabel({ kind, sample, selected, theme })}

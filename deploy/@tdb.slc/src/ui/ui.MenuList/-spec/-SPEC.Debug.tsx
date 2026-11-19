@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { css, D, Dev, Signal, type t } from './common.ts';
 import { Sample } from './-SPEC.sample.tsx';
 
 type P = t.MenuListProps;
@@ -69,12 +69,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debug:stateful: ${p.debugStateful.value}`}
         onClick={() => {
@@ -86,7 +86,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           }
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debug:multi-select: ${p.debugMultiselect.value}`}
         onClick={() => {
@@ -97,19 +97,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `selected: ${p.selected.value ?? `<undefined> (default: ${D.selected})`}`}
         onClick={() => Signal.cycle(p.selected, [D.selected, 0, [1, 2], undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const items = p.items.value;
@@ -123,7 +123,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
+      <Dev.ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
     </div>
   );
 };

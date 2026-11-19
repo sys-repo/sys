@@ -1,11 +1,11 @@
 import React from 'react';
-import { type t, Color, css, D } from './common.ts';
+import { Color, css, D, type t } from './common.ts';
 
 type P = t.BulletProps;
 
 /** Small status bullet with selected and filled states. */
 export const Bullet: React.FC<P> = (props) => {
-  const { colorTransition = 0 } = props;
+  const { colorTransition = 0, borderOpacity = D.borderOpacity } = props;
   const Size = props.size ?? D.size;
 
   /**
@@ -23,7 +23,7 @@ export const Bullet: React.FC<P> = (props) => {
     }),
     body: css({
       borderRadius: '50%',
-      border: `solid 1px ${Color.alpha(theme.fg, 0.16)}`,
+      border: `solid 1px ${Color.alpha(theme.fg, borderOpacity)}`,
       backgroundColor,
       transition: colorTransition ? `background-color ${colorTransition}ms ease` : undefined,
     }),

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, Signal } from '../u.ts';
+import { css, Dev, Signal, type t } from './-spec/common.ts';
 import { Preload } from './mod.ts';
 
 type O = t.PreloadOptions;
@@ -57,7 +57,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'PreloadPortal'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const msecs = p.lifetime.value;
@@ -68,7 +68,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => 'Preload.render( 🌳 )'}
         onClick={async () => {

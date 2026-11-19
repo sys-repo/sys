@@ -3,18 +3,7 @@ import { DataCards } from '../../-dev/ui.Http.DataCards/mod.ts';
 import { createCardOrchestrator } from './-u.data-card.orchestrator.ts';
 import { createDataCards } from './-u.data-cards.ts';
 import { useEffectControllers } from './-use.EffectControllers.ts';
-import {
-  type t,
-  Button,
-  Color,
-  css,
-  D,
-  Dev,
-  Is,
-  LocalStorage,
-  ObjectView,
-  Signal,
-} from './common.ts';
+import { Color, css, D, Dev, Is, LocalStorage, Signal, type t, UiDev } from './common.ts';
 
 type Storage = {
   debug?: boolean;
@@ -175,16 +164,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {createDataCards(debug)}
 
       <hr style={{ marginTop: 60, borderTopWidth: 4, opacity: 0.5 }} />
-      <Button
+      <UiDev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView name={'content'} data={content} style={{ marginTop: 5 }} expand={0} />
-      <ObjectView name={'selection'} data={selection} style={{ marginTop: 5 }} expand={0} />
+      <UiDev.Button
+        block
+        label={() => `debug: ${v.debug}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <UiDev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <UiDev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <UiDev.ObjectView name={'content'} data={content} style={{ marginTop: 5 }} expand={0} />
+      <UiDev.ObjectView name={'selection'} data={selection} style={{ marginTop: 5 }} expand={0} />
 
       <div style={{ height: 50 }} />
     </div>

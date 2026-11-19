@@ -13,6 +13,8 @@ import {
   Try,
 } from '../../-test.ts';
 import { writeLocalFixtureImports } from '../../m.vite/-test/u.bridge.fixture.ts';
+import { runProbe } from '../-test.external/u.fixture.probe.ts';
+import { assertRunOk } from '../-test.external/u.fixture.run.ts';
 import { Vite } from '../mod.ts';
 import type { ViteDevDeps } from '../t.internal.ts';
 import { devWithDeps } from '../u.dev/mod.ts';
@@ -26,6 +28,38 @@ const DEV_ENTRY_RETRY_TIMEOUT = 5_000 as t.Msecs;
 const DEV_ENTRY_RETRY_INTERVAL = 100 as t.Msecs;
 
 describe('Vite.dev', () => {
+  it('trusted caller → ordinary build/dev with absent and independent Deno configuration', async () => {
+    const policy = ['--frozen', '--cached-only', '--no-prompt'];
+    const result = await runProbe({
+      name: 'trusted-build-dev',
+      denoArgs: ['run', '-A', '--node-modules-dir=auto', ...policy],
+      source: Str.dedent(`
+        import { expect, Fs } from './src/-test.ts';
+        import { Vite } from './src/m.vite/mod.ts';
+        import { createNativeBuildFixture } from './src/m.vite/-test/u.fixture.build.native.ts';
+
+        for (const independent of [false, true]) {
+          await using fixture = await createNativeBuildFixture('Vite.trusted-build-dev');
+          const cwd = fixture.cwd;
+          if (independent) {
+            const config = { workspace: [], nodeModulesDir: 'auto' };
+            await Fs.writeJson(Fs.join(cwd, 'deno.json'), config, { throw: true });
+          }
+          const build = await Vite.build({ cwd, silent: true, spinner: false, exitOnError: false });
+          expect(build.ok, build.cmd.output.toString()).to.eql(true);
+          expect(await Fs.exists(Fs.join(cwd, 'dist/index.html'))).to.eql(true);
+
+          await using server = await Vite.dev({ cwd, silent: true });
+          const response = await fetch(server.url);
+          const html = await response.text();
+          expect(response.status).to.eql(200);
+          expect(html).to.include('Native producer control');
+        }
+      `),
+    });
+    assertRunOk(result, 'Trusted ordinary build/dev failed');
+  });
+
   /**
    * Dev Mode: long-running child process running the Vite server.
    * Uses Deno's NPM compatibility layer.

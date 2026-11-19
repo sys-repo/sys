@@ -7,13 +7,7 @@ describe('Vite external std try runtime', () => {
     const res = await runProbe({
       name: 'std-try-runtime',
       source: PROBE_SOURCE,
-      denoArgs: [
-        'run',
-        '-P=test',
-        '--no-lock',
-        '--allow-import=jsr.io,localhost',
-        '--node-modules-dir=auto',
-      ],
+      denoArgs: ['run', '-A', '--no-lock', '--node-modules-dir=auto'],
     });
     assertRunOk(res, 'std/try runtime probe failed');
 

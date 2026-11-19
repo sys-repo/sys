@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { Color, css, Dev, Signal, type t } from './-spec/common.ts';
 
 /**
  * Types:
@@ -61,9 +61,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={styles.title.class}>{'Landing-2'}</div>
       <hr />
 
-      <Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={`debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
 
-      <Button
+      <Dev.Button
         block
         label={`theme: "${p.theme}"`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -71,7 +71,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={`backgroundVideo: ${p.backgroundVideo}`}
         onClick={() => Signal.cycle(p.backgroundVideo, [undefined, 0, 0.15, 0.3, 0.5])}

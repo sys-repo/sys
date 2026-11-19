@@ -1,7 +1,7 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { HttpOrigin } from '../mod.ts';
-import { type SampleName, Sample } from './-samples.ts';
+import { Sample, type SampleName } from './-samples.ts';
 import { SampleValue } from './-sample.ui.Value.tsx';
 
 type P = t.HttpOrigin.Props;
@@ -116,25 +116,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `controlled: ${p.controlled.value}`}
         onClick={() => Signal.toggle(p.controlled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `env: ${p.env.value}`}
         onClick={() => Signal.cycle<t.HttpOrigin.Env>(p.env, ['localhost', 'production'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `sample: ${p.sample.value ?? '(undefined)'}`}
         onClick={() =>
@@ -144,31 +144,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
             'fs.db.team',
             'media',
             undefined,
-          ])
-        }
+          ])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `verify: ${p.verify.value}`}
         onClick={() => Signal.toggle(p.verify)}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button
         block
         label={() => `width: ${p.width.value}px`}
         onClick={() => Signal.cycle<t.Pixels>(p.width, [280, 350, 420])}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView
         name={`controller:rev:${ctrl.rev}`}
         data={Signal.toObject(ctrl, { func: false })}
         style={{ marginTop: 6 }}
         expand={1}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={`debug.sample:${v.sample}`}
         data={debug.sample()}
         style={{ marginTop: 6 }}

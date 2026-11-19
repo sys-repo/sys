@@ -1,6 +1,7 @@
 import { Err, type t } from '../common.ts';
 import { FmtHelp } from '../u.help/u.mod.ts';
 import { mergeFailures } from '../u.lifecycle/u.failure.ts';
+import { setExitCode } from '../u/u.exit.ts';
 import type { RunContext } from './u.context.ts';
 import { serviceModeFlag } from './u.mode.ts';
 import { fail, print } from './u.output.ts';
@@ -107,7 +108,11 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
       return outcome.value;
     } finally {
       interruptExit = lifecycle.isInterruptShutdownReason(shutdown.reason);
-      if (interruptExit) Deno.exitCode = 130;
+      if (interruptExit) {
+        // Node-backed cursor restoration re-emits the Node exit code during shutdown. Deno's
+        // exitCode alone does not update that value; publish the same terminal winner to both.
+        setExitCode(130);
+      }
     }
   } catch (error) {
     const result = fail(input, Err.summary(error, { cause: true }));

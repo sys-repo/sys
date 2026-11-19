@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Pkg, Signal, type t } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Pkg, Signal, type t } from './common.ts';
 import { Dist } from '../mod.ts';
 import { SAMPLE, SAMPLE_FILES_MODES, type SampleFilesMode } from './-SAMPLE.dist.json.ts';
 
@@ -43,12 +43,26 @@ export async function createDebugSignals() {
     dist: s(snap.dist),
   };
   const p = props;
-  const api = {
-    props,
-    updateDist,
-    listen,
-    reset,
-  };
+  let sample = { files: p.sampleFilesMode.value, view: p.debugView.value };
+  // Preserve factory-time normalization without starting automatic work before attachment.
+  p.dist.value = SAMPLE.HelloWorld({ files: sample.files });
+
+  const { attach } = Spec.attachments({
+    shared(e) {
+      // Independent dependencies: projecting dist must not regenerate an explicit selection.
+      const effects = Signal.listeners(e.life);
+      effects.effect(syncSample);
+      effects.effect(() => {
+        store.change((d) => {
+          d.debug = p.debug.value;
+          d.debugView = p.debugView.value;
+          d.sampleFilesMode = p.sampleFilesMode.value;
+          d.theme = p.theme.value;
+          d.dist = p.dist.value;
+        });
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -56,28 +70,25 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    selectDist(p.dist.value);
   }
 
   function updateDist() {}
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.debug = p.debug.value;
-      d.debugView = p.debugView.value;
-      d.sampleFilesMode = p.sampleFilesMode.value;
-      d.theme = p.theme.value;
-      d.dist = p.dist.value;
-    });
-  });
+  function selectDist(dist: P['dist']) {
+    // Explicit selections supersede earlier detached driver changes.
+    sample = { files: p.sampleFilesMode.value, view: p.debugView.value };
+    p.dist.value = dist;
+  }
 
-  Signal.effect(() => {
+  function syncSample() {
     const files = p.sampleFilesMode.value;
-    const debugView = p.debugView.value;
+    const view = p.debugView.value;
+    if (files === sample.files && view === sample.view) return;
+    selectDist(SAMPLE.HelloWorld({ files }));
+  }
 
-    p.dist.value = SAMPLE.HelloWorld({ files });
-  });
-
-  return api;
+  return { props, listen, reset, updateDist, selectDist, attach };
 }
 
 const Styles = {
@@ -112,13 +123,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `view: ${p.debugView.value}`}
         onClick={() => Signal.cycle<DebugView>(p.debugView, VIEW_MODES)}
       />
       {v.debugView === 'UI.Browser' && (
-        <Button
+        <Dev.Button
           block
           label={() => `sample files: ${v.sampleFilesMode}`}
           onClick={() => Signal.cycle(p.sampleFilesMode, SAMPLE_FILES_MODES)}
@@ -127,7 +138,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -138,18 +149,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Samples'}</div>
         <div>{`dist.json`}</div>
       </div>
-      <Button
+      <Dev.Button
         block
         label={() => `👋 hello world`}
-        onClick={() => (p.dist.value = SAMPLE.HelloWorld())}
+        onClick={() => debug.selectDist(SAMPLE.HelloWorld())}
       />
-      <Button block label={() => `(undefined)`} onClick={() => (p.dist.value = undefined)} />
+      <Dev.Button block label={() => `(undefined)`} onClick={() => debug.selectDist(undefined)} />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
 
       <Dist.UI.Browser debug={v.debug} dist={v.dist} style={{ height: 300, marginTop: 40 }} />
     </div>

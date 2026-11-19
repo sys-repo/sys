@@ -1,14 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  Button,
-  CanvasPanel,
-  css,
-  D,
-  LocalStorage,
-  ObjectView,
-  Signal,
-} from '../common.ts';
+import { CanvasPanel, css, D, Dev, LocalStorage, Signal, type t } from './common.ts';
 
 type P = t.CanvasLayoutProps;
 type Storage = { borderRadius?: number } & Pick<P, 'theme' | 'debug'>;
@@ -93,13 +84,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `borderRadius: ${p.borderRadius.value ?? D.borderRadius}`}
         onClick={() => Signal.cycle(p.borderRadius, [0, 5, 15, 30])}
@@ -110,12 +101,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <SampleButtons debug={debug} />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
         expand={['$']}
@@ -142,7 +133,7 @@ export function SampleButtons(props: { debug: DebugSignals }) {
 
   const sample = (label: string, fn?: () => t.CanvasPanelContentMap | undefined) => {
     const btn = (
-      <Button
+      <Dev.Button
         block
         key={elements.length}
         label={() => label}

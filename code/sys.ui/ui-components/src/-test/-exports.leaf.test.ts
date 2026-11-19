@@ -1,4 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
+import { Obj } from '../common.ts';
+import { FocusStyle } from '../m.style/m.FocusStyle/mod.ts';
 
 type LeafContract = {
   readonly path: string;
@@ -8,8 +10,8 @@ type LeafContract = {
 /**
  * Canonical React leaf contracts, grouped by their role in the public API.
  *
- * Tests below import package specifiers only. Implementation paths are
- * deliberately absent so this file proves the consumer-facing boundary.
+ * React leaf tests use package specifiers. The focus leaf also pins runtime
+ * identity against its owning module.
  */
 const leaves = {
   primitives: [
@@ -76,14 +78,14 @@ describe('@sys/ui-components package exports', () => {
         import('@sys/ui-components/react'),
       ]);
 
-      expect(Object.keys(root)).to.eql(['pkg']);
-      expect(Object.keys(react)).to.eql(['pkg']);
+      expect(Obj.keys(root)).to.eql(['pkg']);
+      expect(Obj.keys(react)).to.eql(['pkg']);
       expect(root.pkg).to.equal(react.pkg);
     });
 
     it('keeps the type entrypoint runtime-empty', async () => {
       const t = await import('@sys/ui-components/t');
-      expect(Object.keys(t)).to.eql([]);
+      expect(Obj.keys(t)).to.eql([]);
     });
   });
 
@@ -106,6 +108,11 @@ describe('@sys/ui-components package exports', () => {
   });
 
   describe('opt-in support leaves', () => {
+    it('exports the shared focus owner through one intentional style leaf', async () => {
+      const { FocusStyle: exported } = await import('@sys/ui-components/style/focus');
+      expect(exported).to.equal(FocusStyle);
+    });
+
     it('exports development composition and visual-spec surfaces', async () => {
       await Promise.all([
         expectExports('@sys/ui-components/react/dev', ['Dev']),
@@ -164,5 +171,5 @@ async function expectLegacyAliases(contracts: readonly LeafContract[]) {
 
 async function expectExports(specifier: string, names: readonly string[]) {
   const m = await import(specifier);
-  expect(Object.keys(m), specifier).to.include.members([...names]);
+  expect(Obj.keys(m), specifier).to.include.members([...names]);
 }

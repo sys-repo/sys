@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, Signal } from '../common.ts';
+import { css, Dev, Signal, type t } from './common.ts';
 
 type P = t.MediaConfigSliderProps;
 
@@ -67,24 +66,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{'Media.Config.Slider'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `value: ${p.value.value?.toFixed() ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.value, [0, 100, 200, undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
         expand={['$']}

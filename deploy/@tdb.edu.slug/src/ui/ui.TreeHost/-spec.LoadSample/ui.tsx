@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, KeyValue, Signal } from './common.ts';
+import { Color, css, Dev, KeyValue, Signal, type t } from './common.ts';
 
 export type LoadSampleButtonsProps = {
   signal?: t.Signal<t.SampleLoadAction | undefined>;
@@ -26,7 +26,7 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   };
 
   const btnUnload = (
-    <Button
+    <Dev.Button
       label={isLoaded ? '(unload)' : '(unloaded)'}
       enabled={isLoaded}
       onClick={() => (signal.value = undefined)}
@@ -38,7 +38,7 @@ export const LoadSampleButtons: React.FC<LoadSampleButtonsProps> = (props) => {
   function add(label: string, value: t.SampleLoadAction) {
     const isSelected = value === current;
     const btn = (
-      <Button
+      <Dev.Button
         label={`${label} ${isSelected ? '🌳' : ''}`}
         style={{ fontWeight: isSelected ? 'bold' : undefined }}
         onClick={() => (signal.value = value)}

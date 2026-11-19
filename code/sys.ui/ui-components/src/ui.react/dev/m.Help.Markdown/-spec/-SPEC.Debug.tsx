@@ -1,6 +1,5 @@
 import React from 'react';
-import { Color, css, D, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
-import { Button, ObjectView } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
 import { Sample, type SampleKind } from './-u.sample.ts';
 
 type P = t.DevHelpMarkdown.Props;
@@ -88,7 +87,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     const sample = Sample.get(kind);
     const selected = v.sample === kind;
     return (
-      <Button
+      <Dev.Button
         key={kind}
         block
         label={() => `${selected ? '🌳 ' : ''}${sample.label}`}
@@ -101,7 +100,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -113,9 +112,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Debug:'}</div>
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

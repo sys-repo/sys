@@ -1,13 +1,13 @@
-import type { SpecLib } from './t.ts';
-
-import { Test, maybeWait, type t } from '../common.ts';
+import { maybeWait, type t, Test } from '../common.ts';
+import { attachments } from './u.attachments.ts';
 import { Wrangle } from './u.Wrangle.ts';
 
 /**
  * Root API to the UI Spec Runner system.
  */
-export const Spec: SpecLib = {
+export const Spec: t.SpecLib = {
   Wrangle,
+  attachments,
 
   /**
    * Spec (root test suite) creator.
@@ -15,10 +15,9 @@ export const Spec: SpecLib = {
    *
    *    export default Spec.describe('My Thing', (e) => {
    *      e.it('name', (e) => {
-   *        cont ctx = Spec.ctx(e);
+   *        const ctx = Spec.ctx(e);
    *      });
    *    });
-   *
    */
   describe: Test.describe,
 

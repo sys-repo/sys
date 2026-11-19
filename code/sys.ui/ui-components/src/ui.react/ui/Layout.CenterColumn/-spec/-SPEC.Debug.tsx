@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, LocalStorage, Obj, ObjectView } from '../../u.ts';
-import { css, D, Signal } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { renderColumns } from './-u.render.tsx';
 
 type P = t.CenterColumnLayoutProps;
@@ -112,7 +111,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   const align = (align: t.CenterColumnAlign) => {
     return (
-      <Button
+      <Dev.Button
         //
         block
         label={`align: ${align}`}
@@ -125,18 +124,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`gap: ${p.gap.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle(p.gap, [1, 15, undefined])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={`centerWidth: ${p.centerWidth.value ?? `(undefined) ← default: ${D.center.width}`}`}
         onClick={() => Signal.cycle(p.centerWidth, [0, 200, 600, undefined])}
@@ -148,13 +147,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {align('Right')}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

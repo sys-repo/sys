@@ -119,6 +119,7 @@ jobs:
             path: code/sys.ui/ui
           - name: "@sys/cell"
             path: code/sys/cell
+            proofs: true
           - name: "@sys/server"
             path: code/sys/server
           - name: "@sys/workspace"

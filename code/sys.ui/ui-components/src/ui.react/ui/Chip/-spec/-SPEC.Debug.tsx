@@ -1,11 +1,12 @@
-import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Signal, type t } from './common.ts';
+import type React from 'react';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.Chip.Props;
-type Storage = Pick<P, 'debug' | 'theme' | 'mono' | 'size'> & {
+type Storage = Pick<P, 'debug' | 'theme' | 'mono' | 'size' | 'truncate'> & {
   fontSize: number;
   text: string;
+  width: number;
+  examples: boolean;
 };
 const defaults: Storage = {
   debug: false,
@@ -14,6 +15,9 @@ const defaults: Storage = {
   size: 'sm',
   fontSize: 12,
   text: 'Option + Enter',
+  truncate: D.truncate,
+  width: 240,
+  examples: false,
 };
 
 /**
@@ -37,6 +41,9 @@ export async function createDebugSignals() {
     size: s(snap.size),
     fontSize: s(snap.fontSize),
     text: s(snap.text),
+    truncate: s<P['truncate']>(snap.truncate ?? D.truncate),
+    width: s(snap.width ?? defaults.width),
+    examples: s(snap.examples ?? defaults.examples),
   };
   const p = props;
   const api = {
@@ -61,6 +68,9 @@ export async function createDebugSignals() {
       d.size = p.size.value;
       d.fontSize = p.fontSize.value;
       d.text = p.text.value;
+      d.truncate = p.truncate.value;
+      d.width = p.width.value;
+      d.examples = p.examples.value;
     });
   });
 
@@ -86,6 +96,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
+  // Match current knobs, not the last preset clicked; custom combinations select neither row.
+  const truncate = v.truncate ?? D.truncate;
+  const selected = !v.examples && !truncate ? 'single' : v.examples && truncate ? 'overflow' : [];
+
   /**
    * Render:
    */
@@ -98,36 +112,80 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `size: ${v.size ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.Chip.Size>(p.size, ['xs', 'sm', 'md'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `mono: ${v.mono ?? `<undefined> (default: ${D.mono})`}`}
         onClick={() => Signal.cycle(p.mono, [true, false, undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `text: ${v.text}`}
         onClick={() => Signal.cycle(p.text, ['Option + Enter', 'Esc', '🐷 chip'])}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button
+      <Dev.Button
+        block
+        label={() => `truncate: ${v.truncate ?? `(default: ${D.truncate})`}`}
+        onClick={() => Signal.cycle(p.truncate, [true, false, undefined])}
+      />
+      <Dev.Button
+        block
+        label={() => `width: ${v.width}px`}
+        onClick={() => Signal.cycle(p.width, [120, 180, 240, 360])}
+      />
+      <Dev.Button
+        block
+        label={() => `overflow examples: ${v.examples}`}
+        onClick={() => Signal.toggle(p.examples)}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>Sample States</div>
+      <Dev.List
+        theme={theme.name}
+        columns={1}
+        selected={selected}
+        items={[
+          {
+            id: 'single',
+            label: 'Single chip (unclipped)',
+            onActivate: () => {
+              p.examples.value = false;
+              p.truncate.value = false;
+            },
+          },
+          {
+            id: 'overflow',
+            label: 'Overflow examples (bounded)',
+            onActivate: () => {
+              p.examples.value = true;
+              p.truncate.value = true;
+            },
+          },
+        ]}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>Debug</div>
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button
         block
         label={() => `container font-size: ${v.fontSize}px`}
         onClick={() => Signal.cycle(p.fontSize, [10, 12, 14, 16, 20])}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

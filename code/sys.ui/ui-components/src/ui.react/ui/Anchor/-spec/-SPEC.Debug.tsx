@@ -1,50 +1,71 @@
-import React from 'react';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { Samples, EXAMPLE_URL } from './-ui.Samples.tsx';
+import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
+import { EXAMPLE_LONG_LABEL, EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
 
 type P = t.Anchor.Props;
-type Storage = Pick<P, 'theme' | 'href' | 'target' | 'download' | 'enabled'> & {
-  children?: string;
-};
+/** Old flags are read once, then removed when the union is persisted. */
+type Stored = Partial<t.DebugValues> & { focusExamples?: boolean; linkExamples?: boolean };
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
-const defaults: Storage = {
+const defaults: t.DebugValues = {
   theme: 'Dark',
   href: EXAMPLE_URL,
   enabled: D.enabled,
+  mono: D.mono,
+  truncate: D.truncate,
+  maxWidth: undefined,
   target: D.target,
   download: D.download,
   children: EXAMPLE_URL,
+  examples: 'none',
+  link: undefined,
 };
-
-/**
- * Types:
- */
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
  */
-export async function createDebugSignals() {
+export function createDebugSignals() {
   const s = Signal.create;
-  const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
+  const store = LocalStorage.immutable<Stored>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
+  const examples = snap.examples ??
+    (snap.linkExamples ? 'links' : snap.focusExamples ? 'focus' : defaults.examples);
 
   const props = {
     theme: s(snap.theme),
     href: s(snap.href),
     enabled: s(snap.enabled ?? D.enabled),
+    mono: s(snap.mono ?? D.mono),
+    truncate: s(snap.truncate ?? D.truncate),
+    maxWidth: s(snap.maxWidth),
     target: s(snap.target),
     download: s(snap.download === true),
     children: s(snap.children),
+    examples: s<t.DebugExamples>(examples),
+    link: s(snap.link),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.href = p.href.value;
+        d.enabled = p.enabled.value;
+        d.mono = p.mono.value;
+        d.truncate = p.truncate.value;
+        d.maxWidth = p.maxWidth.value;
+        d.target = p.target.value;
+        d.download = p.download.value ? true : undefined;
+        d.children = p.children.value;
+        d.examples = p.examples.value;
+        d.link = p.link.value;
+        delete d.focusExamples;
+        delete d.linkExamples;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -54,18 +75,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.href = p.href.value;
-      d.enabled = p.enabled.value;
-      d.target = p.target.value;
-      d.download = p.download.value ? true : undefined;
-      d.children = p.children.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -93,31 +103,40 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <div className={Styles.title.class}>{`${D.name}, A`}</div>
+      <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `href: ${v.href ?? '(none)'}`}
         onClick={() => {
           Signal.cycle<P['href']>(p.href, [undefined, EXAMPLE_URL, '/relative/path', '#hash']);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value ?? `(undefined) ← default: ${D.enabled}`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
+        block
+        label={() => `mono: ${v.mono}`}
+        onClick={() => Signal.toggle(p.mono)}
+      />
+      <Dev.Button
+        block
+        label={() => `truncate: ${v.truncate}`}
+        onClick={() => Signal.toggle(p.truncate)}
+      />
+      <Dev.Button
         block
         label={() => `children: ${p.children.value ?? '(none)'}`}
         onClick={() => {
@@ -125,36 +144,82 @@ export const Debug: React.FC<DebugProps> = (props) => {
             undefined,
             EXAMPLE_URL,
             'link label',
+            EXAMPLE_LONG_LABEL,
             'plain text (passthrough)',
           ]);
         }}
       />
 
       <hr />
-      <Button
-        block
-        label={() => {
-          return `target: ${p.target.value ?? `(undefined) ← default: ${D.target}`}`;
-        }}
-        onClick={() => {
-          Signal.cycle<P['target']>(p.target, [undefined, '_blank', '_self', '_parent', '_top']);
-        }}
-      />
-      <Button
-        block
-        label={() => `download: ${p.download.value} ← default: ${D.download}`}
-        onClick={() => Signal.toggle(p.download)}
-      />
+      {v.link
+        ? (
+          <>
+            <Dev.Button
+              block
+              label={() => `openIn: ${p.link.value?.openIn ?? D.link.openIn}`}
+              onClick={() => {
+                const link = p.link.value;
+                p.link.value = { ...link, openIn: link?.openIn === 'new-tab' ? 'self' : 'new-tab' };
+              }}
+            />
+            <Dev.Button
+              block
+              label={() => `resource: ${p.link.value?.resource ?? '(none)'}`}
+              onClick={() => {
+                const link = p.link.value;
+                if (link?.api === 'dev') {
+                  const next = { default: 'web', web: 'none', none: 'default' } as const;
+                  p.link.value = { ...link, resource: next[link.resource] };
+                } else {
+                  p.link.value = { ...link, resource: link?.resource ? undefined : 'web' };
+                }
+              }}
+            />
+          </>
+        )
+        : (
+          <>
+            <Dev.Button
+              block
+              label={() => {
+                return `target: ${p.target.value ?? `(undefined) ← default: ${D.target}`}`;
+              }}
+              onClick={() => {
+                const targets = [undefined, '_blank', '_self', '_parent', '_top'];
+                Signal.cycle<P['target']>(p.target, targets);
+              }}
+            />
+            <Dev.Button
+              block
+              label={() => `download: ${p.download.value} ← default: ${D.download}`}
+              onClick={() => Signal.toggle(p.download)}
+            />
+          </>
+        )}
 
       <hr />
-      <div className={Styles.title.class}>{'Sample States:'}</div>
+      <Dev.Button
+        block
+        label={() => `examples: ${v.examples}`}
+        onClick={() => Signal.cycle<t.DebugExamples>(p.examples, ['none', 'focus', 'links'])}
+      />
+      <div className={css(Styles.title, { marginTop: 22 }).class}>Sample States</div>
       <Samples debug={debug} theme={theme.name} />
 
-      <hr />
-      <div className={Styles.title.class}>{'Debug'}</div>
+      <hr className={css({ marginTop: 22 }).class} />
+      <div className={Styles.title.class}>Debug</div>
 
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      {v.truncate && (
+        <Dev.Button
+          block
+          label={() => `maxWidth: ${v.maxWidth ? `${v.maxWidth}px` : 'none'}`}
+          onClick={() => {
+            return Signal.cycle<t.DebugValues['maxWidth']>(p.maxWidth, [undefined, 120, 180, 320]);
+          }}
+        />
+      )}
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

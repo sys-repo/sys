@@ -1,17 +1,6 @@
 import React from 'react';
 import { Crdt, createUiRepo } from '../../-test.ui.ts';
-import {
-  type t,
-  Button,
-  css,
-  D,
-  Is,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Signal,
-  STORAGE_KEY,
-} from '../common.ts';
+import { css, D, Dev, Is, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
 
 type P = t.Layout.Props;
 type Storage = Pick<P, 'theme' | 'debug' | 'spinning'> & {
@@ -153,12 +142,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.spinning.value;
@@ -178,45 +167,45 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `header.visible: ${p.header.visible.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.header.visible)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `header.readOnly: ${p.header.readOnly.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.header.readOnly)}
       />
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `crdt.urlKey: ${p.urlKey.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.urlKey, ['foo', undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `sidebar.visible: ${p.sidebar.visible.value}`}
         onClick={() => Signal.toggle(p.sidebar.visible)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `sidebar.position: ${p.sidebar.position.value}`}
         onClick={() => Signal.cycle(p.sidebar.position, ['left', 'right'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `sidebar.resizable: ${p.sidebar.resizable.value}`}
         onClick={() => Signal.toggle(p.sidebar.resizable)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `sidebar.width: ${p.sidebar.width.value}px`}
         onClick={() => Signal.cycle(p.sidebar.width, [D.sidebar.width, 200, 420])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.sidebar.divider.value;
@@ -226,7 +215,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.cropmarks.size.value;
@@ -242,25 +231,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `cropmarks.subjectOnly: ${p.cropmarks.subjectOnly.value}`}
         onClick={() => Signal.toggle(p.cropmarks.subjectOnly)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debug/slots: ${p.debugSlots.value}`}
         onClick={() => Signal.toggle(p.debugSlots)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
       <Crdt.UI.Dev.ObjectView
         doc={debug.signals.doc.value}
         style={{ marginTop: 5 }}

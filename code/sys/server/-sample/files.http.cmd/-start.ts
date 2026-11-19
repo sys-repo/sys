@@ -1,6 +1,7 @@
 import { SampleFiles } from './-config.ts';
 import {
   Cli,
+  D,
   Files,
   FilesServer,
   FilesStatic,
@@ -58,6 +59,7 @@ try {
   app.post(SampleFiles.path, (c) => {
     return HttpCmd.handle(c.req.raw, {
       path: SampleFiles.path,
+      policy: D.transport,
       cmd: { ns: Files.Cmd.ns, handlers: files.handlers },
     });
   });

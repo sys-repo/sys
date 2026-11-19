@@ -1,16 +1,83 @@
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
-
-Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly
-understand what matters and act correctly?
-
-Verify claims against source. Flag misleading promises, missing context, repetition, and misplaced detail. Preserve essential caveats. Seek the fewest words that
-remain genuinely helpful—not brevity at the expense of understanding.
-
+Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
+Verify claims against source. Flag misleading promises, missing context, repetition, and misplaced detail. Preserve essential caveats. Seek the fewest words that remain genuinely helpful—not brevity at the expense of understanding.
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
----------------------------------------------------------------------------------------------------------
+
+@sys.tmpl
+ui-template-maintenance.plan.md
+- [x] 1d532c559 fix(std): close signal listener registration on disposal
+- [x] 19dc218dd fix(ui-dev): retire specimen attachments before reset publication
+- [x] e608035ff fix(ui-dev): close specimen admission during retirement
+- [x] fa683998e feat(ui-dev): own specimen attachment lifetimes
+- [x] 519b15ea8 fix(tmpl): correct UI scaffold lifecycle ownership
+- [x] 41db307d7 feat(ui-react): register stylesheet rules from React
+- [x] 917bd0922 fix(tmpl): preserve scoped-style appearance across themes
+- [x] 55d4cea12 fix(ui-components): isolate matching scoped styles without changing paint
+- [x] 1035f21b7 fix(ui-components): bind Label and Manuscript specimen effects to attachments
+- [x] f2a31856b fix(ui-components): bind ActionProbe specimen effects to attachments
+- [x] cf117701f fix(ui-components): bind Anchor specimen effects to attachments
+- [x] 6d4d9c028 fix(ui-components): bind Bullet and BulletList specimen effects to attachments
+- [x] 0f0c14660 fix(ui-components): bind Button family specimen effects to attachments
+- [x] bb8f0d129 fix(ui-components): bind Dist and Dist.Browser specimen effects to attachments
+- [ ] fix(ui-components): bind Chip and Cropmarks specimen effects to attachments
+- [ ] fix(ui-components): bind ErrorBoundary, FadeElement, and Http.Origin specimen effects to attachments
+- [ ] fix(ui-components): bind Icon.Swatches, IFrame, and Image.Svg specimen effects to attachments
+- [ ] fix(ui-components): bind KeyValue family and Layout.CenterColumn specimen effects to attachments
+- [ ] fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
+- [ ] fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
+- [ ] fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
+- [ ] fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
+- [ ] fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
+- [ ] fix(ui-components): bind video deck and element specimen effects to attachments
+- [ ] fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
+- [ ] fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
+- [ ] fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
+- [ ] fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
+- [ ] fix(ui-components): bind webfont and CSS specimen effects to attachments
+- [ ] fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
+
+
+
+@sys.ui
+passkey-panel.plan.md
+- [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
+- [x] 1e48de614 style(ui): refine passkey debug panel labels and intent spacing
+- [x] 429560650 chore(ui): scaffold passkey integration spec and view navigation
+- [x] bc242cbd3 [link-grammar.plan.md](../@sys.ui-components/link-grammar.plan.md)
+- [x] b3659c530 feat(ui): expose composable passkey diagnostic sections
+- [x] 5bb4c79dc feat(ui): compose passkey UI in integration specimen
+- [x] 8ba1a4939 feat(passkey): add UI-independent WebAuthn ceremonies
+- [x] c7e4d6686 feat(passkey): define account service contracts
+- [x] aba8774ff feat(http)!: bound unary HttpCmd transport
+- [x] ef977e043 chore(deps): add SimpleWebAuthn server 14.1.0
+- [ ] feat(crypto): add strict Ed25519 public-key validation
+- [ ] feat(passkey): add minimal reference account service
+- [ ] feat(passkey): add reusable account runtime
+- [ ] feat(ui): connect real passkey operations in sample
+
+
+
+@sys
+deno-api-containment.plan.md
+- [x] 5d789e432 docs(sys): map Deno capability owners and public facades
+- [x] b328700ab docs(sys): checkpoint direct Deno usage audit
+- [ ] docs(sys): audit direct Deno usage across the repository
+- [ ] docs(sys): design capability-sized Deno containment migrations
+
+
+@sys.driver-pi
+compile-cache-preload.plan.md
+- [ ] test(driver-pi): prove scoped compile-cache preloading
+- [ ] test(driver-pi): prove official Pi preload startup
+- [ ] feat(process): support bounded child input for capture
+- [ ] test(driver-pi): prove official Pi preload compatibility
+- [ ] fix(driver-pi): preload scoped compile-cache compatibility
+- [ ] fix(driver-pi): adopt Pi 1.4.0 with verified Deno compatibility
+
+
 
 
 1. workspace-ci-closeout.plan.md
@@ -134,7 +201,7 @@ r2-web-exposure.plan.md
 
 @sys.driver-pi
 start-ui-release-evidence.plan.md
-  ...
+...
 - [x] c39511c15 [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
 - [ ] GATE release owner selects versioned artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
 - [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
@@ -179,5 +246,6 @@ cmd-first-kernels.plan.md
 @sys.driver-vite
 ci-proof-lane-repair.plan.md
 - [x] 02f3ae9b5 fix(ci): preserve explicit proof lanes through workflow generation
+
 
 

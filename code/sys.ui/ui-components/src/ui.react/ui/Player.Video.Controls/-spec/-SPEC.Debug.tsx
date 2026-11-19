@@ -1,13 +1,14 @@
 import React from 'react';
 import { Player } from '../../Player/mod.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.PlayerControlsProps;
-type Storage = Pick<
-  P,
-  'theme' | 'debug' | 'maskOpacity' | 'maskHeight' | 'enabled' | 'background' | 'margin'
-> & { width?: number; padding?: t.Pixels };
+type Storage =
+  & Pick<
+    P,
+    'theme' | 'debug' | 'maskOpacity' | 'maskHeight' | 'enabled' | 'background' | 'margin'
+  >
+  & { width?: number; padding?: t.Pixels };
 const defaults: Storage = {
   theme: 'Dark',
   enabled: D.enabled,
@@ -130,50 +131,50 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{'Player.Video: Controls'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `maskOpacity: ${p.maskOpacity.value}`}
         onClick={() => Signal.cycle(p.maskOpacity, [0, 0.6, 1])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           return `maskHeight: ${p.maskHeight.value ?? `(undefined) ← default: ${D.maskHeight}`}`;
         }}
         onClick={() => Signal.cycle(p.maskHeight, [120, 200, undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `padding: ${p.padding.value ?? `(undefined) ← default: ${D.padding}`}`}
         onClick={() => Signal.cycle(p.padding, [10, 20, 30])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `margin: ${p.margin.value ?? `(undefined) ← default: ${D.margin}`}`}
         onClick={() => Signal.cycle(p.margin, [0, 10, 30])}
       />
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `background.rounded: ${p.background.rounded.value}`}
         onClick={() => Signal.cycle(p.background.rounded, [0, 6, 12, 24])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `background.opacity: ${p.background.opacity.value}`}
         onClick={() => Signal.cycle(p.background.opacity, [0, 0.1, 0.3, 0.5, 0.8])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `background.shadow: ${p.background.shadow.value}`}
         onClick={() => Signal.toggle(p.background.shadow)}
@@ -181,11 +182,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Controls'}</div>
-      <Button block label={`playing: ${v.playing}`} onClick={() => Signal.toggle(v.playing)} />
-      <Button block label={`muted: ${v.muted}`} onClick={() => Signal.toggle(v.muted)} />
+      <Dev.Button block label={`playing: ${v.playing}`} onClick={() => Signal.toggle(v.playing)} />
+      <Dev.Button block label={`muted: ${v.muted}`} onClick={() => Signal.toggle(v.muted)} />
       <hr />
-      <Button block label={() => `currentTime: → 10s`} onClick={() => (v.currentTime.value = 10)} />
-      <Button
+      <Dev.Button
+        block
+        label={() => `currentTime: → 10s`}
+        onClick={() => (v.currentTime.value = 10)}
+      />
+      <Dev.Button
         block
         label={() => `buffering: ${v.buffering.value}`}
         onClick={() => Signal.toggle(v.buffering)}
@@ -193,8 +198,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Samples:'}</div>
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <Button
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.Button
         block
         label={() => `rounded background`}
         onClick={() => {
@@ -206,17 +211,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `width: ${p.width.value}`}
         onClick={() => Signal.cycle(p.width, [420, 500, 600])}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
         expand={['$']}

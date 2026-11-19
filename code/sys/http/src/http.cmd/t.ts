@@ -4,9 +4,6 @@ import type { t } from './common.ts';
  * HTTP JSON transport for unary Cmd request/response calls.
  */
 export declare namespace HttpCmd {
-  /** Fetch implementation used by the HTTP Cmd client. */
-  export type Fetch = t.Fetch;
-
   /** Public HTTP Cmd API. */
   export type Lib = {
     /** Create a Fetch-compatible request handler bound to Cmd handlers. */
@@ -53,6 +50,9 @@ export declare namespace HttpCmd {
     /** Optional route path accepted by the handler. If omitted, all paths are accepted. */
     readonly path?: t.StringUrlRoute;
 
+    /** Required finite body and whole-operation bounds, snapshotted before work. */
+    readonly policy: Policy;
+
     /** Typed command grammar and handlers. */
     readonly cmd: CommandOptions<N, P, R, E>;
   };
@@ -87,17 +87,64 @@ export declare namespace HttpCmd {
     /** Optional fetch implementation. Defaults to `globalThis.fetch`. */
     readonly fetch?: Fetch;
 
-    /** Optional timeout in milliseconds for each command request. */
-    readonly timeout?: t.Msecs;
+    /** Required finite body and whole-operation bounds. No implicit defaults. */
+    readonly policy: Policy;
 
     /** Optional extra request headers. */
     readonly headers?: HeadersInit;
   };
 
-  /** Unary Cmd client over HTTP JSON. */
+  /** Unary Cmd client over HTTP JSON. Failures reject with a safe HttpCmd.Error. */
   export type Client<
     N extends string,
     P extends t.Cmd.Payload.Map<N>,
     R extends t.Cmd.Result.Map<N>,
-  > = t.Cmd.Client.Unary<N, P, R>;
+  > = t.Lifecycle & {
+    /** Send once; domain outcomes resolve, transport failures reject without retry. */
+    send<K extends N>(name: K, payload: P[K], options?: SendOptions): Promise<R[K]>;
+  };
+
+  /** Positive safe-integer bounds on complete UTF-8 envelopes and local waiting. */
+  export type Policy = {
+    readonly maxBytes: {
+      readonly request: t.NumberBytes;
+      readonly response: t.NumberBytes;
+    };
+    readonly timeout: t.Msecs;
+  };
+
+  /** Per-call authority, captured before suspension. Headers override construction headers. */
+  export type SendOptions = {
+    readonly headers?: HeadersInit;
+    readonly signal?: AbortSignal;
+  };
+
+  /** Fixed diagnostics, not remote exception or commit evidence. No stack or raw cause. */
+  export type Error = globalThis.Error & {
+    readonly name: 'HttpCmdError';
+    readonly message: `HTTP command failed: ${FailureKind}.`;
+    readonly stack?: never;
+    readonly cause?: never;
+    readonly kind: FailureKind;
+    /** Whether this client invoked fetch. Possible dispatch does not prove receipt or commit. */
+    readonly dispatch: 'not-dispatched' | 'possible';
+    readonly status?: t.HttpStatusCode;
+  };
+
+  /** Owner-selected failure classification; caught error names have no authority. */
+  export type FailureKind =
+    | 'invalid-options'
+    | 'invalid-request'
+    | 'request-too-large'
+    | 'response-too-large'
+    | 'timeout'
+    | 'cancelled'
+    | 'disposed'
+    | 'network'
+    | 'redirect'
+    | 'protocol'
+    | 'remote';
+
+  /** Trusted injectable fetch implementation; not an isolation boundary. */
+  export type Fetch = t.Fetch;
 }

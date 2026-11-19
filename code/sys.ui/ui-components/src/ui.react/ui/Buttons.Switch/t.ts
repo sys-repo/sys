@@ -24,7 +24,21 @@ export declare namespace Switch {
     track?: Partial<Theme.Track>;
     thumb?: Partial<Theme.Thumb>;
     theme?: t.CommonTheme | Partial<Theme.Root>;
+    /** Track/thumb transition duration, independent of the shared focus-arrival timing. */
     transitionSpeed?: t.Msecs;
+    /**
+     * Root styles. Native :focus-visible shows an opaque theme-derived 3px halo,
+     * holds for 70ms, then settles over 220ms with ease-out.
+     * Rest uses trackColor.on at 28% alpha for strings, or its signed gray-alpha for numbers.
+     * Arrival uses the same RGB colour at full opacity. Choose colours for the actual surface;
+     * the existing resting halo is not a contrast guarantee, and numeric zero rests transparent.
+     *
+     * Reduced motion uses settled paint immediately. Forced colours replaces the halo with
+     * a static 3px Highlight outline at zero offset; normal UA colour adjustment remains enabled.
+     * Explicit root animation settings, including longhands, keep default focus static.
+     * A supplied :focus-visible block (including an explicit clear) replaces the whole policy;
+     * the caller then owns visible indication and motion/preference handling.
+     */
     style?: t.CssValue;
 
     /** Events: */

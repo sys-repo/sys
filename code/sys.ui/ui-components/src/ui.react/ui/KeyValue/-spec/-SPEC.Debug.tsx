@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Signal, type t } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { SAMPLE, type SampleKind } from './-samples.tsx';
 import { CursorDebug } from './mod.ts';
 import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
@@ -193,28 +192,32 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `size: ${p.size.value}`}
         onClick={() => Signal.cycle<P['size']>(p.size, ['xs', 'sm', 'md'])}
       />
-      <Button block label={() => `mono: ${p.mono.value}`} onClick={() => Signal.toggle(p.mono)} />
-      <Button
+      <Dev.Button
+        block
+        label={() => `mono: ${p.mono.value}`}
+        onClick={() => Signal.toggle(p.mono)}
+      />
+      <Dev.Button
         block
         label={() => `truncate: ${p.truncate.value}`}
         onClick={() => Signal.toggle(p.truncate)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `reorder: ${p.reorder.value}`}
         onClick={() => Signal.toggle(p.reorder)}
@@ -241,7 +244,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>{'items:'}</div>
       <SampleButtons debug={debug} theme={theme.name} />
       <div className={Styles.title.class} style={{ marginTop: 12 }}>{'projection motion:'}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `animation: ${p.animation.value}`}
         onClick={() => Signal.toggle(p.animation)}
@@ -251,32 +254,37 @@ export const Debug: React.FC<DebugProps> = (props) => {
           {'Turn reorder off to test this prop; Reorder has its own Motion animation.'}
         </div>
       )}
-      <Button
+      <Dev.Button
         block
         enabled={!p.reorder.value}
         label={() => `shuffle direct children`}
         onClick={() => (p.items.value = shuffleItems(p.items.value))}
       />
-      <Button
+      <Dev.Button
         block
         enabled={!p.reorder.value}
         label={() => `move one direct child`}
         onClick={() => (p.items.value = moveRandomItem(p.items.value))}
       />
-      <Button
+      <Dev.Button
         block
         enabled={!p.reorder.value}
         label={() => `restore sample order`}
         onClick={() => (p.items.value = SAMPLE.items(p.sample.value))}
       />
       <hr style={{ marginTop: 25 }} />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

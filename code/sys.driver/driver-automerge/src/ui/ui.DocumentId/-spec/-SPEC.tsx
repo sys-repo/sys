@@ -1,6 +1,6 @@
-import { type t, Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec, type t } from '../../-test.ui.ts';
 
-import { Color, css, D, ObjectView } from '../common.ts';
+import { Color, css, D, Dev } from './common.ts';
 import { DocumentId } from '../mod.ts';
 import { Repo } from '../../ui.Repo/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
@@ -38,7 +38,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
     const elDebug = v.debug && (
       <div className={css({ Absolute: [null, 0, -25, 25] }).class}>
-        <ObjectView
+        <Dev.ObjectView
           name={'doc'}
           data={p.doc.value?.current}
           style={{ Absolute: [null, 0, null, 0] }}

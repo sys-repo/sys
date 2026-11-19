@@ -1,6 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, ObjectView, Signal } from '../u.ts';
-import { D } from './common.ts';
+import { Color, css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.FadeElementProps;
 
@@ -70,7 +69,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const child3 = renderElement('Three');
 
   const childrenButton = (label: string, children?: t.ReactNode) => {
-    return <Button block label={() => label} onClick={() => (p.children.value = children)} />;
+    return <Dev.Button block label={() => label} onClick={() => (p.children.value = children)} />;
   };
 
   return (
@@ -79,12 +78,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Fade.Element'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `duration: ${p.duration.value ?? `<undefined> (${D.duration})`}`}
         onClick={() => Signal.cycle(p.duration, [100, 300, D.duration, 1500, undefined])}
@@ -100,7 +99,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {childrenButton(`children: number`, 123)}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug - fixed size: ${p.fixedSize.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.fixedSize)}
@@ -108,7 +107,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={styles.title.class}>{'Debug:'}</div>
-      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
+      <Dev.ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
     </div>
   );
 };

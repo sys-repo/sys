@@ -1,5 +1,6 @@
 import config from '../../deno.json' with { type: 'json' };
-import { describe, Err, expect, Fs, it, ROOT, Str, Yaml } from '../-test.ts';
+import { commands, lanes } from '../../-scripts/task.test.ts';
+import { describe, Err, expect, Fs, it, Obj, ROOT, Str, Yaml } from '../-test.ts';
 
 type Workflow = {
   readonly jobs: {
@@ -37,21 +38,23 @@ const proofTasks = [
 
 describe('Vite test lanes', () => {
   it('cache preparation → frozen type-check graph and fail-fast CI ordering', async () => {
-    const cache = tasks['test:cache'];
-    const args = cache.trim().split(/\s+/);
-    expect(args.slice(0, 2), 'Vite owns a type-checked no-run cache task').to.eql(['deno', 'test']);
+    const launcher = tasks['test:cache'];
+    expect(launcher).to.include('./-scripts/task.test.ts cache');
+    expect(launcher).to.include('--frozen');
+    expect(launcher).not.to.include('--cached-only');
+    const args = commands(['cache'])[0];
+    expect(args[0], 'Vite owns a type-checked no-run cache task').to.eql('test');
     for (
       const flag of ['--no-run', '--node-modules-dir=auto', '-P=test', '--frozen', '--no-prompt']
     ) {
       expect(args).to.include(flag);
     }
-    expect(cache).not.to.include('--cached-only');
-    expect(cache).not.to.include('--no-check');
-    expect(paths(cache)).to.include('./src');
-    const selected = proofLanes(tasks['test:proofs']).flatMap((name) => paths(tasks[name]));
-    for (const path of selected.filter((path) => !path.endsWith('.test.ts'))) {
-      expect(paths(cache), `explicit proof entry must be warmed: ${path}`).to.include(path);
-    }
+    expect(args).not.to.include('--cached-only');
+    expect(args).not.to.include('--no-check');
+    expect(args).to.include('./src');
+    expect(args, 'warm the launcher and default-discovered script tests').to.include('./-scripts');
+    const selected = commands(['proofs']).flatMap(paths);
+    assertCache(args, selected);
     const yaml = (await Fs.readText(ROOT.resolve('.github/workflows/test.linux.yaml'))).data ?? '';
     const job = Yaml.parse<Workflow>(yaml).data?.jobs.deno;
     if (!job) throw Err.std('Missing Linux workflow');
@@ -97,7 +100,7 @@ describe('Vite test lanes', () => {
 
   it('routine CI lane → base only; former runtime coverage stays explicit', async () => {
     expect(taskNames(tasks.test)).to.eql(['test:unit']);
-    proofLanes(tasks['test:proofs']);
+    assertProofs(commands(['proofs']));
     expect(taskNames(tasks.ci), 'module ci must execute the proof aggregate').to.include(
       'test:proofs',
     );
@@ -127,8 +130,8 @@ describe('Vite test lanes', () => {
   });
 
   it('unit exclusions → exact files remain selected by proof tasks', async () => {
-    const selected = proofLanes(tasks['test:proofs']).flatMap((name) => paths(tasks[name]));
-    assertPartition(tasks['test:unit'], selected);
+    const selected = commands(['proofs']).flatMap(paths);
+    assertPartition(commands(['unit'])[0], selected);
     for (const path of selected) {
       expect(await Fs.exists(ROOT.resolve('code/sys.driver/driver-vite', path)), path).to.eql(true);
     }
@@ -136,41 +139,70 @@ describe('Vite test lanes', () => {
 
   it('explicit proofs → common invocation without unit exclusions', () => {
     expect(tasks['test:run']).not.to.include('--ignore');
-    for (const flag of ['--frozen', '--cached-only', '--no-prompt']) {
+    for (const flag of ['-A', '--frozen', '--cached-only', '--no-prompt']) {
       expect(tasks['test:run']).to.include(flag);
     }
-    const explicit = ['test:dist:pipeline', 'test:external', 'test:integrity'];
-    for (const name of [...proofLanes(tasks['test:proofs']), ...explicit]) {
-      const args = tasks[name].trim().split(/\s+/);
-      expect(args.slice(0, 3), name).to.eql(['deno', 'task', 'test:run']);
+    const explicit = [
+      'test:dist:pipeline',
+      'test:external',
+      'test:integrity:apps',
+      'test:integrity',
+    ];
+    for (const name of [...proofTasks, ...explicit]) {
+      const lane = name.slice('test:'.length);
+      expect(tasks[name], name).to.eql(`deno task test:lane ${lane}`);
+      const args = commands([lane])[0];
+      expect(args.slice(0, 3), name).to.eql(['task', 'test:run', '--trace-leaks']);
       expect(args, name).not.to.include('test:unit');
-      expect(tasks[name], name).not.to.include('--ignore');
+      expect(args.some((arg) => arg.startsWith('--ignore')), name).to.eql(false);
+    }
+    expect(tasks['test:unit']).to.eql('deno task test:lane unit');
+    expect(tasks['test:proofs']).to.eql('deno task test:lane proofs');
+    expect(tasks['test:lane']).to.eql(
+      'deno run --node-modules-dir=auto -P=test --frozen --cached-only --no-prompt ./-scripts/task.test.ts',
+    );
+  });
+
+  it('aggregate contract → rejects missing, duplicate, reordered and optional lanes', () => {
+    const actual = commands(['proofs']);
+    assertProofs(actual);
+    for (
+      const invalid of [
+        actual.slice(1),
+        [...actual, actual[0]],
+        [...actual].reverse(),
+        [...actual, ...commands(['dist:pipeline'])],
+      ]
+    ) {
+      expect(() => assertProofs(invalid)).to.throw();
     }
   });
 
-  it('aggregate contract → tolerates whitespace/order but rejects lost lanes and non-fail-fast execution', () => {
-    const reordered = [...proofTasks].reverse();
-    const command = reordered.map((name) => ` deno  task  ${name} `).join('  &&  ');
-    expect(proofLanes(command)).to.eql(reordered);
-    const missing = proofTasks.filter((name) => name !== 'test:build');
-    expect(() => proofLanes(missing.map((name) => `deno task ${name}`).join(' && '))).to.throw(
-      'Missing required proof lane: test:build',
-    );
-    for (const separator of [';', '||', '&']) {
-      expect(() => proofLanes(command.replace('&&', separator))).to.throw(
-        'Expected fail-fast deno task chain',
-      );
+  it('forwarding → preserve paths, spaces and literal --; aggregate tail reaches final lane only', () => {
+    const tail = ['--filter=two words', './a path/test.ts', '--', 'literal $HOME', 'a;b'];
+    for (const name of ['unit', 'cache', ...Obj.keys(lanes)]) {
+      expect(commands([name, ...tail])).to.eql([[...commands([name])[0], ...tail]]);
     }
-    expect(() => proofLanes(`${command} && deno task test:dist:pipeline`)).to.throw(
-      'Dist pipeline must remain outside the proof aggregate',
-    );
+    const expected = commands(['proofs']).map((args) => [...args]);
+    expected[expected.length - 1].push(...tail);
+    expect(commands(['proofs', ...tail])).to.eql(expected);
+    for (const input of [[], ['missing'], ['constructor'], ['__proto__']]) {
+      expect(() => commands(input)).to.throw('Unknown test lane');
+    }
+  });
+
+  it('cache preparation → missing non-discovered proof entry is rejected', () => {
+    const args = commands(['cache'])[0];
+    const selected = commands(['proofs']).flatMap(paths);
+    const missing = args.filter((arg) => !arg.endsWith('-loader.npm.proof.ts'));
+    expect(() => assertCache(missing, selected)).to.throw();
   });
 
   it('coverage partition → file splits stay valid; excluded-but-unselected files fail', () => {
     const original = ['./src/one.test.ts'];
-    assertPartition(`deno task test:run --ignore=${original.join(',')}`, original);
+    assertPartition([`--ignore=${original.join(',')}`], original);
     const split = ['./src/two.test.ts', './src/one.test.ts'];
-    const unit = `deno task test:run --ignore=${split.join(',')}`;
+    const unit = [`--ignore=${split.join(',')}`];
     assertPartition(unit, [...split].reverse());
     expect(() => assertPartition(unit, ['./src/one.test.ts'])).to.throw(
       'Unit exclusions must match selected proof test files',
@@ -195,25 +227,53 @@ function taskNames(command: string): readonly string[] {
   });
 }
 
-function proofLanes(command: string): readonly string[] {
-  const names = taskNames(command);
-  for (const name of proofTasks) {
-    if (!names.includes(name)) throw Err.std(`Missing required proof lane: ${name}`);
+function assertCache(args: readonly string[], selected: readonly string[]) {
+  for (const path of selected.filter((path) => !path.endsWith('.test.ts'))) {
+    expect(args, `explicit proof entry must be warmed: ${path}`).to.include(path);
   }
-  if (names.includes('test:dist:pipeline')) {
-    throw Err.std('Dist pipeline must remain outside the proof aggregate');
-  }
-  return names;
 }
 
-function assertPartition(unit: string, selected: readonly string[]) {
-  const ignored = (unit.match(/(?:^|\s)--ignore=(\S+)/)?.[1] ?? '')
+/** Independent baseline: this is intentionally not derived from the production lane table. */
+function assertProofs(actual: readonly (readonly string[])[]) {
+  const expected = [
+    [
+      './src/-entry/-test.external/-graph.process.ts',
+      './src/-entry/-test.external/-serve.cached.process.ts',
+    ],
+    ['./src/m.vite/-test.external/-candidate-consumer.ts'],
+    [
+      './src/m.vite/-test/-build.test.ts',
+      './src/m.vite/-test/-build.workspace-composition.test.ts',
+      './src/m.vite/-test/-build.transitive-jsr.test.ts',
+      './src/m.vite/-test/-build.failure-causes.test.ts',
+      './src/m.vite/-test/-build.startup.test.ts',
+      './src/m.vite/-test/-published-fixture-lifecycle.test.ts',
+    ],
+    [
+      './src/m.vite/-test/-bootstrap.handoff.test.ts',
+      './src/m.vite/-test/-bridge.integration.test.ts',
+    ],
+    ['./src/m.vite/-test/-dev.test.ts'],
+    [
+      './src/m.vite.config/-test/-import-boundary.test.ts',
+      './src/m.vite.config/-test/-fromFile.test.ts',
+      './src/m.vite.config/-test/-serverFs.test.ts',
+    ],
+    ['./src/m.vite.plugins/m.OptimizeImports/-test/-u.graph-proof.test.ts'],
+    ['./src/m.vite.transport/-test/-loader.npm.proof.ts'],
+    ['./src/m.vite.plugins/m.HtmlIntegrity/-test/-html-integrity.build.test.ts'],
+  ];
+  expect(actual).to.eql(expected.map((files) => ['task', 'test:run', '--trace-leaks', ...files]));
+}
+
+function assertPartition(unit: readonly string[], selected: readonly string[]) {
+  const ignored = (unit.find((arg) => arg.startsWith('--ignore='))?.slice('--ignore='.length) ?? '')
     .split(',').filter((path) => path.length > 0).sort();
   expect(ignored, 'Unit exclusions must match selected proof test files').to.eql(
     selected.filter((path) => path.endsWith('.test.ts')).sort(),
   );
 }
 
-function paths(task: string) {
-  return task.trim().split(/\s+/).filter((arg) => arg === './src' || arg.startsWith('./src/'));
+function paths(args: readonly string[]) {
+  return args.filter((arg) => arg === './src' || arg.startsWith('./src/'));
 }

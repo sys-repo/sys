@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  type t,
-  Button,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Schedule,
-  Signal,
-} from './common.ts';
+import { css, D, Dev, LocalStorage, Obj, Schedule, Signal, type t } from './common.ts';
 
 type Storage = { theme?: t.CommonTheme };
 const defaults: Storage = {
@@ -95,18 +85,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Timer'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button block label={() => `run`} onClick={() => debug.run()} />
+      <Dev.Button block label={() => `run`} onClick={() => debug.run()} />
 
       <hr />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

@@ -1,17 +1,9 @@
 import { describe, expect, Fs, it, Path } from '../../-test.ts';
-import { denoLoaderLoadSpecifier, loadDenoModule, mediaTypeToLoader } from '../u/u.load.ts';
+import { denoLoaderLoadSpecifier, loadDenoModule } from '../u/u.load.ts';
 import { canonicalRemoteSpecifier, parseDenoSpecifier, toDenoSpecifier } from '../u/u.specifier.ts';
 
 describe('ViteTransport.load', () => {
   describe('specifier parsing', () => {
-    it('maps deno media types to transform loaders', () => {
-      expect(mediaTypeToLoader('JSX')).to.eql('jsx');
-      expect(mediaTypeToLoader('JavaScript')).to.eql('js');
-      expect(mediaTypeToLoader('Json')).to.eql('json');
-      expect(mediaTypeToLoader('TSX')).to.eql('tsx');
-      expect(mediaTypeToLoader('TypeScript')).to.eql('ts');
-    });
-
     it('normalizes encoded specifier paths', () => {
       const parsed = parseDenoSpecifier('\0deno::TypeScript::./mod.ts::/tmp/x/../mod.ts');
       expect(parsed.resolved).to.eql('/tmp/mod.ts');

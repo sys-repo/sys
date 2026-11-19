@@ -1,47 +1,21 @@
 import { expect, Is, Json, type t } from '../../-test.ts';
-
-export type FixtureName = 'fixture.echo' | 'fixture.fail' | 'fixture.emit' | 'fixture.ctx';
-
-export type FixturePayload = {
-  readonly 'fixture.echo': { readonly text: string; readonly suffix?: string };
-  readonly 'fixture.fail': { readonly message: string };
-  readonly 'fixture.emit': { readonly text: string };
-  readonly 'fixture.ctx': Record<string, never>;
-};
-
-export type FixtureResult = {
-  readonly 'fixture.echo': { readonly text: string };
-  readonly 'fixture.fail': Record<string, never>;
-  readonly 'fixture.emit': { readonly ok: true };
-  readonly 'fixture.ctx': {
-    readonly id: t.Cmd.ReqId;
-    readonly name: 'fixture.ctx';
-    readonly ns?: t.Cmd.Namespace;
-    readonly aborted: boolean;
-  };
-};
-
-export type FixtureEvent = {
-  readonly 'fixture.echo': never;
-  readonly 'fixture.fail': never;
-  readonly 'fixture.emit': { readonly text: string };
-  readonly 'fixture.ctx': never;
-};
-
-export type FixtureOptions = t.HttpCmd.HandlerOptions<
+import type {
+  FixtureEvent,
   FixtureName,
+  FixtureOptions,
   FixturePayload,
   FixtureResult,
-  FixtureEvent
->;
+} from './t.ts';
 
-export const NS = 'fixture.http.cmd' as t.Cmd.Namespace;
-export const URL = 'https://example.test/api/cmd' as t.StringUrl;
-export const PATH = '/api/cmd' as t.StringUrlRoute;
+export const POLICY = { maxBytes: { request: 1024, response: 4096 }, timeout: 1_000 } as const;
+export const NS: t.Cmd.Namespace = 'fixture.http.cmd';
+export const URL: t.StringUrl = 'https://example.test/api/cmd';
+export const PATH: t.StringUrlRoute = '/api/cmd';
 
 export function options(input: Partial<FixtureOptions> = {}): FixtureOptions {
   return {
     path: PATH,
+    policy: POLICY,
     cmd: { ns: NS, handlers: handlers() },
     ...input,
   };
@@ -116,29 +90,38 @@ export const fetchFor = (handler: t.HttpCmd.RequestHandler): t.Fetch => {
   return async (input, init) => await handler(new Request(input, init));
 };
 
-export async function expectCmdError(
+export async function expectFailure(
   fn: () => Promise<unknown>,
-  name: t.Cmd.Error.Kind,
-): Promise<t.Cmd.Error.Instance> {
+  kind: t.HttpCmd.FailureKind,
+  dispatch: t.HttpCmd.Error['dispatch'] = 'possible',
+): Promise<t.HttpCmd.Error> {
   try {
     await fn();
   } catch (error) {
     expect(error).to.be.instanceOf(Error);
-    const err = error as t.Cmd.Error.Instance;
-    expect(err.name).to.eql(name);
+    const err = error as t.HttpCmd.Error;
+    expect(err.name).to.eql('HttpCmdError');
+    expect(err.kind).to.eql(kind);
+    expect(err.dispatch).to.eql(dispatch);
+    expect(err.message).to.eql(`HTTP command failed: ${kind}.`);
+    expect(Object.isFrozen(err)).to.eql(true);
+    expect(Object.getOwnPropertyNames(err).sort()).to.eql([
+      'dispatch',
+      'kind',
+      'message',
+      'name',
+      ...(err.status === undefined ? [] : ['status']),
+    ].sort());
     return err;
   }
-  throw new Error(`Expected ${name}.`);
+  throw new Error(`Expected ${kind}.`);
 }
 
 export function abortableFetch(): {
   readonly fetch: t.Fetch;
   readonly aborted: Promise<unknown>;
 } {
-  let resolveAbort: (reason: unknown) => void = () => undefined;
-  const aborted = new Promise<unknown>((resolve) => {
-    resolveAbort = resolve;
-  });
+  const { promise: aborted, resolve: resolveAbort } = Promise.withResolvers<unknown>();
 
   const fetch: t.Fetch = (_input, init) => {
     const signal = init?.signal;

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Icons, Is, LocalStorage, Obj, Signal, Str } from '../common.ts';
+import { Color, css, D, Dev, Icons, Is, LocalStorage, Obj, Signal, Str, type t } from './common.ts';
 import { Item } from '../mod.ts';
 
 type Padding = t.IndexTreeViewItemLib['Presets']['Padding'];
@@ -111,12 +110,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.label.value;
@@ -129,7 +128,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.label, ['My-Label 👋', el, Str.Lorem.words(15), undefined]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.description.value;
@@ -142,7 +141,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.description, ['My-Description 👋', el, Str.Lorem.words(15), undefined]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.chevron.value;
@@ -155,7 +154,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.chevron, [false, true, el, undefined]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const preset = (p.paddingPreset.value ?? 'default') as PaddingPreset;
@@ -166,34 +165,39 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value ?? `(undefined) (default: ${D.enabled})`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `active: ${p.active.value ?? `(undefined) (default: ${D.active})`}`}
         onClick={() => Signal.toggle(p.active)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `selected: ${p.selected.value ?? `(undefined) (default: ${D.selected})`}`}
         onClick={() => Signal.toggle(p.selected)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `(reset)`}
         onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

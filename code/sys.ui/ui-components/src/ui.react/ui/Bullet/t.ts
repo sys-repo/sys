@@ -13,6 +13,8 @@ export type BulletProps = {
 
   // Appearance:
   size?: t.Pixels;
+  /** Foreground border alpha in every state (0..1); fill is unchanged. */
+  borderOpacity?: t.Percent;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

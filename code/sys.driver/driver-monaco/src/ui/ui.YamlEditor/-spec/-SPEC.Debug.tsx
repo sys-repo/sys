@@ -3,19 +3,18 @@ import { YamlObjectView } from '../../-dev/mod.ts';
 
 import { createUiRepo } from '../../-test.ui.ts';
 import {
-  type t,
-  Button,
   Crdt,
   css,
   D,
+  Dev,
   LocalStorage,
   Obj,
-  ObjectView,
   Rx,
   Signal,
   STORAGE_KEY,
   Str,
-} from '../common.ts';
+  type t,
+} from './common.ts';
 import { normalizeSourcePath } from '../u.ts';
 
 type P = t.YamlEditorProps;
@@ -205,13 +204,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{`${D.name}`}</div>
         <div>{'YAML'}</div>
       </div>
-      <Button
+      <Dev.Button
         block
         label={() => `render: ${p.render.value}`}
         onClick={() => Signal.toggle(p.render)}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.storeParsedYaml.value;
@@ -221,12 +220,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.path.value;
@@ -236,62 +235,62 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `editor.margin: ${p.editor.margin.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.editor.margin, [0, 50, [100, 80], undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `editor.minimap: ${p.editor.minimap.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.editor.minimap)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `editor.enabled: ${p.editor.enabled.value}`}
         onClick={() => Signal.toggle(p.editor.enabled)}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `editor.debounce: ${p.editor.debounce.value}`}
         onClick={() => Signal.cycle(p.editor.debounce, [0, 40, 100, 1000])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `editor.spinning: ${p.editor.spinning.value}`}
         onClick={() => Signal.toggle(p.editor.spinning)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `editor.wordWrap: ${p.editor.wordWrap.value}`}
         onClick={() => Signal.toggle(p.editor.wordWrap)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `documentId.visible: ${p.documentId.visible.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.documentId.visible)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `documentId.readOnly: ${p.documentId.readOnly.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.documentId.readOnly)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `documentId.urlKey: ${p.documentId.urlKey.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.documentId.urlKey, ['foo', undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `footer.visible: ${p.footer.visible.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.footer.visible)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `footer.repo: ${p.footer.repo.value ?? `<undefined>`}`}
         onClick={() => Signal.toggle(p.footer.repo)}
@@ -300,7 +299,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>{'Mutate'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `delete: "${sourcePath()?.join('/')}"`}
         onClick={() => {
@@ -311,17 +310,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `diagnostics: ${p.diagnostics.value}`}
         onClick={() => Signal.cycle(p.diagnostics, [D.diagnostics, 'none'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `(reset → reload)`}
         onClick={() => {
@@ -330,7 +329,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />
+      <Dev.ObjectView name={'debug'} data={safeProps(debug)} expand={0} style={{ marginTop: 15 }} />
       <YamlObjectView
         style={{ marginTop: 5 }}
         bus$={debug.bus$}

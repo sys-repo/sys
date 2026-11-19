@@ -1,15 +1,21 @@
 import { Is, Rx, Schedule, type t, toHeaders } from '../common.ts';
+import type { InvokeFetchArgs, MakeFetchDependencies, SignalComposition } from './t.ts';
 import { policyFailureResponse } from './u.failure.ts';
 import { defaultHeaders } from './u.headers.ts';
 import { inputHref, safeHref, validateResponsePolicy } from './u.input.ts';
-import { type InvokeFetch, invokeFetch } from './u.invoke.ts';
+import { invokeFetch } from './u.invoke.ts';
 import { composeSignals } from './u.signal.ts';
 
 type F = t.HttpFetch.Lib['make'];
 
-export type MakeFetchDependencies = {
-  readonly invoke: InvokeFetch;
+type Snapshot = Omit<t.HttpFetch.CreateOptions, 'policy'> & {
+  readonly policy?: t.HttpFetch.ResponsePolicy;
 };
+
+type RequestArgs<T> = Omit<
+  InvokeFetchArgs<T>,
+  'contentTypePolicy' | 'policy' | 'externalSignal' | 'defaultHeaders'
+>;
 
 const DEFAULT_DEPS: MakeFetchDependencies = { invoke: invokeFetch };
 
@@ -19,11 +25,8 @@ export const makeFetch: F = (input) => makeFetchWith(DEFAULT_DEPS, input);
 /** Package-internal bounded Fetch construction seam. */
 export function makeFetchWith(
   deps: MakeFetchDependencies,
-  input: Parameters<F>[0],
-): ReturnType<F> {
-  type Snapshot = Omit<t.HttpFetch.CreateOptions, 'policy'> & {
-    readonly policy?: t.HttpFetch.ResponsePolicy;
-  };
+  input: t.HttpFetch.CreateOptions,
+): t.HttpFetch.Instance {
   let createOptions: Snapshot = {};
   let optionsValid = false;
 
@@ -47,7 +50,7 @@ export function makeFetchWith(
     ? validateResponsePolicy(createOptions.policy)
     : { ok: false as const };
   let policy = validated.ok ? validated.value : undefined;
-  let life: ReturnType<typeof Rx.abortable>;
+  let life: t.Abortable;
   try {
     life = Rx.abortable(createOptions.until);
   } catch {
@@ -55,27 +58,11 @@ export function makeFetchWith(
     life = Rx.abortable();
   }
 
-  const invoke = async <T>(args: {
-    readonly contentType: t.StringContentType;
-    readonly method: 'GET' | 'HEAD';
-    readonly input: t.FetchInput;
-    readonly init: t.HttpFetch.Init;
-    readonly options: t.HttpFetch.Options;
-    readonly decode: (bytes: Uint8Array<ArrayBuffer>, response: Response) => Promise<T>;
-    readonly checksumSource: 'bytes' | 'value';
-  }): Promise<t.HttpFetch.Response<T>> => {
+  const invoke = async <T>(args: RequestArgs<T>): Promise<t.HttpFetch.Response<T>> => {
     // Rx bridges a pre-aborted lifecycle signal on a microtask; latch it before network work.
     await Schedule.micro();
-    let callerSignal: AbortSignal | undefined;
-    try {
-      callerSignal = args.init.signal ?? undefined;
-    } catch {
-      return policyFailureResponse(args.method, safeHref(inputHref(args.input)), 'invalid-request');
-    }
-    let request: ReturnType<typeof composeSignals>;
-    try {
-      request = composeSignals(life.signal, callerSignal);
-    } catch {
+    const request = requestSignals(life.signal, args.init);
+    if (!request) {
       return policyFailureResponse(args.method, safeHref(inputHref(args.input)), 'invalid-request');
     }
     try {
@@ -159,6 +146,21 @@ export function makeFetchWith(
     text,
     blob,
   });
+}
+
+/**
+ * Helpers:
+ */
+function requestSignals(
+  parent: AbortSignal,
+  init: t.HttpFetch.Init,
+): SignalComposition | undefined {
+  try {
+    return composeSignals(parent, init.signal ?? undefined);
+  } catch {
+    // Signal access and composition share the request-admission failure boundary.
+    return;
+  }
 }
 
 function isCreateOptions(input: Omit<t.HttpFetch.CreateOptions, 'policy'>): boolean {

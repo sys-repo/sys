@@ -1,6 +1,6 @@
 import React from 'react';
 import { Programme } from '../../../ui.Programme/mod.ts';
-import { type t, Button, css } from '../common.ts';
+import { css, Dev, type t } from './common.ts';
 
 type P = t.PlaylistProps;
 
@@ -26,7 +26,7 @@ export function itemsButtons(signal: t.Signal<P['items']>, options: { title?: st
       return `items: ${input} ${suffix}`.trim();
     };
     const el = (
-      <Button
+      <Dev.Button
         block
         key={`items-${children.length}`}
         label={() => {

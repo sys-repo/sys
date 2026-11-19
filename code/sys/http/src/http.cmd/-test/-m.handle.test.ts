@@ -1,12 +1,6 @@
 import { describe, expect, it } from '../../-test.ts';
 import { HttpCmd } from '../mod.ts';
-import {
-  NS,
-  options,
-  optionsWithoutCtxHandler,
-  request,
-  result,
-} from './u.fixture.ts';
+import { NS, options, optionsWithoutCtxHandler, request, result } from './u.fixture.ts';
 
 describe('HttpCmd.handle', () => {
   it('handles one Request and passes typed command context', async () => {
@@ -32,9 +26,9 @@ describe('HttpCmd.handle', () => {
     );
     const msg = await result(response);
 
-    expect(response.status).to.eql(200);
+    expect(response.status).to.eql(500);
     expect(msg.payload).to.eql(undefined);
-    expect(msg.error).to.eql('boom');
+    expect(msg.error).to.eql('HTTP command failed.');
   });
 
   it('returns Cmd result errors for missing handlers', async () => {
@@ -46,8 +40,8 @@ describe('HttpCmd.handle', () => {
     );
     const msg = await result(response);
 
-    expect(response.status).to.eql(200);
-    expect(msg.error).to.eql('No handler registered for command "fixture.ctx".');
+    expect(response.status).to.eql(404);
+    expect(msg.error).to.eql('HTTP command failed.');
   });
 
   it('keeps unary HTTP JSON honest by ignoring emitted events', async () => {
@@ -69,7 +63,7 @@ describe('HttpCmd.handle', () => {
     );
 
     expect(response.status).to.eql(400);
-    expect(await response.text()).to.eql('Request body must be valid JSON.');
+    expect(await response.text()).to.eql('');
   });
 
   it('rejects non-Cmd JSON with 400', async () => {
@@ -79,7 +73,7 @@ describe('HttpCmd.handle', () => {
     );
 
     expect(response.status).to.eql(400);
-    expect(await response.text()).to.eql('Request body must be a Cmd request.');
+    expect(await response.text()).to.eql('');
   });
 
   it('rejects non-POST methods with 405', async () => {
@@ -99,7 +93,7 @@ describe('HttpCmd.handle', () => {
     );
 
     expect(response.status).to.eql(404);
-    expect(await response.text()).to.eql('Not Found');
+    expect(await response.text()).to.eql('');
   });
 
   it('isolates namespaces with 404', async () => {
@@ -109,6 +103,6 @@ describe('HttpCmd.handle', () => {
     );
 
     expect(response.status).to.eql(404);
-    expect(await response.text()).to.eql('Not Found');
+    expect(await response.text()).to.eql('');
   });
 });

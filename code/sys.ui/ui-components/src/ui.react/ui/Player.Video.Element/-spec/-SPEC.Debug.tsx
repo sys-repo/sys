@@ -1,32 +1,33 @@
 import React from 'react';
 import { Player } from '../../Player/mod.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal, Str, Url } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, Str, type t, Url } from './common.ts';
 import { SAMPLE_PATHS, SampleVideoButtons } from './mod.ts';
 
 type P = t.VideoElementProps;
-type Storage = Pick<
-  P,
-  | 'theme'
-  | 'debug'
-  | 'muted'
-  | 'autoPlay'
-  | 'cornerRadius'
-  | 'loop'
-  | 'aspectRatio'
-  | 'fadeMask'
-  | 'slice'
-  | 'controls'
-  | 'interaction'
-> & {
-  width?: number;
-  controlled?: boolean;
-  logSignals?: boolean;
-  endpointLocalhost?: boolean;
-  urlPath?: string;
-  urlCopied?: boolean;
-  infoPanel?: boolean;
-};
+type Storage =
+  & Pick<
+    P,
+    | 'theme'
+    | 'debug'
+    | 'muted'
+    | 'autoPlay'
+    | 'cornerRadius'
+    | 'loop'
+    | 'aspectRatio'
+    | 'fadeMask'
+    | 'slice'
+    | 'controls'
+    | 'interaction'
+  >
+  & {
+    width?: number;
+    controlled?: boolean;
+    logSignals?: boolean;
+    endpointLocalhost?: boolean;
+    urlPath?: string;
+    urlCopied?: boolean;
+    infoPanel?: boolean;
+  };
 
 /**
  * Types:
@@ -235,7 +236,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Player.Video: Element'}</div>
         {p.controlled.value && <CurrentTime video={debug.video} />}
       </div>
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.controlled.value;
@@ -250,36 +251,36 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Props:'}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !p.controlled.value}
         label={() => `muted: ${p.muted.value}`}
         onClick={() => Signal.toggle(p.muted)}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !p.controlled.value}
         label={() => `autoPlay: ${p.autoPlay.value}`}
         onClick={() => Signal.toggle(p.autoPlay)}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !p.controlled.value}
         label={() => `loop: ${p.loop.value}`}
         onClick={() => Signal.toggle(p.loop)}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !p.controlled.value}
         label={() => `cornerRadius: ${p.cornerRadius.value}`}
         onClick={() => Signal.cycle(p.cornerRadius, [0, 6, 15])}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !p.controlled.value}
         label={() => {
@@ -290,7 +291,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.slice, [undefined, '00:00:00..00:00:45', '00:00:10..-00:00:20']);
         }}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !p.controlled.value}
         label={() => {
@@ -308,7 +309,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !p.controlled.value}
         label={() => {
@@ -330,31 +331,31 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>{'Methods:'}</div>
 
-      <Button
+      <Dev.Button
         block
         enabled={() => !!p.controlled.value}
         label={`method: jumpTo( 0, paused )`}
         onClick={() => debug.video?.jumpTo(0, { play: false })}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !!p.controlled.value}
         label={`method: jumpTo( 12, paused )`}
         onClick={() => debug.video?.jumpTo(12, { play: false })}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !!p.controlled.value}
         label={`method: jumpTo( 12, play )`}
         onClick={() => debug.video?.jumpTo(12)}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !!p.controlled.value}
         label={`method: jumpTo( -2, play )`}
         onClick={() => debug.video?.jumpTo(-2, { play: true })}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !!p.controlled.value}
         label={`method: jumpTo( -2, paused )`}
@@ -362,7 +363,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.interaction.clickToPlay.value;
@@ -374,8 +375,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Example States:'}</div>
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <Button
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.Button
         block
         label={() => `controls → rounded inset`}
         onClick={() => {
@@ -388,12 +389,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.endpointLocalhost.value;
@@ -401,24 +402,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.toggle(p.endpointLocalhost)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `show InfoPanel: ${p.infoPanel.value}`}
         onClick={() => Signal.toggle(p.infoPanel)}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !!p.controlled.value}
         label={() => `Video.useSignals: log: ${p.logSignals.value}`}
         onClick={() => Signal.toggle(p.logSignals)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `width: ${p.width.value}`}
         onClick={() => Signal.cycle(p.width, [320, 420, 420, 600])}
       />
 
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={{
           ...Signal.toObject(p),
@@ -428,7 +429,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ marginTop: 15 }}
       />
       {p.controlled.value && (
-        <ObjectView
+        <Dev.ObjectView
           name={'signals'}
           data={{
             instance: debug.video?.instance,

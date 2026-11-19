@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, Effect, ObjectView, PlaybackDriver } from '../common.ts';
+import { Color, css, Dev, Effect, PlaybackDriver, type t } from './common.ts';
 
 export type PayloadProps = {
   controller?: t.SlugPlaybackController;
@@ -37,7 +37,7 @@ export const Payload: React.FC<PayloadProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <ObjectView
+      <Dev.ObjectView
         theme={theme.name}
         name={'payload'}
         data={payload}

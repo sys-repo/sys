@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { type t, Color, css, Signal, D, Rx, Obj, Str, Is } from './common.ts';
+import type React from 'react';
+import { Color, css, D, Str, type t } from './common.ts';
 import { useScopedStyles } from './use.Styles.ts';
 
 type P = t.ProseManuscript.Props;
@@ -9,12 +9,12 @@ type P = t.ProseManuscript.Props;
  */
 export const Manuscript: React.FC<P> = (props) => {
   const { debug = false } = props;
-  const { componentAttr } = useScopedStyles(props); // ← 🐷 delete if not using CSS scoped styles.
+  const theme = Color.theme(props.theme);
+  const scoped = useScopedStyles({ component: D.componentAttr, theme });
 
   /**
    * Render:
    */
-  const theme = Color.theme(props.theme);
   const styles = {
     base: css({
       backgroundColor: Color.ruby(debug),
@@ -24,7 +24,7 @@ export const Manuscript: React.FC<P> = (props) => {
   };
 
   return (
-    <div className={css(styles.base, props.style).class} data-component={componentAttr}>
+    <div className={css(styles.base, scoped, props.style).class} data-component={D.componentAttr}>
       <div>{`🐷 Manuscript`}</div>
       <div>
         <h1>Heading-1</h1>

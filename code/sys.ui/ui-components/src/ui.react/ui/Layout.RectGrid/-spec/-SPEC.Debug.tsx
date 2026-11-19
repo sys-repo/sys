@@ -1,13 +1,14 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { Num } from '../../common.ts';
 
 type P = t.RectGridProps;
-type Storage = Pick<
-  P,
-  'debug' | 'theme' | 'activeIndex' | 'minColumnWidth' | 'gap' | 'aspectRatio' | 'activeIndex'
-> & { total?: number };
+type Storage =
+  & Pick<
+    P,
+    'debug' | 'theme' | 'activeIndex' | 'minColumnWidth' | 'gap' | 'aspectRatio' | 'activeIndex'
+  >
+  & { total?: number };
 const defaults: Storage = {
   debug: true,
   theme: 'Dark',
@@ -111,18 +112,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'( Layout )'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() =>
-          `minColumnWidth: ${v.minColumnWidth ?? `(undefined) ← default: ${D.minColumnWidth}`}`
-        }
+          `minColumnWidth: ${v.minColumnWidth ?? `(undefined) ← default: ${D.minColumnWidth}`}`}
         onClick={() => {
           Signal.cycle(p.minColumnWidth, [
             D.minColumnWidth, // default 280
@@ -133,7 +133,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           ]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const value = v.aspectRatio ? Num.round(v.aspectRatio, 2) : v.aspectRatio;
@@ -152,7 +152,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `activeIndex: ${p.activeIndex.value}`}
         onClick={() =>
@@ -161,25 +161,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
             Array(v.total)
               .fill(null)
               .map((_, i) => i),
-          )
-        }
+          )}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `total: add`}
         onClick={() => (p.total.value = (v.total ?? 0) + 1)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `total: remove`}
         onClick={() => (p.total.value = Num.clamp(0, Number.POSITIVE_INFINITY, (v.total ?? 0) - 1))}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

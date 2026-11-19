@@ -1,17 +1,18 @@
 {
   "name": "@tdb/data",
-  "version": "0.0.118",
+  "version": "0.0.119",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts",
     "test:dist": "deno test -P=test --trace-leaks ./src/fs/m.DataPipeline/-test/-u.dist.test.ts",
+    "test:choices": "deno test -P=test ./src/ui/-dev/ui.HttpDataCards/-test/ ./src/ui/ui.Mounts/-test/",
     "dev": "deno run -A ./-scripts/task.vite.ts --cmd=dev --in=./src/index.html",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.vite.ts --cmd=serve",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check -- ./src/ ./-scripts/*",
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
-    "info": "deno run -P=dev ./-scripts/task.vite.ts --cmd=info",
+    "info": "deno run -A ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts",
     "cli": "deno run -P=cli ./-scripts/task.cli.ts",
     "sample:create": "deno run -P=test ./-scripts/task.sample.create.ts",
@@ -65,3 +66,4 @@
     }
   }
 }
+

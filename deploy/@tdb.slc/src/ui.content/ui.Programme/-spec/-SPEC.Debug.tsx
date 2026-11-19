@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, D, ObjectView, Player, Signal } from '../common.ts';
+import { css, D, Dev, Player, Signal, type t } from './common.ts';
 import { Programme } from '../mod.ts';
 import { programmeSectionButtons, Styles, videoPlayerButton } from './-SPEC.u.tsx';
 
@@ -60,17 +60,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${debug.props.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(debug.props.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `align: ${p.align.value ?? `<undefined> (default: ${D.align})`}`}
         onClick={() => Signal.cycle(p.align, ['Center', 'Right'])}
@@ -83,8 +83,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {videoPlayerButton(debug.video)}
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={0} margin={[5, 0]} />
-      <ObjectView
+      <Dev.ObjectView name={'debug'} data={Signal.toObject(debug)} expand={0} margin={[5, 0]} />
+      <Dev.ObjectView
         name={'state'}
         data={Signal.toObject(debug.state.props)}
         expand={{ paths: ['$', '$.section'] }}

@@ -1,7 +1,7 @@
 import type { InfoPanelProps } from './ui.InfoPanel.tsx';
 
 import React from 'react';
-import { type t, Button, Color, css, Json, ObjectView } from './common.ts';
+import { Color, css, Json, type t, UiDev } from './common.ts';
 
 /**
  * Component:
@@ -29,7 +29,7 @@ export const Debug: React.FC<P> = (props) => {
   const obj = (n: string, d: unknown, marginTop = 8, expand = 1, debug = true) => {
     if (debug) data.set(n, d);
     return (
-      <ObjectView
+      <UiDev.ObjectView
         name={n}
         data={d}
         fontSize={10}
@@ -44,7 +44,12 @@ export const Debug: React.FC<P> = (props) => {
     <div className={css(styles.base, props.style).class}>
       {beat && obj('props.beat', beat)}
       {snapshot && obj('playback.snapshot', wrangle.snapshotData(props))}
-      <Button theme={theme.name} style={{ marginTop: 10 }} label={'copy'} onClick={handleCopy} />
+      <UiDev.Button
+        theme={theme.name}
+        style={{ marginTop: 10 }}
+        label={'copy'}
+        onClick={handleCopy}
+      />
     </div>
   );
 };

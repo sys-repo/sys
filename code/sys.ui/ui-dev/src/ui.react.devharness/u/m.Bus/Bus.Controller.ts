@@ -1,4 +1,4 @@
-import { Context } from '../m.Ctx/mod.ts';
+import { initContext } from '../m.Ctx/Context.ts';
 import { BusEvents } from './Bus.Events.ts';
 import { BusMemoryState } from './Bus.MemoryState.ts';
 import { DEFAULTS, Id, Is, Obj, Rx, RxBus, type t, Test } from './common.ts';
@@ -22,6 +22,9 @@ export function BusController(args: {
     until: args.until,
   });
   const { dispose$ } = events;
+  let resetting = false;
+  let replacements = 0;
+  const isAttachable = () => !events.disposed && !resetting && replacements === 0;
 
   const state = BusMemoryState({
     instance: args.instance,
@@ -41,7 +44,7 @@ export function BusController(args: {
       return Ctx._ || (Ctx._ = await Ctx.init());
     },
     async init() {
-      const context = await Context.init(args.instance, { env, until: dispose$ });
+      const context = await initContext(args.instance, { env, until: dispose$ }, isAttachable);
       await state.change('context:init', (draft) => Ctx.resetInfo(draft));
       return context;
     },
@@ -82,40 +85,76 @@ export function BusController(args: {
    */
   events.load.req$.subscribe(async (e) => {
     const { tx } = e;
+    let replacing = false;
     let error: string | undefined;
 
     try {
-      const spec = e.bundle ? await Test.bundle(e.bundle) : undefined;
-      await events.reset.fire();
-      await state.change('spec:load', (draft) => (draft.spec = spec));
-    } catch (err: any) {
-      error = err.message;
-    }
+      try {
+        const spec = e.bundle ? await Test.bundle(e.bundle) : undefined;
+        if (events.disposed) return;
+        // Hold across reset response → load continuation; overlapping loads own separate holds.
+        replacements++;
+        replacing = true;
+        const reset = await events.reset.fire();
+        if (reset.error) throw new Error(reset.error);
+        if (events.disposed) return;
+        await state.change('spec:load', (draft) => (draft.spec = spec));
+      } catch (err) {
+        error = Is.error(err) ? err.message : String(err);
+      }
 
-    const info = state.current;
-    bus.fire({
-      type: 'sys.dev/load:res',
-      payload: { tx, instance, info, error },
-    });
+      if (events.disposed) return;
+      const info = state.current;
+      bus.fire({
+        type: 'sys.dev/load:res',
+        payload: { tx, instance, info, error },
+      });
+    } finally {
+      if (replacing) replacements--;
+    }
   });
 
   /**
-   * Context: Reset.
+   * Context: Reset. Serialize requests so reentrant reset cannot overtake retirement observers.
    */
-  events.reset.req$.subscribe(async (e) => {
-    const { tx } = e;
-
-    await state.change('reset', (draft) => {
-      draft.instance.session = Id.ctx.create();
-      Ctx.resetInfo(draft);
-    });
-    await Ctx.current();
-
-    bus.fire({
-      type: 'sys.dev/reset:res',
-      payload: { tx, instance, info: state.current },
-    });
+  const resetQueue: t.DevResetReq[] = [];
+  dispose$.subscribe(() => (resetQueue.length = 0));
+  events.reset.req$.subscribe((e) => {
+    resetQueue.push(e);
+    if (!resetting) void drainResets();
   });
+
+  async function drainResets() {
+    resetting = true;
+    try {
+      while (resetQueue.length > 0 && !events.disposed) {
+        const { tx } = resetQueue.shift()!;
+        let error: string | undefined;
+        try {
+          bus.fire({ type: 'sys.dev/reset:before', payload: { tx, instance } });
+          if (events.disposed) return;
+
+          await state.change('reset', (draft) => {
+            draft.instance.session = Id.ctx.create();
+            Ctx.resetInfo(draft);
+          });
+          if (events.disposed) return;
+          await Ctx.current();
+        } catch (err) {
+          error = Is.error(err) ? err.message : String(err);
+        }
+
+        if (events.disposed) return;
+        bus.fire({
+          type: 'sys.dev/reset:res',
+          payload: { tx, instance, info: state.current, error },
+        });
+      }
+    } finally {
+      resetQueue.length = 0;
+      resetting = false;
+    }
+  }
 
   /**
    * Run the test suite.

@@ -1,9 +1,11 @@
-import { describe, expect, Fs, it, Path } from '../../-test.ts';
+import { describe, expect, Fs, it, Path, type t, Try } from '../../-test.ts';
 import { relativeFromImportMap, resolveFromImportMap } from '../../-test/u.importMap.ts';
 import { Vite } from '../../m.vite/mod.ts';
 import { ViteStartup } from '../mod.ts';
 
-describe(`ViteStartup`, () => {
+type ImportMap = { imports: t.ViteStartup.Imports; scopes?: t.ViteStartup.Scopes };
+
+describe('ViteStartup', () => {
   it('API', () => {
     expect(Vite.Startup).to.equal(ViteStartup);
   });
@@ -35,7 +37,7 @@ describe(`ViteStartup`, () => {
     });
 
     const res = await ViteStartup.Projection.create({
-      cwd: root as never,
+      cwd: root,
       vite: 'npm:vite@8.0.9',
     });
 
@@ -84,7 +86,7 @@ describe(`ViteStartup`, () => {
     });
 
     const res = await ViteStartup.Projection.create({
-      cwd: child as never,
+      cwd: child,
       vite: 'npm:vite@8.0.9',
     });
 
@@ -95,9 +97,14 @@ describe(`ViteStartup`, () => {
     expect(res.imports['@root/only']).to.eql(undefined);
   });
 
-  it('Delivery.create derives a stable path from equivalent startup authority', async () => {
+  it('Delivery.create isolates equal and unequal authorities while preserving stable identity', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.startup.delivery.identity-' });
     const root = tmp.absolute;
+    await using _root = {
+      async [Symbol.asyncDispose]() {
+        await Fs.remove(root);
+      },
+    };
     await Fs.writeJson(`${root}/package.json`, {
       dependencies: { vite: '8.0.9' },
     });
@@ -108,23 +115,76 @@ describe(`ViteStartup`, () => {
     });
 
     const authority = await ViteStartup.Projection.create({
-      cwd: root as never,
+      cwd: root,
       vite: 'npm:vite@8.0.9',
     });
     const first = await ViteStartup.Delivery.create({ authority });
-    const second = await ViteStartup.Delivery.create({ authority });
+    const second = await ViteStartup.Delivery.create({
+      authority: {
+        ...authority,
+        imports: Object.fromEntries(Object.entries(authority.imports).reverse()),
+      },
+    });
+    const different = await ViteStartup.Delivery.create({
+      authority: { ...authority, imports: { ...authority.imports, '@sys/http': './src/other.ts' } },
+    });
 
     try {
-      expect(first.path).to.eql(second.path);
+      await first.cleanup();
+      await first.cleanup(); // Cleanup is idempotent and cannot release another handle's files.
+      for (const handle of [second, different]) {
+        expect(await Fs.exists(handle.path)).to.eql(true);
+        const map = await Fs.readJson<ImportMap>(handle.path);
+        const shim = Path.fromFileUrl(map.data?.imports['#module-sync-enabled'] ?? '');
+        expect((await Fs.readText(shim)).data).to.eql('export default false;\n');
+      }
+      expect(await Fs.exists(Path.dirname(first.path))).to.eql(false);
+      expect(first.path).not.to.eql(second.path);
+      expect(Path.basename(first.path)).to.eql(Path.basename(second.path));
+      expect(Path.basename(first.path)).not.to.eql(Path.basename(different.path));
     } finally {
       await first.cleanup();
       await second.cleanup();
+      await different.cleanup();
     }
+  });
+
+  it('Delivery.create rolls back owned files when setup fails', async () => {
+    const { absolute: root } = await Fs.makeTempDir({ prefix: 'vite.startup.delivery.failure-' });
+    await using _root = {
+      async [Symbol.asyncDispose]() {
+        await Fs.remove(root);
+      },
+    };
+    await Fs.writeJson(`${root}/package.json`, {});
+    const error = new Error('delivery setup failed');
+    const { result } = await Try.run(() =>
+      ViteStartup.Delivery.create({
+        authority: {
+          dir: root,
+          imports: {},
+          get scopes(): never {
+            throw error; // Fail after the shim is written, without mocking filesystem operations.
+          },
+        },
+      })
+    );
+    expect(result.ok).to.eql(false);
+    if (!result.ok) expect(result.error).to.equal(error);
+    const parent = Path.join(root, 'node_modules/.vite/.sys-driver-vite/startup');
+    const remaining: t.StringPath[] = [];
+    for await (const entry of Fs.walk(parent, { maxDepth: 1 })) remaining.push(entry.path);
+    expect(remaining).to.eql([parent]);
   });
 
   it('Delivery.create materializes and cleans up the child startup handle', async () => {
     const tmp = await Fs.makeTempDir({ prefix: 'vite.startup.delivery-' });
     const root = tmp.absolute;
+    await using _root = {
+      async [Symbol.asyncDispose]() {
+        await Fs.remove(root);
+      },
+    };
     await Fs.writeJson(`${root}/package.json`, {
       dependencies: { vite: '8.0.9' },
     });
@@ -146,14 +206,11 @@ describe(`ViteStartup`, () => {
     });
 
     const authority = await ViteStartup.Projection.create({
-      cwd: root as never,
+      cwd: root,
       vite: 'npm:vite@8.0.9',
     });
     const handle = await ViteStartup.Delivery.create({ authority });
-    const written = await Fs.readJson<{
-      imports?: Record<string, string>;
-      scopes?: Record<string, unknown>;
-    }>(handle.path);
+    const written = await Fs.readJson<ImportMap>(handle.path);
 
     expect(handle.path.includes('.vite.bootstrap.')).to.eql(true);
     expect(handle.path.includes('node_modules/.vite/.sys-driver-vite/startup')).to.eql(true);
@@ -175,10 +232,7 @@ describe(`ViteStartup`, () => {
 
     await handle.cleanup();
     expect(await Fs.exists(handle.path)).to.eql(false);
-    const moduleSyncPath = written.data?.imports?.['#module-sync-enabled']
-      ? new URL(written.data.imports['#module-sync-enabled']).pathname
-      : '';
-    expect(moduleSyncPath.length > 0).to.eql(true);
-    expect(moduleSyncPath ? await Fs.exists(moduleSyncPath) : true).to.eql(false);
+    const moduleSyncPath = Path.fromFileUrl(written.data?.imports['#module-sync-enabled'] ?? '');
+    expect(await Fs.exists(moduleSyncPath)).to.eql(false);
   });
 });

@@ -1,51 +1,91 @@
 import type { t } from './common.ts';
 
 /**
- * A list of <Bullet>'s.
+ * A semantic list of actions or caller-controlled choices.
  */
-export namespace BulletList {
-  /** Public BulletList module surface and helper functions. */
+export declare namespace BulletList {
+  /** Public renderer and pure caller-owned selection helper. */
   export type Lib = {
-    readonly UI: t.FC<Props>;
-    readonly toggle: (selected: Selected | undefined, id: string) => string[];
+    readonly UI: <Id extends string = string>(props: Props<Id>) => t.ReactNode;
+    readonly toggle: <Id extends string = string>(
+      selected: Selected<Id> | undefined,
+      id: Id,
+    ) => readonly Id[];
   };
-  /** Selected ids, as a single id or multi-select list. */
-  export type Selected = t.StringId | t.StringId[];
 
-  /** Clickable bullet item with optional label and enabled state. */
-  export type SelectableItem = {
-    kind?: 'item';
-    id: t.StringId;
-    label?: t.ReactNode;
-    enabled?: boolean;
-  };
-  /** Non-selectable content row rendered inline in the list. */
-  export type ContentItem = {
-    kind: 'content';
-    key: t.StringId;
-    render: () => t.ReactNode;
-  };
-  /** Union of all row variants supported by BulletList. */
-  export type Item = SelectableItem | ContentItem;
+  /** Host-relative text and marker sizes; md retains the host's text size. */
+  export type Size = 'xs' | 'sm' | 'md';
 
-  /** Component props for rendering a bullet list and selection state. */
-  export type Props = {
-    items: Item[];
-    selected?: Selected;
+  /** A controlled choice or set; undefined omits selection semantics, while [] selects nothing. */
+  export type Selected<Id extends string = string> = Id | readonly Id[];
+
+  /** One grid cell; actionable IDs and content keys must be unique and stable across the list. */
+  export type Item<Id extends string = string> = Item.Action<Id> | Item.Content;
+
+  /** List props; activation never changes selection without a caller update. */
+  export type Props<Id extends string = string> = {
+    items: readonly Item<Id>[];
+    /**
+     * Omitted/undefined: Bullet's subtle filled markers, without pressed state.
+     * Defined (including []): Bullet's inactive/selected markers with controlled aria-pressed.
+     */
+    selected?: Selected<Id>;
+    /** Default md; xs/sm are opt-in dense presentations, not minimum target-size guarantees. */
+    size?: Size;
+    /** Action-button padding; omitted keeps Button defaults. Content cells are unchanged. */
+    itemPadding?: t.Button.Props['padding'];
+    /** Bullet appearance overrides. */
+    bullet?: Pick<t.BulletProps, 'borderOpacity'>;
+    /**
+     * Equal-width, row-major columns (default 1); no automatic collapse.
+     * Finite values are floored and clamped to 1..cell count (1 when empty).
+     * Non-finite values fall back to 1.
+     */
     columns?: number;
-
     debug?: boolean;
     theme?: t.CommonTheme;
+    /** Root styles; an explicit fontSize overrides the named size. */
     style?: t.CssInput;
-    onSelect?: OnSelectHandler<any>;
+    onActivate?: Activate.Handler<NoInfer<Id>>;
   };
 
-  /** Selection event handler signature for bullet-item presses. */
-  export type OnSelectHandler<Id extends string = string> = (e: OnSelectArgs<Id>) => void;
-  /** Selection event payload including id and keyboard modifier state. */
-  export type OnSelectArgs<Id extends string = string> = {
-    readonly id: Id;
-    readonly modifiers: t.Keyboard.Modifier.Flags;
-    readonly is: { readonly command: boolean; readonly modified: boolean };
-  };
+  /**
+   * Action and content cells.
+   */
+  export namespace Item {
+    /** Non-interactive label; missing/null uses a literal id. Callers supply a non-empty name. */
+    export type Action<Id extends string = string> = {
+      kind?: 'item';
+      id: Id;
+      /**
+       * Strings use Text.Label for one CommonMark paragraph: strong, emphasis and Chip-backed code.
+       * Escapes/entities affect displayed text. Unsupported inline spans stay literal;
+       * other document shapes render wholly literal.
+       * Other nodes pass through unchanged and must be non-interactive.
+       * For literal notation use ``<span>{'**literal** `code`'}</span>``.
+       */
+      label?: t.ReactNode;
+      enabled?: boolean;
+    };
+    /** Content outside a row button; descendants retain their own interaction. */
+    export type Content = {
+      kind: 'content';
+      key: string;
+      render: () => t.ReactNode;
+    };
+  }
+
+  /**
+   * Activation intent, independent of caller selection policy.
+   */
+  export namespace Activate {
+    /** Primary release or keyboard/assistive activation, delegated to Button. */
+    export type Handler<Id extends string = string> = (e: Args<Id>) => void;
+    /** Delivered activation modifiers; Button's generated keyboard click does not retain key flags. */
+    export type Args<Id extends string = string> = {
+      readonly id: Id;
+      readonly modifiers: t.Keyboard.Modifier.Flags;
+      readonly is: { readonly command: boolean; readonly modified: boolean };
+    };
+  }
 }

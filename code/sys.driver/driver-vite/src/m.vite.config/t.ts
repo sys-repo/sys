@@ -18,6 +18,7 @@ export declare namespace ViteConfig {
 
     /**
      * Construct an "application" configuration (index.html).
+     * Loads plugins in the calling process; requires trusted toolchain execution authority.
      */
     app(options?: App.Options): Promise<t.ViteUserConfig>;
 
@@ -39,6 +40,7 @@ export declare namespace ViteConfig {
 
     /**
      * Attempts to dynamically load a `vite.config.ts` module.
+     * Evaluates configuration in the calling process; requires trusted toolchain execution authority.
      */
     fromFile(configDir?: t.StringDir): Promise<FromFile>;
   };

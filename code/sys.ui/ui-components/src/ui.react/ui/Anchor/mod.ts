@@ -1,12 +1,18 @@
 /**
  * @module
- * Canonical UI primitive for rendering secure-by-default HTML anchor (`<a>`) links.
+ * Native HTML links and opt-in resource/opening cues.
+ * For `_blank`, Anchor adds `noopener noreferrer`; callers own destination validation.
  */
 import type { t } from './common.ts';
 import { Anchor as UI } from './ui.tsx';
+import { Link } from './ui.Link.tsx';
 
-/** Canonical UI primitive for rendering secure-by-default HTML anchor (`<a>`) links. */
-export const Anchor: t.Anchor.Lib = { UI };
+/**
+ * Use UI for native target/download controls; Link adds resource and opening cues.
+ */
+export const Anchor: t.Anchor.Lib = { UI, Link };
 
-/** Canonical UI primitive for rendering secure-by-default HTML anchor (`<a>`) links. */
+/**
+ * Literal alias of Anchor.UI.
+ */
 export const A = Anchor.UI;

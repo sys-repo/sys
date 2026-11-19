@@ -44,6 +44,19 @@ export type DevEvents = t.Lifecycle & {
     fire(options?: { only?: SpecId | SpecId[]; timeout?: t.Msecs }): Promise<t.DevRunRes>;
   };
   reset: {
+    /**
+     * Instance-scoped notification before reset-state mutation. Retire specimen attachments here:
+     * the context itself survives reset. Load enters this boundary after bundle resolution;
+     * failed imports do not emit this notification.
+     *
+     * Cleanup must finish synchronously. Returned promises are not awaited; callers own rejections.
+     * Synchronous subscriber throws use Rx error reporting, not reset-response errors.
+     * Reentrant resets queue until the current response is emitted, not until its caller resumes.
+     * Disposal or a transport throw during response emission can discard queued resets;
+     * transport recovery is not promised.
+     * This is neither a veto nor a completion event; later failure cannot undo retirement.
+     */
+    before$: t.Observable<t.DevResetBefore>;
     req$: t.Observable<t.DevResetReq>;
     res$: t.Observable<t.DevResetRes>;
     fire(options?: { timeout?: t.Msecs }): Promise<DevResetRes>;
@@ -99,6 +112,7 @@ export type DevEvent =
   | DevRunReqEvent
   | DevRunResEvent
   | DevResetReqEvent
+  | DevResetBeforeEvent
   | DevResetResEvent
   | DevStateChangeReqEvent
   | DevStateChangeResEvent
@@ -208,6 +222,11 @@ export type DevRunRes = { tx: string; instance: t.StringId; info?: t.DevInfo; er
 export type DevResetReqEvent = { type: 'sys.dev/reset:req'; payload: DevResetReq };
 /** Request payload for resetting a harness context and state. */
 export type DevResetReq = { tx: string; instance: t.StringId };
+
+/** Controller notification before mutating reset state. */
+export type DevResetBeforeEvent = { type: 'sys.dev/reset:before'; payload: DevResetBefore };
+/** Identifies the reset transaction and addressed harness instance. */
+export type DevResetBefore = { tx: string; instance: t.StringId };
 
 /** Event carrying a reset response. */
 export type DevResetResEvent = { type: 'sys.dev/reset:res'; payload: DevResetRes };

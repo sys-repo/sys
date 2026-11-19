@@ -1,6 +1,5 @@
 import React from 'react';
-import { ObjectView } from '../../u.ts';
-import { type t, Button, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.MediaDevicesProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'rowGap'> & {
@@ -99,12 +98,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.filter.value;
@@ -112,30 +111,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.toggle(p.filter)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `rowGap: ${p.rowGap.value ?? `<undefined> (default: ${D.rowGap})`}`}
         onClick={() => Signal.cycle(p.rowGap, [undefined, 15, 30, undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debug / narrow: ${p.debugNarrow.value}`}
         onClick={() => Signal.toggle(p.debugNarrow)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debug / local-storage: ${p.debugLocalstorage.value}`}
         onClick={() => Signal.toggle(p.debugLocalstorage)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

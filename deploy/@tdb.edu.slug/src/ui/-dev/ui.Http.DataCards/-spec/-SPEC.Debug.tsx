@@ -1,9 +1,7 @@
 import React from 'react';
 import { Dev } from '../../mod.ts';
 import {
-  type t,
   ActionProbe,
-  Button,
   Color,
   css,
   D,
@@ -11,9 +9,10 @@ import {
   LocalStorage,
   Num,
   Obj,
-  ObjectView,
   Signal,
-} from '../common.ts';
+  type t,
+  UiDev,
+} from './common.ts';
 import { renderSamples } from './-u.samples.tsx';
 
 type DescriptorMode = t.BundleDescriptorKind;
@@ -148,7 +147,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
 
-  /**F
+  /** F
    * Render:
    */
   const theme = Color.theme();
@@ -171,29 +170,40 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {renderSamples(debug, { theme: theme.name })}
       <hr style={{ marginTop: 70, borderTopWidth: 5, opacity: 0.4 }} />
 
-      <Button
+      <UiDev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <UiDev.Button
         block
         label={() => {
-          return `list.totalVisible: ${v.listTotalVisible ?? `(undefined, default == ${defaults.listTotalVisible})`}`;
+          return `list.totalVisible: ${
+            v.listTotalVisible ?? `(undefined, default == ${defaults.listTotalVisible})`
+          }`;
         }}
         onClick={() => {
           Signal.cycle<number | 'all' | undefined>(p.listTotalVisible, [3, 10, undefined]);
         }}
       />
-      <Button
+      <UiDev.Button
         block
         label={() => `list.totalVisible: "all"`}
         onClick={() => (p.listTotalVisible.value = 'all')}
       />
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <UiDev.Button
+        block
+        label={() => `debug: ${v.debug}`}
+        onClick={() => Signal.toggle(p.debug)}
+      />
+      <UiDev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <UiDev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

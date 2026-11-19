@@ -1,7 +1,10 @@
 import React from 'react';
 import { PaymentElement } from '../ui/ui.PaymentElement/mod.ts';
-import { loadRuntimeSession, readRuntimeConfig } from '../ui/ui.PaymentElement/-spec/-u.runtimeSession.ts';
-import { Button, Color, Cropmarks, css, ObjectView, Signal } from './common.ts';
+import {
+  loadRuntimeSession,
+  readRuntimeConfig,
+} from '../ui/ui.PaymentElement/-spec/-u.runtimeSession.ts';
+import { Color, Cropmarks, css, Dev, Signal } from './common.ts';
 
 type SessionState =
   | { readonly status: 'idle' }
@@ -84,20 +87,20 @@ export function PaymentElementSample() {
       </div>
       <div className={styles.side.class}>
         <div className={styles.title.class}>{'Stripe.PaymentElement'}</div>
-        <Button
+        <Dev.Button
           block
           label={() => `theme: ${v.theme}`}
           onClick={() => (theme.value = v.theme === 'Dark' ? 'Light' : 'Dark')}
         />
         <hr />
-        <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(debug)} />
-        <Button
+        <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(debug)} />
+        <Dev.Button
           block
           label={() => `runtime session: ${v.loadSession ? 'enabled' : 'disabled'}`}
           onClick={() => Signal.toggle(loadSession)}
         />
-        <Button block label={() => `(reset)`} onClick={reset} />
-        <ObjectView name={'debug'} data={data} expand={0} style={{ marginTop: 20 }} />
+        <Dev.Button block label={() => `(reset)`} onClick={reset} />
+        <Dev.ObjectView name={'debug'} data={data} expand={0} style={{ marginTop: 20 }} />
       </div>
     </div>
   );

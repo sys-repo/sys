@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { SlugOrigin } from '../mod.ts';
 
 type DomainName = 'slc.db.team' | 'socialleancanvas.com';
@@ -102,29 +102,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `env: ${p.env.value ?? `(undefined)`}`}
         onClick={() => {
           return Signal.cycle<t.HttpOrigin.Env | undefined>(p.env, ['localhost', 'production']);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `domain: ${p.domain.value}`}
         onClick={() => Signal.cycle<DomainName>(p.domain, ['slc.db.team', 'socialleancanvas.com'])}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView name={'origin:spec'} data={v.spec} expand={2} style={{ marginTop: 6 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView name={'origin:spec'} data={v.spec} expand={2} style={{ marginTop: 6 }} />
 
       <hr />
 

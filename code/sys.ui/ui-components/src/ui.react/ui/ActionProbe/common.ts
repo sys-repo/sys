@@ -14,6 +14,7 @@ const name = 'ActionProbe';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
+  componentAttr: `${pkg.name}:${name}`,
   borderRadius: 6,
   Probe: {
     actOn: ['Enter', 'Cmd+Click'] satisfies t.ActionProbe.ActOnKey[],

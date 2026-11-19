@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Is, LocalStorage, Num, Obj, Signal } from '../common.ts';
+import { Color, css, D, Dev, Is, LocalStorage, Num, Obj, Signal, type t } from './common.ts';
 import { even, fromScalar, toScalar } from './-u.ts';
 
 type P = t.SplitPaneProps;
@@ -126,17 +125,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `active: ${p.active.value ?? `(undefined) ← default: ${D.active}`}`}
         onClick={() => Signal.toggle(p.active)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.orientation.value;
@@ -144,7 +143,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.cycle(p.orientation, ['horizontal', 'vertical'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const i = p.onlyIndex.value;
@@ -159,7 +158,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const n = p.childCount.value ?? 2;
@@ -188,29 +187,29 @@ export const Debug: React.FC<DebugProps> = (props) => {
           }
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `min: ${p.min.value ?? `(undefined) ← default: ${D.min}`}`}
         onClick={() => Signal.cycle(p.min, [0, D.min, 0.3, 0.5, undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `max: ${p.max.value ?? `(undefined) ← default: ${D.max}`}`}
         onClick={() => Signal.cycle(p.max, [0.5, 0.8, D.max, 1, undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `gutter: ${p.gutter.value ?? `(undefined) ← default: ${D.gutter}`}`}
         onClick={() => Signal.cycle(p.gutter, [0, 3, D.gutter, 10, undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.isControlled.value;
@@ -218,13 +217,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.toggle(p.isControlled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `childCount: ${p.childCount.value}`}
         onClick={() => Signal.cycle(p.childCount, [0, 1, 2, 3, 4, undefined])}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

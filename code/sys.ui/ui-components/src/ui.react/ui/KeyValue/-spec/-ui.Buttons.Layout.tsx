@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '../../u.ts';
-import { type t, Color, css, D, Signal } from './common.ts';
+import { Color, css, D, Dev, Signal, type t } from './common.ts';
 
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
@@ -42,14 +41,14 @@ export const LayoutButtons: React.FC<P> = (props) => {
 
   const elTable = layout === 'table' && (
     <>
-      <Button
+      <Dev.Button
         block
         label={() => `.keyMax: ${p.layoutTable.keyMax.value}`}
         onClick={() => {
           Signal.cycle<LT['keyMax']>(p.layoutTable.keyMax, [D.layout.table.keyMax, 60, '5ch']);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `.keyAlign: ${p.layoutTable.keyAlign.value}`}
         onClick={() => {
@@ -61,7 +60,7 @@ export const LayoutButtons: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.layout.value;
@@ -86,21 +85,21 @@ function CommonLayout(props: P & { layout?: SelectedLayout; defaults?: L }) {
 
   return (
     <>
-      <Button
+      <Dev.Button
         block
         label={() => `.columnGap: ${layout.columnGap.value}`}
         onClick={() => {
           Signal.cycle<L['columnGap']>(layout.columnGap, [0, 4, 8, 16, 22, 36]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `.rowGap: ${layout.rowGap.value}`}
         onClick={() => {
           Signal.cycle<L['rowGap']>(layout.rowGap, [0, defaults.rowGap, 6, 10]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `.align: ${layout.align.value}`}
         onClick={() => {

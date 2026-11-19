@@ -1,6 +1,4 @@
-import type * as t from './t.ts';
-
-export type { t };
+export type * as t from './t.ts';
 
 /**
  * Libraries:
@@ -26,6 +24,10 @@ export const DEFAULTS = {
   port,
   url: `http://127.0.0.1:${port}/files`,
   env: { port: 'SYS_SERVER_FILES_HTTP_CMD_PORT' },
+  transport: {
+    maxBytes: { request: 1024 * 1024, response: 8 * 1024 * 1024 },
+    timeout: 30_000,
+  },
 } as const;
 
 /** Short alias for sample defaults. */

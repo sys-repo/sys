@@ -1,6 +1,6 @@
-import { Color, css, Harness, ObjectView, Signal, Spec } from '../-test.ui.ts';
+import { Color, css, Harness, Signal, Spec } from '../-test.ui.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { D } from './common.ts';
+import { D, Dev } from './common.ts';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -15,7 +15,7 @@ export default Spec.describe(D.displayName, (e) => {
     };
     return (
       <div className={styles.base.class}>
-        <ObjectView theme={v.theme} name={'timestamp markers'} data={v.marks} expand={1} />
+        <Dev.ObjectView theme={v.theme} name={'timestamp markers'} data={v.marks} expand={1} />
         <div className={styles.label.class}>{'( hint: open console )'}</div>
       </div>
     );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, Cropmarks, css, KeyValue, Obj, ObjectView } from '../common.ts';
+import { Color, Cropmarks, css, Dev, KeyValue, Obj, type t } from '../common.ts';
 import { arraySize } from '../u.data.ts';
 
 export type PlaybackContentProps = {
@@ -101,7 +101,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
         ]}
       />
       {showObject && (
-        <ObjectView
+        <Dev.ObjectView
           theme={theme.name}
           name={'playback'}
           data={Obj.truncateStrings(data, 40)}

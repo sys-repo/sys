@@ -1,5 +1,5 @@
 import React from 'react';
-import { D, type t, Button, Color, css, ObjectView, Signal } from './common.ts';
+import { Color, css, D, Dev, Signal, type t } from './common.ts';
 
 export type HeadDebugProps = {
   debug: t.DebugSignals;
@@ -37,17 +37,17 @@ export const HeadDebug: React.FC<HeadDebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => `kind: ${v.cardKind}`}
         onClick={() => (p.cardKind.value = 'file-content')}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `content: (reset)`}
         onClick={() => debug.orchestrator.content.intent({ type: 'reset' })}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'head:file-content'}
         data={{
           selectedRef: debug.orchestrator.selection.current().selectedRef,

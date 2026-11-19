@@ -1,76 +1,139 @@
-import { Cmd, D, Err, Json, Rx, type t } from '../common.ts';
+import type { HttpOperation } from '../../u/t.ts';
+import { readBytes } from '../../u/u.body.ts';
+import { createHttpOperation } from '../../u/u.operation.ts';
+import { Bytes, Cmd, D, Json, Num, Rx, type t } from '../common.ts';
+import { clientOptions, requestHeaders, sendOptions } from '../u/u.input.ts';
 import { readResponse } from '../u/u.response.ts';
-import { cmdError, createId, requestHeaders, startTimeout } from '../u/u.ts';
+import { createId, failure } from '../u/u.ts';
 
-/** Create a typed unary Cmd client over HTTP JSON. */
+/**
+ * Create a fixed-endpoint unary client with private request authority and bounded settlement.
+ */
 export function client<
   N extends string = t.Cmd.Name,
   P extends t.Cmd.Payload.Map<N> = t.Cmd.Payload.Map<N>,
   R extends t.Cmd.Result.Map<N> = t.Cmd.Result.Map<N>,
->(options: t.HttpCmd.ClientOptions): t.HttpCmd.Client<N, P, R> {
-  type Client = t.HttpCmd.Client<N, P, R>;
-
+>(input: t.HttpCmd.ClientOptions): t.HttpCmd.Client<N, P, R> {
+  const options = clientOptions(input);
   const life = Rx.lifecycle();
-  const active = new Set<AbortController>();
-  const fetcher = options.fetch ?? globalThis.fetch;
-  const { ns } = options;
-
+  const active = new Set<() => void>();
   life.dispose$.subscribe(() => {
-    for (const controller of active) controller.abort(D.DisposeReason.clientDispose);
-    active.clear();
+    for (const stop of active) stop();
   });
 
-  const send = async <K extends N>(name: K, payload: P[K]): Promise<R[K]> => {
-    const id = createId();
-    const meta = { id, name, ns };
-    const fail = (kind: t.Cmd.Error.Kind, msg: string): never => {
-      throw cmdError(kind, msg, meta);
-    };
-
-    if (life.disposed) fail('CmdError.ClientDisposed', 'Command client is disposed.');
-
-    const controller = new AbortController();
-    active.add(controller);
-
-    let timedOut = false;
-    const timeoutTimer = startTimeout(options.timeout, () => {
-      timedOut = true;
-      controller.abort('timeout');
-    });
+  const send = async <K extends N>(
+    name: K,
+    payload: P[K],
+    input?: t.HttpCmd.SendOptions,
+  ): Promise<R[K]> => {
+    if (life.disposed) throw failure('disposed');
+    const operation = createHttpOperation<t.HttpCmd.FailureKind>(
+      new AbortController().signal,
+      options.policy.timeout,
+      { cancelled: 'cancelled', timeout: 'timeout' },
+    );
+    const dispose = () => operation.stop('disposed');
+    active.add(dispose);
+    let phase: t.HttpCmd.FailureKind = 'invalid-request';
+    let dispatch: t.HttpCmd.Error['dispatch'] = 'not-dispatched';
+    let status: number | undefined;
+    let response: Response | undefined;
+    let signal: AbortSignal | undefined;
+    const abort = () => operation.stop('cancelled');
 
     try {
-      const request: t.Cmd.Wire.Request = { kind: 'cmd', id, ns, name, payload };
-      const response = await fetcher(options.url, {
+      const call = sendOptions(input);
+      signal = call.signal;
+      signal?.addEventListener('abort', abort, { once: true });
+      if (signal?.aborted) abort();
+      operation.throwIfStopped();
+      const id = createId();
+      const request: t.Cmd.Wire.Request = { kind: 'cmd', id, ns: options.ns, name, payload };
+      if (!Cmd.Is.request(request)) throw undefined;
+      const headers = requestHeaders(options.headers, call.headers);
+      const body = Json.stringify(request, 0);
+      if (Bytes.utf8ByteLength(body) > options.policy.maxBytes.request) {
+        operation.stop('request-too-large');
+      }
+      operation.throwIfStopped();
+
+      phase = 'network';
+      dispatch = 'possible';
+      response = await operation.raceFetch(Promise.resolve(options.fetch(options.url, {
         method: D.method,
-        headers: requestHeaders(options.headers),
-        body: Json.stringify(request),
-        signal: controller.signal,
+        headers,
+        body,
+        signal: operation.signal,
+        credentials: 'omit',
+        redirect: 'manual',
+        cache: 'no-store',
+        referrer: '',
+        referrerPolicy: 'no-referrer',
+      })));
+      operation.throwIfStopped();
+      if (Num.Is.safeInt(response.status) && response.status >= 200 && response.status <= 599) {
+        status = response.status;
+      }
+      if (
+        response.redirected || response.type === 'opaqueredirect' ||
+        (response.status >= 300 && response.status <= 399)
+      ) {
+        operation.stop('redirect');
+        operation.throwIfStopped();
+      }
+      if (response.type === 'opaque' || response.type === 'error') throw undefined;
+
+      const bytes = await readBytes({
+        body: response.body,
+        maxBytes: options.policy.maxBytes.response,
+        operation,
+        overflow() {
+          operation.stop('response-too-large');
+          operation.throwIfStopped();
+          throw undefined;
+        },
       });
-
-      if (!response.ok) {
-        const msg = `HTTP Cmd request failed: ${response.status} ${response.statusText}`;
-        fail('CmdError.Remote', msg);
+      phase = 'protocol';
+      const msg = readResponse(bytes, request);
+      operation.throwIfStopped();
+      if (msg.error !== undefined) {
+        operation.stop('remote');
+        operation.throwIfStopped();
       }
-
-      const msg = await readResponse(response, meta);
-      if (msg.error !== undefined) fail('CmdError.Remote', msg.error);
-
       return msg.payload as R[K];
-    } catch (cause) {
-      if (Cmd.Is.error(cause)) throw cause;
-      if (timedOut) {
-        const timeout = timeoutTimer?.timeout ?? options.timeout;
-        fail('CmdError.Timeout', `Command "${name}" timed out after ${timeout}ms.`);
-      }
-      if (life.disposed) {
-        fail('CmdError.ClientDisposed', 'Command client disposed before response.');
-      }
-      return fail('CmdError.Remote', Err.std(cause).message);
+    } catch {
+      // Observe elapsed synchronous work too; external error identity has no authority.
+      operation.checkDeadline();
+      throw failure(operation.terminal ?? phase, dispatch, status);
     } finally {
-      timeoutTimer?.cancel();
-      active.delete(controller);
+      detachAbort(signal, abort);
+      discardResponse(response, operation);
+      operation.dispose();
+      active.delete(dispose);
     }
   };
+  return Rx.toLifecycle<t.HttpCmd.Client<N, P, R>>(life, { send });
+}
 
-  return Rx.toLifecycle<Client>(life, { send });
+/**
+ * Helpers:
+ */
+function detachAbort(signal: AbortSignal | undefined, abort: () => void): void {
+  try {
+    signal?.removeEventListener('abort', abort);
+  } catch {
+    // The settled result retains authority over caller-owned cleanup errors.
+  }
+}
+
+/** Retire a fetched body without waiting; injected response access may itself throw. */
+function discardResponse(
+  response: Response | undefined,
+  operation: HttpOperation<t.HttpCmd.FailureKind>,
+): void {
+  try {
+    if (response) void operation.cancelBody(response.body);
+  } catch {
+    // Never expose injected response getters through a cleanup diagnostic.
+  }
 }

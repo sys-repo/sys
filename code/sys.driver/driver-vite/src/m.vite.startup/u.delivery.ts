@@ -2,43 +2,61 @@ import { Perf } from '../common/u.perf.ts';
 import { CompositeHash, Fs, Is, Json, Path, type t } from './common.ts';
 import { MODULE_SYNC_ENABLED } from './u.internal.ts';
 
-const DELIVERY_VERSION = 'vite.startup.delivery.v1';
+type O = Record<string, unknown>;
+
+const DELIVERY_VERSION = 'vite.startup.delivery.v2';
 const MODULE_SYNC_SOURCE = 'export default false;\n';
 const MODULE_SYNC_FILENAME = '.vite.bootstrap.module-sync-enabled.mjs';
 
+/**
+ * Create invocation-owned startup files.
+ * The caller must await `cleanup()` when those files are no longer needed.
+ */
 export async function createDelivery(
   args: t.ViteStartup.Delivery.Args,
 ): Promise<t.ViteStartup.Handle> {
   const authority = args.authority;
-  const end = Perf.section('startup.delivery', { dir: authority.dir, imports: Object.keys(authority.imports).length }, { level: 2 });
-  const dir = await delivery.dir(authority.dir);
-  await Fs.ensureDir(dir);
+  const end = Perf.section('startup.delivery', {
+    dir: authority.dir,
+    imports: Object.keys(authority.imports).length,
+  }, { level: 2 });
+  const parent = await delivery.dir(authority.dir);
+  await Fs.ensureDir(parent);
+  const { absolute: dir } = await Fs.makeTempDir({ dir: parent, prefix: 'delivery.' });
+  let transferred = false;
+  await using _setup = {
+    async [Symbol.asyncDispose]() {
+      if (!transferred) await Fs.remove(dir, { log: false });
+    },
+  };
 
   const moduleSyncPath = Path.join(dir, MODULE_SYNC_FILENAME);
-  if (!(await Fs.exists(moduleSyncPath))) {
-    await Fs.write(moduleSyncPath, MODULE_SYNC_SOURCE);
-  }
+  await Fs.write(moduleSyncPath, MODULE_SYNC_SOURCE, { throw: true });
 
   const imports = delivery.sortImports({
     ...authority.imports,
     [MODULE_SYNC_ENABLED]: Path.toFileUrl(moduleSyncPath).href,
   });
   const json = delivery.importMap({ imports, scopes: authority.scopes }, authority.dir, dir);
-  const digest = delivery.identity(json);
+  // Identity describes authority and shim bytes, not invocation-owned transport paths.
+  const digest = delivery.identity({ ...authority, moduleSync: MODULE_SYNC_SOURCE });
   const path = Path.join(dir, `.vite.bootstrap.${digest}.imports.json`);
-  await Fs.write(path, `${Json.stringify(json, 2)}\n`);
+  await Fs.write(path, `${Json.stringify(json, 2)}\n`, { throw: true });
 
   const handle = {
     path,
-    cleanup: async () => {
-      if (await Fs.exists(path)) await Fs.remove(path, { log: false });
-      if (await Fs.exists(moduleSyncPath)) await Fs.remove(moduleSyncPath, { log: false });
+    async cleanup() {
+      await Fs.remove(dir, { log: false });
     },
   };
   end({ path, digest, deliveryDir: dir });
+  transferred = true;
   return handle;
 }
 
+/**
+ * Helpers:
+ */
 const delivery = {
   async dir(authorityDir: string) {
     const anchor = await delivery.packageAnchor(authorityDir);
@@ -56,7 +74,7 @@ const delivery = {
   // relative imports and scopes. Projection still owns authority truth. Keep this
   // logic transport-only; do not use it to change payload breadth or authority ranking.
   importMap(
-    value: { imports: Record<string, string>; scopes?: t.ViteStartup.Scopes },
+    value: { imports: t.ViteStartup.Imports; scopes?: t.ViteStartup.Scopes },
     authorityDir: string,
     deliveryDir: string,
   ) {
@@ -69,7 +87,7 @@ const delivery = {
   },
 
   rebaseScopes(value: unknown, authorityDir: string, deliveryDir: string) {
-    if (!Is.record<Record<string, unknown>>(value)) return undefined;
+    if (!Is.record<O>(value)) return undefined;
     return Object.fromEntries(
       Object.entries(value).map(([scope, imports]) => [
         delivery.rebaseScope(scope, authorityDir, deliveryDir),
@@ -79,7 +97,7 @@ const delivery = {
   },
 
   rebaseSpecifierRecord(value: unknown, authorityDir: string, deliveryDir: string) {
-    if (!Is.record<Record<string, unknown>>(value)) return undefined;
+    if (!Is.record<O>(value)) return undefined;
     return Object.fromEntries(
       Object.entries(value).map(([key, target]) => [
         key,
@@ -126,10 +144,10 @@ const delivery = {
   },
 
   canonical(value: unknown): unknown {
-    if (Array.isArray(value)) return value.map((entry) => delivery.canonical(entry));
-    if (value && typeof value === 'object') {
+    if (Is.array(value)) return value.map((entry) => delivery.canonical(entry));
+    if (Is.record(value)) {
       return Object.fromEntries(
-        Object.entries(value as Record<string, unknown>)
+        Object.entries(value)
           .sort(([a], [b]) => a.localeCompare(b))
           .map(([key, entry]) => [key, delivery.canonical(entry)]),
       );
@@ -137,7 +155,7 @@ const delivery = {
     return value;
   },
 
-  sortImports(imports: Record<string, string>) {
+  sortImports(imports: t.ViteStartup.Imports) {
     return Object.fromEntries(Object.entries(imports).sort(([a], [b]) => a.localeCompare(b)));
   },
 } as const;

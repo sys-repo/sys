@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  Button,
-  Color,
-  css,
-  D,
-  LocalStorage,
-  ObjectView,
-  Signal,
-  STORAGE_KEY,
-  type t,
-} from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 
 type ConfigItem = t.Files.InfoPanel.Config.Item;
 
@@ -106,26 +96,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `reorder: ${v.reorder}`}
         onClick={() => Signal.toggle(p.reorder)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `cursor.enabled: ${v.cursor.enabled}`}
         onClick={() => Signal.toggle(p.cursor.enabled)}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

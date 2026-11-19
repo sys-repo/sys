@@ -1,6 +1,6 @@
 # HTTP
 
-`@sys/http` provides GET/HEAD clients with explicit limits and Hono-based servers.
+`@sys/http` provides bounded HTTP clients, unary Cmd transport, and Hono-based servers.
 
 ## Read data
 
@@ -39,6 +39,13 @@ try {
 
 See the [client reference](https://jsr.io/@sys/http/doc/client/) for policy options, cancellation,
 checksums, and progress reporting.
+
+## Exchange unary commands
+
+Use `HttpCmd` from `@sys/http/cmd` for fixed-endpoint Cmd JSON requests and handlers. Both
+directions require explicit byte and time limits; domain validation and authentication remain with
+the caller. See the [bounded Cmd guide](./src/http.cmd/README.md) for construction, disposal,
+migration, and failure/dispatch semantics.
 
 ## Run a server
 

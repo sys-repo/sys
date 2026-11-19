@@ -59,7 +59,8 @@ export async function main() {
           `${ns}: Dev`,
         ]);
         e.byRegex(/: Buttons?(?:\.|$)/);
-        e.rule((_prev, next) => /: (?:Anchor|Bullet|Dist)$/.test(next ?? ''));
+        e.byRegex(/: Bullet/);
+        e.rule((_prev, next) => /: (?:Anchor|Dist)$/.test(next ?? ''));
       },
     });
     function App() {

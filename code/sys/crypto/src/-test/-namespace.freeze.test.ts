@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../-test/mod.ts';
+import { Curves } from '../m.Curves/mod.ts';
 import { HashFmt } from '../m.Fmt/mod.ts';
 import { CompositeHash, FileHashUri } from '../m.Hash.Composite/mod.ts';
 import { Wrangle } from '../m.Hash.Composite/u.wrangle.ts';
@@ -8,6 +9,8 @@ import { SignEd25519 } from '../m.Sign.Ed25519/mod.ts';
 describe('crypto namespace freeze contract', () => {
   it('freezes every exported namespace API and nested namespace', () => {
     const namespaces = [
+      Curves,
+      Curves.Ed25519,
       FileHashUri,
       CompositeHash,
       CompositeHash.Uri,

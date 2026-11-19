@@ -1,15 +1,14 @@
 import type React from 'react';
 import {
-  Button,
   Color,
   css,
   D,
+  Dev,
   HttpOrigin,
   HttpOriginRoutes,
   LocalStorage,
   Mounts,
   Obj,
-  ObjectView,
   Signal,
   type t,
 } from './common.ts';
@@ -147,28 +146,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
       )}
       <hr />
 
-      <Button
+      <Dev.Button
         block
         theme={theme.name}
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         theme={theme.name}
         label={() => `integrity: ${v.integrity}`}
         onClick={() => Signal.toggle(p.integrity)}
       />
 
-      <Button
+      <Dev.Button
         block
         theme={theme.name}
         label={() => `debug: ${v.debug}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block theme={theme.name} label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name='debug' data={v} expand={0} theme={theme.name} style={{ marginTop: 20 }} />
+      <Dev.Button block theme={theme.name} label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name='debug'
+        data={v}
+        expand={0}
+        theme={theme.name}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

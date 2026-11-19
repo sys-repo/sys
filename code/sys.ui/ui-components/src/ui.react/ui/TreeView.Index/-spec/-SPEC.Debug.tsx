@@ -1,7 +1,5 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-
-import { type t, css, D, LocalStorage, Obj, Signal, Str } from './common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, Str, type t } from './common.ts';
 import { IndexTreeView } from '../mod.ts';
 import { SAMPLE_YAML } from './-u.yaml.ts';
 
@@ -108,12 +106,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>🌳 {D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.yaml.value;
@@ -121,7 +119,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.cycle(p.yaml, [SAMPLE_YAML, undefined])}
       />
-      <Button
+      <Dev.Button
         block
         enabled={() => !p.renderLeaf.value}
         label={() => `showChevron: ${p.showChevron.value}`}
@@ -130,24 +128,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle<T>(p.showChevron, [D.showChevron, 'always', 'never']);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `indentSize: ${p.indentSize.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle(p.indentSize, [10, D.indentSize, 32])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `spinning: ${p.spinning.value}`}
         onClick={() => Signal.toggle(p.spinning)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.renderLeaf.value;
@@ -155,13 +153,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
         onClick={() => Signal.toggle(p.renderLeaf)}
       />
-      <Button block label={() => `clear path`} onClick={() => (p.path.value = undefined)} />
-      <Button
+      <Dev.Button block label={() => `clear path`} onClick={() => (p.path.value = undefined)} />
+      <Dev.Button
         block
         label={() => `(reset)`}
         onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={{
           ...Signal.toObject(p),

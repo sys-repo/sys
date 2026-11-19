@@ -1,43 +1,37 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
-import { Anchor } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { D } from './common.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { Root } from './-ui.Root.tsx';
+import { StandardLink } from './-ui.StandardLink.tsx';
 
-export default Spec.describe(D.displayName, async (e) => {
-  const debug = await createDebugSignals();
+export default Spec.describe(D.displayName, (e) => {
+  const debug = createDebugSignals();
   const p = debug.props;
-
-  function Root() {
-    const v = Signal.toObject(p);
-    return (
-      <Anchor.UI
-        theme={v.theme}
-        href={v.href}
-        enabled={v.enabled}
-        target={v.target}
-        download={v.download}
-        children={v.children}
-      />
-    );
-  }
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    update();
-    function update() {
-      debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-
-    ctx.host.tracelineColor(0.05);
-    ctx.subject
-      .size([360, null])
-      .display('grid')
-      .render(() => <Root />);
+    ctx.debug.width(480);
+    debug.attach(ctx, {
+      subject: {
+        size: undefined,
+        display: 'grid',
+        render: () => <Root {...Signal.toObject(p)} />,
+      },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          ctx.host.tracelineColor(0.05);
+          ctx.host.footer
+            .padding([12, 16])
+            .render(() => <StandardLink theme={p.theme.value} />);
+        },
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {
