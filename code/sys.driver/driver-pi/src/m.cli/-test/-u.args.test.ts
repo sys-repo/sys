@@ -92,6 +92,33 @@ describe(`@sys/driver-pi/cli/u.args`, () => {
     }
   });
 
+  it('toArgs → adds only one Deno-prefix preload and preserves Pi argv and scopes', async () => {
+    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+    const pkg = `${PI_AGENT_IMPORT_BASE}@1.4.0`;
+    const preload = '/tmp/pi-cli-test/.pi/@sys/tmp/pi-preload.owned space/preload.mjs';
+    const passthrough = [
+      '--model',
+      'candidate',
+      '--preload=pi-owned',
+      '--',
+      '--preload',
+      'literal',
+    ];
+    for (const allowAll of [false, true]) {
+      const options = { pkg, allowAll };
+      const baseline = await PiArgs.toArgs(cwd, passthrough, [], [], options);
+      const actual = [...await PiArgs.toArgs(cwd, passthrough, [], [], { ...options, preload })];
+      const main = actual.indexOf(pkg);
+      expect(actual.slice(0, main).filter((arg) => arg.startsWith('--preload'))).to.eql([
+        `--preload=${preload}`,
+      ]);
+      expect(actual[main - 1]).to.eql(`--preload=${preload}`);
+      actual.splice(main - 1, 1);
+      expect(actual).to.eql(baseline);
+      expect(actual.slice(-passthrough.length)).to.eql(passthrough);
+    }
+  });
+
   it('toArgs → grants full Deno permissions for explicit debug launches', async () => {
     const cwd = '/tmp/pi-cli-test' as t.StringDir;
     const args = [...await PiArgs.toArgs(cwd, ['--help'], [], [], { allowAll: true })];

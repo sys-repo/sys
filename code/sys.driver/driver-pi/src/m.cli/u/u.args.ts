@@ -8,8 +8,8 @@ import { resolveWrite } from './u.resolve.write.ts';
 type ToArgsOptions = {
   readonly allowAll?: boolean;
   readonly pkg?: t.StringModuleSpecifier;
+  readonly preload?: string;
 };
-
 
 export const PiArgs = {
   parse(argv: readonly string[] = []): t.PiCli.ParsedArgs {
@@ -52,6 +52,7 @@ export const PiArgs = {
       '--no-lock',
       '--node-modules-dir=none',
       ...permissions,
+      ...(opts.preload ? [`--preload=${opts.preload}`] : []),
       specifier,
       '--no-extensions',
       '--no-skills',

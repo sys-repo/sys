@@ -14,7 +14,7 @@ import {
   Str,
   type t,
 } from '../common.ts';
-import { preloadSources } from './u.host.preload.ts';
+import { preloadSources } from '../../src/m.cli/u/u.preload.ts';
 
 type Mode = 'none' | 'persistent' | 'startup';
 type Files = Readonly<Record<string, string>>;

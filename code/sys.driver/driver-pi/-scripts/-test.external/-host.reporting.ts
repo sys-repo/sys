@@ -4,6 +4,7 @@ import { withInherit } from '../../src/m.cli/u/u.inherit.ts';
 import { PiSandboxReport } from '../../src/m.cli/u/u.report.sandbox.ts';
 import { PiArgs } from '../../src/m.cli/u/u.args.ts';
 import { resolvePkg } from '../../src/m.cli/u/u.resolve.pkg.ts';
+import { preloadSources } from '../../src/m.cli/u/u.preload.ts';
 import {
   Cli,
   describe,
@@ -177,6 +178,7 @@ async function createHostFixture(retain = false) {
     tmp,
     async capture(input: t.PiCli.RunArgs, preload?: string): Promise<t.Process.CaptureOutput> {
       const captures: t.Process.CaptureOutput[] = [];
+      let productionDir: string | undefined;
       await withInherit(async (request) => {
         expect(request.cmd, 'preserve the Deno subprocess boundary').to.eql('deno');
         for (const key of ['DENO_DIR', 'HOME', 'PI_CODING_AGENT_DIR', ...TEMP_ENV]) {
@@ -195,8 +197,29 @@ async function createHostFixture(retain = false) {
             expect(paths.every((path) => Path.Is.within(root, path))).to.eql(true);
           }
         }
-        const args = isolateHostArgs(request.args, input.pkg!, root);
-        expect(args.some((arg) => arg.startsWith('--preload')), 'no other preloads').to.eql(false);
+        const launchArgs = [...request.args];
+        const main = launchArgs.indexOf(input.pkg!);
+        expect(main, 'official npm executable boundary').to.be.greaterThan(0);
+        const flags = launchArgs.slice(0, main).filter((arg) => arg.startsWith('--preload'));
+        if (input.pkg === 'npm:@earendil-works/pi-coding-agent@1.4.0') {
+          expect(flags, 'exactly one production preload in the Deno prefix').to.have.length(1);
+          const path = flags[0].slice('--preload='.length);
+          productionDir = Fs.dirname(path);
+          expect(Fs.dirname(productionDir)).to.eql(PiArgs.toTmpDir(root));
+          expect(Fs.basename(productionDir)).to.match(/^pi-preload\./);
+          expect(path).to.eql(Fs.join(productionDir, 'preload.mjs'));
+          expect(launchArgs[main - 1]).to.eql(`--preload=${path}`);
+          const sources = preloadSources({ lifetime: 'startup', trace: false });
+          expect((await Fs.readText(path)).data).to.eql(sources.preload);
+          expect((await Fs.readText(Fs.join(productionDir, 'facade.mjs'))).data).to.eql(
+            sources.facade,
+          );
+          // Substitute only the asserted owned Deno flag; never filter Pi's passthrough argv.
+          if (STARTUP) launchArgs.splice(main - 1, 1);
+        } else {
+          expect(flags, 'no adapter for recovery or other releases').to.eql([]);
+        }
+        const args = isolateHostArgs(launchArgs, input.pkg!, root);
         if (preload) {
           expect(args, 'only the preload flag may differ from baseline').to.eql(baselineArgs);
           expect(request.env, 'same isolated environment').to.eql(baselineEnv);
@@ -260,6 +283,11 @@ async function createHostFixture(retain = false) {
         if (output.outcome !== 'exited') throw Err.std(`Host did not exit: ${output.outcome}`);
         return { code: output.code, success: output.success, signal: output.signal };
       }, () => Raw.run(input));
+      if (productionDir) {
+        expect(await Fs.exists(productionDir), 'production cleanup after confirmed exit').to.eql(
+          false,
+        );
+      }
       expect(captures, 'exactly one selected CLI child').to.have.length(1);
       return captures[0];
     },

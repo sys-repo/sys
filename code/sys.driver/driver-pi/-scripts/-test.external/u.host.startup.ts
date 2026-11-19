@@ -1,6 +1,6 @@
 import { PiArgs } from '../../src/m.cli/u/u.args.ts';
 import { Cli, Err, expect, Fs, Hash, Is, Json, Obj, Path, Str, type t } from '../common.ts';
-import { preloadSources } from './u.host.preload.ts';
+import { preloadSources } from '../../src/m.cli/u/u.preload.ts';
 
 type Manifest = {
   readonly name: string;
