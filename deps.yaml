@@ -23,7 +23,7 @@ deno.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.68.4
+  - import: npm:rollup@4.68.5
     dev: true
   - import: npm:vite@8.3.8
     dev: true
@@ -82,7 +82,7 @@ deno.json:
   - import: npm:hash-it@7.1.1
   - import: npm:hono@4.13.19
     subpaths: [ cors, types ]
-  - import: npm:ignore@7.0.14
+  - import: npm:ignore@7.0.16
   - import: npm:ora@9.4.1
   - import: npm:@earendil-works/pi-coding-agent@1.5.2
   - import: npm:@standard-schema/spec@1.1.0
@@ -99,7 +99,7 @@ deno.json:
   - import: npm:@stripe/stripe-js@9.17.0
   - import: npm:ws@8.23.0
   - import: npm:@types/ws@8.18.2
-  - import: npm:csstype@3.2.3
+  - import: npm:csstype@3.2.4
   - import: npm:bowser@2.15.0
   - import: npm:@svgdotjs/svg.js@3.2.8
   - import: npm:react-error-boundary@6.1.6
@@ -113,7 +113,7 @@ package.json:
     dev: true
   - import: npm:@deno/vite-plugin@2.0.4
     dev: true
-  - import: npm:rollup@4.68.4
+  - import: npm:rollup@4.68.5
     dev: true
   - import: npm:vite@8.3.8
     dev: true
