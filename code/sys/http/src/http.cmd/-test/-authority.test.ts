@@ -1,4 +1,4 @@
-import { describe, expect, it, Json, Num, type t } from '../../-test.ts';
+import { describe, expect, Is, it, Json, Num, type t, WebFixture } from '../../-test.ts';
 import { Cmd } from '../common.ts';
 import { HttpCmd } from '../mod.ts';
 import { expectFailure, fetchFor, NS, options, POLICY, request, URL } from './u.fixture.ts';
@@ -94,6 +94,32 @@ describe('HttpCmd request authority', () => {
         'invalid-options',
         'not-dispatched',
       );
+    }
+  });
+
+  it('calls the captured default fetch without a foreign receiver', async () => {
+    const echo = fetchFor(HttpCmd.handler(options()));
+    let calls = 0;
+    let lateReads = 0;
+    const fetcher: t.Fetch = function (this: unknown, input, init) {
+      calls++;
+      if (!Is.nil(this) && this !== globalThis) throw new TypeError('Foreign fetch receiver.');
+      return echo(input, init);
+    };
+    const property = { target: globalThis, key: 'fetch' };
+    using _original = WebFixture.Property.mock([{ ...property, descriptor: { value: fetcher } }]);
+    const client = HttpCmd.client({ url: URL, ns: NS, policy: POLICY });
+    try {
+      const get = () => {
+        lateReads++;
+        throw new Error('Unexpected fetch lookup after construction.');
+      };
+      using _replacement = WebFixture.Property.mock([{ ...property, descriptor: { get } }]);
+      expect(await client.send('fixture.echo', { text: 'captured' })).to.eql({ text: 'captured' });
+      expect(calls).to.eql(1);
+      expect(lateReads).to.eql(0);
+    } finally {
+      client.dispose();
     }
   });
 

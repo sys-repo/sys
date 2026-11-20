@@ -15,6 +15,7 @@ export function client<
   R extends t.Cmd.Result.Map<N> = t.Cmd.Result.Map<N>,
 >(input: t.HttpCmd.ClientOptions): t.HttpCmd.Client<N, P, R> {
   const options = clientOptions(input);
+  const { fetch: fetcher } = options;
   const life = Rx.lifecycle();
   const active = new Set<() => void>();
   life.dispose$.subscribe(() => {
@@ -59,7 +60,7 @@ export function client<
 
       phase = 'network';
       dispatch = 'possible';
-      response = await operation.raceFetch(Promise.resolve(options.fetch(options.url, {
+      response = await operation.raceFetch(Promise.resolve(fetcher(options.url, {
         method: D.method,
         headers,
         body,
