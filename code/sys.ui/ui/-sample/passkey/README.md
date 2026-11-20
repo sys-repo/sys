@@ -23,18 +23,25 @@ Passkey sample
 ```
 
 **Follow one sign-in.** The runtime asks the service for a fresh challenge. Through [WebAuthn], the
-authenticator returns a signed response bound to that challenge. The runtime sends the response to
-the service. If the service accepts it, the runtime keeps the
-[session credential][bearer credential]; the panel gets the fact it needs to display: _signed in_.
+authenticator signs a response to that challenge with the passkey’s private key. The runtime sends
+the response to the service, which verifies the signature with the registered public key. Neither
+the runtime nor the service receives the private key.
+
+If the service accepts the response, it issues a [session credential][bearer credential]. This is a
+separate secret: it lets the runtime make requests on your behalf without asking you to use the
+passkey again while the session is valid. The panel sees the session state, not the credential.
 
 **What survives?** Reloading the page forgets the local session credential. It does not revoke the
-session or erase the passkey registration on the service. Restarting the reference service is
-different: it erases accounts, registrations, and sessions. Your authenticator may still offer the
-passkey, but the service no longer has the account it belonged to.
+session or erase the passkey registration on the service.
 
-**What you can try.** The [isolated view](./ui/-spec/-SPEC.tsx) lets you explore panel states
-without an authenticator. The [integration specimen](./ui/-spec.integration/-SPEC.tsx) is not yet
-connected.
+The reference service keeps accounts, registrations, and sessions in memory. Restart it and all
+three are lost. Your authenticator may still offer the passkey, but the service no longer recognizes
+it. A production service keeps accounts and their registered public keys in durable storage so you
+can sign in again after a restart.
+
+**Sample UI.** The [isolated view](./ui/-spec/-SPEC.tsx) lets you explore panel states without an
+authenticator. The [integration specimen](./ui/-spec.integration/-SPEC.tsx) shows the same panel but
+is not yet connected to the account service.
 
 ---
 
