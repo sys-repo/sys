@@ -49,7 +49,8 @@ authenticates callers.
 
 A timeout after dispatch does not tell you whether the command ran. Do not retry a state-changing
 command on that evidence alone. See the [bounded Cmd guide](./src/http.cmd/README.md) for setup,
-shutdown, migration, and error handling.
+shutdown, migration, error handling, and
+[browser verification](./src/http.cmd/README.md#verify-the-browser-transport).
 
 ## Run a server
 

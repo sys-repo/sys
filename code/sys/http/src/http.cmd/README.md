@@ -115,3 +115,28 @@ immediately before invocation, including a synchronous fetch throw; it never bec
 non-commit after that point. Server handler-invocation knowledge is separate. Lost responses, error
 statuses, timeouts, and disposal cannot prove rollback. No automatic retries occur. Domain bindings
 must preserve this uncertainty rather than infer success, rollback, or permission to retry.
+
+## Verify the browser transport
+
+Run the `@sys/http` browser proof from `code/sys/http`. The task uses `Browser.load` from
+[`@sys/testing/server`](../../../testing/README.md#browser-tests); do not launch Chrome directly.
+Set `CHROME_BIN` to the canonical absolute path of a trusted Chrome or Chromium executable:
+
+```sh
+# Linux, with Chromium installed as `chromium`
+export CHROME_BIN="$(realpath -- "$(command -v chromium)")"
+```
+
+```sh
+# macOS, with Google Chrome in Applications
+export CHROME_BIN="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+```
+
+```sh
+deno task test:browser
+```
+
+The default client must send one command POST to the loopback listener with the page’s exact
+`Origin` and no `Referer`, `Cookie`, or `Authorization`. The handler must run once, and the page
+must receive the correlated echo. If the proof fails, inspect `./.tmp/httpcmd-browser-proof` before
+clearing it and retrying.

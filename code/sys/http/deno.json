@@ -9,6 +9,7 @@
     "clean": "deno run -P=clean ./-scripts/task.clean.ts",
     "test": "deno task test:unit && deno task test:file-bytes:entry",
     "test:unit": "deno test -P=test",
+    "test:browser": "deno run --frozen --cached-only --no-prompt -P=test-browser-launch ./-scripts/task.httpcmd.browser.ts",
     "test:file-bytes:entry": "deno run --no-prompt -P=file-bytes-entry ./src/http.server/m.FileBytes/-test.external/-entry.process-proof.ts",
     "serve": "deno run -P=serve @sys/http/serve --cmd=start --port=1234 --dir='./src/-test/-sample.dist'"
   },
@@ -33,6 +34,17 @@
   "permissions": {
     "clean": { "read": true, "write": true, "env": true },
     "test": { "read": true, "write": true, "env": true, "net": true },
+    "test-browser-launch": {
+      "read": true,
+      "write": ["./.tmp/httpcmd-browser-proof"],
+      "env": ["CHROME_BIN", "DENO_DIR"],
+      "run": ["deno"]
+    },
+    "test-browser": {
+      "write": ["./.tmp/httpcmd-browser-proof"],
+      "env": ["TMPDIR"],
+      "net": ["127.0.0.1"]
+    },
     "serve": { "read": true, "net": true },
     "file-bytes-entry": {}
   }
