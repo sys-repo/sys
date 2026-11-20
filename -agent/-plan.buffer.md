@@ -1,10 +1,33 @@
-
-
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
 Verify claims against source. Flag misleading promises, missing context, repetition, and misplaced detail. Preserve essential caveats. Seek the fewest words that remain genuinely helpful—not brevity at the expense of understanding.
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
+
+
+@sys.ui
+passkey-panel.plan.md
+- [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
+- [x] 1e48de614 style(ui): refine passkey debug panel labels and intent spacing
+- [x] 429560650 chore(ui): scaffold passkey integration spec and view navigation
+- [x] bc242cbd3 [link-grammar.plan.md](../@sys.ui-components/link-grammar.plan.md)
+- [x] b3659c530 feat(ui): expose composable passkey diagnostic sections
+- [x] 5bb4c79dc feat(ui): compose passkey UI in integration specimen
+- [x] 8ba1a4939 feat(passkey): add UI-independent WebAuthn ceremonies
+- [x] c7e4d6686 feat(passkey): define account service contracts
+- [x] aba8774ff feat(http)!: bound unary HttpCmd transport
+- [x] ef977e043 chore(deps): add SimpleWebAuthn server 14.1.0
+- [x] 06258c98c feat(crypto): add strict Ed25519 public-key validation
+- [x] 97fc01381 feat(passkey): add minimal reference account service
+- [x] 993d964f4 feat(passkey): add reusable account runtime
+- [x] be9dc5bf3 feat(http): add exact method-and-path proxy routes
+- [x] 11a8ab2c5 fix(http): invoke native fetch correctly in HttpCmd
+- [x] ce2317f14 test(http): prove the default HttpCmd echo in a real browser
+- [ ] feat(net): add a pure fixed TCP port predicate
+- [ ] feat(ui): serve the passkey account endpoint in the sample Cell
+- [ ] feat(ui): route the sample Cell through one browser origin
+- [ ] feat(ui): connect real passkey operations in sample
+
 
 
 
@@ -40,25 +63,6 @@ ui-template-maintenance.plan.md
 - [ ] fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
 - [ ] fix(ui-components): bind webfont and CSS specimen effects to attachments
 - [ ] fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
-
-
-
-@sys.ui
-passkey-panel.plan.md
-- [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
-- [x] 1e48de614 style(ui): refine passkey debug panel labels and intent spacing
-- [x] 429560650 chore(ui): scaffold passkey integration spec and view navigation
-- [x] bc242cbd3 [link-grammar.plan.md](../@sys.ui-components/link-grammar.plan.md)
-- [x] b3659c530 feat(ui): expose composable passkey diagnostic sections
-- [x] 5bb4c79dc feat(ui): compose passkey UI in integration specimen
-- [x] 8ba1a4939 feat(passkey): add UI-independent WebAuthn ceremonies
-- [x] c7e4d6686 feat(passkey): define account service contracts
-- [x] aba8774ff feat(http)!: bound unary HttpCmd transport
-- [x] ef977e043 chore(deps): add SimpleWebAuthn server 14.1.0
-- [ ] feat(crypto): add strict Ed25519 public-key validation
-- [ ] feat(passkey): add minimal reference account service
-- [ ] feat(passkey): add reusable account runtime
-- [ ] feat(ui): connect real passkey operations in sample
 
 
 
