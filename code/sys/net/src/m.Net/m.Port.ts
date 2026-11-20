@@ -1,6 +1,8 @@
 import { Err, Num, type t } from './common.ts';
 import { createPortProbe, type PortListen, type ProbeResult } from './u/u.probe.ts';
 
+const MAX_PORT = 65_535;
+
 /**
  * Host-agnostic port selection with bounded search and conservative availability checks.
  */
@@ -19,6 +21,10 @@ export function createPort(listen: PortListen = (options) => Deno.listen(options
   }
 
   const api: t.PortLib = Object.freeze({
+    isFixed(value: unknown): value is t.FixedPort {
+      return Num.Is.int(value) && value >= 1 && value <= MAX_PORT;
+    },
+
     random() {
       // OS assigns the port; inspecting its address must not retain the listener.
       const listener = listen({ port: 0 });
@@ -40,15 +46,15 @@ export function createPort(listen: PortListen = (options) => Deno.listen(options
 
     get(pref?: t.PortNumber, options: { throw?: boolean } = {}) {
       if (pref === undefined) return api.random();
-      if (!Num.Is.int(pref) || pref < 0 || pref > 65_535) {
-        throw new RangeError('Port preference must be an integer in 0..65535.');
-      }
       // Port zero delegates allocation to the eventual listener without any probing.
       if (pref === 0) return pref;
+      if (!api.isFixed(pref)) {
+        throw new RangeError('Port preference must be an integer in 0..65535.');
+      }
 
-      const last = Num.clamp(1, 65_535, pref + 10_000);
+      const last = Num.clamp(1, MAX_PORT, pref + 10_000);
       // Monotonic bounded traversal without allocating an array of candidate ports.
-      let current = pref;
+      let current: number = pref;
       while (current <= last) {
         const result = inspect(current);
         if (result.kind === 'ok') return current;

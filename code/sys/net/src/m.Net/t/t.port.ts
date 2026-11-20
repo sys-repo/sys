@@ -1,7 +1,13 @@
 import type { t } from '../common.ts';
 
-/** TCP port selection and availability checks. */
+/** A TCP port in 1..65535, excluding the OS allocation sentinel (0). */
+export type FixedPort = t.PortNumber & { readonly __brand: 'FixedPort' };
+
+/** TCP port validation, selection, and availability checks. */
 export type PortLib = {
+  /** Validate a fixed TCP port without coercion or network I/O; says nothing about availability. */
+  isFixed(value: unknown): value is FixedPort;
+
   /**
    * Use the preferred nonzero TCP port if available, otherwise the first available higher port.
    *
