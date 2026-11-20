@@ -5,7 +5,9 @@ import { Mount } from './m.Mount.ts';
 import { Root } from './m.Root.ts';
 import { HttpProxyResolver } from './m.Resolver.ts';
 
-/** HTTP proxy helpers for route resolution, config loading, and server startup. */
+/**
+ * HTTP proxy helpers for route resolution, config loading, and server startup.
+ */
 export const HttpProxy: t.HttpProxy.Lib = Object.freeze({
   Config,
   Root,
@@ -16,30 +18,24 @@ export const HttpProxy: t.HttpProxy.Lib = Object.freeze({
     const app = HttpServer.create({ pkg, static: false, cors: false });
 
     app.all('*', async (c) => {
-      const url = new URL(c.req.raw.url);
-      const pathname = url.pathname as t.StringUrlRoute;
-      const result = resolver(pathname);
+      const request = c.req.raw;
+      const { pathname, search } = new URL(request.url);
+      const route = resolver(pathname, request.method);
 
-      if (result.kind === 'redirect') {
-        return c.redirect(`${result.location}${url.search}`, 308);
+      if (route.kind === 'none') return c.notFound();
+      if (route.kind === 'redirect') return c.redirect(`${route.location}${search}`, 308);
+      if (route.kind === 'method-not-allowed') {
+        return c.text('Method Not Allowed', 405, { allow: route.allow });
       }
 
-      if (result.kind === 'none') {
-        return c.notFound();
-      }
-
-      const upstream = `${result.upstream}${url.search}`;
-
+      const upstream = `${route.upstream}${search}`;
       try {
-        const request = wrangle.request(c.req.raw, upstream as t.StringUrl);
-        const response = await fetch(request);
-        const transformed = await applyResponseTransform(response, {
-          request: c.req.raw,
-          pathname,
-          upstream: upstream as t.StringUrl,
-          routeKind: result.kind,
-        }, result.response);
-        return applyResponseHeaders(transformed, result.response?.headers);
+        const response = await fetch(wrangle.request(request, upstream));
+        if (route.kind === 'exact') return response;
+
+        const context = { request, pathname, upstream, routeKind: route.kind };
+        const transformed = await applyResponseTransform(response, context, route.response);
+        return applyResponseHeaders(transformed, route.response?.headers);
       } catch {
         return c.text('Bad Gateway', 502);
       }
@@ -146,21 +142,18 @@ const wrangle = {
   },
 
   config(options: t.HttpProxy.CreateOptions): t.HttpProxy.Routing.Config {
-    if (options.config && (options.root || options.mounts)) {
-      throw new Error('HttpProxy: use either config or lifecycle root/mounts, not both');
+    const { config, root, mounts, exactRoutes } = options;
+    if (config && (root || mounts || exactRoutes !== undefined)) {
+      const msg = 'HttpProxy: use either config or lifecycle root/mounts/exactRoutes, not both';
+      throw new Error(msg);
     }
+    if (config) return config;
 
-    if (options.root || options.mounts) {
-      return {
-        root: options.root ? { upstream: options.root.target } : undefined,
-        mounts: options.mounts?.map((mount) => ({
-          mountPath: mount.path,
-          upstream: mount.target,
-        })),
-      } satisfies t.HttpProxy.Routing.Config;
-    }
-
-    return options.config ?? {};
+    return {
+      root: root ? { upstream: root.target } : undefined,
+      mounts: mounts?.map((mount) => ({ mountPath: mount.path, upstream: mount.target })),
+      exactRoutes,
+    };
   },
 
   request(source: Request, upstream: t.StringUrl): Request {
@@ -193,6 +186,9 @@ const wrangle = {
     if (config.root) paths.push({ label: 'root', path: '/' as t.StringUrlRoute });
     for (const mount of config.mounts ?? []) {
       paths.push({ label: wrangle.infoLabel(mount.mountPath), path: mount.mountPath });
+    }
+    for (const { method, path } of config.exactRoutes ?? []) {
+      paths.push({ label: method, path });
     }
     return paths.length > 0 ? paths : ['/'] as const;
   },

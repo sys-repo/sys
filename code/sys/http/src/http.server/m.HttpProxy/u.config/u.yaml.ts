@@ -1,4 +1,5 @@
 import { Fs, Is, type t, Yaml } from '../common.ts';
+import { indexExactRoutes } from './u.exact.ts';
 import { normalizeMounts } from './u.mount.ts';
 import { validateRoot } from './u.root.ts';
 
@@ -38,17 +39,19 @@ function parseConfigText(
   }
 
   assertKnownKeys(data, path, errorPrefix);
-  const doc = {
+  const base = {
     name: readNonEmptyString(data, 'name', path, errorPrefix),
     hostname: readNonEmptyString(data, 'hostname', path, errorPrefix),
     port: readPort(data.port, path, errorPrefix),
     root: readRoot(data.root, path, errorPrefix),
     mounts: readMounts(data.mounts, path, errorPrefix),
   } satisfies t.HttpProxy.Config.Doc;
+  const { exactRoutes } = data;
+  const routes = exactRoutes === undefined ? undefined : indexExactRoutes(exactRoutes, errorPrefix);
 
-  if (doc.root) validateRoot(doc.root, errorPrefix);
-  normalizeMounts(doc.mounts, errorPrefix);
-  return doc;
+  if (base.root) validateRoot(base.root, errorPrefix);
+  normalizeMounts(base.mounts, errorPrefix);
+  return routes ? { ...base, exactRoutes: [...routes.values()] } : base;
 }
 
 function assertKnownKeys(
@@ -56,7 +59,7 @@ function assertKnownKeys(
   path: t.StringPath,
   errorPrefix: string,
 ): void {
-  const allowed = ['name', 'hostname', 'port', 'root', 'mounts'];
+  const allowed = ['name', 'hostname', 'port', 'root', 'mounts', 'exactRoutes'];
   const unknown = Object.keys(doc).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new Error(`${errorPrefix}: unknown config key '${unknown[0]}': ${Fs.trimCwd(path)}`);
@@ -80,11 +83,9 @@ function readNonEmptyString(
 
 function readPort(value: unknown, path: t.StringPath, errorPrefix: string): number {
   if (!Is.num(value) || !Number.isInteger(value) || value < 0 || value > 65535) {
-    throw new Error(
-      `${errorPrefix}: config key 'port' must be an integer between 0 and 65535: ${
-        Fs.trimCwd(path)
-      }`,
-    );
+    const file = Fs.trimCwd(path);
+    const msg = `${errorPrefix}: config key 'port' must be an integer between 0 and 65535: ${file}`;
+    throw new Error(msg);
   }
   return value;
 }

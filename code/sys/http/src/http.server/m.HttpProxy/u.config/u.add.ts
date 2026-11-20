@@ -28,11 +28,8 @@ export async function add(
     initial: () => desiredLifecycle,
     load: (path) => loadConfig(path, ERROR_PREFIX),
     mutate: (doc, context) => {
-      const desired = {
-        ...desiredLifecycle,
-        root: doc.root,
-        mounts: doc.mounts,
-      } satisfies t.HttpProxy.Config.Doc;
+      const { name, hostname, port } = desiredLifecycle;
+      const desired = { ...doc, name, hostname, port } satisfies t.HttpProxy.Config.Doc;
       const same = sameLifecycle(doc, desiredLifecycle);
       const kind = context.created ? 'added' : same ? 'exists' : 'updated';
       return {

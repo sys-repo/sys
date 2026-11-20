@@ -4,9 +4,9 @@ import type { t } from './common.ts';
  * Reverse proxy server.
  *
  * Design notes:
- * - Local mounts are modeled as path-prefix mounts, not `:ns/:bundle` params.
+ * - Exact routes reserve a pathname for one method before prefix routing.
+ * - Local mounts are path prefixes, matched longest-prefix first.
  * - A mounted upstream may live at the upstream domain root or at any deeper upstream path.
- * - Matching is expected to use longest-prefix wins semantics.
  * - Proxy routing does not rewrite HTML, `<base>`, service-worker, or asset URLs;
  *   route configs must cover every absolute prefix a proxied document references.
  * - Mount paths should be treated as slash-normalized prefixes (start and end with `/`).
@@ -42,6 +42,21 @@ export declare namespace HttpProxy {
 
     /** Lifecycle-friendly path-prefix mounts. Use `config` for advanced routing. */
     readonly mounts?: readonly Mount.Doc[];
+
+    /** Lifecycle-friendly exact routes. Use either these options or `config`, not both. */
+    readonly exactRoutes?: readonly ExactRoute[];
+  };
+
+  /** Reserve one URL pathname for one HTTP method and one fixed upstream path. */
+  export type ExactRoute = {
+    /** Serialized URL pathname, including the leading slash and any significant trailing slash. */
+    readonly path: t.StringUrlRoute;
+
+    /** One uppercase HTTP method supported by Fetch. Other methods receive `405`. */
+    readonly method: string;
+
+    /** Absolute HTTP(S) endpoint URL without credentials, query, or fragment. */
+    readonly target: t.StringUrl;
   };
 
   /** Arguments passed to [HttpProxy.start]. */
@@ -80,7 +95,9 @@ export declare namespace HttpProxy {
   /** Server application instance. */
   export type App = t.HttpServer.App;
 
-  /** Durable reverse-proxy config owner affordances. */
+  /**
+   * Durable reverse-proxy config owner affordances.
+   */
   export namespace Config {
     /** Owner config mutation API. */
     export type Lib = {
@@ -104,6 +121,9 @@ export declare namespace HttpProxy {
 
       /** Durable lifecycle-friendly mounted upstream declarations. */
       readonly mounts: readonly Mount.Doc[];
+
+      /** Durable exact-route declarations. Each pathname may appear only once. */
+      readonly exactRoutes?: readonly ExactRoute[];
     };
 
     /** Config mutation input. */
@@ -312,21 +332,26 @@ export declare namespace HttpProxy {
     };
   }
 
-  /** Advanced reverse-proxy routing model. */
+  /**
+   * Advanced reverse-proxy routing model.
+   */
   export namespace Routing {
     /** Declarative reverse proxy routing configuration. */
     export type Config = {
-      /** Fallback upstream used for requests that do not match a configured mount. */
+      /** Fallback upstream used when no exact route or mount applies. */
       readonly root?: Root;
 
       /** Mounted upstreams, expected to be matched via longest-prefix wins. */
       readonly mounts?: Mounts;
+
+      /** Reserved pathnames checked before mount redirects, prefix matches, and root fallback. */
+      readonly exactRoutes?: readonly ExactRoute[];
     };
 
     /**
      * Root fallback upstream.
      *
-     * Used when the incoming request does not match any configured mount.
+     * Used when the incoming request does not match any exact route or mount.
      * This can point at a site root or any upstream path, for example:
      * - `https://example.com/`
      * - `https://example.com/foo/root/`
@@ -389,12 +414,10 @@ export declare namespace HttpProxy {
     export type Mounts = readonly Mount[];
 
     /**
-     * Pure request-path resolver.
-     *
-     * Input is expected to be the URL pathname only.
+     * Pure request resolver. The path is the URL pathname only, and the method defaults to `GET`.
      * Query-string forwarding is handled by the runtime caller.
      */
-    export type Resolver = (pathname: t.StringUrlRoute) => Resolve.Result;
+    export type Resolver = (pathname: t.StringUrlRoute, method?: string) => Resolve.Result;
 
     /**
      * Create a resolver from normalized routing configuration.
@@ -403,10 +426,30 @@ export declare namespace HttpProxy {
      */
     export type ResolverFactory = (config: Config) => Resolver;
 
-    /** Pure resolver result model. */
+    /**
+     * Pure resolver result model.
+     */
     export namespace Resolve {
-      /** Pure resolver output for one incoming request path. */
-      export type Result = RootResult | MountResult | RedirectResult | NoneResult;
+      /** Pure resolver output for one incoming request. */
+      export type Result =
+        | RootResult
+        | MountResult
+        | ExactResult
+        | MethodNotAllowedResult
+        | RedirectResult
+        | NoneResult;
+
+      /** Exact route with a matching method. */
+      export type ExactResult = {
+        readonly kind: 'exact';
+        readonly upstream: t.StringUrl;
+      };
+
+      /** Reserved URL pathname with a non-matching method. */
+      export type MethodNotAllowedResult = {
+        readonly kind: 'method-not-allowed';
+        readonly allow: string;
+      };
 
       /** Root fallback resolver result. */
       export type RootResult = {

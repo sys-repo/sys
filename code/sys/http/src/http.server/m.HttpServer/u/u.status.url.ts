@@ -1,4 +1,4 @@
-import { Is, Str, type t } from '../common.host.ts';
+import { Is, type t } from '../common.host.ts';
 
 /** Convert HTTP-server owner URL paths into renderer-neutral service URLs. */
 export function statusUrls(
@@ -9,13 +9,7 @@ export function statusUrls(
   return items.map((item) => {
     const path = Is.str(item) ? item : item.path;
     const label = Is.str(item) ? undefined : item.label;
-    const href = statusHref(origin, path);
+    const href = path.startsWith('/') ? `${origin}${path}` : `${origin}/${path}`;
     return label ? { href, label } : { href };
   });
-}
-
-function statusHref(origin: t.StringUrl, path: string): t.StringUrl {
-  const suffix = Str.trimLeadingSlashes(path);
-  if (!suffix) return `${origin}/` as t.StringUrl;
-  return `${origin}/${suffix}` as t.StringUrl;
 }
