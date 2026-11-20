@@ -5,6 +5,7 @@ import {
   writeUpgradeAdvisoryFailure,
   writeUpgradeAdvisorySuccess,
 } from '../u.advisory.ts';
+import { rootPendingAdvisoryPrelude } from '../u.advisory.fmt.ts';
 import { resolveUpgradeAdvisoryPath } from '../u.advisory.path.ts';
 import { runUpgradeAdvisoryProbe } from '../u.advisory.probe.ts';
 import { getVersionInfo } from '../u.ts';
@@ -378,6 +379,32 @@ describe('cli.upgrade advisory', () => {
     } finally {
       await Fs.remove(tmp.absolute);
     }
+  });
+
+  it('links only the pending version to its exact JSR release on a terminal', () => {
+    const pendingVersion = '9.9.999';
+    const terminal = { width: 61, terminal: true };
+    const redirected = { ...terminal, terminal: false };
+    const [, linked = ''] = rootPendingAdvisoryPrelude(pendingVersion, terminal).split('\n');
+    const [, plain = ''] = rootPendingAdvisoryPrelude(pendingVersion, redirected).split('\n');
+    const target = new URL('https://jsr.io/@sys/tools@9.9.999');
+    const label = c.white(pendingVersion);
+    const link = Cli.Fmt.hyperlink(label, target, { underline: true });
+
+    expect(linked).to.contain(link);
+    expect(linked.replace(link, label)).to.eql(plain);
+    expect(plain).not.to.contain('\x1b]8;;');
+    expect(Cli.stripAnsi(plain)).to.eql(
+      'auto-upgrade pending — standing down  next:@sys/tools 9.9.999',
+    );
+  });
+
+  it('omits the pending version segment when only one gap cell remains', () => {
+    const options = { width: 60, terminal: true };
+    const [, title = ''] = rootPendingAdvisoryPrelude('0.0.508', options).split('\n');
+
+    expect(Cli.stripAnsi(title)).to.eql('auto-upgrade pending — standing down');
+    expect(title).not.to.contain('\x1b]8;;');
   });
 
   it('ages cached minimum-age timing before rendering the pending root advisory', () => {
