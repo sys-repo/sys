@@ -5,7 +5,7 @@ import {
   writeUpgradeAdvisoryFailure,
   writeUpgradeAdvisorySuccess,
 } from '../u.advisory.ts';
-import { rootPendingAdvisoryPrelude } from '../u.advisory.fmt.ts';
+import { rootAdvisoryPrelude, rootPendingAdvisoryPrelude } from '../u.advisory.fmt.ts';
 import { resolveUpgradeAdvisoryPath } from '../u.advisory.path.ts';
 import { runUpgradeAdvisoryProbe } from '../u.advisory.probe.ts';
 import { getVersionInfo } from '../u.ts';
@@ -169,26 +169,20 @@ describe('cli.upgrade advisory', () => {
     expect(lines[1]?.length).to.eql(lines[0]?.length);
   });
 
-  it('styles the pre-menu advisory action with green command emphasis', () => {
-    const text = toRootUpgradeAdvisoryPrelude({
-      schemaVersion: 2,
-      package: '@sys/tools',
-      checkedAt: 1,
-      ok: true,
-      local: '0.0.1',
-      published: '9.9.9',
-      actionable: '9.9.9',
-      status: 'upgrade-available',
-    }) ?? '';
-    const lines = text.split('\n').filter(Boolean);
-    const message = lines[1] ?? '';
+  it('emphasizes the upgrade command and links the actionable version only on terminals', () => {
+    const actionable = '9.9.9';
+    const label = c.white(actionable);
+    const url = new URL('https://jsr.io/@sys/tools@9.9.9');
+    const link = Cli.Fmt.hyperlink(label, url, { underline: true });
+    const width = 80;
+    const [, linked = ''] = rootAdvisoryPrelude(actionable, { width, terminal: true }).split('\n');
+    const [, plain = ''] = rootAdvisoryPrelude(actionable, { width, terminal: false }).split('\n');
 
     expect(
-      message.startsWith(`${c.gray('Run ')}${c.white('sys upgrade ')}${c.green('--latest')}`),
+      linked.startsWith(`${c.gray('Run ')}${c.white('sys upgrade ')}${c.green('--latest')}`),
     ).to.eql(true);
-    expect(
-      message.endsWith(`${c.gray('next available ')}${c.white('9.9.9')}`),
-    ).to.eql(true);
+    expect(linked.endsWith(`${c.gray('next available ')}${link}`)).to.eql(true);
+    expect(linked.replace(link, label)).to.eql(plain);
   });
 
   it('writes and reads actionable success advisory records', async () => {

@@ -1,12 +1,18 @@
-import { c, Cli, Jsr, pkg, Str, type t } from './common.ts';
+import { c, Cli, pkg, Str, type t } from './common.ts';
+import { versionLink } from './u.fmt.version.ts';
 import { StanddownTiming } from './u.standdown.ts';
 
-export function rootAdvisoryPrelude(remote?: t.StringSemver) {
+export function rootAdvisoryPrelude(
+  remote?: t.StringSemver,
+  options: { readonly width?: number; readonly terminal?: boolean } = {},
+) {
   const { gray: g, green, white: w } = c;
-  const hr = c.green(Cli.Fmt.hr());
+  const hr = c.green(Cli.Fmt.hr({ width: options.width }));
   const width = Cli.Fmt.Text.Width.measure(hr);
   const left = `${g('Run ')}${w('sys upgrade ')}${green('--latest')}`;
-  const right = remote ? `${g('next available ')}${w(remote)}` : undefined;
+  const right = remote
+    ? `${g('next available ')}${versionLink(remote, w, options.terminal)}`
+    : undefined;
 
   return Str.builder()
     .line(hr)
@@ -25,11 +31,7 @@ export function rootPendingAdvisoryPrelude(
 ) {
   const hr = c.green(Cli.Fmt.hr({ width: options.width }));
   const width = Cli.Fmt.Text.Width.measure(hr);
-  const terminal = options.terminal ?? Cli.Is.terminal('stdout');
-  const label = c.white(remote);
-  const version = terminal
-    ? Cli.Fmt.hyperlink(label, new URL(Jsr.Url.Pkg.web(pkg.name, remote)), { underline: true })
-    : label;
+  const version = versionLink(remote, c.white, options.terminal);
   const title = rootAdvisoryLine({
     width,
     left: c.white('auto-upgrade pending — standing down'),
