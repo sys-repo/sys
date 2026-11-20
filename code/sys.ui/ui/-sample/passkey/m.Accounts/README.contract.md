@@ -1,6 +1,7 @@
 # Accounts contract
 
-[Overview](./README.md) · [Types](./t.ts)
+- [Overview](./README.md)
+- [Types](./t.ts)
 
 Requests, replies, and implementation obligations shared by the service and its private client
 binding. The service owns authority; `Facts` and `Session` describe observations, while `Grant`,

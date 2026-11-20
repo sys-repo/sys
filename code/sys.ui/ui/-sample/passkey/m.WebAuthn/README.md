@@ -1,4 +1,4 @@
-# WebAuthn browser mechanism
+# WebAuthn (browser mechanism)
 
 This module provides the browser operations used in passkey registration and sign-in: creating a
 public-key credential and requesting an assertion from an existing credential. These results require

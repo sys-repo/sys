@@ -1,7 +1,6 @@
 export * from '../common.ts';
 export * from '../../../-test.ts';
 export { Schedule } from '@sys/std/async';
-export { Rx } from '@sys/std/rx';
 export { DomMock } from '@sys/testing/server/dom';
 export { TestReact } from '@sys/ui-react/testing/server';
 export { LocalStorage } from '@sys/ui-dom';

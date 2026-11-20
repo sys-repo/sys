@@ -1,15 +1,6 @@
 import { AccountService } from '../mod.ts';
-import {
-  beforeAll,
-  describe,
-  expect,
-  expectTypeOf,
-  it,
-  Json,
-  type t,
-  Try,
-  WebFixture,
-} from './common.ts';
+import { wallClock } from '../../-test/u.fixture.wallClock.ts';
+import { beforeAll, describe, expect, expectTypeOf, it, Json, type t, Try } from './common.ts';
 import { authenticator, config, fixture, value } from './u.fixture.ts';
 
 let first: t.Authenticator;
@@ -27,18 +18,7 @@ describe('AccountService authority', () => {
 
   it('public factory → fresh System clock reads expire a challenge and permit recovery', async () => {
     const options = config();
-    const clock = { now: 1_800_000_000_000 };
-    // Time.now constructs Date snapshots. Leave Date.now untouched to distinguish the clock wiring.
-    const ClockDate = new Proxy(Date, {
-      construct(target, args, newTarget) {
-        return Reflect.construct(target, args.length ? args : [clock.now], newTarget);
-      },
-    });
-    using _mock = WebFixture.Property.mock([{
-      target: globalThis,
-      key: 'Date',
-      descriptor: { value: ClockDate },
-    }]);
+    using clock = wallClock(1_800_000_000_000);
     using service = AccountService.create(options);
     const handlers = service.handlers({});
     const ctx = {
@@ -46,7 +26,7 @@ describe('AccountService authority', () => {
       signal: new AbortController().signal,
       emit() {},
     } as const;
-    clock.now += 100; // Advance after construction: a captured snapshot is not a clock.
+    clock.set(clock.now + 100); // Advance after construction: a captured snapshot is not a clock.
     const begin = value(
       await handlers['account.create.begin']({}, {
         ...ctx,
@@ -55,7 +35,7 @@ describe('AccountService authority', () => {
     );
     expect(begin.expiresAt).to.equal(clock.now + options.lifetimes.challenge);
     const input = { transaction: begin.transaction, response: first.registration(begin.options) };
-    clock.now = begin.expiresAt;
+    clock.set(begin.expiresAt);
     expect(
       await handlers['account.create.finish'](input, {
         ...ctx,

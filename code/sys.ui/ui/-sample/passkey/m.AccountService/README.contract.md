@@ -1,6 +1,7 @@
 # AccountService contract
 
-[Overview](./README.md) · [Types](./t.ts)
+- [Overview](./README.md)
+- [Types](./t.ts)
 
 Process-local reference authority implementing the eight
 [Accounts operations](../m.Accounts/README.contract.md#operations-and-authority). Importing or
@@ -33,8 +34,9 @@ All policy values are required, validated, copied, and frozen. The numbers above
 host choices, not defaults. Origins are exact; HTTPS is required except explicit localhost HTTP. The
 host still owns actual deployment/RP suitability, secure context, origin/CORS admission,
 Authorization parsing, bounded `HttpCmd.handle` binding, listener lifetime, and the pre-creation
-warning. The handler map expects bounded decoded JSON, not arbitrary hostile JavaScript objects. No
-bearer enters payloads.
+warning. The handler map expects bounded decoded JSON, not arbitrary hostile JavaScript objects.
+Authenticated requests carry the bearer in `Authorization`, not in the command payload. Successful
+creation and sign-in replies contain a bearer; do not log them.
 
 Executable examples:
 

@@ -1,4 +1,4 @@
-# AccountService
+# AccountService (server authority)
 
 An in-memory reference service for [passkey](https://www.w3.org/TR/webauthn-3/#passkey)
 [account](https://www.w3.org/TR/webauthn-3/#user-account) creation, sign-in, enrollment, and
@@ -11,24 +11,23 @@ their responses and owns account/session state; hosts own browser interaction, t
 - Request-local handlers use the shared [Accounts contract](../m.Accounts/README.contract.md).
 - Construction opens no listener or browser ceremony.
 
-This is not production identity infrastructure. **Before credential creation, warn users that
-service restart loses account/session records while authenticator entries may survive.** Use
+**Before account creation or passkey enrollment, warn users:** a service restart erases accounts,
+registered keys, and sessions. A surviving authenticator entry cannot sign in to its old account.
+Browser reload drops the local bearer without revoking the session or erasing the registration. Use
 designated human-controlled test accounts.
 
 ## Status
 
-Sample-local, not a published package API. Automated tests do not establish real-browser or
-authenticator acceptance.
+This sample is neither a published API nor production identity infrastructure. Automated tests do
+not establish real-browser or authenticator acceptance.
 
-## Implementation
+## Commit boundary
 
-[Construction and request admission](./u/u.createWith.ts) compose one private
-[authority owner](./u/u.authority.ts). The [begin](./u/u.begin.ts),
-[registration](./u/u.register.ts), and [sign-in](./u/u.signIn.ts) workflows keep their lifecycle
-checks together. They prepare against current authority after verification; result validation and
-publication guards precede one synchronous state swap. These are internal parts of this module, not
-independent services or a storage abstraction.
+A session can expire or be revoked while verification is running. Before committing, the service
+rechecks the authority the operation needs. The change takes effect all at once in this instance;
+that is not a durability or multi-process guarantee.
 
-## Reference
+## References
 
-[Construction, guarantees, and limits](./README.contract.md) · [Types](./t.ts)
+- [Construction, guarantees, and limits](./README.contract.md)
+- [Types](./t.ts)

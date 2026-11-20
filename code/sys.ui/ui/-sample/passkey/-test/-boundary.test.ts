@@ -10,6 +10,7 @@ describe('passkey core/UI boundary', () => {
     'm.WebAuthn/mod.ts',
     'm.Accounts/mod.ts',
     'm.AccountService/mod.ts',
+    'm.AccountRuntime/mod.ts',
   ];
   for (const entry of entries) {
     it(`${entry} → no UI or harness runtime dependencies`, async () => {
@@ -23,7 +24,12 @@ describe('passkey core/UI boundary', () => {
           '@sys/ui-dev',
           'react',
         ],
-        forbiddenPathIncludes: ['/passkey/ui/', '/passkey/-spec/', '/src/ui.react/'],
+        forbiddenPathIncludes: [
+          '/passkey/ui/',
+          '/passkey/-spec/',
+          '/src/ui.react/',
+          ...(entry === 'm.AccountRuntime/mod.ts' ? ['/passkey/m.AccountService/'] : []),
+        ],
       });
     });
   }

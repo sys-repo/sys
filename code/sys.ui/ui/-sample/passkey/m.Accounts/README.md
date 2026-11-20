@@ -1,4 +1,4 @@
-# Accounts
+# Accounts (wire contracts)
 
 Shared requests, replies, and JSON-shape checks for passkey
 [accounts](https://www.w3.org/TR/webauthn-3/#user-account) and
@@ -6,10 +6,12 @@ Shared requests, replies, and JSON-shape checks for passkey
 
 ## Role and boundaries
 
-Used by [AccountService](../m.AccountService/README.md). Keeping the contract separate lets client
-code use the same messages without importing the service implementation.
+The client and server share these messages without importing each other's implementation.
 
-- **AccountService** verifies credentials and owns account/session authority.
+- **[AccountRuntime](../m.AccountRuntime/README.md)** coordinates browser ceremonies and service
+  requests. It keeps the bearer private and exposes session observations.
+- **[AccountService](../m.AccountService/README.md)** verifies ceremony responses and owns account
+  and session state.
 - **[WebAuthn](../m.WebAuthn/README.md)** runs browser ceremonies—not account management.
 - **[HttpCmd](../../../../../sys/http/src/http.cmd/README.md)** transports messages—not account
   policy.
@@ -43,6 +45,7 @@ exposing credentials and authentication exchanges.
 The [integration specimen](../ui/-spec.integration/-SPEC.tsx) is unconnected and performs no account
 operations.
 
-## Reference
+## References
 
-[Contract and recovery rules](./README.contract.md) · [Types](./t.ts)
+- [Contract and recovery rules](./README.contract.md)
+- [Types](./t.ts)

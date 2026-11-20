@@ -1,4 +1,4 @@
-import { Obj, type t } from './common.ts';
+import { Obj, type t, WebFixture } from './common.ts';
 
 type Call = {
   readonly method: 'create' | 'get';
@@ -52,23 +52,13 @@ export function browser() {
   return { globals, credentials, calls, registration, assertion };
 }
 
-/** Restore exact ambient property descriptors, including absent properties, after each test. */
+/** Install browser globals by descriptor so setup never invokes a test's getter. */
 export function installGlobals(values: Record<string, unknown>) {
-  const originals = Obj.keys(values).map((key) => {
-    return { key, descriptor: Object.getOwnPropertyDescriptor(globalThis, key) };
-  });
-  for (const key of Obj.keys(values)) {
+  const entries = Obj.keys(values).map((key) => {
     const descriptor = Object.getOwnPropertyDescriptor(values, key)!;
-    Object.defineProperty(globalThis, key, { ...descriptor, configurable: true });
-  }
-  return {
-    [Symbol.dispose]() {
-      for (const { key, descriptor } of originals) {
-        if (descriptor) Object.defineProperty(globalThis, key, descriptor);
-        else Reflect.deleteProperty(globalThis, key);
-      }
-    },
-  };
+    return { target: globalThis, key, descriptor: { ...descriptor, configurable: true } };
+  });
+  return WebFixture.Property.mock(entries);
 }
 
 export function createOptions(): t.WebAuthn.CreateOptions {

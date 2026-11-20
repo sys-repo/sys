@@ -1,6 +1,7 @@
 /**
  * @module
- * Process-local reference account authority. No listener or browser ceremony on import.
+ * Server authority for passkey accounts. This process-local reference service verifies ceremony
+ * responses and commits account and session changes. It opens no listener.
  */
 import { type t, Time } from './common.ts';
 import { createWith } from './u/u.createWith.ts';
