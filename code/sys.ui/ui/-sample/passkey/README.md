@@ -23,26 +23,31 @@ Passkey sample
    └─ m.AccountService/       Verifies the response against the registered key and issues a session.
 ```
 
-**Follow one sign-in.**  
+### Follow one sign-in
+
 The runtime asks the service for a fresh challenge. Through [WebAuthn], the
-authenticator signs a response to that challenge with the passkey’s private key. The runtime sends
-the response to the service, which verifies the signature with the registered public key. Neither
+authenticator signs a response to that challenge with the passkey’s [private key][credential private key].
+The runtime sends the response to the service, which verifies the signature with the registered public key. Neither
 the runtime nor the service receives the private key.
 
 If the service accepts the response, it issues a [session credential][bearer credential]. This is a
 separate secret: it lets the runtime make requests on your behalf without asking you to use the
 passkey again while the session is valid. The panel sees the session state, not the credential.
 
-**What survives?**  
+### What survives?
+
 Reloading the page forgets the local session credential. It does not revoke the
 session or erase the passkey registration on the service.
 
-The reference service keeps accounts, registrations, and sessions in memory. Restart it and all
-three are lost. Your authenticator may still offer the passkey, but the service no longer recognizes
-it. A production service keeps accounts and their registered public keys in durable storage so you
-can sign in again after a restart.
+The [reference service](./m.AccountService/README.md) stores accounts, registrations, and sessions
+**only in memory**. Restarting the service erases all three. Your authenticator may still offer the
+passkey, but the service no longer recognizes it.
 
-**Sample UI.**  
+Beyond this sample, the service must preserve each account and its passkey registrations across
+restarts, including each credential’s ID, public key, and the account it belongs to.
+
+### Sample UI
+
 The [isolated view](./ui/-spec/-SPEC.tsx) lets you explore panel states without an
 authenticator. The [integration specimen](./ui/-spec.integration/-SPEC.tsx) shows the same panel but
 is not yet connected to the account service.
@@ -54,6 +59,7 @@ is not yet connected to the account service.
 [Messages](./m.Accounts/README.md) · [Transport](../../../../sys/http/src/http.cmd/README.md)
 
 [passkey]: https://www.w3.org/TR/webauthn-3/#passkey
+[credential private key]: https://www.w3.org/TR/webauthn-3/#credential-private-key
 [account]: https://www.w3.org/TR/webauthn-3/#user-account
 [principal]: https://www.rfc-editor.org/rfc/rfc4949.html#page-232 "RFC 4949, p. 232"
 [session]: https://pages.nist.gov/800-63-4/sp800-63b/session/#sessmgmt
