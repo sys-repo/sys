@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { renderColumns } from './-u.render.tsx';
 
@@ -25,21 +26,6 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  function updateColumns(props: Pick<P, 'theme' | 'align'>) {
-    const el = renderColumns({
-      ...props,
-      onAlignChange: (e) => (p.align.value = e.align),
-    });
-    p.left.value = el.left;
-    p.center.value = el.center;
-    p.right.value = el.right;
-  }
-  function update() {
-    const theme = p.theme.value;
-    const align = p.align.value;
-    updateColumns({ theme, align });
-  }
-
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -53,12 +39,40 @@ export function createDebugSignals() {
     right: s<P['right']>(),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-    update,
-  };
+  // Retain rendered columns across reconnect unless their inputs changed.
+  let renderedFor: Pick<P, 'theme' | 'align'> | undefined;
+  const { attach } = Spec.attachments({
+    shared(e) {
+      const effects = Signal.listeners(e.life);
+      effects.effect(() => {
+        const theme = p.theme.value;
+        const align = p.align.value;
+        if (renderedFor && renderedFor.theme === theme && renderedFor.align === align) return;
+        update();
+      });
+      effects.effect(() => {
+        store.change((d) => {
+          d.theme = p.theme.value;
+          d.debug = p.debug.value;
+          d.centerWidth = p.centerWidth.value;
+          d.align = p.align.value;
+          d.gap = p.gap.value;
+        });
+      });
+    },
+  });
+
+  function update() {
+    const next = { theme: p.theme.value, align: p.align.value };
+    const el = renderColumns({
+      ...next,
+      onAlignChange: (e) => (p.align.value = e.align),
+    });
+    renderedFor = next;
+    p.left.value = el.left;
+    p.center.value = el.center;
+    p.right.value = el.right;
+  }
 
   function listen() {
     Signal.listen(props);
@@ -69,18 +83,8 @@ export function createDebugSignals() {
     update();
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.centerWidth = p.centerWidth.value;
-      d.align = p.align.value;
-      d.gap = p.gap.value;
-    });
-  });
-
-  Signal.effect(update);
-  return api;
+  update();
+  return { props, listen, reset, attach, update };
 }
 
 const Styles = {

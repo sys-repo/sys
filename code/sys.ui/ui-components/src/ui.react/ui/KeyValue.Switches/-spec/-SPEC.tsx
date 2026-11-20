@@ -53,19 +53,16 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    update();
-    function update() {
-      debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-
-    ctx.subject
-      .size([360, null])
-      .display('grid')
-      .render(() => <Root />);
+    debug.attach(ctx, {
+      subject: { size: [360, null], display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {

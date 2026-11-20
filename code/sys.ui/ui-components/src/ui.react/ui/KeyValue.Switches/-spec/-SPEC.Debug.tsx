@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 import { CursorDebug } from '../../KeyValue/-spec/mod.ts';
 import { SAMPLE, type SampleKind, type SampleValues } from './-samples.tsx';
@@ -58,11 +59,20 @@ export async function createDebugSignals() {
     values: s<SampleValues>({ ...SAMPLE.defaultValues, ...(snap.values ?? {}) }),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.enabled = p.enabled.value;
+        d.reorder = p.reorder.value;
+        d.cursorEnabled = p.cursor.enabled.value;
+        d.cursorArrival = p.cursor.arrival.value;
+        d.sample = p.sample.value;
+        d.values = p.values.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -81,20 +91,7 @@ export async function createDebugSignals() {
     p.values.value = { ...SAMPLE.defaultValues };
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.enabled = p.enabled.value;
-      d.reorder = p.reorder.value;
-      d.cursorEnabled = p.cursor.enabled.value;
-      d.cursorArrival = p.cursor.arrival.value;
-      d.sample = p.sample.value;
-      d.values = p.values.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { SAMPLE, type SampleKind } from './-samples.tsx';
 import { CursorDebug } from './mod.ts';
@@ -85,17 +86,38 @@ export function createDebugSignals() {
     sample: s(snap.sample),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-    get layout(): t.KeyValue.Layout | undefined {
-      const v = p.layout.value;
-      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValue.Layout.Spaced;
-      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValue.Layout.Table;
-      return;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.size = p.size.value;
+        d.mono = p.mono.value;
+        d.truncate = p.truncate.value;
+        d.enabled = p.enabled.value;
+        d.reorder = p.reorder.value;
+        d.animation = p.animation.value;
+        d.cursor = p.cursor.value;
+        d.cursorArrival = p.cursorArrival.value;
+        d.sample = p.sample.value;
+
+        d.layout = p.layout.value;
+
+        d.layoutSpaced = d.layoutSpaced ?? {};
+        d.layoutSpaced.columnGap = p.layoutSpaced.columnGap.value;
+        d.layoutSpaced.rowGap = p.layoutSpaced.rowGap.value;
+        d.layoutSpaced.align = p.layoutSpaced.align.value;
+
+        d.layoutTable = d.layoutTable ?? {};
+        d.layoutTable.keyMax = p.layoutTable.keyMax.value;
+        d.layoutTable.columnGap = p.layoutTable.columnGap.value;
+        d.layoutTable.rowGap = p.layoutTable.rowGap.value;
+        d.layoutTable.align = p.layoutTable.align.value;
+        d.layoutTable.keyAlign = p.layoutTable.keyAlign.value;
+      });
     },
-  };
+  });
+
   function listen() {
     Signal.listen(props, true);
   }
@@ -105,38 +127,19 @@ export function createDebugSignals() {
     p.items.value = SAMPLE.items(DEFAULTS.sample);
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.size = p.size.value;
-      d.mono = p.mono.value;
-      d.truncate = p.truncate.value;
-      d.enabled = p.enabled.value;
-      d.reorder = p.reorder.value;
-      d.animation = p.animation.value;
-      d.cursor = p.cursor.value;
-      d.cursorArrival = p.cursorArrival.value;
-      d.sample = p.sample.value;
-
-      d.layout = p.layout.value;
-
-      d.layoutSpaced = d.layoutSpaced ?? {};
-      d.layoutSpaced.columnGap = p.layoutSpaced.columnGap.value;
-      d.layoutSpaced.rowGap = p.layoutSpaced.rowGap.value;
-      d.layoutSpaced.align = p.layoutSpaced.align.value;
-
-      d.layoutTable = d.layoutTable ?? {};
-      d.layoutTable.keyMax = p.layoutTable.keyMax.value;
-      d.layoutTable.columnGap = p.layoutTable.columnGap.value;
-      d.layoutTable.rowGap = p.layoutTable.rowGap.value;
-      d.layoutTable.align = p.layoutTable.align.value;
-      d.layoutTable.keyAlign = p.layoutTable.keyAlign.value;
-    });
-  });
-
   p.items.value = SAMPLE.items(p.sample.value);
-  return api;
+  return {
+    props,
+    listen,
+    reset,
+    attach,
+    get layout(): t.KeyValue.Layout | undefined {
+      const v = p.layout.value;
+      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValue.Layout.Spaced;
+      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValue.Layout.Table;
+      return;
+    },
+  };
 }
 
 const Styles = {
