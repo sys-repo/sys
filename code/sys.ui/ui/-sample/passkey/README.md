@@ -25,10 +25,10 @@ Passkey sample
 
 ### Follow one sign-in
 
-The runtime asks the service for a fresh challenge. Through [WebAuthn], the
-authenticator signs a response to that challenge with the passkey’s [private key][credential private key].
-The runtime sends the response to the service, which verifies the signature with the registered public key. Neither
-the runtime nor the service receives the private key.
+The runtime asks the service for a fresh challenge. Through [WebAuthn], the authenticator signs a
+response to that challenge with the passkey’s [private key][credential private key]. The runtime
+sends the response to the service, which verifies the signature with the registered public key.
+Neither the runtime nor the service receives the private key.
 
 If the service accepts the response, it issues a [session credential][bearer credential]. This is a
 separate secret: it lets the runtime make requests on your behalf without asking you to use the
@@ -36,8 +36,8 @@ passkey again while the session is valid. The panel sees the session state, not 
 
 ### What survives?
 
-Reloading the page forgets the local session credential. It does not revoke the
-session or erase the passkey registration on the service.
+Reloading the page forgets the local session credential. It does not revoke the session or erase the
+passkey registration on the service.
 
 The [reference service](./m.AccountService/README.md) stores accounts, registrations, and sessions
 **only in memory**. Restarting the service erases all three. Your authenticator may still offer the
@@ -48,9 +48,25 @@ restarts, including each credential’s ID, public key, and the account it belon
 
 ### Sample UI
 
-The [isolated view](./ui/-spec/-SPEC.tsx) lets you explore panel states without an
-authenticator. The [integration specimen](./ui/-spec.integration/-SPEC.tsx) shows the same panel but
-is not yet connected to the account service.
+The [isolated view](./ui/-spec/-SPEC.tsx) lets you explore panel states without an authenticator.
+The [integration specimen](./ui/-spec.integration/-SPEC.tsx) shows the same panel but is not yet
+connected to the account service.
+
+### Run the local account service
+
+From `code/sys.ui/ui`, `deno task dev` or `deno task build` followed by `deno task serve` starts
+`sys.ui:accounts` alongside the existing view and files services. Its native endpoint is
+`POST http://127.0.0.1:5051/api/passkey/cmd`, not a page to open. The listener requires the exact
+origin `http://localhost:1234`; it does not expose a cross-origin browser API. If port `5051` is
+occupied, startup fails rather than choosing another port.
+
+Run the listener proof separately from the default tests. It needs only loopback networking and
+checks command delivery, collision handling, and shutdown without a browser or authenticator:
+
+```sh
+deno task test --frozen --cached-only --allow-net=127.0.0.1 --trace-leaks \
+  ./-sample/passkey/-test.external/-accounts.listener.ts
+```
 
 ---
 

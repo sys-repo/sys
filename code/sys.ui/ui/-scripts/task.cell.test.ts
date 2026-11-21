@@ -11,6 +11,19 @@ describe('@sys/ui Cell start entry', () => {
     expect(cell.descriptor.name).to.eql('sys.ui');
   });
 
+  it('declares the same loopback account listener in both modes', async () => {
+    const cell = await Cell.load(root);
+    const listener = { kind: 'tcp-listener', host: '127.0.0.1', port: 5051 };
+    for (const mode of ['default', 'dev'] as const) {
+      const { resources } = await Cell.Services.resources(cell, { mode });
+      const accounts = resources.filter(({ service }) => service.name === 'sys.ui:accounts');
+      expect(accounts).to.have.length(1);
+      const [account] = accounts;
+      expect(account.resource).to.eql(listener);
+      expect(account.selection.variant).to.eql(undefined);
+    }
+  });
+
   it('passes generated package provenance to both start modes', () => {
     expect(startInput(['--mode', 'dev', '--reporter', 'auto'])).to.eql({
       argv: ['start', '.', '--mode', 'dev', '--reporter', 'auto'],

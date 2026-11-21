@@ -19,3 +19,8 @@ services:
     use: FilesWebSocketService
     from: 'jsr:@sys/server/files/service'
     config: ./-config/@sys.server.files/sample.yaml
+
+  - name: sys.ui:accounts
+    use: AccountsService
+    from: './-sample/passkey/-service.accounts.ts'
+    config: ./-config/@sys.ui/passkey.accounts.yaml
