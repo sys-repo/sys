@@ -159,13 +159,19 @@ export declare namespace CliFormat {
       urlDisplay?: ServiceUrl.Parts.Options;
     };
 
-    /** Terminal width and automatic URL links; links in custom detail values are unchanged. */
+    /** Service layout limits and automatic URL links; links in custom detail values are unchanged. */
     export type Options = {
       /**
        * Override terminal width in cells. Rounded down; non-finite values or results outside
        * 1..65,535 render nothing.
        */
       width?: number;
+      /**
+       * Limit physical output rows, retaining service titles before URLs and other details.
+       * Omit for full output. Fractions round down; negative or non-finite limits show no rows.
+       * Hidden rows still undergo normal formatting and validation.
+       */
+      maxRows?: number;
       /** Override stdout terminal detection. Without width, non-terminal output has no width limit. */
       terminal?: boolean;
       /**

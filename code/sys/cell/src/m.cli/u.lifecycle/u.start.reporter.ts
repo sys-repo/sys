@@ -182,15 +182,15 @@ function createScreen(
     if (viewport.width === 0 || viewport.height === 0) return '';
     const header = headerRows().slice(0, viewport.height);
     const capacity = Math.max(0, viewport.height - header.length);
-    // The framed body owns its edge rows, including owner-authored blank continuations.
-    const body = phase === 'ready' || phase === 'complete' || phase === 'failed'
-      ? rowsOf(renderBody?.({ width: viewport.width, hyperlinks }) ?? '')
-      : [];
     const summaryRows = phase === 'complete' ? rowsOf(Str.trimEdgeNewlines(summary)) : [];
 
     // Completion facts outrank service-body rows; content outranks decorative spacing.
     const visibleSummary = summaryRows.slice(0, capacity);
     const bodyBudget = Math.max(0, capacity - visibleSummary.length);
+    // The service formatter selects the content; the final slice only bounds the frame.
+    const body = phase === 'ready' || phase === 'complete' || phase === 'failed'
+      ? rowsOf(renderBody?.({ width: viewport.width, maxRows: bodyBudget, hyperlinks }) ?? '')
+      : [];
     const visibleBody = body.slice(0, bodyBudget);
     let spacingBudget = Math.max(0, bodyBudget - visibleBody.length);
 

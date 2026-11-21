@@ -30,6 +30,8 @@ export type StartCellArgs = {
 export type StartCellRenderOptions = {
   /** Optional viewport width for responsive terminal presentation. */
   width?: number;
+  /** Physical body rows available after the screen reserves header and summary. */
+  maxRows?: number;
   /** Whether final eligible service labels should use OSC 8 hyperlinks. */
   hyperlinks?: boolean;
 };
@@ -97,17 +99,10 @@ export async function startCell(
     await session.ready();
 
     const services = Fmt.Services.capture(started.services);
-    const terminal = Cli.Is.terminal('stdout');
-    const render = (options: StartCellRenderOptions = {}) => {
-      const { hyperlinks } = options;
-      const renderServices = (width: number | undefined) => {
-        return Fmt.Services.started({ services, width, terminal: false, hyperlinks });
-      };
-      return formatStartServiceBody(renderServices, options.width, terminal);
-    };
-    serviceText = render();
+    const ready = startCellReady(services, Cli.Is.terminal('stdout'));
+    serviceText = ready.text;
     const completion = waitForStartOutcome(servicesDone, shutdown);
-    if (shutdown.reason === undefined) args.onReady?.({ text: serviceText, render });
+    if (shutdown.reason === undefined) args.onReady?.(ready);
 
     const outcome = await completion;
 
@@ -257,6 +252,20 @@ export function formatStartHeader(
     tone: 'green',
     width,
   }).join('\n');
+}
+
+/** Keep result text unabridged; only an interactive repaint supplies a row limit. */
+export function startCellReady(
+  services: ReturnType<typeof Fmt.Services.capture>,
+  terminal: boolean,
+): StartCellReady {
+  const render: StartCellReady['render'] = ({ width: frameWidth, maxRows, hyperlinks } = {}) => {
+    const body = (width?: number) => {
+      return Fmt.Services.started({ services, width, maxRows, hyperlinks, terminal: false });
+    };
+    return formatStartServiceBody(body, frameWidth, terminal);
+  };
+  return { text: render(), render };
 }
 
 /**
