@@ -1,6 +1,6 @@
 {
   "name": "@sys/http",
-  "version": "0.0.337",
+  "version": "0.0.338",
   "license": "MIT",
   "tasks": {
     "dry": "deno publish --allow-dirty --dry-run",
@@ -32,20 +32,46 @@
     "./serve": "./src/-serve/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    },
     "test-browser-launch": {
       "read": true,
-      "write": ["./.tmp/httpcmd-browser-proof"],
-      "env": ["CHROME_BIN", "DENO_DIR"],
-      "run": ["deno"]
+      "write": [
+        "./.tmp/httpcmd-browser-proof"
+      ],
+      "env": [
+        "CHROME_BIN",
+        "DENO_DIR"
+      ],
+      "run": [
+        "deno"
+      ]
     },
     "test-browser": {
-      "write": ["./.tmp/httpcmd-browser-proof"],
-      "env": ["TMPDIR"],
-      "net": ["127.0.0.1"]
+      "write": [
+        "./.tmp/httpcmd-browser-proof"
+      ],
+      "env": [
+        "TMPDIR"
+      ],
+      "net": [
+        "127.0.0.1"
+      ]
     },
-    "serve": { "read": true, "net": true },
+    "serve": {
+      "read": true,
+      "net": true
+    },
     "file-bytes-entry": {}
   }
 }
+
