@@ -4,7 +4,7 @@ import { pkg } from '../src/pkg.ts';
 
 /** Builds a Cell start invocation with sys.ui-owned release provenance. */
 export function startInput(args: readonly string[]): CellCliTypes.Input {
-  return { argv: ['start', '.', ...args], pkg };
+  return { argv: ['start', '.', ...args], pkg, versionLink: 'jsr' };
 }
 
 if (import.meta.main) {

@@ -227,28 +227,34 @@ export function startServicesText(
   return `${text}${elapsedSuffix({ startedAt, now })}`;
 }
 
+type StartPresentation = {
+  readonly title: t.CellCli.Start.Identity['name'];
+  readonly pkg?: Readonly<t.Pkg>;
+  readonly versionLink?: 'jsr';
+};
+
 /** Resolves descriptor identity and caller-owned package provenance without ambient discovery. */
-export function resolveStartIdentity(
+export function resolveStartPresentation(
   descriptor: t.Cell.Descriptor,
-  callerPkg?: t.Pkg,
-): t.CellCli.Start.Identity | undefined {
-  const pkg = realCallerPkg(callerPkg);
-  const name = descriptor.name ?? pkg?.name;
-  if (!name) return undefined;
-  return {
-    name,
-    ...(pkg ? { version: pkg.version } : {}),
-  };
+  input: Pick<t.CellCli.Input, 'pkg' | 'versionLink'>,
+): StartPresentation | undefined {
+  const pkg = snapshotCallerPkg(input.pkg);
+  const title = descriptor.name ?? pkg?.name;
+  if (!title) return undefined;
+  return { title, pkg, versionLink: input.versionLink };
 }
 
 export function formatStartHeader(
-  identity?: t.CellCli.Start.Identity,
+  presentation?: StartPresentation,
   width?: number,
+  link = false,
 ): string {
-  if (!identity) return '';
+  if (!presentation) return '';
+  const { title, pkg, versionLink } = presentation;
+  const version = pkg ? Cli.Fmt.jsrVersion(pkg, { link: link && versionLink === 'jsr' }) : false;
   return Cli.Fmt.Header.rows({
-    title: identity.name,
-    version: identity.version ?? false,
+    title,
+    version,
     tone: 'green',
     width,
   }).join('\n');
@@ -301,31 +307,34 @@ export function formatStartResult(res: StartCellResult): string {
   return Str.trimEdgeNewlines(String(table));
 }
 
-export function formatStartOutput(
-  res: StartCellResult,
-  identity?: t.CellCli.Start.Identity,
-): string {
-  const header = formatStartHeader(identity);
+function formatStartOutput(res: StartCellResult, presentation?: StartPresentation): string {
+  const header = formatStartHeader(presentation);
   const summary = formatStartResult(res);
   return [header, res.serviceText, summary].filter(Boolean).join('\n\n');
 }
 
-function realCallerPkg(input?: t.Pkg): t.Pkg | undefined {
+function snapshotCallerPkg(input?: t.Pkg): Readonly<t.Pkg> | undefined {
   if (!Pkg.Is.pkg(input)) return undefined;
-  if (!input.name || input.name !== input.name.trim()) return undefined;
-  if (!input.version || input.version !== input.version.trim()) return undefined;
-  return Pkg.Is.unknown(input) ? undefined : input;
+  const { name, version } = input;
+  if (!name || name !== name.trim()) return undefined;
+  if (!version || version !== version.trim()) return undefined;
+  const pkg = { name, version };
+  return Pkg.Is.unknown(pkg) ? undefined : pkg;
 }
 
 export function toStartResult(
   input: t.CellCli.Input,
   res: StartCellResult,
-  identity?: t.CellCli.Start.Identity,
+  presentation?: StartPresentation,
 ): t.CellCli.Start.Result {
+  const identity = presentation && {
+    name: presentation.title,
+    ...(presentation.pkg ? { version: presentation.pkg.version } : {}),
+  };
   return {
     kind: 'start',
     input,
-    text: formatStartOutput(res, identity),
+    text: formatStartOutput(res, presentation),
     root: res.root,
     services: res.services,
     ...(identity ? { identity } : {}),

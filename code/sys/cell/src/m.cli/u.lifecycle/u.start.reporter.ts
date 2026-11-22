@@ -1,6 +1,6 @@
 import { Cli, Num, Str, stripAnsi, type t, Time } from '../common.ts';
 import { mergeFailures } from './u.failure.ts';
-import { formatStartHeader, type StartCellReady, startServicesText } from './u.start.ts';
+import { type StartCellReady, startServicesText } from './u.start.ts';
 
 type Mode = t.CellCli.Start.ReporterMode;
 type ResolvedMode = Exclude<Mode, 'auto'>;
@@ -29,7 +29,7 @@ type StartReporterDeps = {
   isInteractive: () => boolean;
   isTerminal: () => boolean;
   print: (text: string) => void;
-  header: (width?: number) => string;
+  header: (width: number | undefined, hyperlinks: boolean) => string;
   startText: (serviceCount: number, startedAt?: t.UnixTimestamp) => string;
   size: () => ScreenSize;
   observeResize: (handler: (size: ScreenSize) => void) => () => void;
@@ -60,7 +60,7 @@ const DEFAULT_DEPS: StartReporterDeps = {
   isInteractive: () => Cli.Is.interactive(),
   isTerminal: () => Cli.Is.terminal('stdout'),
   print: (text) => console.info(text),
-  header: (width) => formatStartHeader(undefined, width),
+  header: () => '',
   startText: (serviceCount, startedAt) =>
     Cli.Fmt.spinnerText(startServicesText(serviceCount, startedAt)),
   size: () => Cli.Screen.size(),
@@ -126,7 +126,7 @@ function createRaw(
     open() {
       if (phase !== 'idle') return;
       phase = 'open';
-      printSection(deps.header());
+      printSection(deps.header(undefined, hyperlinks));
     },
     starting() {},
     ready(input) {
@@ -175,7 +175,7 @@ function createScreen(
   let keyboard: ReturnType<StartReporterDeps['bindKeyboard']>;
   let disposePromise: Promise<void> | undefined;
 
-  const headerRows = () => rowsOf(deps.header(viewport.width));
+  const headerRows = () => rowsOf(deps.header(viewport.width, hyperlinks));
   const hasSpinnerRow = () => viewport.width > 0 && viewport.height > headerRows().length;
 
   const frame = () => {

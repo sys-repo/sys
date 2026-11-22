@@ -8,12 +8,15 @@ import { load as loadDev } from '../u.command/u.load/u.dev.ts';
 import { load as loadInfo } from '../u.command/u.load/u.info.ts';
 import { load as loadServe } from '../u.command/u.load/u.serve.ts';
 
-const NOOP_LOADERS: DispatchLoaders = Object.freeze({
-  build: () => Promise.resolve({ dispatch: () => Promise.resolve() }),
-  dev: () => Promise.resolve({ dispatch: () => Promise.resolve() }),
-  serve: () => Promise.resolve({ dispatch: () => Promise.resolve() }),
-  info: () => Promise.resolve({ dispatch: () => Promise.resolve() }),
-});
+function unexpectedLoad(): never {
+  throw new Error('Loaded an unselected command');
+}
+const UNUSED_LOADERS: DispatchLoaders = {
+  build: unexpectedLoad,
+  dev: unexpectedLoad,
+  info: unexpectedLoad,
+  serve: unexpectedLoad,
+};
 
 describe('ViteEntry.main', () => {
   it('binds each production command key to its exact loader and command module', async () => {
@@ -67,29 +70,31 @@ describe('ViteEntry.main', () => {
     expect(infoError).to.equal(causes.info);
   });
 
+  it('forwards app-owned release navigation separately from argv to the dev command', async () => {
+    const seen: (t.ViteEntry.DevOptions | undefined)[] = [];
+    const loaders: DispatchLoaders = {
+      ...UNUSED_LOADERS,
+      dev() {
+        return observedCommand((_args, options) => seen.push(options));
+      },
+    };
+    const options = { jsrPackageDir: '/tmp/app' };
+    await mainWith(['--cmd=dev', '--versionLink=jsr', '--jsrPackageDir=/tmp/app'], loaders);
+    await mainWith(['--cmd=dev'], loaders, options);
+    expect(seen).to.eql([undefined, options]);
+  });
+
   it('preserves numeric-looking package subpaths as strings', async () => {
     for (const field of ['pkgSubpath', 'pkg-subpath'] as const) {
       const seen: t.ViteEntry.Args.Serve[] = [];
-      await mainWith(
-        ['--cmd=serve', '--silent', `--${field}=001`],
-        {
-          ...NOOP_LOADERS,
-          serve: () =>
-            Promise.resolve({
-              dispatch: (args) => {
-                seen.push(args);
-                return Promise.resolve();
-              },
-            }),
+      const loaders: DispatchLoaders = {
+        ...UNUSED_LOADERS,
+        serve() {
+          return observedCommand((args) => seen.push(args));
         },
-      );
-
-      expect(seen).to.eql([{
-        _: [],
-        cmd: 'serve',
-        silent: true,
-        [field]: '001',
-      }]);
+      };
+      await mainWith(['--cmd=serve', '--silent', `--${field}=001`], loaders);
+      expect(seen).to.eql([{ _: [], cmd: 'serve', silent: true, [field]: '001' }]);
     }
   });
 
@@ -141,24 +146,22 @@ describe('ViteEntry.main', () => {
     const loadCause = new Error('load failed');
     const commandCause = new Error('command failed');
 
-    const loadError = await catchUnknown(() =>
-      mainWith(
-        { cmd: 'build', silent: true },
-        { ...NOOP_LOADERS, build: () => Promise.reject(loadCause) },
-      )
-    );
-    const commandError = await catchUnknown(() =>
-      mainWith(
-        { cmd: 'serve', silent: true },
-        {
-          ...NOOP_LOADERS,
-          serve: () => Promise.resolve({ dispatch: () => Promise.reject(commandCause) }),
-        },
-      )
-    );
-
-    expect(loadError).to.equal(loadCause);
-    expect(commandError).to.equal(commandCause);
+    const loaders: DispatchLoaders = {
+      ...UNUSED_LOADERS,
+      build() {
+        return Promise.reject(loadCause);
+      },
+      serve() {
+        return Promise.resolve({
+          dispatch() {
+            return Promise.reject(commandCause);
+          },
+        });
+      },
+    };
+    const run = (cmd: 'build' | 'serve') => mainWith({ cmd, silent: true }, loaders);
+    expect(await catchUnknown(() => run('build'))).to.equal(loadCause);
+    expect(await catchUnknown(() => run('serve'))).to.equal(commandCause);
   });
 
   it('preserves unsupported-command output without loading a command module', async () => {
@@ -216,24 +219,21 @@ function unreadableDir<A extends t.ViteEntry.Args>(
   } as A;
 }
 
+function observedCommand<A extends unknown[]>(observe: (...args: A) => void) {
+  return Promise.resolve({
+    dispatch(...args: A) {
+      observe(...args);
+      return Promise.resolve();
+    },
+  });
+}
+
 function recordingLoaders(calls: string[]): DispatchLoaders {
-  const command = <A extends t.ViteEntry.Args>(cmd: A['cmd']) => {
-    return () => {
-      calls.push(`load:${cmd}`);
-      return Promise.resolve({
-        dispatch: (_args: A) => {
-          calls.push(`run:${cmd}`);
-          return Promise.resolve();
-        },
-      });
-    };
+  const load = (cmd: keyof DispatchLoaders) => () => {
+    calls.push(`load:${cmd}`);
+    return observedCommand(() => calls.push(`run:${cmd}`));
   };
-  return {
-    build: command<t.ViteEntry.Args.Build>('build'),
-    dev: command<t.ViteEntry.Args.Dev>('dev'),
-    serve: command<t.ViteEntry.Args.Serve>('serve'),
-    info: command<t.ViteEntry.Args.Info>('info'),
-  };
+  return { build: load('build'), dev: load('dev'), serve: load('serve'), info: load('info') };
 }
 
 async function catchError(fn: () => Promise<unknown>): Promise<Error | undefined> {

@@ -202,7 +202,7 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
   describe('application and selected-tool identity', () => {
     it('terminal → underlined version links to its exact JSR release; piped output stays unlinked', () => {
       const width = 80;
-      const url = new URL(`https://jsr.io/${pkg.name}@${pkg.version}`);
+      const url = new URL(`https://jsr.io/@sys/driver-pi@${pkg.version}`);
       const link = Cli.Fmt.hyperlink(pkg.version, url, { underline: true });
       for (const permissions of ['scoped', 'allow-all'] as const) {
         const color = permissions === 'allow-all' ? c.yellow : c.cyan;

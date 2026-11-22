@@ -21,7 +21,9 @@ const DISPLAY_LABEL = {
 type DisplayRow = { readonly label: string; readonly value: string };
 type DisplayState = { readonly title: string; readonly rows: readonly DisplayRow[] };
 
-function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
+function displayState(version: t.UpgradeTool.VersionInfo, terminal: boolean): DisplayState {
+  const link = (version: t.StringSemver, color: (text: string) => string) =>
+    versionLink(version, color, terminal);
   const state = toVersionState(version);
   const localNext = state.actionable ?? version.latest;
 
@@ -29,9 +31,12 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     return {
       title: w(`${pkg.name} upgrade available`),
       rows: [
-        { label: DISPLAY_LABEL.registryLatest, value: registryLatestValue(version, state) },
-        { label: DISPLAY_LABEL.localCurrent, value: versionLink(version.local, c.gray) },
-        { label: DISPLAY_LABEL.localNext, value: versionLink(localNext, g) },
+        {
+          label: DISPLAY_LABEL.registryLatest,
+          value: registryLatestValue(link(version.remote, w), state),
+        },
+        { label: DISPLAY_LABEL.localCurrent, value: link(version.local, c.gray) },
+        { label: DISPLAY_LABEL.localNext, value: link(localNext, g) },
       ],
     };
   }
@@ -40,8 +45,8 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     return {
       title: w(`${pkg.name} auto-upgrade pending — standing down`),
       rows: [
-        { label: DISPLAY_LABEL.registryLatest, value: versionLink(version.remote, w) },
-        { label: DISPLAY_LABEL.localCurrent, value: versionLink(version.local, c.gray) },
+        { label: DISPLAY_LABEL.registryLatest, value: link(version.remote, w) },
+        { label: DISPLAY_LABEL.localCurrent, value: link(version.local, c.gray) },
         { label: DISPLAY_LABEL.localNext, value: c.gray(c.italic('none yet')) },
       ],
     };
@@ -51,8 +56,8 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
     return {
       title: w(`${pkg.name} upgrade check unavailable`),
       rows: [
-        { label: DISPLAY_LABEL.registryLatest, value: versionLink(version.remote, w) },
-        { label: DISPLAY_LABEL.localCurrent, value: versionLink(version.local, c.gray) },
+        { label: DISPLAY_LABEL.registryLatest, value: link(version.remote, w) },
+        { label: DISPLAY_LABEL.localCurrent, value: link(version.local, c.gray) },
         { label: DISPLAY_LABEL.localNext, value: c.gray(c.italic('unknown')) },
       ],
     };
@@ -61,17 +66,13 @@ function displayState(version: t.UpgradeTool.VersionInfo): DisplayState {
   return {
     title: w(`${pkg.name} is up to date`),
     rows: [
-      { label: DISPLAY_LABEL.registryLatest, value: `${versionLink(version.remote, g)} ${g('✔')}` },
-      { label: DISPLAY_LABEL.localCurrent, value: versionLink(version.local, g) },
+      { label: DISPLAY_LABEL.registryLatest, value: `${link(version.remote, g)} ${g('✔')}` },
+      { label: DISPLAY_LABEL.localCurrent, value: link(version.local, g) },
     ],
   };
 }
 
-function registryLatestValue(
-  version: t.UpgradeTool.VersionInfo,
-  state: t.UpgradeTool.VersionState,
-): string {
-  const base = versionLink(version.remote, w);
+function registryLatestValue(base: string, state: t.UpgradeTool.VersionState): string {
   const standdown = state.minimumDependencyAgeStanddown;
   if (!standdown) return base;
 
@@ -168,8 +169,8 @@ export const Fmt = {
     return String(str);
   },
 
-  versionInfoTable(version: t.UpgradeTool.VersionInfo) {
-    const state = displayState(version);
+  versionInfoTable(version: t.UpgradeTool.VersionInfo, terminal = Cli.Is.terminal('stdout')) {
+    const state = displayState(version, terminal);
     const registryUrl = c.gray(c.dim(Jsr.Url.Pkg.web(pkg.name)));
     const str = Str.builder().line(state.title).line();
     const labelWidth = state.rows.reduce((max, row) => Math.max(max, row.label.length), 0);

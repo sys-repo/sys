@@ -134,9 +134,14 @@ export declare namespace Vite {
       until?: t.UntilInput;
     };
 
-    /** Package-backed presentation input; subpaths cannot exist without package metadata. */
+    /** Package-backed presentation input; subpaths and release links require package metadata. */
     export type PackageInput =
-      | { pkg?: undefined; pkgSubpath?: never }
-      | { pkg: t.Pkg; pkgSubpath?: string };
+      | { pkg?: undefined; pkgSubpath?: never; versionLink?: never }
+      | {
+        pkg: t.Pkg;
+        pkgSubpath?: string;
+        /** Opt in to JSR release navigation when the dev screen can emit links. */
+        versionLink?: 'jsr';
+      };
   }
 }

@@ -77,6 +77,7 @@ export declare namespace ViteDev {
       /** Cohesive terminal effects owned by one dev-screen reporter session. */
       export type Terminal = {
         cursorRows: number;
+        isTerminal(): boolean;
         size(): t.Cli.Screen.Size;
         events(until?: t.UntilInput): t.Cli.Screen.Events;
         repaint(frame: string): void;
@@ -92,6 +93,7 @@ export declare namespace ViteDev {
       /** Inputs for one internal dev-screen reporter session. */
       export type CreateArgs = {
         identity: t.Cli.Fmt.Header.PackageIdentity;
+        versionLink?: 'jsr';
         dist?: t.DistPkg;
         paths: t.ViteConfig.Paths;
         url: () => string;
@@ -113,6 +115,8 @@ export declare namespace ViteDev {
       /** Inputs shared by startup and ready dev-screen layout. */
       export type Args = {
         identity: t.Cli.Fmt.Header.PackageIdentity;
+        /** Formatted header version from the screen output owner. */
+        version?: string;
         dist?: t.DistPkg;
         paths: t.ViteConfig.Paths;
         url: string;

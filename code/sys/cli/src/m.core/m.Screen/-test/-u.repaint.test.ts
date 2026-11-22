@@ -1,4 +1,5 @@
 import { describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
+import { Fmt } from '../../m.Fmt/mod.ts';
 import { createRepaint } from '../u.repaint.ts';
 
 const CSI = '\u001B[';
@@ -48,6 +49,21 @@ describe('Cli.Screen.repaint', () => {
     const grown = paint('A stale\nB stale', [...short, '       ']);
     expect(grown).to.eql(['A stale', 'B stale']);
     expect(paint('x', grown)).to.eql(['x      ', '       ']);
+  });
+
+  it('keeps a release hyperlink intact in the TTY write but not in redirected output', () => {
+    const version = '1.2.3';
+    const label = Fmt.jsrVersion({ name: '@sys/example', version }, { link: true });
+    const url = new URL('https://jsr.io/@sys/example@1.2.3');
+    const expected = Fmt.hyperlink(version, url, { underline: true });
+    const tty = createHarness(true);
+    const redirected = createHarness(false);
+
+    tty.repaint(label);
+    redirected.repaint(label);
+    expect(tty.writes).to.have.length(1);
+    expect(tty.writes[0]).to.contain(`${cursor(1)}${ERASE_LINE}${expected}${RESET}`);
+    expect(redirected.writes).to.eql([`${version}\n`]);
   });
 
   it('writes plain frames with one sink newline outside a TTY', () => {

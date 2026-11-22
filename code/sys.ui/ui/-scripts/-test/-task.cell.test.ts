@@ -1,9 +1,9 @@
 import { Cell } from '@sys/cell';
 import { Fs } from '@sys/fs';
-import { describe, expect, it, pkg } from '../src/-test.ts';
-import { startInput } from './task.cell.ts';
+import { describe, expect, it, pkg } from '../../src/-test.ts';
+import { startInput } from '../task.cell.ts';
 
-const root = Fs.Path.fromFileUrl(new URL('../', import.meta.url));
+const root = Fs.Path.fromFileUrl(new URL('../../', import.meta.url));
 
 describe('@sys/ui Cell start entry', () => {
   it('loads the declared Cell identity', async () => {
@@ -24,13 +24,15 @@ describe('@sys/ui Cell start entry', () => {
     }
   });
 
-  it('passes generated package provenance to both start modes', () => {
+  it('opts in to JSR release navigation with generated package provenance in both start modes', () => {
     expect(startInput(['--mode', 'dev', '--reporter', 'auto'])).to.eql({
       argv: ['start', '.', '--mode', 'dev', '--reporter', 'auto'],
+      versionLink: 'jsr',
       pkg,
     });
     expect(startInput(['--reporter', 'auto'])).to.eql({
       argv: ['start', '.', '--reporter', 'auto'],
+      versionLink: 'jsr',
       pkg,
     });
   });

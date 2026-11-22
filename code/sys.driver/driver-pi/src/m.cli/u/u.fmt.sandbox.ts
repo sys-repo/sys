@@ -1,4 +1,4 @@
-import { c, Cli, Fs, Is, JsrUrl, Num, Path, pkg, Str, type t } from '../common.ts';
+import { c, Cli, Fs, Is, Num, Path, pkg, Str, type t } from '../common.ts';
 import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
 import { PiAuthority } from './u.authority.ts';
 import { PI_AGENT_IMPORT_BASE, reportPkg } from './u.resolve.pkg.ts';
@@ -146,11 +146,10 @@ function identityRows(
   terminal: boolean,
   tools?: readonly string[],
 ): readonly string[] {
-  const url = new URL(JsrUrl.Pkg.web(pkg.name, pkg.version));
   return Cli.Fmt.Header.rows({
     pkg,
     width,
-    version: terminal ? Cli.Fmt.hyperlink(pkg.version, url, { underline: true }) : pkg.version,
+    version: Cli.Fmt.jsrVersion(pkg, { link: terminal }),
     tone: permissions === 'allow-all' ? 'yellow' : 'cyan',
     title: PiSandboxFmt.title(permissions),
     detail: tools?.length === 0 ? 'tools:none' : tools?.join(', '),

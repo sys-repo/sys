@@ -1,5 +1,5 @@
 import { FakeSpinner } from '@sys/cli/testing';
-import { describe, expect, it, Rx, stripAnsi } from '../../-test.ts';
+import { Cli, describe, expect, it, Rx, stripAnsi } from '../../-test.ts';
 import type { t } from '../common.ts';
 import { DevOutputLog } from '../u.dev/u.output.ts';
 import { DevScreen } from '../u.dev/u.screen.ts';
@@ -13,22 +13,66 @@ type SchedulerEntry = {
 
 describe('DevScreen runtime', () => {
   describe('session acquisition', () => {
-    it('preserves compound identity from startup through ready repaint', () => {
-      const identity = {
-        root: { name: '@sys/example', version: '1.2.3' },
-        subpath: 'ui/preview',
-      } as const;
-      const runtime = createRuntimeHarness({ identity });
+    it('keeps the acquired release link and display identity together across repaints', () => {
+      const version = '0.0.343';
+      const url = new URL('https://jsr.io/@sys/ui-components@0.0.343');
+      const link = Cli.Fmt.hyperlink(version, url, { underline: true });
+      const root = { name: '@sys/ui-components', version };
+      const identity = { root, subpath: 'ui/preview' };
+      const full = '@sys/ui-components/ui/preview';
+      const compact = 'ui-components/ui/preview';
+      using runtime = createRuntimeHarness({ identity, versionLink: 'jsr', isTerminal: true });
+      const { repaints, reporter, scheduler, terminal } = runtime;
 
-      expect(stripAnsi(runtime.repaints[0] ?? '').startsWith('@sys/example/ui/preview')).to.eql(
-        true,
-      );
-      runtime.reporter.ready();
-      expect(stripAnsi(runtime.repaints.at(-1) ?? '').startsWith('@sys/example/ui/preview')).to.eql(
-        true,
-      );
+      function expectHeader(frame: string, width: number, name: string, pin?: string) {
+        const [title, rule] = frame.split('\n');
+        expect(stripAnsi(title).trim().split(/\s+/)).to.eql(pin ? [name, pin] : [name]);
+        expect(title.includes(link)).to.eql(pin !== undefined);
+        expect(title.replace(link, '')).not.to.contain('\x1b]8;;');
+        expect(Cli.Fmt.Text.Width.measure(title)).to.be.at.most(width);
+        expect(stripAnsi(rule)).to.eql('━'.repeat(width));
+        expect(rule).not.to.contain('\x1b]8;;');
+      }
 
-      runtime.reporter.dispose();
+      expectHeader(repaints[0], 80, full, version);
+      root.name = '@other/app';
+      root.version = '9.9.9';
+      identity.subpath = 'other';
+      reporter.ready();
+      expectHeader(repaints[1], 80, full, version);
+
+      const sizes = [[36, compact, version], [29, full], [80, full, version]] as const;
+      for (const [width, name, pin] of sizes) {
+        terminal.resize({ width, height: 24 });
+        scheduler.flush();
+        expectHeader(repaints.at(-1)!, width, name, pin);
+      }
+    });
+
+    it('keeps headers unlinked across repaints without both app opt-in and a TTY', () => {
+      const version = '1.2.3';
+      const preformatted = Cli.Fmt.hyperlink(version, new URL('https://example.org/'));
+      const cases = [
+        { version, label: version, versionLink: 'jsr', isTerminal: false },
+        { version, label: version, isTerminal: true },
+        { version: preformatted, label: 'invalid version', isTerminal: true },
+      ] as const;
+      for (const { version, label, ...options } of cases) {
+        const root = { name: '@sys/example', version };
+        const identity = { root, subpath: 'ui/preview' };
+        using runtime = createRuntimeHarness({ identity, ...options });
+        runtime.reporter.ready();
+        runtime.terminal.resize({ width: 64, height: 24 });
+        runtime.scheduler.flush();
+        expect(runtime.repaints).to.have.length(3);
+        for (const frame of runtime.repaints) {
+          const [title, rule] = frame.split('\n');
+          expect(stripAnsi(title).split(/\s{2,}/)).to.eql(['@sys/example/ui/preview', label]);
+          expect(title).not.to.contain('\x1b]8;;');
+          expect(rule).not.to.contain('\x1b]8;;');
+          if (!options.isTerminal) expect(frame).not.to.contain('\x1b]8;;');
+        }
+      }
     });
 
     it('starts with one header repaint, one spinner, and the seeded status row', () => {
@@ -567,6 +611,8 @@ describe('DevScreen runtime', () => {
  */
 function createRuntimeHarness(options: {
   identity?: t.Cli.Fmt.Header.PackageIdentity;
+  versionLink?: 'jsr';
+  isTerminal?: boolean;
   until?: t.UntilInput;
   resizeOnSize?: t.ViteDev.Screen.Frame.Viewport;
   disposedEvents?: boolean;
@@ -586,10 +632,7 @@ function createRuntimeHarness(options: {
     return stopSpinner();
   };
   const scheduler = createScheduler(options.cancelFailure);
-  const terminal = createTerminalHarness(spinner, {
-    resizeOnSize: options.resizeOnSize,
-    disposedEvents: options.disposedEvents,
-  });
+  const terminal = createTerminalHarness(spinner, options);
   const repaint = terminal.deps.repaint;
   terminal.deps.repaint = (frame) => {
     effects.push('repaint');
@@ -597,6 +640,7 @@ function createRuntimeHarness(options: {
   };
   const reporter = DevScreen.create({
     identity: options.identity ?? pkg(),
+    versionLink: options.versionLink,
     paths: paths(),
     url: () => 'http://localhost:1234/',
     output,
@@ -616,6 +660,7 @@ function createRuntimeHarness(options: {
     terminal,
     effects,
     repaints: terminal.repaints,
+    [Symbol.dispose]: reporter.dispose,
   };
 }
 
@@ -624,6 +669,7 @@ function createTerminalHarness(
   options: {
     resizeOnSize?: t.ViteDev.Screen.Frame.Viewport;
     disposedEvents?: boolean;
+    isTerminal?: boolean;
   } = {},
 ) {
   let viewport: t.ViteDev.Screen.Frame.Viewport = { width: 80, height: 24 };
@@ -638,7 +684,10 @@ function createTerminalHarness(
   if (options.disposedEvents) events.dispose();
   const deps: t.ViteDev.Screen.Runtime.Terminal = {
     cursorRows: 1,
-    size: () => {
+    isTerminal() {
+      return options.isTerminal ?? true;
+    },
+    size() {
       const measured = { ...viewport };
       sizeCalls += 1;
       const observed = resizeOnNextSize;
@@ -648,7 +697,7 @@ function createTerminalHarness(
       }
       return measured;
     },
-    events: (input) => {
+    events(input) {
       until = input;
       return screenEvents;
     },

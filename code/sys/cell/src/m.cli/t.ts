@@ -16,6 +16,8 @@ export declare namespace CellCli {
     readonly argv?: readonly string[];
     /** Optional package provenance supplied by a programmatic caller for start presentation. */
     readonly pkg?: t.Pkg;
+    /** Opt in to JSR release navigation for the caller package in start output. */
+    readonly versionLink?: 'jsr';
   };
 
   /** Typed argv shape produced by `Args.parse(...)` for the Cell CLI. */

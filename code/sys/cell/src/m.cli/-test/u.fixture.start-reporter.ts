@@ -1,5 +1,5 @@
 import { FakeSpinner } from '@sys/cli/testing';
-import type { t } from '../common.ts';
+import { Is, type t } from '../common.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
 import { formatStartServiceBody } from '../u.lifecycle/u.start.ts';
 
@@ -11,7 +11,7 @@ type HarnessOptions = {
   acceptFailure?: boolean;
   cancelError?: Error;
   controls?: boolean;
-  header?: string;
+  header?: string | ((width: number | undefined, link: boolean) => string);
   keyboard?: 'acquired' | 'unavailable';
   measure?: () => ScreenSize;
   onRepaint?: (frame: string) => void;
@@ -89,7 +89,10 @@ export function createHarness(mode: ReporterMode, options: HarnessOptions = {}) 
         effects.push(`print:${text}`);
         if (printError) throw printError;
       },
-      header: (width) => options.header ?? `header:${width ?? 'raw'}`,
+      header(width, link) {
+        const { header } = options;
+        return Is.func(header) ? header(width, link) : header ?? `header:${width ?? 'raw'}`;
+      },
       startText: (count) => `starting:${count}`,
       size: () => options.measure?.() ?? currentSize,
       observeResize(handler) {
@@ -145,6 +148,7 @@ export function createHarness(mode: ReporterMode, options: HarnessOptions = {}) 
 
   return {
     reporter,
+    [Symbol.asyncDispose]: reporter.dispose,
     effects,
     failures,
     frames,

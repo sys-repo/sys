@@ -53,12 +53,13 @@ describe('Vite.dev contracts', () => {
       cwd: '/tmp/vite-dev-identity' as t.StringAbsoluteDir,
       app: { entry: 'src/index.html', outDir: 'dist', base: './' },
     } as const;
+    const pkgSubpath = '/ui//preview/';
     const server = await devWithDeps(
-      { pkg, pkgSubpath: '/ui//preview/', paths, port: 49152, reporter: 'screen' },
+      { pkg, pkgSubpath, versionLink: 'jsr', paths, port: 49152, reporter: 'screen' },
       {
         ...deps,
         waitForHttp: waitForHttpReady,
-        createScreen: (args) => {
+        createScreen(args) {
           screenArgs.push(args);
           return { outputChanged() {}, ready() {}, redraw() {}, dispose() {} };
         },
@@ -68,6 +69,7 @@ describe('Vite.dev contracts', () => {
     try {
       expect(screenArgs).to.have.length(1);
       expect(screenArgs[0]?.identity).to.eql({ root: pkg, subpath: 'ui/preview' });
+      expect(screenArgs[0]?.versionLink).to.eql('jsr');
       expect(screenArgs[0]).to.not.have.property('manifestUrl');
       expect(screenArgs[0]).to.not.have.property('pkg');
       expect(screenArgs[0]).to.not.have.property('pkgSubpath');

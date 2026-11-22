@@ -173,7 +173,7 @@ describe('cli.upgrade advisory', () => {
     const actionable = '9.9.9';
     const label = c.white(actionable);
     const url = new URL('https://jsr.io/@sys/tools@9.9.9');
-    const link = Cli.Fmt.hyperlink(label, url, { underline: true });
+    const link = c.white(Cli.Fmt.hyperlink(actionable, url, { underline: true }));
     const width = 80;
     const [, linked = ''] = rootAdvisoryPrelude(actionable, { width, terminal: true }).split('\n');
     const [, plain = ''] = rootAdvisoryPrelude(actionable, { width, terminal: false }).split('\n');
@@ -381,9 +381,9 @@ describe('cli.upgrade advisory', () => {
     const redirected = { ...terminal, terminal: false };
     const [, linked = ''] = rootPendingAdvisoryPrelude(pendingVersion, terminal).split('\n');
     const [, plain = ''] = rootPendingAdvisoryPrelude(pendingVersion, redirected).split('\n');
-    const target = new URL('https://jsr.io/@sys/tools@9.9.999');
     const label = c.white(pendingVersion);
-    const link = Cli.Fmt.hyperlink(label, target, { underline: true });
+    const url = new URL('https://jsr.io/@sys/tools@9.9.999');
+    const link = c.white(Cli.Fmt.hyperlink(pendingVersion, url, { underline: true }));
 
     expect(linked).to.contain(link);
     expect(linked.replace(link, label)).to.eql(plain);

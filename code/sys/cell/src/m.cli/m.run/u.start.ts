@@ -41,7 +41,7 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
     const reporting = await import('../u.lifecycle/u.start.reporter.ts');
     const lifecycle = await import('../u.lifecycle/u.shutdown.ts');
     const cell = await start.loadStartCell(args._[1]);
-    const identity = start.resolveStartIdentity(cell.descriptor, input.pkg);
+    const presentation = start.resolveStartPresentation(cell.descriptor, input);
     const shutdown = lifecycle.createShutdownSignal();
 
     try {
@@ -49,7 +49,7 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
       try {
         output = reporting.StartReporter.create(
           reporter.value,
-          { header: (width) => start.formatStartHeader(identity, width) },
+          { header: (width, link) => start.formatStartHeader(presentation, width, link) },
           {
             until: shutdown.done,
             onInterrupt() {
@@ -78,7 +78,7 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
           onStarting: output.starting,
           onReady: output.ready,
         });
-        const res = start.toStartResult(input, started, identity);
+        const res = start.toStartResult(input, started, presentation);
         output.complete(start.formatStartResult(started));
         outcome = { ok: true, value: res };
       } catch (cause) {

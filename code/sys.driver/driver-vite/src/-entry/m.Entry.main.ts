@@ -8,9 +8,13 @@ type CommandModule<A extends t.ViteEntry.Args> = {
   dispatch(args: A): Promise<void>;
 };
 
+type DevCommandModule = {
+  dispatch(args: t.ViteEntry.Args.Dev, options?: t.ViteEntry.DevOptions): Promise<void>;
+};
+
 export type DispatchLoaders = Readonly<{
   build(): Promise<CommandModule<t.ViteEntry.Args.Build>>;
-  dev(): Promise<CommandModule<t.ViteEntry.Args.Dev>>;
+  dev(): Promise<DevCommandModule>;
   info(): Promise<CommandModule<t.ViteEntry.Args.Info>>;
   serve(): Promise<CommandModule<t.ViteEntry.Args.Serve>>;
 }>;
@@ -21,14 +25,15 @@ const PKG_SUBPATH_FLAGS = ['pkgSubpath', 'pkg-subpath'] as const;
 /**
  * Dispatch one CLI invocation without loading an unrequested command graph.
  */
-export const main: t.ViteEntry.Lib['main'] = async (input) => {
-  return await mainWith(input, COMMAND_LOADERS);
+export const main: t.ViteEntry.Lib['main'] = async (input, options) => {
+  return await mainWith(input, COMMAND_LOADERS, options);
 };
 
 /** Internal dependency seam for deterministic command-dispatch tests. */
 export async function mainWith(
   input: string[] | t.ViteEntry.Args | undefined,
   loaders: DispatchLoaders,
+  options?: t.ViteEntry.DevOptions,
 ): Promise<void> {
   const args = wrangle.args<t.ViteEntry.Args>(input ?? Deno.args);
   const cmd = args.cmd;
@@ -36,7 +41,7 @@ export async function mainWith(
   if (cmd === 'dev') {
     const { resolvePkgSubpath } = await import('./u.command/u.pkgSubpath.ts');
     resolvePkgSubpath(args);
-    await (await loaders.dev()).dispatch(args);
+    await (await loaders.dev()).dispatch(args, options);
     return;
   }
 

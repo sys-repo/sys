@@ -1,9 +1,10 @@
 import { Deploy, type DeployTool } from '@sys/tools/deploy';
-import { describe, expect, expectError, Fs, it, Pkg, Str, WebFixture } from '../-test.ts';
-import { DIST_BATCH_LIMITS, DIST_LIMITS } from '../m.deployment/mod.ts';
-import { pushSample } from '../../-scripts/task.push.ts';
-import { runTask } from '../../-scripts/u.task.ts';
-import { localFixture } from '../../-scripts/-test/u.fixture.ts';
+import { WebFixture } from '@sys/testing/web';
+import { DIST_BATCH_LIMITS, DIST_LIMITS } from '../../src/m.deployment/mod.ts';
+import { pushSample } from '../task.push.ts';
+import { runTask } from '../u.task.ts';
+import { describe, expect, expectError, Fs, it, Pkg, Str } from './common.ts';
+import { localFixture } from './u.fixture.ts';
 
 const audiences = ['public', 'private'] as const;
 
