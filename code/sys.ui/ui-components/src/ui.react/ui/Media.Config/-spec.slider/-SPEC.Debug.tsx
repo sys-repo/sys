@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, Dev, Signal, type t } from './common.ts';
 
 type P = t.MediaConfigSliderProps;
@@ -22,19 +23,13 @@ export function createDebugSignals() {
     unit: s<P['unit']>('%'),
     range: s<P['range']>([0, 200]),
   };
-  const p = props;
-  const api = {
-    props,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.label.value;
-      p.unit.value;
-      p.range.value;
-      p.value.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  return { props, listen, attach };
 }
 
 const Styles = {

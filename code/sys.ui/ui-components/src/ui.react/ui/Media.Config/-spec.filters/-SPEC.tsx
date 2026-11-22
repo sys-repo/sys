@@ -1,39 +1,42 @@
-import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Spec } from '../../-test.ui.ts';
 import { Config } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Media.Config.Filters', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    return (
+      <Config.Filters.UI.List
+        debug={p.debug.value}
+        theme={p.theme.value}
+        values={p.values.value}
+        debounce={p.debounce.value}
+        onChange={(e) => {
+          console.info(`⚡️ Filters.onChange:`, e);
+          p.values.value = e.values;
+        }}
+        onChanged={(e) => {
+          console.info(`🌳 Filters.onChanged:`, e);
+          debug.localstore.change((d) => (d.values = e.values));
+        }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: [350, null], display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size([350, null])
-      .display('grid')
-      .render(() => (
-        <Config.Filters.UI.List
-          debug={p.debug.value}
-          theme={p.theme.value}
-          values={p.values.value}
-          debounce={p.debounce.value}
-          onChange={(e) => {
-            console.info(`⚡️ Filters.onChange:`, e);
-            p.values.value = e.values;
-          }}
-          onChanged={(e) => {
-            console.info(`🌳 Filters.onChanged:`, e);
-            debug.localstore.change((d) => (d.values = e.values));
-          }}
-        />
-      ));
   });
 
   e.it('ui:debug', (e) => {

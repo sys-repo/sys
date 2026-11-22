@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { Config } from '../mod.ts';
 
@@ -26,18 +27,13 @@ export function createDebugSignals() {
     values: s<P['values']>(localstore.current.values),
     debounce: s<P['debounce']>(250),
   };
-  const p = props;
-  const api = {
-    props,
-    localstore,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.values.value;
-      p.debounce.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  return { props, localstore, listen, attach };
 }
 
 const Styles = {
