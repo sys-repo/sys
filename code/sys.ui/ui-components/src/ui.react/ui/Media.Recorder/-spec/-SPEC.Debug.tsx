@@ -90,7 +90,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Effects:
    */
-  Signal.useRedrawEffect(() => debug.listen());
+  Signal.useRedrawEffect(() => {
+    debug.listen();
+    Signal.listen(p.config.filters); // Show each draft edit; the preview waits for onChanged.
+  });
   React.useEffect(() => {
     const { state, is, bytes, blob } = recorder;
     p.recorder.value = { state, is, bytes, blob };
