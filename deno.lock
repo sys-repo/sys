@@ -107,7 +107,7 @@
     "npm:prosemirror-model@1.25.13": "1.25.13",
     "npm:prosemirror-schema-basic@1.2.5": "1.2.5",
     "npm:prosemirror-state@1.4.4": "1.4.4",
-    "npm:prosemirror-view@1.42.9": "1.42.9",
+    "npm:prosemirror-view@1.43.0": "1.43.0",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.3.1": "19.3.1_react@19.3.1",
     "npm:react-error-boundary@6.1.6": "6.1.6_@types+react@19.3.0_react@19.3.1",
@@ -2936,8 +2936,8 @@
         "prosemirror-model"
       ]
     },
-    "prosemirror-view@1.42.9": {
-      "integrity": "sha512-bKbfzeKZOu2H2JQU2TaJmYu6EBcor3VnGIR4jR31cbEt1ztUnfUB6bKGV1+fJzOJdrVWR+tRU0208zM3oQx4wA==",
+    "prosemirror-view@1.43.0": {
+      "integrity": "sha512-MZOUuhD+Gv7Cp7UlgvyhptUfb920NkLBgymhyhaM8xp+JXQyLhkssS2EXZvMI3ZU3vRoz5z7mRC32udVgNYHqg==",
       "dependencies": [
         "prosemirror-model",
         "prosemirror-state",
@@ -3549,7 +3549,7 @@
       "npm:prosemirror-model@1.25.13",
       "npm:prosemirror-schema-basic@1.2.5",
       "npm:prosemirror-state@1.4.4",
-      "npm:prosemirror-view@1.42.9",
+      "npm:prosemirror-view@1.43.0",
       "npm:react-error-boundary@6.1.6",
       "npm:react-icons@5.7.0",
       "npm:react-inspector@9.0.0",
