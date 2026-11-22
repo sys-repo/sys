@@ -1,8 +1,16 @@
+
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
 Verify claims against source. Flag misleading promises, missing context, repetition, and misplaced detail. Preserve essential caveats. Seek the fewest words that remain genuinely helpful—not brevity at the expense of understanding.
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
+
+
+@sys.ui-components
+media-selection-and-draft-integrity.plan.md
+- [ ] fix(ui-components): preserve selected media device across list changes
+- [ ] test(ui-components): distinguish stored device selection from fallback
+
 
 
 @sys.ui
@@ -47,13 +55,13 @@ ui-template-maintenance.plan.md
 - [x] 6d4d9c028 fix(ui-components): bind Bullet and BulletList specimen effects to attachments
 - [x] 0f0c14660 fix(ui-components): bind Button family specimen effects to attachments
 - [x] bb8f0d129 fix(ui-components): bind Dist and Dist.Browser specimen effects to attachments
-- [ ] fix(ui-components): bind Chip and Cropmarks specimen effects to attachments
-- [ ] fix(ui-components): bind ErrorBoundary, FadeElement, and Http.Origin specimen effects to attachments
-- [ ] fix(ui-components): bind Icon.Swatches, IFrame, and Image.Svg specimen effects to attachments
-- [ ] fix(ui-components): bind KeyValue family and Layout.CenterColumn specimen effects to attachments
-- [ ] fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
-- [ ] fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
-- [ ] fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
+- [x] c9b7087de fix(ui-components): bind Chip and Cropmarks specimen effects to attachments
+- [x] 15fcd8581 fix(ui-components): bind ErrorBoundary, FadeElement, and Http.Origin specimen effects to attachments
+- [x] f7759fb0a fix(ui-components): bind Icon.Swatches, IFrame, and Image.Svg specimen effects to attachments
+- [x] 9248652e4 fix(ui-components): bind KeyValue family and Layout.CenterColumn specimen effects to attachments
+- [x] 59fae6f31 fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
+- [x] df33406f9 fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
+- [x] 7f75f600b fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
 - [ ] fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
 - [ ] fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
 - [ ] fix(ui-components): bind video deck and element specimen effects to attachments
@@ -63,6 +71,7 @@ ui-template-maintenance.plan.md
 - [ ] fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
 - [ ] fix(ui-components): bind webfont and CSS specimen effects to attachments
 - [ ] fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
+- [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across other sys packages
 
 
 
@@ -241,12 +250,6 @@ cmd-first-kernels.plan.md
 - [x] f24076d6c test(driver-crdt): compare async-owner and native-replica mutation paths
 - [ ] test(driver-crdt): prove editor reconciliation and boundary failure behavior
 - [ ] docs(driver-crdt): specify draft-one contracts from topology evidence
-
-
-
-@sys.driver-vite
-ci-proof-lane-repair.plan.md
-- [x] 02f3ae9b5 fix(ci): preserve explicit proof lanes through workflow generation
 
 
 
