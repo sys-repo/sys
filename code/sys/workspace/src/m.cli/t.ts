@@ -18,6 +18,12 @@ export declare namespace WorkspaceCli {
     readonly cwd?: t.StringDir;
     /** Optional policy override for the bump command. */
     readonly bumpPolicy?: t.WorkspaceBump.Policy;
+    /**
+     * Run caller-required work after each successful apply, even when no versions changed.
+     * The CLI waits before printing the applied summary or suggesting a commit.
+     * If the callback rejects, the run rejects; the CLI does not undo the writes.
+     */
+    readonly finalizeUpgrade?: (applied: t.WorkspaceUpgrade.ApplyResult) => Promise<void>;
   };
 
   /** Interaction mode for one CLI run. */
@@ -100,7 +106,7 @@ export declare namespace WorkspaceCli {
   export type Help = {
     /** Result discriminant. */
     readonly kind: 'help';
-    /** Raw input passed to the CLI entrypoint. */
+    /** Effective argv and working directory for this run. */
     readonly input: Input;
     /** Rendered help output. */
     readonly text: string;
@@ -110,7 +116,7 @@ export declare namespace WorkspaceCli {
   export type Bumped = {
     /** Result discriminant. */
     readonly kind: 'bump';
-    /** Raw input passed to the CLI entrypoint. */
+    /** Effective argv and working directory for this run. */
     readonly input: Input;
     /** Workspace package bump result. */
     readonly bump: t.WorkspaceBump.RunResult;
@@ -120,7 +126,7 @@ export declare namespace WorkspaceCli {
   export type Planned = {
     /** Result discriminant. */
     readonly kind: 'plan';
-    /** Raw input passed to the CLI entrypoint. */
+    /** Effective argv and working directory for this run. */
     readonly input: Input;
     /** Fully normalized options used for the run. */
     readonly options: ResolvedOptions;
@@ -134,7 +140,7 @@ export declare namespace WorkspaceCli {
   export type Applied = {
     /** Result discriminant. */
     readonly kind: 'apply';
-    /** Raw input passed to the CLI entrypoint. */
+    /** Effective argv and working directory for this run. */
     readonly input: Input;
     /** Fully normalized options used for the run. */
     readonly options: ResolvedOptions;

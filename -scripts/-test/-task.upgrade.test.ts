@@ -1,7 +1,17 @@
-import { afterEach, beforeEach, describe, expect, expectError, it } from '@sys/testing/server';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  expectError,
+  it,
+  Testing,
+} from '@sys/testing/server';
+import { WorkspaceUpgrade } from '@sys/workspace/upgrade';
 import { PATH, syncPiAgentImport } from '../../code/sys.driver/driver-pi/-scripts/-prep.u.ts';
 import { PI_AGENT_IMPORT_BASE } from '../../code/sys.driver/driver-pi/src/m.cli/u/u.resolve.pkg.ts';
-import { Cli, Fs, Is, Str, type t, Time } from '../common.ts';
+import { Cli, Fs, Is, Str, type t } from '../common.ts';
 import { main } from '../task.upgrade.ts';
 
 const root = Fs.resolve(import.meta.dirname ?? '.', '../..');
@@ -11,6 +21,23 @@ const success: t.Process.InheritOutput = { success: true, code: 0, signal: null 
 describe('scripts/task.upgrade', () => {
   let commands: string[];
   let info: typeof console.info;
+  let applied: Awaited<ReturnType<typeof WorkspaceUpgrade.apply>>;
+
+  beforeAll(async () => {
+    applied = await Testing.withTmpDir(async (cwd) => {
+      const deps = Fs.join(cwd, 'deps.yaml');
+      await Fs.write(deps, 'deno.json: []\n', { throw: true });
+      await Fs.writeJson(Fs.join(cwd, 'deno.json'), {}, { throw: true });
+      return await WorkspaceUpgrade.apply({ cwd, deps });
+    });
+  });
+
+  // Simulate the CLI invoking the finalizer after its writes and before it returns.
+  async function completeApply(input: t.WorkspaceCli.Input, deps = Fs.join(root, 'deps.yaml')) {
+    await input.finalizeUpgrade?.({ ...applied, input: { ...applied.input, deps } });
+    return { kind: 'apply', options: { deps } } as const;
+  }
+
   beforeEach(() => {
     commands = [];
     info = console.info;
@@ -28,7 +55,6 @@ describe('scripts/task.upgrade', () => {
     const fixture = (await Fs.makeTempDir({ prefix: 'upgrade.pi.' })).absolute;
     const target = PATH.fromRoot(fixture);
     const calls: string[] = [];
-    const applied = { kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } } as const;
     try {
       const source = await Fs.readText(path.resolvePkgFile);
       if (!source.ok || !Is.string(source.data)) throw new Error('Missing resolver fixture');
@@ -45,7 +71,9 @@ describe('scripts/task.upgrade', () => {
             { throw: true },
           );
           calls.push('applied');
-          return applied;
+          const result = await completeApply(input);
+          calls.push('handoff');
+          return result;
         },
         async refresh(input) {
           expect(input).to.eql(root);
@@ -61,8 +89,8 @@ describe('scripts/task.upgrade', () => {
           return Promise.resolve(success);
         },
       });
-      expect(actual).to.equal(applied);
-      expect(calls).to.eql(['applied', 'refreshed', 'installed']);
+      expect(actual).to.eql({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } });
+      expect(calls).to.eql(['applied', 'refreshed', 'installed', 'handoff']);
       expect((await Fs.readText(target.resolvePkgFile)).data).to.include(
         "const PI_AGENT_IMPORT_VERSION = '123.456.789' as const;",
       );
@@ -71,7 +99,7 @@ describe('scripts/task.upgrade', () => {
     }
   });
 
-  it('help, dry-run, cancelled selection, or another manifest → no refresh or install', async () => {
+  it('non-apply result or non-root manifest → no refresh or install', async () => {
     for (const kind of ['help', 'plan', 'bump'] as const) {
       await main([], {
         run: () => Promise.resolve({ kind }),
@@ -82,11 +110,7 @@ describe('scripts/task.upgrade', () => {
       });
     }
     await main([], {
-      run: () =>
-        Promise.resolve({
-          kind: 'apply',
-          options: { deps: Fs.join(root, 'other-deps.yaml') },
-        }),
+      run: (input) => completeApply(input, Fs.join(root, 'other-deps.yaml')),
       refresh: () => {
         throw new Error('Unexpected metadata mutation');
       },
@@ -110,8 +134,7 @@ describe('scripts/task.upgrade', () => {
 
     const failedRefresh = await expectError(() =>
       main([], {
-        run: () =>
-          Promise.resolve({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } }),
+        run: (input) => completeApply(input),
         refresh: () => Promise.reject(failure),
         invoke: unexpectedInstall,
       })
@@ -121,20 +144,22 @@ describe('scripts/task.upgrade', () => {
   });
 
   it('pending install → no guidance; successful install → each next-step command once', async () => {
+    const started = Promise.withResolvers<void>();
     const install = Promise.withResolvers<t.Process.InheritOutput>();
     let completed = false;
-    const pending = (async () => {
-      await main([], {
-        run: () =>
-          Promise.resolve({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } }),
-        refresh: () => Promise.resolve(),
-        invoke: () => install.promise,
-      });
+    const pending = main([], {
+      run: (input) => completeApply(input),
+      refresh: () => Promise.resolve(),
+      invoke() {
+        started.resolve();
+        return install.promise;
+      },
+    }).then(() => {
       completed = true;
-    })();
+    });
 
     try {
-      await Time.wait(0);
+      await Promise.race([started.promise, pending]);
       expect(completed).to.eql(false);
       expect(commands).to.eql([]);
     } finally {
@@ -148,8 +173,7 @@ describe('scripts/task.upgrade', () => {
   it('unsuccessful install → upgrade rejects with the exit status and retained-write warning', async () => {
     const error = await expectError(() =>
       main([], {
-        run: () =>
-          Promise.resolve({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } }),
+        run: (input) => completeApply(input),
         refresh: () => Promise.resolve(),
         invoke: () => Promise.resolve({ success: false, code: 17, signal: null }),
       })
@@ -163,8 +187,7 @@ describe('scripts/task.upgrade', () => {
     const failure = new Error('controlled spawn failure');
     const error = await expectError(() =>
       main([], {
-        run: () =>
-          Promise.resolve({ kind: 'apply', options: { deps: Fs.join(root, 'deps.yaml') } }),
+        run: (input) => completeApply(input),
         refresh: () => Promise.resolve(),
         invoke: () => Promise.reject(failure),
       })

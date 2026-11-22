@@ -13,7 +13,8 @@ type Lib = {
 };
 
 /**
- * Upgrade workspace dependencies, refresh derived metadata, and install the updated dependencies.
+ * Only an apply to the repository's `deps.yaml` refreshes the Pi import pin
+ * and installs dependencies at the repository root.
  */
 export async function main(argv: readonly string[], lib: Lib = {
   run: WorkspaceCli.run,
@@ -21,32 +22,35 @@ export async function main(argv: readonly string[], lib: Lib = {
   invoke: Process.inherit,
 }) {
   const root = Fs.resolve(import.meta.dirname ?? '.', '..');
-  const result = await lib.run({ argv: ['upgrade', ...argv] });
-  if (result.kind === 'apply' && Fs.resolve(result.options.deps) === Fs.join(root, 'deps.yaml')) {
-    await lib.refresh(root);
-    console.info('Installing dependencies');
-    const install = await lib.invoke({ cmd: Deno.execPath(), args: ['install'], cwd: root });
-    if (!install.success) {
-      throw Err.std(`deno install failed (exit ${install.code}); dependency changes are retained.`);
-    }
-    console.info();
-    console.info(Str.dedent(`
-      Dependencies installed. Workspace preparation and verification remain.
+  return await lib.run({
+    argv: ['upgrade', ...argv],
+    async finalizeUpgrade(applied) {
+      if (Fs.resolve(applied.input.deps) !== Fs.join(root, 'deps.yaml')) return;
 
-      Next: ${c.cyan('deno task prep')}
-            ${c.gray('Refresh generated artifacts, including CI workflows.')}
+      await lib.refresh(root);
+      console.info('Installing dependencies');
+      const install = await lib.invoke({ cmd: Deno.execPath(), args: ['install'], cwd: root });
+      if (!install.success) {
+        throw Err.std(
+          `deno install failed (exit ${install.code}); dependency changes are retained.`,
+        );
+      }
+      console.info();
+      console.info(Str.dedent(`
+        Dependencies installed. Workspace preparation and verification remain.
 
-      If proceeding through ${c.cyan('deno task bump')}, its post-bump preparation handles this.
-    `));
-  }
-  return result;
+        Next: ${c.cyan('deno task prep')}
+              ${c.gray('Refresh generated artifacts, including CI workflows.')}
+
+        If you apply a bump, ${c.cyan('deno task bump')} runs post-bump preparation.
+        It does not replace verification.
+      `));
+    },
+  });
 }
 
 if (import.meta.main) await main(Deno.args);
 
-/**
- * Repository composition; each package owns its metadata writer.
- */
 async function refreshDependencyMetadata(root: t.StringDir): Promise<void> {
   await syncPiAgentImport(PATH.fromRoot(root));
 }

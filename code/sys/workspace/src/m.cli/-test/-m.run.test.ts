@@ -1,4 +1,4 @@
-import { Cli, describe, expect, Fs, it, Num, type t, Testing } from '../../-test.ts';
+import { Cli, describe, expect, expectError, Fs, it, Num, type t, Testing } from '../../-test.ts';
 import { WorkspaceCli } from '../mod.ts';
 import { runWith as runBumpWith } from '../../m.bump/u/u.run.ts';
 import { Fixture as DeltaFixture } from '../../m.delta/-test/u.fixture.ts';
@@ -10,6 +10,7 @@ import {
   type WorkspaceCliDependencies,
   type WorkspaceCliDependencyOverrides,
 } from '../m.run.ts';
+import { runInteractiveWith } from '../u/u.interactive.ts';
 
 describe('Workspace.Cli.run', () => {
   it('renders help without entering planning or apply flow', async () => {
@@ -41,7 +42,9 @@ describe('Workspace.Cli.run', () => {
   });
 
   it('routes upgrade help without entering planning', async () => {
-    const result = await silent(() => WorkspaceCli.run({ argv: ['upgrade', '-h'] }));
+    const result = await silent(() =>
+      WorkspaceCli.run({ argv: ['upgrade', '-h'], finalizeUpgrade: unexpectedFinalization })
+    );
 
     expect(result.kind).to.eql('help');
     if (result.kind === 'help') {
@@ -105,7 +108,7 @@ describe('Workspace.Cli.run', () => {
     }
   });
 
-  it('applies in non-interactive mode by default', async () => {
+  it('applies and suggests a commit without a caller finalizer', async () => {
     const fs = await Testing.dir('WorkspaceCli.run.apply-default');
     await fixture.writeDepsYaml(
       fs,
@@ -142,13 +145,16 @@ describe('Workspace.Cli.run', () => {
     });
     const beforeDeps = await Fs.readText(fs.join('deps.yaml'));
 
-    const result = await runWith(registryDependencies(registry), {
-      cwd: fs.dir,
-      argv: ['upgrade', '--non-interactive', '--policy', 'latest'],
-    });
+    const { result, text } = await captureInfo(() =>
+      runWith(registryDependencies(registry), {
+        cwd: fs.dir,
+        argv: ['upgrade', '--non-interactive', '--policy', 'latest'],
+      })
+    );
 
     const afterDeps = await Fs.readText(fs.join('deps.yaml'));
 
+    expect(text).to.include('chore(deps): upgraded 2 workspace dependencies');
     expect(result.kind).to.eql('apply');
     if (result.kind === 'apply') {
       expect(result.options).to.eql({
@@ -217,6 +223,7 @@ describe('Workspace.Cli.run', () => {
     const result = await runWith(registryDependencies(registry), {
       cwd: fs.dir,
       argv: ['upgrade', '--non-interactive', '--policy', 'latest', '--dry-run'],
+      finalizeUpgrade: unexpectedFinalization,
     });
     const afterDeps = await Fs.readText(fs.join('deps.yaml'));
     const afterDeno = await Fs.readText(fs.join('deno.json'));
@@ -405,6 +412,110 @@ describe('Workspace.Cli.run', () => {
   });
 });
 
+describe('Workspace.Cli.run: upgrade finalization', () => {
+  const suggestion = 'suggested commit msg:';
+  const commit = 'chore(deps): upgraded react';
+
+  for (const mode of ['interactive', 'non-interactive'] as const) {
+    it(`${mode}: pending finalizer → no handoff; success → one summary and suggestion`, async () => {
+      const { deps, cwd, argv } = await upgradeFixture(mode);
+      const entered = Promise.withResolvers<void>();
+      const release = Promise.withResolvers<void>();
+      const finalized: t.WorkspaceUpgrade.ApplyResult[] = [];
+      const { result, text } = await captureInfo(async (output) => {
+        let returned = false;
+        const run = runWith(deps, {
+          cwd,
+          argv,
+          finalizeUpgrade(applied) {
+            finalized.push(applied);
+            entered.resolve();
+            return release.promise;
+          },
+        }).then((result) => {
+          returned = true;
+          return result;
+        });
+        try {
+          await Promise.race([entered.promise, run]);
+          expect(finalized.length).to.eql(1);
+          const manifest = await Fs.readText(Fs.join(cwd, 'deps.yaml'));
+          expect(manifest.data).to.include('npm:react@18.3.0');
+          expect(returned).to.eql(false);
+          expect(output()).to.not.include('Updated');
+          expect(output()).to.not.include(suggestion);
+        } finally {
+          release.resolve();
+          await run;
+        }
+        return await run;
+      });
+      expect(result.kind).to.eql('apply');
+      if (result.kind === 'apply') expect(finalized).to.eql([result.applied]);
+      expect(text.match(/\bUpdated\b/g)).to.eql(['Updated']);
+      expect(text.match(/suggested commit msg:/g)).to.eql([suggestion]);
+      expect(text).to.include(commit);
+    });
+
+    it(`${mode}: rejected finalizer → original error and no handoff`, async () => {
+      const { deps, cwd, argv } = await upgradeFixture(mode);
+      const failure = new Error('Finalization failed');
+      const { result, text } = await captureInfo(() =>
+        expectError(() =>
+          runWith(deps, { cwd, argv, finalizeUpgrade: () => Promise.reject(failure) })
+        )
+      );
+      expect(result).to.equal(failure);
+      expect(text).to.not.include('Updated');
+      expect(text).to.not.include(suggestion);
+      const manifest = await Fs.readText(Fs.join(cwd, 'deps.yaml'));
+      expect(manifest.data).to.include('npm:react@18.3.0');
+    });
+  }
+
+  it('finalizes a successful apply with unchanged pins without suggesting a commit', async () => {
+    const { deps, cwd, argv } = await upgradeFixture('non-interactive');
+    let calls = 0;
+    const { result, text } = await captureInfo(() =>
+      runWith(deps, {
+        cwd,
+        argv: [...argv, '--policy', 'none'],
+        finalizeUpgrade() {
+          calls++;
+          return Promise.resolve();
+        },
+      })
+    );
+    expect(result.kind).to.eql('apply');
+    expect(calls).to.eql(1);
+    expect(text).to.include('Updated');
+    expect(text).to.not.include(suggestion);
+  });
+
+  it('empty interactive selection → no finalization', async () => {
+    const { deps, cwd, argv } = await upgradeFixture('interactive', []);
+    const result = await silent(() =>
+      runWith(deps, { cwd, argv, finalizeUpgrade: unexpectedFinalization })
+    );
+    expect(result.kind).to.eql('plan');
+  });
+
+  it('does not finalize when apply fails', async () => {
+    const { deps, cwd, argv } = await upgradeFixture('non-interactive');
+    const failure = new Error('Apply failed');
+    const result = await silent(() =>
+      expectError(() =>
+        runWith({ upgrade: { ...deps.upgrade, apply: () => Promise.reject(failure) } }, {
+          cwd,
+          argv,
+          finalizeUpgrade: unexpectedFinalization,
+        })
+      )
+    );
+    expect(result).to.equal(failure);
+  });
+});
+
 describe('Workspace.Cli.run: git-derived bumps', {
   permissions: { read: true, write: true, env: true, run: false },
 }, () => {
@@ -501,9 +612,51 @@ describe('Workspace.Cli.run: git-derived bumps', {
   });
 });
 
+async function upgradeFixture(mode: t.WorkspaceCli.Mode, picked = ['react']) {
+  const fs = await Testing.dir(`WorkspaceCli.run.finalize.${mode}`);
+  await fixture.writeDepsYaml(
+    fs,
+    `
+    deno.json:
+      - import: npm:react@18.2.0
+    `,
+  );
+  await Fs.writeJson(fs.join('deno.json'), { name: 'cli-finalization-app' });
+  const registry = fixture.registry({
+    versions: {
+      jsr: {},
+      npm: {
+        react: fixture.versionsNpm('react', '18.3.0', {
+          '18.2.0': {},
+          '18.3.0': { publishedAt: fixture.standdownTime.older },
+        }),
+      },
+    },
+    info: { jsr: {}, npm: { 'react@18.3.0': fixture.infoNpm('react', '18.3.0') } },
+  });
+  const deps = {
+    ...registryDependencies(registry),
+    interactive: (input, options) =>
+      runInteractiveWith(
+        {
+          createSession: () => fixture.session(registry),
+          promptCheckbox: () => Promise.resolve(picked),
+        },
+        input,
+        options,
+      ),
+  } satisfies WorkspaceCliDependencyOverrides;
+  const argv = mode === 'interactive' ? ['upgrade'] : ['upgrade', '--non-interactive'];
+  return { deps, cwd: fs.dir, argv };
+}
+
+function unexpectedFinalization(): Promise<void> {
+  throw new Error('Unexpected upgrade finalization');
+}
+
 function registryDependencies(
   registry: UpgradeRegistryDependencies,
-): WorkspaceCliDependencyOverrides {
+): Pick<WorkspaceCliDependencies, 'upgrade'> {
   return {
     upgrade: {
       collect: (input, options) => fixture.collect(registry, input, options),
@@ -525,17 +678,18 @@ async function silent<T>(fn: () => Promise<T>): Promise<T> {
 }
 
 async function captureInfo<T>(
-  fn: () => Promise<T>,
+  fn: (output: () => string) => Promise<T>,
 ): Promise<{ readonly result: T; readonly text: string }> {
   const info = console.info;
   const lines: string[] = [];
+  const output = () => lines.join('\n');
   console.info = (...args: unknown[]) => {
-    lines.push(args.map(String).join(' '));
+    lines.push(Cli.stripAnsi(args.map(String).join(' ')));
   };
 
   try {
-    const result = await fn();
-    return { result, text: lines.join('\n') };
+    const result = await fn(output);
+    return { result, text: output() };
   } finally {
     console.info = info;
   }
