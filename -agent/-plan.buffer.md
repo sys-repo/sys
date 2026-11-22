@@ -6,10 +6,14 @@ Verify claims against source. Flag misleading promises, missing context, repetit
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
-@sys.ui-components
-media-selection-and-draft-integrity.plan.md
-- [ ] fix(ui-components): preserve selected media device across list changes
-- [ ] test(ui-components): distinguish stored device selection from fallback
+@sys.cell
+service-start-order.plan.md
+- [ ] feat(cell): support declared service startup prerequisites
+- [ ] feat(http): support strict listener ports for static and proxy services
+- [ ] feat(driver-stripe): support strict listener ports in the Stripe fixture
+- [ ] feat(cell): start the Stripe sample proxy after its upstreams
+
+
 
 
 
