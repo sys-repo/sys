@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.MediaDevicesProps;
@@ -41,11 +42,18 @@ export function createDebugSignals() {
     selected: s<P['selected']>(),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.debugNarrow = p.debugNarrow.value;
+        d.debugLocalstorage = p.debugLocalstorage.value;
+        d.filter = p.filter.value;
+        d.rowGap = p.rowGap.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -55,18 +63,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.debugNarrow = p.debugNarrow.value;
-      d.debugLocalstorage = p.debugLocalstorage.value;
-      d.filter = p.filter.value;
-      d.rowGap = p.rowGap.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

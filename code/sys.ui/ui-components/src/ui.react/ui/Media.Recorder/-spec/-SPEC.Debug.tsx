@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { RecorderHookView, StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { Color, css, D, Dev, Icons, LocalStorage, Obj, Signal, type t, Time } from './common.ts';
@@ -49,18 +50,13 @@ export function createDebugSignals() {
     selectedAudio: s<MediaDeviceInfo>(),
     elapsed: s<t.Msecs>(0),
   };
-  const p = props;
-  const api = {
-    props,
-    localstore,
-    listen,
-  };
+  const { attach } = Spec.attachments();
 
   function listen() {
-    Signal.listen(p);
+    Signal.listen(props);
   }
 
-  return api;
+  return { props, localstore, listen, attach };
 }
 
 const Styles = {
