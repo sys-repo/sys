@@ -3,7 +3,7 @@
   "version": "0.0.88",
   "license": "MIT",
   "tasks": {
-    "test": "deno test -P=test ./src",
+    "test": "deno test -P=test ./src ./-scripts/-test",
     "test:dist": "deno test -P=test --trace-leaks ./src/m.cell/-test/-u.services.dist-host.test.ts",
     "test:help": "deno test -P=test --trace-leaks ./src/m.help/-test ./src/m.cli/-test/-dsl.test.ts",
     "test:proofs": "deno task test:cli:vite",
@@ -106,4 +106,3 @@
     }
   }
 }
-

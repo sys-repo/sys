@@ -2,7 +2,13 @@ import { describe, expect, it, Str } from '../../-test.ts';
 import { Cli, stripAnsi, type t } from '../common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
-import { startCellReady, type StartCellRenderOptions } from '../u.lifecycle/u.start.ts';
+import {
+  formatStartHeader,
+  resolveStartPresentation,
+  startCellReady,
+  type StartCellRenderOptions,
+  toStartResult,
+} from '../u.lifecycle/u.start.ts';
 import { startedService } from './u.fixture.services.ts';
 import { createHarness, readyBody } from './u.fixture.start-reporter.ts';
 
@@ -41,6 +47,62 @@ describe('@sys/cell/cli start reporter', () => {
       expect(screenReady.calls).to.eql([{ width: 80, maxRows: 23, hyperlinks: true }]);
       await screen.reporter.dispose();
     });
+  });
+
+  it('links the caller release only in opted-in terminal headers and repaints it as a unit', async () => {
+    const version = '0.0.51';
+    const pkg = { name: '@sys/ui', version };
+    const { header, result } = startHeaderFixture({ pkg, versionLink: 'jsr' });
+    const url = new URL('https://jsr.io/@sys/ui@0.0.51');
+    const linked = Cli.Fmt.hyperlink(version, url, { underline: true });
+    pkg.name = '@other/app';
+    pkg.version = '9.9.9';
+
+    for (const terminal of [true, false]) {
+      await using raw = createHarness('raw', { header, terminal });
+      raw.reporter.open();
+      expect(raw.effects).to.have.length(1);
+      const [title, rule] = raw.effects[0].split('\n');
+      expect(stripAnsi(title).trimEnd().split(/\s+/)).to.eql(['print:sys.ui', version]);
+      expect(stripAnsi(rule)).to.eql('━'.repeat(80));
+      expect(title.includes(linked)).to.eql(terminal);
+      expect(raw.effects[0].replace(linked, '')).not.to.contain('\x1b]8;;');
+    }
+
+    await using screen = createHarness('screen', { header });
+    screen.reporter.open();
+    for (const width of [80, 8, 80]) {
+      screen.resize({ width, height: 24 });
+      const [title, rule, ...rest] = screen.frames.at(-1)!.split('\n');
+      const words = width === 80 ? ['sys.ui', version] : ['sys.ui'];
+      expect(stripAnsi(title).trim().split(/\s+/)).to.eql(words);
+      expect(title.includes(linked)).to.eql(width === 80);
+      expect(title.replace(linked, '')).not.to.contain('\x1b]8;;');
+      expect(stripAnsi(rule)).to.eql('━'.repeat(width));
+      expect(rule).not.to.contain('\x1b]8;;');
+      expect(Cli.Fmt.Text.Width.measure(title)).to.be.at.most(width);
+      expect(rest).to.eql([]);
+    }
+
+    expect(startHeaderFixture({ pkg }).header(80, true)).not.to.contain('\x1b]8;;');
+    const { identity, text } = result();
+    expect(identity).to.eql({ name: 'sys.ui', version });
+    expect(text).not.to.contain('\x1b]8;;');
+    expect(stripAnsi(text).split('\n')[0].endsWith(version)).to.eql(true);
+  });
+
+  it('treats a preformatted version as data even without release navigation', async () => {
+    const version = Cli.Fmt.hyperlink('1.2.3', new URL('https://example.org/'));
+    const { header, result } = startHeaderFixture({ pkg: { name: '@sys/ui', version } });
+    for (const terminal of [false, true]) {
+      await using raw = createHarness('raw', { header, terminal });
+      raw.reporter.open();
+      expect(stripAnsi(raw.effects[0])).to.contain('invalid version');
+      expect(raw.effects[0]).not.to.contain('\x1b]8;;');
+    }
+    const { text } = result();
+    expect(stripAnsi(text)).to.contain('invalid version');
+    expect(text).not.to.contain('\x1b]8;;');
   });
 
   describe('raw output', () => {
@@ -323,6 +385,20 @@ describe('@sys/cell/cli start reporter', () => {
     });
   });
 });
+
+function startHeaderFixture(input: t.CellCli.Input) {
+  const descriptor = { kind: 'cell', version: 1, name: 'sys.ui' } as const;
+  const presentation = resolveStartPresentation(descriptor, input);
+  return {
+    header(width = 80, link = false) {
+      return formatStartHeader(presentation, width, link);
+    },
+    result() {
+      const started = { root: '/tmp/cell', services: 0, mode: 'default', serviceText: '' } as const;
+      return toStartResult(input, started, presentation);
+    },
+  };
+}
 
 function twoServices(
   formatDetail?: t.Cli.Fmt.Service.FormatDetail,

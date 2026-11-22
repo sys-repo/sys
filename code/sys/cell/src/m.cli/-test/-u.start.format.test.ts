@@ -3,7 +3,8 @@ import { c, Cli, stripAnsi } from '../common.ts';
 import {
   formatStartHeader,
   formatStartServiceBody,
-  resolveStartIdentity,
+  resolveStartPresentation,
+  toStartResult,
 } from '../u.lifecycle/u.start.ts';
 
 describe('@sys/cell/cli start formatting', () => {
@@ -53,20 +54,23 @@ describe('@sys/cell/cli start formatting', () => {
   });
 
   describe('identity', () => {
+    const callerPkg: t.Pkg = { name: '@sys/ui', version: '1.2.3' };
+
     it('uses the descriptor name and caller package version independently', () => {
       const named: t.Cell.Descriptor = { kind: 'cell', version: 1, name: 'sys.ui' };
       const unnamed: t.Cell.Descriptor = { kind: 'cell', version: 1 };
-      const callerPkg: t.Pkg = { name: '@sys/ui', version: '0.0.39' };
+      const started = { root: '/tmp/cell', services: 0, mode: 'default', serviceText: '' } as const;
+      const resolveStartIdentity = (descriptor: t.Cell.Descriptor, pkg?: t.Pkg) => {
+        const input = { pkg };
+        return toStartResult(input, started, resolveStartPresentation(descriptor, input)).identity;
+      };
 
       expect(resolveStartIdentity(named, callerPkg)).to.eql({
         name: 'sys.ui',
-        version: '0.0.39',
+        version: callerPkg.version,
       });
       expect(resolveStartIdentity(named)).to.eql({ name: 'sys.ui' });
-      expect(resolveStartIdentity(unnamed, callerPkg)).to.eql({
-        name: '@sys/ui',
-        version: '0.0.39',
-      });
+      expect(resolveStartIdentity(unnamed, callerPkg)).to.eql(callerPkg);
       expect(resolveStartIdentity(unnamed)).to.eql(undefined);
       expect(resolveStartIdentity(unnamed, Pkg.unknown())).to.eql(undefined);
       expect(resolveStartIdentity(unnamed, { name: '   ', version: '1.0.0' })).to.eql(undefined);
@@ -74,7 +78,7 @@ describe('@sys/cell/cli start formatting', () => {
       expect(resolveStartIdentity(unnamed, { name: ' <unknown> ', version: ' 0.0.0 ' })).to.eql(
         undefined,
       );
-      expect(resolveStartIdentity(unnamed, { name: ' @sys/ui ', version: ' 0.0.39 ' })).to.eql(
+      expect(resolveStartIdentity(unnamed, { name: ' @sys/ui ', version: ' 1.2.3 ' })).to.eql(
         undefined,
       );
       expect(resolveStartIdentity(named, { name: '@sys/ui', version: '   ' })).to.eql({
@@ -83,10 +87,10 @@ describe('@sys/cell/cli start formatting', () => {
     });
 
     it('styles the Cell name and version in green', () => {
-      const header = formatStartHeader({ name: 'sys.ui', version: '0.0.39' }, 80);
+      const header = formatStartHeader({ title: 'sys.ui', pkg: callerPkg }, 80);
 
       expect(header).to.contain(c.bold(c.green('sys.ui')));
-      expect(header).to.contain(c.dim(c.green('0.0.39')));
+      expect(header).to.contain(c.dim(c.green(callerPkg.version)));
     });
   });
 });
