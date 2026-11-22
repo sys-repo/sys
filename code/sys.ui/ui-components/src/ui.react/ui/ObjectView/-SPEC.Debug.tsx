@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.ObjectViewProps;
@@ -34,9 +35,10 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     showRootSummary: s<t.ObjectViewShow['rootSummary']>(D.show.rootSummary),
     expandPaths: s<string[] | undefined>(),
   };
-  const p = props;
+  const { attach } = Spec.attachments();
   const api = {
     props,
+    attach,
     get show(): t.ObjectViewShow {
       const nonenumerable = props.showNonenumerable.value;
       const rootSummary = props.showRootSummary.value;

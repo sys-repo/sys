@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/mod.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
@@ -55,12 +56,26 @@ export function createDebugSignals() {
     },
   };
   const p = props;
-  const api = {
-    props,
-    video,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.enabled = p.enabled.value;
+        d.maskHeight = p.maskHeight.value;
+        d.maskOpacity = p.maskOpacity.value;
+        d.padding = p.padding.value;
+        d.width = p.width.value;
+        d.margin = p.margin.value;
+
+        d.background = d.background ?? {};
+        d.background.opacity = p.background.opacity.value;
+        d.background.rounded = p.background.rounded.value;
+        d.background.blur = p.background.blur.value;
+        d.background.shadow = p.background.shadow.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(p, true);
@@ -78,27 +93,8 @@ export function createDebugSignals() {
     resetVideo();
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.enabled = p.enabled.value;
-      d.maskHeight = p.maskHeight.value;
-      d.maskOpacity = p.maskOpacity.value;
-      d.padding = p.padding.value;
-      d.width = p.width.value;
-      d.margin = p.margin.value;
-
-      d.background = d.background ?? {};
-      d.background.opacity = p.background.opacity.value;
-      d.background.rounded = p.background.rounded.value;
-      d.background.blur = p.background.blur.value;
-      d.background.shadow = p.background.shadow.value;
-    });
-  });
-
   resetVideo();
-  return api;
+  return { props, video, listen, reset, attach };
 }
 
 const Styles = {

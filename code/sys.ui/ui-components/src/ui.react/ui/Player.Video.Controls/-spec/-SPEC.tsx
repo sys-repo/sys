@@ -44,26 +44,17 @@ export default Spec.describe(D.displayName, (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    const updateSize = () => {
-      const width = debug.props.width.value;
-      ctx.subject.size([width, null]);
-      ctx.redraw();
-    };
-
-    Harness.Theme.signalEffect(ctx, p.theme);
-    Signal.effect(() => {
-      debug.listen();
-      updateSize();
+    debug.attach(ctx, {
+      subject: { size: undefined, display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value),
+        () => void ctx.subject.size([p.width.value, null]),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size()
-      .display('grid')
-      .render(() => <Root />);
-
-    // Initialize:
-    updateSize();
   });
 
   e.it('ui:debug', (e) => {
