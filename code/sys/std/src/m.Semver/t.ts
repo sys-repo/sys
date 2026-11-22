@@ -69,6 +69,9 @@ export namespace Semver {
       /** Checks to see if value is a valid SemVer object. */
       valid(input?: t.Semver | string): boolean;
 
+      /** Whether the input is a complete SemVer string that round-trips unchanged. */
+      exact(input: unknown): boolean;
+
       /** Equality comparison between two SemVers. */
       eql(a: t.Semver | string, b: t.Semver | string): boolean;
 

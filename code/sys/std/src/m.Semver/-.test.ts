@@ -1,4 +1,5 @@
 import { describe, expect, it } from '../-test.ts';
+import { Json } from '../m.Json/mod.ts';
 import { Is } from './m.Is.ts';
 import { Prefix } from './m.Prefix.ts';
 import { Semver } from './mod.ts';
@@ -303,6 +304,7 @@ describe('Semver', () => {
       expect(Semver.Is.valid('1.2.3-alpha.1')).to.eql(true);
       expect(Semver.Is.valid('1.2.3+alpha.1')).to.eql(true);
       expect(Semver.Is.valid('^1.2.3')).to.eql(true);
+      expect(Semver.Is.valid('v1.2.3')).to.eql(true);
       expect(Semver.Is.valid(ver)).to.eql(true);
       expect(Semver.Is.valid('foobar')).to.eql(false);
       expect(Semver.Is.valid(undefined)).to.eql(false);
@@ -311,6 +313,26 @@ describe('Semver', () => {
       NON.forEach((value: any) => {
         expect(Semver.Is.valid(value)).to.eql(false, value);
       });
+    });
+
+    it('Is.exact accepts complete versions without changing their spelling', () => {
+      const versions = ['0.0.0', '1.2.3', '1.2.3-rc.1', '1.2.3+build.007', '1.2.3-rc.1+build'];
+      for (const input of versions) expect(Semver.Is.exact(input)).to.eql(true, input);
+    });
+
+    it('Is.exact rejects ranges, noncanonical spellings, and malformed versions', () => {
+      const ranges = ['^1.2.3', '>=1.2.3 <2.0.0', '1.2', '1.2.x'];
+      const noncanonical = ['v1.2.3', '1.2.3 ', ' 1.2.3'];
+      const malformed = ['', '01.2.3', '1.2.3-rc.01', '1.2.3+'];
+      for (const input of [...ranges, ...noncanonical, ...malformed]) {
+        expect(Semver.Is.exact(input)).to.eql(false, Json.stringify(input));
+      }
+    });
+
+    it('Is.exact rejects non-strings, including a parsed version', () => {
+      expect(Semver.Is.exact(undefined)).to.eql(false);
+      expect(Semver.Is.exact(123)).to.eql(false);
+      expect(Semver.Is.exact(Semver.parse('1.2.3').version)).to.eql(false);
     });
 
     it('Is.eql', () => {
