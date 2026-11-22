@@ -12,6 +12,7 @@ import { Tree } from './m.Tree.ts';
 import { isPresentationAuthorityReady as isReady } from '../u/u.authority.ts';
 import { hr } from '../u/u.hr.ts';
 import { hyperlink } from '../u/u.hyperlink.ts';
+import { jsrVersion } from '../u/u.jsrVersion.ts';
 import { omission } from '../u/u.omission.ts';
 import { spinnerRaw, spinnerText } from '../u/u.spinner.ts';
 
@@ -32,6 +33,7 @@ export const Fmt: t.CliFormat.Lib = Object.freeze({
   ServiceUrl,
   hr,
   hyperlink,
+  jsrVersion,
   omission,
   path: StdPath.Format.string,
   spinnerRaw,

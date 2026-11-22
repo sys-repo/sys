@@ -30,6 +30,12 @@ export declare namespace CliFormat {
     /** Horizontal rule display formatting. */
     hr: Hr.Fn;
 
+    /**
+     * Link an exact version of a JSR package when requested, without checking publication.
+     * Underlining follows ANSI styling. Ineligible versions stay plain; unsafe text becomes `invalid version`.
+     */
+    readonly jsrVersion: (release: Readonly<t.Pkg>, options: { link: boolean }) => string;
+
     /** OSC 8 terminal hyperlink formatting. */
     hyperlink: Hyperlink.Fn;
 
