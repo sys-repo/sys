@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
@@ -50,12 +51,14 @@ export function createDebugSignals() {
     stream: s<P['stream']>(),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-    store,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -65,14 +68,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-    });
-  });
-
-  return api;
+  return { props, reset, listen, store, attach };
 }
 
 const Styles = {

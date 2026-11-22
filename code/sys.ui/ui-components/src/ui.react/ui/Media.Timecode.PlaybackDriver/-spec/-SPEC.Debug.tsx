@@ -1,6 +1,7 @@
 import type { HarnessProps } from '../-dev/-harness/t.ts';
 
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import {
   Color,
   css,
@@ -62,11 +63,22 @@ export async function createDebugSignals() {
     snapshot: s<t.TimecodeState.Playback.Snapshot>(),
   };
   const p = props;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.docid = p.docid.value;
+        d.env = p.env.value;
+      });
+    },
+  });
   const api = {
     props,
     decks,
     listen,
     reset,
+    attach,
     get activeDeck() {
       return p.snapshot.value?.state.decks.active;
     },
@@ -85,15 +97,6 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
     Sample.unload(api);
   }
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.docid = p.docid.value;
-      d.env = p.env.value;
-    });
-  });
 
   if (p.docid.value) {
     Sample.load(api, p.docid.value);
