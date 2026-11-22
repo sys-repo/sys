@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 import { SAMPLE_TREE_1, SAMPLE_TREE_2 } from './-u.sample.data.ts';
@@ -61,6 +62,31 @@ export function createDebugSignals() {
     customEmpty: s(snap.customEmpty),
   };
 
+  const { attach } = Spec.attachments({
+    shared(e) {
+      const effects = Signal.listeners(e.life);
+      effects.effect(() => {
+        store.change((d) => {
+          d.theme = props.theme.value;
+          d.debug = props.debug.value;
+          d.selectedPath = props.selectedPath.value;
+          d.spinner = props.spinner.value;
+          d.nav = props.nav.value;
+          d.navMotion = props.parts.value?.nav?.motion;
+          d.customEmpty = props.customEmpty.value;
+        });
+      });
+      effects.effect(() => {
+        const path = props.selectedPath.value;
+        const tree = props.tree.value;
+        const node = tree
+          ? TreeHost.Data.find(tree, ({ node }) => Obj.Path.eql(node.path, path ?? []))
+          : undefined;
+        console.info('👁️ selectedPath:', path, 'node:', node);
+      });
+    },
+  });
+
   function listen() {
     Signal.listen(props, true);
   }
@@ -70,28 +96,7 @@ export function createDebugSignals() {
     props.tree.value = SAMPLE_TREE_1;
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = props.theme.value;
-      d.debug = props.debug.value;
-      d.selectedPath = props.selectedPath.value;
-      d.spinner = props.spinner.value;
-      d.nav = props.nav.value;
-      d.navMotion = props.parts.value?.nav?.motion;
-      d.customEmpty = props.customEmpty.value;
-    });
-  });
-
-  Signal.effect(() => {
-    const path = props.selectedPath.value;
-    const tree = props.tree.value;
-    const node = tree
-      ? TreeHost.Data.find(tree, ({ node }) => Obj.Path.eql(node.path, path ?? []))
-      : undefined;
-    console.info('👁️ selectedPath:', path, 'node:', node);
-  });
-
-  return { props, listen, reset };
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

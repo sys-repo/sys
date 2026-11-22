@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, Is, LocalStorage, Num, Obj, Signal, type t } from './common.ts';
 import { even, fromScalar, toScalar } from './-u.ts';
 
@@ -63,11 +64,25 @@ export function createDebugSignals() {
     onlyIndex: s(snap.onlyIndex),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.isControlled = p.isControlled.value;
+        d.childCount = p.childCount.value;
+        d.controlledRatios = p.controlledRatios.value;
+        //
+        d.active = p.active.value;
+        d.orientation = p.orientation.value;
+        d.defaultValue = p.defaultValue.value;
+        d.min = p.min.value;
+        d.max = p.max.value;
+        d.gutter = p.gutter.value;
+        d.onlyIndex = p.onlyIndex.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -76,25 +91,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.isControlled = p.isControlled.value;
-      d.childCount = p.childCount.value;
-      d.controlledRatios = p.controlledRatios.value;
-      //
-      d.active = p.active.value;
-      d.orientation = p.orientation.value;
-      d.defaultValue = p.defaultValue.value;
-      d.min = p.min.value;
-      d.max = p.max.value;
-      d.gutter = p.gutter.value;
-      d.onlyIndex = p.onlyIndex.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { Num } from '../../common.ts';
+import { Spec } from '../../-test.ui.ts';
 
 type P = t.RectGridProps;
 type Storage =
@@ -46,11 +47,21 @@ export function createDebugSignals() {
     total: s(snap.total),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+
+        d.activeIndex = p.activeIndex.value;
+        d.aspectRatio = p.aspectRatio.value;
+        d.minColumnWidth = p.minColumnWidth.value;
+        d.gap = p.gap.value;
+
+        d.total = p.total.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -60,21 +71,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-
-      d.activeIndex = p.activeIndex.value;
-      d.aspectRatio = p.aspectRatio.value;
-      d.minColumnWidth = p.minColumnWidth.value;
-      d.gap = p.gap.value;
-
-      d.total = p.total.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

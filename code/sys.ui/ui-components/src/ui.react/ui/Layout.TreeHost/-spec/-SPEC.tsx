@@ -1,8 +1,8 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { SpecRoot } from './-SPEC.ui.Root.tsx';
 import { BackButton } from './-ui.BackButton.tsx';
-import { D, css } from './common.ts';
+import { css, D } from './common.ts';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = createDebugSignals();
@@ -30,20 +30,16 @@ export default Spec.describe(D.displayName, async (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    update();
-    function update() {
-      debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme);
-
-    ctx.subject
-      .size('fill', 80)
-      .display('grid')
-      .render(() => <Root />);
+    debug.attach(ctx, {
+      subject: { size: 'fill', margin: 80, display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {
