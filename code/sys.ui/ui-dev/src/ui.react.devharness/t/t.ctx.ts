@@ -93,15 +93,24 @@ export type DevCtxSubject = {
 };
 
 /**
- * Subject Component Host ("Harness")
+ * The host surface around the subject.
  */
 export type DevCtxHost<S extends O = O> = {
+  /** Content and border above the subject area. */
   readonly header: DevCtxEdge<S>;
+  /** Content and border below the subject area. */
   readonly footer: DevCtxEdge<S>;
+  /** Set the host foreground; null restores the default. */
   color(value: Color | null): DevCtxHost<S>;
+  /** Set the host background color; null restores the default. */
   backgroundColor(value: Color | null): DevCtxHost<S>;
+  /** Set the host background image; null removes it. */
   backgroundImage(value: t.DevBackgroundImageInput | t.StringUrl | null): DevCtxHost<S>;
+  /** Set the subject guide color; zero hides the guides. */
   tracelineColor(value: Color | null): DevCtxHost<S>;
+  /** Set the resolved CSS color inherited by host edges without an explicit border. */
+  dividerColor(value: string): DevCtxHost<S>;
+  /** Select a layer behind (negative) or in front of (positive) the subject; zero is reserved. */
   layer(index: number): DevCtxLayer<S>;
 };
 

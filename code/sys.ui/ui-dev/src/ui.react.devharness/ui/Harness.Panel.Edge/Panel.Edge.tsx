@@ -1,11 +1,12 @@
 import React from 'react';
-import { css, useRenderer, type t } from '../common.ts';
+import { css, type t, useRenderer } from '../common.ts';
 import { Wrangle } from './u.ts';
 
 export type PanelBarProps = {
   instance: t.DevInstance;
   edge: 'Header' | 'Footer';
   current?: t.DevRenderPropsEdge;
+  defaultBorderColor?: t.DevRenderPropsEdge['border']['color'];
   style?: t.CssInput;
 };
 
@@ -19,14 +20,14 @@ export const PanelEdge: React.FC<PanelBarProps> = (props) => {
   /**
    * Render:
    */
-  const border = (hasBorder: boolean) => (hasBorder ? Wrangle.borderStyle(current) : undefined);
+  const border = Wrangle.borderStyle(current, props.defaultBorderColor);
   const styles = {
     base: css({
       position: 'relative',
       boxSizing: 'border-box',
       Padding: current?.padding,
-      borderTop: border(edge === 'Footer'),
-      borderBottom: border(edge === 'Header'),
+      borderTop: edge === 'Footer' ? border : undefined,
+      borderBottom: edge === 'Header' ? border : undefined,
       display: 'grid',
     }),
     body: css({ position: 'relative' }),

@@ -1,0 +1,80 @@
+import { TestReact } from '@sys/ui-react/testing/server';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  Is,
+  it,
+  Signal,
+  type t,
+  TestSample,
+} from '../../../-test.ts';
+import { Theme } from '../../../u/m.Theme/mod.ts';
+import { HarnessHost } from '../mod.ts';
+
+const LIGHT = 'rgba(0, 0, 0, 0.1)';
+const DARK = 'rgba(255, 255, 255, 0.1)';
+const TRANSPARENT = 'rgba(0, 0, 0, 0.0)';
+
+describe('DevHarness host dividers', () => {
+  DomMock.init({ beforeEach, afterEach });
+
+  it('Light → Dark → Light, with explicit edge borders taking precedence', async () => {
+    const { ctx, context, dispose, instance } = await TestSample.context();
+    try {
+      using view = await TestReact.render(<HarnessHost instance={instance} />);
+      const theme = Signal.create<t.CommonTheme>('Light');
+      const update = async (change: () => void) => {
+        await TestReact.act(async () => {
+          change();
+          await context.flush();
+        });
+      };
+      const expectColors = (headerColor: string, footerColor = headerColor) => {
+        const header = view.container.querySelector('[data-component="dev.harness:Header"]');
+        const footer = view.container.querySelector('[data-component="dev.harness:Footer"]');
+        const window = view.container.ownerDocument.defaultView;
+        if (Is.nil(window) || Is.nil(header) || Is.nil(footer)) {
+          throw new Error('Expected both host edges in a mounted document');
+        }
+        expect(window.getComputedStyle(header).borderBottomColor).to.eql(headerColor);
+        expect(window.getComputedStyle(footer).borderTopColor).to.eql(footerColor);
+      };
+
+      await update(() => {
+        ctx.host.header.render(<span>Header</span>);
+        ctx.host.footer.render(<span>Footer</span>);
+        Theme.signalEffect(ctx, theme);
+      });
+      expectColors(LIGHT);
+
+      await update(() => void (theme.value = 'Dark'));
+      expectColors(DARK);
+
+      await update(() => {
+        // @ts-expect-error Reset an edge with border(null), not the host divider color.
+        expect(() => ctx.host.dividerColor(null)).to.throw(TypeError);
+      });
+      expectColors(DARK);
+
+      await update(() => {
+        ctx.host.footer.border(0);
+        theme.value = 'Light';
+      });
+      expectColors(LIGHT, TRANSPARENT);
+
+      await update(() => void (theme.value = 'Dark'));
+      expectColors(DARK, TRANSPARENT);
+
+      await update(() => void ctx.host.footer.border(null));
+      expectColors(DARK);
+
+      await update(() => void (theme.value = 'Light'));
+      expectColors(LIGHT);
+    } finally {
+      dispose();
+    }
+  });
+});

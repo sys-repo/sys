@@ -2,6 +2,8 @@ import { Color, COLORS } from '@sys/color';
 import type * as t from './t.ts';
 
 export const DEFAULTS = {
+  host: { dividerOpacity: 0.1 },
+
   get size(): t.DevRenderedSize {
     return {
       harness: { width: -1, height: -1 },
@@ -17,9 +19,10 @@ export const DEFAULTS = {
         color: COLORS.DARK,
         backgroundColor: Color.alpha(COLORS.DARK, 0.02),
         tracelineColor: Color.alpha(COLORS.DARK, 0.05),
+        dividerColor: Color.alpha(COLORS.BLACK, DEFAULTS.host.dividerOpacity),
         backgroundImage: { url: '', size: 'cover', margin: [0, 0, 0, 0] },
-        header: { border: { color: -0.1 }, padding: [8, 8, 8, 8] },
-        footer: { border: { color: -0.1 }, padding: [8, 8, 8, 8] },
+        header: { border: {}, padding: [8, 8, 8, 8] },
+        footer: { border: {}, padding: [8, 8, 8, 8] },
         layers: {},
       },
       subject: {},

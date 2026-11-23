@@ -15,8 +15,7 @@ export function CtxPanelEdge(
       return api;
     },
     border(color) {
-      if (color === null) color = defaults.border.color!;
-      change((e) => (e.border.color = color!));
+      change((e) => (e.border.color = color ?? defaults.border.color));
       return api;
     },
     padding(input) {

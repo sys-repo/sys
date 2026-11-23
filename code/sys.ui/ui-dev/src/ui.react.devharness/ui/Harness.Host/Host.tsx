@@ -73,11 +73,20 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
     </div>
   );
 
+  const defaultBorderColor = host?.dividerColor ?? DEFAULT.dividerColor;
   const elBody = (
     <div className={styles.body.class}>
-      <PanelHeader instance={instance} current={host?.header} />
+      <PanelHeader
+        instance={instance}
+        current={host?.header}
+        defaultBorderColor={defaultBorderColor}
+      />
       {elMain}
-      <PanelFooter instance={instance} current={host?.footer} />
+      <PanelFooter
+        instance={instance}
+        current={host?.footer}
+        defaultBorderColor={defaultBorderColor}
+      />
     </div>
   );
 

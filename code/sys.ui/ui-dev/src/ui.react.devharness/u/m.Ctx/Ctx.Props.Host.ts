@@ -1,7 +1,7 @@
 import type { PropArgs } from './common.types.ts';
 
 import { CtxPanelEdge } from './Ctx.PanelEdge.ts';
-import { DEFAULTS, Id, Style, type t } from './common.ts';
+import { DEFAULTS, Id, Is, Style, type t } from './common.ts';
 
 const HOST = DEFAULTS.props.host;
 
@@ -22,6 +22,12 @@ export function CtxPropsHost(props: PropArgs) {
     tracelineColor(value) {
       if (value === null) value = HOST.tracelineColor!;
       props.current().host.tracelineColor = value;
+      props.changed();
+      return api;
+    },
+    dividerColor(value) {
+      if (!Is.str(value)) throw new TypeError('host.dividerColor expects a CSS color string');
+      props.current().host.dividerColor = value;
       props.changed();
       return api;
     },
