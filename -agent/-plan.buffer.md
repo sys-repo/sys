@@ -6,15 +6,6 @@ Verify claims against source. Flag misleading promises, missing context, repetit
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
-@sys.cell
-service-start-order.plan.md
-- [x] 8a891e8d4 feat(cell): support declared service startup prerequisites
-- [x] 6f056a0ee feat(http): support strict listener ports for static and proxy services
-- [x] 5159899c3 feat(driver-stripe): support strict listener ports in the Stripe fixture
-- [x] 44f14fed5 feat(cell): start the Stripe sample proxy after its upstreams
-- [ ] feat(cell): preview and confirm stopping a selected sample
-
-
 
 
 
@@ -36,8 +27,11 @@ passkey-panel.plan.md
 - [x] be9dc5bf3 feat(http): add exact method-and-path proxy routes
 - [x] 11a8ab2c5 fix(http): invoke native fetch correctly in HttpCmd
 - [x] ce2317f14 test(http): prove the default HttpCmd echo in a real browser
-- [ ] feat(net): add a pure fixed TCP port predicate
-- [ ] feat(ui): serve the passkey account endpoint in the sample Cell
+- [x] acfcefa49 feat(net): add a pure fixed TCP port predicate
+- [x] 527befe6a feat(ui): serve the passkey account endpoint in the sample Cell
+- [x] [service-start-order.plan.md](../@sys.cell/service-start-order.plan.md)
+- [x] 229253586 feat(http): optionally strip Authorization from root proxy requests
+- [ ] feat(tools): support strict listener ports in Serve config
 - [ ] feat(ui): route the sample Cell through one browser origin
 - [ ] feat(ui): connect real passkey operations in sample
 
@@ -70,7 +64,7 @@ ui-template-maintenance.plan.md
 - [x] 78740e2bb fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
 - [x] 13c6bf5de fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
 - [x] fa15c1d1f fix(ui-components): bind video deck and element specimen effects to attachments
-- [ ] fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
+- [x] 7cfb33b13 fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
 - [ ] fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
 - [ ] fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
 - [ ] fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
