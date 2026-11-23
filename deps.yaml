@@ -104,7 +104,6 @@ deno.json:
   - import: npm:@svgdotjs/svg.js@3.2.8
   - import: npm:react-error-boundary@6.1.6
   - import: npm:react-inspector@9.0.0
-  - import: npm:react-spinners@0.17.1
   - import: npm:react-icons@5.7.0
     subpaths: [ bs, fa, fa6, fi, hi, lia, lu, md, pi, ri, tb, vsc ]
   - import: npm:@preact/signals-react@3.12.0
