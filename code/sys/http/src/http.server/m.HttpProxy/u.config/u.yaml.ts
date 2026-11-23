@@ -39,10 +39,16 @@ function parseConfigText(
   }
 
   assertKnownKeys(data, path, errorPrefix);
+  const { strictPort } = data;
+  if (strictPort !== undefined && !Is.bool(strictPort)) {
+    const msg = `${errorPrefix}: config key 'strictPort' must be a boolean: ${Fs.trimCwd(path)}`;
+    throw new Error(msg);
+  }
   const base = {
     name: readNonEmptyString(data, 'name', path, errorPrefix),
     hostname: readNonEmptyString(data, 'hostname', path, errorPrefix),
     port: readPort(data.port, path, errorPrefix),
+    ...(strictPort === undefined ? {} : { strictPort }),
     root: readRoot(data.root, path, errorPrefix),
     mounts: readMounts(data.mounts, path, errorPrefix),
   } satisfies t.HttpProxy.Config.Doc;
@@ -59,7 +65,7 @@ function assertKnownKeys(
   path: t.StringPath,
   errorPrefix: string,
 ): void {
-  const allowed = ['name', 'hostname', 'port', 'root', 'mounts', 'exactRoutes'];
+  const allowed = ['name', 'hostname', 'port', 'strictPort', 'root', 'mounts', 'exactRoutes'];
   const unknown = Object.keys(doc).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new Error(`${errorPrefix}: unknown config key '${unknown[0]}': ${Fs.trimCwd(path)}`);

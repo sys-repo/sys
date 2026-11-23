@@ -36,6 +36,9 @@ export declare namespace HttpStatic {
     /** Listen port. Use `0` for an ephemeral port. */
     readonly port: number;
 
+    /** Bind the configured port without fallback. `0` still requests an ephemeral port. */
+    readonly strictPort?: boolean;
+
     /** Suppress startup output when this config is used as a lifecycle ref. */
     readonly silent?: boolean;
   };
@@ -59,6 +62,9 @@ export declare namespace HttpStatic {
 
     /** Listen port. */
     readonly port?: number | string;
+
+    /** Set strict port binding. Omit to preserve the existing setting. */
+    readonly strictPort?: boolean;
 
     /** Preview the config mutation without writing. */
     readonly dryRun?: boolean;
@@ -95,6 +101,9 @@ export declare namespace HttpStatic {
 
     /** Listen port. Use `0` for an ephemeral port. */
     port?: number;
+
+    /** Bind an explicit port without fallback. `0` still requests an ephemeral port. */
+    strictPort?: boolean;
 
     /** Suppress startup output. */
     silent?: boolean;

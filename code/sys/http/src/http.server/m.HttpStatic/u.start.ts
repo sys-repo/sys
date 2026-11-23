@@ -17,6 +17,7 @@ export const start: F = async (input = {}) => {
   return HttpServer.start(app, {
     hostname: args.hostname as t.StringHostname | undefined,
     port: args.port as t.PortNumber | undefined,
+    strictPort: args.strictPort,
     name: args.name,
     info: args.info,
     dir: root,
@@ -42,7 +43,12 @@ const wrangle = {
     if (!config) return args;
 
     const doc = await loadConfig(wrangle.configPath(args), 'HttpStatic.start');
-    return { ...doc, ...args };
+    return {
+      ...doc,
+      ...args,
+      port: args.port ?? doc.port,
+      strictPort: args.strictPort ?? doc.strictPort,
+    };
   },
 
   configPath(args: t.HttpStatic.StartArgs): t.StringPath {

@@ -82,6 +82,26 @@ For a long-running service, keep the handle and await `server.dispose()` at shut
 - [Run a reverse proxy](https://jsr.io/@sys/http/doc/server/proxy/) with `HttpProxy`.
 - [Start a file server from the command line](https://jsr.io/@sys/http/doc/serve/).
 
+### Require a fixed listener port
+
+By default, static and proxy services can use another port if the requested port is busy. To require
+port `8080`, set these fields in the service YAML loaded through `paths.config`:
+
+```yaml
+port: 8080
+strictPort: true
+```
+
+The service binds `8080` or fails to start. Port `0` still asks the OS to choose an available port.
+
+For one run, `await HttpStatic.start({ paths: { config: './static.yaml' }, strictPort: false })`
+allows fallback without changing the file. `HttpProxy.start()` accepts the same override. Omitted or
+`undefined` values for `port` and `strictPort` use the YAML values.
+
+To change only strictness in an existing config, edit `strictPort` in the YAML. The
+`@sys/http/server/static` and `@sys/http/server/proxy` CLIs also accept `--strict-port` on
+`config add`, but omitted fields such as `port` are written with their defaults.
+
 ### Reserve an exact proxy route
 
 Use an exact route for one HTTP method at one pathname; use a mount for a subtree. A pathname can

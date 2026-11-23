@@ -51,6 +51,7 @@ export const HttpProxy: t.HttpProxy.Lib = Object.freeze({
     return HttpServer.start(app, {
       hostname: args.hostname as t.StringHostname | undefined,
       port: (args.port ?? D.port) as t.PortNumber,
+      strictPort: args.strictPort,
       pkg,
       name: args.name,
       status: {
@@ -126,7 +127,12 @@ const wrangle = {
     if (!config) return args;
 
     const doc = await loadConfig(wrangle.configPath(args), 'HttpProxy.start');
-    return { ...doc, ...args };
+    return {
+      ...doc,
+      ...args,
+      port: args.port ?? doc.port,
+      strictPort: args.strictPort ?? doc.strictPort,
+    };
   },
 
   configPath(args: t.HttpProxy.StartArgs): t.StringPath {

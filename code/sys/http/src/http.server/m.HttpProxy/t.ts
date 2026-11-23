@@ -73,6 +73,9 @@ export declare namespace HttpProxy {
     /** Local listen port. Defaults to the proxy endpoint convention. */
     readonly port?: number;
 
+    /** Bind the selected port without fallback. `0` still requests an ephemeral port. */
+    readonly strictPort?: boolean;
+
     /** Suppress startup output. */
     readonly silent?: boolean;
 
@@ -116,6 +119,9 @@ export declare namespace HttpProxy {
       /** Listen port. Use `0` for an ephemeral port. */
       readonly port: number;
 
+      /** Bind the configured port without fallback. `0` still requests an ephemeral port. */
+      readonly strictPort?: boolean;
+
       /** Durable lifecycle-friendly root/default upstream declaration. */
       readonly root?: Root.Doc;
 
@@ -142,6 +148,9 @@ export declare namespace HttpProxy {
 
       /** Listen port. */
       readonly port?: number | string;
+
+      /** Set strict port binding. Omit to preserve the existing setting. */
+      readonly strictPort?: boolean;
 
       /** Preview the config mutation without writing. */
       readonly dryRun?: boolean;

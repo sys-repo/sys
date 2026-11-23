@@ -13,6 +13,7 @@ export function resolveConfig(input: t.HttpStatic.ConfigAddInput) {
       dir: textOrDefault(input.dir, '--dir', D.dir),
       hostname: textOrDefault(input.hostname, '--hostname', D.hostname),
       port: parsePort(input.port),
+      ...(input.strictPort === undefined ? {} : { strictPort: input.strictPort }),
     } satisfies t.HttpStatic.ConfigDoc,
   };
 }
@@ -54,6 +55,7 @@ export function sameConfig(a: t.HttpStatic.ConfigDoc, b: t.HttpStatic.ConfigDoc)
     a.dir === b.dir &&
     a.hostname === b.hostname &&
     a.port === b.port &&
+    a.strictPort === b.strictPort &&
     a.silent === b.silent;
 }
 
@@ -103,11 +105,17 @@ function parseConfigText(
   }
 
   assertKnownKeys(data, path, errorPrefix);
+  const { strictPort } = data;
+  if (strictPort !== undefined && !Is.bool(strictPort)) {
+    const msg = `${errorPrefix}: config key 'strictPort' must be a boolean: ${Fs.trimCwd(path)}`;
+    throw new Error(msg);
+  }
   return {
     name: readNonEmptyString(data, 'name', path, errorPrefix),
     dir: readNonEmptyString(data, 'dir', path, errorPrefix),
     hostname: readNonEmptyString(data, 'hostname', path, errorPrefix),
     port: readPort(data.port, path, errorPrefix),
+    ...(strictPort === undefined ? {} : { strictPort }),
     silent: readOptionalBoolean(data.silent, 'silent', path, errorPrefix),
   };
 }
@@ -117,7 +125,7 @@ function assertKnownKeys(
   path: t.StringPath,
   errorPrefix: string,
 ): void {
-  const allowed = ['name', 'dir', 'hostname', 'port', 'silent'];
+  const allowed = ['name', 'dir', 'hostname', 'port', 'strictPort', 'silent'];
   const unknown = Object.keys(doc).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new Error(`${errorPrefix}: unknown config key '${unknown[0]}': ${Fs.trimCwd(path)}`);

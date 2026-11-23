@@ -78,6 +78,7 @@ async function runConfigAdd(cwd: t.StringDir, args: ProxyCliParsedArgs): Promise
       name: args.name,
       hostname: args.hostname,
       port: args.port,
+      strictPort: args['strict-port'],
       dryRun: args['dry-run'] === true,
     });
 
