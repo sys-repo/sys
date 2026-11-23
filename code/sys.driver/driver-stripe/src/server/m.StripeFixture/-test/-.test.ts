@@ -1,5 +1,5 @@
-import { describe, expect, Fs, it, Net, Testing } from '../../-test.ts';
-import { StripeFixture } from './mod.ts';
+import { describe, expect, Fs, it, Net, Testing } from '../../../-test.ts';
+import { StripeFixture } from '../mod.ts';
 
 const STRIPE_SECRET_KEY = `sk_${'test_fixture'}`;
 const STRIPE_PUBLISHABLE_KEY = `pk_${'test_fixture'}`;

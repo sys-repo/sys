@@ -69,6 +69,23 @@ Both `dev` and `build` point the browser at:
 http://127.0.0.1:9090/-/stripe/payment-intent
 ```
 
+### Keep a fixed fixture port
+
+If a proxy routes to a fixed port, set `strictPort: true` in the fixture YAML. Pass its path to
+`StripeFixture.start({ paths: { config: './fixture.yaml' } })`:
+
+```yaml
+name: stripe:fixture
+hostname: 127.0.0.1
+port: 9090
+strictPort: true
+```
+
+On an occupied port, startup fails with `Deno.errors.AddrInUse` rather than falling back. Omit
+`strictPort` to allow fallback, or pass `strictPort: false` to `start()` for a one-run override.
+
+Fixture YAML requires a fixed port. To let the OS choose, pass `port: 0` to `start()`.
+
 ## Runtime boundary
 
 `PaymentElement.UI` is browser-side only. The application—not the component—calls the session
