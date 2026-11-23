@@ -1,24 +1,23 @@
-import type * as t from './t.ts';
-
-export type { t };
+export type * as t from './t.ts';
 
 /**
  * Libraries:
  */
+export { Cli } from '@sys/cli';
 export { Fs } from '@sys/fs';
 export { Files } from '@sys/model/files/fs';
+export { Net } from '@sys/net';
 export { Process } from '@sys/process';
 export { FilesServer } from '@sys/server/files';
 
 /**
  * Sample default values.
  */
-const port = 1234;
 export const DEFAULTS = {
   name: 'sample:files:ws',
   path: '/files',
-  port,
-  url: `ws://127.0.0.1:${port}/files`,
+  port: 1234,
+  env: { port: 'SYS_SERVER_FILES_WS_PORT' },
 } as const;
 
 /** Short alias for sample defaults. */
