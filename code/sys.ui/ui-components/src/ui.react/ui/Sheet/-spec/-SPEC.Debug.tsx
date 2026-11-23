@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, Signal, type t } from './common.ts';
 
 type P = t.SheetProps;
@@ -21,16 +22,17 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     orientation: s<P['orientation']>(D.orientation.default),
     edgeMargin: s<P['edgeMargin']>(0),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.showing.value;
-      p.orientation.value;
-      p.edgeMargin.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.showing.value;
+    p.orientation.value;
+    p.edgeMargin.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, pkg, Signal, type t } from './common.ts';
 
 const PkgFlags = ['not-specified', '@sys/ui-components', 'custom'] as const;
@@ -37,17 +38,17 @@ export async function createDebugSignals() {
     keyboardEnabled: s(snap.keyboardEnabled),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-    get pkg(): P['pkg'] {
-      const v = p.pkg.value;
-      if (v === 'not-specified') return;
-      if (v === '@sys/ui-components') return pkg;
-      if (v === 'custom') return { name: '@scope/my-package', version: '0.1.2' };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.pkg = p.pkg.value;
+        d.qs = p.qs.value;
+        d.keyboardEnabled = p.keyboardEnabled.value;
+      });
     },
-  };
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -57,17 +58,18 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.pkg = p.pkg.value;
-      d.qs = p.qs.value;
-      d.keyboardEnabled = p.keyboardEnabled.value;
-    });
-  });
-
-  return api;
+  return {
+    props,
+    listen,
+    reset,
+    attach,
+    get pkg(): P['pkg'] {
+      const v = p.pkg.value;
+      if (v === 'not-specified') return;
+      if (v === '@sys/ui-components') return pkg;
+      if (v === 'custom') return { name: '@scope/my-package', version: '0.1.2' };
+    },
+  };
 }
 
 const Styles = {

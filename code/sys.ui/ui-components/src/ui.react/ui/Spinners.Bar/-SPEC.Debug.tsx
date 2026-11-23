@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.BarSpinnerProps;
@@ -19,15 +20,16 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     width: s<P['width']>(),
     transparentTrack: s<P['transparentTrack']>(false),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.width.value;
-      p.transparentTrack.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.width.value;
+    p.transparentTrack.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }

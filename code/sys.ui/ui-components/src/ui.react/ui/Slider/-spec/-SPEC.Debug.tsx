@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, Signal, type t } from './common.ts';
 import { Wrangle } from '../u.ts';
 
@@ -26,20 +27,20 @@ export function createDebugSignals() {
     background: s<P['background']>(),
   };
   const p = props;
-  const api = {
-    props,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.enabled.value;
-      p.percent.value;
-      p.thumb.value;
-      p.track.value;
-      p.ticks.value;
-      p.background.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    p.debug.value;
+    p.theme.value;
+    p.enabled.value;
+    p.percent.value;
+    p.thumb.value;
+    p.track.value;
+    p.ticks.value;
+    p.background.value;
+  }
+
+  return { props, listen, attach };
 }
 
 const Styles = {

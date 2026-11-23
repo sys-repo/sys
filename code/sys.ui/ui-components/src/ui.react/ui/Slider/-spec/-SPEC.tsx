@@ -1,39 +1,42 @@
-import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Spec } from '../../-test.ui.ts';
 import { Slider } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Slider', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    return (
+      <Slider
+        debug={p.debug.value}
+        theme={p.theme.value}
+        enabled={p.enabled.value}
+        percent={p.percent.value}
+        thumb={p.thumb.value}
+        track={p.track.value}
+        ticks={p.ticks.value}
+        background={p.background.value}
+        onChange={(e) => {
+          console.info('⚡️ onChange', e);
+          p.percent.value = e.percent;
+        }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: [350, null], display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size([350, null])
-      .display('grid')
-      .render(() => (
-        <Slider
-          debug={p.debug.value}
-          theme={p.theme.value}
-          enabled={p.enabled.value}
-          percent={p.percent.value}
-          thumb={p.thumb.value}
-          track={p.track.value}
-          ticks={p.ticks.value}
-          background={p.background.value}
-          onChange={(e) => {
-            console.info('⚡️ onChange', e);
-            p.percent.value = e.percent;
-          }}
-        />
-      ));
   });
 
   e.it('ui:debug', (e) => {

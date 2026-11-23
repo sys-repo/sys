@@ -1,4 +1,4 @@
-import { css, Harness, Signal, Spec } from '../-test.ui.ts';
+import { css, Harness, Spec } from '../-test.ui.ts';
 import { Spinners } from '../Spinners/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -6,29 +6,30 @@ export default Spec.describe('Spinners', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    return (
+      <div className={css({ display: 'grid', placeItems: 'center' }).class}>
+        <Spinners.Bar
+          theme={p.theme.value}
+          width={p.width.value}
+          transparentTrack={p.transparentTrack.value}
+        />
+      </div>
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: 'fill', display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size('fill')
-      .display('grid')
-      .render((e) => {
-        return (
-          <div className={css({ display: 'grid', placeItems: 'center' }).class}>
-            <Spinners.Bar
-              theme={p.theme.value}
-              width={p.width.value}
-              transparentTrack={p.transparentTrack.value}
-            />
-          </div>
-        );
-      });
   });
 
   e.it('ui:debug', (e) => {
