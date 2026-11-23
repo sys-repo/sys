@@ -6,6 +6,7 @@
     "test": "deno test -P=test ./src ./-scripts/-test",
     "test:dist": "deno test -P=test --trace-leaks ./src/m.cell/-test/-u.services.dist-host.test.ts",
     "test:sample:stripe": "deno test -P=test-stripe-sample --cached-only --frozen --trace-leaks ./src/m.cell/-test/-u.sample.stripe.proof.ts",
+    "test:sample:kill": "deno test -P=sample --cached-only --frozen --trace-leaks ./-scripts/-test/-task.sample.test.ts",
     "test:help": "deno test -P=test --trace-leaks ./src/m.help/-test ./src/m.cli/-test/-dsl.test.ts",
     "test:proofs": "deno task test:cli:vite",
     "test:cli:vite": "deno test -P=test --trace-leaks ./src/m.cli/-test/-task.cli.vite.process.ts",
