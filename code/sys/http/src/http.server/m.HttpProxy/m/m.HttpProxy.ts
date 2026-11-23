@@ -30,7 +30,9 @@ export const HttpProxy: t.HttpProxy.Lib = Object.freeze({
 
       const upstream = `${route.upstream}${search}`;
       try {
-        const response = await fetch(wrangle.request(request, upstream));
+        const headers = wrangle.headers(request.headers);
+        if (route.kind === 'root' && route.stripAuthorization) headers.delete('authorization');
+        const response = await fetch(wrangle.request(request, upstream, headers));
         if (route.kind === 'exact') return response;
 
         const context = { request, pathname, upstream, routeKind: route.kind };
@@ -156,15 +158,16 @@ const wrangle = {
     if (config) return config;
 
     return {
-      root: root ? { upstream: root.target } : undefined,
+      root: root
+        ? { upstream: root.target, stripAuthorization: root.stripAuthorization }
+        : undefined,
       mounts: mounts?.map((mount) => ({ mountPath: mount.path, upstream: mount.target })),
       exactRoutes,
     };
   },
 
-  request(source: Request, upstream: t.StringUrl): Request {
+  request(source: Request, upstream: t.StringUrl, headers: Headers): Request {
     const method = source.method.toUpperCase();
-    const headers = wrangle.headers(source.headers);
     const init: RequestInit = { method: source.method, headers, redirect: 'manual' };
 
     if (!BODYLESS_METHODS.has(method) && source.body) {

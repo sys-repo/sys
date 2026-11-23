@@ -106,14 +106,20 @@ function readRoot(
     throw new Error(`${errorPrefix}: config key 'root' must be a YAML object: ${Fs.trimCwd(path)}`);
   }
 
-  const allowed = ['target'];
+  const allowed = ['target', 'stripAuthorization'];
   const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new Error(`${errorPrefix}: unknown root key '${unknown[0]}': ${Fs.trimCwd(path)}`);
   }
 
+  const { stripAuthorization } = value;
+  if (stripAuthorization !== undefined && !Is.bool(stripAuthorization)) {
+    const file = Fs.trimCwd(path);
+    throw new Error(`${errorPrefix}: root.stripAuthorization must be a boolean: ${file}`);
+  }
   return {
     target: readNonEmptyRootString(value, 'target', path, errorPrefix) as t.StringUrl,
+    ...(stripAuthorization === undefined ? {} : { stripAuthorization }),
   } satisfies t.HttpProxy.Root.Doc;
 }
 

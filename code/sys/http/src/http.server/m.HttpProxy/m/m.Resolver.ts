@@ -32,6 +32,7 @@ export const HttpProxyResolver: t.HttpProxy.Routing.ResolverFactory = (config) =
       return {
         kind: 'root',
         upstream: joinUpstream(root.upstream, pathname.slice(1)),
+        ...(root.stripAuthorization ? { stripAuthorization: true } : {}),
         ...withResponseConfig(root.response),
       } satisfies t.HttpProxy.Routing.Resolve.RootResult;
     }
@@ -48,6 +49,7 @@ function normalizeRoot(root: t.HttpProxy.Routing.Root): t.HttpProxy.Routing.Root
   validateUpstream(root.upstream, 'root.upstream');
   return {
     upstream: root.upstream,
+    stripAuthorization: root.stripAuthorization,
     response: root.response,
   } satisfies t.HttpProxy.Routing.Root;
 }

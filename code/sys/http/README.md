@@ -114,6 +114,7 @@ hostname: 127.0.0.1
 port: 1234
 root:
   target: http://127.0.0.1:4040/
+  stripAuthorization: true
 mounts: []
 exactRoutes:
   - path: /commands/run
@@ -127,9 +128,18 @@ Load the file with `await HttpProxy.start({ paths: { config: './proxy.yaml' } })
 redirects without following them. Other methods at `/commands/run` receive `405` with `Allow: POST`
 without reaching any upstream.
 
-The exact route takes precedence over mount slash redirects. `/commands/run/` and
-`/commands/run/other` are different pathnames; both go to the root upstream in this example. A route
-match does not authorize the caller or its origin.
+The exact route takes precedence over mount slash redirects. A route match does not authorize the
+caller or its origin.
+
+### Strip `Authorization` on the root fallback
+
+Use `root.stripAuthorization` when the command service needs a bearer token but the page server does
+not. In the example above, `POST /commands/run` forwards a supplied `Authorization` header to the
+command service. With a trailing slash, `POST /commands/run/` goes to the page server without that
+header.
+
+The setting applies only to the root fallback, not to exact routes or mounts. If omitted or `false`,
+normal header forwarding applies. `root set` preserves the setting when you change the target.
 
 ## References
 

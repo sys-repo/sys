@@ -184,6 +184,9 @@ export declare namespace HttpProxy {
     export type Doc = {
       /** Absolute root/default upstream URL-prefix. Must end with `/` and include no query/hash. */
       readonly target: t.StringUrl;
+
+      /** Remove `Authorization` from requests forwarded by this root fallback only. */
+      readonly stripAuthorization?: boolean;
     };
 
     /** Root/default route mutation input. */
@@ -365,7 +368,7 @@ export declare namespace HttpProxy {
      * - `https://example.com/`
      * - `https://example.com/foo/root/`
      */
-    export type Root = {
+    export type Root = Pick<HttpProxy.Root.Doc, 'stripAuthorization'> & {
       /**
        * Upstream root base URL.
        *
@@ -461,7 +464,7 @@ export declare namespace HttpProxy {
       };
 
       /** Root fallback resolver result. */
-      export type RootResult = {
+      export type RootResult = Pick<Root, 'stripAuthorization'> & {
         readonly kind: 'root';
 
         /**
