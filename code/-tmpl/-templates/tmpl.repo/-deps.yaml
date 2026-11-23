@@ -1,19 +1,19 @@
 deno.json:
-  - import: jsr:@sys/cli@0.0.323
+  - import: jsr:@sys/cli@0.0.324
     subpaths: [ t ]
-  - import: jsr:@sys/color@0.0.283
+  - import: jsr:@sys/color@0.0.284
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.411
+  - import: jsr:@sys/driver-deno@0.0.412
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.484
+  - import: jsr:@sys/driver-vite@0.0.485
     subpaths: [ main, t ]
-  - import: jsr:@sys/fs@0.0.356
+  - import: jsr:@sys/fs@0.0.357
     subpaths: [ t ]
-  - import: jsr:@sys/http@0.0.337
+  - import: jsr:@sys/http@0.0.338
     subpaths: [ client, t ]
-  - import: jsr:@sys/process@0.0.325
+  - import: jsr:@sys/process@0.0.326
     subpaths: [ t ]
-  - import: jsr:@sys/std@0.0.388
+  - import: jsr:@sys/std@0.0.389
     subpaths:
       [
         args,
@@ -34,22 +34,22 @@ deno.json:
         try,
         url
       ]
-  - import: jsr:@sys/testing@0.0.347
+  - import: jsr:@sys/testing@0.0.348
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.492
+  - import: jsr:@sys/tmpl@0.0.493
     subpaths: [ t ]
-  - import: jsr:@sys/tmpl-engine@0.0.359
+  - import: jsr:@sys/tmpl-engine@0.0.360
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.508
+  - import: jsr:@sys/tools@0.0.509
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.306
-  - import: jsr:@sys/ui-css@0.0.318
+  - import: jsr:@sys/ui-css@0.0.319
     subpaths: [ t ]
-  - import: jsr:@sys/ui-dom@0.0.330
+  - import: jsr:@sys/ui-dom@0.0.331
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react@0.0.371
+  - import: jsr:@sys/ui-react@0.0.372
     subpaths: [ t ]
-  - import: jsr:@sys/ui-components@0.0.343
+  - import: jsr:@sys/ui-components@0.0.344
     subpaths:
       [
         button,
@@ -67,13 +67,13 @@ deno.json:
         splash,
         t
       ]
-  - import: jsr:@sys/ui-dev@0.0.371
+  - import: jsr:@sys/ui-dev@0.0.372
     subpaths: [ react/devharness, react/devharness/t ]
-  - import: jsr:@sys/workspace@0.0.162
+  - import: jsr:@sys/workspace@0.0.163
     subpaths: [ cli, t, testing ]
-  - import: jsr:@sys/yaml@0.0.209
+  - import: jsr:@sys/yaml@0.0.210
     subpaths: [ t ]
-  - import: jsr:@sys/esm@0.0.103
+  - import: jsr:@sys/esm@0.0.104
     subpaths: [ testing ]
 package.json:
   - import: npm:react@19.3.1

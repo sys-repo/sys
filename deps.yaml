@@ -59,7 +59,7 @@ deno.json:
   - import: npm:prosemirror-schema-basic@1.2.5
   - import: npm:yaml@2.9.1
   - import: npm:mdast-util-from-markdown@2.1.0
-  - import: npm:mdast-util-to-markdown@2.2.3
+  - import: npm:mdast-util-to-markdown@2.2.4
   - import: npm:mdast-util-gfm@3.1.0
   - import: npm:mdast-util-to-hast@13.2.2
   - import: npm:hast-util-sanitize@5.0.2
@@ -84,7 +84,7 @@ deno.json:
     subpaths: [ cors, types ]
   - import: npm:ignore@7.0.16
   - import: npm:ora@9.4.1
-  - import: npm:@earendil-works/pi-coding-agent@1.5.2
+  - import: npm:@earendil-works/pi-coding-agent@1.6.0
   - import: npm:@standard-schema/spec@1.1.0
   - import: npm:typebox@1.4.7
     subpaths: [ error, value ]
