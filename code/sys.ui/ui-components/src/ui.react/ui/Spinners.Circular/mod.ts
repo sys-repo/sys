@@ -1,11 +1,11 @@
 /**
  * @module
- * Scaffold for a circular activity indicator.
+ * Inline circular indicator for indeterminate activity.
  */
 import type { t } from './common.ts';
 import { CircularSpinner as UI } from './ui.tsx';
 
 /**
- * Module entry for the circular activity indicator.
+ * Visual loading indicator. The spinner itself is not announced to screen readers.
  */
 export const CircularSpinner: t.CircularSpinner.Lib = Object.freeze({ UI });

@@ -1,3 +1,4 @@
+export { EsmAssert } from '@sys/esm/testing';
 export {
   afterAll,
   afterEach,

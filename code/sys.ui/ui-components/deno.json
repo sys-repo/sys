@@ -55,6 +55,8 @@
     "./react/slider": "./src/ui.react/ui/Slider/mod.ts",
     "./react/splash": "./src/ui.react/ui/Splash/mod.ts",
     "./react/spinners": "./src/ui.react/ui/Spinners/mod.ts",
+    "./react/spinners/bar": "./src/ui.react/ui/Spinners.Bar/mod.ts",
+    "./react/spinners/circular": "./src/ui.react/ui/Spinners.Circular/mod.ts",
     "./react/text": "./src/ui.react/ui/Text/mod.ts",
     "./react/tree-view": "./src/ui.react/ui/TreeView/mod.ts",
     "./react/tree-view/index": "./src/ui.react/ui/TreeView.Index/mod.ts",

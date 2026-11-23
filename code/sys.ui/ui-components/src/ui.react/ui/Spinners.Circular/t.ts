@@ -9,7 +9,8 @@ export declare namespace CircularSpinner {
 
   /** Render options for the circular indicator. */
   export type Props = {
-    debug?: boolean;
+    /** Side length in CSS pixels. Defaults to 22. At 12 or below, uses eight spokes instead of twelve. */
+    size?: number;
     /** Use the theme foreground. Omit to inherit the host's text color. */
     theme?: t.CommonTheme;
     /** Root style overrides, applied last. */

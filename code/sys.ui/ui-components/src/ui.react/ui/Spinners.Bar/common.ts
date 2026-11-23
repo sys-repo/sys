@@ -5,7 +5,7 @@ export * from '../common.ts';
 /**
  * Constants:
  */
-const name = 'BarSpinner';
+const name = 'Spinner.Bar';
 export const D = {
   name,
   displayName: Pkg.toString(pkg, name, false),
