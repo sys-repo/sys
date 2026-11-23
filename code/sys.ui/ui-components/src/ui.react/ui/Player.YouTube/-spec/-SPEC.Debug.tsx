@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.YouTubeProps;
@@ -30,22 +31,21 @@ export function createDebugSignals() {
     videoId: s(snap.videoId),
   };
   const p = props;
-  const api = {
-    props,
-    listen() {
-      Signal.listen(props);
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.videoId = p.videoId.value;
+      });
     },
-  };
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.videoId = p.videoId.value;
-    });
   });
 
-  return api;
+  function listen() {
+    Signal.listen(props);
+  }
+
+  return { props, listen, attach };
 }
 
 const Styles = {

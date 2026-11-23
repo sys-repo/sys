@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { css, Dev, Signal, type t } from './-spec/common.ts';
 import { Preload } from './mod.ts';
 
@@ -18,13 +19,13 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     lifetime: s<O['lifetime']>(2000),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.lifetime.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    props.lifetime.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }

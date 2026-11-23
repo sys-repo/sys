@@ -1,4 +1,5 @@
 import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Signal, type t } from './common.ts';
 import { MarkdownSample, type SampleKind } from './-samples/mod.ts';
 import { Sample } from './-ui.Sample.tsx';
@@ -36,12 +37,15 @@ export function createDebugSignals() {
     viewport: s(MarkdownSample.viewport(sample)),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-    select,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.sample = p.sample.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -59,15 +63,7 @@ export function createDebugSignals() {
     p.viewport.value = MarkdownSample.viewport(kind);
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.sample = p.sample.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, select, attach };
 }
 
 const Styles = {

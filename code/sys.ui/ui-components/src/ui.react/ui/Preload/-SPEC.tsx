@@ -1,19 +1,20 @@
-import { Signal, Spec } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('PreloadPortal', (e) => {
   const debug = createDebugSignals();
-  const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      effects: [
+        () => void ctx.subject.size().display('grid'),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject.size().display('grid');
   });
 
   e.it('ui:debug', (e) => {
