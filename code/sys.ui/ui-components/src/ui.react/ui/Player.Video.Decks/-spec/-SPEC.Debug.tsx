@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import {
   SAMPLE_BASEURLS,
   SAMPLE_PATHS,
@@ -57,16 +58,32 @@ export async function createDebugSignals() {
     urlPathB: s(snap.urlPathB),
   };
   const p = props;
-  const api = {
-    props,
-    decks,
-    listen,
-    reset,
-    url(deck: t.VideoDecksProps['active'] = 'A') {
-      const signal = deck === 'A' ? p.urlPathA : p.urlPathB;
-      return Url.parse(p.baseUrl.value).join(signal.value ?? '');
+  const { attach } = Spec.attachments({
+    shared(e) {
+      const effects = Signal.listeners(e.life);
+      effects.effect(() => {
+        store.change((d) => {
+          d.theme = p.theme.value;
+          d.debug = p.debug.value;
+          d.show = p.show.value;
+          d.active = p.active.value;
+          d.aspectRatio = p.aspectRatio.value;
+          d.muted = p.muted.value;
+          //
+          d.width = p.width.value;
+          d.baseUrl = p.baseUrl.value;
+          d.urlPathA = p.urlPathA.value;
+          d.urlPathB = p.urlPathB.value;
+        });
+      });
+      effects.effect(() => {
+        const hrefA = url('A');
+        const hrefB = url('B');
+        decks.A.props.src.value = hrefA;
+        decks.B.props.src.value = hrefB;
+      });
     },
-  };
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -76,32 +93,12 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.show = p.show.value;
-      d.active = p.active.value;
-      d.aspectRatio = p.aspectRatio.value;
-      d.muted = p.muted.value;
-      //
-      d.width = p.width.value;
-      d.baseUrl = p.baseUrl.value;
-      d.urlPathA = p.urlPathA.value;
-      d.urlPathB = p.urlPathB.value;
-    });
-  });
+  function url(deck: t.VideoDecksProps['active'] = 'A') {
+    const signal = deck === 'A' ? p.urlPathA : p.urlPathB;
+    return Url.parse(p.baseUrl.value).join(signal.value ?? '');
+  }
 
-  /** */
-  Signal.effect(() => {
-    const hrefA = api.url('A');
-    const hrefB = api.url('B');
-
-    decks.A.props.src.value = hrefA;
-    decks.B.props.src.value = hrefB;
-  });
-
-  return api;
+  return { props, listen, reset, attach, decks, url };
 }
 
 const Styles = {
