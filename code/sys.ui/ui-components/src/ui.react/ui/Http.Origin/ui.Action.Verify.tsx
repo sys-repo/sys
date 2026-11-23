@@ -1,5 +1,5 @@
 import type React from 'react';
-import { BarSpinner, Button, Color, css, D, type t } from './common.ts';
+import { Button, Color, css, D, Spinners, type t } from './common.ts';
 
 export type VerifyActionProps = {
   label?: string;
@@ -35,7 +35,7 @@ export const VerifyAction: React.FC<VerifyActionProps> = (props) => {
   };
 
   const elLabel = <span className={styles.label.class}>{label}</span>;
-  const elSpinner = <BarSpinner theme={theme.name} width={30} />;
+  const elSpinner = <Spinners.Bar theme={theme.name} width={30} />;
   const elButton = <Button theme={theme.name} label={elLabel} onClick={props.onVerify} />;
 
   return (

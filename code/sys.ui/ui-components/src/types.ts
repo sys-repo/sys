@@ -56,6 +56,7 @@ export type * from './ui.react/ui/Prose/t.ts';
 export type * from './ui.react/ui/Sheet/t.ts';
 export type * from './ui.react/ui/Slider/t.ts';
 export type * from './ui.react/ui/Spinners.Bar/t.ts';
+export type * from './ui.react/ui/Spinners.Circular/t.ts';
 export type * from './ui.react/ui/Spinners/t.ts';
 export type * from './ui.react/ui/Splash/t.ts';
 export type * from './ui.react/ui/Text.Ellipsize/t.ts';

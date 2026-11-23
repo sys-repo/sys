@@ -1,9 +1,7 @@
 import { Color, css, D, type t } from './common.ts';
 import { useSweep } from './use.Sweep.ts';
 
-type P = t.BarSpinnerProps;
-
-export const BarSpinner: React.FC<P> = (props) => {
+export const BarSpinner: t.FC<t.BarSpinner.Props> = (props) => {
   const { width = D.width, height = D.height, transparentTrack } = props;
   const theme = Color.theme(props.theme);
 

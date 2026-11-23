@@ -2,7 +2,7 @@ import type React from 'react';
 import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, Obj, Signal, type t } from './common.ts';
 
-type P = t.BarSpinnerProps;
+type P = t.BarSpinner.Props;
 const defaults: Pick<P, 'theme' | 'width' | 'transparentTrack'> = {
   theme: 'Light',
   width: undefined,
@@ -56,7 +56,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(props.style).class}>
-      <div className={Styles.title.class}>Spinners.Bar</div>
+      <div className={Styles.title.class}>{D.name}</div>
 
       <Dev.Button
         block

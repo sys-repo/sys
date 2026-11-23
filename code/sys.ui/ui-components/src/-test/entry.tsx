@@ -49,6 +49,7 @@ export async function main() {
       style: { Absolute: 0 },
       hr(e) {
         e.byRoots([
+          `${ns}: Spinners`,
           `${ns}: Text`,
           `${ns}: Prose`,
           `${ns}: Layout`,

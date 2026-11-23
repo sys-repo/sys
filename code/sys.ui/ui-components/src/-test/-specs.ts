@@ -35,8 +35,10 @@ export const SpecsComponents = {
   [`${ns}: Preload`]: () => import('../ui.react/ui/Preload/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui.react/ui/Sheet/-spec/-SPEC.tsx'),
   [`${ns}: Slider`]: () => import('../ui.react/ui/Slider/-spec/-SPEC.tsx'),
-  [`${ns}: Spinners.Bar`]: () => import('../ui.react/ui/Spinners.Bar/-spec/-SPEC.tsx'),
   [`${ns}: Splash`]: () => import('../ui.react/ui/Splash/-spec/-SPEC.tsx'),
+
+  [`${ns}: Spinners.Bar`]: () => import('../ui.react/ui/Spinners.Bar/-spec/-SPEC.tsx'),
+  [`${ns}: Spinners.Circular`]: () => import('../ui.react/ui/Spinners.Circular/-spec/-SPEC.tsx'),
 
   [`${ns}: Text.Input`]: () => import('../ui.react/ui/Text.Input/-spec/-SPEC.tsx'),
   [`${ns}: Text.Label`]: () => import('../ui.react/ui/Text.Label/-spec/-SPEC.tsx'),

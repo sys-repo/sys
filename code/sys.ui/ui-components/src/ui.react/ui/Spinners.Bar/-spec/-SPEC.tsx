@@ -1,8 +1,9 @@
 import { css, Harness, Spec } from '../../-test.ui.ts';
 import { Spinners } from '../../Spinners/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { D } from './common.ts';
 
-export default Spec.describe('Spinners', (e) => {
+export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 

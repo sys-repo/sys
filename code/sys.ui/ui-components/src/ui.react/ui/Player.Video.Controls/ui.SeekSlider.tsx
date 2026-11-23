@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, BarSpinner, Color, css, D, Is, Num, Slider, useSizeObserver } from './common.ts';
+import { type t, Color, css, D, Is, Num, Slider, Spinners, useSizeObserver } from './common.ts';
 
 const Range = Num.Percent.Range;
 
@@ -71,7 +71,7 @@ export const SeekSlider: React.FC<SeekSliderProps> = (props) => {
 
   const elSpinner = size.ready && buffering && (
     <div className={styles.spinner.class}>
-      <BarSpinner
+      <Spinners.Bar
         theme={theme.invert().name}
         width={size.width}
         height={5}

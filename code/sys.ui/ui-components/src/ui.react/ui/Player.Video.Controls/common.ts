@@ -4,7 +4,7 @@ export * from '../common.ts';
 
 export { Button } from '../Button/mod.ts';
 export { Slider } from '../Slider/mod.ts';
-export { BarSpinner } from '../Spinners.Bar/mod.ts';
+export { Spinners } from '../Spinners/mod.ts';
 
 type P = t.PlayerControlsProps;
 

@@ -5,7 +5,6 @@ import { DEFAULTS as CONTROLS_DEFAULTS } from '../Player.Video.Controls/common.t
 
 export { Button } from '../Button/mod.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
-export { BarSpinner } from '../Spinners.Bar/mod.ts';
 export { bumpEndedTick } from '../Player.Video.Signals/u.ts';
 
 export * from './const.READY_STATE.ts';
