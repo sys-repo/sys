@@ -8,10 +8,11 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 @sys.cell
 service-start-order.plan.md
-- [ ] feat(cell): support declared service startup prerequisites
-- [ ] feat(http): support strict listener ports for static and proxy services
-- [ ] feat(driver-stripe): support strict listener ports in the Stripe fixture
-- [ ] feat(cell): start the Stripe sample proxy after its upstreams
+- [x] 8a891e8d4 feat(cell): support declared service startup prerequisites
+- [x] 6f056a0ee feat(http): support strict listener ports for static and proxy services
+- [x] 5159899c3 feat(driver-stripe): support strict listener ports in the Stripe fixture
+- [x] 44f14fed5 feat(cell): start the Stripe sample proxy after its upstreams
+- [ ] feat(cell): preview and confirm stopping a selected sample
 
 
 
@@ -66,9 +67,9 @@ ui-template-maintenance.plan.md
 - [x] 59fae6f31 fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
 - [x] df33406f9 fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
 - [x] 7f75f600b fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
-- [ ] fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
-- [ ] fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
-- [ ] fix(ui-components): bind video deck and element specimen effects to attachments
+- [x] 78740e2bb fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
+- [x] 13c6bf5de fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
+- [x] fa15c1d1f fix(ui-components): bind video deck and element specimen effects to attachments
 - [ ] fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
 - [ ] fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
 - [ ] fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
