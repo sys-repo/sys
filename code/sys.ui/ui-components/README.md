@@ -20,6 +20,9 @@ Start with the group that matches the interface:
 - **Focus styling:** `FocusStyle` from `@sys/ui-components/style/focus` shares the focus-arrival
   policy with component-owned paint.
 
+Add a public subpath only when callers need to import a feature on its own. A new directory or API
+member is not reason enough.
+
 ## Example
 
 Use a React TSX toolchain that resolves JSR imports:
