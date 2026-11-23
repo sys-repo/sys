@@ -1,0 +1,14 @@
+# Browser origin for the UI Cell.
+
+name: sys.ui:proxy
+hostname: 127.0.0.1
+port: 1234
+strictPort: true
+root:
+  target: http://127.0.0.1:4040/
+  stripAuthorization: true
+mounts: []
+exactRoutes:
+  - path: /api/passkey/cmd
+    method: POST
+    target: http://127.0.0.1:5051/api/passkey/cmd

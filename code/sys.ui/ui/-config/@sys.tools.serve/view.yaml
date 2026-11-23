@@ -2,5 +2,7 @@
 
 name: sys.ui:view
 dir: ./dist
+port: 4040
+strictPort: true
 info:
   path: /

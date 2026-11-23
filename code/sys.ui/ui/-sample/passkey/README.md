@@ -6,6 +6,9 @@ A passkey is a sign-in credential, not the account identity. Several passkeys ca
 account, identified by its [principal] ([`Accounts.Principal`](./m.Accounts/t.ts)). The service
 starts a [session] for that account only after verifying the authenticator’s response.
 
+The browser can reach the local account service, but the [sample panel](./ui/-spec.integration/-SPEC.tsx)
+does not yet send account commands. The sign-in flow below describes the runtime and service.
+
 ```text
 Passkey sample
 ├─ What the person sees
@@ -20,7 +23,7 @@ Passkey sample
 │  └─ HttpCmd                 Carries those messages over HTTP.
 │
 └─ Who decides whether someone is signed in
-   └─ m.AccountService/       Verifies the response against the registered key and issues a session.
+   └─ m.AccountService/       Registers public keys, verifies sign-ins, and owns sessions.
 ```
 
 ### Follow one sign-in
@@ -46,22 +49,31 @@ passkey, but the service no longer recognizes it.
 Beyond this sample, the service must preserve each account and its passkey registrations across
 restarts, including each credential’s ID, public key, and the account it belongs to.
 
-### Sample UI
+### Run the local sample
 
-The [isolated view](./ui/-spec/-SPEC.tsx) lets you explore panel states without an authenticator.
-The [integration specimen](./ui/-spec.integration/-SPEC.tsx) shows the same panel but is not yet
-connected to the account service.
+From `code/sys.ui/ui`, run `deno task dev`, or run `deno task build` followed by `deno task serve`.
+Open <http://localhost:1234/?dev> and select `sys.ui: -sample/passkey`. The
+[isolated view](./ui/-spec/-SPEC.tsx) lets you explore panel states without an authenticator.
 
-### Run the local account service
+Both modes need four free ports: `1234` (proxy), `4040` (view), `5050` (files), and `5051`
+(accounts). Stop the running mode before starting the other. The proxy starts after view and
+accounts start successfully. The proxy and accounts bind to loopback; the Vite dev listener does
+not bind exclusively to loopback. Its live-update socket is configured for the view port, not the
+files port.
 
-From `code/sys.ui/ui`, `deno task dev` or `deno task build` followed by `deno task serve` starts
-`sys.ui:accounts` alongside the existing view and files services. Its native endpoint is
-`POST http://127.0.0.1:5051/api/passkey/cmd`, not a page to open. The listener requires the exact
-origin `http://localhost:1234`; it does not expose a cross-origin browser API. If port `5051` is
-occupied, startup fails rather than choosing another port.
+Use the proxy URL, not the view URL: accounts requires the exact origin `http://localhost:1234`.
+Only `POST /api/passkey/cmd` is routed to accounts. The proxy strips `Authorization` from requests
+to the view so a session credential intended for accounts does not reach the view server.
 
-Run the listener proof separately from the default tests. It needs only loopback networking and
-checks command delivery, collision handling, and shutdown without a browser or authenticator:
+To check the browser route, keep **your own** Cell running. From another terminal in
+`code/sys.ui/ui`, set `CHROME_BIN` to the absolute path of your Chrome executable and run
+`deno task test:passkey:browser dev` (or `serve` for the built view). An isolated Chrome page at
+`http://localhost:1234` asks for `session.inspect` without credentials. The task requires one
+correlated `accepted(null)` reply: the service answered and this request has no session.
+The check neither rebuilds the app nor starts a passkey ceremony.
+
+The standalone test starts its own account listener; it needs no running Cell, proxy, browser,
+or authenticator:
 
 ```sh
 deno task test --frozen --cached-only --allow-net=127.0.0.1 --trace-leaks \

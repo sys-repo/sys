@@ -4,6 +4,7 @@
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test",
+    "test:passkey:browser": "deno run --frozen --cached-only --no-prompt -P=passkey-browser-launch ./-scripts/task.passkey.browser.ts",
     "dev": "deno run -A ./-scripts/task.cell.ts --mode dev --reporter auto",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
     "serve": "deno run -P=dev ./-scripts/task.cell.ts --reporter auto",
@@ -38,6 +39,22 @@
       "write": true,
       "env": true
     },
+    "passkey-browser-launch": {
+      "read": true,
+      "write": [
+        "./.tmp/passkey-browser",
+        "./dist/-passkey-proof.html",
+        "./src/-passkey-proof.html"
+      ],
+      "env": ["CHROME_BIN", "DENO_DIR"],
+      "net": ["127.0.0.1"],
+      "run": ["deno"]
+    },
+    "passkey-browser": {
+      "write": ["./.tmp/passkey-browser"],
+      "env": ["TMPDIR"],
+      "net": ["127.0.0.1"]
+    },
     "dev": {
       "read": true,
       "write": true,
@@ -59,4 +76,3 @@
     }
   }
 }
-

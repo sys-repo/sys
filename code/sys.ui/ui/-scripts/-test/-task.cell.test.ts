@@ -6,9 +6,19 @@ import { startInput } from '../task.cell.ts';
 const root = Fs.Path.fromFileUrl(new URL('../../', import.meta.url));
 
 describe('@sys/ui Cell start entry', () => {
-  it('loads the declared Cell identity', async () => {
+  it('lists the proxy first but starts it after the selected view and accounts', async () => {
     const cell = await Cell.load(root);
     expect(cell.descriptor.name).to.eql('sys.ui');
+    const services = cell.descriptor.services ?? [];
+    const names = ['sys.ui:proxy', 'sys.ui:view', 'sys.ui:files', 'sys.ui:accounts'];
+    expect(services.map(({ name }) => name)).to.eql(names);
+    const [proxy, view, files, accounts] = services;
+    expect(view.use).to.eql('Serve');
+    expect(view.variants?.dev?.use).to.eql('ViteService');
+    expect(files.startAfter).to.eql(undefined);
+    expect(proxy.startAfter).to.eql([view.name, accounts.name]);
+    expect(proxy.use).to.eql('HttpProxy');
+    expect(proxy.variants).to.eql(undefined);
   });
 
   it('declares the same loopback account listener in both modes', async () => {
