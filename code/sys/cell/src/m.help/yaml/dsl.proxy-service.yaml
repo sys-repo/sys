@@ -9,7 +9,7 @@ sections:
       Classify "route / to <view/service/upstream>" as a proxy root-route act.
       Classify "route <path-prefix> to <view/service/upstream>" as a proxy mount-route act.
       Proxy owns public route orchestration; static and fixture services own endpoint serving.
-      Cell records only the proxy service binding and owner config reference.
+      For service startup prerequisites, follow `dsl service`; never infer them from route targets.
       Do not hand-author `@sys/http` proxy YAML when the owner CLI can write it.
       Do not put proxy mounts, upstreams, or route mechanics directly in `-config/@sys.cell/cell.yaml`.
       Proxy maps path-prefixes; it only redirects for slash normalization.
@@ -73,7 +73,7 @@ sections:
       Pass `--upstream <upstream>`.
       This creates or updates mounted upstreams in the proxy owner config.
       Do not duplicate HTTP proxy config schema in the Cell edit.
-      Cell records only service name, `use`, `from`, and config reference.
+      Keep routing and listener settings in the proxy config.
 
   - label: 'Owner command'
     items:

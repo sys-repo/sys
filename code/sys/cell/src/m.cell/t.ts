@@ -462,7 +462,11 @@ export declare namespace Cell {
     export type ServiceVariant = ServiceBinding;
 
     /** Effective selected service facts. */
-    export type SelectedService = { name: Id } & ServiceBinding;
+    export type SelectedService = ServiceBinding & {
+      name: Id;
+      /** Wait for these selected services to start. Does not govern health or shutdown. */
+      startAfter?: readonly Id[];
+    };
 
     /** Service resolved through `use` + `from` and service-owned `config`. */
     export type Service = SelectedService & {

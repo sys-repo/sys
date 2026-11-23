@@ -20,7 +20,6 @@ export async function activateService(
   options: t.Cell.Services.StartOptions,
 ): Promise<t.Cell.Services.StartedService> {
   const { life, planned } = state;
-  let accepted = false;
   let timer: t.Time.Delay.Promise | undefined;
 
   try {
@@ -28,19 +27,9 @@ export async function activateService(
     const timeoutCause = serviceStartupTimeout(planned.service.name, timeout);
     timer = Time.delay(timeout, () => life.dispose(timeoutCause));
 
-    const operation = startPlannedService(cell, planned, life.signal);
-    operation.then(
-      (service) => {
-        if (!accepted && life.signal.aborted) {
-          void closeHandle(service.handle, life.signal.reason).catch(() => undefined);
-        }
-      },
-      () => undefined,
-    );
-
-    const service = await raceAbort(operation, life.signal);
-    if (life.signal.aborted) throw abortReason(life.signal);
-    accepted = true;
+    throwIfAborted(life.signal);
+    const service = await raceAbort(startPlannedService(cell, state), life.signal);
+    throwIfAborted(life.signal);
     return service;
   } catch (cause) {
     throw serviceStartFailure(planned.service.name, cause);
@@ -65,10 +54,9 @@ export function serviceFailureOf(cause: unknown): { name: string; cause: unknown
  */
 async function startPlannedService(
   cell: t.Cell.Instance,
-  service: t.Cell.Services.PlannedService,
-  signal: AbortSignal,
+  state: ServiceState,
 ): Promise<t.Cell.Services.StartedService> {
-  throwIfAborted(signal);
+  const { planned: service, life: { signal } } = state;
   const endpoint = await loadEndpoint(service, 'Cell.Services.start');
   throwIfAborted(signal);
 
@@ -82,13 +70,17 @@ async function startPlannedService(
   const startedAt = Time.now.timestamp;
   const handle = await verified.endpoint.start(args);
   const resolvedAt = Time.now.timestamp;
-  if (signal.aborted) {
-    await closeHandle(handle, abortReason(signal));
-    throw abortReason(signal);
-  }
-
   const metrics: t.Cell.Services.ServiceMetrics = { start: { startedAt, resolvedAt } };
-  return { ...verified, handle, metrics };
+  const started = { ...verified, handle, metrics };
+
+  // A sibling's close may be waiting for this late handle; don't queue it behind rollback.
+  if (signal.aborted) {
+    const reason = abortReason(signal);
+    await closeHandle(handle, reason);
+    throw reason;
+  }
+  state.active = started; // Transfer ownership before yielding to a possible abort.
+  return started;
 }
 
 function startArgsOf(

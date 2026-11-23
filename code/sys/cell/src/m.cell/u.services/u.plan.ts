@@ -1,5 +1,6 @@
 import { Is, Path, Str, type t } from './common.ts';
 import { IdPattern } from '../u.schema/common.ts';
+import { validateServices } from '../u.schema/u.validate.ts';
 import { endpointNameOf, resolveEndpointRef } from '../u/endpoints.ts';
 
 export const plan: t.Cell.Services.Lib['plan'] = async (cell, options = {}) => {
@@ -13,6 +14,9 @@ export function planServices(
 ): t.Cell.Services.Plan {
   const mode = serviceModeOf((options as { readonly mode?: unknown }).mode, context);
   const services = cell.descriptor.services ?? [];
+
+  const [issue] = validateServices(services);
+  if (issue) throw new Error(`${context}: ${issue.path}: ${issue.message}`);
 
   if (mode !== 'default' && !services.some((service) => service.variants?.[mode])) {
     throw new Error(`${context}: unknown service mode '${mode}'.`);
@@ -58,19 +62,15 @@ function selectServiceBinding(
 ): SelectedBinding {
   if (mode !== 'default') {
     const variant = service.variants?.[mode];
-    if (variant) return { binding: variant, variant: mode as t.Cell.Id };
+    if (variant) return { binding: bindingOf(variant), variant: mode as t.Cell.Id };
   }
 
   return { binding: bindingOf(service) };
 }
 
-function bindingOf(service: t.Cell.Services.Service): t.Cell.Services.ServiceBinding {
-  return {
-    use: service.use,
-    from: service.from,
-    config: service.config,
-    ...(service.timeout === undefined ? {} : { timeout: service.timeout }),
-  };
+function bindingOf(binding: t.Cell.Services.ServiceBinding): t.Cell.Services.ServiceBinding {
+  const { use, from, config, timeout } = binding;
+  return { use, from, config, ...(timeout === undefined ? {} : { timeout }) };
 }
 
 function planService(
@@ -85,6 +85,7 @@ function planService(
   const service: t.Cell.Services.SelectedService = {
     name: descriptor.name,
     ...binding,
+    ...(descriptor.startAfter && { startAfter: [...descriptor.startAfter] }),
   };
   const endpoint = resolveServiceEndpointAddress(cell, service, options, context);
   const configPath = resolveServiceConfigPath(cell.root, binding.config, context);

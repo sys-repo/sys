@@ -27,6 +27,7 @@ const Service = T.Object(
     from: T.String({ minLength: 1 }),
     config: CellPath,
     timeout: T.Optional(Timeout),
+    startAfter: T.Optional(T.Array(Id)),
     variants: T.Optional(T.Record(Id, ServiceBinding)),
   },
   { additionalProperties: false },

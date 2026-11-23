@@ -1,4 +1,11 @@
-import { Str } from '../../-test.ts';
+import { Str, type t } from '../../-test.ts';
+
+/** Local endpoint for tests that control the exact start/return/cancel sequence. */
+export const Controlled: t.Cell.Services.LifecycleEndpoint = {
+  start() {
+    throw new Error('Controlled.start has not been configured');
+  },
+};
 
 const serviceFixtureUrl = import.meta.url;
 
