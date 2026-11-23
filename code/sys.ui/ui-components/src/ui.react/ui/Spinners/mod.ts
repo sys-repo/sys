@@ -9,7 +9,7 @@ import type { t } from './common.ts';
 /**
  * UI spinner renderer set.
  */
-export const Spinners: t.SpinnerLib = {
+export const Spinners: t.Spinners.Lib = {
   Bar: BarSpinner.UI,
   Circular: CircularSpinner.UI,
 };

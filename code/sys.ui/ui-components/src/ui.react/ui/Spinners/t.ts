@@ -1,9 +1,12 @@
 import type { t } from './common.ts';
 
 /**
- * UI load spinners.
+ * Indeterminate activity indicators.
  */
-export type SpinnerLib = {
-  readonly Bar: t.BarSpinner.Lib['UI'];
-  readonly Circular: t.CircularSpinner.Lib['UI'];
-};
+export declare namespace Spinners {
+  /** Renderers available on the Spinners family. */
+  export type Lib = {
+    readonly Bar: t.BarSpinner.Lib['UI'];
+    readonly Circular: t.CircularSpinner.Lib['UI'];
+  };
+}
