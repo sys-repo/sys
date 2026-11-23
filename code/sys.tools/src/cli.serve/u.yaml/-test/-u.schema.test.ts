@@ -36,6 +36,14 @@ describe('Schema: serve location', () => {
     expect(res.errors).to.eql([]);
   });
 
+  it('validate: rejects non-integer or out-of-range ports and non-boolean strictness', () => {
+    const doc = { name: 'Test', dir: '.' };
+    for (const port of [-1, 65_536, 4040.5, '4040']) {
+      expect(ServeYamlSchema.validate({ ...doc, port }).ok, `port ${port}`).to.eql(false);
+    }
+    expect(ServeYamlSchema.validate({ ...doc, strictPort: 'true' }).ok).to.eql(false);
+  });
+
   it('validate: accepts optional info rows', () => {
     const res = ServeYamlSchema.validate({
       name: 'Test',

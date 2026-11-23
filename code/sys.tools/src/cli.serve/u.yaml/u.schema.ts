@@ -1,4 +1,4 @@
-import { type t, Schema } from '../common.ts';
+import { Schema, type t } from '../common.ts';
 
 /**
  * Serve location YAML schema (authoritative config).
@@ -29,6 +29,8 @@ export const ServeYamlSchema = {
     {
       name: Schema.Type.String(),
       dir: Schema.Type.Union([Schema.Type.Literal('.'), Schema.Type.String()]),
+      port: Schema.Type.Optional(Schema.Type.Integer({ minimum: 0, maximum: 65_535 })),
+      strictPort: Schema.Type.Optional(Schema.Type.Boolean()),
       info: Schema.Type.Optional(Schema.Type.Record(Schema.Type.String(), Schema.Type.String())),
     },
     { additionalProperties: false },

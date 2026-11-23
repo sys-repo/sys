@@ -23,7 +23,7 @@ export const Fmt = {
           label: 'Options',
           items: [
             ['-h, --help', 'show help'],
-            ['--port <number>', 'preferred port (auto-increments if occupied)'],
+            ['--port <number>', 'override the configured port (alternate allowed unless strict)'],
             ['--non-interactive', 'disable prompts and require direct inputs'],
             ['--dir <path>', 'serve this directory directly'],
             ['--config <path>', 'load a saved serve config YAML'],

@@ -176,6 +176,10 @@ export namespace ServeTool {
       name: string;
       /** Directory to serve (relative to CLI cwd, or absolute). */
       dir: t.StringDir;
+      /** Preferred port, or `0` for an ephemeral port. */
+      port?: number;
+      /** Bind the selected port without falling back. */
+      strictPort?: boolean;
       /** Extra human-facing server info; path-like values decorate the served URL. */
       info?: Record<string, string>;
     };
@@ -200,6 +204,8 @@ export namespace ServeTool {
       readonly name: string;
       /** Resolved absolute directory to serve. */
       readonly dir: t.StringDir;
+      readonly port?: number;
+      readonly strictPort?: boolean;
       /** Extra human-facing server info; path-like values decorate the served URL. */
       readonly info?: Record<string, string>;
     };
