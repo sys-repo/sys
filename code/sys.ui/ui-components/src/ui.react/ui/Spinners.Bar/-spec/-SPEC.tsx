@@ -1,5 +1,5 @@
-import { css, Harness, Spec } from '../-test.ui.ts';
-import { Spinners } from '../Spinners/mod.ts';
+import { css, Harness, Spec } from '../../-test.ui.ts';
+import { Spinners } from '../../Spinners/mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Spinners', (e) => {
