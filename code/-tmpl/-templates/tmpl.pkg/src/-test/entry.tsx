@@ -19,7 +19,7 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   if (globalThis.document.readyState === 'complete') {
     void registerSw();
   } else {
-    window.addEventListener('load', registerSw, { once: true });
+    globalThis.addEventListener('load', registerSw, { once: true });
   }
 }
 
