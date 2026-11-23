@@ -5,6 +5,7 @@
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts/-test",
     "test:dist": "deno test -P=test --trace-leaks ./src/m.cell/-test/-u.services.dist-host.test.ts",
+    "test:sample:stripe": "deno test -P=test-stripe-sample --cached-only --frozen --trace-leaks ./src/m.cell/-test/-u.sample.stripe.proof.ts",
     "test:help": "deno test -P=test --trace-leaks ./src/m.help/-test ./src/m.cli/-test/-dsl.test.ts",
     "test:proofs": "deno task test:cli:vite",
     "test:cli:vite": "deno test -P=test --trace-leaks ./src/m.cli/-test/-task.cli.vite.process.ts",
@@ -85,6 +86,13 @@
       "read": true,
       "write": true
     },
+    "test-stripe-sample": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": { "allow": ["127.0.0.1"] },
+      "run": { "allow": ["deno"] }
+    },
     "test": {
       "read": true,
       "write": true,
@@ -106,4 +114,3 @@
     }
   }
 }
-

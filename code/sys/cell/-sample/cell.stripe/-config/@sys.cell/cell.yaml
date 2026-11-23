@@ -16,6 +16,7 @@ services:
     config: ./-config/@sys.driver-stripe/fixture.yaml
 
   - name: cell:proxy
+    startAfter: ['ui:static:views', 'stripe:dev:fixture']
     use: HttpProxy
     from: 'jsr:@sys/http/server/proxy'
     config: ./-config/@sys.http/proxy.yaml
