@@ -2,7 +2,6 @@ import type React from 'react';
 import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Signal, type t } from './common.ts';
 import { MarkdownSample, type SampleKind } from './-samples/mod.ts';
-import { Sample } from './-ui.Sample.tsx';
 
 type P = t.ProseMarkdown.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { sample?: SampleKind };
@@ -103,11 +102,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <div className={Styles.title.class}>Samples:</div>
-      <Sample.Buttons debug={debug} />
+      <div className={Styles.title.class}>Samples</div>
+      <Dev.List
+        theme={theme.name}
+        columns={1}
+        selected={v.sample}
+        items={MarkdownSample.kinds.map((id) => ({
+          id,
+          label: MarkdownSample.get(id).label,
+          onActivate: () => debug.select(id),
+        }))}
+      />
 
       <hr />
-      <div className={Styles.title.class}>Debug:</div>
+      <div className={Styles.title.class}>Debug</div>
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
       <Dev.ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />

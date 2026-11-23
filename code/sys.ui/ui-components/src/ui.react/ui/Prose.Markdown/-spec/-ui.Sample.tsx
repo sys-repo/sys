@@ -2,67 +2,13 @@ import { Anchor } from '../../Anchor/mod.ts';
 import { Buttons as ButtonFamily } from '../../Buttons/mod.ts';
 import { Chip } from '../../Chip/mod.ts';
 import { ProseMarkdown } from '../mod.ts';
-import { css, Dev, type t } from './common.ts';
-import { MarkdownSample, type SampleItem, type SampleKind } from './-samples/mod.ts';
-import type { DebugSignals } from './-SPEC.Debug.tsx';
-
-export type SampleButtonsProps = {
-  debug: DebugSignals;
-  style?: t.CssInput;
-};
-export type { SampleKind };
+import { css, type t } from './common.ts';
 
 const sourceBreakRenderers = {
   thematicBreak: ProseMarkdown.ThematicBreak.source,
 } as const satisfies t.ProseMarkdown.Renderers;
 
-export const Sample = {
-  Buttons,
-  renderersFor,
-  value: MarkdownSample.value,
-} as const;
-
-function Buttons(props: SampleButtonsProps) {
-  const p = props.debug.props;
-  const theme = p.theme.value;
-
-  const button = (kind: SampleKind) => {
-    const sample = MarkdownSample.get(kind);
-    const selected = p.sample.value === kind;
-    return (
-      <Dev.Button
-        key={kind}
-        block
-        label={renderButtonLabel({ kind, sample, selected, theme })}
-        onClick={() => props.debug.select(kind)}
-      />
-    );
-  };
-
-  return (
-    <div className={css(Styles.base, props.style).class}>
-      {MarkdownSample.kinds.map((kind) => button(kind))}
-    </div>
-  );
-}
-
-function renderButtonLabel(args: {
-  kind: SampleKind;
-  sample: SampleItem;
-  selected: boolean;
-  theme?: t.CommonTheme;
-}) {
-  const { kind, sample, selected, theme } = args;
-  const prefix = selected ? '🌳 ' : '';
-  return (
-    <ProseMarkdown.UI
-      value={`${prefix}${sample.label}`}
-      theme={theme}
-      renderers={renderersFor(kind, theme)}
-      style={Styles.buttonLabelMarkdown}
-    />
-  );
-}
+export const Sample = { renderersFor } as const;
 
 function renderersFor(
   sample: unknown,
@@ -115,8 +61,6 @@ function renderersFor(
 }
 
 const Styles = {
-  base: css({}),
-  buttonLabelMarkdown: css({ display: 'inline-block' }),
   taskState: css({
     display: 'inline-flex',
     cursor: 'default',

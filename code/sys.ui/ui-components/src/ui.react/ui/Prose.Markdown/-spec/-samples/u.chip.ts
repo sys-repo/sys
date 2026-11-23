@@ -11,7 +11,7 @@ const SPEC_HREF = {
 } as const;
 
 export const chip = {
-  label: 'sample: `@sys/<Chip>` + `<Anchor>` overrides',
+  label: '`@sys/<Chip>` + `<Anchor>` overrides',
   value: Str.dedent(`
     This sample renders \`MyChip\` through caller-owned \`Chip.UI\` and [Anchor.UI](${SPEC_HREF.anchor}) through caller-owned \`Anchor.UI\`.
 

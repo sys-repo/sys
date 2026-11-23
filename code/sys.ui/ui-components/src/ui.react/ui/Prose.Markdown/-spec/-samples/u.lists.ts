@@ -1,7 +1,7 @@
 import { Str } from '../common.ts';
 
 export const lists = {
-  label: 'sample: lists',
+  label: 'lists',
   value: Str.dedent(`
     Ordered steps:
 

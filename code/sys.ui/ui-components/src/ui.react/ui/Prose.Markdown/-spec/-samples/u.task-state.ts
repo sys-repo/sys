@@ -1,7 +1,7 @@
 import { Str } from '../common.ts';
 
 export const taskState = {
-  label: 'sample: task-state `<Switch>` override',
+  label: 'task-state `<Switch>` override',
   value: Str.dedent(`
     Caller-owned task-state renderer:
 

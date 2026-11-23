@@ -1,7 +1,7 @@
 import { Str } from '../common.ts';
 
 export const headings = {
-  label: 'sample: headings',
+  label: 'headings',
   value: Str.dedent(`
     # Heading level 1
 

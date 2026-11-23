@@ -4,7 +4,7 @@ import type { t } from '../common.ts';
 export const FALLBACK_CANARY_NODE_TYPE = 'proseMarkdownFallbackCanary';
 
 export const fallbackCanary = {
-  label: 'sample: permanent fallback canary',
+  label: 'permanent fallback canary',
   value: {
     type: 'root',
     children: [
