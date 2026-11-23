@@ -4,5 +4,6 @@ import type { t } from './common.ts';
  * UI load spinners.
  */
 export type SpinnerLib = {
-  Bar: React.FC<t.BarSpinnerProps>;
+  readonly Bar: t.BarSpinner.Lib['UI'];
+  readonly Circular: t.CircularSpinner.Lib['UI'];
 };
