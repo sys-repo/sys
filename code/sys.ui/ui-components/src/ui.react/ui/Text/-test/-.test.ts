@@ -16,7 +16,5 @@ describe(`@sys/ui-components/react/text`, () => {
     expect(m.Text.Input).to.equal(TextInput);
     expect(m.Text.Ellipsize).to.equal(TextEllipsize);
     expect(m.Text.Label).to.equal(TextLabel);
-    const alias = await import('@sys/ui-components/text');
-    expect(alias.Text.Label).to.equal(TextLabel);
   });
 });

@@ -36,6 +36,8 @@ const leaves = {
     { path: 'slider', names: ['Slider'] },
     { path: 'splash', names: ['Splash'] },
     { path: 'spinners', names: ['Spinners'] },
+    { path: 'spinners/bar', names: ['BarSpinner'] },
+    { path: 'spinners/circular', names: ['CircularSpinner'] },
     { path: 'text', names: ['Text'] },
   ],
   content: [
@@ -69,6 +71,50 @@ const leaves = {
     { path: 'vimeo-background', names: ['VimeoBackground'] },
   ],
 } as const satisfies Record<string, readonly LeafContract[]>;
+
+// Pin the retired paths independently of the current export map.
+const retiredReactPaths = [
+  'action-probe',
+  'anchor',
+  'bullet',
+  'bullet-list',
+  'button',
+  'buttons',
+  'buttons/icons',
+  'buttons/switch',
+  'chip',
+  'cropmarks',
+  'error-boundary',
+  'fade-element',
+  'http-origin',
+  'icon',
+  'icon-swatches',
+  'iframe',
+  'image/svg',
+  'key-value',
+  'layout/center-column',
+  'layout/rect-grid',
+  'layout/split-pane',
+  'layout/tabs',
+  'layout/tree-host',
+  'media',
+  'media/recorder/dev',
+  'media/timecode/playback-driver',
+  'object-view',
+  'path-view',
+  'player',
+  'player/youtube',
+  'preload',
+  'prose',
+  'sheet',
+  'slider',
+  'splash',
+  'spinners',
+  'text',
+  'tree-view',
+  'tree-view/index',
+  'vimeo-background',
+] as const;
 
 describe('@sys/ui-components package exports', () => {
   describe('root boundaries', () => {
@@ -130,15 +176,13 @@ describe('@sys/ui-components package exports', () => {
     });
   });
 
-  describe('legacy compatibility aliases', () => {
-    it('maps every non-React alias to its canonical React leaf', async () => {
-      await Promise.all([
-        expectLegacyAliases(leaves.primitives),
-        expectLegacyAliases(leaves.content),
-        expectLegacyAliases(leaves.layout),
-        expectLegacyAliases(leaves.media),
-      ]);
-    });
+  describe('unsupported short React paths', () => {
+    for (const path of [...retiredReactPaths, 'spinners/bar', 'spinners/circular']) {
+      it(`does not resolve /${path}`, () => {
+        expect(() => import.meta.resolve(`@sys/ui-components/${path}`))
+          .to.throw(TypeError, path);
+      });
+    }
   });
 });
 
@@ -149,23 +193,6 @@ describe('@sys/ui-components package exports', () => {
 async function expectReactLeaves(contracts: readonly LeafContract[]) {
   await Promise.all(
     contracts.map((e) => expectExports(`@sys/ui-components/react/${e.path}`, e.names)),
-  );
-}
-
-async function expectLegacyAliases(contracts: readonly LeafContract[]) {
-  await Promise.all(
-    contracts.map(async (e) => {
-      const legacySpecifier = `@sys/ui-components/${e.path}`;
-      const canonicalSpecifier = `@sys/ui-components/react/${e.path}`;
-      const [legacy, canonical] = await Promise.all([
-        import(legacySpecifier),
-        import(canonicalSpecifier),
-      ]);
-
-      e.names.forEach((name) => {
-        expect(legacy[name], `${legacySpecifier} export: ${name}`).to.equal(canonical[name]);
-      });
-    }),
   );
 }
 
