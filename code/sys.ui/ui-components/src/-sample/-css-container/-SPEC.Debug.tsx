@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { Color, css, Dev, Signal, type t } from '../common.ts';
 
 /**
@@ -14,7 +15,8 @@ type P = DebugProps;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = { theme: s<t.CommonTheme>('Light') };
-  const api = { props };
+  const { attach } = Spec.attachments();
+  const api = { props, attach };
   init?.(api);
   return api;
 }

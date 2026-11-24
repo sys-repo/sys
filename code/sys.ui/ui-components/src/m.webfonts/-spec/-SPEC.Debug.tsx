@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../ui.react/-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
 import { FontFamily } from './-ui.FontFamily.tsx';
 import { FontStyle } from './-ui.FontStyle.tsx';
@@ -41,11 +42,17 @@ export function createDebugSignals() {
     italic: s(snap.italic),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.font = p.font.value;
+        d.sampleText = p.sampleText.value;
+        d.weight = p.weight.value;
+        d.italic = p.italic.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -55,17 +62,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.font = p.font.value;
-      d.sampleText = p.sampleText.value;
-      d.weight = p.weight.value;
-      d.italic = p.italic.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

@@ -1,32 +1,28 @@
 import { Harness, Signal, Spec } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { SampleFont } from './mod.ts';
 
 export default Spec.describe('useWebFont', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    const v = Signal.toObject(p);
+    return <SampleFont debug={v.debug} theme={v.theme} />;
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    function update() {
-      ctx.redraw();
-    }
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      update();
+    debug.attach(ctx, {
+      subject: { size: undefined, display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size()
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        return <SampleFont debug={v.debug} theme={v.theme} />;
-      });
-
-    update();
   });
 
   e.it('ui:debug', (e) => {
