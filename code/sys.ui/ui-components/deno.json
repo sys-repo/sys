@@ -19,6 +19,7 @@
     "./style/focus": "./src/m.style/m.FocusStyle/mod.ts",
     "./react": "./src/ui.react/mod.ts",
     "./react/action-probe": "./src/ui.react/ui/ActionProbe/mod.ts",
+    "./react/admonition": "./src/ui.react/ui/Admonition/mod.ts",
     "./react/anchor": "./src/ui.react/ui/Anchor/mod.ts",
     "./react/bullet": "./src/ui.react/ui/Bullet/mod.ts",
     "./react/bullet-list": "./src/ui.react/ui/BulletList/mod.ts",

@@ -2,6 +2,7 @@ import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from './common.ts';
 import { Admonition } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { samples } from './-samples.ts';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
@@ -9,7 +10,15 @@ export default Spec.describe(D.displayName, (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <Admonition.UI debug={v.debug} theme={v.theme} />;
+    return (
+      <Admonition.UI
+        markdown={samples[v.sample].markdown}
+        kind={v.kind}
+        radius={v.radius}
+        debug={v.debug}
+        theme={v.theme}
+      />
+    );
   }
 
   e.it('init', (e) => {

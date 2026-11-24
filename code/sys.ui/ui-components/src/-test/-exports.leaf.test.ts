@@ -41,6 +41,7 @@ const leaves = {
     { path: 'text', names: ['Text'] },
   ],
   content: [
+    { path: 'admonition', names: ['Admonition'] },
     { path: 'http-origin', names: ['HttpOrigin'] },
     { path: 'key-value', names: ['KeyValue'] },
     { path: 'object-view', names: ['ObjectView'] },
