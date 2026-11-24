@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { css, Dev, Signal, type t } from '../common.ts';
 
 /**
@@ -12,7 +13,8 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const api = { rect: s<t.DomRect>() };
+  const { attach } = Spec.attachments();
+  const api = { rect: s<t.DomRect>(), attach };
   init?.(api);
   return api;
 }

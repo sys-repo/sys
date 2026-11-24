@@ -1,24 +1,22 @@
-import { Spec, Signal } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Sample } from './ui.tsx';
 
 export default Spec.describe('MyComponent', (e) => {
   const debug = createDebugSignals();
-  const p = debug.props;
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: undefined, display: 'grid', render: () => <Sample debug={debug} /> },
+      effects: [
+        () => void ctx.subject.backgroundColor(1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size()
-      .backgroundColor(1)
-      .display('grid')
-      .render((e) => <Sample debug={debug} />);
 
     ctx.debug.footer
       .border(-0.1)

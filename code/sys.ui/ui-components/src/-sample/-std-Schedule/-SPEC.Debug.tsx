@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { css, D, Dev, LocalStorage, Obj, Schedule, Signal, type t } from './common.ts';
 
 type Storage = { theme?: t.CommonTheme };
@@ -26,10 +27,18 @@ export function createDebugSignals() {
     marks: s<TMarks>(),
   };
   const p = props;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+      });
+    },
+  });
   const api = {
     props,
-    reset,
     listen,
+    reset,
+    attach,
     async run() {
       p.marks.value = await run();
     },
@@ -42,12 +51,6 @@ export function createDebugSignals() {
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-    });
-  });
 
   Schedule.frames(2).then(api.run);
   return api;

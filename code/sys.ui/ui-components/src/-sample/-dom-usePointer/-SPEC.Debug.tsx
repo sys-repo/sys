@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../-test.ui.ts';
 import { css, Dev, Signal, type t } from '../common.ts';
 
 /**
@@ -17,12 +18,13 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     dragdrop: s<t.PointerDragdropSnapshot>(),
     drag: s<t.PointerDragSnapshot>(),
   };
-  const api = {
-    props,
-    listen() {
-      Signal.listen(props);
-    },
-  };
+  const { attach } = Spec.attachments();
+  const api = { props, listen, attach };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
   init?.(api);
   return api;
 }
