@@ -1,4 +1,5 @@
-import { css, Dev, Signal, type t } from './common.ts';
+import { Button } from '../../Button/mod.ts';
+import { Color, css, Dev, Signal, type t } from './common.ts';
 import { SAMPLE } from './-samples.tsx';
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
@@ -9,7 +10,12 @@ export function ProjectionMotion({ debug, theme }: Props) {
   const enabled = !reorder.value;
   const styles = {
     section: css({ display: 'grid', gap: 4, marginTop: 12 }),
-    note: css({ fontSize: 12, opacity: 0.6 }),
+    note: css({ fontSize: 12 }),
+    action: css({
+      color: Color.BLUE,
+      ':hover': { textDecoration: 'underline' },
+    }),
+    detail: css({ opacity: 0.6 }),
   };
 
   return (
@@ -22,7 +28,14 @@ export function ProjectionMotion({ debug, theme }: Props) {
       />
       {!enabled && (
         <div className={styles.note.class}>
-          Turn reorder off to test this prop; Reorder has its own Motion animation.
+          <Button
+            theme={theme}
+            label={<span className={styles.action.class}>Turn reorder off</span>}
+            onClick={() => (reorder.value = false)}
+          />
+          <span className={styles.detail.class}>
+            {' to test this prop; Reorder has its own Motion animation.'}
+          </span>
         </div>
       )}
       <Dev.List

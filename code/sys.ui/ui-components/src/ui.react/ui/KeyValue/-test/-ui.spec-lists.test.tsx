@@ -51,9 +51,7 @@ describe('KeyValue spec UI: sample and motion lists', () => {
 
       await act(async () => {
         p.items.value = p.items.value?.slice().reverse();
-        simple.focus();
-        keydown(simple, 'Enter');
-        keyup(simple, 'Enter');
+        pressEnter(simple);
       });
       expect(p.items.value?.map((item) => item.id)).to.eql(sampleIds);
 
@@ -83,8 +81,10 @@ describe('KeyValue spec UI: sample and motion lists', () => {
       const shuffle = control(res.container, 'Shuffle direct children');
       const move = control(res.container, 'Move one direct child');
       const restore = control(res.container, 'Restore sample order');
+      const commands = [shuffle, move, restore];
       const before = p.items.value!;
-      for (const command of [shuffle, move, restore]) {
+      const beforeIds = before.map((item) => item.id);
+      for (const command of commands) {
         expect(command.hasAttribute('aria-pressed')).to.eql(false);
         expect(command.getAttribute('aria-disabled')).to.eql('true');
         await click(command);
@@ -92,15 +92,23 @@ describe('KeyValue spec UI: sample and motion lists', () => {
       }
       await click(control(res.container, 'animation: true'));
       expect(p.animation.value).to.eql(false);
-      await click(control(res.container, 'reorder: true'));
 
-      const beforeIds = before.map((item) => item.id);
-      for (const command of [move, shuffle]) {
+      const reorder = control(res.container, 'reorder: true');
+      await act(async () => pressEnter(control(res.container, 'Turn reorder off')));
+      expect(reorder.textContent).to.eql('reorder: false');
+      expect(res.container.textContent).not.to.include('Turn reorder off');
+      expect(p.animation.value).to.eql(false);
+      expect(p.sample.value).to.eql('recursive');
+      expect(p.items.value).to.equal(before);
+      expect(p.items.value?.map((item) => item.id)).to.eql(beforeIds);
+      for (const command of commands) {
         expect(command.getAttribute('aria-disabled')).not.to.eql('true');
+      }
+
+      for (const command of [move, shuffle]) {
         await click(command);
         const after = p.items.value!;
-        expect(after).to.have.length(before.length);
-        for (const item of before) expect(after.find((next) => next.id === item.id)).to.equal(item);
+        expect(after).to.have.members(before);
         if (command === move) expect(after.map((item) => item.id)).not.to.eql(beforeIds);
       }
 
@@ -116,6 +124,12 @@ describe('KeyValue spec UI: sample and motion lists', () => {
 
 function click(el: HTMLElement) {
   return act(async () => el.click());
+}
+
+function pressEnter(el: HTMLElement) {
+  el.focus();
+  keydown(el, 'Enter');
+  keyup(el, 'Enter');
 }
 
 function control(container: HTMLElement, label: string): HTMLElement {
