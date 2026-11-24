@@ -15,6 +15,8 @@ export declare namespace Button {
     children?: Content;
     label?: React.ReactNode | (() => React.ReactNode);
     tooltip?: string;
+    /** IDs of elements describing the button, separate from its accessible name. */
+    'aria-describedby'?: string;
 
     /** Boolean state: */
     /** Disabled buttons leave the tab order and suppress activation. */

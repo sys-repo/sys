@@ -21,6 +21,34 @@ describe('KeyValue.ActionButton: shared Button integration', () => {
     }
   });
 
+  it('description IDs update and clear on the same focused action', async () => {
+    let describeBy: (ids?: string) => void;
+    const Probe = () => {
+      const [ids, setIds] = React.useState<string | undefined>('run-help run-limit');
+      describeBy = setIds;
+      return (
+        <>
+          <p id='run-help'>Runs the selected job.</p>
+          <p id='run-limit'>Only one job can run at a time.</p>
+          <KeyValue.ActionButton label='Run' tooltip='Start job' aria-describedby={ids} />
+        </>
+      );
+    };
+    const res = await TestReact.render(<Probe />);
+    try {
+      const action = selectElement(res.container, '[role="button"]');
+      React.act(() => action.focus());
+      expect(action.getAttribute('aria-describedby')).to.eql('run-help run-limit');
+      for (const ids of ['run-limit', undefined]) {
+        React.act(() => describeBy(ids));
+        expect(document.activeElement).to.equal(action);
+        expect(action.getAttribute('aria-describedby')).to.eql(ids ?? null);
+      }
+    } finally {
+      React.act(() => res.dispose());
+    }
+  });
+
   for (const reorder of [false, true]) {
     const layout = reorder ? 'reorder' : 'static';
     it(`${layout}: keyboard action → pressed feedback, without cursor movement`, async () => {

@@ -90,6 +90,7 @@ export const Button: FC<P> = (props) => {
       tabIndex={enabled && active ? 0 : -1}
       aria-disabled={!enabled || !active ? true : undefined}
       aria-pressed={props['aria-pressed']}
+      aria-describedby={props['aria-describedby']}
       className={rootStyle.class}
       title={props.tooltip}
       {...Event.handlers(eventState)}
