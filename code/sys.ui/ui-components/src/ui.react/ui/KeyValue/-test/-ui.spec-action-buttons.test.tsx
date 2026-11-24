@@ -2,7 +2,8 @@ import React from 'react';
 import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact } from '../../../-test.ts';
 import { SAMPLE } from '../-spec/-samples.tsx';
 import { createDebugSignals } from '../-spec/-SPEC.Debug.tsx';
-import { SampleButtons } from '../-spec/-ui.Buttons.Samples.tsx';
+import { Samples } from '../-spec/-ui.Samples.tsx';
+import { Is } from '../common.ts';
 import { KeyValue } from '../mod.ts';
 import { selectElement } from './u.fixture.cursor.ts';
 
@@ -27,12 +28,13 @@ describe('KeyValue spec UI: action buttons', () => {
     const debug = createDebugSignals();
     const previousSample = debug.props.sample.value;
     debug.props.sample.value = 'comprehensive';
-    const selector = await TestReact.render(<SampleButtons debug={debug} />);
+    const selector = await TestReact.render(<Samples debug={debug} />);
     try {
       const button = Array.from(selector.container.querySelectorAll<HTMLElement>('[role="button"]'))
-        .find((el) => el.textContent === 'sample: action buttons');
-      expect(button, 'action buttons sample selector').to.exist;
-      React.act(() => button!.click());
+        .find((el) => el.textContent === 'Action buttons');
+      if (Is.nil(button)) throw new Error('Expected action buttons sample.');
+      expect(button.getAttribute('aria-pressed')).to.eql('false');
+      React.act(() => button.click());
       expect(debug.props.sample.value).to.eql('action-buttons');
 
       const items = debug.props.items.value!;

@@ -4,7 +4,8 @@ import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.
 import { SAMPLE, type SampleKind } from './-samples.tsx';
 import { CursorDebug } from './mod.ts';
 import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
-import { SampleButtons } from './-ui.Buttons.Samples.tsx';
+import { ProjectionMotion } from './-ui.ProjectionMotion.tsx';
+import { Samples } from './-ui.Samples.tsx';
 
 type P = t.KeyValue.Props;
 type DebugStorage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
@@ -150,37 +151,9 @@ const Styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
   }),
-  note: css({
-    fontSize: 12,
-    opacity: 0.6,
-    marginBottom: 5,
-  }),
 };
 
-/**
- * Debug controls for the KeyValue spec.
- */
-function shuffleItems(items?: t.KeyValue.Item[]) {
-  const next = [...(items ?? [])];
-  for (let index = next.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
-  }
-  return next;
-}
-
-function moveRandomItem(items?: t.KeyValue.Item[]) {
-  const next = [...(items ?? [])];
-  if (next.length < 2) return next;
-
-  const from = Math.floor(Math.random() * next.length);
-  const offset = Math.floor(Math.random() * (next.length - 1)) + 1;
-  const to = (from + offset) % next.length;
-  const [item] = next.splice(from, 1);
-  next.splice(to, 0, item);
-  return next;
-}
-
+/** Debug controls for the KeyValue spec. */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
@@ -244,37 +217,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <LayoutButtons debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 15 }} />
-      <div className={Styles.title.class}>{'items:'}</div>
-      <SampleButtons debug={debug} theme={theme.name} />
-      <div className={Styles.title.class} style={{ marginTop: 12 }}>{'projection motion:'}</div>
-      <Dev.Button
-        block
-        label={() => `animation: ${p.animation.value}`}
-        onClick={() => Signal.toggle(p.animation)}
-      />
-      {p.reorder.value && (
-        <div className={Styles.note.class}>
-          {'Turn reorder off to test this prop; Reorder has its own Motion animation.'}
-        </div>
-      )}
-      <Dev.Button
-        block
-        enabled={!p.reorder.value}
-        label={() => `shuffle direct children`}
-        onClick={() => (p.items.value = shuffleItems(p.items.value))}
-      />
-      <Dev.Button
-        block
-        enabled={!p.reorder.value}
-        label={() => `move one direct child`}
-        onClick={() => (p.items.value = moveRandomItem(p.items.value))}
-      />
-      <Dev.Button
-        block
-        enabled={!p.reorder.value}
-        label={() => `restore sample order`}
-        onClick={() => (p.items.value = SAMPLE.items(p.sample.value))}
-      />
+      <Samples debug={debug} theme={theme.name} />
+      <ProjectionMotion debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 25 }} />
       <Dev.Button
         block
