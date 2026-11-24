@@ -4,12 +4,10 @@ export * from '../common.ts';
 export type * as t from './common.t.ts';
 
 export { Color, css } from '@sys/ui-css';
-export { useStylesheetRule } from '@sys/ui-react/use';
+export { Admonition } from '@sys/ui-components/react/admonition';
 export { Anchor } from '@sys/ui-components/react/anchor';
 export { Bullet } from '@sys/ui-components/react/bullet';
-export { Chip } from '@sys/ui-components/react/chip';
 export { KeyValue } from '@sys/ui-components/react/key-value';
-export { Prose } from '@sys/ui-components/react/prose';
 export { Spinners } from '@sys/ui-components/react/spinners';
 
 /**

@@ -1,8 +1,7 @@
 import { useId } from 'react';
-import { Color, css, D, KeyValue, type t } from './common.ts';
+import { Admonition, Color, css, D, KeyValue, type t } from './common.ts';
 import { actionsOf } from './u.actions.ts';
 import { Action } from './ui.Action.tsx';
-import { RegistrationNote } from './ui.RegistrationNote.tsx';
 
 /** Standalone Actions keeps the registration hint with its controls. */
 export const Actions: t.FC<t.Passkey.ActionsProps> = (props) => {
@@ -17,7 +16,9 @@ export function useActionParts(props: t.Passkey.ActionsProps) {
   const actions = actionsOf(props);
   const theme = Color.theme(props.theme);
   const advisory = props.context.registrationAdvisory;
-  const note = advisory && <RegistrationNote id={noteId} markdown={advisory} theme={theme.name} />;
+  const note = advisory && (
+    <Admonition.UI id={noteId} markdown={advisory} theme={theme.name} style={{ marginTop: 20 }} />
+  );
   if (actions.length === 0) return { controls: null, note };
 
   const pending = operation.kind !== 'idle';

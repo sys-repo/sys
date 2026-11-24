@@ -127,7 +127,8 @@ describe('Passkey diagnostic panel', () => {
   it('Actions owns the registration note; only eligible registration controls refer to it', async () => {
     const context = {
       ...signedOut.context,
-      registrationAdvisory: '**First** [reference](https://example.test/term).',
+      registrationAdvisory:
+        '# Use a sample passkey\n\nRead the [reference](https://example.test/term).',
     };
     const props = { snapshot: { ...signedOut, context }, ...callbacks };
     using panel = await renderPanel(props);
@@ -137,8 +138,17 @@ describe('Passkey diagnostic panel', () => {
     const contextSection = element(panel.container, '[data-passkey-section="context"]');
     expect(note()?.previousElementSibling?.contains(contextSection)).to.eql(true);
     expect(note()).to.equal(panel.container.firstElementChild?.lastElementChild);
+    const initialNote = element(panel.container, selector);
+    expect(initialNote.querySelector('p > strong')?.textContent).to.eql('Use a sample passkey');
+    expect(initialNote.ownerDocument.defaultView!.getComputedStyle(initialNote).marginTop).to.eql(
+      '20px',
+    );
     const reference = element(panel.container, `${selector} a[href="https://example.test/term"]`);
     expect(reference.getAttribute('target')).to.eql('_blank');
+    expect(reference.getAttribute('rel')?.split(' ')).to.include.members([
+      'noopener',
+      'noreferrer',
+    ]);
     expect(actionButton(panel.container, 'sign-in').hasAttribute('aria-describedby')).to.eql(false);
     const updated = { ...context, registrationAdvisory: '**Hint.** Updated.' };
     for (const theme of ['Light', 'Dark'] as const) {
