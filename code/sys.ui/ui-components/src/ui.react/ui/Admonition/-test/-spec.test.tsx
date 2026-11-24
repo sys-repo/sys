@@ -59,6 +59,29 @@ describe('Admonition: owner specimen', () => {
       expect(paragraphs[0].querySelector('a')?.href).to.eql('https://example.com/#amet');
     }
 
+    await press('Long (Note)');
+    expect(debug.props.kind.value).to.eql('note');
+    {
+      using preview = await TestReact.render(await host.subject());
+      const note = preview.container.querySelector('[role="note"]')!;
+      const [lead, ...body] = [...note.querySelectorAll('p')].filter((p) => !p.closest('li'));
+      expect(lead.querySelector('strong')?.textContent).to.eql('Nota bene, lector');
+      expect(body).to.have.length(3);
+      expect(note.querySelectorAll('ul > li')).to.have.length(2);
+    }
+
+    const additional = [
+      { label: 'Checklist (Caution)', kind: 'caution', lead: 'Caution: nullam vitae' },
+      { label: 'Consequence (Warning)', kind: 'warning', lead: 'Warning: littera scripta manet' },
+    ] as const;
+    for (const { label, kind, lead } of additional) {
+      await press(label);
+      expect(pressed().map((el) => el.textContent)).to.eql([label]);
+      expect(debug.props.kind.value).to.eql(kind);
+      using preview = await TestReact.render(await host.subject());
+      expect(preview.container.querySelector('p > strong')?.textContent).to.eql(lead);
+    }
+
     await press('Expanded (Important)');
     expect(pressed().map((el) => el.textContent)).to.eql(['Expanded (Important)']);
     using preview = await TestReact.render(await host.subject());

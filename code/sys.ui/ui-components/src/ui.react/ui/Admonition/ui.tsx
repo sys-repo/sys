@@ -7,7 +7,7 @@ import { Icons } from './u.icons.ts';
 export const Admonition: t.FC<t.Admonition.Props> = (props) => {
   const { debug, id, kind = D.kind, markdown, radius = D.radius } = props;
   const theme = Color.theme(props.theme);
-  const Glyph = kind === 'tip' ? Icons.Tip : Icons.Unassigned;
+  const Glyph = Icons[kind];
 
   const scope = `[data-component="${D.displayName}"]`;
   useStylesheetRule(`${scope} strong`, { color: 'var(--sys-admonition-fg)' });

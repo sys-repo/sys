@@ -112,18 +112,15 @@ describe('Admonition.UI', () => {
     }
   });
 
-  it('keeps each kind a note and uses one placeholder distinct from the tip glyph', async () => {
+  it('renders a distinct decorative glyph for each kind without announcing urgency', async () => {
     const kinds = ['tip', 'note', 'important', 'caution', 'warning'] as const;
     using res = await TestReact.render(
       <>{kinds.map((kind) => <UI key={kind} kind={kind} markdown='Lorem ipsum.' />)}</>,
     );
     const notes = [...res.container.querySelectorAll('[role="note"]')];
     expect(notes).to.have.length(kinds.length);
-    const [tip, placeholder, ...rest] = notes.map((el) =>
-      el.querySelector('[aria-hidden="true"] svg')!.innerHTML
-    );
-    expect(placeholder).not.to.eql(tip);
-    expect(rest).to.eql([placeholder, placeholder, placeholder]);
+    const glyphs = notes.map((el) => el.querySelector('[aria-hidden="true"] svg')!.innerHTML);
+    expect(new Set(glyphs).size).to.eql(kinds.length);
     expect(res.container.querySelector('[role="alert"], [aria-live]')).to.eql(null);
   });
 
