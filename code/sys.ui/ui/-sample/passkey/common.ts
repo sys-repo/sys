@@ -7,6 +7,7 @@ export { Num } from '@sys/std/num';
 export { Obj } from '@sys/std/obj';
 export { Pkg } from '@sys/std/pkg';
 export { Rx } from '@sys/std/rx';
+export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
 export { Try } from '@sys/std/try';
 export { Url } from '@sys/std/url';

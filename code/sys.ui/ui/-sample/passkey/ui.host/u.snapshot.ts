@@ -1,3 +1,4 @@
+import { Str } from '../common.ts';
 import type { t } from '../ui/common.ts';
 import { browserOrigin, rp } from '../u/u.issuer.ts';
 
@@ -8,8 +9,13 @@ const phases = {
   finish: 'Checking response',
   request: 'Sending request',
 } as const;
-const registrationAdvisory =
-  '**Use a sample passkey.**  \nRestarting the cell’s `sys.ui:accounts` service clears its in-memory accounts, registrations, and sessions. Your [authenticator](https://www.w3.org/TR/webauthn-3/#authenticator) may still offer the [passkey](https://www.w3.org/TR/webauthn-3/#passkey), but it will no longer work here.';
+
+const registrationAdvisory = Str.dedent(`
+  **Use a sample passkey**${'  '}
+  Restarting the cell’s \`sys.ui:accounts\` service clears its in-memory accounts, registrations,
+  and sessions. Your [authenticator](https://www.w3.org/TR/webauthn-3/#authenticator) may still
+  offer the [passkey](https://www.w3.org/TR/webauthn-3/#passkey), but it will no longer work here.
+`);
 
 /** Session facts and the outcome of an attempt are independent observations. */
 export function snapshotOf(state: State): t.Passkey.Snapshot {
