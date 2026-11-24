@@ -22,11 +22,13 @@ import {
 import { Harness } from '../../../-test.ui.ts';
 import { browser, transport } from '../../m.AccountRuntime/-test/u.fixture.ts';
 import {
+  actionButton,
   activate,
   button,
   buttons,
   element,
   exerciseAccountFlow,
+  expectActions,
   pageListeners,
   valueCell,
 } from './u.fixture.tsx';
@@ -221,8 +223,7 @@ describe('passkey cached-spec context lifetime', () => {
           expect(valueCell(res.container, 'Account service').textContent).to.eql('Configured');
           const rpName = valueCell(res.container, 'Relying Party Name');
           expect(rpName.textContent).to.eql('Passkey Sample');
-          const labels = buttons(res.container).map((button) => button.textContent);
-          expect(labels).to.eql(['Create with Passkey', 'Sign In']);
+          expectActions(res.container, 'create-account', 'sign-in');
           expect(server.fetchCount).to.eql(0);
         } finally {
           React.act(() => res.dispose());
@@ -268,11 +269,12 @@ describe('passkey cached-spec context lifetime', () => {
       // Harness.UI loads and runs its spec on the next turn, after the first render.
       await Time.waitFor(async () => {
         await React.act(() => Time.wait(0));
-        return buttons(container).some((el) => el.textContent === 'Sign In');
+        return !!container.querySelector('[data-passkey-section="actions"]');
       });
-      await choose('Sign In');
-      await choose('Add Passkey');
-      const pending = 'Add Passkey: Waiting for authenticator';
+      await activate(actionButton(container, 'sign-in'));
+      const add = actionButton(container, 'add-passkey');
+      await activate(add);
+      const pending = `${add.textContent}: Waiting for authenticator`;
       expect(value('Operation')).to.eql(pending);
       const signal = native.signals.at(-1)!;
       const panel = ['actions', 'status', 'context'];
@@ -304,7 +306,7 @@ describe('passkey cached-spec context lifetime', () => {
         await Schedule.micro();
       });
       expect(value('Operation')).to.eql('Idle');
-      expect(value('Last result')).to.include('Add Passkey — success');
+      expect(value('Last result')).to.include(`${add.textContent} — success`);
       expect(value('Registered credentials')).to.eql('2');
       expect(server.requests.map(({ name }) => name)).to.eql([
         'session.signIn.begin',

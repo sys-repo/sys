@@ -35,7 +35,7 @@ export function actionsOf(props: t.Passkey.ActionsProps): readonly Action[] {
 export function actionLabel(action: t.Passkey.Action): string {
   switch (action) {
     case 'create-account':
-      return 'Create with Passkey';
+      return 'Create Passkey';
     case 'sign-in':
       return 'Sign In';
     case 'add-passkey':

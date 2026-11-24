@@ -11,11 +11,13 @@ import {
   TestReact,
 } from './common.ts';
 import { Passkey } from '../mod.ts';
+import { actionLabel } from '../u.actions.ts';
 import { Warning } from '../ui.Warning.tsx';
 import {
-  button,
+  actionButton,
   buttons,
   element,
+  expectActions,
   press,
   renderPanel,
   signedIn,
@@ -77,12 +79,9 @@ describe('Passkey diagnostic panel', () => {
       onSignIn: () => intents.push('sign-in'),
     });
     try {
-      expect(buttons(res.container).map((el) => el.textContent)).to.eql([
-        'Create with Passkey',
-        'Sign In',
-      ]);
-      const create = button(res.container, 'Create with Passkey');
-      const signIn = button(res.container, 'Sign In');
+      const controls = buttons(res.container);
+      expect(controls.map((el) => el.textContent)).to.eql(['Create Passkey', 'Sign In']);
+      const [create, signIn] = controls;
       expect(create.tabIndex).to.eql(0);
       press(create, 'Enter');
       press(signIn, ' ');
@@ -103,14 +102,13 @@ describe('Passkey diagnostic panel', () => {
     };
     const res = await renderPanel(props);
     try {
-      expect(buttons(res.container).map((el) => el.textContent)).to.eql([
-        'Add Passkey',
-        'Sign Out',
-      ]);
+      const controls = buttons(res.container);
+      expect(controls.map((el) => el.textContent)).to.eql(['Add Passkey', 'Sign Out']);
+      const [add, signOut] = controls;
       expect(valueCell(res.container, 'Principal').textContent).to.eql('principal-test-01');
       expect(valueCell(res.container, 'Registered credentials').textContent).to.eql('Unknown');
-      press(button(res.container, 'Add Passkey'), 'Enter');
-      press(button(res.container, 'Sign Out'), ' ');
+      press(add, 'Enter');
+      press(signOut, ' ');
       expect(intents).to.eql(['add-passkey', 'sign-out']);
       expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed in');
       res.update({
@@ -135,13 +133,13 @@ describe('Passkey diagnostic panel', () => {
     using panel = await renderPanel(props);
     const selector = '[role="note"][id]';
     const note = () => panel.container.querySelector(selector);
-    const create = button(panel.container, 'Create with Passkey');
+    const create = actionButton(panel.container, 'create-account');
     const contextSection = element(panel.container, '[data-passkey-section="context"]');
     expect(note()?.previousElementSibling?.contains(contextSection)).to.eql(true);
     expect(note()).to.equal(panel.container.firstElementChild?.lastElementChild);
     const reference = element(panel.container, `${selector} a[href="https://example.test/term"]`);
     expect(reference.getAttribute('target')).to.eql('_blank');
-    expect(button(panel.container, 'Sign In').hasAttribute('aria-describedby')).to.eql(false);
+    expect(actionButton(panel.container, 'sign-in').hasAttribute('aria-describedby')).to.eql(false);
     const updated = { ...context, registrationAdvisory: '**Hint.** Updated.' };
     for (const theme of ['Light', 'Dark'] as const) {
       panel.update({ ...props, theme, snapshot: { ...signedOut, context: updated } });
@@ -165,7 +163,7 @@ describe('Passkey diagnostic panel', () => {
 
     using bare = await TestReact.render(<Passkey.UI.Actions {...props.snapshot} {...callbacks} />);
     const bareNote = element(bare.container, selector);
-    const bareCreate = button(bare.container, 'Create with Passkey');
+    const bareCreate = actionButton(bare.container, 'create-account');
     expect(bareNote.previousElementSibling?.contains(bareCreate)).to.eql(true);
     expect(bareCreate.getAttribute('aria-describedby')).to.eql(bareNote.id);
   });
@@ -200,10 +198,7 @@ describe('Passkey diagnostic panel', () => {
         onSignIn: () => count++,
       });
       try {
-        expect(buttons(res.container).map((el) => el.textContent)).to.eql([
-          'Create with Passkey',
-          'Sign In',
-        ]);
+        expectActions(res.container, 'create-account', 'sign-in');
         const actions = element(res.container, '[data-passkey-section="actions"]');
         expect([...actions.querySelectorAll('[role="note"]')].map((el) => el.textContent))
           .to.eql([`⚠ ${reason}`, `⚠ ${reason}`]);
@@ -223,10 +218,7 @@ describe('Passkey diagnostic panel', () => {
   it('missing callback → visibly unavailable rather than a silent no-op', async () => {
     const res = await renderPanel({ snapshot: signedOut });
     try {
-      expect(buttons(res.container).map((el) => el.textContent)).to.eql([
-        'Create with Passkey',
-        'Sign In',
-      ]);
+      expectActions(res.container, 'create-account', 'sign-in');
       expect([...res.container.querySelectorAll('[role="note"]')].map((el) => el.textContent))
         .to.eql(['⚠ Action not connected', '⚠ Action not connected']);
       for (const el of buttons(res.container)) {
@@ -283,11 +275,11 @@ describe('Passkey diagnostic panel', () => {
     });
     try {
       expect(element(res.container, '[role="note"]').textContent).to.contain('Unsupported');
-      const add = button(res.container, 'Add Passkey');
+      const add = actionButton(res.container, 'add-passkey');
       expect(add.getAttribute('aria-disabled')).to.eql('true');
       press(add, 'Enter');
       expect(count).to.eql(0);
-      const signOut = button(res.container, 'Sign Out');
+      const signOut = actionButton(res.container, 'sign-out');
       expect(signOut.tabIndex).to.eql(0);
       press(signOut, 'Enter');
       expect(count).to.eql(1);
@@ -307,7 +299,8 @@ describe('Passkey diagnostic panel', () => {
     try {
       expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
       const result = element(res.container, '[role="status"][aria-label="Last result"]');
-      expect(result.textContent).to.eql('Create with Passkey — success: Credential registered');
+      expect(result.textContent)
+        .to.eql(`${actionLabel('create-account')} — success: Credential registered`);
       res.update({
         snapshot: {
           ...signedIn,
@@ -316,7 +309,8 @@ describe('Passkey diagnostic panel', () => {
         ...callbacks,
       });
       expect(element(res.container, '[role="status"][aria-label="Last result"]')).to.equal(result);
-      expect(result.textContent).to.eql('Add Passkey — failure: Request did not complete');
+      expect(result.textContent)
+        .to.eql(`${actionLabel('add-passkey')} — failure: Request did not complete`);
       expect(valueCell(res.container, 'Principal').textContent).to.eql('principal-test-01');
       expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed in');
     } finally {
@@ -328,7 +322,7 @@ describe('Passkey diagnostic panel', () => {
     const props = { snapshot: signedOut, ...callbacks };
     const res = await renderPanel(props);
     try {
-      const action = button(res.container, 'Sign In');
+      const action = actionButton(res.container, 'sign-in');
       const operation = element(res.container, '[role="status"][aria-label="Operation"]');
       const result = element(res.container, '[role="status"][aria-label="Last result"]');
       const slot = element(res.container, '[data-spinner-slot]');
@@ -342,14 +336,14 @@ describe('Passkey diagnostic panel', () => {
           operation: { kind: 'pending', action: 'sign-in', phase: 'Verifying response' },
         },
       });
-      expect(button(res.container, 'Sign In')).to.equal(action);
+      expect(actionButton(res.container, 'sign-in')).to.equal(action);
       expect(document.activeElement).to.equal(action);
       expect(action.tabIndex).to.eql(-1);
       const pendingStyle = view.getComputedStyle(slot);
       expect(pendingStyle.width).to.eql('24px');
       expect(pendingStyle.height).to.eql('3px');
       expect(slot.getAttribute('aria-hidden')).to.eql('true');
-      expect(operation.textContent).to.eql('Sign In: Verifying response');
+      expect(operation.textContent).to.eql(`${action.textContent}: Verifying response`);
       expect(operation.getAttribute('aria-atomic')).to.eql('true');
       res.update({
         ...props,
@@ -358,7 +352,7 @@ describe('Passkey diagnostic panel', () => {
           result: { kind: 'failure', action: 'sign-in', summary: 'Request did not complete' },
         },
       });
-      expect(button(res.container, 'Sign In')).to.equal(action);
+      expect(actionButton(res.container, 'sign-in')).to.equal(action);
       expect(document.activeElement).to.equal(action);
       expect(action.tabIndex).to.eql(0);
       expect(element(res.container, '[role="status"][aria-label="Operation"]')).to.equal(operation);
@@ -374,15 +368,12 @@ describe('Passkey diagnostic panel', () => {
   it('focused action removed → no custom focus reassignment', async () => {
     const res = await renderPanel({ snapshot: signedOut, ...callbacks });
     try {
-      const action = button(res.container, 'Sign In');
+      const action = actionButton(res.container, 'sign-in');
       React.act(() => action.focus());
       res.update({ snapshot: signedIn, ...callbacks });
       expect(res.container.contains(document.activeElement)).to.eql(false);
-      expect(buttons(res.container).map((el) => el.textContent)).to.eql([
-        'Add Passkey',
-        'Sign Out',
-      ]);
-      const add = button(res.container, 'Add Passkey');
+      expectActions(res.container, 'add-passkey', 'sign-out');
+      const add = actionButton(res.container, 'add-passkey');
       React.act(() => add.focus());
       res.update({
         snapshot: { ...signedOut, authentication: { kind: 'checking' } },
@@ -400,7 +391,7 @@ describe('Passkey diagnostic panel', () => {
     const outside = document.createElement('button');
     document.body.append(outside);
     try {
-      React.act(() => button(res.container, 'Sign In').focus());
+      React.act(() => actionButton(res.container, 'sign-in').focus());
       React.act(() => outside.focus());
       res.update({ snapshot: signedIn, ...callbacks });
       expect(document.activeElement).to.equal(outside);
@@ -436,7 +427,8 @@ describe('Passkey diagnostic panel', () => {
       expect(dashes().length).to.eql(1);
       expect(view.getComputedStyle(dashes()[0]).opacity || '1').to.eql('1');
       expect(element(res.container, '[role="status"][aria-label="Last result"]')).to.equal(result);
-      expect(result.textContent).to.eql('Add Passkey — success: Credential added');
+      expect(result.textContent)
+        .to.eql(`${actionLabel('add-passkey')} — success: Credential added`);
     } finally {
       res.dispose();
     }
@@ -446,7 +438,7 @@ describe('Passkey diagnostic panel', () => {
     using panel = await renderPanel({ snapshot: signedOut, ...callbacks });
     const root = element(panel.container, '[data-component]');
     const nodes = [root, ...root.querySelectorAll<HTMLElement>('*')];
-    expect(nodes.find((el) => el.tabIndex >= 0)).to.equal(button(root, 'Create with Passkey'));
+    expect(nodes.find((el) => el.tabIndex >= 0)).to.equal(actionButton(root, 'create-account'));
     expect(root.ownerDocument.defaultView!.getComputedStyle(root).padding).to.eql('0px');
   });
 
@@ -458,7 +450,7 @@ describe('Passkey diagnostic panel', () => {
       const result = element(res.container, '[role="status"][aria-label="Last result"]');
       expect(view.getComputedStyle(operation).textAlign).to.eql('right');
       expect(view.getComputedStyle(result).textAlign).to.eql('right');
-      const action = button(res.container, 'Create with Passkey').parentElement!;
+      const action = actionButton(res.container, 'create-account').parentElement!;
       expect(view.getComputedStyle(action).justifyItems).to.eql('end');
       res.update({ snapshot: signedOut });
       expect(action.textContent).to.contain('Action not connected');
@@ -484,7 +476,7 @@ describe('Passkey diagnostic panel', () => {
     try {
       expect(valueCell(res.container, 'Principal').textContent).to.eql(principal);
       expect(valueCell(res.container, 'Last result').textContent)
-        .to.eql(`Add Passkey — failure: ${summary}`);
+        .to.eql(`${actionLabel('add-passkey')} — failure: ${summary}`);
       expect(res.container.querySelector('script')).to.eql(null);
       const root = element(res.container, '[data-component]');
       const view = root.ownerDocument.defaultView!;

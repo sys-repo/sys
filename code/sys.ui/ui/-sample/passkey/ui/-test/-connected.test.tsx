@@ -10,8 +10,8 @@ import {
 import { openSample } from '../../ui.host/u.sample.ts';
 import { Connected } from '../../ui.host/ui.Connected.tsx';
 import {
+  actionButton,
   activate,
-  button,
   buttons,
   element,
   pageListeners,
@@ -29,7 +29,7 @@ describe('connected passkey sample', () => {
     using server = transport(undefined, 'localhost');
     const sample = openSample();
     const res = await TestReact.render(<Connected sample={sample} />);
-    const attempt = () => activate(button(res.container, 'Sign In'));
+    const attempt = () => activate(actionButton(res.container, 'sign-in'));
     const result = () => valueCell(res.container, 'Last result').textContent;
     try {
       server.faults.lost = 'session.signIn.begin';
@@ -68,14 +68,14 @@ describe('connected passkey sample', () => {
     const res = await TestReact.render(<Connected sample={sample} />);
     const { container } = res;
     try {
-      await activate(button(container, 'Sign In'));
-      const add = button(container, 'Add Passkey');
+      await activate(actionButton(container, 'sign-in'));
+      const add = actionButton(container, 'add-passkey');
       clock.set(server.session.expiresAt);
       await activate(add);
       expect(valueCell(container, 'Authentication').textContent).to.eql('Signed out');
       expect(valueCell(container, 'Principal').textContent).to.eql('-');
       const last = valueCell(container, 'Last result').textContent;
-      expect(last).to.include('Add Passkey — Mutation not submitted');
+      expect(last).to.include(`${add.textContent} — Mutation not submitted`);
       const commands = server.requests.map(({ name }) => name);
       expect(commands).to.eql(['session.signIn.begin', 'session.signIn.finish']);
       expect(native.calls).to.eql(['get']);
@@ -135,13 +135,7 @@ describe('connected passkey sample', () => {
         expect(committed).to.eql(true);
         return accepted(live);
       };
-      const labels = {
-        'create-account': 'Create with Passkey',
-        'sign-in': 'Sign In',
-        'add-passkey': 'Add Passkey',
-        'sign-out': 'Sign Out',
-      };
-      const control = button(container, labels[action]);
+      const control = actionButton(container, action);
       if (action === 'create-account' || action === 'add-passkey') {
         const note = element(container, '[role="note"][id]:not([id=""])');
         expect(control.getAttribute('aria-describedby')).to.eql(note.id);
@@ -226,7 +220,7 @@ describe('connected passkey sample', () => {
     });
     const res = await TestReact.render(<Connected sample={a} />, { strict: true });
     cleanup.defer(() => React.act(() => res.dispose()));
-    await activate(button(res.container, 'Create with Passkey'));
+    await activate(actionButton(res.container, 'create-account'));
     expect(waiting).to.eql(true);
     expect(valueCell(res.container, 'Operation').textContent).to.eql('Idle');
     expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
@@ -270,7 +264,7 @@ describe('connected passkey sample', () => {
     const sample = openSample();
     const first = await TestReact.render(<Connected sample={sample} />);
     try {
-      await activate(button(first.container, 'Create with Passkey'));
+      await activate(actionButton(first.container, 'create-account'));
       expect(native.calls).to.eql(['create']);
       const page = globalThis.window;
       page.dispatchEvent(new page.Event('blur'));
@@ -297,7 +291,7 @@ describe('connected passkey sample', () => {
         });
         expect(valueCell(next.container, 'Operation').textContent).to.eql('Idle');
         expect(valueCell(next.container, 'Last result').textContent).to.eql('-');
-        expect(button(next.container, 'Sign In').tabIndex).to.eql(0);
+        expect(actionButton(next.container, 'sign-in').tabIndex).to.eql(0);
         expect(server.requests.map(({ name }) => name)).to.eql(['account.create.begin']);
       } finally {
         React.act(() => next.dispose());
@@ -323,7 +317,7 @@ describe('connected passkey sample', () => {
     const sample = openSample();
     await sample.run('sign-in');
     const res = await TestReact.render(<Connected sample={sample} />);
-    const control = button(res.container, 'Sign Out');
+    const control = actionButton(res.container, 'sign-out');
     try {
       await React.act(async () => {
         press(control, 'Enter');

@@ -1,6 +1,7 @@
 import React from 'react';
 import { DomMock, expect, Is, Schedule, type t, TestReact, WebFixture } from './common.ts';
 import { Passkey } from '../mod.ts';
+import { actionLabel } from '../u.actions.ts';
 
 /** Observe page-lifetime listener identity without replacing event delivery. */
 export function pageListeners() {
@@ -72,6 +73,22 @@ export function button(container: HTMLElement, label: string): HTMLElement {
   return el;
 }
 
+/** Assert the complete set and order, including the absence of unexpected controls. */
+export function expectActions(container: HTMLElement, ...actions: t.Passkey.Action[]) {
+  expect(buttons(container).map((el) => el.textContent)).to.eql(actions.map(actionLabel));
+}
+
+/** Resolve an intent through its rendered button, not through a direct callback or test-only ID. */
+export function actionButton(container: HTMLElement, action: t.Passkey.Action): HTMLElement {
+  const section = element(container, '[data-passkey-section="actions"]');
+  const label = actionLabel(action);
+  const matches = buttons(section).filter((el) => el.textContent === label);
+  if (matches.length !== 1) {
+    throw new Error(`Expected one ${action} button; found ${matches.length}`);
+  }
+  return matches[0];
+}
+
 export function buttons(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>('[role="button"]'));
 }
@@ -107,20 +124,20 @@ export function activate(el: HTMLElement) {
 /** Drive the integration specimen through its rendered controls, not the runtime. */
 export async function exerciseAccountFlow(container: HTMLElement) {
   const value = (label: string) => valueCell(container, label).textContent;
-  const choose = (label: string) => activate(button(container, label));
+  const choose = (action: t.Passkey.Action) => activate(actionButton(container, action));
   expect(value('Authentication')).to.eql('Signed out');
   expect(value('Account service')).to.eql('Configured');
-  await choose('Create with Passkey');
+  await choose('create-account');
   expect(value('Account label')).to.eql('Test account');
   expect(value('Principal')).to.eql('principal');
   expect(value('Registered credentials')).to.eql('1');
-  await choose('Sign Out');
+  await choose('sign-out');
   expect(value('Authentication')).to.eql('Signed out');
   expect(container.textContent).not.to.contain('Account label');
-  await choose('Sign In');
+  await choose('sign-in');
   expect(value('Account label')).to.eql('Test account');
   expect(value('Principal')).to.eql('principal');
-  await choose('Add Passkey');
+  await choose('add-passkey');
   expect(value('Principal')).to.eql('principal');
   expect(value('Registered credentials')).to.eql('2');
   expect(value('Last result')).to.contain('Accepted by the account service');

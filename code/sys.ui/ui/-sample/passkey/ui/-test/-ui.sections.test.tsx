@@ -13,9 +13,10 @@ import {
 import { browserOrigin } from '../../u/u.issuer.ts';
 import { Passkey } from '../mod.ts';
 import {
-  button,
+  actionButton,
   buttons,
   element,
+  expectActions,
   press,
   renderPanel,
   signedIn,
@@ -156,7 +157,7 @@ describe('Passkey diagnostic sections', () => {
     const props = { onSignIn: () => {}, sections: { status: false } };
     using panel = await renderPanel({ ...props, snapshot: signedOut });
     const slot = element(panel.container, '[data-passkey-title-spinner]');
-    const signIn = button(panel.container, 'Sign In');
+    const signIn = actionButton(panel.container, 'sign-in');
     const context = element(panel.container, section('context'));
     React.act(() => signIn.focus());
     const transitions = [
@@ -175,7 +176,7 @@ describe('Passkey diagnostic sections', () => {
       expect(slot.hasAttribute('aria-valuenow')).to.eql(false);
       expect(slot.hasAttribute('tabindex')).to.eql(false);
       expect([cssOf(slot).width, cssOf(slot).height]).to.eql(['24px', '3px']);
-      expect(button(panel.container, 'Sign In')).to.equal(signIn);
+      expect(actionButton(panel.container, 'sign-in')).to.equal(signIn);
       expect(document.activeElement).to.equal(signIn);
       expect(element(panel.container, section('context'))).to.equal(context);
     }
@@ -216,14 +217,11 @@ describe('Passkey diagnostic sections', () => {
       );
       expect(framing(res.container)).to.eql('actions status context');
       expect(res.container.querySelector('[data-passkey-title-spinner]')).to.eql(null);
-      const rows = [
-        ['actions', 'Sign In'],
-        ['status', 'principal-test-01'],
-        ['context', 'Context'],
-      ];
-      for (const [name, text] of rows) {
+      expectActions(res.container, 'create-account', 'sign-in');
+      expect(element(res.container, section('status')).textContent).to.include('principal-test-01');
+      expect(element(res.container, section('context')).textContent).to.include('Context');
+      for (const name of names) {
         const root = element(res.container, section(name));
-        expect(root.textContent).to.include(text);
         expect(cssOf(root).padding).to.eql('7px');
         expect(Color.toHex(cssOf(root).color)).to.eql(Color.toHex(Color.theme(theme).fg));
       }
@@ -246,13 +244,12 @@ describe('Passkey diagnostic sections', () => {
       using res = await TestReact.render(
         <Passkey.UI.Actions {...snapshot} {...callbacks} operation={operation} />,
       );
-      const controls = buttons(res.container);
-      const expected = out ? ['Create with Passkey', 'Sign In'] : ['Add Passkey', 'Sign Out'];
-      expect(controls.map((el) => el.textContent)).to.eql(expected);
+      if (out) expectActions(res.container, 'create-account', 'sign-in');
+      else expectActions(res.container, 'add-passkey', 'sign-out');
       const progress = '[role="progressbar"], [data-spinner-slot], [role="status"]';
       expect(res.container.querySelector(progress)).to.eql(null);
       expect(res.container.textContent).not.to.include('Waiting');
-      for (const el of controls) {
+      for (const el of buttons(res.container)) {
         expect(el.getAttribute('aria-disabled')).to.eql('true');
         expect(el.tabIndex).to.eql(-1);
         press(el, 'Enter');
