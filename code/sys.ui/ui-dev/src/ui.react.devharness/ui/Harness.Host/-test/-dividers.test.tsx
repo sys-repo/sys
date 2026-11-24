@@ -10,6 +10,7 @@ import {
   Signal,
   type t,
   TestSample,
+  Time,
 } from '../../../-test.ts';
 import { Theme } from '../../../u/m.Theme/mod.ts';
 import { HarnessHost } from '../mod.ts';
@@ -32,9 +33,11 @@ describe('DevHarness host dividers', () => {
           await context.flush();
         });
       };
+      const edge = (name: 'Header' | 'Footer') =>
+        view.container.querySelector(`[data-component="dev.harness:${name}"]`);
       const expectColors = (headerColor: string, footerColor = headerColor) => {
-        const header = view.container.querySelector('[data-component="dev.harness:Header"]');
-        const footer = view.container.querySelector('[data-component="dev.harness:Footer"]');
+        const header = edge('Header');
+        const footer = edge('Footer');
         const window = view.container.ownerDocument.defaultView;
         if (Is.nil(window) || Is.nil(header) || Is.nil(footer)) {
           throw new Error('Expected both host edges in a mounted document');
@@ -48,6 +51,7 @@ describe('DevHarness host dividers', () => {
         ctx.host.footer.render(<span>Footer</span>);
         Theme.signalEffect(ctx, theme);
       });
+      await Time.waitFor(() => edge('Header') && edge('Footer'), { timeout: 2000 });
       expectColors(LIGHT);
 
       await update(() => void (theme.value = 'Dark'));
