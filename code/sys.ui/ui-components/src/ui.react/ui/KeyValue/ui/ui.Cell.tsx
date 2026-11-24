@@ -35,7 +35,7 @@ export type CellProps = Base & {
  * Component:
  */
 export const Cell: React.FC<CellProps> = (props) => {
-  const { debug = false, role, mono, truncate, size, layout, opacity } = props;
+  const { debug = false, role, mono = D.mono, truncate, size = D.size, layout, opacity } = props;
   const isKey = role === 'key';
   const isValue = role === 'val';
   const enabled = props.enabled ?? D.enabled;
@@ -60,6 +60,7 @@ export const Cell: React.FC<CellProps> = (props) => {
    */
   const theme = Color.theme(props.theme);
   const { fontSize, fontFamily } = toFont({ size, mono });
+  const compactMono = isValue && isTextChild && mono && size !== 'xs';
   const effectiveOpacity = !enabled && isValue ? (opacity ?? 1) * disabledOpacity : (opacity ?? 1);
   const cursorFill = props.cursor?.current ? (props.cursor.fill ?? Color.ruby(0.2)) : undefined;
 
@@ -68,7 +69,7 @@ export const Cell: React.FC<CellProps> = (props) => {
       backgroundColor: cursorFill ?? Color.ruby(debug),
       color: theme.fg,
       minWidth: 0,
-      fontSize,
+      fontSize: compactMono ? fontSize - 1 : fontSize,
       fontFamily,
       opacity: effectiveOpacity,
       userSelect: props.userSelect,
