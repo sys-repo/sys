@@ -6,31 +6,20 @@ Verify claims against source. Flag misleading promises, missing context, repetit
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
+@sys.cell
+browser-targets.plan.md
+- [ ] feat(cell): resolve declared browser targets from the ready service snapshot
+- [ ] feat(cell): open browser targets and quit from the ready screen
+- [ ] docs(cell): explain browser targets and enable them in the UI cell and samples
 
 
 @sys.ui-components
 markdown-admonition-panel.plan.md
-- [ ] chore(ui-components): scaffold Admonition UI
+- [x] 6d3e56310 chore(ui-components): scaffold Admonition UI
 - [ ] feat(ui-components): render compact Markdown admonitions
 - [ ] refactor(ui): adopt Admonition for passkey registration guidance
 - [ ] fix(ui-components): align Dev.Help Markdown link cues with Admonition
 
-
-
-
-
-@sys.ui-components
-inline-bar-spinner.plan.md
-- [x] 02e338d92 fix(ui-components): render Spinners.Bar without a lazy dependency
-
-@sys.ui-components
-circular-spinner.plan.md
-- [x] 2bbdfdece chore(ui-components): scaffold the circular spinner module
-- [x] 6b8e13b69 refactor(ui-components)!: expose Bar and Circular through their UI renderers
-- [x] 4142d7130 refactor(ui-components)!: rename SpinnerLib to Spinners.Lib
-- [x] d6414fb49 feat(ui-components): add the classic macOS-style Spinners.Circular indicator
-- [x] 1573ff8f6 refactor(ui-components)!: retire legacy direct React component aliases
-- [x] d8cc1ecb3 test(ui-components): move spinner export tests to the family module
 
 
 @sys.ui
