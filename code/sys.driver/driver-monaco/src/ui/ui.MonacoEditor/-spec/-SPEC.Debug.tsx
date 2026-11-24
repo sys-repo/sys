@@ -216,8 +216,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <Dev.Button
         block
-        label={() =>
-          `wordWrap: ${p.wordWrap.value ?? `(undefined) (default: ${D.props.wordWrap})`}`}
+        label={() => {
+          return `wordWrap: ${p.wordWrap.value ?? `(undefined) (default: ${D.props.wordWrap})`}`;
+        }}
         onClick={() => Signal.toggle(p.wordWrap)}
       />
 

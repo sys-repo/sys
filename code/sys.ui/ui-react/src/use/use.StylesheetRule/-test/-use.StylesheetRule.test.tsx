@@ -184,9 +184,9 @@ describe('useStylesheetRule', () => {
         .filter((text) => text.startsWith(`${selector} {`));
       expect(emitted).to.eql([`${selector} { font-weight: 600; }`]);
     };
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <React.StrictMode>{children}</React.StrictMode>
-    );
+    const wrapper = ({ children }: { children: React.ReactNode }) => {
+      return <React.StrictMode>{children}</React.StrictMode>;
+    };
     for (const generation of [1, 2]) {
       const before = calls.length;
       const hook = renderHook(() => useStylesheetRule(selector, { fontWeight: 600 }), { wrapper });
@@ -208,9 +208,9 @@ describe('useStylesheetRule', () => {
     const selector = '.use-stylesheet-rule-discarded';
     const pending = new Promise<void>(() => {});
     let renders = 0;
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <React.Suspense fallback={<div>waiting</div>}>{children}</React.Suspense>
-    );
+    const wrapper = ({ children }: { children: React.ReactNode }) => {
+      return <React.Suspense fallback={<div>waiting</div>}>{children}</React.Suspense>;
+    };
     const hook = renderHook(() => {
       renders++;
       useStylesheetRule(selector, { color: 'red' });

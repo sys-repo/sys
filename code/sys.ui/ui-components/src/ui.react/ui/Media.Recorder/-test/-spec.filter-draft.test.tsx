@@ -114,15 +114,17 @@ function recorderDom() {
 function observeDeliveries() {
   const { List } = Filters.UI;
   const calls: { at: number; values: Values }[] = [];
-  const Observed: typeof List = (props) => (
-    <List
-      {...props}
-      onChanged={(e) => {
-        calls.push({ at: Date.now(), values: { ...e.values } });
-        props.onChanged?.(e);
-      }}
-    />
-  );
+  const Observed: typeof List = (props) => {
+    return (
+      <List
+        {...props}
+        onChanged={(e) => {
+          calls.push({ at: Date.now(), values: { ...e.values } });
+          props.onChanged?.(e);
+        }}
+      />
+    );
+  };
   Object.assign(Filters.UI, { List: Observed });
   return { calls, [Symbol.dispose]: () => Object.assign(Filters.UI, { List }) };
 }

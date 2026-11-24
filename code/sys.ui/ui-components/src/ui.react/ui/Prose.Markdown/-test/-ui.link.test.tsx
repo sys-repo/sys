@@ -16,9 +16,9 @@ describe('Prose.Markdown.UI: links', () => {
 
   it('uses link render overrides for safe links', async () => {
     const renderers: t.ProseMarkdown.Renderers = {
-      link: ({ href, title, children }) => (
-        <span data-href={href} data-title={title}>{children}</span>
-      ),
+      link({ href, title, children }) {
+        return <span data-href={href} data-title={title}>{children}</span>;
+      },
     };
 
     const res = await TestReact.render(
@@ -41,9 +41,9 @@ describe('Prose.Markdown.UI: links', () => {
 
   it('can render links with Anchor.UI from a caller override', async () => {
     const renderers: t.ProseMarkdown.Renderers = {
-      link: ({ href, title, children }) => (
-        <Anchor.UI href={href} title={title} target='_blank'>{children}</Anchor.UI>
-      ),
+      link({ href, title, children }) {
+        return <Anchor.UI href={href} title={title} target='_blank'>{children}</Anchor.UI>;
+      },
     };
 
     const res = await TestReact.render(
@@ -64,9 +64,9 @@ describe('Prose.Markdown.UI: links', () => {
   it('composes link and inline-code render overrides', async () => {
     const renderers: t.ProseMarkdown.Renderers = {
       inlineCode: ({ value }) => <span data-chip={value}>{value}</span>,
-      link: ({ href, title, children }) => (
-        <Anchor.UI href={href} title={title}>{children}</Anchor.UI>
-      ),
+      link({ href, title, children }) {
+        return <Anchor.UI href={href} title={title}>{children}</Anchor.UI>;
+      },
     };
 
     const href = '/?dev=chip-spec';

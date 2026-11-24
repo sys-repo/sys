@@ -23,37 +23,39 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size('fill-x', 150)
       .display('grid')
-      .render(() => (
-        <TextInput
-          debug={p.debug.value}
-          theme={p.theme.value}
-          value={p.value.value}
-          placeholder={p.placeholder.value}
-          prefix={p.prefix.value}
-          suffix={p.suffix.value}
-          //
-          disabled={p.disabled.value}
-          readOnly={p.readOnly.value}
-          autoFocus={p.autoFocus.value}
-          spellCheck={p.spellCheck.value}
-          background={p.background.value}
-          border={p.border.value}
-          borderRadius={p.borderRadius.value}
-          // ⚡️
-          onReady={(e: t.TextInput.ReadyArgs) => console.info(`🌳 onReady:`, e)}
-          onKeyDown={(e: t.TextInput.KeyArgs) => console.info(`⚡️ onKeyDown:`, e)}
-          onKeyUp={(e: t.TextInput.KeyArgs) => console.info(`⚡️ onKeyUp:`, e)}
-          onFocusChange={(e: t.TextInput.FocusArgs) => console.info(`⚡️ onFocusChange`, e)}
-          onChange={(e: t.TextInput.ChangeArgs) => {
-            console.info(`⚡️ onChange:`, e);
-            p.value.value = e.value;
-          }}
-          onPaste={(e: t.TextInput.PasteArgs) => {
-            console.info(`⚡️ onPaste:`, e);
-            // e.modify('hello');
-          }}
-        />
-      ));
+      .render(() => {
+        return (
+          <TextInput
+            debug={p.debug.value}
+            theme={p.theme.value}
+            value={p.value.value}
+            placeholder={p.placeholder.value}
+            prefix={p.prefix.value}
+            suffix={p.suffix.value}
+            //
+            disabled={p.disabled.value}
+            readOnly={p.readOnly.value}
+            autoFocus={p.autoFocus.value}
+            spellCheck={p.spellCheck.value}
+            background={p.background.value}
+            border={p.border.value}
+            borderRadius={p.borderRadius.value}
+            // ⚡️
+            onReady={(e: t.TextInput.ReadyArgs) => console.info(`🌳 onReady:`, e)}
+            onKeyDown={(e: t.TextInput.KeyArgs) => console.info(`⚡️ onKeyDown:`, e)}
+            onKeyUp={(e: t.TextInput.KeyArgs) => console.info(`⚡️ onKeyUp:`, e)}
+            onFocusChange={(e: t.TextInput.FocusArgs) => console.info(`⚡️ onFocusChange`, e)}
+            onChange={(e: t.TextInput.ChangeArgs) => {
+              console.info(`⚡️ onChange:`, e);
+              p.value.value = e.value;
+            }}
+            onPaste={(e: t.TextInput.PasteArgs) => {
+              console.info(`⚡️ onPaste:`, e);
+              // e.modify('hello');
+            }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

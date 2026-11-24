@@ -114,14 +114,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button
         block
         label={() => `actOn: ${wrangle.actOnLabel(v.actOn)}`}
-        onClick={() =>
-          Signal.cycle<Storage['actOn']>(p.actOn, [
+        onClick={() => {
+          return Signal.cycle<Storage['actOn']>(p.actOn, [
             'Enter',
             'Cmd+Enter',
             'Cmd+Click',
             ['Cmd+Enter', 'Cmd+Click'],
             null,
-          ])}
+          ]);
+        }}
       />
 
       <hr />

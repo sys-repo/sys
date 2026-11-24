@@ -18,16 +18,18 @@ export default Spec.describe('CanvasSlug', (e) => {
     ctx.subject
       .size('fill-y', 150)
       .display('grid')
-      .render((e) => (
-        <CanvasSlug
-          style={{ width: 390 }}
-          debug={p.debug.value}
-          theme={p.theme.value}
-          selected={p.selected.value}
-          logo={p.logo.value}
-          text={p.text.value}
-        />
-      ));
+      .render(() => {
+        return (
+          <CanvasSlug
+            style={{ width: 390 }}
+            debug={p.debug.value}
+            theme={p.theme.value}
+            selected={p.selected.value}
+            logo={p.logo.value}
+            text={p.text.value}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

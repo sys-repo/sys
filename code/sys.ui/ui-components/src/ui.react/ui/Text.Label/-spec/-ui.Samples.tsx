@@ -31,9 +31,9 @@ export function Samples(props: Props) {
     line: css({ outline: `dotted 1px ${Color.alpha(theme.fg, 0.25)}` }),
     prefix: css({ display: 'inline-block', width: 'calc(100% - 2em)' }),
   };
-  const label = (value: string, overflow: t.TextLabel.Overflow = D.overflow) => (
-    <TextLabel.UI value={value} overflow={overflow} debug={props.debug} />
-  );
+  const label = (value: string, overflow: t.TextLabel.Overflow = D.overflow) => {
+    return <TextLabel.UI value={value} overflow={overflow} debug={props.debug} />;
+  };
   const rows: readonly { title: string; content: t.ReactNode }[] = [
     { title: '1 · Current value / selected overflow', content: label(props.value, props.overflow) },
     { title: '2 · Current-line fit / inherited baseline', content: <>Ag {label('`Ag`')} Ag</> },
@@ -109,12 +109,14 @@ export function Samples(props: Props) {
   return (
     <div className={styles.base.class}>
       <div className={styles.heading.class}>Synthetic sample paths. Activations: {activations}</div>
-      {rows.map(({ title, content }) => (
-        <section key={title}>
-          <div className={styles.heading.class}>{title}</div>
-          <div className={styles.line.class}>{content}</div>
-        </section>
-      ))}
+      {rows.map(({ title, content }) => {
+        return (
+          <section key={title}>
+            <div className={styles.heading.class}>{title}</div>
+            <div className={styles.line.class}>{content}</div>
+          </section>
+        );
+      })}
     </div>
   );
 }

@@ -159,8 +159,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
             : v;
           return `border: ${print ?? `(undefined)`}`;
         }}
-        onClick={() =>
-          Signal.cycle(p.border, [
+        onClick={() => {
+          return Signal.cycle(p.border, [
             true,
             false,
             D.border,
@@ -169,7 +169,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
             { mode: 'line:top' },
             { focusColor: 'red', defaultColor: Color.ruby(0.15) },
             undefined,
-          ])}
+          ]);
+        }}
       />
       <Dev.Button
         block

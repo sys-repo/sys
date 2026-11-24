@@ -68,28 +68,30 @@ function Samples(props: ProofProps & { row: Row; baseline?: boolean }) {
   const theme = Color.theme(row.palette);
   return (
     <article style={{ background: theme.bg, padding: 8 }}>
-      {overrides.map((override) => (
-        <section key={override} style={{ marginBlock: 12 }}>
-          <Component
-            UI={UI}
-            theme={row.palette}
-            style={override === 'root' ? { color: foregroundOverride } : undefined}
-          >
-            <div style={override === 'intermediate' ? { color: foregroundOverride } : undefined}>
-              <code
-                data-palette={row.palette}
-                data-override={override}
-                style={override === 'direct' ? { color: foregroundOverride } : undefined}
-              >
-                {`${row.palette}: ${override} override → const answer = 42;`}
-              </code>
-            </div>
-            {override === 'none' && row.nested && (
-              <Samples UI={UI} row={{ id: 'nested', palette: row.nested }} />
-            )}
-          </Component>
-        </section>
-      ))}
+      {overrides.map((override) => {
+        return (
+          <section key={override} style={{ marginBlock: 12 }}>
+            <Component
+              UI={UI}
+              theme={row.palette}
+              style={override === 'root' ? { color: foregroundOverride } : undefined}
+            >
+              <div style={override === 'intermediate' ? { color: foregroundOverride } : undefined}>
+                <code
+                  data-palette={row.palette}
+                  data-override={override}
+                  style={override === 'direct' ? { color: foregroundOverride } : undefined}
+                >
+                  {`${row.palette}: ${override} override → const answer = 42;`}
+                </code>
+              </div>
+              {override === 'none' && row.nested && (
+                <Samples UI={UI} row={{ id: 'nested', palette: row.nested }} />
+              )}
+            </Component>
+          </section>
+        );
+      })}
     </article>
   );
 }
@@ -352,19 +354,21 @@ function App(props: ProofProps) {
       </div>
       <h2>Isolated baseline references</h2>
       <div style={grid}>
-        {palettes.map((palette) => (
-          <div key={palette}>
-            <h3>{palette}</h3>
-            <iframe
-              title={`${palette} isolated baseline`}
-              src={`?styles&baseline=${palette}`}
-              style={{ width: '100%', height: 410, border: '1px solid #aaa' }}
-              ref={(frame) => {
-                if (frame) references.current.set(palette, frame);
-              }}
-            />
-          </div>
-        ))}
+        {palettes.map((palette) => {
+          return (
+            <div key={palette}>
+              <h3>{palette}</h3>
+              <iframe
+                title={`${palette} isolated baseline`}
+                src={`?styles&baseline=${palette}`}
+                style={{ width: '100%', height: 410, border: '1px solid #aaa' }}
+                ref={(frame) => {
+                  if (frame) references.current.set(palette, frame);
+                }}
+              />
+            </div>
+          );
+        })}
       </div>
       <h2>Computed-style report</h2>
       <textarea

@@ -18,21 +18,23 @@ export default Spec.describe('VimeoBackground', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => (
-        <VimeoBackground
-          theme={p.theme.value}
-          video={p.video.value}
-          opacity={p.opacity.value}
-          blur={p.blur.value}
-          playing={p.playing.value}
-          playingTransition={p.playingTransition.value}
-          jumpTo={p.jumpTo.value}
-          onReady={(api) => {
-            console.info(`⚡️ onReady`, api);
-            debug.props.vimeo.value = api;
-          }}
-        />
-      ));
+      .render(() => {
+        return (
+          <VimeoBackground
+            theme={p.theme.value}
+            video={p.video.value}
+            opacity={p.opacity.value}
+            blur={p.blur.value}
+            playing={p.playing.value}
+            playingTransition={p.playingTransition.value}
+            jumpTo={p.jumpTo.value}
+            onReady={(api) => {
+              console.info(`⚡️ onReady`, api);
+              debug.props.vimeo.value = api;
+            }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

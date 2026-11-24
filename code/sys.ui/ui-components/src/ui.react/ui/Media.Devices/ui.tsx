@@ -58,17 +58,19 @@ export const List: React.FC<P> = (props) => {
     </div>
   );
 
-  const elItems = visible.map((item, i) => (
-    <Row
-      key={wrangle.key(item)}
-      device={item}
-      debug={debug}
-      index={i}
-      selected={wrangle.selected(props, item)}
-      theme={theme.name}
-      onSelect={props.onSelect}
-    />
-  ));
+  const elItems = visible.map((item, i) => {
+    return (
+      <Row
+        key={wrangle.key(item)}
+        device={item}
+        debug={debug}
+        index={i}
+        selected={wrangle.selected(props, item)}
+        theme={theme.name}
+        onSelect={props.onSelect}
+      />
+    );
+  });
 
   return (
     <div className={css(styles.base, props.style).class}>

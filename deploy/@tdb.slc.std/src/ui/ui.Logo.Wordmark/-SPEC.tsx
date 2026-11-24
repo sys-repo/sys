@@ -25,13 +25,15 @@ export default Spec.describe('Logo.Wordmark', (e) => {
     ctx.subject
       .size()
       .display('grid')
-      .render((e) => (
-        <LogoWordmark
-          theme={p.theme.value}
-          logo={p.logo.value}
-          onReady={() => console.info(`⚡️ onReady`)}
-        />
-      ));
+      .render(() => {
+        return (
+          <LogoWordmark
+            theme={p.theme.value}
+            logo={p.logo.value}
+            onReady={() => console.info(`⚡️ onReady`)}
+          />
+        );
+      });
 
     updateSize();
   });

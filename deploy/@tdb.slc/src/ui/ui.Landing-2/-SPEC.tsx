@@ -20,13 +20,15 @@ export default Spec.describe('Landing-2', (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render((e) => (
-        <Landing
-          theme={p.theme.value}
-          debug={p.debug.value}
-          backgroundVideo={p.backgroundVideo.value}
-        />
-      ));
+      .render(() => {
+        return (
+          <Landing
+            theme={p.theme.value}
+            debug={p.debug.value}
+            backgroundVideo={p.backgroundVideo.value}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

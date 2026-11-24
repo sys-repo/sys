@@ -118,8 +118,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <Dev.Button
         block
-        label={() =>
-          `minColumnWidth: ${v.minColumnWidth ?? `(undefined) ← default: ${D.minColumnWidth}`}`}
+        label={() => {
+          const width = v.minColumnWidth ?? `(undefined) ← default: ${D.minColumnWidth}`;
+          return `minColumnWidth: ${width}`;
+        }}
         onClick={() => {
           Signal.cycle(p.minColumnWidth, [
             D.minColumnWidth, // default 280
@@ -152,13 +154,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button
         block
         label={() => `activeIndex: ${p.activeIndex.value}`}
-        onClick={() =>
-          Signal.cycle(
-            p.activeIndex,
-            Array(v.total)
-              .fill(null)
-              .map((_, i) => i),
-          )}
+        onClick={() => {
+          const indices = Array(v.total).fill(null).map((_, i) => i);
+          return Signal.cycle(p.activeIndex, indices);
+        }}
       />
 
       <Dev.Button

@@ -18,30 +18,32 @@ export default Spec.describe('MenuList', (e) => {
     ctx.subject
       .size('fill-y')
       .display('grid')
-      .render(() => (
-        <MenuList
-          style={{ width: 390, Padding: [20, 40] }}
-          theme={p.theme.value}
-          debug={p.debug.value}
-          items={p.items.value}
-          selected={p.selected.value}
-          onSelect={(e) => {
-            console.info(`⚡️ onSelect:`, e);
+      .render(() => {
+        return (
+          <MenuList
+            style={{ width: 390, Padding: [20, 40] }}
+            theme={p.theme.value}
+            debug={p.debug.value}
+            items={p.items.value}
+            selected={p.selected.value}
+            onSelect={(e) => {
+              console.info(`⚡️ onSelect:`, e);
 
-            const isStateful = p.debugStateful.value;
-            const isMultiselect = p.debugMultiselect.value;
-            if (isStateful) {
-              if (!isMultiselect) {
-                p.selected.value = e.index;
-              } else {
-                const current = Arr.asArray(p.selected.value).filter((m) => !Is.nil(m));
-                const next = Arr.uniq([...current, e.index]);
-                p.selected.value = next;
+              const isStateful = p.debugStateful.value;
+              const isMultiselect = p.debugMultiselect.value;
+              if (isStateful) {
+                if (!isMultiselect) {
+                  p.selected.value = e.index;
+                } else {
+                  const current = Arr.asArray(p.selected.value).filter((m) => !Is.nil(m));
+                  const next = Arr.uniq([...current, e.index]);
+                  p.selected.value = next;
+                }
               }
-            }
-          }}
-        />
-      ));
+            }}
+          />
+        );
+      });
   });
 
   e.it('ui:debug', (e) => {

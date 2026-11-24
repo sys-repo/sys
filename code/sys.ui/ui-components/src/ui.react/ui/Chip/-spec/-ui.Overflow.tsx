@@ -166,12 +166,14 @@ export function Overflow(props: Props) {
   return (
     <div className={styles.base.class}>
       <div className={styles.heading.class}>Synthetic sample paths — not repository locations.</div>
-      {rows.map(({ title, content }) => (
-        <section key={title}>
-          <div className={styles.heading.class}>{title}</div>
-          <div className={styles.line.class}>{content}</div>
-        </section>
-      ))}
+      {rows.map(({ title, content }) => {
+        return (
+          <section key={title}>
+            <div className={styles.heading.class}>{title}</div>
+            <div className={styles.line.class}>{content}</div>
+          </section>
+        );
+      })}
     </div>
   );
 }

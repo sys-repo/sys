@@ -38,25 +38,27 @@ export const LinkExamples: t.FC<Props> = (props) => {
 
   return (
     <div className={styles.base.class}>
-      {(['plain', 'arrow-only', 'resource-plus-arrow'] as const).map((kind, index) => (
-        <Fragment key={kind}>
-          {index > 0 && <Dev.Divider theme={theme.name} />}
-          <section
-            aria-label={`${kind} / standalone`}
-            className={styles.example.class}
-          >
-            <div className={styles.label.class}>{`${kind} / standalone`}</div>
-            <div>{link(kind)}</div>
-          </section>
+      {(['plain', 'arrow-only', 'resource-plus-arrow'] as const).map((kind, index) => {
+        return (
+          <Fragment key={kind}>
+            {index > 0 && <Dev.Divider theme={theme.name} />}
+            <section
+              aria-label={`${kind} / standalone`}
+              className={styles.example.class}
+            >
+              <div className={styles.label.class}>{`${kind} / standalone`}</div>
+              <div>{link(kind)}</div>
+            </section>
 
-          <Dev.Divider theme={theme.name} />
+            <Dev.Divider theme={theme.name} />
 
-          <section aria-label={`${kind} / prose`} className={styles.example.class}>
-            <div className={styles.label.class}>{`${kind} / prose`}</div>
-            <p className={styles.prose.class}>See the {link(kind)} for more information.</p>
-          </section>
-        </Fragment>
-      ))}
+            <section aria-label={`${kind} / prose`} className={styles.example.class}>
+              <div className={styles.label.class}>{`${kind} / prose`}</div>
+              <p className={styles.prose.class}>See the {link(kind)} for more information.</p>
+            </section>
+          </Fragment>
+        );
+      })}
 
       <Dev.Divider theme={theme.name} />
 

@@ -14,9 +14,9 @@ function renderersFor(
   sample: unknown,
   theme?: t.CommonTheme,
 ): t.ProseMarkdown.Renderers {
-  const inlineCode: t.ProseMarkdown.Inline.Code.Renderer = ({ value }) => (
-    <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>
-  );
+  const inlineCode: t.ProseMarkdown.Inline.Code.Renderer = ({ value }) => {
+    return <Chip.UI size='xs' mono theme={theme}>{value}</Chip.UI>;
+  };
 
   if (sample === 'thematic-breaks') {
     return { ...sourceBreakRenderers, inlineCode };
@@ -26,34 +26,38 @@ function renderersFor(
     return {
       ...sourceBreakRenderers,
       inlineCode,
-      link: ({ href, title, children }) => (
-        <Anchor.UI href={href} title={title} target='_blank' theme={theme}>{children}</Anchor.UI>
-      ),
+      link({ href, title, children }) {
+        return (
+          <Anchor.UI href={href} title={title} target='_blank' theme={theme}>{children}</Anchor.UI>
+        );
+      },
     };
   }
 
   if (sample === 'task-state') {
     return {
       ...sourceBreakRenderers,
-      taskState: ({ checked, ariaLabel }) => (
-        <span
-          aria-checked={checked}
-          aria-label={ariaLabel}
-          aria-readonly
-          className={Styles.taskState.class}
-          role='switch'
-        >
-          <span aria-hidden inert>
-            <ButtonFamily.Switch
-              value={checked}
-              width={26}
-              height={14}
-              theme={theme}
-              transitionSpeed={0}
-            />
+      taskState({ checked, ariaLabel }) {
+        return (
+          <span
+            aria-checked={checked}
+            aria-label={ariaLabel}
+            aria-readonly
+            className={Styles.taskState.class}
+            role='switch'
+          >
+            <span aria-hidden inert>
+              <ButtonFamily.Switch
+                value={checked}
+                width={26}
+                height={14}
+                theme={theme}
+                transitionSpeed={0}
+              />
+            </span>
           </span>
-        </span>
-      ),
+        );
+      },
     };
   }
 
