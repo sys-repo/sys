@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.TextEllipsize.Props;
@@ -38,11 +39,17 @@ export async function createDebugSignals() {
     width: s(snap.width),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.debug = p.debug.value;
+        d.text = p.text.value;
+        d.tail = p.tail.value;
+        d.ellipsis = p.ellipsis.value;
+        d.width = p.width.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -52,17 +59,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.debug = p.debug.value;
-      d.text = p.text.value;
-      d.tail = p.tail.value;
-      d.ellipsis = p.ellipsis.value;
-      d.width = p.width.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

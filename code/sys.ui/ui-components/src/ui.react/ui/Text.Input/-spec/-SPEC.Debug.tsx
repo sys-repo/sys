@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, Is, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.TextInput.Props;
@@ -64,14 +65,22 @@ export function createDebugSignals() {
   };
 
   const p = props;
-  const api = {
-    get props() {
-      return props;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.value = p.value.value;
+        d.placeholder = p.placeholder.value;
+        d.autoFocus = p.autoFocus.value;
+        d.disabled = p.disabled.value;
+        d.readOnly = p.readOnly.value;
+        d.background = p.background.value;
+        d.border = p.border.value;
+        d.borderRadius = p.borderRadius.value;
+        d.spellCheck = p.spellCheck.value;
+      });
     },
-    localstore: store,
-    listen,
-    reset,
-  };
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -81,23 +90,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      const p = props;
-      d.theme = p.theme.value;
-      d.value = p.value.value;
-      d.placeholder = p.placeholder.value;
-      d.autoFocus = p.autoFocus.value;
-      d.disabled = p.disabled.value;
-      d.readOnly = p.readOnly.value;
-      d.background = p.background.value;
-      d.border = p.border.value;
-      d.borderRadius = p.borderRadius.value;
-      d.spellCheck = p.spellCheck.value;
-    });
-  });
-
-  return api;
+  return { props, localstore: store, listen, reset, attach };
 }
 
 const Styles = {

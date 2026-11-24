@@ -1,7 +1,7 @@
 import { Signal, Spec } from '../../-test.ui.ts';
-import { type t, D } from './common.ts';
+import { D } from './common.ts';
 import { TextEllipsize } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -15,16 +15,16 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    ctx.subject.display('grid').render(() => <Root />);
-
-    update();
-    function update() {
-      debug.listen();
-      ctx.subject.size([p.width.value, null]);
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
+    debug.attach(ctx, {
+      subject: { display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void ctx.subject.size([p.width.value, null]),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {
