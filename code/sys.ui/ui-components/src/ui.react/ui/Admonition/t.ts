@@ -17,6 +17,8 @@ export declare namespace Admonition {
     markdown: string;
     /** Editorial kind. Defaults to `'tip'`. */
     kind?: Kind;
+    /** Allow text selection in the Markdown body. Defaults to `true`. */
+    selectable?: boolean;
     /** Corner radius in pixels. Defaults to 4; use 0 for square corners. */
     radius?: t.Pixels;
     /** DOM ID on the note, for caller-owned references such as `aria-describedby`. */

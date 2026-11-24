@@ -124,6 +124,24 @@ describe('Admonition.UI', () => {
     expect(res.container.querySelector('[role="alert"], [aria-live]')).to.eql(null);
   });
 
+  it('controls text selection per note without disabling its links', async () => {
+    const markdown = 'Read the [guide](#guide).';
+    using res = await TestReact.render(
+      <>
+        <UI markdown={markdown} />
+        <UI markdown={markdown} selectable={false} />
+        <UI markdown={markdown} selectable />
+      </>,
+    );
+    const view = res.container.ownerDocument.defaultView!;
+    const notes = [...res.container.querySelectorAll('[role="note"]')];
+    const selection = notes.map((note) => {
+      expect(note.querySelector('a')?.getAttribute('href')).to.eql('#guide');
+      return view.getComputedStyle(note.querySelector('p')!.parentElement!).userSelect;
+    });
+    expect(selection).to.eql(['text', 'none', 'text']);
+  });
+
   it('defaults to 4px corners and honors square corners and caller style overrides', async () => {
     using res = await TestReact.render(
       <>

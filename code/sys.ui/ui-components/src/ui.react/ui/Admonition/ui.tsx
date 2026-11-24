@@ -34,7 +34,10 @@ export const Admonition: t.FC<t.Admonition.Props> = (props) => {
       overflowWrap: 'anywhere',
     }),
     marker: css({ display: 'flex', alignItems: 'center', height: '1lh' }),
-    body: css({ color: theme.is.dark ? Color.alpha(theme.fg, 0.65) : theme.fg }),
+    body: css({
+      color: theme.is.dark ? Color.alpha(theme.fg, 0.65) : theme.fg,
+      userSelect: (props.selectable ?? D.selectable) ? 'text' : 'none',
+    }),
     lead: css({ color: theme.fg, margin: '0 0 0.25rem', ':last-child': { marginBottom: 0 } }),
     label: css({
       margin: '0.65em 0 0.2em',

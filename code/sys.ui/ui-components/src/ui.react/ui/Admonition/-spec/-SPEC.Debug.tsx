@@ -49,6 +49,7 @@ export function createDebugSignals() {
     sample: s<SampleId>(defaultSample),
     kind: s<t.Admonition.Kind>(samples[defaultSample].kind),
     radius: s<t.Pixels>(D.radius),
+    selectable: s<boolean>(D.selectable),
   };
   const p = props;
   const { attach } = Spec.attachments({
@@ -73,6 +74,7 @@ export function createDebugSignals() {
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
     p.radius.value = D.radius;
+    p.selectable.value = D.selectable;
     select(defaultSample);
   }
 
@@ -126,6 +128,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `radius: ${v.radius}px`}
         onClick={() => Signal.cycle(p.radius, [0, D.radius, 8, 12])}
+      />
+
+      <Dev.Button
+        block
+        label={() => `selectable: ${v.selectable}`}
+        onClick={() => Signal.toggle(p.selectable)}
       />
 
       <hr />

@@ -15,6 +15,7 @@ export default Spec.describe(D.displayName, (e) => {
         markdown={samples[v.sample].markdown}
         kind={v.kind}
         radius={v.radius}
+        selectable={v.selectable}
         debug={v.debug}
         theme={v.theme}
       />
