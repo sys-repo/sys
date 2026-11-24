@@ -42,13 +42,11 @@ const specimens = [
     name: 'integration',
     load: () => import('../-spec.integration/-SPEC.tsx'),
     key: INTEGRATION_STORAGE.DEV,
-    text: 'Signed out',
   },
   {
     name: 'pure view',
     load: () => import('../-spec/-SPEC.tsx'),
     key: VIEW_STORAGE.DEV,
-    text: 'Passkey',
   },
 ] as const;
 const initial = { theme: 'Dark' as const, debug: false };
@@ -141,7 +139,7 @@ describe('passkey cached-spec context lifetime', () => {
         expect(footer.props.theme).to.eql('Light');
         const res = await TestReact.render(<>{subject}{footer}</>);
         try {
-          expect(res.container.textContent).to.contain(specimen.text);
+          expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
           const reference = element(res.container, 'a[href="https://www.w3.org/TR/webauthn-3/"]');
           expect(reference.textContent).to.eql('WebAuthn · W3C');
           expect(reference.getAttribute('target')).to.eql('_blank');
@@ -222,7 +220,7 @@ describe('passkey cached-spec context lifetime', () => {
           expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
           expect(valueCell(res.container, 'Account service').textContent).to.eql('Configured');
           const rpName = valueCell(res.container, 'Relying Party Name');
-          expect(rpName.textContent).to.eql('Passkey sample');
+          expect(rpName.textContent).to.eql('Passkey Sample');
           const labels = buttons(res.container).map((button) => button.textContent);
           expect(labels).to.eql(['Create with Passkey', 'Sign In']);
           expect(server.fetchCount).to.eql(0);

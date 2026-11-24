@@ -3,7 +3,6 @@ import {
   afterAll,
   beforeAll,
   Color,
-  D,
   describe,
   DomMock,
   expect,
@@ -21,7 +20,6 @@ import {
   renderPanel,
   signedIn,
   signedOut,
-  textElement,
   valueCell,
 } from './u.fixture.tsx';
 
@@ -157,7 +155,6 @@ describe('Passkey diagnostic sections', () => {
   it('hide Status during work → title takes over without moving focus or reallocating its slot', async () => {
     const props = { onSignIn: () => {}, sections: { status: false } };
     using panel = await renderPanel({ ...props, snapshot: signedOut });
-    const title = textElement(panel.container, D.name);
     const slot = element(panel.container, '[data-passkey-title-spinner]');
     const signIn = button(panel.container, 'Sign In');
     const context = element(panel.container, section('context'));
@@ -171,7 +168,6 @@ describe('Passkey diagnostic sections', () => {
     ] as const;
     for (const [snapshot, status, busy] of transitions) {
       panel.update({ ...props, snapshot, sections: { status } });
-      expect(textElement(panel.container, D.name)).to.equal(title);
       expect(element(panel.container, '[data-passkey-title-spinner]')).to.equal(slot);
       expect([slot.getAttribute('role'), slot.getAttribute('aria-label')]).to.eql(
         busy ? ['progressbar', 'Passkey operation in progress'] : [null, null],
@@ -355,6 +351,10 @@ describe('Passkey diagnostic sections', () => {
       expect(cssOf(cell.firstElementChild!).overflowWrap).to.eql('anywhere');
       expect(cssOf(cell.firstElementChild!).whiteSpace).to.eql('normal');
     }
+    for (const label of ['Relying Party ID', 'Relying Party Name']) {
+      const cell = valueCell(panel.container, label);
+      expect(cssOf(cell.firstElementChild!).fontFamily).to.eql('monospace');
+    }
     const showOrigin = (origin?: string) => {
       panel.update({ snapshot: { ...signedOut, context: { ...signedOut.context, origin } } });
       return valueCell(panel.container, 'Origin');
@@ -364,8 +364,6 @@ describe('Passkey diagnostic sections', () => {
     expect([link.getAttribute('href'), link.target]).to.eql([browserOrigin, '_blank']);
     expect(link.rel.split(' ').sort()).to.eql(['noopener', 'noreferrer']);
     expect(cssOf(link).fontFamily).to.eql('monospace');
-    expect(cssOf(valueCell(panel.container, 'Relying Party ID').firstElementChild!).fontFamily)
-      .to.eql('monospace');
     expect(showOrigin(`${browserOrigin}.example.test`).querySelector('a')).to.eql(null);
     const missing = showOrigin();
     expect(missing.textContent).to.eql('Unknown');

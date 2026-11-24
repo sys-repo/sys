@@ -3,7 +3,6 @@ import {
   afterAll,
   beforeAll,
   Color,
-  D,
   describe,
   DomMock,
   expect,
@@ -21,7 +20,6 @@ import {
   renderPanel,
   signedIn,
   signedOut,
-  textElement,
   valueCell,
 } from './u.fixture.tsx';
 
@@ -444,18 +442,12 @@ describe('Passkey diagnostic panel', () => {
     }
   });
 
-  it('panel framing → nonfocusable title and no outer inset', async () => {
-    const res = await renderPanel({ snapshot: signedOut, ...callbacks });
-    try {
-      const title = textElement(res.container, D.name);
-      expect(title.closest('[tabindex]')).to.eql(null);
-      const root = element(res.container, '[data-component]');
-      const view = root.ownerDocument.defaultView!;
-      const style = view.getComputedStyle(root);
-      expect(style.padding).to.eql('0px');
-    } finally {
-      res.dispose();
-    }
+  it('panel framing → no tab stop before the first action and no outer inset', async () => {
+    using panel = await renderPanel({ snapshot: signedOut, ...callbacks });
+    const root = element(panel.container, '[data-component]');
+    const nodes = [root, ...root.querySelectorAll<HTMLElement>('*')];
+    expect(nodes.find((el) => el.tabIndex >= 0)).to.equal(button(root, 'Create with Passkey'));
+    expect(root.ownerDocument.defaultView!.getComputedStyle(root).padding).to.eql('0px');
   });
 
   it('spaced rows → action groups and status text align to the value edge', async () => {

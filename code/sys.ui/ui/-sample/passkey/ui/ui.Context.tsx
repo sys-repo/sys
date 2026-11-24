@@ -49,7 +49,7 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
     {
       id: 'rp-name',
       k: key('Relying Party Name', references.rpName),
-      v: value(displayConfig(context.rpName, 'Not configured')),
+      v: literal(context.rpName, 'Not configured'),
     },
     {
       id: 'web-authn',
@@ -74,8 +74,4 @@ function availabilityText(value: t.Passkey.Context['verifier']): string {
   if (value.kind === 'configured') return 'Configured';
   if (value.kind === 'available') return 'Available';
   return `${value.kind === 'unknown' ? 'Unknown' : 'Unavailable'}: ${value.reason}`;
-}
-
-function displayConfig(value: string | undefined, fallback: string): string {
-  return value && !Is.blank(value) ? value : fallback;
 }

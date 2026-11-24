@@ -107,7 +107,7 @@ const FramedPanel: t.FC<Omit<t.Passkey.Props, 'view'>> = (props) => {
   const elTitle = (
     <KeyValue.UI
       key='title'
-      items={[{ id: 'title', kind: 'title', y: [0, 1], v: [D.name, elActivity] }]}
+      items={[{ id: 'title', kind: 'title', y: [0, 1], v: ['Account', elActivity] }]}
       theme={theme.name}
       style={{ marginBottom: D.layout.rowGap }}
     />
