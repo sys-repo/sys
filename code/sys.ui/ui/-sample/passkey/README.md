@@ -6,8 +6,10 @@ A passkey is a sign-in credential, not the account identity. Several passkeys ca
 account, identified by its [principal] ([`Accounts.Principal`](./m.Accounts/t.ts)). The service
 starts a [session] for that account only after verifying the authenticator’s response.
 
-The browser can reach the local account service, but the [sample panel](./ui/-spec.integration/-SPEC.tsx)
-does not yet send account commands. The sign-in flow below describes the runtime and service.
+The DevHarness sample starts signed out and sends no account requests until you choose an action.
+**Account service: Configured** means the address is set, not that the service answered. Use a
+designated test passkey: the service forgets registrations on restart, but your authenticator may
+keep them.
 
 ```text
 Passkey sample
@@ -39,8 +41,8 @@ passkey again while the session is valid. The panel sees the session state, not 
 
 ### What survives?
 
-Reloading the page forgets the local session credential. It does not revoke the session or erase the
-passkey registration on the service.
+Reloading the page forgets the local session credential and last result. It does not revoke the
+session or erase the passkey registration on the service.
 
 The [reference service](./m.AccountService/README.md) stores accounts, registrations, and sessions
 **only in memory**. Restarting the service erases all three. Your authenticator may still offer the
@@ -52,14 +54,26 @@ restarts, including each credential’s ID, public key, and the account it belon
 ### Run the local sample
 
 From `code/sys.ui/ui`, run `deno task dev`, or run `deno task build` followed by `deno task serve`.
-Open <http://localhost:1234/?dev> and select `sys.ui: -sample/passkey`. The
-[isolated view](./ui/-spec/-SPEC.tsx) lets you explore panel states without an authenticator.
+Open <http://localhost:1234/?dev> and select `sys.ui: -sample/passkey`. Choose **Create with
+Passkey**, **Sign Out**, then **Sign In** with the same passkey. **Add Passkey** enrolls another key
+for the signed-in principal. When signed in, **Account label** shows the name the service supplied
+for the passkey prompt; **Principal** is the account ID. The **view:pure** link opens the
+[isolated view](./ui/-spec/-SPEC.tsx), which records button intent only.
+
+If a reply is lost, **Outcome unknown** means the service may have completed the action. With a
+retained session credential the panel checks the session once; it never retries the change. A
+session or credential count is not a receipt for that action. If the session remains unknown, reload
+the page, then choose **Sign In**.
 
 Both modes need four free ports: `1234` (proxy), `4040` (view), `5050` (files), and `5051`
 (accounts). Stop the running mode before starting the other. The proxy starts after view and
-accounts start successfully. The proxy and accounts bind to loopback; the Vite dev listener does
-not bind exclusively to loopback. Its live-update socket is configured for the view port, not the
-files port.
+accounts start successfully. The proxy and accounts bind to loopback; the Vite dev listener does not
+bind exclusively to loopback. Its live-update socket is configured for the view port, not the files
+port.
+
+The `dev` and `serve` tasks opt in to [Deno’s corrected request cancellation behavior][deno abort]:
+returning a successful response does not abort `request.signal`. Remove `--unstable-no-legacy-abort`
+from both tasks when the minimum supported Deno version uses that behavior by default.
 
 Use the proxy URL, not the view URL: accounts requires the exact origin `http://localhost:1234`.
 Only `POST /api/passkey/cmd` is routed to accounts. The proxy strips `Authorization` from requests
@@ -69,11 +83,11 @@ To check the browser route, keep **your own** Cell running. From another termina
 `code/sys.ui/ui`, set `CHROME_BIN` to the absolute path of your Chrome executable and run
 `deno task test:passkey:browser dev` (or `serve` for the built view). An isolated Chrome page at
 `http://localhost:1234` asks for `session.inspect` without credentials. The task requires one
-correlated `accepted(null)` reply: the service answered and this request has no session.
-The check neither rebuilds the app nor starts a passkey ceremony.
+correlated `accepted(null)` reply: the service answered and this request has no session. The check
+neither rebuilds the app nor starts a passkey ceremony.
 
-The standalone test starts its own account listener; it needs no running Cell, proxy, browser,
-or authenticator:
+The standalone test starts its own account listener; it needs no running Cell, proxy, browser, or
+authenticator:
 
 ```sh
 deno task test --frozen --cached-only --allow-net=127.0.0.1 --trace-leaks \
@@ -93,3 +107,4 @@ deno task test --frozen --cached-only --allow-net=127.0.0.1 --trace-leaks \
 [session]: https://pages.nist.gov/800-63-4/sp800-63b/session/#sessmgmt
 [WebAuthn]: https://www.w3.org/TR/webauthn-3/#sctn-api
 [bearer credential]: https://www.rfc-editor.org/rfc/rfc6750.html#section-1.2
+[deno abort]: https://docs.deno.com/runtime/reference/deno_serve_legacy_abort/

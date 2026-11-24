@@ -11,7 +11,7 @@ export const Actions: t.FC<t.Passkey.ActionsProps> = (props) => {
   if (actions.length === 0) return null;
 
   const theme = Color.theme(props.theme);
-  const pending = operation.kind === 'pending';
+  const pending = operation.kind !== 'idle';
   const styles = {
     base: css({ color: theme.fg, minWidth: 0, backgroundColor: Color.ruby(debug ? 0.1 : 0) }),
   };
@@ -22,6 +22,9 @@ export const Actions: t.FC<t.Passkey.ActionsProps> = (props) => {
       <Action
         label={action.label}
         reason={action.reason}
+        advisory={action.id === 'create-account' || action.id === 'add-passkey'
+          ? props.context.registrationAdvisory
+          : undefined}
         pending={pending}
         onClick={action.onClick}
         theme={theme.name}

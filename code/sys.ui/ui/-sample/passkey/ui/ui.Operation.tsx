@@ -4,8 +4,10 @@ import { actionLabel } from './u.actions.ts';
 /** Stable operation announcement with a trailing spinner while pending. */
 export const Operation: t.FC<t.Passkey.OperationProps> = (props) => {
   const { operation } = props;
-  const pending = operation.kind === 'pending';
+  const pending = operation.kind !== 'idle';
   let text = 'Idle';
+  if (operation.kind === 'checking') text = 'Checking session';
+  if (operation.kind === 'retiring') text = 'Waiting for previous operation';
   if (operation.kind === 'pending') text = `${actionLabel(operation.action)}: ${operation.phase}`;
 
   /**

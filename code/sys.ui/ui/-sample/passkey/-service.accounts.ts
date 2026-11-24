@@ -5,10 +5,10 @@ import { Net } from '@sys/net';
 import { Is, Obj } from './common.ts';
 import { AccountService } from './m.AccountService/mod.ts';
 import { accountRequest } from './u/u.accounts.request.ts';
+import { browserOrigin, rp } from './u/u.issuer.ts';
 import { ROUTE } from './u/u.routes.ts';
 
 const hostname = '127.0.0.1';
-const browserOrigin = 'http://localhost:1234';
 const transportPolicy = { maxBytes: { request: 32_768, response: 32_768 }, timeout: 5_000 };
 
 /** Cell-local lifecycle endpoint for the reference account command service. */
@@ -22,7 +22,7 @@ export const AccountsService = {
     const port = await readPort(paths.config);
     if (Is.abortSignal(until)) until.throwIfAborted();
     const authority = AccountService.create({
-      rp: { id: 'localhost', name: 'Passkey sample' },
+      rp,
       origins: [browserOrigin],
       algorithms: [-7, -8, -257],
       lifetimes: { challenge: 60_000, session: 300_000 },

@@ -3,7 +3,7 @@ import { Warning } from './ui.Warning.tsx';
 
 /** Canonical button and its unavailable-action explanation. */
 export const Action: t.FC<t.Passkey.ActionProps> = (props) => {
-  const { label, reason, pending, onClick } = props;
+  const { label, reason, advisory, pending, onClick } = props;
 
   /**
    * Render:
@@ -22,10 +22,13 @@ export const Action: t.FC<t.Passkey.ActionProps> = (props) => {
 
   return (
     <div className={styles.base.class}>
+      {!reason && !pending && advisory && (
+        <Warning message={advisory} ariaLabel='Before registering a passkey' theme={theme.name} />
+      )}
       <KeyValue.ActionButton
         label={label}
         enabled={!pending && !reason}
-        tooltip={reason}
+        tooltip={reason ?? advisory}
         onClick={onClick}
       />
       {!pending && reason && (

@@ -18,7 +18,8 @@ const actions: readonly Action[] = ['create-account', 'sign-in', 'add-passkey', 
 export function create(options: t.AccountRuntime.Options): t.AccountRuntime.Instance {
   const wire = bind(options);
   const { state, publish, complete } = createState();
-  const onExpire = () => publish({ session: { kind: 'signed-out' } });
+  const onExpire = (last?: t.AccountRuntime.Snapshot['last']) =>
+    publish({ session: { kind: 'signed-out' }, ...(last && { last }) });
   const session = createSession(wire.send, onExpire);
   const ceremonies = createCeremonies(wire.rpId, wire.send, session.live);
   let active: Slot | undefined;
@@ -43,11 +44,16 @@ export function create(options: t.AccountRuntime.Options): t.AccountRuntime.Inst
 
   async function run(action: Action): Promise<t.AccountRuntime.Outcome> {
     if (!actions.includes(action)) return notSubmitted('invalid-input');
+    const previous = session.current;
     if (session.dropExpired()) {
-      // An expiry observer can depart and restore before this intent has a slot to retire.
       const entered = lifetime;
-      onExpire();
+      // Publish expiry and the formerly eligible intent together, before notifying observers.
+      const last = !active && select(action, previous)
+        ? { action, outcome: notSubmitted('invalid-input') }
+        : undefined;
+      onExpire(last);
       if (lifetime !== entered) return notSubmitted('cancelled');
+      if (last) return last.outcome;
     }
     if (state.current.lifecycle !== 'active') return notSubmitted('unavailable');
     if (active) return notSubmitted('busy');

@@ -1,4 +1,5 @@
 import { HttpCmd } from '@sys/http/cmd';
+import { Accounts } from '../../m.Accounts/mod.ts';
 import { AccountRuntime } from '../mod.ts';
 import { Json, type t, Time, WebFixture } from './common.ts';
 
@@ -11,8 +12,8 @@ export const token = 'PRIVATE_TEST_BEARER';
 export const rpId = 'example.test';
 export const policy = { maxBytes: { request: 32_768, response: 32_768 }, timeout: 5_000 };
 export const accepted = <V>(value: V) => ({ kind: 'accepted', value } as const);
-export const creation = (): t.Accounts.Wire.CreationOptions => ({
-  rp: { id: rpId, name: 'Test RP' },
+export const creation = (id = rpId): t.Accounts.Wire.CreationOptions => ({
+  rp: { id, name: 'Test RP' },
   user: { id: 'user', name: 'sample', displayName: 'Sample' },
   challenge: 'PRIVATE_TEST_CHALLENGE',
   pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
@@ -90,7 +91,7 @@ export function browser() {
   return { ...observations, native, Credential, [Symbol.dispose]: () => mock.dispose() };
 }
 
-export function transport(service?: t.Accounts.Service) {
+export function transport(service?: t.Accounts.Service, relyingParty = rpId) {
   const requests: {
     name: string;
     url: string;
@@ -99,22 +100,23 @@ export function transport(service?: t.Accounts.Service) {
     redirect: RequestRedirect;
   }[] = [];
   const session = {
-    account: { principal: 'principal', credentialCount: 1 },
+    account: { principal: 'principal', label: 'Test account', credentialCount: 1 },
     expiresAt: Time.now.timestamp + 60_000,
   };
   const begin = { transaction: 'PRIVATE_TEST_TRANSACTION', expiresAt: session.expiresAt };
   const handlers: EditableHandlers = {
-    'account.create.begin': () => accepted({ ...begin, options: creation() }),
+    'account.create.begin': () => accepted({ ...begin, options: creation(relyingParty) }),
     'account.create.finish': () => accepted({ credential: token, session }),
-    'session.signIn.begin': () => accepted({ ...begin, options: { rpId, challenge: 'signIn' } }),
+    'session.signIn.begin': () =>
+      accepted({ ...begin, options: { rpId: relyingParty, challenge: 'signIn' } }),
     'session.signIn.finish': () => accepted({ credential: token, session }),
-    'passkey.add.begin': () => accepted({ ...begin, options: creation() }),
+    'passkey.add.begin': () => accepted({ ...begin, options: creation(relyingParty) }),
     'passkey.add.finish': () =>
       accepted({ ...session, account: { ...session.account, credentialCount: 2 } }),
     'session.inspect': () => accepted(session),
     'session.revoke': () => accepted(null),
   };
-  const faults = { lost: '', invalid: '' };
+  const faults = { lost: '', invalid: '', disconnect: '' };
   let fetchCount = 0;
   const fetcher: t.Fetch = async (input, init) => {
     fetchCount++;
@@ -132,10 +134,13 @@ export function transport(service?: t.Accounts.Service) {
     });
     const credential = authorization?.slice('Bearer '.length);
     const selected = service?.({ credential }) ?? handlers;
-    const result = await HttpCmd.handle(req, {
-      policy,
-      cmd: { ns: 'accounts', handlers: selected },
-    });
+    const pending = HttpCmd.handle(req, { policy, cmd: { ns: 'accounts', handlers: selected } });
+    if (name === faults.disconnect) {
+      // Lose the connection, not the handler: its commit may still be held across inspection.
+      void pending.then((reply) => reply.body?.cancel());
+      throw new Error('Fixture disconnected before reply');
+    }
+    const result = await pending;
     if (name === faults.lost || name === faults.invalid) {
       await result.body?.cancel();
       if (name === faults.lost) throw new Error('PRIVATE_TEST_NETWORK_ERROR');
@@ -144,7 +149,7 @@ export function transport(service?: t.Accounts.Service) {
     return result;
   };
   const mock = WebFixture.Fetch.mock(fetcher);
-  const options = { endpoint, namespace: 'accounts', rpId, policy };
+  const options = { endpoint, namespace: 'accounts', rpId: relyingParty, policy };
   return {
     get fetchCount() {
       return fetchCount;
@@ -157,6 +162,25 @@ export function transport(service?: t.Accounts.Service) {
     create: () => AccountRuntime.create(options),
     [Symbol.dispose]: () => mock.dispose(),
   };
+}
+
+/** Run after the real reader admits this reply, before the workflow resumes from send. */
+export function afterAdmittedReply(
+  command: t.Accounts.Name,
+  kind: 'accepted' | 'rejected',
+  fn: () => void,
+) {
+  const original = Accounts.readResult;
+  const readResult: typeof original = (name, input) => {
+    const reply = original(name, input);
+    if (name === command && reply?.kind === kind) queueMicrotask(fn);
+    return reply;
+  };
+  return WebFixture.Property.mock([{
+    target: Accounts,
+    key: 'readResult',
+    descriptor: { value: readResult },
+  }]);
 }
 
 function property(key: PropertyKey, value: unknown) {

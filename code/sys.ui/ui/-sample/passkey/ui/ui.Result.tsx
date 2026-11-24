@@ -5,6 +5,12 @@ import { EmptyValue } from './ui.EmptyValue.tsx';
 /** Stable announcement for the latest supplied result. */
 export const Result: t.FC<t.Passkey.ResultProps> = (props) => {
   const { result } = props;
+  const labels = {
+    success: 'success',
+    failure: 'failure',
+    indeterminate: 'Outcome unknown',
+    'not-submitted': 'Mutation not submitted',
+  } as const;
 
   /**
    * Render:
@@ -20,7 +26,7 @@ export const Result: t.FC<t.Passkey.ResultProps> = (props) => {
   return (
     <div role='status' aria-label='Last result' aria-atomic='true' className={styles.base.class}>
       {result
-        ? `${actionLabel(result.action)} — ${result.kind}: ${result.summary}`
+        ? `${actionLabel(result.action)} — ${labels[result.kind]}: ${result.summary}`
         : <EmptyValue />}
     </div>
   );

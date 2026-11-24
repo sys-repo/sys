@@ -51,12 +51,14 @@ function disabledReason(
   action: t.Passkey.Action,
   callback?: () => void,
 ) {
-  if (snapshot.operation.kind === 'pending') return D.pendingReason;
+  if (snapshot.operation.kind !== 'idle') return D.pendingReason;
   if (!callback) return 'Action not connected';
   if (action === 'sign-out') return;
   const { origin, rpId, webAuthn, verifier } = snapshot.context;
   if (!origin || Is.blank(origin)) return 'Origin not supplied';
   if (!rpId || Is.blank(rpId)) return 'RP ID not configured';
   if (webAuthn.kind !== 'available') return webAuthn.reason || 'WebAuthn readiness unknown';
-  if (verifier.kind !== 'available') return verifier.reason || 'Verifier readiness unknown';
+  if (verifier.kind !== 'configured' && verifier.kind !== 'available') {
+    return verifier.reason || 'Verifier readiness unknown';
+  }
 }

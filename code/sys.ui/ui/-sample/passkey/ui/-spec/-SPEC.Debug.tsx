@@ -1,6 +1,6 @@
 import type React from 'react';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
-import { SpecLink } from '../../-spec/-ui.Links.tsx';
+import { SpecLink } from './-ui.Links.tsx';
 import { Fixtures } from './-u.fixtures.ts';
 import { Intent } from './-ui.Intent.tsx';
 

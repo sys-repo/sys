@@ -3,7 +3,7 @@ import { Accounts } from '../mod.ts';
 import { Num, type t } from '../common.ts';
 
 const session = {
-  account: { principal: 'account.test', credentialCount: 1 },
+  account: { principal: 'account.test', label: 'Test account', credentialCount: 1 },
   expiresAt: 1_700_000_000_000,
 };
 
@@ -55,9 +55,11 @@ describe('Accounts wire admission', () => {
     expect(Accounts.readResult('passkey.add.finish', grant)).to.equal(undefined);
   });
 
-  it('secret or invalid numeric observations → rejected without coercion', () => {
+  it('secret or malformed account observations → rejected without coercion', () => {
     const invalid = [
       { ...session, credential: 'secret.test' },
+      { ...session, account: { ...session.account, label: '' } },
+      { ...session, account: { principal: 'account.test', credentialCount: 1 } },
       { ...session, account: { ...session.account, credential: 'secret.test' } },
       ...[-1, 0.5, NaN, Num.INFINITY, Num.MAX_INT + 1, '1'].map((credentialCount) => ({
         ...session,

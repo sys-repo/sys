@@ -120,6 +120,10 @@ describe('AccountService authority', () => {
         response: first.registration(begin.options),
       }),
     );
+    const label = begin.options.user.displayName;
+    expect(label).to.match(/^sample\.[a-z0-9]+$/);
+    expect(begin.options.user.name).to.equal(label);
+    expect(grant.session.account).to.have.property('label', label);
     expect(grant.session.account.credentialCount).to.equal(1);
     const add = value(await host.call('passkey.add.begin', {}, grant.credential));
     expect(add.options.user.id).to.equal(begin.options.user.id);
@@ -143,6 +147,7 @@ describe('AccountService authority', () => {
         response: await second.assertion(signIn.options, begin.options.user.id),
       }),
     );
+    expect(returned.session.account).to.have.property('label', label);
     expect(returned.session.account).to.eql(enrolled.account);
     expect(returned.credential).not.to.equal(grant.credential);
     expect(value(await host.call('session.inspect', {}, returned.credential)))

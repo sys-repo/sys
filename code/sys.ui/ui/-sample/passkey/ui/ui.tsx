@@ -34,7 +34,7 @@ export const Passkey: t.FC<t.Passkey.Props> = (props) => {
     minWidth: 0,
   });
   // Reserve space within the existing title line, never a new pending-only row.
-  const titlePending = !status && operation.kind === 'pending';
+  const titlePending = !status && operation.kind !== 'idle';
   const activityStyle = css({
     display: 'inline-grid',
     verticalAlign: 'middle',

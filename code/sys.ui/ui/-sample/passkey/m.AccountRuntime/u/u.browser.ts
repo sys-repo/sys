@@ -1,5 +1,5 @@
 import { WebAuthn } from '../../m.WebAuthn/mod.ts';
-import { Is, type t } from '../common.ts';
+import { Is, Obj, type t } from '../common.ts';
 
 /** Native Level 3 conversion is a separate prerequisite from navigator.credentials. */
 export function availability(): t.WebAuthn.Availability {
@@ -23,4 +23,12 @@ export async function getAssertion(options: t.Accounts.Wire.RequestOptions, sign
   const publicKey = PublicKeyCredential.parseRequestOptionsFromJSON(options);
   if (signal.aborted) return null;
   return await WebAuthn.get({ publicKey, signal });
+}
+
+/** Some assertion serializers omit empty extension outputs. Confirm emptiness on the credential. */
+export function assertionJson(credential: PublicKeyCredential): unknown {
+  const json: unknown = credential.toJSON();
+  if (!Is.record(json) || Obj.hasOwn(json, 'clientExtensionResults')) return json;
+  if (!Is.emptyRecord(credential.getClientExtensionResults())) return json;
+  return { ...json, clientExtensionResults: {} };
 }

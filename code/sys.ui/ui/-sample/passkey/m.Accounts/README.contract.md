@@ -59,7 +59,8 @@ Revocation is current-session only, not all-device sign-out or authenticator cre
   observations.
 - The service creates a random opaque user handle for each account and reuses it for enrollment. It
   supplies a non-identifying generated account label for WebAuthn name/displayName, not a username,
-  email, or profile field. Concrete label copy is service presentation, not account identity.
+  email, or profile field. Session facts carry that same label for display; the principal, not the
+  label, identifies the account.
 - Origin, RP ID, algorithms, and challenges come from fixed service configuration/transaction state.
   Before a browser ceremony, the client runtime must check effective RP ID against its configured
   binding. Merely admitting an options object does not perform those checks or guarantee native

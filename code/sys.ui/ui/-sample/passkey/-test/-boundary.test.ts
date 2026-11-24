@@ -26,13 +26,21 @@ describe('passkey core/UI boundary', () => {
         ],
         forbiddenPathIncludes: [
           '/passkey/ui/',
-          '/passkey/-spec/',
+          '/passkey/ui.host/',
           '/src/ui.react/',
           ...(entry === 'm.AccountRuntime/mod.ts' ? ['/passkey/m.AccountService/'] : []),
         ],
       });
     });
   }
+
+  it('connected panel → no harness, specimen, or service implementation', async () => {
+    await EsmAssert.runtimeGraphBoundary({
+      entry: Path.join(root, 'ui.host/ui.Connected.tsx'),
+      forbiddenImports: ['@sys/ui-dev'],
+      forbiddenPathIncludes: ['/-spec/', '/-spec.integration/', '/-test/', '/m.AccountService/'],
+    });
+  });
 
   it('core type pool → no presentation or React contracts', () => {
     // @ts-expect-error Presentation contracts belong to the UI type pool.

@@ -31,6 +31,9 @@ export const Status: t.FC<t.Passkey.StatusProps> = (props) => {
       k: 'Authentication',
       v: <AuthenticationValue authentication={authentication} theme={theme.name} />,
     },
+    ...(authentication.kind === 'signed-in'
+      ? [{ id: 'account-label', k: 'Account label', v: value(authentication.label) }]
+      : []),
     {
       id: 'principal',
       k: key('Principal', references.principal),

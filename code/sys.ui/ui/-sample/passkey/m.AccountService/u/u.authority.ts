@@ -43,8 +43,9 @@ export function createAuthority(policy: t.Policy, clock: () => number): t.Servic
     for (const credential of authority.credentials.values()) {
       if (credential.account === session.account) credentialCount++;
     }
+    const { principal, label } = session.account;
     return Obj.deepFreeze({
-      account: { principal: session.account.principal, credentialCount },
+      account: { principal, label, credentialCount },
       expiresAt: session.expiresAt,
     });
   }

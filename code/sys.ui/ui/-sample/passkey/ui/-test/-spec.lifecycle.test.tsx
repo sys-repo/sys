@@ -18,8 +18,8 @@ import {
   type TestSuiteModel,
 } from './common.ts';
 import { Harness } from '../../../-test.ui.ts';
-import { Passkey } from '../mod.ts';
-import { buttons, element, valueCell } from './u.fixture.tsx';
+import { browser, transport } from '../../m.AccountRuntime/-test/u.fixture.ts';
+import { buttons, element, exerciseAccountFlow, pageListeners, valueCell } from './u.fixture.tsx';
 import type { DebugSignals } from '../-spec.integration/-SPEC.Debug.tsx';
 import type { DebugValues } from '../-spec.integration/-t.ts';
 import { STORAGE_KEY as INTEGRATION_STORAGE } from '../-spec.integration/common.ts';
@@ -32,7 +32,7 @@ const specimens = [
     name: 'integration',
     load: () => import('../-spec.integration/-SPEC.tsx'),
     key: INTEGRATION_STORAGE.DEV,
-    text: 'Unknown: Passkey operations are not connected',
+    text: 'Signed out',
   },
   {
     name: 'pure view',
@@ -133,7 +133,11 @@ describe('passkey cached-spec context lifetime', () => {
         try {
           expect(res.container.textContent).to.contain(specimen.text);
           const reference = element(res.container, 'a[href="https://www.w3.org/TR/webauthn-3/"]');
+          expect(reference.textContent).to.eql('WebAuthn · W3C');
           expect(reference.getAttribute('target')).to.eql('_blank');
+          const rel = reference.getAttribute('rel')?.split(' ').sort();
+          expect(rel).to.eql(['noopener', 'noreferrer']);
+          expect(reference.title).to.contain('opens in a new tab');
           const subjectRoot = res.container.firstElementChild!;
           const style = subjectRoot.ownerDocument.defaultView!.getComputedStyle(subjectRoot);
           expect(Color.toHex(style.color)).to.eql(Color.toHex(Color.theme('Light').fg));
@@ -157,20 +161,37 @@ describe('passkey cached-spec context lifetime', () => {
     });
   }
 
-  it('integration subject → plain panel props, unconnected facts, and appearance-only reset', async () => {
+  for (const when of ['during', 'after'] as const) {
+    it(`dispose ${when} the first redraw → no leaked or reacquired page listeners`, async () => {
+      const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
+      const host = controller();
+      using listeners = pageListeners();
+      try {
+        const ctx = await host.events.ctx.get();
+        const sub = host.events.$.subscribe((event) => {
+          if (event.type !== 'sys.dev/redraw') return;
+          sub.unsubscribe();
+          if (when === 'during') host.dispose();
+          else queueMicrotask(() => host.dispose());
+        });
+        // Await the actual suite, not a run-response on a bus we are about to dispose.
+        expect((await suite.run({ ctx })).ok).to.equal(true);
+        expect(ctx.is.attachable).to.equal(false);
+        expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
+        expect(listeners.attached.size).to.equal(0);
+      } finally {
+        host.dispose();
+      }
+    });
+  }
+
+  it('integration subject → quiet signed-out mount and appearance-only reset', async () => {
+    using server = transport();
     const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
     const store = LocalStorage.immutable<DebugValues>(INTEGRATION_STORAGE.DEV, initial);
     const previous = store.current;
     const host = controller();
     store.reset(initial);
-    const snapshot: t.Passkey.Snapshot = {
-      authentication: { kind: 'unknown', summary: 'Passkey operations are not connected' },
-      operation: { kind: 'idle' },
-      context: {
-        webAuthn: { kind: 'unknown', reason: 'Not inspected' },
-        verifier: { kind: 'unavailable', reason: 'No verifier connected' },
-      },
-    };
     try {
       await load(host.events, suite);
       const debug = await debugOf<DebugSignals>(host.events);
@@ -182,21 +203,19 @@ describe('passkey cached-spec context lifetime', () => {
         if (!React.isValidElement<t.Passkey.Props>(subject)) {
           throw new Error('Expected the registered React subject');
         }
-        expect(subject.type).to.equal(Passkey.UI);
-        expect(subject.props).to.eql({ snapshot, theme, debug: true });
+        expect(subject.props).to.include({ theme, debug: true });
 
-        // Mount the registered panel directly, without harness state or preference-store props.
         const res = await TestReact.render(subject);
         try {
-          expect(valueCell(res.container, 'Authentication').textContent).to.eql(
-            '⚠ Unknown: Passkey operations are not connected',
-          );
+          expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
           expect(valueCell(res.container, 'Operation').textContent).to.eql('Idle');
           expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
-          expect(valueCell(res.container, 'Verifier').textContent).to.eql(
-            'Unavailable: No verifier connected',
-          );
-          expect(buttons(res.container)).to.eql([]);
+          expect(valueCell(res.container, 'Account service').textContent).to.eql('Configured');
+          const rpName = valueCell(res.container, 'Relying Party Name');
+          expect(rpName.textContent).to.eql('Passkey sample');
+          const labels = buttons(res.container).map((button) => button.textContent);
+          expect(labels).to.eql(['Create with Passkey', 'Sign In']);
+          expect(server.fetchCount).to.eql(0);
         } finally {
           React.act(() => res.dispose());
         }
@@ -207,10 +226,65 @@ describe('passkey cached-spec context lifetime', () => {
       if (!React.isValidElement<t.Passkey.Props>(subject)) {
         throw new Error('Expected the registered React subject');
       }
-      expect(subject.props).to.eql({ snapshot, ...initial });
+      expect(subject.props).to.include(initial);
+      expect(server.fetchCount).to.eql(0);
     } finally {
       host.dispose();
       store.reset(previous);
+    }
+  });
+
+  it('integration → all four intents, with session ownership per live context', async () => {
+    using native = browser();
+    using server = transport(undefined, 'localhost');
+    const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
+    const first = controller();
+    const second = controller();
+    async function mount(events: DevEvents) {
+      await load(events, suite);
+      const { subject } = (await events.info.get()).render.props!;
+      return TestReact.render(<>{await render(events, subject.renderer)}</>);
+    }
+    try {
+      const a = await mount(first.events);
+      const b = await mount(second.events);
+      try {
+        expect(server.fetchCount).to.equal(0);
+        expect(native.calls).to.eql([]);
+        await exerciseAccountFlow(a.container);
+        expect(server.requests.map(({ name }) => name)).to.eql([
+          'account.create.begin',
+          'account.create.finish',
+          'session.revoke',
+          'session.signIn.begin',
+          'session.signIn.finish',
+          'passkey.add.begin',
+          'passkey.add.finish',
+        ]);
+        expect([...new Set(server.requests.map(({ url }) => url))]).to.eql([
+          'http://localhost:1234/api/passkey/cmd',
+        ]);
+        expect(valueCell(b.container, 'Authentication').textContent).to.eql('Signed out');
+        React.act(() => second.dispose());
+        const debug = await debugOf<DebugSignals>(first.events);
+        debug.reset();
+        const again = await mount(first.events);
+        try {
+          expect(valueCell(again.container, 'Registered credentials').textContent).to.eql('2');
+          expect(native.calls).to.eql(['create', 'get', 'create']);
+          expect(server.fetchCount).to.equal(7);
+        } finally {
+          React.act(() => again.dispose());
+        }
+      } finally {
+        React.act(() => {
+          a.dispose();
+          b.dispose();
+        });
+      }
+    } finally {
+      first.dispose();
+      second.dispose();
     }
   });
 

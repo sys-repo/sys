@@ -46,7 +46,7 @@ describe('Accounts consumers', () => {
     expect(observe({
       kind: 'accepted',
       value: {
-        account: { principal: 'account.test', credentialCount: 1 },
+        account: { principal: 'account.test', label: 'Test account', credentialCount: 1 },
         expiresAt: 1_700_000_000_000,
       },
     })).to.equal('account.test');

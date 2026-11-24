@@ -1,6 +1,6 @@
 import { Accounts } from '../../m.Accounts/mod.ts';
 import { type t, Time, Try } from '../common.ts';
-import { getAssertion, register } from './u.browser.ts';
+import { assertionJson, getAssertion, register } from './u.browser.ts';
 import { enrolled, failedBegin, granted, notSubmitted } from './u.completion.ts';
 
 type Finish = 'account.create.finish' | 'passkey.add.finish' | 'session.signIn.finish';
@@ -52,7 +52,8 @@ export function createCeremonies(rpId: string, send: t.Send, live: Live) {
     if (!valid()) return notSubmitted('invalid-input');
     const { result } = await Try.run(async () => {
       const credential = await open();
-      return signal.aborted ? undefined : credential?.toJSON();
+      if (signal.aborted || !credential) return;
+      return name === 'session.signIn.finish' ? assertionJson(credential) : credential.toJSON();
     });
     if (signal.aborted) return notSubmitted('cancelled');
     if (!result.ok || result.data === undefined) return notSubmitted('unavailable');

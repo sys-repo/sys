@@ -26,6 +26,8 @@ export declare namespace Accounts {
   /** Service-confirmed account facts at the time of observation. */
   export type Facts = {
     readonly principal: Principal;
+    /** Account name supplied to the authenticator for display; not an identifier. */
+    readonly label: string;
     /** Non-negative safe integer; neither a credential inventory nor a transaction receipt. */
     readonly credentialCount: number;
   };

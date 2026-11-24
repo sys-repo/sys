@@ -58,6 +58,7 @@ export declare namespace Passkey {
   export type ActionProps = {
     label: string;
     reason?: string;
+    advisory?: string;
     pending: boolean;
     onClick?: () => void;
     theme?: t.CommonTheme;
@@ -100,6 +101,8 @@ export declare namespace Passkey {
        * Does not imply WebAuthn user-handle or credential-ID semantics; rendered verbatim.
        */
       readonly principal: string;
+      /** Account name supplied to the authenticator for display; not an identifier. */
+      readonly label: string;
       /** Verifier-known non-negative integer; absent means unknown, not zero. */
       readonly credentialCount?: number;
     };
@@ -109,13 +112,13 @@ export declare namespace Passkey {
 
   /** Supplied phase text describes observations, not a view-owned state machine. */
   export type Operation =
-    | { readonly kind: 'idle' }
+    | { readonly kind: 'idle' | 'checking' | 'retiring' }
     | { readonly kind: 'pending'; readonly action: Action; readonly phase: string };
 
   /** Safe display summary only: never raw challenges, tokens, assertions, or credential material. */
   export type Result = {
     readonly action: Action;
-    readonly kind: 'success' | 'failure';
+    readonly kind: 'success' | 'failure' | 'indeterminate' | 'not-submitted';
     readonly summary: string;
   };
 
@@ -128,8 +131,11 @@ export declare namespace Passkey {
   export type Context = {
     readonly origin?: string;
     readonly rpId?: string;
+    readonly rpName?: string;
     /** Includes secure-context and browser capability prerequisites for a ceremony. */
     readonly webAuthn: Availability;
-    readonly verifier: Availability;
+    readonly verifier: Availability | { readonly kind: 'configured' };
+    /** Read before creating or enrolling a credential; independent of section visibility. */
+    readonly registrationAdvisory?: string;
   };
 }

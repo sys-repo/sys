@@ -5,9 +5,9 @@
   "tasks": {
     "test": "deno test -P=test",
     "test:passkey:browser": "deno run --frozen --cached-only --no-prompt -P=passkey-browser-launch ./-scripts/task.passkey.browser.ts",
-    "dev": "deno run -A ./-scripts/task.cell.ts --mode dev --reporter auto",
+    "dev": "deno run --unstable-no-legacy-abort -A ./-scripts/task.cell.ts --mode dev --reporter auto",
     "build": "deno run -A ./-scripts/task.vite.ts --cmd=build --in=./src/index.html",
-    "serve": "deno run -P=dev ./-scripts/task.cell.ts --reporter auto",
+    "serve": "deno run --unstable-no-legacy-abort -P=dev ./-scripts/task.cell.ts --reporter auto",
     "kill": "deno task kill:dev && deno task kill:serve",
     "kill:dev": "deno run -P=dev @sys/cell kill . --mode dev",
     "kill:serve": "deno run -P=dev @sys/cell kill . --mode default",

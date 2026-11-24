@@ -118,7 +118,7 @@ describe('Passkey diagnostic panel', () => {
         ...props,
         snapshot: {
           ...signedIn,
-          authentication: { kind: 'signed-in', principal: 'principal-test-01', credentialCount: 0 },
+          authentication: { ...signedIn.authentication, credentialCount: 0 },
         },
       });
       expect(valueCell(res.container, 'Registered credentials').textContent).to.eql('0');
@@ -227,18 +227,23 @@ describe('Passkey diagnostic panel', () => {
     }
   });
 
-  it('WebAuthn unavailable → sign out remains independent', async () => {
+  it('hidden Context and unavailable WebAuthn → explain blocked Add; Sign Out still works', async () => {
     let count = 0;
     const res = await renderPanel({
       snapshot: {
         ...signedIn,
         context: { ...signedIn.context, webAuthn: { kind: 'unavailable', reason: 'Unsupported' } },
       },
+      sections: { context: false },
       onAddPasskey: () => count++,
       onSignOut: () => count++,
     });
     try {
-      expect(button(res.container, 'Add Passkey').getAttribute('aria-disabled')).to.eql('true');
+      expect(element(res.container, '[role="note"]').textContent).to.contain('Unsupported');
+      const add = button(res.container, 'Add Passkey');
+      expect(add.getAttribute('aria-disabled')).to.eql('true');
+      press(add, 'Enter');
+      expect(count).to.eql(0);
       const signOut = button(res.container, 'Sign Out');
       expect(signOut.tabIndex).to.eql(0);
       press(signOut, 'Enter');
@@ -380,7 +385,7 @@ describe('Passkey diagnostic panel', () => {
       res.update({
         snapshot: {
           ...signedIn,
-          authentication: { kind: 'signed-in', principal: '-' },
+          authentication: { ...signedIn.authentication, principal: '-' },
           result: { kind: 'success', action: 'add-passkey', summary: 'Credential added' },
         },
         ...callbacks,
@@ -433,7 +438,7 @@ describe('Passkey diagnostic panel', () => {
     const res = await renderPanel({
       snapshot: {
         ...signedIn,
-        authentication: { kind: 'signed-in', principal, credentialCount: 2 },
+        authentication: { ...signedIn.authentication, principal, credentialCount: 2 },
         result: { kind: 'failure', action: 'add-passkey', summary },
       },
       ...callbacks,

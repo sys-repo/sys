@@ -1,6 +1,31 @@
 import React from 'react';
-import { DomMock, Is, type t, TestReact } from './common.ts';
+import { DomMock, expect, Is, Schedule, type t, TestReact, WebFixture } from './common.ts';
 import { Passkey } from '../mod.ts';
+
+/** Observe page-lifetime listener identity without replacing event delivery. */
+export function pageListeners() {
+  const page: EventTarget = window;
+  const add = page.addEventListener.bind(page);
+  const remove = page.removeEventListener.bind(page);
+  const acquired: string[] = [];
+  const attached = new Map<EventListenerOrEventListenerObject | null, string>();
+  const on = (...[type, listener, options]: Parameters<typeof add>) => {
+    if (type === 'pagehide' || type === 'pageshow') {
+      acquired.push(type);
+      attached.set(listener, type);
+    }
+    add(type, listener, options);
+  };
+  const off = (...[type, listener, options]: Parameters<typeof remove>) => {
+    if (attached.get(listener) === type) attached.delete(listener);
+    remove(type, listener, options);
+  };
+  const mock = WebFixture.Property.mock([
+    { target: window, key: 'addEventListener', descriptor: { value: on } },
+    { target: window, key: 'removeEventListener', descriptor: { value: off } },
+  ]);
+  return { acquired, attached, [Symbol.dispose]: () => mock.dispose() };
+}
 
 /** Test-owned observations, independent of the interactive harness fixtures. */
 export const signedOut: t.Passkey.Snapshot = {
@@ -14,10 +39,10 @@ export const signedOut: t.Passkey.Snapshot = {
   },
 };
 
-export const signedIn: t.Passkey.Snapshot = {
+export const signedIn = {
   ...signedOut,
-  authentication: { kind: 'signed-in', principal: 'principal-test-01' },
-};
+  authentication: { kind: 'signed-in', principal: 'principal-test-01', label: 'Test account' },
+} satisfies t.Passkey.Snapshot;
 
 export async function renderPanel(props: t.Passkey.Props) {
   let update!: (props: t.Passkey.Props) => void;
@@ -30,7 +55,8 @@ export async function renderPanel(props: t.Passkey.Props) {
   return {
     container: res.container,
     update: (props: t.Passkey.Props) => React.act(() => update(props)),
-    dispose: () => React.act(() => res.dispose()),
+    dispose: () => res.dispose(),
+    [Symbol.dispose]: () => res.dispose(),
   };
 }
 
@@ -68,6 +94,36 @@ export function valueCell(container: HTMLElement, label: string): Element {
   const value = key?.nextElementSibling;
   if (Is.nil(value)) throw new Error(`Missing value for: ${label}`);
   return value;
+}
+
+/** Activate with the keyboard and flush the async account notification into React. */
+export function activate(el: HTMLElement) {
+  return React.act(async () => {
+    press(el, 'Enter');
+    await Schedule.micro();
+  });
+}
+
+/** Drive the integration specimen through its rendered controls, not the runtime. */
+export async function exerciseAccountFlow(container: HTMLElement) {
+  const value = (label: string) => valueCell(container, label).textContent;
+  const choose = (label: string) => activate(button(container, label));
+  expect(value('Authentication')).to.eql('Signed out');
+  expect(value('Account service')).to.eql('Configured');
+  await choose('Create with Passkey');
+  expect(value('Account label')).to.eql('Test account');
+  expect(value('Principal')).to.eql('principal');
+  expect(value('Registered credentials')).to.eql('1');
+  await choose('Sign Out');
+  expect(value('Authentication')).to.eql('Signed out');
+  expect(container.textContent).not.to.contain('Account label');
+  await choose('Sign In');
+  expect(value('Account label')).to.eql('Test account');
+  expect(value('Principal')).to.eql('principal');
+  await choose('Add Passkey');
+  expect(value('Principal')).to.eql('principal');
+  expect(value('Registered credentials')).to.eql('2');
+  expect(value('Last result')).to.contain('Accepted by the account service');
 }
 
 export function press(el: HTMLElement, key: string) {

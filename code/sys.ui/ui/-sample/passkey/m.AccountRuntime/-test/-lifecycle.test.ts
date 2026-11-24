@@ -1,6 +1,13 @@
-import { Accounts } from '../../m.Accounts/mod.ts';
-import { describe, expect, it, type t, WebFixture } from './common.ts';
-import { accepted, browser, rpId, token, transport, wallClock } from './u.fixture.ts';
+import { describe, expect, it, type t } from './common.ts';
+import {
+  accepted,
+  afterAdmittedReply,
+  browser,
+  rpId,
+  token,
+  transport,
+  wallClock,
+} from './u.fixture.ts';
 
 const cancelled = { kind: 'not-submitted', reason: 'cancelled' };
 
@@ -172,22 +179,3 @@ describe('AccountRuntime lifetime and cancellation boundaries', () => {
     });
   }
 });
-
-/** Run after the real reader admits this reply, before the workflow resumes from send. */
-function afterAdmittedReply(
-  command: t.Accounts.Name,
-  kind: 'accepted' | 'rejected',
-  fn: () => void,
-) {
-  const original = Accounts.readResult;
-  const readResult: typeof original = (name, input) => {
-    const reply = original(name, input);
-    if (name === command && reply?.kind === kind) queueMicrotask(fn);
-    return reply;
-  };
-  return WebFixture.Property.mock([{
-    target: Accounts,
-    key: 'readResult',
-    descriptor: { value: readResult },
-  }]);
-}

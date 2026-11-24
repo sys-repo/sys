@@ -23,7 +23,7 @@ export function createBegin(authority: t.ServiceAuthority, policy: t.Policy) {
       ? {
         principal: fresh(authority.current.accounts),
         handle: Random.base36(40),
-        label: `Account ${Random.base36(8)}`,
+        label: `sample.${Random.slug()}`,
       }
       : session?.account;
     const id = fresh(transactions);

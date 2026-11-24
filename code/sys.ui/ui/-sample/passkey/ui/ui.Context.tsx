@@ -4,6 +4,7 @@ import { Anchor, Color, css, D, Is, KeyValue, type t } from './common.ts';
 const references = {
   origin: 'https://www.w3.org/TR/webauthn-3/#sctn-validating-origin',
   rpId: 'https://www.w3.org/TR/webauthn-3/#relying-party-identifier',
+  rpName: 'https://www.w3.org/TR/webauthn-3/#dom-publickeycredentialentity-name',
   webAuthn: 'https://www.w3.org/TR/webauthn-3/#sctn-api',
 } as const;
 
@@ -33,11 +34,16 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
       v: value(displayConfig(context.rpId, 'Not configured')),
     },
     {
+      id: 'rp-name',
+      k: key('Relying Party Name', references.rpName),
+      v: value(displayConfig(context.rpName, 'Not configured')),
+    },
+    {
       id: 'web-authn',
       k: key('WebAuthn', references.webAuthn),
       v: value(availabilityText(context.webAuthn)),
     },
-    { id: 'verifier', k: 'Verifier', v: value(availabilityText(context.verifier)) },
+    { id: 'verifier', k: 'Account service', v: value(availabilityText(context.verifier)) },
   ];
   const items: t.KeyValue.Item[] = [
     { id: 'context-title', kind: 'title', v: 'Context' },
@@ -51,7 +57,8 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
   );
 };
 
-function availabilityText(value: t.Passkey.Availability): string {
+function availabilityText(value: t.Passkey.Context['verifier']): string {
+  if (value.kind === 'configured') return 'Configured';
   if (value.kind === 'available') return 'Available';
   return `${value.kind === 'unknown' ? 'Unknown' : 'Unavailable'}: ${value.reason}`;
 }

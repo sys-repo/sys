@@ -218,7 +218,11 @@ describe('AccountRuntime', () => {
     runtime.start();
     expect(await runtime.run('sign-in')).to.eql(ok);
     server.handlers['passkey.add.finish'] = () => {
-      const account = { principal: 'another-account', credentialCount: 2 };
+      const account = {
+        ...server.session.account,
+        principal: 'another-account',
+        credentialCount: 2,
+      };
       return accepted({ ...server.session, account });
     };
     expect(await runtime.run('add-passkey')).to.eql(uncertain);
@@ -410,7 +414,18 @@ describe('AccountRuntime', () => {
       const options = native.creation.at(-1)!;
       return Promise.resolve(keys.shift()!.registration(options));
     };
-    native.native.get = () => second.assertion(native.request.at(-1)!, native.creation[0].user.id);
+    native.native.get = async () => {
+      const assertion = await second.assertion(native.request.at(-1)!, native.creation[0].user.id);
+      const { clientExtensionResults, ...json } = assertion;
+      expect(clientExtensionResults).to.eql({});
+      return { ...json, authenticatorAttachment: 'platform' };
+    };
+    let outputs: AuthenticationExtensionsClientOutputs = { credProps: { rk: true } };
+    using _extensions = WebFixture.Property.mock([{
+      target: native.Credential.prototype,
+      key: 'getClientExtensionResults',
+      descriptor: { configurable: true, value: () => outputs },
+    }]);
     runtime.start();
     expect(await runtime.run('create-account')).to.eql(ok);
     expect(await runtime.run('add-passkey')).to.eql(ok);
@@ -421,6 +436,10 @@ describe('AccountRuntime', () => {
     expect(enrolled.value.account.credentialCount).to.equal(2);
     expect(await runtime.run('sign-out')).to.eql(ok);
     expect(runtime.state.current.session.kind).to.equal('signed-out');
+    // Never discard native extension outputs to manufacture an empty dictionary.
+    expect(await runtime.run('sign-in')).to.eql(local('invalid-input'));
+    expect(server.requests.at(-1)?.name).to.equal('session.signIn.begin');
+    outputs = {};
     expect(await runtime.run('sign-in')).to.eql(ok);
     const signedIn = runtime.state.current.session;
     if (signedIn.kind !== 'signed-in') {

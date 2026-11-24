@@ -1,18 +1,21 @@
 import type { t } from './common.ts';
+import { browserOrigin, rp } from '../../u/u.issuer.ts';
 
 const signedOut: t.Passkey.Snapshot = {
   authentication: { kind: 'signed-out' },
   operation: { kind: 'idle' },
   context: {
-    origin: 'http://localhost:1234',
-    rpId: 'localhost',
+    origin: browserOrigin,
+    rpId: rp.id,
+    rpName: rp.name,
     webAuthn: { kind: 'available' },
     verifier: { kind: 'available' },
   },
 };
+const account = { principal: 'principal-example-01', label: 'Example account' } as const;
 const signedIn: t.Passkey.Snapshot = {
   ...signedOut,
-  authentication: { kind: 'signed-in', principal: 'principal-example-01', credentialCount: 2 },
+  authentication: { kind: 'signed-in', ...account, credentialCount: 2 },
 };
 
 /** Deliberately simulated observations, not browser probes or successful callback outcomes. */
@@ -37,7 +40,7 @@ export const Fixtures: readonly t.PasskeyFixture[] = [
     label: 'Unknown credential count',
     snapshot: {
       ...signedIn,
-      authentication: { kind: 'signed-in', principal: 'principal-example-01' },
+      authentication: { kind: 'signed-in', ...account },
     },
   },
   {
@@ -121,6 +124,7 @@ export const Fixtures: readonly t.PasskeyFixture[] = [
       ...signedIn,
       authentication: {
         kind: 'signed-in',
+        label: account.label,
         principal: 'principal-example-0123456789'.repeat(5),
         credentialCount: 2,
       },

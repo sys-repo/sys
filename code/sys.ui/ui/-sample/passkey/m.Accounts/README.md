@@ -40,11 +40,6 @@ possession of a live credential can authorize requests. Keep grants, challenges,
 responses inside the service/client binding—not in UI snapshots, logs, or browser storage—to avoid
 exposing credentials and authentication exchanges.
 
-## Status
-
-The [integration specimen](../ui/-spec.integration/-SPEC.tsx) is unconnected and performs no account
-operations.
-
 ## References
 
 - [Contract and recovery rules](./README.contract.md)

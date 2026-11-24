@@ -3,7 +3,7 @@
  * DevHarness visual specs.
  */
 import { DevArgs, type t } from './common.ts';
-import { SpecNames } from '../../-sample/passkey/-spec/-u.navigation.ts';
+import { SpecNames } from '../../-sample/passkey/ui/-spec/-u.navigation.ts';
 export const ns = 'sys.ui';
 
 /**

@@ -1,11 +1,19 @@
 import { describe, DevArgs, expect, it, Obj } from './common.ts';
 import { Specs, specsFor } from '../../../../src/-test/-specs.ts';
-import { SpecLinks, SpecNames } from '../../-spec/-u.navigation.ts';
+import { SpecLinks, SpecNames } from '../-spec/-u.navigation.ts';
 
 const base = 'https://example.test/ui/';
 const route = (key: string, value: string) => `${base}?${new URLSearchParams({ [key]: value })}`;
 
 describe('passkey specimen navigation', () => {
+  it('sample and pure addresses → load the intended suites', async () => {
+    const imports = specsFor(route('dev', SpecNames.view));
+    expect((await Specs[SpecNames.sample]()).default)
+      .to.equal((await import('../-spec.integration/-SPEC.tsx')).default);
+    expect((await imports[SpecNames.view]()).default)
+      .to.equal((await import('../-spec/-SPEC.tsx')).default);
+  });
+
   it('index and unknown routes → only the listed specs', () => {
     expect(Obj.keys(Specs)).to.contain(SpecNames.sample);
     expect(Obj.keys(Specs)).not.to.contain(SpecNames.view);

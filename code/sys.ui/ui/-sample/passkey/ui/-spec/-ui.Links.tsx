@@ -1,5 +1,5 @@
 import { Dev } from '@sys/ui-components/react/dev';
-import { Anchor, Color, css, type t } from '../ui/common.ts';
+import { Anchor, Color, css, type t } from '../common.ts';
 import { SpecLinks } from './-u.navigation.ts';
 
 type SpecLinkProps = { to: keyof typeof SpecLinks };
