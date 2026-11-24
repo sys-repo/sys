@@ -23,15 +23,22 @@ export async function dev(args: t.ViteEntry.Args.Dev) {
 }
 
 /** Internal dependency seam for deterministic entry orchestration tests. */
-export async function devWith(args: t.ViteEntry.Args.Dev, deps: DevDependencies) {
+export async function devWith(
+  args: t.ViteEntry.Args.Dev,
+  deps: DevDependencies,
+  options?: t.ViteEntry.DevOptions,
+) {
   if (args.cmd !== 'dev') return;
 
   const pkgSubpath = resolvePkgSubpath(args);
-  const cwd = args.dir ? Path.resolve(args.dir) : Path.cwd();
+  const cwd = Path.resolve(args.dir || '.');
+  const owner = options?.jsrPackageDir;
+  const link = owner !== undefined && Path.Is.absolute(owner) && Path.resolve(owner) === cwd;
   const pkg = await deps.loadPkg(cwd);
   const server = await deps.start({
     pkg,
     ...(pkgSubpath === undefined ? {} : { pkgSubpath }),
+    ...(link ? { versionLink: 'jsr' } : {}),
     cwd,
     port: args.port,
     reporter: args.reporter,
@@ -41,8 +48,8 @@ export async function devWith(args: t.ViteEntry.Args.Dev, deps: DevDependencies)
 }
 
 /** Present and run the selected development command. */
-export async function dispatch(args: t.ViteEntry.Args.Dev): Promise<void> {
-  await dispatchWith(args, dev);
+export async function dispatch(args: t.ViteEntry.Args.Dev, options?: t.ViteEntry.DevOptions) {
+  await dispatchWith(args, (args) => devWith(args, DEFAULT_DEPS, options));
 }
 
 /** Internal command-runner seam for presentation tests. */

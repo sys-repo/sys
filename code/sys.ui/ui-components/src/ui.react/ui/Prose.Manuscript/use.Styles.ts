@@ -1,20 +1,23 @@
-import React from 'react';
-import { type t, D, useFontBundle, ETBook } from './common.ts';
-import { initStyles } from './u.styles/mod.ts';
+import { ETBook, type t, useFontBundle, useStylesheetRule } from './common.ts';
+import { code, headings } from './u.styles/mod.ts';
 
-type P = { theme?: t.CommonTheme };
+type P = { component: string; theme: t.Color.Theme };
 
-/**
- * Thin react wrapper
- */
-export const useScopedStyles = (props: P) => {
+/** Optional descendant rules; font loading and rule registration remain separate. */
+export const useScopedStyles = (props: P): t.Style.Props => {
   useFontBundle(ETBook);
+  const styles: t.Style.Props = {};
 
-  React.useEffect(() => {
-    const { dispose } = initStyles(props);
-    return dispose;
-  }, [props.theme]);
+  // Each unconditional block can be removed without changing the other rule's ownership.
+  {
+    const { selector, rule, bindings } = code(props);
+    useStylesheetRule(selector, rule);
+    Object.assign(styles, bindings);
+  }
+  {
+    const { selector, rule } = headings(props);
+    useStylesheetRule(selector, rule);
+  }
 
-  const componentAttr = D.componentAttr;
-  return { componentAttr } as const;
+  return styles;
 };

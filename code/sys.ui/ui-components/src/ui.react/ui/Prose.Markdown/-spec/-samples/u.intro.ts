@@ -1,7 +1,7 @@
 import { Str } from '../common.ts';
 
 export const intro = {
-  label: 'sample: intro',
+  label: 'intro',
   value: Str.dedent(`
     Use \`inline code\` for compact tokens.
 

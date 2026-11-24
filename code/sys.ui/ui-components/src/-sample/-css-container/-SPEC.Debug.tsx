@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from '../-test.ui.ts';
+import { Spec } from '../-test.ui.ts';
+import { Color, css, Dev, Signal, type t } from '../common.ts';
 
 /**
  * Types:
@@ -14,7 +15,8 @@ type P = DebugProps;
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
   const props = { theme: s<t.CommonTheme>('Light') };
-  const api = { props };
+  const { attach } = Spec.attachments();
+  const api = { props, attach };
   init?.(api);
   return api;
 }
@@ -44,7 +46,7 @@ export const Debug: React.FC<P> = (props) => {
       <div className={styles.title.class}>CSS: @container</div>
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}

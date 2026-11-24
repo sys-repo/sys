@@ -1,6 +1,7 @@
 import { c, Cli, Fs, Is, type t, YamlConfig } from '../common.ts';
 import { PiSandboxFmt } from '../../u/u.fmt.sandbox.ts';
 import { PiSandboxReport } from '../../u/u.report.sandbox.ts';
+import { resolvePkg } from '../../u/u.resolve.pkg.ts';
 import { runtimeRoot } from '../../u/u.runtime.ts';
 import { ProfilesFs } from './u.fs.ts';
 import { ProfileMigrate } from '../u.migrate/mod.ts';
@@ -38,6 +39,7 @@ type PreviewToken = ConfigSnapshot & t.PiCliProfiles.MenuPreview;
 type ProfileScreen =
   | {
     readonly kind: 'invalid';
+    readonly root: t.StringDir;
     readonly allowAll?: boolean;
   }
   | {
@@ -89,8 +91,8 @@ async function runMenu(
         ...menuArgs(root),
         mode: 'select',
         selectAction: 'select',
-        beforePrompt() {
-          printProfileRoot({ allowAll, notice: rootNotice }, deps);
+        async beforePrompt() {
+          await printProfileHeader({ root, allowAll, notice: rootNotice }, deps);
           rootNotice = undefined;
         },
       });
@@ -110,7 +112,7 @@ async function runMenu(
         allowAll,
         gitRootExplicit,
       })
-      : { kind: 'invalid', allowAll };
+      : { kind: 'invalid', root, allowAll };
 
     const action = await YamlConfig.menu<t.PiCliProfiles.Yaml.Profile, Action>({
       ...menuArgs(root),
@@ -144,17 +146,20 @@ function actionFromMode(mode: t.PiCliProfiles.StartMode): Action {
   return mode === 'tui' ? 'start:tui' : 'start:gui';
 }
 
-function printProfileRoot(
-  input: { allowAll?: boolean; notice?: string },
+async function printProfileHeader(
+  input: { root: t.StringDir; allowAll?: boolean; notice?: string },
   deps: MenuDependencies,
 ) {
+  const upstream = await resolvePkg({ cwd: input.root });
+  const permissions = input.allowAll === true ? 'allow-all' : 'scoped';
+  const rows = PiSandboxFmt.header(permissions, {
+    upstream,
+    width: deps.screenSize().width,
+    terminal: deps.isTerminal('stdout'),
+    notice: input.notice,
+  });
   clearInteractiveScreen(deps.isTerminal);
-  printProfileHeader(input.allowAll, deps.screenSize().width, input.notice);
-}
-
-function printProfileHeader(allowAll?: boolean, width?: number, notice?: string) {
-  const permissions = allowAll === true ? 'allow-all' : 'scoped';
-  console.info(PiSandboxFmt.header(permissions, { width, notice }).join('\n'));
+  console.info(rows.join('\n'));
 }
 
 function menuArgs(cwd: t.StringDir) {
@@ -249,12 +254,9 @@ async function prepareSandboxScreen(args: MenuContext): Promise<ProfileScreen> {
 }
 
 function printProfileScreen(input: ProfileScreen, deps: MenuDependencies) {
+  if (input.kind === 'invalid') return printProfileHeader(input, deps);
   clearInteractiveScreen(deps.isTerminal);
   const width = deps.screenSize().width;
-  if (input.kind === 'invalid') {
-    printProfileHeader(input.allowAll, width);
-    return;
-  }
   console.info(
     PiSandboxFmt.table({ ...input.sheet.sandbox, report: input.sheet.report }, {
       gitRootExplicit: input.gitRootExplicit,

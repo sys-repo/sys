@@ -118,24 +118,29 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
     }
   });
 
-  it('styled label overflow → refuses before invoking its value callback', () => {
-    let calls = 0;
-    const input: t.CliFormat.Service.Input = {
-      name: 'example',
-      status: {
-        state: 'ready',
-        details: [{ label: 'x\n'.repeat(4094) + 'x', value: '' }],
-      },
-      presentation: {
-        formatDetail() {
-          calls += 1;
-          return undefined;
-        },
-      },
-    };
-    const render = () => Fmt.Service.format(input, { terminal: false });
-    expect(render).to.throw('finite presentation limit exceeded');
-    expect(calls).to.eql(0);
+  it('padded label overflow → refuses before invoking its value callback, even when hidden', () => {
+    for (const maxRows of [undefined, 1, 0]) {
+      let calls = 0;
+      const render = (firstLabelCells: number) => {
+        const label = 'x'.repeat(firstLabelCells) + '\nx'.repeat(127);
+        const input: t.CliFormat.Service.Input = {
+          name: 'B',
+          status: { state: 'ready', details: [{ label, value: '' }] },
+          presentation: {
+            formatDetail() {
+              calls += 1;
+              return undefined;
+            },
+          },
+        };
+        return Fmt.Service.formatList([{ name: 'A' }, input], { terminal: false, maxRows });
+      };
+      // Even without ANSI, 127 continuations × 602 padding cells exceed 65,535 code units.
+      expect(() => render(600)).to.throw('finite presentation limit exceeded');
+      expect(calls).to.eql(0);
+      render(1);
+      expect(calls).to.eql(1);
+    }
   });
 
   it('aggregate label overflow → refuses before collecting subsequent service facts', () => {
@@ -157,6 +162,37 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
     const render = () => Fmt.Service.formatList([service, next], { terminal: false });
     expect(render).to.throw('finite presentation limit exceeded');
     expect(reads).to.eql(0);
+  });
+
+  it('measures hidden labels and runs hidden detail callbacks in order, even with no rows', () => {
+    const cause = new Error('B detail failed');
+    const calls: string[] = [];
+    let fail = false;
+    const services = ['A', 'B'].map((name): t.CliFormat.Service.Input => {
+      const detail = { label: name === 'A' ? 'short' : 'long-label', value: name };
+      return {
+        name,
+        status: { state: 'ready', details: [detail] },
+        presentation: {
+          formatDetail(args) {
+            expect(args.detail).to.equal(detail);
+            calls.push(`${name}(${args.maxWidth})`);
+            if (fail && name === 'B') throw cause;
+            return undefined;
+          },
+        },
+      };
+    });
+    for (const maxRows of [1, 0]) {
+      const render = () => Fmt.Service.formatList(services, { width: 40, maxRows });
+      for (const throws of [false, true]) {
+        fail = throws;
+        calls.length = 0;
+        if (fail) expect(render).to.throw(cause);
+        else render();
+        expect(calls).to.eql(['A(26)', 'B(26)']);
+      }
+    }
   });
 
   it('admits exact output and physical-line ceilings without double-counting columns', () => {
@@ -189,19 +225,19 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
       { width: 65_535, name: 'a' },
       { width: 40_000, name: 'x'.repeat(20_000) },
     ];
+    const { deps, widths } = ruleProbe();
     for (const { width, name } of cases) {
-      let calls = 0;
-      const deps = {
-        ...renderDeps,
-        hr(options: t.CliFormat.Hr.Options) {
-          calls += 1;
-          return Fmt.hr(options);
-        },
-      };
       const render = () => formatListWith(deps, [{ name }, { name }], { width });
-
       expect(render).to.throw('finite presentation limit exceeded');
-      expect(calls).to.eql(0);
+    }
+    expect(widths).to.eql([]);
+  });
+
+  it('measures an unbounded separator across hidden rows before compacting', () => {
+    const services = [{ name: 'A' }, { name: 'B', module: 'x'.repeat(33_000) }];
+    for (const maxRows of [undefined, 1, 0]) {
+      const render = () => formatListWith(renderDeps, services, { terminal: false, maxRows });
+      expect(render).to.throw('finite presentation limit exceeded');
     }
   });
 
@@ -249,54 +285,49 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
 
   it('separator framing and repetition → admits exactly 65,535 code units', () => {
     for (const count of [2, 3]) {
-      let calls = 0;
-      const deps = {
-        ...renderDeps,
-        hr(options: t.CliFormat.Hr.Options) {
-          calls += 1;
-          return Fmt.hr(options);
-        },
-      };
+      const { deps, widths } = ruleProbe();
       const tail = Array.from({ length: count - 1 }, () => ({ name: 'a' }));
-      const render = (width: number, suffix = '') => {
-        return formatListWith(deps, [{ name: `a${suffix}` }, ...tail], { width });
+      const render = (width: number, suffix = '', maxRows?: number) => {
+        return formatListWith(deps, [{ name: `a${suffix}` }, ...tail], { width, maxRows });
       };
       const remaining = 65_535 - render(100).length;
       const width = 100 + Math.floor(remaining / (count - 1));
       const suffix = 'x'.repeat(remaining % (count - 1));
-      calls = 0;
+      widths.length = 0;
 
       expect(render(width, suffix).length).to.eql(65_535);
-      expect(calls).to.eql(1);
-      calls = 0;
+      expect(widths).to.eql([width]);
       expect(() => render(width, `${suffix}x`)).to.throw('finite presentation limit exceeded');
-      expect(calls).to.eql(0);
+      for (const maxRows of [0, 1]) {
+        const selected = stripAnsi(render(width, suffix, maxRows));
+        expect(selected).to.eql(maxRows ? `service   a${suffix} +${count - 1} more` : '');
+        const overflow = () => render(width + 1, suffix, maxRows);
+        expect(overflow).to.throw('finite presentation limit exceeded');
+      }
+      expect(widths).to.eql([width]);
     }
   });
 
   it('separator physical lines → admits 4,096 and refuses before composing line 4,097', () => {
-    let calls = 0;
-    const deps = {
-      ...renderDeps,
-      hr(options: t.CliFormat.Hr.Options) {
-        calls += 1;
-        return Fmt.hr(options);
-      },
-    };
-    const render = (count: number) => {
+    const { deps, widths } = ruleProbe();
+    const render = (count: number, maxRows?: number) => {
       const service: t.CliFormat.Service.Input = {
-        name: '',
+        name: 'A',
         status: { state: 'ready', details: [{ label: '', value: '' }] },
         presentation: { formatDetail: () => '\n'.repeat(count - 1) },
       };
-      return formatListWith(deps, [service, { name: '' }], { width: 1 });
+      return formatListWith(deps, [service, { name: 'B' }], { width: 1, maxRows });
     };
 
     expect(render(4093).split('\n').length).to.eql(4096);
-    expect(calls).to.eql(1);
-    calls = 0;
-    expect(() => render(4094)).to.throw('finite presentation limit exceeded');
-    expect(calls).to.eql(0);
+    expect(widths).to.eql([1]);
+    for (const maxRows of [undefined, 1, 0]) {
+      if (maxRows !== undefined) {
+        expect(stripAnsi(render(4093, maxRows))).to.eql(maxRows ? 'A' : '');
+      }
+      expect(() => render(4094, maxRows)).to.throw('finite presentation limit exceeded');
+    }
+    expect(widths).to.eql([1]);
   });
 
   it('encoded targets and repeated links → admits exactly 65,535 code units', () => {
@@ -312,8 +343,9 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
       };
       const urls = Array.from({ length: count }, () => ({ href }));
       const status: t.Service.Status = { state: 'ready', urls };
-      const render = (name: string) => {
-        return formatListWith(deps, [{ name, status }], { terminal: false, urlHyperlinks: true });
+      const render = (name: string, maxRows?: number) => {
+        const options = { terminal: false, urlHyperlinks: true, maxRows };
+        return formatListWith(deps, [{ name, status }], options);
       };
       const name = 'x'.repeat(65_535 - render('x').length + 1);
       calls = 0;
@@ -323,8 +355,17 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
       expect(result).to.contain(`\x1b]8;;${new URL(href).href}\x1b\\`);
       expect(calls).to.eql(count);
       calls = 0;
-      expect(() => render(`${name}x`)).to.throw('finite presentation limit exceeded');
-      expect(calls).to.eql(count - 1);
+      for (const maxRows of [undefined, 1, 0]) {
+        if (maxRows !== undefined) {
+          const selected = render(name, maxRows);
+          expect(selected).not.to.contain('\x1b]8;;');
+          expect(calls).to.eql(count);
+          calls = 0;
+        }
+        expect(() => render(`${name}x`, maxRows)).to.throw('finite presentation limit exceeded');
+        expect(calls).to.eql(count - 1);
+        calls = 0;
+      }
     }
   });
 
@@ -618,3 +659,13 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
     expect(String(cause)).to.contain('presentation authority unavailable');
   });
 });
+
+/** Record only the rules the formatter actually constructs. */
+function ruleProbe() {
+  const widths: (number | undefined)[] = [];
+  const hr = (options: t.CliFormat.Hr.Options) => {
+    widths.push(options.width);
+    return Fmt.hr(options);
+  };
+  return { deps: { ...renderDeps, hr }, widths };
+}

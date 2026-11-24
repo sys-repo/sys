@@ -1,29 +1,30 @@
-import { Harness, Signal, Spec } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Harness, Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Sample } from './-SPEC.Sample.tsx';
 
 export default Spec.describe('Image.Svg', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    return <Sample signals={debug} />;
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    const updateSize = () => {
-      const width = p.width.value;
-      if (width === undefined) ctx.subject.size('fill');
-      else ctx.subject.size([width, null]);
-    };
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      updateSize();
-      ctx.redraw();
-    });
-
-    ctx.subject.display('grid').render((e) => {
-      return <Sample signals={debug} />;
+    debug.attach(ctx, {
+      subject: { display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          const width = p.width.value;
+          if (width === undefined) ctx.subject.size('fill');
+          else ctx.subject.size([width, null]);
+          ctx.redraw();
+        },
+      ],
     });
   });
 

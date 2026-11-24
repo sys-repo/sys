@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { Config } from '../mod.ts';
 
 type P = t.MediaZoomProps;
@@ -27,18 +27,13 @@ export function createDebugSignals() {
     values: s<P['values']>(localstore.current.values),
     debounce: s<P['debounce']>(250),
   };
-  const p = props;
-  const api = {
-    props,
-    localstore,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.values.value;
-      p.debounce.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  return { props, localstore, listen, attach };
 }
 
 const Styles = {
@@ -71,24 +66,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{'Media.Config.Zoom'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `debounce: ${p.debounce.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.debounce, [0, 250, 800, undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
         expand={['$', '$.values']}

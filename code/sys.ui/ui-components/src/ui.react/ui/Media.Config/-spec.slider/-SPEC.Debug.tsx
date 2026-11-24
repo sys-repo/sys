@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, Signal } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { css, Dev, Signal, type t } from './common.ts';
 
 type P = t.MediaConfigSliderProps;
 
@@ -23,19 +23,13 @@ export function createDebugSignals() {
     unit: s<P['unit']>('%'),
     range: s<P['range']>([0, 200]),
   };
-  const p = props;
-  const api = {
-    props,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.label.value;
-      p.unit.value;
-      p.range.value;
-      p.value.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  return { props, listen, attach };
 }
 
 const Styles = {
@@ -67,24 +61,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{'Media.Config.Slider'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `value: ${p.value.value?.toFixed() ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.value, [0, 100, 200, undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
         expand={['$']}

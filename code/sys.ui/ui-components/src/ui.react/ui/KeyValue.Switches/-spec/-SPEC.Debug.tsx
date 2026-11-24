@@ -1,15 +1,6 @@
 import React from 'react';
-import {
-  Button,
-  Color,
-  css,
-  D,
-  LocalStorage,
-  ObjectView,
-  Signal,
-  STORAGE_KEY,
-  type t,
-} from './common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 import { CursorDebug } from '../../KeyValue/-spec/mod.ts';
 import { SAMPLE, type SampleKind, type SampleValues } from './-samples.tsx';
 
@@ -68,11 +59,20 @@ export async function createDebugSignals() {
     values: s<SampleValues>({ ...SAMPLE.defaultValues, ...(snap.values ?? {}) }),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.enabled = p.enabled.value;
+        d.reorder = p.reorder.value;
+        d.cursorEnabled = p.cursor.enabled.value;
+        d.cursorArrival = p.cursor.arrival.value;
+        d.sample = p.sample.value;
+        d.values = p.values.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -91,20 +91,7 @@ export async function createDebugSignals() {
     p.values.value = { ...SAMPLE.defaultValues };
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.enabled = p.enabled.value;
-      d.reorder = p.reorder.value;
-      d.cursorEnabled = p.cursor.enabled.value;
-      d.cursorArrival = p.cursor.arrival.value;
-      d.sample = p.sample.value;
-      d.values = p.values.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -141,17 +128,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${v.enabled}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `reorder: ${v.reorder}`}
         onClick={() => Signal.toggle(p.reorder)}
@@ -168,14 +155,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>{'Samples'}</div>
-      <Button block label={() => `sample: basic`} onClick={() => selectSample('basic')} />
-      <Button block label={() => `sample: mixed`} onClick={() => selectSample('mixed')} />
-      <Button block label={() => `sample: grouped`} onClick={() => selectSample('grouped')} />
+      <Dev.Button block label={() => `sample: basic`} onClick={() => selectSample('basic')} />
+      <Dev.Button block label={() => `sample: mixed`} onClick={() => selectSample('mixed')} />
+      <Dev.Button block label={() => `sample: grouped`} onClick={() => selectSample('grouped')} />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

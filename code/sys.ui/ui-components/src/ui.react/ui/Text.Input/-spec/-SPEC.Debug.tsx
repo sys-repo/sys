@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Obj, Color, css, D, Is, LocalStorage, Signal } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, Is, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.TextInput.Props;
 type Storage = Pick<
@@ -65,14 +65,22 @@ export function createDebugSignals() {
   };
 
   const p = props;
-  const api = {
-    get props() {
-      return props;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.value = p.value.value;
+        d.placeholder = p.placeholder.value;
+        d.autoFocus = p.autoFocus.value;
+        d.disabled = p.disabled.value;
+        d.readOnly = p.readOnly.value;
+        d.background = p.background.value;
+        d.border = p.border.value;
+        d.borderRadius = p.borderRadius.value;
+        d.spellCheck = p.spellCheck.value;
+      });
     },
-    localstore: store,
-    listen,
-    reset,
-  };
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -82,23 +90,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      const p = props;
-      d.theme = p.theme.value;
-      d.value = p.value.value;
-      d.placeholder = p.placeholder.value;
-      d.autoFocus = p.autoFocus.value;
-      d.disabled = p.disabled.value;
-      d.readOnly = p.readOnly.value;
-      d.background = p.background.value;
-      d.border = p.border.value;
-      d.borderRadius = p.borderRadius.value;
-      d.spellCheck = p.spellCheck.value;
-    });
-  });
-
-  return api;
+  return { props, localstore: store, listen, reset, attach };
 }
 
 const Styles = {
@@ -130,18 +122,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `placeholder: ${p.placeholder.value ?? `(undefined)`}`}
         onClick={() => Signal.cycle(p.placeholder, ['my placeholder', undefined])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.background.value;
@@ -151,19 +143,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.background, [undefined, 0, -0.05, Color.ruby(0.08)]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.border.value;
           const print = Is.record(v)
-            ? v.mode
-              ? `{ mode: '${v.mode}', ... }`
-              : `{ focusColor: '${v.focusColor}' }`
+            ? v.mode ? `{ mode: '${v.mode}', ... }` : `{ focusColor: '${v.focusColor}' }`
             : v;
           return `border: ${print ?? `(undefined)`}`;
         }}
-        onClick={() =>
-          Signal.cycle(p.border, [
+        onClick={() => {
+          return Signal.cycle(p.border, [
             true,
             false,
             D.border,
@@ -172,10 +162,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
             { mode: 'line:top' },
             { focusColor: 'red', defaultColor: Color.ruby(0.15) },
             undefined,
-          ])
-        }
+          ]);
+        }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.borderRadius.value;
@@ -185,22 +175,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `disabled: ${p.disabled.value ?? `(undefined)`}`}
         onClick={() => Signal.toggle(p.disabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `readOnly: ${p.readOnly.value ?? `(undefined) (default: ${D.readOnly})`}`}
         onClick={() => Signal.toggle(p.readOnly)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `autoFocus: ${p.autoFocus.value ?? `(undefined)`}`}
         onClick={() => Signal.toggle(p.autoFocus)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `autoFocus: (increment number)`}
         onClick={() => {
@@ -209,7 +199,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.spellCheck.value;
@@ -223,14 +213,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {prefixSuffixButtons(debug)}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
 
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(p)}
         style={{ marginTop: 10 }}
@@ -256,17 +246,17 @@ export function prefixSuffixButtons(debug: DebugSignals) {
   };
   return (
     <React.Fragment>
-      <Button
+      <Dev.Button
         block
         label={() => `prefix: <element>`}
         onClick={() => (p.prefix.value = render('🐷'))}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `suffix: <element>`}
         onClick={() => (p.suffix.value = render('🌳'))}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `(clear)`}
         onClick={() => {

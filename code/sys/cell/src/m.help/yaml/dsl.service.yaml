@@ -104,7 +104,22 @@ sections:
       - Use owner CLI/API to create, validate, or update `<config>` when available.
       - If no owner affordance exists, stop and ask before hand-authoring owner config YAML.
       - Do not duplicate the owner config schema in the Cell edit.
-      - Cell records only the service and config reference.
+      - Keep owner settings behind the service's config reference.
+
+  - label: 'Startup prerequisites'
+    items:
+      - Omit `startAfter` for independent services; they can start in parallel.
+      - |-
+          On the dependent service, add only the service names it must wait for:
+          startAfter: ['view', 'fixture']
+      - >-
+          Cell waits for every named service’s `start()` to succeed before attempting this service.
+          If a prerequisite fails or times out, the dependent does not start.
+      - The dependent’s timeout covers its endpoint import and startup, not time spent waiting.
+      - >-
+          Names refer to service identities in any descriptor position, including when a variant
+          is selected. Do not put `startAfter` inside a variant or owner config.
+      - '`startAfter` does not probe reachability, monitor health, or change shutdown order.'
 
   - label: 'Service modes'
     items:

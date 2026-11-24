@@ -15,8 +15,3 @@ export function cmdResult(
     ...(value.error === undefined ? {} : { error: value.error }),
   };
 }
-
-/** Error message returned when a command has no registered handler. */
-export function missingHandlerMessage(name: t.Cmd.Name): string {
-  return `No handler registered for command "${name}".`;
-}

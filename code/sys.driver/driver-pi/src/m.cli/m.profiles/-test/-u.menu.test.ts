@@ -1,5 +1,5 @@
 import { describe, expect, it, withSelectPrompt } from '../../../-test.ts';
-import { Cli as CliOwner, Fs, Is, Obj, type t } from '../common.ts';
+import { Cli as CliOwner, Fs, Is, Obj, pkg, type t } from '../common.ts';
 import { menuWith } from '../u/u.menu.ts';
 import { MenuState } from '../u/u.menu.state.ts';
 import { ProfilesFs } from '../u/u.fs.ts';
@@ -338,7 +338,12 @@ describe(`@sys/driver-pi/cli/Profiles/u.menu`, () => {
 
       Object.defineProperty(Cli.Input.Select, 'prompt', {
         value: (input: SelectInput) => {
-          const frame = output.take();
+          const raw = output.takeRaw();
+          const frame = Cli.stripAnsi(raw);
+          const url = new URL(`https://jsr.io/${pkg.name}@${pkg.version}`);
+          expect(raw.split('\n')[0]).to.contain(
+            Cli.Fmt.hyperlink(pkg.version, url, { underline: true }),
+          );
           expectMenuBoundary(frame, 80);
           if (isRootMenu(input)) {
             expect(frame).not.to.contain('.sandbox.log.md');
@@ -679,9 +684,10 @@ type SelectInput = {
   readonly options?: readonly { readonly name: string; readonly value: unknown }[];
 };
 
-/** Capture visible rows until a clear or prompt boundary, independent of logging batches. */
+/** Capture rows until a clear or prompt boundary, independent of logging batches. */
 function captureMenuOutput() {
   const output: string[] = [];
+  const takeRaw = () => output.splice(0).join('\n');
   return {
     info(value?: unknown) {
       output.push(String(value ?? ''));
@@ -689,7 +695,8 @@ function captureMenuOutput() {
     clear() {
       output.length = 0;
     },
-    take: () => Cli.stripAnsi(output.splice(0).join('\n')),
+    takeRaw,
+    take: () => Cli.stripAnsi(takeRaw()),
   };
 }
 

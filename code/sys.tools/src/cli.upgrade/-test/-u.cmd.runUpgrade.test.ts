@@ -1,9 +1,38 @@
 import { c, Cli, describe, expect, Is, it, type t } from '../../-test.ts';
 import { versionsSuccess } from './u.fixture.ts';
 import { runUpgrade } from '../u.cmd.runUpgrade.ts';
+import { Fmt } from '../u.fmt.ts';
 import { getVersionInfo } from '../u.versionInfo.ts';
 
 describe('cli.upgrade.runUpgrade', () => {
+  it('links each upgrade row to its own release only on terminal stdout', () => {
+    const version: t.UpgradeTool.VersionInfo = {
+      local: '0.0.462',
+      remote: '0.0.464',
+      latest: '0.0.463',
+      actionable: '0.0.463',
+      is: { latest: false, upgradeAvailable: true },
+    };
+    const terminal = Fmt.versionInfoTable(version, true);
+    const redirected = Fmt.versionInfoTable(version, false);
+    const rows = [
+      ['registry:latest', '0.0.464', c.white],
+      ['local:current', '0.0.462', c.gray],
+      ['local:next', '0.0.463', c.green],
+    ] as const;
+    const lines = terminal.split('\n');
+    let withoutReleaseLinks = terminal;
+    for (const [label, pin, color] of rows) {
+      const row = lines.find((line) => Cli.stripAnsi(line).trimStart().startsWith(label));
+      const url = new URL(`https://jsr.io/@sys/tools@${pin}`);
+      const link = Cli.Fmt.hyperlink(pin, url, { underline: true });
+      expect(row).to.contain(color(link));
+      withoutReleaseLinks = withoutReleaseLinks.replace(link, pin);
+    }
+    expect(withoutReleaseLinks).to.eql(redirected);
+    expect(redirected).not.to.contain('\x1b]8;;');
+  });
+
   describe('already latest', () => {
     it('shows a version-check spinner and exits without prompting when already latest', async () => {
       const events: string[] = [];

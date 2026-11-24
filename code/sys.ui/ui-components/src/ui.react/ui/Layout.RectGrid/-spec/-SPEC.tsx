@@ -1,62 +1,50 @@
-import { type t, Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec, type t } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { RectGrid } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Foo } from './-ui.Foo.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
-  e.it('init', (e) => {
-    const ctx = Spec.ctx(e);
-    function update() {
-      ctx.redraw();
+  function Root() {
+    const v = Signal.toObject(p);
+    const items = Array.from(Array(v.total).keys(), makeItem);
+
+    function makeItem(index: number): t.RectGridItem {
+      const selected = v.activeIndex === index;
+      const onClick = () => (p.activeIndex.value = index);
+      return {
+        id: `item-${index}`,
+        render: () => <Foo index={index} theme={v.theme} selected={selected} onClick={onClick} />,
+      };
     }
 
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      update();
+    return (
+      <RectGrid
+        debug={v.debug}
+        theme={v.theme}
+        activeIndex={v.activeIndex}
+        gap={v.gap}
+        aspectRatio={v.aspectRatio}
+        items={items}
+      />
+    );
+  }
+
+  e.it('init', (e) => {
+    const ctx = Spec.ctx(e);
+    debug.attach(ctx, {
+      subject: { size: 'fill', display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size('fill')
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-
-        const items: t.RectGridItem[] = Array(v.total)
-          .fill(undefined)
-          .map((_, i) => {
-            return {
-              id: `item-${i}`,
-              render() {
-                return (
-                  <Foo
-                    index={i}
-                    theme={v.theme}
-                    selected={v.activeIndex === i}
-                    onClick={() => (p.activeIndex.value = i)}
-                  />
-                );
-              },
-            };
-          });
-
-        return (
-          <RectGrid
-            debug={v.debug}
-            theme={v.theme}
-            activeIndex={v.activeIndex}
-            gap={v.gap}
-            aspectRatio={v.aspectRatio}
-            items={items}
-          />
-        );
-      });
-
-    update();
   });
 
   e.it('ui:debug', (e) => {

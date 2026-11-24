@@ -51,16 +51,20 @@ export type DevCtx = {
  */
 export type DevCtxIs = {
   readonly initial: boolean; // Flag indicating if this is the initial run (or first run after a reset).
+  /**
+   * Whether a new specimen attachment may begin now.
+   * Closed through reset/replacement response delivery; reopens only when all transitions exit
+   * and the context/controller remain live. Disposal is terminal; unbound contexts remain closed.
+   * Re-read `ctx.is.attachable` at acquisition boundaries; do not cache `ctx.is`.
+   * This is not a reservation, reset success, cancellation, or permission to mutate context state.
+   */
+  readonly attachable: boolean;
 };
 
-/**
- * A safe function mutator.
- */
+/** Mutates a draft of specimen state. */
 export type DevCtxStateMutator<T extends O> = (draft: T) => t.IgnoredResult;
 
-/**
- * Immutable context state.
- */
+/** Specimen state handle; update through `change`. */
 export type DevCtxState<T extends O> = {
   current: T;
   change(fn: DevCtxStateMutator<T>): Promise<T>;
@@ -89,15 +93,24 @@ export type DevCtxSubject = {
 };
 
 /**
- * Subject Component Host ("Harness")
+ * The host surface around the subject.
  */
 export type DevCtxHost<S extends O = O> = {
+  /** Content and border above the subject area. */
   readonly header: DevCtxEdge<S>;
+  /** Content and border below the subject area. */
   readonly footer: DevCtxEdge<S>;
+  /** Set the host foreground; null restores the default. */
   color(value: Color | null): DevCtxHost<S>;
+  /** Set the host background color; null restores the default. */
   backgroundColor(value: Color | null): DevCtxHost<S>;
+  /** Set the host background image; null removes it. */
   backgroundImage(value: t.DevBackgroundImageInput | t.StringUrl | null): DevCtxHost<S>;
+  /** Set the subject guide color; zero hides the guides. */
   tracelineColor(value: Color | null): DevCtxHost<S>;
+  /** Set the resolved CSS color inherited by host edges without an explicit border. */
+  dividerColor(value: string): DevCtxHost<S>;
+  /** Select a layer behind (negative) or in front of (positive) the subject; zero is reserved. */
   layer(index: number): DevCtxLayer<S>;
 };
 

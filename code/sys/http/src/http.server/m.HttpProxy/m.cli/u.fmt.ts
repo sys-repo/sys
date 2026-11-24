@@ -106,6 +106,7 @@ export const Fmt = Object.freeze({
             ['--name <name>', 'optional proxy display name; defaults from --config'],
             ['--hostname <host>', `listen hostname; defaults to ${D.hostname}`],
             ['--port <port>', `listen port, integer 0..65535; defaults to ${D.port}`],
+            ['--strict-port[=false]', 'set strict binding; omit to keep the saved strictness'],
             ['--dry-run', 'preview the config mutation without writing'],
           ],
         },
@@ -115,7 +116,7 @@ export const Fmt = Object.freeze({
           items: [
             'Writes only durable reverse-proxy config state; it does not start a server.',
             'Missing config is created with required lifecycle fields and an empty mounts list.',
-            'Existing root/default upstream and mounts are preserved when lifecycle fields are updated.',
+            'On update, omitted name, hostname and port use their defaults. Existing routes are preserved.',
             'An identical existing config is a no-op success.',
             'The resulting YAML is validated before writing.',
           ],

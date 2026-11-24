@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { SlugSheet } from '../mod.ts';
 import { createSlots } from './u.fixture.tsx';
 
@@ -110,7 +110,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   function indexButton(inc: number) {
     return (
-      <Button
+      <Dev.Button
         block
         label={() => `index = ${p.index.value} ${inc > 0 ? '+' : '-'} ${Math.abs(inc)}`}
         onClick={() => {
@@ -124,19 +124,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
+      <Dev.Button
         block
         label={() => (p.controlled.value ? 'controlled' : 'uncontrolled')}
         onClick={() => Signal.toggle(p.controlled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `visible: ${p.visible.value ?? `(undefined)`}`}
         onClick={() => Signal.toggle(p.visible)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -145,19 +145,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       {indexButton(1)}
       {indexButton(-1)}
-      <Button block label={() => `reset (index = 0)`} onClick={() => (p.index.value = 0)} />
+      <Dev.Button block label={() => `reset (index = 0)`} onClick={() => (p.index.value = 0)} />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `slots: ${p.slots.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle<Storage['slots']>(p.slots, ['Foo', 'TreeHost', undefined])}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

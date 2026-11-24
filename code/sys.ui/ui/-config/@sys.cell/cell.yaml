@@ -5,6 +5,12 @@ version: 1
 name: sys.ui
 
 services:
+  - name: sys.ui:proxy
+    startAfter: ['sys.ui:view', 'sys.ui:accounts']
+    use: HttpProxy
+    from: 'jsr:@sys/http/server/proxy'
+    config: ./-config/@sys.http/proxy.yaml
+
   - name: sys.ui:view
     use: Serve
     from: 'jsr:@sys/tools/serve'
@@ -19,3 +25,8 @@ services:
     use: FilesWebSocketService
     from: 'jsr:@sys/server/files/service'
     config: ./-config/@sys.server.files/sample.yaml
+
+  - name: sys.ui:accounts
+    use: AccountsService
+    from: './-sample/passkey/-service.accounts.ts'
+    config: ./-config/@sys.ui/passkey.accounts.yaml

@@ -1,7 +1,7 @@
-import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Is, Signal, Spec } from '../../-test.ui.ts';
 import { Media } from '../../Media/mod.ts';
 import { Video } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('MediaVideoFiltered', (e) => {
   const debug = createDebugSignals();
@@ -41,29 +41,20 @@ export default Spec.describe('MediaVideoFiltered', (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    const updateSize = () => {
-      const aspectRatio = p.aspectRatio.value;
-      if (aspectRatio == null) ctx.subject.size('fill', 150);
-      else ctx.subject.size('fill-x', 200);
-      ctx.redraw();
-    };
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      updateSize();
+    debug.attach(ctx, {
+      subject: { size: undefined, display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          if (Is.nil(p.aspectRatio.value)) ctx.subject.size('fill', 150);
+          else ctx.subject.size('fill-x', 200);
+        },
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size()
-      .display('grid')
-      .render(() => <Root />);
-
-    /**
-     * Initial state:
-     */
-    updateSize();
   });
 
   e.it('ui:debug', (e) => {

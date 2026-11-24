@@ -64,6 +64,7 @@ export type DevRenderPropsHost = {
   color?: Color;
   backgroundImage?: DevBackgroundImage;
   tracelineColor?: Color;
+  dividerColor?: string;
   header: DevRenderPropsEdge;
   footer: DevRenderPropsEdge;
   layers: DevRenderPropsLayers;

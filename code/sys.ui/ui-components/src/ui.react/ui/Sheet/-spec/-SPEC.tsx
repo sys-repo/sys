@@ -1,7 +1,7 @@
 import { Harness, Spec } from '../../-test.ui.ts';
 import { AnimatePresence, Color, css, Signal } from '../common.ts';
 import { Sheet } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Sheet', (e) => {
   const debug = createDebugSignals();
@@ -43,16 +43,16 @@ export default Spec.describe('Sheet', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: [390, 844], display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size([390, 844])
-      .display('grid')
-      .render((e) => <Root />);
   });
 
   e.it('ui:debug', (e) => {

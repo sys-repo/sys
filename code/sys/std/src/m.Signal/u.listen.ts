@@ -12,21 +12,30 @@ export const listeners: t.Signal.Lib['listeners'] = (until) => {
   const disposers = new Set<() => void>();
 
   const effect = (fn: t.SignalEffectFn) => {
-    const dispose = baseEffect(fn);
-    disposers.add(dispose);
+    if (life.disposed) return api;
 
-    const sub = life.dispose$.subscribe(() => {
-      dispose();
-      disposers.delete(dispose);
-      sub.unsubscribe();
+    const dispose = baseEffect((e) => {
+      // Cleanup or an initial run can retire the collection before a queued rerun.
+      if (!life.disposed) return fn(e);
     });
+
+    // Activation is synchronous and may dispose the owner before returning its disposer.
+    if (life.disposed) {
+      dispose();
+      dispose(); // Same bounded second teardown opportunity as retained effects below.
+    } else disposers.add(dispose);
 
     return api;
   };
 
   life.dispose$.subscribe(() => {
-    disposers.forEach((dispose) => dispose());
-    disposers.clear();
+    const pending = [...disposers];
+    disposers.clear(); // Release membership before invoking reentrant user cleanup.
+    for (const dispose of pending) dispose();
+    // Preserve the former per-registration disposal pass: a throwing Preact unwatched
+    // hook can interrupt dependency removal despite baseEffect containing the error.
+    // This is a bounded compatibility measure, not general exception-safe teardown.
+    for (const dispose of pending) dispose();
   });
 
   /**

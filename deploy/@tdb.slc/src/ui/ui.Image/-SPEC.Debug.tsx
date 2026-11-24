@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, ObjectView, Path, Signal } from './common.ts';
+import { css, Dev, Path, Signal, type t } from './-spec/common.ts';
 
 type P = t.ImageViewProps;
 const dir = Path.dir('./images/ui.Overview', 'posix');
@@ -61,12 +61,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Image'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `padding: ${p.padding.value ?? '<undefined>'}`}
         onClick={() => {
@@ -76,7 +76,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const value = p.src.value;
@@ -93,7 +93,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `src = 💥 ← error`}
         onClick={() => {
@@ -102,7 +102,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} />
+      <Dev.ObjectView name={'debug'} data={Signal.toObject(debug)} expand={1} />
     </div>
   );
 };

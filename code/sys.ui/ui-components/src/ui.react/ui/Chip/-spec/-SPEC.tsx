@@ -1,7 +1,8 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
-import { D, type t } from './common.ts';
+import { D } from './common.ts';
 import { Chip } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { Overflow } from './-ui.Overflow.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -9,9 +10,16 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    if (v.examples) return <Overflow {...v} />;
     return (
-      <div style={{ fontSize: v.fontSize }}>
-        <Chip.UI debug={v.debug} theme={v.theme} size={v.size} mono={v.mono}>
+      <div style={{ fontSize: v.fontSize, width: v.truncate ? v.width : undefined }}>
+        <Chip.UI
+          debug={v.debug}
+          theme={v.theme}
+          size={v.size}
+          mono={v.mono}
+          truncate={v.truncate}
+        >
           {v.text}
         </Chip.UI>
       </div>
@@ -21,19 +29,17 @@ export default Spec.describe(D.displayName, async (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    update();
-    function update() {
-      debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-
+    debug.attach(ctx, {
+      subject: { display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
     ctx.host.tracelineColor(0.03);
-    ctx.subject
-      .display('grid')
-      .render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {

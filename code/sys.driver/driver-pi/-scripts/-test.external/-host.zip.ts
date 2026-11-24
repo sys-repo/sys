@@ -4,6 +4,8 @@ import { Raw } from '../../src/m.cli/m.raw/mod.ts';
 import { resolveRun } from '../../src/m.cli/m.profiles/u/u.resolve.run.ts';
 import { withInherit } from '../../src/m.cli/u/u.inherit.ts';
 import { PI_AGENT_IMPORT } from '../../src/m.cli/u/u.resolve.pkg.ts';
+import { PiArgs } from '../../src/m.cli/u/u.args.ts';
+import { isolateHostArgs, requireAdmittedHost, selectHost } from './u.host.compat.ts';
 import { Fixture as ArchiveFixture } from '../../../../sys/archive/src/m.Zip/-test/u.fixture.ts';
 import { describe, Err, expect, Fs, Is, it, Json, Obj, Process, Str, type t } from '../common.ts';
 
@@ -61,6 +63,11 @@ async function runHost(alias?: AliasFixture, extraction = false) {
     },
   };
   const { root } = fixture;
+  const selected = selectHost([], PI_AGENT_IMPORT);
+  const admitted = await requireAdmittedHost(selected.pkg, selected.version);
+  await Fs.copy(admitted.paths.cache, PiArgs.toDenoDir(root), { throw: true });
+  await Fs.copyFile(admitted.paths.config, Fs.join(root, 'deno.json'), { throw: true });
+  await Fs.copyFile(admitted.paths.lock, Fs.join(root, 'deno.lock'), { throw: true });
   const captures: t.Process.CaptureOutput[] = [];
   const config = Fs.join(root, 'profile.yaml');
   const extension = Fs.join(root, 'host-fixture.ts');
@@ -110,8 +117,8 @@ async function runHost(alias?: AliasFixture, extraction = false) {
   const resolved = await resolveRun({
     cwd: { invoked: root, root },
     config,
-    args: ['--mode', 'rpc', '--no-session'],
-    env: { TMPDIR: tmp, TMP: tmp, TEMP: tmp },
+    args: ['--mode', 'rpc', '--no-session', '--offline'],
+    env: { TMPDIR: tmp, TMP: tmp, TEMP: tmp, PI_OFFLINE: '1' },
   });
   expect(resolved.pkg).to.eql(PI_AGENT_IMPORT);
   await withInherit(async (input) => {
@@ -120,6 +127,7 @@ async function runHost(alias?: AliasFixture, extraction = false) {
       'DENO_DIR',
       'HOME',
       'PI_CODING_AGENT_DIR',
+      'PI_OFFLINE',
       'PI_SKIP_VERSION_CHECK',
       'TEMP',
       'TMP',
@@ -131,6 +139,8 @@ async function runHost(alias?: AliasFixture, extraction = false) {
     childUnsettled = true;
     const output = await Process.capture({
       ...input,
+      // Reuse admitted artifacts; verification must not download into a fresh child cache.
+      args: isolateHostArgs(input.args, PI_AGENT_IMPORT, root),
       clearEnv: true,
       executionTimeout: 120_000,
       maxStdoutBytes: 65_536,

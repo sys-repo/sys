@@ -1,6 +1,6 @@
 import React from 'react';
 import { Programme } from '../../../ui.Programme/mod.ts';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { css, D, Dev, Signal, type t } from './common.ts';
 import { itemsButtons, Styles } from './-SPEC.u.tsx';
 
 /**
@@ -60,7 +60,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{'Playlist'}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
@@ -68,12 +68,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `selected: ${p.selected.value ?? `<undefined>`}`}
         onClick={() => {
@@ -81,7 +81,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.selected, [...indexes, undefined]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `filled: ${p.filled.value ?? `<undefined>`}`}
         onClick={() => {
@@ -89,7 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle(p.filled, [[0], [0, 1], indexes, undefined]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.paddingTop.value;
@@ -102,7 +102,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {itemsButtons(p.items)}
 
       <hr />
-      <ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
+      <Dev.ObjectView name={'props'} data={Signal.toObject(p)} expand={1} />
     </div>
   );
 };

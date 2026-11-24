@@ -24,10 +24,19 @@ export declare namespace CliKeyboard {
     /** Predicates for canonical keyboard controls and listener failures. */
     readonly Is: Is.Lib;
 
-    /** Bind canonical terminal keyboard controls to callbacks. */
+    /**
+     * Bind canonical terminal controls; returns undefined when stdin fails the terminal check.
+     * Bindings compete for one input session; disposal requests shared input shutdown. Await every
+     * active binding before using raw keypress or prompts. Overlapping these APIs is unsupported;
+     * raw keypress owners have a separate lifetime and are not disposed by binding shutdown.
+     */
     bind(options: Bind.Options): Bind.Handle | undefined;
 
-    /** Request disposal, retry once, and wait until autonomous listener work terminates. */
+    /**
+     * Request disposal and await this binding's callbacks and current input-release attempt.
+     * A later call can retry failed release, but retains the original lifecycle failure.
+     * Rejection does not prove successful cleanup. Never await this inside the binding's callback.
+     */
     shutdown(handle: Bind.Handle): Promise<void>;
   };
 
@@ -103,8 +112,9 @@ export declare namespace CliKeyboard {
     /**
      * Caller-owned keyboard listener handle.
      *
-     * Disposal requests lower shutdown; `finished` settles only after autonomous listener work has
-     * actually stopped.
+     * Disposal requests input shutdown. `finished` is the original lifecycle outcome: fulfillment
+     * confirms this binding's callbacks and input release completed; rejection reports failure.
+     * For release retries, await `shutdown(handle)` rather than the already-settled `finished`.
      */
     export type Handle = t.DisposableLike & t.WaitableHandle & {
       readonly finished: Promise<void>;

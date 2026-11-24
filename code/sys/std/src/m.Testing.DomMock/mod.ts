@@ -25,6 +25,7 @@ import type { t } from './common.ts';
 import { Fake } from './m.Fake.ts';
 import { Keyboard } from './m.Keyboard.ts';
 import { Mouse } from './m.Mouse.ts';
+import { Touch } from './m.Touch.ts';
 import { polyfill, unpolyfill } from './u.polyfill.ts';
 import { init } from './u.init.ts';
 
@@ -35,6 +36,7 @@ export const DomMock: t.DomMock.Lib = Object.freeze({
   Fake,
   Keyboard,
   Mouse,
+  Touch,
   init,
   polyfill,
   unpolyfill,

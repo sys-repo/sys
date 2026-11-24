@@ -1,3 +1,4 @@
+export { Dev } from '@sys/ui-components/react/dev';
 export * from '../common.ts';
 export { HttpOrigin } from '../../../ui.HttpOrigin/mod.ts';
 export { Routes as HttpOriginRoutes } from '../../../ui.HttpOrigin/u.routes.ts';

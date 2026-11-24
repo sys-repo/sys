@@ -31,7 +31,8 @@ export declare namespace Vite {
       /** Directory containing `vite.config.ts`; used only when `paths` is omitted. */
       cwd?: t.StringAbsoluteDir;
       /**
-       * Build paths. If omitted, read from `vite.config.ts`.
+       * Build paths. If omitted, evaluate `vite.config.ts` in the calling process.
+       * Supplying paths leaves configuration evaluation to the trusted Vite child.
        * Supplied paths are copied before asynchronous work begins.
        * Vite still loads `vite.config.ts`; only `app.outDir` and `app.base` override its settings.
        * Entry points, workers, and plugins remain configured in that file.
@@ -117,7 +118,10 @@ export declare namespace Vite {
     /** Base dev-server options independent of package identity. */
     export type Options = {
       cwd?: t.StringAbsoluteDir;
-      /** Explicit path authority, bypassing config file discovery when known. */
+      /**
+       * Explicit path authority, leaving configuration evaluation to the trusted Vite child.
+       * If omitted, evaluate `vite.config.ts` in the calling process.
+       */
       paths?: t.ViteConfig.Paths;
       port?: number;
       /** Fail startup if the requested port is unavailable. */
@@ -130,9 +134,14 @@ export declare namespace Vite {
       until?: t.UntilInput;
     };
 
-    /** Package-backed presentation input; subpaths cannot exist without package metadata. */
+    /** Package-backed presentation input; subpaths and release links require package metadata. */
     export type PackageInput =
-      | { pkg?: undefined; pkgSubpath?: never }
-      | { pkg: t.Pkg; pkgSubpath?: string };
+      | { pkg?: undefined; pkgSubpath?: never; versionLink?: never }
+      | {
+        pkg: t.Pkg;
+        pkgSubpath?: string;
+        /** Opt in to JSR release navigation when the dev screen can emit links. */
+        versionLink?: 'jsr';
+      };
   }
 }

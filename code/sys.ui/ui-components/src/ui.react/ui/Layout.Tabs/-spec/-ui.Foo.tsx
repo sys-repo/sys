@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, ObjectView } from './common.ts';
+import { Color, css, Dev, type t } from './common.ts';
 
 export type FooProps = {
   tab: t.Tabs.Item;
@@ -34,7 +34,7 @@ export const Foo: React.FC<FooProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <ObjectView theme={theme.name} data={data} name={name} expand={1} />
+      <Dev.ObjectView theme={theme.name} data={data} name={name} expand={1} />
     </div>
   );
 };

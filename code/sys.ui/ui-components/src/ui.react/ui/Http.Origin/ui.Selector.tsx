@@ -39,7 +39,7 @@ export const OriginSelector: React.FC<P> = (props) => {
         theme={theme.name}
         selected={env}
         items={items}
-        onSelect={(e) => {
+        onActivate={(e) => {
           if (!isEnv(e.id)) return;
           props.onChange?.({ next: e.id });
         }}

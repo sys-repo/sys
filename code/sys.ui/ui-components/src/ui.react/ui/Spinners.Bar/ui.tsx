@@ -1,52 +1,28 @@
-import React from 'react';
-import { type t, Color, css, D } from './common.ts';
-import { loadBarLoader } from './u.loader.ts';
-import { useComponent } from './use.Component.tsx';
+import { Color, css, D, type t } from './common.ts';
+import { useSweep } from './use.Sweep.ts';
 
-type P = t.BarSpinnerProps;
-
-export const BarSpinner: React.FC<P> = (props) => {
-  const { width = D.width, height } = props;
-  const cssOverride = wrangle.cssOverride(props);
-
-  const BarLoader = useComponent(wrangle.BarLoader);
-  if (!BarLoader) return null;
-
-  /**
-   * Render:
-   */
+export const BarSpinner: t.FC<t.BarSpinner.Props> = (props) => {
+  const { width = D.width, height = D.height, transparentTrack } = props;
   const theme = Color.theme(props.theme);
-  const styles = {
-    base: css({
-      position: 'relative',
-      overflow: 'hidden',
-      borderRadius: 10,
-      opacity: 0.5,
-      width,
-    }),
-  };
+
+  const base = css({
+    position: 'relative',
+    contain: 'layout', // Keep the marks local even if the caller changes `position`.
+    overflow: 'hidden',
+    borderRadius: 10,
+    opacity: 0.5,
+    width,
+    height,
+    color: theme.fg,
+    backgroundColor: transparentTrack ? undefined : Color.alpha(theme.fg, 0.2),
+  });
+
+  const { lead, trail } = useSweep();
 
   return (
-    <div className={css(styles.base, props.style).class}>
-      <BarLoader color={theme.fg} width={width} height={height} cssOverride={cssOverride} />
+    <div aria-hidden={true} className={css(base, props.style).class}>
+      <span className={lead} />
+      <span className={trail} />
     </div>
   );
 };
-
-/**
- * Helpers:
- */
-const wrangle = {
-  BarLoader() {
-    return loadBarLoader();
-  },
-
-  cssOverride(props: P): t.CssProps | undefined {
-    const { transparentTrack = false } = props;
-    if (!transparentTrack) return;
-    return {
-      backgroundColor: 'transparent',
-      borderColor: 'transparent', // when < 5px height adds borders → remove this too.
-    };
-  },
-} as const;

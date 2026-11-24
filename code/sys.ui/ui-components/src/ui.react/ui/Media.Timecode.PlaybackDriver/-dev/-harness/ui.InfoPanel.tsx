@@ -1,7 +1,7 @@
 import type { HarnessProps } from './t.ts';
 
 import React from 'react';
-import { type t, Str, Color, css, Dev, PlaybackDriver, ObjectView } from './common.ts';
+import { Color, css, Dev, PlaybackDriver, Str, type t, UiDev } from './common.ts';
 import { Debug } from './ui.InfoPanel.Debug.tsx';
 
 type L = NonNullable<HarnessProps['layout']>;
@@ -60,7 +60,7 @@ export const InfoPanel: React.FC<InfoPanelProps> = (props) => {
   };
 
   const elPayload = !!payload && (
-    <ObjectView theme={theme.name} name={'payload'} data={payload} expand={1} />
+    <UiDev.ObjectView theme={theme.name} name={'payload'} data={payload} expand={1} />
   );
 
   const elInfo = (

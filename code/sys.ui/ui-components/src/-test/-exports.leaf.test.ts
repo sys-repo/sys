@@ -1,4 +1,6 @@
 import { describe, expect, it } from '../-test.ts';
+import { Obj } from '../common.ts';
+import { FocusStyle } from '../m.style/m.FocusStyle/mod.ts';
 
 type LeafContract = {
   readonly path: string;
@@ -8,8 +10,8 @@ type LeafContract = {
 /**
  * Canonical React leaf contracts, grouped by their role in the public API.
  *
- * Tests below import package specifiers only. Implementation paths are
- * deliberately absent so this file proves the consumer-facing boundary.
+ * React leaf tests use package specifiers. The focus leaf also pins runtime
+ * identity against its owning module.
  */
 const leaves = {
   primitives: [
@@ -34,6 +36,8 @@ const leaves = {
     { path: 'slider', names: ['Slider'] },
     { path: 'splash', names: ['Splash'] },
     { path: 'spinners', names: ['Spinners'] },
+    { path: 'spinners/bar', names: ['BarSpinner'] },
+    { path: 'spinners/circular', names: ['CircularSpinner'] },
     { path: 'text', names: ['Text'] },
   ],
   content: [
@@ -68,6 +72,50 @@ const leaves = {
   ],
 } as const satisfies Record<string, readonly LeafContract[]>;
 
+// Pin the retired paths independently of the current export map.
+const retiredReactPaths = [
+  'action-probe',
+  'anchor',
+  'bullet',
+  'bullet-list',
+  'button',
+  'buttons',
+  'buttons/icons',
+  'buttons/switch',
+  'chip',
+  'cropmarks',
+  'error-boundary',
+  'fade-element',
+  'http-origin',
+  'icon',
+  'icon-swatches',
+  'iframe',
+  'image/svg',
+  'key-value',
+  'layout/center-column',
+  'layout/rect-grid',
+  'layout/split-pane',
+  'layout/tabs',
+  'layout/tree-host',
+  'media',
+  'media/recorder/dev',
+  'media/timecode/playback-driver',
+  'object-view',
+  'path-view',
+  'player',
+  'player/youtube',
+  'preload',
+  'prose',
+  'sheet',
+  'slider',
+  'splash',
+  'spinners',
+  'text',
+  'tree-view',
+  'tree-view/index',
+  'vimeo-background',
+] as const;
+
 describe('@sys/ui-components package exports', () => {
   describe('root boundaries', () => {
     it('keeps runtime roots minimal and package-only', async () => {
@@ -76,14 +124,14 @@ describe('@sys/ui-components package exports', () => {
         import('@sys/ui-components/react'),
       ]);
 
-      expect(Object.keys(root)).to.eql(['pkg']);
-      expect(Object.keys(react)).to.eql(['pkg']);
+      expect(Obj.keys(root)).to.eql(['pkg']);
+      expect(Obj.keys(react)).to.eql(['pkg']);
       expect(root.pkg).to.equal(react.pkg);
     });
 
     it('keeps the type entrypoint runtime-empty', async () => {
       const t = await import('@sys/ui-components/t');
-      expect(Object.keys(t)).to.eql([]);
+      expect(Obj.keys(t)).to.eql([]);
     });
   });
 
@@ -106,6 +154,11 @@ describe('@sys/ui-components package exports', () => {
   });
 
   describe('opt-in support leaves', () => {
+    it('exports the shared focus owner through one intentional style leaf', async () => {
+      const { FocusStyle: exported } = await import('@sys/ui-components/style/focus');
+      expect(exported).to.equal(FocusStyle);
+    });
+
     it('exports development composition and visual-spec surfaces', async () => {
       await Promise.all([
         expectExports('@sys/ui-components/react/dev', ['Dev']),
@@ -123,15 +176,13 @@ describe('@sys/ui-components package exports', () => {
     });
   });
 
-  describe('legacy compatibility aliases', () => {
-    it('maps every non-React alias to its canonical React leaf', async () => {
-      await Promise.all([
-        expectLegacyAliases(leaves.primitives),
-        expectLegacyAliases(leaves.content),
-        expectLegacyAliases(leaves.layout),
-        expectLegacyAliases(leaves.media),
-      ]);
-    });
+  describe('unsupported short React paths', () => {
+    for (const path of [...retiredReactPaths, 'spinners/bar', 'spinners/circular']) {
+      it(`does not resolve /${path}`, () => {
+        expect(() => import.meta.resolve(`@sys/ui-components/${path}`))
+          .to.throw(TypeError, path);
+      });
+    }
   });
 });
 
@@ -145,24 +196,7 @@ async function expectReactLeaves(contracts: readonly LeafContract[]) {
   );
 }
 
-async function expectLegacyAliases(contracts: readonly LeafContract[]) {
-  await Promise.all(
-    contracts.map(async (e) => {
-      const legacySpecifier = `@sys/ui-components/${e.path}`;
-      const canonicalSpecifier = `@sys/ui-components/react/${e.path}`;
-      const [legacy, canonical] = await Promise.all([
-        import(legacySpecifier),
-        import(canonicalSpecifier),
-      ]);
-
-      e.names.forEach((name) => {
-        expect(legacy[name], `${legacySpecifier} export: ${name}`).to.equal(canonical[name]);
-      });
-    }),
-  );
-}
-
 async function expectExports(specifier: string, names: readonly string[]) {
   const m = await import(specifier);
-  expect(Object.keys(m), specifier).to.include.members([...names]);
+  expect(Obj.keys(m), specifier).to.include.members([...names]);
 }

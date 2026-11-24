@@ -125,6 +125,39 @@ describe(`@sys/workspace/ci`, () => {
     );
   });
 
+  it('filters build/test sources independently of publishing, including no matches', async () => {
+    const fs = await Testing.dir('WorkspaceCi.sync.build-test-sources');
+    const sourcePaths = ['code/selected', 'code/other'];
+    for (const path of sourcePaths) {
+      const config = {
+        name: `@scope/${Fs.basename(path)}`,
+        version: '0.0.1',
+        exports: { '.': './mod.ts' },
+        tasks: { build: 'deno task check', test: 'deno test', 'test:windows': 'deno test' },
+      };
+      await Fs.writeJson(fs.join(path, 'deno.json'), config, { throw: true });
+    }
+
+    const options = { cwd: fs.dir, ensureGraph: false, silent: true };
+    for (const selected of [[sourcePaths[0]], []]) {
+      const filter = (path: string) => selected.includes(path);
+      const result = await WorkspaceCi.sync({ ...options, sourcePaths, filter });
+      expect(result.jsr.count).to.eql(2);
+      const jsr = (await Fs.readText(fs.join('.github/workflows/jsr.yaml'))).data ?? '';
+      for (const path of sourcePaths) expect(jsr).to.include(path);
+      for (const lane of [result.build, result.test.linux, result.test.windows]) {
+        expect(lane.count).to.eql(selected.length);
+        if (selected.length) {
+          const yaml = (await Fs.readText(Fs.resolve(fs.dir, lane.target))).data ?? '';
+          expect(yaml).to.include(sourcePaths[0]);
+          expect(yaml).not.to.include(sourcePaths[1]);
+        } else {
+          expect(await Fs.exists(Fs.resolve(fs.dir, lane.target))).to.eql(false);
+        }
+      }
+    }
+  });
+
   it('does not forward aggregate environment input into the Windows lane', async () => {
     const fs = await Testing.dir('WorkspaceCi.sync.windows-env');
     const modulePath = 'code/sys/windows';

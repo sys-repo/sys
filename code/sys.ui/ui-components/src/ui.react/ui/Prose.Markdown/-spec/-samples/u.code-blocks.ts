@@ -1,7 +1,7 @@
 import { Str } from '../common.ts';
 
 export const codeBlocks = {
-  label: 'sample: code blocks',
+  label: 'code blocks',
   value: Str.dedent(`
     Code blocks retain native semantics and neutral styling.
 

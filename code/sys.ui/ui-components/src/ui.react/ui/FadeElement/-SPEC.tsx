@@ -1,24 +1,29 @@
-import { Harness, Signal, Spec } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Harness, Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { FadeElement } from './mod.ts';
 
 export default Spec.describe('FadeElement', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    return <FadeElement duration={p.duration.value} children={p.children.value} />;
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.subject.size(p.fixedSize.value ? [390, 200] : [null, null]);
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.subject.size(p.fixedSize.value ? [390, 200] : [null, null]);
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .display('grid')
-      .render(() => <FadeElement duration={p.duration.value} children={p.children.value} />);
   });
 
   e.it('ui:debug', (e) => {

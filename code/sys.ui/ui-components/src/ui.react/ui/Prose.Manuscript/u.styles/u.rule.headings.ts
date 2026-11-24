@@ -1,11 +1,14 @@
-import { type t, Color, ETBook } from './common.ts';
+import { ETBook, type t } from './common.ts';
 
-export function headings(args: { rule: t.Prose.ScopedCssRule; theme: t.Color.Theme }) {
-  const { rule, theme } = args;
-  rule('h1', {
-    fontFamily: `"${ETBook.config.family}", Georgia, serif`,
-    fontWeight: 400,
-    fontSize: '3em',
-    lineHeight: 1.1,
-  });
+/** Theme-independent heading declarations, separate from inline code styling. */
+export function headings({ component }: { component: string }) {
+  return {
+    selector: `[data-component="${component}"] h1`,
+    rule: {
+      fontFamily: `"${ETBook.config.family}", Georgia, serif`,
+      fontWeight: 400,
+      fontSize: '3em',
+      lineHeight: 1.1,
+    } satisfies t.CssValue,
+  };
 }

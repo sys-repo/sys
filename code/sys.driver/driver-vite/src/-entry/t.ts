@@ -8,8 +8,8 @@ type P = t.StringPath;
 export declare namespace ViteEntry {
   /** CLI entry runtime surface. */
   export type Lib = {
-    /** Main entry: [argv] "cmd" parse and delegate.  */
-    main(argv?: string[] | Args): Promise<void>;
+    /** Main entry: parse and delegate argv with optional caller-owned dev presentation. */
+    main(argv?: string[] | Args, options?: DevOptions): Promise<void>;
 
     /** Start the HMR `dev` server. */
     dev(args: Args.Dev): Promise<void>;
@@ -19,6 +19,12 @@ export declare namespace ViteEntry {
 
     /** Serve one locally verified production Dist preview. */
     serve(args: Args.Serve): Promise<void>;
+  };
+
+  /** Programmatic presentation options for development, not argv flags. */
+  export type DevOptions = {
+    /** Opt in to JSR release navigation only for this absolute application directory. */
+    readonly jsrPackageDir?: t.StringAbsoluteDir;
   };
 
   /** ARGV (Command Line Arguments). */

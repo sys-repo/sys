@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal, Str } from '../u.ts';
+import { Spec } from '../-test.ui.ts';
+import { Color, css, Dev, Signal, Str, type t } from './-spec/common.ts';
 
 const local = new URL(`${location.origin}${location.pathname}`);
 
@@ -24,18 +25,19 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     loading: s<t.IFrameProps['loading']>(),
     sandbox: s<t.IFrameSandbox[] | undefined>(),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.src.value;
-      p.showBackground.value;
-      p.allowFullScreen.value;
-      p.loading.value;
-      p.sandbox.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.src.value;
+    p.showBackground.value;
+    p.allowFullScreen.value;
+    p.loading.value;
+    p.sandbox.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }
@@ -61,16 +63,16 @@ export const Debug: React.FC<P> = (props) => {
   };
 
   const srcLoader = (label: string, src?: t.IFrameProps['src']) => {
-    return <Button block label={label} onClick={() => (p.src.value = src)} />;
+    return <Dev.Button block label={label} onClick={() => (p.src.value = src)} />;
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`show background image: ${p.showBackground}`}
         onClick={() => Signal.toggle(p.showBackground)}
@@ -78,13 +80,13 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={`allowFullScreen: ${p.allowFullScreen}`}
         onClick={() => Signal.toggle(p.allowFullScreen)}
       />
 
-      <Button
+      <Dev.Button
         block
         label={`loading: ${p.loading}`}
         onClick={() => {
@@ -92,7 +94,7 @@ export const Debug: React.FC<P> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={`sandbox: ${p.sandbox}`}
         onClick={() => {

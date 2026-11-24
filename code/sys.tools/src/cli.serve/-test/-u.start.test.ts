@@ -1,4 +1,5 @@
-import { describe, expect, expectError, Fs, Hash, it, type t, Time } from '../../-test.ts';
+import { describe, expect, expectError, Fs, Hash, it, type t, Testing, Time } from '../../-test.ts';
+import { Http, Num } from '../common.ts';
 import { Serve } from '../mod.ts';
 import { Fixture } from './u.ts';
 
@@ -47,6 +48,57 @@ describe('Serve.start', () => {
       await server.close();
       await server.finished;
     }
+  });
+
+  it('occupied port → fallback unless strict; released port → exact bind', async () => {
+    await Testing.withTmpDir(async (cwd) => {
+      const config = 'view.yaml';
+      const page = 'strict view';
+      const start = (port?: number) => Serve.start({ cwd, paths: { config }, port });
+      const configure = (port: number, strict = false) => {
+        const policy = strict ? 'strictPort: true\n' : '';
+        return Fixture.writeFile(cwd, config, `name: View\ndir: ./site\nport: ${port}\n${policy}`);
+      };
+      const expectBusy = async (override?: number) => {
+        const error = await expectError(async () => (await start(override)).close());
+        expect(error.cause).to.be.instanceOf(Deno.errors.AddrInUse);
+      };
+      async function portServingView() {
+        const server = await start();
+        try {
+          const response = await fetch(server.url, { signal: AbortSignal.timeout(5_000) });
+          expect(await response.text()).to.eql(page);
+          return server.port;
+        } finally {
+          await server.close();
+        }
+      }
+
+      await Fixture.writeFile(cwd, 'site/index.html', page);
+      let port: number;
+      {
+        // Start in the lower private-port range so preferred fallback has room above it.
+        const preference = Num.random.int(49_152, 55_000);
+        await using occupant = Http.Server.start(Http.Server.create({ static: false }), {
+          hostname: '127.0.0.1',
+          port: preference,
+          silent: true,
+          keyboard: false,
+        });
+        port = occupant.port;
+        await configure(port);
+        expect(await portServingView()).not.to.eql(port);
+
+        await configure(0, true);
+        await expectBusy(port); // Override the port, not the policy.
+        await configure(port, true);
+        await expectBusy();
+      }
+
+      expect(await portServingView()).to.eql(port); // Strict bind after the occupant releases it.
+      await configure(port);
+      expect(await portServingView()).to.eql(port); // Preferred bind after Serve's own shutdown.
+    });
   });
 
   it('exposes renderer-neutral serve status snapshots', async () => {

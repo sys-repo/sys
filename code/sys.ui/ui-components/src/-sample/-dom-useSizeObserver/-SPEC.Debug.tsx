@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, css, ObjectView, Signal } from '../-test.ui.ts';
+import { Spec } from '../-test.ui.ts';
+import { css, Dev, Signal, type t } from '../common.ts';
 
 /**
  * Types:
@@ -12,7 +13,8 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
  */
 export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const s = Signal.create;
-  const api = { rect: s<t.DomRect>() };
+  const { attach } = Spec.attachments();
+  const api = { rect: s<t.DomRect>(), attach };
   init?.(api);
   return api;
 }
@@ -36,7 +38,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div>⚡️ via signal:</div>
-      <ObjectView name={'rect'} data={rect} margin={[5, 22]} expand={1} />
+      <Dev.ObjectView name={'rect'} data={rect} margin={[5, 22]} expand={1} />
       <hr />
     </div>
   );

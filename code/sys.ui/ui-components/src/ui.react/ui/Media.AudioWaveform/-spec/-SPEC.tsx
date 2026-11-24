@@ -1,34 +1,34 @@
-import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Spec } from '../../-test.ui.ts';
 import { AudioWaveform } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Audio', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    return (
+      <AudioWaveform.UI
+        debug={p.debug.value}
+        theme={p.theme.value}
+        stream={p.stream.value}
+        style={{ height: 200 }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: 'fill-x', display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size('fill-x')
-      .display('grid')
-      .render(() => {
-        return (
-          <AudioWaveform.UI
-            //
-            debug={p.debug.value}
-            theme={p.theme.value}
-            stream={p.stream.value}
-            style={{ height: 200 }}
-          />
-        );
-      });
   });
 
   e.it('ui:debug', (e) => {

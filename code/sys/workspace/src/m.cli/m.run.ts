@@ -45,7 +45,9 @@ export async function runWith(
 
   if (command === 'dsl') return await runDsl({ argv, cwd });
   if (command === 'bump') return await runBump(deps, { argv, cwd, policy: input.bumpPolicy });
-  if (command === 'upgrade') return await runUpgrade(deps, { argv, cwd });
+  if (command === 'upgrade') {
+    return await runUpgrade(deps, { argv, cwd, finalizeUpgrade: input.finalizeUpgrade });
+  }
 
   if (argv.length === 0 || wantsHelp(argv)) {
     const text = FmtHelp.output();
@@ -63,8 +65,9 @@ export async function runWith(
 async function runUpgrade(deps: WorkspaceCliDependencies, input: {
   readonly argv: readonly string[];
   readonly cwd: t.StringDir;
+  readonly finalizeUpgrade?: t.WorkspaceCli.Input['finalizeUpgrade'];
 }): Promise<t.WorkspaceCli.Result> {
-  const { argv, cwd } = input;
+  const { argv, cwd, finalizeUpgrade } = input;
   const upgradeArgv = wrangle.commandArgs(argv, 'upgrade');
   if (wantsHelp(upgradeArgv)) {
     const text = FmtHelp.upgradeOutput();
@@ -75,18 +78,31 @@ async function runUpgrade(deps: WorkspaceCliDependencies, input: {
   const options = parseArgs(cwd, upgradeArgv);
   const upgradeInput = { cwd, deps: options.deps };
 
+  async function finishApply(
+    selection: t.WorkspaceCli.Selection,
+    applied: t.WorkspaceUpgrade.ApplyResult,
+  ): Promise<t.WorkspaceCli.Applied> {
+    await finalizeUpgrade?.(applied);
+    console.info(Fmt.applied(applied));
+    const commit = Fmt.commitSuggestion(applied);
+    if (commit) {
+      console.info();
+      console.info(commit);
+    }
+    console.info();
+    return {
+      kind: 'apply',
+      input: { argv, cwd },
+      options,
+      selection,
+      upgrade: applied.upgrade,
+      applied,
+    };
+  }
+
   if (options.mode === 'interactive') {
     const res = await deps.interactive(upgradeInput, options);
-    if (res.applied) {
-      return {
-        kind: 'apply',
-        input: { argv, cwd },
-        options,
-        selection: res.selection,
-        upgrade: res.applied.upgrade,
-        applied: res.applied,
-      };
-    }
+    if (res.applied) return await finishApply(res.selection, res.applied);
 
     return {
       kind: 'plan',
@@ -124,21 +140,7 @@ async function runUpgrade(deps: WorkspaceCliDependencies, input: {
       ),
   );
 
-  console.info(Fmt.applied(applied));
-  const commit = Fmt.commitSuggestion(applied);
-  if (commit) {
-    console.info();
-    console.info(commit);
-  }
-  console.info();
-  return {
-    kind: 'apply',
-    input: { argv, cwd },
-    options,
-    selection,
-    upgrade: applied.upgrade,
-    applied,
-  };
+  return await finishApply(selection, applied);
 }
 
 async function runBump(deps: WorkspaceCliDependencies, input: {

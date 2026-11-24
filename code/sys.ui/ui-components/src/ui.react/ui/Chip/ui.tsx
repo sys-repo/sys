@@ -3,7 +3,7 @@ import { Color, css, D, type t } from './common.ts';
 type P = t.Chip.Props;
 
 export const Chip: t.FC<P> = (props) => {
-  const { debug = false, mono = D.mono, size = D.size } = props;
+  const { debug = false, mono = D.mono, size = D.size, truncate = D.truncate } = props;
 
   /**
    * Render:
@@ -27,11 +27,26 @@ export const Chip: t.FC<P> = (props) => {
       backgroundClip: 'padding-box',
       outline: debug ? `solid 1px ${Color.ruby(0.4)}` : undefined,
     }),
+    bound: {
+      display: 'inline-grid',
+      gridTemplateColumns: 'minmax(0, 1fr)',
+      maxWidth: '100%',
+      boxSizing: 'border-box',
+    } as const,
+    content: { overflow: 'hidden', textOverflow: 'ellipsis' } as const,
   };
 
+  // Let the grid item supply the text baseline while its overflow clips only the content.
+  const children = truncate
+    ? <span className={css(styles.content).class}>{props.children}</span>
+    : props.children;
+
   return (
-    <span className={css(styles.base, props.style).class} data-component={D.displayName}>
-      {props.children}
+    <span
+      className={css(styles.base, truncate && styles.bound, props.style).class}
+      data-component={D.displayName}
+    >
+      {children}
     </span>
   );
 };

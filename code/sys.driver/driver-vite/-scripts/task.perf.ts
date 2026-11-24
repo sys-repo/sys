@@ -24,7 +24,8 @@ function parseArgs(args: readonly string[]) {
   const scenario = args.find((arg) => arg.startsWith('--scenario='));
   return {
     runs: runs ? Number(runs.replace('--runs=', '')) : 3,
-    scenario: (scenario?.replace('--scenario=', '') ?? 'published-baseline') as 'published-baseline',
+    scenario:
+      (scenario?.replace('--scenario=', '') ?? 'published-baseline') as 'published-baseline',
     strict: args.includes('--strict'),
   };
 }
@@ -37,17 +38,17 @@ async function writeResult(result: PerfRun) {
   return path;
 }
 
-function print(result: PerfRun, path: string) {
-  console.info('driver-vite perf harness');
-  console.info(` phase:    ${result.phase}`);
-  console.info(` scenario: ${result.scenario}`);
-  console.info(` runs:     ${result.runs}`);
-  console.info(` artifact: ${path}`);
-  console.info(` note:     ${result.deliveryIdentityNote}`);
-  console.info('');
+/** Render measured sample outcomes without inferring a global acceptance verdict. */
+export function print(result: PerfRun, path: string, log: (text: string) => void = console.info) {
+  log('driver-vite perf harness');
+  log(` phase:    ${result.phase}`);
+  log(` scenario: ${result.scenario}`);
+  log(` runs:     ${result.runs}`);
+  log(` artifact: ${path}`);
+  log('');
 
   for (const sample of result.samples) {
-    console.info(
+    log(
       [
         `${sample.kind.padEnd(5)}`,
         `${sample.posture.padEnd(4)}`,

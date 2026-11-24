@@ -9,7 +9,7 @@ export { BulletList } from '../BulletList/mod.ts';
 export { KeyValue } from '../KeyValue/mod.ts';
 export { Button } from '../Button/mod.ts';
 export { ObjectView } from '../ObjectView/mod.ts';
-export { BarSpinner } from '../Spinners.Bar/mod.ts';
+export { Spinners } from '../Spinners/mod.ts';
 export { TextEllipsize } from '../Text.Ellipsize/mod.ts';
 
 /**

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import type React from 'react';
 
-import { Color, css, DEFAULTS, Is, Obj, type t, Time, useCurrentState } from '../common.ts';
+import { Color, css, DEFAULTS, Is, Obj, type t, useCurrentState } from '../common.ts';
 import { PanelFooter, PanelHeader } from '../Harness.Panel.Edge/mod.ts';
 import { BarSpinner } from '../Spinners/mod.ts';
 import { HostBackground } from './Host.Background.tsx';
@@ -27,17 +27,6 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
   const host = renderProps?.host;
   const layersAbove = wrangle.layers(host, (i) => i > 0);
   const layersBelow = wrangle.layers(host, (i) => i < 0);
-
-  const [, setRedraw] = useState(0);
-  const redraw = () => setRedraw((n: number) => n + 1);
-
-  /**
-   * Lifecycle
-   */
-  useEffect(() => {
-    // HACK: Ensure the "empty spinner" is rendered and starts.
-    if (isEmpty) Time.delay(redraw);
-  }, [isEmpty]);
 
   /**
    * Render:
@@ -84,11 +73,20 @@ export const HarnessHost: React.FC<HarnessHostProps> = (props) => {
     </div>
   );
 
+  const defaultBorderColor = host?.dividerColor ?? DEFAULT.dividerColor;
   const elBody = (
     <div className={styles.body.class}>
-      <PanelHeader instance={instance} current={host?.header} />
+      <PanelHeader
+        instance={instance}
+        current={host?.header}
+        defaultBorderColor={defaultBorderColor}
+      />
       {elMain}
-      <PanelFooter instance={instance} current={host?.footer} />
+      <PanelFooter
+        instance={instance}
+        current={host?.footer}
+        defaultBorderColor={defaultBorderColor}
+      />
     </div>
   );
 

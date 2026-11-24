@@ -1,6 +1,7 @@
 import { Err, type t } from '../common.ts';
 import { FmtHelp } from '../u.help/u.mod.ts';
 import { mergeFailures } from '../u.lifecycle/u.failure.ts';
+import { setExitCode } from '../u/u.exit.ts';
 import type { RunContext } from './u.context.ts';
 import { serviceModeFlag } from './u.mode.ts';
 import { fail, print } from './u.output.ts';
@@ -40,7 +41,7 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
     const reporting = await import('../u.lifecycle/u.start.reporter.ts');
     const lifecycle = await import('../u.lifecycle/u.shutdown.ts');
     const cell = await start.loadStartCell(args._[1]);
-    const identity = start.resolveStartIdentity(cell.descriptor, input.pkg);
+    const presentation = start.resolveStartPresentation(cell.descriptor, input);
     const shutdown = lifecycle.createShutdownSignal();
 
     try {
@@ -48,7 +49,7 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
       try {
         output = reporting.StartReporter.create(
           reporter.value,
-          { header: (width) => start.formatStartHeader(identity, width) },
+          { header: (width, link) => start.formatStartHeader(presentation, width, link) },
           {
             until: shutdown.done,
             onInterrupt() {
@@ -77,7 +78,7 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
           onStarting: output.starting,
           onReady: output.ready,
         });
-        const res = start.toStartResult(input, started, identity);
+        const res = start.toStartResult(input, started, presentation);
         output.complete(start.formatStartResult(started));
         outcome = { ok: true, value: res };
       } catch (cause) {
@@ -107,7 +108,11 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
       return outcome.value;
     } finally {
       interruptExit = lifecycle.isInterruptShutdownReason(shutdown.reason);
-      if (interruptExit) Deno.exitCode = 130;
+      if (interruptExit) {
+        // Node-backed cursor restoration re-emits the Node exit code during shutdown. Deno's
+        // exitCode alone does not update that value; publish the same terminal winner to both.
+        setExitCode(130);
+      }
     }
   } catch (error) {
     const result = fail(input, Err.summary(error, { cause: true }));

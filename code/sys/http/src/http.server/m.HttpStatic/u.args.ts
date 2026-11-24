@@ -1,4 +1,5 @@
 import { Args } from './common.ts';
+import { assertStrictPortFlag } from '../u.strictPortFlag.ts';
 
 export type StaticCliCommand = 'config' | 'config:add';
 
@@ -7,6 +8,7 @@ export type StaticCliArgs = {
   readonly help?: boolean;
   readonly 'dry-run'?: boolean;
   readonly silent?: boolean;
+  readonly 'strict-port'?: boolean;
   readonly config?: string;
   readonly name?: string;
   readonly dir?: string;
@@ -20,9 +22,10 @@ export type StaticCliParsedArgs = StaticCliArgs & {
 
 /** Parse CLI arguments for the static server owner CLI. */
 export function parseArgs(argv: string[] = []): StaticCliParsedArgs {
+  assertStrictPortFlag(argv);
   const args = Args.parse<StaticCliArgs>(argv, {
     alias: { h: 'help' },
-    boolean: ['help', 'dry-run', 'silent'],
+    boolean: ['help', 'dry-run', 'silent', 'strict-port'],
     string: ['config', 'name', 'dir', 'hostname', 'port'],
     unknown: (arg) => {
       throw new Error(`Unknown option: ${arg}`);

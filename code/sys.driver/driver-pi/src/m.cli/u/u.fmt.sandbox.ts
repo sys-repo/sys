@@ -1,12 +1,16 @@
 import { c, Cli, Fs, Is, Num, Path, pkg, Str, type t } from '../common.ts';
 import { isGitlessRoot, runtimeRoot } from './u.runtime.ts';
 import { PiAuthority } from './u.authority.ts';
+import { PI_AGENT_IMPORT_BASE, reportPkg } from './u.resolve.pkg.ts';
 
 type PiSandboxHeaderOptions = {
   /** Terminal width, including the reserved edge margin. */
   readonly width?: number;
   readonly tools?: readonly string[];
   readonly notice?: string;
+  readonly upstream?: string;
+  /** Terminal-output override for deterministic rendering tests. */
+  readonly terminal?: boolean;
 };
 
 type PiSandboxTableOptions = {
@@ -74,9 +78,10 @@ export const PiSandboxFmt = {
     opts: PiSandboxHeaderOptions = {},
   ): readonly string[] {
     const renderWidth = sandboxRenderWidth(opts.width);
+    const terminal = opts.terminal ?? Cli.Is.terminal('stdout');
     return [
-      ...identityRows(permissions, renderWidth, opts.tools),
-      ...renderRows(authorityRows(permissions), renderWidth).split('\n'),
+      ...identityRows(permissions, renderWidth, terminal, opts.tools),
+      ...renderRows(summaryRows(permissions, opts.upstream), renderWidth).split('\n'),
       ...closingRows(renderWidth, opts.notice),
     ];
   },
@@ -84,14 +89,14 @@ export const PiSandboxFmt = {
   table(input: t.PiCli.SandboxSummary, opts: PiSandboxTableOptions = {}) {
     const renderWidth = sandboxRenderWidth(opts.width);
     const contentBudget = sandboxContentBudget(renderWidth);
-    const rows = authorityRows(input.permissions);
+    const rows = summaryRows(input.permissions, input.launch?.upstream);
     rows.push([c.gray('Report snapshot'), formatSnapshot(input.launch?.stage)]);
 
     const root = runtimeRoot(input.cwd);
+    const terminal = opts.terminal ?? Cli.Is.terminal('stdout');
     let reportLink: ReportLink | undefined;
 
     if (input.report) {
-      const terminal = opts.terminal ?? Cli.Is.terminal('stdout');
       reportLink = terminal ? prepareReportLink(input.report, contentBudget) : undefined;
       const report = terminal
         ? (reportLink?.display ?? '')
@@ -115,11 +120,7 @@ export const PiSandboxFmt = {
       }
     }
 
-    const header = identityRows(
-      input.permissions,
-      renderWidth,
-      opts.tools,
-    );
+    const header = identityRows(input.permissions, renderWidth, terminal, opts.tools);
     const tableText = renderRows(rows, renderWidth);
     const body = reportLink
       ? tableText.replace(
@@ -142,23 +143,34 @@ export const PiSandboxFmt = {
 function identityRows(
   permissions: t.PiCli.PermissionMode,
   width: number,
+  terminal: boolean,
   tools?: readonly string[],
 ): readonly string[] {
   return Cli.Fmt.Header.rows({
     pkg,
     width,
+    version: Cli.Fmt.jsrVersion(pkg, { link: terminal }),
     tone: permissions === 'allow-all' ? 'yellow' : 'cyan',
     title: PiSandboxFmt.title(permissions),
     detail: tools?.length === 0 ? 'tools:none' : tools?.join(', '),
   });
 }
 
-function authorityRows(permissions: t.PiCli.PermissionMode): SandboxRow[] {
+function summaryRows(permissions: t.PiCli.PermissionMode, upstream?: string): SandboxRow[] {
   return [
+    [c.gray('Pi version'), formatPiVersion(upstream)],
     [c.gray('Deno permissions'), formatPermissions(permissions)],
     [c.gray('Process sandbox'), c.yellow(PiAuthority.process)],
     [c.gray('Outer sandbox'), c.dim(c.gray(`<${PiAuthority.enclosure}>`))],
   ];
+}
+
+/** Selected release only, not a runtime probe; reuse package disclosure before rendering. */
+function formatPiVersion(upstream?: string) {
+  if (!upstream || upstream === 'unknown') return c.dim(c.gray('<unknown>'));
+  const selection = reportPkg(upstream);
+  const prefix = `${PI_AGENT_IMPORT_BASE}@`;
+  return c.gray(selection.startsWith(prefix) ? selection.slice(prefix.length) : selection);
 }
 
 function formatSnapshot(stage?: t.PiCli.LaunchIdentity['stage']) {

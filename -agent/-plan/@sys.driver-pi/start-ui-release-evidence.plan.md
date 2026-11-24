@@ -70,6 +70,16 @@ The first stage is a development release-path rehearsal, not a public release cl
 stage remains human-gated. Planning and readiness do not authorize implementation, publication, or
 Git mutation.
 
+## Status: local rehearsal complete; published binding blocked
+
+The archived compile-cache work restored version upgrades for the Pi TUI on Deno; it did not publish
+or verify a GUI artifact. The parked zero-Pi kernel research is not a dependency of this release lane.
+
+The local GUI rehearsal remains complete. The published binding still needs the release owner's
+decisions and a reconciled public HTTPS exposure route. The previous hosted R2 proposal was stopped;
+leave the release gate and exposure reference open. Neither the local rehearsal nor the old hosted
+rollout is the next implementation item.
+
 ## Current arc
 
 The narrow HTTP host, narrow FS Dist verifier, and complete local Dist transport are landed at

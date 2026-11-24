@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, Signal } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, Signal, type t } from './common.ts';
 import { Wrangle } from '../u.ts';
 
 type P = t.SliderProps;
@@ -27,20 +27,20 @@ export function createDebugSignals() {
     background: s<P['background']>(),
   };
   const p = props;
-  const api = {
-    props,
-    listen() {
-      p.debug.value;
-      p.theme.value;
-      p.enabled.value;
-      p.percent.value;
-      p.thumb.value;
-      p.track.value;
-      p.ticks.value;
-      p.background.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    p.debug.value;
+    p.theme.value;
+    p.enabled.value;
+    p.percent.value;
+    p.thumb.value;
+    p.track.value;
+    p.ticks.value;
+    p.background.value;
+  }
+
+  return { props, listen, attach };
 }
 
 const Styles = {
@@ -73,13 +73,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value ?? `<undefined> (default: ${D.enabled})`}`}
         onClick={() => Signal.toggle(p.enabled)}
@@ -89,7 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {configSampleButtons(debug)}
 
       <hr />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={['$']} />
+      <Dev.ObjectView name={'debug'} data={Signal.toObject(p)} expand={['$']} />
     </div>
   );
 };
@@ -114,7 +114,7 @@ export function configSampleButtons(debug: DebugSignals) {
   const push = (label: string, fn?: Fn) => elButtons.push(btn(label, fn));
   const btn = (label: string, fn?: Fn) => {
     return (
-      <Button
+      <Dev.Button
         block
         key={elButtons.length}
         label={label}

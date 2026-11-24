@@ -28,16 +28,18 @@ export default Spec.describe(D.displayName, async (e) => {
     ctx.subject
       .size([520, 350])
       .display('grid')
-      .render(() => (
-        <Card
-          debug={p.debug.value}
-          theme={p.theme.value}
-          headerStyle={{ topOffset: -29 }}
-          storageKey={STORAGE_KEY}
-          repo={repo}
-          signals={{ textbox: p.textbox, doc: p.doc }}
-        />
-      ));
+      .render(() => {
+        return (
+          <Card
+            debug={p.debug.value}
+            theme={p.theme.value}
+            headerStyle={{ topOffset: -29 }}
+            storageKey={STORAGE_KEY}
+            repo={repo}
+            signals={{ textbox: p.textbox, doc: p.doc }}
+          />
+        );
+      });
 
     ctx.debug.header
       .padding(0)

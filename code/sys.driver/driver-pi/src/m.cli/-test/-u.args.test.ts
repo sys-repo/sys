@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { Fs, Path, type t } from '../common.ts';
 import { PiArgs } from '../u/u.args.ts';
-import { PI_AGENT_IMPORT_BASE } from '../u/u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT, PI_AGENT_IMPORT_BASE } from '../u/u.resolve.pkg.ts';
 
 describe(`@sys/driver-pi/cli/u.args`, () => {
   it('parse → recognizes wrapper help and preserves passthrough argv otherwise', () => {
@@ -89,6 +89,33 @@ describe(`@sys/driver-pi/cli/u.args`, () => {
       expect(sysArg).to.contain('uid');
     } finally {
       restoreEnv('TMPDIR', prevTmp);
+    }
+  });
+
+  it('toArgs → adds only one Deno-prefix preload and preserves Pi argv and scopes', async () => {
+    const cwd = '/tmp/pi-cli-test' as t.StringDir;
+    const pkg = PI_AGENT_IMPORT;
+    const preload = '/tmp/pi-cli-test/.pi/@sys/tmp/pi-preload.owned space/preload.mjs';
+    const passthrough = [
+      '--model',
+      'candidate',
+      '--preload=pi-owned',
+      '--',
+      '--preload',
+      'literal',
+    ];
+    for (const allowAll of [false, true]) {
+      const options = { pkg, allowAll };
+      const baseline = await PiArgs.toArgs(cwd, passthrough, [], [], options);
+      const actual = [...await PiArgs.toArgs(cwd, passthrough, [], [], { ...options, preload })];
+      const main = actual.indexOf(pkg);
+      expect(actual.slice(0, main).filter((arg) => arg.startsWith('--preload'))).to.eql([
+        `--preload=${preload}`,
+      ]);
+      expect(actual[main - 1]).to.eql(`--preload=${preload}`);
+      actual.splice(main - 1, 1);
+      expect(actual).to.eql(baseline);
+      expect(actual.slice(-passthrough.length)).to.eql(passthrough);
     }
   });
 

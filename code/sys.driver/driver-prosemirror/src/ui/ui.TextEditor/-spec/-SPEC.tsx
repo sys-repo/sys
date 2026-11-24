@@ -44,19 +44,21 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size('fill')
       .display('grid')
-      .render(() => (
-        <TextEditor
-          debug={p.debug.value}
-          theme={p.theme.value}
-          style={{ minHeight: 30 }}
-          doc={p.doc.value}
-          path={p.path.value}
-          autoFocus={p.autoFocus.value}
-          readOnly={p.readOnly.value}
-          scroll={p.scroll.value}
-          singleLine={p.singleLine.value}
-        />
-      ));
+      .render(() => {
+        return (
+          <TextEditor
+            debug={p.debug.value}
+            theme={p.theme.value}
+            style={{ minHeight: 30 }}
+            doc={p.doc.value}
+            path={p.path.value}
+            autoFocus={p.autoFocus.value}
+            readOnly={p.readOnly.value}
+            scroll={p.scroll.value}
+            singleLine={p.singleLine.value}
+          />
+        );
+      });
 
     ctx.debug.header
       .padding(0)

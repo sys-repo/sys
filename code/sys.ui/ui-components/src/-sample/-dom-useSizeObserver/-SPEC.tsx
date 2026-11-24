@@ -1,5 +1,5 @@
-import { Signal, Spec } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Sample } from './ui.tsx';
 
 export default Spec.describe('useSizeObserver', (e) => {
@@ -8,15 +8,13 @@ export default Spec.describe('useSizeObserver', (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    Signal.effect(() => {
-      debug.rect.value;
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: 'fill', display: 'grid', render: () => <Sample debug={debug} /> },
+      effects: [() => {
+        debug.rect.value;
+        ctx.redraw();
+      }],
     });
-
-    ctx.subject
-      .size('fill')
-      .display('grid')
-      .render((e) => <Sample debug={debug} />);
   });
 
   e.it('ui:debug', (e) => {

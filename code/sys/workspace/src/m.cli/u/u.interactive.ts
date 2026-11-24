@@ -108,14 +108,6 @@ export async function runInteractiveWith(
         session,
       ),
   );
-  console.info(Fmt.applied(applied));
-  const commit = Fmt.commitSuggestion(applied);
-  if (commit) {
-    console.info();
-    console.info(commit);
-  }
-  console.info();
-
   return { selection, upgrade: applied.upgrade, applied };
 }
 

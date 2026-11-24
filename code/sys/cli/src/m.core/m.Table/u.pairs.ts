@@ -6,27 +6,23 @@ import { Text } from '../m.Fmt.Text/mod.ts';
  * Caller-owned controls must be complete and independently balanced on each LF-delimited line.
  */
 export const pairs: t.CliTable.Pairs = (rows, valueColumn) => {
-  const blocks = rows.map(([label, value]) => renderPair(label, value, valueColumn));
+  const blocks = rows.map(([label, value]) => {
+    return fittedPairLines(label.split('\n'), value.split('\n'), valueColumn).join('\n');
+  });
   return blocks.join('\n');
 };
 
-/**
- * Helpers:
- */
-function renderPair(label: string, value: string, valueColumn: number): string {
-  const labelLines = label.split('\n');
-  const valueLines = value.split('\n');
+/** Align fitted columns without losing blank or unmatched continuation lines. */
+export function fittedPairLines(
+  labelLines: string[],
+  valueLines: string[],
+  valueColumn: number,
+): readonly string[] {
   const lineCount = Math.max(labelLines.length, valueLines.length);
 
-  const lines = Array.from({ length: lineCount }, (_, index) => {
+  return Array.from({ length: lineCount }, (_, index) => {
     const label = labelLines[index] ?? '';
     const value = valueLines[index] ?? '';
-    return renderLine(label, value, valueColumn);
+    return `${Text.Width.padEnd(label, valueColumn)}${value}`;
   });
-  return lines.join('\n');
-}
-
-function renderLine(label: string, value: string, valueColumn: number): string {
-  const prefix = Text.Width.padEnd(label, valueColumn);
-  return `${prefix}${value}`;
 }

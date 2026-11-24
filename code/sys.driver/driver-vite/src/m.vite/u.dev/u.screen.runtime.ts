@@ -20,6 +20,7 @@ const DISPOSED_REPORTER = Object.freeze(
 const DEFAULT_TERMINAL = Object.freeze(
   {
     cursorRows: 1,
+    isTerminal: () => Cli.Is.terminal('stdout'),
     size: () => Cli.Screen.size(),
     events: (until) => Cli.Screen.events(until),
     repaint: (frame) => Cli.Screen.repaint(frame),
@@ -30,8 +31,14 @@ const DEFAULT_TERMINAL = Object.freeze(
 /** Effectful owner of one responsive dev-screen startup → ready → disposed lifecycle. */
 export const DevScreenRuntime = {
   create(args: t.ViteDev.Screen.Runtime.CreateArgs): t.ViteDev.Screen.Reporter {
-    const { identity, dist, paths, output } = args;
+    const { identity: source, dist, paths, output } = args;
     const terminal = args.deps?.terminal ?? DEFAULT_TERMINAL;
+    const { name, version: pin } = 'root' in source ? source.root : source;
+    const pkg = { name, version: pin };
+    const identity = 'root' in source ? { root: pkg, subpath: source.subpath } : pkg;
+    const version = Cli.Fmt.jsrVersion(pkg, {
+      link: args.versionLink === 'jsr' && terminal.isTerminal(),
+    });
     const schedule = args.deps?.schedule ?? ((run) => Time.delay(REPAINT_DELAY, run));
     const logLines = DevScreenLayout.logLines(args.logLines);
     const screenEvents = terminal.events(args.until);
@@ -64,6 +71,7 @@ export const DevScreenRuntime = {
 
     const frameArgs = (): t.ViteDev.Screen.Frame.Args => ({
       identity,
+      version,
       dist,
       paths,
       url: args.url(),

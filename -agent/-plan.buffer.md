@@ -1,16 +1,121 @@
+
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
-
-Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly
-understand what matters and act correctly?
-
-Verify claims against source. Flag misleading promises, missing context, repetition, and misplaced detail. Preserve essential caveats. Seek the fewest words that
-remain genuinely helpful—not brevity at the expense of understanding.
-
+Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
+Verify claims against source. Flag misleading promises, missing context, repetition, and misplaced detail. Preserve essential caveats. Seek the fewest words that remain genuinely helpful—not brevity at the expense of understanding.
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
----------------------------------------------------------------------------------------------------------
+
+
+@sys.ui-components
+markdown-admonition-panel.plan.md
+- [ ] chore(ui-components): scaffold Admonition UI
+- [ ] feat(ui-components): render compact Markdown admonitions
+- [ ] refactor(ui): adopt Admonition for passkey registration guidance
+- [ ] fix(ui-components): align Dev.Help Markdown link cues with Admonition
+
+
+
+
+
+@sys.ui-components
+inline-bar-spinner.plan.md
+- [x] 02e338d92 fix(ui-components): render Spinners.Bar without a lazy dependency
+
+@sys.ui-components
+circular-spinner.plan.md
+- [x] 2bbdfdece chore(ui-components): scaffold the circular spinner module
+- [x] 6b8e13b69 refactor(ui-components)!: expose Bar and Circular through their UI renderers
+- [x] 4142d7130 refactor(ui-components)!: rename SpinnerLib to Spinners.Lib
+- [x] d6414fb49 feat(ui-components): add the classic macOS-style Spinners.Circular indicator
+- [x] 1573ff8f6 refactor(ui-components)!: retire legacy direct React component aliases
+- [x] d8cc1ecb3 test(ui-components): move spinner export tests to the family module
+
+
+@sys.ui
+passkey-panel.plan.md
+- [x] 08ccc7e82 feat(ui): add passkey diagnostic UI baseline
+- [x] 1e48de614 style(ui): refine passkey debug panel labels and intent spacing
+- [x] 429560650 chore(ui): scaffold passkey integration spec and view navigation
+- [x] bc242cbd3 [link-grammar.plan.md](../@sys.ui-components/link-grammar.plan.md)
+- [x] b3659c530 feat(ui): expose composable passkey diagnostic sections
+- [x] 5bb4c79dc feat(ui): compose passkey UI in integration specimen
+- [x] 8ba1a4939 feat(passkey): add UI-independent WebAuthn ceremonies
+- [x] c7e4d6686 feat(passkey): define account service contracts
+- [x] aba8774ff feat(http)!: bound unary HttpCmd transport
+- [x] ef977e043 chore(deps): add SimpleWebAuthn server 14.1.0
+- [x] 06258c98c feat(crypto): add strict Ed25519 public-key validation
+- [x] 97fc01381 feat(passkey): add minimal reference account service
+- [x] 993d964f4 feat(passkey): add reusable account runtime
+- [x] be9dc5bf3 feat(http): add exact method-and-path proxy routes
+- [x] 11a8ab2c5 fix(http): invoke native fetch correctly in HttpCmd
+- [x] ce2317f14 test(http): prove the default HttpCmd echo in a real browser
+- [x] acfcefa49 feat(net): add a pure fixed TCP port predicate
+- [x] 527befe6a feat(ui): serve the passkey account endpoint in the sample Cell
+- [x] [service-start-order.plan.md](../@sys.cell/service-start-order.plan.md)
+- [x] 229253586 feat(http): optionally strip Authorization from root proxy requests
+- [ ] feat(tools): support strict listener ports in Serve config
+- [ ] feat(ui): route the sample Cell through one browser origin
+- [ ] feat(ui): connect real passkey operations in sample
+
+
+
+
+@sys.tmpl
+ui-template-maintenance.plan.md
+- [x] 1d532c559 fix(std): close signal listener registration on disposal
+- [x] 19dc218dd fix(ui-dev): retire specimen attachments before reset publication
+- [x] e608035ff fix(ui-dev): close specimen admission during retirement
+- [x] fa683998e feat(ui-dev): own specimen attachment lifetimes
+- [x] 519b15ea8 fix(tmpl): correct UI scaffold lifecycle ownership
+- [x] 41db307d7 feat(ui-react): register stylesheet rules from React
+- [x] 917bd0922 fix(tmpl): preserve scoped-style appearance across themes
+- [x] 55d4cea12 fix(ui-components): isolate matching scoped styles without changing paint
+- [x] 1035f21b7 fix(ui-components): bind Label and Manuscript specimen effects to attachments
+- [x] f2a31856b fix(ui-components): bind ActionProbe specimen effects to attachments
+- [x] cf117701f fix(ui-components): bind Anchor specimen effects to attachments
+- [x] 6d4d9c028 fix(ui-components): bind Bullet and BulletList specimen effects to attachments
+- [x] 0f0c14660 fix(ui-components): bind Button family specimen effects to attachments
+- [x] bb8f0d129 fix(ui-components): bind Dist and Dist.Browser specimen effects to attachments
+- [x] c9b7087de fix(ui-components): bind Chip and Cropmarks specimen effects to attachments
+- [x] 15fcd8581 fix(ui-components): bind ErrorBoundary, FadeElement, and Http.Origin specimen effects to attachments
+- [x] f7759fb0a fix(ui-components): bind Icon.Swatches, IFrame, and Image.Svg specimen effects to attachments
+- [x] 9248652e4 fix(ui-components): bind KeyValue family and Layout.CenterColumn specimen effects to attachments
+- [x] 59fae6f31 fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
+- [x] df33406f9 fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
+- [x] 7f75f600b fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
+- [x] 78740e2bb fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
+- [x] 13c6bf5de fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
+- [x] fa15c1d1f fix(ui-components): bind video deck and element specimen effects to attachments
+- [x] 7cfb33b13 fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
+- [x] 358cdb877 fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
+- [x] c77a41ccb fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
+- [x] 32af16902 fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
+- [x] 4c5e626b4 fix(ui-components): bind webfont and CSS specimen effects to attachments
+- [x] 6039ece20 fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
+- [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across other sys packages
+- [ ] fix(ui): bind Files.InfoPanel specimen effects to attachments
+- [ ] fix(ui): bind Files.InfoPanel.Config specimen effects to attachments
+- [ ] fix(ui-dev): retire the MySample keyboard subscription with its attachment
+- [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across driver packages
+
+
+
+
+@sys
+deno-api-containment.plan.md
+- [x] 5d789e432 docs(sys): map Deno capability owners and public facades
+- [x] b328700ab docs(sys): checkpoint direct Deno usage audit
+- [ ] docs(sys): audit direct Deno usage across the repository
+- [ ] docs(sys): design capability-sized Deno containment migrations
+
+
+
+@sys.tmpl
+workspace-authority-discovery.plan.md
+- [ ] perf(tmpl): bound local workspace authority discovery to authored inputs
+
 
 
 1. workspace-ci-closeout.plan.md
@@ -134,7 +239,7 @@ r2-web-exposure.plan.md
 
 @sys.driver-pi
 start-ui-release-evidence.plan.md
-  ...
+...
 - [x] c39511c15 [verified-package-ui-release.plan.md](verified-package-ui-release.plan.md)
 - [ ] GATE release owner selects versioned artifact provider/path, public HTTPS proof origin, browser/filesystem floors, and prior-local-worker migration
 - [x] [r2-files-delivery.plan.md](../@sys.tools/r2-files-delivery.plan.md)
@@ -174,10 +279,5 @@ cmd-first-kernels.plan.md
 - [ ] test(driver-crdt): prove editor reconciliation and boundary failure behavior
 - [ ] docs(driver-crdt): specify draft-one contracts from topology evidence
 
-
-
-@sys.driver-vite
-ci-proof-lane-repair.plan.md
-- [x] 02f3ae9b5 fix(ci): preserve explicit proof lanes through workflow generation
 
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { type t, Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Signal, Spec, type t } from '../../-test.ui.ts';
 
 import { D } from '../common.ts';
 import { Devices } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('Devices', (e) => {
   const debug = createDebugSignals();
@@ -65,21 +65,17 @@ export default Spec.describe('Devices', (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    function update() {
-      const isNarrow = p.debugNarrow.value;
-      ctx.subject.size([isNarrow ? 240 : 400, null]);
-      ctx.redraw();
-    }
-    update(); // Initial.
-
-    Harness.Theme.signalEffect(ctx, p.theme);
-    Signal.effect(() => {
-      debug.listen();
-      update();
+    debug.attach(ctx, {
+      subject: { display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value),
+        () => void ctx.subject.size([p.debugNarrow.value ? 240 : 400, null]),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject.display('grid').render(() => <Root />);
   });
 
   e.it('ui:debug', (e) => {

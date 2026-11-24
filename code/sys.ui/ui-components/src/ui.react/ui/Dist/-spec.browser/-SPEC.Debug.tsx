@@ -1,7 +1,7 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { SAMPLE, SAMPLE_FILES_MODES, type SampleFilesMode } from '../-spec/-SAMPLE.dist.json.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Pkg, Signal, type t } from '../common.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Pkg, Signal, type t } from './common.ts';
 import { Dist } from '../mod.ts';
 
 type P = t.Dist.Props;
@@ -36,12 +36,25 @@ export async function createDebugSignals() {
     dist: s(snap.dist),
   };
   const p = props;
-  const api = {
-    props,
-    updateDist,
-    listen,
-    reset,
-  };
+  let sampleFiles = p.sampleFilesMode.value;
+  // Preserve factory-time normalization without starting automatic work before attachment.
+  p.dist.value = SAMPLE.HelloWorld({ files: sampleFiles });
+
+  const { attach } = Spec.attachments({
+    shared(e) {
+      // Independent dependencies: projecting dist must not regenerate an explicit selection.
+      const effects = Signal.listeners(e.life);
+      effects.effect(syncSample);
+      effects.effect(() => {
+        store.change((d) => {
+          d.debug = p.debug.value;
+          d.sampleFilesMode = p.sampleFilesMode.value;
+          d.theme = p.theme.value;
+          d.dist = p.dist.value;
+        });
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -49,25 +62,24 @@ export async function createDebugSignals() {
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    selectDist(p.dist.value);
   }
 
   function updateDist() {}
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.debug = p.debug.value;
-      d.sampleFilesMode = p.sampleFilesMode.value;
-      d.theme = p.theme.value;
-      d.dist = p.dist.value;
-    });
-  });
+  function selectDist(dist: P['dist']) {
+    // Explicit selections supersede earlier detached driver changes.
+    sampleFiles = p.sampleFilesMode.value;
+    p.dist.value = dist;
+  }
 
-  Signal.effect(() => {
+  function syncSample() {
     const files = p.sampleFilesMode.value;
-    p.dist.value = SAMPLE.HelloWorld({ files });
-  });
+    if (files === sampleFiles) return;
+    selectDist(SAMPLE.HelloWorld({ files }));
+  }
 
-  return api;
+  return { props, listen, reset, updateDist, selectDist, attach };
 }
 
 const Styles = {
@@ -102,7 +114,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -113,18 +125,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Samples'}</div>
         <div>{`dist.json`}</div>
       </div>
-      <Button
+      <Dev.Button
         block
         label={() => `👋 hello world`}
-        onClick={() => (p.dist.value = SAMPLE.HelloWorld())}
+        onClick={() => debug.selectDist(SAMPLE.HelloWorld())}
       />
-      <Button block label={() => `(undefined)`} onClick={() => (p.dist.value = undefined)} />
+      <Dev.Button block label={() => `(undefined)`} onClick={() => debug.selectDist(undefined)} />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
-      <ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
+      <Dev.ObjectView name={'Pkg.Dist'} data={Pkg.Dist} expand={0} style={{ marginTop: 5 }} />
 
       <Dist.UI debug={v.debug} dist={v.dist} style={{ height: 300, marginTop: 50 }} />
     </div>

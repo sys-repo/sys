@@ -1,44 +1,45 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { Color } from '../common.ts';
 import { CenterColumn } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe('CenterColumn (Layout)', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    const v = Signal.toObject(p);
+    return (
+      <CenterColumn
+        theme={v.theme}
+        debug={v.debug}
+        left={v.left}
+        center={v.center}
+        right={v.right}
+        gap={v.gap}
+        centerWidth={v.centerWidth}
+        align={v.align}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    function update() {
-      const theme = Color.theme(p.theme.value);
-      ctx.host.tracelineColor(Color.alpha(theme.fg, 0.12));
-      ctx.redraw();
-    }
 
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      update();
+    debug.attach(ctx, {
+      subject: { size: 'fill', display: 'grid', render: () => <Root /> },
+      effects: [
+        () => {
+          const theme = p.theme.value;
+          Harness.Theme.background(ctx, theme, 1);
+          ctx.host.tracelineColor(Color.alpha(Color.theme(theme).fg, 0.12));
+        },
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size('fill')
-      .display('grid')
-      .render((e) => {
-        const v = Signal.toObject(p);
-        return (
-          <CenterColumn
-            theme={v.theme}
-            debug={v.debug}
-            left={v.left}
-            center={v.center}
-            right={v.right}
-            gap={v.gap}
-            centerWidth={v.centerWidth}
-            align={v.align}
-          />
-        );
-      });
   });
 
   e.it('ui:debug', (e) => {

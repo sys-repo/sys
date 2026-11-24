@@ -38,20 +38,20 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    update();
-    function update() {
-      debug.listen();
-      if (p.viewport.value === 'scroll') ctx.subject.size('fill-y');
-      else ctx.subject.size([width, null]);
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-
-    ctx.subject
-      .display('grid')
-      .render(() => <Root />);
+    debug.attach(ctx, {
+      subject: { display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          if (p.viewport.value === 'scroll') ctx.subject.size('fill-y');
+          else ctx.subject.size([width, null]);
+        },
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {

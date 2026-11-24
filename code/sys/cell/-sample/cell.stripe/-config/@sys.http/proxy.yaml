@@ -3,6 +3,7 @@
 name: cell:proxy
 hostname: 127.0.0.1
 port: 8080
+strictPort: true
 root:
   target: http://127.0.0.1:4040/hello-world/
 mounts:

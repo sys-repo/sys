@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from './common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.TextEllipsize.Props;
 type Storage = Pick<P, 'debug' | 'text' | 'ellipsis' | 'tail'> & { width: number };
@@ -39,11 +39,17 @@ export async function createDebugSignals() {
     width: s(snap.width),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.debug = p.debug.value;
+        d.text = p.text.value;
+        d.tail = p.tail.value;
+        d.ellipsis = p.ellipsis.value;
+        d.width = p.width.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -53,17 +59,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.debug = p.debug.value;
-      d.text = p.text.value;
-      d.tail = p.tail.value;
-      d.ellipsis = p.ellipsis.value;
-      d.width = p.width.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -97,7 +93,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           return `text: ${v.text === samples.short ? 'foobar' : 'overflow'}`;
@@ -107,7 +103,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `tail: ${v.tail}`}
         onClick={() => Signal.cycle(p.tail, [5, 7, 9, 12, undefined])}
@@ -115,15 +111,15 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
 
-      <Button
+      <Dev.Button
         block
         label={() => `width: ${v.width}px`}
         onClick={() => Signal.cycle(p.width, [160, 220, 280, 360])}
       />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

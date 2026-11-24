@@ -3,8 +3,6 @@ import type { t } from './common.ts';
 import { workspace } from '../m.vite.config.workspace/mod.ts';
 import { Is } from './m.Is.ts';
 import { toAlias as alias } from './u/u.alias.ts';
-import { app } from './u/u.app.ts';
-import { fromFile } from './u/u.fromFile.ts';
 import { paths } from './u/u.paths.ts';
 
 const define = ((config: unknown) => config) as t.ViteConfig.Lib['define'];
@@ -15,9 +13,16 @@ const define = ((config: unknown) => config) as t.ViteConfig.Lib['define'];
 export const ViteConfig: t.ViteConfig.Lib = {
   Is,
   define,
-  app,
+  // Configuration execution, unlike importing this facade, loads the toolchain in the caller.
+  async app(options) {
+    const { app } = await import('./u/u.app.ts');
+    return app(options);
+  },
   alias,
   paths,
-  fromFile,
+  async fromFile(configDir) {
+    const { fromFile } = await import('./u/u.fromFile.ts');
+    return fromFile(configDir);
+  },
   workspace,
 };

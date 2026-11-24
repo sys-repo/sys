@@ -9,13 +9,14 @@ import {
   TestReact,
 } from '../../../-test.ts';
 import { Switch } from '../mod.ts';
+import { button } from './u.fixture.ts';
 
 describe('Buttons.Switch: toggle event', () => {
   DomMock.init({ beforeEach, afterEach });
 
   it('renders native switch button semantics', async () => {
     const res = await TestReact.render(
-      <Switch id="sample-switch" value tooltip="Toggle value" aria-labelledby="sample-label" />,
+      <Switch id='sample-switch' value tooltip='Toggle value' aria-labelledby='sample-label' />,
       { strict: false },
     );
 
@@ -56,7 +57,7 @@ describe('Buttons.Switch: toggle event', () => {
     const events: string[] = [];
     const res = await TestReact.render(
       <Switch
-        value={true}
+        value
         onClick={() => events.push('click')}
         onToggle={(e) => events.push(`toggle:${e.current}:${e.next}:${e.synthetic.type}`)}
       />,
@@ -70,6 +71,43 @@ describe('Buttons.Switch: toggle event', () => {
 
     act(() => res.dispose());
     await Promise.resolve();
+  });
+
+  it('accepts zero-detail primary clicks without synthetic keyboard-to-mouse forwarding', async () => {
+    const events: string[] = [];
+    const res = await TestReact.render(
+      <Switch
+        value={false}
+        onClick={() => events.push('click')}
+        onToggle={(e) => events.push(`toggle:${e.current}:${e.next}`)}
+      />,
+    );
+    try {
+      const root = button(res.container);
+      const event = DomMock.Mouse.event('click', { button: 0, detail: 0 });
+      act(() => root.dispatchEvent(event));
+      expect(events).to.eql(['click', 'toggle:false:true']);
+      // Click routing only: the DOM mock does not prove native Enter/Space synthesis.
+    } finally {
+      act(() => res.dispose());
+    }
+  });
+
+  it('ignores non-primary clicks before either activation callback', async () => {
+    const events: string[] = [];
+    const res = await TestReact.render(
+      <Switch onClick={() => events.push('click')} onToggle={() => events.push('toggle')} />,
+    );
+    try {
+      const root = button(res.container);
+      for (const value of [1, 2]) {
+        const event = DomMock.Mouse.event('click', { button: value });
+        act(() => root.dispatchEvent(event));
+      }
+      expect(events).to.eql([]);
+    } finally {
+      act(() => res.dispose());
+    }
   });
 
   it('does not emit onToggle when disabled', async () => {
@@ -90,4 +128,3 @@ describe('Buttons.Switch: toggle event', () => {
     await Promise.resolve();
   });
 });
-

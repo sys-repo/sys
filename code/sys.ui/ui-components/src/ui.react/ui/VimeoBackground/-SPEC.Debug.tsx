@@ -1,7 +1,6 @@
 import React from 'react';
-import { VIMEO } from '../-test.ui.ts';
-import { type t, Button, Color, css, Signal } from '../u.ts';
-import { D } from './common.ts';
+import { Spec, VIMEO } from '../-test.ui.ts';
+import { Color, css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.VimeoBackgroundProps;
 
@@ -26,20 +25,21 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     jumpTo: s<P['jumpTo']>(),
     vimeo: s<t.VimeoIFrame>(),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.video.value;
-      p.opacity.value;
-      p.blur.value;
-      p.playing.value;
-      p.playingTransition.value;
-      p.jumpTo.value;
-      p.vimeo.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.video.value;
+    p.opacity.value;
+    p.blur.value;
+    p.playing.value;
+    p.playingTransition.value;
+    p.jumpTo.value;
+    p.vimeo.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }
@@ -67,7 +67,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const srcVideo = (key?: keyof typeof VIMEO) => {
     const id = key ? VIMEO[key] : undefined;
     return (
-      <Button
+      <Dev.Button
         block
         label={key ?? '<undefined>'}
         onClick={() => {
@@ -80,19 +80,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={`theme: "${p.theme}"`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`opacity: ${p.opacity.value ?? '<undefined>'}`}
         onClick={() => {
           Signal.cycle<P['opacity']>(p.opacity, [undefined, 0, 0.5, 1]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`blur: ${p.blur.value ?? '<undefined>'}`}
         onClick={() => {
@@ -101,12 +101,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={`playing: ${p.playing.value}`}
         onClick={() => Signal.toggle(p.playing)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.playingTransition.value;
@@ -116,7 +116,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           Signal.cycle<P['playingTransition']>(p.playingTransition, [1000, 2000, undefined]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`jumpTo: ${p.jumpTo.value ?? '<undefined>'}`}
         onClick={() => {
@@ -134,7 +134,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <div className={styles.title.class}>API</div>
 
-      <Button
+      <Dev.Button
         block
         label={`get: current time (seconds)`}
         onClick={async () => {

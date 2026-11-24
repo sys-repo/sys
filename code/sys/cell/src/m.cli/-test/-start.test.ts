@@ -38,6 +38,8 @@ describe(`@sys/cell/cli start`, () => {
 
   it('start → renders all descriptor and caller package identity combinations', async () => {
     const callerPkg: t.Pkg = { name: '@sys/ui', version: '0.0.39' };
+    const url = new URL('https://jsr.io/@sys/ui@0.0.39');
+    const releaseLink = Cli.Fmt.hyperlink(callerPkg.version, url, { underline: true });
     const cases: readonly {
       label: string;
       name?: t.Cell.Id;
@@ -70,6 +72,7 @@ describe(`@sys/cell/cli start`, () => {
       const input: t.CellCli.Input = {
         argv: ['start', fs.dir, '--reporter', 'raw'],
         ...(item.pkg ? { pkg: item.pkg } : {}),
+        ...(item.label === 'named-package' ? { versionLink: 'jsr' } : {}),
       };
       const captured = await captureInfo(() => CellCli.run(input));
       const res = captured.result;
@@ -83,7 +86,12 @@ describe(`@sys/cell/cli start`, () => {
           : undefined,
       );
 
-      const text = stripAnsi(captured.output.join('\n'));
+      const raw = captured.output.join('\n');
+      const link = input.versionLink === 'jsr' && Cli.Is.terminal('stdout');
+      expect(raw.includes(releaseLink)).to.eql(link);
+      if (!link) expect(raw).not.to.contain('\x1b]8;;');
+      expect(res.text).not.to.contain('\x1b]8;;');
+      const text = stripAnsi(raw);
       expect(text).to.eql(stripAnsi(res.text));
       expect(text).not.to.contain('@sys/cell');
       expect(text).not.to.contain('Untitled');

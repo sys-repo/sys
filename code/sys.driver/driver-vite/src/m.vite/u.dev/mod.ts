@@ -218,6 +218,7 @@ export async function devWithDeps(input: t.Vite.Dev.Args, deps: t.ViteDevDeps = 
     screen = parentOwnsOutput && identity
       ? createScreen({
         identity,
+        versionLink: input.versionLink,
         dist,
         paths,
         url: () => resolvedUrl,

@@ -20,20 +20,23 @@ export async function add(
   input: t.HttpProxy.Config.AddInput,
 ): Promise<t.HttpProxy.Config.AddResult> {
   const resolved = resolveConfig(input);
-  const desiredLifecycle = resolved.doc;
   const edit = await YamlConfig.Edit.update<t.HttpProxy.Config.Doc, ConfigAddChange>({
     cwd: input.cwd,
     config: resolved.path,
     dryRun: input.dryRun,
-    initial: () => desiredLifecycle,
+    initial: () => resolved.doc,
     load: (path) => loadConfig(path, ERROR_PREFIX),
     mutate: (doc, context) => {
+      const { name, hostname, port } = resolved.doc;
+      const strictPort = resolved.doc.strictPort ?? doc.strictPort;
       const desired = {
-        ...desiredLifecycle,
-        root: doc.root,
-        mounts: doc.mounts,
+        ...doc,
+        name,
+        hostname,
+        port,
+        ...(strictPort === undefined ? {} : { strictPort }),
       } satisfies t.HttpProxy.Config.Doc;
-      const same = sameLifecycle(doc, desiredLifecycle);
+      const same = sameLifecycle(doc, desired);
       const kind = context.created ? 'added' : same ? 'exists' : 'updated';
       return {
         doc: desired,
@@ -57,6 +60,9 @@ function resolveConfig(input: t.HttpProxy.Config.AddInput) {
   const ref = resolveConfigRef(input.config, ERROR_PREFIX);
   return {
     path: ref.path,
-    doc: initialConfig(input, ref, ERROR_PREFIX),
+    doc: {
+      ...initialConfig(input, ref, ERROR_PREFIX),
+      ...(input.strictPort === undefined ? {} : { strictPort: input.strictPort }),
+    },
   };
 }

@@ -1,24 +1,27 @@
-import { Harness, Spec, Signal } from '../-test.ui.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { Harness, Spec } from '../-test.ui.ts';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Container } from './ui.tsx';
 
 export default Spec.describe('css:container-type', (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    return <Container theme={p.theme.value} />;
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      // 🐷 TODO: hook into signals here.
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: 'fill', display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          p.theme.value;
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size('fill')
-      .display('grid')
-      .render((e) => <Container theme={p.theme.value} />);
   });
 
   e.it('ui:debug', (e) => {

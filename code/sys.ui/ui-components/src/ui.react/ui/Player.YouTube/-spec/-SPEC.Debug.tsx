@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.YouTubeProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'videoId'>;
@@ -31,22 +31,21 @@ export function createDebugSignals() {
     videoId: s(snap.videoId),
   };
   const p = props;
-  const api = {
-    props,
-    listen() {
-      Signal.listen(props);
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.videoId = p.videoId.value;
+      });
     },
-  };
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.videoId = p.videoId.value;
-    });
   });
 
-  return api;
+  function listen() {
+    Signal.listen(props);
+  }
+
+  return { props, listen, attach };
 }
 
 const Styles = {
@@ -77,7 +76,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const btnVideoId = (videoId: string | undefined, label: string = '') => {
     label = label ? `• "${label}"` : '';
     return (
-      <Button
+      <Dev.Button
         block
         label={() => `videoId: ${videoId || '<undefined>'} ${label}`}
         onClick={() => {
@@ -91,7 +90,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
@@ -102,17 +101,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {btnVideoId(defaults.videoId, 'Sad cat diaries')}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `(reset)`}
         onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

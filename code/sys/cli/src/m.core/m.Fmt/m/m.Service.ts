@@ -10,7 +10,9 @@ import {
 } from '../../m.Fmt.Text/u/u.budget.ts';
 import { terminal } from '../../m.Is/u.terminal.ts';
 import { size } from '../../m.Screen/u.size.ts';
-import { pairs } from '../../m.Table/u.pairs.ts';
+import { fittedPairLines } from '../../m.Table/u.pairs.ts';
+import { compactServiceList } from '../u.service/u.height.ts';
+import type { FittedRow, ServiceRowKind, ServiceSection } from '../u.service/t.internal.ts';
 import { MAX_TERMINAL_CELLS } from '../../u/u.layout.ts';
 import { hr } from '../u/u.hr.ts';
 import { encodeHyperlink } from '../u/u.hyperlink.ts';
@@ -28,7 +30,7 @@ import { displayPath } from './m.Path.ts';
 type WriteLine = (line: string) => void;
 type Row = {
   readonly label: readonly string[];
-  readonly anchor: boolean;
+  readonly kind?: ServiceRowKind;
   readonly render: (
     width: number | undefined,
     write: WriteLine,
@@ -71,41 +73,50 @@ export function formatListWith(
   const width = resolveWidth(deps, options);
   if (width === 0) return '';
   const links = run(() => options.urlHyperlinks === true);
+  const maxRows = normalizedRowLimit(run(() => options.maxRows));
   const budget = createBudget();
   const link = deps.hyperlink ?? encodeHyperlink;
   const compose = deps.text ?? composeServiceText;
   const url = { check: budget.url, compose: deps.url };
-  const sections: Row[][] = [];
+  const sections: ServiceSection<Row>[] = [];
   // Read by index so caller-supplied iterators cannot change the traversal.
   for (let index = 0; index < count; index += 1) {
     sections.push(rowsOf(run(() => inputs[index]), links, budget, link, compose, url));
   }
-  const labels = sections.flatMap((rows) => rows.flatMap((row) => row.label));
+  const labels = sections.flatMap(({ rows }) => rows.flatMap((row) => row.label));
   const layout = serviceLayout(labels, width);
-  const blocks = sections.map((rows) => {
-    const table = rows.map((row) => {
-      const pair = budget.pair(layout.reserve);
-      const color: ServiceColor = row.anchor ? 'green' : 'dim';
-      const style = { color, compose, check: pair.checkLabel };
-      for (const line of row.label) {
-        pair.label(fitServiceText(line, layout.labelWidth, style));
-      }
-      row.render(layout.valueWidth, pair.value, pair.checkValue);
-      return pair.finish();
-    });
-    return pairs(table, layout.reserve);
-  });
-  let separator = '';
-  if (blocks.length > 1) {
-    const ruleWidth = width ?? Text.Width.max(blocks.flatMap((block) => physicalLines(block)));
+  const fitRow = (row: Row): FittedRow => {
+    const pair = budget.pair(layout.reserve);
+    const color: ServiceColor = row.kind === 'title' ? 'green' : 'dim';
+    const style = { color, compose, check: pair.checkLabel };
+    for (const line of row.label) pair.label(fitServiceText(line, layout.labelWidth, style));
+    row.render(layout.valueWidth, pair.value, pair.checkValue);
+    return { kind: row.kind, ...pair.finish() };
+  };
+  const fitted = sections.map((section) => ({ ...section, rows: section.rows.map(fitRow) }));
+  const sectionLines = ({ rows }: ServiceSection<FittedRow>) => rows.flatMap((row) => row.lines);
+  const contentRows = budget.lineCount;
+  const dividers = Math.min(count - 1, Math.max(0, maxRows - contentRows));
+  let rule = '';
+  if (count > 1) {
+    const ruleWidth = width ?? Text.Width.max(fitted.flatMap(sectionLines));
     // A fixed one-cell probe measures active ANSI framing without allocating the rule.
     const framing = c.dim(c.gray(' ')).length - 1;
-    budget.separators(ruleWidth + framing + 2, blocks.length - 1);
-    const renderRule = deps.hr ?? hr;
-    const rule = renderRule({ width: ruleWidth, weight: 'dashed' });
-    separator = `\n${c.dim(c.gray(rule))}\n`;
+    budget.separators(ruleWidth + framing + 2, count - 1);
+    if (dividers > 0) {
+      const renderRule = deps.hr ?? hr;
+      const dashed = renderRule({ width: ruleWidth, weight: 'dashed' });
+      rule = c.dim(c.gray(dashed));
+    }
   }
-  const result = blocks.join(separator);
+  const withDivider = (section: ServiceSection<FittedRow>, index: number) => {
+    const lines = sectionLines(section);
+    if (index < dividers) lines.push(rule);
+    return lines;
+  };
+  const result = maxRows < contentRows
+    ? compactServiceList(fitted, maxRows, layout.valueWidth, compose)
+    : fitted.flatMap(withDivider).join('\n');
   assertOutputCodeUnits(result.length);
   assertPresentationAuthority();
   return result;
@@ -137,6 +148,11 @@ function normalizedWidth(width: number): number {
   return value > 0 && value <= MAX_TERMINAL_CELLS ? value : 0;
 }
 
+function normalizedRowLimit(limit?: number): number {
+  if (limit === undefined) return Infinity;
+  return Num.Is.finite(limit) ? Math.max(0, Math.floor(limit)) : 0;
+}
+
 function rowsOf(
   input: t.CliFormat.Service.Input,
   links: boolean,
@@ -144,25 +160,32 @@ function rowsOf(
   link: typeof encodeHyperlink,
   compose: typeof composeServiceText,
   urlAdmission: ServiceUrlAdmission,
-): Row[] {
+): ServiceSection<Row> {
   const rows: Row[] = [];
+  let urlLabel: number | undefined;
   const text = (read: () => string) => budget.source(run(read));
   const optional = (read: () => string | undefined) => {
     const value = run(read);
     return value === undefined ? undefined : budget.source(value);
   };
-  const field = (label: string, render: Row['render']) => {
-    const indented = budget.label(label, true);
-    rows.push({ label: indented, anchor: false, render });
+  const field = (label: string, render: Row['render'], kind?: ServiceRowKind) => {
+    rows.push({ label: budget.label(label, true), kind, render });
   };
-  const valueField = (label: string, value: string, color: ServiceColor = 'gray') => {
-    field(label, (width, write, check) => fitLines(value, width, write, check, compose, color));
+  const valueField = (
+    label: string,
+    value: string,
+    color: ServiceColor = 'gray',
+    kind?: ServiceRowKind,
+  ) => {
+    field(label, (width, write, check) => {
+      fitLines(value, width, write, check, compose, color);
+    }, kind);
   };
   const name = text(() => input.name);
   const annotation = optional(() => input.annotation);
   rows.push({
     label: budget.label('service'),
-    anchor: true,
+    kind: 'title',
     render: (width, write, check) => title(name, annotation, width, write, check, compose),
   });
   const module = optional(() => input.module);
@@ -171,7 +194,8 @@ function rowsOf(
   const status = run(() => input.status);
   if (status) {
     const state = text(() => status.state);
-    if (state !== 'ready') valueField('state', state, stateColor(state));
+    const errorSignal = state === 'error' ? 'error' : undefined;
+    if (state !== 'ready') valueField('state', state, stateColor(state), errorSignal);
     const root = optional(() => status.root);
     if (root !== undefined) {
       // Format the supplied path without reading cwd or measuring the terminal again.
@@ -200,7 +224,7 @@ function rowsOf(
       const name = text(() => error.name);
       const message = text(() => error.message);
       assertOutputCodeUnits(name.length + 2 + message.length);
-      valueField('error', `${name}: ${message}`, 'yellow');
+      valueField('error', `${name}: ${message}`, 'yellow', errorSignal);
     }
     const urls = run(() => status.urls);
     const urlCount = urls ? collectionLength(urls) : 0;
@@ -211,10 +235,14 @@ function rowsOf(
     }
     const policy = run(() => input.urlDisplay);
     const ipv4Loopback = policy ? run(() => policy.ipv4Loopback) : undefined;
+    let hasMain = false;
     serviceUrlValues(captured, { ipv4Loopback }, urlAdmission).forEach((url, index) => {
+      if (index === 0) urlLabel = rows.length;
+      const kind = !url.valid ? undefined : hasMain ? 'secondary' : 'main';
+      if (url.valid) hasMain = true;
       field(index === 0 ? 'url' : '', (width, write, check) => {
         write(serviceUrlValue(url, width, links, check, link, compose));
-      });
+      }, kind);
     });
   }
   const keyboard = run(() => input.keyboard);
@@ -224,7 +252,7 @@ function rowsOf(
     if (open) valueField('open', open, 'dim');
     if (quit) valueField('quit', quit, 'dim');
   }
-  return rows;
+  return { name, rows, urlLabel };
 }
 
 function presentationOf(
@@ -356,6 +384,9 @@ function createBudget() {
     lines += 1;
   };
   return {
+    get lineCount() {
+      return lines;
+    },
     source(text: string): string {
       if (!Is.str(text)) throw new TypeError('Cli.Fmt.Service facts must be strings.');
       source = addSourceCodeUnits(source, text);
@@ -403,8 +434,9 @@ function createBudget() {
           else addLine(reserve + line.length);
           right.push(line);
         },
-        finish(): t.CliTable.Pair {
-          return [left.join('\n'), right.join('\n')];
+        finish() {
+          const lines = fittedPairLines(left, right, reserve);
+          return { lines, firstValue: right[0] };
         },
       };
     },

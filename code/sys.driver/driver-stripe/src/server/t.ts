@@ -95,9 +95,16 @@ export declare namespace StripeFixture {
     /**
      * TCP port for the fixture server.
      *
-     * Defaults to `STRIPE_FIXTURE_PORT` from the environment, or `9090` when unset.
+     * Uses the port in `paths.config` when omitted, then `STRIPE_FIXTURE_PORT`
+     * from the environment, then `9090`. Pass `0` to let the OS choose a port.
      */
     readonly port?: TSys.PortNumber;
+
+    /**
+     * Fail if the requested fixed port cannot be bound instead of trying another port.
+     * Uses `strictPort` from `paths.config` when omitted; defaults to `false`.
+     */
+    readonly strictPort?: boolean;
 
     /**
      * Hostname/interface for the fixture server.

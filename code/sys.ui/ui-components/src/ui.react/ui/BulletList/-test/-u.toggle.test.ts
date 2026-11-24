@@ -2,6 +2,20 @@ import { describe, expect, it } from '../../../-test.ts';
 import { BulletList } from '../mod.ts';
 
 describe('BulletList.toggle', () => {
+  it('empty-string selection → remove or preserve the ID rather than treating it as absent', () => {
+    expect(BulletList.toggle('', '')).to.eql([]);
+    expect(BulletList.toggle('', 'other')).to.eql(['', 'other']);
+    expect(BulletList.toggle(['', 'other'], '')).to.eql(['other']);
+  });
+
+  it('mutable and frozen input → preserve caller state and return readonly membership', () => {
+    for (const selected of [['a'], Object.freeze(['a'])]) {
+      expect(BulletList.toggle(selected, 'b')).to.eql(['a', 'b']);
+      expect(BulletList.toggle(selected, 'a')).to.eql([]);
+      expect(selected).to.eql(['a']);
+    }
+  });
+
   it('adds id when selected is undefined', () => {
     const res = BulletList.toggle(undefined, 'foo');
     expect(res).to.eql(['foo']);

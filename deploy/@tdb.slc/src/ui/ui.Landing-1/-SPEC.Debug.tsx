@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from './common.ts';
+import { Color, css, Dev, Signal, type t } from './-spec/common.ts';
 
 /**
  * Types
@@ -54,12 +54,12 @@ export const Debug: React.FC<P> = (props) => {
       <div className={styles.title.class}>{'Landing-1'}</div>
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle(d.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`sidebarVisible: ${p.sidebarVisible}`}
         onClick={() => Signal.toggle(p.sidebarVisible)}
@@ -67,7 +67,7 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={`canvasPosition: "${p.canvasPosition}"`}
         onClick={() => {

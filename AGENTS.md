@@ -32,15 +32,17 @@ The active profile owns canon read/context grants; do not duplicate those grants
   - **Informational**: `commit msg`, `commit message?`, `what commit msg`.
   - **Assessment**: `go/no-go`, `ready?`, `ready to commit?`, `should we proceed?`.
   - **Execution**: `commit now`, `please commit`, `push`, `stash`, `rebase`, `amend`.
-- For **informational** requests, relevant read-only inspection is allowed; return the canonical
-  commit message only and perform no Git mutation.
-- For **assessment** requests, relevant read-only inspection is allowed; answer with judgement only
-  and perform no Git mutation.
+- Return only the canonical commit message when the message is all the human asks for. Relevant
+  read-only inspection is allowed.
+- If the human asks whether to commit open changes, reopen and use
+  [Commit Status](../sys.canon/-canon/protocol.git.md#commit-status-go--no-go), even when they also
+  ask for the message. Assessments perform no Git mutation. Exact work-state invocations retain
+  their own output contract.
 - For **execution** requests, perform only that one requested mutation exactly once. Supporting
   read-only inspection does not authorize another mutation.
 - Tiebreakers:
   - Questions and modal prompts (`?`, `can`, `should`, `would`) are not execution.
-  - Prompts containing `msg`/`message` are informational, not execution.
+  - Asking for a commit message never authorizes a Git mutation.
   - `ok`, `yes`, and `sounds good` are acknowledgements, not authorization to proceed.
   - If mutation intent is unclear, ask for explicit confirmation before mutating Git state.
 - Never bypass commit-signing policy in an agent action; never use `--no-gpg-sign`,

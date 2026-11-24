@@ -10,6 +10,7 @@ export const ns = 'sys.ui.component';
  * Components:
  */
 export const SpecsComponents = {
+  [`${ns}: Admonition`]: () => import('../ui.react/ui/Admonition/-spec/-SPEC.tsx'),
   [`${ns}: ActionProbe`]: () => import('../ui.react/ui/ActionProbe/-spec/-SPEC.tsx'),
 
   [`${ns}: Button`]: () => import('../ui.react/ui/Button/-spec/-SPEC.tsx'),
@@ -35,10 +36,13 @@ export const SpecsComponents = {
   [`${ns}: Preload`]: () => import('../ui.react/ui/Preload/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui.react/ui/Sheet/-spec/-SPEC.tsx'),
   [`${ns}: Slider`]: () => import('../ui.react/ui/Slider/-spec/-SPEC.tsx'),
-  [`${ns}: Spinners.Bar`]: () => import('../ui.react/ui/Spinners.Bar/-SPEC.tsx'),
   [`${ns}: Splash`]: () => import('../ui.react/ui/Splash/-spec/-SPEC.tsx'),
 
+  [`${ns}: Spinners.Bar`]: () => import('../ui.react/ui/Spinners.Bar/-spec/-SPEC.tsx'),
+  [`${ns}: Spinners.Circular`]: () => import('../ui.react/ui/Spinners.Circular/-spec/-SPEC.tsx'),
+
   [`${ns}: Text.Input`]: () => import('../ui.react/ui/Text.Input/-spec/-SPEC.tsx'),
+  [`${ns}: Text.Label`]: () => import('../ui.react/ui/Text.Label/-spec/-SPEC.tsx'),
   [`${ns}: Text.Ellipsize`]: () => import('../ui.react/ui/Text.Ellipsize/-spec/-SPEC.tsx'),
 
   [`${ns}: Prose.Measure`]: () => import('../ui.react/ui/Prose.Measure/-spec/-SPEC.tsx'),

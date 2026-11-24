@@ -1,4 +1,4 @@
-import { describe, expect, expectError, Fs, it, type t, Yaml } from '../../../-test.ts';
+import { describe, expect, expectError, Fs, it, Str, type t, Yaml } from '../../../-test.ts';
 import { HttpProxy } from '../mod.ts';
 
 const CONFIG = 'app';
@@ -36,25 +36,37 @@ describe('HttpProxy.Config.add', () => {
     expect(doc.name).to.eql('proxy.app');
   });
 
-  it('updates lifecycle fields while preserving root and mounts', async () => {
+  it('updates lifecycle fields while preserving routes', async () => {
     const cwd = await tempRoot();
-    await writeConfig(
-      cwd,
-      'name: old\nhostname: 0.0.0.0\nport: 3000\nroot:\n  target: http://127.0.0.1:4040/\nmounts:\n  - path: /payments/\n    target: http://127.0.0.1:4040/payments/\n',
-    );
+    const yaml = Str.dedent(`
+      name: old
+      hostname: 0.0.0.0
+      port: 3000
+      root:
+        target: http://127.0.0.1:4040/
+      mounts:
+        - path: /payments/
+          target: http://127.0.0.1:4040/payments/
+      exactRoutes:
+        - path: /verify
+          method: POST
+          target: http://127.0.0.1:4040/check
+    `);
+    await writeConfig(cwd, yaml);
 
     const res = await HttpProxy.Config.add({ cwd, ...INPUT });
     const doc = await readConfig(cwd);
 
     expect(res.kind).to.eql('updated');
     expect(res.created).to.eql(false);
-    expect(doc.name).to.eql('app');
-    expect(doc.hostname).to.eql('127.0.0.1');
-    expect(doc.port).to.eql(4040);
-    expect(doc.root).to.eql({ target: 'http://127.0.0.1:4040/' });
-    expect(doc.mounts).to.eql([
-      { path: '/payments/', target: 'http://127.0.0.1:4040/payments/' },
-    ]);
+    expect(doc).to.include({ name: 'app', hostname: '127.0.0.1', port: 4040 });
+
+    const { root, mounts, exactRoutes } = doc;
+    expect({ root, mounts, exactRoutes }).to.eql({
+      root: { target: 'http://127.0.0.1:4040/' },
+      mounts: [{ path: '/payments/', target: 'http://127.0.0.1:4040/payments/' }],
+      exactRoutes: [{ path: '/verify', method: 'POST', target: 'http://127.0.0.1:4040/check' }],
+    });
   });
 
   it('treats identical lifecycle fields as a no-op success', async () => {

@@ -1,8 +1,7 @@
 import type React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Signal, type t } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Signal, type t } from './common.ts';
 import { MarkdownSample, type SampleKind } from './-samples/mod.ts';
-import { Sample } from './-ui.Sample.tsx';
 
 type P = t.ProseMarkdown.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { sample?: SampleKind };
@@ -37,12 +36,15 @@ export function createDebugSignals() {
     viewport: s(MarkdownSample.viewport(sample)),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-    select,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.sample = p.sample.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -60,15 +62,7 @@ export function createDebugSignals() {
     p.viewport.value = MarkdownSample.viewport(kind);
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.sample = p.sample.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, select, attach };
 }
 
 const Styles = {
@@ -101,21 +95,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <div className={Styles.title.class}>Samples:</div>
-      <Sample.Buttons debug={debug} />
+      <div className={Styles.title.class}>Samples</div>
+      <Dev.List
+        theme={theme.name}
+        columns={1}
+        selected={v.sample}
+        items={MarkdownSample.kinds.map((id) => ({
+          id,
+          label: MarkdownSample.get(id).label,
+          onActivate: () => debug.select(id),
+        }))}
+      />
 
       <hr />
-      <div className={Styles.title.class}>Debug:</div>
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <div className={Styles.title.class}>Debug</div>
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

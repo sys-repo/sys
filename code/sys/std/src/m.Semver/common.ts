@@ -2,6 +2,7 @@ import type { Semver } from './t.ts';
 export * from '../common.ts';
 
 export { Err } from '../m.Err/mod.ts';
+export { Is } from '../m.Is/mod.ts';
 
 /**
  * Constants

@@ -31,10 +31,15 @@ export const repaint = createRepaint({
  */
 function ttyPayload(frame: string) {
   const rows = frame ? frame.split('\n') : [];
+  const below = cursor(rows.length + 1);
+  const clearBelow = `${below}${ERASE_DOWN}`;
   const content = rows.map((row, index) => {
-    return `${cursor(index + 1)}${ERASE_LINE}${row}${RESET}`;
+    // At full height the erase address clamps to the last row. Paint that row after erasing.
+    const clear = index === rows.length - 1 ? clearBelow : '';
+    return `${clear}${cursor(index + 1)}${ERASE_LINE}${row}${RESET}`;
   }).join('');
-  return `${SYNC_ON}${RESET}${content}${cursor(rows.length + 1)}${ERASE_DOWN}${SYNC_OFF}`;
+  const tail = rows.length === 0 ? clearBelow : below;
+  return `${SYNC_ON}${RESET}${content}${tail}${SYNC_OFF}`;
 }
 
 function cursor(row: number) {

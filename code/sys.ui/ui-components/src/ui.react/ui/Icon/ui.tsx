@@ -1,5 +1,5 @@
-import React from 'react';
-import { type t, Color, Is, Style, css } from '../../../common.ts';
+import type React from 'react';
+import { Color, css, Is, Style, type t } from './common.ts';
 
 type P = t.IconViewProps;
 
@@ -9,6 +9,7 @@ type P = t.IconViewProps;
 export const IconView: React.FC<P> = (props) => {
   const { size = 24, opacity } = props;
   const Component = props.type;
+  const Root = props.as ?? 'div';
 
   const styles = {
     base: css({
@@ -22,7 +23,7 @@ export const IconView: React.FC<P> = (props) => {
   };
 
   return (
-    <div
+    <Root
       className={css(styles.base, props.style).class}
       tabIndex={props.tabIndex}
       title={props.tooltip}
@@ -34,7 +35,7 @@ export const IconView: React.FC<P> = (props) => {
       onMouseLeave={props.onMouseLeave}
     >
       <Component size={size} color={wrangle.color(props)} />
-    </div>
+    </Root>
   );
 };
 

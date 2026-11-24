@@ -5,20 +5,44 @@ const PKG = { name: '@sys/example', version: '1.2.3' } as const;
 
 describe('ViteEntry.dev', () => {
   it('forwards normalized presentation beside truthful package metadata', async () => {
-    const cwd = '/tmp/driver-vite-entry-dev' as t.StringAbsoluteDir;
+    const cwd = '/tmp/driver-vite-entry-dev';
+    const pkgSubpath = '/ui//preview/';
     const harness = createHarness();
-    await devWith({ cmd: 'dev', dir: cwd, pkgSubpath: '/ui//preview/' }, harness.deps);
+    await devWith({ cmd: 'dev', dir: cwd, pkgSubpath }, harness.deps, { jsrPackageDir: cwd });
 
     expect(harness.loaded).to.eql([cwd]);
     expect(harness.calls).to.eql([{
       pkg: PKG,
       pkgSubpath: 'ui/preview',
+      versionLink: 'jsr',
       cwd,
       port: undefined,
       reporter: undefined,
       logLines: undefined,
     }]);
     expect(harness.listens).to.eql(1);
+  });
+
+  it('does not transfer directory-owned consent to identical metadata under --dir', async () => {
+    const owner = '/tmp/driver-vite-entry-dev';
+    const other = `${owner}-other`;
+    const harness = createHarness();
+    const options = { jsrPackageDir: `${owner}/` };
+    for (const dir of [`${owner}/.`, other]) {
+      await devWith({ cmd: 'dev', dir }, harness.deps, options);
+    }
+    expect(harness.loaded).to.eql([owner, other]);
+    expect(harness.calls.map(({ pkg }) => pkg)).to.eql([PKG, PKG]);
+    expect(harness.calls.map(({ versionLink }) => versionLink)).to.eql(['jsr', undefined]);
+    expect(harness.listens).to.eql(2);
+  });
+
+  it('requires an absolute application directory even when dev defaults to cwd', async () => {
+    const harness = createHarness();
+    const args = { cmd: 'dev' } as const;
+    await devWith(args, harness.deps, { jsrPackageDir: Deno.cwd() });
+    await devWith(args, harness.deps, { jsrPackageDir: '.' });
+    expect(harness.calls.map(({ versionLink }) => versionLink)).to.eql(['jsr', undefined]);
   });
 
   it('omits package presentation when no subpath is supplied', async () => {
@@ -77,14 +101,14 @@ function createHarness() {
     loaded,
     calls,
     deps: {
-      loadPkg: (cwd: t.StringAbsoluteDir) => {
+      loadPkg(cwd: t.StringAbsoluteDir) {
         loaded.push(cwd);
         return Promise.resolve(PKG);
       },
-      start: (input: t.Vite.Dev.Args) => {
+      start(input: t.Vite.Dev.Args) {
         calls.push(input);
         return Promise.resolve({
-          listen: () => {
+          listen() {
             listens += 1;
             return Promise.resolve();
           },

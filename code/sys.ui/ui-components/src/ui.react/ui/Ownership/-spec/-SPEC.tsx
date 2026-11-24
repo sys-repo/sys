@@ -1,7 +1,7 @@
-import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { Ownership } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
   const debug = await createDebugSignals();
@@ -9,23 +9,20 @@ export default Spec.describe(D.displayName, async (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    update();
-    function update() {
-      debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-
-    ctx.subject
-      .size([360, null])
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        return <Ownership.UI debug={v.debug} theme={v.theme} />;
-      });
+    debug.attach(ctx, {
+      subject: {
+        size: [360, null],
+        display: 'grid',
+        render: () => <Ownership.UI debug={p.debug.value} theme={p.theme.value} />,
+      },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {

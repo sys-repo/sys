@@ -14,7 +14,14 @@ export function BusEvents(args: {
 }): t.DevEvents {
   let _disposed = false;
   const life = Rx.lifecycle(args.until);
-  life.dispose$.subscribe(() => (_disposed = true));
+  const dispose: t.Lifecycle['dispose'] = (reason) => {
+    if (_disposed) return;
+    _disposed = true; // Explicit disposal closes admission before delegating teardown.
+    life.dispose(reason);
+  };
+  // External lifetime delivery closes admission on normalized notification, after input-bridge
+  // teardown and before this view's downstream observers.
+  life.dispose$.subscribe((e) => dispose(e.reason));
 
   const bus = RxBus.asType<t.DevEvent>(args.instance.bus);
   const instance = args.instance.id;
@@ -144,9 +151,10 @@ export function BusEvents(args: {
   };
 
   /**
-   * Reset (unload).
+   * Reset session and render state; retain the loaded suite.
    */
   const reset: t.DevEvents['reset'] = {
+    before$: RxBus.payload<t.DevResetBeforeEvent>($, 'sys.dev/reset:before'),
     req$: RxBus.payload<t.DevResetReqEvent>($, 'sys.dev/reset:req'),
     res$: RxBus.payload<t.DevResetResEvent>($, 'sys.dev/reset:res'),
     async fire(options = {}) {
@@ -314,8 +322,8 @@ export function BusEvents(args: {
   const events: t.DevEvents = {
     instance: { bus, id: instance },
     $,
-    dispose: life.dispose,
-    [Symbol.dispose]: life[Symbol.dispose],
+    dispose,
+    [Symbol.dispose]: () => dispose(),
     dispose$: life.dispose$,
     get disposed() {
       return _disposed;

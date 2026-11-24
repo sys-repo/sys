@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Button, css, Signal } from '../../u.ts';
-import { D } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { css, D, Dev, Signal, type t } from './common.ts';
 
 type P = t.SheetProps;
 
@@ -22,16 +22,17 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     orientation: s<P['orientation']>(D.orientation.default),
     edgeMargin: s<P['edgeMargin']>(0),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.showing.value;
-      p.orientation.value;
-      p.edgeMargin.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.showing.value;
+    p.orientation.value;
+    p.edgeMargin.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }
@@ -61,25 +62,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'Mobile Sheet'}</div>
-      <Button
+      <Dev.Button
         block
         label={`debug.showing: ${d.showing}`}
         onClick={() => Signal.toggle(d.showing)}
       />
       <hr />
-      <Button
+      <Dev.Button
         block
         label={`theme: ${d.theme}`}
         onClick={() => Signal.cycle<P['theme']>(d.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`orientation: ${d.orientation.value ?? '<undefined>'}`}
         onClick={() => {
           Signal.cycle<P['orientation']>(d.orientation, [...D.orientation.all, undefined]);
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={`edgeMargin: ${d.edgeMargin.value ?? '<undefined>'}`}
         onClick={() => {

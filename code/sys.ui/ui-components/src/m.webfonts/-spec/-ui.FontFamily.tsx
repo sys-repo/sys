@@ -44,7 +44,7 @@ export const FontFamily: React.FC<FontFamilyProps> = (props) => {
         style={styles.list}
         selected={selected}
         items={FONT_ITEMS}
-        onSelect={(e) => (p.font.value = e.id as t.Fonts.FontName)}
+        onActivate={(e) => (p.font.value = e.id)}
       />
     </div>
   );

@@ -1,12 +1,20 @@
 import { Is, Str, type t } from '../common.ts';
+import { indexExactRoutes } from '../u.config/u.exact.ts';
 
 export const HttpProxyResolver: t.HttpProxy.Routing.ResolverFactory = (config) => {
-  const normalized = normalizeConfig(config);
-  const mounts = normalized.mounts ?? [];
-  const root = normalized.root;
+  const root = config.root ? normalizeRoot(config.root) : undefined;
+  const mounts = normalizeMounts(config.mounts) ?? [];
+  const exactRoutes = indexExactRoutes(config.exactRoutes, 'HttpProxyResolver');
 
-  return (pathname) => {
+  return (pathname, method = 'GET') => {
     validatePathname(pathname);
+
+    const exact = exactRoutes.get(pathname);
+    if (exact) {
+      return method === exact.method
+        ? { kind: 'exact', upstream: exact.target }
+        : { kind: 'method-not-allowed', allow: exact.method };
+    }
 
     const redirect = resolveRedirect(pathname, mounts);
     if (redirect) return redirect;
@@ -24,6 +32,7 @@ export const HttpProxyResolver: t.HttpProxy.Routing.ResolverFactory = (config) =
       return {
         kind: 'root',
         upstream: joinUpstream(root.upstream, pathname.slice(1)),
+        ...(root.stripAuthorization ? { stripAuthorization: true } : {}),
         ...withResponseConfig(root.response),
       } satisfies t.HttpProxy.Routing.Resolve.RootResult;
     }
@@ -36,19 +45,11 @@ export const HttpProxyResolver: t.HttpProxy.Routing.ResolverFactory = (config) =
  * Helpers:
  */
 
-function normalizeConfig(config: t.HttpProxy.Routing.Config): t.HttpProxy.Routing.Config {
-  const root = config.root ? normalizeRoot(config.root) : undefined;
-  const mounts = normalizeMounts(config.mounts);
-  return {
-    root,
-    mounts,
-  } satisfies t.HttpProxy.Routing.Config;
-}
-
 function normalizeRoot(root: t.HttpProxy.Routing.Root): t.HttpProxy.Routing.Root {
   validateUpstream(root.upstream, 'root.upstream');
   return {
     upstream: root.upstream,
+    stripAuthorization: root.stripAuthorization,
     response: root.response,
   } satisfies t.HttpProxy.Routing.Root;
 }
@@ -132,8 +133,9 @@ function resolveRedirect(
 }
 
 function joinUpstream(base: t.StringUrl, suffix: string): t.StringUrl {
-  const relative = Str.trimLeadingSlashes(suffix);
-  return new URL(relative || '.', base).href as t.StringUrl;
+  const path = Str.trimLeadingSlashes(suffix);
+  // Anchor the suffix as path data even when its first segment contains a colon.
+  return new URL(`./${path}`, base).href;
 }
 
 function withResponseConfig(

@@ -65,6 +65,7 @@ async function runStart(
       dir: args.dir,
       hostname: args.hostname,
       port: parsePort(args.port),
+      strictPort: args['strict-port'],
       name: args.name,
       silent: args.silent === true,
       keyboard: args.silent === true ? false : true,
@@ -89,6 +90,7 @@ async function runConfigAdd(cwd: t.StringDir, args: StaticCliParsedArgs): Promis
       dir: args.dir,
       hostname: args.hostname,
       port: args.port,
+      strictPort: args['strict-port'],
       dryRun: args['dry-run'] === true,
     });
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { css, D, Icons, LocalStorage, Obj, Signal, type t } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { css, D, Dev, Icons, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { IconSwatches } from '../mod.ts';
 
 type P = t.IconSwatchesProps;
@@ -39,11 +39,18 @@ export function createDebugSignals() {
     items: s<t.IconSwatchItem[]>(),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.minSize = p.minSize.value;
+        d.maxSize = p.maxSize.value;
+        d.percent = p.percent.value;
+        d.selected = p.selected.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -59,19 +66,8 @@ export function createDebugSignals() {
     setIcons();
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.minSize = p.minSize.value;
-      d.maxSize = p.maxSize.value;
-      d.percent = p.percent.value;
-      d.selected = p.selected.value;
-    });
-  });
-
   setIcons();
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -103,30 +99,35 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `minSize: ${p.minSize.value ?? `<undefined> (default: ${D.minSize})`}`}
         onClick={() => Signal.cycle(p.minSize, [D.minSize, 30, 90])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `maxSize: ${p.maxSize.value ?? `<undefined> (default: ${D.maxSize})`}`}
         onClick={() => Signal.cycle(p.maxSize, [90, D.maxSize, 480, 1024])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

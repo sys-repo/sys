@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, D, Effect, KeyValue, ObjectView, Str } from './common.ts';
+import { Color, css, D, Dev, Effect, KeyValue, Str, type t } from './common.ts';
 
 export type DriverInfoProps = {
   title?: string;
@@ -47,7 +47,7 @@ export const DriverInfo: React.FC<DriverInfoProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <KeyValue.UI items={items} theme={theme.name} />
 
-      {debug && <ObjectView name={'state'} data={state} style={{ marginTop: 6 }} expand={1} />}
+      {debug && <Dev.ObjectView name={'state'} data={state} style={{ marginTop: 6 }} expand={1} />}
     </div>
   );
 };

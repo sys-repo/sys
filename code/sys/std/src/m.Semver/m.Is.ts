@@ -1,5 +1,6 @@
-import { isSemVer } from '@std/semver';
+import { format, isSemVer } from '@std/semver';
 
+import { Is as ValueIs } from './common.ts';
 import type { Semver } from './t.ts';
 import {
   eql,
@@ -41,6 +42,12 @@ export const Is: Semver.Is.Lib = Object.freeze({
     if (isSemVer(input)) return true;
     if (typeof input === 'string') return !parse(input).error;
     return false;
+  },
+
+  exact(input) {
+    if (!ValueIs.str(input)) return false;
+    const { version, error } = parse(input);
+    return !error && format(version) === input;
   },
 
   /**

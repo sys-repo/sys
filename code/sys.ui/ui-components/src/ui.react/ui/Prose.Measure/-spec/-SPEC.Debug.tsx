@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.ProseMeasure.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -28,11 +28,14 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -42,14 +45,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -84,16 +80,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

@@ -12,9 +12,14 @@ export function toModuleYaml(module: Pick<Module, 'path' | 'name' | 'version'>) 
     .replaceAll('__VERSION__', () => version);
 }
 
-export function toMatrixEntryYaml(module: Pick<Module, 'path' | 'name' | 'version'>) {
+export function toMatrixEntryYaml(module: Module) {
   const name = WorkflowSafe.scalar(module.name, 'package name');
   const path = WorkflowSafe.scalar(module.path, 'package path');
   const version = WorkflowSafe.scalar(module.version, 'package version');
-  return [`- name: "${name}"`, `  path: "${path}"`, `  version: "${version}"`].join('\n');
+  return [
+    `- name: "${name}"`,
+    `  path: "${path}"`,
+    `  version: "${version}"`,
+    ...(module.cache ? ['  cache: true'] : []),
+  ].join('\n');
 }

@@ -12,7 +12,7 @@ describe('Config.app filesystem identity (HTTP)', () => {
     it(`base ${base}: allows same-root links; rejects escaping links and denied targets`, async () => {
       const result = await runProbe({
         name: `server-fs.${index}`,
-        denoArgs: ['run', '-P=test', '--node-modules-dir=auto'],
+        denoArgs: ['run', '-A', '--node-modules-dir=auto'],
         source: Str.dedent(`
           import { proveServerFs } from './src/m.vite.config/-test/u.fixture.serverFs.ts';
           await proveServerFs('${base}');

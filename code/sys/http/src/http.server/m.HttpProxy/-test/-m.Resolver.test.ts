@@ -50,6 +50,22 @@ describe('HttpProxyResolver', () => {
     });
   });
 
+  it('colon in the first suffix segment → stays under the selected upstream base', () => {
+    const resolve = HttpProxyResolver({
+      root: { upstream: 'https://site.example/pages/' },
+      mounts: [{ mountPath: '/archive/', upstream: 'https://files.example/reports/' }],
+    });
+
+    expect(resolve('/report:daily')).to.eql({
+      kind: 'root',
+      upstream: 'https://site.example/pages/report:daily',
+    });
+    expect(resolve('/archive/report:daily')).to.eql({
+      kind: 'mount',
+      upstream: 'https://files.example/reports/report:daily',
+    });
+  });
+
   it('mount matching → longest-prefix wins', () => {
     const resolve = HttpProxyResolver({
       mounts: [

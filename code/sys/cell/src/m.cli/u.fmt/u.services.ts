@@ -4,6 +4,7 @@ import { Cli, Fs, Is, type t } from '../common.ts';
 type ServicesStartedOptions = {
   readonly services: readonly t.Cli.Fmt.Service.Input[];
   readonly width?: number;
+  readonly maxRows?: number;
   readonly terminal?: boolean;
   readonly hyperlinks?: boolean;
 };
@@ -16,6 +17,7 @@ export const FmtServices = Object.freeze({
   started(options: ServicesStartedOptions): string {
     return Cli.Fmt.Service.formatList(options.services, {
       width: options.width,
+      maxRows: options.maxRows,
       terminal: options.terminal,
       urlHyperlinks: options.hyperlinks,
     });

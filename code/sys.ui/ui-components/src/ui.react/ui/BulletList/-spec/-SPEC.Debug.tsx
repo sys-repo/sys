@@ -1,21 +1,30 @@
-import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import type React from 'react';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.BulletList.Props;
-type Storage = Pick<P, 'debug' | 'theme' | 'selected' | 'columns'>;
+type Storage = Pick<P, 'debug' | 'theme' | 'selected' | 'columns' | 'size'> & {
+  multiple: boolean;
+  width: number;
+  fontSize: number;
+  rtl: boolean;
+  sample: 'standard' | 'markdown' | 'stress' | 'empty';
+};
+export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
   selected: 'localhost',
-  columns: 1,
+  columns: D.columns,
+  size: D.size,
+  multiple: false,
+  width: 360,
+  fontSize: 16,
+  rtl: false,
+  sample: 'standard',
 };
-
-/**
- * Types:
- */
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 /**
  * Signals:
@@ -30,13 +39,30 @@ export async function createDebugSignals() {
     theme: s(snap.theme),
     selected: s(snap.selected),
     columns: s(snap.columns),
+    size: s(snap.size ?? D.size),
+    multiple: s(snap.multiple ?? defaults.multiple),
+    width: s(snap.width ?? defaults.width),
+    fontSize: s(snap.fontSize ?? defaults.fontSize),
+    rtl: s(snap.rtl ?? defaults.rtl),
+    sample: s(snap.sample ?? defaults.sample),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.selected = p.selected.value;
+        d.columns = p.columns.value;
+        d.size = p.size.value;
+        d.multiple = p.multiple.value;
+        d.width = p.width.value;
+        d.fontSize = p.fontSize.value;
+        d.rtl = p.rtl.value;
+        d.sample = p.sample.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -46,16 +72,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.selected = p.selected.value;
-      d.columns = p.columns.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -83,28 +100,72 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `columns: ${v.columns}`}
         onClick={() => Signal.cycle<number>(p.columns, [1, 2, 3])}
       />
 
+      <Dev.Button
+        block
+        label={() => `size: ${v.size}`}
+        onClick={() => Signal.cycle<t.BulletList.Size>(p.size, ['xs', 'sm', 'md'])}
+      />
+      <Dev.Button
+        block
+        label={() => `multiple: ${v.multiple} (enter/space ${v.multiple ? 'toggles' : 'selects'})`}
+        onClick={() => Signal.toggle(p.multiple)}
+      />
+
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <div className={Styles.title.class}>Sample States</div>
+      <Dev.List
+        theme={theme.name}
+        selected={v.sample}
+        items={([
+          { id: 'standard', label: 'Standard' },
+          { id: 'markdown', label: 'Markdown labels' },
+          { id: 'stress', label: 'Layout stress' },
+          { id: 'empty', label: 'Empty' },
+        ] as const).map(({ id, label }) => ({
+          id,
+          label,
+          onActivate: () => p.sample.value = id,
+        }))}
+      />
+
+      <hr />
+      <div className={Styles.title.class}>Debug</div>
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button
+        block
+        label={() => `host width: ${v.width}px`}
+        onClick={() => Signal.cycle(p.width, [180, 360, 640])}
+      />
+      <Dev.Button
+        block
+        label={() => `host font: ${v.fontSize}px`}
+        onClick={() => Signal.cycle(p.fontSize, [12, 13, 16, 20])}
+      />
+      <Dev.Button block label={() => `rtl: ${v.rtl}`} onClick={() => Signal.toggle(p.rtl)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView
+        name='debug'
+        data={v}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

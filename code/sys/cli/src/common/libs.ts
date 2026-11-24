@@ -11,6 +11,7 @@ export { Obj } from '@sys/std/obj';
 export { Path } from '@sys/std/path';
 export { Pkg } from '@sys/std/pkg';
 export { Rx } from '@sys/std/rx';
+export { Semver } from '@sys/std/semver';
 export { Str } from '@sys/std/str';
 export { Time } from '@sys/std/time';
-export { Url } from '@sys/std/url';
+export { JsrUrl, Url } from '@sys/std/url';

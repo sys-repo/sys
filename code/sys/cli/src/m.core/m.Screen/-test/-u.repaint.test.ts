@@ -1,105 +1,110 @@
-import { c, describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
+import { describe, expect, expectTypeOf, it, type t } from '../../../-test.ts';
+import { Fmt } from '../../m.Fmt/mod.ts';
 import { createRepaint } from '../u.repaint.ts';
 
 const CSI = '\u001B[';
 const SYNC_ON = `${CSI}?2026h`;
 const SYNC_OFF = `${CSI}?2026l`;
 const RESET = `${CSI}0m`;
+// Supply real SGR bytes even when the test runner has color disabled.
+const styled = `${CSI}32malpha${CSI}39m`;
 const ERASE_LINE = `${CSI}2K`;
 const ERASE_DOWN = `${CSI}0J`;
 const cursor = (row: number) => `${CSI}${row};1H`;
 
 describe('Cli.Screen.repaint', () => {
-  it('commits one addressed TTY payload without publishing a full-screen clear', () => {
-    const harness = createHarness(true);
-    const styled = c.green('beta');
-
-    harness.repaint(`alpha\n${styled}`);
+  it('writes a styled row and an explicit blank row in one synchronized TTY payload', () => {
+    const { repaint, writes } = createHarness(true);
+    repaint(`${styled}\n`);
 
     const expected = [
-      SYNC_ON,
-      RESET,
-      cursor(1),
-      ERASE_LINE,
-      'alpha',
-      RESET,
-      cursor(2),
-      ERASE_LINE,
-      styled,
-      RESET,
-      cursor(3),
-      ERASE_DOWN,
-      SYNC_OFF,
+      `${SYNC_ON}${RESET}`,
+      `${cursor(1)}${ERASE_LINE}${styled}${RESET}`,
+      `${cursor(3)}${ERASE_DOWN}`,
+      `${cursor(2)}${ERASE_LINE}${RESET}`,
+      `${cursor(3)}${SYNC_OFF}`,
     ].join('');
-    expectTypeOf(harness.repaint).toEqualTypeOf<t.CliScreen.Lib['repaint']>();
-    expect(harness.writes).to.eql([expected]);
-    expect(expected).to.not.include(`${CSI}2J`);
-    expect(expected).to.not.include(`${CSI}3J`);
+    expectTypeOf(repaint).toEqualTypeOf<t.CliScreen.Lib['repaint']>();
+    expect(writes).to.eql([expected]);
   });
 
-  it('preserves explicit empty rows and clears an empty frame deterministically', () => {
-    const harness = createHarness(true);
-
-    harness.repaint('one\n');
-    harness.repaint('');
-
-    expect(harness.writes[0]).to.eql([
-      SYNC_ON,
-      RESET,
-      cursor(1),
-      ERASE_LINE,
-      'one',
-      RESET,
-      cursor(2),
-      ERASE_LINE,
-      RESET,
-      cursor(3),
-      ERASE_DOWN,
-      SYNC_OFF,
-    ].join(''));
-    expect(harness.writes[1]).to.eql([
-      SYNC_ON,
-      RESET,
-      cursor(1),
-      ERASE_DOWN,
-      SYNC_OFF,
-    ].join(''));
+  it('clears an empty frame from the home position', () => {
+    const { repaint, writes } = createHarness(true);
+    repaint('');
+    expect(writes).to.eql([`${SYNC_ON}${RESET}${cursor(1)}${ERASE_DOWN}${SYNC_OFF}`]);
   });
 
-  it('erases row tails and stale rows when the replacement is shorter', () => {
-    const harness = createHarness(true);
+  it('preserves the last painted row as a clamping viewport shrinks and grows', () => {
+    const { repaint, writes } = createHarness(true);
+    const paint = (frame: string, before: readonly string[]) => {
+      repaint(frame);
+      return visibleCells(writes.at(-1)!, before);
+    };
+    const full = paint('A\nB', ['       ', '       ']);
+    expect(full).to.eql(['A      ', 'B      ']);
 
-    harness.repaint('a much longer row\nstale row');
-    harness.repaint('x');
+    const short = paint('summary', full.slice(0, 1));
+    expect(short).to.eql(['summary']);
 
-    expect(harness.writes[1]).to.eql([
-      SYNC_ON,
-      RESET,
-      cursor(1),
-      ERASE_LINE,
-      'x',
-      RESET,
-      cursor(2),
-      ERASE_DOWN,
-      SYNC_OFF,
-    ].join(''));
+    const grown = paint('A stale\nB stale', [...short, '       ']);
+    expect(grown).to.eql(['A stale', 'B stale']);
+    expect(paint('x', grown)).to.eql(['x      ', '       ']);
+  });
+
+  it('keeps a release hyperlink intact in the TTY write but not in redirected output', () => {
+    const version = '1.2.3';
+    const label = Fmt.jsrVersion({ name: '@sys/example', version }, { link: true });
+    const url = new URL('https://jsr.io/@sys/example@1.2.3');
+    const expected = Fmt.hyperlink(version, url, { underline: true });
+    const tty = createHarness(true);
+    const redirected = createHarness(false);
+
+    tty.repaint(label);
+    redirected.repaint(label);
+    expect(tty.writes).to.have.length(1);
+    expect(tty.writes[0]).to.contain(`${cursor(1)}${ERASE_LINE}${expected}${RESET}`);
+    expect(redirected.writes).to.eql([`${version}\n`]);
   });
 
   it('writes plain frames with one sink newline outside a TTY', () => {
-    const harness = createHarness(false);
-    const frame = `alpha\n${c.green('beta')}`;
-
-    harness.repaint(frame);
-    harness.repaint('');
-
-    expect(harness.writes).to.eql(['alpha\nbeta\n', '\n']);
-    expect(harness.writes.every((item) => !item.includes(CSI))).to.eql(true);
+    const { repaint, writes } = createHarness(false);
+    repaint(`${styled}\nbeta`);
+    repaint('');
+    expect(writes).to.eql(['alpha\nbeta\n', '\n']);
   });
 });
 
-/**
- * Helpers:
- */
+/** Apply only the column-one cursor moves, erases and ASCII text used by the cell test. */
+function visibleCells(payload: string, before: readonly string[]): string[] {
+  const rows = [...before];
+  const width = rows[0].length;
+  const blank = ' '.repeat(width);
+  let row = 0;
+  let column = 0;
+  const [prefix, ...chunks] = payload.split(CSI);
+  expect(prefix).to.eql('');
+  for (const chunk of chunks) {
+    const match = /^([1-9]\d*;1H|2K|0J|0m|\?2026[hl])([ -~]*)$/.exec(chunk);
+    if (!match) throw new Error(`Unsupported repaint fixture sequence: ${chunk}`);
+    const [, command, text] = match;
+    if (command.endsWith('H')) {
+      row = Math.min(parseInt(command, 10), rows.length) - 1; // Clamp to the bottom margin.
+      column = 0;
+    } else if (command === '2K') {
+      rows[row] = blank;
+    } else if (command === '0J') {
+      rows[row] = rows[row].slice(0, column) + blank.slice(column);
+      rows.fill(blank, row + 1);
+    }
+    if (!text) continue;
+    const end = column + text.length;
+    expect(end).to.be.at.most(width);
+    rows[row] = rows[row].slice(0, column) + text + rows[row].slice(end);
+    column = end;
+  }
+  return rows;
+}
+
 function createHarness(isTerminal: boolean) {
   const writes: string[] = [];
   const repaint = createRepaint({

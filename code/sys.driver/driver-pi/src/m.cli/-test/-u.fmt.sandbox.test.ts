@@ -1,6 +1,7 @@
 import { describe, expect, it } from '../../-test.ts';
 import { c, Cli, Path, pkg, Str, type t } from '../common.ts';
 import { PiSandboxFmt } from '../u/u.fmt.sandbox.ts';
+import { PI_AGENT_IMPORT_BASE } from '../u/u.resolve.pkg.ts';
 
 type SandboxInput = Omit<t.PiCli.SandboxSummary, 'permissions'> & {
   readonly permissions?: t.PiCli.PermissionMode;
@@ -96,14 +97,14 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
         write: { summary: ['cwd'], detail: ['/tmp/pi-cli-test/out'] },
       };
       const tools = ['read', 'write', 'bash'];
-      const raw = PiSandboxFmt.table(input, { width: 80, tools });
+      const raw = PiSandboxFmt.table(input, { width: 80, tools, terminal: false });
       const text = Cli.stripAnsi(raw);
 
       expect(text).to.match(/permissions\s+allow-all/);
       expect(text).to.match(/read\s+all/);
       expect(text).to.match(/write\s+all/);
       expect(text).not.to.contain('write:cwd');
-      const header = PiSandboxFmt.header('allow-all', { width: 80, tools });
+      const header = PiSandboxFmt.header('allow-all', { width: 80, tools, terminal: false });
       expect(lines(raw).slice(0, 2)).to.eql(header.slice(0, 2));
       expect(lines(raw)[0]).to.contain(c.bold(c.yellow('sys:pi')));
       expect(text).to.contain('Deno permissions   allow-all');
@@ -121,10 +122,11 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
   describe('readable launch sheet', () => {
     for (const stage of ['preview', 'launch-input'] as const) {
       it(`${stage} → complete specimen with settings, not runtime attestation`, () => {
+        const sampleVersion = '7.8.9'; // Synthetic display input, never the dependency selection.
         const launch: t.PiCli.LaunchIdentity = {
           stage,
           resolvedAt: '2001-02-03T04:05:06.000Z',
-          upstream: 'unknown',
+          upstream: `${PI_AGENT_IMPORT_BASE}@${sampleVersion}`,
           upstreamExplicit: false,
           profile: '/tmp/report/profile.yaml',
           system: 'default',
@@ -141,6 +143,7 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
         const body = lines(text).slice(2, -1).map((line) => line.trimEnd()).join('\n');
 
         expect(body).to.eql(Str.dedent(`
+          Pi version         ${sampleVersion}
           Deno permissions   scoped
           Process sandbox    not provided by Pi-Driver
           Outer sandbox      <unknown>
@@ -167,18 +170,76 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
     });
   });
 
+  describe('selected Pi version', () => {
+    const redacted = 'custom (redacted; identity unknown)';
+
+    it('unresolved and custom selections → no numeric identity', () => {
+      const cases = [
+        ['unknown', '<unknown>'],
+        [redacted, redacted],
+        [`${PI_AGENT_IMPORT_BASE}@latest`, redacted],
+      ];
+      for (const [upstream, expected] of cases) {
+        const rows = PiSandboxFmt.header('scoped', { upstream, width: 80 });
+        const row = rows.map(Cli.stripAnsi).find((line) => line.startsWith('Pi version'));
+        expect(row?.trim().split(/\s{2,}/)).to.eql(['Pi version', expected]);
+      }
+    });
+
+    it('credential-bearing selection → redacted even in raw narrow-terminal output', () => {
+      const secret = 'PRIVATE_PACKAGE_TOKEN';
+      const upstream = `https://user:${secret}@example.com/agent.ts`;
+      const width = 16;
+      const rows = PiSandboxFmt.header('scoped', { upstream, width, terminal: true });
+      const raw = rows.join('\n');
+      expect(raw).not.to.contain(secret);
+      const text = Str.replaceAll(Cli.stripAnsi(raw), /\s+/g, ' ').after;
+      expect(text).to.contain(`Pi version ${redacted}`);
+      for (const row of rows) expect(Cli.Fmt.Text.Width.measure(row)).to.be.at.most(width - 1);
+    });
+  });
+
   describe('application and selected-tool identity', () => {
+    it('terminal → underlined version links to its exact JSR release; piped output stays unlinked', () => {
+      const width = 80;
+      const url = new URL(`https://jsr.io/@sys/driver-pi@${pkg.version}`);
+      const link = Cli.Fmt.hyperlink(pkg.version, url, { underline: true });
+      for (const permissions of ['scoped', 'allow-all'] as const) {
+        const color = permissions === 'allow-all' ? c.yellow : c.cyan;
+        const sandbox = { permissions, cwd: { invoked: '/tmp/report', root: '/tmp/report' } };
+        for (const terminal of [true, false]) {
+          const [header] = PiSandboxFmt.header(permissions, { width, terminal });
+          const [sheet] = PiSandboxFmt.table(sandbox, { width, terminal }).split('\n');
+          const version = c.dim(color(terminal ? link : pkg.version));
+          const gap = ' '.repeat(width - 1 - 'sys:pi'.length - pkg.version.length);
+          expect(header).to.eql(`${PiSandboxFmt.title(permissions)}${gap}${version}`);
+          expect(sheet).to.eql(header);
+          expect(Cli.Fmt.Text.Width.measure(header)).to.eql(width - 1);
+        }
+      }
+    });
+
+    it('linked version → retains width fallbacks without emitting a hidden link', () => {
+      const render = (width: number) =>
+        PiSandboxFmt.header('scoped', { width: width + 1, terminal: true, tools: ['read'] })[0];
+      const full = `sys:pi read · ${pkg.version}`;
+      const versionOnly = `sys:pi ${pkg.version}`;
+      expect(Cli.stripAnsi(render(full.length))).to.eql(full);
+      expect(Cli.stripAnsi(render(versionOnly.length))).to.eql(versionOnly);
+      expect(render(versionOnly.length - 1)).to.eql(PiSandboxFmt.title('scoped'));
+    });
+
     it('scoped header → bright tool detail and dim package provenance', () => {
       const width = 80;
       const tools = ['read', 'write', 'bash'];
       const raw = PiSandboxFmt.table({
         permissions: 'scoped',
         cwd: { invoked: '/tmp/pi-cli-test', git: '/tmp/pi-cli-test' },
-      }, { width, tools });
+      }, { width, tools, terminal: false });
       const rawLines = lines(raw);
       const text = Cli.stripAnsi(raw);
 
-      const header = PiSandboxFmt.header('scoped', { width, tools });
+      const header = PiSandboxFmt.header('scoped', { width, tools, terminal: false });
       expect(rawLines.slice(0, 2)).to.eql(header.slice(0, 2));
       expect(rawLines[0]).to.contain(c.bold(c.cyan('sys:pi')));
       expect(rawLines[0]).not.to.contain('scoped');
@@ -272,7 +333,8 @@ describe('@sys/driver-pi/cli/u.fmt.sandbox', () => {
 
       const renderWidth = width - 1;
       expectHeaderFrame(text, renderWidth);
-      expect(output.slice(2, 7).map((line) => line.trimEnd())).to.eql(lines(Str.dedent(`
+      expect(output.slice(2, 8).map((line) => line.trimEnd())).to.eql(lines(Str.dedent(`
+        Pi version         <unknown>
         Deno permissions   scoped
         Process sandbox    not provided by Pi-Driver
         Outer sandbox      <unknown>

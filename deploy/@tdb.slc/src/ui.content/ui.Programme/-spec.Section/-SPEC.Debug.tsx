@@ -6,7 +6,7 @@ import {
   programmeSectionButtons,
   videoPlayerButton,
 } from '../-spec/-SPEC.Debug.tsx';
-import { type t, Button, css, D, ObjectView, Signal } from '../common.ts';
+import { css, D, Dev, Signal, type t } from './common.ts';
 
 type P = t.ProgrammeSectionProps;
 
@@ -49,12 +49,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <span>{`Section`}</span>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${debug.props.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(debug.props.theme, ['Light', 'Dark'])}
@@ -67,7 +67,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {programmeSectionButtons(debug.content, debug.state)}
 
       <hr />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={Signal.toObject(debug)}
         expand={{ paths: ['$', '$.state', '$.state.component', '$.state.component.props'] }}

@@ -1,13 +1,22 @@
 import { describe, expect, it, Time } from '../../src/-test.ts';
-import { D, Files, Fs, Process, type t } from './common.ts';
+import { Cli, D, Files, Fs, Process, type t } from './common.ts';
 
 describe('sample:files:ws', () => {
   it('starts the sample server and serves the docs corpus over websocket', async () => {
     const root = Fs.Path.fromFileUrl(new URL('../..', import.meta.url));
+    let stdout = '';
+    let url: string | undefined;
     const process = Process.spawn({
       args: ['run', '-P=sample-files-tty', './-sample/files.ws/-start.ts'],
       cwd: root,
-      readySignal: (event) => event.toString().includes(D.path),
+      env: { [D.env.port]: '0' },
+      readySignal(event) {
+        if (event.source !== 'stdout') return false;
+        stdout += event.toString();
+        const endpoint = /ws:\/\/(?:localhost|127\.0\.0\.1):[1-9]\d*\/files(?=\s)/;
+        url = Cli.stripAnsi(stdout).match(endpoint)?.[0];
+        return url !== undefined;
+      },
       silent: true,
     });
 
@@ -15,7 +24,8 @@ describe('sample:files:ws', () => {
 
     try {
       await waitForReady(process);
-      client = await Files.Client.websocket(D.url, { timeout: 1_000 });
+      if (!url) throw new Error('Expected the sample server to report its bound WebSocket URL.');
+      client = await Files.Client.websocket(url, { timeout: 1_000 });
 
       const txt = await client.readText('hello.txt');
       const yaml = await client.readText('hello.yaml');

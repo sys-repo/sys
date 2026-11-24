@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button } from '../../u.ts';
-import { type t } from './common.ts';
+import { Dev, type t } from './common.ts';
 import { CursorHelp, type CursorHelpProps } from './-ui.CursorHelp.tsx';
 
 export type CursorEnabledSignal = { value: boolean };
@@ -46,7 +45,7 @@ export const CursorDebug = {
 
   ToggleButton(props: ToggleButtonProps) {
     return (
-      <Button
+      <Dev.Button
         block
         label={() => `cursor.enabled: ${props.enabled.value}`}
         onClick={() => CursorDebug.toggle(props)}
@@ -56,7 +55,7 @@ export const CursorDebug = {
 
   ArrivalButton(props: ArrivalButtonProps) {
     return (
-      <Button
+      <Dev.Button
         block
         label={() => `cursor.arrival: ${CursorDebug.toArrival(props.arrival.value) || 'false'}`}
         onClick={() => CursorDebug.cycleArrival(props)}

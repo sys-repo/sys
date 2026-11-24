@@ -1,4 +1,4 @@
 export type * as t from './-t.ts';
 
-export { ObjectView } from '../../ObjectView/mod.ts';
+export { Dev } from '../../../dev/mod.ts';
 export * from '../common.ts';

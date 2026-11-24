@@ -1,7 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { DebugCenter } from './-ui.Center.tsx';
 import { DebugFill } from './-ui.Fill.tsx';
 import { DebugPercent } from './-ui.Percent.tsx';
@@ -37,11 +36,16 @@ export function createDebugSignals() {
     size: s(snap.size),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.size = p.size.value;
+        d.subjectOnly = p.subjectOnly.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -51,16 +55,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.size = p.size.value;
-      d.subjectOnly = p.subjectOnly.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -90,19 +85,19 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   const setSize = (label: string, size?: t.CropmarksSize) => {
     const onClick = () => (p.size.value = size);
-    return <Button block label={`size: ${label}`} onClick={onClick} />;
+    return <Dev.Button block label={`size: ${label}`} onClick={onClick} />;
   };
 
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`subjectOnly: ${p.subjectOnly}`}
         onClick={() => Signal.toggle(p.subjectOnly)}
@@ -140,13 +135,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {p.size.value?.mode === 'percent' && <DebugPercent debug={debug} />}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

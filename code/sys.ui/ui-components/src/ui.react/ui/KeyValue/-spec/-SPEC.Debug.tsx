@@ -1,10 +1,11 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { Color, css, D, LocalStorage, Obj, Signal, type t } from './common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { SAMPLE, type SampleKind } from './-samples.tsx';
 import { CursorDebug } from './mod.ts';
 import { LayoutButtons } from './-ui.Buttons.Layout.tsx';
-import { SampleButtons } from './-ui.Buttons.Samples.tsx';
+import { ProjectionMotion } from './-ui.ProjectionMotion.tsx';
+import { Samples } from './-ui.Samples.tsx';
 
 type P = t.KeyValue.Props;
 type DebugStorage = Pick<P, 'theme' | 'debug' | 'size' | 'mono' | 'truncate' | 'enabled'> & {
@@ -86,17 +87,38 @@ export function createDebugSignals() {
     sample: s(snap.sample),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-    get layout(): t.KeyValue.Layout | undefined {
-      const v = p.layout.value;
-      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValue.Layout.Spaced;
-      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValue.Layout.Table;
-      return;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.size = p.size.value;
+        d.mono = p.mono.value;
+        d.truncate = p.truncate.value;
+        d.enabled = p.enabled.value;
+        d.reorder = p.reorder.value;
+        d.animation = p.animation.value;
+        d.cursor = p.cursor.value;
+        d.cursorArrival = p.cursorArrival.value;
+        d.sample = p.sample.value;
+
+        d.layout = p.layout.value;
+
+        d.layoutSpaced = d.layoutSpaced ?? {};
+        d.layoutSpaced.columnGap = p.layoutSpaced.columnGap.value;
+        d.layoutSpaced.rowGap = p.layoutSpaced.rowGap.value;
+        d.layoutSpaced.align = p.layoutSpaced.align.value;
+
+        d.layoutTable = d.layoutTable ?? {};
+        d.layoutTable.keyMax = p.layoutTable.keyMax.value;
+        d.layoutTable.columnGap = p.layoutTable.columnGap.value;
+        d.layoutTable.rowGap = p.layoutTable.rowGap.value;
+        d.layoutTable.align = p.layoutTable.align.value;
+        d.layoutTable.keyAlign = p.layoutTable.keyAlign.value;
+      });
     },
-  };
+  });
+
   function listen() {
     Signal.listen(props, true);
   }
@@ -106,38 +128,19 @@ export function createDebugSignals() {
     p.items.value = SAMPLE.items(DEFAULTS.sample);
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.size = p.size.value;
-      d.mono = p.mono.value;
-      d.truncate = p.truncate.value;
-      d.enabled = p.enabled.value;
-      d.reorder = p.reorder.value;
-      d.animation = p.animation.value;
-      d.cursor = p.cursor.value;
-      d.cursorArrival = p.cursorArrival.value;
-      d.sample = p.sample.value;
-
-      d.layout = p.layout.value;
-
-      d.layoutSpaced = d.layoutSpaced ?? {};
-      d.layoutSpaced.columnGap = p.layoutSpaced.columnGap.value;
-      d.layoutSpaced.rowGap = p.layoutSpaced.rowGap.value;
-      d.layoutSpaced.align = p.layoutSpaced.align.value;
-
-      d.layoutTable = d.layoutTable ?? {};
-      d.layoutTable.keyMax = p.layoutTable.keyMax.value;
-      d.layoutTable.columnGap = p.layoutTable.columnGap.value;
-      d.layoutTable.rowGap = p.layoutTable.rowGap.value;
-      d.layoutTable.align = p.layoutTable.align.value;
-      d.layoutTable.keyAlign = p.layoutTable.keyAlign.value;
-    });
-  });
-
   p.items.value = SAMPLE.items(p.sample.value);
-  return api;
+  return {
+    props,
+    listen,
+    reset,
+    attach,
+    get layout(): t.KeyValue.Layout | undefined {
+      const v = p.layout.value;
+      if (v === 'spaced') return Signal.toObject(p.layoutSpaced) as t.KeyValue.Layout.Spaced;
+      if (v === 'table') return Signal.toObject(p.layoutTable) as t.KeyValue.Layout.Table;
+      return;
+    },
+  };
 }
 
 const Styles = {
@@ -148,37 +151,9 @@ const Styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
   }),
-  note: css({
-    fontSize: 12,
-    opacity: 0.6,
-    marginBottom: 5,
-  }),
 };
 
-/**
- * Debug controls for the KeyValue spec.
- */
-function shuffleItems(items?: t.KeyValue.Item[]) {
-  const next = [...(items ?? [])];
-  for (let index = next.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [next[index], next[swapIndex]] = [next[swapIndex], next[index]];
-  }
-  return next;
-}
-
-function moveRandomItem(items?: t.KeyValue.Item[]) {
-  const next = [...(items ?? [])];
-  if (next.length < 2) return next;
-
-  const from = Math.floor(Math.random() * next.length);
-  const offset = Math.floor(Math.random() * (next.length - 1)) + 1;
-  const to = (from + offset) % next.length;
-  const [item] = next.splice(from, 1);
-  next.splice(to, 0, item);
-  return next;
-}
-
+/** Debug controls for the KeyValue spec. */
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
@@ -193,28 +168,32 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `size: ${p.size.value}`}
         onClick={() => Signal.cycle<P['size']>(p.size, ['xs', 'sm', 'md'])}
       />
-      <Button block label={() => `mono: ${p.mono.value}`} onClick={() => Signal.toggle(p.mono)} />
-      <Button
+      <Dev.Button
+        block
+        label={() => `mono: ${p.mono.value}`}
+        onClick={() => Signal.toggle(p.mono)}
+      />
+      <Dev.Button
         block
         label={() => `truncate: ${p.truncate.value}`}
         onClick={() => Signal.toggle(p.truncate)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `reorder: ${p.reorder.value}`}
         onClick={() => Signal.toggle(p.reorder)}
@@ -238,45 +217,21 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <LayoutButtons debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 15 }} />
-      <div className={Styles.title.class}>{'items:'}</div>
-      <SampleButtons debug={debug} theme={theme.name} />
-      <div className={Styles.title.class} style={{ marginTop: 12 }}>{'projection motion:'}</div>
-      <Button
-        block
-        label={() => `animation: ${p.animation.value}`}
-        onClick={() => Signal.toggle(p.animation)}
-      />
-      {p.reorder.value && (
-        <div className={Styles.note.class}>
-          {'Turn reorder off to test this prop; Reorder has its own Motion animation.'}
-        </div>
-      )}
-      <Button
-        block
-        enabled={!p.reorder.value}
-        label={() => `shuffle direct children`}
-        onClick={() => (p.items.value = shuffleItems(p.items.value))}
-      />
-      <Button
-        block
-        enabled={!p.reorder.value}
-        label={() => `move one direct child`}
-        onClick={() => (p.items.value = moveRandomItem(p.items.value))}
-      />
-      <Button
-        block
-        enabled={!p.reorder.value}
-        label={() => `restore sample order`}
-        onClick={() => (p.items.value = SAMPLE.items(p.sample.value))}
-      />
+      <Samples debug={debug} theme={theme.name} />
+      <ProjectionMotion debug={debug} theme={theme.name} />
       <hr style={{ marginTop: 25 }} />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

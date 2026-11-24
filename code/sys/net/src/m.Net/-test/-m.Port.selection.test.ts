@@ -1,8 +1,23 @@
 import { WebFixture } from '@sys/testing/web';
-import { describe, expect, it } from '../../-test.ts';
-import { Port } from '../mod.ts';
+import { describe, expect, expectTypeOf, it } from '../../-test.ts';
+import { Net, type t } from '../../mod.ts';
+
+const { Port } = Net;
 
 describe('Net.Port selection bounds and refusal', () => {
+  it('fixed TCP ports → narrow without coercion or probing', () => {
+    let probes = 0;
+    using _fixture = mockListen(() => {
+      probes++;
+      throw new Error('Unexpected port probe');
+    });
+    const inputs: unknown[] = [1, 5051, 65_535, 0, -1, 65_536, 1.5, NaN, Infinity, '80', null];
+    const fixed = inputs.filter(Port.isFixed);
+    expectTypeOf(fixed).toEqualTypeOf<t.FixedPort[]>();
+    expect(fixed).to.eql([1, 5051, 65_535]);
+    expect(probes).to.eql(0);
+  });
+
   it('malformed preference → RangeError before any network effect', () => {
     let calls = 0;
     using _fixture = mockListen(() => {

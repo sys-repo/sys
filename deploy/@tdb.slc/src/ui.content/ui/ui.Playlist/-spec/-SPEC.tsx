@@ -15,21 +15,23 @@ export default Spec.describe('Playlist', (e) => {
       ctx.redraw();
     });
 
-    ctx.subject.size([390, 500]).render(() => (
-      <Playlist
-        theme={p.theme.value}
-        debug={p.debug.value}
-        items={p.items.value}
-        selected={p.selected.value}
-        filled={p.filled.value}
-        paddingTop={p.paddingTop.value}
-        style={{ Margin: [0, 30, 30, 30] }}
-        onChildSelect={(e) => {
-          console.info(`⚡️ onChildSelect:`, e);
-          p.selected.value = e.index;
-        }}
-      />
-    ));
+    ctx.subject.size([390, 500]).render(() => {
+      return (
+        <Playlist
+          theme={p.theme.value}
+          debug={p.debug.value}
+          items={p.items.value}
+          selected={p.selected.value}
+          filled={p.filled.value}
+          paddingTop={p.paddingTop.value}
+          style={{ Margin: [0, 30, 30, 30] }}
+          onChildSelect={(e) => {
+            console.info(`⚡️ onChildSelect:`, e);
+            p.selected.value = e.index;
+          }}
+        />
+      );
+    });
   });
 
   e.it('ui:debug', (e) => {

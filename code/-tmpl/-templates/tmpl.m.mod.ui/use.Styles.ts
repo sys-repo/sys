@@ -1,42 +1,45 @@
-import React from 'react';
-import { type t, Color, D, Style, Rx } from './common.ts';
+import { Color, Obj, type t, useStylesheetRule } from './common.ts';
 
-type P = { theme?: t.CommonTheme };
+type P = { component: string; theme: t.Color.Theme };
 
 /**
- * Thin react wrapper
+ * Optional descendant rules for a canonical component display name; values belong to each root.
  */
-export const useScopedStyles = (props: P) => {
-  React.useEffect(() => {
-    const styles = initStyles(props);
-    return () => styles.dispose();
-  }, [props.theme]);
+export const useScopedStyles = ({ component, theme }: P): t.Style.Props => {
+  // Collect root bindings so each rule block can be removed independently.
+  const styles: t.Style.Props = {};
+
+  // Example: 🐷 delete this block to remove the code rule and its private root bindings together.
+  {
+    const selector = 'code';
+    const key = Obj.hash([component, selector]);
+    const names = {
+      fg: `--scoped-${key}-fg`,
+      bg: `--scoped-${key}-bg`,
+      border: `--scoped-${key}-border`,
+    } as const;
+
+    useStylesheetRule(`[data-component="${component}"] ${selector}`, {
+      backgroundColor: `var(${names.bg})`,
+      color: `var(${names.fg})`,
+      fontFamily: 'monospace',
+      fontSize: '0.85em',
+      fontWeight: 600,
+      lineHeight: 1,
+      Padding: [2, 4],
+      borderRadius: 4,
+      border: `solid 1px var(${names.border})`,
+    });
+
+    Object.assign(
+      styles,
+      {
+        [names.fg]: Color.alpha(theme.fg, 0.8),
+        [names.bg]: Color.alpha(theme.fg, 0.03),
+        [names.border]: Color.alpha(theme.fg, 0.15),
+      } satisfies t.Style.Props,
+    );
+  }
+
+  return styles;
 };
-
-/**
- * Initialize global styles.
- */
-export function initStyles(props: P, opts: { life?: t.Lifecycle } = {}) {
-  const life = Rx.lifecycle(opts.life);
-  const theme = Color.theme(props.theme);
-  const sheet = Style.Dom.stylesheet();
-  const scope = `[data-component="${D.displayName}"]`;
-  const rule = (selector: string, css: t.Style.Value) => sheet.rule(`${scope} ${selector}`, css);
-
-  rule('code', {
-    backgroundColor: Color.alpha(theme.fg, 0.03),
-    color: Color.alpha(theme.fg, 0.8),
-    fontFamily: 'monospace',
-    fontWeight: 600,
-    fontSize: '0.85em',
-    lineHeight: 1,
-    Padding: [2, 4],
-    borderRadius: 4,
-    border: `solid 1px ${Color.alpha(theme.fg, 0.15)}`,
-  });
-
-  return {
-    sheet,
-    dispose: () => life.dispose(),
-  };
-}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Button, css, DEFAULTS, Signal } from './common.ts';
+import { css, DEFAULTS, Dev, Signal, type t } from './-spec/common.ts';
 
 const D = DEFAULTS;
 
@@ -63,19 +63,19 @@ export const Debug: React.FC<P> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-      <Button
+      <Dev.Button
         block
         label={`width: ${p.width.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.width, [undefined, 90, 150, 300])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle<t.LogoWordmarkProps['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`logo: "${p.logo}"`}
         onClick={() => Signal.cycle<t.LogoKind>(p.logo, ['SLC', 'CC'])}

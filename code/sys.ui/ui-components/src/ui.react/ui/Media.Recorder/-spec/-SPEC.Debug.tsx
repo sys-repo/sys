@@ -1,8 +1,8 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { RecorderHookView, StatefulDeviceList } from '../-dev/mod.ts';
 import { Media } from '../../Media/mod.ts';
-import { Button, Obj, ObjectView, type t } from '../../u.ts';
-import { Color, css, D, Icons, LocalStorage, Signal, Time } from '../common.ts';
+import { Color, css, D, Dev, Icons, LocalStorage, Obj, Signal, type t, Time } from './common.ts';
 
 type P = t.MediaRecorderFilesProps;
 type L = { filters: Partial<t.MediaFilterValues>; zoom: Partial<t.MediaZoomValues> };
@@ -50,18 +50,13 @@ export function createDebugSignals() {
     selectedAudio: s<MediaDeviceInfo>(),
     elapsed: s<t.Msecs>(0),
   };
-  const p = props;
-  const api = {
-    props,
-    localstore,
-    listen,
-  };
+  const { attach } = Spec.attachments();
 
   function listen() {
-    Signal.listen(p);
+    Signal.listen(props);
   }
 
-  return api;
+  return { props, localstore, listen, attach };
 }
 
 const Styles = {
@@ -95,7 +90,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
   /**
    * Effects:
    */
-  Signal.useRedrawEffect(() => debug.listen());
+  Signal.useRedrawEffect(() => {
+    debug.listen();
+    Signal.listen(p.config.filters); // Show each draft edit; the preview waits for onChanged.
+  });
   React.useEffect(() => {
     const { state, is, bytes, blob } = recorder;
     p.recorder.value = { state, is, bytes, blob };
@@ -177,14 +175,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Media.Recorder.UI.Files debug={p.debug.value} />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <ObjectView
+      <Dev.ObjectView
         name={'recorder'}
         data={Signal.toObject({ recorder: p.recorder, filter: p.filter.value })}
         expand={[]}

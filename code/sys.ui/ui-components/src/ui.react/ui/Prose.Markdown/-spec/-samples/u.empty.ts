@@ -1,4 +1,4 @@
 export const empty = {
-  label: 'sample: empty',
+  label: 'empty',
   value: undefined,
 } as const;

@@ -1,0 +1,111 @@
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  DomMock,
+  expect,
+  hostFixture,
+  it,
+  storageFixture,
+} from '../../../-test.ts';
+import { D, Json, Obj, Signal, type t } from '../common.ts';
+
+type DebugModule = typeof import('../-spec/-SPEC.Debug.tsx');
+type Stored = {
+  theme: t.CommonTheme;
+  debug: boolean;
+  enabled: boolean;
+  active: boolean;
+  opacity?: number;
+  view: 'single' | 'variants';
+};
+const storageKey = `dev:${D.displayName}`;
+const defaults: Stored = {
+  theme: 'Dark',
+  debug: true,
+  enabled: true,
+  active: true,
+  view: 'single',
+};
+const defaultSignals = { ...defaults, opacity: undefined };
+const changed: Stored = {
+  theme: 'Light',
+  debug: false,
+  enabled: false,
+  active: false,
+  opacity: 0,
+  view: 'variants',
+};
+const persisted = () => Json.parse<Stored>(localStorage.getItem(storageKey) ?? undefined);
+
+describe('Button spec: reset', () => {
+  let debugModule: DebugModule;
+  let storage: ReturnType<typeof storageFixture>;
+  let host: Awaited<ReturnType<typeof hostFixture>>;
+  beforeAll(async () => {
+    storage = storageFixture();
+    debugModule = await import('../-spec/-SPEC.Debug.tsx');
+  });
+  beforeEach(async () => {
+    storage.seed(storageKey, defaults);
+    host = await hostFixture();
+  });
+  afterEach(() => host[Symbol.dispose]());
+  afterAll(async () => {
+    storage[Symbol.dispose]();
+    await DomMock.unpolyfill();
+  });
+
+  it('persists current serializable values, including false and zero, before reset', () => {
+    const debug = debugModule.createDebugSignals();
+    debug.attach(host.ctx, {});
+    const p = debug.props;
+    p.theme.value = changed.theme;
+    p.debug.value = changed.debug;
+    p.enabled.value = changed.enabled;
+    p.active.value = changed.active;
+    p.opacity.value = changed.opacity;
+    p.view.value = changed.view;
+
+    expect(persisted()).to.eql(changed);
+    expect(Signal.toObject(debugModule.createDebugSignals().props)).to.eql(changed);
+  });
+
+  it('resets every value without replacing signals and is safe to repeat', () => {
+    storage.seed(storageKey, changed);
+    const debug = debugModule.createDebugSignals();
+    debug.attach(host.ctx, {});
+    const refs = { ...debug.props };
+    expect(Signal.toObject(debug.props)).to.eql(changed);
+
+    for (let i = 0; i < 2; i++) {
+      debug.reset();
+      expect(Signal.toObject(debug.props)).to.eql(defaultSignals);
+      expect(persisted()).to.eql(defaults);
+      for (const name of Obj.keys(refs)) expect(debug.props[name]).to.equal(refs[name]);
+    }
+    expect(Signal.toObject(debugModule.createDebugSignals().props)).to.eql(defaultSignals);
+  });
+
+  it('keeps callback modes transient, persists safe defaults, and clears them on reset', () => {
+    const debug = debugModule.createDebugSignals();
+    debug.attach(host.ctx, {});
+    const p = debug.props;
+    p.enabled.value = false;
+    p.opacity.value = 0.1;
+    const enabled = () => false;
+    const opacity: t.Button.Prop.Callback<t.Percent> = (e) => e.is.over ? 0.8 : 0.3;
+    p.enabled.value = enabled;
+    p.opacity.value = opacity;
+    expect(p.enabled.value).to.equal(enabled);
+    expect(p.opacity.value).to.equal(opacity);
+    expect(persisted()).to.eql(defaults);
+    expect(Signal.toObject(debugModule.createDebugSignals().props)).to.eql(defaultSignals);
+
+    debug.reset();
+    expect(Signal.toObject(p)).to.eql(defaultSignals);
+    expect(persisted()).to.eql(defaults);
+  });
+});

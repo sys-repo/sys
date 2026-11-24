@@ -1,15 +1,6 @@
 import React from 'react';
-import {
-  type t,
-  Button,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Schedule,
-  Signal,
-} from './common.ts';
+import { Spec } from '../-test.ui.ts';
+import { css, D, Dev, LocalStorage, Obj, Schedule, Signal, type t } from './common.ts';
 
 type Storage = { theme?: t.CommonTheme };
 const defaults: Storage = {
@@ -36,10 +27,18 @@ export function createDebugSignals() {
     marks: s<TMarks>(),
   };
   const p = props;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+      });
+    },
+  });
   const api = {
     props,
-    reset,
     listen,
+    reset,
+    attach,
     async run() {
       p.marks.value = await run();
     },
@@ -52,12 +51,6 @@ export function createDebugSignals() {
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-    });
-  });
 
   Schedule.frames(2).then(api.run);
   return api;
@@ -95,18 +88,23 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Timer'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button block label={() => `run`} onClick={() => debug.run()} />
+      <Dev.Button block label={() => `run`} onClick={() => debug.run()} />
 
       <hr />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

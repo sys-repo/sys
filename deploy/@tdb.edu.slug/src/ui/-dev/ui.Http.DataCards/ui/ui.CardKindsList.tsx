@@ -8,7 +8,7 @@ export type CardKindsListProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  onKindSelect?: t.BulletList.OnSelectHandler<t.DataCardKind>;
+  onKindSelect?: t.BulletList.Activate.Handler<t.DataCardKind>;
 };
 
 /**
@@ -36,8 +36,8 @@ export const UI: React.FC<CardKindsListProps> = (props) => {
       <BulletList.UI
         theme={theme.name}
         items={kinds.map((id) => ({ id, label: `kind: ${id}` }))}
-        selected={props.selected}
-        onSelect={props.onKindSelect}
+        selected={props.selected ?? []}
+        onActivate={props.onKindSelect}
       />
     </div>
   );

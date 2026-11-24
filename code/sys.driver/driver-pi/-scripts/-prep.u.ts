@@ -107,8 +107,7 @@ function parsePiAgentVersion(specifier: string) {
   }
 
   const version = specifier.slice(prefix.length);
-  const parsed = Semver.parse(version);
-  if (parsed.error || Semver.toString(parsed.version) !== version) {
+  if (!Semver.Is.exact(version)) {
     throw new Error(`Expected pinned Pi coding agent npm specifier: ${specifier}`);
   }
   return version;

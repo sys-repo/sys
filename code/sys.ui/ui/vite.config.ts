@@ -7,6 +7,14 @@ export default Vite.Config.define(() => {
   return Vite.Config.app({
     paths,
     visualizer: false,
+    vitePlugins: [{
+      name: 'sys-ui:direct-dev-socket',
+      apply: 'serve',
+      config({ server }) {
+        // The page uses the Cell proxy; Vite's client connects to the dev listener itself.
+        if (server?.port) return { server: { ws: { clientPort: server.port } } };
+      },
+    }],
     chunks(e) {
       e.chunk('react', 'react');
       e.chunk('react.dom', 'react-dom');

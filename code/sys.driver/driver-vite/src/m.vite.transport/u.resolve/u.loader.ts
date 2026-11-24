@@ -1,10 +1,9 @@
-import {
-  type Loader,
-  type LoadResponse,
+import type {
+  Loader,
+  LoadResponse,
   RequestedModuleType,
   ResolutionMode,
-  Workspace,
-  type WorkspaceOptions,
+  WorkspaceOptions,
 } from '@deno/loader';
 
 export type DenoLoaderResolverCreateOptions = WorkspaceOptions & {
@@ -32,6 +31,7 @@ export type DenoLoaderResolverInstance = Disposable & {
 export const DenoLoaderResolver = {
   async create(options: DenoLoaderResolverCreateOptions = {}): Promise<DenoLoaderResolverInstance> {
     const { entrypoints = [], ...workspaceOptions } = options;
+    const { Workspace, RequestedModuleType, ResolutionMode } = await import('@deno/loader');
     const workspace = new Workspace(workspaceOptions);
     let loader: Loader | undefined;
 

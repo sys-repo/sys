@@ -49,8 +49,6 @@ async function runInteractive(
   cwd: t.StringDir,
   args: t.ServeTool.CliParsedArgs,
 ): Promise<t.RunReturn> {
-  const port = Is.num(args.port) ? args.port : D.port;
-
   while (true) {
     const picked = await serveLocationsMenu(cwd);
     if (picked.kind === 'exit') return done();
@@ -59,6 +57,7 @@ async function runInteractive(
     if (!target) continue;
 
     const location = target.location;
+    const port = Is.num(args.port) ? args.port : location.port ?? D.port;
     if (Fs.cwd() !== location.dir) {
       console.info(c.gray(`directory: ${location.dir}`));
     }
@@ -86,7 +85,7 @@ async function runNonInteractive(
   const resolved = await resolveNonInteractive(cwd, args);
   const { startServer } = await import('./m.server/mod.ts');
   const context = await startServer(resolved.location, {
-    port: Is.num(args.port) ? args.port : D.port,
+    port: Is.num(args.port) ? args.port : undefined,
     host: resolved.host,
     keyboard: true,
   });

@@ -8,7 +8,7 @@ const SOURCE = Str.dedent(`
 `);
 
 export const ast = {
-  label: 'sample: parsed AST',
+  label: 'parsed AST',
   value: toAst(SOURCE),
 } as const;
 

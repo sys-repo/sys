@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, css, Signal } from '../u.ts';
+import { Spec } from '../-test.ui.ts';
+import { css, Dev, Signal, type t } from './-spec/common.ts';
 import { Preload } from './mod.ts';
 
 type O = t.PreloadOptions;
@@ -18,13 +19,13 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
   const props = {
     lifetime: s<O['lifetime']>(2000),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.lifetime.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    props.lifetime.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }
@@ -57,7 +58,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'PreloadPortal'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => {
           const msecs = p.lifetime.value;
@@ -68,7 +69,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block
         label={() => 'Preload.render( 🌳 )'}
         onClick={async () => {

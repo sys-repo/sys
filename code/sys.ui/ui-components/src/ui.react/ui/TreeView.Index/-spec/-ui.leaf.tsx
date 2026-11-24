@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Color, css, ObjectView } from './common.ts';
+import { Color, css, Dev, type t } from './common.ts';
 
 export type LeafPanelProps = {
   args: t.IndexTreeViewLeafRendererArgs;
@@ -46,7 +46,7 @@ export const LeafPanel: React.FC<LeafPanelProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.body.class}>
         <div>{`🌳 Leaf Panel`}</div>
-        <ObjectView
+        <Dev.ObjectView
           theme={theme.name}
           name={'t.LeafRendererArgs'}
           data={props.args}

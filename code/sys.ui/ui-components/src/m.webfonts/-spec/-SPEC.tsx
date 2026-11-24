@@ -1,6 +1,6 @@
-import { Harness, Signal, Spec } from '../../ui.react/-test.ui.ts';
+import { Harness, Spec } from '../../ui.react/-test.ui.ts';
 import { D } from './common.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Root } from './-SPEC.ui.Root.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -10,18 +10,16 @@ export default Spec.describe(D.displayName, (e) => {
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
 
-    function update() {
-      debug.listen();
-      ctx.redraw();
-    }
-
-    Signal.effect(update);
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-
-    ctx.subject
-      .size([640, null])
-      .display('grid')
-      .render(() => <Root debug={debug} />);
+    debug.attach(ctx, {
+      subject: { size: [640, null], display: 'grid', render: () => <Root debug={debug} /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
   });
 
   e.it('ui:debug', (e) => {

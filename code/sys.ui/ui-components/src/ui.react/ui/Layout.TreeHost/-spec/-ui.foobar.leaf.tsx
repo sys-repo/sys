@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, Style, Color, css, ObjectView } from './common.ts';
+import { Color, css, Dev, Style, type t } from './common.ts';
 
 export type FooLeafProps = {
   title?: string;
@@ -45,7 +45,7 @@ export const FooLeaf: React.FC<FooLeafProps> = (props) => {
         <div>
           {'🌳'} {props.title ?? `Leaf Panel`}
         </div>
-        <ObjectView
+        <Dev.ObjectView
           theme={theme.name}
           name={'t.TreeHostLeaf'}
           data={{ path: props.path, node: props.node }}

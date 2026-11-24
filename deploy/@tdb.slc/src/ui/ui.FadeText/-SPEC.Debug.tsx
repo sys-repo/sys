@@ -1,6 +1,6 @@
 import React from 'react';
 import { Lorem } from '../-test.ui.ts';
-import { type t, Button, css, D, Signal } from './common.ts';
+import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.FadeTextProps;
 
@@ -59,26 +59,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'FadeText'}</div>
       </div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `duration: ${p.duration.value ?? `<undefined> (${D.duration})`}`}
         onClick={() => Signal.cycle(p.duration, [100, 300, D.duration, 1500, undefined])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `text: <undefined>`}
         onClick={() => {
           p.text.value = undefined;
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const value = p.text.value;
@@ -89,7 +89,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           p.text.value = Lorem.text.split(' ')[index];
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `text: multi-line`}
         onClick={() => {

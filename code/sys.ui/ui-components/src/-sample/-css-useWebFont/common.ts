@@ -1,5 +1,6 @@
-import { pkg, Pkg } from '../-test.ui.ts';
+import { Pkg, pkg } from '../-test.ui.ts';
 export * from '../-test.ui.ts';
+export { Dev } from '../common.ts';
 
 /**
  * Constants:

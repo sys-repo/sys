@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, Color, css, D, LocalStorage, Obj, pkg, Signal } from './common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, pkg, Signal, type t } from './common.ts';
 
 const PkgFlags = ['not-specified', '@sys/ui-components', 'custom'] as const;
 
@@ -38,17 +38,17 @@ export async function createDebugSignals() {
     keyboardEnabled: s(snap.keyboardEnabled),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-    get pkg(): P['pkg'] {
-      const v = p.pkg.value;
-      if (v === 'not-specified') return;
-      if (v === '@sys/ui-components') return pkg;
-      if (v === 'custom') return { name: '@scope/my-package', version: '0.1.2' };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.pkg = p.pkg.value;
+        d.qs = p.qs.value;
+        d.keyboardEnabled = p.keyboardEnabled.value;
+      });
     },
-  };
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -58,17 +58,18 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.pkg = p.pkg.value;
-      d.qs = p.qs.value;
-      d.keyboardEnabled = p.keyboardEnabled.value;
-    });
-  });
-
-  return api;
+  return {
+    props,
+    listen,
+    reset,
+    attach,
+    get pkg(): P['pkg'] {
+      const v = p.pkg.value;
+      if (v === 'not-specified') return;
+      if (v === '@sys/ui-components') return pkg;
+      if (v === 'custom') return { name: '@scope/my-package', version: '0.1.2' };
+    },
+  };
 }
 
 const Styles = {
@@ -103,31 +104,31 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `pkg: ${p.pkg.value}`}
         onClick={() => Signal.cycle(p.pkg, PkgFlags)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `qs: ${p.qs.value ?? `(undefined) ← default: ${D.qs}`}`}
         onClick={() => Signal.cycle(p.qs, [undefined, 'foo', '?bar'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `keyboardEnabled: ${p.keyboardEnabled.value}`}
         onClick={() => Signal.toggle(p.keyboardEnabled)}
       />
 
       <hr />
-      <Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button block label={() => `(reset)`} onClick={debug.reset} />
-      <ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
+      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

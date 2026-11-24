@@ -30,6 +30,8 @@ export type StartCellArgs = {
 export type StartCellRenderOptions = {
   /** Optional viewport width for responsive terminal presentation. */
   width?: number;
+  /** Physical body rows available after the screen reserves header and summary. */
+  maxRows?: number;
   /** Whether final eligible service labels should use OSC 8 hyperlinks. */
   hyperlinks?: boolean;
 };
@@ -60,6 +62,7 @@ export function loadStartCell(dir?: string): Promise<t.Cell.Instance> {
 export async function startCell(
   cell: t.Cell.Instance,
   args: StartCellArgs = {},
+  deps: { createSession?: typeof CellSession.create } = {},
 ): Promise<StartCellResult> {
   const mode = args.mode ?? 'default';
   const shutdown = args.shutdown ?? createShutdownSignal();
@@ -73,7 +76,7 @@ export async function startCell(
   try {
     const sessionRoot = await canonicalRoot(cell.root);
     const plan = await Cell.Services.plan(cell, { mode });
-    session = await CellSession.create({
+    session = await (deps.createSession ?? CellSession.create)({
       root: sessionRoot,
       mode,
       pid: Deno.pid,
@@ -87,20 +90,19 @@ export async function startCell(
 
     args.onStarting?.(plan.services.length);
     started = await Cell.start(cell, { until: shutdown.signal, mode });
+    // Own service rejection before publishing readiness yields to filesystem I/O. Preserve the
+    // exact cause, but defer terminal arbitration so ready-boundary presentation keeps priority.
+    const servicesDone: Promise<ServiceOutcome> = Cell.Services.wait(started).then(
+      () => ({ kind: 'services', ok: true }),
+      (cause: unknown) => ({ kind: 'services', ok: false, cause }),
+    );
     await session.ready();
 
     const services = Fmt.Services.capture(started.services);
-    const terminal = Cli.Is.terminal('stdout');
-    const render = (options: StartCellRenderOptions = {}) => {
-      const { hyperlinks } = options;
-      const renderServices = (width: number | undefined) => {
-        return Fmt.Services.started({ services, width, terminal: false, hyperlinks });
-      };
-      return formatStartServiceBody(renderServices, options.width, terminal);
-    };
-    serviceText = render();
-    const completion = waitForStartOutcome(started, shutdown);
-    if (shutdown.reason === undefined) args.onReady?.({ text: serviceText, render });
+    const ready = startCellReady(services, Cli.Is.terminal('stdout'));
+    serviceText = ready.text;
+    const completion = waitForStartOutcome(servicesDone, shutdown);
+    if (shutdown.reason === undefined) args.onReady?.(ready);
 
     const outcome = await completion;
 
@@ -166,25 +168,22 @@ type StartOutcome =
   | { readonly kind: 'services'; readonly ok: true }
   | { readonly kind: 'services'; readonly ok: false; readonly cause: unknown };
 
+type ServiceOutcome = Extract<StartOutcome, { kind: 'services' }>;
+
 type CleanupResult =
   | { readonly ok: true }
   | { readonly ok: false; readonly cause: unknown };
 
 /** Resolves the first shutdown or service outcome admitted by the shared terminal latch. */
 function waitForStartOutcome(
-  started: t.Cell.Services.Started,
+  services: Promise<ServiceOutcome>,
   shutdown: ShutdownSignal,
 ): Promise<StartOutcome> {
   return new Promise<StartOutcome>((resolve) => {
     void shutdown.done.then((reason) => resolve({ kind: 'shutdown', reason }));
-    void Cell.Services.wait(started).then(
-      () => {
-        if (shutdown.seal()) resolve({ kind: 'services', ok: true });
-      },
-      (cause) => {
-        if (shutdown.seal()) resolve({ kind: 'services', ok: false, cause });
-      },
-    );
+    void services.then((outcome) => {
+      if (shutdown.seal()) resolve(outcome);
+    });
   });
 }
 
@@ -228,31 +227,51 @@ export function startServicesText(
   return `${text}${elapsedSuffix({ startedAt, now })}`;
 }
 
+type StartPresentation = {
+  readonly title: t.CellCli.Start.Identity['name'];
+  readonly pkg?: Readonly<t.Pkg>;
+  readonly versionLink?: 'jsr';
+};
+
 /** Resolves descriptor identity and caller-owned package provenance without ambient discovery. */
-export function resolveStartIdentity(
+export function resolveStartPresentation(
   descriptor: t.Cell.Descriptor,
-  callerPkg?: t.Pkg,
-): t.CellCli.Start.Identity | undefined {
-  const pkg = realCallerPkg(callerPkg);
-  const name = descriptor.name ?? pkg?.name;
-  if (!name) return undefined;
-  return {
-    name,
-    ...(pkg ? { version: pkg.version } : {}),
-  };
+  input: Pick<t.CellCli.Input, 'pkg' | 'versionLink'>,
+): StartPresentation | undefined {
+  const pkg = snapshotCallerPkg(input.pkg);
+  const title = descriptor.name ?? pkg?.name;
+  if (!title) return undefined;
+  return { title, pkg, versionLink: input.versionLink };
 }
 
 export function formatStartHeader(
-  identity?: t.CellCli.Start.Identity,
+  presentation?: StartPresentation,
   width?: number,
+  link = false,
 ): string {
-  if (!identity) return '';
+  if (!presentation) return '';
+  const { title, pkg, versionLink } = presentation;
+  const version = pkg ? Cli.Fmt.jsrVersion(pkg, { link: link && versionLink === 'jsr' }) : false;
   return Cli.Fmt.Header.rows({
-    title: identity.name,
-    version: identity.version ?? false,
+    title,
+    version,
     tone: 'green',
     width,
   }).join('\n');
+}
+
+/** Keep result text unabridged; only an interactive repaint supplies a row limit. */
+export function startCellReady(
+  services: ReturnType<typeof Fmt.Services.capture>,
+  terminal: boolean,
+): StartCellReady {
+  const render: StartCellReady['render'] = ({ width: frameWidth, maxRows, hyperlinks } = {}) => {
+    const body = (width?: number) => {
+      return Fmt.Services.started({ services, width, maxRows, hyperlinks, terminal: false });
+    };
+    return formatStartServiceBody(body, frameWidth, terminal);
+  };
+  return { text: render(), render };
 }
 
 /**
@@ -288,31 +307,34 @@ export function formatStartResult(res: StartCellResult): string {
   return Str.trimEdgeNewlines(String(table));
 }
 
-export function formatStartOutput(
-  res: StartCellResult,
-  identity?: t.CellCli.Start.Identity,
-): string {
-  const header = formatStartHeader(identity);
+function formatStartOutput(res: StartCellResult, presentation?: StartPresentation): string {
+  const header = formatStartHeader(presentation);
   const summary = formatStartResult(res);
   return [header, res.serviceText, summary].filter(Boolean).join('\n\n');
 }
 
-function realCallerPkg(input?: t.Pkg): t.Pkg | undefined {
+function snapshotCallerPkg(input?: t.Pkg): Readonly<t.Pkg> | undefined {
   if (!Pkg.Is.pkg(input)) return undefined;
-  if (!input.name || input.name !== input.name.trim()) return undefined;
-  if (!input.version || input.version !== input.version.trim()) return undefined;
-  return Pkg.Is.unknown(input) ? undefined : input;
+  const { name, version } = input;
+  if (!name || name !== name.trim()) return undefined;
+  if (!version || version !== version.trim()) return undefined;
+  const pkg = { name, version };
+  return Pkg.Is.unknown(pkg) ? undefined : pkg;
 }
 
 export function toStartResult(
   input: t.CellCli.Input,
   res: StartCellResult,
-  identity?: t.CellCli.Start.Identity,
+  presentation?: StartPresentation,
 ): t.CellCli.Start.Result {
+  const identity = presentation && {
+    name: presentation.title,
+    ...(presentation.pkg ? { version: presentation.pkg.version } : {}),
+  };
   return {
     kind: 'start',
     input,
-    text: formatStartOutput(res, identity),
+    text: formatStartOutput(res, presentation),
     root: res.root,
     services: res.services,
     ...(identity ? { identity } : {}),

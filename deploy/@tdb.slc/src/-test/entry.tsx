@@ -10,7 +10,7 @@ import { WarmVideo } from '../ui.content/ui/m.VideoWarmup.ts';
  * Service Worker:
  */
 if ('serviceWorker' in navigator && !location.hostname.startsWith('localhost')) {
-  window.addEventListener('load', () => {
+  globalThis.addEventListener('load', () => {
     const pathname = location.pathname.endsWith('/') ? location.pathname : `${location.pathname}/`;
     const sw = `${pathname}sw.js`;
     navigator.serviceWorker

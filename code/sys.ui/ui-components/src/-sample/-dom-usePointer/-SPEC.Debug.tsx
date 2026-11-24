@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, css, ObjectView, Signal } from '../-test.ui.ts';
+import { Spec } from '../-test.ui.ts';
+import { css, Dev, Signal, type t } from '../common.ts';
 
 /**
  * Types:
@@ -17,12 +18,13 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     dragdrop: s<t.PointerDragdropSnapshot>(),
     drag: s<t.PointerDragSnapshot>(),
   };
-  const api = {
-    props,
-    listen() {
-      Signal.listen(props);
-    },
-  };
+  const { attach } = Spec.attachments();
+  const api = { props, listen, attach };
+
+  function listen() {
+    Signal.listen(props);
+  }
+
   init?.(api);
   return api;
 }
@@ -56,7 +58,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{'Hook'}</div>
       </div>
       <hr />
-      <ObjectView
+      <Dev.ObjectView
         name={'pointer.is'}
         data={Signal.toObject(p.pointerIs)}
         expand={{ level: 1 }}
@@ -64,7 +66,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
       <hr />
       {!!p.drag.value && (
-        <ObjectView
+        <Dev.ObjectView
           name={'drag'}
           data={Signal.toObject(p.drag)}
           expand={{ level: 1, paths: ['$.client'] }}
@@ -72,13 +74,14 @@ export const Debug: React.FC<DebugProps> = (props) => {
         />
       )}
       {!!p.dragdrop.value && (
-        <ObjectView
+        <Dev.ObjectView
           name={'dragdrop'}
           data={Signal.toObject(p.dragdrop)}
           expand={{ level: 1, paths: ['$.client'] }}
           style={{ MarginY: 15 }}
         />
-      )}{' '}
+      )}
+      {' '}
     </div>
   );
 };

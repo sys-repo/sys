@@ -172,6 +172,7 @@ sections:
       - local service adapter → keep adapter code under the Cell root, typically `./-services/*.ts`
       - use owner config affordance when available
       - then record `services[]` with `name`, `use`, `from`, and `config`
+      - change service startup prerequisites → read `dsl service`
       - add service mode → update the named service's `variants.<mode>` with a complete binding
       - |-
           service variants → record `use`, `from`, and `config`; do not write partial

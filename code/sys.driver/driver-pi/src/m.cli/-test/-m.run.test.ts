@@ -1,8 +1,10 @@
-import { describe, expect, it } from '../../-test.ts';
-import { Fs, Process as ProcessOwner, type t } from '../common.ts';
+import { describe, expect, expectError, it } from '../../-test.ts';
+import { Fs, Is, Process as ProcessOwner, Str, type t } from '../common.ts';
 import { Raw as RawOwner } from '../m.raw/mod.ts';
 import { withInherit } from '../u/u.inherit.ts';
-import { PI_AGENT_IMPORT } from '../u/u.resolve.pkg.ts';
+import { PI_AGENT_IMPORT, PI_AGENT_IMPORT_BASE } from '../u/u.resolve.pkg.ts';
+import { PiArgs } from '../u/u.args.ts';
+import { writePreload } from '../u/u.preload.ts';
 
 const Process = { ...ProcessOwner };
 const Raw = {
@@ -71,6 +73,279 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
     }
   });
 
+  it('manifest changes → launch the selected executable with preload support', async () => {
+    await using fixture = await preloadFixture();
+    // Independent fixture releases, not a list of supported or historically broken versions.
+    for (const version of ['0.0.1-fixture.1', '0.0.2-fixture.2']) {
+      const pkg = `${PI_AGENT_IMPORT_BASE}@${version}`;
+      const manifest = Str.dedent(`
+        deno.json:
+          - import: ${pkg}
+      `);
+      await Fs.write(Fs.join(fixture.root, 'deps.yaml'), manifest, { throw: true });
+      await withInherit(async ({ args }) => {
+        const main = args.indexOf(pkg);
+        expect(main, 'manifest-selected executable').to.be.greaterThan(0);
+        const flags = args.slice(0, main).filter((arg) => arg.startsWith('--preload='));
+        expect(flags).to.have.length(1);
+        expect(args[main - 1]).to.eql(flags[0]);
+        const path = flags[0].slice('--preload='.length);
+        expect(await Fs.exists(path)).to.eql(true);
+        expect(await Fs.exists(Fs.join(Fs.dirname(path), 'facade.mjs'))).to.eql(true);
+        return { code: 0, success: true, signal: null };
+      }, () => RawOwner.run({ cwd: { invoked: fixture.root, root: fixture.root } }));
+      expect(await preloadDirs(fixture.root)).to.eql([]);
+    }
+  });
+
+  it('preload → foreign packages neither materialize nor inject', async () => {
+    await using fixture = await preloadFixture();
+    const absent = Fs.join(fixture.root, 'absent');
+    for (
+      const pkg of [
+        `${PI_AGENT_IMPORT_BASE}-other`, // A shared name prefix is not package identity.
+        'npm:@other/pi-coding-agent',
+        './cli.mjs',
+      ]
+    ) {
+      expect(await writePreload(absent, pkg)).to.eql(undefined);
+      expect(await Fs.exists(absent)).to.eql(false);
+      await withInherit(({ args }) => {
+        expect(args.some((arg) => arg.startsWith('--preload'))).to.eql(false);
+        expect(args).to.include(pkg);
+        return Promise.resolve({ code: 0, success: true, signal: null });
+      }, () => RawOwner.run({ cwd: { invoked: fixture.root, root: fixture.root }, pkg }));
+      expect(await preloadDirs(fixture.root)).to.eql([]);
+    }
+  });
+
+  it('preload → exists until settlement, then cleans success, nonzero and signal exits', async () => {
+    await using fixture = await preloadFixture();
+    for (
+      const status of [
+        { code: 0, success: true, signal: null },
+        { code: 7, success: false, signal: null },
+        { code: 130, success: false, signal: 'SIGINT' as const },
+      ]
+    ) {
+      const entered = Promise.withResolvers<string>();
+      const exit = Promise.withResolvers<typeof status>();
+      const launch = withInherit(async ({ args }) => {
+        try {
+          const main = args.indexOf(PI_AGENT_IMPORT);
+          const flags = args.slice(0, main).filter((arg) => arg.startsWith('--preload'));
+          expect(flags).to.have.length(1);
+          const path = flags[0].slice('--preload='.length);
+          const dir = Fs.dirname(path);
+          expect(Fs.dirname(dir)).to.eql(PiArgs.toTmpDir(fixture.root));
+          expect(args[main - 1]).to.eql(`--preload=${path}`);
+          expect(args.slice(main + 1)).to.include('--preload=pi-passthrough');
+          expect(await Fs.exists(path)).to.eql(true);
+          expect(await Fs.exists(Fs.join(dir, 'facade.mjs'))).to.eql(true);
+          entered.resolve(dir);
+          return await exit.promise;
+        } catch (error) {
+          entered.reject(error);
+          throw error;
+        }
+      }, () =>
+        RawOwner.run({
+          cwd: { invoked: fixture.root, root: fixture.root },
+          pkg: PI_AGENT_IMPORT,
+          args: ['--preload=pi-passthrough'],
+        }));
+      void launch.catch(entered.reject);
+      try {
+        const dir = await entered.promise;
+        expect(await Fs.exists(dir)).to.eql(true);
+        exit.resolve(status);
+        expect(await launch).to.equal(status);
+        expect(await Fs.exists(dir)).to.eql(false);
+        expect(await preloadDirs(fixture.root)).to.eql([]);
+      } finally {
+        exit.resolve(status);
+        await launch.catch(() => {});
+      }
+    }
+  });
+
+  it('preload → checked first/second write failures clean partial artifacts before spawn', async () => {
+    await using fixture = await preloadFixture();
+    // Inject below Fs.write: its checked-write propagation is part of this proof.
+    const write = Deno.writeTextFile;
+    for (const failAt of [1, 2]) {
+      let writes = 0;
+      let launches = 0;
+      const failure = new Error(`preload write ${failAt}`);
+      Deno.writeTextFile = (path, data, options) => {
+        if (Is.string(path) && /pi-preload\.[^/]+\/(facade|preload)\.mjs$/.test(path)) {
+          if (++writes === failAt) return Promise.reject(failure);
+        }
+        return write(path, data, options);
+      };
+      try {
+        const error = await expectError(() =>
+          withInherit(() => {
+            launches++;
+            return Promise.resolve({ code: 0, success: true, signal: null });
+          }, () =>
+            RawOwner.run({
+              cwd: { invoked: fixture.root, root: fixture.root },
+              pkg: PI_AGENT_IMPORT,
+            }))
+        );
+        expect(error).to.equal(failure);
+        expect(writes).to.eql(failAt);
+        expect(launches).to.eql(0);
+        expect(await preloadDirs(fixture.root)).to.eql([]);
+      } finally {
+        Deno.writeTextFile = write;
+      }
+    }
+  });
+
+  it('preload → argument rejection cleans before spawn and preserves the original error', async () => {
+    await using fixture = await preloadFixture();
+    const owner = PiArgs as { toArgs: typeof PiArgs.toArgs };
+    const toArgs = owner.toArgs;
+    const failure = new Error('argument construction');
+    let launches = 0;
+    owner.toArgs = async () => {
+      expect(await preloadDirs(fixture.root)).to.have.length(1);
+      throw failure;
+    };
+    try {
+      const error = await expectError(() =>
+        withInherit(() => {
+          launches++;
+          return Promise.resolve({ code: 0, success: true, signal: null });
+        }, () =>
+          RawOwner.run({
+            cwd: { invoked: fixture.root, root: fixture.root },
+            pkg: PI_AGENT_IMPORT,
+          }))
+      );
+      expect(error).to.equal(failure);
+      expect(launches).to.eql(0);
+      expect(await preloadDirs(fixture.root)).to.eql([]);
+    } finally {
+      owner.toArgs = toArgs;
+    }
+  });
+
+  it('preload → uncertain launch/status rejection retains and reports artifacts', async () => {
+    await using fixture = await preloadFixture();
+    const info = console.info;
+    const messages: unknown[][] = [];
+    const failure = new Error('uncertain settlement');
+    let dir = '';
+    console.info = (...args) => messages.push(args);
+    try {
+      const error = await expectError(() =>
+        withInherit(({ args }) => {
+          dir = Fs.dirname(findArg(args, '--preload=').slice('--preload='.length));
+          return Promise.reject(failure);
+        }, () =>
+          RawOwner.run({
+            cwd: { invoked: fixture.root, root: fixture.root },
+            pkg: PI_AGENT_IMPORT,
+          }))
+      );
+      expect(error).to.equal(failure);
+      expect(await Fs.exists(Fs.join(dir, 'preload.mjs'))).to.eql(true);
+      expect(await Fs.exists(Fs.join(dir, 'facade.mjs'))).to.eql(true);
+      expect(messages).to.eql([[`Pi launch/status failed; preload retained at: ${dir}`]]);
+    } finally {
+      console.info = info;
+    }
+  });
+
+  it('preload → cleanup failure reports residue without replacing error or exit status', async () => {
+    await using fixture = await preloadFixture();
+    const remove = Deno.remove;
+    const write = Deno.writeTextFile;
+    const info = console.info;
+    const messages: unknown[][] = [];
+    const cleanup = new Error('cleanup failure');
+    const materialize = new Error('materialization failure');
+    console.info = (...args) => messages.push(args);
+    Deno.remove = (path, options) => {
+      if (Is.string(path) && Fs.basename(path).startsWith('pi-preload.')) {
+        return Promise.reject(cleanup);
+      }
+      return remove(path, options);
+    };
+    try {
+      const status = { code: 7, success: false, signal: null };
+      const result = await withInherit(() => Promise.resolve(status), () =>
+        RawOwner.run({
+          cwd: { invoked: fixture.root, root: fixture.root },
+          pkg: PI_AGENT_IMPORT,
+        }));
+      expect(result).to.equal(status);
+      Deno.writeTextFile = (path, data, options) => {
+        if (Is.string(path) && Fs.basename(path) === 'preload.mjs') {
+          return Promise.reject(materialize);
+        }
+        return write(path, data, options);
+      };
+      expect(await expectError(() => writePreload(PiArgs.toTmpDir(fixture.root), PI_AGENT_IMPORT)))
+        .to.equal(materialize);
+      const dirs = await preloadDirs(fixture.root);
+      expect(dirs).to.have.length(2);
+      expect(messages).to.have.length(2);
+      for (const dir of dirs) {
+        expect(
+          messages.some(([message, error]) =>
+            message === `Could not remove Pi preload directory: ${dir}` && error === cleanup
+          ),
+        ).to.eql(true);
+      }
+    } finally {
+      Deno.remove = remove;
+      Deno.writeTextFile = write;
+      console.info = info;
+    }
+  });
+
+  it('preload → concurrent launches own distinct directories and independent cleanup', async () => {
+    await using fixture = await preloadFixture();
+    const status = { code: 0, success: true, signal: null };
+    const start = () => {
+      const entered = Promise.withResolvers<string>();
+      const exit = Promise.withResolvers<typeof status>();
+      const launch = withInherit(async ({ args }) => {
+        entered.resolve(Fs.dirname(findArg(args, '--preload=').slice('--preload='.length)));
+        return await exit.promise;
+      }, () =>
+        RawOwner.run({
+          cwd: { invoked: fixture.root, root: fixture.root },
+          pkg: PI_AGENT_IMPORT,
+        }));
+      void launch.catch(entered.reject);
+      return { entered: entered.promise, exit, launch };
+    };
+    const left = start();
+    const right = start();
+    try {
+      const [a, b] = await Promise.all([left.entered, right.entered]);
+      expect(a).not.to.eql(b);
+      expect(await Fs.exists(a)).to.eql(true);
+      expect(await Fs.exists(b)).to.eql(true);
+      left.exit.resolve(status);
+      await left.launch;
+      expect(await Fs.exists(a)).to.eql(false);
+      expect(await Fs.exists(b)).to.eql(true);
+      right.exit.resolve(status);
+      await right.launch;
+      expect(await Fs.exists(b)).to.eql(false);
+    } finally {
+      left.exit.resolve(status);
+      right.exit.resolve(status);
+      await Promise.allSettled([left.launch, right.launch]);
+    }
+  });
+
   it('run → grants narrow project-trust probes for git-rooted scoped launches', async () => {
     const prev = Process.inherit;
     const fixture = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
@@ -79,12 +354,12 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
     const parent = Fs.dirname(cwd) as t.StringDir;
     try {
       await Fs.ensureDir(Fs.join(cwd, '.git'));
-      Process.inherit = async (input) => {
+      Process.inherit = (input) => {
         const read = findPathScope(input.args, '--allow-read=');
         expect(read).to.include(Fs.join(parent, '.agents', 'skills'));
         expect(read).not.to.include(Fs.join(parent, '.git'));
         expect(read).not.to.include(parent);
-        return { code: 0, success: true, signal: null };
+        return Promise.resolve({ code: 0, success: true, signal: null });
       };
 
       const res = await Raw.run({ cwd: { invoked: cwd, git: cwd } });
@@ -103,13 +378,13 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
     const parent = Fs.dirname(cwd) as t.StringDir;
     try {
       await Fs.ensureDir(cwd);
-      Process.inherit = async (input) => {
+      Process.inherit = (input) => {
         const read = findPathScope(input.args, '--allow-read=');
         expect(read).to.include(cwd);
         expect(read).to.include(Fs.join(parent, '.git'));
         expect(read).to.include(Fs.join(parent, '.agents', 'skills'));
         expect(read).not.to.include(parent);
-        return { code: 0, success: true, signal: null };
+        return Promise.resolve({ code: 0, success: true, signal: null });
       };
 
       const res = await Raw.run({ cwd: { invoked: cwd, root: cwd } });
@@ -208,11 +483,11 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
       .absolute as t.StringDir;
     try {
-      Process.inherit = async (input) => {
+      Process.inherit = (input) => {
         const writeArg = findArg(input.args, '--allow-write=');
         expect(writeArg).to.contain(cwd);
         expect(writeArg).to.contain('/tmp/pi-cli-extra-write');
-        return { code: 0, success: true, signal: null };
+        return Promise.resolve({ code: 0, success: true, signal: null });
       };
 
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -232,12 +507,12 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
     const cwd = (await Fs.makeTempDir({ prefix: 'driver-pi.run.test.' }))
       .absolute as t.StringDir;
     try {
-      Process.inherit = async (input) => {
+      Process.inherit = (input) => {
         expect(input.args).to.include('--allow-all');
         expect(input.args.some((arg) => arg.startsWith('--allow-read='))).to.eql(false);
         expect(input.args.some((arg) => arg.startsWith('--allow-write='))).to.eql(false);
         expect(input.args.some((arg) => arg.startsWith('--allow-ffi='))).to.eql(false);
-        return { code: 0, success: true, signal: null };
+        return Promise.resolve({ code: 0, success: true, signal: null });
       };
 
       await Fs.ensureDir(Fs.join(cwd, '.git'));
@@ -249,6 +524,23 @@ describe(`@sys/driver-pi/cli/raw/m.run`, () => {
     }
   });
 });
+
+async function preloadFixture() {
+  const root = (await Fs.makeTempDir({ prefix: 'driver-pi.preload.test.' })).absolute;
+  return {
+    root,
+    async [Symbol.asyncDispose]() {
+      await Fs.remove(root);
+    },
+  };
+}
+
+async function preloadDirs(root: string) {
+  const dir = PiArgs.toTmpDir(root);
+  if (!await Fs.exists(dir)) return [];
+  const entries = await Fs.glob(dir).find('pi-preload.*', { includeDirs: true });
+  return entries.map((entry) => entry.path);
+}
 
 function findArg(args: readonly string[], prefix: string) {
   const value = args.find((arg) => arg.startsWith(prefix));

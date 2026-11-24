@@ -1,14 +1,11 @@
 import { Hash } from '@sys/crypto/hash';
-import type { t } from '../common.ts';
+import type { VerifyChecksum } from './t.ts';
 
 const STATUS = 412;
 const STATUS_TEXT = 'Pre-condition failed (checksum-mismatch)';
 
-export function verifyChecksum<T>(
-  data: T | undefined,
-  expected: t.StringHash,
-  errors: t.ErrorCollection,
-): t.HttpFetch.ResponseChecksum {
+/** Verify fetched content through the private checksum contract. */
+export const verifyChecksum: VerifyChecksum = (data, expected, errors) => {
   const received = Hash.sha256(data);
   const valid = received === expected;
 
@@ -20,4 +17,4 @@ export function verifyChecksum<T>(
   }
 
   return { valid, expected, received };
-}
+};

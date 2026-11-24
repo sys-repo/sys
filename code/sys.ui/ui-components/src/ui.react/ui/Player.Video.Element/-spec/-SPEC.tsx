@@ -1,9 +1,7 @@
-import React from 'react';
-
 import { InfoPanel } from '../-dev/mod.ts';
 import { Color, css, Harness, Signal, Spec } from '../../-test.ui.ts';
 import { Player } from '../../Player/m.Player.ts';
-import { type t, D } from '../common.ts';
+import { D, type t } from '../common.ts';
 import { useFileSize, VideoElement } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
@@ -67,8 +65,9 @@ export default Spec.describe(D.displayName, (e) => {
     );
   }
 
-  function Root(props: { children?: React.ReactNode }) {
+  function Root(props: { controlled?: boolean }) {
     const src = useFileSize(debug.src);
+    const elVideo = props.controlled ? <ControlledSubject /> : <UncontrolledSubject />;
 
     const theme = Color.theme('Dark');
     const styles = {
@@ -105,7 +104,7 @@ export default Spec.describe(D.displayName, (e) => {
 
     return (
       <>
-        {props.children}
+        {elVideo}
         {elInfoPanel}
       </>
     );
@@ -113,17 +112,15 @@ export default Spec.describe(D.displayName, (e) => {
 
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
-    });
-
-    ctx.subject.display('grid').render(() => {
-      const controlled = p.controlled.value;
-      const el = controlled ? <ControlledSubject /> : <UncontrolledSubject />;
-      return <Root>{el}</Root>;
+    debug.attach(ctx, {
+      subject: { display: 'grid', render: () => <Root controlled={p.controlled.value} /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
   });
 

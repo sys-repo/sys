@@ -153,6 +153,12 @@ describe('driver-pi/scripts/-prep', () => {
     }
   });
 
+  it('pinPiAgentImport preserves build metadata in an explicit pin', () => {
+    const version = '1.2.3+build.007';
+    const specifier = `${PI_AGENT_IMPORT_BASE}@${version}`;
+    expect(pinPiAgentImport(resolverSource(), specifier)).to.eql(resolverSource(version));
+  });
+
   it('pinPiAgentImport is idempotent when already pinned to target version', () => {
     const source = resolverSource(NEXT_VERSION);
     const res = pinPiAgentImport(source, NEXT_SPEC);

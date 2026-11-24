@@ -1,6 +1,6 @@
 import React from 'react';
 import { createUiRepo } from '../../-test.ui.ts';
-import { type t, Button, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.YamlEditorFooterProps;
 type Storage = Pick<P, 'theme' | 'debug' | 'visible' | 'path'> & {
@@ -21,7 +21,8 @@ const SAMPLE = {
     {
       name: 'YAMLParseError',
       code: 'BAD_SCALAR_START',
-      message: `Plain value cannot start with reserved character @ at line 2, column 6:\n\nfoo: @foo\n     ^\n`,
+      message:
+        `Plain value cannot start with reserved character @ at line 2, column 6:\n\nfoo: @foo\n     ^\n`,
       pos: [6, 7],
       linePos: [
         { line: 2, col: 6 },
@@ -111,24 +112,24 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `visible: ${p.visible.value ?? `<undefined> (default: ${D.visible})`}`}
         onClick={() => Signal.toggle(p.visible)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `path: ${p.path.value ?? `<undefined>`}`}
         onClick={() => Signal.cycle(p.path, [['foo'], ['foo', 'bar', 0], undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.errors.value;
@@ -138,29 +139,34 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `crdt.repo: ${p.crdt.repo.value ? '(passing)' : '(not passed)'}`}
         onClick={() => Signal.toggle(p.crdt.repo)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `crdt.visible: ${p.crdt.visible.value}`}
         onClick={() => Signal.toggle(p.crdt.visible)}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `(reset)`}
         onClick={() => Signal.walk(p, (e) => e.mutate(Obj.Path.get<any>(defaults, e.path)))}
       />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 10 }}
+      />
     </div>
   );
 };

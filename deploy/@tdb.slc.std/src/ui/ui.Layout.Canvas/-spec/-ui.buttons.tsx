@@ -1,17 +1,7 @@
 import type { DebugSignals } from './-SPEC.Debug.tsx';
 
 import React from 'react';
-import {
-  type t,
-  Button,
-  CanvasPanel,
-  css,
-  D,
-  LocalStorage,
-  Obj,
-  ObjectView,
-  Signal,
-} from '../common.ts';
+import { CanvasPanel, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 /**
  * Dev Helpers:
@@ -30,7 +20,7 @@ export function SampleButtons(props: { debug: DebugSignals }) {
 
   const sample = (label: string, fn?: () => t.CanvasPanelContentMap | undefined) => {
     const btn = (
-      <Button
+      <Dev.Button
         block
         key={elements.length}
         label={() => label}

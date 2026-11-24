@@ -51,6 +51,13 @@ describe('CellHelp.Dsl', () => {
     });
   });
 
+  it('bundled service DSL distinguishes independent starts from declared prerequisites', async () => {
+    const chapter = await CellHelp.Dsl.load(['service']);
+    const text = chapter.sections.flatMap((section) => section.items).join('\n');
+    expect(text).to.include('Omit `startAfter` for independent services');
+    expect(text).to.include("startAfter: ['view', 'fixture']");
+  });
+
   it('loads child DSL chapters by path', async () => {
     const root = await CellHelp.Dsl.load();
 

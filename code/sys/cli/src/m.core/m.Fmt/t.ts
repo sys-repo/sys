@@ -30,6 +30,12 @@ export declare namespace CliFormat {
     /** Horizontal rule display formatting. */
     hr: Hr.Fn;
 
+    /**
+     * Link an exact version of a JSR package when requested, without checking publication.
+     * Underlining follows ANSI styling. Ineligible versions stay plain; unsafe text becomes `invalid version`.
+     */
+    readonly jsrVersion: (release: Readonly<t.Pkg>, options: { link: boolean }) => string;
+
     /** OSC 8 terminal hyperlink formatting. */
     hyperlink: Hyperlink.Fn;
 
@@ -159,13 +165,19 @@ export declare namespace CliFormat {
       urlDisplay?: ServiceUrl.Parts.Options;
     };
 
-    /** Terminal width and automatic URL links; links in custom detail values are unchanged. */
+    /** Service layout limits and automatic URL links; links in custom detail values are unchanged. */
     export type Options = {
       /**
        * Override terminal width in cells. Rounded down; non-finite values or results outside
        * 1..65,535 render nothing.
        */
       width?: number;
+      /**
+       * Limit physical output rows, retaining service titles before URLs and other details.
+       * Omit for full output. Fractions round down; negative or non-finite limits show no rows.
+       * Hidden rows still undergo normal formatting and validation.
+       */
+      maxRows?: number;
       /** Override stdout terminal detection. Without width, non-terminal output has no width limit. */
       terminal?: boolean;
       /**

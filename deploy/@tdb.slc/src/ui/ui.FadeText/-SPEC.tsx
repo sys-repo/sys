@@ -18,9 +18,9 @@ export default Spec.describe('FadeText', (e) => {
     ctx.subject
       .size([390, 200])
       .display('grid')
-      .render((e) => (
-        <FadeText theme={p.theme.value} duration={p.duration.value} text={p.text.value} />
-      ));
+      .render(() => {
+        return <FadeText theme={p.theme.value} duration={p.duration.value} text={p.text.value} />;
+      });
   });
 
   e.it('ui:debug', (e) => {

@@ -52,7 +52,7 @@ describe('Vite external-fixture lifecycle under local equivalent authority', () 
   it('proves the in-process build lifecycle completes with strict sanitizers', async () => {
     const result = await runFixtureProcess({
       label: 'Vite strict in-process build fixture',
-      args: ['test', '-P=test', '--trace-leaks', STRICT_FIXTURE],
+      args: ['test', '-A', '--trace-leaks', STRICT_FIXTURE],
       cwd: PACKAGE_DIR,
       marker: MARKERS.ready,
       startupTimeout: 20_000,

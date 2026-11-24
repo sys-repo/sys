@@ -19,7 +19,7 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
   if (globalThis.document.readyState === 'complete') {
     void registerSw();
   } else {
-    window.addEventListener('load', registerSw, { once: true });
+    globalThis.addEventListener('load', registerSw, { once: true });
   }
 }
 
@@ -49,6 +49,7 @@ export async function main() {
       style: { Absolute: 0 },
       hr(e) {
         e.byRoots([
+          `${ns}: Spinners`,
           `${ns}: Text`,
           `${ns}: Prose`,
           `${ns}: Layout`,
@@ -59,7 +60,8 @@ export async function main() {
           `${ns}: Dev`,
         ]);
         e.byRegex(/: Buttons?(?:\.|$)/);
-        e.rule((_prev, next) => /: (?:Anchor|Bullet|Dist)$/.test(next ?? ''));
+        e.byRegex(/: Bullet/);
+        e.rule((_prev, next) => /: (?:Anchor|Dist)$/.test(next ?? ''));
       },
     });
     function App() {

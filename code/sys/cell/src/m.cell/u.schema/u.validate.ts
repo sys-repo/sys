@@ -1,37 +1,39 @@
 import { IdPattern, Is, Schema, type t } from './common.ts';
 import { DescriptorSchema } from './u.schema.descriptor.ts';
+import { validateServicePrerequisites } from './u.servicePrerequisites.ts';
 
 export function validateDescriptor(value: unknown): t.Cell.Schema.Validation {
-  const errors: t.Cell.Schema.Issue[] = [];
-
-  for (const error of Schema.Value.Errors(DescriptorSchema, value)) {
-    errors.push({ kind: 'schema', path: error.path || '<root>', message: error.message });
-  }
-
+  const errors = schemaIssues(DescriptorSchema, value);
   if (errors.length === 0) {
     errors.push(...validateDescriptorSemantics(value as t.Cell.Descriptor));
   }
-
   return { ok: errors.length === 0, errors };
+}
+
+/** Structural Cell callers must validate service shape before resolving startup edges. */
+export function validateServices(
+  services: readonly t.Cell.Services.Service[],
+): t.Cell.Schema.Issue[] {
+  const errors = schemaIssues(DescriptorSchema.properties.services, services, '/services');
+  return errors.length > 0 ? errors : validateServicePrerequisites(services);
+}
+
+function schemaIssues(schema: t.TSchema, value: unknown, prefix = ''): t.Cell.Schema.Issue[] {
+  const errors: t.Cell.Schema.Issue[] = [];
+  for (const error of Schema.Value.Errors(schema, value)) {
+    const path = `${prefix}${error.path}` || '<root>';
+    errors.push({ kind: 'schema', path, message: error.message });
+  }
+  return errors;
 }
 
 const Id = new RegExp(IdPattern);
 
 function validateDescriptorSemantics(descriptor: t.Cell.Descriptor): t.Cell.Schema.Issue[] {
-  const errors: t.Cell.Schema.Issue[] = [];
-  const serviceNames = new Set<string>();
+  const errors = validateServicePrerequisites(descriptor.services ?? []);
 
   descriptor.services?.forEach((service, index) => {
     const servicePath = `/services/${index}`;
-
-    if (serviceNames.has(service.name)) {
-      errors.push({
-        kind: 'semantic',
-        path: `${servicePath}/name`,
-        message: `Duplicate service name: ${service.name}`,
-      });
-    }
-    serviceNames.add(service.name);
 
     for (const variant of Object.keys(service.variants ?? {})) {
       if (variant === 'default') {

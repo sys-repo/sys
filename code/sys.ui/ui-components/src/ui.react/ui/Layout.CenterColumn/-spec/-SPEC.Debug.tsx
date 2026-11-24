@@ -1,6 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, LocalStorage, Obj, ObjectView } from '../../u.ts';
-import { css, D, Signal } from '../common.ts';
+import { Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { renderColumns } from './-u.render.tsx';
 
 type P = t.CenterColumnLayoutProps;
@@ -26,21 +26,6 @@ export function createDebugSignals() {
   const store = LocalStorage.immutable<Storage>(`dev:${D.displayName}`, defaults);
   const snap = store.current;
 
-  function updateColumns(props: Pick<P, 'theme' | 'align'>) {
-    const el = renderColumns({
-      ...props,
-      onAlignChange: (e) => (p.align.value = e.align),
-    });
-    p.left.value = el.left;
-    p.center.value = el.center;
-    p.right.value = el.right;
-  }
-  function update() {
-    const theme = p.theme.value;
-    const align = p.align.value;
-    updateColumns({ theme, align });
-  }
-
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
@@ -54,12 +39,40 @@ export function createDebugSignals() {
     right: s<P['right']>(),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-    update,
-  };
+  // Retain rendered columns across reconnect unless their inputs changed.
+  let renderedFor: Pick<P, 'theme' | 'align'> | undefined;
+  const { attach } = Spec.attachments({
+    shared(e) {
+      const effects = Signal.listeners(e.life);
+      effects.effect(() => {
+        const theme = p.theme.value;
+        const align = p.align.value;
+        if (renderedFor && renderedFor.theme === theme && renderedFor.align === align) return;
+        update();
+      });
+      effects.effect(() => {
+        store.change((d) => {
+          d.theme = p.theme.value;
+          d.debug = p.debug.value;
+          d.centerWidth = p.centerWidth.value;
+          d.align = p.align.value;
+          d.gap = p.gap.value;
+        });
+      });
+    },
+  });
+
+  function update() {
+    const next = { theme: p.theme.value, align: p.align.value };
+    const el = renderColumns({
+      ...next,
+      onAlignChange: (e) => (p.align.value = e.align),
+    });
+    renderedFor = next;
+    p.left.value = el.left;
+    p.center.value = el.center;
+    p.right.value = el.right;
+  }
 
   function listen() {
     Signal.listen(props);
@@ -70,18 +83,8 @@ export function createDebugSignals() {
     update();
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.centerWidth = p.centerWidth.value;
-      d.align = p.align.value;
-      d.gap = p.gap.value;
-    });
-  });
-
-  Signal.effect(update);
-  return api;
+  update();
+  return { props, listen, reset, attach, update };
 }
 
 const Styles = {
@@ -112,7 +115,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
   const align = (align: t.CenterColumnAlign) => {
     return (
-      <Button
+      <Dev.Button
         //
         block
         label={`align: ${align}`}
@@ -125,18 +128,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={`gap: ${p.gap.value ?? '(undefined)'}`}
         onClick={() => Signal.cycle(p.gap, [1, 15, undefined])}
       />
 
-      <Button
+      <Dev.Button
         block
         label={`centerWidth: ${p.centerWidth.value ?? `(undefined) ← default: ${D.center.width}`}`}
         onClick={() => Signal.cycle(p.centerWidth, [0, 200, 600, undefined])}
@@ -148,13 +151,18 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {align('Right')}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

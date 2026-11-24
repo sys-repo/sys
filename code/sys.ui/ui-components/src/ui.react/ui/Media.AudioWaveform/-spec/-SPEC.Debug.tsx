@@ -1,7 +1,7 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Media } from '../../Media/mod.ts';
-import { Button, ObjectView } from '../../u.ts';
-import { type t, css, D, LocalStorage, Obj, Signal } from '../common.ts';
+import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.AudioWaveformProps;
 type Storage = Pick<P, 'theme' | 'debug'>;
@@ -31,11 +31,14 @@ export function createDebugSignals() {
     stream: s<MediaStream>(),
   };
   const p = props;
-  const api = {
-    props,
-    reset,
-    listen,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -45,14 +48,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {
@@ -91,20 +87,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
         style={{ width: '100%', aspectRatio: '16/9', marginBottom: 30 }}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button block label={() => `(reset)`} onClick={() => debug.reset()} />
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label={() => `(reset)`} onClick={() => debug.reset()} />
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 20 }}
+      />
     </div>
   );
 };

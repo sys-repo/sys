@@ -121,6 +121,8 @@ export const ServeFs = {
         name: doc.name,
         dir: resolvedDir,
         info: doc.info,
+        ...(doc.port === undefined ? {} : { port: doc.port }),
+        ...(doc.strictPort === undefined ? {} : { strictPort: doc.strictPort }),
       },
     };
   },

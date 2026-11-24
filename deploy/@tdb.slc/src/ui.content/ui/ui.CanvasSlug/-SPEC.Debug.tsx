@@ -1,6 +1,6 @@
 import React from 'react';
 import { canvasSelectedButton } from '../../../ui/ui.Logo.Canvas/-SPEC.Debug.tsx';
-import { type t, Button, css, D, Signal } from './common.ts';
+import { css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.CanvasSlugProps;
 
@@ -63,20 +63,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>{'CanvasSlug'}</div>
 
-      <Button block label={() => `debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Button
+      <Dev.Button block label={() => `debug: ${p.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <Dev.Button
         block
         label={() => `theme: ${p.theme}`}
         onClick={() => Signal.cycle<P['theme']>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `logo: "${p.logo}"`}
         onClick={() => Signal.cycle<P['logo']>(p.logo, [undefined, 'SLC', 'CC'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `text: ${p.text.value ?? '<undefined>'}`}
         onClick={() => {

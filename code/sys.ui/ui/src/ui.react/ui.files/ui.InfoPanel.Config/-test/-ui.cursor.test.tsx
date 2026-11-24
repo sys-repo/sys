@@ -83,15 +83,17 @@ describe('Files.InfoPanel.Config.UI: cursor', () => {
     it('exits the focused cursor root with Escape', async () => {
       let current: t.KeyValue.Cursor.Target | undefined = { path: ['error'] };
 
-      const Probe = () => (
-        <InfoPanelConfig.UI
-          items={['title', 'error']}
-          cursor={{
-            model: { current },
-            onChange: (e) => current = e.next.current,
-          }}
-        />
-      );
+      const Probe = () => {
+        return (
+          <InfoPanelConfig.UI
+            items={['title', 'error']}
+            cursor={{
+              model: { current },
+              onChange: (e) => current = e.next.current,
+            }}
+          />
+        );
+      };
 
       const res = await TestReact.render(<Probe />, { strict: false });
       const root = cursorRoot(res.container);

@@ -21,7 +21,13 @@ export type IconRenderer = (props: IconProps) => React.JSX.Element;
  * <Component>: Display properties for an icon.
  */
 export type IconProps = {
-  size?: number;
+  /** Root element, independent of CSS display. @default 'div' */
+  as?: 'div' | 'span';
+  /**
+   * Square size in pixels (number) or CSS lengths, e.g. '1em' to follow the inherited font size.
+   * @default 24
+   */
+  size?: number | string;
   color?: number | string;
   opacity?: t.Percent;
   tooltip?: string;

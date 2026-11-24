@@ -2,7 +2,7 @@ import React from 'react';
 import { SampleFactory } from '../../-sample.factory/mod.ts';
 import { createUiRepo } from '../../ui/-test.ui.ts';
 
-import { type t, Button, Crdt, css, D, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { Crdt, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 import { createSignals } from '../mod.ts';
 
 type P = t.SampleProps;
@@ -89,25 +89,25 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `margin: ${p.debugMargin.value}`}
         onClick={() => Signal.toggle(p.debugMargin)}
       />
 
-      <Button
+      <Dev.Button
         block
         label={() => `tmp ( 🐷 )`}
         onClick={() => {
@@ -117,7 +117,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
           });
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `(reset)`}
         onClick={() => {
@@ -127,8 +127,13 @@ export const Debug: React.FC<DebugProps> = (props) => {
         }}
       />
 
-      <ObjectView name={'debug'} data={Signal.toObject(p)} expand={0} style={{ marginTop: 15 }} />
-      <ObjectView
+      <Dev.ObjectView
+        name={'debug'}
+        data={Signal.toObject(p)}
+        expand={0}
+        style={{ marginTop: 15 }}
+      />
+      <Dev.ObjectView
         name={'signals'}
         data={{
           ...Signal.toObject(signals),

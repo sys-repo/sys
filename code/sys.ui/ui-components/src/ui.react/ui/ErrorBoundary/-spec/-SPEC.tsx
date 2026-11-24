@@ -1,42 +1,39 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from '../common.ts';
 import { ErrorBoundary } from '../mod.ts';
-import { Debug, createDebugSignals } from './-SPEC.Debug.tsx';
+import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Sample } from './-ui.Sample.tsx';
 
 export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    const v = Signal.toObject(p);
+    return (
+      <ErrorBoundary
+        theme={v.theme}
+        onError={(err, errInfo) => console.info(`⚡️ onError:`, err, errInfo)}
+        onReset={(e) => console.info(`⚡️ onReset:`, e)}
+      >
+        <Sample debug={v.debug} theme={v.theme} />
+      </ErrorBoundary>
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-    function update() {
-      ctx.redraw();
-    }
 
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      update();
+    debug.attach(ctx, {
+      subject: { size: 'fill', margin: 150, display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size('fill', 150)
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        return (
-          <ErrorBoundary
-            theme={v.theme}
-            onError={(err, errInfo) => console.info(`⚡️ onError:`, err, errInfo)}
-            onReset={(e) => console.info(`⚡️ onReset:`, e)}
-          >
-            <Sample debug={v.debug} theme={v.theme} />
-          </ErrorBoundary>
-        );
-      });
-
-    update();
   });
 
   e.it('ui:debug', (e) => {

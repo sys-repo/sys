@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Crdt } from '@sys/driver-automerge/web';
 import { Lorem } from '../../-test.ui.ts';
-import { type t, Button, css, D, Is, LocalStorage, Obj, ObjectView, Signal } from '../common.ts';
+import { css, D, Dev, Is, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 export type SampleDoc = { text?: string };
 type P = t.TextEditorProps;
@@ -121,12 +121,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
 
-      <Button
+      <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.path.value;
@@ -143,17 +143,17 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `readOnly: ${p.readOnly.value ?? `<undefined> (default: ${D.readOnly})`}`}
         onClick={() => Signal.toggle(p.readOnly)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `autoFocus: ${p.autoFocus.value ?? `<undefined> (default: ${D.autoFocus})`}`}
         onClick={() => Signal.toggle(p.autoFocus)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `autoFocus: (increment number)`}
         onClick={() => {
@@ -163,12 +163,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `scroll: ${p.scroll.value ?? `<undefined> (default: ${D.scroll})`}`}
         onClick={() => Signal.toggle(p.scroll)}
       />
-      <Button
+      <Dev.Button
         block
         label={() => {
           const v = p.singleLine.value;
@@ -182,17 +182,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
       {samplesButtons(debug)}
 
       <hr />
-      <Button
+      <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
       />
-      <ObjectView
+      <Dev.ObjectView
         name={'debug'}
         data={{ ...Signal.toObject(p), doc: p.doc.value?.current }}
         style={{ marginTop: 10 }}
       />
-      <ObjectView name={'doc'} data={p.doc.value?.current} style={{ marginTop: 5 }} expand={0} />
+      <Dev.ObjectView
+        name={'doc'}
+        data={p.doc.value?.current}
+        style={{ marginTop: 5 }}
+        expand={0}
+      />
     </div>
   );
 };
@@ -206,7 +211,7 @@ export function samplesButtons(debug: DebugSignals) {
 
   return (
     <React.Fragment>
-      <Button
+      <Dev.Button
         block
         label={() => '- single-line'}
         onClick={() => {
@@ -215,7 +220,7 @@ export function samplesButtons(debug: DebugSignals) {
           p.scroll.value = false;
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => '- multi-line'}
         onClick={() => {
@@ -224,7 +229,7 @@ export function samplesButtons(debug: DebugSignals) {
           p.scroll.value = true;
         }}
       />
-      <Button
+      <Dev.Button
         block
         label={() => `- long (lorem ipsum)`}
         onClick={() => {

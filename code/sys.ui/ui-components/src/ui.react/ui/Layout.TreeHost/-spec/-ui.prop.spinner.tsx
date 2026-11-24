@@ -1,5 +1,5 @@
 import React from 'react';
-import { type t, BulletList, Color, css, Json, ObjectView, Signal } from './common.ts';
+import { BulletList, Color, css, Dev, Json, Signal, type t } from './common.ts';
 
 type P = t.TreeHost.Props;
 
@@ -39,14 +39,14 @@ export const PropSpinner: React.FC<PropSlotsProps> = (props) => {
         theme={theme.name}
         style={{ fontSize: 12, marginLeft: 15 }}
         columns={2}
-        selected={spinnerSelection(v.spinner)}
+        selected={spinnerSelection(v.spinner) ?? []}
         items={OPTIONS.map((item) => ({ id: item.id, label: item.label }))}
-        onSelect={(e) => {
+        onActivate={(e) => {
           const next = OPTIONS.find((item) => item.id === e.id);
           if (next) p.spinner.value = next.value;
         }}
       />
-      {v.spinner && <ObjectView name={'prop.spinner'} data={v.spinner} fontSize={11} />}
+      {v.spinner && <Dev.ObjectView name={'prop.spinner'} data={v.spinner} fontSize={11} />}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { describe, expect, it, Testing, Time } from '../../src/-test.ts';
+import { describe, expect, Is, it, Testing, Time } from '../../src/-test.ts';
 import { D, Files, Fs, HttpCmd, Process, type t } from './common.ts';
 
 type Client = t.HttpCmd.Client<t.Files.Cmd.Name, t.Files.Cmd.Payload, t.Files.Cmd.Result>;
@@ -24,7 +24,7 @@ describe('sample:files:http:cmd', () => {
     const client = HttpCmd.client<t.Files.Cmd.Name, t.Files.Cmd.Payload, t.Files.Cmd.Result>({
       url,
       ns: Files.Cmd.ns,
-      timeout: 1_000,
+      policy: { ...D.transport, timeout: 1_000 },
     });
 
     try {
@@ -47,7 +47,7 @@ function sampleUrl(port: t.PortNumber): string {
   return `http://localhost:${port}${D.path}`;
 }
 
-async function waitForReady(process: ReturnType<typeof Process.spawn>): Promise<void> {
+async function waitForReady(process: t.Process.Handle): Promise<void> {
   const timeout = Time.wait(5_000);
 
   try {
@@ -119,7 +119,7 @@ async function assertDocsCorpus(client: Client) {
   const hello = manifest.entries.find((entry) => entry.path === 'hello.txt');
   if (!hello || hello.kind !== 'file') throw new Error('Expected hello.txt file entry.');
   expect(hello.size).to.eql(41);
-  expect(typeof hello.hash).to.eql('string');
+  expect(Is.str(hello.hash)).to.eql(true);
   expect(hello.hash?.startsWith('sha256-')).to.eql(true);
 
   const listed = await client.send(Files.Cmd.Name.list, { path: '' });

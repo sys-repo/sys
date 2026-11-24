@@ -1,9 +1,9 @@
-import type { ExtensionContext } from '@earendil-works/pi-coding-agent';
+import type { ExtensionToolContext } from '@earendil-works/pi-coding-agent';
 
 /**
  * Refuse unused host capabilities without loading a test runner into permission-restricted fixtures.
  */
-export function context(cwd: string): ExtensionContext {
+export function context(cwd: string): ExtensionToolContext {
   const unused = (): never => {
     throw new Error('ZIP accessed an unused host capability.');
   };
@@ -23,6 +23,10 @@ export function context(cwd: string): ExtensionContext {
     get modelRegistry() {
       return unused();
     },
+    get tools() {
+      return unused();
+    },
+    executeTool: unused,
     isIdle: unused,
     isProjectTrusted: unused,
     abort: unused,

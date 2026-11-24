@@ -67,7 +67,7 @@ describe('HttpStatic CLI', () => {
       cliWith(
         { start },
         cwd,
-        ['--silent', '--dir', './public', '--hostname', '127.0.0.1', '--port', '0'],
+        ['--silent', '--dir=./public', '--hostname=127.0.0.1', '--port=0', '--strict-port'],
       )
     );
 
@@ -78,6 +78,7 @@ describe('HttpStatic CLI', () => {
       dir: './public',
       hostname: '127.0.0.1',
       port: 0,
+      strictPort: true,
       silent: true,
       keyboard: false,
     });

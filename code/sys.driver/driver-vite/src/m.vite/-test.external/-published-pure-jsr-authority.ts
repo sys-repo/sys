@@ -86,7 +86,7 @@ describe('Vite published external pure-JSR authority world', () => {
     const res = await runProbe({
       name: 'published-pure-jsr-authority.dev',
       source: DEV_PROBE_SOURCE,
-      denoArgs: ['run', '-P=test', '--no-lock', '--node-modules-dir=auto'],
+      denoArgs: ['run', '-A', '--no-lock', '--node-modules-dir=auto'],
     });
 
     assertRunOk(res, 'Published pure-JSR dev probe failed');

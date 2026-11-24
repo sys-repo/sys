@@ -1,5 +1,6 @@
 import React from 'react';
-import { type t, Button, Color, css, Signal } from '../u.ts';
+import { Spec } from '../-test.ui.ts';
+import { Color, css, Dev, Signal, type t } from './-spec/common.ts';
 
 /**
  * Types:
@@ -22,19 +23,19 @@ export function createDebugSignals() {
     importStyle: s<DebugImportStyle>('Function → Promise'),
     image: s<DebugImage>('Small'),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.width.value;
-      p.image.value;
-      p.color.value;
-      p.image.value;
-      p.importStyle.value;
-    },
-  };
-  return api;
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.width.value;
+    p.image.value;
+    p.color.value;
+    p.image.value;
+    p.importStyle.value;
+  }
+
+  return { props, listen, attach };
 }
 
 /**
@@ -56,18 +57,18 @@ export const Debug: React.FC<P> = (props) => {
 
   return (
     <div className={css(styles.base, props.style).class}>
-      <Button
+      <Dev.Button
         block
         label={`theme: ${p.theme}`}
         onClick={() => Signal.cycle(p.theme, ['Light', 'Dark'])}
       />
       <hr />
-      <Button
+      <Dev.Button
         block
         label={`width: ${p.width.value ?? '<undefined>'}`}
         onClick={() => Signal.cycle(p.width, [80, 200, 350, undefined])}
       />
-      <Button
+      <Dev.Button
         block
         label={`import style: ${p.importStyle}`}
         onClick={() => {
@@ -77,7 +78,7 @@ export const Debug: React.FC<P> = (props) => {
 
       <hr />
 
-      <Button
+      <Dev.Button
         block={true}
         label={`image (src): ${p.image}`}
         onClick={() => {

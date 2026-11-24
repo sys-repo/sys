@@ -21,6 +21,8 @@ export type ServiceTextOptions = {
   readonly color?: ServiceColor;
   readonly fragments?: (text: string, offset: number) => readonly ServiceTextPart[];
   readonly underline?: boolean;
+  /** When clipping would leave only the omission marker, spend its cell on source text instead. */
+  readonly preferSource?: boolean;
   readonly compose?: typeof composeServiceText;
 };
 
@@ -48,7 +50,10 @@ export function fitServiceText(
   const cells = measure(text);
   if (width === undefined || cells <= width) return finish(fragments(text, 0), cells);
   return Text.ellipsize(text, width, {
-    render({ head, ellipsis, tail }) {
+    render: function render({ head, ellipsis, tail }): string {
+      if (options.preferSource && !head && !tail) {
+        return ellipsis ? Text.ellipsize(text, width, { ellipsis: '', render }) : '';
+      }
       const marker: ServiceTextPart[] = ellipsis ? [{ text: ellipsis, color: 'dim' }] : [];
       const start = fragments(head, 0);
       const end = fragments(tail, text.length - tail.length);

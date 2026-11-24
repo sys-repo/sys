@@ -20,7 +20,8 @@ export async function startServer(
   const info = await resolveInfo(location);
   const infoPath = firstPathInfo(info);
   const started = Http.Server.start(app, {
-    port: resolveServePort(opts.port, 'startServer') ?? D.port,
+    port: resolveServePort(opts.port ?? location.port, 'startServer') ?? D.port,
+    strictPort: location.strictPort,
     hostname,
     name,
     info,

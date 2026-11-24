@@ -4,23 +4,28 @@ import { createApp } from './u.app.ts';
 
 type F = t.StripeFixture.Lib['start'];
 
-type FixtureConfigDoc = Pick<t.StripeFixture.StartArgs, 'hostname' | 'name' | 'port'>;
+type FixtureConfigDoc = Pick<
+  t.StripeFixture.StartArgs,
+  'hostname' | 'name' | 'port' | 'strictPort'
+>;
 
 export const start: F = async (input = {}) => {
   const args = await wrangle.args(input);
   const cwd = args.cwd ?? Fs.cwd();
-  const env = await Env.load({ cwd, search: 'upward' });
   const hostname = args.hostname ?? '127.0.0.1';
-  const port = args.port ?? readPort(env.get('STRIPE_FIXTURE_PORT'), 9090);
+  const port = args.port ?? await readEnvPort(cwd);
+  const { name, silent, strictPort } = args;
   const app = createApp({ cwd });
-  return HttpServer.start(app, { port, pkg, hostname, name: args.name, silent: args.silent });
+  return HttpServer.start(app, { port, strictPort, pkg, hostname, name, silent });
 };
 
 /**
  * Helpers:
  */
-function readPort(input: string, fallback: number) {
-  const port = Number(input || fallback);
+async function readEnvPort(cwd: t.StringDir): Promise<t.PortNumber> {
+  const env = await Env.load({ cwd, search: 'upward' });
+  const input = env.get('STRIPE_FIXTURE_PORT');
+  const port = Number(input || 9090);
   if (!Number.isInteger(port) || port <= 0 || port > 65_535) {
     throw new Error(`Invalid STRIPE_FIXTURE_PORT: ${JSON.stringify(input)}`);
   }
@@ -33,7 +38,12 @@ const wrangle = {
     if (!config) return args;
 
     const doc = await loadConfig(wrangle.configPath(args));
-    return { ...doc, ...args };
+    return {
+      ...doc,
+      ...args,
+      port: args.port ?? doc.port,
+      strictPort: args.strictPort ?? doc.strictPort,
+    };
   },
 
   configPath(args: t.StripeFixture.StartArgs): t.StringPath {
@@ -60,15 +70,21 @@ async function loadConfig(path: t.StringPath): Promise<FixtureConfigDoc> {
   }
 
   assertKnownKeys(data, path);
+  const { strictPort } = data;
+  if (strictPort !== undefined && !Is.bool(strictPort)) {
+    const msg = `StripeFixture.start: config key 'strictPort' must be a boolean: ${path}`;
+    throw new Error(msg);
+  }
   return {
     name: readNonEmptyString(data, 'name', path),
     hostname: readNonEmptyString(data, 'hostname', path) as t.StringHostname,
     port: readConfigPort(data.port, path),
+    strictPort,
   };
 }
 
 function assertKnownKeys(doc: Record<string, unknown>, path: t.StringPath): void {
-  const allowed = ['name', 'hostname', 'port'];
+  const allowed = ['name', 'hostname', 'port', 'strictPort'];
   const unknown = Object.keys(doc).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new Error(`StripeFixture.start: unknown config key '${unknown[0]}': ${path}`);

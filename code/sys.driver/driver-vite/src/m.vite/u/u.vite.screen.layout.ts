@@ -12,8 +12,8 @@ const LOG = {
 
 /** Private Vite terminal-layout grammar for the dev screen. */
 export const ViteScreenLayout = {
-  applicationHeader(identity: t.Cli.Fmt.Header.PackageIdentity, width: number) {
-    return Cli.Fmt.Header.rows({ pkg: identity, width, tone: 'green' });
+  applicationHeader(identity: t.Cli.Fmt.Header.PackageIdentity, width: number, version?: string) {
+    return Cli.Fmt.Header.rows({ pkg: identity, width, version, tone: 'green' });
   },
 
   sourceColumn(sequenceWidth: number) {

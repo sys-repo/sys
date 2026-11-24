@@ -1,7 +1,7 @@
 import { Str } from '../common.ts';
 
 export const thematicBreaks = {
-  label: 'sample: thematic-break source DSL',
+  label: 'thematic-break source DSL',
   viewport: 'scroll',
   value: Str.dedent(`
     ### Solid · hyphen

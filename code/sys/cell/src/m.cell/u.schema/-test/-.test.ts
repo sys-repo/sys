@@ -159,6 +159,18 @@ describe(`Cell.Schema`, () => {
       });
     });
 
+    it('accepts forward startup references on the identity, not on its variants', () => {
+      const view = service('view');
+      const dev = serviceVariant();
+      const proxy = { ...service('proxy'), startAfter: ['view'], variants: { dev } };
+      const validate = (entry: unknown) =>
+        CellSchema.Descriptor.validate({ kind: 'cell', version: 1, services: [entry, view] });
+      expect(validate(proxy)).to.eql({ ok: true, errors: [] });
+      expect(validate({ ...proxy, startAfter: 'view' }).ok).to.eql(false);
+      const misplaced = { ...proxy, variants: { dev: { ...dev, startAfter: ['view'] } } };
+      expect(validate(misplaced).ok).to.eql(false);
+    });
+
     it('rejects non-relative service config paths', () => {
       const descriptor: unknown = {
         kind: 'cell',

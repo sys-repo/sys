@@ -7,6 +7,10 @@ describe('JsrUrl.Pkg', () => {
     print('JsrUrl.Pkg.web', formatUrl(url, '@sys/std'));
   });
 
+  it('web with a version links to the exact release page', () => {
+    expect(JsrUrl.Pkg.web('@sys/std', '0.0.42')).to.eql('https://jsr.io/@sys/std@0.0.42');
+  });
+
   it('metadata', () => {
     const url = JsrUrl.Pkg.metadata('@sys/std');
     expect(url).to.eql('https://jsr.io/@sys/std/meta.json');

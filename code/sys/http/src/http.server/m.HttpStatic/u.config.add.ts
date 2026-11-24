@@ -19,14 +19,18 @@ export async function add(
   input: t.HttpStatic.ConfigAddInput,
 ): Promise<t.HttpStatic.ConfigAddResult> {
   const resolved = resolveConfig(input);
-  const desired = resolved.doc;
   const edit = await YamlConfig.Edit.update<t.HttpStatic.ConfigDoc, ConfigAddChange>({
     cwd: input.cwd,
     config: resolved.path,
     dryRun: input.dryRun,
-    initial: () => desired,
+    initial: () => resolved.doc,
     load: loadConfig,
     mutate: (doc, context) => {
+      const strictPort = resolved.doc.strictPort ?? doc.strictPort;
+      const desired = {
+        ...resolved.doc,
+        ...(strictPort === undefined ? {} : { strictPort }),
+      };
       const same = sameConfig(doc, desired);
       const kind = context.created ? 'added' : same ? 'exists' : 'updated';
       return {

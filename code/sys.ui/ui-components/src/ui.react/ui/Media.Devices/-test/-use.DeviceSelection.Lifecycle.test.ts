@@ -1,13 +1,18 @@
+import React from 'react';
 import {
-  type t,
+  act,
   afterEach,
   beforeEach,
   describe,
   DomMock,
   expect,
+  Is,
   it,
+  Json,
   renderHook,
   Signal,
+  storageFixture,
+  type t,
   Time,
 } from '../../../-test.ts';
 import { useDeviceSelectionLifecycle } from '../use.DeviceSelection.Lifecycle.ts';
@@ -39,7 +44,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
         enabled: true,
         prefs,
         onResolve: (e) => (selected$.value = e.device),
-      }),
+      })
     );
     try {
       await Time.waitFor(() => selected$.value?.deviceId === 'v1');
@@ -49,50 +54,42 @@ describe('hook: useDeviceSelectionLifecycle', () => {
     }
   });
 
-  it('persists, then restores on fresh mount (end-to-end)', async () => {
-    const storageKey = 'test:media:persist';
-    const items = [mic, video];
+  it('restores persisted choices when fallback would select another device', () => {
+    using _storage = storageFixture();
+    const items = [video, mic];
+    const micFirst: t.DeviceDefaultPrefs = { ...prefs, kindOrder: ['audioinput', 'videoinput'] };
+    let micBytes: string;
+    let cameraBytes: string;
 
-    // Mount A: derive and persist "v1"
+    // A: accept the default camera, then choose the mic.
     {
-      const selA$ = makeSignal<MediaDeviceInfo>();
-      const { unmount } = renderHook(() =>
-        useDeviceSelectionLifecycle({
-          items,
-          selected: selA$.value,
-          prefs,
-          storageKey,
-          enabled: true,
-          onResolve: (e) => (selA$.value = e.device),
-        }),
-      );
-      try {
-        await Time.waitFor(() => selA$.value?.deviceId === 'v1');
-        expect(selA$.value?.deviceId).to.equal('v1');
-      } finally {
-        unmount();
-      }
+      using a = mountSelection(items, prefs);
+      expect([...a.resolvedIds], 'A: default resolve').to.eql(['v1']);
+      expect(a.selected(), 'A: accepted default').to.equal('v1');
+
+      a.select(mic);
+      expect(a.selected(), 'A: caller choice').to.equal('a1');
+      micBytes = a.readChoice(mic, 'A: persisted caller choice');
     }
 
-    // Mount B: restore from LocalStorage
+    // B: restore the mic despite camera-first ranking, then remove it.
     {
-      const selB$ = makeSignal<MediaDeviceInfo>();
-      const { unmount } = renderHook(() =>
-        useDeviceSelectionLifecycle({
-          items,
-          selected: selB$.value,
-          prefs,
-          storageKey,
-          enabled: true,
-          onResolve: (e) => (selB$.value = e.device),
-        }),
-      );
-      try {
-        await Time.waitFor(() => selB$.value?.deviceId === 'v1');
-        expect(selB$.value?.deviceId).to.equal('v1');
-      } finally {
-        unmount();
-      }
+      using b = mountSelection(items, prefs, micBytes);
+      expect([...b.resolvedIds], 'B: cold resolve').to.eql(['a1']);
+      expect(b.selected(), 'B: accepted restore').to.equal('a1');
+
+      b.resolvedIds.clear();
+      b.replaceItems([video]);
+      expect([...b.resolvedIds], 'B: resolve after removal').to.eql(['v1']);
+      expect(b.selected(), 'B: accepted replacement').to.equal('v1');
+      cameraBytes = b.readChoice(video, 'B: persisted replacement');
+    }
+
+    // C: with both devices back, neither fallback nor stale mic bytes can produce camera.
+    {
+      using c = mountSelection(items, micFirst, cameraBytes);
+      expect([...c.resolvedIds], 'C: cold resolve').to.eql(['v1']);
+      expect(c.selected(), 'C: accepted replacement on restore').to.equal('v1');
     }
   });
 
@@ -110,7 +107,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           storageKey,
           enabled: true,
           onResolve: (e) => (sel$.value = e.device),
-        }),
+        })
       );
       try {
         await Time.waitFor(() => sel$.value?.deviceId === 'v1');
@@ -130,7 +127,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           storageKey,
           enabled: true,
           onResolve: (e) => (sel$.value = e.device),
-        }),
+        })
       );
       try {
         await Time.waitFor(() => sel$.value?.deviceId === 'a1');
@@ -151,7 +148,7 @@ describe('hook: useDeviceSelectionLifecycle', () => {
           storageKey,
           enabled: true,
           onResolve: (e) => (sel$.value = e.device),
-        }),
+        })
       );
       try {
         await Time.waitFor(() => sel$.value?.deviceId === 'a1');
@@ -191,3 +188,45 @@ describe('hook: useDeviceSelectionLifecycle', () => {
     }
   });
 });
+
+function mountSelection(items: MediaDeviceInfo[], prefs: t.DeviceDefaultPrefs, bytes?: string) {
+  // Immutable refs are cached per key. Copy the bytes before the hook opens a new key.
+  const storageKey = `test:media:persist:${crypto.randomUUID()}`;
+  if (!Is.nil(bytes)) localStorage.setItem(storageKey, bytes);
+
+  const resolvedIds = new Set<string>();
+  const view = renderHook((items) => {
+    const [selected, select] = React.useState<MediaDeviceInfo>();
+    useDeviceSelectionLifecycle({
+      items,
+      prefs,
+      storageKey,
+      selected,
+      onResolve(e) {
+        resolvedIds.add(e.device.deviceId);
+        select(e.device);
+      },
+    });
+    return { selected, select };
+  }, { initialProps: items, reactStrictMode: true });
+
+  return {
+    resolvedIds,
+    selected: () => view.result.current.selected?.deviceId,
+    select: (device: MediaDeviceInfo) => act(() => view.result.current.select(device)),
+    replaceItems: view.rerender,
+    readChoice(device: MediaDeviceInfo, label: string) {
+      const bytes = localStorage.getItem(storageKey) ?? '';
+      const stored = Json.parse<{ id?: string; kind?: MediaDeviceKind }>(bytes);
+      expect({ id: stored?.id, kind: stored?.kind }, label).to.eql({
+        id: device.deviceId,
+        kind: device.kind,
+      });
+      return bytes;
+    },
+    [Symbol.dispose]() {
+      view.unmount();
+      localStorage.removeItem(storageKey);
+    },
+  };
+}

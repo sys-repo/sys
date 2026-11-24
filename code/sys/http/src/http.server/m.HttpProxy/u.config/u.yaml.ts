@@ -1,4 +1,5 @@
 import { Fs, Is, type t, Yaml } from '../common.ts';
+import { indexExactRoutes } from './u.exact.ts';
 import { normalizeMounts } from './u.mount.ts';
 import { validateRoot } from './u.root.ts';
 
@@ -38,17 +39,25 @@ function parseConfigText(
   }
 
   assertKnownKeys(data, path, errorPrefix);
-  const doc = {
+  const { strictPort } = data;
+  if (strictPort !== undefined && !Is.bool(strictPort)) {
+    const msg = `${errorPrefix}: config key 'strictPort' must be a boolean: ${Fs.trimCwd(path)}`;
+    throw new Error(msg);
+  }
+  const base = {
     name: readNonEmptyString(data, 'name', path, errorPrefix),
     hostname: readNonEmptyString(data, 'hostname', path, errorPrefix),
     port: readPort(data.port, path, errorPrefix),
+    ...(strictPort === undefined ? {} : { strictPort }),
     root: readRoot(data.root, path, errorPrefix),
     mounts: readMounts(data.mounts, path, errorPrefix),
   } satisfies t.HttpProxy.Config.Doc;
+  const { exactRoutes } = data;
+  const routes = exactRoutes === undefined ? undefined : indexExactRoutes(exactRoutes, errorPrefix);
 
-  if (doc.root) validateRoot(doc.root, errorPrefix);
-  normalizeMounts(doc.mounts, errorPrefix);
-  return doc;
+  if (base.root) validateRoot(base.root, errorPrefix);
+  normalizeMounts(base.mounts, errorPrefix);
+  return routes ? { ...base, exactRoutes: [...routes.values()] } : base;
 }
 
 function assertKnownKeys(
@@ -56,7 +65,7 @@ function assertKnownKeys(
   path: t.StringPath,
   errorPrefix: string,
 ): void {
-  const allowed = ['name', 'hostname', 'port', 'root', 'mounts'];
+  const allowed = ['name', 'hostname', 'port', 'strictPort', 'root', 'mounts', 'exactRoutes'];
   const unknown = Object.keys(doc).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new Error(`${errorPrefix}: unknown config key '${unknown[0]}': ${Fs.trimCwd(path)}`);
@@ -80,11 +89,9 @@ function readNonEmptyString(
 
 function readPort(value: unknown, path: t.StringPath, errorPrefix: string): number {
   if (!Is.num(value) || !Number.isInteger(value) || value < 0 || value > 65535) {
-    throw new Error(
-      `${errorPrefix}: config key 'port' must be an integer between 0 and 65535: ${
-        Fs.trimCwd(path)
-      }`,
-    );
+    const file = Fs.trimCwd(path);
+    const msg = `${errorPrefix}: config key 'port' must be an integer between 0 and 65535: ${file}`;
+    throw new Error(msg);
   }
   return value;
 }
@@ -99,14 +106,20 @@ function readRoot(
     throw new Error(`${errorPrefix}: config key 'root' must be a YAML object: ${Fs.trimCwd(path)}`);
   }
 
-  const allowed = ['target'];
+  const allowed = ['target', 'stripAuthorization'];
   const unknown = Object.keys(value).filter((key) => !allowed.includes(key));
   if (unknown.length > 0) {
     throw new Error(`${errorPrefix}: unknown root key '${unknown[0]}': ${Fs.trimCwd(path)}`);
   }
 
+  const { stripAuthorization } = value;
+  if (stripAuthorization !== undefined && !Is.bool(stripAuthorization)) {
+    const file = Fs.trimCwd(path);
+    throw new Error(`${errorPrefix}: root.stripAuthorization must be a boolean: ${file}`);
+  }
   return {
     target: readNonEmptyRootString(value, 'target', path, errorPrefix) as t.StringUrl,
+    ...(stripAuthorization === undefined ? {} : { stripAuthorization }),
   } satisfies t.HttpProxy.Root.Doc;
 }
 

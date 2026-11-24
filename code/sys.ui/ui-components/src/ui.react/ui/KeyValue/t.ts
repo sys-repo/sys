@@ -136,6 +136,7 @@ export declare namespace KeyValue {
       label: React.ReactNode;
       enabled?: boolean;
       tooltip?: string;
+      'aria-describedby'?: string;
       onClick?: React.MouseEventHandler;
     };
   }

@@ -1,88 +1,72 @@
 import React from 'react';
-
-import type { t } from './common.ts';
+import { Is, type t } from './common.ts';
 import { selectDefaultDevice } from './u.selectDefault.ts';
 export { selectDefaultDevice };
 
+type Source = {
+  readonly items: readonly MediaDeviceInfo[];
+  readonly prefs?: t.DeviceDefaultPrefs;
+  readonly seededIndex?: t.Index;
+};
+type Selection = { readonly source: Source; readonly index?: t.Index };
+
 /**
- * useDeviceSelection
- * - Seeds from `seed` (index or MediaDeviceInfo) synchronously.
- * - Preserves selection by `deviceId` across list churn.
- * - Falls back to a derived default when the prior device disappears.
- * - No side-effects beyond React state (persistence handled elsewhere).
+ * Keep a positional selection bound to its device across changes to the available list.
  */
-export const useDeviceSelection: t.UseDeviceSelection = (items, options = {}) => {
-  const { prefs, seed } = options;
+export const useDeviceSelection: t.UseDeviceSelection = (items, { prefs, seed } = {}) => {
+  const seededIndex = Is.num(seed) ? seed : indexOf(items, seed?.deviceId);
+  const source = React.useMemo(() => ({ items, prefs, seededIndex }), [items, prefs, seededIndex]);
 
-  /** Resolve a seed → index (if applicable). */
-  const seededIndex = React.useMemo<t.Index | undefined>(() => {
-    if (typeof seed === 'number') return seed as t.Index;
-    if (seed && 'deviceId' in seed) {
-      const idx = items.findIndex((d) => d.deviceId === seed.deviceId);
-      return idx >= 0 ? (idx as t.Index) : undefined;
-    }
-    return undefined;
-  }, [items, seed]);
-
-  /** Initial selection prefers seed synchronously, then default. */
-  const [selected, setSelected] = React.useState<t.Index | undefined>(() => {
-    if (typeof seed === 'number') return seed as t.Index;
-    if (seed && 'deviceId' in seed) {
-      const idx = items.findIndex((d) => d.deviceId === seed.deviceId);
-      if (idx >= 0) return idx as t.Index;
-    }
-    return selectDefaultDevice(items, prefs);
-  });
-
-  /** Track current deviceId to preserve across reorders. */
-  const selectedIdRef = React.useRef<string | undefined>(undefined);
-  React.useEffect(() => {
-    selectedIdRef.current = selected !== undefined ? items[selected]?.deviceId : undefined;
-  }, [items, selected]);
-
-  /**
-   * External changes:
-   * - If a seed resolves to a different index, adopt it.
-   * - Else try to preserve by deviceId.
-   * - Else fall back to a new default (only when no seed applies).
-   */
-  React.useEffect(() => {
-    if (items.length === 0) {
-      if (selected !== undefined) setSelected(undefined);
-      return;
-    }
-
-    if (seededIndex !== undefined && seededIndex !== selected) {
-      setSelected(seededIndex);
-      return;
-    }
-
-    const prevId = selectedIdRef.current;
-    if (prevId) {
-      const idx = items.findIndex((d) => d.deviceId === prevId);
-      if (idx >= 0 && idx !== selected) {
-        setSelected(idx as t.Index);
-        return;
-      }
-    }
-
-    if (seededIndex === undefined) {
-      const fallback = selectDefaultDevice(items, prefs);
-      if (fallback !== selected) setSelected(fallback);
-    }
-  }, [items, prefs, seededIndex]);
-
-  /** Map index → DeviceHandlerArgs. */
-  const toArgs = React.useCallback(
-    (index: t.Index): t.MediaDeviceHandlerArgs | undefined => {
-      const device = items[index];
-      return device ? { device, index } : undefined;
+  // React owns the list and its index together. A retained dispatch never consults a DOM effect.
+  const [selection, dispatch] = React.useReducer(
+    (prev: Selection, action: Selection | t.Index | undefined): Selection => {
+      if (Is.object(action)) return action;
+      if (prev.index === action) return prev;
+      // All picks in a batch address the order the caller saw. Rebase once after the batch.
+      const basis = samePositions(prev.source, source) ? source : prev.source;
+      return { source: basis, index: action };
     },
-    [items],
+    source,
+    (source) => reconcile(source),
   );
 
-  /**
-   * API:
-   */
-  return { selected, setSelected, toArgs };
+  let current = selection;
+  if (source !== selection.source) {
+    current = reconcile(source, selection);
+    // Adjust this component's state before rendering children. Equivalent inputs need no retry:
+    // every position a caller could select already denotes the same device.
+    if (current.index !== selection.index || !samePositions(selection.source, source)) {
+      dispatch(current);
+    }
+  }
+
+  const toArgs = React.useCallback((index: t.Index) => {
+    const device = items[index];
+    return device ? { device, index } : undefined;
+  }, [items]);
+  return { selected: current.index, setSelected: dispatch, toArgs };
 };
+
+/**
+ * Helpers:
+ */
+function reconcile(source: Source, previous?: Selection): Selection {
+  const { items, prefs, seededIndex } = source;
+  if (!items.length) return { source };
+  const id = Is.nil(previous?.index) ? undefined : previous.source.items[previous.index]?.deviceId;
+  const index = seededIndex ?? indexOf(items, id || undefined) ?? selectDefaultDevice(items, prefs);
+  return { source, index };
+}
+
+function indexOf(items: readonly MediaDeviceInfo[], id?: string): t.Index | undefined {
+  if (Is.nil(id)) return;
+  const index = items.findIndex((item) => item.deviceId === id);
+  return index >= 0 ? index : undefined;
+}
+
+function samePositions(a: Source, b: Source) {
+  if (a.seededIndex !== b.seededIndex) return false;
+  if (a.items === b.items) return true;
+  return a.items.length === b.items.length &&
+    a.items.every((item, index) => item.deviceId === b.items[index].deviceId);
+}

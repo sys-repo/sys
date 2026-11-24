@@ -4,9 +4,11 @@ agent-kernel-research.plan.md
 
 ## Purpose
 
-Find the smallest original, headless @sys agent kernel for our own UI and isolated nodes, using
-existing Cmd<T> mechanisms. The research unit produces design evidence, not an engine implementation.
-The package name and implementation landing location remain undecided.
+Design a small, portable, headless `@sys` kernel for our own UI and isolated hosts. Keep loop
+transitions independent of runtime and provider effects; use existing `Cmd<T>` for submit, observe,
+and cancel at the host boundary, not as the owner of run lifetime. The research unit produces design
+evidence, not an engine implementation. Package, host, and runtime choices remain open; portability
+is a requirement to prove, not a result already established.
 
 ## Design direction
 
@@ -19,6 +21,15 @@ This supersedes the original reuse/extract/own comparison as the product decisio
 that Pi is entirely Node-bound, that replacement is universally cheaper, or that fewer lines prove
 correctness. Preserve the existing working integration until a separately authorized replacement
 is proved; do not change its dependency pin or security policy as part of this research.
+
+## Separate completed work: Driver Pi on Deno
+
+The archived `compile-cache-preload.plan.md` kept the official Pi CLI working under scoped Deno.
+`c89f8f501` removed the release gate for the narrowly matched startup shim and demonstrated the
+upgrade to Pi 1.5.2. The shim supplies the missing `node:module` compile-cache export only for the
+matched bootstrap; this was not a general Node compatibility fix. The completed plan and proof are
+recoverable at `e10782ef1`; `74fc7a9a1` removed both from the live tree. That work neither
+implements nor gates this kernel, and the new kernel does not inherit the shim.
 
 ## Supporting records
 
@@ -37,9 +48,10 @@ or durable recovery. Proposed contract sketches are not existing APIs or impleme
 
 Phil abandoned the upstream contribution and released-adoption path after the supplied issue
 screenshot showed `davidbrai` removing `untriaged` and adding `no-action` on
-[proposal #11242](https://github.com/earendil-works/pi/issues/11242). This was human triage after the
-initial automatic closure, not merely the bot's `not planned` status. No explanation or qualifying
-`lgtm` was recorded. No PR was submitted. No official-release adoption was completed.
+[proposal #11242](https://github.com/earendil-works/pi/issues/11242). This was human triage after
+initial automatic closure. No explanation or qualifying `lgtm` was recorded. No PR was submitted,
+and that upstream workflow did not deliver a release. The later Driver Pi upgrade used the separate
+launcher-side shim recorded above.
 
 The obsolete `pi-compile-cache-pr.plan.md` and `upstream-runtime-compatibility.plan.md` are removed
 as abandoned workflows, not archived as successfully completed plans. Their previously committed
@@ -64,8 +76,8 @@ below and in the separate Pi checkout's validation receipt.
 - Landed sys support work remains intact: `fb8b5dfdf` (`test(driver-pi): verify upstream CLI
   compatibility in isolation`) and `691bb36c9` (`fix(driver-pi): preserve Pi child exit status`).
 - Historical exact-pair checks rejected Pi 0.86.1 and 0.87.1 on Deno 2.9.7 for the missing
-  `enableCompileCache` export; dependency-selected Pi 0.85.1 passed the isolated host check.
-  The recovery selection was not replaced by a verified official release in this work.
+  `enableCompileCache` export; dependency-selected Pi 0.85.1 passed the isolated host check. Those
+  checks predate the separate launcher-side upgrade recorded above.
 
 Cleanup changes no dependency selection, launcher, policy, OSS checkout, remote branch or issue.
 There is no active PR/adoption prerequisite, polling task or appeal implied by these records.

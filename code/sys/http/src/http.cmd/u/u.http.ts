@@ -1,44 +1,31 @@
-import { D, Err, Is, Json, Str, type t } from '../common.ts';
+import { Bytes, D, Is, Json, Str, type t } from '../common.ts';
 
-export type JsonResult<D = unknown> =
-  | { readonly ok: true; readonly data: D; readonly error: undefined }
-  | { readonly ok: false; readonly error: t.StdError };
-
-/** Read a JSON body without throwing. */
-export async function readJson<D = unknown>(input: { json(): Promise<D> }): Promise<JsonResult<D>> {
-  try {
-    return { ok: true, data: await input.json(), error: undefined };
-  } catch (error) {
-    return { ok: false, error: Err.std(error) };
-  }
+/** Decode Cmd JSON strictly; byte reading and classification remain separate. */
+export function decodeJson(bytes: Uint8Array<ArrayBuffer>): unknown {
+  return Json.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes));
 }
 
-/** Check whether a request matches an optional route path. */
+/** Match a route when configured; an omitted path requires mount-owner routing. */
 export function matchesPath(request: Request, path: t.StringUrlRoute | undefined): boolean {
   if (!Is.string(path)) return true;
-
-  const expected = normalizePath(path);
-  const actual = new URL(request.url).pathname;
-  return actual === expected;
-}
-
-/** Create a JSON HTTP response. */
-export function jsonResponse(data: unknown, status = 200): Response {
-  return new Response(Json.stringify(data), {
-    status,
-    headers: { 'content-type': D.Json.contentType },
-  });
-}
-
-/** Create a text HTTP response. */
-export function textResponse(body: string, status: number, headers?: HeadersInit): Response {
-  return new Response(body, { status, headers });
-}
-
-/**
- * Helpers:
- */
-function normalizePath(path: t.StringUrlRoute): t.StringUrlRoute {
   const value = Str.trimLeadingSlashes(path);
-  return (value ? `/${value}` : '/') as t.StringUrlRoute;
+  return new URL(request.url).pathname === (value ? `/${value}` : '/');
+}
+
+/** Construct a bounded no-store response, falling back to an empty body. */
+export function response(
+  data: t.Cmd.Wire.Result | undefined,
+  status: number,
+  maxBytes: number,
+): Response {
+  const headers = new Headers({ 'cache-control': 'no-store' });
+  if (status === 405) headers.set('allow', D.method);
+  if (data === undefined) return new Response(null, { status, headers });
+  const body = Json.stringify(data, 0);
+  if (Bytes.utf8ByteLength(body) > maxBytes) {
+    if (status === 200) throw new Error('Command result exceeded its byte limit.');
+    return new Response(null, { status, headers });
+  }
+  headers.set('content-type', D.Json.contentType);
+  return new Response(body, { status, headers });
 }
