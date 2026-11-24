@@ -10,6 +10,7 @@ export const ns = 'sys.ui.component';
  * Components:
  */
 export const SpecsComponents = {
+  [`${ns}: Admonition`]: () => import('../ui.react/ui/Admonition/-spec/-SPEC.tsx'),
   [`${ns}: ActionProbe`]: () => import('../ui.react/ui/ActionProbe/-spec/-SPEC.tsx'),
 
   [`${ns}: Button`]: () => import('../ui.react/ui/Button/-spec/-SPEC.tsx'),
