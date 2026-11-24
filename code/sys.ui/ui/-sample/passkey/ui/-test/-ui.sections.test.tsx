@@ -139,7 +139,7 @@ describe('Passkey diagnostic sections', () => {
         </>,
       );
       expect(framing(res.container)).to.eql('actions status context');
-      expect(res.container.querySelector('[data-passkey-title-spinner]')).to.equal(null);
+      expect(res.container.querySelector('[data-passkey-title-spinner]')).to.eql(null);
       const rows = [
         ['actions', 'Sign In'],
         ['status', 'principal-test-01'],
@@ -174,7 +174,7 @@ describe('Passkey diagnostic sections', () => {
       const expected = out ? ['Create with Passkey', 'Sign In'] : ['Add Passkey', 'Sign Out'];
       expect(controls.map((el) => el.textContent)).to.eql(expected);
       const progress = '[role="progressbar"], [data-spinner-slot], [role="status"]';
-      expect(res.container.querySelector(progress)).to.equal(null);
+      expect(res.container.querySelector(progress)).to.eql(null);
       expect(res.container.textContent).not.to.include('Waiting');
       for (const el of controls) {
         expect(el.getAttribute('aria-disabled')).to.eql('true');
@@ -208,7 +208,7 @@ describe('Passkey diagnostic sections', () => {
         expect(cell.textContent).to.eql(text);
         const bullet = cell.querySelector<HTMLElement>('[aria-hidden="true"] :empty')!;
         expect(Color.toHex(cssOf(bullet).backgroundColor)).to.eql(Color.toHex(color));
-        expect(cell.querySelector('[tabindex], button, a')).to.equal(null);
+        expect(cell.querySelector('[tabindex], button, a')).to.eql(null);
       }
     });
   }
@@ -255,6 +255,6 @@ describe('Passkey diagnostic sections', () => {
       expect(cssOf(cell.firstElementChild!).whiteSpace).to.eql('normal');
     }
     panel.update({ snapshot: signedOut });
-    expect(panel.container.querySelector('a[href$="#credential-record"]')).to.equal(null);
+    expect(panel.container.querySelector('a[href$="#credential-record"]')).to.eql(null);
   });
 });

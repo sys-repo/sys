@@ -66,7 +66,7 @@ describe('Passkey pure specimen', () => {
     expect(debug.props.fixture.value).to.equal(fixture);
     expect(fixture.snapshot.authentication.kind).to.eql('signed-out');
     expect(fixture.snapshot.operation.kind).to.eql('idle');
-    expect(fixture.snapshot.result).to.equal(undefined);
+    expect(fixture.snapshot.result).to.eql(undefined);
     await activate(toggle);
     expect(toggle.textContent).to.eql('callbacks: not supplied');
     expect(intent()).to.eql(['sign-out', '4']);
