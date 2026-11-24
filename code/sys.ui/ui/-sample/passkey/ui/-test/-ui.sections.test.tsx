@@ -92,6 +92,7 @@ describe('Passkey diagnostic sections', () => {
     const original = element(panel.container, '[role="note"][id]');
     const body = original.previousElementSibling!;
     const height = cssOf(body).height;
+    const margin = cssOf(original).marginTop;
     expect(height).to.match(/^[\d.]+(?:px|rem)$/);
     expect(cssOf(body).overflowY).to.eql('auto');
     const transitions = [
@@ -106,9 +107,9 @@ describe('Passkey diagnostic sections', () => {
       expect(note()).to.equal(original);
       expect(original.previousElementSibling).to.equal(body);
       expect(cssOf(body).height).to.eql(height);
+      expect(cssOf(original).marginTop).to.eql(margin);
     }
     expect(tracks()).to.eql('repeat(4, auto) 1lh 1lh');
-    expect(cssOf(original).marginTop).to.eql('30px');
     panel.update({ ...props, snapshot: { ...signedIn, context } });
     expect(tracks()).to.eql('none');
     expect(valueCell(panel.container, 'Account label').textContent).to.eql('Test account');
@@ -304,6 +305,10 @@ describe('Passkey diagnostic sections', () => {
       const style = cssOf(node);
       expect(Number(style.opacity || 1)).to.eql(level === 'info' ? 0.5 : 1);
       expect(style.fontStyle || 'normal').to.eql(level === 'info' ? 'italic' : 'normal');
+      expect(style.getPropertyValue('padding-inline-end') || '0px').to.eql(
+        level === 'info' ? '2px' : '0px',
+      );
+      expect(style.getPropertyValue('text-wrap')).to.eql('pretty');
     }
   });
 

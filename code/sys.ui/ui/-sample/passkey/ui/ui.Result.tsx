@@ -18,10 +18,11 @@ export const Result: t.FC<t.Passkey.ResultProps> = (props) => {
    */
   const styles = {
     base: css({
-      ...(level === 'info' && { opacity: 0.5, fontStyle: 'italic' }),
+      ...(level === 'info' && { opacity: 0.5, fontStyle: 'italic', paddingInlineEnd: '2px' }),
       minWidth: 0,
       overflowWrap: 'anywhere',
       whiteSpace: 'normal',
+      textWrap: 'pretty',
     }),
   };
 
