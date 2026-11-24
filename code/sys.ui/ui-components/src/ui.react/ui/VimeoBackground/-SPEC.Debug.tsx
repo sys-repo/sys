@@ -1,5 +1,5 @@
 import React from 'react';
-import { VIMEO } from '../-test.ui.ts';
+import { Spec, VIMEO } from '../-test.ui.ts';
 import { Color, css, D, Dev, Signal, type t } from './-spec/common.ts';
 
 type P = t.VimeoBackgroundProps;
@@ -25,20 +25,21 @@ export function createDebugSignals(init?: (e: DebugSignals) => void) {
     jumpTo: s<P['jumpTo']>(),
     vimeo: s<t.VimeoIFrame>(),
   };
-  const api = {
-    props,
-    listen() {
-      const p = props;
-      p.theme.value;
-      p.video.value;
-      p.opacity.value;
-      p.blur.value;
-      p.playing.value;
-      p.playingTransition.value;
-      p.jumpTo.value;
-      p.vimeo.value;
-    },
-  };
+  const { attach } = Spec.attachments();
+
+  function listen() {
+    const p = props;
+    p.theme.value;
+    p.video.value;
+    p.opacity.value;
+    p.blur.value;
+    p.playing.value;
+    p.playingTransition.value;
+    p.jumpTo.value;
+    p.vimeo.value;
+  }
+
+  const api = { props, listen, attach };
   init?.(api);
   return api;
 }

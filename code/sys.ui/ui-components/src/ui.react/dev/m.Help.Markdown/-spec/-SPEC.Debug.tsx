@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
 import { Sample, type SampleKind } from './-u.sample.ts';
 
@@ -31,11 +32,15 @@ export async function createDebugSignals() {
     sample: s(Sample.resolveKind(snap.sample)),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.sample = p.sample.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(props, true);
@@ -45,15 +50,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.sample = p.sample.value;
-    });
-  });
-
-  return api;
+  return { props, listen, reset, attach };
 }
 
 const Styles = {

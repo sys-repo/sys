@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, Str, type t } from './common.ts';
 import { IndexTreeView } from '../mod.ts';
 import { SAMPLE_YAML } from './-u.yaml.ts';
@@ -45,36 +46,38 @@ export function createDebugSignals() {
     renderLeaf: s(snap.renderLeaf ?? defaults.renderLeaf),
   };
   const p = props;
-  const api = {
+  const { attach } = Spec.attachments({
+    shared(e) {
+      const effects = Signal.listeners(e.life);
+      effects.effect(() => {
+        store.change((d) => {
+          d.theme = p.theme.value;
+          d.debug = p.debug.value;
+          d.yaml = p.yaml.value;
+          d.path = p.path.value;
+          d.showChevron = p.showChevron.value;
+          d.indentSize = p.indentSize.value;
+          d.spinning = p.spinning.value;
+          d.renderLeaf = p.renderLeaf.value;
+        });
+      });
+      effects.effect(() => console.info('👁️ path:', p.path.value));
+    },
+  });
+
+  function listen() {
+    Signal.listen(props);
+  }
+
+  return {
     props,
+    listen,
+    attach,
     get root() {
       const text = p.yaml.value;
       return text ? IndexTreeView.Data.Yaml.parse(text) : undefined;
     },
-    listen() {
-      Signal.listen(props);
-    },
   };
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.yaml = p.yaml.value;
-      d.path = p.path.value;
-      d.showChevron = p.showChevron.value;
-      d.indentSize = p.indentSize.value;
-      d.spinning = p.spinning.value;
-      d.renderLeaf = p.renderLeaf.value;
-    });
-  });
-
-  /** Observe to relevant changes */
-  Signal.effect(() => {
-    console.info('👁️ path:', p.path.value);
-  });
-
-  return api;
 }
 
 const Styles = {

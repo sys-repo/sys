@@ -1,4 +1,5 @@
 import React from 'react';
+import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, Icons, Is, LocalStorage, Obj, Signal, Str, type t } from './common.ts';
 import { Item } from '../mod.ts';
 
@@ -52,33 +53,34 @@ export function createDebugSignals() {
     paddingPreset: s(snap.paddingPreset),
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    get padding() {
-      const v = p.paddingPreset.value;
-      return v ? Item.Presets.Padding[v] : undefined;
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.active = p.active.value;
+        d.enabled = p.enabled.value;
+        d.label = Is.string(p.label.value) ? p.label.value : undefined;
+        d.description = Is.string(p.description.value) ? p.description.value : undefined;
+        d.paddingPreset = p.paddingPreset.value;
+        d.chevron = Is.bool(p.chevron.value) ? p.chevron.value : undefined;
+      });
     },
-  };
+  });
 
   function listen() {
     Signal.listen(props, true);
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.active = p.active.value;
-      d.enabled = p.enabled.value;
-      d.label = Is.string(p.label.value) ? p.label.value : undefined;
-      d.description = Is.string(p.description.value) ? p.description.value : undefined;
-      d.paddingPreset = p.paddingPreset.value;
-      d.chevron = Is.bool(p.chevron.value) ? p.chevron.value : undefined;
-    });
-  });
-
-  return api;
+  return {
+    props,
+    listen,
+    attach,
+    get padding() {
+      const v = p.paddingPreset.value;
+      return v ? Item.Presets.Padding[v] : undefined;
+    },
+  };
 }
 
 const Styles = {
