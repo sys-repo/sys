@@ -8,6 +8,30 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
+@sys.ui-components
+markdown-admonition-panel.plan.md
+- [ ] chore(ui-components): scaffold Admonition UI
+- [ ] feat(ui-components): render compact Markdown admonitions
+- [ ] refactor(ui): adopt Admonition for passkey registration guidance
+- [ ] fix(ui-components): align Dev.Help Markdown link cues with Admonition
+
+
+
+
+
+@sys.ui-components
+inline-bar-spinner.plan.md
+- [x] 02e338d92 fix(ui-components): render Spinners.Bar without a lazy dependency
+
+@sys.ui-components
+circular-spinner.plan.md
+- [x] 2bbdfdece chore(ui-components): scaffold the circular spinner module
+- [x] 6b8e13b69 refactor(ui-components)!: expose Bar and Circular through their UI renderers
+- [x] 4142d7130 refactor(ui-components)!: rename SpinnerLib to Spinners.Lib
+- [x] d6414fb49 feat(ui-components): add the classic macOS-style Spinners.Circular indicator
+- [x] 1573ff8f6 refactor(ui-components)!: retire legacy direct React component aliases
+- [x] d8cc1ecb3 test(ui-components): move spinner export tests to the family module
+
 
 @sys.ui
 passkey-panel.plan.md
@@ -65,12 +89,17 @@ ui-template-maintenance.plan.md
 - [x] 13c6bf5de fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
 - [x] fa15c1d1f fix(ui-components): bind video deck and element specimen effects to attachments
 - [x] 7cfb33b13 fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
-- [ ] fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
-- [ ] fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
-- [ ] fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
-- [ ] fix(ui-components): bind webfont and CSS specimen effects to attachments
-- [ ] fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
+- [x] 358cdb877 fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
+- [x] c77a41ccb fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
+- [x] 32af16902 fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
+- [x] 4c5e626b4 fix(ui-components): bind webfont and CSS specimen effects to attachments
+- [x] 6039ece20 fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
 - [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across other sys packages
+- [ ] fix(ui): bind Files.InfoPanel specimen effects to attachments
+- [ ] fix(ui): bind Files.InfoPanel.Config specimen effects to attachments
+- [ ] fix(ui-dev): retire the MySample keyboard subscription with its attachment
+- [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across driver packages
+
 
 
 
