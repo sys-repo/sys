@@ -17,11 +17,7 @@
     "info": "deno run -A ./-scripts/task.vite.ts --cmd=info",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
-  "publish": {
-    "exclude": [
-      "-sample/"
-    ]
-  },
+  "publish": { "exclude": ["-sample/"] },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
@@ -29,16 +25,8 @@
     "./react/files": "./src/ui.react/ui.files/mod.ts"
   },
   "permissions": {
-    "clean": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
-    "test": {
-      "read": true,
-      "write": true,
-      "env": true
-    },
+    "clean": { "read": true, "write": true, "env": true },
+    "test": { "read": true, "write": true, "env": true },
     "passkey-browser-launch": {
       "read": true,
       "write": [
@@ -63,15 +51,7 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": [
-          "cpus",
-          "networkInterfaces",
-          "hostname",
-          "osRelease",
-          "homedir",
-          "uid",
-          "gid"
-        ]
+        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
       }
     }
   }
