@@ -11,6 +11,7 @@ import {
   type t,
   TestReact,
 } from './common.ts';
+import { Passkey } from '../mod.ts';
 import { Warning } from '../ui.Warning.tsx';
 import {
   button,
@@ -125,6 +126,50 @@ describe('Passkey diagnostic panel', () => {
     } finally {
       res.dispose();
     }
+  });
+
+  it('Actions owns the registration note; only eligible registration controls refer to it', async () => {
+    const context = {
+      ...signedOut.context,
+      registrationAdvisory: '**First** [reference](https://example.test/term).',
+    };
+    const props = { snapshot: { ...signedOut, context }, ...callbacks };
+    using panel = await renderPanel(props);
+    const selector = '[role="note"][id]';
+    const note = () => panel.container.querySelector(selector);
+    const create = button(panel.container, 'Create with Passkey');
+    const contextSection = element(panel.container, '[data-passkey-section="context"]');
+    expect(note()?.previousElementSibling?.contains(contextSection)).to.eql(true);
+    expect(note()).to.equal(panel.container.firstElementChild?.lastElementChild);
+    const reference = element(panel.container, `${selector} a[href="https://example.test/term"]`);
+    expect(reference.getAttribute('target')).to.eql('_blank');
+    expect(button(panel.container, 'Sign In').hasAttribute('aria-describedby')).to.eql(false);
+    const updated = { ...context, registrationAdvisory: '**Hint.** Updated.' };
+    for (const theme of ['Light', 'Dark'] as const) {
+      panel.update({ ...props, theme, snapshot: { ...signedOut, context: updated } });
+      const el = element(panel.container, selector);
+      expect(el.textContent).to.include('Updated.');
+      const colorOf = (node: Element) => el.ownerDocument.defaultView!.getComputedStyle(node).color;
+      const foreground = colorOf(el);
+      const body = theme === 'Dark' ? Color.alpha(foreground, 0.65) : foreground;
+      expect(colorOf(element(el, 'p'))).to.eql(body);
+      expect(colorOf(element(el, 'strong'))).to.eql(foreground);
+    }
+    const original = note();
+    panel.update({ ...props, onCreateAccount: undefined });
+    expect(note()).to.equal(original);
+    expect(create.hasAttribute('aria-describedby')).to.eql(false);
+    expect(panel.container.textContent).to.include('Action not connected');
+    panel.update({ ...props, snapshot: signedOut });
+    expect(note()).to.eql(null);
+    panel.update({ ...props, sections: { actions: false } });
+    expect(note()).to.eql(null);
+
+    using bare = await TestReact.render(<Passkey.UI.Actions {...props.snapshot} {...callbacks} />);
+    const bareNote = element(bare.container, selector);
+    const bareCreate = button(bare.container, 'Create with Passkey');
+    expect(bareNote.previousElementSibling?.contains(bareCreate)).to.eql(true);
+    expect(bareCreate.getAttribute('aria-describedby')).to.eql(bareNote.id);
   });
 
   const blockedContexts: readonly [string, t.Passkey.Context][] = [
@@ -369,7 +414,7 @@ describe('Passkey diagnostic panel', () => {
     }
   });
 
-  it('missing values → dim dashes; supplied values → normal opacity', async () => {
+  it('missing values → dim dashes; a supplied principal keeps normal opacity', async () => {
     const res = await renderPanel({ snapshot: signedOut, ...callbacks });
     try {
       const view = res.container.ownerDocument.defaultView!;
@@ -394,7 +439,6 @@ describe('Passkey diagnostic panel', () => {
       expect(view.getComputedStyle(dashes()[0]).opacity || '1').to.eql('1');
       expect(element(res.container, '[role="status"][aria-label="Last result"]')).to.equal(result);
       expect(result.textContent).to.eql('Add Passkey — success: Credential added');
-      expect(view.getComputedStyle(result).opacity || '1').to.eql('1');
     } finally {
       res.dispose();
     }

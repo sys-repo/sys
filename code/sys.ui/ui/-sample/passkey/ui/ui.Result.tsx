@@ -5,6 +5,7 @@ import { EmptyValue } from './ui.EmptyValue.tsx';
 /** Stable announcement for the latest supplied result. */
 export const Result: t.FC<t.Passkey.ResultProps> = (props) => {
   const { result } = props;
+  const level = result && levelOf(result);
   const labels = {
     success: 'success',
     failure: 'failure',
@@ -17,6 +18,7 @@ export const Result: t.FC<t.Passkey.ResultProps> = (props) => {
    */
   const styles = {
     base: css({
+      ...(level === 'info' && { opacity: 0.5, fontStyle: 'italic' }),
       minWidth: 0,
       overflowWrap: 'anywhere',
       whiteSpace: 'normal',
@@ -24,10 +26,29 @@ export const Result: t.FC<t.Passkey.ResultProps> = (props) => {
   };
 
   return (
-    <div role='status' aria-label='Last result' aria-atomic='true' className={styles.base.class}>
+    <div
+      role='status'
+      aria-label='Last result'
+      aria-atomic='true'
+      data-level={level}
+      className={styles.base.class}
+    >
       {result
         ? `${actionLabel(result.action)} — ${labels[result.kind]}: ${result.summary}`
         : <EmptyValue />}
     </div>
   );
 };
+
+function levelOf(result: t.Passkey.Result): t.LogLevel {
+  switch (result.kind) {
+    case 'success':
+      return 'info';
+    case 'failure':
+      return 'error';
+    case 'indeterminate':
+      return 'warn';
+    case 'not-submitted':
+      return result.reason === 'cancelled' || result.reason === 'unavailable' ? 'info' : 'warn';
+  }
+}

@@ -11,6 +11,7 @@ import {
   type t,
   TestReact,
 } from './common.ts';
+import { browserOrigin } from '../../u/u.issuer.ts';
 import { Passkey } from '../mod.ts';
 import {
   button,
@@ -58,6 +59,85 @@ describe('Passkey diagnostic sections', () => {
       }
     });
   }
+
+  it('view selects a framed panel or standalone section; only panel honors sections', async () => {
+    const props = { snapshot: pending, sections: { context: false }, style: { padding: 7 } };
+    using panel = await renderPanel(props);
+    const { container } = panel;
+    const cases = [
+      ['panel', 'actions | status', true, false, true],
+      ['actions', 'actions', true, true, false],
+      ['status', 'status', false, false, true],
+      ['context', 'context', false, false, false],
+    ] as const;
+    for (const [view, expected, framed, titleProgress, statusProgress] of cases) {
+      panel.update({ ...props, view });
+      expect(framing(container)).to.eql(expected);
+      expect(!!container.querySelector('[data-passkey-title-spinner]')).to.eql(framed);
+      expect(!!container.querySelector('[role="progressbar"]')).to.eql(titleProgress);
+      expect(!!container.querySelector('[data-spinner-slot]')).to.eql(statusProgress);
+      expect(cssOf(container.firstElementChild!).padding).to.eql('7px');
+    }
+  });
+
+  it('registration note → stays mounted at a fixed panel height across account operations', async () => {
+    const context = { ...signedOut.context, registrationAdvisory: 'Use a test passkey.' };
+    const out = { ...signedOut, context };
+    const props = { snapshot: out, onCreateAccount: () => {}, onAddPasskey: () => {} };
+    using panel = await renderPanel(props);
+    const note = () => panel.container.querySelector<HTMLElement>('[role="note"][id]');
+    const tracks = () => {
+      const grid = panel.container.querySelector(`${section('status')} > div`);
+      return grid && (cssOf(grid).gridTemplateRows || 'none');
+    };
+    const original = element(panel.container, '[role="note"][id]');
+    const body = original.previousElementSibling!;
+    const height = cssOf(body).height;
+    expect(height).to.match(/^[\d.]+(?:px|rem)$/);
+    expect(cssOf(body).overflowY).to.eql('auto');
+    const transitions = [
+      { ...out, operation: pending.operation },
+      { ...out, authentication: { kind: 'checking' }, operation: { kind: 'checking' } },
+      { ...out, authentication: { kind: 'unknown', summary: 'Session unknown' } },
+      { ...signedIn, context },
+      out,
+    ] satisfies t.Passkey.Snapshot[];
+    for (const snapshot of transitions) {
+      panel.update({ ...props, snapshot });
+      expect(note()).to.equal(original);
+      expect(original.previousElementSibling).to.equal(body);
+      expect(cssOf(body).height).to.eql(height);
+    }
+    expect(tracks()).to.eql('repeat(4, auto) 1lh 1lh');
+    expect(cssOf(original).marginTop).to.eql('30px');
+    panel.update({ ...props, snapshot: { ...signedIn, context } });
+    expect(tracks()).to.eql('none');
+    expect(valueCell(panel.container, 'Account label').textContent).to.eql('Test account');
+    panel.update({ ...props, view: 'actions' });
+    expect(note()?.previousElementSibling?.contains(element(panel.container, section('actions'))))
+      .to.eql(true);
+    expect(tracks()).to.eql(null);
+    panel.update({ ...props, view: 'actions', snapshot: { ...out, operation: pending.operation } });
+    expect(note()).to.equal(original);
+
+    const withoutNote: t.Passkey.Props[] = [
+      { ...props, snapshot: signedOut },
+      { ...props, sections: { actions: false } },
+      { ...props, view: 'status' },
+      { ...props, view: 'context' },
+    ];
+    for (const next of withoutNote) {
+      panel.update(next);
+      expect(note()).to.eql(null);
+      expect(tracks() ?? 'none').to.eql('none');
+      const { height, minHeight, overflowY } = cssOf(panel.container.firstElementChild!);
+      expect([height || 'auto', minHeight || 'auto', overflowY || 'visible']).to.eql([
+        'auto',
+        'auto',
+        'visible',
+      ]);
+    }
+  });
 
   it('omitted sections default on; empty Actions leave no title or divider', async () => {
     using panel = await renderPanel({ snapshot: signedOut });
@@ -213,7 +293,28 @@ describe('Passkey diagnostic sections', () => {
     });
   }
 
-  it('references are fixed destinations on keys; supplied values remain plain, selectable text', async () => {
+  it('Last result → emphasis follows the outcome, never the summary text', async () => {
+    using panel = await renderPanel({ snapshot: signedOut });
+    const node = element(panel.container, '[role="status"][aria-label="Last result"]');
+    const cases = [
+      [{ kind: 'success' }, 'info'],
+      [{ kind: 'failure' }, 'error'],
+      [{ kind: 'indeterminate' }, 'warn'],
+      [{ kind: 'not-submitted', reason: 'cancelled' }, 'info'],
+      [{ kind: 'not-submitted', reason: 'unavailable' }, 'info'],
+      [{ kind: 'not-submitted', reason: 'invalid-input' }, 'warn'],
+    ] as const;
+    for (const [outcome, level] of cases) {
+      const result = { action: 'sign-in' as const, summary: 'Same summary', ...outcome };
+      panel.update({ snapshot: { ...signedOut, result } });
+      expect(node.getAttribute('data-level')).to.eql(level);
+      const style = cssOf(node);
+      expect(Number(style.opacity || 1)).to.eql(level === 'info' ? 0.5 : 1);
+      expect(style.fontStyle || 'normal').to.eql(level === 'info' ? 'italic' : 'normal');
+    }
+  });
+
+  it('only the configured Origin value links; other identifiers remain selectable text', async () => {
     const principal = 'https://identity.example.test/<principal>';
     const origin = `https://${'long-origin-'.repeat(20)}.test`;
     const w3c = 'https://www.w3.org/TR/webauthn-3/#';
@@ -254,7 +355,21 @@ describe('Passkey diagnostic sections', () => {
       expect(cssOf(cell.firstElementChild!).overflowWrap).to.eql('anywhere');
       expect(cssOf(cell.firstElementChild!).whiteSpace).to.eql('normal');
     }
-    panel.update({ snapshot: signedOut });
+    const showOrigin = (origin?: string) => {
+      panel.update({ snapshot: { ...signedOut, context: { ...signedOut.context, origin } } });
+      return valueCell(panel.container, 'Origin');
+    };
+    const cell = showOrigin(browserOrigin);
+    const link = cell.querySelector('a')!;
+    expect([link.getAttribute('href'), link.target]).to.eql([browserOrigin, '_blank']);
+    expect(link.rel.split(' ').sort()).to.eql(['noopener', 'noreferrer']);
+    expect(cssOf(link).fontFamily).to.eql('monospace');
+    expect(cssOf(valueCell(panel.container, 'Relying Party ID').firstElementChild!).fontFamily)
+      .to.eql('monospace');
+    expect(showOrigin(`${browserOrigin}.example.test`).querySelector('a')).to.eql(null);
+    const missing = showOrigin();
+    expect(missing.textContent).to.eql('Unknown');
+    expect(cssOf(missing.firstElementChild!).fontFamily).not.to.eql('monospace');
     expect(panel.container.querySelector('a[href$="#credential-record"]')).to.eql(null);
   });
 });

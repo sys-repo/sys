@@ -1,17 +1,29 @@
+import { useId } from 'react';
 import { Color, css, D, KeyValue, type t } from './common.ts';
 import { actionsOf } from './u.actions.ts';
 import { Action } from './ui.Action.tsx';
+import { RegistrationNote } from './ui.RegistrationNote.tsx';
 
-/**
- * Request controls only; the composing host owns titles and progress feedback.
- */
+/** Standalone Actions keeps the registration hint with its controls. */
 export const Actions: t.FC<t.Passkey.ActionsProps> = (props) => {
-  const { debug = D.debug, operation } = props;
-  const actions = actionsOf(props);
-  if (actions.length === 0) return null;
+  const { controls, note } = useActionParts(props);
+  return <>{controls}{note}</>;
+};
 
+/** The host supplies the note; eligibility controls only the button-to-note association. */
+export function useActionParts(props: t.Passkey.ActionsProps) {
+  const { debug = D.debug, operation } = props;
+  const noteId = useId();
+  const actions = actionsOf(props);
   const theme = Color.theme(props.theme);
+  const advisory = props.context.registrationAdvisory;
+  const note = advisory && <RegistrationNote id={noteId} markdown={advisory} theme={theme.name} />;
+  if (actions.length === 0) return { controls: null, note };
+
   const pending = operation.kind !== 'idle';
+  const registration = actions.find(({ id, reason }) =>
+    !reason && (id === 'create-account' || id === 'add-passkey')
+  );
   const styles = {
     base: css({ color: theme.fg, minWidth: 0, backgroundColor: Color.ruby(debug ? 0.1 : 0) }),
   };
@@ -22,9 +34,7 @@ export const Actions: t.FC<t.Passkey.ActionsProps> = (props) => {
       <Action
         label={action.label}
         reason={action.reason}
-        advisory={action.id === 'create-account' || action.id === 'add-passkey'
-          ? props.context.registrationAdvisory
-          : undefined}
+        aria-describedby={advisory && action === registration ? noteId : undefined}
         pending={pending}
         onClick={action.onClick}
         theme={theme.name}
@@ -32,9 +42,10 @@ export const Actions: t.FC<t.Passkey.ActionsProps> = (props) => {
     ),
   }));
 
-  return (
+  const controls = (
     <div data-passkey-section='actions' className={css(styles.base, props.style).class}>
       <KeyValue.UI items={items} layout={D.layout} theme={theme.name} />
     </div>
   );
-};
+  return { controls, note };
+}

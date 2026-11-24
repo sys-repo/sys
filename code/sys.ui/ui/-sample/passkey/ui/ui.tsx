@@ -1,14 +1,40 @@
 import React from 'react';
 import { Color, css, D, KeyValue, Spinners, type t } from './common.ts';
-import { actionsOf } from './u.actions.ts';
-import { Actions } from './ui.Actions.tsx';
+import { useActionParts } from './ui.Actions.tsx';
 import { Context } from './ui.Context.tsx';
 import { Status } from './ui.Status.tsx';
 
-/**
- * Compose the same independent sections without owning authentication or duplicating their rows.
- */
+const actionsOnly = { actions: true, status: false, context: false } as const;
+// Stable diagnostic area above the note, in rem. Only the selected sections affect its height.
+const bodyRem = { titleAndActions: 4, status: 10, context: 8 } as const;
+
+/** Select a presentation without owning authentication or duplicating section rows. */
 export const Passkey: t.FC<t.Passkey.Props> = (props) => {
+  const { view = D.view, ...panel } = props;
+  const { snapshot, debug, theme, style } = panel;
+  const appearance = { debug, theme, style };
+  switch (view) {
+    case 'status': {
+      const { authentication, operation, result } = snapshot;
+      return (
+        <Status
+          {...appearance}
+          authentication={authentication}
+          operation={operation}
+          result={result}
+        />
+      );
+    }
+    case 'context':
+      return <Context {...appearance} context={snapshot.context} />;
+    case 'actions':
+      return <FramedPanel {...panel} sections={actionsOnly} />;
+    case 'panel':
+      return <FramedPanel {...panel} />;
+  }
+};
+
+const FramedPanel: t.FC<Omit<t.Passkey.Props, 'view'>> = (props) => {
   const { debug = D.debug, snapshot, sections = D.sections } = props;
   const theme = Color.theme(props.theme);
   const { authentication, operation, context: configuration, result } = snapshot;
@@ -22,16 +48,25 @@ export const Passkey: t.FC<t.Passkey.Props> = (props) => {
     onSignOut: props.onSignOut,
     theme: theme.name,
   };
-  const actions = (sections.actions ?? D.sections.actions) && actionsOf(requests).length > 0;
+  const { controls, note } = useActionParts(requests);
+  const showActions = sections.actions ?? D.sections.actions;
+  const actions = showActions && controls;
+  const registrationNote = showActions && note;
   const status = sections.status ?? D.sections.status;
   const context = sections.context ?? D.sections.context;
-  if (!actions && !status && !context) return null;
+  if (!actions && !registrationNote && !status && !context) return null;
 
   const base = css({
     backgroundColor: Color.ruby(debug ? 0.1 : 0),
     color: theme.fg,
     padding: 0,
     minWidth: 0,
+  });
+  const rem = bodyRem.titleAndActions + (status ? bodyRem.status : 0) +
+    (context ? bodyRem.context : 0);
+  const body = css({
+    height: registrationNote ? `${rem}rem` : undefined,
+    overflowY: registrationNote ? 'auto' : undefined,
   });
   // Reserve space within the existing title line, never a new pending-only row.
   const titlePending = !status && operation.kind !== 'idle';
@@ -58,14 +93,16 @@ export const Passkey: t.FC<t.Passkey.Props> = (props) => {
     </div>
   );
   const appearance = { theme: theme.name };
-  const divider = (before: string) => (
-    <div key='divider' data-passkey-divider={before} aria-hidden='true'>
-      <KeyValue.UI
-        items={[{ id: `${before}-divider`, kind: 'hr', y: 5 + D.layout.rowGap }]}
-        theme={theme.name}
-      />
-    </div>
-  );
+  const divider = (before: string) => {
+    return (
+      <div key='divider' data-passkey-divider={before} aria-hidden='true'>
+        <KeyValue.UI
+          items={[{ id: `${before}-divider`, kind: 'hr', y: 5 + D.layout.rowGap }]}
+          theme={theme.name}
+        />
+      </div>
+    );
+  };
 
   const elTitle = (
     <KeyValue.UI
@@ -75,13 +112,13 @@ export const Passkey: t.FC<t.Passkey.Props> = (props) => {
       style={{ marginBottom: D.layout.rowGap }}
     />
   );
-  const elActions = actions && <Actions key='actions' {...requests} />;
   const elStatusDivider = actions && divider('status');
   const elStatus = status && (
     <React.Fragment key='status'>
       {elStatusDivider}
       <Status
         key='content'
+        reserveAccountRows={!!registrationNote}
         authentication={authentication}
         operation={operation}
         result={result}
@@ -99,10 +136,13 @@ export const Passkey: t.FC<t.Passkey.Props> = (props) => {
 
   return (
     <div className={css(base, props.style).class} data-component={D.displayName}>
-      {elTitle}
-      {elActions}
-      {elStatus}
-      {elContext}
+      <div className={body.class}>
+        {elTitle}
+        {actions}
+        {elStatus}
+        {elContext}
+      </div>
+      {registrationNote}
     </div>
   );
 };

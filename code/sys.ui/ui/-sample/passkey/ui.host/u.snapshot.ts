@@ -9,7 +9,7 @@ const phases = {
   request: 'Sending request',
 } as const;
 const registrationAdvisory =
-  'Use a test passkey. Restarting the account service erases accounts, registrations, and sessions. Your authenticator may keep a passkey that no longer works.';
+  '**Use a sample passkey.**  \nRestarting the cell’s `sys.ui:accounts` service clears its in-memory accounts, registrations, and sessions. Your [authenticator](https://www.w3.org/TR/webauthn-3/#authenticator) may still offer the [passkey](https://www.w3.org/TR/webauthn-3/#passkey), but it will no longer work here.';
 
 /** Session facts and the outcome of an attempt are independent observations. */
 export function snapshotOf(state: State): t.Passkey.Snapshot {
@@ -69,6 +69,7 @@ function resultOf({ action, outcome }: NonNullable<State['last']>): t.Passkey.Re
       return {
         action,
         kind: outcome.kind,
+        reason: outcome.reason,
         summary: `No account change was submitted (${outcome.reason}).`,
       };
   }

@@ -13,12 +13,16 @@ export declare namespace Passkey {
     readonly Context: t.FC<ContextProps>;
   };
 
-  /** Pure panel with a title; pending activity moves to the title when Status is hidden. */
   export type Props = Appearance & Callbacks & {
     snapshot: Snapshot;
-    /** Presentation only; omitted members remain visible. Does not alter action eligibility. */
+    /** Defaults to the aggregate panel. */
+    view?: View;
+    /** Applies only to the aggregate panel. Omitted sections remain visible. */
     sections?: Sections;
   };
+
+  /** Actions keeps the panel frame and activity title; Status and Context render standalone. */
+  export type View = 'panel' | 'actions' | 'status' | 'context';
 
   /** Default order is Actions → Status → Context; use standalone sections for custom placement. */
   export type Sections = {
@@ -27,7 +31,7 @@ export declare namespace Passkey {
     readonly context?: boolean;
   };
 
-  /** Unframed request controls; host owns progress feedback. Empty while authentication is uncertain. */
+  /** Unframed controls and optional guidance. No request controls while authentication is uncertain. */
   export type ActionsProps =
     & Appearance
     & Callbacks
@@ -36,7 +40,7 @@ export declare namespace Passkey {
   /** Supplied authentication, operation, and result; owns detailed operation feedback when mounted. */
   export type StatusProps = Appearance & Pick<Snapshot, 'authentication' | 'operation' | 'result'>;
 
-  /** Configuration and prerequisite observations; documentation keys never turn values into links. */
+  /** Documentation keys explain concepts; only the sample's configured browser origin is navigable. */
   export type ContextProps = Appearance & Pick<Snapshot, 'context'>;
 
   /** Intent emission only; the renderer never performs authentication IO. */
@@ -58,7 +62,7 @@ export declare namespace Passkey {
   export type ActionProps = {
     label: string;
     reason?: string;
-    advisory?: string;
+    'aria-describedby'?: string;
     pending: boolean;
     onClick?: () => void;
     theme?: t.CommonTheme;
@@ -116,11 +120,12 @@ export declare namespace Passkey {
     | { readonly kind: 'pending'; readonly action: Action; readonly phase: string };
 
   /** Safe display summary only: never raw challenges, tokens, assertions, or credential material. */
-  export type Result = {
-    readonly action: Action;
-    readonly kind: 'success' | 'failure' | 'indeterminate' | 'not-submitted';
-    readonly summary: string;
-  };
+  export type Result =
+    & { readonly action: Action; readonly summary: string }
+    & (
+      | { readonly kind: 'success' | 'failure' | 'indeterminate' }
+      | Extract<t.AccountRuntime.Outcome, { kind: 'not-submitted' }>
+    );
 
   /** Supplied prerequisite knowledge; an exposed browser API alone is not readiness. */
   export type Availability =
@@ -135,7 +140,7 @@ export declare namespace Passkey {
     /** Includes secure-context and browser capability prerequisites for a ceremony. */
     readonly webAuthn: Availability;
     readonly verifier: Availability | { readonly kind: 'configured' };
-    /** Read before creating or enrolling a credential; independent of section visibility. */
+    /** Host-authored Markdown shown with Actions, independent of session or operation state. */
     readonly registrationAdvisory?: string;
   };
 }

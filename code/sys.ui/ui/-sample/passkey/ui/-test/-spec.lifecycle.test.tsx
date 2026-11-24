@@ -13,13 +13,23 @@ import {
   it,
   LocalStorage,
   Rx,
+  Schedule,
   type t,
   TestReact,
   type TestSuiteModel,
+  Time,
 } from './common.ts';
 import { Harness } from '../../../-test.ui.ts';
 import { browser, transport } from '../../m.AccountRuntime/-test/u.fixture.ts';
-import { buttons, element, exerciseAccountFlow, pageListeners, valueCell } from './u.fixture.tsx';
+import {
+  activate,
+  button,
+  buttons,
+  element,
+  exerciseAccountFlow,
+  pageListeners,
+  valueCell,
+} from './u.fixture.tsx';
 import type { DebugSignals } from '../-spec.integration/-SPEC.Debug.tsx';
 import type { DebugValues } from '../-spec.integration/-t.ts';
 import { STORAGE_KEY as INTEGRATION_STORAGE } from '../-spec.integration/common.ts';
@@ -175,17 +185,17 @@ describe('passkey cached-spec context lifetime', () => {
           else queueMicrotask(() => host.dispose());
         });
         // Await the actual suite, not a run-response on a bus we are about to dispose.
-        expect((await suite.run({ ctx })).ok).to.equal(true);
-        expect(ctx.is.attachable).to.equal(false);
+        expect((await suite.run({ ctx })).ok).to.eql(true);
+        expect(ctx.is.attachable).to.eql(false);
         expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
-        expect(listeners.attached.size).to.equal(0);
+        expect(listeners.attached.size).to.eql(0);
       } finally {
         host.dispose();
       }
     });
   }
 
-  it('integration subject → quiet signed-out mount and appearance-only reset', async () => {
+  it('integration subject → quiet signed-out mount and presentation-only reset', async () => {
     using server = transport();
     const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
     const store = LocalStorage.immutable<DebugValues>(INTEGRATION_STORAGE.DEV, initial);
@@ -203,7 +213,7 @@ describe('passkey cached-spec context lifetime', () => {
         if (!React.isValidElement<t.Passkey.Props>(subject)) {
           throw new Error('Expected the registered React subject');
         }
-        expect(subject.props).to.include({ theme, debug: true });
+        expect(subject.props).to.include({ theme, debug: true, view: 'panel' });
 
         const res = await TestReact.render(subject);
         try {
@@ -220,16 +230,93 @@ describe('passkey cached-spec context lifetime', () => {
           React.act(() => res.dispose());
         }
       }
-      debug.reset();
+      using picker = await TestReact.render(await debugElement<DebugSignals>(host.events));
+      await activate(button(picker.container, 'Status'));
+      expect(debug.props.view.value).to.eql('status');
+      expect(button(picker.container, 'Status').getAttribute('aria-pressed')).to.eql('true');
+      expect(store.current).to.eql({ ...initial, debug: true });
+      await activate(button(picker.container, '(reset)'));
+      expect(button(picker.container, 'Panel').getAttribute('aria-pressed')).to.eql('true');
       const props = (await host.events.info.get()).render.props!;
       const subject = await render(host.events, props.subject.renderer);
       if (!React.isValidElement<t.Passkey.Props>(subject)) {
         throw new Error('Expected the registered React subject');
       }
-      expect(subject.props).to.include(initial);
+      expect(subject.props).to.include({ ...initial, view: 'panel' });
       expect(server.fetchCount).to.eql(0);
     } finally {
       host.dispose();
+      store.reset(previous);
+    }
+  });
+
+  it('connected picker → changing views and resetting preserve an in-flight Add', async () => {
+    using native = browser();
+    using server = transport(undefined, 'localhost');
+    const held = Promise.withResolvers<void>();
+    const create = native.native.create;
+    native.native.create = async (options) => {
+      await held.promise;
+      return create(options);
+    };
+    const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
+    const store = LocalStorage.immutable<DebugValues>(INTEGRATION_STORAGE.DEV, initial);
+    const previous = store.current;
+    const res = await TestReact.render(<Harness.UI spec={suite} />);
+    const { container } = res;
+    const choose = (label: string) => activate(button(container, label));
+    const value = (label: string) => valueCell(container, label).textContent;
+    try {
+      // Harness.UI loads and runs its spec on the next turn, after the first render.
+      await Time.waitFor(async () => {
+        await React.act(() => Time.wait(0));
+        return buttons(container).some((el) => el.textContent === 'Sign In');
+      });
+      await choose('Sign In');
+      await choose('Add Passkey');
+      const pending = 'Add Passkey: Waiting for authenticator';
+      expect(value('Operation')).to.eql(pending);
+      const signal = native.signals.at(-1)!;
+      const panel = ['actions', 'status', 'context'];
+      const transitions = [
+        ['Actions', ['actions']],
+        ['Status', ['status']],
+        ['Context', ['context']],
+        ['Panel', panel],
+        ['Context', ['context']],
+        ['(reset)', panel],
+      ] as const;
+      for (const [control, sections] of transitions) {
+        await choose(control);
+        const visible = container.querySelectorAll<HTMLElement>('[data-passkey-section]');
+        expect(Array.from(visible, (el) => el.dataset.passkeySection)).to.eql(sections);
+        const titleProgress = '[data-passkey-title-spinner][role="progressbar"]';
+        expect(!!container.querySelector(titleProgress)).to.eql(control === 'Actions');
+        if (control === 'Status' || control === 'Panel' || control === '(reset)') {
+          expect(value('Operation')).to.eql(pending);
+          expect(value('Principal')).to.eql(server.session.account.principal);
+          expect(value('Registered credentials')).to.eql('1');
+        }
+        expect(signal.aborted).to.eql(false);
+        expect(native.calls).to.eql(['get', 'create']);
+        expect(server.fetchCount).to.eql(3);
+      }
+      await React.act(async () => {
+        held.resolve();
+        await Schedule.micro();
+      });
+      expect(value('Operation')).to.eql('Idle');
+      expect(value('Last result')).to.include('Add Passkey — success');
+      expect(value('Registered credentials')).to.eql('2');
+      expect(server.requests.map(({ name }) => name)).to.eql([
+        'session.signIn.begin',
+        'session.signIn.finish',
+        'passkey.add.begin',
+        'passkey.add.finish',
+      ]);
+    } finally {
+      held.resolve();
+      React.act(() => res.dispose());
       store.reset(previous);
     }
   });
@@ -241,15 +328,17 @@ describe('passkey cached-spec context lifetime', () => {
     const first = controller();
     const second = controller();
     async function mount(events: DevEvents) {
-      await load(events, suite);
       const { subject } = (await events.info.get()).render.props!;
+      expect(subject.size).to.eql({ mode: 'center', width: 360, height: undefined });
       return TestReact.render(<>{await render(events, subject.renderer)}</>);
     }
     try {
+      await load(first.events, suite);
+      await load(second.events, suite);
       const a = await mount(first.events);
       const b = await mount(second.events);
       try {
-        expect(server.fetchCount).to.equal(0);
+        expect(server.fetchCount).to.eql(0);
         expect(native.calls).to.eql([]);
         await exerciseAccountFlow(a.container);
         expect(server.requests.map(({ name }) => name)).to.eql([
@@ -265,14 +354,27 @@ describe('passkey cached-spec context lifetime', () => {
           'http://localhost:1234/api/passkey/cmd',
         ]);
         expect(valueCell(b.container, 'Authentication').textContent).to.eql('Signed out');
-        React.act(() => second.dispose());
         const debug = await debugOf<DebugSignals>(first.events);
+        debug.props.view.value = 'status';
+        const status = await mount(first.events);
+        try {
+          expect(valueCell(status.container, 'Authentication').textContent).to.eql('Signed in');
+          expect(valueCell(status.container, 'Registered credentials').textContent).to.eql('2');
+          expect(buttons(status.container)).to.eql([]);
+          expect(server.fetchCount).to.eql(7);
+          expect((await debugOf<DebugSignals>(second.events)).props.view.value).to.eql('panel');
+        } finally {
+          React.act(() => status.dispose());
+        }
+
+        React.act(() => second.dispose());
         debug.reset();
+        await load(first.events, suite);
         const again = await mount(first.events);
         try {
           expect(valueCell(again.container, 'Registered credentials').textContent).to.eql('2');
           expect(native.calls).to.eql(['create', 'get', 'create']);
-          expect(server.fetchCount).to.equal(7);
+          expect(server.fetchCount).to.eql(7);
         } finally {
           React.act(() => again.dispose());
         }
@@ -288,7 +390,7 @@ describe('passkey cached-spec context lifetime', () => {
     }
   });
 
-  it('pure subject → framed Actions-only, standalone sections, and aggregate visibility', async () => {
+  it('pure subject → renders the selected view with the supplied fixture', async () => {
     const suite = (await import('../-spec/-SPEC.tsx')).default;
     const host = controller();
     try {
@@ -297,35 +399,17 @@ describe('passkey cached-spec context lifetime', () => {
       const fixture = Fixtures.find((fixture) => fixture.id === 'authenticator');
       if (Is.nil(fixture)) throw new Error('Missing pending fixture');
       debug.select(fixture);
-      for (const view of ['panel', 'actions', 'status', 'context'] as const) {
-        debug.props.view.value = view;
-        debug.props.sections.value = { context: false };
-        const props = (await host.events.info.get()).render.props!;
-        const subject = await render(host.events, props.subject.renderer);
-        if (!React.isValidElement(subject)) {
-          throw new Error('Expected the registered React subject');
-        }
-        const res = await TestReact.render(subject);
-        try {
-          const expected = view === 'panel' ? ['actions', 'status'] : [view];
-          expect(
-            [...res.container.querySelectorAll('[data-passkey-section]')].map((el) =>
-              el.getAttribute('data-passkey-section')
-            ),
-          ).to.eql(expected);
-          const titles = [...res.container.querySelectorAll('div')].filter((el) =>
-            el.children.length === 0 && el.textContent === 'Passkey'
-          );
-          expect(titles.length).to.eql(view === 'panel' || view === 'actions' ? 1 : 0);
-          expect(res.container.querySelectorAll('[role="progressbar"]').length).to.eql(
-            view === 'actions' ? 1 : 0,
-          );
-          expect(res.container.querySelectorAll('[aria-label="Operation"]').length).to.eql(
-            view === 'panel' || view === 'status' ? 1 : 0,
-          );
-        } finally {
-          React.act(() => res.dispose());
-        }
+      debug.props.view.value = 'status';
+      debug.props.sections.value = { status: false };
+      const props = (await host.events.info.get()).render.props!;
+      const subject = await render(host.events, props.subject.renderer);
+      if (!React.isValidElement(subject)) throw new Error('Expected the registered React subject');
+      const res = await TestReact.render(subject);
+      try {
+        expect(buttons(res.container)).to.eql([]);
+        expect(valueCell(res.container, 'Operation').textContent).to.contain('authenticator');
+      } finally {
+        React.act(() => res.dispose());
       }
     } finally {
       host.dispose();
@@ -395,11 +479,15 @@ async function render(events: DevEvents, renderer?: DevRendererRef) {
 }
 
 async function debugOf<T>(events: DevEvents): Promise<T> {
+  return (await debugElement<T>(events)).props.debug;
+}
+
+async function debugElement<T>(events: DevEvents) {
   const props = (await events.info.get()).render.props!;
   expect(props.debug.body.renderers.length).to.eql(1);
   const element = await render(events, props.debug.body.renderers[0]);
   if (!React.isValidElement<{ debug: T }>(element)) {
     throw new Error('Expected the specimen debug component');
   }
-  return element.props.debug;
+  return element;
 }

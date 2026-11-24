@@ -101,14 +101,30 @@ describe('Passkey pure specimen', () => {
     const labels = () => buttons(container).map((el) => el.textContent);
     const visibility = () => labels().filter((label) => label?.startsWith('show '));
     const names = ['actions', 'status', 'context'];
+    await choose(Fixtures[1].label);
     const fixture = debug.props.fixture.value;
+    await React.act(() => debug.actions.onSignIn());
+    const intent = debug.props.intent.value;
     for (const name of names) await choose(`show ${name}: true`);
-    const hidden = names.map((name) => `show ${name}: false`);
-    expect(visibility()).to.eql(hidden);
-    for (const mode of ['panel', ...names]) {
-      await choose(`display: ${mode}`);
-      expect(visibility()).to.eql(mode === 'context' ? hidden : []);
+    const selected = () => {
+      const picker = button(container, 'Panel').closest('ul')!;
+      return buttons(picker).filter((el) => el.getAttribute('aria-pressed') === 'true').map((el) =>
+        el.textContent
+      );
+    };
+    expect(selected()).to.eql(['Panel']);
+    const standalone = [['Actions', 'actions'], ['Status', 'status'], ['Context', 'context']];
+    for (const [label, view] of standalone) {
+      await choose(label);
+      expect(debug.props.view.value).to.eql(view);
+      expect(selected()).to.eql([label]);
+      expect(visibility()).to.eql([]);
+      expect(debug.props.fixture.value).to.equal(fixture);
+      expect(debug.props.intent.value).to.equal(intent);
     }
+    await choose('Panel');
+    expect(visibility()).to.eql(names.map((name) => `show ${name}: false`));
+    await choose('Context');
     expect(labels().slice(-2)).to.eql(['debug: false', '(reset)']);
     await choose('debug: false');
     expect(debug.props.debug.value).to.eql(true);
@@ -116,7 +132,8 @@ describe('Passkey pure specimen', () => {
     expect(visibility()).to.eql(names.map((name) => `show ${name}: true`));
     expect(debug.props.sections.value).to.eql(D.sections);
     expect(debug.props.view.value).to.eql('panel');
-    expect(debug.props.fixture.value).to.equal(fixture);
+    expect(selected()).to.eql(['Panel']);
+    expect(debug.props.fixture.value).to.equal(Fixtures[0]);
     expect(storage().current).to.eql(initial);
   });
 

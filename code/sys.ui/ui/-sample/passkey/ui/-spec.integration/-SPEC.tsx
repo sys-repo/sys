@@ -29,7 +29,10 @@ export default Spec.describe(D.displayName, (e) => {
     ctx.subject
       .size([360, null])
       .display('grid')
-      .render(() => <Connected sample={sample} debug={p.debug.value} theme={p.theme.value} />);
+      .render(() => {
+        const { view, debug, theme } = Signal.toObject(p);
+        return <Connected sample={sample} view={view} debug={debug} theme={theme} />;
+      });
   });
 
   e.it('ui:debug', (e) => {

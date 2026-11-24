@@ -3,6 +3,7 @@ import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from '.
 import { SpecLink } from './-ui.Links.tsx';
 import { Fixtures } from './-u.fixtures.ts';
 import { Intent } from './-ui.Intent.tsx';
+import { ViewPicker } from './-ui.ViewPicker.tsx';
 
 type P = t.Passkey.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -31,7 +32,7 @@ export function createDebugSignals() {
     theme: s(snap.theme),
     fixture: s<t.PasskeyFixture>(Fixtures[0]),
     callbacksEnabled: s(true),
-    view: s<t.PasskeySpecView>('panel'),
+    view: s<t.Passkey.View>(D.view),
     sections: s<t.Passkey.Sections>(D.sections),
     intent: s<t.PasskeyIntent | undefined>(undefined),
   };
@@ -61,7 +62,7 @@ export function createDebugSignals() {
     p.theme.value = defaults.theme;
     p.debug.value = defaults.debug;
     p.callbacksEnabled.value = true;
-    p.view.value = 'panel';
+    p.view.value = D.view;
     p.sections.value = D.sections;
     select(Fixtures[0]);
   }
@@ -149,27 +150,26 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Intent intent={v.intent} />
 
       <hr />
-      <div className={Styles.title.class}>Presentation</div>
-      <Dev.Button
-        block
-        label={() => `display: ${v.view}`}
-        onClick={() => {
-          Signal.cycle<t.PasskeySpecView>(p.view, ['panel', 'actions', 'status', 'context']);
-        }}
-      />
-      {v.view === 'panel' && (['actions', 'status', 'context'] as const).map((name) => (
-        <Dev.Button
-          key={name}
-          block
-          label={() => `show ${name}: ${v.sections[name] ?? D.sections[name]}`}
-          onClick={() => {
-            p.sections.value = {
-              ...p.sections.value,
-              [name]: !(p.sections.value[name] ?? D.sections[name]),
-            };
-          }}
-        />
-      ))}
+      <div className={Styles.title.class}>
+        <div>Presentation</div>
+        <div>(View)</div>
+      </div>
+      <ViewPicker view={v.view} theme={theme.name} onSelect={(view) => p.view.value = view} />
+      {v.view === 'panel' && (['actions', 'status', 'context'] as const).map((name) => {
+        return (
+          <Dev.Button
+            key={name}
+            block
+            label={() => `show ${name}: ${v.sections[name] ?? D.sections[name]}`}
+            onClick={() => {
+              p.sections.value = {
+                ...p.sections.value,
+                [name]: !(p.sections.value[name] ?? D.sections[name]),
+              };
+            }}
+          />
+        );
+      })}
 
       <hr />
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

@@ -1,6 +1,7 @@
 import type React from 'react';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 import { SpecLink } from '../-spec/-ui.Links.tsx';
+import { ViewPicker } from '../-spec/-ui.ViewPicker.tsx';
 
 const defaults: t.DebugValues = { debug: D.debug, theme: 'Dark' };
 
@@ -11,7 +12,7 @@ export type DebugProps = { debug: DebugSignals; style?: t.Style.Input };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
- * Signals: isolated appearance preferences, not authentication state.
+ * Theme/debug persist; the selected view is ephemeral.
  */
 export function createDebugSignals() {
   const store = LocalStorage.immutable<t.DebugValues>(STORAGE_KEY.DEV, defaults);
@@ -19,6 +20,7 @@ export function createDebugSignals() {
   const props = {
     debug: Signal.create(snap.debug),
     theme: Signal.create(snap.theme),
+    view: Signal.create<t.Passkey.View>(D.view),
   };
   const p = props;
 
@@ -29,6 +31,7 @@ export function createDebugSignals() {
   function reset() {
     p.debug.value = defaults.debug;
     p.theme.value = defaults.theme;
+    p.view.value = D.view;
   }
 
   const dispose = Signal.effect(() => {
@@ -77,6 +80,12 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <hr />
+      <div className={styles.title.class}>
+        <div>Presentation</div>
+        <div>(View)</div>
+      </div>
+      <ViewPicker view={v.view} theme={theme.name} onSelect={(view) => p.view.value = view} />
       <hr />
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />

@@ -20,8 +20,5 @@ export type PasskeyIntent = {
   readonly count: number;
 };
 
-/** Ephemeral display; Actions uses the framed panel, Status/Context mount their sections directly. */
-export type PasskeySpecView = 'panel' | 'actions' | 'status' | 'context';
-
 /** Debug-only feedback for the latest intent and total captured event count. */
 export type PasskeyIntentProps = { intent?: PasskeyIntent };

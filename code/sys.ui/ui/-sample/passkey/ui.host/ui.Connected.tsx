@@ -4,7 +4,7 @@ import { Passkey } from '../ui/mod.ts';
 import type { openSample } from './u.sample.ts';
 import { snapshotOf } from './u.snapshot.ts';
 
-type Props = Pick<t.Passkey.Props, 'theme' | 'debug' | 'sections'> & {
+type Props = Pick<t.Passkey.Props, 'theme' | 'debug' | 'view' | 'sections'> & {
   sample: ReturnType<typeof openSample>;
 };
 

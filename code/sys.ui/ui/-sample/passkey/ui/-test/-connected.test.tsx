@@ -9,7 +9,15 @@ import {
 } from '../../m.AccountRuntime/-test/u.fixture.ts';
 import { openSample } from '../../ui.host/u.sample.ts';
 import { Connected } from '../../ui.host/ui.Connected.tsx';
-import { activate, button, buttons, pageListeners, press, valueCell } from './u.fixture.tsx';
+import {
+  activate,
+  button,
+  buttons,
+  element,
+  pageListeners,
+  press,
+  valueCell,
+} from './u.fixture.tsx';
 
 const recovery = 'Reload this page, then choose Sign In.';
 
@@ -42,10 +50,10 @@ describe('connected passkey sample', () => {
         });
       await attempt();
       expect(result()).to.include('Accepted by the account service');
-      expect(valueCell(res.container, 'Authentication').textContent).to.equal('Signed out');
-      expect(valueCell(res.container, 'Principal').textContent).to.equal('-');
+      expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
+      expect(valueCell(res.container, 'Principal').textContent).to.eql('-');
       expect(native.calls).to.eql(['get', 'get']);
-      expect(server.fetchCount).to.equal(5);
+      expect(server.fetchCount).to.eql(5);
     } finally {
       React.act(() => res.dispose());
       sample.dispose();
@@ -64,8 +72,8 @@ describe('connected passkey sample', () => {
       const add = button(container, 'Add Passkey');
       clock.set(server.session.expiresAt);
       await activate(add);
-      expect(valueCell(container, 'Authentication').textContent).to.equal('Signed out');
-      expect(valueCell(container, 'Principal').textContent).to.equal('-');
+      expect(valueCell(container, 'Authentication').textContent).to.eql('Signed out');
+      expect(valueCell(container, 'Principal').textContent).to.eql('-');
       const last = valueCell(container, 'Last result').textContent;
       expect(last).to.include('Add Passkey — Mutation not submitted');
       const commands = server.requests.map(({ name }) => name);
@@ -124,7 +132,7 @@ describe('connected passkey sample', () => {
         return accepted(null);
       };
       server.handlers['session.inspect'] = () => {
-        expect(committed).to.equal(true);
+        expect(committed).to.eql(true);
         return accepted(live);
       };
       const labels = {
@@ -135,20 +143,18 @@ describe('connected passkey sample', () => {
       };
       const control = button(container, labels[action]);
       if (action === 'create-account' || action === 'add-passkey') {
-        expect(control.tabIndex).to.equal(0);
-        expect(control.previousElementSibling?.textContent).to.include(
-          'Restarting the account service erases accounts, registrations, and sessions',
-        );
+        const note = element(container, '[role="note"][id]:not([id=""])');
+        expect(control.getAttribute('aria-describedby')).to.eql(note.id);
       }
       await activate(control);
-      expect(committed).to.equal(true);
+      expect(committed).to.eql(true);
       expect(valueCell(container, 'Last result').textContent).to.include('Outcome unknown');
       if (!retained) {
         expect(valueCell(container, 'Authentication').textContent).to.include(recovery);
         expect(buttons(container)).to.eql([]);
       } else if (action === 'add-passkey') {
-        expect(valueCell(container, 'Registered credentials').textContent).to.equal('2');
-      } else expect(valueCell(container, 'Authentication').textContent).to.equal('Signed out');
+        expect(valueCell(container, 'Registered credentials').textContent).to.eql('2');
+      } else expect(valueCell(container, 'Authentication').textContent).to.eql('Signed out');
       expect(server.requests.slice(before).map(({ name }) => name)).to.eql([
         ...commands,
         ...(retained ? ['session.inspect'] : []),
@@ -184,8 +190,8 @@ describe('connected passkey sample', () => {
       release.resolve();
       await Time.waitFor(() => events.includes('commit'));
       expect(events).to.eql(['inspect', 'commit']);
-      expect(live.account.credentialCount).to.equal(2);
-      expect(valueCell(res.container, 'Registered credentials').textContent).to.equal('1');
+      expect(live.account.credentialCount).to.eql(2);
+      expect(valueCell(res.container, 'Registered credentials').textContent).to.eql('1');
       expect(valueCell(res.container, 'Last result').textContent).to.include('Outcome unknown');
       expect(server.requests.slice(2).map(({ name }) => name)).to.eql([
         'passkey.add.begin',
@@ -214,19 +220,19 @@ describe('connected passkey sample', () => {
     using _grant = afterAdmittedReply('account.create.finish', 'accepted', () => {
       pageEvent('pagehide', true);
       pageEvent('pageshow', false);
-      expect(a.current().lifecycle).to.equal('departed');
+      expect(a.current().lifecycle).to.eql('departed');
       pageEvent('pageshow', true);
       waiting = a.current().operation.kind === 'retiring';
     });
     const res = await TestReact.render(<Connected sample={a} />, { strict: true });
     cleanup.defer(() => React.act(() => res.dispose()));
     await activate(button(res.container, 'Create with Passkey'));
-    expect(waiting).to.equal(true);
-    expect(valueCell(res.container, 'Operation').textContent).to.equal('Idle');
-    expect(valueCell(res.container, 'Last result').textContent).to.equal('-');
-    expect(valueCell(res.container, 'Principal').textContent).to.equal('-');
-    expect(valueCell(res.container, 'Authentication').textContent).to.equal('Signed out');
-    expect(b.current().session.kind).to.equal('signed-out');
+    expect(waiting).to.eql(true);
+    expect(valueCell(res.container, 'Operation').textContent).to.eql('Idle');
+    expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
+    expect(valueCell(res.container, 'Principal').textContent).to.eql('-');
+    expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
+    expect(b.current().session.kind).to.eql('signed-out');
     expect(server.requests.map(({ name }) => name)).to.eql([
       'session.signIn.begin',
       'session.signIn.finish',
@@ -245,15 +251,15 @@ describe('connected passkey sample', () => {
       a.dispose();
       expect([...attached.values()]).to.eql(['pagehide', 'pageshow']);
       pageEvent('pagehide', true);
-      expect(b.current().lifecycle).to.equal('departed');
+      expect(b.current().lifecycle).to.eql('departed');
       pageEvent('pageshow', true);
-      expect(a.current().lifecycle).to.equal('disposed');
-      expect(b.current().lifecycle).to.equal('active');
+      expect(a.current().lifecycle).to.eql('disposed');
+      expect(b.current().lifecycle).to.eql('active');
     } finally {
       a.dispose();
       b.dispose();
     }
-    expect(attached.size).to.equal(0);
+    expect(attached.size).to.eql(0);
   });
 
   it('native work held across restore → keep slot through strict reattachment; suppress pointer and keyboard', async () => {
@@ -268,7 +274,7 @@ describe('connected passkey sample', () => {
       expect(native.calls).to.eql(['create']);
       const page = globalThis.window;
       page.dispatchEvent(new page.Event('blur'));
-      expect(sample.current().operation.kind).to.equal('pending');
+      expect(sample.current().operation.kind).to.eql('pending');
       React.act(() => {
         pageEvent('pagehide', true);
         pageEvent('pageshow', true);
@@ -277,11 +283,11 @@ describe('connected passkey sample', () => {
         strict: true,
       });
       try {
-        expect(valueCell(next.container, 'Operation').textContent).to.equal(
+        expect(valueCell(next.container, 'Operation').textContent).to.eql(
           'Waiting for previous operation',
         );
         for (const el of buttons(next.container)) {
-          expect(el.getAttribute('aria-disabled')).to.equal('true');
+          expect(el.getAttribute('aria-disabled')).to.eql('true');
           press(el, 'Enter');
           React.act(() => DomMock.Mouse.activate(el));
         }
@@ -289,9 +295,9 @@ describe('connected passkey sample', () => {
           held.resolve(null);
           return held.promise;
         });
-        expect(valueCell(next.container, 'Operation').textContent).to.equal('Idle');
-        expect(valueCell(next.container, 'Last result').textContent).to.equal('-');
-        expect(button(next.container, 'Sign In').tabIndex).to.equal(0);
+        expect(valueCell(next.container, 'Operation').textContent).to.eql('Idle');
+        expect(valueCell(next.container, 'Last result').textContent).to.eql('-');
+        expect(button(next.container, 'Sign In').tabIndex).to.eql(0);
         expect(server.requests.map(({ name }) => name)).to.eql(['account.create.begin']);
       } finally {
         React.act(() => next.dispose());
@@ -323,7 +329,7 @@ describe('connected passkey sample', () => {
         press(control, 'Enter');
         await Time.waitFor(() => entered.promise.then(() => true));
       });
-      expect(valueCell(res.container, 'Operation').textContent).to.equal('Checking session');
+      expect(valueCell(res.container, 'Operation').textContent).to.eql('Checking session');
       expect(buttons(res.container)).to.eql([]);
       press(control, 'Enter');
       React.act(() => DomMock.Mouse.activate(control));

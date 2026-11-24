@@ -11,10 +11,12 @@ const references = {
   credentials: 'https://www.w3.org/TR/webauthn-3/#credential-record',
 } as const;
 
+type Props = t.Passkey.StatusProps & { reserveAccountRows?: boolean };
+
 /**
  * Authentication observations are independent of operation outcomes and prerequisite readiness.
  */
-export const Status: t.FC<t.Passkey.StatusProps> = (props) => {
+export const Status: t.FC<Props> = (props) => {
   const { debug = D.debug, authentication, operation, result } = props;
   const theme = Color.theme(props.theme);
   const styles = {
@@ -22,9 +24,9 @@ export const Status: t.FC<t.Passkey.StatusProps> = (props) => {
     value: css({ minWidth: 0, overflowWrap: 'anywhere', whiteSpace: 'normal' }),
   };
   const value = (text: string) => <div className={styles.value.class}>{text}</div>;
-  const key = (label: string, href: string) => (
-    <Anchor.Link href={href} openIn='new-tab' theme={theme.name}>{label}</Anchor.Link>
-  );
+  const key = (label: string, href: string) => {
+    return <Anchor.Link href={href} openIn='new-tab' theme={theme.name}>{label}</Anchor.Link>;
+  };
   const items: t.KeyValue.Item[] = [
     {
       id: 'authentication',
@@ -54,9 +56,18 @@ export const Status: t.FC<t.Passkey.StatusProps> = (props) => {
     { id: 'result', k: 'Last result', v: <Result result={result} /> },
   );
 
+  // Budget one line each for Account label and Registered credentials, using the grid's own gap.
+  const gridTemplateRows = props.reserveAccountRows && authentication.kind === 'signed-out'
+    ? `repeat(${items.length}, auto) 1lh 1lh`
+    : undefined;
   return (
     <div data-passkey-section='status' className={css(styles.base, props.style).class}>
-      <KeyValue.UI items={items} layout={D.layout} theme={theme.name} />
+      <KeyValue.UI
+        items={items}
+        layout={D.layout}
+        theme={theme.name}
+        style={{ gridTemplateRows }}
+      />
     </div>
   );
 };
@@ -69,6 +80,7 @@ export const Status: t.FC<t.Passkey.StatusProps> = (props) => {
 function AuthenticationValue(props: Pick<t.Passkey.StatusProps, 'authentication' | 'theme'>) {
   const { authentication } = props;
   const theme = Color.theme(props.theme);
+  const signedIn = authentication.kind === 'signed-in';
   const text = authenticationText(authentication);
   let content: t.ReactNode = text;
   if (authentication.kind === 'unknown') {
@@ -90,7 +102,8 @@ function AuthenticationValue(props: Pick<t.Passkey.StatusProps, 'authentication'
       <div className={styles.text.class}>{content}</div>
       <div aria-hidden='true'>
         <Bullet
-          selected={authentication.kind === 'signed-in'}
+          selected={signedIn}
+          borderOpacity={signedIn ? undefined : 0.6}
           selectedColor={Color.GREEN}
           theme={theme.name}
         />

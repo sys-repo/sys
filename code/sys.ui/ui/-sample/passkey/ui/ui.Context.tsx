@@ -1,3 +1,4 @@
+import { browserOrigin } from '../u/u.issuer.ts';
 import { Anchor, Color, css, D, Is, KeyValue, type t } from './common.ts';
 
 /** Renderer-authored documentation destinations, never inferred from supplied configuration values. */
@@ -19,19 +20,31 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
     value: css({ minWidth: 0, overflowWrap: 'anywhere', whiteSpace: 'normal' }),
   };
   const value = (text: string) => <div className={styles.value.class}>{text}</div>;
-  const key = (label: string, href: string) => (
-    <Anchor.Link href={href} openIn='new-tab' theme={theme.name}>{label}</Anchor.Link>
-  );
+  const key = (label: string, href: string) => {
+    return <Anchor.Link href={href} openIn='new-tab' theme={theme.name}>{label}</Anchor.Link>;
+  };
+  const literal = (text: string | undefined, fallback: string) => {
+    if (!text || Is.blank(text)) return value(fallback);
+    return <div className={css(styles.value, { fontFamily: 'monospace' }).class}>{text}</div>;
+  };
   const rows: t.KeyValue.Item.Row[] = [
     {
       id: 'origin',
       k: key('Origin', references.origin),
-      v: value(displayConfig(context.origin, 'Unknown')),
+      v: context.origin === browserOrigin
+        ? (
+          <div className={styles.value.class}>
+            <Anchor.Link mono href={browserOrigin} openIn='new-tab' theme={theme.name}>
+              {browserOrigin}
+            </Anchor.Link>
+          </div>
+        )
+        : literal(context.origin, 'Unknown'),
     },
     {
       id: 'rp-id',
       k: key('Relying Party ID', references.rpId),
-      v: value(displayConfig(context.rpId, 'Not configured')),
+      v: literal(context.rpId, 'Not configured'),
     },
     {
       id: 'rp-name',
