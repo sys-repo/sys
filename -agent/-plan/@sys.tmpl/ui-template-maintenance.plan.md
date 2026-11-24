@@ -14,27 +14,32 @@ ui-template-maintenance.plan.md
 - [x] 6d4d9c028 fix(ui-components): bind Bullet and BulletList specimen effects to attachments
 - [x] 0f0c14660 fix(ui-components): bind Button family specimen effects to attachments
 - [x] bb8f0d129 fix(ui-components): bind Dist and Dist.Browser specimen effects to attachments
-- [ ] fix(ui-components): bind Chip and Cropmarks specimen effects to attachments
-- [ ] fix(ui-components): bind ErrorBoundary, FadeElement, and Http.Origin specimen effects to attachments
-- [ ] fix(ui-components): bind Icon.Swatches, IFrame, and Image.Svg specimen effects to attachments
-- [ ] fix(ui-components): bind KeyValue family and Layout.CenterColumn specimen effects to attachments
-- [ ] fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
-- [ ] fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
-- [ ] fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
-- [ ] fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
-- [ ] fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
-- [ ] fix(ui-components): bind video deck and element specimen effects to attachments
-- [ ] fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
-- [ ] fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
-- [ ] fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
-- [ ] fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
-- [ ] fix(ui-components): bind webfont and CSS specimen effects to attachments
-- [ ] fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
+- [x] c9b7087de fix(ui-components): bind Chip and Cropmarks specimen effects to attachments
+- [x] 15fcd8581 fix(ui-components): bind ErrorBoundary, FadeElement, and Http.Origin specimen effects to attachments
+- [x] f7759fb0a fix(ui-components): bind Icon.Swatches, IFrame, and Image.Svg specimen effects to attachments
+- [x] 9248652e4 fix(ui-components): bind KeyValue family and Layout.CenterColumn specimen effects to attachments
+- [x] 59fae6f31 fix(ui-components): bind RectGrid, SplitPane, Tabs, and TreeHost specimen effects to attachments
+- [x] df33406f9 fix(ui-components): bind AudioWaveform and Media.Config specimen effects to attachments
+- [x] 7f75f600b fix(ui-components): bind Media.Devices and Media.Recorder specimen effects to attachments
+- [x] 78740e2bb fix(ui-components): bind PlaybackDriver and Media.Video specimen effects to attachments
+- [x] 13c6bf5de fix(ui-components): bind ObjectView, Ownership, PathView, and video controls specimen effects to attachments
+- [x] fa15c1d1f fix(ui-components): bind video deck and element specimen effects to attachments
+- [x] 7cfb33b13 fix(ui-components): bind YouTube, Preload, and Prose specimen effects to attachments
+- [x] 358cdb877 fix(ui-components): bind Sheet, Slider, Spinners.Bar, and Splash specimen effects to attachments
+- [x] c77a41ccb fix(ui-components): bind Text.Ellipsize and Text.Input specimen effects to attachments
+- [x] 32af16902 fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
+- [x] 4c5e626b4 fix(ui-components): bind webfont and CSS specimen effects to attachments
+- [x] 6039ece20 fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
 - [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across other sys packages
+- [ ] fix(ui): bind Files.InfoPanel specimen effects to attachments
+- [ ] fix(ui): bind Files.InfoPanel.Config specimen effects to attachments
+- [ ] fix(ui-dev): retire the MySample keyboard subscription with its attachment
+- [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across driver packages
 
 ## Specimen lifecycle migration inventory
 
-**11 adopted / 51 remaining.** Checkboxes record consumer disposition, not commit landing. UI paths
+**62 reviewed / 0 remaining** (61 adopted; Icon reviewed no change). Checkboxes record consumer
+disposition, not commit landing. UI paths
 are relative to `code/sys.ui/ui-components/src/ui.react/ui/`; paths beginning with `ui.react/`,
 `m.webfonts/`, or `-sample/` are relative to `code/sys.ui/ui-components/src/`.
 
@@ -57,88 +62,136 @@ are relative to `code/sys.ui/ui-components/src/ui.react/ui/`; paths beginning wi
 - [x] Buttons.Switch — `Buttons.Switch/-spec/`; verified synchronous ephemeral attachments, derived
       palette, retained color/value/enabled state, and controlled toggle; no persistence/reset.
 
-- [ ] Chip — `Chip/-spec/`; examples branch, overflow controls, and traceline.
-- [ ] Cropmarks — `Cropmarks/-spec/`.
+- [x] Chip — `Chip/-spec/`; verified shared preference projection and attached host effects,
+      retained async setup, overflow controls, legacy hydration, and initial traceline.
+- [x] Cropmarks — `Cropmarks/-spec/`; verified shared preference projection and attached host
+      effects, synchronous setup, fill/grid layout, and sizing/subject-only controls.
 
 - [x] Dist — `Dist/-spec/`; verified shared sample/projection lifetimes, retained async setup,
       files/view driver behavior, explicit data, and attached host effects.
 - [x] Dist.Browser — `Dist/-spec.browser/`; verified shared sample/projection lifetimes,
       unchanged-driver reconnect, and React-owned selection/filter controller.
 
-- [ ] ErrorBoundary — `ErrorBoundary/-spec/`; error/reset callbacks.
-- [ ] FadeElement — `FadeElement/`; reactive subject size; no factory persistence.
-- [ ] Http.Origin — `Http.Origin/-spec/`; controller, controlled branches, and reactive width.
+- [x] ErrorBoundary — `ErrorBoundary/-spec/`; verified shared projection and attached host
+      effects, fill margin 150, stable error/reset rendering, and callback forwarding.
+- [x] FadeElement — `FadeElement/`; verified synchronous ephemeral attachments, reactive size,
+      retained children/duration, and independent React transition lifetime; no persistence/reset.
+- [x] Http.Origin — `Http.Origin/-spec/`; verified shared projection and attached host effects,
+      async setup, reactive width, controlled branches, and independent retained controller.
 
-- [ ] Icon — `Icon/-spec/`; legacy `e.state` renderer and stub Debug; no signal factory.
-- [ ] Icon.Swatches — `Icon.Swatches/-spec/`.
-- [ ] IFrame — `IFrame/`; host-image effect and module-level `location`; no persistence.
-- [ ] Image.Svg — `Image.Svg/`; reactive size and static/async imports; no persistence.
+- [x] Icon — `Icon/-spec/`; source-reviewed no change: legacy `e.state` renderer and stub Debug;
+      no automatic signal consumers or factory to migrate. No runtime-repair claim.
+- [x] Icon.Swatches — `Icon.Swatches/-spec/`; verified shared preference projection and attached
+      host effects, retained icon initialization/reset, selection/size callbacks, and fill/grid.
+- [x] IFrame — `IFrame/`; verified ephemeral attachments, separate host-image dependency, fill/grid,
+      transparent subject, existing location/setup callback and renderer props; no persistence/reset.
+- [x] Image.Svg — `Image.Svg/`; verified ephemeral attachments, reactive numeric/fill sizing and
+      stable Root; static/dynamic assets and mounted controls exercised through the browser harness.
 
-- [ ] KeyValue — `KeyValue/-spec/`; repeated size/update setup; existing action tests.
-- [ ] KeyValue.Switches — `KeyValue.Switches/-spec/`; keyboard/cursor hooks and reorder callbacks.
-- [ ] Layout.CenterColumn — `Layout.CenterColumn/-spec/`; column-sync effect and traceline.
+- [x] KeyValue — `KeyValue/-spec/`; shared nested layout projection and attached size/redraw,
+      explicit size clear and initial traceline; retained Root and keyboard insertion.
+- [x] KeyValue.Switches — `KeyValue.Switches/-spec/`; shared toggle-value projection, retained async
+      factory, keyboard/cursor hooks, reorder callbacks, and 360-wide grid.
+- [x] Layout.CenterColumn — `Layout.CenterColumn/-spec/`; independent shared column sync and
+      preference projection, attached theme/traceline, retained explicit update/reset and fill/grid.
 
-- [ ] Layout.RectGrid — `Layout.RectGrid/-spec/`.
-- [ ] Layout.SplitPane — `Layout.SplitPane/-spec/`.
-- [ ] Layout.Tabs — `Layout.Tabs/-spec/`.
-- [ ] Layout.TreeHost — `Layout.TreeHost/-spec/`; path-observer effect and nested slots.
+- [x] Layout.RectGrid — `Layout.RectGrid/-spec/`; shared projection, attached host effects,
+      mounted selection, and stable Root with inherited fill margin.
+- [x] Layout.SplitPane — `Layout.SplitPane/-spec/`; shared ratio projection and attached host
+      effects; retained React-owned ratio handling and fill margin 100.
+- [x] Layout.Tabs — `Layout.Tabs/-spec/`; shared selection projection and attached host effects;
+      retained async setup, controlled selection, and fill margin 100.
+- [x] Layout.TreeHost — `Layout.TreeHost/-spec/`; independent shared path observer and preference
+      projection, nested slot redraw, and fill margin 80 without subject theme paint.
 
-- [ ] Media.AudioWaveform — `Media.AudioWaveform/-spec/`.
-- [ ] Media.Config.Filters — `Media.Config/-spec.filters/`; direct debounced storage write.
-- [ ] Media.Config.Slider — `Media.Config/-spec.slider/`; no factory persistence.
-- [ ] Media.Config.Zoom — `Media.Config/-spec.zoom/`; debounced callback writes storage directly.
+- [x] Media.AudioWaveform — `Media.AudioWaveform/-spec/`; shared theme/debug projection and
+      per-host effects; retained transient stream, reset, and fill-x/grid.
+- [x] Media.Config.Filters — `Media.Config/-spec.filters/`; attached host effects; retained direct
+      debounced storage, including pending-event flush on React cleanup.
+- [x] Media.Config.Slider — `Media.Config/-spec.slider/`; attached host effects, retained value
+      interaction without persistence.
+- [x] Media.Config.Zoom — `Media.Config/-spec.zoom/`; attached host effects; retained direct
+      debounced storage, including pending-event flush on React cleanup.
 
-- [ ] Media.Devices — `Media.Devices/-spec/`; React selection-storage hook and narrow sizing.
-- [ ] Media.Recorder — `Media.Recorder/-spec/`; direct writes, recorder/device hooks, stream.
+- [x] Media.Devices — `Media.Devices/-spec/`; shared preferences and per-host paint, redraw,
+      and 240/400 sizing; retained independent device selection, persistence, and reset.
+- [x] Media.Recorder — `Media.Recorder/-spec/`; attached host effects and retained aspect-ratio
+      sizing; direct delayed writes, recorder/device hooks, and stream remain independent.
 
-- [ ] Media.Timecode.PlaybackDriver — `Media.Timecode.PlaybackDriver/-spec/`; factory starts a saved
-      document load; separate loader/controller/deck lifetimes need inspection.
-- [ ] Media.Video — `Media.Video/-spec/`; direct config writes, device selection, sizing.
+- [x] Media.Timecode.PlaybackDriver — `Media.Timecode.PlaybackDriver/-spec/`; shared preferences
+      and attached paint/redraw; saved document startup, controller and deck ownership unchanged.
+- [x] Media.Video — `Media.Video/-spec/`; shared theme/debug and attached paint, sizing, and
+      redraw; delayed Config writes and React device selection remain independent.
 
-- [ ] ObjectView — `ObjectView/`; optional factory-init callback; no factory persistence.
-- [ ] Ownership — `Ownership/-spec/`.
-- [ ] PathView — `PathView/-spec/`.
-- [ ] Player.Video.Controls — `Player.Video.Controls/-spec/`; video signals and reactive width.
+- [x] ObjectView — `ObjectView/`; ephemeral attachments; retained optional factory initializer,
+      explicit size clear, and expansion/show controls.
+- [x] Ownership — `Ownership/-spec/`; shared theme/debug, async factory, and 360-wide grid retained.
+- [x] PathView — `PathView/-spec/`; shared preferences, explicit size clear, and optional segment clicks.
+- [x] Player.Video.Controls — `Player.Video.Controls/-spec/`; shared nested preferences and separate
+      width/paint/redraw; video signals, reset, and controls retained.
 
-- [ ] Player.Video.Decks — `Player.Video.Decks/-spec/`; deck creation and separate URL-sync effect.
-- [ ] Player.Video.Element — `Player.Video.Element/-spec/`; player signals, controlled/uncontrolled
-      branches, and an additional factory synchronization effect.
+- [x] Player.Video.Decks — `Player.Video.Decks/-spec/`; separate shared preferences and URL sync,
+      stable deck signals, host paint and redraw tied to attachment.
+- [x] Player.Video.Element — `Player.Video.Element/-spec/`; separate shared preferences and
+      controlled-input sync, stable player signals, and React-owned runtime work retained.
 
-- [ ] Player.YouTube — `Player.YouTube/-spec/`.
-- [ ] Preload — `Preload/`; no subject renderer; explicit portal action; no factory persistence.
-- [ ] Prose.Markdown — `Prose.Markdown/-spec/`; reactive viewport size and sample renderers.
-- [ ] Prose.Measure — `Prose.Measure/-spec/`.
+- [x] Player.YouTube — `Player.YouTube/-spec/`; shared preferences, explicit size clear, and
+      theme/redraw ownership; iframe source and existing controls retained.
+- [x] Preload — `Preload/`; attached redraw and one-time layout, no renderer or persistence;
+      the explicitly launched portal keeps its own lifetime.
+- [x] Prose.Markdown — `Prose.Markdown/-spec/`; shared theme/debug/sample preferences; viewport
+      sizing is independent of redraw, and the sample renderers and transient content are retained.
+- [x] Prose.Measure — `Prose.Measure/-spec/`; shared theme/debug, async factory, and fill/grid retained.
 
-- [ ] Sheet — `Sheet/-spec/`; preserve showing/animation interaction; inspect snapshot mutation.
-- [ ] Slider — `Slider/-spec/`.
-- [ ] Spinners.Bar — `Spinners.Bar/`.
-- [ ] Splash — `Splash/-spec/`.
+- [x] Sheet — `Sheet/-spec/`; ephemeral paint/redraw and 390 × 844 grid; debug toggle and
+      React animation preserved. The inherited mouse handlers write to a snapshot, not the signal.
+- [x] Slider — `Slider/-spec/`; ephemeral 350-wide grid, host-only paint, and existing pointer
+      feedback and configuration controls retained.
+- [x] Spinners.Bar — `Spinners.Bar/`; ephemeral fill/grid with default margin, stable renderer,
+      and independent React loader.
+- [x] Splash — `Splash/-spec/`; shared existing preferences and attached fill/grid, paint, and
+      redraw; async setup, package/query options, and React keyboard lifetime retained.
 
-- [ ] Text.Ellipsize — `Text.Ellipsize/-spec/`; reactive width; no existing harness-theme effect.
-- [ ] Text.Input — `Text.Input/-spec/`; host background write is mixed into broad redraw effect.
+- [x] Text.Ellipsize — `Text.Ellipsize/-spec/`; shared preferences, width-only sizing, and no
+      harness theme paint; async factory and React text measurement retained.
+- [x] Text.Input — `Text.Input/-spec/`; shared existing preferences, theme-only host paint,
+      fill-x/grid with margin 150, transient decorations, and stable input renderer.
 
-- [ ] TreeView.Index — `TreeView.Index/-spec/`; extra path-observer effect and YAML-derived tree.
-- [ ] TreeView.Index.Item — `TreeView.Index.Item/-spec/`.
-- [ ] VimeoBackground — `VimeoBackground/`; ready callback retains player API.
-- [ ] Dev.Help.Markdown — `ui.react/dev/m.Help.Markdown/-spec/`.
+- [x] TreeView.Index — `TreeView.Index/-spec/`; shared preferences and separate path observer,
+      retained YAML-derived tree and fill-y/grid with margin 150.
+- [x] TreeView.Index.Item — `TreeView.Index.Item/-spec/`; shared existing preferences, retained
+      padding preset, and explicit size clear.
+- [x] VimeoBackground — `VimeoBackground/`; ephemeral effects and default fill margin; React
+      still hands the player API to the existing ready callback.
+- [x] Dev.Help.Markdown — `ui.react/dev/m.Help.Markdown/-spec/`; shared sample preferences,
+      retained async setup, centered 440-wide grid, and initial-only traceline.
 
-- [ ] WebFonts — `m.webfonts/-spec/`; uses a separate specimen Root.
-- [ ] CSS.Container — `-sample/-css-container/`; redraw effect has no signal reads; no persistence.
-- [ ] CSS.Scroll — `-sample/-css-Scroll/-spec/`.
-- [ ] React.useWebFont — `-sample/-css-useWebFont/`.
+- [x] WebFonts — `m.webfonts/-spec/`; shared preferences, retained 640-wide grid and separate
+      Root with React-owned font registration.
+- [x] CSS.Container — `-sample/-css-container/`; ephemeral theme paint and redraw; retained
+      fill/grid, optional initializer, and mounted size observer.
+- [x] CSS.Scroll — `-sample/-css-Scroll/-spec/`; shared preferences including false `Scroll`;
+      retained async setup and fill-y/grid.
+- [x] React.useWebFont — `-sample/-css-useWebFont/`; shared debug/theme, explicit size clear,
+      grid, and React-owned font registration.
 
-- [ ] React.usePointer — `-sample/-dom-usePointer/`; debug footer sample; no factory persistence.
-- [ ] React.useSizeObserver — `-sample/-dom-useSizeObserver/`; bare rect; no persistence/theme.
-- [ ] Std.Schedule — `-sample/-std-Schedule/`; factory schedules an async run before attachment.
+- [x] React.usePointer — `-sample/-dom-usePointer/`; ephemeral redraw and initial subject paint;
+      explicit size clear and independent React subject/footer samples retained.
+- [x] React.useSizeObserver — `-sample/-dom-useSizeObserver/`; ephemeral rect redraw;
+      fill/grid and React-owned observer retained.
+- [x] Std.Schedule — `-sample/-std-Schedule/`; shared theme projection and host-local paint/redraw;
+      400-wide grid, one-time factory startup, and explicit run/reset retained.
 
 An unchecked entry awaits assessment or migration; check it only for verified adoption or a
 justified, source-reviewed no-change outcome. Deferred work remains unchecked with its reason. Flags
 are inspection notes, not approved policy changes; absence of a flag does not establish behavioral
-equivalence. The 16 unchecked ui-components arc items map in order to the 16 unchecked inventory groups, covering
-all 51 remaining entries exactly once. Icon belongs to the third group's source-reviewed no-change
+equivalence. The 16 ui-components migration units beginning with Chip/Cropmarks map in order to the
+16 accepted inventory groups, covering their original 51 entries exactly once. Inventory dispositions
+advance independently of arc landing. Icon belongs to the third group's source-reviewed no-change
 disposition; its commit subject names only the specimens needing migration. Inventory boundaries
-are single blank lines; checked historical blocks are not future groups. These are proposed landing
-units, not bulk-migration authority. Follow the re-entry boundary and workbook before implementation.
+are single blank lines; earlier checked historical blocks are not part of those 16 groups. These
+are proposed landing units, not bulk-migration authority. Follow the re-entry boundary and workbook
+before implementation.
 
 Inventory provenance: the shallow scan at `ce341a391` found **62 specimen/debug pairs**: 54 UI
 specimens, one development helper, one webfont specimen, and six samples. All were registered by
@@ -151,10 +204,150 @@ scope.
 
 ## Re-entry boundary
 
-The opening arc is the sole landing ledger. **Dist and Dist.Browser landed at `bb8f0d129`.** The
-remaining **51 entries are organized into 16 accepted execution-sized groups**, mapped in order to
-the unchecked arc items. No next group is selected for implementation; human selection and explicit
-implementation authorization remain required. Readiness does not authorize implementation.
+The opening arc is the sole landing ledger. Each remaining group requires bounded human selection
+and explicit implementation authorization. Readiness does not authorize implementation.
+
+### Sheet, Slider, Spinners.Bar, and Splash unit
+
+Scope: the four specimen/debug pairs only. Sheet, Slider, and Spinners.Bar have no persistence;
+Splash shares its existing five stored fields. Preserve host sizing, theme rules, and controls, and
+leave animations, pointer handling, dynamic loading and keyboard listeners with React. Sheet's
+mouse handlers mutate a snapshot; that existing issue is separate from attachment adoption.
+The [group proof](./ui-template-maintenance.plan/evidence.md#sheet-slider-spinnersbar-and-splash-attachment-proof)
+records mounted behavior, restored controls, and retained verification. The opening arc records
+landing separately.
+
+### YouTube, Preload, and Prose unit
+
+Scope: the four specimen/debug pairs only. YouTube preserves its explicit size clear and iframe
+source control. Preload keeps layout without a renderer, has no stored preferences, and launches
+portals only from the existing button. Markdown keeps viewport-driven sizing and sample renderers;
+only theme, debug, and sample selection persist. Measure keeps its async setup and fill/grid.
+The [group proof](./ui-template-maintenance.plan/evidence.md#youtube-preload-and-prose-attachment-proof)
+records the mounted paths, negative controls, and retained checks. Adoption is not landing.
+
+### ObjectView, Ownership, PathView, and video controls unit
+
+Scope: the four specimen/debug pairs only. Keep ObjectView ephemeral; Ownership and PathView share
+existing preferences. Video controls share their existing layout and nested background preferences,
+not playback state. Keep width independent of video-driven redraw; preserve explicit size clears,
+Ownership's centered 360-wide grid, and each subject's paint policy. See the
+[group proof](./ui-template-maintenance.plan/evidence.md#objectview-ownership-pathview-and-video-controls-attachment-proof).
+
+### PlaybackDriver and Media.Video unit
+
+Scope: the two specimen/debug pairs in `Media.Timecode.PlaybackDriver/-spec/` and `Media.Video/-spec/`.
+Bind automatic preference projection and per-host paint/redraw while keeping PlaybackDriver's
+one-time saved document load, deck references, and mounted controller outside attachments. Preserve
+Video's explicit size clear, aspect-ratio sizing, and React-owned device selection, stream, and
+Config callbacks. See the [group proof](./ui-template-maintenance.plan/evidence.md#playbackdriver-and-mediavideo-attachment-proof)
+for checks and runtime limits.
+
+### Media.Devices and Media.Recorder unit
+
+Scope: `Media.Devices/-spec/` and `Media.Recorder/-spec/`, limited to their specimen/debug pairs.
+Attach theme paint, sizing, and tracked redraw separately. Devices shares only its existing
+preference fields; React retains selection restore and persistence under its own key. Recorder has
+no shared projection: keep applied filter/zoom updated by the existing delayed callbacks, and leave
+recording, selection, and capture hooks with their React owners. Preserve the stable roots, sizing
+branches, and Recorder's light subject paint.
+
+The [group proof](./ui-template-maintenance.plan/evidence.md#mediadevices-and-mediarecorder-attachment-proof)
+records the mounted control paths, restored controls, limits, and retained checks. The opening arc
+remains the landing ledger.
+
+### AudioWaveform and Media.Config unit
+
+Scope: `Media.AudioWaveform/-spec/` and `Media.Config/-spec.filters/`, `-spec.slider/`, and
+`-spec.zoom/`, each limited to its specimen/debug pair. All four bind host paint and tracked redraw
+separately. Waveform shares only theme/debug projection across live hosts; its stream and React
+media hooks stay independent. Filters and Zoom retain hydration, immediate `onChange` updates, and
+React-owned debounced `onChanged` writes, including pending-event flush on cleanup. Slider remains
+storage-free. Keep the existing sizing, grid, and theme behavior.
+
+The [group proof](./ui-template-maintenance.plan/evidence.md#audiowaveform-and-mediaconfig-attachment-proof)
+records the baseline, registered-suite journeys, restored controls, and retained checks. The opening
+arc records the verified eight-file landing.
+
+### RectGrid, SplitPane, Tabs, and TreeHost unit
+
+Scope: the four specimen/debug pairs. Preserve field-wise preference storage, signal references,
+reset commands, and setup signatures. Bind theme paint and tracked redraw independently. RectGrid
+keeps the inherited fill margin, selection, and existing prop omissions. SplitPane and Tabs keep
+fill margin 100; SplitPane keeps React-owned ratio handling, and Tabs keeps its promise-returning
+factory and controlled selection. TreeHost keeps fill margin 80 and does not repaint the subject
+background. Its tree/path observer is shared across live hosts but separate from persistence;
+transient tree and nested slots remain outside storage.
+
+The [group proof](./ui-template-maintenance.plan/evidence.md#rectgrid-splitpane-tabs-and-treehost-attachment-proof)
+records the registered-suite probes, restored controls, retention decisions, and final checks. The
+[blind review](./ui-template-maintenance.plan/evidence.md#layout-quartet-review-adjudication)
+found no blocker in the final eight files, including RectGrid's `makeItem` refactor. Accept unchanged;
+pre-existing test narrowing is separate. The opening arc records the verified eight-file landing.
+
+### KeyValue family and Layout.CenterColumn unit
+
+Scope: the three specimen/debug pairs. Preserve KeyValue's synchronous setup, nested field-wise
+projection, transient items/cursor model, layout getter, explicit size clear and subsequent width 320,
+initial traceline, and React-owned keyboard/reorder work. Switches retains promise-returning setup,
+merged saved values, sample/reorder callbacks, 360-wide grid, and React-owned cursor/toggle behavior.
+CenterColumn retains synchronous construction with columns available immediately and explicit
+`update`/`reset`. Automatic column sync observes theme/alignment only, independently of preference
+projection; unchanged reconnects retain columns while changed inputs catch up on attach. Its
+fill/grid and theme-derived traceline stay separate from broad redraw.
+
+The [group proof](./ui-template-maintenance.plan/evidence.md#keyvalue-family-and-layoutcentercolumn-attachment-proof)
+records temporary actual-suite and mounted-subject journeys, restored controls, retention decisions,
+and retained-tree checks. The supplied blind review found no behavioral blocker; accept the six-file
+migration unchanged. No permanent tests or helpers added. Existing example-shape and incidental
+assertions are not earned coverage; the [test-only follow-up dispositions](./ui-template-maintenance.plan/evidence.md#keyvalue-family-and-centercolumn-review-adjudication)
+are separate from this migration and require their own authorization.
+
+### Icon.Swatches, IFrame, and Image.Svg unit
+
+Scope: the three specimen/debug pairs and Image.Svg's affected `-.test.ts`. Icon remains unchanged:
+its legacy renderer and stub Debug have no automatic consumers for attachment migration. Preserve all
+three synchronous factories, signal/store references, controls and existing rendering contracts.
+Icon.Swatches retains one-time icon walking, reset/repopulation, field-wise preferences and both
+selection/size callbacks. IFrame remains ephemeral with a separate host-image effect and one-time
+transparent subject paint; preserve module-level location, optional factory-init callback, current
+renderer forwarding and omitted knobs rather than adding features. Image.Svg remains ephemeral with
+numeric/fill sizing and independent React-owned SVG imports/drawing effects. Do not redesign the SVG
+hook or samples. Keep theme-only paint separate from redraw and other dependencies.
+
+The [group proof](./ui-template-maintenance.plan/evidence.md#iconswatches-iframe-and-imagesvg-attachment-proof)
+records actual-suite journeys, the mounted asset-aware browser proof, restored controls, retention
+choices and final checks. Temporary probes/helpers were removed; the assertion-free SVG import test
+was removed without replacing it with a permanent lifecycle matrix. The supplied independent blind
+review found no material correctness or retention issues; adjudication accepted the unchanged delta.
+Its source/check replication did not independently rerun mounted-consumer or asset-aware browser
+journeys. No further review or source correction is warranted by the current findings.
+
+### ErrorBoundary, FadeElement, and Http.Origin unit
+
+Scope: the three specimen/debug pairs. Preserve setup signatures, signals/store references, field-wise
+preferences, controls, and independent React/controller lifetimes. ErrorBoundary retains fill/grid
+with margin 150 and error/reset forwarding. FadeElement remains ephemeral without persistence/reset;
+its fixed-size versus cleared-size update remains reactive. Http.Origin retains its factory controller,
+controlled/uncontrolled branches, width, sample selection, and verification controls. Do not dispose or
+recreate its controller on detach. All three keep theme paint separate from broad redraw.
+
+The [trio proof](./ui-template-maintenance.plan/evidence.md#errorboundary-fadeelement-and-httporigin-attachment-proof)
+records temporary actual-suite journeys, restored controls, retention decisions, and final checks.
+No new permanent tests or fixture helpers are required.
+
+### Chip and Cropmarks unit
+
+Scope: the two `-spec/` pairs and Chip's affected `-test/-spec.controls.test.tsx`. Preserve Chip's
+promise-returning setup and Cropmarks' synchronous setup, retained signals/store references,
+field-wise preferences and unrelated fields, reset, controls, and renderers. Chip leaves subject
+size omitted and applies initial traceline 0.03 after theme setup; Cropmarks retains fill/grid with
+inherited fill margin. Both retain subject-Light paint argument 1. Shared projection and host
+theme/redraw have distinct lifetimes and dependencies; no component, sample, or owner redesign.
+
+The [pair proof](./ui-template-maintenance.plan/evidence.md#chip-and-cropmarks-attachment-proof)
+records temporary actual-suite journeys, restored controls, final retained-tree checks, and the
+assertion-level reduction of existing Chip coverage. No new permanent lifecycle matrix is required.
 
 ### Dist and Dist.Browser unit
 
@@ -382,6 +575,11 @@ correction, perform the retention/residue pass and final retained-tree verificat
 Do not repeatedly commission broad reviews or preserve new test residue merely because it was added
 in response to review. Carry unresolved retention decisions explicitly; do not call cleanup
 complete.
+
+When the review result is pasted back, adjudicate it against the current candidate and distinguish
+blockers from separate follow-ups. End the response with one line: **GO** and why the reviewed
+unit can land, or **NO-GO** and what must change or be verified first. This is a recommendation,
+not authorization to stage or commit.
 
 ## Purpose and boundaries
 
@@ -766,15 +964,123 @@ records removal of lint suppressions without changing factory signatures or work
 - Review the retained-fixture profile grant separately at closeout; its path and recovery anchors
   are in the evidence record. This cleanup remains independent of scoped-style acceptance.
 
-## TODO — expand beyond ui-components
+## Follow-on inventory — `code/sys.ui`
 
-- [ ] After the ui-components groups, scan all other packages in this `sys` repository for UI
-      specimens and related lifecycle call-sites. Inspect discovered entrypoints, debug factories,
-      and ownership helpers; filename or keyword matches establish candidates, not migration need.
-- [ ] Build follow-on lists by package with source-reviewed migration or no-change dispositions,
-      ownership constraints, distinctive proof requirements, and execution-sized groups mapped to
-      proposed commits. Preserve independent React/resource/command lifetimes; do not infer work
-      from component complexity alone.
+Scope of `docs(tmpl): inventory UI specimen lifecycle follow-ons across other sys packages`. At
+`6039ece20`, reviewed `code/sys.ui/ui` first, then lightly swept `code/sys.ui/ui-css`,
+`code/sys.ui/ui-dev`, `code/sys.ui/ui-dom`, `code/sys.ui/ui-react`, and `code/sys.ui/ui-state`.
+Excluded all `-archive` subtrees, including `/Users/phil/code/org.sys/sys/-tmp/-archive`, and left
+`ui-components`, drivers, and deploy out of this pass. Cross-checked specimen and registry paths
+with harness imports and lifecycle call-sites. Followed lazy imports, including addressable but
+unlisted specimens. This was source review only, not evidence of a reproduced leak or browser run.
 
-This is future discovery and planning work, not authorization to scan now or migrate other packages.
-Select and authorize follow-on implementation separately under the migration workbook.
+**10 live registrations reviewed: 3 follow-ons, 7 no change.** Test-only and unregistered specimens
+are accounted for separately. These dispositions do not authorize follow-on source work.
+
+### `@sys/ui` — two follow-ons, two no change
+
+`code/sys.ui/ui/src/-test/entry.tsx` uses `specsFor` from `src/-test/-specs.ts`. Paths in this
+section are relative to `code/sys.ui/ui`.
+
+- **Files.InfoPanel — migrate.** `src/ui.react/ui.files/ui.InfoPanel/-spec/-SPEC.tsx` starts unowned
+  tracked redraw on each init and uses context-only theme paint. Its `-SPEC.Debug.tsx`
+  unconditionally projects theme, title, animation, debug, `events.enabled`, and fields. Bind shared
+  projection and separate host paint/redraw. Preserve async setup, hydration, the 360-wide grid,
+  stable Root, controller and signal identity, and transient snapshot. `../u.controller.ts` owns the
+  controller's revision observer. `-u.connect.ts` owns a module-scoped sample websocket reached
+  through explicit connect/disconnect and Debug reset; harness retirement must not disconnect it or
+  cancel a pending operation. Redesigning its sharing or async ordering is out of scope.
+- **Files.InfoPanel.Config — migrate.** `src/ui.react/ui.files/ui.InfoPanel.Config/-spec/-SPEC.tsx`
+  has the same host effect pattern. Its `-SPEC.Debug.tsx` unconditionally projects theme, debug,
+  reorder, items, and `cursorEnabled`, not the cursor model. Preserve async setup, a saved `false`,
+  field order and dividers, 360-wide grid, and controlled cursor/item callbacks. `../ui.tsx` and
+  KeyValue own keyboard entry, divider handling, and navigation; keep them outside attachments.
+- **Passkey integration — no change in this workbook.**
+  `-sample/passkey/ui/-spec.integration/-SPEC.tsx` owns one `openSample` and debug factory per
+  admitted context; disposal releases both. `-sample/passkey/ui.host/u.sample.ts` owns runtime
+  startup and page listeners; `ui.Connected.tsx` owns React subscriptions only. The host effects and
+  preference writer follow context lifetime, not reset retirement. Preserve session/operation
+  continuity across reload of that context and keep another context independent. Do not convert it
+  to a shared sample or attachment-owned runtime.
+- **Passkey pure view — no change in this workbook.** `-sample/passkey/ui/-spec/-SPEC.tsx` is lazy
+  and addressable via `specsFor`, not listed in the main index. It owns fixture/intent state,
+  effects, and a preference writer per context and releases them on disposal. Only theme/debug
+  persist. The same context retains its state on reload; a new context rehydrates preferences and
+  starts fresh presentation state. It records intent only; it does not open an account runtime.
+
+For both Passkey entries, this is preservation of an explicit policy, not a finding that harness
+reset retires their work. The [Passkey plan](../@sys.ui/passkey-panel.plan.md) preserves context
+ownership, and `-sample/passkey/ui/-test/-spec.lifecycle.test.tsx` covers cached-suite re-entry,
+concurrent contexts and disposal. Any future change to redraw/paint or projection at reset needs
+separate Passkey-owner scope; keep navigation and runtime behavior out of these migration units.
+
+### Sibling sweep
+
+- **`ui-dev` — one follow-on.** Its browser entry and `-test/-entry.test.ts` consume the six live
+  imports in `code/sys.ui/ui-dev/src/ui.react.devharness/-test/-specs.ts`. Paths below are relative
+  to `code/sys.ui/ui-dev/src/ui.react.devharness`.
+  - **MySample — DevHarness demo, not Passkey.** In `-test/sample.specs/-SPEC.MySample.tsx`, each
+    init calls `Keyboard.on('CMD + KeyK', ...)` to log the matching shortcut and discards the
+    cleanup handle. `code/sys.ui/ui-dom/src/m.Keyboard/m/m.Keyboard.Monitor.ts` shares the DOM
+    listeners but creates a separate subscriber per call when a document is available. The missing
+    cleanup is visible in source; duplicate delivery was not reproduced in this inventory. Retire
+    only the logging subscriber with its specimen attachment. Leave `MySample.tsx`'s React
+    `useKeyboard` hook, `DevBus.events(ctx)`'s context-owned view, context state, debug commands,
+    and the delayed debug renderer unchanged.
+  - **Harness and ModuleList — no change.** `ui/Harness/-SPEC.tsx` registers a nested Harness with a
+    lazy spec import; React owns the inner controller. `ui/ModuleList/-SPEC.tsx` has static setup,
+    lazy renderer imports, and explicit callbacks, not an automatic init subscription.
+  - **DevTools, Size, and Empty — no change.** `-test/sample.DevTools/-SPEC.tsx` and its
+    `DevTools.tsx` use explicit commands and initial debug-row registration; the button owns its
+    pointer hook. `-test/sample.specs/-SPEC.Size.tsx` exercises direct renderer/size commands, not
+    reactive init work, and `-SPEC.Empty.tsx` only reads the context. Do not normalize sample state
+    or layout in a lifecycle pass.
+  - **Not additional live registrations.** `-test/sample.specs/Specs.mts` also lists MySample,
+    Empty, Error and Fail; no live entrypoint importing that map was found in the sweep. Error/Fail
+    are intentional failure cases (Fail also appears in `-test/headless/headless.TEST.v.ts`).
+    `-test/sample.specs/newFile.tsx` is an unregistered throw-on-init copy. The two
+    `-test/sample.specs.unit-test/` suites are controller test fixtures. No migration proposed for
+    these or for inline owner-test suites that deliberately exercise lifecycle boundaries.
+- **`ui-css`, `ui-dom`, `ui-react`, `ui-state` — no candidates in the light sweep.** No live harness
+  registrations or specimen init call-sites found. `ui-dom`'s keyboard monitor and `ui-react`'s
+  hooks are supporting owners, not additional specimens. This is a bounded search result, not a
+  lifecycle audit of every primitive.
+
+### Proposed migration units and closing proof
+
+1. `fix(ui): bind Files.InfoPanel specimen effects to attachments` — Change the specimen/debug pair
+   only. Load the registered suite with isolated storage; verify projection starts on first attach,
+   repeat init does not stack, reset A leaves B active, and last detach/reconnect stops and resumes
+   projection without rehydrating. Prove snapshot updates redraw without persisting or repainting;
+   use a fake transport to distinguish explicit disconnect from harness reset without a live
+   websocket or a new production test seam. Keep controller and panel tests at their owners.
+2. `fix(ui): bind Files.InfoPanel.Config specimen effects to attachments` — Change the
+   specimen/debug pair only. Seed reorder and cursor flags, mount the registered subject and
+   exercise a real item change or divider insertion; distinguish persisted items from the transient
+   cursor. Verify re-init, reset/retirement, and reconnect without a duplicate writer or lost order.
+   Retain the existing Config cursor, divider, and field tests, not a new specimen matrix.
+3. `fix(ui-dev): retire the MySample keyboard subscription with its attachment` — Change the
+   MySample specimen only. In the registered suite, send one matching keydown per check and count
+   the init shortcut's log: once after repeat init, none after reset without context disposal,
+   once after reconnect, and none after disposal. Do not stop the shared keyboard monitor or
+   unmount the React hook to make the reset check pass. Keep the headless registry check, but do
+   not count it as proof of keyboard delivery.
+
+Reopen the owning tasks before each authorized unit, prove with actual registered suites, and rerun
+the affected owner tests and type checks on the retained tree. Use temporary probes for consumer
+wiring unless an assertion independently earns retention under the workbook.
+
+## TODO — driver inventory
+
+- [ ] `docs(tmpl): inventory UI specimen lifecycle follow-ons across driver packages` — After the
+      three migrations above, trace live specimen registrations under `code/sys.driver/*`, excluding
+      every `-archive` subtree. Record owners, dispositions, and proof requirements. This is a
+      discovery pass only; propose driver migrations from its findings, not before.
+
+## TODO — deploy inventory decision
+
+- [ ] After the driver inventory, decide whether `/Users/phil/code/org.sys/sys/deploy/*` warrants a
+      separate discovery pass. If selected, scope it using the same workbook and record live
+      specimen entrypoints, ownership constraints, and proof requirements. If skipped, record the
+      reason as a scope decision, not a source-reviewed no-change finding. Do not scan `deploy/*`
+      during the UI or driver passes or make this decision a prerequisite for either.
