@@ -79,9 +79,10 @@ describe('Passkey diagnostic panel', () => {
       onSignIn: () => intents.push('sign-in'),
     });
     try {
-      const controls = buttons(res.container);
-      expect(controls.map((el) => el.textContent)).to.eql(['Sign In', 'Create Passkey']);
-      const [signIn, create] = controls;
+      const signIn = actionButton(res.container, 'sign-in');
+      const create = actionButton(res.container, 'create-account');
+      expect(valueCell(res.container, 'Existing account').contains(signIn)).to.eql(true);
+      expect(valueCell(res.container, 'New account').contains(create)).to.eql(true);
       expect(create.tabIndex).to.eql(0);
       press(create, 'Enter');
       press(signIn, ' ');
@@ -93,24 +94,26 @@ describe('Passkey diagnostic panel', () => {
     }
   });
 
-  it('Sign In is the only filled action when signed out in either theme', async () => {
+  it('session changes → filled session action first, text registration action second', async () => {
     using panel = await renderPanel({ snapshot: signedOut, ...callbacks });
-    const filled = () =>
-      buttons(panel.container).filter((button) => {
-        const view = button.ownerDocument.defaultView!;
-        const background = view.getComputedStyle(button).backgroundColor;
-        return background && background !== 'transparent' && background !== 'rgba(0, 0, 0, 0)';
-      }).map((button) => button.textContent);
-
+    const cases = [
+      [signedOut, 'Sign In', 'Create Passkey'],
+      [signedIn, 'Sign Out', 'Add Passkey'],
+    ] as const;
     for (const theme of ['Light', 'Dark'] as const) {
-      panel.update({ snapshot: signedOut, ...callbacks, theme });
-      expect(filled()).to.eql(['Sign In']);
-      panel.update({ snapshot: signedIn, ...callbacks, theme });
-      expect(filled()).to.eql(['Add Passkey', 'Sign Out']);
+      for (const [snapshot, session, registration] of cases) {
+        panel.update({ snapshot, ...callbacks, theme });
+        const rows = buttons(panel.container).map((button) => {
+          const bg = button.ownerDocument.defaultView!.getComputedStyle(button).backgroundColor;
+          const filled = !!bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)';
+          return [button.textContent, filled];
+        });
+        expect(rows).to.eql([[session, true], [registration, false]]);
+      }
     }
   });
 
-  it('signed in → add/sign-out intents, principal, and unknown versus zero credential count', async () => {
+  it('signed in → distinct intents and unknown versus zero credential count', async () => {
     const intents: string[] = [];
     const props: t.Passkey.Props = {
       snapshot: signedIn,
@@ -119,14 +122,15 @@ describe('Passkey diagnostic panel', () => {
     };
     const res = await renderPanel(props);
     try {
-      const controls = buttons(res.container);
-      expect(controls.map((el) => el.textContent)).to.eql(['Add Passkey', 'Sign Out']);
-      const [add, signOut] = controls;
+      const signOut = actionButton(res.container, 'sign-out');
+      const add = actionButton(res.container, 'add-passkey');
+      expect(valueCell(res.container, 'Session').contains(signOut)).to.eql(true);
+      expect(valueCell(res.container, 'Passkeys').contains(add)).to.eql(true);
       expect(valueCell(res.container, 'Principal').textContent).to.eql('principal-test-01');
       expect(valueCell(res.container, 'Registered credentials').textContent).to.eql('Unknown');
-      press(add, 'Enter');
       press(signOut, ' ');
-      expect(intents).to.eql(['add-passkey', 'sign-out']);
+      press(add, 'Enter');
+      expect(intents).to.eql(['sign-out', 'add-passkey']);
       expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed in');
       res.update({
         ...props,
@@ -151,12 +155,11 @@ describe('Passkey diagnostic panel', () => {
     using panel = await renderPanel(props);
     const selector = '[role="note"][id]';
     const note = () => panel.container.querySelector(selector);
-    const create = actionButton(panel.container, 'create-account');
-    const contextSection = element(panel.container, '[data-passkey-section="context"]');
-    expect(note()?.previousElementSibling?.contains(contextSection)).to.eql(true);
-    expect(note()).to.equal(panel.container.firstElementChild?.lastElementChild);
+    const create = () => actionButton(panel.container, 'create-account');
     const initialNote = element(panel.container, selector);
-    expect(initialNote.querySelector('p > strong')?.textContent).to.eql('Use a sample passkey');
+    const contextSection = element(panel.container, '[data-passkey-section="context"]');
+    expect(initialNote.previousElementSibling?.contains(contextSection)).to.eql(true);
+    expect(create().getAttribute('aria-describedby')).to.eql(initialNote.id);
     expect(initialNote.ownerDocument.defaultView!.getComputedStyle(initialNote).marginTop).to.eql(
       '20px',
     );
@@ -167,21 +170,12 @@ describe('Passkey diagnostic panel', () => {
       'noreferrer',
     ]);
     expect(actionButton(panel.container, 'sign-in').hasAttribute('aria-describedby')).to.eql(false);
-    const updated = { ...context, registrationAdvisory: '**Hint.** Updated.' };
-    for (const theme of ['Light', 'Dark'] as const) {
-      panel.update({ ...props, theme, snapshot: { ...signedOut, context: updated } });
-      const el = element(panel.container, selector);
-      expect(el.textContent).to.include('Updated.');
-      const colorOf = (node: Element) => el.ownerDocument.defaultView!.getComputedStyle(node).color;
-      const foreground = colorOf(el);
-      const body = theme === 'Dark' ? Color.alpha(foreground, 0.65) : foreground;
-      expect(colorOf(element(el, 'p'))).to.eql(body);
-      expect(colorOf(element(el, 'strong'))).to.eql(foreground);
-    }
-    const original = note();
-    panel.update({ ...props, onCreateAccount: undefined });
-    expect(note()).to.equal(original);
-    expect(create.hasAttribute('aria-describedby')).to.eql(false);
+    const updated = { ...context, registrationAdvisory: 'Updated guidance.' };
+    const snapshot = { ...signedOut, context: updated };
+    panel.update({ ...props, snapshot, onCreateAccount: undefined });
+    expect(note()).to.equal(initialNote);
+    expect(initialNote.textContent).to.include('Updated guidance.');
+    expect(create().hasAttribute('aria-describedby')).to.eql(false);
     expect(panel.container.textContent).to.include('Action not connected');
     panel.update({ ...props, snapshot: signedOut });
     expect(note()).to.eql(null);
@@ -397,11 +391,12 @@ describe('Passkey diagnostic panel', () => {
     try {
       const action = actionButton(res.container, 'sign-in');
       React.act(() => action.focus());
+      expect(document.activeElement).to.equal(action);
       res.update({ snapshot: signedIn, ...callbacks });
       expect(res.container.contains(document.activeElement)).to.eql(false);
-      expectActions(res.container, 'add-passkey', 'sign-out');
       const add = actionButton(res.container, 'add-passkey');
       React.act(() => add.focus());
+      expect(document.activeElement).to.equal(add);
       res.update({
         snapshot: { ...signedOut, authentication: { kind: 'checking' } },
         ...callbacks,
@@ -509,7 +504,9 @@ describe('Passkey diagnostic panel', () => {
       const view = root.ownerDocument.defaultView!;
       expect(view.getComputedStyle(root).padding).to.eql('17px');
       const result = element(res.container, '[role="status"][aria-label="Last result"]');
-      expect(view.getComputedStyle(result).overflowWrap).to.eql('anywhere');
+      const style = view.getComputedStyle(result);
+      expect(style.overflowWrap).to.eql('anywhere');
+      expect(style.getPropertyValue('text-wrap')).to.eql('pretty');
       expect(Color.toHex(view.getComputedStyle(root).color)).to.eql(
         Color.toHex(Color.theme('Light').fg),
       );

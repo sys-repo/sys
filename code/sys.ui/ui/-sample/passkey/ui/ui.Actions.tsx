@@ -34,7 +34,7 @@ export function useActionParts(props: t.Passkey.ActionsProps) {
     v: (
       <Action
         label={action.label}
-        variant={action.id === 'create-account' ? 'text' : 'filled'}
+        variant={action.variant}
         reason={action.reason}
         aria-describedby={advisory && action === registration ? noteId : undefined}
         pending={pending}

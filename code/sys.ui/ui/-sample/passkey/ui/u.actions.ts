@@ -4,6 +4,7 @@ type Action = {
   readonly id: t.Passkey.Action;
   readonly key: string;
   readonly label: string;
+  readonly variant: NonNullable<t.Passkey.ActionProps['variant']>;
   readonly reason?: string;
   readonly onClick?: () => void;
 };
@@ -11,24 +12,38 @@ type Action = {
 /** Project only actions appropriate to the supplied session; never execute or serialize work. */
 export function actionsOf(props: t.Passkey.ActionsProps): readonly Action[] {
   const { authentication } = props;
-  switch (authentication.kind) {
-    case 'signed-out':
-      return [
-        action('sign-in', 'Existing account', props.onSignIn),
-        action('create-account', 'New account', props.onCreateAccount),
-      ];
-    case 'signed-in':
-      return [
-        action('add-passkey', 'Passkeys', props.onAddPasskey),
-        action('sign-out', 'Session', props.onSignOut),
-      ];
-    default:
-      return [];
-  }
+  if (authentication.kind !== 'signed-in' && authentication.kind !== 'signed-out') return [];
+  const signedIn = authentication.kind === 'signed-in';
 
-  function action(id: t.Passkey.Action, key: string, onClick?: () => void): Action {
+  // Session first, registration second, regardless of authentication state.
+  return [
+    action(
+      'filled',
+      signedIn
+        ? ['sign-out', 'Session', props.onSignOut]
+        : ['sign-in', 'Existing account', props.onSignIn],
+    ),
+    action(
+      'text',
+      signedIn
+        ? ['add-passkey', 'Passkeys', props.onAddPasskey]
+        : ['create-account', 'New account', props.onCreateAccount],
+    ),
+  ];
+
+  function action(
+    variant: Action['variant'],
+    [id, key, onClick]: [id: t.Passkey.Action, key: string, onClick?: () => void],
+  ): Action {
     const reason = disabledReason(props, id, onClick);
-    return { id, key, label: actionLabel(id), reason, onClick: reason ? undefined : onClick };
+    return {
+      id,
+      key,
+      label: actionLabel(id),
+      variant,
+      reason,
+      onClick: reason ? undefined : onClick,
+    };
   }
 }
 

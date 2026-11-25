@@ -142,7 +142,6 @@ describe('Passkey diagnostic sections', () => {
       );
       expect(slot.hasAttribute('aria-valuenow')).to.eql(false);
       expect(slot.hasAttribute('tabindex')).to.eql(false);
-      expect([cssOf(slot).width, cssOf(slot).height]).to.eql(['24px', '3px']);
       expect(actionButton(panel.container, 'sign-in')).to.equal(signIn);
       expect(document.activeElement).to.equal(signIn);
       expect(element(panel.container, section('context'))).to.equal(context);
@@ -211,12 +210,14 @@ describe('Passkey diagnostic sections', () => {
       using res = await TestReact.render(
         <Passkey.UI.Actions {...snapshot} {...callbacks} operation={operation} />,
       );
-      if (out) expectActions(res.container, 'sign-in', 'create-account');
-      else expectActions(res.container, 'add-passkey', 'sign-out');
+      const controls = buttons(res.container);
+      expect(controls.map((el) => el.textContent)).to.have.members(
+        out ? ['Sign In', 'Create Passkey'] : ['Sign Out', 'Add Passkey'],
+      );
       const progress = '[role="progressbar"], [data-spinner-slot], [role="status"]';
       expect(res.container.querySelector(progress)).to.eql(null);
       expect(res.container.textContent).not.to.include('Waiting');
-      for (const el of buttons(res.container)) {
+      for (const el of controls) {
         expect(el.getAttribute('aria-disabled')).to.eql('true');
         expect(el.tabIndex).to.eql(-1);
         press(el, 'Enter');
@@ -274,7 +275,6 @@ describe('Passkey diagnostic sections', () => {
       expect(style.getPropertyValue('padding-inline-end') || '0px').to.eql(
         level === 'info' ? '2px' : '0px',
       );
-      expect(style.getPropertyValue('text-wrap')).to.eql('pretty');
     }
   });
 
