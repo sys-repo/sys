@@ -13,19 +13,6 @@ browser-targets.plan.md
 - [ ] docs(cell): explain browser targets and enable them in the UI cell and samples
 
 
-@sys.ui-components
-markdown-admonition-panel.plan.md
-- [x] 6d3e56310 chore(ui-components): scaffold Admonition UI
-- [x] 5507287b8 feat(ui-components): render compact Markdown admonitions
-- [x] e2dd9ebf6 feat(ui-components): complete the Admonition kind icon set
-- [x] 17eae73e2 feat(ui-components): control Admonition text selection
-- [x] 3415b11e0 refactor(ui): adopt Admonition for passkey registration guidance
-- [x] 554b6d24d fix(ui): improve wrapping in the passkey result row
-- [x] 682b76997 fix(ui-components): standardize compact text button focus
-- [x] bfb28e7d2 fix(ui): clarify passkey actions and context typography
-- [x] ebfbd42a5 fix(ui-components): align Dev.Help Markdown link cues with Admonition
-- [x] cb04b7b7c fix(ui-components): strengthen Chip fill and border in dark mode
-
 
 @sys.ui
 passkey-panel.plan.md
