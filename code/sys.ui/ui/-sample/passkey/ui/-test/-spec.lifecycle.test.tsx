@@ -133,6 +133,10 @@ describe('passkey cached-spec context lifetime', () => {
         expect(a.props.theme.value).to.eql('Light');
 
         const firstProps = (await first.events.info.get()).render.props!;
+        const size = firstProps.subject.size;
+        if (size?.mode !== 'center') throw new Error('Expected a centered specimen');
+        if (specimen.name === 'integration') expect(size.height).to.be.greaterThan(0);
+        else expect(size.height).to.eql(undefined);
         const subject = await render(first.events, firstProps.subject.renderer);
         const footer = await render(first.events, firstProps.host.footer.renderer);
         if (!React.isValidElement<{ theme: string }>(footer)) {
@@ -329,7 +333,6 @@ describe('passkey cached-spec context lifetime', () => {
     const second = controller();
     async function mount(events: DevEvents) {
       const { subject } = (await events.info.get()).render.props!;
-      expect(subject.size).to.eql({ mode: 'center', width: 360, height: undefined });
       return TestReact.render(<>{await render(events, subject.renderer)}</>);
     }
     try {
@@ -388,6 +391,26 @@ describe('passkey cached-spec context lifetime', () => {
       first.dispose();
       second.dispose();
     }
+  });
+
+  it('pure fixture picker → show the registration hint without starting an action', async () => {
+    const suite = (await import('../-spec/-SPEC.tsx')).default;
+    using res = await TestReact.render(<Harness.UI spec={suite} />);
+    const { container } = res;
+    await Time.waitFor(async () => {
+      await React.act(() => Time.wait(0));
+      return !!container.querySelector('[data-passkey-section="actions"]');
+    });
+    const note = '[role="note"][id]';
+    expect(container.querySelector(note)).to.eql(null);
+    await activate(button(container, 'Signed out • registration hint'));
+    const hint = element(container, note);
+    expect(hint.textContent).to.include('Use a sample passkey');
+    const create = actionButton(container, 'create-account');
+    expect(create.getAttribute('aria-describedby')).to.eql(hint.id);
+    expect(valueCell(container, 'events:').textContent).to.eql('0');
+    await activate(button(container, 'Signed out'));
+    expect(container.querySelector(note)).to.eql(null);
   });
 
   it('pure subject → renders the selected view with the supplied fixture', async () => {

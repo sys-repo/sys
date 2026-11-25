@@ -5,12 +5,13 @@ import { Connected } from '../../ui.host/ui.Connected.tsx';
 import { WebAuthnLink } from '../-spec/-ui.Links.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
+type Context = ReturnType<typeof Spec.ctx>;
+type Owner = {
+  debug: ReturnType<typeof createDebugSignals>;
+  sample: ReturnType<typeof openSample>;
+};
+
 export default Spec.describe(D.displayName, (e) => {
-  type Context = ReturnType<typeof Spec.ctx>;
-  type Owner = {
-    debug: ReturnType<typeof createDebugSignals>;
-    sample: ReturnType<typeof openSample>;
-  };
   const contexts = new WeakMap<Context, Owner>();
 
   e.it('init', (e) => {
@@ -26,9 +27,9 @@ export default Spec.describe(D.displayName, (e) => {
       .padding([12, 16])
       .render(() => <WebAuthnLink theme={p.theme.value} />);
 
+    // Center a fixed preview area so content grows down without moving the panel’s top.
     ctx.subject
-      .size([360, null])
-      .display('grid')
+      .size([360, 500])
       .render(() => {
         const { view, debug, theme } = Signal.toObject(p);
         return <Connected sample={sample} view={view} debug={debug} theme={theme} />;

@@ -69,7 +69,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>
         <div>{D.name}</div>
-        <div>Reference</div>
+        <div>(reference sample)</div>
       </div>
       <div>
         <SpecLink to='view' />
@@ -81,10 +81,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
       <hr />
-      <div className={styles.title.class}>
-        <div>Presentation</div>
-        <div>(View)</div>
-      </div>
+      <div className={styles.title.class}>Presentation</div>
       <ViewPicker view={v.view} theme={theme.name} onSelect={(view) => p.view.value = view} />
       <hr />
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />

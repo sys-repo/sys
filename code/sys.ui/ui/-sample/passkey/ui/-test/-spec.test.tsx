@@ -75,10 +75,10 @@ describe('Passkey pure specimen', () => {
     const selected = () =>
       [...list.querySelectorAll('[aria-pressed="true"]')].map((el) => el.textContent);
     expect(buttons(list).map((el) => el.textContent)).to.eql(Fixtures.map((f) => f.label));
-    await activate(button(list, 'Add failed; session preserved'));
+    await activate(button(list, 'Add failed • session preserved'));
     expect(debug.props.fixture.value.id).to.eql('failed-add');
     expect(intent()).to.eql(['none', '0']);
-    expect(selected()).to.eql(['Add failed; session preserved']);
+    expect(selected()).to.eql(['Add failed • session preserved']);
     // External selection updates the list without fabricating or clearing an intent.
     await React.act(() => {
       debug.actions.onSignIn();

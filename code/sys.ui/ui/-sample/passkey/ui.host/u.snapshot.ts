@@ -10,7 +10,7 @@ const phases = {
   request: 'Sending request',
 } as const;
 
-const registrationAdvisory = Str.dedent(`
+export const registrationAdvisory = Str.dedent(`
   # Use a sample passkey
 
   Restarting the cell’s \`sys.ui:accounts\` service clears its in-memory accounts, registrations,

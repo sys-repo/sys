@@ -11,12 +11,10 @@ const references = {
   credentials: 'https://www.w3.org/TR/webauthn-3/#credential-record',
 } as const;
 
-type Props = t.Passkey.StatusProps & { reserveAccountRows?: boolean };
-
 /**
  * Authentication observations are independent of operation outcomes and prerequisite readiness.
  */
-export const Status: t.FC<Props> = (props) => {
+export const Status: t.FC<t.Passkey.StatusProps> = (props) => {
   const { debug = D.debug, authentication, operation, result } = props;
   const theme = Color.theme(props.theme);
   const styles = {
@@ -56,18 +54,9 @@ export const Status: t.FC<Props> = (props) => {
     { id: 'result', k: 'Last result', v: <Result result={result} /> },
   );
 
-  // Budget one line each for Account label and Registered credentials, using the grid's own gap.
-  const gridTemplateRows = props.reserveAccountRows && authentication.kind === 'signed-out'
-    ? `repeat(${items.length}, auto) 1lh 1lh`
-    : undefined;
   return (
     <div data-passkey-section='status' className={css(styles.base, props.style).class}>
-      <KeyValue.UI
-        items={items}
-        layout={D.layout}
-        theme={theme.name}
-        style={{ gridTemplateRows }}
-      />
+      <KeyValue.UI items={items} layout={D.layout} theme={theme.name} />
     </div>
   );
 };

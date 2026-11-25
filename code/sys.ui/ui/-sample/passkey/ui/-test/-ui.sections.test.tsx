@@ -79,15 +79,14 @@ describe('Passkey diagnostic sections', () => {
     }
   });
 
-  it('note-bearing frame → reserves height without clipping or insetting the action edge', async () => {
+  it('note-bearing panel and actions → intrinsic height and an unclipped action edge', async () => {
     const context = { ...signedOut.context, registrationAdvisory: 'Use a test passkey.' };
     using panel = await renderPanel({ snapshot: signedOut });
     const frame = () => cssOf(element(panel.container, section('actions')).parentElement!);
-    expect(frame().minHeight || 'auto').to.eql('auto');
     for (const view of ['panel', 'actions'] as const) {
       panel.update({ view, snapshot: { ...signedOut, context } });
       const { minHeight, height, overflowX, overflowY, paddingInlineEnd } = frame();
-      expect(parseFloat(minHeight)).to.be.greaterThan(0);
+      expect(minHeight || 'auto').to.eql('auto');
       expect(height || 'auto').to.eql('auto');
       expect([overflowX || 'visible', overflowY || 'visible']).to.eql(['visible', 'visible']);
       expect(paddingInlineEnd || '0px').to.eql('0px');

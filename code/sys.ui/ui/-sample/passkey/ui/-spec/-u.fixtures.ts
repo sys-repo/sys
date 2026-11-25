@@ -1,5 +1,6 @@
 import type { t } from './common.ts';
 import { browserOrigin, rp } from '../../u/u.issuer.ts';
+import { registrationAdvisory } from '../../ui.host/u.snapshot.ts';
 
 const signedOut: t.Passkey.Snapshot = {
   authentication: { kind: 'signed-out' },
@@ -22,6 +23,11 @@ const signedIn: t.Passkey.Snapshot = {
 export const Fixtures: readonly t.PasskeyFixture[] = [
   { id: 'signed-out', label: 'Signed out', snapshot: signedOut },
   { id: 'signed-in', label: 'Signed in', snapshot: signedIn },
+  {
+    id: 'registration-hint',
+    label: 'Signed out • registration hint',
+    snapshot: { ...signedOut, context: { ...signedOut.context, registrationAdvisory } },
+  },
   {
     id: 'checking',
     label: 'Checking session',
@@ -88,7 +94,7 @@ export const Fixtures: readonly t.PasskeyFixture[] = [
   },
   {
     id: 'browser-unavailable',
-    label: 'Browser unavailable; sign-out allowed',
+    label: 'Browser unavailable • sign-out allowed',
     snapshot: {
       ...signedIn,
       context: {
@@ -99,7 +105,7 @@ export const Fixtures: readonly t.PasskeyFixture[] = [
   },
   {
     id: 'registration-success',
-    label: 'Registration success; still signed out',
+    label: 'Registration success • still signed out',
     snapshot: {
       ...signedOut,
       result: {
@@ -111,7 +117,7 @@ export const Fixtures: readonly t.PasskeyFixture[] = [
   },
   {
     id: 'failed-add',
-    label: 'Add failed; session preserved',
+    label: 'Add failed • session preserved',
     snapshot: {
       ...signedIn,
       result: { kind: 'failure', action: 'add-passkey', summary: 'Request did not complete' },
@@ -119,7 +125,7 @@ export const Fixtures: readonly t.PasskeyFixture[] = [
   },
   {
     id: 'long-content',
-    label: 'Long identifiers and error',
+    label: 'Long identifiers • long error message',
     snapshot: {
       ...signedIn,
       authentication: {
