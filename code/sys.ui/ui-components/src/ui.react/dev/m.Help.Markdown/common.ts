@@ -1,7 +1,6 @@
 import { Pkg, pkg, type t } from '../common.ts';
 
 export * from '../common.ts';
-export { Anchor } from '../../ui/Anchor/mod.ts';
 export { Chip } from '../../ui/Chip/mod.ts';
 export { ProseMarkdown } from '../../ui/Prose.Markdown/mod.ts';
 

@@ -4,13 +4,20 @@ import { DevHelpMarkdown } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 import { Sample } from './-u.sample.ts';
 
-export default Spec.describe(D.displayName, async (e) => {
-  const debug = await createDebugSignals();
+export default Spec.describe(D.displayName, (e) => {
+  const debug = createDebugSignals();
   const p = debug.props;
 
   function Root() {
     const v = Signal.toObject(p);
-    return <DevHelpMarkdown.UI debug={v.debug} theme={v.theme} value={Sample.value(v.sample)} />;
+    return (
+      <DevHelpMarkdown.UI
+        debug={v.debug}
+        theme={v.theme}
+        linksTabbable={v.linksTabbable}
+        value={Sample.value(v.sample)}
+      />
+    );
   }
 
   e.it('init', (e) => {

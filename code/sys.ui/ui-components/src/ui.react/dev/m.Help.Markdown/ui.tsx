@@ -1,4 +1,5 @@
-import { Anchor, Chip, Color, css, D, ProseMarkdown, type t } from './common.ts';
+import { Chip, Color, css, D, ProseMarkdown, type t } from './common.ts';
+import { renderReferenceLink } from '../../ui/Prose.Markdown/u.render/u.reference-link.tsx';
 
 /** Markdown help renderer with dev-friendly inline-code and link defaults. */
 export const DevHelpMarkdown: t.FC<t.DevHelpMarkdown.Props> = (props) => {
@@ -29,13 +30,7 @@ function toRenderers(
     inlineCode(e) {
       return <Chip.UI mono theme={theme}>{e.value}</Chip.UI>;
     },
-    link(e) {
-      return (
-        <Anchor.UI href={e.href} title={e.title} target='_blank' theme={theme}>
-          {e.children}
-        </Anchor.UI>
-      );
-    },
+    link: (e) => renderReferenceLink(e, theme),
     ...renderers,
   };
 }

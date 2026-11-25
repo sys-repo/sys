@@ -1,7 +1,7 @@
-import { Anchor } from '../Anchor/mod.ts';
 import { Chip } from '../Chip/mod.ts';
 import { Prose } from '../Prose/mod.ts';
-import { Color, css, D, Is, type t, Url, useStylesheetRule } from './common.ts';
+import { renderReferenceLink } from '../Prose.Markdown/u.render/u.reference-link.tsx';
+import { Color, css, D, Is, type t, useStylesheetRule } from './common.ts';
 import { Icons } from './u.icons.ts';
 
 export const Admonition: t.FC<t.Admonition.Props> = (props) => {
@@ -82,29 +82,7 @@ export const Admonition: t.FC<t.Admonition.Props> = (props) => {
           inlineCode({ value }) {
             return <Chip.UI mono theme={theme.name}>{value}</Chip.UI>;
           },
-          link({ href, title, tabIndex, children }) {
-            // Markdown has already filtered the destination. Only absolute web links open a tab.
-            const url = Url.parse(href);
-            const protocol = url.ok ? url.toURL().protocol : undefined;
-            if (protocol === 'https:' || protocol === 'http:') {
-              return (
-                <Anchor.Link
-                  href={href}
-                  title={title}
-                  tabIndex={tabIndex}
-                  openIn='new-tab'
-                  theme={theme.name}
-                >
-                  {children}
-                </Anchor.Link>
-              );
-            }
-            return (
-              <Anchor.UI href={href} title={title} tabIndex={tabIndex} theme={theme.name}>
-                {children}
-              </Anchor.UI>
-            );
-          },
+          link: (e) => renderReferenceLink(e, theme.name),
         }}
       />
     </div>

@@ -1,27 +1,28 @@
-import React from 'react';
+import type React from 'react';
 import { Spec } from '../../../-test.ui.ts';
-import { Color, css, D, Dev, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 import { Sample, type SampleKind } from './-u.sample.ts';
 
 type P = t.DevHelpMarkdown.Props;
 type Storage = Pick<P, 'debug' | 'theme'> & { sample?: SampleKind };
 
-const defaults: Storage = {
+const defaults = {
   debug: false,
   theme: 'Dark',
   sample: Sample.defaultKind,
-};
+} satisfies Storage;
+const initialLinksTabbable = true; // Ephemeral specimen input.
 
 /**
  * Types:
  */
 export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
-export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
+export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
  * Signals:
  */
-export async function createDebugSignals() {
+export function createDebugSignals() {
   const s = Signal.create;
   const store = LocalStorage.immutable<Storage>(STORAGE_KEY.DEV, defaults);
   const snap = store.current;
@@ -29,6 +30,7 @@ export async function createDebugSignals() {
   const props = {
     debug: s(snap.debug),
     theme: s(snap.theme),
+    linksTabbable: s<boolean>(initialLinksTabbable),
     sample: s(Sample.resolveKind(snap.sample)),
   };
   const p = props;
@@ -47,7 +49,10 @@ export async function createDebugSignals() {
   }
 
   function reset() {
-    Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
+    p.debug.value = defaults.debug;
+    p.theme.value = defaults.theme;
+    p.linksTabbable.value = initialLinksTabbable;
+    p.sample.value = defaults.sample;
   }
 
   return { props, listen, reset, attach };
@@ -80,19 +85,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
     base: css({ color: theme.fg }),
   };
 
-  const sampleButton = (kind: SampleKind) => {
-    const sample = Sample.get(kind);
-    const selected = v.sample === kind;
-    return (
-      <Dev.Button
-        key={kind}
-        block
-        label={() => `${selected ? '🌳 ' : ''}${sample.label}`}
-        onClick={() => (p.sample.value = kind)}
-      />
-    );
-  };
-
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
@@ -102,16 +94,30 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
+      <Dev.Button
+        block
+        label={() => `linksTabbable: ${v.linksTabbable}`}
+        onClick={() => Signal.toggle(p.linksTabbable)}
+      />
 
       <hr />
-      <div className={Styles.title.class}>{'Samples:'}</div>
-      {Sample.kinds.map(sampleButton)}
+      <div className={Styles.title.class}>Samples</div>
+      <Dev.List
+        theme={theme.name}
+        columns={1}
+        selected={v.sample}
+        items={Sample.kinds.map((id) => ({
+          id,
+          label: Sample.get(id).label,
+          onActivate: () => p.sample.value = id,
+        }))}
+      />
 
       <hr />
-      <div className={Styles.title.class}>{'Debug:'}</div>
+      <div className={Styles.title.class}>Debug:</div>
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
-      <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
-      <Dev.ObjectView name={'debug'} data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.Button block label='(reset)' onClick={debug.reset} />
+      <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

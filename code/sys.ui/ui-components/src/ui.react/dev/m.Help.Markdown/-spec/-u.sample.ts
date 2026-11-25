@@ -10,7 +10,7 @@ const sampleKinds = ['workflow', 'review'] as const;
 const defaultKind: SampleKind = 'workflow';
 const samples = {
   workflow: {
-    label: 'sample: workflow',
+    label: 'Workflow',
     value: Str.dedent(`
       ### Example workflow
 
@@ -24,7 +24,7 @@ const samples = {
     `),
   },
   review: {
-    label: 'sample: review checklist',
+    label: 'Review checklist',
     value: Str.dedent(`
       ### Review checklist
 
