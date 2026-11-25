@@ -332,7 +332,7 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
 
   it('encoded targets and repeated links → admits exactly 65,535 code units', () => {
     const href = 'https://example.test/é space?q=界#résumé';
-    for (const count of [1, 2]) {
+    for (const [count, marked] of [[1, false], [2, false], [1, true]] as const) {
       let calls = 0;
       const deps = {
         ...renderDeps,
@@ -343,9 +343,10 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
       };
       const urls = Array.from({ length: count }, () => ({ href }));
       const status: t.Service.Status = { state: 'ready', urls };
+      const urlDisplay = marked ? { mark: () => true } : undefined;
       const render = (name: string, maxRows?: number) => {
         const options = { terminal: false, urlHyperlinks: true, maxRows };
-        return formatListWith(deps, [{ name, status }], options);
+        return formatListWith(deps, [{ name, status, urlDisplay }], options);
       };
       const name = 'x'.repeat(65_535 - render('x').length + 1);
       calls = 0;
@@ -412,10 +413,10 @@ describe('Cli.Fmt.Service capture and authority boundaries', () => {
       (root) => ({ name: 'a', status: { state: 'ready', root: `/${root}` } }),
       (value) => ({ name: 'a', status: { state: 'ready', details: [{ label: 'x', value }] } }),
       (message) => ({ name: 'a', status: { state: 'error', error: { name: 'Error', message } } }),
-      (path) => {
+      ...[undefined, { mark: () => true }].map((urlDisplay) => (path: string) => {
         const urls = [{ href: `https://example.test/${path}` }];
-        return { name: 'a', status: { state: 'ready', urls } };
-      },
+        return { name: 'a', status: { state: 'ready' as const, urls }, urlDisplay };
+      }),
       (open) => ({ name: 'a', keyboard: { open } }),
     ];
     const calls: number[] = [];

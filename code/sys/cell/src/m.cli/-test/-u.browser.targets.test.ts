@@ -26,8 +26,8 @@ describe('@sys/cell/cli browser targets', () => {
       diagnostics: [{ service: 'proxy', pathname: '/missing', matches: 0 }],
     };
     const reversed = sources.map((item) => ({ ...item, urls: item.urls?.toReversed() }));
-    expect(resolveBrowserTargets(sources)).to.eql(expected);
-    expect(resolveBrowserTargets(reversed)).to.eql(expected);
+    expect(resolveBrowserTargets(sources).browser).to.eql(expected);
+    expect(resolveBrowserTargets(reversed).browser).to.eql(expected);
   });
 
   it('diagnoses distinct matches without falling back or normalizing the selector', () => {
@@ -38,7 +38,7 @@ describe('@sys/cell/cli browser targets', () => {
       source('paths', ['/payments', '/a/b'], ['http://x/payments/', 'http://x/a%2Fb']),
       source('unreported', '/'),
     ];
-    expect(resolveBrowserTargets(sources)).to.eql({
+    expect(resolveBrowserTargets(sources).browser).to.eql({
       targets: [],
       diagnostics: [
         { service: 'origins', pathname: '/', matches: 2 },
@@ -58,7 +58,7 @@ describe('@sys/cell/cli browser targets', () => {
         source('a', '/', ['https://a.test/']),
         source('b', ['/ok', '/'], published),
       ];
-      expect(resolveBrowserTargets(sources)).to.eql({
+      expect(resolveBrowserTargets(sources).browser).to.eql({
         targets: [
           { service: 'a', pathname: '/', href: 'https://a.test/' },
           { service: 'b', pathname: '/ok', href: 'https://b.test/ok' },
@@ -81,7 +81,7 @@ describe('@sys/cell/cli browser targets', () => {
       'http://example.test/?q=\u009f',
       'https://example.test/',
     ])];
-    expect(resolveBrowserTargets(sources)).to.eql({
+    expect(resolveBrowserTargets(sources).browser).to.eql({
       targets: [{ service: 'view', pathname: '/', href: 'https://example.test/' }],
       diagnostics: [],
     });

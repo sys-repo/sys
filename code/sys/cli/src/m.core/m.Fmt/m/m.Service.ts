@@ -27,14 +27,15 @@ import { serviceUrlValue, serviceUrlValues } from '../u.service/u.url.ts';
 import type { composeUrlPart, ServiceUrlAdmission } from '../u.service/u.url.prepare.ts';
 import { displayPath } from './m.Path.ts';
 
-type WriteLine = (line: string) => void;
+type WriteLine = (line: string, hasSource?: boolean) => void;
 type Row = {
   readonly label: readonly string[];
   readonly kind?: ServiceRowKind;
+  readonly marked?: boolean;
   readonly render: (
     width: number | undefined,
     write: WriteLine,
-    check: (length: number) => void,
+    check: (length: number, cells?: number, hasSource?: boolean) => void,
   ) => void;
 };
 type Dependencies = {
@@ -52,6 +53,7 @@ type PhysicalLinesOptions = {
 };
 
 const DEPS: Dependencies = { terminal, size };
+const URL_MARKER_CELLS = 2;
 
 /**
  * Format service status as text without printing or managing the service.
@@ -86,7 +88,8 @@ export function formatListWith(
   const labels = sections.flatMap(({ rows }) => rows.flatMap((row) => row.label));
   const layout = serviceLayout(labels, width);
   const fitRow = (row: Row): FittedRow => {
-    const pair = budget.pair(layout.reserve);
+    const mark = row.marked && layout.gap >= URL_MARKER_CELLS ? `${c.cyan('•')} ` : '';
+    const pair = budget.pair(layout.reserve, mark);
     const color: ServiceColor = row.kind === 'title' ? 'green' : 'dim';
     const style = { color, compose, check: pair.checkLabel };
     for (const line of row.label) pair.label(fitServiceText(line, layout.labelWidth, style));
@@ -168,8 +171,8 @@ function rowsOf(
     const value = run(read);
     return value === undefined ? undefined : budget.source(value);
   };
-  const field = (label: string, render: Row['render'], kind?: ServiceRowKind) => {
-    rows.push({ label: budget.label(label, true), kind, render });
+  const field = (label: string, render: Row['render'], kind?: ServiceRowKind, marked?: boolean) => {
+    rows.push({ label: budget.label(label, true), kind, marked, render });
   };
   const valueField = (
     label: string,
@@ -235,14 +238,20 @@ function rowsOf(
     }
     const policy = run(() => input.urlDisplay);
     const ipv4Loopback = policy ? run(() => policy.ipv4Loopback) : undefined;
+    const mark = policy ? run(() => policy.mark) : undefined;
     let hasMain = false;
     serviceUrlValues(captured, { ipv4Loopback }, urlAdmission).forEach((url, index) => {
       if (index === 0) urlLabel = rows.length;
       const kind = !url.valid ? undefined : hasMain ? 'secondary' : 'main';
       if (url.valid) hasMain = true;
-      field(index === 0 ? 'url' : '', (width, write, check) => {
-        write(serviceUrlValue(url, width, links, check, link, compose));
-      }, kind);
+      const href = url.target?.href;
+      const marked = mark && href ? run(() => mark(href)) === true : false;
+      const render: Row['render'] = (width, write, check) => {
+        const admit = (length: number, hasSource: boolean) => check(length, undefined, hasSource);
+        const { text, hasSource } = serviceUrlValue(url, width, links, admit, link, compose);
+        write(text, hasSource);
+      };
+      field(index === 0 ? 'url' : '', render, kind, marked);
     });
   }
   const keyboard = run(() => input.keyboard);
@@ -406,9 +415,11 @@ function createBudget() {
       assertOutputCodeUnits(urls + length);
       urls += length;
     },
-    pair(reserve: number) {
+    pair(reserve: number, marker: string) {
       const left: string[] = [];
       const right: string[] = [];
+      let markerCells = 0;
+      const netCost = marker ? marker.length - URL_MARKER_CELLS : 0;
       // Check each line's padded size before storing it.
       return {
         checkLabel(length: number, cells: number) {
@@ -421,22 +432,27 @@ function createBudget() {
           left.push(line);
         },
         // Preflight composition without charging; value() records the actual output once.
-        checkValue(length: number) {
+        checkValue(length: number, _cells?: number, hasSource = false) {
+          const decorated = length + (hasSource ? netCost : 0);
           if (right.length < left.length) {
-            assertOutputCodeUnits(output + length);
+            assertOutputCodeUnits(output + decorated);
             return;
           }
           assertLineCount(lines + 1);
-          assertOutputCodeUnits(output + reserve + length + (lines === 0 ? 0 : 1));
+          assertOutputCodeUnits(output + reserve + decorated + (lines === 0 ? 0 : 1));
         },
-        value(line: string) {
-          if (right.length < left.length) addOutput(line.length);
-          else addLine(reserve + line.length);
-          right.push(line);
+        value(line: string, hasSource = false) {
+          // Only single-line URL rows can consume the gap.
+          const mark = hasSource ? marker : '';
+          markerCells = mark ? URL_MARKER_CELLS : 0;
+          const length = line.length + (mark ? netCost : 0);
+          if (right.length < left.length) addOutput(length);
+          else addLine(reserve + length);
+          right.push(mark + line);
         },
         finish() {
-          const lines = fittedPairLines(left, right, reserve);
-          return { lines, firstValue: right[0] };
+          const lines = fittedPairLines(left, right, reserve - markerCells);
+          return { lines, firstValue: right[0], markerCells };
         },
       };
     },

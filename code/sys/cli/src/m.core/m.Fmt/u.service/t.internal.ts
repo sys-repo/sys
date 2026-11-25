@@ -6,6 +6,8 @@ export type FittedRow = {
   readonly kind?: ServiceRowKind;
   readonly lines: readonly string[];
   readonly firstValue: string;
+  /** Gap cells already included at the start of firstValue. */
+  readonly markerCells: number;
 };
 
 /** Preserve service membership and its original URL label across fitting. */

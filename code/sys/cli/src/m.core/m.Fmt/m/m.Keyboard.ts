@@ -21,6 +21,7 @@ const MALFORMED_COLLECTION_LENGTH = TextIntrinsic.freeze(
 type AdmittedCommand = Readonly<{
   readonly label: string;
   readonly keys: readonly string[];
+  readonly keyColor: 'white' | 'cyan';
   readonly context?: string;
 }>;
 
@@ -53,7 +54,7 @@ function command(options: t.CliFormatKeyboard.Command.Options): string {
   let outputCodeUnits = addOutputCodeUnits(0, label.length + 1);
 
   for (let index = 0; index < admitted.keys.length; index += 1) {
-    const key = c.bold(c.white(admitted.keys[index]));
+    const key = c.bold(c[admitted.keyColor](admitted.keys[index]));
     outputCodeUnits = addOutputCodeUnits(
       outputCodeUnits,
       key.length + (index === 0 ? 0 : separator.length),
@@ -117,7 +118,9 @@ function admitCommand(options: t.CliFormatKeyboard.Command.Options): AdmittedCom
   const rawContext: unknown = runTextPresentationAuthority(() => options.context);
   const context = Is.string(rawContext) ? rawContext : undefined;
   if (context !== undefined) sourceCodeUnits = addSourceCodeUnits(sourceCodeUnits, context);
-  return { label, keys, context };
+  const rawColor = runTextPresentationAuthority(() => options.keyColor);
+  const keyColor = rawColor === 'cyan' ? 'cyan' : 'white';
+  return { label, keys, context, keyColor };
 }
 
 function admitCandidates(source: t.CliFormatKeyboard.Row.Candidate[]): AdmittedCandidate[] {

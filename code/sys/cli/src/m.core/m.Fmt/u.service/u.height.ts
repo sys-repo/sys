@@ -42,7 +42,8 @@ export function compactServiceList(
         const value = compactTitle(name, row.firstValue, { error, hidden, width, compose, check });
         push(value, prefix);
       } else if (row.kind === 'main' && donor?.keep === 0) {
-        push(row.firstValue, labelPrefix(donor));
+        const prefix = labelPrefix(donor);
+        push(row.firstValue, prefix.slice(0, prefix.length - row.markerCells));
       } else push(row.lines[0]);
       for (const line of row.lines.slice(1, row.keep)) push(line);
     }

@@ -1,4 +1,4 @@
-import { stripAnsi, type t, Url } from '../common.ts';
+import { type t, Url } from '../common.ts';
 import { encodeHyperlink, hyperlinkCodeUnits } from '../u/u.hyperlink.ts';
 import { composeServiceText, fitServiceText, serviceFragment } from './u.layout.ts';
 import { parts, type ServiceUrlAdmission } from './u.url.prepare.ts';
@@ -33,24 +33,32 @@ export function serviceUrlValue(
   value: ServiceUrlValue,
   width: number | undefined,
   links: boolean,
-  check: (length: number) => void,
+  check: (length: number, hasSource: boolean) => void,
   link = encodeHyperlink,
   compose = composeServiceText,
-): string {
+) {
   if (!value.valid) {
-    return fitServiceText('invalid URL', width, { check, compose, color: 'yellow' });
+    const text = fitServiceText('invalid URL', width, {
+      check: (length) => check(length, false),
+      compose,
+      color: 'yellow',
+    });
+    return { text, hasSource: false };
   }
   const { part, target } = value;
+  let hasSource = false;
   const label = fitServiceText(part.display, width, {
-    check,
+    check(length, _cells, retained) {
+      hasSource = retained;
+      check(length, retained);
+    },
     compose,
     fragments: (text, offset) => fragment(part, text, offset),
   });
-  const visible = stripAnsi(label);
-  if (!links || !target || visible.length === 0 || visible === '…') return label;
+  if (!links || !target || !hasSource) return { text: label, hasSource };
   const href = target.href;
-  check(hyperlinkCodeUnits(label, href));
-  return link(label, href);
+  check(hyperlinkCodeUnits(label, href), hasSource);
+  return { text: link(label, href), hasSource };
 }
 
 /**

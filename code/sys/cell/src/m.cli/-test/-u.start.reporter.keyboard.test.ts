@@ -1,4 +1,6 @@
-import { describe, expect, it, Str, stripAnsi } from './common.ts';
+import { describe, expect, it, Str, stripAnsi, type t } from './common.ts';
+import { resolveBrowserTargets } from '../u.lifecycle/u.browser.targets.ts';
+import { startCellReady } from '../u.lifecycle/u.start.ts';
 import { createHarness, keyEvent, readyBody, redrawKey } from './u.fixture.start-reporter.ts';
 
 describe('@sys/cell/cli start reporter keyboard', () => {
@@ -157,12 +159,10 @@ describe('@sys/cell/cli start reporter keyboard', () => {
       const batch = targets.map(({ href }) => `open:${href}`);
       harness.reporter.open();
       harness.reporter.ready(input);
-      expect(frame()).to.contain('open: o (browser)');
       expect(frame()).to.contain('view /absent: no matching HTTP(S) URL');
       expect(attempts()).to.eql([]);
       harness.resize({ width: 20, height: 10 });
-      expect(frame()).to.contain('open: o');
-      expect(frame()).not.to.contain('(browser)');
+      expect(frame().split('\n').at(-1)).to.match(/^open: o +quit: q$/);
       // With two spare rows, dock the rule immediately above the keys; with one, hide both.
       harness.resize({ width: 80, height: 5 });
       expect(frame().split('\n').at(-2)).to.eql('┄'.repeat(80));
@@ -224,13 +224,19 @@ describe('@sys/cell/cli start reporter keyboard', () => {
     });
 
     it('raw mode with browser declarations → unchanged bytes and no keyboard or opener', async () => {
+      const urls = [{ href: 'https://preview.test/' }];
+      const services: t.Cli.Fmt.Service.Input[] = [{ name: 'A', status: { state: 'ready', urls } }];
+      const selection = resolveBrowserTargets([{ service: 'A', pathnames: '/', urls }]);
+      const input = startCellReady(services, false, selection);
+      const baseline = startCellReady(services, false);
       for (const terminal of [true, false]) {
         const raw = createHarness('raw', { controls: true, terminal, header: '' });
         raw.reporter.open();
         raw.reporter.ready(input);
         raw.reporter.complete('summary');
         await raw.reporter.dispose();
-        expect(raw.effects).to.eql([`print:${input.text}`, 'print:\nsummary']);
+        const text = terminal ? baseline.render({ hyperlinks: true }) : baseline.text;
+        expect(raw.effects).to.eql([`print:${text}`, 'print:\nsummary']);
       }
     });
   });

@@ -36,6 +36,8 @@ export type StartCellRenderOptions = {
   maxRows?: number;
   /** Whether final eligible service labels should use OSC 8 hyperlinks. */
   hyperlinks?: boolean;
+  /** Show destination markers on the interactive ready screen only. */
+  urlMarkers?: boolean;
 };
 
 /** Service-body presentation supplied when startup reaches ready. */
@@ -112,9 +114,9 @@ export async function startCell(
       };
       return { display, source };
     });
-    const browser = resolveBrowserTargets(captured.map(({ source }) => source));
+    const selection = resolveBrowserTargets(captured.map(({ source }) => source));
     const services = captured.map(({ display }) => display);
-    const ready = startCellReady(services, Cli.Is.terminal('stdout'), browser);
+    const ready = startCellReady(services, Cli.Is.terminal('stdout'), selection);
     serviceText = ready.text;
     const completion = waitForStartOutcome(servicesDone, shutdown);
     if (shutdown.reason === undefined) args.onReady?.(ready);
@@ -279,11 +281,27 @@ export function formatStartHeader(
 export function startCellReady(
   services: readonly t.Cli.Fmt.Service.Input[],
   terminal: boolean,
-  browser: BrowserTargets = { targets: [], diagnostics: [] },
+  selection?: ReturnType<typeof resolveBrowserTargets>,
 ): StartCellReady {
-  const render: StartCellReady['render'] = ({ width: frameWidth, maxRows, hyperlinks } = {}) => {
+  const browser = selection?.browser ?? { targets: [], diagnostics: [] };
+  const marked = selection?.selected.size
+    ? services.map((service): t.Cli.Fmt.Service.Input => {
+      const hrefs = selection.selected.get(service.name);
+      if (!hrefs) return service;
+      return { ...service, urlDisplay: { ...service.urlDisplay, mark: (href) => hrefs.has(href) } };
+    })
+    : services;
+
+  const render: StartCellReady['render'] = (options = {}) => {
+    const { width: frameWidth, maxRows, hyperlinks, urlMarkers } = options;
     const body = (width?: number) => {
-      return Fmt.Services.started({ services, width, maxRows, hyperlinks, terminal: false });
+      return Fmt.Services.started({
+        services: urlMarkers ? marked : services,
+        width,
+        maxRows,
+        hyperlinks,
+        terminal: false,
+      });
     };
     return formatStartServiceBody(body, frameWidth, terminal);
   };

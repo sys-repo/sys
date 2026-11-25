@@ -193,8 +193,14 @@ function createScreen(
     const visibleSummary = summaryRows.slice(0, capacity);
     const bodyBudget = capacity - visibleSummary.length;
     // The service formatter selects the content; the final slice only bounds the frame.
+    const bodyOptions = {
+      width: viewport.width,
+      maxRows: bodyBudget,
+      hyperlinks,
+      urlMarkers: phase === 'ready',
+    };
     const body = phase === 'ready' || phase === 'complete' || phase === 'failed'
-      ? rowsOf(renderBody?.({ width: viewport.width, maxRows: bodyBudget, hyperlinks }) ?? '')
+      ? rowsOf(renderBody?.(bodyOptions) ?? '')
       : [];
     const visibleBody = body.slice(0, bodyBudget);
     const remaining = bodyBudget - visibleBody.length;

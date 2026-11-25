@@ -33,14 +33,11 @@ export function readyFooter(width: number, maxRows: number, canOpen: boolean): s
   if (maxRows < 2) return [];
   const { command, row } = Cli.Fmt.Keyboard;
   const right = command({ label: 'quit', keys: ['q'] });
+  const open = (context?: string) =>
+    command({ label: 'open', keys: ['o'], keyColor: 'cyan', context });
   const hint = row({
     width,
-    candidates: canOpen
-      ? [
-        { left: command({ label: 'open', keys: ['o'], context: 'browser' }), right },
-        { left: command({ label: 'open', keys: ['o'] }), right },
-      ]
-      : [{ right }],
+    candidates: canOpen ? [{ left: open('browser'), right }, { left: open(), right }] : [{ right }],
   });
   return hint ? [c.dim(Cli.Fmt.hr({ width, weight: 'dashed', color: 'gray' })), hint] : [];
 }

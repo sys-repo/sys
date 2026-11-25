@@ -52,6 +52,7 @@ type ExpectedHyperlink = (label: string, href: URL, options?: ExpectedHyperlinkO
 type ExpectedKeyboardCommandOptions = {
   label: string;
   keys: [first: string, ...rest: string[]];
+  keyColor?: 'white' | 'cyan';
   context?: string;
 };
 type ExpectedKeyboardCandidate = {

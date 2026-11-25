@@ -17,7 +17,8 @@ const COLORS = {
 export type ServiceColor = keyof typeof COLORS;
 export type ServiceTextPart = { readonly text: string; readonly color: ServiceColor };
 export type ServiceTextOptions = {
-  readonly check: (length: number, cells: number) => void;
+  /** Admit styled output before composition; omissions do not count as source. */
+  readonly check: (length: number, cells: number, hasSource: boolean) => void;
   readonly color?: ServiceColor;
   readonly fragments?: (text: string, offset: number) => readonly ServiceTextPart[];
   readonly underline?: boolean;
@@ -33,22 +34,22 @@ export function fitServiceText(
   options: ServiceTextOptions,
 ): string {
   if (width === 0) {
-    options.check(0, 0);
+    options.check(0, 0, false);
     return '';
   }
   const fragments = (text: string, offset: number): readonly ServiceTextPart[] => {
     return options.fragments?.(text, offset) ?? [{ text, color: options.color ?? 'gray' }];
   };
-  const finish = (parts: readonly ServiceTextPart[], cells: number) => {
+  const finish = (parts: readonly ServiceTextPart[], cells: number, hasSource: boolean) => {
     const underline = options.underline ?? false;
     const length = styledLineBudget(parts, underline);
-    options.check(length, cells);
+    options.check(length, cells, hasSource);
     const compose = options.compose ?? composeServiceText;
     return compose(parts, underline);
   };
   const measure = Text.Width.measure;
   const cells = measure(text);
-  if (width === undefined || cells <= width) return finish(fragments(text, 0), cells);
+  if (width === undefined || cells <= width) return finish(fragments(text, 0), cells, text !== '');
   return Text.ellipsize(text, width, {
     render: function render({ head, ellipsis, tail }): string {
       if (options.preferSource && !head && !tail) {
@@ -59,7 +60,7 @@ export function fitServiceText(
       const end = fragments(tail, text.length - tail.length);
       const parts = [...start, ...marker, ...end];
       const cells = measure(head) + measure(ellipsis) + measure(tail);
-      return finish(parts, cells);
+      return finish(parts, cells, head !== '' || tail !== '');
     },
   });
 }
@@ -78,7 +79,8 @@ export function serviceLayout(labels: string[], width: number | undefined) {
     ? natural
     : Math.min(natural, Math.floor((width - gap) / 2));
   const reserve = labelWidth + gap;
-  return { labelWidth, reserve, valueWidth: width === undefined ? undefined : width - reserve };
+  const valueWidth = width === undefined ? undefined : width - reserve;
+  return { labelWidth, gap, reserve, valueWidth };
 }
 
 /** Select the fragment overlapping a range, without styling or joining it yet. */

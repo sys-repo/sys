@@ -24,6 +24,8 @@ export declare namespace CliFormatKeyboard {
       label: string;
       /** Non-empty ordered single-line key strings. */
       keys: [first: string, ...rest: string[]];
+      /** Foreground for the bold key text only. Defaults to white. */
+      keyColor?: 'white' | 'cyan';
       /** Optional single-line context without parentheses. */
       context?: string;
     };

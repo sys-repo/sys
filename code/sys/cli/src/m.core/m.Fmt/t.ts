@@ -162,7 +162,10 @@ export declare namespace CliFormat {
       status?: t.Service.Status;
       presentation?: Presentation;
       keyboard?: Keyboard;
-      urlDisplay?: ServiceUrl.Parts.Options;
+      urlDisplay?: ServiceUrl.Parts.Options & {
+        /** Mark a link-eligible URL row in the column gap, when it fits. Receives the serialized href. */
+        readonly mark?: (href: t.StringUrl) => boolean;
+      };
     };
 
     /** Service layout limits and automatic URL links; links in custom detail values are unchanged. */

@@ -16,10 +16,16 @@ export type BrowserTargets = {
   readonly diagnostics: readonly (Selector & { readonly matches: number })[];
 };
 
-/** Resolve declared pathnames against captured owner hrefs without performing a browser action. */
-export function resolveBrowserTargets(sources: readonly Source[]): BrowserTargets {
+type BrowserSelection = {
+  readonly browser: BrowserTargets;
+  readonly selected: ReadonlyMap<t.Cell.Id, ReadonlySet<t.StringUrl>>;
+};
+
+/** Resolve from captured hrefs; retain service-local matches separately from deduplicated handoffs. */
+export function resolveBrowserTargets(sources: readonly Source[]): BrowserSelection {
   const targets: BrowserTargets['targets'][number][] = [];
   const diagnostics: BrowserTargets['diagnostics'][number][] = [];
+  const selected = new Map<t.Cell.Id, Set<t.StringUrl>>();
   const seen = new Set<t.StringUrl>();
 
   for (const { service, pathnames, urls } of sources) {
@@ -41,6 +47,9 @@ export function resolveBrowserTargets(sources: readonly Source[]): BrowserTarget
         continue;
       }
       for (const href of matches) {
+        const local = selected.get(service) ?? new Set<t.StringUrl>();
+        local.add(href);
+        selected.set(service, local);
         if (seen.has(href)) continue;
         seen.add(href);
         targets.push({ service, pathname, href });
@@ -48,7 +57,7 @@ export function resolveBrowserTargets(sources: readonly Source[]): BrowserTarget
     }
   }
 
-  return { targets, diagnostics };
+  return { browser: { targets, diagnostics }, selected };
 }
 
 function browserUrl(href: t.StringUrl): URL | undefined {

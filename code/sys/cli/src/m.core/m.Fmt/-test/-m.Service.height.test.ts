@@ -76,6 +76,31 @@ describe('Cli.Fmt.Service height', () => {
     `));
   });
 
+  it('marks the URL in the gap, even when height compaction restores its label', () => {
+    const href = 'http://127.0.0.1:8080/';
+    const input: t.CliFormat.Service.Input = {
+      name: 'A',
+      status: { state: 'ready', urls: [{ href: 'invalid' }, { href: href.slice(0, -1) }] },
+    };
+    const marked = {
+      ...input,
+      urlDisplay: { ipv4Loopback: 'localhost' as const, mark: (url: string) => url === href },
+    };
+    const render = (input: t.CliFormat.Service.Input, width: number, maxRows: number) =>
+      Fmt.Service.format(input, { width, maxRows, urlHyperlinks: true });
+    const opener = `\x1b]8;;${href}\x1b\\`;
+    for (const [width, maxRows] of [[50, 3], [16, 2]] as const) {
+      const urlRow = (input: t.CliFormat.Service.Input) => {
+        const line = render(input, width, maxRows).split('\n').at(-1)!;
+        return line.split(opener).map(stripAnsi);
+      };
+      const [prefix, label] = urlRow(input);
+      expect(urlRow(marked)).to.eql([`${prefix.slice(0, -2)}• `, label]);
+    }
+    // Width 3 has no gap; at width 4 the value fits only the omission marker.
+    for (const width of [3, 4]) expect(render(marked, width, 2)).to.eql(render(input, width, 2));
+  });
+
   it('drops suffix lines of either column without mistaking authored blanks for spacing', () => {
     const inputs: t.CliFormat.Service.Input[] = [
       {

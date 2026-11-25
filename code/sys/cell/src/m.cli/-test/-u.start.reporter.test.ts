@@ -1,4 +1,5 @@
 import { Cli, describe, expect, it, Str, stripAnsi, type t } from './common.ts';
+import { resolveBrowserTargets } from '../u.lifecycle/u.browser.targets.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
 import {
   formatStartHeader,
@@ -8,7 +9,7 @@ import {
   toStartResult,
 } from '../u.lifecycle/u.start.ts';
 import { serviceInput } from './u.fixture.services.ts';
-import { createHarness, readyBody } from './u.fixture.start-reporter.ts';
+import { createHarness, keyEvent, readyBody } from './u.fixture.start-reporter.ts';
 
 describe('@sys/cell/cli start reporter', () => {
   describe('output policy', () => {
@@ -42,7 +43,11 @@ describe('@sys/cell/cli start reporter', () => {
       const screenReady = readyProbe();
       screen.reporter.open();
       screen.reporter.ready(screenReady.input);
-      expect(screenReady.calls).to.eql([{ width: 80, maxRows: 23, hyperlinks: true }]);
+      expect(screenReady.calls.map(({ width, maxRows, hyperlinks }) => ({
+        width,
+        maxRows,
+        hyperlinks,
+      }))).to.eql([{ width: 80, maxRows: 23, hyperlinks: true }]);
       await screen.reporter.dispose();
     });
   });
@@ -160,6 +165,45 @@ describe('@sys/cell/cli start reporter', () => {
   });
 
   describe('screen frames', () => {
+    it('marks service-local browser matches only on the ready screen', async () => {
+      const origin = 'http://127.0.0.1:8080';
+      const root = `${origin}/`;
+      const a = `${origin}/other?a`;
+      const b = `${origin}/other?b`;
+      const published = [
+        ['A', ['/', '/other'], [origin, a, b]],
+        ['B', undefined, [root]],
+        ['C', '/', [root]],
+      ] as const;
+      const sources = published.map(([service, pathnames, urls]) => ({
+        service,
+        pathnames,
+        urls: urls.map((href) => ({ href })),
+      }));
+      const services: t.Cli.Fmt.Service.Input[] = sources.map(({ service, urls }) => ({
+        name: service,
+        status: { state: 'ready', urls },
+      }));
+      const input = startCellReady(services, false, resolveBrowserTargets(sources));
+
+      await using screen = createHarness('screen', { header: '', controls: true });
+      const urlRows = () =>
+        screen.frames.at(-1)!.split('\n').flatMap((line) => {
+          const [prefix, link] = line.split('\x1b]8;;');
+          return link ? [[link.split('\x1b\\')[0], stripAnsi(prefix).endsWith('• ')]] : [];
+        });
+      // The shared URL belongs to A, B and C in that order, but only A and C select it.
+      const expected = [[root, true], [a, false], [b, false], [root, false], [root, true]];
+      screen.reporter.open();
+      screen.reporter.ready(input);
+      expect(urlRows()).to.eql(expected);
+      await screen.key(keyEvent('o'));
+      const handoffs = screen.effects.filter((effect) => effect.startsWith('open:'));
+      expect(handoffs).to.eql([`open:${root}`]);
+      screen.reporter.complete('summary');
+      expect(urlRows()).to.eql(expected.map(([href]) => [href, false]));
+    });
+
     it('repaints one responsive startup-to-complete frame', async () => {
       const harness = createHarness('screen');
       const reporter = harness.reporter;
