@@ -181,7 +181,7 @@ async function startLeaseHolder(
       'reset lease-holder readiness',
       timeout,
     );
-    if (ready !== Process.Signal.ready || (readiness === 'fragmented' && !continuedFragment)) {
+    if (ready !== Process.readyToken || (readiness === 'fragmented' && !continuedFragment)) {
       throw new Error(`Unexpected reset lease-holder readiness: ${ready}`);
     }
     return holder;

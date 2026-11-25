@@ -30,12 +30,12 @@ describe('Process.spawn finite run authority', () => {
         console.info('${tailMarker}');
         setTimeout(() => Deno.exit(0), 10);
       });
-      console.info('${Process.Signal.ready}');
+      console.info('${Process.readyToken}');
       setInterval(() => {}, 1_000);
     `);
     await using handle = Process.spawn({
       args,
-      readySignal: Process.Signal.ready,
+      readySignal: Process.readyToken,
       silent: true,
     });
 

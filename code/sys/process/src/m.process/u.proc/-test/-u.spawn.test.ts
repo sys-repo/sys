@@ -339,9 +339,9 @@ describe('Process.spawn (async long-lived)', () => {
     it('readiness callback failure → settles its waiter and owns disposal', async () => {
       const failure = new Error('ready:callback-failure');
       const args = ProcessTest.evalArgs(
-        `console.info('${Process.Signal.ready}'); setInterval(() => {}, 1_000);`,
+        `console.info('${Process.readyToken}'); setInterval(() => {}, 1_000);`,
       );
-      const handle = Process.spawn({ args, readySignal: Process.Signal.ready, silent: true });
+      const handle = Process.spawn({ args, readySignal: Process.readyToken, silent: true });
 
       const readyError = await ProcessTest.catchErrorWithin(() =>
         handle.whenReady(() => {
@@ -357,9 +357,9 @@ describe('Process.spawn (async long-lived)', () => {
     it('already-ready callback failure → rejects and owns lifecycle disposal', async () => {
       const failure = new Error('ready:already-ready-callback-failure');
       const args = ProcessTest.evalArgs(
-        `console.info('${Process.Signal.ready}'); setInterval(() => {}, 1_000);`,
+        `console.info('${Process.readyToken}'); setInterval(() => {}, 1_000);`,
       );
-      const handle = Process.spawn({ args, readySignal: Process.Signal.ready, silent: true });
+      const handle = Process.spawn({ args, readySignal: Process.readyToken, silent: true });
 
       await handle.whenReady();
       const readyError = await ProcessTest.catchErrorWithin(() =>
@@ -398,11 +398,11 @@ describe('Process.spawn (async long-lived)', () => {
       const failure = new Error('stream:after-ready-failure');
       const output = Promise.withResolvers<void>();
       const args = ProcessTest.evalArgs(`
-        console.info('${Process.Signal.ready}');
+        console.info('${Process.readyToken}');
         setTimeout(() => console.info('OUTPUT'), 10);
         setInterval(() => {}, 1_000);
       `);
-      const handle = Process.spawn({ args, readySignal: Process.Signal.ready, silent: true });
+      const handle = Process.spawn({ args, readySignal: Process.readyToken, silent: true });
       handle.onStdOut((event) => {
         if (event.toString() !== 'OUTPUT\n') return;
         output.resolve();
@@ -423,14 +423,14 @@ describe('Process.spawn (async long-lived)', () => {
       const status = Promise.withResolvers<Deno.CommandStatus>();
       const stdout = new ReadableStream<Uint8Array>({
         start(controller) {
-          controller.enqueue(new TextEncoder().encode(`${Process.Signal.ready}\n`));
+          controller.enqueue(new TextEncoder().encode(`${Process.readyToken}\n`));
         },
       });
       const stderr = new ReadableStream<Uint8Array>();
       const child = fakeChild({ status: status.promise, stdout, stderr });
       const handle = spawnWith(
         { spawnChild: () => child, terminationGraceTimeout: 1 as t.Msecs },
-        { args: [], readySignal: Process.Signal.ready, silent: true },
+        { args: [], readySignal: Process.readyToken, silent: true },
       );
 
       await handle.whenReady();
@@ -906,7 +906,7 @@ describe('Process.spawn (async long-lived)', () => {
       await handle.dispose();
     };
 
-    await test(Process.Signal.ready);
+    await test(Process.readyToken);
     await test(`MY_SIGNAL_${slug()}`);
   });
 
@@ -924,13 +924,13 @@ describe('Process.spawn (async long-lived)', () => {
 
   it('spawn → child exits after readiness → drains output and disposes', async () => {
     const args = ProcessTest.evalArgs(`
-      console.info('${Process.Signal.ready}');
+      console.info('${Process.readyToken}');
       setTimeout(() => console.info('FINAL_OUTPUT'), 10);
     `);
     const output: string[] = [];
     const observed: string[] = [];
     let completed = 0;
-    const handle = Process.spawn({ args, readySignal: Process.Signal.ready, silent: true });
+    const handle = Process.spawn({ args, readySignal: Process.readyToken, silent: true });
     handle.onStdOut((event) => output.push(event.toString()));
     const subscription = handle.$.subscribe({
       next: (event) => observed.push(event.toString()),
@@ -993,10 +993,10 @@ describe('Process.spawn (async long-lived)', () => {
     const tx = `tx.${Testing.slug()}`;
     const text = `Hello World ← ${tx}`;
 
-    const readySignal = Process.Signal.ready;
+    const readySignal = Process.readyToken;
     const cmd = `
         Deno.serve({ port: ${port} }, () => new Response('${text}'));
-        console.info('${Process.Signal.ready}');
+        console.info('${Process.readyToken}');
       `;
     const args = ProcessTest.evalArgs(cmd);
     const child = await Process.spawn({ args, readySignal, silent: true }).whenReady();

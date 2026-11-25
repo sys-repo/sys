@@ -24,7 +24,7 @@ if (acquired.kind !== 'acquired') {
 }
 
 if (readiness === 'normal') {
-  Process.stdout.write(`${Process.Signal.ready}\n`);
+  Process.stdout.write(`${Process.readyToken}\n`);
 } else if (readiness === 'fragmented') {
   Process.stdout.write('PROCESS_');
   await readControlByte();

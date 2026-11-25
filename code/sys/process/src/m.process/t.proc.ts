@@ -12,11 +12,11 @@ export declare namespace Process {
     /** Script helpers for preparing shell template strings. */
     readonly Script: ScriptLib;
 
-    /** Shared process signals. */
-    readonly Signal: {
-      /** Standard token a child process can print to stdout to mark "ready". */
-      readonly ready: 'PROCESS_READY';
-    };
+    /** OS signal subscriptions for the current process. */
+    readonly Signal: Signal.Lib;
+
+    /** Standard token a child process can print to stdout to mark readiness. */
+    readonly readyToken: 'PROCESS_READY';
 
     /** Canonical host-process stdout capability. */
     readonly stdout: Stdout;
@@ -80,6 +80,32 @@ export declare namespace Process {
      */
     run(script: string, opts?: t.Process.ShellOptions): Promise<t.Process.Output>;
   };
+
+  /**
+   * OS signal subscriptions for the current process.
+   */
+  export namespace Signal {
+    /** Current-process signal registration. */
+    export type Lib = {
+      /** Register a listener; the host may change its default signal handling while attached. */
+      on(name: Name, handler: () => void): Subscription;
+
+      /** @deprecated Use `Process.readyToken` for child stdout readiness. */
+      readonly ready: 'PROCESS_READY';
+    };
+
+    /** Accepted names; delivery is host-dependent. */
+    export type Name = 'SIGINT' | 'SIGTERM' | 'SIGHUP' | 'SIGWINCH';
+
+    /** `attached` reports registration, not delivery; unexpected registration errors throw. */
+    export type Subscription =
+      | {
+        readonly kind: 'attached';
+        /** Remove this registration; a thrown removal can be retried. */
+        readonly dispose: () => void;
+      }
+      | { readonly kind: 'unsupported' };
+  }
 
   /** Canonical host-process stdout capability. */
   export type Stdout = {
@@ -366,7 +392,7 @@ export declare namespace Process {
      * the spawned child process:
      *
      * ```ts
-     * const readySignal = 'PROCESS_READY';
+     * const readySignal = Process.readyToken;
      * const cmd = `console.log("${readySignal}");`;
      * const handle = Process.spawn({ args: ['eval', cmd], readySignal });
      *

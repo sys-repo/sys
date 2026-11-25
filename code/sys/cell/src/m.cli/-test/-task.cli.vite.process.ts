@@ -83,13 +83,20 @@ describe('@sys/cell development CLI Vite process', () => {
           await Time.delay(6_000);
           expect(proof.child.kill('SIGTERM')).to.eql(true);
         }
-        const { status, diagnostic } = await waitForShutdown(proof, {
+        const { status, duration, diagnostic } = await waitForShutdown(proof, {
           started,
           timeout: 16_000,
           label: `${mode} fixture after SIGINT`,
         });
         expect(status, diagnostic).to.eql({ code: mode === 'delayed' ? 130 : 137, signal: null });
-        expect(proof.output.includes('CLEAN'), diagnostic).to.eql(mode === 'delayed');
+        const lines = proof.output.split(/\r?\n/).slice(0, -1);
+        if (mode === 'delayed') {
+          expect(duration, diagnostic).to.be.greaterThan(5_000); // The old launcher grace period.
+          const markers = lines.filter((line) => ['CLOSING', 'LEAF_CLEAN', 'CLEAN'].includes(line));
+          expect(markers, diagnostic).to.eql(['CLOSING', 'LEAF_CLEAN', 'CLEAN']);
+        } else {
+          expect(lines, diagnostic).not.to.include('CLEAN');
+        }
         const listener = Deno.listen({ hostname: '127.0.0.1', port });
         listener.close(); // The owned descendant's port, not just the wrapper PID, was released.
       } finally {
@@ -106,7 +113,7 @@ describe('@sys/cell development CLI Vite process', () => {
       const status = await Time.waitFor(() => proof.status, { interval: 50, timeout: 4_000 });
       expect(status, proof.output).to.eql({ code: 130, signal: null });
       expect(proof.output).to.contain('CLOSING');
-      expect(proof.output).not.to.contain('CLEAN');
+      expect(/^CLEAN\r?$/m.test(proof.output), proof.output).to.eql(false);
       const listener = Deno.listen({ hostname: '127.0.0.1', port });
       listener.close();
     } finally {
@@ -253,7 +260,8 @@ async function waitForShutdown(
   { started, timeout, label }: { started: number; timeout: number; label: string },
 ) {
   const elapsed = () => performance.now() - started;
-  const diagnostic = () => `${label} (${elapsed().toFixed(0)} ms):\n${stripAnsi(proof.output)}`;
+  const diagnostic = (duration = elapsed()) =>
+    `${label} (${duration.toFixed(0)} ms):\n${stripAnsi(proof.output)}`;
   let status;
   try {
     status = await Time.waitFor(() => {
@@ -264,17 +272,21 @@ async function waitForShutdown(
     throw new Error(diagnostic(), { cause });
   }
   if (!status) throw new Error(`Missing exit status: ${diagnostic()}`);
-  return { status, diagnostic: diagnostic() };
+  const duration = elapsed();
+  return { status, duration, diagnostic: diagnostic(duration) };
 }
 
 async function fixtureReady(proof: ReturnType<typeof spawnCliProof>) {
   const ready = await Time.waitFor(() => {
     if (proof.failure) throw proof.failure;
     if (proof.status) throw new Error(`Fixture exited before ready:\n${proof.output}`);
-    const owner = /OWNER:(\d+)/.exec(proof.output);
+    const owner = /^OWNER:(\d+)\r?\n/m.exec(proof.output);
     if (owner) proof.ownGroup(Number(owner[1]));
-    const leaf = /LEAF:(\d+):(\d+)/.exec(proof.output);
-    if (owner && leaf) return { pid: Number(owner[1]), port: Number(leaf[2]) };
+    const ready = /^OWNER_READY:(\d+)\r?\n/m.exec(proof.output);
+    const leaf = /^LEAF:(\d+):(\d+)\r?\n/m.exec(proof.output);
+    if (owner && ready?.[1] === owner[1] && leaf) {
+      return { pid: Number(owner[1]), port: Number(leaf[2]) };
+    }
   }, { interval: 50, timeout: 15_000 });
   if (!ready) throw new Error(`Fixture did not become ready:\n${proof.output}`);
   return ready;

@@ -36,10 +36,10 @@
  * ```ts
  * import { Process } from '@sys/process';
  *
- * const readySignal = Process.Signal.ready;
+ * const readySignal = Process.readyToken;
  * const cmd = `
  *   Deno.serve({ port: 1234 }, () => new Response('👋 hello world'));
- *   console.info('${Process.Signal.ready}');
+ *   console.info('${Process.readyToken}');
  * `;
  * const args = ['eval', cmd];
  * const proc = await Process.spawn({ args, readySignal, silent: true }).whenReady();

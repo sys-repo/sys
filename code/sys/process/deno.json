@@ -5,7 +5,7 @@
   "tasks": {
     "test": "deno task test:unit && deno task test:process && deno task test:retention",
     "test:unit": "deno test -P=test",
-    "test:process": "deno test --no-prompt -P=test-process --trace-leaks ./src/m.process/u.proc/-test/-u.spawn.authority.process.ts",
+    "test:process": "deno test --no-prompt -P=test-process --trace-leaks ./src/m.process/-test/-m.Signal.process.ts ./src/m.process/u.proc/-test/-u.spawn.authority.process.ts",
     "test:retention": "deno test --no-prompt --v8-flags=--expose-gc -P=test-retention --trace-leaks ./src/m.process/u.proc/-test/-u.spawn.retention.process.ts",
     "dry": "deno publish --allow-dirty --dry-run",
     "check": "deno check src/*",
@@ -39,4 +39,3 @@
     "test-retention": {}
   }
 }
-
