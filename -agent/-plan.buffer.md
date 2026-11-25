@@ -8,9 +8,13 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 @sys.cell
 browser-targets.plan.md
-- [ ] feat(cell): resolve declared browser targets from the ready service snapshot
+- [x] 192d82165 feat(cell): resolve declared browser targets from the ready service snapshot
+- [x] 1f0775726 feat(cell): declare browser targets in the Stripe sample
+- [ ] fix(cli): retain keyboard release failure across shutdown retries
 - [ ] feat(cell): open browser targets and quit from the ready screen
-- [ ] docs(cell): explain browser targets and enable them in the UI cell and samples
+- [ ] feat(cell): declare browser targets for the remaining sample previews and the UI cell
+- [ ] feat(cell): mark resolved browser targets in the ready service list
+- [ ] docs(cell): explain browser targets in service and start help
 
 
 
@@ -44,8 +48,11 @@ passkey-panel.plan.md
 - [x] 52c72957c test(ui): distinguish values from identity in passkey assertions
 - [x] bc9f249b8 feat(ui): clarify registration guidance and diagnostics in the passkey sample
 - [x] [markdown-admonition-panel.plan.md](../@sys.ui-components/markdown-admonition-panel.plan.md)
-- [ ] fix(ui): accent Create Passkey and clear keyboard focus rings in the action rows
-- [ ] design(ui): define the passkey account service info panel
+- [x] de36c11d3 fix(ui): use the compact accent button for Create Passkey
+- [x] f6b1ebd41 fix(ui): keep passkey action focus rings visible at the panel edge
+- [x] refactor(ui): unify passkey action row order and emphasis
+- [ ] feat(passkey): expose in-memory account service counts via Cmd
+- [ ] feat(ui): show account service counts below passkey Context
 
 
 
