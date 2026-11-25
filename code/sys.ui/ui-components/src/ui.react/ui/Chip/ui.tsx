@@ -62,11 +62,13 @@ const wrangle = {
   },
 
   backgroundColor(theme?: t.CommonTheme) {
-    return theme ? Color.alpha(Color.theme(theme).fg, 0.06) : colorMixCurrentColor(6);
+    if (!theme) return colorMixCurrentColor(6);
+    return Color.alpha(Color.theme(theme).fg, theme === 'Dark' ? 0.09 : 0.06);
   },
 
   borderColor(theme?: t.CommonTheme) {
-    return theme ? Color.alpha(Color.theme(theme).fg, 0.1) : colorMixCurrentColor(10);
+    if (!theme) return colorMixCurrentColor(10);
+    return Color.alpha(Color.theme(theme).fg, theme === 'Dark' ? 0.14 : 0.1);
   },
 } as const;
 
