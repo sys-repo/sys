@@ -6,6 +6,7 @@ name: sample:deploy
 
 services:
   - name: deploy:view
+    browser: '/view/.pulled/ui.components/'
     use: Serve
     from: 'jsr:@sys/tools/serve'
     config: ./-config/@sys.tools.serve/view.yaml

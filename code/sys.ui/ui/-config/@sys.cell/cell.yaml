@@ -6,6 +6,7 @@ name: sys.ui
 
 services:
   - name: sys.ui:proxy
+    browser: '/'
     startAfter: ['sys.ui:view', 'sys.ui:accounts']
     use: HttpProxy
     from: 'jsr:@sys/http/server/proxy'

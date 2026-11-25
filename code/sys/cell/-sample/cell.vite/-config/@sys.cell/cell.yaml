@@ -2,9 +2,11 @@
 
 kind: cell
 version: 1
+name: sample:vite
 
 services:
   - name: view
+    browser: '/'
     use: Serve
     from: 'jsr:@sys/tools/serve'
     config: ./-config/@sys.tools.serve/view.yaml
