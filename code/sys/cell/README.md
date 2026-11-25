@@ -61,19 +61,9 @@ schemas, or TypeScript type surfaces.
 
 ### Repository development launcher
 
-From `code/sys/cell`, `deno task cli start --mode dev` starts the maintained `-sample/cell.vite`
-sample in a trusted Deno child (`-A`). The `cli` task retains `-P=cli` for other commands and custom
-Cell directories. This trusts Vite configuration and plugins; it does not confine them.
-
-On macOS/Linux, the launcher forwards the first `SIGINT`/`SIGTERM`, translates `SIGHUP` into
-`SIGTERM`, and relays terminal resize independently. Duplicate shutdown signals do not interrupt
-cleanup or extend its five-second grace period. If cleanup stalls, the launcher sends `SIGKILL`
-once to its owned process group and waits up to five more seconds for child settlement. Surviving
-descendants are also terminated when the leader exits before that deadline.
-
-Interactive launches use `stty` to capture and restore the original terminal input mode, including
-after forced termination. Forced exit cannot run graceful service cleanup and may leave stale Cell
-session metadata; process ownership is never inferred from a port number.
+From `code/sys/cell`, `deno task cli` runs Cell directly with the `cli` permission preset. Pass the
+Cell directory explicitly when using `start` or `kill` with `--mode`; the launcher does not select a
+sample for that mode.
 
 ### Command Line `--help`
 

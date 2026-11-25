@@ -35,7 +35,10 @@ export const TerminalService = {
       throw error;
     }
     return {
-      finished: wait('finish'),
+      finished: Time.waitFor(async () => {
+        return await Fs.exists(Fs.join(control, 'finish')) ||
+          await Fs.exists(Fs.join(control, 'closed'));
+      }, { interval: 20, timeout: 15_000 }),
       async close() {
         await close();
         if (mode === 'cleanup-failure') throw new Error('pty-cleanup-failure');

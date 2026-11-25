@@ -15,7 +15,6 @@ const samples = [
   { name: 'sample:stripe', root: './-sample/cell.stripe', mode: 'default' },
   { name: 'sample:deploy:start', root: './-sample/cell.deploy', mode: 'default' },
   { name: 'sample:vite', root: './-sample/cell.vite', mode: 'default' },
-  { name: 'sample:vite:dev', root: './-sample/cell.vite', mode: 'dev' },
 ] as const;
 
 export async function main(argv = Deno.args, deps: Dependencies = {}): Promise<number> {

@@ -12,7 +12,6 @@ const targets = [
   ['sample:stripe', './-sample/cell.stripe', 'default'],
   ['sample:deploy:start', './-sample/cell.deploy', 'default'],
   ['sample:vite', './-sample/cell.vite', 'default'],
-  ['sample:vite:dev', './-sample/cell.vite', 'dev'],
 ] as const;
 
 const stripe = ['kill', './-sample/cell.stripe', '--mode', 'default'];
@@ -123,7 +122,7 @@ describe('@sys/cell sample menu', () => {
   it('each service start → preview, default-No confirmation, then the same root and mode', async () => {
     for (const [name, root, mode] of targets) {
       const events: unknown[] = [];
-      const liveStatus = mode === 'dev' ? 1 : 0;
+      const liveStatus = 1;
       const dryRun = killResult({
         sessions: [session('would-terminate')],
         resources: [resource('skipped')],

@@ -1,7 +1,7 @@
 import { Cli, expect, Fs, Json, spawn, Str, Testing, Time } from './common.ts';
 import { CellSession } from '../u/u.session.ts';
 import { sessionRoot } from './u.fixture.kill.ts';
-import { killOwnedGroup, stty } from './u.fixture.cli.vite.ts';
+import { killOwnedGroup, stty } from './u.fixture.cli.terminal.ts';
 
 // Real entrypoints and animated terminal hooks, with service completion controlled by files.
 expect(Cli.Is.interactive()).to.eql(true);
@@ -44,7 +44,9 @@ const child = spawn(Deno.execPath(), ['run', '-P=cli', path, 'start', root], {
 });
 let status: { code: number | null; signal: string | null } | undefined;
 let failure: Error | undefined;
+let exited = false;
 child.on('error', (error) => (failure = error));
+child.once('exit', () => (exited = true));
 child.once('close', (code, signal) => (status = { code, signal }));
 if (child.pid) console.info(`PTY_OWNER:${child.pid}`);
 
@@ -63,21 +65,25 @@ try {
       return (await CellSession.list(root, { dir: runtime })).some((s) => s.state === 'ready') &&
         (await stty(['-g'])) !== before;
     }, { interval: 20, timeout: 5_000 });
-    await Fs.write(Fs.join(root, 'finish'), 'finish');
+    if (mode === 'keyboard') console.info('PTY_KEYBOARD_READY');
+    else if (mode === 'sigint') expect(child.kill('SIGINT')).to.eql(true);
+    else if (mode === 'sigterm') expect(child.kill('SIGTERM')).to.eql(true);
+    else await Fs.write(Fs.join(root, 'finish'), 'finish');
   }
-  const exited = await Time.waitFor(() => status, { interval: 20, timeout: 10_000 });
+  const result = await Time.waitFor(() => status, { interval: 20, timeout: 10_000 });
   expect(failure).to.eql(undefined);
+  const interrupted = mode === 'keyboard' || mode === 'sigint' || mode === 'sigterm';
+  expect(result).to.eql({ code: interrupted ? 130 : mode === 'success' ? 0 : 1, signal: null });
   expect(await Fs.exists(Fs.join(root, 'closed'))).to.eql(true);
   expect(await CellSession.list(root, { dir: runtime })).to.eql([]);
   expect(await stty(['-g'])).to.eql(before);
   const listener = Deno.listen({ hostname: '127.0.0.1', port });
   listener.close();
   console.info('PTY_CLEAN');
-  expect(exited).to.eql({ code: mode === 'success' ? 0 : 1, signal: null });
   console.info('PTY_STATUS_OK');
 } finally {
-  // Only this invocation's child group; all success assertions precede fallback cleanup.
-  if (child.pid) killOwnedGroup(child.pid);
+  // Only this invocation's live child group; success assertions precede fallback cleanup.
+  if (!exited && child.pid) killOwnedGroup(child.pid);
   await Time.waitFor(() => status, { interval: 20, timeout: 5_000 });
   await stty([before]);
 }

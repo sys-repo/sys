@@ -11,13 +11,6 @@ describe('@sys/cell sample task projection', () => {
     const tasks = config.tasks ?? {};
 
     expect(tasks.cli).to.eql('deno run -P=cli ./-scripts/task.cli.ts');
-    expect(tasks['test:proofs']).to.eql('deno task test:cli:vite');
-    expect(tasks['test:cli:vite']).to.eql(
-      'deno test -P=test --trace-leaks ./src/m.cli/-test/-task.cli.vite.process.ts',
-    );
-    expect(tasks['test:cli:vite:signals']).to.eql(
-      'deno test -P=test --trace-leaks ./src/m.cli/-test/-task.cli.vite.signals.process.ts',
-    );
     expect(tasks['sample:stripe']).to.eql(
       'deno run -P=sample @sys/cell start ./-sample/cell.stripe --reporter auto',
     );
@@ -30,9 +23,6 @@ describe('@sys/cell sample task projection', () => {
     expect(tasks['sample:deploy:prep']).to.eql(undefined);
     expect(tasks['sample:vite']).to.eql(
       'deno run -P=sample @sys/cell start ./-sample/cell.vite --reporter auto',
-    );
-    expect(tasks['sample:vite:dev']).to.eql(
-      'deno run -A @sys/cell start ./-sample/cell.vite --mode dev --reporter auto',
     );
   });
 

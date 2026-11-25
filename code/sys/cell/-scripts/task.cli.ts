@@ -1,50 +1,29 @@
-import { Is, Path } from '../src/common.ts';
 import { CellCli } from '../src/m.cli/mod.ts';
 import { parseArgs } from '../src/m.cli/u/u.args.ts';
 import { setExitCode } from '../src/m.cli/u/u.exit.ts';
-import { startReporterFlag } from '../src/m.cli/m.run/u.reporter.ts';
 
 const Sample = {
   stripe: './-sample/cell.stripe',
   deploy: './-sample/cell.deploy',
-  vite: './-sample/cell.vite',
   init: './-sample/foo',
 } as const;
 
-const VITE_SAMPLE = Path.fromFileUrl(new URL('../-sample/cell.vite', import.meta.url));
-type Run = (argv: readonly string[]) => Promise<number>;
-
-export async function main(
-  args: readonly string[] = Deno.args,
-  deps: { readonly runCli?: Run; readonly runVite?: Run } = {},
-): Promise<number> {
-  const normalized = args[0] === '--' ? args.slice(1) : args;
-  const argv = devArgs(normalized);
-  if (isViteStart(argv)) {
-    const run = deps.runVite ?? (await import('./u.cli.vite.ts')).runVite;
-    return run(argv);
-  }
-  return (deps.runCli ?? runCli)(argv);
+if (import.meta.main) {
+  const res = await CellCli.run({ argv: devArgs(Deno.args) });
+  setExitCode(res.kind === 'error' || res.kind === 'kill' ? res.code : Deno.exitCode);
 }
 
-if (import.meta.main) setExitCode(await main());
-
-async function runCli(argv: readonly string[]): Promise<number> {
-  const res = await CellCli.run({ argv });
-  return res.kind === 'error' || res.kind === 'kill' ? res.code : Deno.exitCode;
-}
-
-/**
- * Helpers:
- */
-function devArgs(args: readonly string[]): readonly string[] {
+/** Apply repository sample defaults without redirecting explicit targets or service modes. */
+export function devArgs(argv: readonly string[]): readonly string[] {
+  const args = argv[0] === '--' ? argv.slice(1) : argv;
   const [command] = args;
   if (!command) return args;
   if (hasHelp(args)) return args;
 
   if (command === 'info') return withDefaultDir(args, Sample.stripe);
-  if (command === 'start') return withDefaultDir(args, serviceSample(args));
-  if (command === 'kill') return withDefaultDir(args, serviceSample(args));
+  if (command === 'start' || command === 'kill') {
+    return parseArgs(args).mode === undefined ? withDefaultDir(args, Sample.stripe) : args;
+  }
   if (command === 'migrate') return withDefaultDir(args, Sample.stripe, ['--dry-run']);
   if (command === 'init') return withDefaultDir(args, Sample.init, ['--dry-run']);
   if (command === 'task') return taskArgs(args);
@@ -55,20 +34,6 @@ function devArgs(args: readonly string[]): readonly string[] {
 function taskArgs(args: readonly string[]): readonly string[] {
   if (args.length === 1) return ['task', 'sample:deploy', Sample.deploy, '--plan'];
   return hasPositionalDir(args, 2) ? args : [...args, Sample.deploy];
-}
-
-function serviceSample(args: readonly string[]) {
-  return parseArgs(args).mode === 'dev' ? Sample.vite : Sample.stripe;
-}
-
-/** Only the maintained Vite sample's valid dev-start route changes execution authority. */
-function isViteStart(argv: readonly string[]): boolean {
-  const args = parseArgs(argv);
-  const [command, dir] = args._;
-  return command === 'start' && args.mode === 'dev' && Is.str(dir) &&
-    Path.resolve(dir) === VITE_SAMPLE && args._.length === 2 &&
-    !args.help && !args.agent && !args.dryRun && !args.plan && !args.force &&
-    args.format === undefined && args.unknown.length === 0 && startReporterFlag(args.reporter).ok;
 }
 
 function withDefaultDir(
