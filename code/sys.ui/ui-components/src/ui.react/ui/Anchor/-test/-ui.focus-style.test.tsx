@@ -50,7 +50,7 @@ describe('Anchor: focus styling', () => {
           '--sys-anchor-focus-accent': Color.BLUE,
           '--sys-anchor-focus-rest': Color.alpha(Color.BLUE, 0.2),
           '--sys-anchor-focus-width': '2px',
-          '--sys-anchor-focus-offset': '2px',
+          '--sys-anchor-focus-offset': '0px',
         });
         expect(base?.['--sys-focus-arrival-outline']).to.eql('var(--sys-anchor-focus-accent)');
         expect(base?.['--sys-focus-animation']).to.eql('sys-focus-arrival-outline');
@@ -60,7 +60,7 @@ describe('Anchor: focus styling', () => {
     });
   }
 
-  it('shares Button outline paint and timing but retains the Anchor radius', async () => {
+  it('shares Button outline paint and timing while keeping Anchor geometry independent', async () => {
     const res = await TestReact.render(
       <div>
         <Button>Button</Button>
@@ -74,7 +74,7 @@ describe('Anchor: focus styling', () => {
       const buttonBase = declarations(button);
       expect(linkBase?.borderRadius).to.eql(1);
       expect(buttonBase?.borderRadius).to.eql(3);
-      for (const token of ['accent', 'rest', 'width', 'offset']) {
+      for (const token of ['accent', 'rest', 'width']) {
         expect(linkBase?.[`--sys-anchor-focus-${token}`]).to.eql(
           buttonBase?.[`--sys-button-focus-${token}`],
         );
@@ -101,13 +101,16 @@ describe('Anchor: focus styling', () => {
     }
   });
 
-  it('registers reduced-motion and forced-colour policy on the final caller-styled class', async () => {
-    const res = await TestReact.render(<A href={href} style={{ margin: 7 }}>Link</A>);
+  it('keeps preference handling on the caller-styled class with a custom offset', async () => {
+    const res = await TestReact.render(
+      <A href={href} style={{ margin: 7, '--sys-anchor-focus-offset': '4px' }}>Link</A>,
+    );
     try {
       const root = anchor(res.container);
       const selector = `.${root.className}`;
-      expect(declarations(root)?.margin).to.eql(7);
       expect(declarations(root)).to.include({
+        margin: 7,
+        '--sys-anchor-focus-offset': '4px',
         '--sys-focus-forced-outline': 'var(--sys-anchor-focus-width) solid Highlight',
         '--sys-focus-forced-offset': 'var(--sys-anchor-focus-offset)',
       });

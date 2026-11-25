@@ -56,13 +56,7 @@ export declare namespace Anchor {
      * @default false
      */
     truncate?: boolean;
-    /**
-     * Uses Button's shared outline recipe and 1px root radius; override radius with `borderRadius`.
-     * Customize outline paint with `--sys-anchor-focus-` tokens:
-     * `accent`, `rest`, `width`, `offset`. Use explicit CSS lengths for width/offset.
-     * The 20%-blue resting colour has low contrast on white/Dark; choose for the actual surface.
-     * A supplied `:focus-visible` block replaces the entire default focus policy and underline.
-     */
+    /** A supplied `:focus-visible` block replaces the default focus styling and underline. */
     style?: t.CssInput;
 
     /**
