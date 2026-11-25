@@ -1,5 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
-import { stripAnsi } from '../common.ts';
+import { describe, expect, it, stripAnsi } from './common.ts';
 import { CellCli } from '../mod.ts';
 import { expectCliError, silent } from './u.fixture.ts';
 

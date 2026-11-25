@@ -1,5 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
-import { stripAnsi } from '../common.ts';
+import { describe, expect, it, stripAnsi } from './common.ts';
 import { createHarness, readyBody, redrawKey } from './u.fixture.start-reporter.ts';
 
 describe('@sys/cell/cli start reporter cleanup', () => {

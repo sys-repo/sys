@@ -1,5 +1,4 @@
-import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
-import { c, stripAnsi, type t } from '../common.ts';
+import { c, describe, expect, Fs, it, Str, stripAnsi, type t, Testing } from './common.ts';
 import { CellCli } from '../mod.ts';
 import { cellWith } from '../u.fmt/u.info.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';

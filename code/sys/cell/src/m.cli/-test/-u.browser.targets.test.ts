@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from './common.ts';
 import { resolveBrowserTargets } from '../u.lifecycle/u.browser.targets.ts';
 
 describe('@sys/cell/cli browser targets', () => {

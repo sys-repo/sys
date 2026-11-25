@@ -1,6 +1,5 @@
-import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
+import { c, describe, expect, Fs, it, Str, stripAnsi, type t, Testing } from './common.ts';
 import { CellCli } from '../mod.ts';
-import { c, stripAnsi, type t } from '../common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 import { planWith } from '../u.fmt/u.task.ts';
 import { resetTaskEvents, silent, taskEvents, taskSource } from './u.fixture.ts';

@@ -1,6 +1,5 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, stripAnsi, Testing } from './common.ts';
 import { CellPaths } from '../../m.cell/u/paths.ts';
-import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
 import { read, silent } from './u.fixture.ts';
 

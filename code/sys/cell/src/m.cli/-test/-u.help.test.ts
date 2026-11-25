@@ -1,6 +1,5 @@
-import { describe, expect, it } from '../../-test.ts';
+import { Cli, describe, expect, it, stripAnsi } from './common.ts';
 import { CellHelp } from '../../m.help/mod.ts';
-import { Cli, stripAnsi } from '../common.ts';
 import { FmtHelp } from '../u.help/u.mod.ts';
 import { Tmpl } from '../u/u.tmpl.ts';
 

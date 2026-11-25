@@ -1,4 +1,4 @@
-import { describe, it } from '../../-test.ts';
+import { describe, it } from './common.ts';
 import { expectCliError } from './u.fixture.ts';
 
 describe(`@sys/cell/cli args`, () => {

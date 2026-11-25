@@ -1,5 +1,4 @@
-import { describe, expect, Fs, it, Str, type t, Testing } from '../../-test.ts';
-import { Cli, stripAnsi } from '../common.ts';
+import { Cli, describe, expect, Fs, it, Str, stripAnsi, type t, Testing } from './common.ts';
 import { CellCli } from '../mod.ts';
 import {
   addressInUseServiceSource,

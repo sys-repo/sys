@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from './common.ts';
 import { mergeFailures } from '../u.lifecycle/u.failure.ts';
 
 describe('@sys/cell/cli lifecycle failures', () => {

@@ -1,5 +1,4 @@
-import { describe, expect, Fs, it, Str } from '../../-test.ts';
-import { c, Cli, stripAnsi, type t } from '../common.ts';
+import { c, Cli, describe, expect, Fs, it, Str, stripAnsi, type t } from './common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 import { serviceInput } from './u.fixture.services.ts';
 

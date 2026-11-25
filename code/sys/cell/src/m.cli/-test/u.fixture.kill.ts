@@ -1,4 +1,4 @@
-import { Fs, Str, type t, Testing, Time } from '../../-test.ts';
+import { Fs, Str, type t, Testing, Time } from './common.ts';
 import { CellPaths } from '../../m.cell/u/paths.ts';
 import { CellSession } from '../u/u.session.ts';
 

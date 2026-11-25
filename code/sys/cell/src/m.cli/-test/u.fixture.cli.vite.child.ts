@@ -1,4 +1,4 @@
-import { Time } from '../../-test.ts';
+import { Time } from './common.ts';
 
 const [mode] = Deno.args;
 if (mode === 'leaf') {

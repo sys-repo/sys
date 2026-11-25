@@ -1,8 +1,7 @@
 /**
  * Shared CLI test fixtures.
  */
-import { expect, Fs, Str } from '../../-test.ts';
-import { stripAnsi } from '../common.ts';
+import { expect, Fs, Str, stripAnsi } from './common.ts';
 import { CellCli } from '../mod.ts';
 
 /**

@@ -1,5 +1,4 @@
-import { describe, expect, it, Str } from '../../-test.ts';
-import { Cli, stripAnsi, type t } from '../common.ts';
+import { Cli, describe, expect, it, Str, stripAnsi, type t } from './common.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
 import {
   formatStartHeader,

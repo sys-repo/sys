@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it } from '../../-test.ts';
+import { describe, expect, Fs, it } from './common.ts';
 import { parseArgs } from '../u/u.args.ts';
 
 type DenoConfig = {

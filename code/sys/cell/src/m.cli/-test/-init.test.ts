@@ -1,7 +1,6 @@
-import { describe, expect, Fs, it, Testing } from '../../-test.ts';
+import { describe, expect, Fs, it, stripAnsi, Testing } from './common.ts';
 import { Cell } from '../../m.cell/mod.ts';
 import { CellPaths } from '../../m.cell/u/paths.ts';
-import { stripAnsi } from '../common.ts';
 import { CellCli } from '../mod.ts';
 import { read, silent } from './u.fixture.ts';
 
@@ -37,7 +36,9 @@ describe(`@sys/cell/cli init`, () => {
     expect(res.kind).to.eql('init');
     expect(await read(piState)).to.eql('{"ok":true}\n');
     expect(await read(piConfig)).to.eql('profile: test\n');
-    expect(await read(Fs.join(fs.dir, 'data/README.md'))).to.contain('Source documents and material');
+    expect(await read(Fs.join(fs.dir, 'data/README.md'))).to.contain(
+      'Source documents and material',
+    );
     expect(await Fs.exists(Fs.join(fs.dir, 'view/README.md'))).to.eql(false);
     expect(await Fs.exists(Fs.join(fs.dir, CellPaths.descriptor))).to.eql(true);
     expect(await Fs.exists(Fs.join(fs.dir, CellPaths.legacy.descriptor))).to.eql(false);

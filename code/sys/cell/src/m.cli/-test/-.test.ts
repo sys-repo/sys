@@ -1,4 +1,4 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from './common.ts';
 import { CellCli } from '../mod.ts';
 
 describe(`@sys/cell/cli`, () => {

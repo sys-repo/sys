@@ -1,5 +1,4 @@
-import { describe, expect, it, Pkg, type t } from '../../-test.ts';
-import { c, Cli, stripAnsi } from '../common.ts';
+import { c, Cli, describe, expect, it, Pkg, stripAnsi, type t } from './common.ts';
 import {
   formatStartHeader,
   formatStartServiceBody,

@@ -1,5 +1,4 @@
-import { describe, expect, Fs, it, Testing, Time } from '../../-test.ts';
-import { Process, stripAnsi } from '../common.ts';
+import { describe, expect, Fs, it, Process, stripAnsi, Testing, Time } from './common.ts';
 import { CellCli } from '../mod.ts';
 import { formatKillResult } from '../u/u.kill.fmt.ts';
 import { killCell } from '../u/u.kill.ts';

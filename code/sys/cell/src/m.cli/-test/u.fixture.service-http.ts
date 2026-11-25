@@ -1,6 +1,6 @@
 import { HttpServer } from '@sys/http/server';
 import type { HttpServer as THttpServer } from '@sys/http/t';
-import { Cli, type t } from '../common.ts';
+import { Cli, type t } from './common.ts';
 
 /** A real HTTP-owned endpoint loaded through an ordinary Cell descriptor. No provider bootstrap. */
 export const HttpOwner: t.Cell.Services.LifecycleEndpoint = {

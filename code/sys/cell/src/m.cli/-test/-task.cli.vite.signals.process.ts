@@ -1,4 +1,4 @@
-import { describe, it } from '../../-test.ts';
+import { describe, it } from './common.ts';
 import { proveVitePty } from './u.fixture.cli.vite.ts';
 
 // Separate follow-up, not part of test:proofs: animated OS signals have a recorded post-exit

@@ -1,6 +1,4 @@
-import { kill } from 'node:process';
-import { Process } from '@sys/process/process';
-import { describe, expect, Fs, it, Testing, Time } from '../../-test.ts';
+import { describe, expect, Fs, it, kill, Process, Testing, Time } from './common.ts';
 import { CellSession } from '../u/u.session.ts';
 import { sessionOf, sessionRoot, writeSession } from './u.fixture.kill.ts';
 import { proveVitePty, spawnCliProof } from './u.fixture.cli.vite.ts';
@@ -144,7 +142,7 @@ describe('@sys/cell development CLI Vite process', () => {
 
 describe('@sys/cell development CLI Vite PTY', () => {
   // Animated OS signals remain executable in test:cli:vite:signals; no assertions are relaxed.
-  for (const mode of ['keyboard', 'keyboard-ci', 'forced'] as const) {
+  for (const mode of ['quit', 'keyboard', 'keyboard-ci', 'forced'] as const) {
     it(`real PTY → screen resize and ${mode} shutdown restore input mode`, async () => {
       await proveVitePty(mode);
     });

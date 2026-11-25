@@ -1,6 +1,4 @@
-import { spawn } from 'node:child_process';
-import { expect, Fs, Str, Testing, Time } from '../../-test.ts';
-import { Cli, Json } from '../common.ts';
+import { Cli, expect, Fs, Json, spawn, Str, Testing, Time } from './common.ts';
 import { CellSession } from '../u/u.session.ts';
 import { sessionRoot } from './u.fixture.kill.ts';
 import { killOwnedGroup, stty } from './u.fixture.cli.vite.ts';
