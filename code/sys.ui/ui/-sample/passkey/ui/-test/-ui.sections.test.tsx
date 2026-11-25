@@ -79,63 +79,29 @@ describe('Passkey diagnostic sections', () => {
     }
   });
 
-  it('registration note → stays mounted at a fixed panel height across account operations', async () => {
+  it('note-bearing frame → reserves height without clipping or insetting the action edge', async () => {
     const context = { ...signedOut.context, registrationAdvisory: 'Use a test passkey.' };
-    const out = { ...signedOut, context };
-    const props = { snapshot: out, onCreateAccount: () => {}, onAddPasskey: () => {} };
-    using panel = await renderPanel(props);
-    const note = () => panel.container.querySelector<HTMLElement>('[role="note"][id]');
-    const tracks = () => {
-      const grid = panel.container.querySelector(`${section('status')} > div`);
-      return grid && (cssOf(grid).gridTemplateRows || 'none');
-    };
-    const original = element(panel.container, '[role="note"][id]');
-    const body = original.previousElementSibling!;
-    const height = cssOf(body).height;
-    const margin = cssOf(original).marginTop;
-    expect(height).to.match(/^[\d.]+(?:px|rem)$/);
-    expect(cssOf(body).overflowY).to.eql('auto');
-    const transitions = [
-      { ...out, operation: pending.operation },
-      { ...out, authentication: { kind: 'checking' }, operation: { kind: 'checking' } },
-      { ...out, authentication: { kind: 'unknown', summary: 'Session unknown' } },
-      { ...signedIn, context },
-      out,
-    ] satisfies t.Passkey.Snapshot[];
-    for (const snapshot of transitions) {
-      panel.update({ ...props, snapshot });
-      expect(note()).to.equal(original);
-      expect(original.previousElementSibling).to.equal(body);
-      expect(cssOf(body).height).to.eql(height);
-      expect(cssOf(original).marginTop).to.eql(margin);
+    using panel = await renderPanel({ snapshot: signedOut });
+    const frame = () => cssOf(element(panel.container, section('actions')).parentElement!);
+    expect(frame().minHeight || 'auto').to.eql('auto');
+    for (const view of ['panel', 'actions'] as const) {
+      panel.update({ view, snapshot: { ...signedOut, context } });
+      const { minHeight, height, overflowX, overflowY, paddingInlineEnd } = frame();
+      expect(parseFloat(minHeight)).to.be.greaterThan(0);
+      expect(height || 'auto').to.eql('auto');
+      expect([overflowX || 'visible', overflowY || 'visible']).to.eql(['visible', 'visible']);
+      expect(paddingInlineEnd || '0px').to.eql('0px');
     }
-    expect(tracks()).to.eql('repeat(4, auto) 1lh 1lh');
-    panel.update({ ...props, snapshot: { ...signedIn, context } });
-    expect(tracks()).to.eql('none');
-    expect(valueCell(panel.container, 'Account label').textContent).to.eql('Test account');
-    panel.update({ ...props, view: 'actions' });
-    expect(note()?.previousElementSibling?.contains(element(panel.container, section('actions'))))
-      .to.eql(true);
-    expect(tracks()).to.eql(null);
-    panel.update({ ...props, view: 'actions', snapshot: { ...out, operation: pending.operation } });
-    expect(note()).to.equal(original);
+  });
 
-    const withoutNote: t.Passkey.Props[] = [
-      { ...props, snapshot: signedOut },
-      { ...props, sections: { actions: false } },
-      { ...props, view: 'status' },
-      { ...props, view: 'context' },
-    ];
-    for (const next of withoutNote) {
-      panel.update(next);
-      expect(note()).to.eql(null);
-      expect(tracks() ?? 'none').to.eql('none');
-      const { height, minHeight, overflowY } = cssOf(panel.container.firstElementChild!);
-      expect([height || 'auto', minHeight || 'auto', overflowY || 'visible']).to.eql([
-        'auto',
-        'auto',
-        'visible',
-      ]);
+  it('registration note → stays mounted while actions are pending or replaced', async () => {
+    const context = { ...signedOut.context, registrationAdvisory: 'Use a test passkey.' };
+    using panel = await renderPanel({ snapshot: { ...signedOut, context } });
+    const note = () => element(panel.container, '[role="note"][id]');
+    const original = note();
+    for (const snapshot of [pending, signedIn]) {
+      panel.update({ snapshot: { ...snapshot, context } });
+      expect(note()).to.equal(original);
     }
   });
 

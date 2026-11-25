@@ -5,7 +5,7 @@ import { Context } from './ui.Context.tsx';
 import { Status } from './ui.Status.tsx';
 
 const actionsOnly = { actions: true, status: false, context: false } as const;
-// Stable diagnostic area above the note, in rem. Only the selected sections affect its height.
+// Minimum space above the note, in rem. Longer diagnostics stay in normal flow.
 const bodyRem = { titleAndActions: 4, status: 10, context: 8 } as const;
 
 /** Select a presentation without owning authentication or duplicating section rows. */
@@ -64,10 +64,7 @@ const FramedPanel: t.FC<Omit<t.Passkey.Props, 'view'>> = (props) => {
   });
   const rem = bodyRem.titleAndActions + (status ? bodyRem.status : 0) +
     (context ? bodyRem.context : 0);
-  const body = css({
-    height: registrationNote ? `${rem}rem` : undefined,
-    overflowY: registrationNote ? 'auto' : undefined,
-  });
+  const body = css({ minHeight: registrationNote ? `${rem}rem` : undefined });
   // Reserve space within the existing title line, never a new pending-only row.
   const titlePending = !status && operation.kind !== 'idle';
   const activityStyle = css({
