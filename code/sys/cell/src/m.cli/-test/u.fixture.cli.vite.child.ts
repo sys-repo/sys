@@ -24,7 +24,7 @@ if (mode === 'leaf') {
     if (mode === 'leader-exit') Deno.exit(130); // Deliberately leave the owned leaf running.
     if (mode === 'delayed') {
       void (async () => {
-        await Time.delay(500);
+        await Time.delay(9_000);
         leaf.kill('SIGTERM');
         await leaf.status;
         console.info('CLEAN');

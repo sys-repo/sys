@@ -1,4 +1,4 @@
-import { describe, expect, Fs, it, kill, Process, Testing, Time } from './common.ts';
+import { describe, expect, Fs, it, kill, Process, stripAnsi, Testing, Time } from './common.ts';
 import { CellSession } from '../u/u.session.ts';
 import { sessionOf, sessionRoot, writeSession } from './u.fixture.kill.ts';
 import { proveVitePty, spawnCliProof } from './u.fixture.cli.vite.ts';
@@ -40,17 +40,21 @@ describe('@sys/cell development CLI Vite process', () => {
         await res.body?.cancel();
         expect(res.status).to.eql(200);
 
+        const started = performance.now();
         if (signal !== 'SIGTERM') {
           if (!proof.child.pid) throw new Error('CLI child has no pid.');
           kill(-proof.child.pid, signal);
         } else {
           expect(proof.child.kill(signal)).to.eql(true);
         }
-        const exited = await Time.waitFor(() => proof.status, { interval: 50, timeout: 15_000 });
-        expect(proof.failure).to.eql(undefined);
-        expect(exited?.signal).to.eql(null);
+        const { status, diagnostic } = await waitForShutdown(proof, {
+          started,
+          timeout: 15_000,
+          label: `${launcher.join(' ')} after ${signal}`,
+        });
+        expect(status.signal, diagnostic).to.eql(null);
         // A task can report its own hangup (129) or the translated graceful child exit (130).
-        expect(signal === 'SIGHUP' ? [129, 130] : [130]).to.include(exited?.code);
+        expect(signal === 'SIGHUP' ? [129, 130] : [130], diagnostic).to.include(status.code);
         // The outer task may exit before its wrapper. Observe ownership release independently;
         // fallback below must never supply the cleanup needed for an assertion to pass.
         await Time.waitFor(async () => {
@@ -75,13 +79,17 @@ describe('@sys/cell development CLI Vite process', () => {
         expect(proof.child.kill('SIGWINCH')).to.eql(true);
         await Time.waitFor(() => proof.output.includes('RESIZED'), { timeout: 5_000 });
         if (mode === 'stalled') {
-          await Time.delay(1_000);
+          // A late repeat must not restart the shutdown budget.
+          await Time.delay(6_000);
           expect(proof.child.kill('SIGTERM')).to.eql(true);
         }
-        const status = await Time.waitFor(() => proof.status, { interval: 50, timeout: 8_000 });
-        expect(status, proof.output).to.eql({ code: mode === 'delayed' ? 130 : 137, signal: null });
-        expect(proof.output.includes('CLEAN')).to.eql(mode === 'delayed');
-        expect(performance.now() - started).to.be.lessThan(8_000);
+        const { status, diagnostic } = await waitForShutdown(proof, {
+          started,
+          timeout: 16_000,
+          label: `${mode} fixture after SIGINT`,
+        });
+        expect(status, diagnostic).to.eql({ code: mode === 'delayed' ? 130 : 137, signal: null });
+        expect(proof.output.includes('CLEAN'), diagnostic).to.eql(mode === 'delayed');
         const listener = Deno.listen({ hostname: '127.0.0.1', port });
         listener.close(); // The owned descendant's port, not just the wrapper PID, was released.
       } finally {
@@ -238,6 +246,25 @@ function fixture(mode: string, env?: Record<string, string>) {
     './src/m.cli/-test/u.fixture.cli.vite.launch.ts',
     mode,
   ], env);
+}
+
+async function waitForShutdown(
+  proof: ReturnType<typeof spawnCliProof>,
+  { started, timeout, label }: { started: number; timeout: number; label: string },
+) {
+  const elapsed = () => performance.now() - started;
+  const diagnostic = () => `${label} (${elapsed().toFixed(0)} ms):\n${stripAnsi(proof.output)}`;
+  let status;
+  try {
+    status = await Time.waitFor(() => {
+      if (proof.failure) throw proof.failure;
+      return proof.status;
+    }, { interval: 50, timeout: Math.max(0, timeout - elapsed()) });
+  } catch (cause) {
+    throw new Error(diagnostic(), { cause });
+  }
+  if (!status) throw new Error(`Missing exit status: ${diagnostic()}`);
+  return { status, diagnostic: diagnostic() };
 }
 
 async function fixtureReady(proof: ReturnType<typeof spawnCliProof>) {

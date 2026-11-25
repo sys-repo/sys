@@ -1,7 +1,7 @@
 import { Cli, expect, Fs, kill, spawn, Time } from './common.ts';
 import { CellSession } from '../u/u.session.ts';
 import { sessionRoot } from './u.fixture.kill.ts';
-import { killOwnedGroup, stty } from './u.fixture.cli.vite.ts';
+import { FORCED_PTY_EXIT_TIMEOUT, killOwnedGroup, stty } from './u.fixture.cli.vite.ts';
 
 // Executed inside the OS `script` PTY. Neither the wrapper nor its trusted child is mocked.
 expect(Cli.Is.interactive()).to.eql(true);
@@ -64,7 +64,10 @@ try {
     console.info('PTY_KEYBOARD_READY');
     // The outer proof writes q or Ctrl+C through the PTY master.
   }
-  const exited = await Time.waitFor(() => status, { interval: 50, timeout: 10_000 });
+  const exited = await Time.waitFor(() => status, {
+    interval: 50,
+    timeout: forced ? FORCED_PTY_EXIT_TIMEOUT : 10_000,
+  });
   // Keyboard and OS-signal interrupts share Cell's exit-130 contract on every platform.
   expect(exited).to.eql({ code: forced ? 137 : Deno.args[0] === 'quit' ? 0 : 130, signal: null });
   expect(await stty(['-g'])).to.eql(before);

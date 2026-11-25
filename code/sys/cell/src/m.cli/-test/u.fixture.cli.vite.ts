@@ -3,6 +3,8 @@ import { CellSession } from '../u/u.session.ts';
 
 type VitePtyMode = 'quit' | 'keyboard' | 'keyboard-ci' | 'sigint' | 'sigterm' | 'forced';
 
+export const FORCED_PTY_EXIT_TIMEOUT = 20_000;
+
 /**
  * Independent PTY measurement, not the production launcher's restoration implementation.
  * Process.capture cannot inherit stdin; Process.inherit cannot capture the saved mode.
@@ -134,7 +136,11 @@ export async function proveVitePty(mode: VitePtyMode): Promise<void> {
     }
     if (mode === 'quit') proof.child.stdin!.write('q');
     if (mode === 'keyboard' || mode === 'keyboard-ci') proof.child.stdin!.write('\u0003');
-    const status = await Time.waitFor(() => proof.status, { interval: 50, timeout: 15_000 });
+    const status = await Time.waitFor(() => proof.status, {
+      interval: 50,
+      // Allow the fixture to verify terminal mode and release its session after observing exit.
+      timeout: mode === 'forced' ? FORCED_PTY_EXIT_TIMEOUT + 5_000 : 15_000,
+    });
     expect(status, proof.output).to.eql({ code: 0, signal: null });
     expect(proof.output).to.contain('PTY_RESTORED');
   } finally {

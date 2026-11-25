@@ -4,7 +4,8 @@ import { kill } from 'node:process';
 import { Cli, Is, Path } from '../src/m.cli/common.ts';
 
 const ENTRY = Path.fromFileUrl(new URL('../src/m.cli/mod.ts', import.meta.url));
-const SHUTDOWN_GRACE = 5_000;
+// Budget for Vite's process and stream cleanup, then Cell's session and reporter teardown.
+const SHUTDOWN_GRACE = 12_000;
 const KILL_SETTLE = 5_000;
 
 /** Run the trusted sample; the optional entry is a module-local process-proof seam. */
