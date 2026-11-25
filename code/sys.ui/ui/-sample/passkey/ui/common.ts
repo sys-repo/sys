@@ -7,6 +7,7 @@ export { Color, css } from '@sys/ui-css';
 export { Admonition } from '@sys/ui-components/react/admonition';
 export { Anchor } from '@sys/ui-components/react/anchor';
 export { Bullet } from '@sys/ui-components/react/bullet';
+export { Button } from '@sys/ui-components/react/button';
 export { KeyValue } from '@sys/ui-components/react/key-value';
 export { Spinners } from '@sys/ui-components/react/spinners';
 

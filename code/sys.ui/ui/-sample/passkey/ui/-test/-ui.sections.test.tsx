@@ -218,7 +218,7 @@ describe('Passkey diagnostic sections', () => {
       );
       expect(framing(res.container)).to.eql('actions status context');
       expect(res.container.querySelector('[data-passkey-title-spinner]')).to.eql(null);
-      expectActions(res.container, 'create-account', 'sign-in');
+      expectActions(res.container, 'sign-in', 'create-account');
       expect(element(res.container, section('status')).textContent).to.include('principal-test-01');
       expect(element(res.container, section('context')).textContent).to.include('Context');
       for (const name of names) {
@@ -245,7 +245,7 @@ describe('Passkey diagnostic sections', () => {
       using res = await TestReact.render(
         <Passkey.UI.Actions {...snapshot} {...callbacks} operation={operation} />,
       );
-      if (out) expectActions(res.container, 'create-account', 'sign-in');
+      if (out) expectActions(res.container, 'sign-in', 'create-account');
       else expectActions(res.container, 'add-passkey', 'sign-out');
       const progress = '[role="progressbar"], [data-spinner-slot], [role="status"]';
       expect(res.container.querySelector(progress)).to.eql(null);
@@ -350,12 +350,10 @@ describe('Passkey diagnostic sections', () => {
       const cell = valueCell(panel.container, label);
       expect(cell.textContent).to.eql(text);
       expect(cssOf(cell).userSelect).to.eql('text');
-      expect(cssOf(cell.firstElementChild!).overflowWrap).to.eql('anywhere');
-      expect(cssOf(cell.firstElementChild!).whiteSpace).to.eql('normal');
-    }
-    for (const label of ['Relying Party ID', 'Relying Party Name']) {
-      const cell = valueCell(panel.container, label);
-      expect(cssOf(cell.firstElementChild!).fontFamily).to.eql('monospace');
+      const style = cssOf(cell.firstElementChild!);
+      expect(style.overflowWrap).to.eql('anywhere');
+      expect(style.whiteSpace).to.eql('normal');
+      expect(style.fontFamily).to.eql('sans-serif');
     }
     const showOrigin = (origin?: string) => {
       panel.update({ snapshot: { ...signedOut, context: { ...signedOut.context, origin } } });
@@ -365,11 +363,11 @@ describe('Passkey diagnostic sections', () => {
     const link = cell.querySelector('a')!;
     expect([link.getAttribute('href'), link.target]).to.eql([browserOrigin, '_blank']);
     expect(link.rel.split(' ').sort()).to.eql(['noopener', 'noreferrer']);
-    expect(cssOf(link).fontFamily).to.eql('monospace');
+    expect(cssOf(link).fontFamily).to.eql('sans-serif');
     expect(showOrigin(`${browserOrigin}.example.test`).querySelector('a')).to.eql(null);
     const missing = showOrigin();
     expect(missing.textContent).to.eql('Unknown');
-    expect(cssOf(missing.firstElementChild!).fontFamily).not.to.eql('monospace');
+    expect(cssOf(missing.firstElementChild!).fontFamily).to.eql('sans-serif');
     expect(panel.container.querySelector('a[href$="#credential-record"]')).to.eql(null);
   });
 });

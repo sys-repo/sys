@@ -58,9 +58,10 @@ export declare namespace Passkey {
     style?: t.Style.Input;
   };
 
-  /** Canonical action button with an optional unavailable-action explanation. */
+  /** Action button with an optional unavailable-action explanation. */
   export type ActionProps = {
     label: string;
+    variant?: 'filled' | 'text';
     reason?: string;
     'aria-describedby'?: string;
     pending: boolean;

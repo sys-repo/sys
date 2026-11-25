@@ -1,9 +1,16 @@
-import { Color, css, KeyValue, type t } from './common.ts';
+import { Button, Color, css, KeyValue, type t } from './common.ts';
 import { Warning } from './ui.Warning.tsx';
 
 /** Canonical button and its unavailable-action explanation. */
 export const Action: t.FC<t.Passkey.ActionProps> = (props) => {
-  const { label, reason, pending, onClick } = props;
+  const { label, reason, pending, onClick, variant } = props;
+  const button = {
+    label,
+    enabled: !pending && !reason,
+    tooltip: reason,
+    'aria-describedby': props['aria-describedby'],
+    onClick,
+  };
 
   /**
    * Render:
@@ -22,13 +29,9 @@ export const Action: t.FC<t.Passkey.ActionProps> = (props) => {
 
   return (
     <div className={styles.base.class}>
-      <KeyValue.ActionButton
-        label={label}
-        enabled={!pending && !reason}
-        tooltip={reason}
-        aria-describedby={props['aria-describedby']}
-        onClick={onClick}
-      />
+      {variant === 'text'
+        ? <Button {...button} theme={theme.name} />
+        : <KeyValue.ActionButton {...button} />}
       {!pending && reason && (
         <Warning message={reason} ariaLabel='Action unavailable' theme={theme.name} />
       )}

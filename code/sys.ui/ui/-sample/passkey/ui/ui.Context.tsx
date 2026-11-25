@@ -23,10 +23,8 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
   const key = (label: string, href: string) => {
     return <Anchor.Link href={href} openIn='new-tab' theme={theme.name}>{label}</Anchor.Link>;
   };
-  const literal = (text: string | undefined, fallback: string) => {
-    if (!text || Is.blank(text)) return value(fallback);
-    return <div className={css(styles.value, { fontFamily: 'monospace' }).class}>{text}</div>;
-  };
+  const valueOr = (text: string | undefined, fallback: string) =>
+    value(!text || Is.blank(text) ? fallback : text);
   const rows: t.KeyValue.Item.Row[] = [
     {
       id: 'origin',
@@ -34,22 +32,22 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
       v: context.origin === browserOrigin
         ? (
           <div className={styles.value.class}>
-            <Anchor.Link mono href={browserOrigin} openIn='new-tab' theme={theme.name}>
+            <Anchor.Link href={browserOrigin} openIn='new-tab' theme={theme.name}>
               {browserOrigin}
             </Anchor.Link>
           </div>
         )
-        : literal(context.origin, 'Unknown'),
+        : valueOr(context.origin, 'Unknown'),
     },
     {
       id: 'rp-id',
       k: key('Relying Party ID', references.rpId),
-      v: literal(context.rpId, 'Not configured'),
+      v: valueOr(context.rpId, 'Not configured'),
     },
     {
       id: 'rp-name',
       k: key('Relying Party Name', references.rpName),
-      v: literal(context.rpName, 'Not configured'),
+      v: valueOr(context.rpName, 'Not configured'),
     },
     {
       id: 'web-authn',

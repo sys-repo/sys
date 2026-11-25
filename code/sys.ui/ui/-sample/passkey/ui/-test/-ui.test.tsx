@@ -80,8 +80,8 @@ describe('Passkey diagnostic panel', () => {
     });
     try {
       const controls = buttons(res.container);
-      expect(controls.map((el) => el.textContent)).to.eql(['Create Passkey', 'Sign In']);
-      const [create, signIn] = controls;
+      expect(controls.map((el) => el.textContent)).to.eql(['Sign In', 'Create Passkey']);
+      const [signIn, create] = controls;
       expect(create.tabIndex).to.eql(0);
       press(create, 'Enter');
       press(signIn, ' ');
@@ -90,6 +90,23 @@ describe('Passkey diagnostic panel', () => {
       expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
     } finally {
       res.dispose();
+    }
+  });
+
+  it('Sign In is the only filled action when signed out in either theme', async () => {
+    using panel = await renderPanel({ snapshot: signedOut, ...callbacks });
+    const filled = () =>
+      buttons(panel.container).filter((button) => {
+        const view = button.ownerDocument.defaultView!;
+        const background = view.getComputedStyle(button).backgroundColor;
+        return background && background !== 'transparent' && background !== 'rgba(0, 0, 0, 0)';
+      }).map((button) => button.textContent);
+
+    for (const theme of ['Light', 'Dark'] as const) {
+      panel.update({ snapshot: signedOut, ...callbacks, theme });
+      expect(filled()).to.eql(['Sign In']);
+      panel.update({ snapshot: signedIn, ...callbacks, theme });
+      expect(filled()).to.eql(['Add Passkey', 'Sign Out']);
     }
   });
 
@@ -208,7 +225,7 @@ describe('Passkey diagnostic panel', () => {
         onSignIn: () => count++,
       });
       try {
-        expectActions(res.container, 'create-account', 'sign-in');
+        expectActions(res.container, 'sign-in', 'create-account');
         const actions = element(res.container, '[data-passkey-section="actions"]');
         expect([...actions.querySelectorAll('[role="note"]')].map((el) => el.textContent))
           .to.eql([`⚠ ${reason}`, `⚠ ${reason}`]);
@@ -228,7 +245,7 @@ describe('Passkey diagnostic panel', () => {
   it('missing callback → visibly unavailable rather than a silent no-op', async () => {
     const res = await renderPanel({ snapshot: signedOut });
     try {
-      expectActions(res.container, 'create-account', 'sign-in');
+      expectActions(res.container, 'sign-in', 'create-account');
       expect([...res.container.querySelectorAll('[role="note"]')].map((el) => el.textContent))
         .to.eql(['⚠ Action not connected', '⚠ Action not connected']);
       for (const el of buttons(res.container)) {
@@ -448,7 +465,7 @@ describe('Passkey diagnostic panel', () => {
     using panel = await renderPanel({ snapshot: signedOut, ...callbacks });
     const root = element(panel.container, '[data-component]');
     const nodes = [root, ...root.querySelectorAll<HTMLElement>('*')];
-    expect(nodes.find((el) => el.tabIndex >= 0)).to.equal(actionButton(root, 'create-account'));
+    expect(nodes.find((el) => el.tabIndex >= 0)).to.equal(actionButton(root, 'sign-in'));
     expect(root.ownerDocument.defaultView!.getComputedStyle(root).padding).to.eql('0px');
   });
 

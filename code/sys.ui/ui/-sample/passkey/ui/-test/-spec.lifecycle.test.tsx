@@ -223,7 +223,7 @@ describe('passkey cached-spec context lifetime', () => {
           expect(valueCell(res.container, 'Account service').textContent).to.eql('Configured');
           const rpName = valueCell(res.container, 'Relying Party Name');
           expect(rpName.textContent).to.eql('Passkey Sample');
-          expectActions(res.container, 'create-account', 'sign-in');
+          expectActions(res.container, 'sign-in', 'create-account');
           expect(server.fetchCount).to.eql(0);
         } finally {
           React.act(() => res.dispose());

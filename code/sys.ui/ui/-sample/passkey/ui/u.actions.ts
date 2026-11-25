@@ -14,8 +14,8 @@ export function actionsOf(props: t.Passkey.ActionsProps): readonly Action[] {
   switch (authentication.kind) {
     case 'signed-out':
       return [
-        action('create-account', 'New account', props.onCreateAccount),
         action('sign-in', 'Existing account', props.onSignIn),
+        action('create-account', 'New account', props.onCreateAccount),
       ];
     case 'signed-in':
       return [
