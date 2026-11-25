@@ -1,4 +1,3 @@
-
 # DOCS/WRITING 
 Review this documentation against canon with Tuftean restraint and Pirsig’s standard of Quality: durable usefulness, not surface polish.
 Are the claims accurate and earned? Does it convey purpose, boundaries, choices, and consequences—not merely narrate implementation? Can humans and agents quickly understand what matters and act correctly?
@@ -6,16 +5,25 @@ Verify claims against source. Flag misleading promises, missing context, repetit
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
+
+@sys.process
+os-signal-subscription.plan.md
+- [x] d28c27405 feat(process): add Process.Signal.on and prove it in the Cell Vite fixture
+- [x] 2099a68b4 refactor(cli): adopt Process.Signal.on in CLI and Cell
+- [x] 444357263 refactor(server): adopt Process.Signal.on for hosted shutdown
+- [ ] refactor(cell): delegate sample launcher process and terminal lifecycle
+
+
 @sys.cell
 browser-targets.plan.md
 - [x] 192d82165 feat(cell): resolve declared browser targets from the ready service snapshot
 - [x] 1f0775726 feat(cell): declare browser targets in the Stripe sample
-- [ ] fix(cli): retain keyboard release failure across shutdown retries
-- [ ] feat(cell): open browser targets and quit from the ready screen
-- [ ] feat(cell): declare browser targets for the remaining sample previews and the UI cell
-- [ ] feat(cell): mark resolved browser targets in the ready service list
-- [ ] docs(cell): explain browser targets in service and start help
-
+- [x] f91e3bba6 fix(cli): retain keyboard release failure across shutdown retries
+- [x] 894e414e2 feat(cell): open browser targets and quit from the ready screen
+- [x] 113f67181 feat(cell): declare browser targets for the remaining sample previews and the UI cell
+- [x] cfa942bf5 feat(cell): mark resolved browser targets in the ready service list
+- [x] 02c9a2bd9 docs(cell): explain browser targets in service and start help
+- [ ] feat(cell): adapt the ready-screen shortcut footer to available rows
 
 
 @sys.ui
@@ -50,7 +58,10 @@ passkey-panel.plan.md
 - [x] [markdown-admonition-panel.plan.md](../@sys.ui-components/markdown-admonition-panel.plan.md)
 - [x] de36c11d3 fix(ui): use the compact accent button for Create Passkey
 - [x] f6b1ebd41 fix(ui): keep passkey action focus rings visible at the panel edge
-- [x] refactor(ui): unify passkey action row order and emphasis
+- [x] badd5cb7a fix(ui): shorten the passkey reference sample heading
+- [x] 01b9e69eb refactor(ui): unify passkey action row order and emphasis
+- [x] fcdf571b8 refactor(ui): simplify passkey panel layout and specimen presentation
+- [x] 5bb675e11 feat(ui): show live passkey context in the integration sidebar
 - [ ] feat(passkey): expose in-memory account service counts via Cmd
 - [ ] feat(ui): show account service counts below passkey Context
 
