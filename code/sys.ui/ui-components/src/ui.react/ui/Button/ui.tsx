@@ -56,6 +56,7 @@ export const Button: FC<P> = (props) => {
       display: block ? 'block' : 'inline-block',
       minWidth: props.minWidth,
       maxWidth: props.maxWidth,
+      borderRadius: 3,
       opacity: opacity,
       cursor: enabled && active ? 'pointer' : 'default',
       userSelect: userSelect ? 'auto' : 'none',
@@ -65,8 +66,9 @@ export const Button: FC<P> = (props) => {
       gridTemplateColumns: 'minmax(0, 1fr)',
       color: wrangle.color({
         enabled,
+        accent: active && props.tone === 'accent',
         over: !!(over || props.isOver),
-        theme: theme.name,
+        dark: theme.is.dark,
       }),
       transform: wrangle.pressedOffset({
         enabled,
@@ -82,7 +84,7 @@ export const Button: FC<P> = (props) => {
     }),
   };
 
-  const rootStyle = focusStyle(styles.base, props.style);
+  const rootStyle = focusStyle(styles.base, props.style, props.tone);
 
   return (
     <div
@@ -107,10 +109,12 @@ export const Button: FC<P> = (props) => {
  * Helpers
  */
 const wrangle = {
-  color(args: { enabled: boolean; over?: boolean; theme?: t.CommonTheme }) {
-    const color = args.theme === 'Dark' ? Color.WHITE : Color.DARK;
-    if (!args.enabled) return color;
-    return args.over ? Color.BLUE : color;
+  color(args: { enabled: boolean; accent: boolean; over: boolean; dark: boolean }) {
+    const { enabled, accent, over, dark } = args;
+    const neutral = dark ? Color.WHITE : Color.DARK;
+    if (!enabled) return neutral;
+    if (accent) return dark ? Color.lighten(Color.BLUE, 10) : Color.darken(Color.BLUE, 10);
+    return over ? Color.BLUE : neutral;
   },
 
   pressedOffset(args: {

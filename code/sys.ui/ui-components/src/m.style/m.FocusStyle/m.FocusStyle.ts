@@ -15,9 +15,16 @@ export const FocusStyle: t.FocusStyle.Lib = { outline, compose };
 /**
  * Helpers:
  */
-function compose(input: t.FocusStyle.Input & { via: `--${string}` }): t.FocusStyle.Child;
-function compose(input: t.FocusStyle.Input): t.FocusStyle.Target;
-function compose(input: Input): t.FocusStyle.Target | t.FocusStyle.Child {
+export function compose(input: t.FocusStyle.Input & { via: `--${string}` }): t.FocusStyle.Child;
+/** The internal registration hook runs only when the composed root owns default focus paint. */
+export function compose(
+  input: t.FocusStyle.Input,
+  register?: (selector: string) => void,
+): t.FocusStyle.Target;
+export function compose(
+  input: Input,
+  register?: (selector: string) => void,
+): t.FocusStyle.Target | t.FocusStyle.Child {
   const { base, style, paint, via } = input;
   const caller: t.Style.Value = css(style).style;
   if (!via && Obj.hasOwn(caller, ':focus-visible')) return { class: css(base, style).class };
@@ -59,7 +66,10 @@ function compose(input: Input): t.FocusStyle.Target | t.FocusStyle.Child {
     context: '@media (forced-colors: active)',
   });
 
-  if (!via) return target;
+  if (!via) {
+    register?.(`${selector}:focus-visible`);
+    return target;
+  }
   const visible: `--${string}` = `${via}-visible`;
   const inactive: t.Style.Props = { [via]: 'none', [visible]: 0 };
   const focused: t.Style.Props = { [via]: recipe.name, [visible]: 1 };

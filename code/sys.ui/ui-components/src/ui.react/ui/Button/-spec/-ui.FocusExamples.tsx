@@ -11,7 +11,7 @@ export type FocusExamplesProps = Pick<
 
 const OpenArrow = Icon.renderer(MdNorthEast);
 
-/** Native focus indication: default, root override, and an independent child. */
+/** Native focus indication on bare, customized, and compact buttons. */
 export function FocusExamples(props: FocusExamplesProps) {
   const theme = Color.theme(props.theme);
   const styles = {
@@ -20,6 +20,14 @@ export function FocusExamples(props: FocusExamplesProps) {
     label: css({ fontSize: 12, opacity: 0.25 }),
     openLabel: css({ display: 'inline-flex', alignItems: 'center', gap: 4 }),
     icon: css({ display: 'grid' }),
+    prose: css({ fontSize: 12, lineHeight: 1.5, maxWidth: '32ch' }),
+    stack: css({
+      display: 'grid',
+      justifyItems: 'end',
+      rowGap: 6,
+      paddingInlineEnd: '6px',
+      lineHeight: '18px',
+    }),
   };
   const buttonProps = { ...props, theme: theme.name };
   const child = runLabelFocus('--run-arrival', theme.name);
@@ -94,6 +102,40 @@ export function FocusExamples(props: FocusExamplesProps) {
           <div>
             <RunLabel indicatorClass={child.class} />
           </div>
+        </Button>
+      </section>
+
+      <Dev.Divider theme={theme.name} />
+
+      <section aria-label='Compact text actions' className={styles.stack.class}>
+        <div className={styles.label.class}>compact · blue at rest</div>
+        <Button {...buttonProps} tone='accent'>First action</Button>
+        <Button {...buttonProps} tone='accent'>Second action</Button>
+      </section>
+
+      <Dev.Divider theme={theme.name} />
+
+      <section aria-label='Inline text action' className={styles.example.class}>
+        <div className={styles.label.class}>inline · 12px text</div>
+        <div className={styles.prose.class}>
+          You can <Button {...buttonProps} tone='accent'>edit this note</Button>{' '}
+          before sharing it with the rest of your team.
+        </div>
+      </section>
+
+      <Dev.Divider theme={theme.name} />
+
+      <section aria-label='Focus fallback' className={styles.example.class}>
+        <div className={styles.label.class}>focus fallback</div>
+        <Button
+          {...buttonProps}
+          tone='accent'
+          style={{ overflow: 'hidden', lineHeight: '1', borderRadius: 0 }}
+        >
+          Clipped content
+        </Button>
+        <Button {...buttonProps} tone='accent' style={{ position: 'static' }}>
+          Static position
         </Button>
       </section>
     </div>

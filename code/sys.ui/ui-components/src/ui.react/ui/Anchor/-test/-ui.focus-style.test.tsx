@@ -60,7 +60,7 @@ describe('Anchor: focus styling', () => {
     });
   }
 
-  it('matches Button arrival, resting palette, geometry and animation policy', async () => {
+  it('shares Button outline paint and timing but retains the Anchor radius', async () => {
     const res = await TestReact.render(
       <div>
         <Button>Button</Button>
@@ -72,7 +72,8 @@ describe('Anchor: focus styling', () => {
       const button = res.container.querySelector('[role="button"]')!;
       const linkBase = declarations(link);
       const buttonBase = declarations(button);
-      expect(linkBase?.borderRadius).to.eql(buttonBase?.borderRadius);
+      expect(linkBase?.borderRadius).to.eql(1);
+      expect(buttonBase?.borderRadius).to.eql(3);
       for (const token of ['accent', 'rest', 'width', 'offset']) {
         expect(linkBase?.[`--sys-anchor-focus-${token}`]).to.eql(
           buttonBase?.[`--sys-button-focus-${token}`],

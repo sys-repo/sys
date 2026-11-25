@@ -24,7 +24,7 @@ describe('Button: focus styling', () => {
           'animation: 220ms ease-out 70ms 1 normal backwards running var(--sys-focus-animation);',
         );
         const base = ruleText(root);
-        expect(base).to.include('border-radius: 1px;');
+        expect(base).to.include('border-radius: 3px;');
         expect(base).to.include('--sys-button-focus-width: 2px;');
         expect(base).to.include('--sys-button-focus-offset: 2px;');
         expect(base).to.include(`--sys-button-focus-accent: ${Color.BLUE};`);
@@ -37,6 +37,106 @@ describe('Button: focus styling', () => {
       } finally {
         React.act(() => res.dispose());
       }
+    });
+  }
+
+  for (const theme of ['Light', 'Dark'] as const) {
+    it(`${theme}: accent colours the enabled text without forcing hover or colouring unavailable actions`, async () => {
+      const res = await TestReact.render(
+        <div>
+          <Button theme={theme}>Default</Button>
+          <Button theme={theme} isOver>Default hover</Button>
+          <Button
+            theme={theme}
+            tone='accent'
+            opacity={({ is }) => is.over ? 0.5 : 1}
+          >
+            Accent
+          </Button>
+          <Button theme={theme} tone='accent' enabled={false} isOver>Disabled</Button>
+          <Button theme={theme} tone='accent' active={false}>Inactive</Button>
+        </div>,
+      );
+      try {
+        const roots = res.container.querySelectorAll<HTMLElement>('[role="button"]');
+        const colors = [...roots].map((root) => ruleText(root.firstElementChild!));
+        const neutral = theme === 'Dark' ? Color.WHITE : Color.DARK;
+        const accent = theme === 'Dark'
+          ? Color.lighten(Color.BLUE, 10)
+          : Color.darken(Color.BLUE, 10);
+        for (const i of [0, 3, 4]) expect(colors[i]).to.include(`color: ${neutral};`);
+        expect(colors[1]).to.include(`color: ${Color.BLUE};`);
+        expect(colors[2]).to.include(`color: ${accent};`);
+        expect(ruleText(roots[2])).to.include('opacity: 1;');
+        expect(roots[2].tabIndex).to.eql(0);
+        for (const i of [3, 4]) expect(roots[i].tabIndex).to.eql(-1);
+      } finally {
+        React.act(() => res.dispose());
+      }
+    });
+  }
+
+  it('fits the accent ring to the font rather than the line spacing, without changing layout', async () => {
+    using res = await TestReact.render(
+      <div>
+        <Button tone='accent'>Edit</Button>
+        <Button>Neutral</Button>
+        <Button tone='accent' style={{ ':focus-visible': { outline: '2px dashed red' } }}>
+          Custom
+        </Button>
+      </div>,
+    );
+    const [accent, neutral, custom] = res.container.querySelectorAll('[role="button"]');
+    const pseudo = ':focus-visible::after';
+    const ink = ruleText(accent, pseudo);
+    expect(ink).to.include('position: absolute');
+    expect(ink).to.include('inset-inline: -0.1875em');
+    expect(ink).to.include('inset-block: max(0px, (1lh - 1em) / 2)');
+    expect(ruleText(accent)).to.include('--sys-button-focus-offset: 0.1em');
+    expect(ruleText(accent)).to.include('--sys-button-focus-width: 2px');
+    expect(ink).to.include('pointer-events: none');
+    expect(ink).to.include('outline-color: inherit');
+    expect(ink).to.include('outline-offset: inherit');
+    expect(ruleText(accent)).not.to.include('padding');
+    expect(ruleText(accent, ':focus-visible')).to.include('outline: 0px solid');
+    expect(ruleText(accent)).to.include(
+      '--sys-focus-forced-outline: var(--sys-button-focus-width) solid Highlight;',
+    );
+    expect(mediaRules(accent)).to.include(
+      `@media (forced-colors: active) { .${accent.className}:focus-visible::after { content: none; } }`,
+    );
+    for (const el of [neutral, custom]) {
+      expect(() => ruleText(el, pseudo)).to.throw('Missing CSS rule');
+    }
+    expect(ruleText(custom, ':focus-visible')).to.include('outline: 2px dashed red');
+  });
+
+  const geometry: { name: string; style: t.CssInput; declaration: string; state?: string }[] = [
+    {
+      name: 'self-clipping',
+      style: { overflow: 'hidden', lineHeight: '1', borderRadius: 0 },
+      declaration: 'overflow: hidden;',
+    },
+    { name: 'static', style: css({ position: 'static' }), declaration: 'position: static;' },
+    {
+      name: 'clipping on hover',
+      style: [false, { ':hover': { overflowY: 'clip' } }],
+      declaration: 'overflow-y: clip;',
+      state: ':hover',
+    },
+  ];
+  for (const { name, style, declaration, state } of geometry) {
+    it(`${name}: accent keeps its outline on the Button without overriding caller layout`, async () => {
+      using res = await TestReact.render(<Button tone='accent' style={style}>Edit</Button>);
+      const root = button(res.container);
+      expect(ruleText(root, state)).to.include(declaration);
+      expect(ruleText(root, ':focus-visible')).to.include(
+        'outline: var(--sys-button-focus-width) solid var(--sys-button-focus-rest);',
+      );
+      expect(ruleText(root)).to.include(
+        '--sys-focus-forced-outline: var(--sys-button-focus-width) solid Highlight;',
+      );
+      expect(() => ruleText(root, ':focus-visible::after')).to.throw('Missing CSS rule');
     });
   }
 
@@ -152,30 +252,28 @@ describe('Button: focus styling', () => {
     });
   }
 
-  it('template normalization preserves an explicit focus clear in nested input', async () => {
-    const res = await TestReact.render(
-      <Button
-        style={[
-          { ':focus-visible': { outline: '2px solid red' } },
-          [false, { Padding: 4, ':focus-visible': undefined }],
-        ]}
-      >
-        Run
-      </Button>,
-    );
-    try {
+  for (const tone of ['neutral', 'accent'] as const) {
+    it(`${tone}: template normalization preserves an explicit focus clear in nested input`, async () => {
+      using res = await TestReact.render(
+        <Button
+          tone={tone}
+          style={[
+            { ':focus-visible': { outline: '2px solid red' } },
+            [false, { Padding: 4, ':focus-visible': undefined }],
+          ]}
+        >
+          Run
+        </Button>,
+      );
       const root = button(res.container);
       expect(ruleText(root)).to.include('padding-top: 4px;');
       expect(ruleText(root)).not.to.include('--sys-button-focus');
       expect(ruleText(root)).not.to.include('--sys-focus');
       expect(mediaRules(root)).to.eql([]);
-      const selector = `.${root.className}:focus-visible`;
-      const items = Style.Dom.stylesheet().rules.items;
-      expect(items.some((item) => item.selector === selector)).to.eql(false);
-    } finally {
-      React.act(() => res.dispose());
-    }
-  });
+      expect(() => ruleText(root, ':focus-visible')).to.throw('Missing CSS rule');
+      expect(() => ruleText(root, ':focus-visible::after')).to.throw('Missing CSS rule');
+    });
+  }
 
   const animations: { name: string; style: t.CssValue; declaration: string }[] = [
     {
@@ -292,12 +390,27 @@ describe('Button: focus styling', () => {
     });
   }
 
+  it('spec reserves end clearance for the compact stack', async () => {
+    using res = await TestReact.render(<FocusExamples />);
+    const stack = res.container.querySelector('[aria-label="Compact text actions"]')!;
+    expect(ruleText(stack)).to.include('padding-inline-end: 6px;');
+  });
+
+  it('spec places an accent action between words in 12px prose', async () => {
+    using res = await TestReact.render(<FocusExamples />);
+    const prose = res.container.querySelector<HTMLElement>('[aria-label="Inline text action"]')!;
+    const inline = button(prose);
+    expect(inline.previousSibling?.nodeType).to.eql(3);
+    expect(inline.nextSibling?.nodeType).to.eql(3);
+    expect(ruleText(inline.parentElement!)).to.include('font-size: 12px');
+    expect(ruleText(inline, ':focus-visible::after')).to.include('position: absolute');
+  });
+
   it('spec wires native CSS to the child through a neutral wrapper without remounting it', async () => {
     let clicks = 0;
     const res = await TestReact.render(<FocusExamples onClick={() => clicks++} />);
     try {
       const roots = res.container.querySelectorAll<HTMLElement>('[role="button"]');
-      expect(roots.length).to.eql(5);
       const root = roots[3];
       expect(ruleText(root)).to.include('--run-focus: 0;');
       const focus = ruleText(root, ':focus-visible');

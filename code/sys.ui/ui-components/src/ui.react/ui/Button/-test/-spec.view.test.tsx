@@ -64,7 +64,7 @@ describe('Button spec: view', () => {
     }
   });
 
-  it('cycles single → variants → single from the debug control and persists the choice', async () => {
+  it('selects either view from Samples below the props and persists the choice', async () => {
     const debug = debugModule.createDebugSignals();
     debug.attach(host.ctx, {});
     const { Debug } = debugModule;
@@ -83,12 +83,23 @@ describe('Button spec: view', () => {
     );
     try {
       const subject = res.container.firstElementChild!;
-      const control = [...res.container.querySelectorAll<HTMLElement>('[role="button"]')]
-        .find((el) => el.textContent === 'view: single');
-      if (Is.nil(control)) throw new Error('Expected the view control.');
-      React.act(() => control.focus());
-      key(control, 'keydown', 'Enter');
-      key(control, 'keyup', 'Enter');
+      const list = res.container.lastElementChild?.querySelector('[role="list"]');
+      if (!list) throw new Error('Missing view list.');
+      const heading = list.previousElementSibling;
+      expect(heading?.textContent).to.eql('Samples');
+      const divider = heading?.previousElementSibling;
+      expect(divider?.tagName).to.eql('HR');
+      expect(divider?.previousElementSibling?.textContent).to.include('opacity:');
+      expect(list.nextElementSibling?.tagName).to.eql('HR');
+      expect(list.nextElementSibling?.nextElementSibling?.textContent).to.include('debug:');
+      const choices = [...list.querySelectorAll<HTMLElement>('[role="button"]')];
+      expect(choices.map((el) => el.textContent)).to.eql(['Single', 'Variants']);
+      const pressed = () => choices.map((el) => el.getAttribute('aria-pressed'));
+      const [single, variants] = choices;
+      expect(pressed()).to.eql(['true', 'false']);
+      React.act(() => variants.focus());
+      key(variants, 'keydown', 'Enter');
+      key(variants, 'keyup', 'Enter');
       await React.act(async () => {
         await Schedule.micro();
       });
@@ -97,9 +108,11 @@ describe('Button spec: view', () => {
       expect(stored()?.view).to.eql('variants');
       expect(debugModule.createDebugSignals().props.view.value).to.eql('variants');
 
-      key(control, 'keydown', ' ');
+      expect(pressed()).to.eql(['false', 'true']);
+      React.act(() => single.focus());
+      key(single, 'keydown', ' ');
       expect(debug.props.view.value).to.eql('variants');
-      key(control, 'keyup', ' ');
+      key(single, 'keyup', ' ');
       await React.act(async () => {
         await Schedule.micro();
       });
@@ -107,6 +120,7 @@ describe('Button spec: view', () => {
       expect(subject.querySelectorAll('[role="button"]').length).to.eql(1);
       expect(subject.firstElementChild).to.equal(button(subject as HTMLElement));
       expect(stored()?.view).to.eql('single');
+      expect(pressed()).to.eql(['true', 'false']);
     } finally {
       React.act(() => res.dispose());
     }
@@ -150,7 +164,7 @@ describe('Button spec: view', () => {
         await clickControl('(reset)');
         expect(debug.props.opacity.value).to.eql(undefined);
         expect(panel.textContent).to.include('opacity: auto');
-        if (view === 'variants') await clickControl('view: single');
+        if (view === 'variants') await clickControl('Variants');
         const buttonCount = roots().length;
         expect(buttonCount).to.be.greaterThan(0);
         const expected = (opacity: string) => Array(buttonCount).fill(opacity);

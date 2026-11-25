@@ -1,6 +1,6 @@
 import type React from 'react';
 import { Spec } from '../../-test.ui.ts';
-import { css, D, Dev, Is, LocalStorage, Obj, Signal, type t } from './common.ts';
+import { css, D, Dev, Is, LocalStorage, Obj, Signal, Str, type t } from './common.ts';
 
 const VIEWS = ['single', 'variants'] as const;
 export type DebugView = (typeof VIEWS)[number];
@@ -95,7 +95,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   return (
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>{D.name}</div>
-
       <Dev.Button
         block
         label={() => `theme: ${p.theme.value ?? '<undefined>'}`}
@@ -135,15 +134,22 @@ export const Debug: React.FC<DebugProps> = (props) => {
       />
 
       <hr />
+      <div className={Styles.title.class}>Samples</div>
+      <Dev.List
+        columns={1}
+        selected={p.view.value}
+        items={VIEWS.map((id) => ({
+          id,
+          label: Str.capitalize(id),
+          onActivate: () => p.view.value = id,
+        }))}
+      />
+
+      <hr />
       <Dev.Button
         block
         label={() => `debug: ${p.debug.value}`}
         onClick={() => Signal.toggle(p.debug)}
-      />
-      <Dev.Button
-        block
-        label={() => `view: ${p.view.value}`}
-        onClick={() => Signal.cycle<DebugView>(p.view, VIEWS)}
       />
       <Dev.Button block label='(reset)' onClick={debug.reset} />
       <Dev.ObjectView name='debug' data={Signal.toObject(p)} expand={0} style={{ marginTop: 10 }} />
