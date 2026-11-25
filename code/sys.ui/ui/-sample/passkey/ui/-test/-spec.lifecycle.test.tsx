@@ -234,6 +234,8 @@ describe('passkey cached-spec context lifetime', () => {
         }
       }
       using picker = await TestReact.render(await debugElement<DebugSignals>(host.events));
+      const context = element(picker.container, '[data-passkey-section="context"]');
+      expect(valueCell(context, 'Account service').textContent).to.eql('Configured');
       await activate(button(picker.container, 'Status'));
       expect(debug.props.view.value).to.eql('status');
       expect(button(picker.container, 'Status').getAttribute('aria-pressed')).to.eql('true');
@@ -256,6 +258,7 @@ describe('passkey cached-spec context lifetime', () => {
   it('connected picker → changing views and resetting preserve an in-flight Add', async () => {
     using native = browser();
     using server = transport(undefined, 'localhost');
+    using listeners = pageListeners();
     const held = Promise.withResolvers<void>();
     const create = native.native.create;
     native.native.create = async (options) => {
@@ -275,6 +278,8 @@ describe('passkey cached-spec context lifetime', () => {
         await React.act(() => Time.wait(0));
         return !!container.querySelector('[data-passkey-section="actions"]');
       });
+      expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
+      expect(server.fetchCount).to.eql(0);
       await activate(actionButton(container, 'sign-in'));
       const add = actionButton(container, 'add-passkey');
       await activate(add);
@@ -292,7 +297,8 @@ describe('passkey cached-spec context lifetime', () => {
       ] as const;
       for (const [control, sections] of transitions) {
         await choose(control);
-        const visible = container.querySelectorAll<HTMLElement>('[data-passkey-section]');
+        const subject = element(container, '[data-component$=":ComponentHost"]');
+        const visible = subject.querySelectorAll<HTMLElement>('[data-passkey-section]');
         expect(Array.from(visible, (el) => el.dataset.passkeySection)).to.eql(sections);
         const titleProgress = '[data-passkey-title-spinner][role="progressbar"]';
         expect(!!container.querySelector(titleProgress)).to.eql(control === 'Actions');
