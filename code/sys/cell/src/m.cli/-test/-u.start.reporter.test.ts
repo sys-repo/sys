@@ -1,15 +1,20 @@
-import { Cli, describe, expect, it, Str, stripAnsi, type t } from './common.ts';
+import { c, Cli, describe, expect, it, Str, stripAnsi, type t } from './common.ts';
 import { resolveBrowserTargets } from '../u.lifecycle/u.browser.targets.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
 import {
   formatStartHeader,
   resolveStartPresentation,
   startCellReady,
-  type StartCellRenderOptions,
   toStartResult,
 } from '../u.lifecycle/u.start.ts';
 import { serviceInput } from './u.fixture.services.ts';
-import { createHarness, keyEvent, readyBody } from './u.fixture.start-reporter.ts';
+import {
+  createHarness,
+  keyEvent,
+  readyBody,
+  readyProbe,
+  resizeFrameRows,
+} from './u.fixture.start-reporter.ts';
 
 describe('@sys/cell/cli start reporter', () => {
   describe('output policy', () => {
@@ -161,6 +166,118 @@ describe('@sys/cell/cli start reporter', () => {
       await reporter.dispose();
 
       expect(harness.effects).to.eql(['print:  body:76', 'print:\nsummary']);
+    });
+  });
+
+  describe('adaptive ready footer', () => {
+    it('sheds detail, then the footer, then protected rows without bringing rows back', async () => {
+      const width = 80;
+      await using screen = createHarness('screen', { header: 'header', controls: true });
+      screen.reporter.open();
+      screen.reporter.ready(adaptiveReadyBody());
+
+      const frameAt = (room: number) => resizeFrameRows(screen, { width, height: room + 1 });
+      const rooms = [9, 8, 7, 6, 5, 4];
+      const frames = rooms.map(frameAt);
+      const [twoDetails, oneDetail, withFooter, handoff, protectedOnly, compact] = frames;
+      const remainingFacts = ['first', 'extra', 'beta', 'second'];
+      expect(serviceFacts(twoDetails.slice(1, -2))).to.eql([
+        'alpha',
+        'line-one',
+        'line-two',
+        ...remainingFacts,
+      ]);
+      expect(serviceFacts(oneDetail.slice(1, -2))).to.eql(['alpha', 'line-one', ...remainingFacts]);
+      expect(serviceFacts(withFooter.slice(1, -2))).to.eql(['alpha', ...remainingFacts]);
+      expect(serviceFacts(compact.slice(1))).to.eql(['alpha', 'first', 'beta', 'second']);
+
+      expect(withFooter.slice(-2)).to.eql(['┄'.repeat(width), 'quit: q'.padStart(width)]);
+      expect(handoff).to.eql(withFooter.slice(0, -2));
+      expect(protectedOnly).to.eql(handoff);
+      expect(rooms.toReversed().map(frameAt)).to.eql(frames.toReversed());
+    });
+
+    it('moves the footer handoff with the protected-row preference', async () => {
+      await using screen = createHarness('screen', {
+        header: 'header',
+        controls: true,
+        preferredServiceRows: 3,
+      });
+      screen.reporter.open();
+      screen.reporter.ready(adaptiveReadyBody());
+
+      const width = 120;
+      const [withFooter, atHandoff, protectedOnly] = [6, 5, 4].map((height) =>
+        resizeFrameRows(screen, { width, height })
+      );
+      expect(withFooter.slice(-2)).to.eql(['┄'.repeat(width), 'quit: q'.padStart(width)]);
+      expect(serviceFacts(withFooter.slice(1, -2))).to.eql(['alpha', 'first', 'beta']);
+      expect(atHandoff).to.eql(withFooter.slice(0, -2));
+      expect(protectedOnly).to.eql(atHandoff);
+    });
+
+    it('leaves all available rows to services when the footer cannot fit the width', async () => {
+      const input = adaptiveReadyBody();
+      await using screen = createHarness('screen', { header: 'header', controls: true });
+      screen.reporter.open();
+      screen.reporter.ready(input);
+
+      const rows = resizeFrameRows(screen, { width: 6, height: 7 });
+      const body = stripAnsi(input.render({ width: 6, maxRows: 6 }));
+      expect(rows).to.eql(['header', ...body.split('\n')]);
+    });
+
+    it('keeps service rows and quit when a styled footer exceeds the output budget', async () => {
+      const width = 65_535;
+      const detail = Str.dedent(`
+        one
+        two
+        three
+        four
+        five
+        six
+      `);
+      const input = startCellReady([{
+        name: 'A',
+        status: { state: 'ready', details: [{ label: 'detail', value: detail }] },
+      }], false);
+      await using screen = createHarness('screen', {
+        header: '',
+        controls: true,
+        size: { width, height: 6 },
+      });
+      screen.reporter.open();
+
+      const frames = withAnsi(() => {
+        screen.reporter.ready(input);
+        const six = stripAnsi(screen.frames.at(-1) ?? '').split('\n');
+        const seven = resizeFrameRows(screen, { width, height: 7 });
+        return [six, seven];
+      });
+      expect(screen.failures).to.eql([]);
+      const bodyRows = (maxRows: number) => stripAnsi(input.render({ width, maxRows })).split('\n');
+      expect(frames).to.eql([bodyRows(6), bodyRows(7)]);
+      await screen.key(keyEvent('q'));
+      expect(screen.effects).to.contain('keyboard:quit');
+    });
+
+    it('reserves only the available service rows and lets warnings take precedence', async () => {
+      const services = ['alpha', 'beta', 'gamma'].map((name) => ({ name }));
+      const input = {
+        ...startCellReady(services, false),
+        browser: {
+          targets: [],
+          diagnostics: [{ service: 'alpha', pathname: '/missing', matches: 0 }],
+        },
+      };
+      await using screen = createHarness('screen', { header: '', controls: true });
+      screen.reporter.open();
+      screen.reporter.ready(input);
+      const withFooter = resizeFrameRows(screen, { width: 80, height: 6 });
+      const withoutFooter = resizeFrameRows(screen, { width: 80, height: 5 });
+      expect(withFooter.at(-1)?.trim()).to.eql('quit: q');
+      expect(withFooter[3]).to.contain('alpha /missing: no matching HTTP(S) URL');
+      expect(withoutFooter).to.eql(withFooter.slice(0, -2));
     });
   });
 
@@ -428,6 +545,35 @@ describe('@sys/cell/cli start reporter', () => {
   });
 });
 
+function withAnsi<T>(run: () => T): T {
+  const enabled = c.getColorEnabled();
+  try {
+    c.setColorEnabled(true);
+    return run();
+  } finally {
+    c.setColorEnabled(enabled);
+  }
+}
+
+function serviceFacts(rows: string[]) {
+  return rows.map((row) => row.trim().split(/\s+/).at(-1)?.replace('https://cell.test/', ''));
+}
+
+function adaptiveReadyBody() {
+  const urls = (paths: string[]) => paths.map((path) => ({ href: `https://cell.test/${path}` }));
+  return startCellReady([
+    {
+      name: 'alpha',
+      status: {
+        state: 'ready',
+        urls: urls(['first', 'extra']),
+        details: [{ label: 'detail', value: 'line-one\nline-two\nline-three\nline-four' }],
+      },
+    },
+    { name: 'beta', status: { state: 'ready', urls: urls(['second']) } },
+  ], false);
+}
+
 function startHeaderFixture(input: t.CellCli.Input) {
   const descriptor = { kind: 'cell', version: 1, name: 'sys.ui' } as const;
   const presentation = resolveStartPresentation(descriptor, input);
@@ -455,20 +601,4 @@ function twoServices(
     },
     presentation: { formatDetail },
   }));
-}
-
-/** Record the reporter's render options without doing layout. */
-function readyProbe() {
-  const calls: StartCellRenderOptions[] = [];
-  return {
-    calls,
-    input: {
-      ...readyBody(),
-      text: 'plain',
-      render(options: StartCellRenderOptions = {}) {
-        calls.push(options);
-        return options.hyperlinks ? 'linked' : 'rendered';
-      },
-    },
-  } as const;
 }

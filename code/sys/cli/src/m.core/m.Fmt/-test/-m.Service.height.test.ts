@@ -39,6 +39,34 @@ describe('Cli.Fmt.Service height', () => {
     }
   });
 
+  it('chooses the limit from one fit, counting authored lines but not dividers', () => {
+    let detailCalls = 0;
+    const inputs: t.CliFormat.Service.Input[] = [
+      {
+        name: 'A',
+        status: { state: 'ready', details: [{ label: 'detail', value: 'plain' }] },
+        presentation: {
+          formatDetail() {
+            detailCalls += 1;
+            return 'one\n\nthree';
+          },
+        },
+      },
+      { name: 'B' },
+    ];
+    const counts: number[] = [];
+    const text = Fmt.Service.formatList(inputs, {
+      width: 40,
+      maxRows(count) {
+        counts.push(count);
+        return count - 1;
+      },
+    });
+    expect(counts).to.eql([5]);
+    expect(detailCalls).to.eql(1);
+    expect(text).to.eql(Fmt.Service.formatList(inputs, { width: 40, maxRows: 4 }));
+  });
+
   it('promotes the first valid URL, not the first clickable or URL-looking field', () => {
     const href = 'https://example.test/long/path/with/query?q=a#top';
     const inputs: t.CliFormat.Service.Input[] = [

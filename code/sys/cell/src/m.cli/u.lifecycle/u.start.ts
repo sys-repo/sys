@@ -32,8 +32,8 @@ export type StartCellArgs = {
 export type StartCellRenderOptions = {
   /** Optional viewport width for responsive terminal presentation. */
   width?: number;
-  /** Physical body rows available after the screen reserves header and summary. */
-  maxRows?: number;
+  /** Physical body row limit, optionally chosen after fitting at the current width. */
+  maxRows?: t.Cli.Fmt.Service.Options['maxRows'];
   /** Whether final eligible service labels should use OSC 8 hyperlinks. */
   hyperlinks?: boolean;
   /** Show destination markers on the interactive ready screen only. */

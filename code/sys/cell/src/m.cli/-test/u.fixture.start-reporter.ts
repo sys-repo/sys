@@ -1,6 +1,6 @@
-import { FakeSpinner, Is, type t } from './common.ts';
+import { FakeSpinner, Is, stripAnsi, type t } from './common.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
-import { formatStartServiceBody } from '../u.lifecycle/u.start.ts';
+import { formatStartServiceBody, type StartCellRenderOptions } from '../u.lifecycle/u.start.ts';
 
 type ReporterMode = 'raw' | 'screen';
 type ScreenSize = t.Cli.Screen.Size;
@@ -16,6 +16,7 @@ type HarnessOptions = {
   onRepaint?: (frame: string) => void;
   openBrowser?: (href: string) => void;
   printError?: Error;
+  preferredServiceRows?: number;
   repaintError?: Error;
   releaseError?: Error;
   resizeOnObserve?: ScreenSize;
@@ -33,8 +34,25 @@ export function readyBody() {
   return {
     text: formatStartServiceBody(render, 80, false),
     browser: { targets: [], diagnostics: [] },
-    render: (options?: { width?: number; hyperlinks?: boolean }) => {
-      return formatStartServiceBody(render, options?.width ?? 80, false);
+    render: ({ width, maxRows }: StartCellRenderOptions = {}) => {
+      const limit = Is.func(maxRows) ? maxRows(1) : maxRows;
+      return limit === 0 ? '' : formatStartServiceBody(render, width ?? 80, false);
+    },
+  } as const;
+}
+
+/** Record the reporter's render options without doing layout. */
+export function readyProbe() {
+  const calls: StartCellRenderOptions[] = [];
+  return {
+    calls,
+    input: {
+      ...readyBody(),
+      text: 'plain',
+      render(options: StartCellRenderOptions = {}) {
+        calls.push(options);
+        return options.hyperlinks ? 'linked' : 'rendered';
+      },
     },
   } as const;
 }
@@ -86,6 +104,9 @@ export function createHarness(mode: ReporterMode, options: HarnessOptions = {}) 
     {
       isInteractive: () => true,
       isTerminal: () => options.terminal ?? true,
+      ...(options.preferredServiceRows === undefined
+        ? {}
+        : { preferredServiceRows: options.preferredServiceRows }),
       print(text) {
         effects.push(`print:${text}`);
         if (printError) throw printError;
@@ -194,6 +215,12 @@ export function createHarness(mode: ReporterMode, options: HarnessOptions = {}) 
       currentSize = size;
     },
   } as const;
+}
+
+/** Resize and read the latest frame as plain rows. */
+export function resizeFrameRows(screen: ReturnType<typeof createHarness>, size: ScreenSize) {
+  screen.resize(size);
+  return stripAnsi(screen.frames.at(-1) ?? '').split('\n');
 }
 
 /**

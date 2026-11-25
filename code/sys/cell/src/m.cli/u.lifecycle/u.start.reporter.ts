@@ -3,7 +3,7 @@ import { openBrowserTarget } from './u.browser.open.ts';
 import { mergeFailures } from './u.failure.ts';
 import { readyCommands, readyFooter } from './u.ready.commands.ts';
 import type { ShutdownSignal } from './u.shutdown.ts';
-import { type StartCellReady, startServicesText } from './u.start.ts';
+import { type StartCellReady, type StartCellRenderOptions, startServicesText } from './u.start.ts';
 
 type Mode = t.CellCli.Start.ReporterMode;
 type ResolvedMode = Exclude<Mode, 'auto'>;
@@ -37,6 +37,7 @@ export type StartReporterDeps = {
   spinner: (target?: t.Cli.Spinner.OutputTarget) => Spinner;
   interval: (run: () => void) => () => void;
   openBrowser: (href: t.StringUrl) => void;
+  preferredServiceRows: number;
   bindKeyboard: typeof Cli.Keyboard.bind;
   shutdownKeyboard: typeof Cli.Keyboard.shutdown;
 };
@@ -80,6 +81,7 @@ const DEFAULT_DEPS: StartReporterDeps = {
     return () => globalThis.clearInterval(id);
   },
   openBrowser: openBrowserTarget,
+  preferredServiceRows: 5,
   bindKeyboard: Cli.Keyboard.bind,
   shutdownKeyboard: Cli.Keyboard.shutdown,
 };
@@ -192,19 +194,38 @@ function createScreen(
     // Completion facts outrank service-body rows; content outranks decorative spacing.
     const visibleSummary = summaryRows.slice(0, capacity);
     const bodyBudget = capacity - visibleSummary.length;
-    // The service formatter selects the content; the final slice only bounds the frame.
-    const bodyOptions = {
-      width: viewport.width,
-      maxRows: bodyBudget,
-      hyperlinks,
-      urlMarkers: phase === 'ready',
+    const ready = phase === 'ready';
+    const candidate = ready && keysActive() && commands
+      ? readyFooter(viewport.width, commands.canOpen)
+      : undefined;
+    const footerRows = candidate?.rowCount ?? 0;
+    const readyWarnings = ready ? commands?.warnings(bodyBudget) ?? [] : [];
+    const afterWarnings = bodyBudget - readyWarnings.length;
+    const allocate = (contentRows: number) => {
+      const protectedRows = Math.min(contentRows, deps.preferredServiceRows, bodyBudget);
+      const showFooter = protectedRows + footerRows <= afterWarnings;
+      // At the handoff, leave the released row unused instead of reviving a detail.
+      return { showFooter, maxRows: showFooter ? afterWarnings - footerRows : protectedRows };
     };
-    const body = phase === 'ready' || phase === 'complete' || phase === 'failed'
+    // An empty service list has nothing to fit and does not call the row-limit selector.
+    let allocation = candidate ? allocate(0) : undefined;
+    const bodyOptions: StartCellRenderOptions = {
+      width: viewport.width,
+      maxRows: allocation
+        ? (contentRows) => {
+          allocation = allocate(contentRows);
+          return allocation.maxRows;
+        }
+        : bodyBudget,
+      hyperlinks,
+      urlMarkers: ready,
+    };
+    const body = ready || phase === 'complete' || phase === 'failed'
       ? rowsOf(renderBody?.(bodyOptions) ?? '')
       : [];
-    const visibleBody = body.slice(0, bodyBudget);
+    const visibleBody = body.slice(0, allocation?.maxRows ?? bodyBudget);
     const remaining = bodyBudget - visibleBody.length;
-    const warnings = phase === 'ready' ? commands?.warnings(remaining) ?? [] : [];
+    const warnings = readyWarnings.slice(0, remaining);
     let spacingBudget = remaining - warnings.length;
 
     const separateBodySummary = visibleBody.length > 0 &&
@@ -212,11 +233,13 @@ function createScreen(
       spacingBudget > 0;
     if (separateBodySummary) spacingBudget -= 1;
 
-    const footer = phase === 'ready' && keysActive() && commands
-      ? readyFooter(viewport.width, spacingBudget, commands.canOpen)
+    const footer = candidate && allocation?.showFooter && phase === 'ready' && keysActive()
+      ? candidate.render()
       : [];
     const hasVisibleContent = visibleBody.length + visibleSummary.length + warnings.length > 0;
-    const separateHeader = header.length > 0 && hasVisibleContent && spacingBudget > footer.length;
+    // Do not replace a height-hidden footer with a header gap on the handoff frame.
+    const separateHeader = header.length > 0 && hasVisibleContent &&
+      (!allocation || footer.length > 0) && spacingBudget > footer.length;
     const rows = [
       ...header,
       ...(separateHeader ? [''] : []),

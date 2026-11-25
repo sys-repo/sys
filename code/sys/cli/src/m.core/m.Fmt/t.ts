@@ -178,9 +178,11 @@ export declare namespace CliFormat {
       /**
        * Limit physical output rows, retaining service titles before URLs and other details.
        * Omit for full output. Fractions round down; negative or non-finite limits show no rows.
+       * For a nonempty fit, a callback can choose the limit from the fitted row count once,
+       * before decorative rules are added.
        * Hidden rows still undergo normal formatting and validation.
        */
-      maxRows?: number;
+      maxRows?: number | ((contentRows: number) => number);
       /** Override stdout terminal detection. Without width, non-terminal output has no width limit. */
       terminal?: boolean;
       /**

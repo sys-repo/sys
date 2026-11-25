@@ -101,7 +101,7 @@ describe('@sys/cell/cli start reporter keyboard', () => {
       await harness.reporter.dispose();
     });
 
-    it('never displaces service rows to show controls', async () => {
+    it('does not displace protected service rows to show controls', async () => {
       const cases = [
         {
           size: { width: 20, height: 2 },
@@ -170,7 +170,6 @@ describe('@sys/cell/cli start reporter keyboard', () => {
       harness.resize({ width: 80, height: 4 });
       expect(frame()).to.eql(Str.dedent(`
         header:80
-
           body:76
           view /absent: no matching HTTP(S) URL
       `));

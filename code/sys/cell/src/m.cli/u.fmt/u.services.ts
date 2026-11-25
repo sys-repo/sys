@@ -4,7 +4,7 @@ import { Cli, Fs, Is, type t } from '../common.ts';
 type ServicesStartedOptions = {
   readonly services: readonly t.Cli.Fmt.Service.Input[];
   readonly width?: number;
-  readonly maxRows?: number;
+  readonly maxRows?: t.Cli.Fmt.Service.Options['maxRows'];
   readonly terminal?: boolean;
   readonly hyperlinks?: boolean;
 };

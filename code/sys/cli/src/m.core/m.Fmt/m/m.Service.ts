@@ -75,7 +75,7 @@ export function formatListWith(
   const width = resolveWidth(deps, options);
   if (width === 0) return '';
   const links = run(() => options.urlHyperlinks === true);
-  const maxRows = normalizedRowLimit(run(() => options.maxRows));
+  const rowLimit = run(() => options.maxRows);
   const budget = createBudget();
   const link = deps.hyperlink ?? encodeHyperlink;
   const compose = deps.text ?? composeServiceText;
@@ -99,6 +99,9 @@ export function formatListWith(
   const fitted = sections.map((section) => ({ ...section, rows: section.rows.map(fitRow) }));
   const sectionLines = ({ rows }: ServiceSection<FittedRow>) => rows.flatMap((row) => row.lines);
   const contentRows = budget.lineCount;
+  const maxRows = normalizedRowLimit(
+    Is.func(rowLimit) ? run(() => rowLimit(contentRows)) ?? 0 : rowLimit,
+  );
   const dividers = Math.min(count - 1, Math.max(0, maxRows - contentRows));
   let rule = '';
   if (count > 1) {
