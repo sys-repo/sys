@@ -1,4 +1,4 @@
-import { type t, Time } from '../../-test.ts';
+import { type t, Time } from './common.ts';
 import { serviceStatusOf } from '../../m.cell/u.services/u.status.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 
