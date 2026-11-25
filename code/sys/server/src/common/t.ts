@@ -8,6 +8,7 @@ export type { Fs, FsRooted, Pkg as FsPkg } from '@sys/fs/t';
 export type { HttpFetch, HttpPull, HttpServer } from '@sys/http/t';
 export type { Files } from '@sys/model/files/t';
 export type { FilesStatic } from '@sys/model/files/static/t';
+export type { Process } from '@sys/process/t';
 
 /**
  * @local

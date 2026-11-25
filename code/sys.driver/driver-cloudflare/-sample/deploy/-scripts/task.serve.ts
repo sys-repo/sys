@@ -1,23 +1,36 @@
-import { Fs, ROOT } from './common.ts';
+import { Process } from '@sys/process';
+import { Fs, ROOT, type t } from './common.ts';
 import { SampleService } from './service.ts';
 import { runTask } from './u.task.ts';
 
-/**
- * Start the local server after verifying the private manifest.
- */
-Deno.exitCode = await runTask('serve', async () => {
-  const stopping = new AbortController();
-  await using server = await SampleService.start({
-    cwd: ROOT,
-    paths: { config: Fs.join(ROOT, 'r2.config.json') },
-    until: stopping.signal,
-  });
+type OwnedServer = AsyncDisposable & Pick<t.HttpServer.Started, 'finished'>;
 
-  const stop = () => stopping.abort('SIGINT');
+/** Own the local server until it finishes, with a required interrupt subscription. */
+export async function serveWith(
+  start: (until: AbortSignal) => Promise<OwnedServer>,
+  onSignal: typeof Process.Signal.on,
+) {
+  const stopping = new AbortController();
+  await using server = await start(stopping.signal);
+  const subscription = onSignal('SIGINT', () => stopping.abort('SIGINT'));
+  if (subscription.kind === 'unsupported') {
+    throw new Error('Sample serve requires a SIGINT subscription.');
+  }
+
   try {
-    Deno.addSignalListener('SIGINT', stop);
     await server.finished;
   } finally {
-    Deno.removeSignalListener('SIGINT', stop);
+    subscription.dispose();
   }
-});
+}
+
+function startSample(until: AbortSignal) {
+  const config = Fs.join(ROOT, 'r2.config.json');
+  return SampleService.start({ cwd: ROOT, paths: { config }, until });
+}
+
+if (import.meta.main) {
+  const serve = () => serveWith(startSample, Process.Signal.on);
+  const exitCode = await runTask('serve', serve);
+  Deno.exitCode = exitCode;
+}

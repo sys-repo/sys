@@ -2,6 +2,7 @@ import { describe, expect, it, Net, Rx, type t, Testing, Time } from '../../-tes
 import { WebSocketServer } from '../mod.ts';
 import { create } from '../u/u.create.ts';
 import { bindKeyboardWith } from '../u/u.keyboard.ts';
+import { startWith } from '../u/u.start.ts';
 import { Fixture } from './u.fixture.ts';
 
 describe('WebSocketServer/lifecycle', () => {
@@ -21,6 +22,58 @@ describe('WebSocketServer/lifecycle', () => {
     }
 
     expect(server.status().state).to.eql('stopped');
+  });
+
+  it('default and explicit manual lifecycle → no OS subscriptions', async () => {
+    const attempts: t.Process.Signal.Name[] = [];
+    const onSignal: t.Process.Signal.Lib['on'] = (name) => {
+      attempts.push(name);
+      return { kind: 'unsupported' };
+    };
+    for (const lifecycle of [undefined, 'manual'] as const) {
+      await startHosted(lifecycle, onSignal).close('test.cleanup');
+    }
+    expect(attempts).to.eql([]);
+  });
+
+  for (const unavailable of ['unsupported', 'throw'] as const) {
+    it(`SIGINT registration ${unavailable} → SIGTERM still closes the hosted server`, async () => {
+      const attempts: t.Process.Signal.Name[] = [];
+      let terminate: (() => void) | undefined;
+      let released = 0;
+      await using server = startHosted('process', (name, handler) => {
+        attempts.push(name);
+        if (name === 'SIGTERM') {
+          terminate = handler;
+          return { kind: 'attached', dispose: () => released++ };
+        }
+        if (unavailable === 'throw') throw new Error('SIGINT registration failed');
+        return { kind: 'unsupported' };
+      });
+
+      expect(attempts).to.eql(['SIGINT', 'SIGTERM']);
+      expect(released).to.eql(0);
+      terminate?.();
+      await server.close('test.cleanup');
+      expect(server.signal.reason).to.eql('signal:SIGTERM');
+      expect(server.status().state).to.eql('stopped');
+      expect(released).to.eql(1);
+    });
+  }
+
+  it('hosted close → releases every attached subscription even if one disposer throws', async () => {
+    const released: t.Process.Signal.Name[] = [];
+    const release = (name: t.Process.Signal.Name) => {
+      released.push(name);
+      if (released.length === 1) throw new Error('First signal release failed');
+    };
+    await using server = startHosted('process', (name) => ({
+      kind: 'attached',
+      dispose: () => release(name),
+    }));
+    await server.close('test.cleanup');
+    expect(server.status().state).to.eql('stopped');
+    expect(released.toSorted()).to.eql(['SIGINT', 'SIGTERM']);
   });
 
   it('defers explicit process exit until owned keyboard shutdown completes', async () => {
@@ -498,6 +551,13 @@ describe('WebSocketServer/lifecycle', () => {
     }
   });
 });
+
+function startHosted(
+  lifecycle: t.WebSocketServer.Lifecycle | undefined,
+  onSignal: t.Process.Signal.Lib['on'],
+) {
+  return startWith({ lifecycle, silent: true, keyboard: false, cmd: { handlers: {} } }, onSignal);
+}
 
 function createWithKeyboard(handle: t.Cli.Keyboard.Bind.Handle) {
   return create(
