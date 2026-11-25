@@ -11,7 +11,6 @@ os-signal-subscription.plan.md
 - [x] d28c27405 feat(process): add Process.Signal.on and prove it in the Cell Vite fixture
 - [x] 2099a68b4 refactor(cli): adopt Process.Signal.on in CLI and Cell
 - [x] 444357263 refactor(server): adopt Process.Signal.on for hosted shutdown
-- [ ] refactor(cell): delegate sample launcher process and terminal lifecycle
 
 
 @sys.cell
