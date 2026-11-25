@@ -1,6 +1,7 @@
 import { EventEmitter } from 'node:events';
 import { KeyPressEvent } from '@cliffy/keypress';
 import { describe, Err, expect, it, type t, Time } from '../../../-test.ts';
+import { bindKeyboardInput } from '../../../m.testing/mod.ts';
 import { Keyboard } from '../mod.ts';
 import type { KeyboardInputDependencies, KeyboardInputStream } from '../t.input.ts';
 import { bindWith } from '../u.bind.ts';
@@ -186,6 +187,50 @@ describe('CLI: core / Keyboard input ownership', () => {
     fixture.assertReleased();
   });
 
+  it('release retry before settlement → lifecycle fulfills and retains the observed error', async () => {
+    const fixture = inputFixture();
+    const handle = bindKeyboardInput({ onQuit() {} }, fixture.deps);
+    fixture.fail('off:data');
+    let first: unknown;
+    try {
+      handle.dispose();
+    } catch (cause) {
+      first = cause;
+    }
+    expect(first).to.have.property('message', 'Keyboard disposal failed.');
+    const shutdown = Keyboard.shutdown(handle);
+    fixture.flush();
+    await shutdown;
+    await handle.finished;
+    fixture.assertReleased();
+    expect(handle.releaseFailure).to.equal(first);
+  });
+
+  it('listener and release both fail → shutdown preserves both errors after recovery', async () => {
+    const fixture = inputFixture();
+    const handle = bindKeyboardInput({
+      onQuit() {},
+      onKey() {
+        throw new Error('key callback failed');
+      },
+    }, fixture.deps);
+    fixture.fail('off:error');
+    fixture.emit('r');
+    await fixture.scheduled;
+    fixture.flush();
+    const { result: listener } = await Err.Try.run(() => handle.finished);
+    expect(listener.error).to.have.property('message', 'Keyboard listener failed.');
+    const release = handle.releaseFailure;
+    expect(release).to.have.property('message', 'Keyboard disposal failed.');
+
+    const retry = Keyboard.shutdown(handle);
+    fixture.flush();
+    const { result } = await Err.Try.run(() => retry);
+    expect(result.error).to.equal(listener.error);
+    expect(handle.releaseFailure).to.equal(release);
+    fixture.assertReleased();
+  });
+
   it('public shutdown retry awaits release after an earlier deferred failure', async () => {
     const fixture = inputFixture();
     const owner = createInput(fixture.deps);
@@ -216,6 +261,7 @@ describe('CLI: core / Keyboard input ownership', () => {
     const result = await retried;
     expect(result.ok).to.eql(false);
     expect(result.error).to.equal(initial.error);
+    expect(handle.releaseFailure).to.equal(initial.error);
     expect(handle.finished).to.equal(originalFinished);
     fixture.assertReleased();
   });

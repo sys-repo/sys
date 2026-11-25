@@ -94,6 +94,7 @@ export function bindWith(
   let finishedSettled = false;
   let listenerFailure: Error | undefined;
   let disposalFailure: Error | undefined;
+  let firstReleaseFailure: Error | undefined;
   let resolve!: () => void;
   let reject!: (error: unknown) => void;
   let finished: Promise<void>;
@@ -118,6 +119,11 @@ export function bindWith(
   const recordListenerFailure = (message: string) => {
     listenerFailure ??= new Error(message);
   };
+  const recordReleaseFailure = () => {
+    firstReleaseFailure ??= new Error('Keyboard disposal failed.');
+    disposalFailure = firstReleaseFailure;
+    return firstReleaseFailure;
+  };
 
   // Stop request, lower disposal acceptance, and listener settlement are separate facts. A request
   // gates new work immediately, while a failed lower disposal remains retryable.
@@ -128,8 +134,7 @@ export function bindWith(
       if (disposalAccepted && (!keys.finished || keys.disposed)) return;
       if (!keys.disposed) keys.dispose();
     } catch {
-      const error = new Error('Keyboard disposal failed.');
-      disposalFailure = error;
+      const error = recordReleaseFailure();
       settleFinished();
       throw error;
     }
@@ -171,9 +176,9 @@ export function bindWith(
       try {
         await attempt;
       } catch {
-        disposalFailure ??= new Error('Keyboard disposal failed.');
+        recordReleaseFailure();
       }
-      if (keys.releaseFailure) disposalFailure ??= new Error('Keyboard disposal failed.');
+      if (keys.releaseFailure) recordReleaseFailure();
       const failure = keys.takeInputFailure?.();
       if (failure) await reportListenerFailure(KeyboardIs.unavailableError(failure.cause));
     } while (attempt !== keys.finished);
@@ -250,7 +255,13 @@ export function bindWith(
     throw bindingError();
   }
 
-  const handle = { dispose, finished };
+  const handle = {
+    dispose,
+    finished,
+    get releaseFailure() {
+      return firstReleaseFailure;
+    },
+  };
   let joining: Promise<void> | undefined;
   const joinShutdown = async () => {
     let priorFailure: unknown;

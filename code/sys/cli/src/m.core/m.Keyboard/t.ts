@@ -34,8 +34,8 @@ export declare namespace CliKeyboard {
 
     /**
      * Request disposal and await this binding's callbacks and current input-release attempt.
-     * A later call can retry failed release, but retains the original lifecycle failure.
-     * Rejection does not prove successful cleanup. Never await this inside the binding's callback.
+     * A retry can release input and still reject with the original lifecycle failure.
+     * Never await shutdown inside this binding's callback.
      */
     shutdown(handle: Bind.Handle): Promise<void>;
   };
@@ -118,6 +118,8 @@ export declare namespace CliKeyboard {
      */
     export type Handle = t.DisposableLike & t.WaitableHandle & {
       readonly finished: Promise<void>;
+      /** First release error this binding observed, retained even after input is released. */
+      readonly releaseFailure?: Error;
     };
   }
 }
