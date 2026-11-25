@@ -44,9 +44,10 @@ function statusFromHandle(handle: unknown): t.Service.Status | undefined {
   if (!Is.func(handle.status)) return undefined;
 
   try {
-    const status = handle.status();
-    if (isServiceStatus(status)) return status;
-    return statusReadError(new TypeError('service status() returned an invalid status snapshot'));
+    const status = captureStatus(handle.status());
+    return status ?? statusReadError(
+      new TypeError('service status() returned an invalid status snapshot'),
+    );
   } catch (cause) {
     return statusReadError(cause);
   }
@@ -56,25 +57,50 @@ function statusReadError(cause: unknown): t.Service.Status {
   return { state: 'error', error: Err.std(cause) };
 }
 
-function isServiceStatus(value: unknown): value is t.Service.Status {
-  if (!Is.record(value)) return false;
-  if (!isServiceState(value.state)) return false;
-  if (!isOptionalString(value.name)) return false;
-  if (!isOptionalString(value.kind)) return false;
-  if (!isOptionalString(value.root)) return false;
-  if (!isOptionalString(value.config)) return false;
-  if (!isOptionalArray(value.urls, isServiceUrl)) return false;
-  if (!isOptionalArray(value.details, isServiceDetail)) return false;
-  if (value.error !== undefined && !Is.stdError(value.error)) return false;
-  return true;
+function captureStatus(value: unknown): t.Service.Status | undefined {
+  if (!Is.record(value)) return undefined;
+  const state = value.state;
+  if (!isServiceState(state)) return undefined;
+  const name = value.name;
+  if (!isOptionalString(name)) return undefined;
+  const kind = value.kind;
+  if (!isOptionalString(kind)) return undefined;
+  const root = value.root;
+  if (!isOptionalString(root)) return undefined;
+  const config = value.config;
+  if (!isOptionalString(config)) return undefined;
+
+  const published = value.urls;
+  const urls = published === undefined ? undefined : captureUrls(published);
+  if (published !== undefined && urls === undefined) return undefined;
+  const details = value.details;
+  if (!isOptionalArray(details, isServiceDetail)) return undefined;
+  const error = value.error;
+  if (error !== undefined && !Is.stdError(error)) return undefined;
+
+  // Keep owner detail identities for presentation, but share only Cell-owned URL values.
+  return { state, name, kind, root, config, urls, details, error };
+}
+
+/** Validate exactly the indexed facts retained, independent of owner array methods. */
+function captureUrls(value: unknown): readonly t.Service.Url[] | undefined {
+  if (!Is.array<unknown>(value)) return undefined;
+  const urls: t.Service.Url[] = [];
+  const length = value.length;
+  for (let index = 0; index < length; index += 1) {
+    const item = value[index];
+    if (!Is.record(item)) return undefined;
+    const href = item.href;
+    if (!Is.str(href)) return undefined;
+    const label = item.label;
+    if (!isOptionalString(label)) return undefined;
+    urls.push(label === undefined ? { href } : { href, label });
+  }
+  return urls;
 }
 
 function isServiceState(value: unknown): value is t.Service.State {
   return Is.str(value) && SERVICE_STATES.includes(value as t.Service.State);
-}
-
-function isServiceUrl(value: unknown): value is t.Service.Url {
-  return Is.record(value) && Is.str(value.href) && isOptionalString(value.label);
 }
 
 function isServiceDetail(value: unknown): value is t.Service.Detail {

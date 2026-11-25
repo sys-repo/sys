@@ -114,6 +114,48 @@ describe(`Cell.Schema`, () => {
   });
 
   describe('services', () => {
+    it('accepts an optional browser pathname or nonempty list on the logical service', () => {
+      const services = [
+        service('worker'),
+        { ...service('view'), browser: '/', variants: { dev: serviceVariant() } },
+        { ...service('proxy'), browser: ['/payments/', '//reports', '/%2F'] },
+      ];
+      const result = CellSchema.Descriptor.validate({ kind: 'cell', version: 1, services });
+      expect(result).to.eql({ ok: true, errors: [] });
+    });
+
+    it('rejects invalid browser selectors and variant-local declarations', () => {
+      const invalid = [
+        true,
+        false,
+        null,
+        '',
+        [],
+        [42],
+        ['/', 'relative'],
+        { label: 'root' },
+        'https://example.test/',
+        '/?query',
+        '/#fragment',
+        '/back\\slash',
+        '/\n',
+        '/\u007f',
+        '/\u009f',
+      ];
+      for (const browser of invalid) {
+        const services = [{ ...service('view'), browser }];
+        const result = CellSchema.Descriptor.validate({ kind: 'cell', version: 1, services });
+        const prefix = '/services/0/browser';
+        const hasIssue = result.errors.some(({ path }) => path.startsWith(prefix));
+        expect(hasIssue, String(browser)).to.eql(true);
+      }
+
+      const variants = { dev: { ...serviceVariant(), browser: '/' } };
+      const services = [{ ...service('view'), variants }];
+      const result = CellSchema.Descriptor.validate({ kind: 'cell', version: 1, services });
+      expect(result.errors.map(({ path }) => path)).to.include('/services/0/variants/dev/browser');
+    });
+
     it('rejects invalid service IDs', () => {
       const cases = [
         'Bad',

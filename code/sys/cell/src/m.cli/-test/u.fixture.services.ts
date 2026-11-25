@@ -1,4 +1,5 @@
 import { type t, Time } from '../../-test.ts';
+import { serviceStatusOf } from '../../m.cell/u.services/u.status.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
 
 export type ServiceOptions = {
@@ -37,5 +38,6 @@ export function startedService(options: ServiceOptions = {}): t.Cell.Services.St
 }
 
 export function serviceInput(options: ServiceOptions = {}): t.Cli.Fmt.Service.Input {
-  return Fmt.Services.capture([startedService(options)])[0];
+  const started = startedService(options);
+  return Fmt.Services.capture(serviceStatusOf(started), started.handle);
 }

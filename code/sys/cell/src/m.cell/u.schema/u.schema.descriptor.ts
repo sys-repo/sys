@@ -5,6 +5,7 @@ const T = Schema.Type;
 const Id = T.String({ pattern: IdPattern });
 const CellPath = T.String({ pattern: RelativePathPattern });
 const Timeout = T.Integer({ minimum: 1 });
+const BrowserPathname = T.String({ pattern: String.raw`^/[^?#\\\x00-\x1f\x7f-\x9f]*$` });
 
 const EndpointSelector = {
   use: T.String({ pattern: EndpointNamePattern }),
@@ -28,6 +29,7 @@ const Service = T.Object(
     config: CellPath,
     timeout: T.Optional(Timeout),
     startAfter: T.Optional(T.Array(Id)),
+    browser: T.Optional(T.Union([BrowserPathname, T.Array(BrowserPathname, { minItems: 1 })])),
     variants: T.Optional(T.Record(Id, ServiceBinding)),
   },
   { additionalProperties: false },

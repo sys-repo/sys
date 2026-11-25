@@ -30,7 +30,7 @@ export const HttpOwner: t.Cell.Services.LifecycleEndpoint = {
       HttpFixture.reads += 1;
       const snapshot = status();
       HttpFixture.details = snapshot.details ?? [];
-      return snapshot;
+      return HttpFixture.projectStatus?.(snapshot) ?? snapshot;
     };
     HttpFixture.server = server;
     HttpFixture.silent = args.silent;
@@ -43,6 +43,7 @@ export const HttpFixture: {
   server?: THttpServer.Started;
   silent?: boolean;
   failure?: unknown;
+  projectStatus?: (snapshot: t.Service.Status) => t.Service.Status;
   reads: number;
   details: readonly t.Service.Detail[];
   calls: (Parameters<t.Cli.Fmt.Service.FormatDetail>[0] & { receiver: unknown })[];
@@ -56,6 +57,7 @@ export const HttpFixture: {
     this.server = undefined;
     this.silent = undefined;
     this.failure = undefined;
+    this.projectStatus = undefined;
     this.reads = 0;
     this.details = [];
     this.calls = [];

@@ -28,6 +28,20 @@ describe('Cell.Services.status', () => {
     expect(status.owner?.urls?.[0]?.href).to.eql('http://127.0.0.1:4321/view/');
   });
 
+  it('retains only validated URL facts, without changing detail identity', () => {
+    const url = { href: 'https://example.test/', label: 'published' };
+    const urls = [url];
+    const detail = { label: 'dist', value: 'dist/' };
+    const handle = { status: () => ({ state: 'ready', urls, details: [detail] }) };
+    const { owner } = serviceStatusOf(startedService({ handle }));
+
+    url.href = 'https://changed.test/';
+    url.label = 'changed';
+    urls.length = 0;
+    expect(owner?.urls).to.eql([{ href: 'https://example.test/', label: 'published' }]);
+    expect(owner?.details?.[0]).to.equal(detail);
+  });
+
   it('does not probe owner-specific handle fields when status() is absent', () => {
     const status = serviceStatusOf(startedService({
       handle: {
@@ -66,6 +80,27 @@ describe('Cell.Services.status', () => {
     expect(statuses[0].owner?.error?.message).to.contain('boom');
     expect(statuses[1].owner?.state).to.eql('error');
     expect(statuses[1].owner?.error?.message).to.contain('invalid status snapshot');
+  });
+
+  it('keeps invalid or throwing URL entries inside the status error boundary', () => {
+    const cases = [
+      { url: { href: 'https://example.test/', label: 123 }, message: 'invalid status snapshot' },
+      {
+        url: {
+          get href() {
+            throw new Error('href read failed');
+          },
+        },
+        message: 'href read failed',
+      },
+    ];
+    for (const { url, message } of cases) {
+      const handle = { status: () => ({ state: 'ready', urls: [url] }) };
+      const { owner } = serviceStatusOf(startedService({ handle }));
+      expect(owner?.state).to.eql('error');
+      expect(owner?.urls).to.eql(undefined);
+      expect(owner?.error?.message).to.contain(message);
+    }
   });
 });
 

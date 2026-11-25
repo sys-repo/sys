@@ -470,6 +470,8 @@ export declare namespace Cell {
 
     /** Service resolved through `use` + `from` and service-owned `config`. */
     export type Service = SelectedService & {
+      /** Published pathnames to open with `o` on the Cell ready screen; never on startup. */
+      browser?: t.StringUrlRoute | readonly t.StringUrlRoute[];
       /** Optional alternative bindings selected by explicit service graph mode. */
       variants?: Record<Id, ServiceVariant>;
     };

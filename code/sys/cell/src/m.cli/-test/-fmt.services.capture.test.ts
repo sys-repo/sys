@@ -1,7 +1,7 @@
 import { describe, expect, Fs, it, type t, Testing } from '../../-test.ts';
 import { Cli, stripAnsi } from '../common.ts';
 import { Fmt } from '../u.fmt/u.mod.ts';
-import { serviceInput, startedService } from './u.fixture.services.ts';
+import { serviceInput } from './u.fixture.services.ts';
 
 const render = (services: readonly t.Cli.Fmt.Service.Input[], width?: number) => {
   return Fmt.Services.started({ services, width, terminal: false });
@@ -92,7 +92,7 @@ describe('@sys/cell/cli service presentation capture', () => {
         };
       },
     };
-    const services = Fmt.Services.capture([startedService({ handle })]);
+    const services = [serviceInput({ handle })];
     expect(calls).to.eql([]);
     const captured = services[0].status;
     expect(captured?.root).to.eql('./view');

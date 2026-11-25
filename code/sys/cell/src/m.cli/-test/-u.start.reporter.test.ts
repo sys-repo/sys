@@ -1,6 +1,5 @@
 import { describe, expect, it, Str } from '../../-test.ts';
 import { Cli, stripAnsi, type t } from '../common.ts';
-import { Fmt } from '../u.fmt/u.mod.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
 import {
   formatStartHeader,
@@ -9,7 +8,7 @@ import {
   type StartCellRenderOptions,
   toStartResult,
 } from '../u.lifecycle/u.start.ts';
-import { startedService } from './u.fixture.services.ts';
+import { serviceInput } from './u.fixture.services.ts';
 import { createHarness, readyBody } from './u.fixture.start-reporter.ts';
 
 describe('@sys/cell/cli start reporter', () => {
@@ -200,7 +199,7 @@ describe('@sys/cell/cli start reporter', () => {
         status: () => status,
         servicePresentation: { formatDetail: () => 'one\n\n' },
       };
-      const services = Fmt.Services.capture([startedService({ handle })]);
+      const services = [serviceInput({ handle })];
       const input = startCellReady(services, false);
       const wide = stripAnsi(input.render({ width: 80 }));
       const narrow = stripAnsi(input.render({ width: 32 }));
@@ -371,7 +370,7 @@ describe('@sys/cell/cli start reporter', () => {
       const reporter = harness.reporter;
 
       reporter.open();
-      reporter.ready({ text: 'body-too-long', render: () => 'body-too-long' });
+      reporter.ready({ ...readyBody(), text: 'body-too-long', render: () => 'body-too-long' });
       reporter.complete('summary');
 
       const frame = harness.frames.at(-1) ?? '';
@@ -421,6 +420,7 @@ function readyProbe() {
   return {
     calls,
     input: {
+      ...readyBody(),
       text: 'plain',
       render(options: StartCellRenderOptions = {}) {
         calls.push(options);

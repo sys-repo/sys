@@ -1,4 +1,4 @@
-import { serviceStatusOf } from '../../m.cell/u.services/u.status.ts';
+import type { StartedServiceStatus } from '../../m.cell/u.services/u.status.ts';
 import { Cli, Fs, Is, type t } from '../common.ts';
 
 type ServicesStartedOptions = {
@@ -11,9 +11,7 @@ type ServicesStartedOptions = {
 
 /** Capture Cell's display policy once; leave layout and detail fitting to the shared renderer. */
 export const FmtServices = Object.freeze({
-  capture(services: readonly t.Cell.Services.StartedService[]): readonly t.Cli.Fmt.Service.Input[] {
-    return services.map(captureService);
-  },
+  capture: captureService,
   started(options: ServicesStartedOptions): string {
     return Cli.Fmt.Service.formatList(options.services, {
       width: options.width,
@@ -25,8 +23,8 @@ export const FmtServices = Object.freeze({
 });
 
 /** Preserve selected identity and copy render-consumed facts without changing the owner snapshot. */
-function captureService(started: t.Cell.Services.StartedService): t.Cli.Fmt.Service.Input {
-  const { service, selection, owner } = serviceStatusOf(started);
+function captureService(snapshot: StartedServiceStatus, handle: unknown): t.Cli.Fmt.Service.Input {
+  const { service, selection, owner } = snapshot;
   const identity = {
     name: service.name,
     module: service.from,
@@ -34,7 +32,7 @@ function captureService(started: t.Cell.Services.StartedService): t.Cli.Fmt.Serv
   };
   if (!owner) return identity;
 
-  const urls = owner.urls?.map(({ href }) => ({ href }));
+  const urls = owner.urls;
   const sources = new Map<t.Service.Detail, t.Service.Detail>();
   const details: t.Service.Detail[] = [];
   for (const source of owner.details ?? []) {
@@ -53,7 +51,7 @@ function captureService(started: t.Cell.Services.StartedService): t.Cli.Fmt.Serv
     ...(error ? { error: { name: error.name, message: error.message } } : {}),
   };
   // A capability is irrelevant when no owner detail survives Cell's projection.
-  const format = details.length > 0 ? presentationOf(started.handle) : undefined;
+  const format = details.length > 0 ? presentationOf(handle) : undefined;
   const presentation: t.Cli.Fmt.Service.Presentation | undefined = format
     ? {
       formatDetail({ detail, maxWidth }) {

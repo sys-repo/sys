@@ -142,7 +142,7 @@ describe('@sys/cell/cli start reporter cleanup', () => {
       harness.resize({ width: 40, height: 10 });
       reporter.redraw();
       reporter.starting(1);
-      reporter.ready({ text: 'body', render: () => 'body' });
+      reporter.ready(readyBody());
       reporter.complete('summary');
 
       expect(harness.effects).to.eql(settled);

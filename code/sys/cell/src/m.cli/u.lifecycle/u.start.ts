@@ -1,4 +1,5 @@
 import { Cell } from '../../m.cell/mod.ts';
+import { serviceStatusOf } from '../../m.cell/u.services/u.status.ts';
 import { c, Cli, CliTable, Is, Num, Pkg, Str, type t, Time } from '../common.ts';
 import { smallCountText } from '../u.fmt/u.count.ts';
 import { elapsedSuffix } from '../u.fmt/u.elapsed.ts';
@@ -6,6 +7,7 @@ import { Fmt } from '../u.fmt/u.mod.ts';
 import { FmtPath } from '../u.fmt/u.path.ts';
 import { canonicalRoot } from '../u/u.root.ts';
 import { CellSession } from '../u/u.session.ts';
+import { type BrowserTargets, resolveBrowserTargets } from './u.browser.targets.ts';
 import { mergeFailures } from './u.failure.ts';
 import { createShutdownSignal, type ShutdownReason, type ShutdownSignal } from './u.shutdown.ts';
 
@@ -42,6 +44,8 @@ export type StartCellReady = {
   readonly text: string;
   /** Re-renders the same body for an explicit presentation context. */
   readonly render: (options?: StartCellRenderOptions) => string;
+  /** Browser destinations and selection diagnostics from the same ready snapshot. */
+  readonly browser: BrowserTargets;
 };
 
 /** Effect-free terminal result from one Cell service-start lifecycle. */
@@ -98,8 +102,19 @@ export async function startCell(
     );
     await session.ready();
 
-    const services = Fmt.Services.capture(started.services);
-    const ready = startCellReady(services, Cli.Is.terminal('stdout'));
+    const captured = started.services.map((item) => {
+      const snapshot = serviceStatusOf(item);
+      const display = Fmt.Services.capture(snapshot, item.handle);
+      const source = {
+        service: snapshot.service.name,
+        pathnames: snapshot.selection.descriptor.browser,
+        urls: snapshot.owner?.urls,
+      };
+      return { display, source };
+    });
+    const browser = resolveBrowserTargets(captured.map(({ source }) => source));
+    const services = captured.map(({ display }) => display);
+    const ready = startCellReady(services, Cli.Is.terminal('stdout'), browser);
     serviceText = ready.text;
     const completion = waitForStartOutcome(servicesDone, shutdown);
     if (shutdown.reason === undefined) args.onReady?.(ready);
@@ -262,8 +277,9 @@ export function formatStartHeader(
 
 /** Keep result text unabridged; only an interactive repaint supplies a row limit. */
 export function startCellReady(
-  services: ReturnType<typeof Fmt.Services.capture>,
+  services: readonly t.Cli.Fmt.Service.Input[],
   terminal: boolean,
+  browser: BrowserTargets = { targets: [], diagnostics: [] },
 ): StartCellReady {
   const render: StartCellReady['render'] = ({ width: frameWidth, maxRows, hyperlinks } = {}) => {
     const body = (width?: number) => {
@@ -271,7 +287,7 @@ export function startCellReady(
     };
     return formatStartServiceBody(body, frameWidth, terminal);
   };
-  return { text: render(), render };
+  return { text: render(), render, browser };
 }
 
 /**

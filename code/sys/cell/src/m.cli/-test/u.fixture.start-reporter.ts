@@ -32,6 +32,7 @@ export function readyBody() {
   const render = (width: number | undefined) => `body:${width}`;
   return {
     text: formatStartServiceBody(render, 80, false),
+    browser: { targets: [], diagnostics: [] },
     render: (options?: { width?: number; hyperlinks?: boolean }) => {
       return formatStartServiceBody(render, options?.width ?? 80, false);
     },
