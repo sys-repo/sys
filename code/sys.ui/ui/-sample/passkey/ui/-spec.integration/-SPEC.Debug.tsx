@@ -69,7 +69,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={styles.title.class}>
         <div>{D.name}</div>
-        <div>Reference Sample</div>
+        <div>Reference</div>
       </div>
       <div>
         <SpecLink to='view' />
