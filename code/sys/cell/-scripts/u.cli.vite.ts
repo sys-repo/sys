@@ -1,18 +1,25 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import { constants } from 'node:os';
 import { kill } from 'node:process';
-import { Cli, Is, Path } from '../src/m.cli/common.ts';
+import { Cli, Is, Path, Process, type t } from '../src/m.cli/common.ts';
 
 const ENTRY = Path.fromFileUrl(new URL('../src/m.cli/mod.ts', import.meta.url));
 // Budget for Vite's process and stream cleanup, then Cell's session and reporter teardown.
 const SHUTDOWN_GRACE = 12_000;
 const KILL_SETTLE = 5_000;
 
-/** Run the trusted sample; the optional entry is a module-local process-proof seam. */
-export async function runVite(argv: readonly string[], entry = ENTRY): Promise<number> {
+type Options = {
+  readonly entry?: string;
+  readonly on?: t.Process.Signal.Lib['on'];
+  readonly spawnChild?: typeof spawn;
+};
+
+/** Run the trusted sample with the launcher's own child and terminal lifecycle. */
+export async function runVite(argv: readonly string[], options: Options = {}): Promise<number> {
+  const { entry = ENTRY, on = Process.Signal.on, spawnChild = spawn } = options;
   const posix = Deno.build.os !== 'windows';
   const terminal = posix && Cli.Is.terminal('stdin') ? await stty(['-g']) : undefined;
-  const bindings: Array<{ signal: Deno.Signal; handler: () => void }> = [];
+  const disposers: Array<() => void> = [];
   const failures: unknown[] = [];
   let child: ChildProcess | undefined;
   let exited = false;
@@ -58,12 +65,13 @@ export async function runVite(argv: readonly string[], entry = ENTRY): Promise<n
     }, SHUTDOWN_GRACE);
     attempt(() => child?.kill(signal));
   };
-  const bind = (signal: Deno.Signal, handler: () => void) => {
-    Deno.addSignalListener(signal, handler);
-    bindings.push({ signal, handler });
+  const bind = (signal: t.Process.Signal.Name, handler: () => void) => {
+    const binding = on(signal, handler);
+    if (binding.kind === 'unsupported') throw new Error(`Cell Vite launcher requires ${signal}.`);
+    disposers.push(binding.dispose);
   };
 
-  let code: number;
+  let result: { code: number } | { failure: unknown };
   try {
     bind('SIGINT', () => shutdown('SIGINT'));
     if (posix) {
@@ -76,7 +84,7 @@ export async function runVite(argv: readonly string[], entry = ENTRY): Promise<n
 
     // Separate the child from terminal/task signal duplication while preserving real terminal
     // stdio. Process.inherit exposes neither an owned signal target nor a process group.
-    child = spawn(Deno.execPath(), ['run', '-A', entry, ...argv], {
+    child = spawnChild(Deno.execPath(), ['run', '-A', entry, ...argv], {
       cwd: Deno.cwd(),
       stdio: 'inherit',
       detached: posix,
@@ -89,13 +97,13 @@ export async function runVite(argv: readonly string[], entry = ENTRY): Promise<n
     child.once('close', (code, signal) => {
       resolveStatus(code ?? (signal ? 128 + constants.signals[signal] : 1));
     });
-    code = await status;
+    result = { code: await status };
+  } catch (failure) {
+    result = { failure };
   } finally {
     clearTimeout(grace);
     clearTimeout(settle);
-    for (const { signal, handler } of bindings) {
-      attempt(() => Deno.removeSignalListener(signal, handler));
-    }
+    for (const dispose of disposers) attempt(dispose);
     // Graceful Cell shutdown restores its keyboard owner. A forced exit cannot do so: restore
     // the exact input mode captured before delegation, rather than guessing cooked defaults.
     if (terminal !== undefined) {
@@ -106,8 +114,14 @@ export async function runVite(argv: readonly string[], entry = ENTRY): Promise<n
       }
     }
   }
-  if (failures.length) throw new AggregateError(failures, 'Cell Vite launcher failed.');
-  return code;
+  const message = 'Cell Vite launcher failed.';
+  if ('failure' in result) {
+    const cause = result.failure;
+    if (!failures.length) throw cause;
+    throw new AggregateError([cause, ...failures], message, { cause });
+  }
+  if (failures.length) throw new AggregateError(failures, message);
+  return result.code;
 }
 
 // Mixed stdio is essential: Process.capture cannot inherit stdin; Process.inherit cannot

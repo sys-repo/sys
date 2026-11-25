@@ -1,3 +1,4 @@
+import { Process } from '../common.ts';
 import {
   type AuthorityCheck,
   type AuthoritySnapshot,
@@ -14,8 +15,6 @@ export type ScreenResizeObservation =
 type DenoRuntime = {
   consoleSize?: () => { columns: number; rows: number };
   build?: { readonly os?: string };
-  addSignalListener?: (signal: 'SIGWINCH', handler: () => void) => void;
-  removeSignalListener?: (signal: 'SIGWINCH', handler: () => void) => void;
 };
 
 type NodeRuntime = {
@@ -66,7 +65,7 @@ export const isScreenMeasurementAuthorityReady = authority.isReady;
 /** Internal platform adapter for terminal measurement and resize observation. */
 export function createPlatform(
   readRuntime: ReadRuntime,
-  observeResize: ObserveResize = createResizeObserver(readRuntime),
+  on: typeof Process.Signal.on = Process.Signal.on,
 ) {
   return {
     measure(): ScreenMeasurement | undefined {
@@ -93,13 +92,13 @@ export function createPlatform(
       return width === undefined || height === undefined ? undefined : { width, height };
     },
 
-    observeResize,
+    observeResize: createResizeObserver(readRuntime, on),
   } as const;
 }
 
 export const ScreenPlatform = freeze({
   measure: measureRuntime,
-  observeResize: createResizeObserver(() => globalThis as unknown as Runtime),
+  observeResize: createResizeObserver(() => globalThis as unknown as Runtime, Process.Signal.on),
 });
 
 /**
@@ -221,18 +220,14 @@ function readOwnProperty(owner: object, key: PropertyKey): unknown {
   }
 }
 
-function createResizeObserver(readRuntime: ReadRuntime): ObserveResize {
+function createResizeObserver(
+  readRuntime: ReadRuntime,
+  on: typeof Process.Signal.on,
+): ObserveResize {
   return (handler) => {
-    const deno = readRuntime().Deno;
-    const add = deno?.addSignalListener;
-    const remove = deno?.removeSignalListener;
-    const unsupported = deno?.build?.os === 'windows' || !add || !remove;
-    if (unsupported) return { kind: 'unsupported' };
-
-    add('SIGWINCH', handler);
-    return {
-      kind: 'attached',
-      stop: () => remove('SIGWINCH', handler),
-    };
+    // Native registration support does not establish Windows console resize delivery.
+    if (readRuntime().Deno?.build?.os === 'windows') return { kind: 'unsupported' };
+    const binding = on('SIGWINCH', handler);
+    return binding.kind === 'attached' ? { kind: 'attached', stop: binding.dispose } : binding;
   };
 }

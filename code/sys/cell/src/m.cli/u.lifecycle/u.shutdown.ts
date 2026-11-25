@@ -1,4 +1,4 @@
-import { Is } from '../common.ts';
+import { Is, Process, type t } from '../common.ts';
 import { mergeFailures } from './u.failure.ts';
 
 /** Authoritative terminal reason for one Cell start lifecycle. */
@@ -30,14 +30,12 @@ export type ShutdownSignal = {
 };
 
 type ShutdownSignalDeps = {
-  addSignalListener(signal: Deno.Signal, handler: () => void): void;
-  removeSignalListener(signal: Deno.Signal, handler: () => void): void;
+  on: t.Process.Signal.Lib['on'];
   exit(code: number): never;
 };
 
 const DEFAULT_DEPS: ShutdownSignalDeps = {
-  addSignalListener: (signal, handler) => Deno.addSignalListener(signal, handler),
-  removeSignalListener: (signal, handler) => Deno.removeSignalListener(signal, handler),
+  on: Process.Signal.on,
   exit: (code) => Deno.exit(code),
 };
 
@@ -46,7 +44,7 @@ export function createShutdownSignal(
 ): ShutdownSignal {
   const deps: ShutdownSignalDeps = { ...DEFAULT_DEPS, ...overrides };
   const ctrl = new AbortController();
-  const added: Array<{ readonly signal: Deno.Signal; readonly handler: () => void }> = [];
+  const disposers: Array<() => void> = [];
   let interruptCount = 0;
   let resolveDone: (reason: ShutdownReason) => void = () => undefined;
   let reason: ShutdownReason | undefined;
@@ -76,19 +74,14 @@ export function createShutdownSignal(
     return accepted;
   };
 
-  const add = (signal: Deno.Signal) => {
-    const handler = () => interrupt(`signal:${signal}`);
-
+  for (const signal of ['SIGINT', 'SIGTERM'] as const) {
     try {
-      deps.addSignalListener(signal, handler);
-      added.push({ signal, handler });
+      const binding = deps.on(signal, () => interrupt(`signal:${signal}`));
+      if (binding.kind === 'attached') disposers.push(binding.dispose);
     } catch {
-      // Some runtimes/platforms do not support all signals. Keep shutdown best-effort.
+      // Keep signal attachment best-effort; keyboard shutdown remains available.
     }
-  };
-
-  add('SIGINT');
-  add('SIGTERM');
+  }
 
   return {
     signal: ctrl.signal,
@@ -107,12 +100,12 @@ export function createShutdownSignal(
     dispose() {
       let failed = false;
       let failure: unknown;
-      const retained: typeof added = [];
-      for (const entry of added.splice(0)) {
+      const retained: typeof disposers = [];
+      for (const dispose of disposers.splice(0)) {
         try {
-          deps.removeSignalListener(entry.signal, entry.handler);
+          dispose();
         } catch (cause) {
-          retained.push(entry);
+          retained.push(dispose);
           if (!failed) {
             failed = true;
             failure = cause;
@@ -121,7 +114,7 @@ export function createShutdownSignal(
           }
         }
       }
-      added.push(...retained);
+      disposers.push(...retained);
       if (failed) throw failure;
     },
   };

@@ -60,8 +60,8 @@ export declare namespace Cli {
     /**
      * Keep a long-running CLI process alive until Ctrl-C.
      *
-     * Installs a SIGINT handler, forwards it to a lifecycle, waits for
-     * disposal, then exits the process with the given exit code.
+     * Requires a SIGINT subscription before startup. SIGINT disposes the
+     * lifecycle, then the process exits with the given exit code.
      */
     keepAlive: (options?: KeepAlive.Options) => Promise<never>;
   };

@@ -1,2 +1,2 @@
 export * from './u.clipboard.ts';
-export * from './u.keepAlive.ts';
+export { keepAlive } from './u.keepAlive.ts';

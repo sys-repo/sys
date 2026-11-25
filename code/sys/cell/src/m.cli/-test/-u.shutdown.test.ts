@@ -1,9 +1,11 @@
-import { describe, expect, it } from './common.ts';
+import { describe, expect, it, type t } from './common.ts';
 import { createShutdownSignal } from '../u.lifecycle/u.shutdown.ts';
+
+const unsupported: t.Process.Signal.Lib['on'] = () => ({ kind: 'unsupported' });
 
 describe('@sys/cell/cli shutdown signal', () => {
   it('keyboard interrupt → publishes the same reason to the lifecycle and abort signal', async () => {
-    const shutdown = createShutdownSignal();
+    const shutdown = createShutdownSignal({ on: unsupported });
 
     try {
       expect(shutdown.signal.aborted).to.eql(false);
@@ -22,8 +24,7 @@ describe('@sys/cell/cli shutdown signal', () => {
 
   it('quit wins normally and does not count toward interrupt escalation', async () => {
     const shutdown = createShutdownSignal({
-      addSignalListener() {},
-      removeSignalListener() {},
+      on: unsupported,
       exit() {
         throw new Error('unexpected escalation');
       },
@@ -40,7 +41,7 @@ describe('@sys/cell/cli shutdown signal', () => {
   });
 
   it('retains the first presentation failure over a later interrupt', async () => {
-    const shutdown = createShutdownSignal();
+    const shutdown = createShutdownSignal({ on: unsupported });
     const cause = new Error('presentation-failed');
 
     try {
@@ -58,7 +59,7 @@ describe('@sys/cell/cli shutdown signal', () => {
   });
 
   it('seals a completed service outcome against later terminal requests', async () => {
-    const shutdown = createShutdownSignal();
+    const shutdown = createShutdownSignal({ on: unsupported });
     let claimed = false;
     let requested = false;
     void shutdown.claimed.then(() => (claimed = true));
@@ -80,18 +81,62 @@ describe('@sys/cell/cli shutdown signal', () => {
     }
   });
 
+  for (const failure of ['unsupported', 'throw'] as const) {
+    it(`SIGINT ${failure} → still handles SIGTERM and counts a keyboard interrupt as the second`, async () => {
+      const exit = new Error('exit-130');
+      const exitCodes: number[] = [];
+      const attached: t.Process.Signal.Name[] = [];
+      let sigterm: (() => void) | undefined;
+      let releases = 0;
+      const shutdown = createShutdownSignal({
+        on(signal, handler) {
+          attached.push(signal);
+          if (signal === 'SIGINT') {
+            if (failure === 'throw') throw new Error('SIGINT registration failed');
+            return { kind: 'unsupported' };
+          }
+          sigterm = handler;
+          return { kind: 'attached', dispose: () => releases++ };
+        },
+        exit(code): never {
+          exitCodes.push(code);
+          throw exit;
+        },
+      });
+
+      try {
+        expect(attached).to.eql(['SIGINT', 'SIGTERM']);
+        if (!sigterm) throw new Error('Expected a SIGTERM handler.');
+        sigterm();
+        expect(exitCodes).to.eql([]);
+        expect(await shutdown.done).to.eql('signal:SIGTERM');
+        expect(() => shutdown.interrupt()).to.throw(exit);
+        expect(exitCodes).to.eql([130]);
+        expect(shutdown.reason).to.eql('signal:SIGTERM');
+        expect(shutdown.signal.reason).to.eql('signal:SIGTERM');
+      } finally {
+        shutdown.dispose();
+      }
+      expect(releases).to.eql(1);
+    });
+  }
+
   it('aggregates distinct signal-release failures and retries only retained bindings', () => {
     const sigintFailure = new Error('sigint-release-failed');
     const sigtermFailure = new Error('sigterm-release-failed');
-    const attempts: Deno.Signal[] = [];
-    const failed = new Set<Deno.Signal>();
+    const attempts: t.Process.Signal.Name[] = [];
     const shutdown = createShutdownSignal({
-      addSignalListener() {},
-      removeSignalListener(signal) {
-        attempts.push(signal);
-        if (failed.has(signal)) return;
-        failed.add(signal);
-        throw signal === 'SIGINT' ? sigintFailure : sigtermFailure;
+      on(signal) {
+        let count = 0;
+        return {
+          kind: 'attached',
+          dispose() {
+            attempts.push(signal);
+            count++;
+            if (signal === 'SIGINT' && count === 1) throw sigintFailure;
+            if (signal === 'SIGTERM' && count <= 2) throw sigtermFailure;
+          },
+        };
       },
     });
     let thrown: unknown;
@@ -107,17 +152,17 @@ describe('@sys/cell/cli shutdown signal', () => {
     expect(aggregate.cause).to.equal(sigintFailure);
     expect(aggregate.errors).to.eql([sigintFailure, sigtermFailure]);
 
+    expect(() => shutdown.dispose()).to.throw(sigtermFailure);
     shutdown.dispose();
     shutdown.dispose();
-    expect(attempts).to.eql(['SIGINT', 'SIGTERM', 'SIGINT', 'SIGTERM']);
+    expect(attempts).to.eql(['SIGINT', 'SIGTERM', 'SIGINT', 'SIGTERM', 'SIGTERM']);
   });
 
   it('escalates only the second interrupt even after another terminal winner', () => {
     const exit = new Error('exit-130');
     const exitCodes: number[] = [];
     const shutdown = createShutdownSignal({
-      addSignalListener() {},
-      removeSignalListener() {},
+      on: unsupported,
       exit(code): never {
         exitCodes.push(code);
         throw exit;
