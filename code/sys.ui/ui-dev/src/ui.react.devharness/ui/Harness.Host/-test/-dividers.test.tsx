@@ -7,11 +7,12 @@ import {
   expect,
   Is,
   it,
+  Rx,
   Signal,
   type t,
   TestSample,
-  Time,
 } from '../../../-test.ts';
+import { RxBus } from '../../../u/m.RxBus/mod.ts';
 import { Theme } from '../../../u/m.Theme/mod.ts';
 import { HarnessHost } from '../mod.ts';
 
@@ -23,14 +24,20 @@ describe('DevHarness host dividers', () => {
   DomMock.init({ beforeEach, afterEach });
 
   it('Light → Dark → Light, with explicit edge borders taking precedence', async () => {
-    const { ctx, context, dispose, instance } = await TestSample.context();
+    const { events, instance } = TestSample.controller();
     try {
+      const ctx = await events.ctx.get();
       using view = await TestReact.render(<HarnessHost instance={instance} />);
       const theme = Signal.create<t.CommonTheme>('Light');
       const update = async (change: () => void) => {
         await TestReact.act(async () => {
+          const written = RxBus.asPromise.first(
+            events.props.changed$.pipe(Rx.filter((e) => e.message === 'props:write')),
+            { op: 'host divider props write', timeout: 2000 },
+          );
           change();
-          await context.flush();
+          const { error } = await written;
+          if (error) throw new Error(error.message);
         });
       };
       const edge = (name: 'Header' | 'Footer') =>
@@ -51,16 +58,13 @@ describe('DevHarness host dividers', () => {
         ctx.host.footer.render(<span>Footer</span>);
         Theme.signalEffect(ctx, theme);
       });
-      await Time.waitFor(() => edge('Header') && edge('Footer'), { timeout: 2000 });
       expectColors(LIGHT);
 
       await update(() => void (theme.value = 'Dark'));
       expectColors(DARK);
 
-      await update(() => {
-        // @ts-expect-error Reset an edge with border(null), not the host divider color.
-        expect(() => ctx.host.dividerColor(null)).to.throw(TypeError);
-      });
+      // @ts-expect-error Reset an edge with border(null), not the host divider color.
+      expect(() => ctx.host.dividerColor(null)).to.throw(TypeError);
       expectColors(DARK);
 
       await update(() => {
@@ -78,7 +82,7 @@ describe('DevHarness host dividers', () => {
       await update(() => void (theme.value = 'Light'));
       expectColors(LIGHT);
     } finally {
-      dispose();
+      events.dispose();
     }
   });
 });
