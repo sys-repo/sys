@@ -25,14 +25,19 @@ export function snapshotOf(state: State): t.Passkey.Snapshot {
     authentication: authenticationOf(state.session, operation),
     operation,
     result: state.last && resultOf(state.last),
-    context: {
-      origin: browserOrigin,
-      rpId: rp.id,
-      rpName: rp.name,
-      registrationAdvisory,
-      verifier: { kind: 'configured' },
-      webAuthn: browserOf(state.browser),
-    },
+    context: contextOf(state.browser),
+  };
+}
+
+/** Project the configured context and observed browser availability independently of the session. */
+export function contextOf(browser: State['browser']): t.Passkey.Context {
+  return {
+    origin: browserOrigin,
+    rpId: rp.id,
+    rpName: rp.name,
+    registrationAdvisory,
+    verifier: { kind: 'configured' },
+    webAuthn: browserOf(browser),
   };
 }
 

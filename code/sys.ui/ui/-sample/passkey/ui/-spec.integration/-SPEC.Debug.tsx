@@ -1,4 +1,7 @@
-import type React from 'react';
+import React from 'react';
+import type { openSample } from '../../ui.host/u.sample.ts';
+import { contextOf } from '../../ui.host/u.snapshot.ts';
+import { Passkey } from '../mod.ts';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 import { SpecLink } from '../-spec/-ui.Links.tsx';
 import { ViewPicker } from '../-spec/-ui.ViewPicker.tsx';
@@ -8,7 +11,11 @@ const defaults: t.DebugValues = { debug: D.debug, theme: 'Dark' };
 /**
  * Types:
  */
-export type DebugProps = { debug: DebugSignals; children?: React.ReactNode; style?: t.Style.Input };
+export type DebugProps = {
+  debug: DebugSignals;
+  sample: Pick<ReturnType<typeof openSample>, 'current' | 'subscribe'>;
+  style?: t.Style.Input;
+};
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
@@ -48,7 +55,8 @@ export function createDebugSignals() {
  * Component:
  */
 export const Debug: React.FC<DebugProps> = (props) => {
-  const { debug } = props;
+  const { debug, sample } = props;
+  const browser = React.useSyncExternalStore(sample.subscribe, () => sample.current().browser);
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
@@ -72,7 +80,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{D.name}</div>
         <div>WebAuthn · W3C</div>
       </div>
-      <div className={styles.context.class}>{props.children}</div>
+      <Passkey.UI.Context context={contextOf(browser)} style={styles.context} />
       <SpecLink to='view' />
       <hr />
       <Dev.Button

@@ -10,6 +10,7 @@ import {
   type t,
   TestReact,
 } from './common.ts';
+import { openSample } from '../../ui.host/u.sample.ts';
 import { SpecNames } from '../-spec/-u.navigation.ts';
 import { createDebugSignals, Debug } from '../-spec.integration/-SPEC.Debug.tsx';
 import { STORAGE_KEY } from '../-spec.integration/common.ts';
@@ -35,14 +36,16 @@ describe('Passkey specimen sidebars', () => {
     cleanup.defer(integration.dispose);
     cleanup.defer(view.dispose);
     view.actions.onSignIn();
-    using sample = await TestReact.render(<Debug debug={integration} />);
+    const runtime = openSample();
+    cleanup.defer(runtime.dispose);
+    using sample = await TestReact.render(<Debug debug={integration} sample={runtime} />);
     using pure = await TestReact.render(<ViewDebug debug={view} />);
     const routes = [
       [sample.container, SpecNames.view, 'view:pure'],
       [pure.container, SpecNames.sample, 'view:integration (sample)'],
     ] as const;
     for (const [container, name, label] of routes) {
-      const links = [...container.querySelectorAll('a')];
+      const links = [...container.querySelectorAll<HTMLAnchorElement>('a[href^="?dev="]')];
       expect(links.map((el) => [el.textContent, el.target, el.getAttribute('href')])).to.eql([
         [label, '_self', `?${new URLSearchParams({ dev: name })}`],
       ]);

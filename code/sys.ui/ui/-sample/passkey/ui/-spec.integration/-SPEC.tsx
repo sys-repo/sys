@@ -40,11 +40,7 @@ export default Spec.describe(D.displayName, (e) => {
     const ctx = Spec.ctx(e);
     const owner = contexts.get(ctx);
     if (!owner || !ctx.is.attachable) return;
-    ctx.debug.row(
-      <Debug debug={owner.debug}>
-        <Connected sample={owner.sample} view='context' />
-      </Debug>,
-    );
+    ctx.debug.row(<Debug debug={owner.debug} sample={owner.sample} />);
   });
 
   /** Cached suites may serve multiple contexts; state/effects belong to each context. */
