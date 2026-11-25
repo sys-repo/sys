@@ -1,7 +1,4 @@
-import { spawn } from 'node:child_process';
-import { kill } from 'node:process';
-import { expect, Fs, Time } from '../../-test.ts';
-import { Cli } from '../common.ts';
+import { Cli, expect, Fs, kill, spawn, Time } from './common.ts';
 import { CellSession } from '../u/u.session.ts';
 import { sessionRoot } from './u.fixture.kill.ts';
 import { killOwnedGroup, stty } from './u.fixture.cli.vite.ts';
@@ -65,11 +62,11 @@ try {
     expect(child.kill(signal)).to.eql(true);
   } else {
     console.info('PTY_KEYBOARD_READY');
-    // The outer proof writes a real Ctrl+C byte through the PTY master.
+    // The outer proof writes q or Ctrl+C through the PTY master.
   }
   const exited = await Time.waitFor(() => status, { interval: 50, timeout: 10_000 });
   // Keyboard and OS-signal interrupts share Cell's exit-130 contract on every platform.
-  expect(exited).to.eql({ code: forced ? 137 : 130, signal: null });
+  expect(exited).to.eql({ code: forced ? 137 : Deno.args[0] === 'quit' ? 0 : 130, signal: null });
   expect(await stty(['-g'])).to.eql(before);
   const sessions = await CellSession.list(root, { dir });
   expect(sessions.length).to.eql(forced ? 1 : 0);

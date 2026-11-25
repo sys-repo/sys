@@ -1,13 +1,17 @@
 import { Err, type t } from '../common.ts';
 import { FmtHelp } from '../u.help/u.mod.ts';
 import { mergeFailures } from '../u.lifecycle/u.failure.ts';
+import type { StartReporterDeps } from '../u.lifecycle/u.start.reporter.ts';
 import { setExitCode } from '../u/u.exit.ts';
 import type { RunContext } from './u.context.ts';
 import { serviceModeFlag } from './u.mode.ts';
 import { fail, print } from './u.output.ts';
 import { startReporterFlag } from './u.reporter.ts';
 
-export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
+export async function runStart(
+  ctx: RunContext,
+  terminal: Partial<StartReporterDeps> = {},
+): Promise<t.CellCli.Result> {
   const { args, input } = ctx;
   const startHelp = await FmtHelp.startOutput();
 
@@ -49,16 +53,11 @@ export async function runStart(ctx: RunContext): Promise<t.CellCli.Result> {
       try {
         output = reporting.StartReporter.create(
           reporter.value,
-          { header: (width, link) => start.formatStartHeader(presentation, width, link) },
           {
-            until: shutdown.done,
-            onInterrupt() {
-              shutdown.interrupt();
-            },
-            onFailure(cause) {
-              return shutdown.failPresentation(cause);
-            },
+            ...terminal,
+            header: (width, link) => start.formatStartHeader(presentation, width, link),
           },
+          shutdown,
         );
       } catch (cause) {
         try {

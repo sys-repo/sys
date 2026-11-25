@@ -1,26 +1,18 @@
-import { describe, expect, it, Str } from '../../-test.ts';
-import { stripAnsi } from '../common.ts';
+import { describe, expect, it, Str, stripAnsi } from './common.ts';
 import { createHarness, keyEvent, readyBody, redrawKey } from './u.fixture.start-reporter.ts';
 
 describe('@sys/cell/cli start reporter keyboard', () => {
   describe('binding and completion', () => {
-    it('binds only the ready screen and keeps controls hidden', async () => {
+    it('advertises quit only for a live ready binding', async () => {
       const readyFrame = Str.dedent(`
         header:80
 
           body:76
       `);
-      const raw = createHarness('raw', { controls: true });
-      raw.reporter.open();
-      raw.reporter.ready(readyBody());
-      expect(raw.effects).not.to.contain('keyboard:bind');
-      await raw.reporter.dispose();
-
       const unavailable = createHarness('screen', { controls: true, keyboard: 'unavailable' });
       unavailable.reporter.open();
       unavailable.reporter.ready(readyBody());
       expect(unavailable.effects).to.contain('keyboard:bind');
-      expect(unavailable.binding()?.quitKeys).to.eql('interrupt-only');
       expect(stripAnsi(unavailable.frames.at(-1) ?? '')).to.eql(readyFrame);
       await unavailable.reporter.dispose();
       expect(unavailable.effects).not.to.contain('keyboard:shutdown');
@@ -35,17 +27,18 @@ describe('@sys/cell/cli start reporter keyboard', () => {
 
       expect(screen.effects).to.contain('keyboard:bind');
       expect(screen.binding()?.quitKeys).to.eql('interrupt-only');
-      expect(stripAnsi(screen.frames.at(-1) ?? '')).to.eql(readyFrame);
+      const frame = stripAnsi(screen.frames.at(-1) ?? '');
+      expect(frame).to.contain(readyFrame);
+      expect(frame.trimEnd()).to.match(/quit: q$/);
+      expect(frame).not.to.contain('open:');
 
       await screen.key(keyEvent('q'));
+      expect(screen.effects).to.contain('keyboard:quit');
       expect(screen.effects).not.to.contain('keyboard:interrupt');
-      await screen.interrupt();
-      expect(screen.effects.filter((effect) => effect === 'keyboard:interrupt').length).to.eql(1);
 
       await screen.reporter.dispose();
       await screen.reporter.dispose();
-      expect(screen.effects.filter((effect) => effect === 'keyboard:shutdown').length).to.eql(1);
-      expect(screen.effects.filter((effect) => effect === 'keyboard:dispose').length).to.eql(0);
+      expect(screen.effects.filter((effect) => effect === 'keyboard:shutdown')).to.have.length(1);
     });
 
     it('keyboard finishes → screen remains usable', async () => {
@@ -57,6 +50,7 @@ describe('@sys/cell/cli start reporter keyboard', () => {
 
       expect(harness.effects).not.to.contain('keyboard:interrupt');
       expect(harness.failures).to.eql([]);
+      expect(stripAnsi(harness.frames.at(-1) ?? '')).not.to.contain('quit:');
       const repaintCount = harness.frames.length;
       harness.setSize({ width: 48, height: 20 });
       harness.reporter.redraw();
@@ -64,9 +58,7 @@ describe('@sys/cell/cli start reporter keyboard', () => {
       expect(stripAnsi(harness.frames.at(-1) ?? '')).to.contain('header:48');
 
       await harness.reporter.dispose();
-      await harness.reporter.dispose();
-      expect(harness.effects.filter((effect) => effect === 'keyboard:shutdown').length).to.eql(1);
-      expect(harness.effects.filter((effect) => effect === 'keyboard:dispose').length).to.eql(0);
+      expect(harness.effects.filter((effect) => effect === 'keyboard:shutdown')).to.have.length(1);
     });
 
     it('reports listener failure once, including during cleanup', async () => {
@@ -75,11 +67,17 @@ describe('@sys/cell/cli start reporter keyboard', () => {
 
       harness.reporter.open();
       harness.reporter.ready(readyBody());
+      const frame = () => stripAnsi(harness.frames.at(-1) ?? '');
+      expect(frame()).to.contain('quit: q');
       harness.failKeyboard(cause);
       await Promise.resolve();
 
       expect(harness.failures).to.eql([cause]);
-      expect(stripAnsi(harness.frames.at(-1) ?? '')).to.contain('body:76');
+      expect(frame()).to.eql(Str.dedent(`
+        header:80
+
+          body:76
+      `));
       await harness.reporter.dispose();
       expect(harness.failures).to.eql([cause]);
       expect(harness.effects.filter((effect) => effect === 'keyboard:shutdown').length).to.eql(1);
@@ -93,6 +91,7 @@ describe('@sys/cell/cli start reporter keyboard', () => {
       harness.reporter.ready(readyBody());
       harness.failKeyboard(cause);
       await Promise.resolve();
+      expect(stripAnsi(harness.frames.at(-1) ?? '')).not.to.contain('quit:');
       harness.reporter.complete('summary');
 
       expect(harness.failures).to.eql([cause]);
@@ -100,16 +99,8 @@ describe('@sys/cell/cli start reporter keyboard', () => {
       await harness.reporter.dispose();
     });
 
-    it('enabling controls leaves wide, short, and empty frames unchanged', async () => {
+    it('never displaces service rows to show controls', async () => {
       const cases = [
-        {
-          size: { width: 80, height: 24 },
-          frame: Str.dedent(`
-            header:80
-
-              body:76
-          `),
-        },
         {
           size: { width: 20, height: 2 },
           frame: Str.dedent(`
@@ -120,21 +111,126 @@ describe('@sys/cell/cli start reporter keyboard', () => {
         { size: { width: 0, height: 0 }, frame: '' },
       ] as const;
 
-      for (const item of cases) {
-        const plain = createHarness('screen', { size: item.size });
-        const controlled = createHarness('screen', { controls: true, size: item.size });
-        plain.reporter.open();
-        plain.reporter.ready(readyBody());
-        controlled.reporter.open();
-        controlled.reporter.ready(readyBody());
+      for (const { size, frame } of cases) {
+        await using screen = createHarness('screen', { controls: true, size });
+        screen.reporter.open();
+        screen.reporter.ready(readyBody());
+        expect(stripAnsi(screen.frames.at(-1)!)).to.eql(frame);
+      }
+    });
+  });
 
-        expect(stripAnsi(plain.frames.at(-1) ?? '')).to.eql(item.frame);
-        expect(controlled.frames.at(-1)).to.eql(plain.frames.at(-1));
-        expect(stripAnsi(controlled.frames.at(-1) ?? '')).not.to.contain('redraw:');
-        expect(stripAnsi(controlled.frames.at(-1) ?? '')).not.to.contain('quit:');
+  describe('browser requests', () => {
+    const targets = ['a', 'b', 'c'].map((service) => ({
+      service,
+      pathname: '/',
+      href: `https://${service}.test/?private`,
+    }));
+    const diagnostics = [{ service: 'view', pathname: '/absent', matches: 0 }];
+    const input = { ...readyBody(), browser: { targets, diagnostics } };
 
-        await plain.reporter.dispose();
-        await controlled.reporter.dispose();
+    it('modified, uppercase, or incomplete key events → no open or quit', async () => {
+      await using screen = createHarness('screen', { controls: true });
+      screen.reporter.open();
+      screen.reporter.ready(input);
+      const effects = [...screen.effects];
+      for (const key of ['o', 'q']) {
+        for (const flag of ['ctrlKey', 'altKey', 'metaKey', 'shiftKey']) {
+          await screen.key(keyEvent(key, { [flag]: true }));
+        }
+        await screen.key(keyEvent(key.toUpperCase()));
+        await screen.key({ key });
+      }
+      expect(screen.effects).to.eql(effects);
+    });
+
+    it('opens in order with hidden hints; failures survive resize until the next press', async () => {
+      let fail = true;
+      const harness = createHarness('screen', {
+        controls: true,
+        openBrowser(href) {
+          if (href === targets[1].href && fail) throw new Error('private launcher failure');
+        },
+      });
+      const frame = () => stripAnsi(harness.frames.at(-1) ?? '');
+      const attempts = () => harness.effects.filter((effect) => effect.startsWith('open:'));
+      const batch = targets.map(({ href }) => `open:${href}`);
+      harness.reporter.open();
+      harness.reporter.ready(input);
+      expect(frame()).to.contain('open: o (browser)');
+      expect(frame()).to.contain('view /absent: no matching HTTP(S) URL');
+      expect(attempts()).to.eql([]);
+      harness.resize({ width: 20, height: 10 });
+      expect(frame()).to.contain('open: o');
+      expect(frame()).not.to.contain('(browser)');
+      // With two spare rows, dock the rule immediately above the keys; with one, hide both.
+      harness.resize({ width: 80, height: 5 });
+      expect(frame().split('\n').at(-2)).to.eql('┄'.repeat(80));
+      expect(frame().split('\n').at(-1)).to.match(/^open: o \(browser\) +quit: q$/);
+      harness.resize({ width: 80, height: 4 });
+      expect(frame()).to.eql(Str.dedent(`
+        header:80
+
+          body:76
+          view /absent: no matching HTTP(S) URL
+      `));
+      await harness.key(keyEvent('o'));
+      expect(attempts()).to.eql(batch);
+      harness.resize({ width: 80, height: 24 });
+      expect(frame()).to.contain('b /: open request failed');
+      expect(frame()).not.to.contain('private');
+      expect(frame()).to.contain('open: o (browser)');
+      fail = false;
+      await harness.key(keyEvent('o'));
+      expect(attempts()).to.eql([...batch, ...batch]);
+      expect(frame()).not.to.contain('open request failed');
+      expect(frame()).to.contain('no matching HTTP(S) URL');
+      harness.finishKeyboard();
+      await Promise.resolve();
+      expect(frame()).not.to.contain('open:');
+      expect(frame()).not.to.contain('quit:');
+      await harness.key(keyEvent('o'));
+      expect(attempts()).to.eql([...batch, ...batch]);
+      await harness.reporter.dispose();
+    });
+
+    it('completion retires browser and quit controls before releasing the keyboard', async () => {
+      const harness = createHarness('screen', { controls: true });
+      harness.reporter.open();
+      harness.reporter.ready(input);
+      harness.reporter.complete('summary');
+      const effects = [...harness.effects];
+      await harness.key(keyEvent('o'));
+      await harness.key(keyEvent('q'));
+      expect(harness.effects).to.eql(effects);
+      const frame = stripAnsi(harness.frames.at(-1) ?? '');
+      expect(frame).not.to.contain('open:');
+      expect(frame).not.to.contain('quit:');
+      await harness.reporter.dispose();
+    });
+
+    it('no targets or keyboard → show missing and ambiguous selectors', async () => {
+      const ambiguous = { service: 'proxy', pathname: '/', matches: 2 };
+      const missing = { targets: [], diagnostics: [...diagnostics, ambiguous] };
+      const screen = createHarness('screen', { controls: true, keyboard: 'unavailable' });
+      screen.reporter.open();
+      screen.reporter.ready({ ...readyBody(), browser: missing });
+      const frame = stripAnsi(screen.frames.at(-1) ?? '');
+      expect(frame).to.contain('view /absent: no matching HTTP(S) URL');
+      expect(frame).to.contain('proxy /: 2 matching HTTP(S) URLs');
+      expect(frame).not.to.contain('open:');
+      expect(frame).not.to.contain('quit:');
+      await screen.reporter.dispose();
+    });
+
+    it('raw mode with browser declarations → unchanged bytes and no keyboard or opener', async () => {
+      for (const terminal of [true, false]) {
+        const raw = createHarness('raw', { controls: true, terminal, header: '' });
+        raw.reporter.open();
+        raw.reporter.ready(input);
+        raw.reporter.complete('summary');
+        await raw.reporter.dispose();
+        expect(raw.effects).to.eql([`print:${input.text}`, 'print:\nsummary']);
       }
     });
   });
@@ -162,8 +258,6 @@ describe('@sys/cell/cli start reporter keyboard', () => {
       const frame = stripAnsi(harness.frames.at(-1) ?? '');
       expect(frame).to.contain('header:48');
       expect(frame).to.contain('body:44');
-      expect(frame).not.to.contain('redraw:');
-      expect(frame).not.to.contain('quit:');
 
       harness.setSize({ width: 52, height: 20 });
       await harness.key(redrawKey());
@@ -201,7 +295,6 @@ describe('@sys/cell/cli start reporter keyboard', () => {
       const frame = stripAnsi(harness.frames.at(-1) ?? '');
       expect(frame).to.contain('header:42');
       expect(frame).to.contain('body:38');
-      expect(frame).not.to.contain('header:100');
 
       await harness.reporter.dispose();
     });

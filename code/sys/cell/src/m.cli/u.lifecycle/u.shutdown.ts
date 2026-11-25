@@ -5,6 +5,7 @@ import { mergeFailures } from './u.failure.ts';
 export type ShutdownReason =
   | `signal:${Deno.Signal}`
   | 'keyboard:interrupt'
+  | 'keyboard:quit'
   | { readonly kind: 'presentation'; readonly cause: unknown };
 
 /** First-request-wins shutdown authority for one Cell start lifecycle. */
@@ -12,9 +13,14 @@ export type ShutdownSignal = {
   readonly signal: AbortSignal;
   /** Settles only when a shutdown request becomes terminal. */
   readonly done: Promise<ShutdownReason>;
+  /** Either terminal winner retires ready controls, including a non-aborting service outcome. */
+  readonly claimed: Promise<void>;
+  readonly settled: boolean;
   readonly reason?: ShutdownReason;
   /** Request Ctrl+C-equivalent shutdown and escalation; true when this request becomes terminal. */
   interrupt(): boolean;
+  /** Request normal shutdown without counting as an interrupt. */
+  quit(): boolean;
   /** Request presentation shutdown; true when this failure becomes terminal. */
   failPresentation(cause: unknown): boolean;
   /** Claim service completion without aborting or settling `done`; true when it becomes terminal. */
@@ -49,9 +55,15 @@ export function createShutdownSignal(
   const done = new Promise<ShutdownReason>((resolve) => {
     resolveDone = resolve;
   });
-  const request = (nextReason: ShutdownReason) => {
+  const claimed = Promise.withResolvers<void>();
+  const seal = () => {
     if (settled) return false;
     settled = true;
+    claimed.resolve();
+    return true;
+  };
+  const request = (nextReason: ShutdownReason) => {
+    if (!seal()) return false;
     reason = nextReason;
     resolveDone(reason);
     ctrl.abort(reason);
@@ -81,16 +93,17 @@ export function createShutdownSignal(
   return {
     signal: ctrl.signal,
     done,
+    claimed: claimed.promise,
+    get settled() {
+      return settled;
+    },
     get reason() {
       return reason;
     },
     interrupt: () => interrupt('keyboard:interrupt'),
+    quit: () => request('keyboard:quit'),
     failPresentation: (cause) => request(Object.freeze({ kind: 'presentation' as const, cause })),
-    seal() {
-      if (settled) return false;
-      settled = true;
-      return true;
-    },
+    seal,
     dispose() {
       let failed = false;
       let failure: unknown;

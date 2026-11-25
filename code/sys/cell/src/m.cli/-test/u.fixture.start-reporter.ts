@@ -1,5 +1,4 @@
-import { FakeSpinner } from '@sys/cli/testing';
-import { Is, type t } from '../common.ts';
+import { FakeSpinner, Is, type t } from './common.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
 import { formatStartServiceBody } from '../u.lifecycle/u.start.ts';
 
@@ -15,6 +14,7 @@ type HarnessOptions = {
   keyboard?: 'acquired' | 'unavailable';
   measure?: () => ScreenSize;
   onRepaint?: (frame: string) => void;
+  openBrowser?: (href: string) => void;
   printError?: Error;
   repaintError?: Error;
   releaseError?: Error;
@@ -122,6 +122,10 @@ export function createHarness(mode: ReporterMode, options: HarnessOptions = {}) 
           if (options.cancelError) throw options.cancelError;
         };
       },
+      openBrowser(href) {
+        effects.push(`open:${href}`);
+        options.openBrowser?.(href);
+      },
       bindKeyboard(input) {
         effects.push('keyboard:bind');
         keyboardOptions = input;
@@ -136,9 +140,17 @@ export function createHarness(mode: ReporterMode, options: HarnessOptions = {}) 
     },
     options.controls
       ? {
-        until: new Promise<never>(() => undefined),
-        onInterrupt: () => effects.push('keyboard:interrupt'),
-        onFailure(cause) {
+        claimed: new Promise<never>(() => undefined),
+        settled: false,
+        interrupt() {
+          effects.push('keyboard:interrupt');
+          return true;
+        },
+        quit() {
+          effects.push('keyboard:quit');
+          return true;
+        },
+        failPresentation(cause) {
           failures.push(cause);
           effects.push('keyboard:failure');
           return options.acceptFailure ?? true;
@@ -155,13 +167,10 @@ export function createHarness(mode: ReporterMode, options: HarnessOptions = {}) 
     frames,
     binding: () => keyboardOptions,
     async key(event: Partial<KeyEvent>) {
-      await keyboardOptions?.onKey?.(event as KeyEvent);
-    },
-    async interrupt() {
-      await keyboardOptions?.onQuit();
-      keyboardDisposed = true;
-      resolveKeyboard();
-      await Promise.resolve();
+      if (await keyboardOptions?.onKey?.(event as KeyEvent) === 'stop') {
+        keyboardDisposed = true;
+        resolveKeyboard();
+      }
     },
     finishKeyboard() {
       keyboardDisposed = true;

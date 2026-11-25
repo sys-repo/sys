@@ -1,5 +1,8 @@
 import { Cli, Num, Str, stripAnsi, type t, Time } from '../common.ts';
+import { openBrowserTarget } from './u.browser.open.ts';
 import { mergeFailures } from './u.failure.ts';
+import { readyCommands, readyFooter } from './u.ready.commands.ts';
+import type { ShutdownSignal } from './u.shutdown.ts';
 import { type StartCellReady, startServicesText } from './u.start.ts';
 
 type Mode = t.CellCli.Start.ReporterMode;
@@ -17,15 +20,12 @@ type StartReporterInstance = {
   dispose(): Promise<void>;
 };
 
-type StartReporterControls = {
-  until: PromiseLike<unknown>;
-  /** Publish an admitted Ctrl+C keyboard interrupt. */
-  onInterrupt: () => void;
-  /** Publish a presentation failure; true means this failure became terminal. */
-  onFailure: (cause: unknown) => boolean;
-};
+type StartReporterControls = Pick<
+  ShutdownSignal,
+  'claimed' | 'settled' | 'interrupt' | 'quit' | 'failPresentation'
+>;
 
-type StartReporterDeps = {
+export type StartReporterDeps = {
   isInteractive: () => boolean;
   isTerminal: () => boolean;
   print: (text: string) => void;
@@ -36,6 +36,7 @@ type StartReporterDeps = {
   repaint: (frame: string) => void;
   spinner: (target?: t.Cli.Spinner.OutputTarget) => Spinner;
   interval: (run: () => void) => () => void;
+  openBrowser: (href: t.StringUrl) => void;
   bindKeyboard: typeof Cli.Keyboard.bind;
   shutdownKeyboard: typeof Cli.Keyboard.shutdown;
 };
@@ -78,6 +79,7 @@ const DEFAULT_DEPS: StartReporterDeps = {
     const id = globalThis.setInterval(run, 1000);
     return () => globalThis.clearInterval(id);
   },
+  openBrowser: openBrowserTarget,
   bindKeyboard: Cli.Keyboard.bind,
   shutdownKeyboard: Cli.Keyboard.shutdown,
 };
@@ -140,7 +142,7 @@ function createRaw(
       try {
         printSection(summary);
       } catch (cause) {
-        if (controls?.onFailure(cause) ?? true) throw cause;
+        if (controls?.failPresentation(cause) ?? true) throw cause;
       }
     },
     redraw() {},
@@ -171,10 +173,13 @@ function createScreen(
   let paintPending = false;
   let measurePending = false;
   let failureSettled = false;
-  let reportedFailure: unknown;
+  let keyboardRejection: { cause: unknown; accepted: boolean } | undefined;
+  let commands: ReturnType<typeof readyCommands> | undefined;
+  let keysLive = false;
   let keyboard: ReturnType<StartReporterDeps['bindKeyboard']>;
   let disposePromise: Promise<void> | undefined;
 
+  const keysActive = () => keysLive && !controls?.settled;
   const headerRows = () => rowsOf(deps.header(viewport.width, hyperlinks));
   const hasSpinnerRow = () => viewport.width > 0 && viewport.height > headerRows().length;
 
@@ -186,29 +191,36 @@ function createScreen(
 
     // Completion facts outrank service-body rows; content outranks decorative spacing.
     const visibleSummary = summaryRows.slice(0, capacity);
-    const bodyBudget = Math.max(0, capacity - visibleSummary.length);
+    const bodyBudget = capacity - visibleSummary.length;
     // The service formatter selects the content; the final slice only bounds the frame.
     const body = phase === 'ready' || phase === 'complete' || phase === 'failed'
       ? rowsOf(renderBody?.({ width: viewport.width, maxRows: bodyBudget, hyperlinks }) ?? '')
       : [];
     const visibleBody = body.slice(0, bodyBudget);
-    let spacingBudget = Math.max(0, bodyBudget - visibleBody.length);
+    const remaining = bodyBudget - visibleBody.length;
+    const warnings = phase === 'ready' ? commands?.warnings(remaining) ?? [] : [];
+    let spacingBudget = remaining - warnings.length;
 
     const separateBodySummary = visibleBody.length > 0 &&
       visibleSummary.length > 0 &&
       spacingBudget > 0;
     if (separateBodySummary) spacingBudget -= 1;
 
-    const hasVisibleContent = visibleBody.length > 0 || visibleSummary.length > 0;
-    const separateHeader = header.length > 0 && hasVisibleContent && spacingBudget > 0;
+    const footer = phase === 'ready' && keysActive() && commands
+      ? readyFooter(viewport.width, spacingBudget, commands.canOpen)
+      : [];
+    const hasVisibleContent = visibleBody.length + visibleSummary.length + warnings.length > 0;
+    const separateHeader = header.length > 0 && hasVisibleContent && spacingBudget > footer.length;
     const rows = [
       ...header,
       ...(separateHeader ? [''] : []),
       ...visibleBody,
+      ...warnings,
       ...(separateBodySummary ? [''] : []),
       ...visibleSummary,
     ];
-    return rows.map((row) => fitRow(row, viewport.width)).join('\n');
+    const flow = rows.map((row) => fitRow(row, viewport.width));
+    return Cli.Screen.Dock.bottom({ capacity: viewport.height, flow, footer }).join('\n');
   };
 
   const repaint = (remeasure = false) => {
@@ -266,11 +278,16 @@ function createScreen(
     }
   };
 
-  const fail = (cause: unknown) => {
-    if (failureSettled || phase === 'disposed') return;
-    failureSettled = true;
-    reportedFailure = cause;
-    if (controls?.onFailure(cause) ?? true) phase = 'failed';
+  const fail = (cause: unknown, retireKeyboard?: () => void) => {
+    let accepted = false;
+    if (!failureSettled && phase !== 'disposed') {
+      failureSettled = true;
+      accepted = controls?.failPresentation(cause) ?? true;
+    }
+    // Claim the cause before the last keyboard repaint; freeze only after hints are retired.
+    retireKeyboard?.();
+    if (accepted) phase = 'failed';
+    return accepted;
   };
 
   const redraw = () => {
@@ -283,22 +300,44 @@ function createScreen(
   };
 
   const acquireKeyboard = () => {
-    if (!controls || keyboard) return;
+    if (!controls || controls.settled || keyboard) return;
+    const retire = () => {
+      if (!keysLive) return;
+      keysLive = false;
+      redraw();
+    };
     const owner = deps.bindKeyboard({
       quitKeys: 'interrupt-only',
-      until: controls.until,
-      onQuit: controls.onInterrupt,
+      until: controls.claimed,
+      onQuit() {
+        controls.interrupt();
+      },
       onKey(event) {
-        if (Cli.Keyboard.Is.redraw(event)) redraw();
+        if (phase !== 'ready' || !keysActive()) return;
+        if (Cli.Keyboard.Is.redraw(event)) return redraw();
+        const { key, altKey, ctrlKey, metaKey, shiftKey } = event;
+        const plain = altKey === false && ctrlKey === false && metaKey === false &&
+          shiftKey === false;
+        if (!plain) return;
+        if (key === 'q') {
+          controls.quit();
+          retire();
+          return 'stop';
+        }
+        if (key === 'o' && commands?.canOpen) {
+          commands.open();
+          redraw();
+        }
       },
     });
     keyboard = owner;
     if (!owner) return;
+    keysLive = true;
 
-    void owner.finished.then(
-      () => undefined,
-      (cause) => fail(cause),
-    );
+    void controls.claimed.then(retire);
+    void owner.finished.then(retire, (cause) => {
+      keyboardRejection = { cause, accepted: fail(cause, retire) };
+    });
   };
 
   const onResize = (size: ScreenSize) => {
@@ -360,6 +399,7 @@ function createScreen(
       if (phase !== 'starting' && phase !== 'open') return;
       releaseSpinner();
       renderBody = input.render;
+      commands = readyCommands(input.browser, deps.openBrowser);
       phase = 'ready';
       acquireKeyboard();
       repaint();
@@ -387,28 +427,28 @@ function createScreen(
         await Promise.resolve();
         let failed = false;
         let cleanupFailure: unknown;
+        const record = (cause: unknown) => {
+          cleanupFailure = failed
+            ? mergeFailures(cleanupFailure, cause, 'Cell start presentation cleanup failed.')
+            : cause;
+          failed = true;
+        };
         try {
           runCleanup([releaseSpinner, () => releaseScreen?.()]);
         } catch (cause) {
-          failed = true;
-          cleanupFailure = cause;
+          record(cause);
         }
         if (ownedKeyboard) {
           try {
             await deps.shutdownKeyboard(ownedKeyboard);
           } catch (cause) {
-            if (cause === reportedFailure) {
-              // The lifecycle already owns this terminal failure.
-            } else if (!failed) {
-              failed = true;
-              cleanupFailure = cause;
-            } else {
-              cleanupFailure = mergeFailures(
-                cleanupFailure,
-                cause,
-                'Cell start presentation cleanup failed.',
-              );
-            }
+            // Joining rethrows the original binding outcome, already offered to the lifecycle.
+            if (!keyboardRejection || cause !== keyboardRejection.cause) record(cause);
+          }
+          // Release is cleanup even when a listener error or a normal quit won the lifecycle.
+          const release = ownedKeyboard.releaseFailure;
+          if (release && !(keyboardRejection?.accepted && keyboardRejection.cause === release)) {
+            record(release);
           }
         }
         if (failed) throw cleanupFailure;

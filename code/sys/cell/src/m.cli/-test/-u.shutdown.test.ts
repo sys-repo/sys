@@ -1,8 +1,8 @@
-import { describe, expect, it } from '../../-test.ts';
+import { describe, expect, it } from './common.ts';
 import { createShutdownSignal } from '../u.lifecycle/u.shutdown.ts';
 
 describe('@sys/cell/cli shutdown signal', () => {
-  it('publishes one keyboard interrupt and disposes signal listeners idempotently', async () => {
+  it('keyboard interrupt → publishes the same reason to the lifecycle and abort signal', async () => {
     const shutdown = createShutdownSignal();
 
     try {
@@ -17,6 +17,24 @@ describe('@sys/cell/cli shutdown signal', () => {
       expect(shutdown.reason).to.eql('keyboard:interrupt');
     } finally {
       shutdown.dispose();
+    }
+  });
+
+  it('quit wins normally and does not count toward interrupt escalation', async () => {
+    const shutdown = createShutdownSignal({
+      addSignalListener() {},
+      removeSignalListener() {},
+      exit() {
+        throw new Error('unexpected escalation');
+      },
+    });
+    try {
+      expect(shutdown.quit()).to.eql(true);
+      expect(shutdown.quit()).to.eql(false);
+      expect(shutdown.interrupt()).to.eql(false);
+      expect(await shutdown.done).to.eql('keyboard:quit');
+      expect(shutdown.signal.reason).to.eql('keyboard:quit');
+    } finally {
       shutdown.dispose();
     }
   });
@@ -27,13 +45,12 @@ describe('@sys/cell/cli shutdown signal', () => {
 
     try {
       expect(shutdown.failPresentation(cause)).to.eql(true);
+      expect(shutdown.quit()).to.eql(false);
       expect(shutdown.interrupt()).to.eql(false);
 
       const reason = await shutdown.done;
-      expect(typeof reason).to.eql('object');
-      if (typeof reason === 'string') throw new Error('Expected presentation reason.');
-      expect(reason.kind).to.eql('presentation');
-      expect(reason.cause).to.equal(cause);
+      expect(reason).to.have.property('kind', 'presentation');
+      expect(reason).to.have.property('cause', cause);
       expect(shutdown.signal.reason).to.equal(reason);
     } finally {
       shutdown.dispose();
@@ -42,16 +59,20 @@ describe('@sys/cell/cli shutdown signal', () => {
 
   it('seals a completed service outcome against later terminal requests', async () => {
     const shutdown = createShutdownSignal();
-    let settled = false;
-    void shutdown.done.then(() => (settled = true));
+    let claimed = false;
+    let requested = false;
+    void shutdown.claimed.then(() => (claimed = true));
+    void shutdown.done.then(() => (requested = true));
 
     try {
       expect(shutdown.seal()).to.eql(true);
+      expect(shutdown.settled).to.eql(true);
       expect(shutdown.seal()).to.eql(false);
       expect(shutdown.failPresentation(new Error('late'))).to.eql(false);
       await Promise.resolve();
 
-      expect(settled).to.eql(false);
+      expect(claimed).to.eql(true);
+      expect(requested).to.eql(false);
       expect(shutdown.reason).to.eql(undefined);
       expect(shutdown.signal.aborted).to.eql(false);
     } finally {

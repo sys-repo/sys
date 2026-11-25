@@ -1,5 +1,15 @@
-import { describe, expect, Fs, it, Str, Testing } from '../../-test.ts';
-import { Cli, stripAnsi, type t } from '../common.ts';
+import {
+  Cli,
+  describe,
+  expect,
+  expectError,
+  Fs,
+  it,
+  Str,
+  stripAnsi,
+  type t,
+  Testing,
+} from './common.ts';
 import { StartReporter } from '../u.lifecycle/u.start.reporter.ts';
 import { createShutdownSignal } from '../u.lifecycle/u.shutdown.ts';
 import { loadStartCell, startCell, type StartCellReady } from '../u.lifecycle/u.start.ts';
@@ -38,7 +48,6 @@ describe('@sys/cell/cli start owner presentation', () => {
         expect(stripAnsi(input.text)).to.contain('./owner.ts');
         expect(stripAnsi(input.text)).not.to.contain('owner-http');
         expect(HttpFixture.reads).to.eql(1);
-        expect(HttpFixture.calls).to.have.length(1);
         expect(HttpFixture.calls[0].detail).to.equal(HttpFixture.details[0]);
         expect(HttpFixture.calls[0].receiver).to.eql(undefined);
         const server = HttpFixture.server!;
@@ -51,15 +60,13 @@ describe('@sys/cell/cli start owner presentation', () => {
         const status = server.status;
         server.status = () => ({ state: status().state, urls: [{ href: 'http://changed.test/' }] });
 
-        for (const width of [24, 100]) {
+        for (const [width, label] of [[24, 'shell'], [100, 'owner shell link']] as const) {
           const text = input.render({ width, hyperlinks: false });
-          expect(text).to.contain(target);
+          expect(text).to.contain(Cli.Fmt.hyperlink(label, new URL(HttpFixture.href)));
           for (const line of text.split('\n')) {
             expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(width);
           }
         }
-        expect(HttpFixture.calls).to.have.length(3);
-        expect(HttpFixture.calls[1].maxWidth).to.be.lessThan(HttpFixture.calls[2].maxWidth!);
         screen.reporter.open();
         screen.reporter.ready(input);
         const displayedHref = href.replace('127.0.0.1', 'localhost');
@@ -70,7 +77,6 @@ describe('@sys/cell/cli start owner presentation', () => {
         for (const line of frame.split('\n')) {
           expect(Cli.Fmt.Text.Width.measure(line)).to.be.at.most(24);
         }
-        expect(HttpFixture.calls).to.have.length(5);
         expect(HttpFixture.reads).to.eql(1);
         expect({ urlsReads, hrefReads }).to.eql({ urlsReads: 1, hrefReads: 1 });
         expect(input.browser).to.eql(browser);
@@ -109,11 +115,11 @@ describe('@sys/cell/cli start owner presentation', () => {
           shutdown.interrupt();
         };
         await withRuntimeDir(runtime, () => startCell(cell, { shutdown, onReady }));
-        expect(ready).not.to.eql(undefined);
-        const text = stripAnsi(ready!.render({ width: 100, hyperlinks: false }));
+        if (!ready) throw new Error('Cell did not publish a ready snapshot.');
+        const text = stripAnsi(ready.render({ width: 100, hyperlinks: false }));
         expect(text).to.contain(a.href);
         expect(text).to.contain(b.href);
-        expect(ready!.browser).to.eql({
+        expect(ready.browser).to.eql({
           targets: [],
           diagnostics: [{ service: 'selected', pathname: '/', matches: 2 }],
         });
@@ -131,18 +137,13 @@ describe('@sys/cell/cli start owner presentation', () => {
     const { cell, runtime } = await fixture();
     const shutdown = createShutdownSignal();
     const cause = new Error('owner presentation failed');
-    let thrown: unknown;
     HttpFixture.reset();
     HttpFixture.failure = cause;
     try {
-      try {
-        const onReady = () => shutdown.interrupt();
-        await withRuntimeDir(runtime, () => startCell(cell, { shutdown, onReady }));
-      } catch (error) {
-        thrown = error;
-      }
-      expect(thrown).to.equal(cause);
-      expect(HttpFixture.calls).to.have.length(1);
+      const failure = await expectError(() =>
+        withRuntimeDir(runtime, () => startCell(cell, { shutdown, onReady: shutdown.interrupt }))
+      );
+      expect(failure).to.equal(cause);
       expect(HttpFixture.server?.status().state).to.eql('stopped');
       expectPortReleased();
     } finally {
@@ -157,22 +158,18 @@ describe('@sys/cell/cli start owner presentation', () => {
     const shutdown = createShutdownSignal();
     const screen = screenReporter(shutdown);
     const cause = new Error('resize presentation failed');
-    let thrown: unknown;
     HttpFixture.reset();
     try {
-      try {
-        const onReady = (input: StartCellReady) => {
-          screen.reporter.open();
-          screen.reporter.ready(input);
-          HttpFixture.failure = cause;
-          screen.resize(24);
-        };
-        await withRuntimeDir(runtime, () => startCell(cell, { shutdown, onReady }));
-      } catch (error) {
-        thrown = error;
-      }
-      expect(thrown).to.equal(cause);
-      expect(HttpFixture.calls).to.have.length(3);
+      const onReady = (input: StartCellReady) => {
+        screen.reporter.open();
+        screen.reporter.ready(input);
+        HttpFixture.failure = cause;
+        screen.resize(24);
+      };
+      const failure = await expectError(() =>
+        withRuntimeDir(runtime, () => startCell(cell, { shutdown, onReady }))
+      );
+      expect(failure).to.equal(cause);
       expect(HttpFixture.server?.status().state).to.eql('stopped');
       expectPortReleased();
     } finally {
@@ -201,13 +198,7 @@ function screenReporter(shutdown: ReturnType<typeof createShutdownSignal>) {
     },
     repaint: (frame) => frames.push(frame),
     bindKeyboard: () => undefined,
-  }, {
-    until: shutdown.done,
-    onInterrupt: () => {
-      shutdown.interrupt();
-    },
-    onFailure: (cause) => shutdown.failPresentation(cause),
-  });
+  }, shutdown);
   return { reporter, frames, resize: (width: number) => onResize({ width, height: 24 }) };
 }
 

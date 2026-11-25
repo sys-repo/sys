@@ -1,10 +1,7 @@
-import { spawn } from 'node:child_process';
-import { kill } from 'node:process';
-import { expect, Is, Testing, Time } from '../../-test.ts';
-import { Cli, stripAnsi } from '../common.ts';
+import { Cli, expect, Is, kill, spawn, stripAnsi, Testing, Time } from './common.ts';
 import { CellSession } from '../u/u.session.ts';
 
-type VitePtyMode = 'keyboard' | 'keyboard-ci' | 'sigint' | 'sigterm' | 'forced';
+type VitePtyMode = 'quit' | 'keyboard' | 'keyboard-ci' | 'sigint' | 'sigterm' | 'forced';
 
 /**
  * Independent PTY measurement, not the production launcher's restoration implementation.
@@ -135,6 +132,7 @@ export async function proveVitePty(mode: VitePtyMode): Promise<void> {
     for (const row of rows) {
       expect(Cli.Fmt.Text.Width.measure(stripAnsi(row).trim())).to.be.at.most(47);
     }
+    if (mode === 'quit') proof.child.stdin!.write('q');
     if (mode === 'keyboard' || mode === 'keyboard-ci') proof.child.stdin!.write('\u0003');
     const status = await Time.waitFor(() => proof.status, { interval: 50, timeout: 15_000 });
     expect(status, proof.output).to.eql({ code: 0, signal: null });

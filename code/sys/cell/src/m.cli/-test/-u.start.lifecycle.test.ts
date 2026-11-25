@@ -1,41 +1,57 @@
-import { describe, expect, Fs, it, Str, Testing, Time } from '../../-test.ts';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  expectError,
+  Fs,
+  it,
+  Str,
+  stripAnsi,
+  Testing,
+  Time,
+} from './common.ts';
+import { runStart } from '../m.run/u.start.ts';
 import { createShutdownSignal } from '../u.lifecycle/u.shutdown.ts';
 import { loadStartCell, startCell } from '../u.lifecycle/u.start.ts';
+import { parseArgs } from '../u/u.args.ts';
 import { CellSession } from '../u/u.session.ts';
 import { cleanup, sessionRoot, spawnCellStart, withRuntimeDir } from './u.fixture.kill.ts';
+import { readyTerminal } from './u.fixture.ready-terminal.ts';
+import { silent } from './u.fixture.ts';
 
 type StartLifecycleGlobal = typeof globalThis & {
   __cellStartCloseFailure?: unknown;
   __cellStartCloseReasons?: unknown[];
-  __cellStartOnClose?: () => void;
+  __cellStartOnClose?: () => void | Promise<void>;
   __cellStartServiceFinished?: Promise<unknown>;
 };
 
 const state = globalThis as StartLifecycleGlobal;
 
 describe('@sys/cell/cli start lifecycle', () => {
+  beforeEach(() => void (state.__cellStartCloseReasons = []));
+  afterEach(() => {
+    delete state.__cellStartCloseFailure;
+    delete state.__cellStartOnClose;
+    delete state.__cellStartServiceFinished;
+    delete state.__cellStartCloseReasons;
+  });
+
   it('ready-boundary presentation failure outranks an already-settled service', async () => {
     const cell = await holdingCell('CellCli.start.presentation-failure');
     const shutdown = createShutdownSignal();
     const cause = new Error('presentation-failed');
-    let thrown: unknown;
-
-    resetState();
     state.__cellStartServiceFinished = Promise.resolve('finished');
     try {
-      await startCell(cell, {
-        shutdown,
-        onReady: () => shutdown.failPresentation(cause),
-      });
-    } catch (error) {
-      thrown = error;
+      const failure = await expectError(() =>
+        startCell(cell, { shutdown, onReady: () => shutdown.failPresentation(cause) })
+      );
+      expect(failure).to.equal(cause);
+      expect(state.__cellStartCloseReasons).to.eql([cause]);
     } finally {
       shutdown.dispose();
     }
-
-    expect(thrown).to.equal(cause);
-    expect(state.__cellStartCloseReasons).to.eql([cause]);
-    resetState();
   });
 
   it('keyboard interrupt closes running services without mapping process exit below the runner', async () => {
@@ -43,7 +59,6 @@ describe('@sys/cell/cli start lifecycle', () => {
     const shutdown = createShutdownSignal();
     const previousExitCode = Deno.exitCode;
 
-    resetState();
     Deno.exitCode = 0;
     try {
       const result = await startCell(cell, {
@@ -58,7 +73,53 @@ describe('@sys/cell/cli start lifecycle', () => {
     } finally {
       Deno.exitCode = previousExitCode;
       shutdown.dispose();
-      resetState();
+    }
+  });
+
+  it('service completion → retires browser commands before close settles', async () => {
+    const terminal = readyTerminal({ failRelease: false });
+    const result = await withHeldClose(terminal, async (finish) => {
+      terminal.key('o');
+      await Time.waitFor(() => terminal.opens.length, { timeout: 5_000 });
+      finish();
+      await Time.waitFor(() => state.__cellStartCloseReasons?.length, { timeout: 5_000 });
+      terminal.key('o');
+      await Time.wait(0);
+      terminal.resize();
+      expect(terminal.frame()).not.to.match(/open:|quit:/);
+    });
+    expect(terminal.opens).to.eql(['https://hold.test/']);
+    expect(state.__cellStartCloseReasons).to.eql(['cell.start.finished']);
+    expect(result.kind).to.eql('start');
+  });
+
+  it('keyboard quit → failed terminal release survives retry and returns code 1', async () => {
+    const terminal = readyTerminal({ failRelease: true });
+    const result = await withHeldClose(terminal, async () => {
+      terminal.key('q');
+      const failure = await Time.waitFor(() => expectError(() => terminal.finished()!), {
+        timeout: 5_000,
+      });
+      expect(failure).to.have.property('message', 'Keyboard disposal failed.');
+    });
+    expect(state.__cellStartCloseReasons).to.eql(['keyboard:quit']);
+    expect(result).to.include({ kind: 'error', code: 1 });
+    expect(stripAnsi(result.text)).to.contain('Keyboard disposal failed.');
+  });
+
+  it('graceful quit preserves service cleanup failure', async () => {
+    const cell = await holdingCell('CellCli.start.quit-cleanup');
+    const shutdown = createShutdownSignal();
+    const cause = new Error('service-close-failed');
+    state.__cellStartCloseFailure = cause;
+    try {
+      const failure = await expectError(() =>
+        startCell(cell, { shutdown, onReady: shutdown.quit })
+      );
+      expect(failure).to.equal(cause);
+      expect(state.__cellStartCloseReasons).to.eql(['keyboard:quit']);
+    } finally {
+      shutdown.dispose();
     }
   });
 
@@ -67,7 +128,6 @@ describe('@sys/cell/cli start lifecycle', () => {
     const shutdown = createShutdownSignal();
     const previousExitCode = Deno.exitCode;
 
-    resetState();
     Deno.exitCode = 0;
     try {
       const result = await startCell(cell, {
@@ -82,7 +142,6 @@ describe('@sys/cell/cli start lifecycle', () => {
     } finally {
       Deno.exitCode = previousExitCode;
       shutdown.dispose();
-      resetState();
     }
   });
 
@@ -135,7 +194,6 @@ describe('@sys/cell/cli start lifecycle', () => {
     };
     let thrown: unknown;
 
-    resetState();
     state.__cellStartCloseFailure = closeFailure;
     globalThis.addEventListener('unhandledrejection', onUnhandled);
     try {
@@ -161,14 +219,10 @@ describe('@sys/cell/cli start lifecycle', () => {
       shutdown.dispose();
     }
 
-    try {
-      expect(unhandled).to.eql([]);
-      expect(thrown).to.equal(closeFailure);
-      expect(shutdown.reason).to.eql('keyboard:interrupt');
-      expect(state.__cellStartCloseReasons).to.eql(['keyboard:interrupt']);
-    } finally {
-      resetState();
-    }
+    expect(unhandled).to.eql([]);
+    expect(thrown).to.equal(closeFailure);
+    expect(shutdown.reason).to.eql('keyboard:interrupt');
+    expect(state.__cellStartCloseReasons).to.eql(['keyboard:interrupt']);
   });
 
   it('service failure remains the terminal winner and close reason', async () => {
@@ -176,25 +230,17 @@ describe('@sys/cell/cli start lifecycle', () => {
     const shutdown = createShutdownSignal();
     const finished = Promise.withResolvers<never>();
     const cause = new Error('service-failed');
-    let thrown: unknown;
-
-    resetState();
     state.__cellStartServiceFinished = finished.promise;
     try {
-      await startCell(cell, {
-        shutdown,
-        onReady: () => finished.reject(cause),
-      });
-    } catch (error) {
-      thrown = error;
+      const failure = await expectError(() =>
+        startCell(cell, { shutdown, onReady: () => finished.reject(cause) })
+      );
+      expect(failure).to.equal(cause);
+      expect(state.__cellStartCloseReasons).to.eql([cause]);
+      expect(shutdown.reason).to.eql(undefined);
     } finally {
       shutdown.dispose();
     }
-
-    expect(thrown).to.equal(cause);
-    expect(state.__cellStartCloseReasons).to.eql([cause]);
-    expect(shutdown.reason).to.eql(undefined);
-    resetState();
   });
 
   it('service completion seals its close reason against late presentation failure', async () => {
@@ -203,7 +249,6 @@ describe('@sys/cell/cli start lifecycle', () => {
     const lateCause = new Error('late-presentation-failed');
     let lateAccepted: boolean | undefined;
 
-    resetState();
     state.__cellStartServiceFinished = Promise.resolve('finished');
     state.__cellStartOnClose = () => {
       lateAccepted = shutdown.failPresentation(lateCause);
@@ -217,7 +262,6 @@ describe('@sys/cell/cli start lifecycle', () => {
       expect(state.__cellStartCloseReasons).to.eql(['cell.start.finished']);
     } finally {
       shutdown.dispose();
-      resetState();
     }
   });
 
@@ -228,7 +272,6 @@ describe('@sys/cell/cli start lifecycle', () => {
     const closeFailure = new Error('service-close-failed');
     let thrown: unknown;
 
-    resetState();
     state.__cellStartCloseFailure = closeFailure;
     try {
       await startCell(cell, {
@@ -246,7 +289,6 @@ describe('@sys/cell/cli start lifecycle', () => {
     expect(aggregate.cause).to.equal(cause);
     expect(aggregate.errors).to.eql([cause, closeFailure]);
     expect(state.__cellStartCloseReasons).to.eql([cause]);
-    resetState();
   });
 
   it('composes distinct session and service cleanup failures under the primary', async () => {
@@ -258,7 +300,6 @@ describe('@sys/cell/cli start lifecycle', () => {
     const closeFailure = new Error('service-close-failed');
     let thrown: unknown;
 
-    resetState();
     state.__cellStartCloseFailure = closeFailure;
     await withRuntimeDir(runtime, async () => {
       try {
@@ -283,9 +324,37 @@ describe('@sys/cell/cli start lifecycle', () => {
     expect(aggregate.errors).to.contain(closeFailure);
     expect(aggregate.errors.length).to.eql(4);
     expect(state.__cellStartCloseReasons).to.eql([cause]);
-    resetState();
   });
 });
+
+/** Run the ready interaction before allowing the service's close to return. */
+async function withHeldClose(
+  terminal: ReturnType<typeof readyTerminal>,
+  interact: (finish: () => void) => Promise<void>,
+) {
+  const cell = await holdingCell('CellCli.start.ready-keys');
+  const argv = ['start', cell.root, '--reporter', 'screen'];
+  const finish = Promise.withResolvers<void>();
+  const release = Promise.withResolvers<void>();
+  state.__cellStartServiceFinished = finish.promise;
+  state.__cellStartOnClose = () => release.promise;
+  const ctx = { input: { argv }, args: parseArgs(argv) };
+  const run = withRuntimeDir(
+    Fs.join(cell.root, 'runtime'),
+    () => silent(() => runStart(ctx, terminal.deps)),
+  );
+  let result;
+  try {
+    await Time.waitFor(() => terminal.frame().includes('open: o'), { timeout: 5_000 });
+    await interact(finish.resolve);
+  } finally {
+    finish.resolve();
+    release.resolve();
+    result = await run;
+  }
+  expect(terminal.released()).to.eql(true);
+  return result;
+}
 
 async function holdingCell(name: string) {
   const fs = await Testing.dir(name);
@@ -297,6 +366,7 @@ async function holdingCell(name: string) {
 
       services:
         - name: hold
+          browser: '/'
           use: HoldingService
           from: ./-services/hold.ts
           config: ./-config/hold.yaml
@@ -310,7 +380,7 @@ async function holdingCell(name: string) {
           const state = globalThis as unknown as {
             __cellStartCloseFailure?: unknown;
             __cellStartCloseReasons?: unknown[];
-            __cellStartOnClose?: () => void;
+            __cellStartOnClose?: () => void | Promise<void>;
             __cellStartServiceFinished?: Promise<unknown>;
           };
           const finished = state.__cellStartServiceFinished ?? new Promise<never>((_, reject) => {
@@ -324,13 +394,14 @@ async function holdingCell(name: string) {
             finished,
             close(reason: unknown) {
               state.__cellStartCloseReasons?.push(reason);
-              state.__cellStartOnClose?.();
+              const closing = state.__cellStartOnClose?.();
               if (state.__cellStartCloseFailure !== undefined) {
                 throw state.__cellStartCloseFailure;
               }
+              return closing;
             },
             status() {
-              return { state: 'ready' };
+              return { state: 'ready', urls: [{ href: 'https://hold.test/' }] };
             },
           };
         },
@@ -407,11 +478,4 @@ async function waitForProcessSession(
     const sessions = await CellSession.list(canonical, { dir: runtime });
     return sessions.find((session) => session.pid === pid && session.state === state);
   }, { interval: 25, timeout: 5_000 });
-}
-
-function resetState() {
-  delete state.__cellStartCloseFailure;
-  delete state.__cellStartOnClose;
-  delete state.__cellStartServiceFinished;
-  state.__cellStartCloseReasons = [];
 }
