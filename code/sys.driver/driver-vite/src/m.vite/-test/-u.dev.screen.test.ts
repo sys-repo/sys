@@ -11,6 +11,7 @@ import {
   Time,
 } from '../../-test.ts';
 import { DevOutputLog } from '../u.dev/u.output.ts';
+import { READY_LAYOUT, readyRowBudget } from '../u.dev/u.screen.layout.ts';
 import { DevScreen } from '../u.dev/u.screen.ts';
 import { paths, pkg, processEvent } from './u.fixture.dev.ts';
 
@@ -246,6 +247,71 @@ describe('DevScreen', () => {
   });
 
   describe('ready frame', () => {
+    it('moves the footer handoff when only the preferred tail changes', () => {
+      const budget = { room: 6, wanted: 12, footerRows: 2 };
+      expectBudget({ ...budget, preferredTailRows: 2 }, { logRows: 4, showFooter: true });
+      expectBudget({ ...budget, preferredTailRows: 7 }, { logRows: 6, showFooter: false });
+    });
+
+    it('budgets against actual demand and actual footer cost', () => {
+      const budget = { room: 4, wanted: 12, footerRows: 2, preferredTailRows: 3 };
+      expectBudget({ ...budget, wanted: 2 }, { logRows: 2, showFooter: true });
+      expectBudget({ ...budget, wanted: 0 }, { logRows: 0, showFooter: true });
+      expectBudget({ ...budget, footerRows: 0 }, { logRows: 4, showFooter: false });
+      expectBudget({ ...budget, room: 0 }, { logRows: 0, showFooter: false });
+    });
+
+    it('shrinks the tail before hiding shortcuts without bringing older rows back', () => {
+      const width = 80;
+      const { preferredTailRows } = READY_LAYOUT;
+      const logLines = DevScreen.logLines(preferredTailRows + 3);
+      const output = DevOutputLog.create({ maxLines: logLines });
+      for (let current = 1; current <= logLines; current++) {
+        output.push(processEvent('stdout', `line-${current}\n`));
+      }
+      const lines = output.lines();
+      const render = (height: number) => {
+        const text = stripAnsi(DevScreen.toString({
+          identity: pkg(),
+          paths: paths(),
+          url: 'http://localhost:1234/',
+          lines,
+          logLines,
+          ...frame(width, height),
+        }));
+        const rows = text.split('\n');
+        return {
+          text,
+          log: rows.flatMap((row) => row.match(/\bline-\d+$/) ?? []),
+          footer: rows.at(-1)?.includes('open: o') ?? false,
+          dividers: rows.filter((row) => row === '┄'.repeat(width)).length,
+        };
+      };
+
+      const heights = Array.from({ length: logLines + 20 }, (_, index) => index + 1);
+      const grown = heights.map(render);
+      const handoff = grown.findIndex((frame) => frame.footer);
+      const withFooter = grown[handoff];
+      const withoutFooter = grown[handoff - 1];
+      const wanted = lines.map((line) => line.text);
+      const protectedTail = wanted.slice(Math.max(0, wanted.length - preferredTailRows));
+      expect(withFooter.log).to.eql(protectedTail);
+      expect(withoutFooter.log).to.eql(protectedTail);
+      expect(withFooter.text).to.include('quit: q');
+      expect(withoutFooter.text).to.not.include('quit: q');
+      expect(withFooter.dividers).to.eql(withoutFooter.dividers + 1);
+
+      const shrunk = [...heights].reverse().map(render);
+      expect(shrunk).to.eql([...grown].reverse());
+      expect(shrunk.at(0)?.log).to.eql(wanted);
+      expect(shrunk.at(-1)?.log).to.eql([]);
+      let previous = wanted;
+      for (const { log } of shrunk) {
+        expect(log).to.eql(previous.slice(Math.max(0, previous.length - log.length)));
+        previous = log;
+      }
+    });
+
     it('renders metadata followed by the configured visible-log tail', () => {
       const output = DevOutputLog.create({ maxLines: 5 });
       output.push(processEvent('stdout', 'one\n'));
@@ -295,37 +361,25 @@ describe('DevScreen', () => {
 
     it('contracts and re-expands the visible tail without deleting retained output', () => {
       const output = DevOutputLog.create({ maxLines: 10 });
-      for (let index = 1; index <= 5; index++) {
-        output.push(processEvent('stdout', `line-${index}\n`));
+      for (const text of ['L1', 'L2', 'L3', 'L4', 'L5']) {
+        output.push(processEvent('stdout', `${text}\n`));
       }
-      const render = (height: number) =>
-        stripAnsi(DevScreen.toString({
+      const render = (height: number) => {
+        const text = stripAnsi(DevScreen.toString({
           identity: pkg(),
           paths: paths(),
           url: 'http://localhost:1234/',
           lines: output.lines(),
-          logLines: 5,
-          ...frame(40, height),
+          ...frame(15, height),
         }));
+        return text.match(/\bL\d\b/g) ?? [];
+      };
 
-      const short = render(10);
-      const medium = render(11);
-      const tall = render(13);
-
-      expect(short).to.not.include('line-5');
-      expect(medium).to.not.include('line-4');
-      expect(medium).to.include('line-5');
-      expect(tall).to.not.include('line-2');
-      expect(tall).to.include('line-3');
-      expect(tall).to.include('line-4');
-      expect(tall).to.include('line-5');
-      expect(output.lines().map((line) => line.text)).to.eql([
-        'line-1',
-        'line-2',
-        'line-3',
-        'line-4',
-        'line-5',
-      ]);
+      expect(render(13)).to.eql(['L3', 'L4', 'L5']);
+      expect(render(10)).to.eql([]);
+      expect(render(11)).to.eql(['L5']);
+      expect(render(13)).to.eql(['L3', 'L4', 'L5']);
+      expect(output.lines().map((line) => line.text)).to.eql(['L1', 'L2', 'L3', 'L4', 'L5']);
     });
 
     it('switches the complete metadata rail at the narrow-width boundary', () => {
@@ -802,6 +856,13 @@ function frame(width: number, height = 40) {
 
 function physicalRows(text: string) {
   return text ? text.split('\n').length + 1 : 0;
+}
+
+function expectBudget(
+  input: Parameters<typeof readyRowBudget>[0],
+  expected: ReturnType<typeof readyRowBudget>,
+) {
+  expect(readyRowBudget(input)).to.eql(expected);
 }
 
 function expectRowsBounded(text: string, width: number) {

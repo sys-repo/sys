@@ -8,6 +8,9 @@ type Viewport = t.ViteDev.Screen.Frame.Viewport;
 const DEFAULT_LOG_LINES = 10;
 const MAX_LOG_LINES = 200;
 
+/** Ready-frame rows to keep ahead of the shortcut hints. */
+export const READY_LAYOUT = { preferredTailRows: 5 } as const;
+
 /** Dev-screen frame layout isolated from runtime lifecycle effects. */
 export const DevScreenLayout = {
   logLines: (input?: unknown) => wrangle.logLines(input),
@@ -61,11 +64,14 @@ export const DevScreenLayout = {
     const separator = ['', subHr];
     const fixedRowCount = headerRows.length + wrangle.readyMetadata(args, width, 1).length +
       separator.length;
-    const logCount = Math.min(
-      wrangle.logLines(args.logLines),
-      Math.max(0, capacity - fixedRowCount),
-    );
-    const visible = logCount === 0 ? [] : args.lines.slice(-logCount);
+    const footer = wrangle.keyboardFooter(width);
+    const { logRows, showFooter } = readyRowBudget({
+      room: Math.max(0, capacity - fixedRowCount),
+      wanted: Math.min(args.lines.length, wrangle.logLines(args.logLines)),
+      footerRows: footer.length,
+      preferredTailRows: READY_LAYOUT.preferredTailRows,
+    });
+    const visible = logRows === 0 ? [] : args.lines.slice(-logRows);
     const sequenceWidth = ViteScreenLayout.outputSequenceWidth(visible);
     const metadata = wrangle.readyMetadata(args, width, sequenceWidth);
     const flow = [
@@ -74,12 +80,30 @@ export const DevScreenLayout = {
       ...separator,
       ...visible.map((line) => ViteScreenLayout.outputRow(line, width, sequenceWidth)),
     ];
-    const footer = wrangle.keyboardFooter(width);
-    const rows = Cli.Screen.Dock.bottom({ capacity, flow, footer });
+    const rows = Cli.Screen.Dock.bottom({ capacity, flow, footer: showFooter ? footer : [] });
 
     return ViteScreenLayout.renderRows(rows, width);
   },
 } as const;
+
+/** Budget the newest log rows and the optional footer together. */
+export function readyRowBudget(args: {
+  room: number;
+  wanted: number;
+  footerRows: number;
+  preferredTailRows: number;
+}): { readonly logRows: number; readonly showFooter: boolean } {
+  const { room, wanted, footerRows, preferredTailRows } = args;
+  if (footerRows === 0) return { logRows: Math.min(room, wanted), showFooter: false };
+
+  const tail = Math.min(wanted, preferredTailRows);
+  if (room >= tail + footerRows) {
+    return { logRows: Math.min(wanted, room - footerRows), showFooter: true };
+  }
+
+  // Do not spend space freed by the footer on older rows as the screen shrinks.
+  return { logRows: Math.min(tail, room), showFooter: false };
+}
 
 /**
  * Helpers:
