@@ -30,7 +30,7 @@ export const Action: t.FC<t.Passkey.ActionProps> = (props) => {
   return (
     <div className={styles.base.class}>
       {variant === 'text'
-        ? <Button {...button} theme={theme.name} />
+        ? <Button {...button} tone='accent' theme={theme.name} />
         : <KeyValue.ActionButton {...button} />}
       {!pending && reason && (
         <Warning message={reason} ariaLabel='Action unavailable' theme={theme.name} />
