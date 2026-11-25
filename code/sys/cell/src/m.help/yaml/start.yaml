@@ -1,7 +1,7 @@
 summary: |
   Start Cell services from a Cell folder.
   Loads canonical `-config/@sys.cell/cell.yaml`, starts declared services,
-  and waits for service completion.
+  and manages their shutdown.
 
 usage:
   - deno run -ERWN jsr:@sys/cell start [dir]
@@ -27,6 +27,20 @@ services:
   - >-
     `--reporter auto` uses the Cell-owned screen on interactive terminals and raw output otherwise;
     `screen` requires an interactive terminal.
+  - >-
+      On the ready screen, press `o` to open the URLs selected by `browser`, or `q` to stop the
+      services and quit. Nothing opens on startup. The keys still work when the hints don't fit.
+  - >-
+      A `•` next to a URL means that service selected it. The mark can disappear in a narrow
+      terminal. Each press of `o` requests each selected URL once, even if several services
+      selected it.
+  - Raw mode has no ready-screen shortcuts and never launches a browser.
+  - >-
+      For `o`, grant run permission only for your system opener. Pass `--allow-run=open` on
+      macOS, `--allow-run=xdg-open` on Linux, or `--allow-run=explorer.exe` on Windows to `deno run`.
+  - >-
+      If you see `open request failed`, check that the opener is available and Deno may run it.
+      Cell hands off the URL; it doesn't check whether the page loads.
   - '`--mode <mode>` selects complete service variant bindings declared by that mode.'
   - |-
     Live-dev modes are ordinary service variants, for example `dev` selecting
@@ -34,14 +48,12 @@ services:
   - |-
     Mode selection is not passed to owner services;
     selected endpoints receive only normal lifecycle start args.
-  - Service owners keep their own config schema, mechanics, ports, URLs, and display.
+  - Service owners control their own settings and publish the URLs Cell displays.
   - >-
     Configured port conflicts are not auto-fixed;
     clear an old session/listener with `@sys/cell kill`
     or fix the owner config.
   - Add any extra permissions required by declared owner services.
-  - Cell calls `Cell.Services.wait` for started service handles that expose `finished`.
-  - |-
-    Services that should keep `@sys/cell start` alive
-    should return a started handle with `finished`.
-  - Cell closes started services when service wait completes or startup fails.
+  - >-
+      Cell shuts down the group when the first service it is waiting for finishes or fails.
+      If no service asks Cell to wait, it shuts down immediately after startup.

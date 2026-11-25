@@ -121,6 +121,25 @@ sections:
           is selected. Do not put `startAfter` inside a variant or owner config.
       - '`startAfter` does not probe reachability, monitor health, or change shutdown order.'
 
+  - label: 'Browser targets'
+    items:
+      - >-
+          `browser`: Published pathname(s) to open when you press `o` on the Cell ready screen.
+          Nothing opens on startup.
+      - >-
+          Set it on the service, not in a variant or owner config. Use one pathname or a nonempty
+          list in request order. Omit it to select no URLs.
+      - >-
+          Start each pathname with `/`. Leave out the origin, query, and fragment. Backslashes and
+          control characters are not allowed. Matching is literal: `/payments` and `/payments/`
+          differ, percent escapes stay encoded, and patterns are not expanded.
+      - >-
+          Cell checks the URLs that service publishes when ready in the selected mode. A pathname
+          selects a URL only if exactly one distinct HTTP(S) URL matches. URLs with credentials or
+          control characters are excluded. Different queries or fragments can make a match ambiguous.
+      - >-
+          If none or several match, Cell skips that pathname. Other pathnames can still select URLs.
+
   - label: 'Service modes'
     items:
       - A service mode is a Cell selection key for choosing among descriptor bindings.

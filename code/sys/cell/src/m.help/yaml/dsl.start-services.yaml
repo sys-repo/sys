@@ -7,7 +7,7 @@ sections:
     items: |
       Classify "start the Cell services" as `start services`.
       Start is an operator operation, not a config mutation.
-      Cell orchestrates services; owner packages own serving behavior and display.
+      Owners run the services and publish status and URLs. Cell renders the ready screen and handles its shortcuts.
       Do not write a custom launcher script unless explicitly asked.
       Do not edit `-config/@sys.cell/cell.yaml` just to start already configured services.
 
@@ -16,11 +16,11 @@ sections:
       - 'Use Cell CLI: `@sys/cell start [dir] --reporter auto`.'
       - Pass `[dir]` when the Cell root is not the current folder.
       - >-
-        Reporter `auto` selects the Cell-owned screen only on an interactive terminal and
-        otherwise preserves append-only raw output.
+          Reporter `auto` uses the ready screen on an interactive terminal and append-only raw
+          output otherwise. See `start --help` for shortcuts and opener permissions.
       - >-
-        Use this chapter to start already-declared services; read `dsl service` before adding
-        or changing variants.
+          Use this chapter to start already-declared services. See `dsl service` to declare
+          browser targets or change service variants.
       - >-
         Pass `--mode <mode>` only to select complete service variants already declared in the
         descriptor.
@@ -86,26 +86,22 @@ sections:
         At start time, `--mode <mode>` selects matching `variants.<mode>` before endpoints
         are imported.
       - >-
-        Reporter mode controls only Cell-owned terminal presentation; service owners remain
-        silent and do not receive the reporter option.
-      - >-
         Mode selection preserves one conceptual service identity; services without the selected
         variant keep their base binding.
       - Mode is a Cell selection key, not an owner-service setting. It is not forwarded.
       - >-
         Cell chooses the complete binding, then starts that endpoint through the normal
         lifecycle contract.
-      - '`Cell.Services.wait` waits for started service handles that expose `finished`.'
       - >-
-        Services that should keep `@sys/cell start` alive should return a started handle
-        with `finished`.
+          A service that should keep Cell running returns a handle with `finished`.
+          Cell closes the group when the first such promise settles. If no handle exposes
+          `finished`, Cell closes the group without waiting.
       - >-
-        Service owners keep config schema, mechanics, ports, URLs, permissions, serving
-        strategy, Vite/HMR behavior, resource declarations, and display.
+          Service owners keep their own config, ports, permissions, and serving behavior.
       - Cell does not rewrite ports to avoid conflicts.
       - >-
         Cell may render the selected mode and endpoint. It does not own Vite, HMR,
         static-serving, or owner config semantics.
       - Do not claim full browser HMR unless a browser-backed edit/update proof exists.
       - Add any extra permissions required by declared owner services.
-      - Cell closes started services when service wait completes or startup fails.
+      - Cell also closes started services if startup fails.

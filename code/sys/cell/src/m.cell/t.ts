@@ -292,7 +292,7 @@ export declare namespace Cell {
       verify(cell: Instance, options?: VerifyOptions): Promise<Verification>;
       resources(cell: Instance, options?: ResourceOptions): Promise<ResourcePlan>;
       start(cell: Instance, options?: StartOptions): Promise<Started>;
-      /** Wait for started service lifecycle handles that expose `finished`. */
+      /** Wait until any handle's `finished` settles. Return immediately if none expose it. */
       wait(started: Started): Promise<void>;
     };
 
@@ -470,7 +470,10 @@ export declare namespace Cell {
 
     /** Service resolved through `use` + `from` and service-owned `config`. */
     export type Service = SelectedService & {
-      /** Published pathnames to open with `o` on the Cell ready screen; never on startup. */
+      /**
+       * Published pathname(s) to open when you press `o` on the Cell ready screen.
+       * Nothing opens on startup.
+       */
       browser?: t.StringUrlRoute | readonly t.StringUrlRoute[];
       /** Optional alternative bindings selected by explicit service graph mode. */
       variants?: Record<Id, ServiceVariant>;
