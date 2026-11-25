@@ -33,7 +33,7 @@ deno.json:
     dev: true
   - import: npm:magic-string@1.4.5
     dev: true
-  - import: npm:@oxc-project/runtime@0.159.0
+  - import: npm:@oxc-project/runtime@0.160.0
     dev: true
     subpaths: [ helpers/usingCtx ]
   - import: npm:parse5@8.1.1
@@ -51,10 +51,10 @@ deno.json:
   - import: npm:@automerge/prosemirror@0.2.0
   - import: npm:yjs@13.6.33
   - import: npm:@monaco-editor/react@4.7.0
-  - import: npm:monaco-editor@0.57.0
+  - import: npm:monaco-editor@0.58.0
   - import: npm:prosemirror-model@1.25.13
   - import: npm:prosemirror-state@1.4.4
-  - import: npm:prosemirror-view@1.43.0
+  - import: npm:prosemirror-view@1.43.1
   - import: npm:prosemirror-example-setup@1.2.4
   - import: npm:prosemirror-schema-basic@1.2.5
   - import: npm:yaml@2.9.1
@@ -80,7 +80,7 @@ deno.json:
   - import: npm:fast-json-patch@3.1.2
   - import: npm:happy-dom@20.14.6
   - import: npm:hash-it@7.1.1
-  - import: npm:hono@4.13.20
+  - import: npm:hono@4.13.21
     subpaths: [ cors, types ]
   - import: npm:ignore@7.0.16
   - import: npm:ora@9.4.1
@@ -122,12 +122,12 @@ package.json:
     dev: true
   - import: npm:magic-string@1.4.5
     dev: true
-  - import: npm:@oxc-project/runtime@0.159.0
+  - import: npm:@oxc-project/runtime@0.160.0
     dev: true
     subpaths: [ helpers/usingCtx ]
   - import: npm:parse5@8.1.1
   - import: npm:@automerge/automerge-repo@2.5.6
-  - import: npm:monaco-editor@0.57.0
+  - import: npm:monaco-editor@0.58.0
   - import: npm:react-icons@5.7.0
     subpaths: [ bs, fa, fa6, fi, gr, hi, lia, lu, md, pi, ri, tb, vsc ]
   - import: npm:prettier@3.10.1

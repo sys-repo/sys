@@ -4,7 +4,7 @@
     "@testing-library/react": "16.3.3",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "monaco-editor": "0.57.0",
+    "monaco-editor": "0.58.0",
     "motion": "12.43.0",
     "parse5": "8.1.1",
     "react": "19.3.1",
@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "@deno/vite-plugin": "2.0.4",
-    "@oxc-project/runtime": "0.159.0",
+    "@oxc-project/runtime": "0.160.0",
     "@vitejs/plugin-react": "6.3.0",
     "magic-string": "1.4.5",
     "prettier": "3.10.1",
