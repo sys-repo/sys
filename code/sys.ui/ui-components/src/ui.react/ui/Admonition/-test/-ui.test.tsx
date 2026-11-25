@@ -142,6 +142,25 @@ describe('Admonition.UI', () => {
     expect(selection).to.eql(['text', 'none', 'text']);
   });
 
+  it('can skip both new-tab and same-context links without disabling navigation', async () => {
+    const markdown = 'Read the [guide](https://example.com/guide) or [jump](#details).';
+    using res = await TestReact.render(
+      <>
+        <UI markdown={markdown} />
+        <UI markdown={markdown} linksTabbable={false} />
+      </>,
+    );
+    const [native, skipped] = res.container.querySelectorAll('[role="note"]');
+    const links = (note: Element) => [...note.querySelectorAll('a')];
+    expect(links(native).map((link) => link.getAttribute('tabindex'))).to.eql([null, null]);
+    expect(links(skipped).map((link) => link.getAttribute('tabindex'))).to.eql(['-1', '-1']);
+    expect(links(skipped).map((link) => link.getAttribute('href'))).to.eql([
+      'https://example.com/guide',
+      '#details',
+    ]);
+    expect(links(skipped).map((link) => link.getAttribute('target'))).to.eql(['_blank', null]);
+  });
+
   it('defaults to 4px corners and honors square corners and caller style overrides', async () => {
     using res = await TestReact.render(
       <>

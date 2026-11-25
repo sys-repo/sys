@@ -6,7 +6,7 @@ import { STORAGE_KEY } from '../common.ts';
 const loadSpec = () => import('../-spec/-SPEC.tsx');
 
 describe('Admonition: owner specimen', () => {
-  it('loads sample content and cycles kind and radius independently', async () => {
+  it('loads samples and adjusts kind, radius, and link tab stops independently', async () => {
     await using fixture = await specimenFixture<DebugSignals>(STORAGE_KEY.DEV, loadSpec);
     const { host, debug } = fixture;
     expect(fixture.observe().size).to.include({ mode: 'center', width: 360 });
@@ -39,6 +39,22 @@ describe('Admonition: owner specimen', () => {
         'example.com',
         'example.com',
       ]);
+    }
+
+    await press('linksTabbable: true');
+    expect(buttons().map((el) => el.textContent)).to.include('linksTabbable: false');
+    {
+      using preview = await TestReact.render(await host.subject());
+      const links = [...preview.container.querySelectorAll('a')];
+      expect(links.map((link) => link.getAttribute('tabindex'))).to.eql(['-1', '-1']);
+      expect(about.querySelector('a')?.getAttribute('tabindex')).to.eql(null);
+    }
+    await press('(reset)');
+    expect(buttons().map((el) => el.textContent)).to.include('linksTabbable: true');
+    {
+      using preview = await TestReact.render(await host.subject());
+      const links = [...preview.container.querySelectorAll('a')];
+      expect(links.map((link) => link.getAttribute('tabindex'))).to.eql([null, null]);
     }
 
     await press('Plain (Note)');

@@ -22,6 +22,7 @@ const defaults: Storage = {
   theme: 'Dark',
 };
 const defaultSample: SampleId = 'titled';
+const initialLinksTabbable = true; // Ephemeral specimen input.
 const kinds: t.Admonition.Kind[] = ['note', 'tip', 'important', 'caution', 'warning'];
 const about = Str.dedent(`
   A short aside for something worth knowing before you continue. The
@@ -50,6 +51,7 @@ export function createDebugSignals() {
     kind: s<t.Admonition.Kind>(samples[defaultSample].kind),
     radius: s<t.Pixels>(D.radius),
     selectable: s<boolean>(D.selectable),
+    linksTabbable: s<boolean>(initialLinksTabbable),
   };
   const p = props;
   const { attach } = Spec.attachments({
@@ -75,6 +77,7 @@ export function createDebugSignals() {
     p.theme.value = defaults.theme;
     p.radius.value = D.radius;
     p.selectable.value = D.selectable;
+    p.linksTabbable.value = initialLinksTabbable;
     select(defaultSample);
   }
 
@@ -134,6 +137,11 @@ export const Debug: React.FC<DebugProps> = (props) => {
         block
         label={() => `selectable: ${v.selectable}`}
         onClick={() => Signal.toggle(p.selectable)}
+      />
+      <Dev.Button
+        block
+        label={() => `linksTabbable: ${v.linksTabbable}`}
+        onClick={() => Signal.toggle(p.linksTabbable)}
       />
 
       <hr />

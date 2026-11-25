@@ -15,6 +15,11 @@ export namespace ProseMarkdown {
     value?: Value;
     /** Component render overrides for supported Markdown semantics. */
     renderers?: Renderers;
+    /**
+     * Keep Markdown links in the native tab order (default). False skips them without disabling
+     * navigation. Custom link renderers must forward the supplied `tabIndex` to honor this option.
+     */
+    linksTabbable?: boolean;
     debug?: boolean;
     theme?: t.CommonTheme;
     style?: t.CssInput;
@@ -203,6 +208,8 @@ export namespace ProseMarkdown {
         href: t.StringUri;
         /** Optional link title. */
         title?: string;
+        /** Forward to the rendered link: `-1` skips Tab stops; `undefined` keeps native behavior. */
+        tabIndex?: -1;
         /** Already-rendered link children. */
         children: t.ReactNode;
       };

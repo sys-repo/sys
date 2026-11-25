@@ -39,21 +39,44 @@ describe('Prose.Markdown.UI: links', () => {
     }
   });
 
-  it('can render links with Anchor.UI from a caller override', async () => {
+  it('can skip native links in the tab order without removing their destinations', async () => {
+    const value = 'Read [docs](#docs).';
+    using res = await TestReact.render(
+      <>
+        <ProseMarkdown.UI value={value} />
+        <ProseMarkdown.UI value={value} linksTabbable />
+        <ProseMarkdown.UI value={value} linksTabbable={false} />
+      </>,
+    );
+    const links = [...res.container.querySelectorAll('a')];
+    expect(links.map((link) => link.getAttribute('tabindex'))).to.eql([null, null, '-1']);
+    expect(links.map((link) => link.getAttribute('href'))).to.eql(['#docs', '#docs', '#docs']);
+  });
+
+  it('lets a caller override forward the link tab index to Anchor.UI', async () => {
     const renderers: t.ProseMarkdown.Renderers = {
-      link({ href, title, children }) {
-        return <Anchor.UI href={href} title={title} target='_blank'>{children}</Anchor.UI>;
+      link({ href, title, tabIndex, children }) {
+        return (
+          <Anchor.UI href={href} title={title} tabIndex={tabIndex} target='_blank'>
+            {children}
+          </Anchor.UI>
+        );
       },
     };
 
     const res = await TestReact.render(
-      <ProseMarkdown.UI value='Open [Anchor.UI](https://example.com).' renderers={renderers} />,
+      <ProseMarkdown.UI
+        value='Open [Anchor.UI](https://example.com).'
+        linksTabbable={false}
+        renderers={renderers}
+      />,
       { strict: false },
     );
     try {
       const link = res.container.querySelector('a')!;
       expect(link.textContent).to.eql('Anchor.UI');
       expect(link.getAttribute('href')).to.eql('https://example.com');
+      expect(link.getAttribute('tabindex')).to.eql('-1');
       expect(link.getAttribute('target')).to.eql('_blank');
       expect(link.getAttribute('rel')).to.eql('noopener noreferrer');
     } finally {

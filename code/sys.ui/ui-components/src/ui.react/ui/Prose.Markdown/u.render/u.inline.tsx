@@ -12,6 +12,7 @@ type LinkRenderArgs = {
   node: MarkdownNodeRecord;
   children: t.ReactNode;
   renderer?: t.ProseMarkdown.Inline.Link.Renderer;
+  linksTabbable?: boolean;
   style: t.Style.Transform.Result;
 };
 
@@ -24,14 +25,15 @@ export function renderInlineCode(args: InlineCodeRenderArgs): t.ReactNode {
 }
 
 export function renderLink(args: LinkRenderArgs): t.ReactNode {
-  const { node, children, renderer, style } = args;
+  const { node, children, renderer, linksTabbable, style } = args;
   if (!Markdown.Is.link(node)) return children;
 
   const href = toSafeHref(node.url);
   const title = Is.string(node.title) && node.title.trim() ? node.title : undefined;
   if (!href) return children;
 
-  return renderer?.({ node, href, title, children }) ?? (
-    <a className={style.class} href={href} title={title}>{children}</a>
+  const tabIndex = linksTabbable === false ? -1 : undefined;
+  return renderer?.({ node, href, title, tabIndex, children }) ?? (
+    <a className={style.class} href={href} title={title} tabIndex={tabIndex}>{children}</a>
   );
 }

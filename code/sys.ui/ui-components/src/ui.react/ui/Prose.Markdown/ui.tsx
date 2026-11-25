@@ -16,6 +16,7 @@ export const Markdown: t.FC<P> = (props) => {
       {result.kind === 'error'
         ? <div className={styles.error.class} role='alert'>{result.error}</div>
         : renderChildren(result.ast.children, {
+          linksTabbable: props.linksTabbable,
           renderers: props.renderers,
           source: result.source,
           styles,

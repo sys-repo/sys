@@ -64,6 +64,7 @@ export const Admonition: t.FC<t.Admonition.Props> = (props) => {
       <Prose.Markdown.UI
         debug={debug}
         value={markdown}
+        linksTabbable={props.linksTabbable}
         theme={theme.name}
         style={styles.body}
         renderers={{
@@ -81,19 +82,25 @@ export const Admonition: t.FC<t.Admonition.Props> = (props) => {
           inlineCode({ value }) {
             return <Chip.UI mono theme={theme.name}>{value}</Chip.UI>;
           },
-          link({ href, title, children }) {
+          link({ href, title, tabIndex, children }) {
             // Markdown has already filtered the destination. Only absolute web links open a tab.
             const url = Url.parse(href);
             const protocol = url.ok ? url.toURL().protocol : undefined;
             if (protocol === 'https:' || protocol === 'http:') {
               return (
-                <Anchor.Link href={href} title={title} openIn='new-tab' theme={theme.name}>
+                <Anchor.Link
+                  href={href}
+                  title={title}
+                  tabIndex={tabIndex}
+                  openIn='new-tab'
+                  theme={theme.name}
+                >
                   {children}
                 </Anchor.Link>
               );
             }
             return (
-              <Anchor.UI href={href} title={title} theme={theme.name}>
+              <Anchor.UI href={href} title={title} tabIndex={tabIndex} theme={theme.name}>
                 {children}
               </Anchor.UI>
             );

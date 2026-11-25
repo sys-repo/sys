@@ -16,6 +16,7 @@ export default Spec.describe(D.displayName, (e) => {
         kind={v.kind}
         radius={v.radius}
         selectable={v.selectable}
+        linksTabbable={v.linksTabbable}
         debug={v.debug}
         theme={v.theme}
       />

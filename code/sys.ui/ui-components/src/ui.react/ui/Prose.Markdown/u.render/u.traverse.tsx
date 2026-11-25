@@ -78,6 +78,7 @@ function renderNode(input: unknown, ctx: RenderContext): t.ReactNode {
           node,
           children: renderContainerChildren(node, ctx),
           renderer: renderers?.link,
+          linksTabbable: ctx.linksTabbable,
           style: styles.link,
         })
         : renderFallback(node, ctx, 'invalid');

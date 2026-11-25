@@ -19,6 +19,8 @@ export declare namespace Admonition {
     kind?: Kind;
     /** Allow text selection in the Markdown body. Defaults to `true`. */
     selectable?: boolean;
+    /** Set to false to skip the note's links in the tab order without disabling navigation. */
+    linksTabbable?: boolean;
     /** Corner radius in pixels. Defaults to 4; use 0 for square corners. */
     radius?: t.Pixels;
     /** DOM ID on the note, for caller-owned references such as `aria-describedby`. */
