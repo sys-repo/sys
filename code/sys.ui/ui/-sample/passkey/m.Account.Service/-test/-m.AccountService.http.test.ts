@@ -1,4 +1,5 @@
 import { HttpCmd } from '@sys/http/cmd';
+import { Accounts } from '../../m.Accounts/mod.ts';
 import { describe, expect, it, type t, Try } from './common.ts';
 import { authenticator, fixture, value } from './u.fixture.ts';
 
@@ -12,7 +13,7 @@ describe('AccountService over bounded HttpCmd', () => {
     let requests = 0;
     using client = HttpCmd.client<t.Accounts.Name, t.Accounts.Payload, t.Accounts.Result>({
       url: 'https://accounts.example.test/cmd',
-      ns: 'accounts',
+      ns: Accounts.Cmd.ns,
       policy,
       async fetch(input, init) {
         requests++;
@@ -22,7 +23,7 @@ describe('AccountService over bounded HttpCmd', () => {
         const response = await HttpCmd.handle(request, {
           path: '/cmd',
           policy,
-          cmd: { ns: 'accounts', handlers: host.service.handlers({ credential }) },
+          cmd: { ns: Accounts.Cmd.ns, handlers: host.service.handlers({ credential }) },
         });
         if (loseResponse) {
           await response.body?.cancel();

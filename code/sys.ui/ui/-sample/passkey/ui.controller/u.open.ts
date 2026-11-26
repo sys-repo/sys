@@ -1,4 +1,5 @@
 import { AccountRuntime } from '../m.Account.Runtime/mod.ts';
+import { Accounts } from '../m.Accounts/mod.ts';
 import type { t } from '../ui/common.ts';
 import { browserOrigin, rp } from '../u/u.issuer.ts';
 import { ROUTE } from '../u/u.routes.ts';
@@ -6,7 +7,7 @@ import { createServicePoll } from './u.servicePoll.ts';
 
 const binding: t.AccountRuntime.CreateOptions = {
   endpoint: new URL(ROUTE.ACCOUNT.commandPath, browserOrigin).href,
-  namespace: 'accounts',
+  namespace: Accounts.Cmd.ns,
   rpId: rp.id,
   policy: { maxBytes: { request: 32_768, response: 32_768 }, timeout: 5_000 },
 };

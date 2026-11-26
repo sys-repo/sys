@@ -77,7 +77,7 @@ function captureInspections(inspections: Inspect[]) {
 async function inspectOverHttp(url: string) {
   using client = HttpCmd.client<t.Accounts.Name, t.Accounts.Payload, t.Accounts.Result>({
     url,
-    ns: 'accounts',
+    ns: Accounts.Cmd.ns,
     policy: { maxBytes: { request: 32_768, response: 32_768 }, timeout: 5_000 },
     fetch(input, init) {
       const headers = new Headers(init?.headers);

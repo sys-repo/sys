@@ -1,6 +1,7 @@
 import { HttpCmd } from '@sys/http/cmd';
 import type { HttpCmd as Transport } from '@sys/http/t';
 import { Is, type t } from '../common.ts';
+import { Accounts } from '../m.Accounts/mod.ts';
 import { ROUTE } from './u.routes.ts';
 
 type Options = {
@@ -21,7 +22,7 @@ export function accountRequest({ origin, policy, handlers }: Options) {
     if (header !== null && !Is.str(credential)) return refuse(request, 400);
     return HttpCmd.handle<t.Accounts.Name, t.Accounts.Payload, t.Accounts.Result>(request, {
       policy,
-      cmd: { ns: 'accounts', handlers: handlers({ credential }) },
+      cmd: { ns: Accounts.Cmd.ns, handlers: handlers({ credential }) },
     });
   };
 }

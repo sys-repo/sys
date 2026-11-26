@@ -6,6 +6,8 @@ import { payloads, results } from './u.schema.ts';
  * Inputs must be bounded, decoded JSON. Valid values are returned unchanged, not sanitized or cloned.
  */
 export const Accounts: t.Accounts.Lib = {
+  Cmd: Object.freeze({ ns: 'accounts' as const }),
+
   readPayload<N extends t.Accounts.Name>(name: N, input: unknown) {
     if (!Obj.hasOwn(payloads, name) || !Schema.Value.Check(payloads[name], input)) return undefined;
     // The operation-selected schema establishes the private wire contract, not authentication.

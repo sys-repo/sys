@@ -5,8 +5,13 @@ import type { t } from './common.ts';
  * Facts, Session, and ServiceStats are observations. See README.contract.md for commit and recovery obligations.
  */
 export declare namespace Accounts {
-  /** Strict admission of bounded, decoded JSON; undefined means invalid, never service rejection. */
+  /**
+   * Wire metadata and admission of bounded, decoded JSON.
+   * Both readers return `undefined` for invalid input, never to signal service rejection.
+   */
   export type Lib = {
+    /** Use this wire namespace when sending commands to the sample account service. */
+    readonly Cmd: { readonly ns: 'accounts' };
     readPayload<N extends Name>(name: N, input: unknown): Payload[N] | undefined;
     readResult<N extends Name>(name: N, input: unknown): Result[N] | undefined;
   };

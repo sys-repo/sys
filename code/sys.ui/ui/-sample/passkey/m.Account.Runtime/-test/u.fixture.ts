@@ -135,7 +135,10 @@ export function transport(service?: t.Accounts.Service, relyingParty = rpId) {
     });
     const credential = authorization?.slice('Bearer '.length);
     const selected = service?.({ credential }) ?? handlers;
-    const pending = HttpCmd.handle(req, { policy, cmd: { ns: 'accounts', handlers: selected } });
+    const pending = HttpCmd.handle(req, {
+      policy,
+      cmd: { ns: Accounts.Cmd.ns, handlers: selected },
+    });
     if (name === faults.disconnect) {
       // Lose the connection, not the handler: its commit may still be held across inspection.
       void pending.then((reply) => reply.body?.cancel());
@@ -150,7 +153,7 @@ export function transport(service?: t.Accounts.Service, relyingParty = rpId) {
     return result;
   };
   const mock = WebFixture.Fetch.mock(fetcher);
-  const options = { endpoint, namespace: 'accounts', rpId: relyingParty, policy };
+  const options = { endpoint, namespace: Accounts.Cmd.ns, rpId: relyingParty, policy };
   return {
     get fetchCount() {
       return fetchCount;

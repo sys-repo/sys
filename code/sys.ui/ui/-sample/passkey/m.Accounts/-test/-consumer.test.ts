@@ -10,6 +10,12 @@ type InspectHandler = t.Cmd.Handler.Map<
 
 /** Compile-time consumers plus decoded-result consumption, not a fake authentication service. */
 describe('Accounts consumers', () => {
+  it('Cmd metadata → literal wire namespace, frozen at runtime', () => {
+    expectTypeOf<'accounts'>(Accounts.Cmd.ns);
+    expect(Accounts.Cmd.ns).to.eql('accounts');
+    expect(Object.isFrozen(Accounts.Cmd)).to.eql(true);
+  });
+
   it('registration response → required native members without fallback narrowing', () => {
     type Response = t.Accounts.Wire.Registration['response'];
     const response: Response = {

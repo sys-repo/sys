@@ -1,7 +1,18 @@
+import { HttpCmd } from '@sys/http/cmd';
 import { authenticator, fixture } from '../../m.Account.Service/-test/u.fixture.ts';
 import { AccountRuntime } from '../mod.ts';
 import { describe, expect, it, Json, Time, WebFixture } from './common.ts';
-import { accepted, browser, creation, endpoint, token, transport, wallClock } from './u.fixture.ts';
+import {
+  accepted,
+  browser,
+  creation,
+  endpoint,
+  policy,
+  rpId,
+  token,
+  transport,
+  wallClock,
+} from './u.fixture.ts';
 
 const ok = { kind: 'accepted' };
 const uncertain = { kind: 'indeterminate' };
@@ -43,6 +54,21 @@ describe('AccountRuntime', () => {
     ]);
     expect(native.calls).to.eql([]);
     expect(runtime.state.current).to.equal(state);
+  });
+
+  it('caller-supplied namespace → service.stats reaches the matching handler', async () => {
+    const namespace = 'fixture-accounts';
+    const counts = { accounts: 1, registeredPasskeys: 2, validSessions: 3 };
+    using _native = browser();
+    using _fetch = WebFixture.Fetch.mock((input, init) =>
+      HttpCmd.handle(new Request(input, init), {
+        policy,
+        cmd: { ns: namespace, handlers: { 'service.stats': () => accepted(counts) } },
+      })
+    );
+    using runtime = AccountRuntime.create({ endpoint, namespace, rpId, policy });
+    runtime.start();
+    expect(await runtime.info.readCounts()).to.eql(counts);
   });
 
   it('service availability follows account exchanges, not whether an action was granted', async () => {

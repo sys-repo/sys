@@ -19,14 +19,17 @@ Reloading the page is different: it forgets the local credential without revokin
 ## Usage
 
 Create one runtime for the host's lifetime. `start()` checks browser support without sending a
-request or opening a ceremony. The host supplies `render` and all configuration values below.
+request or opening a ceremony. The host supplies `render` and the binding configuration. The
+endpoint and RP ID below are illustrative. For the local sample, see
+[Local routing and verification](../README.md#local-routing-and-verification).
 
 ```ts
+import { Accounts } from '../m.Accounts/mod.ts';
 import { AccountRuntime } from './mod.ts';
 
 const runtime = AccountRuntime.create({
   endpoint: 'https://accounts.example.test/cmd',
-  namespace: 'accounts',
+  namespace: Accounts.Cmd.ns,
   rpId: 'example.test',
   policy: { maxBytes: { request: 32_768, response: 32_768 }, timeout: 5_000 },
 });
