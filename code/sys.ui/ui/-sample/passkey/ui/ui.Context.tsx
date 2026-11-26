@@ -41,14 +41,14 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
         : valueOr(context.origin, 'Unknown'),
     },
     {
+      id: 'rp-name',
+      k: key('Relying Party', references.rpName),
+      v: valueOr(context.rpName, 'Not configured'),
+    },
+    {
       id: 'rp-id',
       k: key('Relying Party ID', references.rpId),
       v: valueOr(context.rpId, 'Not configured'),
-    },
-    {
-      id: 'rp-name',
-      k: key('Relying Party Name', references.rpName),
-      v: valueOr(context.rpName, 'Not configured'),
     },
     {
       id: 'web-authn',

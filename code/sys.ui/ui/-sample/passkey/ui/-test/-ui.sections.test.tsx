@@ -212,10 +212,17 @@ describe('Passkey diagnostic sections', () => {
       Principal: 'https://www.rfc-editor.org/rfc/rfc4949.html#page-232',
       'Registered credentials': `${w3c}credential-record`,
       Origin: `${w3c}sctn-validating-origin`,
+      'Relying Party': `${w3c}dom-publickeycredentialentity-name`,
       'Relying Party ID': `${w3c}relying-party-identifier`,
-      'Relying Party Name': `${w3c}dom-publickeycredentialentity-name`,
       WebAuthn: `${w3c}sctn-api`,
     });
+    const contextLinks = container.querySelectorAll('[data-passkey-section="context"] a');
+    expect([...contextLinks].map((link) => link.textContent)).to.eql([
+      'Origin',
+      'Relying Party',
+      'Relying Party ID',
+      'WebAuthn',
+    ]);
     expect(valueCell(container, 'Principal').textContent).to.eql(principal);
     const supplied = valueCell(container, 'Origin');
     expect(supplied.textContent).to.eql(origin);
