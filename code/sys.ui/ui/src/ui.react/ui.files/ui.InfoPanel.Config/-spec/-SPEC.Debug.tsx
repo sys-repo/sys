@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
+import { Color, css, D, Dev, LocalStorage, Signal, Spec, STORAGE_KEY, type t } from './common.ts';
 
 type ConfigItem = t.Files.InfoPanel.Config.Item;
 
@@ -43,11 +43,18 @@ export async function createDebugSignals() {
     },
   };
   const p = props;
-  const api = {
-    props,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.reorder = p.reorder.value;
+        d.items = p.items.value;
+        d.cursorEnabled = p.cursor.enabled.value;
+      });
+    },
+  });
+  const api = { props, listen, reset, attach };
 
   function listen() {
     Signal.listen(props, true);
@@ -61,16 +68,6 @@ export async function createDebugSignals() {
     p.cursor.enabled.value = defaults.cursorEnabled;
     p.cursor.model.value = {};
   }
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.reorder = p.reorder.value;
-      d.items = p.items.value;
-      d.cursorEnabled = p.cursor.enabled.value;
-    });
-  });
 
   return api;
 }
