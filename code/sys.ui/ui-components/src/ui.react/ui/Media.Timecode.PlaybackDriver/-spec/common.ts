@@ -1,7 +1,7 @@
 import { DEFAULTS } from '../common.ts';
 
 /** Libs: */
-export { Dev } from '../../../dev/mod.ts';
+export { Dev } from '../../-test.ui.ts';
 export * from '../common.ts';
 
 /** Components: */

@@ -16,6 +16,12 @@ import type { Item as ListItem, Props as ListProps } from '../m.List/t.ts';
 type Id = 'a' | 'b';
 
 describe('@sys/ui-components/react/dev: exports', () => {
+  it('UI test barrel → the public Dev aggregate', async () => {
+    const { Dev } = await import('@sys/ui-components/react/dev');
+    const barrel = await import('../../ui/-test.ui.ts');
+    expect(barrel.Dev).to.equal(Dev);
+  });
+
   it('public aggregate → the same callable primitives and leaf contracts', async () => {
     const m = await import('@sys/ui-components/react/dev');
     const production = await import('@sys/ui-components/react/anchor');

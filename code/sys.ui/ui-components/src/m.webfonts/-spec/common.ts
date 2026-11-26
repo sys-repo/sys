@@ -3,7 +3,6 @@ import { Pkg, pkg } from '../../ui.react/-test.ui.ts';
 export * from '../../ui.react/-test.ui.ts';
 export type * as t from './-t.ts';
 export { Fonts, useFontBundle } from '../mod.ts';
-export { Dev } from '../../ui.react/dev/mod.ts';
 export { BulletList } from '../../ui.react/ui/BulletList/mod.ts';
 
 const name = 'fonts:webfonts';

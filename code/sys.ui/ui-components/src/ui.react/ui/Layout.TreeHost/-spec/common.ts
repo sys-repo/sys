@@ -1,4 +1,4 @@
-export { Dev } from '../../../dev/mod.ts';
+export { Dev } from '../../-test.ui.ts';
 export * from '../common.ts';
 export type * as t from './-t.ts';
 
