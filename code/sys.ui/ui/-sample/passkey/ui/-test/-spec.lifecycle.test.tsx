@@ -161,10 +161,11 @@ describe('passkey specimen ownership', () => {
       const section = element(container, '[data-passkey-service]');
       await Time.waitFor(async () => {
         await React.act(() => Time.wait(0));
-        return section.textContent?.includes('Counts unavailable');
+        return !!section.querySelector('[role="img"][aria-label="Accounts API: available"]');
       });
-      const bullet = element(section, '[role="img"][aria-label^="Accounts API:"]');
-      expect(bullet.title).to.eql('Accounts API: available');
+      for (const label of ['Total accounts', 'Total passkeys', 'Valid sessions']) {
+        expect(valueCell(section, label).textContent).to.eql('-');
+      }
     }
     expect(valueCell(subject.container, 'Authentication').textContent).to.eql('Signed out');
     expect(server.requests.map(({ name }) => name)).to.eql(['service.stats']);

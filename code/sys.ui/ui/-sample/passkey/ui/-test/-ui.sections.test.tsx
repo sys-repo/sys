@@ -154,12 +154,13 @@ describe('Passkey diagnostic sections', () => {
     expect(panel.container.querySelector(selector)).to.eql(null);
   });
 
-  it('failed service observation → dashes, not zero or an account failure', async () => {
+  it('failed service observation → only the heading and dashed totals; account stays signed in', async () => {
     const service = { observation: { kind: 'failed' } } as const;
     using res = await renderPanel({ snapshot: signedIn, service });
     const block = element(res.container, '[data-passkey-service]');
-    expect(countLabels.map((k) => valueCell(block, k).textContent)).to.eql(['-', '-', '-']);
-    expect(element(block, '[role="status"]').textContent).to.eql('Counts unavailable');
+    expect(block.innerText.trim()).to.match(
+      /^Account Service\s*Total accounts\s*-\s*Total passkeys\s*-\s*Valid sessions\s*-$/,
+    );
     expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed in');
     expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
   });

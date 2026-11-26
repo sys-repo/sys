@@ -69,7 +69,6 @@ export function AccountService(
     <div data-passkey-service=''>
       {header}
       <KeyValue.UI items={items} layout={D.layout} theme={theme} />
-      <div role='status'>{observation.kind === 'failed' ? 'Counts unavailable' : ''}</div>
     </div>
   );
 }
