@@ -28,10 +28,10 @@ export function create(options: t.AccountRuntime.CreateOptions): t.AccountRuntim
   const dispose = () => retire('disposed');
   return Object.freeze({
     state,
+    info: Object.freeze({ readCounts }),
     start,
     run,
     refresh,
-    readStats,
     cancel: () => active?.abort.abort(),
     depart: () => retire('departed'),
     dispose,
@@ -102,7 +102,7 @@ export function create(options: t.AccountRuntime.CreateOptions): t.AccountRuntim
     }
   }
 
-  async function readStats(signal: AbortSignal) {
+  async function readCounts(signal = new AbortController().signal) {
     if (state.current.lifecycle !== 'active' || signal.aborted) return;
     const entered = lifetime;
     const result = await wire.send('service.stats', {}, signal);

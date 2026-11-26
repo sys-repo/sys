@@ -23,18 +23,23 @@ export declare namespace AccountRuntime {
    */
   export type Instance = t.Disposable & {
     readonly state: State;
+    readonly info: Info;
     /** Activate or restore locally: check browser support without sending a request. */
     start(): void;
     /** Inspect a retained session when idle; this cannot confirm an earlier mutation. */
     refresh(): Promise<void>;
-    /** Read service totals without a bearer; `undefined` means no observation, not zero. */
-    readStats(signal: AbortSignal): Promise<t.Accounts.ServiceStats | undefined>;
     /** Attempt one account action; a busy runtime does not queue it. */
     run(action: Action): Promise<Action.Outcome>;
     /** Request cancellation of an action or inspection; its slot stays occupied until settlement. */
     cancel(): void;
     /** Forget the bearer without revoking the remote session. Call `start()` on restoration. */
     depart(): void;
+  };
+
+  /** Explicit, bearer-free reads from the bound account service. */
+  export type Info = {
+    /** Read service totals; `undefined` means no observation, not zero. */
+    readCounts(signal?: AbortSignal): Promise<t.Accounts.ServiceStats | undefined>;
   };
 
   /** Read `current` on attachment and whenever `changed$` fires; notifications do not replay. */

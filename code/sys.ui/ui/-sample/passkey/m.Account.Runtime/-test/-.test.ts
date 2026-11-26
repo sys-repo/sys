@@ -27,7 +27,7 @@ describe('AccountRuntime', () => {
     expect(server.fetchCount).to.equal(0);
   });
 
-  it('signed-out stats read → observes zero without a bearer, ceremony, or state change', async () => {
+  it('signed-out counts read without a signal → observes zero in one bearer-free request', async () => {
     using native = browser();
     using server = transport();
     using runtime = server.create();
@@ -35,9 +35,9 @@ describe('AccountRuntime', () => {
     server.handlers['service.stats'] = () => accepted(zero);
     runtime.start();
     const state = runtime.state.current;
-    const { signal } = new AbortController();
     expect(state.session.kind).to.equal('signed-out');
-    expect(await runtime.readStats(signal)).to.eql(zero);
+    expect(await runtime.info.readCounts()).to.eql(zero);
+    expect(server.fetchCount).to.equal(1);
     expect(server.requests.map(({ name, authorization }) => [name, authorization])).to.eql([
       ['service.stats', null],
     ]);
@@ -45,7 +45,7 @@ describe('AccountRuntime', () => {
     expect(runtime.state.current).to.equal(state);
   });
 
-  it('signed-in stats read → omits retained bearer and rejects malformed totals', async () => {
+  it('signed-in counts read → omits retained bearer and rejects malformed totals', async () => {
     using native = browser();
     using server = transport();
     using runtime = server.create();
@@ -53,9 +53,8 @@ describe('AccountRuntime', () => {
     expect(await runtime.run('create-account')).to.eql(ok);
     const state = runtime.state.current;
     expect(state.session.kind).to.equal('signed-in');
-    const { signal } = new AbortController();
     const totals = { accounts: 1, registeredPasskeys: 1, validSessions: 1 };
-    expect(await runtime.readStats(signal)).to.eql(totals);
+    expect(await runtime.info.readCounts()).to.eql(totals);
     const malformed = [
       { ...totals, accounts: -1 },
       { ...totals, registeredPasskeys: 0.5 },
@@ -64,7 +63,7 @@ describe('AccountRuntime', () => {
     ];
     for (const values of malformed) {
       server.handlers['service.stats'] = () => accepted(values);
-      expect(await runtime.readStats(signal)).to.eql(undefined);
+      expect(await runtime.info.readCounts()).to.equal(undefined);
     }
     expect(server.requests.slice(2).map(({ name, authorization }) => [name, authorization])).to.eql(
       Array.from({ length: 1 + malformed.length }, () => ['service.stats', null]),

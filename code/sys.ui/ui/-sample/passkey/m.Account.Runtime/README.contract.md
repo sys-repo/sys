@@ -24,9 +24,12 @@ WebAuthn.
 - `run()` and `refresh()` share one operation slot. A workflow holds it before announcing a pending
   phase or awaiting work. A competing action returns `not-submitted` / `busy`; a refresh does not
   queue. `cancel()` requests an abort. It does not free the slot or undo a server change.
-- Call `readStats(signal)` explicitly for service totals, not to refresh a session. It sends no
-  bearer, uses no operation slot, and changes neither session state nor the last action result.
-  Three zeros are an observation; `undefined` means no observation. Do not substitute zeros.
+- Call `runtime.info.readCounts(signal?)` explicitly for service totals, not to refresh a session.
+  Consumers that only need totals can take `runtime.info`, without the account action API. A read
+  sends no bearer, uses no operation slot, and changes neither session state nor the last action
+  result. The transport deadline and runtime lifetime apply even without a caller signal. An
+  already-aborted signal sends nothing. Three zeros are an observation; `undefined` means no
+  observation. Do not substitute zeros.
 - Call `depart()` on page departure and `start()` on restoration. Departure discards the bearer,
   account facts, and last outcome. Restoration opens no ceremony. If old work is still settling,
   `operation.kind` is `retiring`: wait for `idle` before offering another action. Settlement cannot

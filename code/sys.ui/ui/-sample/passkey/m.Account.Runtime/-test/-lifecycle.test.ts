@@ -12,17 +12,17 @@ import {
 const cancelled = { kind: 'not-submitted', reason: 'cancelled' };
 
 describe('AccountRuntime lifetime and cancellation boundaries', () => {
-  it('pre-aborted stats read → no request', async () => {
+  it('pre-aborted counts read → no request', async () => {
     using _native = browser();
     using server = transport();
     using runtime = server.create();
     runtime.start();
-    expect(await runtime.readStats(AbortSignal.abort())).to.equal(undefined);
+    expect(await runtime.info.readCounts(AbortSignal.abort())).to.equal(undefined);
     expect(server.fetchCount).to.equal(0);
   });
 
   for (const exit of ['abort', 'restore', 'dispose'] as const) {
-    it(`stats reply admitted → ${exit} before observation → discard totals`, async () => {
+    it(`counts reply admitted → ${exit} before observation → discard totals`, async () => {
       using _native = browser();
       using server = transport();
       using runtime = server.create();
@@ -38,14 +38,16 @@ describe('AccountRuntime lifetime and cancellation boundaries', () => {
         if (exit === 'dispose') runtime.dispose();
         atBoundary = runtime.state.current;
       });
-      expect(await runtime.readStats(abort.signal)).to.equal(undefined);
+      expect(await runtime.info.readCounts(exit === 'abort' ? abort.signal : undefined)).to.equal(
+        undefined,
+      );
       expect(atBoundary).not.to.equal(undefined);
       expect(runtime.state.current).to.equal(atBoundary);
       expect(server.requests.map((r) => r.name)).to.eql(['service.stats']);
     });
   }
 
-  it('stats read during a held account action → late totals leave Last result intact', async () => {
+  it('counts read during a held account action → late totals leave Last result intact', async () => {
     using _native = browser();
     using server = transport();
     using runtime = server.create();
@@ -68,12 +70,12 @@ describe('AccountRuntime lifetime and cancellation boundaries', () => {
 
     runtime.start();
     const attempt = runtime.run('create-account');
-    let read: ReturnType<typeof runtime.readStats> | undefined;
+    let read: ReturnType<typeof runtime.info.readCounts> | undefined;
     try {
       await Promise.race([finishing.promise, attempt]);
       const pending = runtime.state.current;
       expect(pending.operation.kind).to.equal('pending');
-      read = runtime.readStats(new AbortController().signal);
+      read = runtime.info.readCounts();
       expect(await Promise.race([reading.promise.then(() => 'reading'), read])).to.equal('reading');
       expect(runtime.state.current).to.equal(pending);
       releaseFinish.resolve();
