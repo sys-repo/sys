@@ -2,7 +2,7 @@ import type { t } from './common.ts';
 
 /**
  * Verifier-independent account contracts. Wire material stays private to the service/client binding;
- * only Facts and Session are observations. See README.contract.md for commit and recovery obligations.
+ * Facts, Session, and ServiceStats are observations. See README.contract.md for commit and recovery obligations.
  */
 export declare namespace Accounts {
   /** Strict admission of bounded, decoded JSON; undefined means invalid, never service rejection. */
@@ -36,6 +36,13 @@ export declare namespace Accounts {
   export type Session = {
     readonly account: Facts;
     readonly expiresAt: t.UnixTimestamp;
+  };
+
+  /** Point-in-time totals for one service instance; no per-account data. */
+  export type ServiceStats = {
+    readonly accounts: number;
+    readonly registeredPasskeys: number;
+    readonly validSessions: number;
   };
 
   /** Secret-bearing result of verified creation/sign-in. Never publish this as observable state. */
@@ -86,6 +93,7 @@ export declare namespace Accounts {
     readonly 'passkey.add.finish': Finish<Wire.Registration>;
     readonly 'session.inspect': Record<string, never>;
     readonly 'session.revoke': Record<string, never>;
+    readonly 'service.stats': Record<string, never>;
   };
 
   /** Accepted results have operation-specific effects; inspect/revoke concern only the supplied bearer. */
@@ -110,6 +118,7 @@ export declare namespace Accounts {
     >;
     readonly 'session.inspect': Reply<Session | null, 'invalid-request'>;
     readonly 'session.revoke': Reply<null, 'invalid-request'>;
+    readonly 'service.stats': Reply<ServiceStats, 'invalid-request'>;
   };
 
   export type Name = keyof Payload;

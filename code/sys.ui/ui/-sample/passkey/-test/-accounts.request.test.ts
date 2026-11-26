@@ -21,6 +21,8 @@ describe('Passkey account request binding', () => {
   it('admits one exact route and preserves a correlated domain result', async () => {
     using service = AccountService.create(options);
     const credentials: Array<t.Accounts.Authority['credential']> = [];
+    let suppliedOrigin = origin;
+    let status: number | undefined;
     const handle = accountRequest({
       origin,
       policy,
@@ -33,10 +35,12 @@ describe('Passkey account request binding', () => {
       url: `${origin}${path}`,
       ns: 'accounts',
       policy,
-      fetch(input, init) {
+      async fetch(input, init) {
         const headers = new Headers(init?.headers);
-        headers.set('origin', origin); // Fixture for the server binding, not browser proof.
-        return Promise.resolve(handle(new Request(input, { ...init, headers })));
+        headers.set('origin', suppliedOrigin); // Fixture for the server binding, not browser proof.
+        const response = await handle(new Request(input, { ...init, headers }));
+        status = response.status;
+        return response;
       },
     });
 
@@ -45,7 +49,16 @@ describe('Passkey account request binding', () => {
     expect(anonymous).to.eql({ kind: 'accepted', value: null });
     await client.send('session.inspect', {}, { headers: { authorization: 'bEaReR sample_token' } });
     await inspect();
-    expect(credentials).to.eql([undefined, 'sample_token', undefined]);
+    const stats = await client.send('service.stats', {});
+    expect(stats).to.eql({
+      kind: 'accepted',
+      value: { accounts: 0, registeredPasskeys: 0, validSessions: 0 },
+    });
+    suppliedOrigin = 'http://localhost:5051';
+    const refused = await client.send('service.stats', {}).catch((error) => error);
+    expect(refused).to.be.instanceOf(Error);
+    expect(status).to.eql(403);
+    expect(credentials).to.eql([undefined, 'sample_token', undefined, undefined]);
   });
 
   it('rejects wrong paths, methods, origins, and malformed bearer headers before binding handlers', async () => {

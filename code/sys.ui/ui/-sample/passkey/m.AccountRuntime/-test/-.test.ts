@@ -27,6 +27,52 @@ describe('AccountRuntime', () => {
     expect(server.fetchCount).to.equal(0);
   });
 
+  it('signed-out stats read → observes zero without a bearer, ceremony, or state change', async () => {
+    using native = browser();
+    using server = transport();
+    using runtime = server.create();
+    const zero = { accounts: 0, registeredPasskeys: 0, validSessions: 0 };
+    server.handlers['service.stats'] = () => accepted(zero);
+    runtime.start();
+    const state = runtime.state.current;
+    const { signal } = new AbortController();
+    expect(state.session.kind).to.equal('signed-out');
+    expect(await runtime.readStats(signal)).to.eql(zero);
+    expect(server.requests.map(({ name, authorization }) => [name, authorization])).to.eql([
+      ['service.stats', null],
+    ]);
+    expect(native.calls).to.eql([]);
+    expect(runtime.state.current).to.equal(state);
+  });
+
+  it('signed-in stats read → omits retained bearer and rejects malformed totals', async () => {
+    using native = browser();
+    using server = transport();
+    using runtime = server.create();
+    runtime.start();
+    expect(await runtime.run('create-account')).to.eql(ok);
+    const state = runtime.state.current;
+    expect(state.session.kind).to.equal('signed-in');
+    const { signal } = new AbortController();
+    const totals = { accounts: 1, registeredPasskeys: 1, validSessions: 1 };
+    expect(await runtime.readStats(signal)).to.eql(totals);
+    const malformed = [
+      { ...totals, accounts: -1 },
+      { ...totals, registeredPasskeys: 0.5 },
+      { ...totals, validSessions: Number.MAX_SAFE_INTEGER + 1 },
+      { ...totals, principal: 'unexpected-field' },
+    ];
+    for (const values of malformed) {
+      server.handlers['service.stats'] = () => accepted(values);
+      expect(await runtime.readStats(signal)).to.eql(undefined);
+    }
+    expect(server.requests.slice(2).map(({ name, authorization }) => [name, authorization])).to.eql(
+      Array.from({ length: 1 + malformed.length }, () => ['service.stats', null]),
+    );
+    expect(runtime.state.current).to.equal(state);
+    expect(native.calls).to.eql(['create']);
+  });
+
   it('missing native JSON conversion → unavailable before GET, POST, or ceremony', async () => {
     using native = browser();
     using _missing = WebFixture.Property.mock([{

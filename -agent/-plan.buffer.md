@@ -6,23 +6,6 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 
 
-@sys.process
-os-signal-subscription.plan.md
-- [x] d28c27405 feat(process): add Process.Signal.on and prove it in the Cell Vite fixture
-- [x] 2099a68b4 refactor(cli): adopt Process.Signal.on in CLI and Cell
-- [x] 444357263 refactor(server): adopt Process.Signal.on for hosted shutdown
-
-
-@sys.cell
-browser-targets.plan.md
-- [x] 192d82165 feat(cell): resolve declared browser targets from the ready service snapshot
-- [x] 1f0775726 feat(cell): declare browser targets in the Stripe sample
-- [x] f91e3bba6 fix(cli): retain keyboard release failure across shutdown retries
-- [x] 894e414e2 feat(cell): open browser targets and quit from the ready screen
-- [x] 113f67181 feat(cell): declare browser targets for the remaining sample previews and the UI cell
-- [x] cfa942bf5 feat(cell): mark resolved browser targets in the ready service list
-- [x] 02c9a2bd9 docs(cell): explain browser targets in service and start help
-- [ ] feat(cell): adapt the ready-screen shortcut footer to available rows
 
 
 @sys.ui
@@ -63,6 +46,8 @@ passkey-panel.plan.md
 - [x] 5bb675e11 feat(ui): show live passkey context in the integration sidebar
 - [ ] feat(passkey): expose in-memory account service counts via Cmd
 - [ ] feat(ui): show account service counts below passkey Context
+- [ ] refactor(passkey): pass live context to Debug without an account handle
+- [ ] test(passkey): reduce specimen coverage to host-owned behavior
 
 
 

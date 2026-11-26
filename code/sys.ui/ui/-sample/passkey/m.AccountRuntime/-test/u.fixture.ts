@@ -115,6 +115,7 @@ export function transport(service?: t.Accounts.Service, relyingParty = rpId) {
       accepted({ ...session, account: { ...session.account, credentialCount: 2 } }),
     'session.inspect': () => accepted(session),
     'session.revoke': () => accepted(null),
+    'service.stats': () => accepted({ accounts: 1, registeredPasskeys: 1, validSessions: 1 }),
   };
   const faults = { lost: '', invalid: '', disconnect: '' };
   let fetchCount = 0;

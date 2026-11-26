@@ -4,9 +4,9 @@
 - [Types](./t.ts)
 
 Requests, replies, and implementation obligations shared by the service and its private client
-binding. The service owns authority; `Facts` and `Session` describe observations, while `Grant`,
-challenges, and ceremony responses are private wire data. This module does not start a service,
-authenticate a user, or open a ceremony.
+binding. The service owns authority; `Facts`, `Session`, and `ServiceStats` describe observations,
+while `Grant`, challenges, and ceremony responses are private wire data. This module does not start
+a service, authenticate a user, or open a ceremony.
 
 [AccountService](../m.AccountService/README.md) implements the service side. Client lifecycle and
 recovery rules below are obligations of callers, not behavior supplied by this module.
@@ -39,6 +39,15 @@ account authority from an incidental bearer. No cookies, redirects, or persisten
 | `passkey.add.finish`    | The initiating session, still live at commit | Add a globally unassociated credential to the bound account; return session facts without renewing expiry. |
 | `session.inspect`       | Supplied bearer, if any                      | Observe that session, or `null` for missing/unknown/expired/revoked authority. No renewal.                 |
 | `session.revoke`        | Supplied bearer, if any                      | Invalidate only that session. `null` confirms absence at completion; already absent is accepted.           |
+| `service.stats`         | No bearer; empty payload `{}`                | Accepted value: exactly `accounts`, `registeredPasskeys`, and `validSessions` for this instance.           |
+
+For `service.stats`, the three counts are non-negative safe integers observed together.
+`registeredPasskeys` counts registrations held by this instance, not entries in an authenticator.
+`validSessions` excludes expired and revoked sessions. Zero counts do not prove a restart.
+
+Any caller admitted to the local sample can compare totals and observe aggregate activity, even
+while signed out. Origin admission is not operator authorization; this disclosure is not a
+production default.
 
 Creation and sign-in are separate from enrollment. Neither a supplied principal nor a different
 session presented at finish can select or rebind an enrollment account. An assertion's user handle

@@ -31,6 +31,7 @@ export function create(options: t.AccountRuntime.Options): t.AccountRuntime.Inst
     start,
     run,
     refresh,
+    readStats,
     cancel: () => active?.abort.abort(),
     depart: () => retire('departed'),
     dispose,
@@ -99,6 +100,14 @@ export function create(options: t.AccountRuntime.Options): t.AccountRuntime.Inst
     } finally {
       release(slot, access, { session: facts });
     }
+  }
+
+  async function readStats(signal: AbortSignal) {
+    if (state.current.lifecycle !== 'active' || signal.aborted) return;
+    const entered = lifetime;
+    const result = await wire.send('service.stats', {}, signal);
+    if (lifetime !== entered || signal.aborted) return;
+    if (result.kind === 'accepted') return Object.freeze(result.value);
   }
 
   function claim(action: Action | 'inspect'): Slot {

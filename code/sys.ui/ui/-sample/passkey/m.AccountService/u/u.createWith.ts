@@ -73,6 +73,17 @@ export function createWith(
           if (bearer) authority.current.sessions.delete(bearer);
           return result;
         }),
+        'service.stats': admit('service.stats', () => {
+          // Admission pruned expired sessions; no await separates the three counts.
+          const { accounts, credentials, sessions } = authority.current;
+          const result = accepted({
+            accounts: accounts.size,
+            registeredPasskeys: credentials.size,
+            validSessions: sessions.size,
+          });
+          validate('service.stats', result);
+          return result;
+        }),
       };
     },
     dispose: authority.dispose,

@@ -22,6 +22,8 @@ export declare namespace AccountRuntime {
     start(): void;
     /** Observe the retained session, if any; never resolve a prior uncertain mutation. */
     refresh(): Promise<void>;
+    /** Explicit bearer-free observation; undefined on failure or cancellation. */
+    readStats(signal: AbortSignal): Promise<t.Accounts.ServiceStats | undefined>;
     run(action: Action): Promise<Outcome>;
     /** Request cancellation without releasing an unsettled ceremony's exclusive slot. */
     cancel(): void;

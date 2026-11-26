@@ -154,6 +154,43 @@ describe('AccountService authority', () => {
       .to.eql(returned.session);
   });
 
+  it('service stats → revocation and exact expiry leave accounts and passkeys intact', async () => {
+    using host = fixture();
+    const stats = async () => value(await host.call('service.stats', {}));
+    expect(await stats()).to.eql({ accounts: 0, registeredPasskeys: 0, validSessions: 0 });
+
+    const begin = value(await host.call('account.create.begin', {}));
+    const grant = value(
+      await host.call('account.create.finish', {
+        transaction: begin.transaction,
+        response: first.registration(begin.options),
+      }),
+    );
+    host.clock.now += 1;
+    const signIn = value(await host.call('session.signIn.begin', {}));
+    const other = value(
+      await host.call('session.signIn.finish', {
+        transaction: signIn.transaction,
+        response: await first.assertion(signIn.options, begin.options.user.id),
+      }),
+    );
+    const add = value(await host.call('passkey.add.begin', {}, other.credential));
+    value(
+      await host.call('passkey.add.finish', {
+        transaction: add.transaction,
+        response: second.registration(add.options),
+      }, other.credential),
+    );
+    const totals = { accounts: 1, registeredPasskeys: 2 };
+    expect(await stats()).to.eql({ ...totals, validSessions: 2 });
+    value(await host.call('session.revoke', {}, grant.credential));
+    expect(await stats()).to.eql({ ...totals, validSessions: 1 });
+    host.clock.now = other.session.expiresAt - 1;
+    expect(await stats()).to.eql({ ...totals, validSessions: 1 });
+    host.clock.now = other.session.expiresAt;
+    expect(await stats()).to.eql({ ...totals, validSessions: 0 });
+  });
+
   it('registration policy mismatch → sanitized failure and permanent transaction consumption', async () => {
     using host = fixture();
     for (

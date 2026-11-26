@@ -89,6 +89,7 @@ export const payloads = {
   'passkey.add.finish': finish(registration),
   'session.inspect': empty,
   'session.revoke': empty,
+  'service.stats': empty,
 } satisfies Record<t.Accounts.Name, t.TSchema>;
 
 /** Private schemas for service replies; client dispatch uncertainty is deliberately absent. */
@@ -101,6 +102,10 @@ export const results = {
   'passkey.add.finish': reply(session, [...finishCodes, 'no-session', 'credential-conflict']),
   'session.inspect': reply(T.Union([session, T.Null()]), []),
   'session.revoke': reply(T.Null(), []),
+  'service.stats': reply(
+    object({ accounts: integer, registeredPasskeys: integer, validSessions: integer }),
+    [],
+  ),
 } satisfies Record<t.Accounts.Name, t.TSchema>;
 
 /**

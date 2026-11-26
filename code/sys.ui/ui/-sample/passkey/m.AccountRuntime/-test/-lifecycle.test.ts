@@ -12,6 +12,85 @@ import {
 const cancelled = { kind: 'not-submitted', reason: 'cancelled' };
 
 describe('AccountRuntime lifetime and cancellation boundaries', () => {
+  it('pre-aborted stats read → no request', async () => {
+    using _native = browser();
+    using server = transport();
+    using runtime = server.create();
+    runtime.start();
+    expect(await runtime.readStats(AbortSignal.abort())).to.equal(undefined);
+    expect(server.fetchCount).to.equal(0);
+  });
+
+  for (const exit of ['abort', 'restore', 'dispose'] as const) {
+    it(`stats reply admitted → ${exit} before observation → discard totals`, async () => {
+      using _native = browser();
+      using server = transport();
+      using runtime = server.create();
+      const abort = new AbortController();
+      runtime.start();
+      let atBoundary: t.AccountRuntime.Snapshot | undefined;
+      using _boundary = afterAdmittedReply('service.stats', 'accepted', () => {
+        if (exit === 'abort') abort.abort();
+        if (exit === 'restore') {
+          runtime.depart();
+          runtime.start();
+        }
+        if (exit === 'dispose') runtime.dispose();
+        atBoundary = runtime.state.current;
+      });
+      expect(await runtime.readStats(abort.signal)).to.equal(undefined);
+      expect(atBoundary).not.to.equal(undefined);
+      expect(runtime.state.current).to.equal(atBoundary);
+      expect(server.requests.map((r) => r.name)).to.eql(['service.stats']);
+    });
+  }
+
+  it('stats read during a held account action → late totals leave Last result intact', async () => {
+    using _native = browser();
+    using server = transport();
+    using runtime = server.create();
+    const finishing = Promise.withResolvers<void>();
+    const reading = Promise.withResolvers<void>();
+    const releaseFinish = Promise.withResolvers<void>();
+    const releaseStats = Promise.withResolvers<void>();
+    const totals = { accounts: 1, registeredPasskeys: 1, validSessions: 1 };
+    const finish = server.handlers['account.create.finish'];
+    server.handlers['account.create.finish'] = async (payload, ctx) => {
+      finishing.resolve();
+      await releaseFinish.promise;
+      return finish(payload, ctx);
+    };
+    server.handlers['service.stats'] = async () => {
+      reading.resolve();
+      await releaseStats.promise;
+      return accepted(totals);
+    };
+
+    runtime.start();
+    const attempt = runtime.run('create-account');
+    let read: ReturnType<typeof runtime.readStats> | undefined;
+    try {
+      await Promise.race([finishing.promise, attempt]);
+      const pending = runtime.state.current;
+      expect(pending.operation.kind).to.equal('pending');
+      read = runtime.readStats(new AbortController().signal);
+      expect(await Promise.race([reading.promise.then(() => 'reading'), read])).to.equal('reading');
+      expect(runtime.state.current).to.equal(pending);
+      releaseFinish.resolve();
+      expect(await attempt).to.eql({ kind: 'accepted' });
+      const settled = runtime.state.current;
+      expect(settled.last).to.eql({ action: 'create-account', outcome: { kind: 'accepted' } });
+      releaseStats.resolve();
+      expect(await read).to.eql(totals);
+      expect(runtime.state.current).to.equal(settled);
+    } finally {
+      releaseFinish.resolve();
+      releaseStats.resolve();
+      await attempt;
+      await read;
+    }
+  });
+
   it('departure during expiry notification → only a new intent can sign in', async () => {
     using clock = wallClock();
     using native = browser();
