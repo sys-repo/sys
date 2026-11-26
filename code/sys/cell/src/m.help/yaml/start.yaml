@@ -31,7 +31,7 @@ services:
       On the ready screen, press `o` to open the URLs selected by `browser`, or `q` to stop the
       services and quit. Nothing opens on startup. The keys still work when the hints don't fit.
   - >-
-      A `•` next to a URL means that service selected it. The mark can disappear in a narrow
+      A `⦿` next to a URL means that service selected it. The mark can disappear in a narrow
       terminal. Each press of `o` requests each selected URL once, even if several services
       selected it.
   - Raw mode has no ready-screen shortcuts and never launches a browser.

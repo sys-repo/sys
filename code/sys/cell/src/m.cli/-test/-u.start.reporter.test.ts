@@ -307,7 +307,7 @@ describe('@sys/cell/cli start reporter', () => {
       const urlRows = () =>
         screen.frames.at(-1)!.split('\n').flatMap((line) => {
           const [prefix, link] = line.split('\x1b]8;;');
-          return link ? [[link.split('\x1b\\')[0], stripAnsi(prefix).endsWith('• ')]] : [];
+          return link ? [[link.split('\x1b\\')[0], stripAnsi(prefix).endsWith('⦿ ')]] : [];
         });
       // The shared URL belongs to A, B and C in that order, but only A and C select it.
       const expected = [[root, true], [a, false], [b, false], [root, false], [root, true]];

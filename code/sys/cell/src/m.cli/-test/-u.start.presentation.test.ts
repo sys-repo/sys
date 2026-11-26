@@ -70,7 +70,7 @@ describe('@sys/cell/cli start owner presentation', () => {
         screen.reporter.open();
         screen.reporter.ready(input);
         const displayedHref = href.replace('127.0.0.1', 'localhost');
-        expect(stripAnsi(screen.frames.at(-1)!)).to.contain(`• ${displayedHref}`);
+        expect(stripAnsi(screen.frames.at(-1)!)).to.contain(`⦿ ${displayedHref}`);
         screen.resize(24);
         const frame = screen.frames.at(-1)!;
         expect(frame).to.contain(target);

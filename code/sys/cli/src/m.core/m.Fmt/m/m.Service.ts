@@ -88,7 +88,7 @@ export function formatListWith(
   const labels = sections.flatMap(({ rows }) => rows.flatMap((row) => row.label));
   const layout = serviceLayout(labels, width);
   const fitRow = (row: Row): FittedRow => {
-    const mark = row.marked && layout.gap >= URL_MARKER_CELLS ? `${c.cyan('•')} ` : '';
+    const mark = row.marked && layout.gap >= URL_MARKER_CELLS ? `${c.cyan('⦿')} ` : '';
     const pair = budget.pair(layout.reserve, mark);
     const color: ServiceColor = row.kind === 'title' ? 'green' : 'dim';
     const style = { color, compose, check: pair.checkLabel };

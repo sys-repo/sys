@@ -123,7 +123,7 @@ describe('Cli.Fmt.Service height', () => {
         return line.split(opener).map(stripAnsi);
       };
       const [prefix, label] = urlRow(input);
-      expect(urlRow(marked)).to.eql([`${prefix.slice(0, -2)}• `, label]);
+      expect(urlRow(marked)).to.eql([`${prefix.slice(0, -2)}⦿ `, label]);
     }
     // Width 3 has no gap; at width 4 the value fits only the omission marker.
     for (const width of [3, 4]) expect(render(marked, width, 2)).to.eql(render(input, width, 2));
