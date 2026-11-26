@@ -4,7 +4,7 @@ import { Keyboard } from '@sys/ui-dom';
 import { expect } from 'chai';
 
 import { DevBus } from '../../u/m.Bus/mod.ts';
-import { COLORS, Color, Spec, Time, css } from '../common.ts';
+import { Color, COLORS, css, Spec, Time } from '../common.ts';
 import { DevTools } from '../sample.DevTools/mod.ts';
 import { MySample } from './MySample.tsx';
 
@@ -14,6 +14,8 @@ type T = { count: number; throwError?: boolean };
 const initial = { count: 0 };
 
 export default Spec.describe('MySample', (e) => {
+  const { attach } = Spec.attachments();
+
   e.it('init', async (e) => {
     _renderCount++;
     const ctx = Spec.ctx(e);
@@ -21,9 +23,12 @@ export default Spec.describe('MySample', (e) => {
 
     expect(state.current.count).to.eql(0); // NB: assertions will be run within CI.
 
-    Keyboard.on('CMD + KeyK', (e) => {
-      // NB: Test helpful to ensure errors don't occur on headless run (aka. server/CI).
-      console.log('keyboard', e.pattern);
+    attach(ctx, {
+      effects: [() => {
+        // NB: Test helpful to ensure errors don't occur on headless run (aka. server/CI).
+        const shortcut = Keyboard.on('CMD + KeyK', (e) => console.log('keyboard', e.pattern));
+        return () => shortcut.dispose();
+      }],
     });
     ctx.host.header.render<T>(() => {
       return <div>Header</div>;
@@ -102,7 +107,7 @@ export default Spec.describe('MySample', (e) => {
       .button((btn) =>
         btn.label('throw error').onClick(() => {
           state.change((d) => (d.throwError = true));
-        }),
+        })
       )
       .hr();
 
@@ -140,7 +145,7 @@ export default Spec.describe('MySample', (e) => {
       .button((btn) => btn.label('debug.width: 250').onClick((e) => e.ctx.debug.width(250)))
       .button((btn) => btn.label('debug.width: 0').onClick((e) => e.ctx.debug.width(-99)))
       .button((btn) =>
-        btn.label('debug.width: <null> (no render)').onClick((e) => e.ctx.debug.width(null)),
+        btn.label('debug.width: <null> (no render)').onClick((e) => e.ctx.debug.width(null))
       )
       .hr()
       .button((btn) => btn.label('size: 300, 200').onClick((e) => e.ctx.subject.size([300, 140])))
@@ -155,24 +160,23 @@ export default Spec.describe('MySample', (e) => {
         btn.label('theme: light').onClick(() => {
           ctx.host.color(null).backgroundColor(null).tracelineColor(null);
           // ctx.subject.color(COLORS.DARK);
-        }),
+        })
       )
-
       .button((btn) =>
         btn.label('theme: dark').onClick(() => {
           ctx.host.color(COLORS.WHITE).backgroundColor(COLORS.DARK).tracelineColor(0.1);
           // ctx.subject.color(COLORS.WHITE);
-        }),
+        })
       )
       .button((btn) =>
         btn.label('background image: "url"').onClick(() => {
           const url =
             'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1287&q=80';
           ctx.host.backgroundImage({ url, margin: 60, opacity: 0.3 });
-        }),
+        })
       )
       .button((btn) =>
-        btn.label('background image: null').onClick(() => ctx.host.backgroundImage(null)),
+        btn.label('background image: null').onClick(() => ctx.host.backgroundImage(null))
       )
       .hr();
 
@@ -200,7 +204,7 @@ const ComponentSample = (props: P = {}) => {
   const { title = 'Plain Component' } = props;
   const styles = {
     base: css({
-      backgroundColor: 'rgba(255, 0, 0, 0.1)' /* RED */,
+      backgroundColor: 'rgba(255, 0, 0, 0.1)', /* RED */
       padding: 7,
       cursor: 'default',
     }),
