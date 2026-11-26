@@ -69,4 +69,4 @@ export type * from './ui.react/ui/TreeView.Index/t.ts';
 export type * from './ui.react/ui/TreeView/t.ts';
 export type * from './ui.react/ui/VimeoBackground/t.ts';
 export type * from './ui.react/ui/Admonition/t.ts';
-export type * from './ui.react/ui/EventView/t.ts';
+export type * from './ui.react/ui/EventsView/t.ts';

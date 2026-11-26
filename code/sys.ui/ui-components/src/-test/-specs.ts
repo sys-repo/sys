@@ -23,7 +23,7 @@ export const SpecsComponents = {
   [`${ns}: KeyValue.Switches`]: () => import('../ui.react/ui/KeyValue.Switches/-spec/-SPEC.tsx'),
 
   [`${ns}: ObjectView`]: () => import('../ui.react/ui/ObjectView/-SPEC.tsx'),
-  [`${ns}: EventView`]: () => import('../ui.react/ui/EventView/-spec/-SPEC.tsx'),
+  [`${ns}: EventsView`]: () => import('../ui.react/ui/EventsView/-spec/-SPEC.tsx'),
   [`${ns}: PathView`]: () => import('../ui.react/ui/PathView/-spec/-SPEC.tsx'),
 
   [`${ns}: Bullet`]: () => import('../ui.react/ui/Bullet/-SPEC.tsx'),

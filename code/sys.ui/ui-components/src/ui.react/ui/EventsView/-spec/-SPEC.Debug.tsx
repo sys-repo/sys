@@ -2,8 +2,7 @@ import type React from 'react';
 import { Spec } from '../../-test.ui.ts';
 import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
-type P = t.EventView.Props;
-type Storage = Pick<P, 'debug' | 'theme'>;
+type Storage = Pick<t.EventsView.Props, 'debug' | 'theme'>;
 const defaults: Storage = {
   debug: false,
   theme: 'Dark',
@@ -73,7 +72,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    vcenter: css({ display: 'flex', alignItems: 'center', gap: 6 }),
   };
 
   return (

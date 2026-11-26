@@ -1,6 +1,6 @@
 import { Color, css, D, type t } from './common.ts';
 
-export const EventView: t.FC<t.EventView.Props> = (props) => {
+export const EventsView: t.FC<t.EventsView.Props> = (props) => {
   const component = D.displayName;
   const theme = Color.theme(props.theme);
 

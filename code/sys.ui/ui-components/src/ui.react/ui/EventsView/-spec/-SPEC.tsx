@@ -1,6 +1,6 @@
 import { Harness, Signal, Spec } from '../../-test.ui.ts';
 import { D } from './common.ts';
-import { EventView } from '../mod.ts';
+import { EventsView } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 export default Spec.describe(D.displayName, async (e) => {
@@ -9,7 +9,7 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
-    return <EventView.UI debug={v.debug} theme={v.theme} />;
+    return <EventsView.UI debug={v.debug} theme={v.theme} />;
   }
 
   e.it('init', (e) => {
