@@ -24,7 +24,7 @@ import {
   valueCell,
 } from './u.fixture.tsx';
 
-const countLabels = ['Total accounts', 'Total passkeys', 'Total sessions'];
+const countLabels = ['Total accounts', 'Total passkeys', 'Valid sessions'];
 
 const pending: t.Passkey.Snapshot = {
   ...signedOut,
@@ -160,7 +160,7 @@ describe('Passkey diagnostic sections', () => {
     using res = await renderPanel({ snapshot: signedIn, service });
     const block = element(res.container, '[data-passkey-service]');
     expect(textWithoutHidden(block).trim()).to.match(
-      /^Account Service\s*Total accounts\s*-\s*Total passkeys\s*-\s*Total sessions\s*-$/,
+      /^Account Service\s*Total accounts\s*-\s*Total passkeys\s*-\s*Valid sessions\s*-$/,
     );
     const links = [...block.querySelectorAll('a')];
     expect(links.map((link) => [link.textContent, link.href])).to.eql([

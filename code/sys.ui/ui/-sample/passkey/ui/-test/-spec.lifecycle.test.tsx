@@ -163,7 +163,7 @@ describe('passkey specimen ownership', () => {
         await React.act(() => Time.wait(0));
         return !!section.querySelector('[role="img"][aria-label="Accounts API: available"]');
       });
-      for (const label of ['Total accounts', 'Total passkeys', 'Total sessions']) {
+      for (const label of ['Total accounts', 'Total passkeys', 'Valid sessions']) {
         expect(valueCell(section, label).textContent).to.eql('-');
       }
     }

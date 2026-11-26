@@ -22,15 +22,20 @@ export function AccountService(
 ) {
   const { observation, availability = 'unknown', theme, title = 'Account Service' } = props;
   const counts = observation.kind === 'observed' ? observation.counts : undefined;
-  const key = (noun: keyof typeof references) => (
+  const key = (noun: keyof typeof references, qualifier = 'Total') => (
     <span>
-      Total <Anchor.Link href={references[noun]} openIn='new-tab' theme={theme}>{noun}</Anchor.Link>
+      {qualifier}{' '}
+      <Anchor.Link href={references[noun]} openIn='new-tab' theme={theme}>{noun}</Anchor.Link>
     </span>
   );
   const rows: t.KeyValue.Item.Row[] = [
     { id: 'accounts', k: key('accounts'), v: counts?.accounts ?? <EmptyValue /> },
     { id: 'passkeys', k: key('passkeys'), v: counts?.registeredPasskeys ?? <EmptyValue /> },
-    { id: 'valid-sessions', k: key('sessions'), v: counts?.validSessions ?? <EmptyValue /> },
+    {
+      id: 'valid-sessions',
+      k: key('sessions', 'Valid'),
+      v: counts?.validSessions ?? <EmptyValue />,
+    },
   ];
   const items: t.KeyValue.Item[] = rows.map((row) => ({ ...row, userSelect: 'text' }));
   let header: t.ReactNode;
