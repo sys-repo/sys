@@ -1,3 +1,5 @@
+import React from 'react';
+import { Harness } from '../../../-test.ui.ts';
 import {
   afterAll,
   beforeAll,
@@ -9,21 +11,37 @@ import {
   STORAGE_KEY as VIEW_STORAGE,
   type t,
   TestReact,
+  Time,
 } from './common.ts';
 import { Controller } from '../../ui.controller/mod.ts';
-import { SpecNames } from '../-spec/-u.navigation.ts';
+import { SpecLinks } from '../-spec/-u.navigation.ts';
 import { createDebugSignals, Debug } from '../-spec.integration/-SPEC.Debug.tsx';
 import { STORAGE_KEY } from '../-spec.integration/common.ts';
 import { createDebugSignals as createView, Debug as ViewDebug } from '../-spec/-SPEC.Debug.tsx';
-import { activate, button, buttons } from './u.fixture.tsx';
+import { activate, button } from './u.fixture.tsx';
 
 const initial = { theme: 'Dark', debug: false } as const;
 type Preferences = Pick<t.Passkey.Props, 'theme' | 'debug'>;
 
-describe('Passkey specimen sidebars', () => {
+describe('Passkey specimens', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  it('reciprocal links navigate in place; integration reset does not reset the pure view', async () => {
+  it('each specimen offers a same-tab link to the other', async () => {
+    const routes = [
+      [(await import('../-spec.integration/-SPEC.tsx')).default, SpecLinks.view],
+      [(await import('../-spec/-SPEC.tsx')).default, SpecLinks.sample],
+    ] as const;
+    for (const [spec, destination] of routes) {
+      using host = await TestReact.render(<Harness.UI spec={spec} />);
+      const link = await Time.waitFor(async () => {
+        await React.act(() => Time.wait(0));
+        return host.container.querySelector<HTMLAnchorElement>(`a[href="${destination.href}"]`);
+      });
+      expect(['', '_self']).to.include(link?.target);
+    }
+  });
+
+  it('integration reset preserves the pure view’s preferences and intent', async () => {
     using cleanup = new DisposableStack();
     for (const key of [STORAGE_KEY.DEV, VIEW_STORAGE.DEV]) {
       const store = LocalStorage.immutable<Preferences>(key, initial);
@@ -40,22 +58,11 @@ describe('Passkey specimen sidebars', () => {
     cleanup.defer(controller.dispose);
     using sample = await TestReact.render(<Debug debug={integration} controller={controller} />);
     using pure = await TestReact.render(<ViewDebug debug={view} />);
-    const routes = [
-      [sample.container, SpecNames.view, 'view:pure'],
-      [pure.container, SpecNames.sample, 'view:integration (sample)'],
-    ] as const;
-    for (const [container, name, label] of routes) {
-      const links = [...container.querySelectorAll<HTMLAnchorElement>('a[href^="?dev="]')];
-      expect(links.map((el) => [el.textContent, el.target, el.getAttribute('href')])).to.eql([
-        [label, '_self', `?${new URLSearchParams({ dev: name })}`],
-      ]);
-    }
     await activate(button(pure.container, 'theme: Dark'));
     await activate(button(sample.container, 'theme: Dark'));
     await activate(button(sample.container, 'debug: false'));
     expect(integration.props.theme.value).to.eql('Light');
-    const controls = buttons(sample.container).map((el) => el.textContent);
-    expect(controls.slice(-2)).to.eql(['debug: true', '(reset)']);
+    expect(integration.props.debug.value).to.equal(true);
     await activate(button(sample.container, '(reset)'));
     expect(integration.props.theme.value).to.eql('Dark');
     expect(integration.props.debug.value).to.eql(false);
