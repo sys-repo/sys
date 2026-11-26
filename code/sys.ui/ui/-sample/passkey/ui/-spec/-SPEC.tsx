@@ -1,7 +1,7 @@
 import { Harness, Signal, Spec } from '../../../-test.ui.ts';
 import { Passkey } from '../mod.ts';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { SpecLink, WebAuthnLink } from './-ui.Links.tsx';
+import { WebAuthnLink } from './-ui.Links.tsx';
 import { D, type t } from './common.ts';
 
 export default Spec.describe(D.displayName, (e) => {
@@ -35,8 +35,6 @@ export default Spec.describe(D.displayName, (e) => {
       .size([360, null])
       .display('grid')
       .render(() => <Root debug={debug} />);
-
-    ctx.debug.footer.padding(10).render(() => <SpecLink to='sample' />);
   });
 
   e.it('ui:debug', (e) => {

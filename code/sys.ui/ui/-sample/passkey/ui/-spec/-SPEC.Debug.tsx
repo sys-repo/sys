@@ -1,6 +1,7 @@
 import type React from 'react';
 import { Fixtures } from './-u.fixtures.ts';
 import { Intent } from './-ui.Intent.tsx';
+import { SpecLink } from './-ui.Links.tsx';
 import { ViewPicker } from './-ui.ViewPicker.tsx';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 
@@ -169,6 +170,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <SpecLink to='sample' />
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
       <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
     </div>

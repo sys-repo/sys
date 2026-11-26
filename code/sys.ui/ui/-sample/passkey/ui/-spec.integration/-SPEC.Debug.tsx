@@ -1,3 +1,4 @@
+import { SpecLink } from '../-spec/-ui.Links.tsx';
 import { ViewPicker } from '../-spec/-ui.ViewPicker.tsx';
 import { Passkey } from '../mod.ts';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
@@ -81,6 +82,7 @@ export const Debug: t.FC<t.DebugProps> = (props) => {
       <ViewPicker view={v.view} theme={theme.name} onSelect={(view) => p.view.value = view} />
       <hr />
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
+      <SpecLink to='view' />
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
       <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
     </div>
