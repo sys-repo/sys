@@ -214,7 +214,7 @@ describe('passkey cached-spec context lifetime', () => {
         debug.props.debug.value = true;
         const props = (await host.events.info.get()).render.props!;
         const subject = await render(host.events, props.subject.renderer);
-        if (!React.isValidElement<t.Passkey.Props>(subject)) {
+        if (!React.isValidElement<t.Controller.Props>(subject)) {
           throw new Error('Expected the registered React subject');
         }
         expect(subject.props).to.include({ theme, debug: true, view: 'panel' });
@@ -244,7 +244,7 @@ describe('passkey cached-spec context lifetime', () => {
       expect(button(picker.container, 'Panel').getAttribute('aria-pressed')).to.eql('true');
       const props = (await host.events.info.get()).render.props!;
       const subject = await render(host.events, props.subject.renderer);
-      if (!React.isValidElement<t.Passkey.Props>(subject)) {
+      if (!React.isValidElement<t.Controller.Props>(subject)) {
         throw new Error('Expected the registered React subject');
       }
       expect(subject.props).to.include({ ...initial, view: 'panel' });
@@ -329,6 +329,78 @@ describe('passkey cached-spec context lifetime', () => {
       React.act(() => res.dispose());
       store.reset(previous);
     }
+  });
+
+  it('integration → unmount only the subject during Add, then remount the same controller', async () => {
+    using native = browser();
+    using server = transport(undefined, 'localhost');
+    using listeners = pageListeners();
+    using cleanup = new DisposableStack();
+    const held = Promise.withResolvers<void>();
+    const create = native.native.create;
+    native.native.create = async (options) => {
+      await held.promise;
+      return create(options);
+    };
+    const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
+    const host = controller();
+    cleanup.defer(host.dispose);
+    await load(host.events, suite);
+    const debug = await debugElement<DebugSignals>(host.events);
+    const sidebar = await TestReact.render(debug);
+    cleanup.defer(() => React.act(() => sidebar.dispose()));
+    const context = element(sidebar.container, '[data-passkey-section="context"]');
+    const subject = async () => {
+      const { renderer } = (await host.events.info.get()).render.props!.subject;
+      const el = await render(host.events, renderer);
+      if (!React.isValidElement<t.Controller.Props>(el)) throw new Error('Missing subject');
+      return el;
+    };
+    const initialSubject = await subject();
+    const first = await TestReact.render(initialSubject);
+    cleanup.defer(() => held.resolve());
+    const commands = () => server.requests.map(({ name }) => name);
+    try {
+      expect(commands()).to.eql([]);
+      await activate(actionButton(first.container, 'sign-in'));
+      await activate(actionButton(first.container, 'add-passkey'));
+      expect(native.calls).to.eql(['get', 'create']);
+      const operation = valueCell(first.container, 'Operation');
+      expect(operation.textContent).to.include('Waiting for authenticator');
+    } finally {
+      React.act(() => first.dispose());
+    }
+    expect(first.container.querySelector('[data-passkey-section]')).to.eql(null);
+    expect(element(sidebar.container, '[data-passkey-section="context"]')).to.equal(context);
+    const signal = native.signals.at(-1)!;
+    expect(signal.aborted).to.eql(false);
+    const reopened = await subject();
+    expect(reopened.props.controller).to.equal(initialSubject.props.controller);
+    const next = await TestReact.render(reopened, { strict: true });
+    cleanup.defer(() => React.act(() => next.dispose()));
+    const operation = valueCell(next.container, 'Operation');
+    expect(operation.textContent).to.include('Waiting for authenticator');
+    expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
+    expect(listeners.attached.size).to.eql(2);
+    expect(commands()).to.eql([
+      'session.signIn.begin',
+      'session.signIn.finish',
+      'passkey.add.begin',
+    ]);
+    expect(signal.aborted).to.eql(false);
+    await React.act(async () => {
+      held.resolve();
+      await Schedule.micro();
+    });
+    expect(valueCell(next.container, 'Operation').textContent).to.eql('Idle');
+    expect(valueCell(next.container, 'Registered credentials').textContent).to.eql('2');
+    expect(native.calls).to.eql(['get', 'create']);
+    expect(commands()).to.eql([
+      'session.signIn.begin',
+      'session.signIn.finish',
+      'passkey.add.begin',
+      'passkey.add.finish',
+    ]);
   });
 
   it('integration → all four intents, with session ownership per live context', async () => {

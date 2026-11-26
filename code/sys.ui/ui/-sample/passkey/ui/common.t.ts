@@ -1,5 +1,6 @@
 export type * from '../common.t.ts';
 export type * from './t.ts';
+export type { Controller } from '../ui.controller/t.ts';
 
 /** Presentation types extend the core pool without flowing back into it. */
 export type { FC, ReactNode } from 'react';

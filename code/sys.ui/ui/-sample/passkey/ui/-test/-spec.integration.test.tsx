@@ -10,7 +10,7 @@ import {
   type t,
   TestReact,
 } from './common.ts';
-import { openSample } from '../../ui.host/u.sample.ts';
+import { Controller } from '../../ui.controller/mod.ts';
 import { SpecNames } from '../-spec/-u.navigation.ts';
 import { createDebugSignals, Debug } from '../-spec.integration/-SPEC.Debug.tsx';
 import { STORAGE_KEY } from '../-spec.integration/common.ts';
@@ -36,9 +36,9 @@ describe('Passkey specimen sidebars', () => {
     cleanup.defer(integration.dispose);
     cleanup.defer(view.dispose);
     view.actions.onSignIn();
-    const runtime = openSample();
-    cleanup.defer(runtime.dispose);
-    using sample = await TestReact.render(<Debug debug={integration} sample={runtime} />);
+    const controller = Controller.open();
+    cleanup.defer(controller.dispose);
+    using sample = await TestReact.render(<Debug debug={integration} controller={controller} />);
     using pure = await TestReact.render(<ViewDebug debug={view} />);
     const routes = [
       [sample.container, SpecNames.view, 'view:pure'],

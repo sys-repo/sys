@@ -17,6 +17,7 @@ Passkey sample
 │  └─ ui/                     Shows session state and offers actions such as Sign in.
 │
 ├─ What happens in the browser
+│  ├─ ui.controller/         Connects the panel to a host-owned runtime and page lifetime.
 │  ├─ m.Account.Runtime/      Coordinates each action and keeps the session credential in memory.
 │  └─ m.WebAuthn/             Asks the authenticator to create a passkey or use an existing one.
 │
@@ -27,6 +28,14 @@ Passkey sample
 └─ Who decides whether someone is signed in
    └─ m.Account.Service/      Registers public keys, verifies sign-ins, and owns sessions.
 ```
+
+### Use the panel
+
+Import [`Passkey`](./ui/mod.ts) for a view that renders supplied snapshots and emits intent. For the
+live sample, the [integration specimen](./ui/-spec.integration/-SPEC.tsx) calls
+[`Controller.open()`](./ui.controller/mod.ts) once per attached context before its first redraw.
+`<Controller.UI controller={controller} />` borrows that controller and releases its subscription on
+unmount. Only the owning context calls `controller.dispose()` when the context ends.
 
 ### Follow one sign-in
 

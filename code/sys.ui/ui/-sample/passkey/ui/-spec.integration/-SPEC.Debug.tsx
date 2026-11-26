@@ -1,6 +1,5 @@
 import React from 'react';
-import type { openSample } from '../../ui.host/u.sample.ts';
-import { contextOf } from '../../ui.host/u.snapshot.ts';
+import { contextOf } from '../../ui.controller/u.snapshot.ts';
 import { Passkey } from '../mod.ts';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 import { SpecLink } from '../-spec/-ui.Links.tsx';
@@ -13,7 +12,7 @@ const defaults: t.DebugValues = { debug: D.debug, theme: 'Dark' };
  */
 export type DebugProps = {
   debug: DebugSignals;
-  sample: Pick<ReturnType<typeof openSample>, 'current' | 'subscribe'>;
+  controller: Pick<t.Controller.Instance, 'current' | 'subscribe'>;
   style?: t.Style.Input;
 };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
@@ -55,8 +54,11 @@ export function createDebugSignals() {
  * Component:
  */
 export const Debug: React.FC<DebugProps> = (props) => {
-  const { debug, sample } = props;
-  const browser = React.useSyncExternalStore(sample.subscribe, () => sample.current().browser);
+  const { debug, controller } = props;
+  const browser = React.useSyncExternalStore(
+    controller.subscribe,
+    () => controller.current().browser,
+  );
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);

@@ -1,14 +1,13 @@
 import { Harness, Signal, Spec } from '../../../-test.ui.ts';
-import { D } from './common.ts';
-import { openSample } from '../../ui.host/u.sample.ts';
-import { Connected } from '../../ui.host/ui.Connected.tsx';
+import { D, type t } from './common.ts';
+import { Controller } from '../../ui.controller/mod.ts';
 import { WebAuthnLink } from '../-spec/-ui.Links.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 type Context = ReturnType<typeof Spec.ctx>;
 type Owner = {
   debug: ReturnType<typeof createDebugSignals>;
-  sample: ReturnType<typeof openSample>;
+  controller: t.Controller.Instance;
 };
 
 export default Spec.describe(D.displayName, (e) => {
@@ -19,7 +18,7 @@ export default Spec.describe(D.displayName, (e) => {
     if (!ctx.is.attachable) return;
     const owner = contexts.get(ctx) ?? openOwner(ctx);
     if (!owner) return;
-    const { debug, sample } = owner;
+    const { debug, controller } = owner;
     const p = debug.props;
     // Render props may reset while the context and its effects remain alive.
     Harness.Theme.background(ctx, p.theme.value, 1);
@@ -32,7 +31,7 @@ export default Spec.describe(D.displayName, (e) => {
       .size([360, 500])
       .render(() => {
         const { view, debug, theme } = Signal.toObject(p);
-        return <Connected sample={sample} view={view} debug={debug} theme={theme} />;
+        return <Controller.UI controller={controller} view={view} debug={debug} theme={theme} />;
       });
   });
 
@@ -40,18 +39,18 @@ export default Spec.describe(D.displayName, (e) => {
     const ctx = Spec.ctx(e);
     const owner = contexts.get(ctx);
     if (!owner || !ctx.is.attachable) return;
-    ctx.debug.row(<Debug debug={owner.debug} sample={owner.sample} />);
+    ctx.debug.row(<Debug debug={owner.debug} controller={owner.controller} />);
   });
 
   /** Cached suites may serve multiple contexts; state/effects belong to each context. */
   function openOwner(ctx: Context) {
     const effects = Signal.listeners(ctx.dispose$);
     const debug = createDebugSignals();
-    const sample = openSample();
-    contexts.set(ctx, { debug, sample });
+    const controller = Controller.open();
+    contexts.set(ctx, { debug, controller });
     effects.dispose$.subscribe(() => {
       contexts.delete(ctx);
-      sample.dispose();
+      controller.dispose();
       debug.dispose();
     });
     effects.effect(() => {

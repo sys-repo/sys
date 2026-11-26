@@ -1,5 +1,5 @@
 import { AccountRuntime } from '../m.Account.Runtime/mod.ts';
-import type { t } from '../common.ts';
+import type { t } from '../ui/common.ts';
 import { browserOrigin, rp } from '../u/u.issuer.ts';
 import { ROUTE } from '../u/u.routes.ts';
 
@@ -10,8 +10,7 @@ const binding: t.AccountRuntime.CreateOptions = {
   policy: { maxBytes: { request: 32_768, response: 32_768 }, timeout: 5_000 },
 };
 
-/** Attach once per specimen context, outside React's subscription lifetime. */
-export function openSample() {
+export function open(): t.Controller.Instance {
   const runtime = AccountRuntime.create(binding);
   const page = globalThis.window;
   let lifetime = 0;

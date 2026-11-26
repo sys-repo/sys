@@ -7,8 +7,6 @@ import {
   transport,
   wallClock,
 } from '../../m.Account.Runtime/-test/u.fixture.ts';
-import { openSample } from '../../ui.host/u.sample.ts';
-import { Connected } from '../../ui.host/ui.Connected.tsx';
 import {
   actionButton,
   activate,
@@ -21,14 +19,56 @@ import {
 
 const recovery = 'Reload this page, then choose Sign In.';
 
-describe('connected passkey sample', () => {
+const loadController = () => import('../../ui.controller/mod.ts');
+
+describe('passkey panel controller', () => {
   DomMock.init({ beforeAll, afterAll });
+
+  it('import is inert; open and render are quiet', async () => {
+    using listeners = pageListeners();
+    using server = transport();
+    using cleanup = new DisposableStack();
+    const { Controller } = await loadController();
+    expect(listeners.acquired).to.eql([]);
+    expect(server.fetchCount).to.eql(0);
+
+    const controller = Controller.open();
+    cleanup.defer(controller.dispose);
+    expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
+    expect(server.fetchCount).to.eql(0);
+
+    const { current, run } = controller;
+    let subscriptions = 0;
+    function subscribe(notify: () => void) {
+      const unsubscribe = controller.subscribe(notify);
+      subscriptions++;
+      return () => {
+        subscriptions--;
+        unsubscribe();
+      };
+    }
+    const res = await TestReact.render(<Controller.UI controller={{ current, subscribe, run }} />, {
+      strict: true,
+    });
+    try {
+      expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
+      expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
+      expect(server.fetchCount).to.eql(0);
+      expect(subscriptions).to.eql(1);
+    } finally {
+      React.act(() => res.dispose());
+    }
+    expect(subscriptions).to.eql(0);
+    expect(listeners.attached.size).to.eql(2);
+    expect(current().lifecycle).to.eql('active');
+  });
 
   it('attempts are not sessions: lost begin, refused finish, and accepted expired grant', async () => {
     using native = browser();
     using server = transport(undefined, 'localhost');
-    const sample = openSample();
-    const res = await TestReact.render(<Connected sample={sample} />);
+    const { Controller } = await loadController();
+    const controller = Controller.open();
+    const res = await TestReact.render(<Controller.UI controller={controller} />);
     const attempt = () => activate(actionButton(res.container, 'sign-in'));
     const result = () => valueCell(res.container, 'Last result').textContent;
     try {
@@ -56,7 +96,7 @@ describe('connected passkey sample', () => {
       expect(server.fetchCount).to.eql(5);
     } finally {
       React.act(() => res.dispose());
-      sample.dispose();
+      controller.dispose();
     }
   });
 
@@ -64,8 +104,9 @@ describe('connected passkey sample', () => {
     using clock = wallClock();
     using native = browser();
     using server = transport(undefined, 'localhost');
-    const sample = openSample();
-    const res = await TestReact.render(<Connected sample={sample} />);
+    const { Controller } = await loadController();
+    const controller = Controller.open();
+    const res = await TestReact.render(<Controller.UI controller={controller} />);
     const { container } = res;
     try {
       await activate(actionButton(container, 'sign-in'));
@@ -81,7 +122,7 @@ describe('connected passkey sample', () => {
       expect(native.calls).to.eql(['get']);
     } finally {
       React.act(() => res.dispose());
-      sample.dispose();
+      controller.dispose();
     }
   });
 
@@ -90,13 +131,14 @@ describe('connected passkey sample', () => {
       using _native = browser();
       using server = transport(undefined, 'localhost');
       using cleanup = new DisposableStack();
-      const sample = openSample();
-      cleanup.defer(() => sample.dispose());
+      const { Controller } = await loadController();
+      const controller = Controller.open();
+      cleanup.defer(controller.dispose);
       const retained = action === 'add-passkey' || action === 'sign-out';
-      if (retained) await sample.run('sign-in');
+      if (retained) await controller.run('sign-in');
       const before = server.fetchCount;
       const res = await TestReact.render(
-        <Connected sample={sample} sections={{ context: false }} />,
+        <Controller.UI controller={controller} sections={{ context: false }} />,
         { strict: true },
       );
       cleanup.defer(() => React.act(() => res.dispose()));
@@ -173,12 +215,13 @@ describe('connected passkey sample', () => {
       return accepted(live);
     };
     server.faults.disconnect = 'passkey.add.finish';
-    const sample = openSample();
-    const res = await TestReact.render(<Connected sample={sample} />);
+    const { Controller } = await loadController();
+    const controller = Controller.open();
+    const res = await TestReact.render(<Controller.UI controller={controller} />);
     try {
       await React.act(async () => {
-        await sample.run('sign-in');
-        await sample.run('add-passkey');
+        await controller.run('sign-in');
+        await controller.run('add-passkey');
       });
       expect(events).to.eql(['inspect']);
       release.resolve();
@@ -195,7 +238,7 @@ describe('connected passkey sample', () => {
     } finally {
       release.resolve();
       React.act(() => res.dispose());
-      sample.dispose();
+      controller.dispose();
     }
   });
 
@@ -203,8 +246,9 @@ describe('connected passkey sample', () => {
     using _native = browser();
     using server = transport(undefined, 'localhost');
     using cleanup = new DisposableStack();
-    const a = openSample();
-    const b = openSample();
+    const { Controller } = await loadController();
+    const a = Controller.open();
+    const b = Controller.open();
     cleanup.defer(() => {
       a.dispose();
       b.dispose();
@@ -218,7 +262,7 @@ describe('connected passkey sample', () => {
       pageEvent('pageshow', true);
       waiting = a.current().operation.kind === 'retiring';
     });
-    const res = await TestReact.render(<Connected sample={a} />, { strict: true });
+    const res = await TestReact.render(<Controller.UI controller={a} />, { strict: true });
     cleanup.defer(() => React.act(() => res.dispose()));
     await activate(actionButton(res.container, 'create-account'));
     expect(waiting).to.eql(true);
@@ -235,11 +279,12 @@ describe('connected passkey sample', () => {
     ]);
   });
 
-  it('page listeners → one pair per owner; dispose detaches those exact callbacks', () => {
+  it('page listeners → one pair per owner; dispose detaches those exact callbacks', async () => {
+    const { Controller } = await loadController();
     using listeners = pageListeners();
     const { attached } = listeners;
-    const a = openSample();
-    const b = openSample();
+    const a = Controller.open();
+    const b = Controller.open();
     try {
       expect([...attached.values()]).to.eql(['pagehide', 'pageshow', 'pagehide', 'pageshow']);
       a.dispose();
@@ -261,21 +306,23 @@ describe('connected passkey sample', () => {
     using server = transport(undefined, 'localhost');
     const held = Promise.withResolvers<null>();
     native.native.create = () => held.promise;
-    const sample = openSample();
-    const first = await TestReact.render(<Connected sample={sample} />);
+    const { Controller } = await loadController();
+    const controller = Controller.open();
+    const first = await TestReact.render(<Controller.UI controller={controller} />);
     try {
       await activate(actionButton(first.container, 'create-account'));
       expect(native.calls).to.eql(['create']);
       const page = globalThis.window;
       page.dispatchEvent(new page.Event('blur'));
-      expect(sample.current().operation.kind).to.eql('pending');
+      expect(controller.current().operation.kind).to.eql('pending');
       React.act(() => {
         pageEvent('pagehide', true);
         pageEvent('pageshow', true);
       });
-      const next = await TestReact.render(<Connected sample={sample} debug theme='Dark' />, {
-        strict: true,
-      });
+      const next = await TestReact.render(
+        <Controller.UI controller={controller} debug theme='Dark' />,
+        { strict: true },
+      );
       try {
         expect(valueCell(next.container, 'Operation').textContent).to.eql(
           'Waiting for previous operation',
@@ -299,7 +346,7 @@ describe('connected passkey sample', () => {
     } finally {
       held.resolve(null);
       React.act(() => first.dispose());
-      sample.dispose();
+      controller.dispose();
     }
   });
 
@@ -314,9 +361,10 @@ describe('connected passkey sample', () => {
       return { kind: 'rejected', code: 'invalid-request' };
     };
     server.faults.lost = 'session.revoke';
-    const sample = openSample();
-    await sample.run('sign-in');
-    const res = await TestReact.render(<Connected sample={sample} />);
+    const { Controller } = await loadController();
+    const controller = Controller.open();
+    await controller.run('sign-in');
+    const res = await TestReact.render(<Controller.UI controller={controller} />);
     const control = actionButton(res.container, 'sign-out');
     try {
       await React.act(async () => {
@@ -333,9 +381,10 @@ describe('connected passkey sample', () => {
       });
       expect(valueCell(res.container, 'Authentication').textContent).to.include(recovery);
       expect(valueCell(res.container, 'Last result').textContent).to.include('Outcome unknown');
-      const next = await TestReact.render(<Connected sample={sample} debug theme='Dark' />, {
-        strict: true,
-      });
+      const next = await TestReact.render(
+        <Controller.UI controller={controller} debug theme='Dark' />,
+        { strict: true },
+      );
       try {
         expect(buttons(next.container)).to.eql([]);
       } finally {
@@ -348,7 +397,7 @@ describe('connected passkey sample', () => {
     } finally {
       held.resolve();
       React.act(() => res.dispose());
-      sample.dispose();
+      controller.dispose();
     }
   });
 });

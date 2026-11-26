@@ -26,7 +26,7 @@ describe('passkey core/UI boundary', () => {
         ],
         forbiddenPathIncludes: [
           '/passkey/ui/',
-          '/passkey/ui.host/',
+          '/passkey/ui.controller/',
           '/src/ui.react/',
           ...(entry === 'm.Account.Runtime/mod.ts' ? ['/passkey/m.Account.Service/'] : []),
         ],
@@ -34,9 +34,23 @@ describe('passkey core/UI boundary', () => {
     });
   }
 
-  it('connected panel → no harness, specimen, or service implementation', async () => {
+  for (const entry of ['ui/mod.ts', 'ui/-spec/-SPEC.tsx']) {
+    it(`${entry} → no controller or account implementation`, async () => {
+      await EsmAssert.runtimeGraphBoundary({
+        entry: Path.join(root, entry),
+        forbiddenPathIncludes: [
+          '/passkey/ui.controller/',
+          '/passkey/m.WebAuthn/',
+          '/passkey/m.Account.Runtime/',
+          '/passkey/m.Account.Service/',
+        ],
+      });
+    });
+  }
+
+  it('controller leaf → no harness, specimen, or service implementation', async () => {
     await EsmAssert.runtimeGraphBoundary({
-      entry: Path.join(root, 'ui.host/ui.Connected.tsx'),
+      entry: Path.join(root, 'ui.controller/mod.ts'),
       forbiddenImports: ['@sys/ui-dev'],
       forbiddenPathIncludes: ['/-spec/', '/-spec.integration/', '/-test/', '/m.Account.Service/'],
     });
@@ -45,6 +59,8 @@ describe('passkey core/UI boundary', () => {
   it('core type pool → no presentation or React contracts', () => {
     // @ts-expect-error Presentation contracts belong to the UI type pool.
     expectTypeOf<t.Passkey.Props | undefined>(undefined);
+    // @ts-expect-error Controller contracts belong to the UI type pool.
+    expectTypeOf<t.Controller.Instance | undefined>(undefined);
     // @ts-expect-error React contracts belong to the UI type pool.
     expectTypeOf<t.FC | undefined>(undefined);
     // @ts-expect-error Component contracts belong to the UI type pool.

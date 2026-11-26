@@ -1,6 +1,6 @@
 import type { t } from './common.ts';
 import { browserOrigin, rp } from '../../u/u.issuer.ts';
-import { registrationAdvisory } from '../../ui.host/u.snapshot.ts';
+import { registrationAdvisory } from '../../u/u.registrationAdvisory.ts';
 
 const signedOut: t.Passkey.Snapshot = {
   authentication: { kind: 'signed-out' },
