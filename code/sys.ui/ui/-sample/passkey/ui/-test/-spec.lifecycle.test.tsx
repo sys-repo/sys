@@ -5,8 +5,7 @@ import integration from '../-spec.integration/-SPEC.tsx';
 import pure from '../-spec/-SPEC.tsx';
 import { STORAGE_KEY as integrationKey } from '../-spec.integration/common.ts';
 import { STORAGE_KEY as pureKey } from '../-spec/common.ts';
-import type { DebugSignals } from '../-spec.integration/-SPEC.Debug.tsx';
-import type { DebugValues } from '../-spec.integration/-t.ts';
+import type { DebugSignals, DebugValues } from '../-spec.integration/-t.ts';
 import type { DebugSignals as ViewSignals } from '../-spec/-SPEC.Debug.tsx';
 import {
   afterAll,
@@ -94,6 +93,24 @@ describe('passkey specimen ownership', () => {
     expect((await integration.run({ ctx })).ok).to.eql(true);
     expect(listeners.acquired).to.have.members(['pagehide', 'pageshow']);
     expect(listeners.attached.size).to.eql(0);
+  });
+
+  it('page departure and restoration → the mounted sidebar follows live WebAuthn context', async () => {
+    using _native = browser();
+    using _server = transport();
+    using owner = host();
+    await owner.load(integration);
+    using sidebar = await TestReact.render(await owner.sidebar());
+    const webAuthn = () => valueCell(sidebar.container, 'WebAuthn').textContent;
+    expect(webAuthn()).to.eql('Available');
+
+    // Synthetic page events exercise the binding, not a browser BFCache hit.
+    const page = globalThis.window;
+    React.act(() => page.dispatchEvent(new page.Event('pagehide')));
+    expect(webAuthn()).to.eql('Unknown: Not checked');
+    const restore = Object.assign(new page.Event('pageshow'), { persisted: true });
+    React.act(() => page.dispatchEvent(restore));
+    expect(webAuthn()).to.eql('Available');
   });
 
   it('one host read → subject and sidebar both go from unknown to observed zero', async () => {

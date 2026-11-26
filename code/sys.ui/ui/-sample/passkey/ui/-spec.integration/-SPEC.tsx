@@ -1,13 +1,19 @@
+import React from 'react';
 import { Harness, Signal, Spec } from '../../../-test.ui.ts';
 import { D, type t } from './common.ts';
 import { Controller } from '../../ui.controller/mod.ts';
+import { contextOf } from '../../ui.controller/u.snapshot.ts';
 import { SpecLink, WebAuthnLink } from '../-spec/-ui.Links.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
 
 type Context = ReturnType<typeof Spec.ctx>;
 type Owner = {
-  debug: ReturnType<typeof createDebugSignals>;
+  debug: t.DebugSignals;
   controller: t.Controller.Instance;
+};
+type LiveDebugProps = {
+  debug: t.DebugSignals;
+  controller: Pick<t.Controller.Instance, 'current' | 'subscribe' | 'service'>;
 };
 
 export default Spec.describe(D.displayName, (e) => {
@@ -41,7 +47,8 @@ export default Spec.describe(D.displayName, (e) => {
     const ctx = Spec.ctx(e);
     const owner = contexts.get(ctx);
     if (!owner || !ctx.is.attachable) return;
-    ctx.debug.row(<Debug debug={owner.debug} controller={owner.controller} />);
+    const { debug, controller } = owner;
+    ctx.debug.row(<LiveDebug debug={debug} controller={controller} />);
   });
 
   /** Cached suites may serve multiple contexts; state/effects belong to each context. */
@@ -64,3 +71,17 @@ export default Spec.describe(D.displayName, (e) => {
     return contexts.get(ctx);
   }
 });
+
+/** Observe the existing host owner without giving the sidebar a controller handle. */
+function LiveDebug({ debug, controller }: LiveDebugProps) {
+  const browser = React.useSyncExternalStore(
+    controller.subscribe,
+    () => controller.current().browser,
+  );
+  const { service } = controller;
+  const observation = React.useSyncExternalStore(service.subscribe, service.current);
+  const link = service.availability;
+  const availability = React.useSyncExternalStore(link.subscribe, link.current);
+  const context = contextOf(browser);
+  return <Debug debug={debug} context={context} service={{ observation, availability }} />;
+}

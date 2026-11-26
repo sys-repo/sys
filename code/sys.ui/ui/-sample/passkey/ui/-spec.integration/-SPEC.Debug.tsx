@@ -1,20 +1,8 @@
-import React from 'react';
 import { ViewPicker } from '../-spec/-ui.ViewPicker.tsx';
-import { contextOf } from '../../ui.controller/u.snapshot.ts';
 import { Passkey } from '../mod.ts';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 
 const defaults: t.DebugValues = { debug: D.debug, theme: 'Dark' };
-
-/**
- * Types:
- */
-export type DebugProps = {
-  debug: DebugSignals;
-  controller: Pick<t.Controller.Instance, 'current' | 'subscribe' | 'service'>;
-  style?: t.Style.Input;
-};
-export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
  * Theme/debug persist; the selected view is ephemeral.
@@ -52,16 +40,8 @@ export function createDebugSignals() {
 /**
  * Component:
  */
-export const Debug: React.FC<DebugProps> = (props) => {
-  const { debug, controller } = props;
-  const browser = React.useSyncExternalStore(
-    controller.subscribe,
-    () => controller.current().browser,
-  );
-  const { service } = controller;
-  const observation = React.useSyncExternalStore(service.subscribe, service.current);
-  const link = service.availability;
-  const availability = React.useSyncExternalStore(link.subscribe, link.current);
+export const Debug: t.FC<t.DebugProps> = (props) => {
+  const { debug, context, service } = props;
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
@@ -85,9 +65,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>WebAuthn · W3C</div>
       </div>
       <Passkey.UI.Context
-        context={contextOf(browser)}
+        context={context}
         title={null}
-        service={{ observation, availability }}
+        service={service}
         style={{ marginTop: 10, marginBottom: 15 }}
       />
       <hr />
