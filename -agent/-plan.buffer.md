@@ -7,7 +7,10 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 @sys.ui-components
 event-view.plan.md
-- [ ] feat(ui-components): add a compact EventView for supplied events
+- [ ] chore(ui-components): scaffold EventViewer with the @sys/tmpl UI template
+- [ ] refactor(passkey): retain callback occurrences in the pure specimen
+- [ ] feat(ui-components): render supplied events with count and list modes
+- [ ] feat(passkey): use EventViewer in the Action callbacks readout
 
 
 
