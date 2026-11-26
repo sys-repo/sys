@@ -8,7 +8,7 @@ binding. The service owns authority; `Facts`, `Session`, and `ServiceStats` desc
 while `Grant`, challenges, and ceremony responses are private wire data. This module does not start
 a service, authenticate a user, or open a ceremony.
 
-[AccountService](../m.AccountService/README.md) implements the service side. Client lifecycle and
+[AccountService](../m.Account.Service/README.md) implements the service side. Client lifecycle and
 recovery rules below are obligations of callers, not behavior supplied by this module.
 
 ## Wire admission
@@ -59,7 +59,7 @@ Revocation is current-session only, not all-device sign-out or authenticator cre
 - Use native WebAuthn Level 3 JSON conversion only. Options use platform types; response
   declarations describe the standard `RegistrationResponseJSON` and `AuthenticationResponseJSON`
   dictionaries. There is no binary conversion or credential parser here. The
-  [reference service](../m.AccountService/README.contract.md#verification-and-authority) owns
+  [reference service](../m.Account.Service/README.contract.md#verification-and-authority) owns
   verifier adaptation and its executable interoperability proof.
 - Reference policy: discoverable credentials (`residentKey: required`), user verification required
   for generation **and** verification, attestation conveyance `none`. Sign-in has no account
@@ -92,7 +92,7 @@ Revocation is current-session only, not all-device sign-out or authenticator cre
   verification. `no-session` rejects unauthorized enrollment. `capacity` is bounded-reference
   admission failure, not permission to evict live authority. All are fixed, operation-specific
   codes. The reference service documents its
-  [failure boundary and limits](../m.AccountService/README.contract.md#verification-and-authority).
+  [failure boundary and limits](../m.Account.Service/README.contract.md#verification-and-authority).
 
 These are service and client implementation obligations, **not behavior supplied by these
 validators**.
@@ -124,7 +124,7 @@ account/session whose bearer the client never received; fresh explicit sign-in i
 not another automatic creation. Recovery needs available capacity: an inaccessible session still
 occupies a slot until expiry. With a one-session limit, a lost grant can therefore block sign-in
 until that session expires. See the reference service's
-[capacity rules](../m.AccountService/README.contract.md#capacity-and-recovery).
+[capacity rules](../m.Account.Service/README.contract.md#capacity-and-recovery).
 
 Lost enrollment may have added a credential. Lost revocation may have revoked the session, or may
 still do so later. Inspection is a fresh observation, **never a receipt** for any of those
@@ -147,7 +147,7 @@ does not own authentication lifetime.
 ## Reference and proof boundary
 
 Follow
-[AccountService's host requirements](../m.AccountService/README.contract.md#construction-and-host-requirements)
+[AccountService's host requirements](../m.Account.Service/README.contract.md#construction-and-host-requirements)
 for its restart warning **before credential creation** and designated human-controlled test
 accounts. That owner documents its in-memory limits, verifier adaptation, clock behavior, and
 disposal consequences.
@@ -156,5 +156,5 @@ Tests here establish wire admission, operation-specific results, secret-field ex
 observations, standard-options consumption, and exhaustive handling of client outcome types. They do
 not establish cryptographic acceptance, challenge single-use, atomic commits, live readonly state,
 transport bounds, or real browser/BFCache behavior. Those proofs belong to the
-[service](../m.AccountService/README.contract.md#evidence-and-limits),
+[service](../m.Account.Service/README.contract.md#evidence-and-limits),
 [transport](../../../../../sys/http/src/http.cmd/README.md), and client runtime, respectively.

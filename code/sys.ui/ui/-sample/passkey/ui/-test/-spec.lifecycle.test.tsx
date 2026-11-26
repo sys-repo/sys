@@ -20,7 +20,7 @@ import {
   Time,
 } from './common.ts';
 import { Harness } from '../../../-test.ui.ts';
-import { browser, transport } from '../../m.AccountRuntime/-test/u.fixture.ts';
+import { browser, transport } from '../../m.Account.Runtime/-test/u.fixture.ts';
 import {
   actionButton,
   activate,

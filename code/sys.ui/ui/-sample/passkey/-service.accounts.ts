@@ -3,7 +3,7 @@ import { Fs } from '@sys/fs';
 import { create, start } from '@sys/http/server/host';
 import { Net } from '@sys/net';
 import { Is, Obj } from './common.ts';
-import { AccountService } from './m.AccountService/mod.ts';
+import { AccountService } from './m.Account.Service/mod.ts';
 import { accountRequest } from './u/u.accounts.request.ts';
 import { browserOrigin, rp } from './u/u.issuer.ts';
 import { ROUTE } from './u/u.routes.ts';

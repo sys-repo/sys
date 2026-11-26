@@ -9,8 +9,8 @@ describe('passkey core/UI boundary', () => {
     'common.ts',
     'm.WebAuthn/mod.ts',
     'm.Accounts/mod.ts',
-    'm.AccountService/mod.ts',
-    'm.AccountRuntime/mod.ts',
+    'm.Account.Service/mod.ts',
+    'm.Account.Runtime/mod.ts',
   ];
   for (const entry of entries) {
     it(`${entry} → no UI or harness runtime dependencies`, async () => {
@@ -28,7 +28,7 @@ describe('passkey core/UI boundary', () => {
           '/passkey/ui/',
           '/passkey/ui.host/',
           '/src/ui.react/',
-          ...(entry === 'm.AccountRuntime/mod.ts' ? ['/passkey/m.AccountService/'] : []),
+          ...(entry === 'm.Account.Runtime/mod.ts' ? ['/passkey/m.Account.Service/'] : []),
         ],
       });
     });
@@ -38,7 +38,7 @@ describe('passkey core/UI boundary', () => {
     await EsmAssert.runtimeGraphBoundary({
       entry: Path.join(root, 'ui.host/ui.Connected.tsx'),
       forbiddenImports: ['@sys/ui-dev'],
-      forbiddenPathIncludes: ['/-spec/', '/-spec.integration/', '/-test/', '/m.AccountService/'],
+      forbiddenPathIncludes: ['/-spec/', '/-spec.integration/', '/-test/', '/m.Account.Service/'],
     });
   });
 

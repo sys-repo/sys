@@ -6,7 +6,7 @@ import {
   browser,
   transport,
   wallClock,
-} from '../../m.AccountRuntime/-test/u.fixture.ts';
+} from '../../m.Account.Runtime/-test/u.fixture.ts';
 import { openSample } from '../../ui.host/u.sample.ts';
 import { Connected } from '../../ui.host/ui.Connected.tsx';
 import {

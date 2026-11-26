@@ -132,7 +132,7 @@ verification.
 From `code/sys.ui/ui`, run the contract and service tests:
 
 ```sh
-deno task test --trace-leaks ./-sample/passkey/m.Accounts/-test/ ./-sample/passkey/m.AccountService/-test/
+deno task test --trace-leaks ./-sample/passkey/m.Accounts/-test/ ./-sample/passkey/m.Account.Service/-test/
 ```
 
 The service assumes functioning native cryptography and a settling verifier. It does not isolate or

@@ -7,7 +7,7 @@ snapshots. The service verifies ceremony responses and commits account changes.
 
 ## Before creating a [passkey]
 
-With the [reference service](../m.AccountService/README.md), use designated human-controlled test
+With the [reference service](../m.Account.Service/README.md), use designated human-controlled test
 accounts. **Show this warning before offering account creation or passkey enrollment:**
 
 > Restarting the service erases test accounts, registered keys, and sessions. Your authenticator may

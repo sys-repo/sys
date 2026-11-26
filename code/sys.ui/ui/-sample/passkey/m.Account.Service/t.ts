@@ -5,8 +5,10 @@ import type { t } from './common.ts';
  * but does not remove credentials stored on authenticators.
  */
 export declare namespace AccountService {
-  /** Construct one private authority with fixed, explicitly bounded policy. */
-  export type Lib = { create(options: Options): Instance };
+  export type Lib = {
+    /** Construct one private authority with fixed, explicitly bounded policy. */
+    create(options: Options): Instance;
+  };
 
   /** Request-local handlers share only this instance's private authoritative records. */
   export type Instance = t.Disposable & {

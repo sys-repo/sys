@@ -3,7 +3,7 @@ import { describe, expect, expectError, Fs, it, Testing } from '@sys/testing/ser
 import { WebFixture } from '@sys/testing/web';
 import { AccountsService } from '../-service.accounts.ts';
 import type { t } from '../common.ts';
-import { AccountService } from '../m.AccountService/mod.ts';
+import { AccountService } from '../m.Account.Service/mod.ts';
 import { Accounts } from '../m.Accounts/mod.ts';
 
 const host = '127.0.0.1';

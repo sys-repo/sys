@@ -17,7 +17,7 @@ Passkey sample
 │  └─ ui/                     Shows session state and offers actions such as Sign in.
 │
 ├─ What happens in the browser
-│  ├─ m.AccountRuntime/       Coordinates each action and keeps the session credential in memory.
+│  ├─ m.Account.Runtime/      Coordinates each action and keeps the session credential in memory.
 │  └─ m.WebAuthn/             Asks the authenticator to create a passkey or use an existing one.
 │
 ├─ How the browser and service communicate
@@ -25,7 +25,7 @@ Passkey sample
 │  └─ HttpCmd                 Carries those messages over HTTP.
 │
 └─ Who decides whether someone is signed in
-   └─ m.AccountService/       Registers public keys, verifies sign-ins, and owns sessions.
+   └─ m.Account.Service/      Registers public keys, verifies sign-ins, and owns sessions.
 ```
 
 ### Follow one sign-in
@@ -44,7 +44,7 @@ passkey again while the session is valid. The panel sees the session state, not 
 Reloading the page forgets the local session credential and last result. It does not revoke the
 session or erase the passkey registration on the service.
 
-The [reference service](./m.AccountService/README.md) stores accounts, registrations, and sessions
+The [reference service](./m.Account.Service/README.md) stores accounts, registrations, and sessions
 **only in memory**. Restarting the service erases all three. Your authenticator may still offer the
 passkey, but the service no longer recognizes it.
 
@@ -96,8 +96,8 @@ deno task test --frozen --cached-only --allow-net=127.0.0.1 --trace-leaks \
 
 ---
 
-[View](./ui/t.ts) · [Runtime](./m.AccountRuntime/README.md) ·
-[Browser ceremony](./m.WebAuthn/README.md) · [Service](./m.AccountService/README.md) ·
+[View](./ui/t.ts) · [Runtime](./m.Account.Runtime/README.md) ·
+[Browser ceremony](./m.WebAuthn/README.md) · [Service](./m.Account.Service/README.md) ·
 [Messages](./m.Accounts/README.md) · [Transport](../../../../sys/http/src/http.cmd/README.md)
 
 [passkey]: https://www.w3.org/TR/webauthn-3/#passkey

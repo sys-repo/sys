@@ -1,4 +1,4 @@
-import { AccountRuntime } from '../m.AccountRuntime/mod.ts';
+import { AccountRuntime } from '../m.Account.Runtime/mod.ts';
 import type { t } from '../common.ts';
 import { browserOrigin, rp } from '../u/u.issuer.ts';
 import { ROUTE } from '../u/u.routes.ts';

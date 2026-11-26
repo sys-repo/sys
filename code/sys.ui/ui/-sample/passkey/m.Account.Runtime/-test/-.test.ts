@@ -1,4 +1,4 @@
-import { authenticator, fixture } from '../../m.AccountService/-test/u.fixture.ts';
+import { authenticator, fixture } from '../../m.Account.Service/-test/u.fixture.ts';
 import { AccountRuntime } from '../mod.ts';
 import { describe, expect, it, Json, Time, WebFixture } from './common.ts';
 import { accepted, browser, creation, endpoint, token, transport, wallClock } from './u.fixture.ts';

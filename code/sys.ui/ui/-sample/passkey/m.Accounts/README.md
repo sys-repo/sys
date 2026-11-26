@@ -8,9 +8,9 @@ Shared requests, replies, and JSON-shape checks for passkey
 
 The client and server share these messages without importing each other's implementation.
 
-- **[AccountRuntime](../m.AccountRuntime/README.md)** coordinates browser ceremonies and service
+- **[AccountRuntime](../m.Account.Runtime/README.md)** coordinates browser ceremonies and service
   requests. It keeps the bearer private and exposes session observations.
-- **[AccountService](../m.AccountService/README.md)** verifies ceremony responses and owns account
+- **[AccountService](../m.Account.Service/README.md)** verifies ceremony responses and owns account
   and session state.
 - **[WebAuthn](../m.WebAuthn/README.md)** runs browser ceremonies—not account management.
 - **[HttpCmd](../../../../../sys/http/src/http.cmd/README.md)** transports messages—not account

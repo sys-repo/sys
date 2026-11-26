@@ -1,7 +1,7 @@
 import { HttpCmd } from '@sys/http/cmd';
 import { describe, expect, it } from '../../-test.ts';
 import { type t, Time } from '../common.ts';
-import { AccountService } from '../m.AccountService/mod.ts';
+import { AccountService } from '../m.Account.Service/mod.ts';
 import { Accounts } from '../m.Accounts/mod.ts';
 import { accountRequest } from '../u/u.accounts.request.ts';
 
