@@ -1,4 +1,4 @@
-export { Dev } from '@sys/ui-components/react/dev';
+export { Dev } from '../../-test.ui.ts';
 export * from '../common.ts';
 export type * as t from './-t.ts';
 

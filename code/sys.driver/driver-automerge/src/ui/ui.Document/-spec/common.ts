@@ -1,2 +1,2 @@
-export { Dev } from '@sys/ui-components/react/dev';
+export { Dev } from '../../-test.ui.ts';
 export * from '../common.ts';

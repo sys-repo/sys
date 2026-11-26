@@ -1,6 +1,5 @@
-import { Dev } from '@sys/ui-components/react/dev';
-import { Anchor, Color, css, type t } from '../common.ts';
 import { SpecLinks } from './-u.navigation.ts';
+import { Anchor, Color, css, Dev, type t } from './common.ts';
 
 type SpecLinkProps = { to: keyof typeof SpecLinks };
 type WebAuthnLinkProps = { theme?: t.CommonTheme };

@@ -5,7 +5,7 @@ export type * as t from './-t.ts';
 
 export { LocalStorage } from '@sys/ui-dom';
 export { Signal } from '@sys/ui-react';
-export { Dev } from '@sys/ui-components/react/dev';
+export { Dev } from '../../../-test.ui.ts';
 
 /** Distinct spec/storage identity; never reuse the isolated view's preference store. */
 export const D = { ...Base, displayName: `${Base.displayName}.Integration` } as const;
