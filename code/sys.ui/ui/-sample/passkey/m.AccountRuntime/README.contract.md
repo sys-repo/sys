@@ -18,7 +18,7 @@ WebAuthn.
 ## Page lifetime and observation
 
 - `start()` activates the runtime with a local `signed-out` snapshot, not a claim about remote
-  sessions. Snapshots are deeply frozen. `state.changes$` carries no payload; read `state.current`
+  sessions. Snapshots are deeply frozen. `state.changed$` carries no payload; read `state.current`
   on attachment and after each notification. Neither snapshots nor action results expose a bearer,
   challenge, raw ceremony response, or exception. The runtime persists no bearer or account hint.
 - `run()` and `refresh()` share one operation slot. A workflow holds it before announcing a pending

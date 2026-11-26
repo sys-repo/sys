@@ -1,6 +1,6 @@
 import type { t } from '../common.ts';
 
-type Failure = Exclude<t.AccountRuntime.Outcome, { kind: 'accepted' }>;
+type Failure = Exclude<t.AccountRuntime.Action.Outcome, { kind: 'accepted' }>;
 type Reason = Extract<Failure, { kind: 'not-submitted' }>['reason'];
 type GrantAttempt = t.Accounts.Attempt<'account.create.finish' | 'session.signIn.finish'>;
 

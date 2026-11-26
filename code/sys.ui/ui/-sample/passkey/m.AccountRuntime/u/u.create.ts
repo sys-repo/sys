@@ -18,7 +18,7 @@ const actions: readonly Action[] = ['create-account', 'sign-in', 'add-passkey', 
 export function create(options: t.AccountRuntime.Options): t.AccountRuntime.Instance {
   const wire = bind(options);
   const { state, publish, complete } = createState();
-  const onExpire = (last?: t.AccountRuntime.Snapshot['last']) =>
+  const onExpire = (last?: t.AccountRuntime.State.Snapshot['last']) =>
     publish({ session: { kind: 'signed-out' }, ...(last && { last }) });
   const session = createSession(wire.send, onExpire);
   const ceremonies = createCeremonies(wire.rpId, wire.send, session.live);
@@ -43,7 +43,7 @@ export function create(options: t.AccountRuntime.Options): t.AccountRuntime.Inst
     publish({ lifecycle: 'active', browser: availability(), session: { kind: 'signed-out' } });
   }
 
-  async function run(action: Action): Promise<t.AccountRuntime.Outcome> {
+  async function run(action: Action): Promise<t.AccountRuntime.Action.Outcome> {
     if (!actions.includes(action)) return notSubmitted('invalid-input');
     const previous = session.current;
     if (session.dropExpired()) {
@@ -131,7 +131,7 @@ export function create(options: t.AccountRuntime.Options): t.AccountRuntime.Inst
     slot: Slot,
     access?: t.Accounts.Grant,
     done?: Pick<t.Completion, 'grant' | 'session'>,
-    last?: t.AccountRuntime.Snapshot['last'],
+    last?: t.AccountRuntime.State.Snapshot['last'],
   ) {
     active = undefined;
     if (slot.retired) {

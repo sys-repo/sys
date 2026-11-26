@@ -125,7 +125,7 @@ export declare namespace Passkey {
     & { readonly action: Action; readonly summary: string }
     & (
       | { readonly kind: 'success' | 'failure' | 'indeterminate' }
-      | Extract<t.AccountRuntime.Outcome, { kind: 'not-submitted' }>
+      | Extract<t.AccountRuntime.Action.Outcome, { kind: 'not-submitted' }>
     );
 
   /** Supplied prerequisite knowledge; an exposed browser API alone is not readiness. */

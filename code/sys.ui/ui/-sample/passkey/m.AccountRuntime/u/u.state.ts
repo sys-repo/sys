@@ -3,7 +3,7 @@ import { Obj, Rx, type t } from '../common.ts';
 /** Only the readonly view crosses the runtime boundary; notifications carry no payload. */
 export function createState() {
   const changed = Rx.subject();
-  let current: t.AccountRuntime.Snapshot = Obj.deepFreeze({
+  let current: t.AccountRuntime.State.Snapshot = Obj.deepFreeze({
     lifecycle: 'inactive',
     browser: { kind: 'unchecked' },
     session: { kind: 'unknown' },
@@ -13,13 +13,13 @@ export function createState() {
     get current() {
       return current;
     },
-    get changes$() {
+    get changed$() {
       return new Rx.Observable<void>((subscriber) => changed.subscribe(subscriber));
     },
   });
   return {
     state,
-    publish(patch: Partial<t.AccountRuntime.Snapshot>) {
+    publish(patch: Partial<t.AccountRuntime.State.Snapshot>) {
       current = Obj.deepFreeze({ ...current, ...patch });
       changed.next();
     },

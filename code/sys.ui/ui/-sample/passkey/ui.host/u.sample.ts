@@ -22,7 +22,7 @@ export function openSample() {
   return {
     current: () => runtime.state.current,
     subscribe(notify: () => void) {
-      const sub = runtime.state.changes$.subscribe(notify);
+      const sub = runtime.state.changed$.subscribe(notify);
       return () => sub.unsubscribe();
     },
     run,

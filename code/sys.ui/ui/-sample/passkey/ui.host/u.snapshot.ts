@@ -2,7 +2,7 @@ import { Str } from '../common.ts';
 import type { t } from '../ui/common.ts';
 import { browserOrigin, rp } from '../u/u.issuer.ts';
 
-type State = t.AccountRuntime.Snapshot;
+type Snapshot = t.AccountRuntime.State.Snapshot;
 const phases = {
   begin: 'Preparing request',
   ceremony: 'Waiting for authenticator',
@@ -19,7 +19,7 @@ export const registrationAdvisory = Str.dedent(`
 `);
 
 /** Session facts and the outcome of an attempt are independent observations. */
-export function snapshotOf(state: State): t.Passkey.Snapshot {
+export function snapshotOf(state: Snapshot): t.Passkey.Snapshot {
   const operation = operationOf(state.operation);
   return {
     authentication: authenticationOf(state.session, operation),
@@ -30,7 +30,7 @@ export function snapshotOf(state: State): t.Passkey.Snapshot {
 }
 
 /** Project the configured context and observed browser availability independently of the session. */
-export function contextOf(browser: State['browser']): t.Passkey.Context {
+export function contextOf(browser: Snapshot['browser']): t.Passkey.Context {
   return {
     origin: browserOrigin,
     rpId: rp.id,
@@ -42,7 +42,7 @@ export function contextOf(browser: State['browser']): t.Passkey.Context {
 }
 
 function authenticationOf(
-  session: State['session'],
+  session: Snapshot['session'],
   operation: t.Passkey.Operation,
 ): t.Passkey.Authentication {
   if (session.kind === 'signed-in') {
@@ -54,13 +54,13 @@ function authenticationOf(
   return { kind: 'unknown', summary: 'Reload this page, then choose Sign In.' };
 }
 
-function operationOf(op: State['operation']): t.Passkey.Operation {
+function operationOf(op: Snapshot['operation']): t.Passkey.Operation {
   if (op.kind !== 'pending') return op;
   if (op.action === 'inspect') return { kind: 'checking' };
   return { kind: 'pending', action: op.action, phase: phases[op.phase] };
 }
 
-function browserOf(browser: State['browser']): t.Passkey.Availability {
+function browserOf(browser: Snapshot['browser']): t.Passkey.Availability {
   if (browser.kind === 'unchecked') return { kind: 'unknown', reason: 'Not checked' };
   if (browser.kind === 'available') return browser;
   const reason = browser.reason === 'insecure-context'
@@ -69,7 +69,7 @@ function browserOf(browser: State['browser']): t.Passkey.Availability {
   return { kind: 'unavailable', reason };
 }
 
-function resultOf({ action, outcome }: NonNullable<State['last']>): t.Passkey.Result {
+function resultOf({ action, outcome }: NonNullable<Snapshot['last']>): t.Passkey.Result {
   switch (outcome.kind) {
     case 'accepted':
       return { action, kind: 'success', summary: 'Accepted by the account service.' };

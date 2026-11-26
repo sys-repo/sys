@@ -11,7 +11,7 @@ export type Pending = {
 
 /** Private proposal. Only the owning lifecycle can adopt a grant or publish session facts. */
 export type Completion = {
-  readonly outcome: t.AccountRuntime.Outcome;
+  readonly outcome: t.AccountRuntime.Action.Outcome;
   readonly session?: t.AccountRuntime.Session;
   readonly grant?: t.Accounts.Grant;
 };

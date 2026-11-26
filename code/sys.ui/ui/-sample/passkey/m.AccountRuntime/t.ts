@@ -1,11 +1,13 @@
 import type { t } from './common.ts';
 
 /**
- * Host-owned passkey runtime; no renderer, persistence, or server authority.
+ * Client runtime for one account service. The host owns its lifetime; the service owns authority.
  */
 export declare namespace AccountRuntime {
-  /** Each call creates an inactive runtime with no session credential. */
-  export type Lib = { create(options: Options): Instance };
+  export type Lib = {
+    /** Create an inactive runtime with no session credential. */
+    create(options: Options): Instance;
+  };
 
   /** Fixed issuing service and relying-party binding for one lifetime. */
   export type Options = {
@@ -15,42 +17,53 @@ export declare namespace AccountRuntime {
     policy: t.HttpCmd.Policy;
   };
 
-  /** Explicit lifecycle and safe observations; raw command results are never exposed. */
+  /**
+   * The host uses this instance to run account actions and observe their outcomes.
+   * The session bearer and raw ceremony responses stay private to the runtime.
+   */
   export type Instance = t.Disposable & {
     readonly state: State;
-    /** Probe browser prerequisites and activate without a ceremony or anonymous inspection. */
+    /** Activate or restore locally: check browser support without sending a request. */
     start(): void;
-    /** Observe the retained session, if any; never resolve a prior uncertain mutation. */
+    /** Inspect a retained session when idle; this cannot confirm an earlier mutation. */
     refresh(): Promise<void>;
-    /** Explicit bearer-free observation; undefined on failure or cancellation. */
+    /** Read service totals without a bearer; `undefined` means no observation, not zero. */
     readStats(signal: AbortSignal): Promise<t.Accounts.ServiceStats | undefined>;
-    run(action: Action): Promise<Outcome>;
-    /** Request cancellation without releasing an unsettled ceremony's exclusive slot. */
+    /** Attempt one account action; a busy runtime does not queue it. */
+    run(action: Action): Promise<Action.Outcome>;
+    /** Request cancellation of an action or inspection; its slot stays occupied until settlement. */
     cancel(): void;
-    /** Forget local authority and retire in-flight work; start again on restoration. */
+    /** Forget the bearer without revoking the remote session. Call `start()` on restoration. */
     depart(): void;
   };
 
-  /** Live canonical readonly snapshots plus invalidations; no patches or mutable event payloads. */
-  export type State = t.ImmutableReadonly<Snapshot> & { readonly changes$: t.Observable<void> };
-
-  /** Local lifecycle, browser prerequisites, session facts, and attempts are independent. */
-  export type Snapshot = {
-    readonly lifecycle: 'inactive' | 'active' | 'departed' | 'disposed';
-    readonly browser: { readonly kind: 'unchecked' } | t.WebAuthn.Availability;
-    readonly session: Session;
-    readonly operation: Operation;
-    readonly last?: { readonly action: Action; readonly outcome: Outcome };
+  /** Read `current` on attachment and whenever `changed$` fires; notifications do not replay. */
+  export type State = t.ImmutableReadonly<State.Snapshot> & {
+    readonly changed$: t.Observable<void>;
   };
 
+  /**
+   * Types exposed by the runtime state.
+   */
+  export namespace State {
+    /** Local observations: `session` describes current access; `last` describes an action. */
+    export type Snapshot = {
+      readonly lifecycle: 'inactive' | 'active' | 'departed' | 'disposed';
+      readonly browser: { readonly kind: 'unchecked' } | t.WebAuthn.Availability;
+      readonly session: Session;
+      readonly operation: Operation;
+      readonly last?: { readonly action: Action; readonly outcome: Action.Outcome };
+    };
+  }
+
+  /** `unknown` does not confirm sign-out; `signed-out` does not imply remote revocation. */
   export type Session =
     | { readonly kind: 'unknown' | 'signed-out' }
     | { readonly kind: 'signed-in'; readonly value: t.Accounts.Session };
 
-  export type Action = 'create-account' | 'sign-in' | 'add-passkey' | 'sign-out';
   export type Operation =
     | { readonly kind: 'idle' }
-    /** Work from a departed lifetime still occupies the slot; its result cannot be adopted. */
+    // Work from before departure still holds the slot, but cannot restore the session.
     | { readonly kind: 'retiring' }
     | {
       readonly kind: 'pending';
@@ -58,15 +71,25 @@ export declare namespace AccountRuntime {
       readonly phase: 'begin' | 'ceremony' | 'finish' | 'request';
     };
 
-  /** Mutation outcome only; an accepted attempt need not leave a live local session. */
-  export type Outcome =
-    | { readonly kind: 'accepted' }
-    | { readonly kind: 'indeterminate' }
-    | { readonly kind: 'rejected'; readonly code: Rejection }
-    | {
-      readonly kind: 'not-submitted';
-      readonly reason: 'busy' | 'invalid-input' | 'unavailable' | 'cancelled';
-    };
+  export type Action = 'create-account' | 'sign-in' | 'add-passkey' | 'sign-out';
 
-  export type Rejection = t.Accounts.FinishRejection | 'credential-conflict' | 'no-session';
+  /**
+   * Results of one account action, distinct from current session state.
+   */
+  export namespace Action {
+    export type Rejection = t.Accounts.FinishRejection | 'credential-conflict' | 'no-session';
+
+    /**
+     * An accepted action need not leave a live local session.
+     * An indeterminate mutation may have committed; do not retry it automatically.
+     */
+    export type Outcome =
+      | { readonly kind: 'accepted' }
+      | { readonly kind: 'indeterminate' }
+      | { readonly kind: 'rejected'; readonly code: Rejection }
+      | {
+        readonly kind: 'not-submitted';
+        readonly reason: 'busy' | 'invalid-input' | 'unavailable' | 'cancelled';
+      };
+  }
 }

@@ -33,7 +33,7 @@ const runtime = AccountRuntime.create({
 
 runtime.start();
 const update = () => render(runtime.state.current);
-const subscription = runtime.state.changes$.subscribe(update);
+const subscription = runtime.state.changed$.subscribe(update);
 update(); // Changes are not replayed: render the initial snapshot too.
 ```
 

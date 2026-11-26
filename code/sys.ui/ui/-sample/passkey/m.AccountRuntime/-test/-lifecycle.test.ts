@@ -28,7 +28,7 @@ describe('AccountRuntime lifetime and cancellation boundaries', () => {
       using runtime = server.create();
       const abort = new AbortController();
       runtime.start();
-      let atBoundary: t.AccountRuntime.Snapshot | undefined;
+      let atBoundary: t.AccountRuntime.State.Snapshot | undefined;
       using _boundary = afterAdmittedReply('service.stats', 'accepted', () => {
         if (exit === 'abort') abort.abort();
         if (exit === 'restore') {
@@ -106,7 +106,7 @@ describe('AccountRuntime lifetime and cancellation boundaries', () => {
       accepted({ credential: token, session: { ...server.session, expiresAt } });
 
     let departed = false;
-    const sub = runtime.state.changes$.subscribe(() => {
+    const sub = runtime.state.changed$.subscribe(() => {
       if (departed || runtime.state.current.session.kind !== 'signed-out') return;
       departed = true;
       runtime.depart();
@@ -144,8 +144,8 @@ describe('AccountRuntime lifetime and cancellation boundaries', () => {
       await entered.promise;
       runtime.depart();
       runtime.start();
-      const states: t.AccountRuntime.Snapshot[] = [];
-      const sub = runtime.state.changes$.subscribe(() => states.push(runtime.state.current));
+      const states: t.AccountRuntime.State.Snapshot[] = [];
+      const sub = runtime.state.changed$.subscribe(() => states.push(runtime.state.current));
       try {
         expect(runtime.state.current.operation).to.eql({ kind: 'retiring' });
         expect(runtime.state.current.last).to.equal(undefined);
@@ -176,7 +176,7 @@ describe('AccountRuntime lifetime and cancellation boundaries', () => {
     using server = transport();
     using runtime = server.create();
     runtime.start();
-    let restored: t.AccountRuntime.Snapshot | undefined;
+    let restored: t.AccountRuntime.State.Snapshot | undefined;
     using _boundary = afterAdmittedReply('account.create.finish', 'accepted', () => {
       runtime.depart();
       runtime.start();

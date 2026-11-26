@@ -135,7 +135,7 @@ describe('AccountRuntime', () => {
     const before = state.current;
     const states: typeof before[] = [];
     const events: unknown[] = [];
-    const changes = state.changes$.subscribe((event) => {
+    const changes = state.changed$.subscribe((event) => {
       events.push(event);
       states.push(state.current);
     });
@@ -177,7 +177,7 @@ describe('AccountRuntime', () => {
     };
     runtime.start();
     let duplicate: ReturnType<typeof runtime.run> | undefined;
-    const changes = runtime.state.changes$.subscribe(() => {
+    const changes = runtime.state.changed$.subscribe(() => {
       const op = runtime.state.current.operation;
       if (op.kind === 'pending' && op.phase === 'begin') duplicate = runtime.run('sign-in');
     });
@@ -204,7 +204,7 @@ describe('AccountRuntime', () => {
     using server = transport();
     using runtime = server.create();
     runtime.start();
-    const changes = runtime.state.changes$.subscribe(() => {
+    const changes = runtime.state.changed$.subscribe(() => {
       const op = runtime.state.current.operation;
       if (op.kind !== 'pending' || op.phase !== 'finish') return;
       runtime.depart();
