@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { createUiRepo } from '../../-test.ui.ts';
-import { Color, css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
+import { createUiRepo, Spec } from '../../-test.ui.ts';
+import { Color, css, D, Dev, Is, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.CardProps;
 type Storage = Pick<P, 'theme' | 'debug'> & { textbox?: string };
@@ -39,13 +39,27 @@ export async function createDebugSignals() {
   };
 
   const p = props;
-  const api = {
-    props,
-    store,
-    repo,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      // The shared lifetime owns two independent dependency sets.
+      using effects = new DisposableStack();
+      effects.defer(Signal.effect(() => {
+        store.change((d) => {
+          d.theme = p.theme.value;
+          d.debug = p.debug.value;
+          d.textbox = p.textbox.value;
+        });
+      }));
+      effects.defer(Signal.effect(() => {
+        const events = p.doc.value?.events();
+        if (Is.nil(events)) return;
+        events.$.subscribe(() => p.redraw.value++);
+        return () => events.dispose();
+      }));
+      const owned = effects.move();
+      return () => owned.dispose();
+    },
+  });
 
   function listen() {
     Signal.listen(props);
@@ -55,26 +69,7 @@ export async function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.textbox = p.textbox.value;
-    });
-  });
-
-  /**
-   * Redraw on Document change:
-   */
-  let events: t.CrdtEvents | undefined;
-  Signal.effect(() => {
-    events?.dispose();
-    const doc = p.doc.value;
-    events = doc?.events();
-    events?.$.subscribe(() => p.redraw.value++);
-  });
-
-  return api;
+  return { props, store, repo, listen, reset, attach };
 }
 
 const Styles = {

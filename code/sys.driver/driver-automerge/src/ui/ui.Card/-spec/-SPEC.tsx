@@ -1,4 +1,4 @@
-import { Harness, Signal, Spec } from '../../-test.ui.ts';
+import { Harness, Spec } from '../../-test.ui.ts';
 
 import { D, DocumentId } from '../common.ts';
 import { Card } from '../mod.ts';
@@ -16,30 +16,31 @@ export default Spec.describe(D.displayName, async (e) => {
    */
   window.repo = repo;
 
+  function Root() {
+    return (
+      <Card
+        debug={p.debug.value}
+        theme={p.theme.value}
+        headerStyle={{ topOffset: -29 }}
+        storageKey={STORAGE_KEY}
+        repo={repo}
+        signals={{ textbox: p.textbox, doc: p.doc }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: [520, 350], display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size([520, 350])
-      .display('grid')
-      .render(() => {
-        return (
-          <Card
-            debug={p.debug.value}
-            theme={p.theme.value}
-            headerStyle={{ topOffset: -29 }}
-            storageKey={STORAGE_KEY}
-            repo={repo}
-            signals={{ textbox: p.textbox, doc: p.doc }}
-          />
-        );
-      });
 
     ctx.debug.header
       .padding(0)
