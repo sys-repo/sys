@@ -1,6 +1,6 @@
 {
   "name": "@sys/process",
-  "version": "0.0.326",
+  "version": "0.0.327",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:process && deno task test:retention",
@@ -39,3 +39,4 @@
     "test-retention": {}
   }
 }
+

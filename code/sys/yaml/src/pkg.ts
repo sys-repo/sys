@@ -15,5 +15,5 @@ import type { Pkg } from '@sys/types';
  */
 export const pkg: Readonly<Pkg> = Object.freeze({
   name: '@sys/yaml',
-  version: '0.0.210',
+  version: '0.0.211',
 });

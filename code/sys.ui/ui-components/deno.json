@@ -1,6 +1,6 @@
 {
   "name": "@sys/ui-components",
-  "version": "0.0.344",
+  "version": "0.0.345",
   "license": "MIT",
   "tasks": {
     "dev": "deno run -A ./-scripts/task.main.ts --cmd=dev --in=./src/index.html --port=1235",
@@ -66,8 +66,17 @@
     "./specs": "./src/-test/-specs.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true },
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true
+    },
     "dev": {
       "read": true,
       "write": true,
@@ -76,8 +85,17 @@
       "net": true,
       "ffi": true,
       "sys": {
-        "allow": ["cpus", "networkInterfaces", "hostname", "osRelease", "homedir", "uid", "gid"]
+        "allow": [
+          "cpus",
+          "networkInterfaces",
+          "hostname",
+          "osRelease",
+          "homedir",
+          "uid",
+          "gid"
+        ]
       }
     }
   }
 }
+

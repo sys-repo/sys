@@ -1,6 +1,6 @@
 {
   "name": "@sys/server",
-  "version": "0.0.62",
+  "version": "0.0.63",
   "license": "MIT",
   "tasks": {
     "test": "deno task test:unit && deno task test:dist:process",
@@ -17,7 +17,11 @@
     "sample:files:http:static": "deno run -P=sample-files-tty ./-sample/files.http.static/-start.ts",
     "tmp": "deno run -A ./-scripts/task.tmp.ts"
   },
-  "publish": { "exclude": ["-sample/"] },
+  "publish": {
+    "exclude": [
+      "-sample/"
+    ]
+  },
   "exports": {
     ".": "./src/mod.ts",
     "./t": "./src/types.ts",
@@ -31,9 +35,31 @@
     "./websocket": "./src/m.server.websocket/mod.ts"
   },
   "permissions": {
-    "clean": { "read": true, "write": true, "env": true },
-    "test": { "read": true, "write": true, "env": true, "net": true, "run": true },
-    "sample": { "read": true, "env": true, "run": true },
-    "sample-files-tty": { "read": true, "env": true, "net": true, "run": ["sh"] }
+    "clean": {
+      "read": true,
+      "write": true,
+      "env": true
+    },
+    "test": {
+      "read": true,
+      "write": true,
+      "env": true,
+      "net": true,
+      "run": true
+    },
+    "sample": {
+      "read": true,
+      "env": true,
+      "run": true
+    },
+    "sample-files-tty": {
+      "read": true,
+      "env": true,
+      "net": true,
+      "run": [
+        "sh"
+      ]
+    }
   }
 }
+

@@ -1,6 +1,6 @@
 {
   "name": "@sys/cell",
-  "version": "0.0.89",
+  "version": "0.0.90",
   "license": "MIT",
   "tasks": {
     "test": "deno test -P=test ./src ./-scripts/-test",
@@ -89,8 +89,16 @@
       "read": true,
       "write": true,
       "env": true,
-      "net": { "allow": ["127.0.0.1"] },
-      "run": { "allow": ["deno"] }
+      "net": {
+        "allow": [
+          "127.0.0.1"
+        ]
+      },
+      "run": {
+        "allow": [
+          "deno"
+        ]
+      }
     },
     "test": {
       "read": true,
@@ -113,3 +121,4 @@
     }
   }
 }
+
