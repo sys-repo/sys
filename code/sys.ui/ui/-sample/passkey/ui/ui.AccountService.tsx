@@ -1,6 +1,13 @@
 import { LuMemoryStick } from 'react-icons/lu';
-import { Bullet, Color, css, D, Is, KeyValue, type t } from './common.ts';
+import { Anchor, Bullet, Color, css, D, Is, KeyValue, type t } from './common.ts';
 import { EmptyValue } from './ui.EmptyValue.tsx';
+
+/** Conceptual references used in the sample README. */
+const references = {
+  accounts: 'https://www.w3.org/TR/webauthn-3/#user-account',
+  passkeys: 'https://www.w3.org/TR/webauthn-3/#passkey',
+  sessions: 'https://pages.nist.gov/800-63-4/sp800-63b/session/#sessmgmt',
+} as const;
 
 const storageLabel = 'Service: In memory storage';
 const colors = {
@@ -15,10 +22,15 @@ export function AccountService(
 ) {
   const { observation, availability = 'unknown', theme, title = 'Account Service' } = props;
   const counts = observation.kind === 'observed' ? observation.counts : undefined;
+  const key = (noun: keyof typeof references) => (
+    <span>
+      Total <Anchor.Link href={references[noun]} openIn='new-tab' theme={theme}>{noun}</Anchor.Link>
+    </span>
+  );
   const rows: t.KeyValue.Item.Row[] = [
-    { id: 'accounts', k: 'Total accounts', v: counts?.accounts ?? <EmptyValue /> },
-    { id: 'passkeys', k: 'Total passkeys', v: counts?.registeredPasskeys ?? <EmptyValue /> },
-    { id: 'valid-sessions', k: 'Valid sessions', v: counts?.validSessions ?? <EmptyValue /> },
+    { id: 'accounts', k: key('accounts'), v: counts?.accounts ?? <EmptyValue /> },
+    { id: 'passkeys', k: key('passkeys'), v: counts?.registeredPasskeys ?? <EmptyValue /> },
+    { id: 'valid-sessions', k: key('sessions'), v: counts?.validSessions ?? <EmptyValue /> },
   ];
   const items: t.KeyValue.Item[] = rows.map((row) => ({ ...row, userSelect: 'text' }));
   let header: t.ReactNode;

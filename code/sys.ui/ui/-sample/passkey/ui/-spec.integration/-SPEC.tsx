@@ -26,6 +26,7 @@ export default Spec.describe(D.displayName, (e) => {
     if (!owner) return;
     const { debug, controller } = owner;
     const p = debug.props;
+
     // Render props may reset while the context and its effects remain alive.
     Harness.Theme.background(ctx, p.theme.value, 1);
     ctx.host.footer
@@ -34,7 +35,7 @@ export default Spec.describe(D.displayName, (e) => {
 
     // Center a fixed preview area so content grows down without moving the panel’s top.
     ctx.subject
-      .size([360, 530])
+      .size([360, 580])
       .render(() => {
         const { view, debug, theme } = Signal.toObject(p);
         return <Controller.UI controller={controller} view={view} debug={debug} theme={theme} />;

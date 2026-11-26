@@ -20,10 +20,11 @@ import {
   renderPanel,
   signedIn,
   signedOut,
+  textWithoutHidden,
   valueCell,
 } from './u.fixture.tsx';
 
-const countLabels = ['Total accounts', 'Total passkeys', 'Valid sessions'];
+const countLabels = ['Total accounts', 'Total passkeys', 'Total sessions'];
 
 const pending: t.Passkey.Snapshot = {
   ...signedOut,
@@ -154,13 +155,20 @@ describe('Passkey diagnostic sections', () => {
     expect(panel.container.querySelector(selector)).to.eql(null);
   });
 
-  it('failed service observation → only the heading and dashed totals; account stays signed in', async () => {
+  it('failed service observation → linked labels, dashed totals, and unchanged sign-in', async () => {
     const service = { observation: { kind: 'failed' } } as const;
     using res = await renderPanel({ snapshot: signedIn, service });
     const block = element(res.container, '[data-passkey-service]');
-    expect(block.innerText.trim()).to.match(
-      /^Account Service\s*Total accounts\s*-\s*Total passkeys\s*-\s*Valid sessions\s*-$/,
+    expect(textWithoutHidden(block).trim()).to.match(
+      /^Account Service\s*Total accounts\s*-\s*Total passkeys\s*-\s*Total sessions\s*-$/,
     );
+    const links = [...block.querySelectorAll('a')];
+    expect(links.map((link) => [link.textContent, link.href])).to.eql([
+      ['accounts', 'https://www.w3.org/TR/webauthn-3/#user-account'],
+      ['passkeys', 'https://www.w3.org/TR/webauthn-3/#passkey'],
+      ['sessions', 'https://pages.nist.gov/800-63-4/sp800-63b/session/#sessmgmt'],
+    ]);
+    expect(links.map((link) => link.target)).to.eql(['_blank', '_blank', '_blank']);
     expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed in');
     expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
   });

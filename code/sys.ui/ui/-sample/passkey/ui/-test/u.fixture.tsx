@@ -102,12 +102,18 @@ export function textElement(container: HTMLElement, text: string): HTMLElement {
   return el;
 }
 
+/** Exclude hidden link descriptions and SVG titles from the DOM mock's label text. */
+export function textWithoutHidden(element: HTMLElement): string {
+  const copy = element.cloneNode(true) as HTMLElement;
+  for (const hidden of copy.querySelectorAll('[hidden], svg title')) hidden.remove();
+  return copy.textContent ?? '';
+}
+
 /** A plain or linked KeyValue key and its adjacent value cell. */
 export function valueCell(container: HTMLElement, label: string): Element {
-  const anchor = [...container.querySelectorAll<HTMLAnchorElement>('a')].find((el) =>
-    el.textContent === label
+  const key = [...container.querySelectorAll<HTMLElement>('div')].find((el) =>
+    el.nextElementSibling && el.textContent?.startsWith(label) && textWithoutHidden(el) === label
   );
-  const key = anchor ? anchor.parentElement : textElement(container, label);
   const value = key?.nextElementSibling;
   if (Is.nil(value)) throw new Error(`Missing value for: ${label}`);
   return value;
