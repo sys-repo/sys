@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { createUiRepo } from '../../-test.ui.ts';
+import { createUiRepo, Spec } from '../../-test.ui.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, type t } from './common.ts';
 
 type P = t.BinaryFile.Props;
@@ -36,28 +36,25 @@ export function createDebugSignals() {
     doc: s<t.Crdt.Ref>(),
   };
   const p = props;
-  const api = {
-    props,
-    repo,
-    reset,
-    listen() {
-      Signal.listen(props);
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.path = p.path.value;
+      });
     },
-  };
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.path = p.path.value;
-    });
   });
+
+  function listen() {
+    Signal.listen(props);
+  }
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  return api;
+  return { props, repo, listen, reset, attach };
 }
 
 const Styles = {

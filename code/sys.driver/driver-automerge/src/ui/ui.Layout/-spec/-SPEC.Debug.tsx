@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crdt, createUiRepo } from '../../-test.ui.ts';
+import { Crdt, createUiRepo, Spec } from '../../-test.ui.ts';
 import { css, D, Dev, Is, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
 
 type P = t.Layout.Props;
@@ -68,14 +68,32 @@ export function createDebugSignals() {
   };
 
   const p = props;
-  const api = {
-    props,
-    repo,
-    crdt,
-    signals,
-    reset,
-    listen,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.spinning = p.spinning.value;
+        d.debugSlots = p.debugSlots.value;
+        d.urlKey = p.urlKey.value;
+
+        d.header = d.header ?? {};
+        d.header.visible = p.header.visible.value;
+        d.header.readOnly = p.header.readOnly.value;
+
+        d.sidebar = d.sidebar ?? {};
+        d.sidebar.position = p.sidebar.position.value;
+        d.sidebar.visible = p.sidebar.visible.value;
+        d.sidebar.resizable = p.sidebar.resizable.value;
+        d.sidebar.width = p.sidebar.width.value;
+        d.sidebar.divider = p.sidebar.divider.value;
+
+        d.cropmarks = d.cropmarks ?? {};
+        d.cropmarks.size = p.cropmarks.size.value;
+        d.cropmarks.subjectOnly = p.cropmarks.subjectOnly.value;
+      });
+    },
+  });
 
   function listen() {
     Signal.listen(p, true);
@@ -86,32 +104,7 @@ export function createDebugSignals() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.spinning = p.spinning.value;
-      d.debugSlots = p.debugSlots.value;
-      d.urlKey = p.urlKey.value;
-
-      d.header = d.header ?? {};
-      d.header.visible = p.header.visible.value;
-      d.header.readOnly = p.header.readOnly.value;
-
-      d.sidebar = d.sidebar ?? {};
-      d.sidebar.position = p.sidebar.position.value;
-      d.sidebar.visible = p.sidebar.visible.value;
-      d.sidebar.resizable = p.sidebar.resizable.value;
-      d.sidebar.width = p.sidebar.width.value;
-      d.sidebar.divider = p.sidebar.divider.value;
-
-      d.cropmarks = d.cropmarks ?? {};
-      d.cropmarks.size = p.cropmarks.size.value;
-      d.cropmarks.subjectOnly = p.cropmarks.subjectOnly.value;
-    });
-  });
-
-  return api;
+  return { props, repo, crdt, signals, listen, reset, attach };
 }
 
 const Styles = {

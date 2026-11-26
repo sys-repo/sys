@@ -9,43 +9,44 @@ export default Spec.describe(D.displayName, (e) => {
   const debug = createDebugSignals();
   const p = debug.props;
 
+  function Root() {
+    const v = Signal.toObject(p);
+
+    const suffix = (doc?: t.Crdt.Ref) => (doc ? `- (crdt:${doc.id.slice(-5)})` : '');
+    const slots: t.Layout.Slots = {
+      main: (ctx) => <Foo ctx={ctx} label={`🌳 Main ${suffix(ctx.doc)}`} />,
+      sidebar: (ctx) => <Foo ctx={ctx} label={`🌳 Sidebar ${suffix(ctx.doc)}`} />,
+      footer: (ctx) => <Foo ctx={ctx} label={`🌳 Footer ${suffix(ctx.doc)}`} padding={0} />,
+    };
+
+    return (
+      <Layout.View
+        debug={v.debug}
+        theme={v.theme}
+        spinning={v.spinning}
+        signals={debug.signals}
+        crdt={debug.crdt}
+        header={v.header}
+        sidebar={v.sidebar}
+        cropmarks={v.cropmarks}
+        slots={v.debugSlots ? slots : undefined}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
-    });
-
     ctx.debug.width(380);
-    ctx.subject
-      .size('fill')
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-
-        const suffix = (doc?: t.Crdt.Ref) => (doc ? `- (crdt:${doc.id.slice(-5)})` : '');
-        const slots: t.Layout.Slots = {
-          main: (ctx) => <Foo ctx={ctx} label={`🌳 Main ${suffix(ctx.doc)}`} />,
-          sidebar: (ctx) => <Foo ctx={ctx} label={`🌳 Sidebar ${suffix(ctx.doc)}`} />,
-          footer: (ctx) => <Foo ctx={ctx} label={`🌳 Footer ${suffix(ctx.doc)}`} padding={0} />,
-        };
-
-        return (
-          <Layout.View
-            debug={v.debug}
-            theme={v.theme}
-            spinning={v.spinning}
-            signals={debug.signals}
-            crdt={debug.crdt}
-            header={v.header}
-            sidebar={v.sidebar}
-            cropmarks={v.cropmarks}
-            slots={v.debugSlots ? slots : undefined}
-          />
-        );
-      });
+    debug.attach(ctx, {
+      subject: { size: 'fill', display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
+    });
 
     ctx.debug.footer
       .border(-0.1)

@@ -8,35 +8,36 @@ export default Spec.describe(D.displayName, (e) => {
   const repo = debug.repo;
   const p = debug.props;
 
+  function Root() {
+    const v = Signal.toObject(p);
+    return (
+      <Repo.SyncSwitch
+        theme={v.theme}
+        debug={v.debug}
+        //
+        repo={v.noRepo ? undefined : debug.repo}
+        mode={v.mode}
+        storageKey={v.storageKey}
+        onChange={(e) => {
+          v.redraw += 1;
+          console.info(`⚡️ SyncSwitch.onChange:`, e);
+        }}
+      />
+    );
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: [420, null], display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size([420, null])
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        return (
-          <Repo.SyncSwitch
-            theme={v.theme}
-            debug={v.debug}
-            //
-            repo={v.noRepo ? undefined : debug.repo}
-            mode={v.mode}
-            storageKey={v.storageKey}
-            onChange={(e) => {
-              v.redraw += 1;
-              console.info(`⚡️ SyncSwitch.onChange:`, e);
-            }}
-          />
-        );
-      });
 
     ctx.debug.footer
       .border(-0.1)

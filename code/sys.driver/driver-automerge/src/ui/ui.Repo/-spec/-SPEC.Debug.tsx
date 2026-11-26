@@ -2,6 +2,7 @@ import { ServerInfo } from '@sys/driver-automerge/ws/client';
 import React from 'react';
 
 import { createUiRepo } from '../../-test.ui.repo.ts';
+import { Spec } from '../../-test.ui.ts';
 import { css, D, Dev, LocalStorage, Obj, Signal, STORAGE_KEY, type t } from './common.ts';
 
 type P = t.Repo.SyncSwitch.Props;
@@ -39,30 +40,27 @@ export function createDebugSignals() {
     noRepo: s(snap.noRepo),
   };
   const p = props;
-  const api = {
-    props,
-    repo,
-    reset,
-    listen() {
-      Signal.listen(props);
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.debug = p.debug.value;
+        d.noRepo = p.noRepo.value;
+        d.storageKey = p.storageKey.value;
+        d.mode = p.mode.value;
+      });
     },
-  };
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.debug = p.debug.value;
-      d.noRepo = p.noRepo.value;
-      d.storageKey = p.storageKey.value;
-      d.mode = p.mode.value;
-    });
   });
+
+  function listen() {
+    Signal.listen(props);
+  }
 
   function reset() {
     Signal.walk(p, (e) => e.mutate(Obj.Path.get(defaults, e.path)));
   }
 
-  return api;
+  return { props, repo, listen, reset, attach };
 }
 
 const Styles = {

@@ -28,30 +28,23 @@ export default Spec.describe(D.displayName, (e) => {
     );
   }
 
+  function Root() {
+    const v = Signal.toObject(p);
+    return <Binary.View debug={v.debug} theme={v.theme} doc={v.doc} path={v.path} />;
+  }
+
   e.it('init', (e) => {
     const ctx = Spec.ctx(e);
-
-    Harness.Theme.signalEffect(ctx, p.theme, 1);
-    Signal.effect(() => {
-      debug.listen();
-      ctx.redraw();
+    debug.attach(ctx, {
+      subject: { size: [450, 450], display: 'grid', render: () => <Root /> },
+      effects: [
+        () => void Harness.Theme.background(ctx, p.theme.value, 1),
+        () => {
+          debug.listen();
+          ctx.redraw();
+        },
+      ],
     });
-
-    ctx.subject
-      .size([450, 450])
-      .display('grid')
-      .render(() => {
-        const v = Signal.toObject(p);
-        return (
-          <Binary.View
-            //
-            debug={v.debug}
-            theme={v.theme}
-            doc={v.doc}
-            path={v.path}
-          />
-        );
-      });
 
     ctx.host.header.padding(0).render(() => <HostDocumentId />);
   });
