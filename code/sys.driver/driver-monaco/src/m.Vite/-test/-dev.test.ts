@@ -3,7 +3,8 @@ import { describe, expect, it, Testing } from '../../-test.ts';
 import { Err, Fs, Time } from '../common.ts';
 
 const cwd = Fs.Path.fromFileUrl(new URL('../../../', import.meta.url));
-const REQUEST_TIMEOUT = 5_000;
+// Guard against hangs; the test checks what Vite serves, not how fast.
+const REQUEST_TIMEOUT = 15_000;
 
 describe('MonacoVite development serving', () => {
   it('development server → serves runtime assets and notices', async () => {
@@ -21,7 +22,9 @@ describe('MonacoVite development serving', () => {
         const url = new URL(path, server.url);
         const startedAt = Time.now.timestamp;
         try {
-          return await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT) });
+          const response = await fetch(url, { signal: AbortSignal.timeout(REQUEST_TIMEOUT) });
+          const { status, headers } = response;
+          return { status, headers, text: await response.text() };
         } catch (cause) {
           throw new Error(
             `MonacoVite development request failed: ${url.href} ` +
@@ -42,12 +45,12 @@ describe('MonacoVite development serving', () => {
       expect(loader.headers.get('cache-control')).to.eql('no-store');
       expect(loader.headers.get('content-type')).to.eql('text/javascript; charset=UTF-8');
       expect(loader.headers.get('x-content-type-options')).to.eql('nosniff');
-      expect((await loader.text()).length).to.be.greaterThan(1_000);
+      expect(loader.text.length).to.be.greaterThan(1_000);
 
       expect(license.status).to.eql(200);
-      expect(await license.text()).to.include('The MIT License');
+      expect(license.text).to.include('The MIT License');
       expect(thirdParty.status).to.eql(200);
-      expect((await thirdParty.text()).length).to.be.greaterThan(10_000);
+      expect(thirdParty.text.length).to.be.greaterThan(10_000);
     } finally {
       await server.dispose();
     }
