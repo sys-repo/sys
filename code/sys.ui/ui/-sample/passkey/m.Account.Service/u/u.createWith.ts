@@ -10,7 +10,7 @@ import { algorithms } from './u.verifier.ts';
 
 /** Trusted owner-test seam; absent from mod.ts and the public type surface. */
 export function createWith(
-  options: t.AccountService.Options,
+  options: t.AccountService.CreateOptions,
   deps: t.ServiceDeps,
 ): t.AccountService.Instance {
   const policy = capturePolicy(options);

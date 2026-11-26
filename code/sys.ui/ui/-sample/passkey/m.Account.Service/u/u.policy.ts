@@ -3,8 +3,8 @@ import { PolicySchema } from './u.policy.schema.ts';
 
 /** Capture trusted host configuration; this is not a sandbox for hostile objects or getters. */
 export function capturePolicy(
-  options: t.AccountService.Options,
-): t.DeepReadonly<t.AccountService.Options> {
+  options: t.AccountService.CreateOptions,
+): t.DeepReadonly<t.AccountService.CreateOptions> {
   if (!Schema.Value.Check(PolicySchema, options)) {
     throw new TypeError('Invalid account service policy.');
   }

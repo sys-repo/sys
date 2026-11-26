@@ -15,7 +15,7 @@ const actions: readonly Action[] = ['create-account', 'sign-in', 'add-passkey', 
 /**
  * Capture one issuer binding and create an inactive, credential-free runtime.
  */
-export function create(options: t.AccountRuntime.Options): t.AccountRuntime.Instance {
+export function create(options: t.AccountRuntime.CreateOptions): t.AccountRuntime.Instance {
   const wire = bind(options);
   const { state, publish, complete } = createState();
   const onExpire = (last?: t.AccountRuntime.State.Snapshot['last']) =>

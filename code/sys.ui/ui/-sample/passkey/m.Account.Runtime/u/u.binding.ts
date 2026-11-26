@@ -3,7 +3,7 @@ import { Accounts } from '../../m.Accounts/mod.ts';
 import { Is, Obj, type t, Try } from '../common.ts';
 
 /** Private binding: requests carry only the captured issuer's bearer; results are shape-checked. */
-export function bind(options: t.AccountRuntime.Options) {
+export function bind(options: t.AccountRuntime.CreateOptions) {
   const { endpoint, namespace: ns, policy, rpId } = options;
   if (!Is.str(rpId) || !/^[a-z0-9-]+(?:\.[a-z0-9-]+)*$/.test(rpId)) {
     throw new TypeError('Invalid account relying party ID.');

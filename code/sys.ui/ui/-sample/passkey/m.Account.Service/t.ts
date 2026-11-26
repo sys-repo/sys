@@ -7,7 +7,7 @@ import type { t } from './common.ts';
 export declare namespace AccountService {
   export type Lib = {
     /** Construct one private authority with fixed, explicitly bounded policy. */
-    create(options: Options): Instance;
+    create(options: CreateOptions): Instance;
   };
 
   /** Request-local handlers share only this instance's private authoritative records. */
@@ -16,7 +16,7 @@ export declare namespace AccountService {
   };
 
   /** Required host policy; construction snapshots it before any operation can run. */
-  export type Options = {
+  export type CreateOptions = {
     rp: { id: string; name: string };
     origins: string[];
     algorithms: COSEAlgorithmIdentifier[];

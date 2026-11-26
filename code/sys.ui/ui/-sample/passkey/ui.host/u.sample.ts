@@ -3,7 +3,7 @@ import type { t } from '../common.ts';
 import { browserOrigin, rp } from '../u/u.issuer.ts';
 import { ROUTE } from '../u/u.routes.ts';
 
-const binding: t.AccountRuntime.Options = {
+const binding: t.AccountRuntime.CreateOptions = {
   endpoint: new URL(ROUTE.ACCOUNT.commandPath, browserOrigin).href,
   namespace: 'accounts',
   rpId: rp.id,

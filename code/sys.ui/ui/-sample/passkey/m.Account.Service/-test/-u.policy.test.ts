@@ -2,7 +2,7 @@ import { describe, expect, expectTypeOf, it } from '../../../-test.ts';
 import type { t } from '../common.ts';
 import { capturePolicy } from '../u/u.policy.ts';
 
-const options = (): t.AccountService.Options => ({
+const options = (): t.AccountService.CreateOptions => ({
   rp: { id: 'example.test', name: 'Reference accounts' },
   origins: ['https://accounts.example.test'],
   algorithms: [-7],
@@ -14,7 +14,7 @@ describe('AccountService construction policy', () => {
   it('explicit policy → detached, deeply frozen authority', () => {
     const input = options();
     const result = capturePolicy(input);
-    expectTypeOf<t.DeepReadonly<t.AccountService.Options>>(result);
+    expectTypeOf<t.DeepReadonly<t.AccountService.CreateOptions>>(result);
     expect(result).to.eql(input);
     input.rp.id = 'other.test';
     input.origins[0] = 'https://other.test';

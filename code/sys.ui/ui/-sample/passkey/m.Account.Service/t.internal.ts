@@ -3,7 +3,7 @@ export type * from '../common.t.ts';
 export type { CredentialDeviceType, WebAuthnCredential } from '@simplewebauthn/server';
 
 /** Private fixed policy; vendor types never enter the sample's public type pool. */
-export type Policy = t.DeepReadonly<t.AccountService.Options>;
+export type Policy = t.DeepReadonly<t.AccountService.CreateOptions>;
 export type Purpose = 'create' | 'signIn' | 'add';
 export type BeginReply = t.Accounts.Reply<
   t.Accounts.Challenge<t.Accounts.Wire.CreationOptions | t.Accounts.Wire.RequestOptions>,

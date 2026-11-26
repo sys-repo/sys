@@ -6,11 +6,11 @@ import type { t } from './common.ts';
 export declare namespace AccountRuntime {
   export type Lib = {
     /** Create an inactive runtime with no session credential. */
-    create(options: Options): Instance;
+    create(options: CreateOptions): Instance;
   };
 
   /** Fixed issuing service and relying-party binding for one lifetime. */
-  export type Options = {
+  export type CreateOptions = {
     endpoint: t.StringUrl;
     namespace: string;
     rpId: string;

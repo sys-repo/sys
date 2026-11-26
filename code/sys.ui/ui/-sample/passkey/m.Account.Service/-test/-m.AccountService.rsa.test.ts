@@ -180,7 +180,7 @@ describe('AccountService RSA admission', () => {
   }
 });
 
-function policy(purpose: 'create' | 'add'): t.AccountService.Options {
+function policy(purpose: 'create' | 'add'): t.AccountService.CreateOptions {
   const options = config();
   options.capacity = {
     accounts: 1,

@@ -5,7 +5,7 @@ import type { t } from './common.ts';
 export { authenticator } from './u.fixture.authenticator.ts';
 export { registrationData, registrationPublicKey } from './u.fixture.registration.ts';
 
-export const config = (): t.AccountService.Options => ({
+export const config = (): t.AccountService.CreateOptions => ({
   rp: { id: 'example.test', name: 'Reference accounts' },
   origins: ['https://accounts.example.test'],
   algorithms: [-257],
