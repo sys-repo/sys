@@ -170,6 +170,12 @@ describe('Passkey diagnostic panel', () => {
       'noreferrer',
     ]);
     expect(actionButton(panel.container, 'sign-in').hasAttribute('aria-describedby')).to.eql(false);
+    panel.update({ ...props, snapshot: { ...signedIn, context } });
+    const signedInNote = element(panel.container, selector);
+    const add = actionButton(panel.container, 'add-passkey');
+    expect(add.getAttribute('aria-describedby')).to.eql(signedInNote.id);
+    const signOut = actionButton(panel.container, 'sign-out');
+    expect(signOut.hasAttribute('aria-describedby')).to.eql(false);
     const updated = { ...context, registrationAdvisory: 'Updated guidance.' };
     const snapshot = { ...signedOut, context: updated };
     panel.update({ ...props, snapshot, onCreateAccount: undefined });

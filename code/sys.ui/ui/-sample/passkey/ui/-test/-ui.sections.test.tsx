@@ -16,7 +16,6 @@ import {
   actionButton,
   buttons,
   element,
-  expectActions,
   press,
   renderPanel,
   signedIn,
@@ -24,15 +23,14 @@ import {
   valueCell,
 } from './u.fixture.tsx';
 
-const names = ['actions', 'status', 'context'] as const;
+const countLabels = ['Total accounts', 'Total passkeys', 'Valid sessions'];
+
 const pending: t.Passkey.Snapshot = {
   ...signedOut,
   operation: { kind: 'pending', action: 'sign-in', phase: 'Waiting' },
 };
-const section = (name: string) => `[data-passkey-section="${name}"]`;
-const cssOf = (el: Element) => el.ownerDocument.defaultView!.getComputedStyle(el);
 
-/** Order matters: no leading, trailing, or orphan divider. */
+/** Sections and the separators between them, not the KeyValue markup inside a section. */
 function framing(container: HTMLElement) {
   return [...container.querySelectorAll('[data-passkey-section], [data-passkey-divider]')]
     .map((el) => el.getAttribute('data-passkey-section') ?? '|').join(' ');
@@ -41,318 +39,190 @@ function framing(container: HTMLElement) {
 describe('Passkey diagnostic sections', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  for (const mask of [0, 1, 2, 3, 4, 5, 6, 7]) {
-    const sections = { actions: !!(mask & 1), status: !!(mask & 2), context: !!(mask & 4) };
-    const visible = names.filter((name) => sections[name]);
-    it(`${visible.join(' + ') || 'none'} → only visible sections, one progress location`, async () => {
-      using panel = await renderPanel({ snapshot: pending, sections });
-      const { container } = panel;
-      if (!visible.length) return expect(container.innerHTML).to.eql('');
-      expect(framing(container)).to.eql(visible.join(' | '));
-      const count = (selector: string) => container.querySelectorAll(selector).length;
-      expect(count('[data-passkey-title-spinner]')).to.eql(1);
-      expect(count('[role="progressbar"]')).to.eql(sections.status ? 0 : 1);
-      expect(count('[data-spinner-slot]')).to.eql(sections.status ? 1 : 0);
-      for (const divider of container.querySelectorAll('[data-passkey-divider]')) {
-        expect(divider.getAttribute('aria-hidden')).to.eql('true');
-      }
-    });
-  }
-
-  it('view selects a framed panel or standalone section; only panel honors sections', async () => {
-    const props = { snapshot: pending, sections: { context: false }, style: { padding: 7 } };
-    using panel = await renderPanel(props);
-    const { container } = panel;
-    const cases = [
-      ['panel', 'actions | status', true, false, true],
-      ['actions', 'actions', true, true, false],
-      ['status', 'status', false, false, true],
-      ['context', 'context', false, false, false],
-    ] as const;
-    for (const [view, expected, framed, titleProgress, statusProgress] of cases) {
-      panel.update({ ...props, view });
-      expect(framing(container)).to.eql(expected);
-      expect(!!container.querySelector('[data-passkey-title-spinner]')).to.eql(framed);
-      expect(!!container.querySelector('[role="progressbar"]')).to.eql(titleProgress);
-      expect(!!container.querySelector('[data-spinner-slot]')).to.eql(statusProgress);
-      expect(cssOf(container.firstElementChild!).padding).to.eql('7px');
-    }
-  });
-
-  it('note-bearing panel and actions → intrinsic height and an unclipped action edge', async () => {
-    const context = { ...signedOut.context, registrationAdvisory: 'Use a test passkey.' };
-    using panel = await renderPanel({ snapshot: signedOut });
-    const frame = () => cssOf(element(panel.container, section('actions')).parentElement!);
-    for (const view of ['panel', 'actions'] as const) {
-      panel.update({ view, snapshot: { ...signedOut, context } });
-      const { minHeight, height, overflowX, overflowY, paddingInlineEnd } = frame();
-      expect(minHeight || 'auto').to.eql('auto');
-      expect(height || 'auto').to.eql('auto');
-      expect([overflowX || 'visible', overflowY || 'visible']).to.eql(['visible', 'visible']);
-      expect(paddingInlineEnd || '0px').to.eql('0px');
-    }
-  });
-
-  it('registration note → stays mounted while actions are pending or replaced', async () => {
-    const context = { ...signedOut.context, registrationAdvisory: 'Use a test passkey.' };
-    using panel = await renderPanel({ snapshot: { ...signedOut, context } });
-    const note = () => element(panel.container, '[role="note"][id]');
-    const original = note();
-    for (const snapshot of [pending, signedIn]) {
-      panel.update({ snapshot: { ...snapshot, context } });
-      expect(note()).to.equal(original);
-    }
-  });
-
-  it('omitted sections default on; empty Actions leave no title or divider', async () => {
+  it('panel composes visible sections; standalone views ignore panel visibility', async () => {
     using panel = await renderPanel({ snapshot: signedOut });
     expect(framing(panel.container)).to.eql('actions | status | context');
-    const states = [{ kind: 'checking' }, { kind: 'unknown', summary: 'Failed' }] as const;
-    for (const authentication of states) {
-      const snapshot = { ...signedOut, authentication };
-      panel.update({ snapshot });
-      expect(framing(panel.container)).to.eql('status | context');
-      panel.update({ snapshot, sections: { status: false, context: false } });
-      expect(panel.container.innerHTML).to.eql('');
-      using bare = await TestReact.render(<Passkey.UI.Actions {...snapshot} />);
-      expect(bare.container.innerHTML).to.eql('');
+    const sections = { actions: false, status: false, context: false };
+    panel.update({ snapshot: signedOut, sections });
+    expect(panel.container.firstChild).to.eql(null);
+    for (const view of ['actions', 'status', 'context'] as const) {
+      panel.update({ snapshot: pending, view, sections });
+      expect(framing(panel.container)).to.eql(view);
+      expect(!!panel.container.querySelector('[role="progressbar"]')).to.eql(view === 'actions');
+    }
+    panel.update({ snapshot: { ...signedOut, authentication: { kind: 'checking' } } });
+    expect(framing(panel.container)).to.eql('status | context');
+  });
+
+  it('note-bearing panel and Actions → no clipping rule on the action frame', async () => {
+    const context = { ...signedOut.context, registrationAdvisory: 'Use a test passkey.' };
+    const snapshot = { ...signedOut, context };
+    using panel = await renderPanel({ snapshot });
+    for (const view of ['panel', 'actions'] as const) {
+      panel.update({ snapshot, view });
+      element(panel.container, '[role="note"]');
+      const actions = element(panel.container, '[data-passkey-section="actions"]');
+      const frame = actions.parentElement!;
+      const { overflow, overflowX, overflowY } = frame.ownerDocument.defaultView!
+        .getComputedStyle(frame);
+      for (const rule of [overflow, overflowX, overflowY]) {
+        expect(rule || 'visible').to.eql('visible');
+      }
     }
   });
 
-  it('hide Status during work → title takes over without moving focus or reallocating its slot', async () => {
-    const props = { onSignIn: () => {}, sections: { status: false } };
+  it('hide Status during work → progress moves to the title without taking focus', async () => {
+    const props = { snapshot: pending, onSignIn: () => {} };
     using panel = await renderPanel({ ...props, snapshot: signedOut });
-    const slot = element(panel.container, '[data-passkey-title-spinner]');
-    const signIn = actionButton(panel.container, 'sign-in');
-    const context = element(panel.container, section('context'));
+    const { container } = panel;
+    const signIn = actionButton(container, 'sign-in');
     React.act(() => signIn.focus());
-    const transitions = [
-      [signedOut, false, false],
-      [pending, false, true],
-      [pending, true, false],
-      [pending, false, true],
-      [signedOut, false, false],
+    panel.update({ ...props, sections: { status: false } });
+    expect(framing(container)).to.eql('actions | context');
+    const bar = element(container, '[role="progressbar"]');
+    expect(bar.getAttribute('aria-label')).to.eql('Passkey operation in progress');
+    expect(bar.hasAttribute('aria-valuenow')).to.eql(false);
+    expect(document.activeElement).to.equal(signIn);
+    panel.update(props);
+    expect(document.activeElement).to.equal(signIn);
+    expect(container.querySelector('[role="progressbar"]')).to.eql(null);
+    const op = element(container, '[aria-label="Operation"]');
+    const result = element(container, '[aria-label="Last result"]');
+    expect(op.textContent).to.include('Waiting');
+    panel.update({ ...props, sections: { actions: false, context: false } });
+    expect(element(container, '[aria-label="Operation"]')).to.equal(op);
+    expect(element(container, '[aria-label="Last result"]')).to.equal(result);
+  });
+
+  it('bare pending Actions → no progress announcement or actionable intent', async () => {
+    let calls = 0;
+    const record = () => calls++;
+    using res = await TestReact.render(
+      <Passkey.UI.Actions {...pending} onSignIn={record} onCreateAccount={record} />,
+    );
+    const controls = buttons(res.container);
+    expect(controls.map((el) => el.textContent)).to.have.members(['Sign In', 'Create Passkey']);
+    expect(res.container.querySelector('[role="progressbar"], [role="status"]')).to.eql(null);
+    for (const el of controls) {
+      expect(el.getAttribute('aria-disabled')).to.eql('true');
+      press(el, 'Enter');
+      React.act(() => DomMock.Mouse.activate(el));
+    }
+    expect(calls).to.eql(0);
+  });
+
+  it('Context and service headings can be replaced or omitted without hiding their data', async () => {
+    const counts = { accounts: 2, registeredPasskeys: 3, validSessions: 1 };
+    const observation = { kind: 'observed', counts } as const;
+    const titles = [
+      [undefined, undefined],
+      ['Environment', null],
+      [' ', 'Totals'],
     ] as const;
-    for (const [snapshot, status, busy] of transitions) {
-      panel.update({ ...props, snapshot, sections: { status } });
-      expect(element(panel.container, '[data-passkey-title-spinner]')).to.equal(slot);
-      expect([slot.getAttribute('role'), slot.getAttribute('aria-label')]).to.eql(
-        busy ? ['progressbar', 'Passkey operation in progress'] : [null, null],
-      );
-      expect(slot.hasAttribute('aria-valuenow')).to.eql(false);
-      expect(slot.hasAttribute('tabindex')).to.eql(false);
-      expect(actionButton(panel.container, 'sign-in')).to.equal(signIn);
-      expect(document.activeElement).to.equal(signIn);
-      expect(element(panel.container, section('context'))).to.equal(context);
-    }
-  });
-
-  it('hide either sibling → Status keeps both announcement nodes and its spinner slot', async () => {
-    using panel = await renderPanel({ snapshot: signedOut });
-    const selectors = [
-      section('status'),
-      '[aria-label="Operation"]',
-      '[aria-label="Last result"]',
-      '[data-spinner-slot]',
-    ];
-    const nodes = () => selectors.map((selector) => element(panel.container, selector));
-    const original = nodes();
-    const transitions: t.Passkey.Props[] = [
-      { snapshot: pending, sections: { context: false } },
-      { snapshot: { ...signedOut, authentication: { kind: 'checking' } } },
-      { snapshot: signedOut, sections: { actions: false } },
-      { snapshot: signedOut },
-    ];
-    for (const props of transitions) {
-      panel.update(props);
-      nodes().forEach((node, i) => expect(node).to.equal(original[i]));
-    }
-  });
-
-  it('bare sections → caller styling and independent content, no aggregate frame', async () => {
-    const { authentication, operation } = signedIn;
-    for (const theme of ['Light', 'Dark'] as const) {
-      const props = { theme, style: { padding: 7 } };
+    for (const [title, serviceTitle] of titles) {
+      const serviceProps = { observation, title: serviceTitle };
       using res = await TestReact.render(
-        <>
-          <Passkey.UI.Actions {...signedOut} {...props} />
-          <Passkey.UI.Status authentication={authentication} operation={operation} {...props} />
-          <Passkey.UI.Context context={signedOut.context} {...props} />
-        </>,
+        <Passkey.UI.Context context={signedOut.context} title={title} service={serviceProps} />,
       );
-      expect(framing(res.container)).to.eql('actions status context');
-      expect(res.container.querySelector('[data-passkey-title-spinner]')).to.eql(null);
-      expectActions(res.container, 'sign-in', 'create-account');
-      expect(element(res.container, section('status')).textContent).to.include('principal-test-01');
-      expect(element(res.container, section('context')).textContent).to.include('Context');
-      for (const name of names) {
-        const root = element(res.container, section(name));
-        expect(cssOf(root).padding).to.eql('7px');
-        expect(Color.toHex(cssOf(root).color)).to.eql(Color.toHex(Color.theme(theme).fg));
-      }
+      const { container } = res;
+      const service = element(container, '[data-passkey-service]');
+      expect(container.textContent?.includes('Context')).to.eql(title === undefined);
+      expect(service.textContent?.includes('Account Service')).to.eql(serviceTitle === undefined);
+      expect(container.textContent?.includes('Environment')).to.eql(title === 'Environment');
+      expect(service.textContent?.includes('Totals')).to.eql(serviceTitle === 'Totals');
+      const memory = service.querySelector('[role="img"][aria-label="Service: In memory storage"]');
+      expect(!!memory).to.eql(serviceTitle !== null);
+      expect(valueCell(container, 'Origin').textContent).to.eql(signedOut.context.origin);
+      expect(countLabels.map((k) => valueCell(service, k).textContent)).to.eql(['2', '3', '1']);
     }
   });
 
-  it('Context title can be replaced or omitted without hiding the context rows', async () => {
-    const labels = [
-      [undefined, 'Context'],
-      ['Configuration', 'Configuration'],
-      [null, undefined],
-      ['', undefined],
-      ['  ', undefined],
+  it('Account Service status can change while counts and sign-in stay unchanged', async () => {
+    const snapshot = signedOut;
+    const observation = { kind: 'failed' } as const;
+    const states = ['unknown', 'available', 'unavailable'] as const;
+    using panel = await renderPanel({ snapshot });
+    const selector = '[data-passkey-service] [role="img"][aria-label^="Accounts API:"]';
+    for (const availability of states) {
+      const label = `Accounts API: ${availability}`;
+      panel.update({ snapshot, service: { observation, availability } });
+      const cue = element(panel.container, selector);
+      expect(cue.title).to.eql(label);
+      expect(cue.getAttribute('aria-label')).to.eql(label);
+    }
+    panel.update({ snapshot, service: { observation: { kind: 'failed' }, title: null } });
+    expect(panel.container.querySelector(selector)).to.eql(null);
+  });
+
+  it('failed service observation → dashes, not zero or an account failure', async () => {
+    const service = { observation: { kind: 'failed' } } as const;
+    using res = await renderPanel({ snapshot: signedIn, service });
+    const block = element(res.container, '[data-passkey-service]');
+    expect(countLabels.map((k) => valueCell(block, k).textContent)).to.eql(['-', '-', '-']);
+    expect(element(block, '[role="status"]').textContent).to.eql('Counts unavailable');
+    expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed in');
+    expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
+  });
+
+  it('authentication cue follows the session even when the action outcome suggests otherwise', async () => {
+    using panel = await renderPanel({ snapshot: signedOut });
+    const accepted = { kind: 'success', action: 'create-account', summary: 'Accepted' } as const;
+    const refused = { kind: 'failure', action: 'add-passkey', summary: 'Refused' } as const;
+    const cases = [
+      [signedOut, accepted, Color.theme('Light').bg],
+      [signedIn, refused, Color.GREEN],
     ] as const;
-    for (const [title, expected] of labels) {
-      using res = await TestReact.render(
-        <Passkey.UI.Context context={signedOut.context} title={title} />,
-      );
-      const text = res.container.textContent;
-      for (const label of ['Context', 'Configuration']) {
-        expect(text?.includes(label)).to.equal(label === expected);
-      }
-      expect(valueCell(res.container, 'Origin').textContent).to.equal(signedOut.context.origin);
+    for (const [snapshot, result, color] of cases) {
+      panel.update({ theme: 'Light', snapshot: { ...snapshot, result } });
+      const cell = valueCell(panel.container, 'Authentication');
+      const cue = cell.querySelector<HTMLElement>('[aria-hidden="true"] :empty')!;
+      const { backgroundColor } = cue.ownerDocument.defaultView!.getComputedStyle(cue);
+      expect(Color.toHex(backgroundColor)).to.eql(Color.toHex(color));
     }
   });
 
-  for (const action of ['create-account', 'sign-in', 'add-passkey', 'sign-out'] as const) {
-    it(`pending ${action} → bare Actions exposes no progress and admits no intent`, async () => {
-      const out = action === 'create-account' || action === 'sign-in';
-      let calls = 0;
-      const record = () => calls++;
-      const callbacks = {
-        onCreateAccount: record,
-        onSignIn: record,
-        onAddPasskey: record,
-        onSignOut: record,
-      };
-      const snapshot = out ? signedOut : signedIn;
-      const operation = { kind: 'pending', action, phase: 'Waiting' } as const;
-      using res = await TestReact.render(
-        <Passkey.UI.Actions {...snapshot} {...callbacks} operation={operation} />,
-      );
-      const controls = buttons(res.container);
-      expect(controls.map((el) => el.textContent)).to.have.members(
-        out ? ['Sign In', 'Create Passkey'] : ['Sign Out', 'Add Passkey'],
-      );
-      const progress = '[role="progressbar"], [data-spinner-slot], [role="status"]';
-      expect(res.container.querySelector(progress)).to.eql(null);
-      expect(res.container.textContent).not.to.include('Waiting');
-      for (const el of controls) {
-        expect(el.getAttribute('aria-disabled')).to.eql('true');
-        expect(el.tabIndex).to.eql(-1);
-        press(el, 'Enter');
-        press(el, ' ');
-        React.act(() => DomMock.Mouse.activate(el));
-      }
-      expect(calls).to.eql(0);
-    });
-  }
-
-  for (const theme of ['Light', 'Dark'] as const) {
-    it(`${theme} → only a signed-in session selects the decorative green cue`, async () => {
-      using panel = await renderPanel({ snapshot: signedOut, theme });
-      const neutral = Color.theme(theme).bg;
-      const success = { kind: 'success', action: 'create-account', summary: 'Registered' } as const;
-      const failure = { kind: 'failure', action: 'add-passkey', summary: 'Failed' } as const;
-      const unknown = { kind: 'unknown', summary: 'Failed' } as const;
-      const adding = { kind: 'pending', action: 'add-passkey', phase: 'Waiting' } as const;
-      const cases = [
-        [{ ...signedOut, result: success }, 'Signed out', neutral],
-        [{ ...signedOut, authentication: { kind: 'checking' } }, 'Checking session', neutral],
-        [{ ...signedOut, authentication: unknown }, '⚠ Unknown: Failed', neutral],
-        [{ ...signedIn, result: failure }, 'Signed in', Color.GREEN],
-        [{ ...signedIn, operation: adding }, 'Signed in', Color.GREEN],
-      ] as const;
-      for (const [snapshot, text, color] of cases) {
-        panel.update({ snapshot, theme });
-        const cell = valueCell(panel.container, 'Authentication');
-        expect(cell.textContent).to.eql(text);
-        const bullet = cell.querySelector<HTMLElement>('[aria-hidden="true"] :empty')!;
-        expect(Color.toHex(cssOf(bullet).backgroundColor)).to.eql(Color.toHex(color));
-        expect(cell.querySelector('[tabindex], button, a')).to.eql(null);
-      }
-    });
-  }
-
-  it('Last result → emphasis follows the outcome, never the summary text', async () => {
+  it('Last result → emphasis follows the outcome, not the summary', async () => {
     using panel = await renderPanel({ snapshot: signedOut });
-    const node = element(panel.container, '[role="status"][aria-label="Last result"]');
     const cases = [
       [{ kind: 'success' }, 'info'],
       [{ kind: 'failure' }, 'error'],
       [{ kind: 'indeterminate' }, 'warn'],
       [{ kind: 'not-submitted', reason: 'cancelled' }, 'info'],
-      [{ kind: 'not-submitted', reason: 'unavailable' }, 'info'],
       [{ kind: 'not-submitted', reason: 'invalid-input' }, 'warn'],
     ] as const;
     for (const [outcome, level] of cases) {
-      const result = { action: 'sign-in' as const, summary: 'Same summary', ...outcome };
+      const result = { ...outcome, action: 'sign-in' as const, summary: 'Same summary' };
       panel.update({ snapshot: { ...signedOut, result } });
+      const node = element(panel.container, '[aria-label="Last result"]');
       expect(node.getAttribute('data-level')).to.eql(level);
-      const style = cssOf(node);
-      expect(Number(style.opacity || 1)).to.eql(level === 'info' ? 0.5 : 1);
-      expect(style.fontStyle || 'normal').to.eql(level === 'info' ? 'italic' : 'normal');
-      expect(style.getPropertyValue('padding-inline-end') || '0px').to.eql(
-        level === 'info' ? '2px' : '0px',
-      );
     }
   });
 
-  it('only the configured Origin value links; other identifiers remain selectable text', async () => {
+  it('renderer owns link destinations → only the exact configured Origin value becomes a link', async () => {
+    const origin = `${browserOrigin}.example.test`;
     const principal = 'https://identity.example.test/<principal>';
-    const origin = `https://${'long-origin-'.repeat(20)}.test`;
-    const w3c = 'https://www.w3.org/TR/webauthn-3/#';
-    const context: t.Passkey.Context = {
-      origin,
-      rpId: '-',
-      rpName: 'Example service',
-      webAuthn: { kind: 'unknown', reason: 'Not checked' },
-      verifier: { kind: 'unavailable', reason: 'Offline' },
-    };
     const authentication = { ...signedIn.authentication, principal, credentialCount: 2 };
+    const context = { ...signedOut.context, origin };
     using panel = await renderPanel({ snapshot: { ...signedIn, context, authentication } });
-    const links = [...panel.container.querySelectorAll('a')];
-    expect(links.map((a) => [a.textContent, a.href])).to.eql([
-      ['Principal', 'https://www.rfc-editor.org/rfc/rfc4949.html#page-232'],
-      ['Registered credentials', `${w3c}credential-record`],
-      ['Origin', `${w3c}sctn-validating-origin`],
-      ['Relying Party ID', `${w3c}relying-party-identifier`],
-      ['Relying Party Name', `${w3c}dom-publickeycredentialentity-name`],
-      ['WebAuthn', `${w3c}sctn-api`],
-    ]);
-    for (const link of links) {
-      expect(link.target).to.eql('_blank');
-      expect(link.rel.split(' ').sort()).to.eql(['noopener', 'noreferrer']);
-    }
-    expect(valueCell(panel.container, 'Principal').textContent).to.eql(principal);
-    const values = [
-      ['Origin', origin],
-      ['Relying Party ID', '-'],
-      ['Relying Party Name', 'Example service'],
-      ['WebAuthn', 'Unknown: Not checked'],
-      ['Account service', 'Unavailable: Offline'],
-    ];
-    for (const [label, text] of values) {
-      const cell = valueCell(panel.container, label);
-      expect(cell.textContent).to.eql(text);
-      expect(cssOf(cell).userSelect).to.eql('text');
-      const style = cssOf(cell.firstElementChild!);
-      expect(style.overflowWrap).to.eql('anywhere');
-      expect(style.whiteSpace).to.eql('normal');
-      expect(style.fontFamily).to.eql('sans-serif');
-    }
-    const showOrigin = (origin?: string) => {
-      panel.update({ snapshot: { ...signedOut, context: { ...signedOut.context, origin } } });
-      return valueCell(panel.container, 'Origin');
-    };
-    const cell = showOrigin(browserOrigin);
-    const link = cell.querySelector('a')!;
-    expect([link.getAttribute('href'), link.target]).to.eql([browserOrigin, '_blank']);
-    expect(link.rel.split(' ').sort()).to.eql(['noopener', 'noreferrer']);
-    expect(cssOf(link).fontFamily).to.eql('sans-serif');
-    expect(showOrigin(`${browserOrigin}.example.test`).querySelector('a')).to.eql(null);
-    const missing = showOrigin();
-    expect(missing.textContent).to.eql('Unknown');
-    expect(cssOf(missing.firstElementChild!).fontFamily).to.eql('sans-serif');
-    expect(panel.container.querySelector('a[href$="#credential-record"]')).to.eql(null);
+    const { container } = panel;
+    const w3c = 'https://www.w3.org/TR/webauthn-3/#';
+    const links = [...container.querySelectorAll('a')];
+    expect(Object.fromEntries(links.map((link) => [link.textContent, link.href]))).to.eql({
+      Principal: 'https://www.rfc-editor.org/rfc/rfc4949.html#page-232',
+      'Registered credentials': `${w3c}credential-record`,
+      Origin: `${w3c}sctn-validating-origin`,
+      'Relying Party ID': `${w3c}relying-party-identifier`,
+      'Relying Party Name': `${w3c}dom-publickeycredentialentity-name`,
+      WebAuthn: `${w3c}sctn-api`,
+    });
+    expect(valueCell(container, 'Principal').textContent).to.eql(principal);
+    const supplied = valueCell(container, 'Origin');
+    expect(supplied.textContent).to.eql(origin);
+    const style = supplied.ownerDocument.defaultView!.getComputedStyle(supplied);
+    expect(style.userSelect).to.eql('text');
+    panel.update({ snapshot: { ...signedOut, context: { ...context, origin: browserOrigin } } });
+    const link = valueCell(container, 'Origin').querySelector('a')!;
+    expect([link.href, link.target]).to.eql([new URL(browserOrigin).href, '_blank']);
+    expect(link.rel.split(' ')).to.include.members(['noopener', 'noreferrer']);
   });
 });

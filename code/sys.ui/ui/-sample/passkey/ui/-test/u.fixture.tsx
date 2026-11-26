@@ -126,7 +126,6 @@ export async function exerciseAccountFlow(container: HTMLElement) {
   const value = (label: string) => valueCell(container, label).textContent;
   const choose = (action: t.Passkey.Action) => activate(actionButton(container, action));
   expect(value('Authentication')).to.eql('Signed out');
-  expect(value('Account service')).to.eql('Configured');
   await choose('create-account');
   expect(value('Account label')).to.eql('Test account');
   expect(value('Principal')).to.eql('principal');

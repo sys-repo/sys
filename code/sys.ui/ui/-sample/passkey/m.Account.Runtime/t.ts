@@ -36,8 +36,22 @@ export declare namespace AccountRuntime {
     depart(): void;
   };
 
-  /** Explicit, bearer-free reads from the bound account service. */
+  /**
+   * Client evidence from exchanges with the bound Accounts API, not a server health flag.
+   * - `unknown`: no exchange outcome observed in this lifetime.
+   * - `available`: a command returned a valid Accounts reply (accepted or rejected).
+   * - `unavailable`: an attempted exchange produced no valid Accounts reply.
+   * Cancellation and commands known not to have been sent do not change this observation.
+   */
+  export type ServiceAvailability = 'unknown' | 'available' | 'unavailable';
+
+  /** Passive connection status and explicit, bearer-free service totals. */
   export type Info = {
+    /** Read or observe availability without sending a probe. */
+    readonly availability: {
+      readonly current: () => ServiceAvailability;
+      readonly subscribe: (notify: () => void) => () => void;
+    };
     /** Read service totals; `undefined` means no observation, not zero. */
     readCounts(signal?: AbortSignal): Promise<t.Accounts.ServiceStats | undefined>;
   };

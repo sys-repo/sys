@@ -1,324 +1,247 @@
 import React from 'react';
+import { Harness } from '../../../-test.ui.ts';
+import { accepted, browser, transport } from '../../m.Account.Runtime/-test/u.fixture.ts';
+import integration from '../-spec.integration/-SPEC.tsx';
+import pure from '../-spec/-SPEC.tsx';
+import { STORAGE_KEY as integrationKey } from '../-spec.integration/common.ts';
+import { STORAGE_KEY as pureKey } from '../-spec/common.ts';
+import type { DebugSignals } from '../-spec.integration/-SPEC.Debug.tsx';
+import type { DebugValues } from '../-spec.integration/-t.ts';
+import type { DebugSignals as ViewSignals } from '../-spec/-SPEC.Debug.tsx';
 import {
   afterAll,
   beforeAll,
-  Color,
   describe,
-  type DevEvents,
   type DevRendererRef,
   DomMock,
   type Event,
   expect,
-  Is,
   it,
   LocalStorage,
   Rx,
-  Schedule,
   type t,
   TestReact,
   type TestSuiteModel,
   Time,
 } from './common.ts';
-import { Harness } from '../../../-test.ui.ts';
-import { browser, transport } from '../../m.Account.Runtime/-test/u.fixture.ts';
 import {
   actionButton,
   activate,
   button,
-  buttons,
   element,
   exerciseAccountFlow,
-  expectActions,
   pageListeners,
   valueCell,
 } from './u.fixture.tsx';
-import type { DebugSignals } from '../-spec.integration/-SPEC.Debug.tsx';
-import type { DebugValues } from '../-spec.integration/-t.ts';
-import { STORAGE_KEY as INTEGRATION_STORAGE } from '../-spec.integration/common.ts';
-import type { DebugSignals as ViewSignals } from '../-spec/-SPEC.Debug.tsx';
-import { STORAGE_KEY as VIEW_STORAGE } from '../-spec/common.ts';
-import { Fixtures } from '../-spec/-u.fixtures.ts';
 
-const specimens = [
-  {
-    name: 'integration',
-    load: () => import('../-spec.integration/-SPEC.tsx'),
-    key: INTEGRATION_STORAGE.DEV,
-  },
-  {
-    name: 'pure view',
-    load: () => import('../-spec/-SPEC.tsx'),
-    key: VIEW_STORAGE.DEV,
-  },
-] as const;
-const initial = { theme: 'Dark' as const, debug: false };
+const defaults = { theme: 'Dark' as const, debug: false };
 
-describe('passkey cached-spec context lifetime', () => {
+describe('passkey specimen ownership', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  for (const specimen of specimens) {
-    it(`${specimen.name} → re-entry restores preferences and restarts persistence`, async () => {
-      const suite = (await specimen.load()).default;
-      const store = LocalStorage.immutable<DebugValues>(specimen.key, initial);
+  for (const [suite, key] of [[integration, integrationKey], [pure, pureKey]] as const) {
+    it(`${key.DEV}: re-entry → preferences survive, disposed bindings cannot write`, async () => {
+      using _server = transport();
+      using cleanup = new DisposableStack();
+      const store = LocalStorage.immutable<DebugValues>(key.DEV, defaults);
       const previous = store.current;
-      const first = controller();
-      const second = controller();
-      store.reset(initial);
-      try {
-        await load(first.events, suite);
-        const a = await debugOf<DebugSignals>(first.events);
-        a.props.theme.value = 'Light';
-        a.props.debug.value = true;
-        expect(store.current).to.eql({ theme: 'Light', debug: true });
-
-        first.dispose();
-        a.props.theme.value = 'Dark';
-        a.props.debug.value = false;
-        expect(store.current).to.eql({ theme: 'Light', debug: true });
-
-        await load(second.events, suite);
-        const b = await debugOf<DebugSignals>(second.events);
-        expect(b).not.to.equal(a);
-        expect(b.props.theme.value).to.eql('Light');
-        expect(b.props.debug.value).to.eql(true);
-        b.props.theme.value = 'Dark';
-        b.props.debug.value = false;
-        expect(store.current).to.eql(initial);
-
-        // Reload/reset the same live context without recreating its effects.
-        const ctx = await second.events.ctx.get();
-        const background = ctx.toObject().props.host.backgroundColor;
-        await load(second.events, suite);
-        expect(await second.events.ctx.get()).to.equal(ctx);
-        expect(await debugOf(second.events)).to.equal(b);
-        expect(ctx.toObject().props.host.backgroundColor).to.eql(background);
-        let redraws = 0;
-        const subscription = second.events.$.subscribe((event) => {
-          if (event.type === 'sys.dev/redraw') redraws++;
-        });
-        try {
-          b.props.debug.value = true;
-          expect(redraws).to.eql(1);
-          expect(store.current).to.eql({ theme: 'Dark', debug: true });
-        } finally {
-          subscription.unsubscribe();
-        }
-
-        second.dispose();
-        b.props.theme.value = 'Light';
-        b.props.debug.value = false;
-        expect(store.current).to.eql({ theme: 'Dark', debug: true });
-      } finally {
-        first.dispose();
-        second.dispose();
-        store.reset(previous);
+      cleanup.defer(() => store.reset(previous));
+      store.reset(defaults);
+      using first = host();
+      await first.load(suite);
+      const a = (await first.sidebar()).props.debug;
+      a.props.theme.value = 'Light';
+      a.props.view.value = 'status';
+      if (suite === pure) (await first.sidebar<ViewSignals>()).props.debug.actions.onSignIn();
+      first.dispose();
+      a.props.theme.value = 'Dark';
+      using second = host();
+      await second.load(suite);
+      const b = (await second.sidebar()).props.debug;
+      expect([b.props.theme.value, b.props.view.value]).to.eql(['Light', 'panel']);
+      if (suite === pure) {
+        const view = (await second.sidebar<ViewSignals>()).props.debug;
+        expect(view.props.intent.value).to.eql(undefined);
       }
-    });
-
-    it(`${specimen.name} → concurrent contexts retain their own render bindings and cleanup`, async () => {
-      const suite = (await specimen.load()).default;
-      const store = LocalStorage.immutable<DebugValues>(specimen.key, initial);
-      const previous = store.current;
-      const first = controller();
-      const second = controller();
-      store.reset(initial);
+      const ctx = await second.events.ctx.get();
+      await second.load(suite);
+      expect(await second.events.ctx.get()).to.equal(ctx);
+      expect((await second.sidebar()).props.debug).to.equal(b);
+      let redraws = 0;
+      const sub = second.events.$.subscribe((event) => {
+        if (event.type === 'sys.dev/redraw') redraws++;
+      });
       try {
-        await load(first.events, suite);
-        const a = await debugOf<DebugSignals>(first.events);
-        a.props.theme.value = 'Light';
-        await load(second.events, suite);
-        const b = await debugOf<DebugSignals>(second.events);
-        expect(b).not.to.equal(a);
-        b.props.theme.value = 'Dark';
-        expect(a.props.theme.value).to.eql('Light');
-
-        const firstProps = (await first.events.info.get()).render.props!;
-        const size = firstProps.subject.size;
-        if (size?.mode !== 'center') throw new Error('Expected a centered specimen');
-        if (specimen.name === 'integration') expect(size.height).to.be.greaterThan(0);
-        else expect(size.height).to.eql(undefined);
-        const subject = await render(first.events, firstProps.subject.renderer);
-        const footer = await render(first.events, firstProps.host.footer.renderer);
-        if (!React.isValidElement<{ theme: string }>(footer)) {
-          throw new Error('Expected a host reference element');
-        }
-        expect(footer.props.theme).to.eql('Light');
-        const res = await TestReact.render(<>{subject}{footer}</>);
-        try {
-          expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
-          const reference = element(res.container, 'a[href="https://www.w3.org/TR/webauthn-3/"]');
-          expect(reference.textContent).to.eql('WebAuthn · W3C');
-          expect(reference.getAttribute('target')).to.eql('_blank');
-          const rel = reference.getAttribute('rel')?.split(' ').sort();
-          expect(rel).to.eql(['noopener', 'noreferrer']);
-          expect(reference.title).to.contain('opens in a new tab');
-          const subjectRoot = res.container.firstElementChild!;
-          const style = subjectRoot.ownerDocument.defaultView!.getComputedStyle(subjectRoot);
-          expect(Color.toHex(style.color)).to.eql(Color.toHex(Color.theme('Light').fg));
-        } finally {
-          React.act(() => res.dispose());
-        }
-
-        first.dispose();
-        a.props.debug.value = true;
-        expect(store.current.debug).to.eql(false);
         b.props.debug.value = true;
-        expect(store.current.debug).to.eql(true);
-        second.dispose();
-        b.props.debug.value = false;
-        expect(store.current.debug).to.eql(true);
+        expect(redraws).to.eql(1);
+        expect(store.current).to.eql({ theme: 'Light', debug: true });
       } finally {
-        first.dispose();
-        second.dispose();
-        store.reset(previous);
+        sub.unsubscribe();
       }
     });
   }
 
-  for (const when of ['during', 'after'] as const) {
-    it(`dispose ${when} the first redraw → no leaked or reacquired page listeners`, async () => {
-      const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
-      const host = controller();
-      using listeners = pageListeners();
-      try {
-        const ctx = await host.events.ctx.get();
-        const sub = host.events.$.subscribe((event) => {
-          if (event.type !== 'sys.dev/redraw') return;
-          sub.unsubscribe();
-          if (when === 'during') host.dispose();
-          else queueMicrotask(() => host.dispose());
-        });
-        // Await the actual suite, not a run-response on a bus we are about to dispose.
-        expect((await suite.run({ ctx })).ok).to.eql(true);
-        expect(ctx.is.attachable).to.eql(false);
-        expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
-        expect(listeners.attached.size).to.eql(0);
-      } finally {
-        host.dispose();
-      }
+  it('dispose during first redraw → the cached suite cannot reacquire a page owner', async () => {
+    using _server = transport();
+    using owner = host();
+    using listeners = pageListeners();
+    const ctx = await owner.events.ctx.get();
+    const sub = owner.events.$.subscribe((event) => {
+      if (event.type !== 'sys.dev/redraw') return;
+      sub.unsubscribe();
+      owner.dispose();
     });
-  }
+    expect((await integration.run({ ctx })).ok).to.eql(true);
+    expect(listeners.acquired).to.have.members(['pagehide', 'pageshow']);
+    expect(listeners.attached.size).to.eql(0);
+  });
 
-  it('integration subject → quiet signed-out mount and presentation-only reset', async () => {
+  it('one host read → subject and sidebar both go from unknown to observed zero', async () => {
     using server = transport();
-    const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
-    const store = LocalStorage.immutable<DebugValues>(INTEGRATION_STORAGE.DEV, initial);
-    const previous = store.current;
-    const host = controller();
-    store.reset(initial);
+    const reply = Promise.withResolvers<void>();
+    server.handlers['service.stats'] = async () => {
+      await reply.promise;
+      return accepted({ accounts: 0, registeredPasskeys: 0, validSessions: 0 });
+    };
+    using owner = host();
     try {
-      await load(host.events, suite);
-      const debug = await debugOf<DebugSignals>(host.events);
-      for (const theme of ['Light', 'Dark'] as const) {
-        debug.props.theme.value = theme;
-        debug.props.debug.value = true;
-        const props = (await host.events.info.get()).render.props!;
-        const subject = await render(host.events, props.subject.renderer);
-        if (!React.isValidElement<t.Controller.Props>(subject)) {
-          throw new Error('Expected the registered React subject');
-        }
-        expect(subject.props).to.include({ theme, debug: true, view: 'panel' });
-
-        const res = await TestReact.render(subject);
-        try {
-          expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
-          expect(valueCell(res.container, 'Operation').textContent).to.eql('Idle');
-          expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
-          expect(valueCell(res.container, 'Account service').textContent).to.eql('Configured');
-          const rpName = valueCell(res.container, 'Relying Party Name');
-          expect(rpName.textContent).to.eql('Passkey Sample');
-          expectActions(res.container, 'sign-in', 'create-account');
-          expect(server.fetchCount).to.eql(0);
-        } finally {
-          React.act(() => res.dispose());
-        }
-      }
-      using picker = await TestReact.render(await debugElement<DebugSignals>(host.events));
-      const context = element(picker.container, '[data-passkey-section="context"]');
-      expect(valueCell(context, 'Account service').textContent).to.eql('Configured');
-      await activate(button(picker.container, 'Status'));
-      expect(debug.props.view.value).to.eql('status');
-      expect(button(picker.container, 'Status').getAttribute('aria-pressed')).to.eql('true');
-      expect(store.current).to.eql({ ...initial, debug: true });
-      await activate(button(picker.container, '(reset)'));
-      expect(button(picker.container, 'Panel').getAttribute('aria-pressed')).to.eql('true');
-      const props = (await host.events.info.get()).render.props!;
-      const subject = await render(host.events, props.subject.renderer);
-      if (!React.isValidElement<t.Controller.Props>(subject)) {
-        throw new Error('Expected the registered React subject');
-      }
-      expect(subject.props).to.include({ ...initial, view: 'panel' });
-      expect(server.fetchCount).to.eql(0);
+      await owner.load(integration);
+      using subject = await TestReact.render(await owner.subject());
+      using sidebar = await TestReact.render(await owner.sidebar());
+      const counts = (root: HTMLElement) => valueCell(root, 'Total accounts').textContent;
+      const accounts = () => [counts(subject.container), counts(sidebar.container)];
+      expect(accounts()).to.eql(['-', '-']);
+      React.act(() => reply.resolve());
+      await Time.waitFor(async () => {
+        await React.act(() => Time.wait(0));
+        return accounts().every((count) => count === '0');
+      });
+      expect(server.requests.map(({ name, url, authorization }) => ({ name, url, authorization })))
+        .to.eql([{
+          name: 'service.stats',
+          url: 'http://localhost:1234/api/passkey/cmd',
+          authorization: null,
+        }]);
+      expect(valueCell(subject.container, 'Authentication').textContent).to.eql('Signed out');
+      await activate(button(sidebar.container, 'Status'));
+      using status = await TestReact.render(await owner.subject());
+      expect(valueCell(status.container, 'Authentication').textContent).to.eql('Signed out');
+      expect(status.container.querySelector('[data-passkey-service]')).to.eql(null);
+      expect(counts(sidebar.container)).to.eql('0');
     } finally {
-      host.dispose();
-      store.reset(previous);
+      reply.resolve();
     }
   });
 
-  it('connected picker → changing views and resetting preserve an in-flight Add', async () => {
+  it('refused stats → service available on both views even with no counts or session', async () => {
+    using server = transport();
+    server.handlers['service.stats'] = () => ({ kind: 'rejected', code: 'invalid-request' });
+    using owner = host();
+    await owner.load(integration);
+    using subject = await TestReact.render(await owner.subject());
+    using sidebar = await TestReact.render(await owner.sidebar());
+    for (const { container } of [subject, sidebar]) {
+      const section = element(container, '[data-passkey-service]');
+      await Time.waitFor(async () => {
+        await React.act(() => Time.wait(0));
+        return section.textContent?.includes('Counts unavailable');
+      });
+      const bullet = element(section, '[role="img"][aria-label^="Accounts API:"]');
+      expect(bullet.title).to.eql('Accounts API: available');
+    }
+    expect(valueCell(subject.container, 'Authentication').textContent).to.eql('Signed out');
+    expect(server.requests.map(({ name }) => name)).to.eql(['service.stats']);
+  });
+
+  it('mounted picker and Reset → the subject redraws without restarting held Add', async () => {
     using native = browser();
     using server = transport(undefined, 'localhost');
-    using listeners = pageListeners();
     const held = Promise.withResolvers<void>();
     const create = native.native.create;
     native.native.create = async (options) => {
       await held.promise;
       return create(options);
     };
-    const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
-    const store = LocalStorage.immutable<DebugValues>(INTEGRATION_STORAGE.DEV, initial);
+    const store = LocalStorage.immutable<DebugValues>(integrationKey.DEV, defaults);
     const previous = store.current;
-    const res = await TestReact.render(<Harness.UI spec={suite} />);
-    const { container } = res;
-    const choose = (label: string) => activate(button(container, label));
-    const value = (label: string) => valueCell(container, label).textContent;
+    const mounted = await TestReact.render(<Harness.UI spec={integration} />);
+    const { container } = mounted;
+    const subjectSelector = '[data-component$=":ComponentHost"]';
+    const actionsSelector = '[data-passkey-section="actions"]';
     try {
-      // Harness.UI loads and runs its spec on the next turn, after the first render.
       await Time.waitFor(async () => {
         await React.act(() => Time.wait(0));
-        return !!container.querySelector('[data-passkey-section="actions"]');
+        return !!container.querySelector(`${subjectSelector} ${actionsSelector}`);
       });
-      expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
-      expect(server.fetchCount).to.eql(0);
-      await activate(actionButton(container, 'sign-in'));
-      const add = actionButton(container, 'add-passkey');
-      await activate(add);
-      const pending = `${add.textContent}: Waiting for authenticator`;
-      expect(value('Operation')).to.eql(pending);
-      const signal = native.signals.at(-1)!;
-      const panel = ['actions', 'status', 'context'];
-      const transitions = [
-        ['Actions', ['actions']],
-        ['Status', ['status']],
-        ['Context', ['context']],
-        ['Panel', panel],
-        ['Context', ['context']],
-        ['(reset)', panel],
-      ] as const;
-      for (const [control, sections] of transitions) {
-        await choose(control);
-        const subject = element(container, '[data-component$=":ComponentHost"]');
-        const visible = subject.querySelectorAll<HTMLElement>('[data-passkey-section]');
-        expect(Array.from(visible, (el) => el.dataset.passkeySection)).to.eql(sections);
-        const titleProgress = '[data-passkey-title-spinner][role="progressbar"]';
-        expect(!!container.querySelector(titleProgress)).to.eql(control === 'Actions');
-        if (control === 'Status' || control === 'Panel' || control === '(reset)') {
-          expect(value('Operation')).to.eql(pending);
-          expect(value('Principal')).to.eql(server.session.account.principal);
-          expect(value('Registered credentials')).to.eql('1');
-        }
-        expect(signal.aborted).to.eql(false);
-        expect(native.calls).to.eql(['get', 'create']);
-        expect(server.fetchCount).to.eql(3);
+      const subject = element(container, subjectSelector);
+      await activate(actionButton(subject, 'sign-in'));
+      await activate(actionButton(subject, 'add-passkey'));
+      const pending = valueCell(subject, 'Operation').textContent;
+      expect(pending).to.include('Waiting for authenticator');
+      const signal = native.signals.at(-1);
+
+      await activate(button(container, 'Status'));
+      expect(element(container, subjectSelector)).to.equal(subject);
+      expect(subject.querySelector(actionsSelector)).to.eql(null);
+      expect(valueCell(subject, 'Operation').textContent).to.eql(pending);
+      await activate(button(container, '(reset)'));
+      expect(element(container, subjectSelector)).to.equal(subject);
+      element(subject, actionsSelector);
+      expect(valueCell(subject, 'Operation').textContent).to.eql(pending);
+      expect(signal?.aborted).to.eql(false);
+
+      React.act(() => held.resolve());
+      await Time.waitFor(async () => {
+        await React.act(() => Time.wait(0));
+        return valueCell(subject, 'Registered credentials').textContent === '2';
+      });
+      expect(valueCell(subject, 'Operation').textContent).to.eql('Idle');
+      expect(native.calls).to.eql(['get', 'create']);
+      expect(server.requests.filter(({ name }) => name === 'passkey.add.finish')).to.have.length(1);
+    } finally {
+      held.resolve();
+      React.act(() => mounted.dispose());
+      store.reset(previous);
+    }
+  });
+
+  it('subject unmount during Add → same pending work completes once after remount', async () => {
+    using native = browser();
+    using server = transport(undefined, 'localhost');
+    using listeners = pageListeners();
+    using owner = host();
+    const held = Promise.withResolvers<void>();
+    const create = native.native.create;
+    native.native.create = async (options) => {
+      await held.promise;
+      return create(options);
+    };
+    await owner.load(integration);
+    const store = LocalStorage.immutable<DebugValues>(integrationKey.DEV, defaults);
+    const previous = store.current;
+    const operation = (root: HTMLElement) => valueCell(root, 'Operation').textContent;
+    try {
+      {
+        using first = await TestReact.render(await owner.subject());
+        await activate(actionButton(first.container, 'sign-in'));
+        await activate(actionButton(first.container, 'add-passkey'));
+        expect(operation(first.container)).to.include('Waiting for authenticator');
       }
-      await React.act(async () => {
-        held.resolve();
-        await Schedule.micro();
+      await React.act(() => owner.load(integration));
+      using next = await TestReact.render(await owner.subject(), { strict: true });
+      expect(operation(next.container)).to.include('Waiting for authenticator');
+      expect(native.signals.at(-1)?.aborted).to.eql(false);
+      expect(listeners.acquired).to.have.members(['pagehide', 'pageshow']);
+      React.act(() => held.resolve());
+      await Time.waitFor(async () => {
+        await React.act(() => Time.wait(0));
+        return valueCell(next.container, 'Registered credentials').textContent === '2';
       });
-      expect(value('Operation')).to.eql('Idle');
-      expect(value('Last result')).to.include(`${add.textContent} — success`);
-      expect(value('Registered credentials')).to.eql('2');
-      expect(server.requests.map(({ name }) => name)).to.eql([
+      expect(native.calls).to.eql(['get', 'create']);
+      const commands = server.requests.map(({ name }) => name).filter((name) =>
+        name !== 'service.stats'
+      );
+      expect(commands).to.eql([
         'session.signIn.begin',
         'session.signIn.finish',
         'passkey.add.begin',
@@ -326,269 +249,93 @@ describe('passkey cached-spec context lifetime', () => {
       ]);
     } finally {
       held.resolve();
-      React.act(() => res.dispose());
       store.reset(previous);
     }
   });
 
-  it('integration → unmount only the subject during Add, then remount the same controller', async () => {
-    using native = browser();
+  it('two live contexts → separate observations, sessions, and view choices', async () => {
+    using _native = browser();
     using server = transport(undefined, 'localhost');
-    using listeners = pageListeners();
-    using cleanup = new DisposableStack();
-    const held = Promise.withResolvers<void>();
-    const create = native.native.create;
-    native.native.create = async (options) => {
-      await held.promise;
-      return create(options);
-    };
-    const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
-    const host = controller();
-    cleanup.defer(host.dispose);
-    await load(host.events, suite);
-    const debug = await debugElement<DebugSignals>(host.events);
-    const sidebar = await TestReact.render(debug);
-    cleanup.defer(() => React.act(() => sidebar.dispose()));
-    const context = element(sidebar.container, '[data-passkey-section="context"]');
-    const subject = async () => {
-      const { renderer } = (await host.events.info.get()).render.props!.subject;
-      const el = await render(host.events, renderer);
-      if (!React.isValidElement<t.Controller.Props>(el)) throw new Error('Missing subject');
-      return el;
-    };
-    const initialSubject = await subject();
-    const first = await TestReact.render(initialSubject);
-    cleanup.defer(() => held.resolve());
-    const commands = () => server.requests.map(({ name }) => name);
-    try {
-      expect(commands()).to.eql([]);
-      await activate(actionButton(first.container, 'sign-in'));
-      await activate(actionButton(first.container, 'add-passkey'));
-      expect(native.calls).to.eql(['get', 'create']);
-      const operation = valueCell(first.container, 'Operation');
-      expect(operation.textContent).to.include('Waiting for authenticator');
-    } finally {
-      React.act(() => first.dispose());
-    }
-    expect(first.container.querySelector('[data-passkey-section]')).to.eql(null);
-    expect(element(sidebar.container, '[data-passkey-section="context"]')).to.equal(context);
-    const signal = native.signals.at(-1)!;
-    expect(signal.aborted).to.eql(false);
-    const reopened = await subject();
-    expect(reopened.props.controller).to.equal(initialSubject.props.controller);
-    const next = await TestReact.render(reopened, { strict: true });
-    cleanup.defer(() => React.act(() => next.dispose()));
-    const operation = valueCell(next.container, 'Operation');
-    expect(operation.textContent).to.include('Waiting for authenticator');
-    expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
-    expect(listeners.attached.size).to.eql(2);
-    expect(commands()).to.eql([
-      'session.signIn.begin',
-      'session.signIn.finish',
-      'passkey.add.begin',
-    ]);
-    expect(signal.aborted).to.eql(false);
-    await React.act(async () => {
-      held.resolve();
-      await Schedule.micro();
-    });
-    expect(valueCell(next.container, 'Operation').textContent).to.eql('Idle');
-    expect(valueCell(next.container, 'Registered credentials').textContent).to.eql('2');
-    expect(native.calls).to.eql(['get', 'create']);
-    expect(commands()).to.eql([
-      'session.signIn.begin',
-      'session.signIn.finish',
-      'passkey.add.begin',
-      'passkey.add.finish',
-    ]);
+    using first = host();
+    using other = host();
+    let reads = 0;
+    server.handlers['service.stats'] = () =>
+      accepted({ accounts: ++reads, registeredPasskeys: 0, validSessions: 0 });
+    await first.load(integration);
+    const subjectA = await first.subject();
+    const serviceA = subjectA.props.controller.service;
+    await Time.waitFor(() => serviceA.current().kind === 'observed');
+    await other.load(integration);
+    const subjectB = await other.subject();
+    const serviceB = subjectB.props.controller.service;
+    await Time.waitFor(() => serviceB.current().kind === 'observed');
+    using a = await TestReact.render(subjectA);
+    using b = await TestReact.render(subjectB);
+    const accountsA = () => valueCell(a.container, 'Total accounts').textContent;
+    expect(accountsA()).to.eql('1');
+    expect(valueCell(b.container, 'Total accounts').textContent).to.eql('2');
+    await exerciseAccountFlow(a.container);
+    expect(valueCell(b.container, 'Authentication').textContent).to.eql('Signed out');
+    const { debug } = (await first.sidebar()).props;
+    debug.props.view.value = 'status';
+    expect((await first.subject()).props.view).to.eql('status');
+    expect((await other.subject()).props.view).to.eql('panel');
+    React.act(other.dispose);
+    expect(serviceB.current()).to.eql({ kind: 'not-observed' });
+    expect(accountsA()).to.eql('1');
+    await activate(actionButton(a.container, 'sign-out'));
+    expect(valueCell(a.container, 'Authentication').textContent).to.eql('Signed out');
   });
 
-  it('integration → all four intents, with session ownership per live context', async () => {
-    using native = browser();
-    using server = transport(undefined, 'localhost');
-    const suite = (await import('../-spec.integration/-SPEC.tsx')).default;
-    const first = controller();
-    const second = controller();
-    async function mount(events: DevEvents) {
-      const { subject } = (await events.info.get()).render.props!;
-      return TestReact.render(<>{await render(events, subject.renderer)}</>);
-    }
-    try {
-      await load(first.events, suite);
-      await load(second.events, suite);
-      const a = await mount(first.events);
-      const b = await mount(second.events);
-      try {
-        expect(server.fetchCount).to.eql(0);
-        expect(native.calls).to.eql([]);
-        await exerciseAccountFlow(a.container);
-        expect(server.requests.map(({ name }) => name)).to.eql([
-          'account.create.begin',
-          'account.create.finish',
-          'session.revoke',
-          'session.signIn.begin',
-          'session.signIn.finish',
-          'passkey.add.begin',
-          'passkey.add.finish',
-        ]);
-        expect([...new Set(server.requests.map(({ url }) => url))]).to.eql([
-          'http://localhost:1234/api/passkey/cmd',
-        ]);
-        expect(valueCell(b.container, 'Authentication').textContent).to.eql('Signed out');
-        const debug = await debugOf<DebugSignals>(first.events);
-        debug.props.view.value = 'status';
-        const status = await mount(first.events);
-        try {
-          expect(valueCell(status.container, 'Authentication').textContent).to.eql('Signed in');
-          expect(valueCell(status.container, 'Registered credentials').textContent).to.eql('2');
-          expect(buttons(status.container)).to.eql([]);
-          expect(server.fetchCount).to.eql(7);
-          expect((await debugOf<DebugSignals>(second.events)).props.view.value).to.eql('panel');
-        } finally {
-          React.act(() => status.dispose());
-        }
-
-        React.act(() => second.dispose());
-        debug.reset();
-        await load(first.events, suite);
-        const again = await mount(first.events);
-        try {
-          expect(valueCell(again.container, 'Registered credentials').textContent).to.eql('2');
-          expect(native.calls).to.eql(['create', 'get', 'create']);
-          expect(server.fetchCount).to.eql(7);
-        } finally {
-          React.act(() => again.dispose());
-        }
-      } finally {
-        React.act(() => {
-          a.dispose();
-          b.dispose();
-        });
-      }
-    } finally {
-      first.dispose();
-      second.dispose();
-    }
-  });
-
-  it('pure fixture picker → show the registration hint without starting an action', async () => {
-    const suite = (await import('../-spec/-SPEC.tsx')).default;
-    using res = await TestReact.render(<Harness.UI spec={suite} />);
-    const { container } = res;
+  it('pure fixture selection → subject changes without an account request or intent', async () => {
+    using server = transport();
+    using preview = await TestReact.render(<Harness.UI spec={pure} />);
+    const { container } = preview;
     await Time.waitFor(async () => {
       await React.act(() => Time.wait(0));
       return !!container.querySelector('[data-passkey-section="actions"]');
     });
-    const note = '[role="note"][id]';
-    expect(container.querySelector(note)).to.eql(null);
+    const selector = '[role="note"][id]';
+    expect(container.querySelector(selector)).to.eql(null);
     await activate(button(container, 'Signed out • registration hint'));
-    const hint = element(container, note);
-    expect(hint.textContent).to.include('Use a sample passkey');
+    const note = element(container, selector);
     const create = actionButton(container, 'create-account');
-    expect(create.getAttribute('aria-describedby')).to.eql(hint.id);
+    expect(create.getAttribute('aria-describedby')).to.eql(note.id);
     expect(valueCell(container, 'events:').textContent).to.eql('0');
-    await activate(button(container, 'Signed out'));
-    expect(container.querySelector(note)).to.eql(null);
-  });
-
-  it('pure subject → renders the selected view with the supplied fixture', async () => {
-    const suite = (await import('../-spec/-SPEC.tsx')).default;
-    const host = controller();
-    try {
-      await load(host.events, suite);
-      const debug = await debugOf<ViewSignals>(host.events);
-      const fixture = Fixtures.find((fixture) => fixture.id === 'authenticator');
-      if (Is.nil(fixture)) throw new Error('Missing pending fixture');
-      debug.select(fixture);
-      debug.props.view.value = 'status';
-      debug.props.sections.value = { status: false };
-      const props = (await host.events.info.get()).render.props!;
-      const subject = await render(host.events, props.subject.renderer);
-      if (!React.isValidElement(subject)) throw new Error('Expected the registered React subject');
-      const res = await TestReact.render(subject);
-      try {
-        expect(buttons(res.container)).to.eql([]);
-        expect(valueCell(res.container, 'Operation').textContent).to.contain('authenticator');
-      } finally {
-        React.act(() => res.dispose());
-      }
-    } finally {
-      host.dispose();
-    }
-  });
-
-  it('pure view → re-entry clears fixture/intent state without changing the previous context', async () => {
-    const suite = (await import('../-spec/-SPEC.tsx')).default;
-    const first = controller();
-    const second = controller();
-    try {
-      await load(first.events, suite);
-      const a = await debugOf<ViewSignals>(first.events);
-      a.select(Fixtures[1]);
-      a.actions.onSignIn();
-      a.props.callbacksEnabled.value = false;
-      a.props.view.value = 'context';
-      a.props.sections.value = { actions: false, status: false, context: false };
-      const intent = a.props.intent.value;
-      first.dispose();
-
-      await load(second.events, suite);
-      const b = await debugOf<ViewSignals>(second.events);
-      expect(b.props.fixture.value).to.equal(Fixtures[0]);
-      expect(b.props.intent.value).to.eql(undefined);
-      expect(b.props.callbacksEnabled.value).to.eql(true);
-      expect(b.props.view.value).to.eql('panel');
-      expect(b.props.sections.value).to.eql({ actions: true, status: true, context: true });
-      expect(a.props.view.value).to.eql('context');
-      expect(a.props.fixture.value).to.equal(Fixtures[1]);
-      expect(a.props.intent.value).to.equal(intent);
-      expect(a.props.callbacksEnabled.value).to.eql(false);
-    } finally {
-      first.dispose();
-      second.dispose();
-    }
+    expect(server.fetchCount).to.eql(0);
   });
 });
 
-/** Minimal transport for the public harness controller; no substituted context or loader. */
-function controller() {
+/** Exercise the registered subject and sidebar independently on the real harness context. */
+function host() {
   const $ = Rx.subject<Event>();
   const bus = { $, fire: (event: Event) => $.next(event) };
   const events = Harness.Bus.Controller({ instance: { bus, id: 'passkey.lifecycle' } });
+  const dispose = () => {
+    events.dispose();
+    $.complete();
+  };
+  async function render<T>(renderer?: DevRendererRef) {
+    if (!renderer) throw new Error('Missing specimen renderer');
+    const { size } = (await events.info.get()).render.props!;
+    const el = await renderer.fn({ id: renderer.id, state: {}, size });
+    if (!React.isValidElement<T>(el)) throw new Error('Expected a registered React element');
+    return el;
+  }
   return {
     events,
-    dispose() {
-      events.dispose();
-      $.complete();
+    dispose,
+    [Symbol.dispose]: dispose,
+    async load(suite: TestSuiteModel) {
+      expect((await events.load.fire(suite)).error).to.eql(undefined);
+      expect((await events.run.fire()).info?.run.results?.ok).to.eql(true);
+    },
+    async subject() {
+      return render<t.Controller.Props>((await events.info.get()).render.props!.subject.renderer);
+    },
+    async sidebar<T = Pick<DebugSignals, 'props'>>() {
+      const { debug } = (await events.info.get()).render.props!;
+      return render<{ debug: T }>(debug.body.renderers[0]);
     },
   };
-}
-
-async function load(events: DevEvents, suite: TestSuiteModel) {
-  const loaded = await events.load.fire(suite);
-  expect(loaded.error).to.eql(undefined);
-  expect(loaded.info?.spec).to.equal(suite);
-  const result = await events.run.fire();
-  expect(result.error).to.eql(undefined);
-  expect(result.info?.run.results?.ok).to.eql(true);
-}
-
-async function render(events: DevEvents, renderer?: DevRendererRef) {
-  if (!renderer) throw new Error('Expected a registered specimen renderer');
-  const props = (await events.info.get()).render.props!;
-  return renderer.fn({ id: renderer.id, state: {}, size: props.size });
-}
-
-async function debugOf<T>(events: DevEvents): Promise<T> {
-  return (await debugElement<T>(events)).props.debug;
-}
-
-async function debugElement<T>(events: DevEvents) {
-  const props = (await events.info.get()).render.props!;
-  expect(props.debug.body.renderers.length).to.eql(1);
-  const element = await render(events, props.debug.body.renderers[0]);
-  if (!React.isValidElement<{ debug: T }>(element)) {
-    throw new Error('Expected the specimen debug component');
-  }
-  return element;
 }

@@ -1,294 +1,249 @@
-import React from 'react';
-import { afterAll, beforeAll, describe, DomMock, expect, it, TestReact, Time } from './common.ts';
 import {
-  accepted,
-  afterAdmittedReply,
-  browser,
-  transport,
-  wallClock,
-} from '../../m.Account.Runtime/-test/u.fixture.ts';
-import {
-  actionButton,
-  activate,
-  buttons,
-  element,
-  pageListeners,
-  press,
-  valueCell,
-} from './u.fixture.tsx';
-
-const recovery = 'Reload this page, then choose Sign In.';
+  afterAll,
+  beforeAll,
+  describe,
+  DomMock,
+  expect,
+  it,
+  type t,
+  TestReact,
+  Time,
+  WebFixture,
+} from './common.ts';
+import { accepted, browser, transport } from '../../m.Account.Runtime/-test/u.fixture.ts';
+import { snapshotOf } from '../../ui.controller/u.snapshot.ts';
+import { pageListeners, valueCell } from './u.fixture.tsx';
 
 const loadController = () => import('../../ui.controller/mod.ts');
 
 describe('passkey panel controller', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  it('import is inert; open and render are quiet', async () => {
+  it('import → inert; strict view unmount → releases subscriptions, not the controller', async () => {
     using listeners = pageListeners();
     using server = transport();
     using cleanup = new DisposableStack();
     const { Controller } = await loadController();
     expect(listeners.acquired).to.eql([]);
-    expect(server.fetchCount).to.eql(0);
-
-    const controller = Controller.open();
-    cleanup.defer(controller.dispose);
-    expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
-    expect(server.fetchCount).to.eql(0);
-
-    const { current, run } = controller;
+    const owner = Controller.open();
+    cleanup.defer(owner.dispose);
     let subscriptions = 0;
-    function subscribe(notify: () => void) {
-      const unsubscribe = controller.subscribe(notify);
+    const track = (subscribe: t.Controller.Instance['subscribe']) => (notify: () => void) => {
       subscriptions++;
+      const stop = subscribe(notify);
       return () => {
         subscriptions--;
-        unsubscribe();
+        stop();
       };
-    }
-    const res = await TestReact.render(<Controller.UI controller={{ current, subscribe, run }} />, {
-      strict: true,
-    });
-    try {
+    };
+    const borrowed = {
+      ...owner,
+      subscribe: track(owner.subscribe),
+      service: {
+        ...owner.service,
+        subscribe: track(owner.service.subscribe),
+        availability: {
+          ...owner.service.availability,
+          subscribe: track(owner.service.availability.subscribe),
+        },
+      },
+    };
+    {
+      using res = await TestReact.render(<Controller.UI controller={borrowed} />, { strict: true });
       expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
-      expect(listeners.acquired).to.eql(['pagehide', 'pageshow']);
-      expect(server.fetchCount).to.eql(0);
-      expect(subscriptions).to.eql(1);
-    } finally {
-      React.act(() => res.dispose());
+      expect(subscriptions).to.eql(3);
     }
     expect(subscriptions).to.eql(0);
-    expect(listeners.attached.size).to.eql(2);
-    expect(current().lifecycle).to.eql('active');
+    expect(owner.current().lifecycle).to.eql('active');
+    expect(server.fetchCount).to.eql(0);
   });
 
-  it('attempts are not sessions: lost begin, refused finish, and accepted expired grant', async () => {
-    using native = browser();
-    using server = transport(undefined, 'localhost');
+  it('visibility and page lifetime → poll only while active and visible', async () => {
+    using server = transport();
+    const fetch = globalThis.fetch;
+    const signals: AbortSignal[] = [];
+    using _fetch = WebFixture.Fetch.mock((input, init) => {
+      signals.push(new Request(input, init).signal);
+      return fetch(input, init);
+    });
+    const page = globalThis.window;
+    let hidden = true;
+    using _visibility = WebFixture.Property.mock([{
+      target: page.document,
+      key: 'hidden',
+      descriptor: { configurable: true, get: () => hidden },
+    }]);
+    const setHidden = (value: boolean) => {
+      hidden = value;
+      page.document.dispatchEvent(new page.Event('visibilitychange'));
+    };
+    let entered = false;
+    const held = Promise.withResolvers<void>();
+    const fresh = { accounts: 0, registeredPasskeys: 0, validSessions: 0 };
+    server.handlers['service.stats'] = async () => {
+      entered = true;
+      await held.promise;
+      return accepted({ ...fresh, accounts: 1 });
+    };
     const { Controller } = await loadController();
-    const controller = Controller.open();
-    const res = await TestReact.render(<Controller.UI controller={controller} />);
-    const attempt = () => activate(actionButton(res.container, 'sign-in'));
-    const result = () => valueCell(res.container, 'Last result').textContent;
+    const owner = Controller.open({ observeService: true });
     try {
-      server.faults.lost = 'session.signIn.begin';
-      await attempt();
-      expect(result()).to.include('Mutation not submitted');
-      expect(native.calls).to.eql([]);
-      server.faults.lost = '';
-      server.handlers['session.signIn.finish'] = () => ({
-        kind: 'rejected',
-        code: 'verification-rejected',
-      });
-      await attempt();
-      expect(result()).to.include('Service refused: verification-rejected');
-      server.handlers['session.signIn.finish'] = () =>
-        accepted({
-          credential: 'test-only',
-          session: { ...server.session, expiresAt: Time.now.timestamp - 1 },
-        });
-      await attempt();
-      expect(result()).to.include('Accepted by the account service');
-      expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
-      expect(valueCell(res.container, 'Principal').textContent).to.eql('-');
-      expect(native.calls).to.eql(['get', 'get']);
-      expect(server.fetchCount).to.eql(5);
+      expect(server.fetchCount).to.eql(0);
+      setHidden(false);
+      await Time.waitFor(() => entered);
+      expect(signals[0].aborted).to.eql(false);
+      setHidden(true);
+      expect(owner.current().lifecycle).to.eql('active');
+      expect(signals[0].aborted).to.eql(true);
+      held.resolve();
+
+      server.handlers['service.stats'] = () => accepted(fresh);
+      setHidden(false);
+      setHidden(false);
+      await Time.waitFor(() => owner.service.current().kind === 'observed');
+      expect(owner.service.current()).to.eql({ kind: 'observed', counts: fresh });
+      expect(server.fetchCount).to.eql(2);
+
+      pageEvent('pagehide', true);
+      expect(owner.service.current()).to.eql({ kind: 'not-observed' });
+      pageEvent('pageshow', false);
+      expect(owner.current().lifecycle).to.eql('departed');
+      expect(server.fetchCount).to.eql(2);
+      pageEvent('pageshow', true);
+      await Time.waitFor(() => owner.service.current().kind === 'observed');
+      expect(server.fetchCount).to.eql(3);
+      owner.dispose();
+      setHidden(true);
+      setHidden(false);
+      pageEvent('pageshow', true);
+      expect(server.fetchCount).to.eql(3);
     } finally {
-      React.act(() => res.dispose());
-      controller.dispose();
+      owner.dispose();
+      held.resolve();
     }
   });
 
-  it('expiry on Add activation → signed out with the unsubmitted Add, not the previous success', async () => {
-    using clock = wallClock();
-    using native = browser();
-    using server = transport(undefined, 'localhost');
+  it('attempt outcome → projected independently of session authority', () => {
+    const state = {
+      lifecycle: 'active',
+      browser: { kind: 'available' },
+      session: { kind: 'signed-out' },
+      operation: { kind: 'idle' },
+    } as const;
+    const cases = [
+      [{ kind: 'accepted' }, 'success'],
+      [{ kind: 'rejected', code: 'verification-rejected' }, 'failure'],
+      [{ kind: 'not-submitted', reason: 'unavailable' }, 'not-submitted'],
+      [{ kind: 'indeterminate' }, 'indeterminate'],
+    ] as const;
+    for (const [outcome, kind] of cases) {
+      const view = snapshotOf({ ...state, last: { action: 'sign-in', outcome } });
+      expect(view.authentication).to.eql({ kind: 'signed-out' });
+      expect(view.result).to.include({ action: 'sign-in', kind });
+      if (outcome.kind === 'rejected') expect(view.result?.summary).to.include(outcome.code);
+      if (outcome.kind === 'not-submitted') {
+        expect(view.result).to.include({ reason: outcome.reason });
+      }
+    }
+  });
+
+  it('inspection and retiring work → distinct operation announcements', async () => {
     const { Controller } = await loadController();
-    const controller = Controller.open();
-    const res = await TestReact.render(<Controller.UI controller={controller} />);
-    const { container } = res;
+    using cleanup = new DisposableStack();
+    const owner = Controller.open();
+    cleanup.defer(owner.dispose);
+    const state = owner.current();
+    const cases = [
+      [{ kind: 'pending', action: 'inspect', phase: 'request' }, 'Checking session'],
+      [{ kind: 'retiring' }, 'Waiting for previous operation'],
+    ] as const;
+    for (const [operation, label] of cases) {
+      const snapshot = { ...state, operation };
+      const controller = { ...owner, current: () => snapshot };
+      using res = await TestReact.render(<Controller.UI controller={controller} view='status' />);
+      expect(valueCell(res.container, 'Operation').textContent).to.eql(label);
+    }
+  });
+
+  it('lost sign-in grant → no anonymous inspection or replay', async () => {
+    using _native = browser();
+    using server = transport(undefined, 'localhost');
+    server.faults.lost = 'session.signIn.finish';
+    const { Controller } = await loadController();
+    const owner = Controller.open();
     try {
-      await activate(actionButton(container, 'sign-in'));
-      const add = actionButton(container, 'add-passkey');
-      clock.set(server.session.expiresAt);
-      await activate(add);
-      expect(valueCell(container, 'Authentication').textContent).to.eql('Signed out');
-      expect(valueCell(container, 'Principal').textContent).to.eql('-');
-      const last = valueCell(container, 'Last result').textContent;
-      expect(last).to.include(`${add.textContent} — Mutation not submitted`);
+      await owner.run('sign-in');
+      expect(owner.current().session.kind).to.eql('unknown');
+      expect(owner.current().last?.outcome.kind).to.eql('indeterminate');
       const commands = server.requests.map(({ name }) => name);
       expect(commands).to.eql(['session.signIn.begin', 'session.signIn.finish']);
-      expect(native.calls).to.eql(['get']);
     } finally {
-      React.act(() => res.dispose());
-      controller.dispose();
+      owner.dispose();
     }
   });
 
-  for (const action of ['create-account', 'sign-in', 'add-passkey', 'sign-out'] as const) {
-    it(`${action} → lost reply after commit; observe at most once, never replay`, async () => {
-      using _native = browser();
-      using server = transport(undefined, 'localhost');
-      using cleanup = new DisposableStack();
-      const { Controller } = await loadController();
-      const controller = Controller.open();
-      cleanup.defer(controller.dispose);
-      const retained = action === 'add-passkey' || action === 'sign-out';
-      if (retained) await controller.run('sign-in');
-      const before = server.fetchCount;
-      const res = await TestReact.render(
-        <Controller.UI controller={controller} sections={{ context: false }} />,
-        { strict: true },
-      );
-      cleanup.defer(() => React.act(() => res.dispose()));
-      const { container } = res;
-      const names = {
-        'create-account': ['account.create.begin', 'account.create.finish'],
-        'add-passkey': ['passkey.add.begin', 'passkey.add.finish'],
-        'sign-in': ['session.signIn.begin', 'session.signIn.finish'],
-        'sign-out': ['session.revoke'],
-      } as const;
-      const commands = names[action];
-      server.faults.lost = commands.at(-1)!;
-      let committed = false;
-      const updated = {
-        ...server.session,
-        account: { ...server.session.account, credentialCount: 2 },
-      };
-      let live: typeof server.session | null = retained ? server.session : null;
-      const grant = { session: updated, credential: 'test-only' };
-      server.handlers['account.create.finish'] = server.handlers['session.signIn.finish'] = () => {
-        committed = true;
-        live = grant.session;
-        return accepted(grant);
-      };
-      server.handlers['passkey.add.finish'] = () => {
-        committed = true;
-        live = updated;
-        return accepted(live);
-      };
-      server.handlers['session.revoke'] = () => {
-        committed = true;
-        live = null;
-        return accepted(null);
-      };
-      server.handlers['session.inspect'] = () => {
-        expect(committed).to.eql(true);
-        return accepted(live);
-      };
-      const control = actionButton(container, action);
-      if (action === 'create-account' || action === 'add-passkey') {
-        const note = element(container, '[role="note"][id]:not([id=""])');
-        expect(control.getAttribute('aria-describedby')).to.eql(note.id);
-      }
-      await activate(control);
-      expect(committed).to.eql(true);
-      expect(valueCell(container, 'Last result').textContent).to.include('Outcome unknown');
-      if (!retained) {
-        expect(valueCell(container, 'Authentication').textContent).to.include(recovery);
-        expect(buttons(container)).to.eql([]);
-      } else if (action === 'add-passkey') {
-        expect(valueCell(container, 'Registered credentials').textContent).to.eql('2');
-      } else expect(valueCell(container, 'Authentication').textContent).to.eql('Signed out');
-      expect(server.requests.slice(before).map(({ name }) => name)).to.eql([
-        ...commands,
-        ...(retained ? ['session.inspect'] : []),
-      ]);
-    });
-  }
-
-  it('inspection before delayed commit → keep the observed count and the unknown result', async () => {
+  it('disconnected Add → inspect once, never infer its outcome from the observed count', async () => {
     using _native = browser();
     using server = transport(undefined, 'localhost');
-    const release = Promise.withResolvers<void>();
-    const events: string[] = [];
+    const held = Promise.withResolvers<void>();
     let live = server.session;
     server.handlers['passkey.add.finish'] = async () => {
-      await release.promise;
+      await held.promise;
       live = { ...live, account: { ...live.account, credentialCount: 2 } };
-      events.push('commit');
       return accepted(live);
     };
-    server.handlers['session.inspect'] = () => {
-      events.push('inspect');
-      return accepted(live);
-    };
+    server.handlers['session.inspect'] = () => accepted(live);
     server.faults.disconnect = 'passkey.add.finish';
     const { Controller } = await loadController();
-    const controller = Controller.open();
-    const res = await TestReact.render(<Controller.UI controller={controller} />);
+    const owner = Controller.open();
     try {
-      await React.act(async () => {
-        await controller.run('sign-in');
-        await controller.run('add-passkey');
-      });
-      expect(events).to.eql(['inspect']);
-      release.resolve();
-      await Time.waitFor(() => events.includes('commit'));
-      expect(events).to.eql(['inspect', 'commit']);
-      expect(live.account.credentialCount).to.eql(2);
-      expect(valueCell(res.container, 'Registered credentials').textContent).to.eql('1');
-      expect(valueCell(res.container, 'Last result').textContent).to.include('Outcome unknown');
-      expect(server.requests.slice(2).map(({ name }) => name)).to.eql([
-        'passkey.add.begin',
-        'passkey.add.finish',
-        'session.inspect',
-      ]);
+      await owner.run('sign-in');
+      await owner.run('add-passkey');
+      held.resolve();
+      await Time.waitFor(() => live.account.credentialCount === 2);
+      const { session, last } = owner.current();
+      expect(session.kind === 'signed-in' && session.value.account.credentialCount).to.eql(1);
+      expect(last).to.eql({ action: 'add-passkey', outcome: { kind: 'indeterminate' } });
+      const commands = server.requests.slice(2).map(({ name }) => name);
+      expect(commands).to.eql(['passkey.add.begin', 'passkey.add.finish', 'session.inspect']);
     } finally {
-      release.resolve();
-      React.act(() => res.dispose());
-      controller.dispose();
+      held.resolve();
+      owner.dispose();
     }
   });
 
-  it('departure after admitted grant → both owners restore without credentials or a stale result', async () => {
+  it('failed recovery → mounting the view neither retries nor enables mutations', async () => {
     using _native = browser();
     using server = transport(undefined, 'localhost');
-    using cleanup = new DisposableStack();
+    server.faults.lost = 'session.revoke';
+    server.handlers['session.inspect'] = () => ({ kind: 'rejected', code: 'invalid-request' });
     const { Controller } = await loadController();
-    const a = Controller.open();
-    const b = Controller.open();
-    cleanup.defer(() => {
-      a.dispose();
-      b.dispose();
-    });
-    await b.run('sign-in');
-    let waiting = false;
-    using _grant = afterAdmittedReply('account.create.finish', 'accepted', () => {
-      pageEvent('pagehide', true);
-      pageEvent('pageshow', false);
-      expect(a.current().lifecycle).to.eql('departed');
-      pageEvent('pageshow', true);
-      waiting = a.current().operation.kind === 'retiring';
-    });
-    const res = await TestReact.render(<Controller.UI controller={a} />, { strict: true });
-    cleanup.defer(() => React.act(() => res.dispose()));
-    await activate(actionButton(res.container, 'create-account'));
-    expect(waiting).to.eql(true);
-    expect(valueCell(res.container, 'Operation').textContent).to.eql('Idle');
-    expect(valueCell(res.container, 'Last result').textContent).to.eql('-');
-    expect(valueCell(res.container, 'Principal').textContent).to.eql('-');
-    expect(valueCell(res.container, 'Authentication').textContent).to.eql('Signed out');
-    expect(b.current().session.kind).to.eql('signed-out');
-    expect(server.requests.map(({ name }) => name)).to.eql([
-      'session.signIn.begin',
-      'session.signIn.finish',
-      'account.create.begin',
-      'account.create.finish',
-    ]);
+    const owner = Controller.open();
+    try {
+      await owner.run('sign-in');
+      await owner.run('sign-out');
+      using res = await TestReact.render(<Controller.UI controller={owner} />, { strict: true });
+      expect(valueCell(res.container, 'Authentication').textContent).to.include('Reload this page');
+      expect(valueCell(res.container, 'Last result').textContent).to.include('Outcome unknown');
+      expect(res.container.querySelector('[data-passkey-section="actions"]')).to.eql(null);
+      const commands = server.requests.slice(2).map(({ name }) => name);
+      expect(commands).to.eql(['session.revoke', 'session.inspect']);
+    } finally {
+      owner.dispose();
+    }
   });
 
-  it('page listeners → one pair per owner; dispose detaches those exact callbacks', async () => {
+  it('dispose one owner → only the surviving owner follows page events', async () => {
     const { Controller } = await loadController();
     using listeners = pageListeners();
-    const { attached } = listeners;
     const a = Controller.open();
     const b = Controller.open();
     try {
-      expect([...attached.values()]).to.eql(['pagehide', 'pageshow', 'pagehide', 'pageshow']);
       a.dispose();
-      expect([...attached.values()]).to.eql(['pagehide', 'pageshow']);
+      expect(listeners.attached.size).to.eql(2);
+      const page = globalThis.window;
+      page.dispatchEvent(new page.Event('blur'));
+      expect(b.current().lifecycle).to.eql('active');
       pageEvent('pagehide', true);
       expect(b.current().lifecycle).to.eql('departed');
       pageEvent('pageshow', true);
@@ -298,111 +253,11 @@ describe('passkey panel controller', () => {
       a.dispose();
       b.dispose();
     }
-    expect(attached.size).to.eql(0);
-  });
-
-  it('native work held across restore → keep slot through strict reattachment; suppress pointer and keyboard', async () => {
-    using native = browser();
-    using server = transport(undefined, 'localhost');
-    const held = Promise.withResolvers<null>();
-    native.native.create = () => held.promise;
-    const { Controller } = await loadController();
-    const controller = Controller.open();
-    const first = await TestReact.render(<Controller.UI controller={controller} />);
-    try {
-      await activate(actionButton(first.container, 'create-account'));
-      expect(native.calls).to.eql(['create']);
-      const page = globalThis.window;
-      page.dispatchEvent(new page.Event('blur'));
-      expect(controller.current().operation.kind).to.eql('pending');
-      React.act(() => {
-        pageEvent('pagehide', true);
-        pageEvent('pageshow', true);
-      });
-      const next = await TestReact.render(
-        <Controller.UI controller={controller} debug theme='Dark' />,
-        { strict: true },
-      );
-      try {
-        expect(valueCell(next.container, 'Operation').textContent).to.eql(
-          'Waiting for previous operation',
-        );
-        for (const el of buttons(next.container)) {
-          expect(el.getAttribute('aria-disabled')).to.eql('true');
-          press(el, 'Enter');
-          React.act(() => DomMock.Mouse.activate(el));
-        }
-        await React.act(() => {
-          held.resolve(null);
-          return held.promise;
-        });
-        expect(valueCell(next.container, 'Operation').textContent).to.eql('Idle');
-        expect(valueCell(next.container, 'Last result').textContent).to.eql('-');
-        expect(actionButton(next.container, 'sign-in').tabIndex).to.eql(0);
-        expect(server.requests.map(({ name }) => name)).to.eql(['account.create.begin']);
-      } finally {
-        React.act(() => next.dispose());
-      }
-    } finally {
-      held.resolve(null);
-      React.act(() => first.dispose());
-      controller.dispose();
-    }
-  });
-
-  it('held inspection fails → no mutations, no second inspection on redraw or reattachment', async () => {
-    using _native = browser();
-    using server = transport(undefined, 'localhost');
-    const held = Promise.withResolvers<void>();
-    const entered = Promise.withResolvers<void>();
-    server.handlers['session.inspect'] = async () => {
-      entered.resolve();
-      await held.promise;
-      return { kind: 'rejected', code: 'invalid-request' };
-    };
-    server.faults.lost = 'session.revoke';
-    const { Controller } = await loadController();
-    const controller = Controller.open();
-    await controller.run('sign-in');
-    const res = await TestReact.render(<Controller.UI controller={controller} />);
-    const control = actionButton(res.container, 'sign-out');
-    try {
-      await React.act(async () => {
-        press(control, 'Enter');
-        await Time.waitFor(() => entered.promise.then(() => true));
-      });
-      expect(valueCell(res.container, 'Operation').textContent).to.eql('Checking session');
-      expect(buttons(res.container)).to.eql([]);
-      press(control, 'Enter');
-      React.act(() => DomMock.Mouse.activate(control));
-      await React.act(() => {
-        held.resolve();
-        return held.promise;
-      });
-      expect(valueCell(res.container, 'Authentication').textContent).to.include(recovery);
-      expect(valueCell(res.container, 'Last result').textContent).to.include('Outcome unknown');
-      const next = await TestReact.render(
-        <Controller.UI controller={controller} debug theme='Dark' />,
-        { strict: true },
-      );
-      try {
-        expect(buttons(next.container)).to.eql([]);
-      } finally {
-        React.act(() => next.dispose());
-      }
-      expect(server.requests.slice(2).map(({ name }) => name)).to.eql([
-        'session.revoke',
-        'session.inspect',
-      ]);
-    } finally {
-      held.resolve();
-      React.act(() => res.dispose());
-      controller.dispose();
-    }
+    expect(listeners.attached.size).to.eql(0);
   });
 });
 
-/** Synthetic wiring event; it is not evidence of a BFCache hit. */
+/** Synthetic page events prove wiring, not a browser BFCache hit. */
 function pageEvent(type: 'pagehide' | 'pageshow', persisted: boolean) {
   const page = globalThis.window;
   page.dispatchEvent(Object.assign(new page.Event(type), { persisted }));

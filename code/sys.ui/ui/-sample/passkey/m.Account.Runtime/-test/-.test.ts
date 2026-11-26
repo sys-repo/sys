@@ -45,6 +45,35 @@ describe('AccountRuntime', () => {
     expect(runtime.state.current).to.equal(state);
   });
 
+  it('service availability follows account exchanges, not whether an action was granted', async () => {
+    using _native = browser();
+    using server = transport();
+    using runtime = server.create();
+    const { availability } = runtime.info;
+    const seen: string[] = [];
+    const stop = availability.subscribe(() => seen.push(availability.current()));
+    try {
+      runtime.start();
+      expect(availability.current()).to.eql('unknown');
+      expect(server.fetchCount).to.eql(0);
+      server.handlers['session.signIn.begin'] = () => ({ kind: 'rejected', code: 'capacity' });
+      expect(await runtime.run('sign-in')).to.eql({ kind: 'rejected', code: 'capacity' });
+      expect(availability.current()).to.eql('available');
+      server.faults.disconnect = 'session.signIn.begin';
+      await runtime.run('sign-in');
+      expect(availability.current()).to.eql('unavailable');
+      server.faults.disconnect = '';
+      server.handlers['service.stats'] = () => ({ kind: 'rejected', code: 'invalid-request' });
+      expect(await runtime.info.readCounts()).to.eql(undefined);
+      expect(availability.current()).to.eql('available');
+      expect(runtime.state.current.session.kind).to.eql('signed-out');
+      runtime.depart();
+      expect(seen).to.eql(['available', 'unavailable', 'available', 'unknown']);
+    } finally {
+      stop();
+    }
+  });
+
   it('signed-in counts read → omits retained bearer and rejects malformed totals', async () => {
     using native = browser();
     using server = transport();

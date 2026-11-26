@@ -24,6 +24,10 @@ WebAuthn.
 - `run()` and `refresh()` share one operation slot. A workflow holds it before announcing a pending
   phase or awaiting work. A competing action returns `not-submitted` / `busy`; a refresh does not
   queue. `cancel()` requests an abort. It does not free the slot or undo a server change.
+- `runtime.info.availability` observes the client's account command channel, not authentication or
+  the server process. A valid accepted or rejected reply means `available`; a dispatched exchange
+  without a usable account reply means `unavailable`. Local refusals and cancellation are not
+  evidence. Departure resets it to `unknown`. Observing the channel sends no requests.
 - Call `runtime.info.readCounts(signal?)` explicitly for service totals, not to refresh a session.
   Consumers that only need totals can take `runtime.info`, without the account action API. A read
   sends no bearer, uses no operation slot, and changes neither session state nor the last action
@@ -33,7 +37,7 @@ WebAuthn.
 - Call `depart()` on page departure and `start()` on restoration. Departure discards the bearer,
   account facts, and last outcome. Restoration opens no ceremony. If old work is still settling,
   `operation.kind` is `retiring`: wait for `idle` before offering another action. Settlement cannot
-  restore old facts or results. `dispose()` is terminal and completes the notification stream.
+  restore old facts or results. `dispose()` is terminal and completes `state.changed$`.
 
 ## Outcomes and recovery
 

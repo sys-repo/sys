@@ -13,12 +13,11 @@ import {
   TestReact,
   Time,
 } from './common.ts';
-import { Controller } from '../../ui.controller/mod.ts';
+import { transport } from '../../m.Account.Runtime/-test/u.fixture.ts';
 import { SpecLinks } from '../-spec/-u.navigation.ts';
-import { createDebugSignals, Debug } from '../-spec.integration/-SPEC.Debug.tsx';
+import { createDebugSignals } from '../-spec.integration/-SPEC.Debug.tsx';
 import { STORAGE_KEY } from '../-spec.integration/common.ts';
-import { createDebugSignals as createView, Debug as ViewDebug } from '../-spec/-SPEC.Debug.tsx';
-import { activate, button } from './u.fixture.tsx';
+import { createDebugSignals as createView } from '../-spec/-SPEC.Debug.tsx';
 
 const initial = { theme: 'Dark', debug: false } as const;
 type Preferences = Pick<t.Passkey.Props, 'theme' | 'debug'>;
@@ -27,6 +26,7 @@ describe('Passkey specimens', () => {
   DomMock.init({ beforeAll, afterAll });
 
   it('each specimen offers a same-tab link to the other', async () => {
+    using _server = transport();
     const routes = [
       [(await import('../-spec.integration/-SPEC.tsx')).default, SpecLinks.view],
       [(await import('../-spec/-SPEC.tsx')).default, SpecLinks.sample],
@@ -38,10 +38,16 @@ describe('Passkey specimens', () => {
         return host.container.querySelector<HTMLAnchorElement>(`a[href="${destination.href}"]`);
       });
       expect(['', '_self']).to.include(link?.target);
+      const reference = host.container.querySelector<HTMLAnchorElement>(
+        'a[href="https://www.w3.org/TR/webauthn-3/"]',
+      );
+      expect(reference?.target).to.eql('_blank');
+      expect(reference?.rel.split(' ')).to.include.members(['noopener', 'noreferrer']);
+      expect(reference?.title).to.include('opens in a new tab');
     }
   });
 
-  it('integration reset preserves the pure view’s preferences and intent', async () => {
+  it('integration reset → pure preferences and intent survive', () => {
     using cleanup = new DisposableStack();
     for (const key of [STORAGE_KEY.DEV, VIEW_STORAGE.DEV]) {
       const store = LocalStorage.immutable<Preferences>(key, initial);
@@ -53,19 +59,11 @@ describe('Passkey specimens', () => {
     const view = createView();
     cleanup.defer(integration.dispose);
     cleanup.defer(view.dispose);
+    view.props.theme.value = 'Light';
     view.actions.onSignIn();
-    const controller = Controller.open();
-    cleanup.defer(controller.dispose);
-    using sample = await TestReact.render(<Debug debug={integration} controller={controller} />);
-    using pure = await TestReact.render(<ViewDebug debug={view} />);
-    await activate(button(pure.container, 'theme: Dark'));
-    await activate(button(sample.container, 'theme: Dark'));
-    await activate(button(sample.container, 'debug: false'));
-    expect(integration.props.theme.value).to.eql('Light');
-    expect(integration.props.debug.value).to.equal(true);
-    await activate(button(sample.container, '(reset)'));
+    integration.props.theme.value = 'Light';
+    integration.reset();
     expect(integration.props.theme.value).to.eql('Dark');
-    expect(integration.props.debug.value).to.eql(false);
     expect(view.props.intent.value).to.eql({ action: 'sign-in', count: 1 });
     expect(view.props.theme.value).to.eql('Light');
     const stored = LocalStorage.immutable<Preferences>(VIEW_STORAGE.DEV, initial);

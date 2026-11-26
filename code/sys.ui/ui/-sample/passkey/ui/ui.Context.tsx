@@ -1,5 +1,6 @@
 import { browserOrigin } from '../u/u.issuer.ts';
 import { Anchor, Color, css, D, Is, KeyValue, type t } from './common.ts';
+import { AccountService } from './ui.AccountService.tsx';
 
 /** Renderer-authored documentation destinations, never inferred from supplied configuration values. */
 const references = {
@@ -13,7 +14,7 @@ const references = {
  * Prerequisite observations with documentation on keys and full, selectable values.
  */
 export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
-  const { debug = D.debug, context, title = 'Context' } = props;
+  const { debug = D.debug, context, title = 'Context', service } = props;
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, minWidth: 0, backgroundColor: Color.ruby(debug ? 0.1 : 0) }),
@@ -54,16 +55,24 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
       k: key('WebAuthn', references.webAuthn),
       v: value(availabilityText(context.webAuthn)),
     },
-    { id: 'verifier', k: 'Account service', v: value(availabilityText(context.verifier)) },
   ];
+  if (!service) {
+    rows.push({
+      id: 'verifier',
+      k: 'Account service',
+      v: value(availabilityText(context.verifier)),
+    });
+  }
   const items: t.KeyValue.Item[] = rows.map((row) => ({ ...row, userSelect: 'text' }));
   if (title !== null && !Is.blank(title)) {
     items.unshift({ id: 'context-title', kind: 'title', v: title });
   }
+  if (service) items.push({ id: 'service-divider', kind: 'hr', y: 5 });
 
   return (
     <div data-passkey-section='context' className={css(styles.base, props.style).class}>
       <KeyValue.UI items={items} layout={D.layout} theme={theme.name} />
+      {service && <AccountService {...service} theme={theme.name} />}
     </div>
   );
 };

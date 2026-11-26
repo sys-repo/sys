@@ -15,6 +15,7 @@ export declare namespace Passkey {
 
   export type Props = Appearance & Callbacks & {
     snapshot: Snapshot;
+    service?: ServiceProps;
     /** Defaults to the aggregate panel. */
     view?: View;
     /** Applies only to the aggregate panel. Omitted sections remain visible. */
@@ -44,7 +45,21 @@ export declare namespace Passkey {
   export type ContextProps = Appearance & Pick<Snapshot, 'context'> & {
     /** Defaults to 'Context'; null or a blank string omits the heading. */
     title?: string | null;
+    service?: ServiceProps;
   };
+
+  /** Supplied service observation, independent of account actions. */
+  export type ServiceProps = {
+    /** Defaults to 'Account Service'; null or a blank string omits the heading text. */
+    readonly title?: string | null;
+    readonly observation: ServiceObservation;
+    /** Client-to-service communication, independent of totals and session state. */
+    readonly availability?: t.AccountRuntime.ServiceAvailability;
+  };
+
+  export type ServiceObservation =
+    | { readonly kind: 'not-observed' | 'failed' }
+    | { readonly kind: 'observed'; readonly counts: t.Accounts.ServiceStats };
 
   /** Intent emission only; the renderer never performs authentication IO. */
   export type Callbacks = {

@@ -6,10 +6,30 @@ A passkey is a sign-in credential, not the account identity. Several passkeys ca
 account, identified by its [principal] ([`Accounts.Principal`](./m.Accounts/t.ts)). The service
 starts a [session] for that account only after verifying the authenticator’s response.
 
-The DevHarness sample starts signed out and sends no account requests until you choose an action.
-**Account service: Configured** means the address is set, not that the service answered. Use a
-designated test passkey: the service forgets registrations on restart, but your authenticator may
-keep them.
+### Run the local sample
+
+From `code/sys.ui/ui`, run `deno task dev`, or run `deno task build` followed by `deno task serve`.
+Open the proxy at <http://localhost:1234/?dev> and select `sys.ui: -sample/passkey`. The sample
+starts signed out without inspecting a session or opening a passkey prompt.
+
+**Use a designated test passkey.** Restarting the service forgets the registration, but your
+authenticator may keep the passkey. Choose **Create Passkey**, **Sign Out**, then **Sign In** with
+the same passkey. **Add Passkey** enrolls another key for the signed-in account. **Account label**
+is the name shown in the passkey prompt; **Principal** is the account ID.
+
+### Read the Account Service panel
+
+The totals cover all accounts, registered passkeys, and valid sessions on this service instance, not
+just this browser or account. A dash means no count is available; zero is a measured count. The
+panel and Debug sidebar share one read when the page becomes active and visible. While it stays
+visible and active, the next read starts five seconds after the previous one settles. A failed read
+clears the previous totals.
+
+The bullet reports what this client last learned from the Accounts API, not a live health check. A
+valid reply turns it green even if the API refused the command. Green does not mean you are signed
+in or that the counts loaded.
+
+### How the sample fits together
 
 ```text
 Passkey sample
@@ -31,11 +51,13 @@ Passkey sample
 
 ### Use the panel
 
-Import [`Passkey`](./ui/mod.ts) for a view that renders supplied snapshots and emits intent. For the
-live sample, the [integration specimen](./ui/-spec.integration/-SPEC.tsx) calls
-[`Controller.open()`](./ui.controller/mod.ts) once per attached context before its first redraw.
-`<Controller.UI controller={controller} />` borrows that controller and releases its subscription on
-unmount. Only the owning context calls `controller.dispose()` when the context ends.
+The **view:pure** link opens the [isolated view](./ui/-spec/-SPEC.tsx), which records button intent
+only. Import [`Passkey`](./ui/mod.ts) for a view that renders supplied snapshots and emits intent.
+For the live sample, the [integration specimen](./ui/-spec.integration/-SPEC.tsx) calls
+[`Controller.open({ observeService: true })`](./ui.controller/mod.ts) once per attached context
+before its first redraw. `<Controller.UI controller={controller} />` borrows that controller and
+releases its subscriptions on unmount. Only the owning context calls `controller.dispose()` when the
+context ends.
 
 ### Follow one sign-in
 
@@ -60,29 +82,17 @@ passkey, but the service no longer recognizes it.
 Beyond this sample, the service must preserve each account and its passkey registrations across
 restarts, including each credential’s ID, public key, and the account it belongs to.
 
-### Run the local sample
+**Outcome unknown** means the service may have completed the action. The live panel may inspect a
+retained session once; it never retries the change. Neither the session nor a credential count is a
+receipt for that action. If the session remains unknown, reload the page, then choose **Sign In**.
 
-From `code/sys.ui/ui`, run `deno task dev`, or run `deno task build` followed by `deno task serve`.
-Open <http://localhost:1234/?dev> and select `sys.ui: -sample/passkey`. Choose **Create with
-Passkey**, **Sign Out**, then **Sign In** with the same passkey. **Add Passkey** enrolls another key
-for the signed-in principal. When signed in, **Account label** shows the name the service supplied
-for the passkey prompt; **Principal** is the account ID. The **view:pure** link opens the
-[isolated view](./ui/-spec/-SPEC.tsx), which records button intent only.
-
-If a reply is lost, **Outcome unknown** means the service may have completed the action. With a
-retained session credential the panel checks the session once; it never retries the change. A
-session or credential count is not a receipt for that action. If the session remains unknown, reload
-the page, then choose **Sign In**.
+### Local routing and verification
 
 Both modes need four free ports: `1234` (proxy), `4040` (view), `5050` (files), and `5051`
 (accounts). Stop the running mode before starting the other. The proxy starts after view and
 accounts start successfully. The proxy and accounts bind to loopback; the Vite dev listener does not
 bind exclusively to loopback. Its live-update socket is configured for the view port, not the files
 port.
-
-The `dev` and `serve` tasks opt in to [Deno’s corrected request cancellation behavior][deno abort]:
-returning a successful response does not abort `request.signal`. Remove `--unstable-no-legacy-abort`
-from both tasks when the minimum supported Deno version uses that behavior by default.
 
 Use the proxy URL, not the view URL: accounts requires the exact origin `http://localhost:1234`.
 Only `POST /api/passkey/cmd` is routed to accounts. The proxy strips `Authorization` from requests
@@ -102,6 +112,10 @@ authenticator:
 deno task test --frozen --cached-only --allow-net=127.0.0.1 --trace-leaks \
   ./-sample/passkey/-test.external/-accounts.listener.ts
 ```
+
+**Task maintenance:** `dev` and `serve` use `--unstable-no-legacy-abort` so a successful response
+does not abort `request.signal`. Remove the flag from both tasks when the minimum supported Deno
+version uses [that behavior][deno abort] by default.
 
 ---
 

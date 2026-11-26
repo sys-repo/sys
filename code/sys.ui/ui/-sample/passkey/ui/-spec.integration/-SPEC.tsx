@@ -1,9 +1,8 @@
 import { Harness, Signal, Spec } from '../../../-test.ui.ts';
 import { D, type t } from './common.ts';
 import { Controller } from '../../ui.controller/mod.ts';
-import { WebAuthnLink } from '../-spec/-ui.Links.tsx';
+import { SpecLink, WebAuthnLink } from '../-spec/-ui.Links.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
-import { SpecLink } from '../-spec/-ui.Links.tsx';
 
 type Context = ReturnType<typeof Spec.ctx>;
 type Owner = {
@@ -29,7 +28,7 @@ export default Spec.describe(D.displayName, (e) => {
 
     // Center a fixed preview area so content grows down without moving the panel’s top.
     ctx.subject
-      .size([360, 500])
+      .size([360, 530])
       .render(() => {
         const { view, debug, theme } = Signal.toObject(p);
         return <Controller.UI controller={controller} view={view} debug={debug} theme={theme} />;
@@ -49,7 +48,7 @@ export default Spec.describe(D.displayName, (e) => {
   function openOwner(ctx: Context) {
     const effects = Signal.listeners(ctx.dispose$);
     const debug = createDebugSignals();
-    const controller = Controller.open();
+    const controller = Controller.open({ observeService: true });
     contexts.set(ctx, { debug, controller });
     effects.dispose$.subscribe(() => {
       contexts.delete(ctx);

@@ -11,7 +11,7 @@ const defaults: t.DebugValues = { debug: D.debug, theme: 'Dark' };
  */
 export type DebugProps = {
   debug: DebugSignals;
-  controller: Pick<t.Controller.Instance, 'current' | 'subscribe'>;
+  controller: Pick<t.Controller.Instance, 'current' | 'subscribe' | 'service'>;
   style?: t.Style.Input;
 };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
@@ -58,6 +58,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
     controller.subscribe,
     () => controller.current().browser,
   );
+  const { service } = controller;
+  const observation = React.useSyncExternalStore(service.subscribe, service.current);
+  const link = service.availability;
+  const availability = React.useSyncExternalStore(link.subscribe, link.current);
   const p = debug.props;
   const v = Signal.toObject(p);
   Signal.useRedrawEffect(debug.listen);
@@ -83,6 +87,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Passkey.UI.Context
         context={contextOf(browser)}
         title={null}
+        service={{ observation, availability }}
         style={{ marginTop: 10, marginBottom: 15 }}
       />
       <hr />

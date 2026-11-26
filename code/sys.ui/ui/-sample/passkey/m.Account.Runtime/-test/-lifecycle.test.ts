@@ -43,9 +43,92 @@ describe('AccountRuntime lifetime and cancellation boundaries', () => {
       );
       expect(atBoundary).not.to.equal(undefined);
       expect(runtime.state.current).to.equal(atBoundary);
+      // Aborting delivery of counts does not erase a reply the channel already admitted.
+      const expected = exit === 'abort' ? 'available' : 'unknown';
+      expect(runtime.info.availability.current()).to.eql(expected);
       expect(server.requests.map((r) => r.name)).to.eql(['service.stats']);
     });
   }
+
+  it('departure subscriber restores and reads → only the new lifetime publishes evidence', async () => {
+    using _native = browser();
+    using server = transport();
+    using runtime = server.create();
+    const { availability, readCounts } = runtime.info;
+    runtime.start();
+    await readCounts();
+    expect(availability.current()).to.eql('available');
+
+    const entered = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    const oldTotals = { accounts: 1, registeredPasskeys: 1, validSessions: 1 };
+    const freshTotals = { accounts: 2, registeredPasskeys: 3, validSessions: 0 };
+    server.handlers['service.stats'] = async () => {
+      entered.resolve();
+      await release.promise;
+      return accepted(oldTotals);
+    };
+    const retired = readCounts();
+    let fresh: ReturnType<typeof readCounts> | undefined;
+    let atDeparture: t.AccountRuntime.ServiceAvailability | undefined;
+    const seen: t.AccountRuntime.ServiceAvailability[] = [];
+    const unsubscribe = availability.subscribe(() => seen.push(availability.current()));
+    const sub = runtime.state.changed$.subscribe(() => {
+      if (runtime.state.current.lifecycle !== 'departed' || fresh) return;
+      atDeparture = availability.current();
+      runtime.start();
+      fresh = readCounts();
+    });
+    try {
+      await entered.promise;
+      server.handlers['service.stats'] = () => accepted(freshTotals);
+      runtime.depart();
+      expect(await fresh).to.eql(freshTotals);
+      expect(availability.current()).to.eql('available');
+      expect(atDeparture).to.eql('unknown');
+      expect(seen).to.eql(['unknown', 'available']);
+      server.faults.invalid = 'service.stats';
+      release.resolve();
+      expect(await retired).to.eql(undefined);
+      expect(availability.current()).to.eql('available');
+      expect(seen).to.eql(['unknown', 'available']);
+    } finally {
+      sub.unsubscribe();
+      unsubscribe();
+      release.resolve();
+      await retired;
+      await fresh;
+    }
+  });
+
+  it('older failed exchange cannot override newer contact; abort is not an outage', async () => {
+    using _native = browser();
+    using server = transport();
+    using runtime = server.create();
+    runtime.start();
+    const entered = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    server.handlers['service.stats'] = async () => {
+      entered.resolve();
+      await release.promise;
+      return accepted({ accounts: 0, registeredPasskeys: 0, validSessions: 0 });
+    };
+    server.faults.invalid = 'service.stats';
+    const pending = runtime.info.readCounts();
+    try {
+      await entered.promise;
+      await runtime.run('sign-in');
+      expect(runtime.info.availability.current()).to.eql('available');
+      release.resolve();
+      expect(await pending).to.eql(undefined);
+      expect(runtime.info.availability.current()).to.eql('available');
+      await runtime.info.readCounts(AbortSignal.abort());
+      expect(runtime.info.availability.current()).to.eql('available');
+    } finally {
+      release.resolve();
+      await pending;
+    }
+  });
 
   it('counts read during a held account action → late totals leave Last result intact', async () => {
     using _native = browser();

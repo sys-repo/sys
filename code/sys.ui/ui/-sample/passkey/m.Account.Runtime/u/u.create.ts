@@ -28,7 +28,7 @@ export function create(options: t.AccountRuntime.CreateOptions): t.AccountRuntim
   const dispose = () => retire('disposed');
   return Object.freeze({
     state,
-    info: Object.freeze({ readCounts }),
+    info: Object.freeze({ readCounts, availability: wire.availability }),
     start,
     run,
     refresh,
@@ -149,6 +149,7 @@ export function create(options: t.AccountRuntime.CreateOptions): t.AccountRuntim
   function retire(lifecycle: 'departed' | 'disposed') {
     if (state.current.lifecycle === 'disposed' || state.current.lifecycle === lifecycle) return;
     lifetime++;
+    const notifyAvailability = wire.resetAvailability();
     const slot = active;
     if (slot) slot.retired = true;
     session.forget();
@@ -159,6 +160,7 @@ export function create(options: t.AccountRuntime.CreateOptions): t.AccountRuntim
       operation: slot && lifecycle === 'departed' ? { kind: 'retiring' } : { kind: 'idle' },
       last: undefined,
     });
+    notifyAvailability?.();
     slot?.abort.abort();
     if (lifecycle === 'disposed') {
       wire.dispose();

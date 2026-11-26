@@ -24,7 +24,7 @@ export const Passkey: t.FC<t.Passkey.Props> = (props) => {
       );
     }
     case 'context':
-      return <Context {...appearance} context={snapshot.context} />;
+      return <Context {...appearance} context={snapshot.context} service={panel.service} />;
     case 'actions':
       return <FramedPanel {...panel} sections={actionsOnly} />;
     case 'panel':
@@ -121,7 +121,7 @@ const FramedPanel: t.FC<Omit<t.Passkey.Props, 'view'>> = (props) => {
   const elContext = context && (
     <React.Fragment key='context'>
       {elContextDivider}
-      <Context key='content' context={snapshot.context} {...appearance} />
+      <Context key='content' context={snapshot.context} service={props.service} {...appearance} />
     </React.Fragment>
   );
 

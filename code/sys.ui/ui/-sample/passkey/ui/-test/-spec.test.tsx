@@ -142,7 +142,7 @@ describe('Passkey pure specimen', () => {
     const color = (el: Element) =>
       Color.toHex(el.ownerDocument.defaultView!.getComputedStyle(el).color);
     const light = Color.toHex(Color.theme('Light').fg);
-    const headings = [D.name, '(view:pure)', 'Property States', '(simulated)', 'Action callbacks'];
+    const headings = [D.name, 'View (Pure)', 'Property States', '(Simulated)', 'Action callbacks'];
     for (const theme of ['Dark', 'Light']) {
       expect(debug.props.theme.value).to.eql(theme);
       for (const label of headings) expect(color(textElement(res.container, label))).to.eql(light);
