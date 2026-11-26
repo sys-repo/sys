@@ -41,7 +41,10 @@ export declare namespace Passkey {
   export type StatusProps = Appearance & Pick<Snapshot, 'authentication' | 'operation' | 'result'>;
 
   /** Documentation keys explain concepts; only the sample's configured browser origin is navigable. */
-  export type ContextProps = Appearance & Pick<Snapshot, 'context'>;
+  export type ContextProps = Appearance & Pick<Snapshot, 'context'> & {
+    /** Defaults to 'Context'; null or a blank string omits the heading. */
+    title?: string | null;
+  };
 
   /** Intent emission only; the renderer never performs authentication IO. */
   export type Callbacks = {

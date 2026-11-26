@@ -82,7 +82,8 @@ export const Debug: React.FC<DebugProps> = (props) => {
       </div>
       <Passkey.UI.Context
         context={contextOf(browser)}
-        style={{ marginLeft: 18, marginBottom: 10 }}
+        title={null}
+        style={{ marginTop: 10, marginBottom: 15 }}
       />
       <hr />
       <Dev.Button

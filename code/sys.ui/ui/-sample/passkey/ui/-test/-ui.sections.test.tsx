@@ -193,6 +193,26 @@ describe('Passkey diagnostic sections', () => {
     }
   });
 
+  it('Context title can be replaced or omitted without hiding the context rows', async () => {
+    const labels = [
+      [undefined, 'Context'],
+      ['Configuration', 'Configuration'],
+      [null, undefined],
+      ['', undefined],
+      ['  ', undefined],
+    ] as const;
+    for (const [title, expected] of labels) {
+      using res = await TestReact.render(
+        <Passkey.UI.Context context={signedOut.context} title={title} />,
+      );
+      const text = res.container.textContent;
+      for (const label of ['Context', 'Configuration']) {
+        expect(text?.includes(label)).to.equal(label === expected);
+      }
+      expect(valueCell(res.container, 'Origin').textContent).to.equal(signedOut.context.origin);
+    }
+  });
+
   for (const action of ['create-account', 'sign-in', 'add-passkey', 'sign-out'] as const) {
     it(`pending ${action} → bare Actions exposes no progress and admits no intent`, async () => {
       const out = action === 'create-account' || action === 'sign-in';

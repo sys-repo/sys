@@ -13,7 +13,7 @@ const references = {
  * Prerequisite observations with documentation on keys and full, selectable values.
  */
 export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
-  const { debug = D.debug, context } = props;
+  const { debug = D.debug, context, title = 'Context' } = props;
   const theme = Color.theme(props.theme);
   const styles = {
     base: css({ color: theme.fg, minWidth: 0, backgroundColor: Color.ruby(debug ? 0.1 : 0) }),
@@ -56,10 +56,10 @@ export const Context: t.FC<t.Passkey.ContextProps> = (props) => {
     },
     { id: 'verifier', k: 'Account service', v: value(availabilityText(context.verifier)) },
   ];
-  const items: t.KeyValue.Item[] = [
-    { id: 'context-title', kind: 'title', v: 'Context' },
-    ...rows.map((row) => ({ ...row, userSelect: 'text' as const })),
-  ];
+  const items: t.KeyValue.Item[] = rows.map((row) => ({ ...row, userSelect: 'text' }));
+  if (title !== null && !Is.blank(title)) {
+    items.unshift({ id: 'context-title', kind: 'title', v: title });
+  }
 
   return (
     <div data-passkey-section='context' className={css(styles.base, props.style).class}>
