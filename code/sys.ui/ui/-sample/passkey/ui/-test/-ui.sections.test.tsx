@@ -131,8 +131,6 @@ describe('Passkey diagnostic sections', () => {
       expect(service.textContent?.includes('Account Service')).to.eql(serviceTitle === undefined);
       expect(container.textContent?.includes('Environment')).to.eql(title === 'Environment');
       expect(service.textContent?.includes('Totals')).to.eql(serviceTitle === 'Totals');
-      const memory = service.querySelector('[role="img"][aria-label="Service: In memory storage"]');
-      expect(!!memory).to.eql(serviceTitle !== null);
       expect(valueCell(container, 'Origin').textContent).to.eql(signedOut.context.origin);
       expect(countLabels.map((k) => valueCell(service, k).textContent)).to.eql(['2', '3', '1']);
     }

@@ -9,7 +9,7 @@ const references = {
   sessions: 'https://pages.nist.gov/800-63-4/sp800-63b/session/#sessmgmt',
 } as const;
 
-const storageLabel = 'Service: In memory storage';
+const storageLabel = 'Service: in-memory storage';
 const colors = {
   unknown: undefined,
   available: Color.GREEN,
