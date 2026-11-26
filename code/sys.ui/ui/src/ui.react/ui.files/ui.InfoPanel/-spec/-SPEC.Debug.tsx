@@ -1,5 +1,5 @@
 import React from 'react';
-import { Color, css, D, Dev, Err, LocalStorage, Signal, type t } from './common.ts';
+import { Color, css, D, Dev, Err, LocalStorage, Signal, Spec, type t } from './common.ts';
 import { Files } from '../../mod.ts';
 import { connect, disconnect } from './-u.connect.ts';
 
@@ -55,12 +55,19 @@ export async function createDebugSignals() {
     events: props.events,
   });
   const p = props;
-  const api = {
-    props,
-    controller,
-    listen,
-    reset,
-  };
+  const { attach } = Spec.attachments({
+    shared() {
+      store.change((d) => {
+        d.theme = p.theme.value;
+        d.title = p.title.value;
+        d.animation = p.animation.value;
+        d.debug = p.debug.value;
+        d.events = { enabled: p.events.enabled.value };
+        d.fields = p.fields.value;
+      });
+    },
+  });
+  const api = { props, controller, listen, reset, attach };
 
   function listen() {
     controller.listen();
@@ -79,17 +86,6 @@ export async function createDebugSignals() {
     p.events.enabled.value = defaults.events.enabled;
     p.fields.value = [...defaults.fields];
   }
-
-  Signal.effect(() => {
-    store.change((d) => {
-      d.theme = p.theme.value;
-      d.title = p.title.value;
-      d.animation = p.animation.value;
-      d.debug = p.debug.value;
-      d.events = { enabled: p.events.enabled.value };
-      d.fields = p.fields.value;
-    });
-  });
 
   return api;
 }
