@@ -1,9 +1,8 @@
 import React from 'react';
+import { ViewPicker } from '../-spec/-ui.ViewPicker.tsx';
 import { contextOf } from '../../ui.controller/u.snapshot.ts';
 import { Passkey } from '../mod.ts';
 import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
-import { SpecLink } from '../-spec/-ui.Links.tsx';
-import { ViewPicker } from '../-spec/-ui.ViewPicker.tsx';
 
 const defaults: t.DebugValues = { debug: D.debug, theme: 'Dark' };
 
@@ -66,7 +65,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
   const theme = Color.theme();
   const styles = {
     base: css({ color: theme.fg }),
-    context: css({ marginBottom: 22 }),
     title: css({
       fontWeight: 'bold',
       marginBottom: 4,
@@ -82,8 +80,10 @@ export const Debug: React.FC<DebugProps> = (props) => {
         <div>{D.name}</div>
         <div>WebAuthn · W3C</div>
       </div>
-      <Passkey.UI.Context context={contextOf(browser)} style={styles.context} />
-      <SpecLink to='view' />
+      <Passkey.UI.Context
+        context={contextOf(browser)}
+        style={{ marginLeft: 18, marginBottom: 10 }}
+      />
       <hr />
       <Dev.Button
         block

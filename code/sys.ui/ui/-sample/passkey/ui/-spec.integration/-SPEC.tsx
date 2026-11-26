@@ -3,6 +3,7 @@ import { D, type t } from './common.ts';
 import { Controller } from '../../ui.controller/mod.ts';
 import { WebAuthnLink } from '../-spec/-ui.Links.tsx';
 import { createDebugSignals, Debug } from './-SPEC.Debug.tsx';
+import { SpecLink } from '../-spec/-ui.Links.tsx';
 
 type Context = ReturnType<typeof Spec.ctx>;
 type Owner = {
@@ -33,6 +34,8 @@ export default Spec.describe(D.displayName, (e) => {
         const { view, debug, theme } = Signal.toObject(p);
         return <Controller.UI controller={controller} view={view} debug={debug} theme={theme} />;
       });
+
+    ctx.debug.footer.padding(10).render(() => <SpecLink to='view' />);
   });
 
   e.it('ui:debug', (e) => {

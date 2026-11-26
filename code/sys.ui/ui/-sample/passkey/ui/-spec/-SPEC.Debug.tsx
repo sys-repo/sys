@@ -1,9 +1,8 @@
 import type React from 'react';
-import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
-import { SpecLink } from './-ui.Links.tsx';
 import { Fixtures } from './-u.fixtures.ts';
 import { Intent } from './-ui.Intent.tsx';
 import { ViewPicker } from './-ui.ViewPicker.tsx';
+import { Color, css, D, Dev, LocalStorage, Signal, STORAGE_KEY, type t } from './common.ts';
 
 type P = t.Passkey.Props;
 type Storage = Pick<P, 'debug' | 'theme'>;
@@ -123,9 +122,6 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <div className={Styles.title.class}>
         <div>{D.name}</div>
         <div>(view:pure)</div>
-      </div>
-      <div>
-        <SpecLink to='sample' />
       </div>
       <hr />
       <Dev.Button
