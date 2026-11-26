@@ -70,7 +70,9 @@ describe('@sys/cell/cli start owner presentation', () => {
         screen.reporter.open();
         screen.reporter.ready(input);
         const displayedHref = href.replace('127.0.0.1', 'localhost');
-        expect(stripAnsi(screen.frames.at(-1)!)).to.contain(`⦿ ${displayedHref}`);
+        const lines = stripAnsi(screen.frames.at(-1)!).split('\n');
+        const markedUrls = lines.flatMap((line) => line.split(/⦿ +/).slice(1));
+        expect(markedUrls).to.eql([displayedHref]);
         screen.resize(24);
         const frame = screen.frames.at(-1)!;
         expect(frame).to.contain(target);

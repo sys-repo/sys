@@ -53,7 +53,7 @@ type PhysicalLinesOptions = {
 };
 
 const DEPS: Dependencies = { terminal, size };
-const URL_MARKER_CELLS = 2;
+const URL_MARKER_CELLS = 3; // Glyph and two trailing spaces.
 
 /**
  * Format service status as text without printing or managing the service.
@@ -86,9 +86,10 @@ export function formatListWith(
     sections.push(rowsOf(run(() => inputs[index]), links, budget, link, compose, url));
   }
   const labels = sections.flatMap(({ rows }) => rows.flatMap((row) => row.label));
-  const layout = serviceLayout(labels, width);
+  const marked = sections.some(({ rows }) => rows.some((row) => row.marked));
+  const layout = serviceLayout(labels, width, marked);
   const fitRow = (row: Row): FittedRow => {
-    const mark = row.marked && layout.gap >= URL_MARKER_CELLS ? `${c.cyan('⦿')} ` : '';
+    const mark = row.marked && layout.markerLane ? `${c.cyan('⦿')}  ` : '';
     const pair = budget.pair(layout.reserve, mark);
     const color: ServiceColor = row.kind === 'title' ? 'green' : 'dim';
     const style = { color, compose, check: pair.checkLabel };

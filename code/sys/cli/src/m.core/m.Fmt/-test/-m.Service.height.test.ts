@@ -104,29 +104,54 @@ describe('Cli.Fmt.Service height', () => {
     `));
   });
 
-  it('marks the URL in the gap, even when height compaction restores its label', () => {
-    const href = 'http://127.0.0.1:8080/';
-    const input: t.CliFormat.Service.Input = {
-      name: 'A',
-      status: { state: 'ready', urls: [{ href: 'invalid' }, { href: href.slice(0, -1) }] },
-    };
-    const marked = {
-      ...input,
-      urlDisplay: { ipv4Loopback: 'localhost' as const, mark: (url: string) => url === href },
-    };
-    const render = (input: t.CliFormat.Service.Input, width: number, maxRows: number) =>
-      Fmt.Service.format(input, { width, maxRows, urlHyperlinks: true });
-    const opener = `\x1b]8;;${href}\x1b\\`;
-    for (const [width, maxRows] of [[50, 3], [16, 2]] as const) {
-      const urlRow = (input: t.CliFormat.Service.Input) => {
-        const line = render(input, width, maxRows).split('\n').at(-1)!;
-        return line.split(opener).map(stripAnsi);
-      };
-      const [prefix, label] = urlRow(input);
-      expect(urlRow(marked)).to.eql([`${prefix.slice(0, -2)}⦿ `, label]);
+  it('aligns marked and unmarked URLs across services, including a restored url label', () => {
+    const urls = ['invalid', 'http://a.test/', 'http://b.test/', 'http://c.test/'];
+    const inputs: t.CliFormat.Service.Input[] = [
+      {
+        name: 'A',
+        status: {
+          state: 'ready',
+          urls: urls.map((href) => ({ href })),
+          details: [{ label: 'capabilities', value: 'list' }],
+        },
+        urlDisplay: { mark: (href) => href !== urls[3] },
+      },
+      { ...services[1], urlDisplay: { mark: () => true } },
+    ];
+    const render = (width: number, maxRows?: number) =>
+      Fmt.Service.formatList(inputs, { width, maxRows, urlHyperlinks: true });
+    expect(stripAnsi(render(50))).to.contain(' capabilities    list');
+    for (const width of [12, 50]) {
+      for (const maxRows of [undefined, 6]) {
+        const lines = render(width, maxRows).split('\n');
+        const column = Fmt.Text.Width.measure(stripAnsi(lines[0]).split('A')[0]);
+        const prefixes = lines.filter((line) => line.includes('\x1b]8;;')).map((line) =>
+          stripAnsi(line.split('\x1b]8;;')[0])
+        );
+        expect(prefixes.map((prefix) => Fmt.Text.Width.measure(prefix))).to.eql(
+          Array(4).fill(column),
+        );
+        expect(prefixes.map((prefix) => prefix.slice(-4))).to.eql([' ⦿  ', ' ⦿  ', '    ', ' ⦿  ']);
+        if (maxRows === 6) expect(prefixes[0]).to.match(/^ url +⦿/);
+      }
     }
-    // Width 3 has no gap; at width 4 the value fits only the omission marker.
-    for (const width of [3, 4]) expect(render(marked, width, 2)).to.eql(render(input, width, 2));
+  });
+
+  it('keeps the ordinary layout until the marker gutter leaves room for URL text', () => {
+    const href = 'http://a.test/';
+    const input: t.CliFormat.Service.Input = {
+      name: 'AB',
+      status: { state: 'ready', urls: [{ href }] },
+    };
+    const marked = { ...input, urlDisplay: { mark: () => true } };
+    const render = (input: t.CliFormat.Service.Input, width: number) =>
+      Fmt.Service.format(input, { width, urlHyperlinks: true });
+    for (const width of [3, 4, 5, 6]) expect(render(marked, width)).to.eql(render(input, width));
+
+    const line = render(marked, 7).split('\n')[1];
+    const [prefix, value] = line.split(`\x1b]8;;${href}\x1b\\`);
+    expect(stripAnsi(prefix).slice(-4)).to.eql(' ⦿  ');
+    expect(Fmt.Text.Width.measure(value)).to.eql(2);
   });
 
   it('drops suffix lines of either column without mistaking authored blanks for spacing', () => {

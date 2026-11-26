@@ -72,15 +72,17 @@ export function composeServiceText(parts: readonly ServiceTextPart[], underline:
 }
 
 /** Choose label and value column widths for the whole service list. */
-export function serviceLayout(labels: string[], width: number | undefined) {
+export function serviceLayout(labels: string[], width: number | undefined, marked: boolean) {
   const natural = Text.Width.max(labels);
-  const gap = width !== undefined && width < 4 ? 0 : 3;
+  // Keep one label cell and two value cells (source plus ellipsis) beside the four-cell gutter.
+  const markerLane = marked && (width === undefined || width >= 7);
+  const gap = markerLane ? 4 : width !== undefined && width < 4 ? 0 : 3;
   const labelWidth = width === undefined
     ? natural
     : Math.min(natural, Math.floor((width - gap) / 2));
   const reserve = labelWidth + gap;
   const valueWidth = width === undefined ? undefined : width - reserve;
-  return { labelWidth, gap, reserve, valueWidth };
+  return { labelWidth, reserve, valueWidth, markerLane };
 }
 
 /** Select the fragment overlapping a range, without styling or joining it yet. */
