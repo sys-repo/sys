@@ -30,11 +30,21 @@ ui-template-maintenance.plan.md
 - [x] 32af16902 fix(ui-components): bind tree, Vimeo, and Markdown help specimen effects to attachments
 - [x] 4c5e626b4 fix(ui-components): bind webfont and CSS specimen effects to attachments
 - [x] 6039ece20 fix(ui-components): bind pointer, size observer, and schedule specimen effects to attachments
-- [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across other sys packages
-- [ ] fix(ui): bind Files.InfoPanel specimen effects to attachments
-- [ ] fix(ui): bind Files.InfoPanel.Config specimen effects to attachments
-- [ ] fix(ui-dev): retire the MySample keyboard subscription with its attachment
+- [x] 1c545d351 docs(tmpl): inventory UI specimen lifecycle follow-ons across other sys packages
+- [x] 831f7a77d fix(ui): bind Files.InfoPanel specimen effects to attachments
+- [x] aef5d349b fix(ui): bind Files.InfoPanel.Config specimen effects to attachments
+- [x] 3c99955c8 fix(ui-dev): retire the MySample keyboard subscription with its attachment
 - [ ] docs(tmpl): inventory UI specimen lifecycle follow-ons across driver packages
+- [ ] fix(driver-automerge): bind Repo, Layout, and Binary specimen effects to attachments
+- [ ] fix(driver-automerge): retire Card specimen effects and its document observer
+- [ ] fix(driver-automerge): retire worker Repo and Document specimen observers
+- [ ] fix(driver-automerge): retire Document.Id specimen effects and its document observer
+- [ ] fix(driver-monaco): bind MonacoEditor, YamlEditor.Footer, and Notes specimen effects to attachments
+- [ ] fix(driver-monaco): retire Prompt specimen effects and its shared Escape handler
+- [ ] fix(driver-monaco): retire CRDT binding and YamlEditor specimen observers
+- [ ] fix(driver-monaco): retire Sample specimen effects and stale layout callbacks
+- [ ] fix(driver-prosemirror): bind TextEditor and TextPanel specimen effects to attachments
+- [ ] fix(driver-stripe): bind PaymentElement specimen effects to attachments
 
 ## Specimen lifecycle migration inventory
 
@@ -1070,12 +1080,80 @@ Reopen the owning tasks before each authorized unit, prove with actual registere
 the affected owner tests and type checks on the retained tree. Use temporary probes for consumer
 wiring unless an assertion independently earns retention under the workbook.
 
-## TODO — driver inventory
+## Follow-on inventory — `code/sys.driver`
 
-- [ ] `docs(tmpl): inventory UI specimen lifecycle follow-ons across driver packages` — After the
-      three migrations above, trace live specimen registrations under `code/sys.driver/*`, excluding
-      every `-archive` subtree. Record owners, dispositions, and proof requirements. This is a
-      discovery pass only; propose driver migrations from its findings, not before.
+At `3c99955c8`, traced the browser entries (`src/-test/entry.tsx`) through their `-specs.ts`
+registries and lazy imports to the specimen and debug factories. **17 live registrations, 17
+migration candidates:** Automerge 7, Monaco 7, ProseMirror 2, Stripe 1. Each has an init redraw
+effect without attachment ownership and a preference writer started by the debug factory. These
+are source findings, not reproduced runtime failures. No `-archive` subtree or top-level `deploy/*`
+was included.
+
+Pi's harness registry is empty. Cloudflare's nested deploy sample renders a React page directly;
+Vite's published UI fixture exercises module resolution, not a registered specimen. No live
+registrations were found in CRDT, Deno, Process, or Signer. Splash routes and Monaco's smoke route
+are not additional registrations.
+
+### Driver migration units and closing proof
+
+The ten units below follow the opening arc in order. For each, use the actual registered suite to
+check pre-init projection, repeat init, two-host reset isolation, last detach, and reconnect with
+retained state. Count writes, redraws, and theme changes separately. Keep repo/worker, editor,
+React, and explicit command lifetimes independent of harness reset. Use isolated storage and fake
+or local transports; don't contact a sync server or payment provider to prove specimen wiring.
+Apply the workbook's temporary-probe and owner-test retention rules.
+
+**How to use the three READY notes:** when `ready?` is run for that unit, reopen the named source,
+identify the owner and the observation that distinguishes correct behavior from the failure, and
+check that the proposed proof can exercise it. If the ownership decision or proof path is still
+ambiguous, report `not ready` and name what is missing. Run the closing proof during authorized
+implementation; these notes are not separate arc items or claims that the proof already passed.
+
+1. **Automerge — Repo, Layout, Binary.** Migrate preference projection, theme paint, and redraw.
+   Exercise Repo's `noRepo` branch without changing its sync commands; verify Layout's nested
+   preferences and slots, and Binary's document/path handoff without persisting the document.
+2. **Automerge — Card.** Retire the document-change observer separately from the preference writer.
+   Switch documents and patch both: only the current one should redraw while attached; after last
+   detach neither should. Preserve `window.repo`, the repo identity, and the header's shared signals.
+3. **Automerge — worker Repo and Document.** Retire the two specimens' repo-event subscriptions,
+   not their worker proxies. **READY attention — queued events at reset:** trace
+   `repo.events(life).$.pipe(Rx.debounceTime(100))` in `ui.Repo/-spec.worker/-SPEC.Debug.tsx` and
+   `ui.Document/-spec/-SPEC.Debug.tsx`. Distinguish unsubscribing from merely completing the
+   upstream stream: queue an event before reset, observe through the debounce window, and count
+   revisions as well as redraws. A retired host must stay silent, a surviving host must still
+   receive the event once, and last detach must not flush a stale revision or terminate the worker.
+   Reconnect against the same proxy.
+4. **Automerge — Document.Id.** Preserve the controlled hook vs. controller-args handoff and the
+   stored `'ƒ'` URL-factory marker. Switch the document under its 50 ms observer; verify a stale
+   patch cannot redraw after replacement or last detach without recreating the worker.
+5. **Monaco — MonacoEditor, YamlEditor.Footer, Notes.** Preserve the mounted editor's path observer
+   (`onMounted` / `e.dispose$`), Footer's nested CRDT preferences and repo toggle, and Notes' async
+   setup. Verify path delivery and disposal at the editor, not by counting harness redraws alone.
+6. **Monaco — Prompt.** Migrate the host effects without taking over React's subject/footer editor
+   bindings. **READY attention — Escape across two hosts:** trace `keyboardLife` in
+   `m.Prompt/-spec/-SPEC.tsx` and footer ref publication/clearing in `-ui.Root.tsx`. The current
+   listener and footer ref are suite-wide, not per host. Establish which mounted footer is eligible
+   after re-init, reset, and unmount before choosing how to retire the handler. Prove one Escape
+   focuses and consumes once with an eligible footer, does neither without one, and stays silent
+   after last detach. Don't infer focus ownership from the last harness init.
+7. **Monaco — CRDT binding and YamlEditor.** Separate preference projection from the CRDT specimen's
+   filtered bus logger and both specimens' document observers. Change document and path; verify
+   only current events are observed. Preserve React/editor-owned binding, link and cursor events,
+   parsed-YAML routing, and diagnostics. Do not dispose the shared bus or repo on reset.
+8. **Monaco — Sample.** Preserve document-driven debug width (390 or 0) and fill margin (100 or 0).
+   **READY attention — retained layout callback:** trace `updateLayout` / `onRequestRedraw` from
+   `src/-sample/-spec/-SPEC.tsx` into the React-owned document observer in `src/-sample/ui.tsx`.
+   Establish how to exercise the old callback after reset or replacement without relying on React
+   unmount. It must no longer write host geometry; the current callback must still resize in
+   response to document changes. Do not transfer the component's document subscription to the host.
+9. **ProseMirror — TextEditor and TextPanel.** TextEditor owns a specimen document observer and
+   switches between `fill` and `fill-x` with margin 100; TextPanel uses a fixed 350 × 200 grid.
+   Verify document replacement, both scroll branches, and panel-to-editor handoff. Leave the
+   editor binding and repo/network lifecycle unchanged.
+10. **Stripe — PaymentElement.** Preserve saved `loadSession: false`, stable Root identity, and the
+    React-owned session request and abort. Use a fake session endpoint to distinguish harness
+    redraw from a new request, and unmount/disable from harness retirement. Keep bundle-safety
+    coverage; no real credentials, PaymentIntent, or provider traffic.
 
 ## TODO — deploy inventory decision
 
