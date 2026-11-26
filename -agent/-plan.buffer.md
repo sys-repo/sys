@@ -5,6 +5,11 @@ Verify claims against source. Flag misleading promises, missing context, repetit
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
+@sys.cli
+keyboard-delivery.plan.md
+- [ ] test(cli): pin buffered keyboard delivery without a wake-up key
+- [ ] fix(driver-vite): use managed keyboard input for dev shortcuts
+
 @sys.ui-components
 event-view.plan.md
 - [ ] chore(ui-components): scaffold EventViewer with the @sys/tmpl UI template
