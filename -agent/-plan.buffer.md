@@ -5,6 +5,9 @@ Verify claims against source. Flag misleading promises, missing context, repetit
 Give an honest verdict and prioritized, concrete findings. Review only; no edits.
 
 
+@sys.ui-components
+event-view.plan.md
+- [ ] feat(ui-components): add a compact EventView for supplied events
 
 
 
@@ -44,12 +47,16 @@ passkey-panel.plan.md
 - [x] 01b9e69eb refactor(ui): unify passkey action row order and emphasis
 - [x] fcdf571b8 refactor(ui): simplify passkey panel layout and specimen presentation
 - [x] 5bb675e11 feat(ui): show live passkey context in the integration sidebar
-- [ ] feat(passkey): expose in-memory account service counts via Cmd
+- [x] c48d4a6fa refactor(passkey): render live context inside the integration debug panel
+- [x] 9f55b108b feat(passkey): expose in-memory account service counts via Cmd
+- [x] 78cbfa562 refactor(passkey): clarify AccountRuntime state and action contracts
+- [x] de0beb0d5 refactor(passkey): group account runtime and service module paths
+- [x] a3999580e refactor(passkey): rename runtime and service Options to CreateOptions
+- [ ] refactor(passkey): expose the host-owned panel controller through ui.controller
+- [ ] refactor(passkey): expose service counts through runtime.info
 - [ ] feat(ui): show account service counts below passkey Context
 - [ ] refactor(passkey): pass live context to Debug without an account handle
 - [ ] test(passkey): reduce specimen coverage to host-owned behavior
-
-
 
 
 @sys.tmpl
