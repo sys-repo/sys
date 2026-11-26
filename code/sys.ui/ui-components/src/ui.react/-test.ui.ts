@@ -7,6 +7,7 @@ export { Harness, Spec } from '@sys/ui-dev/react/devharness';
 
 export * from '../common.ts';
 export { Icons } from './common/u.icons.ts';
+export { Dev } from './dev/mod.ts';
 
 /**
  * Constants:

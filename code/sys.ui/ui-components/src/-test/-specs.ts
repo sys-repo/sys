@@ -21,7 +21,10 @@ export const SpecsComponents = {
   [`${ns}: Chip`]: () => import('../ui.react/ui/Chip/-spec/-SPEC.tsx'),
   [`${ns}: KeyValue`]: () => import('../ui.react/ui/KeyValue/-spec/-SPEC.tsx'),
   [`${ns}: KeyValue.Switches`]: () => import('../ui.react/ui/KeyValue.Switches/-spec/-SPEC.tsx'),
+
   [`${ns}: ObjectView`]: () => import('../ui.react/ui/ObjectView/-SPEC.tsx'),
+  [`${ns}: EventView`]: () => import('../ui.react/ui/EventView/-spec/-SPEC.tsx'),
+  [`${ns}: PathView`]: () => import('../ui.react/ui/PathView/-spec/-SPEC.tsx'),
 
   [`${ns}: Bullet`]: () => import('../ui.react/ui/Bullet/-SPEC.tsx'),
   [`${ns}: BulletList`]: () => import('../ui.react/ui/BulletList/-spec/-SPEC.tsx'),
@@ -32,7 +35,6 @@ export const SpecsComponents = {
   [`${ns}: Icon.Swatches`]: () => import('../ui.react/ui/Icon.Swatches/-spec/-SPEC.tsx'),
   [`${ns}: IFrame`]: () => import('../ui.react/ui/IFrame/-SPEC.tsx'),
   [`${ns}: Image.Svg`]: () => import('../ui.react/ui/Image.Svg/-SPEC.tsx'),
-  [`${ns}: PathView`]: () => import('../ui.react/ui/PathView/-spec/-SPEC.tsx'),
   [`${ns}: Preload`]: () => import('../ui.react/ui/Preload/-SPEC.tsx'),
   [`${ns}: Sheet`]: () => import('../ui.react/ui/Sheet/-spec/-SPEC.tsx'),
   [`${ns}: Slider`]: () => import('../ui.react/ui/Slider/-spec/-SPEC.tsx'),

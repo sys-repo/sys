@@ -61,7 +61,7 @@ export async function main() {
         ]);
         e.byRegex(/: Buttons?(?:\.|$)/);
         e.byRegex(/: Bullet/);
-        e.rule((_prev, next) => /: (?:Anchor|Dist)$/.test(next ?? ''));
+        e.rule((_prev, next) => /: (?:Anchor|ObjectView|Dist)$/.test(next ?? ''));
       },
     });
     function App() {
