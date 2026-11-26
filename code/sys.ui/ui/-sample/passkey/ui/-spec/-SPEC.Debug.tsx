@@ -121,7 +121,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
     <div className={css(styles.base, props.style).class}>
       <div className={Styles.title.class}>
         <div>{D.name}</div>
-        <div>(view:pure)</div>
+        <div>View (Pure)</div>
       </div>
       <hr />
       <Dev.Button
@@ -133,7 +133,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <hr />
       <div className={Styles.title.class}>
         <div>Property States</div>
-        <div>(simulated)</div>
+        <div>(Simulated)</div>
       </div>
       <Dev.List theme={theme.name} selected={v.fixture.id} items={items} />
       <hr />
