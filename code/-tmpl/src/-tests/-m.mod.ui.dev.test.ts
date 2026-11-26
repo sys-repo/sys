@@ -25,7 +25,7 @@ describe('Template: UI debug controls', () => {
     expect(map.data.imports[devSpecifier]).to.eql(expected);
   });
 
-  it('embedded repo + UI templates → barrel-owned controls that type-check locally', async () => {
+  it('embedded package + UI templates → package-owned Dev controls that type-check', async () => {
     const { root } = await makeWorkspace();
     try {
       // Generate repo first; the package initializer owns workspace registration.
@@ -38,6 +38,8 @@ describe('Template: UI debug controls', () => {
       const generated = await TmplTesting.LocalRepoAuthorities.read(root);
       const componentPackage = generated.imports['@sys/ui-components'];
       expect(generated.imports[devSpecifier]).to.eql(`${componentPackage}/react/dev`);
+      const barrel = await readText(Fs.join(pkgDir, 'src/ui/-test.ui.ts'));
+      expect(barrel).to.include(`export { Dev } from '${devSpecifier}'`);
 
       const debugPaths: string[] = [];
       const components = [
@@ -54,7 +56,8 @@ describe('Template: UI debug controls', () => {
         const common = await readText(Fs.join(target, '-spec/common.ts'));
 
         // Pin barrel ownership and control kinds; the compiler checks the wiring.
-        expect(common, template).to.include(`export { Dev } from '${devSpecifier}'`);
+        expect(common, template).to.include(`export { Dev } from '../../-test.ui.ts'`);
+        expect(common, template).not.to.include(devSpecifier);
         expect(source, template).not.to.include(devSpecifier);
         expect(source, template).to.include('<Dev.Button');
         expect(source, template).to.include('<Dev.ObjectView');
