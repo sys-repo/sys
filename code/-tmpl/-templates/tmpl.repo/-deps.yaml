@@ -1,17 +1,17 @@
 deno.json:
-  - import: jsr:@sys/cli@0.0.324
+  - import: jsr:@sys/cli@0.0.325
     subpaths: [ t ]
   - import: jsr:@sys/color@0.0.284
     subpaths: [ t ]
-  - import: jsr:@sys/driver-deno@0.0.412
+  - import: jsr:@sys/driver-deno@0.0.413
     subpaths: [ cloud, runtime, t ]
-  - import: jsr:@sys/driver-vite@0.0.485
+  - import: jsr:@sys/driver-vite@0.0.486
     subpaths: [ main, t ]
-  - import: jsr:@sys/fs@0.0.357
+  - import: jsr:@sys/fs@0.0.358
     subpaths: [ t ]
-  - import: jsr:@sys/http@0.0.338
+  - import: jsr:@sys/http@0.0.339
     subpaths: [ client, t ]
-  - import: jsr:@sys/process@0.0.326
+  - import: jsr:@sys/process@0.0.327
     subpaths: [ t ]
   - import: jsr:@sys/std@0.0.389
     subpaths:
@@ -34,22 +34,22 @@ deno.json:
         try,
         url
       ]
-  - import: jsr:@sys/testing@0.0.348
+  - import: jsr:@sys/testing@0.0.349
     subpaths: [ server, t ]
-  - import: jsr:@sys/tmpl@0.0.493
+  - import: jsr:@sys/tmpl@0.0.494
     subpaths: [ t ]
-  - import: jsr:@sys/tmpl-engine@0.0.360
+  - import: jsr:@sys/tmpl-engine@0.0.361
     subpaths: [ t ]
-  - import: jsr:@sys/tools@0.0.509
+  - import: jsr:@sys/tools@0.0.510
     subpaths: [ t ]
   - import: jsr:@sys/types@0.0.306
   - import: jsr:@sys/ui-css@0.0.319
     subpaths: [ t ]
   - import: jsr:@sys/ui-dom@0.0.331
     subpaths: [ t ]
-  - import: jsr:@sys/ui-react@0.0.372
+  - import: jsr:@sys/ui-react@0.0.373
     subpaths: [ t ]
-  - import: jsr:@sys/ui-components@0.0.344
+  - import: jsr:@sys/ui-components@0.0.345
     subpaths:
       [
         button,
@@ -67,13 +67,13 @@ deno.json:
         splash,
         t
       ]
-  - import: jsr:@sys/ui-dev@0.0.372
+  - import: jsr:@sys/ui-dev@0.0.373
     subpaths: [ react/devharness, react/devharness/t ]
-  - import: jsr:@sys/workspace@0.0.163
+  - import: jsr:@sys/workspace@0.0.164
     subpaths: [ cli, t, testing ]
-  - import: jsr:@sys/yaml@0.0.210
+  - import: jsr:@sys/yaml@0.0.211
     subpaths: [ t ]
-  - import: jsr:@sys/esm@0.0.104
+  - import: jsr:@sys/esm@0.0.105
     subpaths: [ testing ]
 package.json:
   - import: npm:react@19.3.1
@@ -85,7 +85,7 @@ package.json:
     dev: true
   - import: npm:rollup@4.68.8
     dev: true
-  - import: npm:rollup-plugin-visualizer@7.1.3
+  - import: npm:rollup-plugin-visualizer@7.3.0
     dev: true
   - import: npm:vite@8.3.8
     dev: true

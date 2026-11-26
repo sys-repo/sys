@@ -65,10 +65,10 @@
     "npm:@standard-schema/spec@1.1.0": "1.1.0",
     "npm:@stripe/stripe-js@9.17.0": "9.17.0",
     "npm:@svgdotjs/svg.js@3.2.8": "3.2.8",
-    "npm:@testing-library/react@16.3.3": "16.3.3_@testing-library+dom@10.4.2_@types+react@19.3.0_@types+react-dom@19.3.0_react@19.3.1_react-dom@19.3.1",
+    "npm:@testing-library/react@16.3.3": "16.3.3_@types+react@19.3.1_@types+react-dom@19.3.0_react@19.3.1_react-dom@19.3.1",
     "npm:@types/mdast@4.0.4": "4.0.4",
-    "npm:@types/react-dom@19.3.0": "19.3.0_@types+react@19.3.0",
-    "npm:@types/react@19.3.0": "19.3.0",
+    "npm:@types/react-dom@19.3.0": "19.3.0_@types+react@19.3.1",
+    "npm:@types/react@19.3.1": "19.3.1",
     "npm:@types/unist@3.0.3": "3.0.3",
     "npm:@types/ws@8.18.2": "8.18.2",
     "npm:@vitejs/plugin-react@6.3.0": "6.3.0_vite@8.3.8_yaml@2.9.1",
@@ -107,14 +107,14 @@
     "npm:prosemirror-model@1.25.13": "1.25.13",
     "npm:prosemirror-schema-basic@1.2.5": "1.2.5",
     "npm:prosemirror-state@1.4.4": "1.4.4",
-    "npm:prosemirror-view@1.43.1": "1.43.1",
+    "npm:prosemirror-view@1.44.0": "1.44.0",
     "npm:ramda@0.32.0": "0.32.0",
     "npm:react-dom@19.3.1": "19.3.1_react@19.3.1",
-    "npm:react-error-boundary@6.1.6": "6.1.6_@types+react@19.3.0_react@19.3.1",
+    "npm:react-error-boundary@6.1.6": "6.1.6_@types+react@19.3.1_react@19.3.1",
     "npm:react-icons@5.7.0": "5.7.0_react@19.3.1",
     "npm:react-inspector@9.0.0": "9.0.0_react@19.3.1",
     "npm:react@19.3.1": "19.3.1",
-    "npm:rollup-plugin-visualizer@7.1.3": "7.1.3_rollup@4.68.8",
+    "npm:rollup-plugin-visualizer@7.3.0": "7.3.0_rollup@4.68.8",
     "npm:rollup@4.68.8": "4.68.8",
     "npm:rxjs@7.8.2": "7.8.2",
     "npm:shiki@4.6.0": "4.6.0",
@@ -767,8 +767,18 @@
     "@isaacs/nonrecursive-glob-match@1.1.0": {
       "integrity": "sha512-GPm/Dbvk5RLmhRnxXIa7nTpK0xtl4E0wj0MslsuNiJ1FIROU+2+9lgUC/dgF7Ey4QCWhfEsgxilMRMCdHPfDfw=="
     },
+    "@jridgewell/resolve-uri@3.1.3": {
+      "integrity": "sha512-lhTtjtoEArWBjismtfS761S9Hlyn+nIZqOZVYoZ1Xn82PMNMVnk+jj/NhC4fAXGTs7ydONcJiR5vyQBTMDu27g=="
+    },
     "@jridgewell/sourcemap-codec@1.6.0": {
       "integrity": "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="
+    },
+    "@jridgewell/trace-mapping@0.3.31": {
+      "integrity": "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==",
+      "dependencies": [
+        "@jridgewell/resolve-uri",
+        "@jridgewell/sourcemap-codec"
+      ]
     },
     "@jsr/deno__loader@0.5.0": {
       "integrity": "sha512-sf/YBwnyAsbyeYYB71Zdj2Ca2Q9tt25EZpAiZdDA9W7Mm3GcpjA2WMeqj19xPIurZK12G3OAsa5yrtPB7E+gvA==",
@@ -1418,7 +1428,7 @@
         "pretty-format"
       ]
     },
-    "@testing-library/react@16.3.3_@testing-library+dom@10.4.2_@types+react@19.3.0_@types+react-dom@19.3.0_react@19.3.1_react-dom@19.3.1": {
+    "@testing-library/react@16.3.3_@types+react@19.3.1_@types+react-dom@19.3.0_react@19.3.1_react-dom@19.3.1": {
       "integrity": "sha512-Uo193NgQbPMz6lrrhtRQQFcMC6Re/ELLFbbuVL30WDlZxlpZf9/lMHTAVxPRLw1q1iu9OJmR1c2BLiENRstdBg==",
       "dependencies": [
         "@babel/runtime",
@@ -1472,14 +1482,14 @@
         "undici-types"
       ]
     },
-    "@types/react-dom@19.3.0_@types+react@19.3.0": {
+    "@types/react-dom@19.3.0_@types+react@19.3.1": {
       "integrity": "sha512-ZI7bU42mZXXKHn/qNLEw2IrbiINU7X5+vfgdixBHkCNpYWXjKgfQ/P+uyGb5CjOLB9UcnTeg3rylQtV2hym44Q==",
       "dependencies": [
         "@types/react"
       ]
     },
-    "@types/react@19.3.0": {
-      "integrity": "sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==",
+    "@types/react@19.3.1": {
+      "integrity": "sha512-HNTkBIm8zmHX8LUXX2vtZ/ONzehrV1J3abl2fUIiZ5qxTYRCj/z+rDeFwOltqCLl9lRdUTKWT41OLtYuFV/Arg==",
       "dependencies": [
         "csstype"
       ]
@@ -2939,8 +2949,8 @@
         "prosemirror-model"
       ]
     },
-    "prosemirror-view@1.43.1": {
-      "integrity": "sha512-rInvs6bSncGi5ns8FfHdmSlqAg8u+fFwmwME6xx9zxnMgq4evMiiswqvam7LnOPLrMNjhw6ax542LWLIXDH1EA==",
+    "prosemirror-view@1.44.0": {
+      "integrity": "sha512-Ga7889C0DYI1AI0zzgXBNVElPRLh6B2+K87XLjza90Bm/02XyEGXUr0gnla+Oefv7krvo3VIUDwM+YHKU9xGxg==",
       "dependencies": [
         "prosemirror-model",
         "prosemirror-state",
@@ -2989,7 +2999,7 @@
         "scheduler"
       ]
     },
-    "react-error-boundary@6.1.6_@types+react@19.3.0_react@19.3.1": {
+    "react-error-boundary@6.1.6_@types+react@19.3.1_react@19.3.1": {
       "integrity": "sha512-CDXPnXDGyFIbkwaaJ6u+xgsRmJhSi6YdgUDW1vnyKHfXp1a9pfAlM+ZET2CDu80/A+8iRcmXN0NSY9BCCoWP5A==",
       "dependencies": [
         "@types/react",
@@ -3081,13 +3091,13 @@
       ],
       "bin": true
     },
-    "rollup-plugin-visualizer@7.1.3_rollup@4.68.8": {
-      "integrity": "sha512-P7G0p9RowDd0ahXXBtx4MOHlSVzclyW5pDeZ2Z0HensWSI9vJdu2bqdZDsD375g+0AxND8VJzWYuKD9yH38etw==",
+    "rollup-plugin-visualizer@7.3.0_rollup@4.68.8": {
+      "integrity": "sha512-m0NuTHu7vRzNVEQexWaj8BqXNBl9Jhj2OGbD7zW5qfXzxMAEUH/nlyIjcpfwchk3gbD1dTBq0Z18AjTWm9Feow==",
       "dependencies": [
+        "@jridgewell/trace-mapping",
         "open",
         "picomatch",
         "rollup",
-        "source-map",
         "yargs"
       ],
       "optionalPeers": [
@@ -3183,9 +3193,6 @@
     },
     "source-map-js@1.2.2": {
       "integrity": "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw=="
-    },
-    "source-map@0.8.0": {
-      "integrity": "sha512-d8EqvL+k/SOXCreS/SUzg2ciyHqBBLcN/yuRjFsbvVhHTE2pgei7oAhmPM7kWFbkX6OSMQfUq4KbkF3au9lhYQ=="
     },
     "space-separated-tokens@2.0.2": {
       "integrity": "sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q=="
@@ -3545,11 +3552,11 @@
       "npm:prosemirror-model@1.25.13",
       "npm:prosemirror-schema-basic@1.2.5",
       "npm:prosemirror-state@1.4.4",
-      "npm:prosemirror-view@1.43.1",
+      "npm:prosemirror-view@1.44.0",
       "npm:react-error-boundary@6.1.6",
       "npm:react-icons@5.7.0",
       "npm:react-inspector@9.0.0",
-      "npm:rollup-plugin-visualizer@7.1.3",
+      "npm:rollup-plugin-visualizer@7.3.0",
       "npm:rollup@4.68.8",
       "npm:rxjs@7.8.2",
       "npm:shiki@4.6.0",
@@ -3570,7 +3577,7 @@
         "npm:@oxc-project/runtime@0.160.0",
         "npm:@testing-library/react@16.3.3",
         "npm:@types/react-dom@19.3.0",
-        "npm:@types/react@19.3.0",
+        "npm:@types/react@19.3.1",
         "npm:@vitejs/plugin-react@6.3.0",
         "npm:magic-string@1.4.5",
         "npm:monaco-editor@0.58.0",
@@ -3580,7 +3587,7 @@
         "npm:react-dom@19.3.1",
         "npm:react-icons@5.7.0",
         "npm:react@19.3.1",
-        "npm:rollup-plugin-visualizer@7.1.3",
+        "npm:rollup-plugin-visualizer@7.3.0",
         "npm:rollup@4.68.8",
         "npm:vite-plugin-wasm@3.6.0",
         "npm:vite@8.3.8"
