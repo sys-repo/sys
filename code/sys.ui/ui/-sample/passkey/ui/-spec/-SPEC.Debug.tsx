@@ -11,6 +11,7 @@ const defaults: Storage = {
   debug: D.debug,
   theme: 'Dark',
 };
+const CALLBACK_LIMIT = 32;
 
 /**
  * Types:
@@ -20,7 +21,7 @@ export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**
  * Signals:
- * Theme/debug persist; fixtures, callbacks, intent, and section display remain ephemeral.
+ * Theme/debug persist; fixtures, callbacks, and section display remain ephemeral.
  */
 export function createDebugSignals() {
   const s = Signal.create;
@@ -34,7 +35,7 @@ export function createDebugSignals() {
     callbacksEnabled: s(true),
     view: s<t.Passkey.View>(D.view),
     sections: s<t.Passkey.Sections>(D.sections),
-    intent: s<t.PasskeyIntent | undefined>(undefined),
+    callbackHistory: s<t.PasskeyCallbackHistory>({ items: [], total: 0 }),
   };
   const p = props;
 
@@ -50,12 +51,14 @@ export function createDebugSignals() {
   }
 
   function capture(action: t.Passkey.Action) {
-    p.intent.value = { action, count: (p.intent.value?.count ?? 0) + 1 };
+    const { items, total } = p.callbackHistory.value;
+    const retained = items.length < CALLBACK_LIMIT ? items : items.slice(1);
+    p.callbackHistory.value = { items: [...retained, { kind: action }], total: total + 1 };
   }
 
   function select(fixture: t.PasskeyFixture) {
     p.fixture.value = fixture;
-    p.intent.value = undefined;
+    p.callbackHistory.value = { items: [], total: 0 };
   }
 
   function reset() {
@@ -101,7 +104,9 @@ const Styles = {
 export const Debug: React.FC<DebugProps> = (props) => {
   const { debug } = props;
   const p = debug.props;
-  const v = Signal.toObject(p);
+  const { callbackHistory, ...v } = Signal.toObject(p);
+  const latest = callbackHistory.items.at(-1);
+  const intent = latest && { action: latest.kind, count: callbackHistory.total };
   Signal.useRedrawEffect(debug.listen);
 
   const items = Fixtures.map((fixture) => ({
@@ -144,7 +149,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `callbacks: ${v.callbacksEnabled ? 'record intent only' : 'not supplied'}`}
         onClick={() => Signal.toggle(p.callbacksEnabled)}
       />
-      <Intent intent={v.intent} />
+      <Intent intent={intent} />
 
       <hr />
       <div className={Styles.title.class}>
@@ -172,7 +177,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <SpecLink to='sample' />
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
-      <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />
+      <Dev.ObjectView name='debug' data={{ ...v, intent }} expand={0} style={{ marginTop: 20 }} />
     </div>
   );
 };

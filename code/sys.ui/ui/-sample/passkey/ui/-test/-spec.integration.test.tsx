@@ -47,7 +47,7 @@ describe('Passkey specimens', () => {
     }
   });
 
-  it('integration reset → pure preferences and intent survive', () => {
+  it('integration reset → pure preferences and callback history survive', () => {
     using cleanup = new DisposableStack();
     for (const key of [STORAGE_KEY.DEV, VIEW_STORAGE.DEV]) {
       const store = LocalStorage.immutable<Preferences>(key, initial);
@@ -64,7 +64,7 @@ describe('Passkey specimens', () => {
     integration.props.theme.value = 'Light';
     integration.reset();
     expect(integration.props.theme.value).to.eql('Dark');
-    expect(view.props.intent.value).to.eql({ action: 'sign-in', count: 1 });
+    expect(view.props.callbackHistory.value).to.eql({ items: [{ kind: 'sign-in' }], total: 1 });
     expect(view.props.theme.value).to.eql('Light');
     const stored = LocalStorage.immutable<Preferences>(VIEW_STORAGE.DEV, initial);
     expect(stored.current).to.eql({ theme: 'Light', debug: false });

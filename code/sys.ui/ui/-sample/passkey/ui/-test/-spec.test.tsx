@@ -38,7 +38,7 @@ describe('Passkey pure specimen', () => {
     storage().reset(previous);
   });
 
-  it('all four callbacks → counted intent only; selection and reset clear it', async () => {
+  it('all four callbacks → ordered occurrences; fixture selection and reset clear history', async () => {
     using res = await TestReact.render(<Debug debug={debug} />);
     const { container } = res;
     const fixture = debug.props.fixture.value;
@@ -63,6 +63,10 @@ describe('Passkey pure specimen', () => {
       });
       expect(intent()).to.eql([name, String(i + 1)]);
     }
+    expect(debug.props.callbackHistory.value).to.eql({
+      items: actions.map(([, kind]) => ({ kind })),
+      total: 4,
+    });
     expect(debug.props.fixture.value).to.equal(fixture);
     expect(fixture.snapshot.authentication.kind).to.eql('signed-out');
     expect(fixture.snapshot.operation.kind).to.eql('idle');
@@ -78,8 +82,9 @@ describe('Passkey pure specimen', () => {
     await activate(button(list, 'Add failed • session preserved'));
     expect(debug.props.fixture.value.id).to.eql('failed-add');
     expect(intent()).to.eql(['none', '0']);
+    expect(debug.props.callbackHistory.value).to.eql({ items: [], total: 0 });
     expect(selected()).to.eql(['Add failed • session preserved']);
-    // External selection updates the list without fabricating or clearing an intent.
+    // A fixture signal write is not the specimen's selection action.
     await React.act(() => {
       debug.actions.onSignIn();
       debug.props.fixture.value = Fixtures[1];
@@ -91,7 +96,35 @@ describe('Passkey pure specimen', () => {
     await activate(button(container, '(reset)'));
     expect(selected()).to.eql([Fixtures[0].label]);
     expect(intent()).to.eql(['none', '0']);
+    expect(debug.props.callbackHistory.value).to.eql({ items: [], total: 0 });
     expect(debug.props.callbacksEnabled.value).to.eql(true);
+  });
+
+  it('callback history → evicts only the oldest occurrences without reducing the readout total', async () => {
+    using res = await TestReact.render(<Debug debug={debug} />);
+    const note = element(res.container, '[role="status"][aria-label="Captured intent"]');
+    const history = () => debug.props.callbackHistory.value;
+    const signIns = Array.from({ length: 30 }, () => ({ kind: 'sign-in' }));
+    await React.act(() => {
+      debug.actions.onCreateAccount();
+      debug.actions.onAddPasskey();
+      for (const _ of signIns) debug.actions.onSignIn();
+    });
+    const full = history();
+    const initialItems = [{ kind: 'create-account' }, { kind: 'add-passkey' }, ...signIns];
+    expect(full).to.eql({ items: initialItems, total: 32 });
+
+    await React.act(() => {
+      debug.actions.onSignOut();
+      debug.actions.onCreateAccount();
+    });
+    expect(history()).to.eql({
+      items: [...signIns, { kind: 'sign-out' }, { kind: 'create-account' }],
+      total: 34,
+    });
+    expect(full).to.eql({ items: initialItems, total: 32 });
+    expect(valueCell(note, 'last intent: ⚡️').textContent).to.eql('create-account');
+    expect(valueCell(note, 'events:').textContent).to.eql('34');
   });
 
   it('presentation controls → visibility belongs to panel mode; reset restores defaults', async () => {
@@ -104,7 +137,7 @@ describe('Passkey pure specimen', () => {
     await choose(Fixtures[1].label);
     const fixture = debug.props.fixture.value;
     await React.act(() => debug.actions.onSignIn());
-    const intent = debug.props.intent.value;
+    const history = debug.props.callbackHistory.value;
     for (const name of names) await choose(`show ${name}: true`);
     const selected = () => {
       const picker = button(container, 'Panel').closest('ul')!;
@@ -120,7 +153,7 @@ describe('Passkey pure specimen', () => {
       expect(selected()).to.eql([label]);
       expect(visibility()).to.eql([]);
       expect(debug.props.fixture.value).to.equal(fixture);
-      expect(debug.props.intent.value).to.equal(intent);
+      expect(debug.props.callbackHistory.value).to.equal(history);
     }
     await choose('Panel');
     expect(visibility()).to.eql(names.map((name) => `show ${name}: false`));

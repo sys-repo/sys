@@ -60,7 +60,7 @@ describe('passkey specimen ownership', () => {
       expect([b.props.theme.value, b.props.view.value]).to.eql(['Light', 'panel']);
       if (suite === pure) {
         const view = (await second.sidebar<ViewSignals>()).props.debug;
-        expect(view.props.intent.value).to.eql(undefined);
+        expect(view.props.callbackHistory.value).to.eql({ items: [], total: 0 });
       }
       const ctx = await second.events.ctx.get();
       await second.load(suite);
@@ -305,7 +305,7 @@ describe('passkey specimen ownership', () => {
     expect(valueCell(a.container, 'Authentication').textContent).to.eql('Signed out');
   });
 
-  it('pure fixture selection → subject changes without an account request or intent', async () => {
+  it('pure specimen → repeated clicks count separately without changing authentication', async () => {
     using server = transport();
     using preview = await TestReact.render(<Harness.UI spec={pure} />);
     const { container } = preview;
@@ -319,7 +319,17 @@ describe('passkey specimen ownership', () => {
     const note = element(container, selector);
     const create = actionButton(container, 'create-account');
     expect(create.getAttribute('aria-describedby')).to.eql(note.id);
-    expect(valueCell(container, 'events:').textContent).to.eql('0');
+    const count = () => valueCell(container, 'events:').textContent;
+    expect(count()).to.eql('0');
+    expect(valueCell(container, 'Authentication').textContent).to.eql('Signed out');
+    for (const total of ['1', '2']) {
+      await activate(actionButton(container, 'sign-in'));
+      expect(count()).to.eql(total);
+    }
+    await activate(button(container, 'Status'));
+    expect(count()).to.eql('2');
+    expect(valueCell(container, 'last intent: ⚡️').textContent).to.eql('sign-in');
+    expect(valueCell(container, 'Authentication').textContent).to.eql('Signed out');
     expect(server.fetchCount).to.eql(0);
   });
 });
