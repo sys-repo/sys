@@ -2,10 +2,12 @@ import { type FC, useEffect, useRef, useState } from 'react';
 
 import { Color, css, D, Is, Signal, Style, type t } from './common.ts';
 import { Event, type PressState, toEventState } from './u.events.ts';
-import { focusStyle } from './u.focus.ts';
+import { controlFocus } from '../../../m.style/m.FocusStyle/u.controlFocus.ts';
+import { useFocusBox } from '../../use.FocusBox.ts';
 import { Wrangle } from './u.ts';
 
 type P = t.Button.Props;
+const focusStyle = controlFocus('--sys-button-focus');
 
 /**
  * Component
@@ -56,7 +58,6 @@ export const Button: FC<P> = (props) => {
       display: block ? 'block' : 'inline-block',
       minWidth: props.minWidth,
       maxWidth: props.maxWidth,
-      borderRadius: 3,
       opacity: opacity,
       cursor: enabled && active ? 'pointer' : 'default',
       userSelect: userSelect ? 'auto' : 'none',
@@ -84,11 +85,13 @@ export const Button: FC<P> = (props) => {
     }),
   };
 
-  const rootStyle = focusStyle(styles.base, props.style, props.tone);
+  const rootStyle = focusStyle(styles.base, props.style);
+  const { ref, indicator } = useFocusBox(rootStyle.compact);
 
   return (
     <div
       role='button'
+      ref={ref}
       tabIndex={enabled && active ? 0 : -1}
       aria-disabled={!enabled || !active ? true : undefined}
       aria-pressed={props['aria-pressed']}
@@ -101,6 +104,7 @@ export const Button: FC<P> = (props) => {
         {label && <div>{label}</div>}
         {props.children}
       </div>
+      {indicator}
     </div>
   );
 };

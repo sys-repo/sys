@@ -8,12 +8,3 @@ export function ruleText(el: Element, pseudo = '') {
   if (Is.nil(rule)) throw new Error(`Missing CSS rule: ${selector}`);
   return rule.rule;
 }
-
-/** Inspect registered media declarations, not browser preference matching. */
-export function mediaRules(el: Element) {
-  const selector = `.${el.className}`;
-  const selectors = [selector, `${selector}:focus-visible`, `${selector}:focus-visible::after`];
-  const items = Style.Dom.stylesheet().rules.items;
-  const media = items.filter((item) => item.rule.startsWith('@media'));
-  return media.filter((item) => selectors.includes(item.selector)).map((item) => item.rule);
-}

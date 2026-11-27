@@ -23,8 +23,8 @@ export type DebugValues =
     link?: DebugLink;
   };
 
-/** Single specimen or one of the fixed comparison views. */
-export type DebugExamples = 'none' | 'focus' | 'links';
+/** `none` retains the stored link-sample mode; `button` is the standalone action sample. */
+export type DebugExamples = 'none' | 'button' | 'focus' | 'links';
 
 /** Semantic link configuration, including persisted resource intent. */
 export type DebugLink =

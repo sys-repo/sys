@@ -126,23 +126,32 @@ describe('Anchor spec: sample controls', () => {
     expect(storage.read(storageKey)).not.to.have.property('maxWidth');
   });
 
-  it('single-sample typography controls → leave fixed comparison views unchanged', async () => {
+  it('Anchor.Button sample → shows only the action and respects the enabled control', async () => {
+    using res = await setup();
+    const { panel, subject } = res;
+    await click(panel, 'Anchor.Button');
+    const button = subject.querySelector('button')!;
+    expect(subject.textContent).to.eql('Anchor.Button');
+    expect(subject.querySelector('a')).to.eql(null);
+    expect(labels(panel).some((label) => /^(href|target|download|openIn|resource):/.test(label)))
+      .to.eql(false);
+    expect(button.disabled).to.eql(false);
+    await click(panel, 'enabled: true');
+    expect(button.disabled).to.eql(true);
+  });
+
+  it('returning from a comparison preserves the configured destination and label', async () => {
     using res = await setup();
     const { debug, subject, panel } = res;
-    const p = debug.props;
-    await click(panel, 'examples: none');
-    for (const mode of ['focus', 'links']) {
-      expect(subject.querySelectorAll('a').length).to.be.greaterThan(1);
-      const before = subject.innerHTML;
-      await click(panel, `mono: ${p.mono.value}`);
-      await click(panel, 'truncate: false');
-      await click(panel, `maxWidth: ${p.maxWidth.value ? `${p.maxWidth.value}px` : 'none'}`);
-      expect(subject.innerHTML).to.eql(before);
-      await click(panel, `maxWidth: ${p.maxWidth.value}px`);
-      await click(panel, `truncate: ${p.truncate.value}`);
-      expect(subject.innerHTML).to.eql(before);
-      await click(panel, `examples: ${mode}`);
-    }
+    act(() => {
+      debug.props.href.value = '/account';
+      debug.props.children.value = 'Account settings';
+    });
+    await click(panel, 'Focus comparison');
+    await click(panel, 'Back to configured link');
+    const link = subject.querySelector('a')!;
+    expect(link.getAttribute('href')).to.eql('/account');
+    expect(link.textContent).to.eql('Account settings');
   });
 
   async function setup() {

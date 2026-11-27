@@ -1,4 +1,3 @@
-import { Button } from '../../Button/mod.ts';
 import { KeyValue } from '../../KeyValue/mod.ts';
 import { Color, css, Dev, Style, type t } from './common.ts';
 import { A, Anchor } from '../mod.ts';
@@ -6,7 +5,7 @@ import { exampleStyles } from './-u.exampleStyles.ts';
 
 type Props = Pick<t.Anchor.Props, 'theme' | 'enabled'>;
 
-/** Browser specimens: inline fragments, clipping, overrides, and native link activation. */
+/** Browser specimens for focus styling and native activation. */
 export function FocusExamples(props: Props) {
   const theme = Color.theme(props.theme);
   const link = { theme: theme.name, enabled: props.enabled, href: '#anchor-focus-target' };
@@ -26,11 +25,17 @@ export function FocusExamples(props: Props) {
         Tab / Shift+Tab. Check settled focus, zoom, reduced motion and forced colours.
       </div>
       <section id='anchor-focus-target' className={styles.example.class}>
-        <div className={styles.label.class}>shared outline · Button / Anchor</div>
-        <div>
-          <Button theme={theme.name} enabled={props.enabled}>Button</Button>
-          {' · '}
-          <A {...link}>Anchor</A>
+        <div className={styles.label.class}>Shared keyboard focus outline</div>
+        <div className={css({ display: 'flex', flexWrap: 'wrap', columnGap: 16, rowGap: 4 }).class}>
+          <div>
+            Navigation: <Anchor.Link {...link}>Anchor.Link</Anchor.Link>
+          </div>
+          <div>
+            Action:{' '}
+            <Anchor.Button theme={theme.name} enabled={props.enabled} onClick={() => {}}>
+              Anchor.Button
+            </Anchor.Button>
+          </div>
         </div>
       </section>
 

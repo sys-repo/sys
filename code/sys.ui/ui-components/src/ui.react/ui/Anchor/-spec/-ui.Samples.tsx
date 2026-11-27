@@ -6,14 +6,13 @@ export type SamplesProps = {
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };
-type Sample = Pick<t.Dev.List.Item, 'id' | 'label'> & {
-  next:
-    & Pick<
-      t.DebugValues,
-      'href' | 'enabled' | 'target' | 'mono' | 'truncate' | 'maxWidth' | 'children' | 'link'
-    >
-    & { download?: boolean };
-};
+type LinkPreset =
+  & Pick<
+    t.DebugValues,
+    'href' | 'enabled' | 'target' | 'mono' | 'truncate' | 'maxWidth' | 'children' | 'link'
+  >
+  & { download?: boolean };
+type Sample = Pick<t.Dev.List.Item, 'id' | 'label'> & ({ next: LinkPreset } | { view: 'button' });
 
 export const EXAMPLE_URL = 'https://example.com';
 export const EXAMPLE_LONG_LABEL =
@@ -32,6 +31,7 @@ const samples: readonly Sample[] = [
       children: EXAMPLE_URL,
     },
   },
+  { id: 'button', label: '`Anchor.Button`', view: 'button' },
   {
     id: 'mono',
     label: 'monospace link',
@@ -146,10 +146,15 @@ export const Samples: React.FC<SamplesProps> = (props) => {
   const p = props.debug.props;
   const theme = Color.theme(props.theme);
   const styles = { base: css({ color: theme.fg }) };
-  const items: readonly t.Dev.List.Item[] = samples.map(({ id, label, next }) => ({
-    id,
-    label,
+  const items: readonly t.Dev.List.Item[] = samples.map((sample) => ({
+    id: sample.id,
+    label: sample.label,
     onActivate: () => {
+      if ('view' in sample) {
+        p.examples.value = sample.view;
+        return;
+      }
+      const { next } = sample;
       p.href.value = next.href;
       p.enabled.value = next.enabled ?? true;
       p.target.value = next.target;

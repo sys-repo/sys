@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Anchor · manual browser checks</title>
+    <link rel="icon" href="data:,">
+    <style>
+    body {
+      font: 14px/1.5 sans-serif;
+      max-width: 40rem;
+      margin: 2rem;
+    }
+    #wrap {
+      width: 200px;
+      height: 100px;
+    }
+    #wrap[data-wide] a {
+      letter-spacing: 1em;
+    }
+    #card {
+      position: relative;
+      width: 320px;
+      padding: 1rem;
+      border: 1px solid;
+    }
+    #card a::after {
+      content: ' ↗';
+    }
+    #card .hit {
+      position: absolute;
+      inset: 0;
+    }
+    </style>
+  </head>
+  <body>
+    <h1>Anchor: manual browser checks</h1>
+    <p>Tab to the first link. Hold and release Shift: the outline must follow the wrapped text and return without moving focus.</p>
+    <p id="wrap"></p>
+    <p>Tab to the card link. Its arrow must stay visible. Click near the far edge of the card: the whole card remains the link target.</p>
+    <div id="card"></div>
+    <p>Tab to Details. Enter and Space should each add one call. Press inside and release outside: no call. Tab should skip Disabled and reach the reference link. Submissions stay at zero.</p>
+    <form><span id="actions"></span></form>
+    <output id="result">Calls: 0 · Submissions: 0</output>
+    <script type="module">
+    import { createElement as h } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { A, Anchor } from '../mod.ts';
+
+    const wrap = document.querySelector('#wrap');
+    createRoot(wrap).render([
+      'See ',
+      h(A, { key: 'link', href: '#card' }, 'Example website with label'),
+      ' now.',
+    ]);
+    wrap.onkeydown = (e) => {
+      if (e.key === 'Shift') wrap.toggleAttribute('data-wide', true);
+    };
+    wrap.onkeyup = wrap.onfocusout = () => wrap.removeAttribute('data-wide');
+
+    const card = document.querySelector('#card');
+    createRoot(card).render(h(A, { href: '#result' }, 'Account', h('span', { className: 'hit' })));
+
+    let calls = 0;
+    let submissions = 0;
+    const report = () =>
+      document.querySelector('#result').value = `Calls: ${calls} · Submissions: ${submissions}`;
+    const onClick = () => {
+      calls++;
+      report();
+    };
+    document.querySelector('form').onsubmit = (e) => {
+      e.preventDefault();
+      submissions++;
+      report();
+    };
+    createRoot(document.querySelector('#actions')).render([
+      h(Anchor.Button, { key: 'action', onClick }, 'Details'),
+      ' · ',
+      h(Anchor.Button, { key: 'disabled', enabled: false, onClick }, 'Disabled'),
+      ' · ',
+      h('a', { key: 'reference', href: '#wrap' }, 'Reference'),
+    ]);
+    </script>
+  </body>
+</html>

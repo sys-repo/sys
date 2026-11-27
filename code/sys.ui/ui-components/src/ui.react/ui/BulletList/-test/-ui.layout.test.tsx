@@ -89,17 +89,13 @@ describe('BulletList layout declarations (not browser geometry)', () => {
     }
   });
 
-  it('wrapped rows → tight line rhythm and separate space for the unchanged Button outline', async () => {
+  it('wrapped rows → tight line rhythm and separate space for the shared Button outline', async () => {
     const res = await TestReact.render(<BulletList.UI items={items} />);
     try {
       const list = res.container.querySelector('ul')!;
       expect(style(list).lineHeight).to.eql('1.25');
       expect(emitted(list)).to.include('row-gap: max(0.375em, 6px);');
       const button = list.querySelector<HTMLElement>('[role="button"]')!;
-      React.act(() => button.focus());
-      expect(button.ownerDocument.activeElement).to.equal(button);
-      expect(style(button).getPropertyValue('--sys-button-focus-width')).to.eql('2px');
-      expect(style(button).getPropertyValue('--sys-button-focus-offset')).to.eql('2px');
       expect(style(button).overflow).not.to.eql('hidden');
       expect(style(list).overflow).not.to.eql('hidden');
     } finally {
@@ -107,7 +103,7 @@ describe('BulletList layout declarations (not browser geometry)', () => {
     }
   });
 
-  it('item padding → Button-owned insets, stable across focus, without padding content cells', async () => {
+  it('item padding → Button-owned insets without padding content cells', async () => {
     const values: readonly t.Button.Props['padding'][] = [undefined, 0, [0, 8]];
     const rows: readonly t.BulletList.Item[] = [
       { id: 'action', label: 'Action' },
@@ -131,15 +127,7 @@ describe('BulletList layout declarations (not browser geometry)', () => {
           for (const edge of edges) {
             expect(actual[edge]).to.eql(reference[edge]);
           }
-          for (const token of ['--sys-button-focus-width', '--sys-button-focus-offset']) {
-            expect(actual.getPropertyValue(token)).to.eql(reference.getPropertyValue(token));
-          }
         }
-        const before = buttons[0].className;
-        React.act(() => buttons[0].focus());
-        expect(buttons[0].ownerDocument.activeElement).to.equal(buttons[0]);
-        expect(buttons[0].className).to.eql(before);
-        expect(style(buttons[0]).paddingLeft).to.eql(reference.paddingLeft);
         expect(style(list).paddingLeft).to.eql('0px');
         expect(emitted(list.lastElementChild!)).not.to.include('padding');
       } finally {

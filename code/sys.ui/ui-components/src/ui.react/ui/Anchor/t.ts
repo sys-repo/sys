@@ -1,39 +1,28 @@
 import type { t } from './common.ts';
 
 /**
- * Contracts for native anchors and resource/opening cues.
+ * Native anchors and buttons that share an inline link appearance.
  */
 export declare namespace Anchor {
   export type Lib = {
     readonly UI: t.FC<Props>;
     readonly Link: t.FC<Link.Props>;
+    readonly Button: t.FC<Button.Props>;
   };
-  export type Props = {
+
+  export type Props = SharedProps & {
     /**
      * Anchor destination; missing/empty renders only children.
      * Callers own href parsing and validation policy.
      */
-    href?: string;
+    href?: string | undefined;
     /** Retain standard-target completion while accepting named browsing contexts. */
     target?: Target | (string & Record<never, never>);
     rel?: string;
-    title?: string;
     download?: boolean | string;
     children?: t.ReactNode;
-    /**
-     * Whether the rendered anchor permits navigation and caller event handlers.
-     * False removes navigation attributes and excludes the anchor from the tab order.
-     * @default true
-     */
-    enabled?: boolean;
-    disabledOpacity?: t.Percent | false;
-
-    /** Accessibility: */
-    tabIndex?: number;
     /** Describes disabled state only; use enabled=false to disable interaction. */
     'aria-disabled'?: boolean;
-    /** Space-separated IDs of caller-owned descriptions. */
-    'aria-describedby'?: string;
 
     /**
      * Logical-order renderers, passed as='span' and size='1em' to follow the link's font size.
@@ -43,21 +32,6 @@ export declare namespace Anchor {
       leading?: t.IconRenderer;
       trailing?: t.IconRenderer;
     };
-
-    /** Appearance: */
-    theme?: t.CommonTheme;
-    /** Use monospace; omitted/false inherits the surrounding font. Caller style takes precedence. */
-    mono?: boolean;
-    /**
-     * Enables single-line ellipsis for the whole anchor, not just its label.
-     * Uses inline-block; constrain width with style.width or style.maxWidth.
-     * Full children remain in the DOM, but trailing markers may be clipped.
-     * Caller styles can override truncation. Omitted/false adds no truncation styles.
-     * @default false
-     */
-    truncate?: boolean;
-    /** A supplied `:focus-visible` block replaces the default focus styling and underline. */
-    style?: t.CssInput;
 
     /**
      * Events (pass-through).
@@ -72,8 +46,8 @@ export declare namespace Anchor {
 
   /**
    * Adds an optional resource marker and an arrow for the requested opening context.
-   * Missing/empty href returns children only. Disabled links retain the resource marker,
-   * but generate no opening arrow or hint.
+   * Missing or empty `href` renders only children, even with `onClick`.
+   * Disabled links retain the resource marker, but generate no opening arrow or hint.
    */
   export namespace Link {
     /** Browser navigation references; handler schemes and downloads use Anchor.UI. */
@@ -83,7 +57,7 @@ export declare namespace Anchor {
         /** Meaningful destination label; rich, non-interactive phrasing content is supported. */
         children: t.ReactNode;
         /** Resource identity, not origin, trust, or availability. Omit for no resource marker. */
-        resource?: 'web';
+        resource?: 'web' | undefined;
         /**
          * Requested ordinary opening context: self explicitly sets _self; new-tab requests _blank.
          * Browser preferences determine whether that context is a tab or window.
@@ -101,6 +75,19 @@ export declare namespace Anchor {
       };
   }
 
+  /** A native non-submit button with the visual treatment of an inline link. */
+  export namespace Button {
+    export type Props = SharedProps & {
+      /** Non-interactive phrasing content; provide an accessible name for icon-only buttons. */
+      children: t.ReactNode;
+      onClick: (event: t.ReactMouseEvent<HTMLButtonElement>) => void;
+      'aria-label'?: string;
+      'aria-labelledby'?: string;
+      'aria-expanded'?: boolean;
+      'aria-controls'?: string;
+    };
+  }
+
   /** Standard HTML anchor browsing-context targets. */
   export type Target = '_self' | '_blank' | '_parent' | '_top';
 
@@ -108,3 +95,33 @@ export declare namespace Anchor {
   export type MouseEventAnchor = t.ReactMouseEvent<HTMLAnchorElement>;
   export type KeyboardEventAnchor = t.ReactKeyboardEvent<HTMLAnchorElement>;
 }
+
+/** Props honored by both the native anchor and the action button. */
+type SharedProps = {
+  title?: string;
+  /**
+   * Disabled anchors lose navigation attributes, caller handlers and their tab stop;
+   * buttons use native `disabled`.
+   * @default true
+   */
+  enabled?: boolean;
+  disabledOpacity?: t.Percent | false;
+  tabIndex?: number;
+  /** Space-separated IDs of caller-owned descriptions. */
+  'aria-describedby'?: string;
+  theme?: t.CommonTheme;
+  /** Use monospace; omitted/false inherits the surrounding font. Caller style takes precedence. */
+  mono?: boolean;
+  /**
+   * Single-line ellipsis for the whole control. Constrain width with `style.width` or `style.maxWidth`.
+   * Uses inline-block; children remain in the DOM, but trailing markers may be clipped.
+   * Caller styles can override truncation. Omitted/false adds no truncation styles.
+   * @default false
+   */
+  truncate?: boolean;
+  /**
+   * Eligible single boxes use the shared Button halo; wrapped links keep their native outline.
+   * A supplied `:focus-visible` block replaces the default focus styling and underline.
+   */
+  style?: t.CssInput;
+};

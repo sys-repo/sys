@@ -101,6 +101,9 @@ export const Debug: React.FC<DebugProps> = (props) => {
    * Render:
    */
   const theme = Color.theme();
+  const view = v.examples;
+  const navigation = view === 'none';
+  const comparison = view === 'focus' || view === 'links';
   const styles = {
     base: css({ color: theme.fg }),
   };
@@ -114,44 +117,49 @@ export const Debug: React.FC<DebugProps> = (props) => {
         label={() => `theme: ${v.theme ?? '(undefined)'}`}
         onClick={() => Signal.cycle<t.CommonTheme>(p.theme, ['Light', 'Dark'])}
       />
-      <Dev.Button
-        block
-        label={() => `href: ${v.href ?? '(none)'}`}
-        onClick={() => {
-          Signal.cycle<P['href']>(p.href, [undefined, EXAMPLE_URL, '/relative/path', '#hash']);
-        }}
-      />
+      {navigation && (
+        <Dev.Button
+          block
+          label={() => `href: ${v.href ?? '(none)'}`}
+          onClick={() => {
+            Signal.cycle<P['href']>(p.href, [undefined, EXAMPLE_URL, '/relative/path', '#hash']);
+          }}
+        />
+      )}
       <Dev.Button
         block
         label={() => `enabled: ${p.enabled.value ?? `(undefined) ← default: ${D.enabled}`}`}
         onClick={() => Signal.toggle(p.enabled)}
       />
-      <Dev.Button
-        block
-        label={() => `mono: ${v.mono}`}
-        onClick={() => Signal.toggle(p.mono)}
-      />
-      <Dev.Button
-        block
-        label={() => `truncate: ${v.truncate}`}
-        onClick={() => Signal.toggle(p.truncate)}
-      />
-      <Dev.Button
-        block
-        label={() => `children: ${p.children.value ?? '(none)'}`}
-        onClick={() => {
-          Signal.cycle<string | undefined>(p.children, [
-            undefined,
-            EXAMPLE_URL,
-            'link label',
-            EXAMPLE_LONG_LABEL,
-            'plain text (passthrough)',
-          ]);
-        }}
-      />
-
-      <hr />
-      {v.link
+      {!comparison && (
+        <>
+          <Dev.Button block label={() => `mono: ${v.mono}`} onClick={() => Signal.toggle(p.mono)} />
+          <Dev.Button
+            block
+            label={() => `truncate: ${v.truncate}`}
+            onClick={() => Signal.toggle(p.truncate)}
+          />
+        </>
+      )}
+      {navigation && (
+        <>
+          <Dev.Button
+            block
+            label={() => `children: ${p.children.value ?? '(none)'}`}
+            onClick={() => {
+              Signal.cycle<string | undefined>(p.children, [
+                undefined,
+                EXAMPLE_URL,
+                'link label',
+                EXAMPLE_LONG_LABEL,
+                'plain text (passthrough)',
+              ]);
+            }}
+          />
+          <hr />
+        </>
+      )}
+      {navigation && (v.link
         ? (
           <>
             <Dev.Button
@@ -195,21 +203,45 @@ export const Debug: React.FC<DebugProps> = (props) => {
               onClick={() => Signal.toggle(p.download)}
             />
           </>
-        )}
+        ))}
 
       <hr />
-      <Dev.Button
-        block
-        label={() => `examples: ${v.examples}`}
-        onClick={() => Signal.cycle<t.DebugExamples>(p.examples, ['none', 'focus', 'links'])}
-      />
-      <div className={css(Styles.title, { marginTop: 22 }).class}>Sample States</div>
-      <Samples debug={debug} theme={theme.name} />
+      <section aria-label='Sample States'>
+        <div className={Styles.title.class}>Sample States</div>
+        <Samples debug={debug} theme={theme.name} />
+      </section>
+      <section aria-label='Comparisons'>
+        <div className={css(Styles.title, { marginTop: 22 }).class}>Comparisons</div>
+        {comparison && (
+          <Dev.Button
+            block
+            label='Back to configured link'
+            onClick={() => p.examples.value = 'none'}
+          />
+        )}
+        <Dev.List
+          theme={theme.name}
+          columns={2}
+          selected={comparison ? view : []}
+          items={[
+            {
+              id: 'focus',
+              label: 'Focus comparison',
+              onActivate: ({ id }) => p.examples.value = id,
+            },
+            {
+              id: 'links',
+              label: 'Link comparison',
+              onActivate: ({ id }) => p.examples.value = id,
+            },
+          ]}
+        />
+      </section>
 
       <hr className={css({ marginTop: 22 }).class} />
       <div className={Styles.title.class}>Debug</div>
 
-      {v.truncate && (
+      {!comparison && v.truncate && (
         <Dev.Button
           block
           label={() => `maxWidth: ${v.maxWidth ? `${v.maxWidth}px` : 'none'}`}

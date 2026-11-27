@@ -89,17 +89,13 @@ describe('Anchor.Link', () => {
     }
   }
 
-  it('web resource and opening context → ordered decorative glyphs and shared focus styling', async () => {
+  it('web resource and opening context → globe followed by the matching direction arrow', async () => {
     for (const [openIn, Arrow] of [['self', LuArrowRight], ['new-tab', LuArrowUpRight]] as const) {
       const res = await TestReact.render(
-        <>
-          <A href={href}>Plain</A>
-          <Link href={href} resource='web' openIn={openIn}>Semantic</Link>
-        </>,
+        <Link href={href} resource='web' openIn={openIn}>Semantic</Link>,
       );
       try {
-        const [plain, semantic] = res.container.querySelectorAll('a');
-        expect(semantic.className).to.eql(plain.className);
+        const semantic = anchor(res.container);
         const markers = semantic.querySelectorAll('[aria-hidden="true"]');
         expect(markers.length).to.eql(2);
         expect(semantic.firstElementChild).to.equal(markers[0]);
@@ -118,7 +114,13 @@ describe('Anchor.Link', () => {
     for (const destination of [undefined, '']) {
       for (const enabled of [true, false]) {
         const res = await TestReact.render(
-          <Link href={destination} enabled={enabled} resource='web' openIn='new-tab'>
+          <Link
+            href={destination}
+            enabled={enabled}
+            resource='web'
+            openIn='new-tab'
+            onClick={() => {}}
+          >
             <em>Label</em>
           </Link>,
         );
@@ -136,10 +138,13 @@ describe('Anchor.Link', () => {
     base.target = '_blank';
     document.head.appendChild(base);
     let clicks = 0;
+    let target: HTMLAnchorElement | undefined;
     const res = await TestReact.render(
       <Link
         href={href}
         onClick={(e) => {
+          expectTypeOf(e.currentTarget).toEqualTypeOf<EventTarget & HTMLAnchorElement>();
+          target = e.currentTarget;
           expect(e.ctrlKey).to.eql(true);
           clicks++;
           e.preventDefault();
@@ -157,6 +162,7 @@ describe('Anchor.Link', () => {
         cancelable: true,
       });
       act(() => root.querySelector('[aria-hidden="true"]')!.dispatchEvent(click));
+      expect(target).to.equal(root);
       expect(clicks).to.eql(1);
       expect(click.defaultPrevented).to.eql(true);
       const key = DomMock.Keyboard.event('keydown', 'Enter', { bubbles: true, cancelable: true });
@@ -338,7 +344,7 @@ describe('Anchor.Link', () => {
     const markup = renderToStaticMarkup(
       <p>
         Before{' '}
-        <Link href={href} resource='web' openIn='new-tab'>
+        <Link href={href} resource='web' openIn='new-tab' onClick={() => {}}>
           A <em>rich</em> label
         </Link>{' '}
         and <Link href={href} openIn='new-tab'>Another</Link> after.

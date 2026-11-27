@@ -3,13 +3,27 @@ import { Dev, type t } from './common.ts';
 import { FocusExamples } from './-ui.FocusExamples.tsx';
 import { LinkExamples } from './-ui.LinkExamples.tsx';
 
-/** Keep single samples unwrapped; comparison views own their layout. */
+/** Route to the selected sample or comparison. */
 export function Root(props: t.DebugValues) {
   const { examples, link, theme, enabled, href, target, download, children } = props;
   const { mono, truncate, maxWidth } = props;
   if (examples === 'links') return <LinkExamples theme={theme} enabled={enabled} />;
   if (examples === 'focus') return <FocusExamples theme={theme} enabled={enabled} />;
   const style = truncate ? { maxWidth } : undefined;
+  if (examples === 'button') {
+    return (
+      <Anchor.Button
+        theme={theme}
+        enabled={enabled}
+        mono={mono}
+        truncate={truncate}
+        style={style}
+        onClick={() => {}}
+      >
+        Anchor.Button
+      </Anchor.Button>
+    );
+  }
   if (link) {
     const shared = { theme, enabled, href, mono, truncate, style, children, openIn: link.openIn };
     if (link.api === 'dev') {

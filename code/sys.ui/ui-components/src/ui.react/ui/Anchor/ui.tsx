@@ -1,15 +1,9 @@
-import { Color, css, D, type t, usePointer } from './common.ts';
-import { focusStyle } from './u.focus.ts';
+import { useFocusBox } from '../../use.FocusBox.ts';
+import { D, type t } from './common.ts';
+import { linkAppearance } from './u.linkAppearance.ts';
 import { Content } from './ui.Content.tsx';
 
 type AnchorLinkProps = t.Anchor.Props & { href: string };
-
-const truncation: t.CssValue = {
-  display: 'inline-block',
-  overflow: 'hidden',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
-};
 
 export const Anchor: t.FC<t.Anchor.Props> = (props) => {
   const href = props.href;
@@ -20,29 +14,17 @@ export const Anchor: t.FC<t.Anchor.Props> = (props) => {
 };
 
 const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
-  const pointer = usePointer();
-  const theme = Color.theme(props.theme);
-  const { href, title, tabIndex, style } = props;
+  const appearance = linkAppearance(props);
+  const { ref, indicator } = useFocusBox(appearance.compact);
+  const { href, title, tabIndex } = props;
   const target = props.target ?? D.target;
   const download = props.download ?? D.download;
   const rel = toRel({ ...props, target });
-  const underline = Color.alpha(theme.fg, theme.is.dark ? 0.35 : 0.25);
-  const styles = {
-    base: css({
-      color: 'inherit',
-      fontFamily: (props.mono ?? D.mono) ? 'monospace' : undefined,
-      textDecoration: `underline dashed ${underline}`,
-      textUnderlineOffset: '3px',
-      transition: 'text-decoration-color 100ms ease',
-      transform: `translateY(${pointer.is.down ? 1 : 0}px)`,
-      ':hover': { textDecoration: 'underline solid currentColor' },
-    }),
-  };
-  const focus = focusStyle([styles.base, (props.truncate ?? D.truncate) && truncation], style);
 
   return (
     <a
-      className={focus.class}
+      ref={ref}
+      className={appearance.class}
       href={href}
       target={target}
       rel={rel}
@@ -51,7 +33,6 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
       tabIndex={tabIndex}
       aria-disabled={props['aria-disabled']}
       aria-describedby={props['aria-describedby']}
-      {...pointer.handlers}
       onClick={props.onClick}
       onMouseDown={props.onMouseDown}
       onMouseUp={props.onMouseUp}
@@ -59,24 +40,14 @@ const AnchorLinkEnabled: t.FC<AnchorLinkProps> = (props) => {
       onKeyUp={props.onKeyUp}
     >
       <Content icons={props.icons}>{props.children}</Content>
+      {indicator}
     </a>
   );
 };
 
 const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
-  const { title, style } = props;
-  const opacity = props.disabledOpacity === false
-    ? undefined
-    : (props.disabledOpacity ?? D.disabledOpacity);
-  const styles = {
-    base: css({
-      color: 'inherit',
-      fontFamily: (props.mono ?? D.mono) ? 'monospace' : undefined,
-      textDecoration: 'none',
-      opacity,
-      cursor: 'default',
-    }),
-  };
+  const { title } = props;
+  const appearance = linkAppearance(props);
 
   const onClick = (e: t.ReactMouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
@@ -91,7 +62,7 @@ const AnchorLinkDisabled: t.FC<AnchorLinkProps> = (props) => {
 
   return (
     <a
-      className={css(styles.base, (props.truncate ?? D.truncate) && truncation, style).class}
+      className={appearance.class}
       href={undefined}
       target={undefined}
       rel={undefined}
