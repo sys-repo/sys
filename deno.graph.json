@@ -1,9 +1,9 @@
 {
   ".meta": {
-    "createdAt": 1795669411938,
+    "createdAt": 1795760681324,
     "schemaVersion": 2,
     "hash": {
-      "/graph": "sha256-fd31af1c806973d93a47112c0094b4ae058712bdfa39aa4f84e9ba630b6849dc",
+      "/graph": "sha256-0019d9d7a096de4bee7ebd9d2c2e789315895f05763b62260a8319b3d8a27db4",
       "/graph:policy": "https://jsr.io/@sys/workspace/0.0.164/src/m.graph/m.snapshot/m.Hash.ts"
     },
     "generator": {
@@ -15,7 +15,7 @@
         "/graph": "https://jsr.io/@sys/workspace/0.0.164/src/m.graph/t.ts"
       }
     },
-    "modifiedAt": 1795669411945
+    "modifiedAt": 1795760681330
   },
   "graph": {
     "orderedPaths": [
@@ -737,6 +737,10 @@
       {
         "from": "code/sys/event",
         "to": "code/sys.tools"
+      },
+      {
+        "from": "code/sys/event",
+        "to": "code/sys.ui/ui-components"
       },
       {
         "from": "code/sys/event",
