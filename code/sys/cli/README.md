@@ -33,10 +33,10 @@ within the intended directory and the required access before use.
 
 ## Keyboard ownership
 
-`Keyboard.bind()` borrows terminal stdin, returning `undefined` when stdin fails the terminal check.
-Disposal requests input shutdown without another keystroke. `await Keyboard.shutdown(handle)` waits
-for native input release and that binding's callbacks. Never await it from the binding's own
-callback: it would wait for itself.
+Use `Keyboard.bind()` for long-running terminal controls. It borrows terminal stdin, returning
+`undefined` when stdin fails the terminal check. Disposal requests input shutdown without another
+keystroke. `await Keyboard.shutdown(handle)` waits for native input release and that binding's
+callbacks. Never await it from the binding's own callback: it would wait for itself.
 
 Managed bindings share one input session: they compete for keys, and disposing one stops shared
 input. Each handle owns its callback completion; await every active binding before handing input to

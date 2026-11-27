@@ -92,6 +92,36 @@ describe('CLI: core / Keyboard input ownership', () => {
     fixture.assertReleased();
   });
 
+  it('delivers buffered keys in order without another keystroke', async () => {
+    const fixture = inputFixture();
+    const owner = createInput(fixture.deps);
+    const iterator = owner[Symbol.asyncIterator]();
+    const deadline = Time.wait(1_000);
+    const expired = deadline.then(() => undefined);
+
+    try {
+      const first = iterator.next();
+      fixture.emit('xo');
+      expect((await Promise.race([first, expired]))?.value?.key).to.eql('x');
+
+      const buffered = await Promise.race([iterator.next(), expired]);
+      expect(buffered?.value?.key, 'delivery before any further input').to.eql('o');
+
+      const interrupt = iterator.next();
+      fixture.emit('\x03');
+      expect((await Promise.race([interrupt, expired]))?.value).to.include({
+        key: 'c',
+        ctrlKey: true,
+      });
+    } finally {
+      deadline.cancel();
+      owner.dispose();
+      fixture.flush();
+      await owner.finished;
+    }
+    fixture.assertReleased();
+  });
+
   it('competes for events and drops queued read-ahead on disposal', async () => {
     const fixture = inputFixture();
     const owner = createInput(fixture.deps);
