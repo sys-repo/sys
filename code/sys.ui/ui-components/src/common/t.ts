@@ -26,6 +26,7 @@ export type CssShadow = TCss.Style.Shadow.Input;
 export type WebFontConfig = TCss.WebFont.Config;
 
 export type { Color } from '@sys/color/t';
+export type { EventWithKind } from '@sys/event/t';
 export type { Markdown } from '@sys/markdown/t';
 export type { MediaResolver, Timecode } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';

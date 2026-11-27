@@ -42,6 +42,7 @@ const leaves = {
   ],
   content: [
     { path: 'admonition', names: ['Admonition'] },
+    { path: 'event', names: ['EventsView'] },
     { path: 'http-origin', names: ['HttpOrigin'] },
     { path: 'key-value', names: ['KeyValue'] },
     { path: 'object-view', names: ['ObjectView'] },

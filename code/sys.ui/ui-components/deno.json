@@ -31,6 +31,7 @@
     "./react/cropmarks": "./src/ui.react/ui/Cropmarks/mod.ts",
     "./react/dev": "./src/ui.react/dev/mod.ts",
     "./react/error-boundary": "./src/ui.react/ui/ErrorBoundary/mod.ts",
+    "./react/event": "./src/ui.react/ui/EventsView/mod.ts",
     "./react/fade-element": "./src/ui.react/ui/FadeElement/mod.ts",
     "./react/http-origin": "./src/ui.react/ui/Http.Origin/mod.ts",
     "./react/icon": "./src/ui.react/ui/Icon/mod.ts",
