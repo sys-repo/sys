@@ -17,7 +17,8 @@ export declare namespace Vite {
      * Passes `--host`, requesting all-interface binding rather than loopback-only serving;
      * a returned localhost URL does not establish loopback-only exposure.
      * Await the returned process's `dispose()` to stop the child and release driver resources,
-     * or bind its lifetime with `until`. Startup errors reject the promise.
+     * including any acquired keyboard input. A release failure rejects disposal, even if a retry
+     * restores the terminal. `until` binds the same lifetime. Startup errors reject the promise.
      */
     dev(args: Dev.Args): Promise<Dev.Process>;
   };
@@ -108,7 +109,13 @@ export declare namespace Vite {
       readonly proc: t.Process.Handle;
       readonly port: number;
       readonly url: t.StringPath;
+      /**
+       * Start or join this handle's keyboard session. Without a TTY, wait for disposal.
+       * A keyboard quit (q or Ctrl+C) exits the host process after successful cleanup.
+       * To stop the server without exiting the host, await `dispose()` instead.
+       */
       listen(): Promise<void>;
+      /** Same session as `listen()`; concurrent calls do not acquire stdin again. */
       keyboard(): Promise<void>;
     };
 

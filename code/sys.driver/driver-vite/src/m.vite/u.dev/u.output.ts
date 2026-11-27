@@ -14,6 +14,20 @@ type State = {
 const DEFAULT_MAX_LINES = 40;
 const DEFAULT_MAX_STDERR_CHARS = 60_000;
 
+/** Filter startup noise from the visible tail; leave raw output and retained stderr unfiltered. */
+export function createDevOutput(logLines: number, seedStartup: boolean) {
+  const output = DevOutputLog.create({
+    maxLines: Math.max(DEFAULT_MAX_LINES, logLines),
+    suppressVisible: [
+      // Projection already merged the consumer import map into the generated child map.
+      /^Warning\s+the configuration file "file:\/\/\/.+?" contains an entry for "importMap" that is being ignored\.?$/,
+      /^starting(?:\s+(?:vite|dev\s+server))?(?:\.{3}|…)?$/i,
+    ],
+  });
+  if (seedStartup) output.pushDisplay('stdout', 'starting dev server…');
+  return output;
+}
+
 /** Capture bounded visible dev log rows for startup diagnostics and parent-owned reporters. */
 export const DevOutputLog: t.ViteDev.Output.Lib = {
   create(options = {}) {

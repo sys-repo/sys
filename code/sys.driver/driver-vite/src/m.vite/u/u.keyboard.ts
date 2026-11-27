@@ -1,91 +1,94 @@
-import { Cli, Open, Rx, type t } from '../common.ts';
+import { Cli, Open, type t } from '../common.ts';
 
-type KeypressEvent = t.Cli.Keyboard.Is.RedrawInput;
-type KeypressStream = AsyncIterable<KeypressEvent>;
-type KeyboardAction = 'noop' | 'open' | 'redraw' | 'quit';
 type KeyboardDeps = {
-  keypress?: () => KeypressStream;
+  bind?: typeof Cli.Keyboard.bind;
   open?: (url: t.StringUrl) => void;
   exit?: (code: number) => void;
 };
 
-/**
- * Create a keyboard listener to control the running dev server.
- */
+/** One lazily acquired keyboard session per dev-server handle. */
 export function keyboardFactory(args: {
   cwd: t.StringDir;
   url: string;
-  until?: t.Process.Handle['dispose$'];
+  signal: AbortSignal;
+  ownInputRelease: (released: Promise<void>) => void;
   redraw?: () => void;
   dispose: () => Promise<void>;
 }, deps: KeyboardDeps = {}) {
-  const { dispose } = args;
+  const { dispose, redraw, signal } = args;
   const url = new URL(args.url).href as t.StringUrl;
-  const keypress = deps.keypress ?? Cli.keypress;
+  const bind = deps.bind ?? Cli.Keyboard.bind;
   const open = deps.open ?? ((url) => Open.invokeDetached(args.cwd, url, { silent: true }));
   const exit = deps.exit ?? ((code) => Deno.exit(code));
 
-  return async () => {
-    for await (const e of wrangle.keypressEvents(keypress, args.until)) {
-      switch (wrangle.action(e)) {
-        case 'noop':
-          continue;
-        case 'open':
-          open(url);
-          continue;
-        case 'redraw':
-          await wrangle.redraw(args.redraw, dispose);
-          continue;
-        case 'quit':
-          await dispose();
-          exit(0);
-          return;
+  async function run() {
+    if (signal.aborted) return await dispose();
+
+    const until = Promise.withResolvers<void>();
+    const onAbort = () => until.resolve();
+    signal.addEventListener('abort', onAbort, { once: true });
+
+    let quitting = false;
+    let failure: { cause: unknown } | undefined;
+    const rememberFailure = (cause: unknown) => {
+      failure ??= { cause };
+    };
+    // Request now; await the lifecycle's shared completion only after input release.
+    const stopServer = () => void dispose().catch(() => undefined);
+    const onQuit = () => {
+      if (signal.aborted) return;
+      quitting = true;
+      stopServer();
+    };
+
+    try {
+      const binding = bind({
+        until: until.promise,
+        quitKeys: 'interrupt-only',
+        onQuit,
+        onKey(event) {
+          if (signal.aborted) return 'stop';
+          if (event.key === 'q') {
+            onQuit();
+            return 'stop';
+          }
+          const isOpen = event.key === 'o';
+          try {
+            if (isOpen) open(url);
+            else if (Cli.Keyboard.Is.redraw(event)) redraw?.();
+          } catch (cause) {
+            // Keep the app error rather than letting the binding translate it.
+            rememberFailure(cause);
+            if (!isOpen) stopServer();
+            return 'stop';
+          }
+        },
+      });
+
+      if (binding) {
+        // Listener failures belong to the session, not to public server disposal.
+        const released = binding.finished.catch(rememberFailure).then(async () => {
+          const cause = binding.releaseFailure;
+          if (!cause) return;
+          // Recovery can restore stdin, but cannot turn an observed failure into success.
+          await Cli.Keyboard.shutdown(binding).catch(() => undefined);
+          throw cause;
+        });
+        args.ownInputRelease(released);
+        await released.catch(rememberFailure);
+      } else {
+        await until.promise;
       }
+
+      if (signal.aborted) await dispose().catch(rememberFailure);
+      if (failure) throw failure.cause;
+      if (quitting) exit(0);
+    } finally {
+      signal.removeEventListener('abort', onAbort);
     }
-  };
+  }
+
+  let session: Promise<void> | undefined;
+  // Publish the shared promise before acquisition, including for reentrant callers.
+  return () => session ??= Promise.resolve().then(run);
 }
-
-const wrangle = {
-  async *keypressEvents(
-    keypress: () => KeypressStream,
-    until?: t.Process.Handle['dispose$'],
-  ) {
-    try {
-      for await (const event of keypress()) yield event;
-    } catch (error) {
-      if (!wrangle.isUnsupportedKeyboard(error)) throw error;
-      await wrangle.waitUntil(until);
-    }
-  },
-
-  async redraw(redraw: (() => void) | undefined, dispose: () => Promise<void>) {
-    try {
-      redraw?.();
-    } catch (cause) {
-      try {
-        await dispose();
-      } catch {
-        // Redraw remains the primary failure.
-      }
-      throw cause;
-    }
-  },
-
-  action(e: KeypressEvent): KeyboardAction {
-    if (!e.key) return 'noop';
-    if ((e.ctrlKey && e.key === 'c') || e.key === 'q') return 'quit';
-    if (e.key === 'o') return 'open';
-    if (Cli.Keyboard.Is.redraw(e)) return 'redraw';
-    return 'noop';
-  },
-
-  isUnsupportedKeyboard(error: unknown) {
-    if (error instanceof Deno.errors.BadResource) return true;
-    return error instanceof Error && /ENOTTY|Not a typewriter/i.test(error.message);
-  },
-
-  async waitUntil(until?: t.Process.Handle['dispose$']) {
-    if (!until) return;
-    await Rx.firstValueFrom(until.pipe(Rx.defaultIfEmpty(undefined)));
-  },
-} as const;
