@@ -36,7 +36,7 @@ const wrangle = {
       horizontal: direction === 'Left:Right' || direction === 'Right:Left',
     };
 
-    let Absolute: t.CssEdgesInput;
+    let Absolute: t.CssEdges.Input;
     if (direction === 'Top:Down') Absolute = [0, 0, null, 0];
     if (direction === 'Bottom:Up') Absolute = [null, 0, 0, 0];
     if (direction === 'Left:Right') Absolute = [0, null, 0, 0];

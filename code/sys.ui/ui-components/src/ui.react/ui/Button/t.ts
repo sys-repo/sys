@@ -41,8 +41,8 @@ export declare namespace Button {
     focusBounds?: 'text' | 'control';
     /** Root styles. A custom `:focus-visible` rule replaces the built-in keyboard indicator. */
     style?: t.CssInput;
-    margin?: t.CssEdgesInput;
-    padding?: t.CssEdgesInput;
+    margin?: t.CssEdges.Input;
+    padding?: t.CssEdges.Input;
     minWidth?: number;
     maxWidth?: number;
     userSelect?: boolean;

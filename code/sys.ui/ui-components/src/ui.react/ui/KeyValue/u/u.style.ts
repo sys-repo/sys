@@ -54,7 +54,7 @@ export function toLayout(layout?: t.KeyValue.Layout): NonNullable<t.KeyValue.Lay
 export function toSpacing(inputX?: t.KeyValue.Item.Spacing, inputY?: t.KeyValue.Item.Spacing) {
   const x = toSpacingTuple(inputX);
   const y = toSpacingTuple(inputY);
-  const edges: t.CssEdgesArray = [y[0], x[1], y[1], x[0]];
+  const edges: t.CssEdges.Array = [y[0], x[1], y[1], x[0]];
   return { x, y, edges };
 }
 

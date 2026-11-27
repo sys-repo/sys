@@ -12,13 +12,13 @@ export function toComponentSize(value?: t.CropmarksSize) {
   return { width, height } as const;
 }
 
-export function toFillMargin(value?: t.CropmarksSize): t.CssMarginArray {
+export function toFillMargin(value?: t.CropmarksSize): t.CssEdges.Margin.Array {
   const DEFAULT = D.margin;
   if (!value) return asMargin(DEFAULT);
   if (value.mode !== 'fill' && value.mode !== 'percent') return asMargin(DEFAULT);
   return value.margin == null ? asMargin(DEFAULT) : Style.Edges.toArray(value.margin);
 }
 
-export function asMargin(value: number): t.CssMarginArray {
+export function asMargin(value: number): t.CssEdges.Margin.Array {
   return Style.Edges.toArray(value ?? 0);
 }

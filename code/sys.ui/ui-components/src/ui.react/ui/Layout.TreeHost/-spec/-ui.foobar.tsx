@@ -6,7 +6,7 @@ export type FooProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
   style?: t.CssInput;
-  padding?: t.CssEdgesInput;
+  padding?: t.CssEdges.Input;
 };
 
 export const Foo: React.FC<FooProps> = (props) => {

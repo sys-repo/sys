@@ -24,7 +24,7 @@ export type VideoDecksControlsProps = {
   //
   debug?: boolean;
   theme?: t.CommonTheme;
-  padding?: t.CssEdgesInput;
-  margin?: t.CssEdgesInput;
+  padding?: t.CssEdges.Input;
+  margin?: t.CssEdges.Input;
   background?: t.PlayerControlsBackgroundProps;
 };

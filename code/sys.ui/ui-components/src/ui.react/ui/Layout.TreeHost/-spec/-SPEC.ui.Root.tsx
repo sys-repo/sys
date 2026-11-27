@@ -21,7 +21,7 @@ export const SpecRoot: React.FC<SpecRootProps> = (props) => {
     : undefined;
 
   const selectedLeaf = selectedNode && !selectedNode.children?.length ? selectedNode : undefined;
-  const renderLeaf = (title: string, padding?: t.CssPaddingInput) => {
+  const renderLeaf = (title: string, padding?: t.CssEdges.Padding.Input) => {
     if (!selectedLeaf) return null;
     return (
       <FooLeaf title={title} theme={v.theme} path={path} node={selectedLeaf} padding={padding} />

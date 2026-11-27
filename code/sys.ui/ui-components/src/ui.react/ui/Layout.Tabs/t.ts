@@ -67,7 +67,7 @@ export declare namespace Tabs {
 
   /** Visual configuration for the selected tab body container. */
   export type BodyStyle = {
-    padding?: t.CssPaddingInput;
+    padding?: t.CssEdges.Padding.Input;
     scroll?: boolean;
   };
 }

@@ -23,7 +23,7 @@ export type CropmarksSizeFill = {
   /** Fills the Y (vertical) plane. */
   y?: boolean;
   /** Pixel margin around the edge.  */
-  margin?: t.CssMarginInput;
+  margin?: t.CssEdges.Margin.Input;
 };
 
 /**
@@ -36,7 +36,7 @@ export type CropmarksSizePercent = {
   /** percentage of container height (0..100). Omit to leave height auto. */
   height?: t.Percent;
   /** Pixel margin around the edge.  */
-  margin?: t.CssMarginInput;
+  margin?: t.CssEdges.Margin.Input;
   /** Aspect ratio (e.g. '16/9', '4/3' or 1.618...). Used when only one axis is provided. */
   aspectRatio?: string | number;
   /** Max percentage of container width (0..100). Defaults to 100. */

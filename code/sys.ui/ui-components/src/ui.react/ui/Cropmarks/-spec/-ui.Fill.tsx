@@ -51,7 +51,7 @@ export const DebugFill: React.FC<DebugFillProps> = (props) => {
           else if (isArr(m) && m.length === 2 && m[0] === 40 && m[1] === 0) next = undefined;
           else next = [40, 40, 40, 40]; // Fallback for any other shape.
 
-          p.size.value = { ...size, margin: next as t.CssMarginArray };
+          p.size.value = { ...size, margin: next as t.CssEdges.Margin.Array };
         }}
       />
 

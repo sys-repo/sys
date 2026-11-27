@@ -45,7 +45,7 @@ const formatTime = (timeInSeconds: number): string => {
  * Helpers
  */
 const wrangle = {
-  abs(props: P): t.CssEdgesInput {
+  abs(props: P): t.CssEdges.Input {
     const { abs } = props;
     if (!abs) return;
     if (abs === true) return [5, 6, null, null];

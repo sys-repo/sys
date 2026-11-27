@@ -20,8 +20,8 @@ export type PlayerControlsProps = {
   buffering?: boolean;
 
   // Appearance:
-  padding?: t.CssPaddingInput;
-  margin?: t.CssMarginInput;
+  padding?: t.CssEdges.Padding.Input;
+  margin?: t.CssEdges.Margin.Input;
   maskHeight?: t.Percent;
   maskOpacity?: t.Pixels;
   background?: PlayerControlsBackgroundProps;

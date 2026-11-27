@@ -5,7 +5,7 @@ import type { t } from './common.ts';
  */
 export type ElapsedTimeProps = {
   video?: t.VideoPlayerSignals;
-  abs?: t.CssEdgesInput | boolean;
+  abs?: t.CssEdges.Input | boolean;
   show?: boolean;
   style?: t.CssInput;
 };

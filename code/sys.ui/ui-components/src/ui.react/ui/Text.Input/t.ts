@@ -42,7 +42,7 @@ export declare namespace TextInput {
     /**
      * Appearance:
      */
-    padding?: t.CssPaddingInput;
+    padding?: t.CssEdges.Padding.Input;
     background?: t.Percent | string;
     border?: Partial<Border> | boolean;
     borderRadius?: t.Pixels;

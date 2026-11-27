@@ -34,7 +34,7 @@ export type IconProps = {
   offset?: [number, number]; // x,y  |  (+/-) pixels.
   flipX?: boolean;
   flipY?: boolean;
-  margin?: t.CssMarginInput;
+  margin?: t.CssEdges.Margin.Input;
   style?: t.CssInput;
   onClick?: MouseHandler;
   onDoubleClick?: MouseHandler;

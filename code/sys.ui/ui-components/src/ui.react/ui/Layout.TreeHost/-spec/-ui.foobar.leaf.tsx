@@ -5,7 +5,7 @@ export type FooLeafProps = {
   title?: string;
   node: t.TreeHostViewNode;
   path: t.ObjectPath;
-  padding?: t.CssPaddingInput;
+  padding?: t.CssEdges.Padding.Input;
   theme?: t.CommonTheme;
   style?: t.CssInput;
 };

@@ -12,10 +12,10 @@ export type IndexTreeViewItemLib = {
 /** Preset padding values for index tree-view items. */
 export type IndexTreeViewPreset = {
   readonly Padding: {
-    readonly spacious: t.CssEdgesQuad;
-    readonly default: t.CssEdgesQuad;
-    readonly compact: t.CssEdgesQuad;
-    readonly tight: t.CssEdgesQuad;
+    readonly spacious: t.CssEdges.Quad;
+    readonly default: t.CssEdges.Quad;
+    readonly compact: t.CssEdges.Quad;
+    readonly tight: t.CssEdges.Quad;
   };
 };
 
@@ -31,7 +31,7 @@ export type IndexTreeViewItemProps = {
   selected?: boolean;
 
   // Appearance
-  padding?: t.CssPaddingInput;
+  padding?: t.CssEdges.Padding.Input;
   chevron?: boolean | t.JSXElement;
   depth?: number;
   indentSize?: t.Pixels;
