@@ -12,6 +12,7 @@ export const ActionButton: React.FC<t.KeyValue.ActionButton.Props> = (props) => 
       label={<span style={{ color: Color.WHITE }}>{props.label}</span>}
       enabled={props.enabled}
       padding={[0, 8]}
+      focusBounds='control'
       style={{
         backgroundColor: Color.BLUE,
         borderRadius: 3,

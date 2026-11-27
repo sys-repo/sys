@@ -86,7 +86,7 @@ export const Button: FC<P> = (props) => {
   };
 
   const rootStyle = focusStyle(styles.base, props.style);
-  const { ref, indicator } = useFocusBox(rootStyle.compact);
+  const { ref, indicator } = useFocusBox(rootStyle.compact && props.focusBounds !== 'control');
 
   return (
     <div

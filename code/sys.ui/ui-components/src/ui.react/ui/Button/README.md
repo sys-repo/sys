@@ -26,7 +26,8 @@ Check the **settled** outline, not just its arrival: the built-in resting colour
 contrast on white and Dark surfaces. To adjust its colour without replacing reduced-motion or
 forced-colours handling, set `--sys-button-focus-rest` on the root. Use `--sys-button-focus-accent`
 for the arrival colour. For geometry, `--sys-button-focus-width` and `--sys-button-focus-offset`
-accept CSS lengths; `style.borderRadius` controls the corner shape.
+accept CSS lengths; `style.borderRadius` controls the corner shape. For a filled button, use
+`focusBounds='control'` to measure the offset from the painted button edge rather than the text.
 
 A custom `style[':focus-visible']` replaces the entire treatment. Use it only when you also provide
 a visible keyboard indicator that works with reduced motion and forced colours.

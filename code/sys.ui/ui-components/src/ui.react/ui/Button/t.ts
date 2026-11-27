@@ -37,6 +37,8 @@ export declare namespace Button {
     theme?: t.CommonTheme;
     /** Label colour. Accent uses theme-aware blue while enabled and active, even at rest. */
     tone?: 'neutral' | 'accent';
+    /** Place the shared focus ring around text (default) or the control's outer edge. */
+    focusBounds?: 'text' | 'control';
     /** Root styles. A custom `:focus-visible` rule replaces the built-in keyboard indicator. */
     style?: t.CssInput;
     margin?: t.CssEdgesInput;

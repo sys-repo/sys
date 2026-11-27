@@ -5,6 +5,7 @@ import { KeyValue } from '../mod.ts';
 type RenderedActionButtonProps = {
   readonly label?: React.ReactNode;
   readonly padding?: readonly [number, number];
+  readonly focusBounds?: t.Button.Props['focusBounds'];
   readonly style?: { readonly backgroundColor?: string; readonly borderRadius?: number };
 };
 
@@ -39,6 +40,7 @@ describe('KeyValue/t', () => {
 
       expectTypeOf(KeyValue.ActionButton).toEqualTypeOf<React.FC<t.KeyValue.ActionButton.Props>>();
       expect(button?.props.padding).to.eql([0, 8]);
+      expect(button?.props.focusBounds).to.eql('control');
       expect(button?.props.style?.backgroundColor).to.eql(Color.BLUE);
       expect(button?.props.style?.borderRadius).to.eql(3);
     });
