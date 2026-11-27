@@ -1,7 +1,7 @@
 import React from 'react';
 import { type t, Color, css } from '../common.ts';
 
-export type DebugProps = { ctx: {}; theme?: t.CommonTheme; style?: t.CssValue };
+export type DebugProps = { ctx: {}; theme?: t.CommonTheme; style?: t.Style.Value };
 type P = DebugProps;
 
 /**

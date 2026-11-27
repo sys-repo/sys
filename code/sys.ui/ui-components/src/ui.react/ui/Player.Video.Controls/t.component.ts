@@ -26,7 +26,7 @@ export type PlayerControlsProps = {
   maskOpacity?: t.Pixels;
   background?: PlayerControlsBackgroundProps;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   // Handlers:
   onClick?: t.PlayerControlsButtonHandler;

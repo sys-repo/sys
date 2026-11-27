@@ -39,7 +39,7 @@ export declare namespace Switch {
      * A supplied :focus-visible block (including an explicit clear) replaces the whole policy;
      * the caller then owns visible indication and motion/preference handling.
      */
-    style?: t.CssValue;
+    style?: t.Style.Value;
 
     /** Events: */
     onToggle?: Toggle.Handler;
@@ -69,7 +69,7 @@ export declare namespace Switch {
     export type Lib = {
       merge(base: Root, theme: Partial<Root>): Root;
       fromName(theme: t.CommonTheme): Colors;
-      toShadowCss(shadow: t.CssShadow): string | undefined;
+      toShadowCss(shadow: t.Style.Shadow.Input): string | undefined;
       readonly light: Colors;
       readonly dark: Colors;
     };
@@ -107,7 +107,7 @@ export declare namespace Switch {
       yOffset: number;
       borderRadius: number;
       color: { on: Color; off: Color; disabled: Color };
-      shadow: t.CssShadow;
+      shadow: t.Style.Shadow.Input;
     };
   }
 }

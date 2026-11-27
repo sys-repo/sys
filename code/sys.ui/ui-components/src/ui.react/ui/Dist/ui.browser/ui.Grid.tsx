@@ -5,7 +5,7 @@ export type GridProps = {
   dist?: t.DistPkg;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   selectedPath?: t.StringPath;
   filterText?: string;
   onSelect?: t.DistBrowserSelectHandler;

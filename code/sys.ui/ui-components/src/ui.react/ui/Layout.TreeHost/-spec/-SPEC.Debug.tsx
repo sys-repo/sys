@@ -21,7 +21,7 @@ const defaults: Storage = {
   customEmpty: false,
 };
 
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.Style.Input };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 export function createDebugSignals() {

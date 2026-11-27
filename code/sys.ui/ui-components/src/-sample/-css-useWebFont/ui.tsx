@@ -6,7 +6,7 @@ import { WebFont, useWebFont } from '@sys/ui-react/use';
 export type SampleFontProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

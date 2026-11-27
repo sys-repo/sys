@@ -30,7 +30,7 @@ export declare namespace TreeHost {
 
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
 
     /**
      * User intent: request a new selection path (e.g. clicked a branch node).

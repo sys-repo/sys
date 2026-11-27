@@ -18,6 +18,6 @@ export declare namespace BarSpinner {
     /** Use the theme foreground for the marks and the track tint. Omit to use the default theme. */
     theme?: t.CommonTheme;
     /** Root style overrides, applied last. */
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 }

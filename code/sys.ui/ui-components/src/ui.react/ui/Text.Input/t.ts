@@ -47,7 +47,7 @@ export declare namespace TextInput {
     border?: Partial<Border> | boolean;
     borderRadius?: t.Pixels;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
     inputStyle?: { opacity?: t.Percent; blur?: t.Pixels };
 
     /**

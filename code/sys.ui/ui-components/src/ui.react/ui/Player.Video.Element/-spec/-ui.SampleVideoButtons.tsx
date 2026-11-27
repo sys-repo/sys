@@ -18,7 +18,7 @@ export type SampleVideoButtonsProps = {
   title?: string;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

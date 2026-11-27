@@ -5,7 +5,7 @@ import { ORIGIN, type OriginEnv } from './-u.origin.ts';
 type P = {
   readonly env?: OriginEnv;
   readonly theme?: t.CommonTheme;
-  readonly style?: t.CssInput;
+  readonly style?: t.Style.Input;
   readonly onChange?: (e: { readonly env: OriginEnv }) => void;
 };
 

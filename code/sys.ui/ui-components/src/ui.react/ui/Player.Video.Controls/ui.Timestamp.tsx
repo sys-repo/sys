@@ -5,7 +5,7 @@ export type TimestampProps = {
   enabled?: boolean;
   currentTime?: t.Secs;
   duration?: t.Secs;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

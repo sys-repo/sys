@@ -10,7 +10,7 @@ export type ThumbProps = {
   thumb: t.SliderThumbProps;
   height: t.Pixels;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const Thumb: React.FC<ThumbProps> = (props) => {

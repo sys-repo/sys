@@ -21,7 +21,7 @@ export type MediaConfigSliderProps = {
   unit: string;
   range: t.MinMaxNumberRange;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onChange?: t.MediaSliderChangeHandler;
 };
 

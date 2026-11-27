@@ -8,7 +8,7 @@ export type InfoProps = {
   stream?: MediaStream | { raw?: MediaStream; filtered?: MediaStream };
   filter?: Filter;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

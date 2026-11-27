@@ -1,7 +1,7 @@
 import React from 'react';
 import { Color, css, type t } from './common.ts';
 
-export type FooProps = { style?: t.CssInput };
+export type FooProps = { style?: t.Style.Input };
 
 /**
  * Component:

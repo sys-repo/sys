@@ -6,7 +6,7 @@ import { css, Dev, type t } from './common.ts';
 /**
  * Component:
  */
-export type DebugFillProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugFillProps = { debug: DebugSignals; style?: t.Style.Input };
 export const DebugFill: React.FC<DebugFillProps> = (props) => {
   const { debug } = props;
   const p = debug.props;

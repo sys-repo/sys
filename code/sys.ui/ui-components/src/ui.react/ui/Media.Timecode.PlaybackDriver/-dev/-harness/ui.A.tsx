@@ -5,7 +5,7 @@ export type AProps = {
   children?: t.ReactNode;
   href?: t.StringUrl;
   target?: '_blank' | '_self' | '_parent' | '_top';
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

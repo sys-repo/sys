@@ -16,5 +16,5 @@ export type BulletProps = {
   /** Foreground border alpha in every state (0..1); fill is unchanged. */
   borderOpacity?: t.Percent;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };

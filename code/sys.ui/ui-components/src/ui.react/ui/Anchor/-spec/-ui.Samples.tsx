@@ -4,7 +4,7 @@ import { Color, css, D, Dev, type t } from './common.ts';
 export type SamplesProps = {
   debug: t.DebugSignals;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 type LinkPreset =
   & Pick<

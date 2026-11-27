@@ -7,7 +7,7 @@ import { Color, css, Dev, Signal, type t } from './-spec/common.ts';
  */
 export type DebugImportStyle = 'Static' | 'Function → Promise';
 export type DebugImage = 'Small' | 'Larger';
-export type DebugProps = { debug: DebugSignals; style?: t.CssValue };
+export type DebugProps = { debug: DebugSignals; style?: t.Style.Value };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 type P = DebugProps;
 

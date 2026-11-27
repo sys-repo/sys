@@ -14,7 +14,7 @@ export type RectGridProps = {
   // Appearance:
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

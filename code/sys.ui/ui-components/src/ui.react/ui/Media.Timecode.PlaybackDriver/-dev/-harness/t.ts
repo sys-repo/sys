@@ -15,7 +15,7 @@ export type HarnessProps = {
   debug?: boolean;
   layout?: { infopanel?: { bottom?: t.ReactNode } };
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   onReady?: (e: { readonly controller: Controller }) => void;
   onSnapshot?: (e: { readonly snapshot?: Snapshot }) => void;

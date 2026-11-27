@@ -6,5 +6,5 @@ import type { t } from './common.ts';
 export type FadeElementProps = {
   children?: t.ReactNode;
   duration?: t.Msecs;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };

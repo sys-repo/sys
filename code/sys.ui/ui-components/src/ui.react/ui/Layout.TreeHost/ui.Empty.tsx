@@ -5,7 +5,7 @@ export type EmptyProps = {
   children?: t.ReactNode;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

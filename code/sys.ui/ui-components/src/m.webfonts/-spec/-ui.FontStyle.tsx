@@ -5,7 +5,7 @@ import { BulletList, Color, css, Dev, Signal, type t } from './common.ts';
 export type FontStyleProps = {
   debug: t.DebugSignals;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const WEIGHTS: Record<t.Fonts.FontName, readonly t.FontWeight[]> = {

@@ -40,7 +40,7 @@ const DEFAULTS: DebugStorage = {
 /**
  * Debug component props.
  */
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.Style.Input };
 
 /**
  * Debug signal bundle.

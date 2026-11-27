@@ -17,7 +17,7 @@ export function isAnchorElement(node?: t.ReactNode): boolean {
   return isValidElement(node) && Is.str(node.type) ? node.type === 'a' : false;
 }
 
-export function toAnchorStyle(args: { truncate?: boolean; isTextChild?: boolean }): t.CssInput {
+export function toAnchorStyle(args: { truncate?: boolean; isTextChild?: boolean }): t.Style.Input {
   const { truncate, isTextChild } = args;
   if (!(truncate && isTextChild)) return {};
   return { display: 'block', minWidth: 0, ...toEllipsis(true) };

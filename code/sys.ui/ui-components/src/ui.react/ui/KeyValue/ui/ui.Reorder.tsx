@@ -10,7 +10,7 @@ type P = {
   dataComponent: string;
   layout: t.KeyValue.Layout;
   model: ReorderModel;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onStart?: t.KeyValue.Reorder.StartHandler;
   onChange: t.KeyValue.Reorder.ChangeHandler;
   onEnd?: t.KeyValue.Reorder.EndHandler;

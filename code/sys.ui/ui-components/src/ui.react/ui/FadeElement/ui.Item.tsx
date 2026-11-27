@@ -5,7 +5,7 @@ export type ItemProps = {
   children: React.ReactNode;
   duration: t.Msecs;
   show: boolean;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onTransitionEnd?: () => void;
 };
 

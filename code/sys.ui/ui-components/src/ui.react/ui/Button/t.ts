@@ -40,7 +40,7 @@ export declare namespace Button {
     /** Place the shared focus ring around text (default) or the control's outer edge. */
     focusBounds?: 'text' | 'control';
     /** Root styles. A custom `:focus-visible` rule replaces the built-in keyboard indicator. */
-    style?: t.CssInput;
+    style?: t.Style.Input;
     margin?: t.CssEdges.Input;
     padding?: t.CssEdges.Input;
     minWidth?: number;

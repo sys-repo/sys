@@ -36,7 +36,7 @@ export type MediaZoomProps = {
 
   // Appearance:
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   // Handlers:
   onChange?: t.MediaZoomChangeHandler;

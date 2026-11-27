@@ -59,7 +59,7 @@ export type MediaVideoStreamProps = {
   borderRadius?: t.Pixels;
   aspectRatio?: string | number; // eg:  16/9
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   /** Called once when the stream is live and assigned to <video>. */
   onReady?: MediaVideoStreamReadyHandler;

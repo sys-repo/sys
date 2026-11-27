@@ -53,7 +53,7 @@ export type SplitPaneProps = {
   // Common:
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   // Handlers:
   onChange?: (e: { ratios: t.Percent[]; activeGutter?: number }) => void;

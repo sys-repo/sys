@@ -10,7 +10,7 @@ export type ControlButtonProps = {
   debug?: boolean;
   enabled?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onClick?: t.Button.Props['onClick'];
   onMouseDown?: t.Button.Props['onMouseDown'];
 };

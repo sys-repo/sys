@@ -21,7 +21,7 @@ export type MediaRecorderLib = {
 export type MediaRecorderFilesProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

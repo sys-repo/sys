@@ -7,7 +7,7 @@ export type GridProps = {
   bundle?: t.TimecodePlaybackDriver.Wire.Bundle;
   selectedIndex?: t.Index;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onSelect?: SelectIndexHandler;
 
   /**

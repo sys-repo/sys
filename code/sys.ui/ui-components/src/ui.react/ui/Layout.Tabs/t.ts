@@ -28,7 +28,7 @@ export declare namespace Tabs {
 
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
     parts?: Parts;
 
     onChange?: ChangeHandler;

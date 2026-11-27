@@ -6,7 +6,7 @@ export type PaneProps = {
   hidden?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   children?: React.ReactNode;
 };
 

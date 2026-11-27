@@ -10,6 +10,6 @@ export declare namespace TextEllipsize {
     tail?: number;
     ellipsis?: string;
     debug?: boolean;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 }

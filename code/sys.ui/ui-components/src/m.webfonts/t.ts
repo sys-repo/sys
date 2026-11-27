@@ -13,7 +13,7 @@ export namespace Fonts {
   /** A web-font configuration bundle. */
   export type Bundle = {
     readonly dir: t.StringDir;
-    readonly config: t.WebFontConfig;
+    readonly config: t.WebFont.Config;
   };
 
   /** Hook that injects @font-face rules for the given family into <head> once. */

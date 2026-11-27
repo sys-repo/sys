@@ -7,7 +7,7 @@ export type ToolbarProps = {
   placeholderText?: string;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   /**
    * Filter textbox value.

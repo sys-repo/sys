@@ -8,7 +8,7 @@ export type ScrollSampleProps = {
   debug?: boolean;
   Scroll?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const ScrollSample: React.FC<ScrollSampleProps> = (props) => {

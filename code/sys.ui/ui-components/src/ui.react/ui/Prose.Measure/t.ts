@@ -8,6 +8,6 @@ export namespace ProseMeasure {
   export type Props = {
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 }

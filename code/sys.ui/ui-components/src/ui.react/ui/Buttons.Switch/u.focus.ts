@@ -1,7 +1,7 @@
 import { Color, FocusStyle, Is, type t } from './common.ts';
 
 /** Switch owns its themed halo; FocusStyle owns arrival, composition and preference policy. */
-export function focusStyle(base: t.CssInput, theme: t.Switch.Theme.Root, style?: t.CssValue) {
+export function focusStyle(base: t.Style.Input, theme: t.Switch.Theme.Root, style?: t.Style.Value) {
   const color = theme.trackColor.on;
   const rest = Is.str(color) ? Color.alpha(color, 0.28) : Color.toGrayAlpha(color);
 

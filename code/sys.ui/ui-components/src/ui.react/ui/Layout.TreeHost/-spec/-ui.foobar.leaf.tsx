@@ -7,7 +7,7 @@ export type FooLeafProps = {
   path: t.ObjectPath;
   padding?: t.CssEdges.Padding.Input;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const FooLeaf: React.FC<FooLeafProps> = (props) => {

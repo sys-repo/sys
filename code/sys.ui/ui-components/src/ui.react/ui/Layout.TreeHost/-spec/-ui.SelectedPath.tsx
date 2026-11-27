@@ -6,7 +6,7 @@ export type SelectedPathProps = {
   signal?: t.Signal<t.ObjectPath | undefined>;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

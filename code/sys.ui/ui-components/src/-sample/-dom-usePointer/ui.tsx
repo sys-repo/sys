@@ -6,7 +6,7 @@ import { type DebugSignals } from './-SPEC.Debug.tsx';
 
 export type SampleProps = {
   debug: DebugSignals;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const Sample: React.FC<SampleProps> = (props) => {

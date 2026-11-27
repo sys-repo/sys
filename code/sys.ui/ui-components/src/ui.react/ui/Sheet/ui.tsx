@@ -138,7 +138,7 @@ const wrangle = {
     return margin.map((v) => (typeof v === 'number' ? `${v}px` : v)).join(' ');
   },
 
-  maskOrientation(props: P): t.CssValue {
+  maskOrientation(props: P): t.Style.Value {
     const is = wrangle.is(props);
     const buffer = 30;
     if (is.vertical) {

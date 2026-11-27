@@ -5,7 +5,7 @@ import { type t, BulletList, Color, css, Fonts, Signal } from './common.ts';
 export type FontFamilyProps = {
   debug: t.DebugSignals;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 const FONT_ITEMS = Object.entries(Fonts).map(([id, bundle]) => ({

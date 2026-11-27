@@ -2,7 +2,7 @@ import { useFocusBox } from '../../use.FocusBox.ts';
 import { D, type t } from './common.ts';
 import { linkAppearance } from './u.linkAppearance.ts';
 
-const reset: t.CssValue = {
+const reset: t.Style.Value = {
   appearance: 'none',
   overflow: 'visible',
   font: 'inherit',

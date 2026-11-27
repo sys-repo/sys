@@ -10,7 +10,7 @@ type Storage = Pick<P, 'debug' | 'theme' | 'selected' | 'columns' | 'size'> & {
   rtl: boolean;
   sample: 'standard' | 'markdown' | 'stress' | 'empty';
 };
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.Style.Input };
 export type DebugSignals = Awaited<ReturnType<typeof createDebugSignals>>;
 
 const defaults: Storage = {

@@ -11,5 +11,5 @@ export namespace Prose {
   };
 
   /** Define a CSS rule within a curried component-attr class scope. */
-  export type ScopedCssRule = (selector: string, css: t.CssValue) => void;
+  export type ScopedCssRule = (selector: string, css: t.Style.Value) => void;
 }

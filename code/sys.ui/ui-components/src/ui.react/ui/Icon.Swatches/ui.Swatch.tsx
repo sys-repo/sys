@@ -8,7 +8,7 @@ export type SwatchProps = {
   selected?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onSelect?: t.IconSwatchesSelectHandler;
 };
 

@@ -32,7 +32,7 @@ export type VideoDecksProps = {
   show?: VideoDecksShow;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

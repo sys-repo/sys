@@ -7,7 +7,7 @@ export type P = {
   children?: t.ReactNode;
   nodeType: string;
   reason: NotImplementedReason;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

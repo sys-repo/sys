@@ -27,7 +27,7 @@ export type ActionProbeProps<TEnv extends O = O, TParams extends O = O> = {
 
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**
@@ -45,6 +45,6 @@ export type ActionResultProps = {
   debug?: boolean;
   sizeMode?: 'fill' | 'auto';
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onResultsVisibleChange?: (next: boolean) => void;
 };

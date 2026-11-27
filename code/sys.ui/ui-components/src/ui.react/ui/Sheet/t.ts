@@ -39,9 +39,9 @@ export type SheetProps = {
   shadowOpacity?: t.Percent;
   shadowBlurRadius?: t.Pixels;
   shadowSpreadRadius?: t.Pixels;
-  pointerEvents?: t.CssProps['pointerEvents'];
+  pointerEvents?: t.Style.Props['pointerEvents'];
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   onClick?: M;
   onDoubleClick?: M;

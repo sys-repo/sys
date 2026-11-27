@@ -7,7 +7,7 @@ export type SlotHostProps = {
   slot: t.TreeHost.Slot;
   host: t.TreeHost.Props;
   children?: t.ReactNode;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

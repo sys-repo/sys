@@ -5,7 +5,7 @@ import { Value } from '../ui.Value.tsx';
 export type SampleValueProps = {
   mono?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

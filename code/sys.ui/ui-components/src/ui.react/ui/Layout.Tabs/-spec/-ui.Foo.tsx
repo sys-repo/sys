@@ -5,7 +5,7 @@ export type FooProps = {
   tab: t.Tabs.Item;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

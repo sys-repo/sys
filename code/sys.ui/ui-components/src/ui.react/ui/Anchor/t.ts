@@ -123,5 +123,5 @@ type SharedProps = {
    * Eligible single boxes use the shared Button halo; wrapped links keep their native outline.
    * A supplied `:focus-visible` block replaces the default focus styling and underline.
    */
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };

@@ -5,7 +5,7 @@ export type TabProps = {
   item: t.Tabs.Item;
   selected?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   tabStyle?: t.Tabs.TabStyle;
   onClick?: t.Tabs.ChangeHandler;
 };

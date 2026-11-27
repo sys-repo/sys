@@ -6,7 +6,7 @@ export type ToolbarProps = {
   iconSize?: t.Pixels;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onChange?: t.SliderProps['onChange'];
 };
 

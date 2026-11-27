@@ -158,7 +158,7 @@ export const TextInput: React.FC<P> = (props) => {
  * Helpers:
  */
 const wrangle = {
-  columns(props: P): t.CssProps['gridTemplateColumns'] {
+  columns(props: P): t.Style.Props['gridTemplateColumns'] {
     const { prefix, suffix } = props;
     let res = '';
     if (prefix) res += 'auto';

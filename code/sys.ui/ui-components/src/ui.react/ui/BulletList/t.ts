@@ -45,7 +45,7 @@ export declare namespace BulletList {
     debug?: boolean;
     theme?: t.CommonTheme;
     /** Root styles; an explicit fontSize overrides the named size. */
-    style?: t.CssInput;
+    style?: t.Style.Input;
     onActivate?: Activate.Handler<NoInfer<Id>>;
   };
 

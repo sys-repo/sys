@@ -6,7 +6,7 @@ import { EXAMPLE_LONG_LABEL, EXAMPLE_URL, Samples } from './-ui.Samples.tsx';
 type P = t.Anchor.Props;
 /** Old flags are read once, then removed when the union is persisted. */
 type Stored = Partial<t.DebugValues> & { focusExamples?: boolean; linkExamples?: boolean };
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.Style.Input };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 const defaults: t.DebugValues = {

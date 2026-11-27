@@ -102,7 +102,7 @@ const wrangle = {
   borderWidth(props: P) {
     const { borderWidth = 1 } = props;
     const [t, r, b, l] = toFillMargin(props.size);
-    const width = (value: t.CssNumberOrStringInput) => (Style.isZero(value) ? 0 : borderWidth);
+    const width = (value: t.Style.NumberOrStringInput) => (Style.isZero(value) ? 0 : borderWidth);
 
     const top = width(t);
     const right = width(r);
@@ -115,7 +115,7 @@ const wrangle = {
   percentCssVars(size?: t.CropmarksSize) {
     if (size?.mode !== 'percent') return {};
 
-    const out: t.CssProps = {};
+    const out: t.Style.Props = {};
     const hasW = Is.number(size.width);
     const hasH = Is.number(size.height);
 
@@ -136,7 +136,7 @@ const wrangle = {
     const hasW = Is.number(size.width);
     const hasH = Is.number(size.height);
     const hasAR = size.aspectRatio != null;
-    const css: t.CssProps = { placeSelf: 'center' };
+    const css: t.Style.Props = { placeSelf: 'center' };
 
     // Simple targets (include optional max caps blended into the target)
     if (hasW) css.inlineSize = 'calc(min(var(--pct-w), var(--pct-w-max, 100)) * 1cqi)';

@@ -8,7 +8,7 @@ export type RunButtonProps = {
 
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   onRun: () => void;
 };

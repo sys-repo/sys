@@ -4,7 +4,7 @@ import { type t, css, D } from './common.ts';
 export type MaskProps = {
   opacity?: t.Percent;
   height?: t.Pixels;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

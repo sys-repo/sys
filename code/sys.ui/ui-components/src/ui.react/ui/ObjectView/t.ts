@@ -15,7 +15,7 @@ export type ObjectViewProps = {
   fontSize?: number;
   theme?: t.CommonTheme;
   margin?: t.CssEdges.Margin.Input;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

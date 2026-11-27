@@ -25,7 +25,7 @@ export type ActionProbeRenderer<TEnv extends Record<string, unknown>> = {
 /** Input arguments for creating an ActionProbe renderer. */
 export type ActionProbeRendererFactoryArgs<TState, TEnv extends Record<string, unknown>> = {
   readonly state: TState;
-  readonly style?: t.CssInput;
+  readonly style?: t.Style.Input;
   readonly resolve: (
     args: ActionProbeRendererResolveArgs<TState, TEnv>,
   ) => ActionProbeRendererResolvedProps<TEnv> | undefined;

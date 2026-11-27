@@ -19,7 +19,7 @@ export type HarnessVideoProps = {
   video?: t.VideoPlayerSignals;
   isCurrent?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

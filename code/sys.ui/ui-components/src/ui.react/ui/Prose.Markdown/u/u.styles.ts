@@ -1,6 +1,6 @@
 import { Color, css, type t } from '../common.ts';
 
-const blockMarginEdges: t.CssValue = {
+const blockMarginEdges: t.Style.Value = {
   ':first-child': { marginTop: 0 },
   ':last-child': { marginBottom: 0 },
 };

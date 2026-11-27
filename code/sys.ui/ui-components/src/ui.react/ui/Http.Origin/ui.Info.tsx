@@ -11,7 +11,7 @@ export type InfoProps = {
   verify?: t.HttpOrigin.Verify;
   labels?: Partial<Record<string, t.ReactNode>>;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

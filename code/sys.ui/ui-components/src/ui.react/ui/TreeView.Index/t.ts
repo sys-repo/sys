@@ -37,7 +37,7 @@ export type IndexTreeViewProps = {
   minWidth?: t.Pixels;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   // Handlers:
   onPointer?: t.IndexTreeViewPointerHandler;

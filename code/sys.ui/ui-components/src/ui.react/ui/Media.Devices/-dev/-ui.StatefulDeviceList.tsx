@@ -9,7 +9,7 @@ export type StatefulDeviceListProps = {
   filter?: t.MediaDevicesFilter;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 } & {
   onSelect?: Base['onSelect'];
   onDevicesChange?: Base['onDevicesChange'];

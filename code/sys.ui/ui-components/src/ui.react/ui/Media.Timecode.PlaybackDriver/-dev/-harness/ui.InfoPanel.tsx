@@ -14,7 +14,7 @@ export type InfoPanelProps = {
   snapshot?: t.TimecodeState.Playback.Snapshot;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

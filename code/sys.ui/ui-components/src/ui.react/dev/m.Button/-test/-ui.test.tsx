@@ -18,7 +18,7 @@ describe('@sys/ui-components/react/dev: Dev.Button', () => {
   DomMock.init({ beforeAll, afterAll });
 
   it('caller props → forwarded unchanged to the inner Button, not the frame', () => {
-    const style: t.CssInput = [{ Padding: 4 }, [false, { minWidth: undefined }]];
+    const style: t.Style.Input = [{ Padding: 4 }, [false, { minWidth: undefined }]];
     const props: t.Dev.Button.Props = {
       block: true,
       label: () => 'Run',
@@ -75,7 +75,7 @@ describe('@sys/ui-components/react/dev: Dev.Button', () => {
   });
 
   it('preserves explicit layout and focus clears through nested style input', async () => {
-    const style: t.CssInput = [
+    const style: t.Style.Input = [
       { ':focus-visible': { outline: '2px solid red' } },
       [false, { Padding: 4, minWidth: undefined, ':focus-visible': undefined }],
     ];

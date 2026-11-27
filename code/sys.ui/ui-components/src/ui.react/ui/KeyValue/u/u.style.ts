@@ -26,7 +26,7 @@ export function toFont(props: Pick<P, 'size' | 'mono'>) {
  * - When `truncate` is true → single-line with ellipsis.
  * - When `truncate` is false → natural wrapping with safe word breaks.
  */
-export function toEllipsis(truncate: boolean = D.truncate): t.CssProps {
+export function toEllipsis(truncate: boolean = D.truncate): t.Style.Props {
   return truncate
     ? {
         overflow: 'hidden',

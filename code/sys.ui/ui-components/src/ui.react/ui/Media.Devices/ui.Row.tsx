@@ -8,7 +8,7 @@ export type RowProps = {
   device: MediaDeviceInfo;
   selected?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onSelect?: t.MediaDeviceHandler;
 };
 

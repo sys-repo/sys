@@ -9,6 +9,6 @@ export function headings({ component }: { component: string }) {
       fontWeight: 400,
       fontSize: '3em',
       lineHeight: 1.1,
-    } satisfies t.CssValue,
+    } satisfies t.Style.Value,
   };
 }

@@ -5,7 +5,7 @@ import { css, Dev, type t } from './common.ts';
 
 export type DebugPercentProps = {
   debug: DebugSignals;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const DebugPercent: React.FC<DebugPercentProps> = (props) => {

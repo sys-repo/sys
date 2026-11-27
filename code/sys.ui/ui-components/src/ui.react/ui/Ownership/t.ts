@@ -11,5 +11,5 @@ export type OwnershipLib = {
 export type OwnershipProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };

@@ -10,7 +10,7 @@ type SelectedLayout = DebugSignals['props']['layoutSpaced' | 'layoutTable'];
 export type LayoutButtonsProps = {
   debug: DebugSignals;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 type P = LayoutButtonsProps;
 

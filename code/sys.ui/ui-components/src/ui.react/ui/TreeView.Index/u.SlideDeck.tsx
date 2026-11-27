@@ -11,7 +11,7 @@ export function SlideDeck(props: {
   direction: -1 | 0 | 1;
   duration?: t.Msecs;
   offset?: t.Pixels;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 }) {
   const { keyId, direction: dir, children } = props;
 

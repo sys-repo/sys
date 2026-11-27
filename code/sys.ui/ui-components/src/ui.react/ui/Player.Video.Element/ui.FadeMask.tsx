@@ -4,7 +4,7 @@ import { type t, Color, css } from './common.ts';
 export type FadeMaskProps = {
   mask: t.VideoPlayerFadeMask;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 type P = FadeMaskProps;

@@ -3,7 +3,7 @@ import { type t, Color, css, Signal, D, Rx, Obj, Str, Is, Spinners } from './com
 
 export type SpinningProps = {
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

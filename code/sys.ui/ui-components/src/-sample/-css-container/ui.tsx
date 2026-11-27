@@ -15,7 +15,7 @@ import { type t, Color, css, Style, useSizeObserver } from '../-test.ui.ts';
 
 export type ContainerProps = {
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 type P = ContainerProps;

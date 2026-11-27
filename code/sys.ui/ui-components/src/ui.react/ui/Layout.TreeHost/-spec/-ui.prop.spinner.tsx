@@ -6,7 +6,7 @@ type P = t.TreeHost.Props;
 export type PropSlotsProps = {
   debug: t.DebugSignals;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

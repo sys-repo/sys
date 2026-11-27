@@ -8,7 +8,7 @@ import { css, Dev, type t } from './common.ts';
  */
 export type DebugCenterProps = {
   debug: DebugSignals;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 export const DebugCenter: React.FC<DebugCenterProps> = (props) => {
   const { debug } = props;

@@ -5,7 +5,7 @@ export type DebugProps = {
   index: t.Index;
   ratios: t.Percent[];
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

@@ -25,7 +25,7 @@ export type LayoutProps = Pick<HarnessProps, 'decks' | 'bundle' | 'docid' | 'lay
   /** Visuals */
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   /** UI callbacks (pure intent) */
   onSelectIndex?: SelectIndexHandler;

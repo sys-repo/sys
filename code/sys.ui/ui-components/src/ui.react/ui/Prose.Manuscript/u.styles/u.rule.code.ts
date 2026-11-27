@@ -22,7 +22,7 @@ export function code({ component, theme }: { component: string; theme: t.Color.T
       Padding: [2, 4],
       borderRadius: 4,
       border: `solid 1px var(${names.border})`,
-    } satisfies t.CssValue,
+    } satisfies t.Style.Value,
     bindings: {
       [names.fg]: Color.alpha(theme.fg, 0.8),
       [names.bg]: Color.alpha(theme.fg, 0.03),

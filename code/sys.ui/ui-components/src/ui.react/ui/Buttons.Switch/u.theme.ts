@@ -18,7 +18,7 @@ export const SwitchTheme: t.Switch.Theme.Lib = {
     throw new Error(`Theme name '${theme}' not supported.`);
   },
 
-  toShadowCss(shadow: t.CssShadow) {
+  toShadowCss(shadow: t.Style.Shadow.Input) {
     return Style.toShadow(shadow);
   },
 

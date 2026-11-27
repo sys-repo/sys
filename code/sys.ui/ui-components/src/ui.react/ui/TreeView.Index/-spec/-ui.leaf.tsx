@@ -4,7 +4,7 @@ import { Color, css, Dev, type t } from './common.ts';
 export type LeafPanelProps = {
   args: t.IndexTreeViewLeafRendererArgs;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

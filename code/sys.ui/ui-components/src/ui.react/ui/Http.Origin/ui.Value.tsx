@@ -9,7 +9,7 @@ export type ValueProps = {
   reserveStatusSpace?: boolean;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**
@@ -71,7 +71,7 @@ export const Value: React.FC<ValueProps> = (props) => {
   );
 };
 
-function renderStatusIcon(props: ValueProps, style?: t.CssInput) {
+function renderStatusIcon(props: ValueProps, style?: t.Style.Input) {
   if (props.status === 'ok') {
     return (
       <span className={css(style).class} title={props.tooltip}>

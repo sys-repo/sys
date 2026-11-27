@@ -22,7 +22,7 @@ export namespace ProseMarkdown {
     linksTabbable?: boolean;
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 
   /** Markdown renderer input value. Strings are parsed; AST objects render directly. */

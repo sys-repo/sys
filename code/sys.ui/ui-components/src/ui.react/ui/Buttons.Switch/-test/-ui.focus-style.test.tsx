@@ -20,8 +20,8 @@ const animation = '220ms ease-out 70ms 1 normal backwards running var(--sys-focu
 describe('Buttons.Switch: focus styling', () => {
   DomMock.init({ beforeAll, afterAll });
 
-  it('retains the CssValue caller-style contract', () => {
-    expectTypeOf<t.Switch.Props['style']>(undefined).toEqualTypeOf<t.CssValue | undefined>();
+  it('retains the Style.Value caller-style contract', () => {
+    expectTypeOf<t.Switch.Props['style']>(undefined).toEqualTypeOf<t.Style.Value | undefined>();
   });
 
   for (const name of ['Light', 'Dark'] as const) {
@@ -124,7 +124,7 @@ describe('Buttons.Switch: focus styling', () => {
     }
   });
 
-  const replacements: { name: string; style: t.CssValue }[] = [
+  const replacements: { name: string; style: t.Style.Value }[] = [
     { name: 'replacement', style: { ':focus-visible': { outline: '2px dotted red' } } },
     { name: 'explicit clear', style: { ':focus-visible': undefined } },
   ];
@@ -147,7 +147,7 @@ describe('Buttons.Switch: focus styling', () => {
     });
   }
 
-  const animations: { name: string; style: t.CssValue }[] = [
+  const animations: { name: string; style: t.Style.Value }[] = [
     { name: 'shorthand', style: { animation: 'caller-pulse 2s linear infinite' } },
     { name: 'longhand', style: { animationName: 'caller-pulse', animationDuration: '2s' } },
     { name: 'timing-only', style: { animationDuration: '2s' } },

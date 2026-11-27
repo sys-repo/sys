@@ -20,7 +20,7 @@ export type VimeoBackgroundProps = {
 
   blur?: number;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   onReady?: VimeoReadyHandler;
 };

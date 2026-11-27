@@ -3,7 +3,7 @@ import { Color, css, D, Dev, Obj, Signal, type t } from './common.ts';
 
 export type PropNavMotionProps = {
   debug: t.DebugSignals;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

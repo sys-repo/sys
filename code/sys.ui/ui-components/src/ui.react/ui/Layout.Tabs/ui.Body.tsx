@@ -5,7 +5,7 @@ export type BodyProps = {
   item?: t.Tabs.Item;
   parts?: t.Tabs.Parts;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

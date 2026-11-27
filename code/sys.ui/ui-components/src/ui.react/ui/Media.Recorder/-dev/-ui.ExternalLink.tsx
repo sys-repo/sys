@@ -5,7 +5,7 @@ import { type t, Color, css } from '../common.ts';
 export type ExternalLinkProps = {
   children?: t.ReactNode;
   href?: string;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   theme?: t.CommonTheme;
 };
 

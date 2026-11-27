@@ -6,7 +6,7 @@ type Step = { readonly gesture: string; readonly text: string };
 export type CursorHelpProps = {
   readonly theme?: t.CommonTheme;
   readonly extraSteps?: readonly Step[];
-  readonly style?: t.CssInput;
+  readonly style?: t.Style.Input;
 };
 
 const steps: readonly Step[] = [

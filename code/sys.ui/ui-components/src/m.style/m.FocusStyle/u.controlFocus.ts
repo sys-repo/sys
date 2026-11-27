@@ -10,7 +10,7 @@ export const focusInk = {
 /** The root owns native focus. Its optional, out-of-flow decoration owns no caller layout. */
 export function controlFocus(
   prefix: `--${string}`,
-  underline?: Pick<t.CssValue, 'textDecoration'>,
+  underline?: Pick<t.Style.Value, 'textDecoration'>,
 ) {
   const { paint } = outline(prefix);
   const control = {
@@ -18,7 +18,7 @@ export function controlFocus(
     defaults: { ...paint.defaults, [`${prefix}-offset`]: '0.1em' },
     settled: { ...paint.settled, ...underline },
   };
-  return (base: t.CssInput, style?: t.CssInput) => {
+  return (base: t.Style.Input, style?: t.Style.Input) => {
     let compact = false;
     const target = compose(
       { base: [{ borderRadius: 3 }, base], style, paint: control },

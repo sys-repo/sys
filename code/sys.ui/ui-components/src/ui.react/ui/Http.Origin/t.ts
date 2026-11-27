@@ -48,7 +48,7 @@ export declare namespace HttpOrigin {
     //
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
     onChange?: (e: { next: Env }) => void;
   };
 
@@ -63,7 +63,7 @@ export declare namespace HttpOrigin {
     labels?: Partial<Record<string, t.ReactNode>>;
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 
   /**

@@ -5,7 +5,7 @@ export type FooProps = {
   label?: t.ReactNode;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   padding?: t.CssEdges.Input;
 };
 

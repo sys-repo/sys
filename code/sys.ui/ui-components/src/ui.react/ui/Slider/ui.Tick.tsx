@@ -4,7 +4,7 @@ import { Color, css, type t } from './common.ts';
 export type TickProps = {
   tick: t.SliderTick;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const Tick: React.FC<TickProps> = (props) => {

@@ -4,7 +4,7 @@ import { type t, Color, css, Spinners } from './common.ts';
 export type SpinnerProps = {
   config: t.TreeHost.SlotSpinner;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

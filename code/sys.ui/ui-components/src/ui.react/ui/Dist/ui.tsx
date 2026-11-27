@@ -5,7 +5,7 @@ export type DistProps = {
   dist?: t.DistPkg;
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const Dist: React.FC<DistProps> = (props) => {

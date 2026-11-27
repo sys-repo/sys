@@ -28,7 +28,7 @@ export namespace Dist {
     dist?: t.DistPkg;
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 
   export namespace Browser {

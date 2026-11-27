@@ -111,13 +111,13 @@ describe('Anchor: opt-in truncation', () => {
     });
 
     it(`${name} → caller styles override the recipe; raw declaration clears survive composition`, async () => {
-      const override: t.CssValue = {
+      const override: t.Style.Value = {
         display: 'block',
         overflow: 'visible',
         whiteSpace: 'normal',
         textOverflow: 'clip',
       };
-      const inputs: { style: t.CssInput; cleared: boolean }[] = [
+      const inputs: { style: t.Style.Input; cleared: boolean }[] = [
         { style: override, cleared: false },
         { style: css(override), cleared: false },
         { style: [false, [{ display: undefined, textOverflow: undefined }]], cleared: true },

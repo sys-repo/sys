@@ -4,7 +4,7 @@ import { Color, css, Dev, Signal, type t } from './common.ts';
 
 export type PropSlotsProps = {
   debug: t.DebugSignals;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

@@ -3,7 +3,7 @@ import { type t, css, Color, KeyValue } from './common.ts';
 type BodyProps = {
   blocks: readonly t.ActionProbe.ProbeRenderBlock[];
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const Body: React.FC<BodyProps> = (props) => {

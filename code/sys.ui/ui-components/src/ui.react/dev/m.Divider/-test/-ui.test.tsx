@@ -68,7 +68,7 @@ describe('@sys/ui-components/react/dev: Dev.Divider', () => {
   }
 
   it('applies nested overrides and clears a raw background declaration', async () => {
-    const style: t.CssInput = [
+    const style: t.Style.Input = [
       { height: 1 },
       [false, { Margin: [2, -4, 6, -4], backgroundColor: undefined }],
     ];

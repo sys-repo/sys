@@ -6,7 +6,7 @@ type P = t.TreeHost.Props;
 export type BackButtonProps = {
   selectedPath?: P['selectedPath'];
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onBack?: (e: { readonly current: t.ObjectPath; readonly next: t.ObjectPath }) => void;
 };
 

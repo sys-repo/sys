@@ -15,7 +15,7 @@ export type GutterProps = {
 
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   // Mark this gutter as active before pointer starts
   setActive: (i: number) => void;

@@ -6,7 +6,7 @@ import { Tick } from './ui.Tick.tsx';
 export type TicksProps = {
   ticks: t.SliderTickProps;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const Ticks: React.FC<TicksProps> = (props) => {

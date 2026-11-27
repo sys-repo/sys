@@ -7,7 +7,7 @@ import { type t, Player } from './common.ts';
 type PlayControlsProps = {
   debug?: DebugSignals;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

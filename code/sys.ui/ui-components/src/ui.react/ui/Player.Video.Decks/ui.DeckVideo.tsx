@@ -4,7 +4,7 @@ import { type t, Color, css, D, usePlayerSignals, VideoElement } from './common.
 export type DeckVideoProps = {
   deck: t.VideoDecksActive;
   parent: t.VideoDecksProps;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**
@@ -42,7 +42,7 @@ export const DeckVideo: React.FC<DeckVideoProps> = (props) => {
     overlayCell: css({ gridColumn: '1 / 2', gridRow: '1 / 2' }),
   };
 
-  const overlay: t.CssProps =
+  const overlay: t.Style.Props =
     show === 'single'
       ? {
           zIndex: isActive ? 2 : 1,

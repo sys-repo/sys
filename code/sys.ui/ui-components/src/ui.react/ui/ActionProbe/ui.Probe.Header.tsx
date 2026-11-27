@@ -8,7 +8,7 @@ type HeaderProps = {
   focused?: boolean;
   actOn?: t.ActionProbe.ActOn;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onRun: () => void;
 };
 

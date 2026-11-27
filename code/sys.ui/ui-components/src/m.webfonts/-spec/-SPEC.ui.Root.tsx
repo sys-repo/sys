@@ -5,7 +5,7 @@ import { resolveStyle } from './-ui.FontStyle.tsx';
 
 export type RootProps = {
   debug: t.DebugSignals;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

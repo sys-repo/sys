@@ -7,5 +7,5 @@ export type ElapsedTimeProps = {
   video?: t.VideoPlayerSignals;
   abs?: t.CssEdges.Input | boolean;
   show?: boolean;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };

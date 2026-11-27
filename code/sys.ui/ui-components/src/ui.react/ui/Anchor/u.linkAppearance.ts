@@ -9,7 +9,7 @@ type Props = Pick<
   'theme' | 'mono' | 'style' | 'truncate' | 'enabled' | 'disabledOpacity'
 >;
 
-const truncation: t.CssValue = {
+const truncation: t.Style.Value = {
   display: 'inline-block',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
@@ -17,7 +17,7 @@ const truncation: t.CssValue = {
 };
 
 /** Share appearance without imposing one element's activation behavior on the other. */
-export function linkAppearance(props: Props, reset?: t.CssValue) {
+export function linkAppearance(props: Props, reset?: t.Style.Value) {
   const enabled = props.enabled ?? D.enabled;
   const theme = Color.theme(props.theme);
   const underline = Color.alpha(theme.fg, theme.is.dark ? 0.35 : 0.25);

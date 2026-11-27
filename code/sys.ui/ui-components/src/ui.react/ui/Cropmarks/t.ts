@@ -14,5 +14,5 @@ export type CropmarksProps = {
   borderOpacity?: number;
   borderColor?: string;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };

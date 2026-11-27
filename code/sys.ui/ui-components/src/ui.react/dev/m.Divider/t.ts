@@ -6,4 +6,4 @@ import type { t } from '../common.ts';
  * Caller style composes last using css; raw undefined declarations clear matching defaults.
  * Margin: undefined does not clear expanded margins; pre-transforming style can discard clears.
  */
-export type Props = { theme?: t.CommonTheme; style?: t.CssInput };
+export type Props = { theme?: t.CommonTheme; style?: t.Style.Input };

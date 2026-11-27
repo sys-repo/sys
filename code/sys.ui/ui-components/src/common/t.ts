@@ -10,21 +10,13 @@ export type {
  * @system:
  */
 export type * from '@sys/types';
-import type * as TCss from '@sys/ui-css/t';
-export type { CssDom, CssEdges, CssTmpl, Style, WebFont } from '@sys/ui-css/t';
-export type CssNumberOrStringInput = TCss.Style.NumberOrStringInput;
-export type CssProps = TCss.Style.Props;
-export type CssValue = TCss.Style.Value;
-export type CssInput = TCss.Style.Input;
-export type CssShadow = TCss.Style.Shadow.Input;
-export type WebFontConfig = TCss.WebFont.Config;
-
 export type { Color } from '@sys/color/t';
 export type { EventWithKind } from '@sys/event/t';
 export type { Markdown } from '@sys/markdown/t';
 export type { MediaResolver, Timecode } from '@sys/std/t';
 export type { SpecImports } from '@sys/testing/t';
 export type { TextFilter } from '@sys/text/t';
+export type { CssDom, CssEdges, CssTmpl, Style, WebFont } from '@sys/ui-css/t';
 export type { Keyboard, LocalStorage } from '@sys/ui-dom/t';
 export type {
   PointerDragdropSnapshot,

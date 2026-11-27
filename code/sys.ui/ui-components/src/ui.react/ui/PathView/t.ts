@@ -21,7 +21,7 @@ export type PathViewProps = {
 
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   /** Invoked when a path segment is clicked. */
   onClick?: t.PathViewClickHandler;

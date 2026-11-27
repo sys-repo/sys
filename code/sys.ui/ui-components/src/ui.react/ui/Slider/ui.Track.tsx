@@ -13,7 +13,7 @@ export type TrackProps = {
   thumb: t.SliderThumbProps;
   background?: t.SliderProps['background'];
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 export const Track: React.FC<TrackProps> = (props) => {

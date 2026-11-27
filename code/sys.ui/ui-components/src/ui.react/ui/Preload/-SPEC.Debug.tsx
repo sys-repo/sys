@@ -8,7 +8,7 @@ type O = t.PreloadOptions;
 /**
  * Types:
  */
-export type DebugProps = { debug: DebugSignals; style?: t.CssInput };
+export type DebugProps = { debug: DebugSignals; style?: t.Style.Input };
 export type DebugSignals = ReturnType<typeof createDebugSignals>;
 
 /**

@@ -10,7 +10,7 @@ export type RecorderHookViewProps = {
   readonly recorder?: t.MediaRecorderHook;
   readonly debug?: boolean;
   readonly theme?: t.CommonTheme;
-  readonly style?: t.CssInput;
+  readonly style?: t.Style.Input;
 };
 
 /**

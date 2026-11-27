@@ -10,7 +10,7 @@ export type SeekSliderProps = {
   buffering?: boolean;
   buffered?: t.Secs;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onSeeking?: t.PlayerControlSeekChangeHandler;
 };
 

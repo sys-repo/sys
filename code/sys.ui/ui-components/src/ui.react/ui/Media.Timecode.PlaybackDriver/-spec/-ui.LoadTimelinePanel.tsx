@@ -9,7 +9,7 @@ export type LoadTimelinePanelSelect = {
 
 export type LoadTimelinePanelProps = {
   readonly baseUrl: t.StringUrl;
-  readonly style?: t.CssInput;
+  readonly style?: t.Style.Input;
   readonly theme?: t.CommonTheme;
   readonly debug?: boolean;
 

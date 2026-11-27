@@ -33,7 +33,7 @@ export type IconSwatchesProps = {
   // Appearance:
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   // Events:
   onSizeChange?: t.IconSwatchesSizeHandler;

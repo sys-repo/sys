@@ -39,7 +39,7 @@ export type IndexTreeViewItemProps = {
   // Standard:
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   // Handlers:
   onPointer?: t.PointerEventsHandler;

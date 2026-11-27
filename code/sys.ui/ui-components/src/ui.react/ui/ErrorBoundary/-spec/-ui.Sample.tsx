@@ -4,7 +4,7 @@ import { type t, Button, Color, css } from '../common.ts';
 export type SampleProps = {
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 };
 
 /**

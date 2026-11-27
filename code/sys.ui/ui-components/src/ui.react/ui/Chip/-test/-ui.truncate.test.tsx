@@ -154,7 +154,7 @@ describe('Chip: opt-in bounded ellipsis', () => {
   });
 
   it('caller styles → override or clear the root bound', async () => {
-    const override = { maxWidth: 96, padding: '2px 6px' } satisfies t.CssValue;
+    const override = { maxWidth: 96, padding: '2px 6px' } satisfies t.Style.Value;
     const inputs = [override, css(override)] as const;
     for (const style of inputs) {
       const res = await TestReact.render(<Chip.UI truncate style={style}>{text}</Chip.UI>);

@@ -11,7 +11,7 @@ export type DistBrowserProps = {
 
   debug?: boolean;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
 
   selectedPath?: t.StringPath;
   onSelect?: t.DistBrowserSelectHandler;

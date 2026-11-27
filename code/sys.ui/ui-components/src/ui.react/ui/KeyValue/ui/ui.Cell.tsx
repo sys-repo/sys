@@ -27,7 +27,7 @@ export type CellProps = Base & {
   role: 'key' | 'val';
   href?: t.KeyValue.Item.Row['href'];
   opacity?: t.Percent; // Final computed opacity for this cell (including any row-level logic).
-  userSelect?: t.CssProps['userSelect'];
+  userSelect?: t.Style.Props['userSelect'];
   cursor?: CellCursor;
 };
 

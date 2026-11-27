@@ -26,7 +26,7 @@ export type MediaDevicesProps = {
   debug?: boolean;
   rowGap?: t.Pixels;
   theme?: t.CommonTheme;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onSelect?: t.MediaDeviceHandler;
   onDevicesChange?: t.MediaDevicesHandler;
 };

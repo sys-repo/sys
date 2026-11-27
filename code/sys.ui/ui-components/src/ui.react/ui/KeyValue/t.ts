@@ -59,7 +59,7 @@ export declare namespace KeyValue {
       readonly href?: Link.Href;
 
       /** Row-level `user-select` overrides. */
-      userSelect?: t.CssProps['userSelect'];
+      userSelect?: t.Style.Props['userSelect'];
     };
 
     /** A section title. */
@@ -567,7 +567,7 @@ export declare namespace KeyValue {
 
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 
   /** Component props for a single row within the <KeyValue> component. */
@@ -581,7 +581,7 @@ export declare namespace KeyValue {
     size?: Size;
     debug?: boolean;
     theme?: t.CommonTheme;
-    style?: t.CssInput;
+    style?: t.Style.Input;
   };
 
   /** Controlled reorder affordance. */

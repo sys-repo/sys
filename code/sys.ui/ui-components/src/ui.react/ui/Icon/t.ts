@@ -35,7 +35,7 @@ export type IconProps = {
   flipX?: boolean;
   flipY?: boolean;
   margin?: t.CssEdges.Margin.Input;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onClick?: MouseHandler;
   onDoubleClick?: MouseHandler;
   onMouseDown?: MouseHandler;

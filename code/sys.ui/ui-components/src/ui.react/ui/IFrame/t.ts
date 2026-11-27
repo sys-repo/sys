@@ -20,7 +20,7 @@ export type IFrameProps = {
   loading?: t.IFrameLoading;
   //
   silent?: boolean;
-  style?: t.CssInput;
+  style?: t.Style.Input;
   onReady?: IFrameReadyHandler;
   onLoad?: IFrameLoadedEventHandler;
 };
