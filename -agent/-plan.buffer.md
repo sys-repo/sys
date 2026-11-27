@@ -7,8 +7,8 @@ Give an honest verdict and prioritized, concrete findings. Review only; no edits
 
 @sys.cli
 keyboard-delivery.plan.md
-- [ ] test(cli): pin buffered keyboard delivery without a wake-up key
-- [ ] fix(driver-vite): use managed keyboard input for dev shortcuts
+- [x] 93637936e test(cli): pin buffered keyboard delivery without a wake-up key
+- [x] dbdad01e7 fix(driver-vite): use managed keyboard input for dev shortcuts
 
 @sys.ui-components
 event-view.plan.md
