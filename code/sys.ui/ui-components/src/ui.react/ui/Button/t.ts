@@ -26,6 +26,9 @@ export declare namespace Button {
     active?: boolean;
     /** Caller-owned toggle state; omitted for actions, independent of physical press styling. */
     'aria-pressed'?: boolean;
+    /** Disclosure state and its associated panel, when used as a disclosure control. */
+    'aria-expanded'?: boolean;
+    'aria-controls'?: string;
     block?: boolean;
     isOver?: boolean; // force the button into an "is-over" state.
     isDown?: boolean; // force the button into an "is-down" state.
