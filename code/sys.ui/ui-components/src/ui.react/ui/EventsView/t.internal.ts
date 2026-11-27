@@ -3,7 +3,7 @@ import type { t } from './common.ts';
 export type * from '../common.t.ts';
 
 /** Shared by the label and count that control the same history panel. */
-export type Disclosure = {
+export type Panel = {
   readonly expanded: boolean;
   readonly controls: string;
   readonly onToggle: () => void;

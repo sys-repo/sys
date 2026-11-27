@@ -10,9 +10,16 @@ export default Spec.describe(D.displayName, async (e) => {
 
   function Root() {
     const v = Signal.toObject(p);
+    const onToggle = (next: boolean) => {
+      p.expanded.value = next;
+    };
+    const disclosure = v.disclosureOwner === 'host'
+      ? { expanded: v.expanded, onToggle }
+      : undefined;
     return (
       <EventsView.UI
         items={samples[v.sample].items}
+        disclosure={disclosure}
         tail={v.tail}
         renderItem={v.showMessage ? (event) => event.message : undefined}
         labels={v.customLabels ? { latest: 'Last seen', events: 'History' } : undefined}

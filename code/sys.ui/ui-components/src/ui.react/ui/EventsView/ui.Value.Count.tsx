@@ -4,19 +4,19 @@ import { newest } from './u.ts';
 import { Items } from './ui.Value.Items.tsx';
 
 type Props<E extends t.EventWithKind> = t.ItemsProps<E> & {
-  readonly disclosure: t.Disclosure;
+  readonly panel?: t.Panel;
   readonly shown: number;
   readonly theme?: t.CommonTheme;
 };
 
 export function Count<E extends t.EventWithKind>(props: Props<E>) {
-  const { items, shown, renderItem, theme, disclosure } = props;
-  const { expanded: open, controls, onToggle } = disclosure;
+  const { items, shown, renderItem, theme, panel } = props;
   const total = items.length;
   const count = Num.toString(total);
-  if (shown === 0) return count;
-
-  const caption = open && shown < total ? `${Num.toString(shown)} of ${count}` : count;
+  const text = panel?.expanded && shown < total ? `${Num.toString(shown)} of ${count}` : count;
+  const caption = <span style={{ fontFamily: 'sans-serif' }}>{text}</span>;
+  if (!panel) return caption;
+  const { expanded: open, controls, onToggle } = panel;
   return (
     <>
       <Button
@@ -24,7 +24,8 @@ export function Count<E extends t.EventWithKind>(props: Props<E>) {
         tone='accent'
         theme={theme}
         tooltip='Show or hide supplied events'
-        aria-pressed={open}
+        aria-expanded={open}
+        aria-controls={controls}
         onClick={onToggle}
       />
       <div id={controls} hidden={!open}>

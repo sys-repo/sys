@@ -29,6 +29,8 @@ export async function createDebugSignals() {
     tail: s<number | undefined>(defaultTail),
     showMessage: s(false),
     customLabels: s(false),
+    disclosureOwner: s<'component' | 'host'>('component'),
+    expanded: s(false),
     mono: s(false),
   };
   const p = props;
@@ -55,6 +57,8 @@ export async function createDebugSignals() {
       p.tail.value = defaultTail;
       p.showMessage.value = false;
       p.customLabels.value = false;
+      p.disclosureOwner.value = 'component';
+      p.expanded.value = false;
       p.mono.value = false;
     });
   }
@@ -108,7 +112,7 @@ export const Debug: React.FC<DebugProps> = (props) => {
       <Dev.Button
         block
         label={() => `tail: ${v.tail ?? 'all'}`}
-        onClick={() => Signal.cycle(p.tail, [undefined, 1, 2, 5])}
+        onClick={() => Signal.cycle(p.tail, [undefined, 0, 1, 2, 5])}
       />
       <Dev.Button
         block
@@ -138,6 +142,20 @@ export const Debug: React.FC<DebugProps> = (props) => {
 
       <hr />
       <div className={Styles.title.class}>Debug</div>
+      <Dev.Button
+        block
+        label={v.disclosureOwner === 'host'
+          ? 'disclosure owner: host (dev-harness)'
+          : 'disclosure owner: component (useState)'}
+        onClick={() => Signal.cycle(p.disclosureOwner, ['component', 'host'])}
+      />
+      {v.disclosureOwner === 'host' && (
+        <Dev.Button
+          block
+          label={`host expanded: ${v.expanded}`}
+          onClick={() => Signal.toggle(p.expanded)}
+        />
+      )}
       <Dev.Button block label={() => `debug: ${v.debug}`} onClick={() => Signal.toggle(p.debug)} />
       <Dev.Button block label={() => `(reset)`} onClick={debug.reset} />
       <Dev.ObjectView name='debug' data={v} expand={0} style={{ marginTop: 20 }} />

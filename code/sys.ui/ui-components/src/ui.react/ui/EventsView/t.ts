@@ -19,7 +19,7 @@ export declare namespace EventsView {
      * rather than made into a disclosure control. The count still toggles when history is available.
      */
     readonly labels?: { readonly latest?: t.ReactNode; readonly events?: t.ReactNode };
-    /** Use monospace for frame values; labels remain sans. Defaults to false. */
+    /** Use monospace for event values only; labels and counts remain sans-serif. Defaults to false. */
     readonly mono?: boolean;
     readonly debug?: boolean;
   };
@@ -28,6 +28,8 @@ export declare namespace EventsView {
   export type ValueProps<E extends t.EventWithKind = t.EventWithKind> = {
     /** Supply occurrences oldest first; repeats are distinct. History is displayed newest first. */
     readonly items: readonly E[];
+    /** Host-owned count disclosure. Omit for local state, initially closed. */
+    readonly disclosure?: Disclosure;
     /** Presentation mode; defaults to `count`. */
     readonly mode?: Mode;
     /**
@@ -40,6 +42,12 @@ export declare namespace EventsView {
     readonly renderItem?: (event: E) => t.ReactNode;
     readonly theme?: t.CommonTheme;
     readonly style?: t.Style.Input;
+  };
+
+  /** The viewer requests a change on activation; rendering never changes the host's value. */
+  export type Disclosure = {
+    readonly expanded: boolean;
+    readonly onToggle: (next: boolean) => void;
   };
 
   /** `count` shows the supplied count and reveals history on demand; `list` shows history directly. */

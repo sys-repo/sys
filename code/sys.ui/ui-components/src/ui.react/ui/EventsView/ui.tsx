@@ -3,17 +3,16 @@ import { D, type t } from './common.ts';
 import { EventsLabel } from './ui.Label.Events.tsx';
 import { ValueContent } from './ui.Value.Content.tsx';
 import { EmptyValue } from './ui.Value.Empty.tsx';
-import { Value } from './ui.Value.tsx';
 import { useDisclosure } from './use.Disclosure.ts';
 
 export function EventsView<E extends t.EventWithKind>(props: t.EventsView.Props<E>) {
-  const { items, mode = D.mode, mono, debug, theme, style } = props;
-  const disclosure = useDisclosure(mode === 'count' && items.length > 0);
+  const { items, mono, debug, theme, style } = props;
+  const panel = useDisclosure(props);
   return (
     <KeyValue.UI
-      items={toRows(props, disclosure)}
+      items={toRows(props, panel)}
       layout={{ kind: 'table' }}
-      mono={mono}
+      mono={mono && items.length > 0}
       debug={debug}
       theme={theme}
       style={style}
@@ -23,7 +22,7 @@ export function EventsView<E extends t.EventWithKind>(props: t.EventsView.Props<
 
 function toRows<E extends t.EventWithKind>(
   props: t.EventsView.Props<E>,
-  disclosure: t.Disclosure,
+  panel?: t.Panel,
 ): t.KeyValue.Item.Row[] {
   const { items, renderItem, labels, theme, mode = D.mode, tail } = props;
   const latest = items.at(-1);
@@ -34,19 +33,12 @@ function toRows<E extends t.EventWithKind>(
       v: !latest
         ? <EmptyValue />
         : renderItem
-        ? <Value items={[latest]} mode='list' renderItem={renderItem} />
+        ? <ValueContent items={[latest]} mode='list' renderItem={renderItem} />
         : latest.kind,
     },
     {
-      k: labels?.events ?? (
-        <EventsLabel
-          count={items.length}
-          tail={tail}
-          theme={theme}
-          toggle={mode === 'count' ? disclosure : undefined}
-        />
-      ),
-      v: <ValueContent {...{ items, mode, tail, renderItem, theme, disclosure }} />,
+      k: labels?.events ?? <EventsLabel theme={theme} panel={panel} />,
+      v: <ValueContent {...{ items, mode, tail, renderItem, theme, panel }} />,
     },
   ];
 }
