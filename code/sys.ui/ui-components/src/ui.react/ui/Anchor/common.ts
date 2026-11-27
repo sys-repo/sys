@@ -1,7 +1,6 @@
 import { Pkg, pkg, type t } from '../common.ts';
 
 export * from '../common.ts';
-export { FocusStyle } from '../../../m.style/m.FocusStyle/mod.ts';
 
 type P = t.Anchor.Props;
 

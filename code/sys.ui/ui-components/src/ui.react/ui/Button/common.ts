@@ -1,6 +1,5 @@
 import { Pkg, pkg } from '../common.ts';
 export * from '../common.ts';
-export { FocusStyle } from '../../../m.style/m.FocusStyle/mod.ts';
 
 /**
  * Constants:
